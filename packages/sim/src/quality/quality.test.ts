@@ -64,7 +64,7 @@ function ada(): Game {
 const huntTeacher = { activity: "activity.job-hunt" as const, param: "activity.job-teacher" };
 
 /**
- * R-ACTIVITY-015: the hunt changes no quality and is an act done at once that fills no slot. A month with no
+ * activity:now-acts-and-month-acts: the hunt changes no quality and is an act done at once that fills no slot. A month with no
  * wellbeing activity is three empty slots, which rest; under this content
  * the rest is worth nothing.
  */
@@ -75,7 +75,7 @@ function adaRestless(): Game {
 }
 
 describe("ranges", () => {
-  test("[R-QUALITY-001] given a quality near the top, when a gain would pass the top, then it stops at the top", () => {
+  test("[quality:qualities-stay-in-range] given a quality near the top, when a gain would pass the top, then it stops at the top", () => {
     const game = ada();
     const entry = content.quality["quality.network"]!;
     const before = game.state.quality["quality.network"]!;
@@ -86,7 +86,7 @@ describe("ranges", () => {
     ]);
   });
 
-  test("[R-QUALITY-001] given a quality near the bottom, when a loss would pass the bottom, then it stops at the bottom", () => {
+  test("[quality:qualities-stay-in-range] given a quality near the bottom, when a loss would pass the bottom, then it stops at the bottom", () => {
     const game = ada();
     const entry = content.quality["quality.wellbeing"]!;
     const before = game.state.quality["quality.wellbeing"]!;
@@ -97,7 +97,7 @@ describe("ranges", () => {
     ]);
   });
 
-  test("[R-QUALITY-001] given a quality with a small range, when it is pushed past both ends, then it stops at each end", () => {
+  test("[quality:qualities-stay-in-range] given a quality with a small range, when it is pushed past both ends, then it stops at each end", () => {
     const game = ada();
     const entry = content.quality["quality.edu-grade"]!;
     applyEffects(game, [add("quality.edu-grade", 9)]);
@@ -111,7 +111,7 @@ describe("ranges", () => {
   test.prop([fc.array(fc.record({ quality: fc.constantFrom(...changeable), amount: fc.integer({ min: -300, max: 300 }) }), { maxLength: 40 })], {
     numRuns: 50,
   })(
-    "[R-QUALITY-001] [R-QUALITY-002] given any sequence of quality/add effects, when carried out, then every quality stays in range and the events add up to the change",
+    "[quality:qualities-stay-in-range] [quality:changes-are-named-events] given any sequence of quality/add effects, when carried out, then every quality stays in range and the events add up to the change",
     (adds) => {
       const game = ada();
       const before = { ...game.state.quality };
@@ -131,18 +131,18 @@ describe("ranges", () => {
 });
 
 describe("changes are events", () => {
-  test("[R-QUALITY-002] given a gain, when it is carried out, then one event names the quality, the amount applied and the source", () => {
+  test("[quality:changes-are-named-events] given a gain, when it is carried out, then one event names the quality, the amount applied and the source", () => {
     const game = ada();
     const result = applyEffects(game, [add("quality.tech", 4)], "offer.recruiter-message.do-it");
     expect(changes(result)).toEqual([{ type: "quality/changed", quality: "quality.tech", amount: 4, source: "offer.recruiter-message.do-it" }]);
   });
 
-  test("[R-QUALITY-002] given a change of zero, when it is carried out, then no event is recorded", () => {
+  test("[quality:changes-are-named-events] given a change of zero, when it is carried out, then no event is recorded", () => {
     const game = ada();
     expect(changes(applyEffects(game, [add("quality.tech", 0)]))).toEqual([]);
   });
 
-  test("[R-QUALITY-002] given a quality at the top, when a gain is carried out, then nothing applies and no event is recorded", () => {
+  test("[quality:changes-are-named-events] given a quality at the top, when a gain is carried out, then nothing applies and no event is recorded", () => {
     const game = ada();
     applyEffects(game, [add("quality.standing", 500)]);
     const result = applyEffects(game, [add("quality.standing", 3)]);
@@ -152,7 +152,7 @@ describe("changes are events", () => {
 });
 
 describe("age", () => {
-  test("[R-QUALITY-003] given a character, when three months are played, then age goes up by exactly three", () => {
+  test("[quality:age-moves-monthly] given a character, when three months are played, then age goes up by exactly three", () => {
     const game = ada();
     const before = game.state.quality["quality.age-months"]!;
     game.endTurn();
@@ -161,7 +161,7 @@ describe("age", () => {
     expect(game.state.quality["quality.age-months"]).toBe(before + 3);
   });
 
-  test("[R-QUALITY-003] given an effect that adds to age, when it is carried out, then age does not change", () => {
+  test("[quality:age-moves-monthly] given an effect that adds to age, when it is carried out, then age does not change", () => {
     const game = ada();
     const before = game.state.quality["quality.age-months"]!;
     const result = applyEffects(game, [add("quality.age-months", 12), add("quality.age-months", -12)]);
@@ -169,7 +169,7 @@ describe("age", () => {
     expect(game.state.quality["quality.age-months"]).toBe(before);
   });
 
-  test("[R-QUALITY-003] given a turn, when it resolves, then age moves in the month phase with the same event shape as any change", () => {
+  test("[quality:age-moves-monthly] given a turn, when it resolves, then age moves in the month phase with the same event shape as any change", () => {
     const game = ada();
     const result = game.endTurn([huntTeacher, huntTeacher, huntTeacher]);
     expect(changes(result)).toContainEqual({ type: "quality/changed", quality: "quality.age-months", amount: 1, source: "month" });
@@ -189,7 +189,7 @@ describe("wellbeing drift", () => {
     ["far above", to + 20, to + 20 - step],
   ];
 
-  test.each(cases)("[R-QUALITY-004] given wellbeing %s the target, when a month passes with no wellbeing activity, then it moves toward the target and stops there", (_name, start, after) => {
+  test.each(cases)("[quality:wellbeing-drifts-to-baseline] given wellbeing %s the target, when a month passes with no wellbeing activity, then it moves toward the target and stops there", (_name, start, after) => {
     const game = adaRestless();
     applyEffects(game, [add("quality.wellbeing", start - game.state.quality["quality.wellbeing"]!)]);
     expect(game.state.quality["quality.wellbeing"]).toBe(start);
@@ -199,7 +199,7 @@ describe("wellbeing drift", () => {
     expect(drift).toEqual(after === start ? [] : [{ type: "quality/changed", quality: "quality.wellbeing", amount: after - start, source: "month" }]);
   });
 
-  test("[R-QUALITY-004] given the content, when the drift is read, then it is 2 toward 60", () => {
+  test("[quality:wellbeing-drifts-to-baseline] given the content, when the drift is read, then it is 2 toward 60", () => {
     expect([to, step]).toEqual([60, 2]);
   });
 });
@@ -210,14 +210,14 @@ describe("the soft cap on skills", () => {
     expect(game.state.quality["quality.tech"]).toBe(value);
   }
 
-  test("[R-QUALITY-005] given a skill one under the soft cap, when it gains, then the gain is whole", () => {
+  test("[quality:high-skills-gain-slower] given a skill one under the soft cap, when it gains, then the gain is whole", () => {
     const game = ada();
     setTech(game, tuning.skillSoftAt - 1);
     applyEffects(game, [add("quality.tech", 4)]);
     expect(game.state.quality["quality.tech"]).toBe(tuning.skillSoftAt + 3);
   });
 
-  test("[R-QUALITY-005] given a skill exactly at the soft cap, when it gains 4, then it gains 2", () => {
+  test("[quality:high-skills-gain-slower] given a skill exactly at the soft cap, when it gains 4, then it gains 2", () => {
     const game = ada();
     setTech(game, tuning.skillSoftAt);
     const result = applyEffects(game, [add("quality.tech", 4)]);
@@ -225,7 +225,7 @@ describe("the soft cap on skills", () => {
     expect(changes(result)).toEqual([{ type: "quality/changed", quality: "quality.tech", amount: 2, source: "offer.test.yes" }]);
   });
 
-  test("[R-QUALITY-005] given a skill above the soft cap, when it gains an odd amount, then the half is rounded up", () => {
+  test("[quality:high-skills-gain-slower] given a skill above the soft cap, when it gains an odd amount, then the half is rounded up", () => {
     const game = ada();
     setTech(game, tuning.skillSoftAt + 5);
     applyEffects(game, [add("quality.tech", 3)]);
@@ -234,14 +234,14 @@ describe("the soft cap on skills", () => {
     expect(game.state.quality["quality.tech"]).toBe(tuning.skillSoftAt + 8);
   });
 
-  test("[R-QUALITY-005] given a skill above the soft cap, when it loses, then the loss is never halved", () => {
+  test("[quality:high-skills-gain-slower] given a skill above the soft cap, when it loses, then the loss is never halved", () => {
     const game = ada();
     setTech(game, tuning.skillSoftAt + 5);
     applyEffects(game, [add("quality.tech", -4)]);
     expect(game.state.quality["quality.tech"]).toBe(tuning.skillSoftAt + 1);
   });
 
-  test("[R-QUALITY-005] given a quality outside the skills group above the soft cap, when it gains, then the gain is whole", () => {
+  test("[quality:high-skills-gain-slower] given a quality outside the skills group above the soft cap, when it gains, then the gain is whole", () => {
     const game = ada();
     expect(content.quality["quality.network"]!.group).not.toBe("skills");
     applyEffects(game, [add("quality.network", tuning.skillSoftAt + 10 - game.state.quality["quality.network"]!)]);
@@ -249,7 +249,7 @@ describe("the soft cap on skills", () => {
     expect(game.state.quality["quality.network"]).toBe(tuning.skillSoftAt + 14);
   });
 
-  test("[R-QUALITY-005] given a skill near its top above the soft cap, when it gains, then it is halved first and then stops at the top", () => {
+  test("[quality:high-skills-gain-slower] given a skill near its top above the soft cap, when it gains, then it is halved first and then stops at the top", () => {
     const game = ada();
     setTech(game, 99);
     const result = applyEffects(game, [add("quality.tech", 6)]);
@@ -257,13 +257,13 @@ describe("the soft cap on skills", () => {
     expect(changes(result)).toEqual([{ type: "quality/changed", quality: "quality.tech", amount: 1, source: "offer.test.yes" }]);
   });
 
-  test("[R-QUALITY-005] given the content, when the soft cap is read, then it is 70", () => {
+  test("[quality:high-skills-gain-slower] given the content, when the soft cap is read, then it is 70", () => {
     expect(tuning.skillSoftAt).toBe(70);
   });
 });
 
 describe("report lines", () => {
-  test("[R-QUALITY-006] given a gain to a quality that counts toward a route, when it is reported, then the line carries the route", () => {
+  test("[quality:gains-name-their-routes] given a gain to a quality that counts toward a route, when it is reported, then the line carries the route", () => {
     const game = ada();
     const result = applyEffects(game, [add("quality.english", 6)]);
     expect(content.quality["quality.english"]!.counts).toEqual([UK_ROUTE]);
@@ -278,13 +278,13 @@ describe("report lines", () => {
     ]);
   });
 
-  test("[R-QUALITY-006] given a gain to a quality that counts toward nothing, when it is reported, then the line carries no route", () => {
+  test("[quality:gains-name-their-routes] given a gain to a quality that counts toward nothing, when it is reported, then the line carries no route", () => {
     const game = ada();
     const result = applyEffects(game, [add("quality.tech", 2)]);
     expect(result.lines).toMatchObject([{ key: "line.quality.gain", tone: "good", counts: [] }]);
   });
 
-  test("[R-QUALITY-006] given a loss to a quality that counts toward a route, when it is reported, then the line is bad and carries no route", () => {
+  test("[quality:gains-name-their-routes] given a loss to a quality that counts toward a route, when it is reported, then the line is bad and carries no route", () => {
     const game = ada();
     const result = applyEffects(game, [add("quality.english", -6)]);
     expect(result.lines).toEqual([
@@ -298,7 +298,7 @@ describe("report lines", () => {
     ]);
   });
 
-  test("[R-QUALITY-006] given standing and wellbeing changes, when they are reported, then each has a line", () => {
+  test("[quality:gains-name-their-routes] given standing and wellbeing changes, when they are reported, then each has a line", () => {
     const game = ada();
     const result = applyEffects(game, [add("quality.standing", -4), add("quality.wellbeing", 3)]);
     expect(result.lines.map((line) => [line.key, line.params.quality, line.tone])).toEqual([
@@ -307,7 +307,7 @@ describe("report lines", () => {
     ]);
   });
 
-  test("[R-QUALITY-006] given a job's monthly loss, when it is reported, then it is one quiet line", () => {
+  test("[quality:gains-name-their-routes] given a job's monthly loss, when it is reported, then it is one quiet line", () => {
     const game = start({ content, scenario: "scenario.tunde" });
     const result = game.endTurn([]);
     const worn = result.lines.filter((line) => line.key === "line.quality.worn");
@@ -316,7 +316,7 @@ describe("report lines", () => {
     ]);
   });
 
-  test("[R-QUALITY-006] [R-QUALITY-004] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
+  test("[quality:gains-name-their-routes] [quality:wellbeing-drifts-to-baseline] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
     const wellbeing = content.quality["quality.wellbeing"]!;
     const counted: Content = { ...restless, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK_ROUTE] } } };
     const game = start({ content: counted, scenario: "scenario.ada" });
@@ -328,7 +328,7 @@ describe("report lines", () => {
     ]);
   });
 
-  test("[R-QUALITY-003] [R-QUALITY-004] given a month, when it is reported, then age has no line and the drift is a plain line", () => {
+  test("[quality:age-moves-monthly] [quality:wellbeing-drifts-to-baseline] given a month, when it is reported, then age has no line and the drift is a plain line", () => {
     const game = adaRestless();
     const result = game.endTurn();
     const quality = result.lines.filter((line) => line.key.startsWith("line.quality."));
@@ -337,7 +337,7 @@ describe("report lines", () => {
     ]);
   });
 
-  test("[R-TEXT-005] [R-QUALITY-002] given a month at the meetup, when its moves are reported, then each line carries the act that caused it, so the words can say what the act did", () => {
+  test("[text:bands-not-figures] [quality:changes-are-named-events] given a month at the meetup, when its moves are reported, then each line carries the act that caused it, so the words can say what the act did", () => {
     const game = start({ content, scenario: "scenario.zainab" });
     const result = game.endTurn([{ activity: "activity.meetup", param: null }]);
     const moves = result.lines.filter((line) => line.key.startsWith("line.quality.") && line.params.source === "activity.meetup");
@@ -346,7 +346,7 @@ describe("report lines", () => {
     expect(result.lines.filter((line) => ["line.quality.gain", "line.quality.loss", "line.quality.worn", "line.quality.drift"].includes(line.key)).every((line) => typeof line.params.source === "string")).toBe(true);
   });
 
-  test("[R-QUALITY-002] given a hidden quality, when it changes, then the event is recorded and no line shows it", () => {
+  test("[quality:changes-are-named-events] given a hidden quality, when it changes, then the event is recorded and no line shows it", () => {
     const game = start({ content: miniContent, scenario: "scenario.plain" });
     const result = applyEffects(game, [add("quality.hidden", 2)]);
     expect(changes(result)).toHaveLength(1);
@@ -355,14 +355,14 @@ describe("report lines", () => {
 });
 
 describe("requirements", () => {
-  test("[R-QUALITY-001] given a quality, when quality/min is judged, then it is met at the value and above, with have and need", () => {
+  test("[quality:qualities-stay-in-range] given a quality, when quality/min is judged, then it is met at the value and above, with have and need", () => {
     const game = ada();
     const tech = game.state.quality["quality.tech"]!;
     expect(check(read(game), { type: "quality/min", quality: "quality.tech", value: tech })).toEqual({ met: true, have: tech, need: tech });
     expect(check(read(game), { type: "quality/min", quality: "quality.tech", value: tech + 1 })).toEqual({ met: false, have: tech, need: tech + 1 });
   });
 
-  test("[R-QUALITY-001] given a quality, when quality/max is judged, then it is met at the value and below, with have and need", () => {
+  test("[quality:qualities-stay-in-range] given a quality, when quality/max is judged, then it is met at the value and below, with have and need", () => {
     const game = ada();
     const stake = game.state.quality["quality.family-stake"]!;
     expect(check(read(game), { type: "quality/max", quality: "quality.family-stake", value: stake })).toEqual({ met: true, have: stake, need: stake });
@@ -377,13 +377,13 @@ describe("invariants", () => {
     return qualityKind.invariants?.(change(game.state), using) ?? [];
   }
 
-  test("[R-QUALITY-001] given a state from play, when the invariants are checked, then nothing is wrong", () => {
+  test("[quality:qualities-stay-in-range] given a state from play, when the invariants are checked, then nothing is wrong", () => {
     const game = ada();
     for (let i = 0; i < 6; i += 1) game.endTurn();
     expect(qualityKind.invariants?.(game.state, content)).toEqual([]);
   });
 
-  test("[R-QUALITY-001] given a quality out of range, a missing one or an extra one, when the invariants are checked, then each is named", () => {
+  test("[quality:qualities-stay-in-range] given a quality out of range, a missing one or an extra one, when the invariants are checked, then each is named", () => {
     expect(broken((state) => ({ ...state, quality: { ...state.quality, "quality.tech": 101 } }))).toHaveLength(1);
     expect(broken((state) => {
       const quality = { ...state.quality };

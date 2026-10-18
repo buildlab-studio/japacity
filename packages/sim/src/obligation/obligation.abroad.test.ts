@@ -31,11 +31,11 @@ function hasCar(game: Game): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Rent and the phone: R-ABROAD-003, 004
+// Rent and the phone: abroad-money:arrival-opens-upkeep-and-room, abroad-money:phone-contract-builds-credit
 // ---------------------------------------------------------------------------
 
 describe("rent", () => {
-  test("[R-ABROAD-003] given a life arriving in the UK, when it lands, then the country's upkeep and a shared room open in pounds, and the room needs no credit", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a life arriving in the UK, when it lands, then the country's upkeep and a shared room open in pounds, and the room needs no credit", () => {
     const game = abroad(content);
     expect(owedOf(game, UK_UPKEEP)).toMatchObject({ amount: entryOf(UK_UPKEEP).amount, state: "active" });
     expect(owedOf(game, RENT_ROOM)).toMatchObject({ amount: entryOf(RENT_ROOM).amount, state: "active" });
@@ -44,7 +44,7 @@ describe("rent", () => {
     expect(markOf(game)).toBe(0);
   });
 
-  test("[R-ABROAD-003] given a flat in your own name, when rent is missed twice, then each miss costs standing and wellbeing; the third evicts back to a room with the default figure on the file", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a flat in your own name, when rent is missed twice, then each miss costs standing and wellbeing; the third evicts back to a room with the default figure on the file", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
     markBy(game, 60);
@@ -74,7 +74,7 @@ describe("rent", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-ABROAD-003] [R-GOAL-004] given a flat in your own name, when obligation/has names an entry, then only that entry counts, and the flat is not offered again while it is held", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] [goal:goals-need-the-real-deed] given a flat in your own name, when obligation/has names an entry, then only that entry counts, and the flat is not offered again while it is held", () => {
     const game = settledAbroad(content);
     markBy(game, 60);
     const flatOffered = (): boolean => game.view().activities.some((option) => option.id === "activity.rent-flat-uk" && option.allowed);
@@ -90,7 +90,7 @@ describe("rent", () => {
     expect(flatOffered()).toBe(false);
   });
 
-  test("[R-ABROAD-003] given a shared room, when rent is missed three times in a row, then it has nowhere cheaper to go: it stays open, starts over, and the file takes the default figure", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a shared room, when rent is missed three times in a row, then it has nowhere cheaper to go: it stays open, starts over, and the file takes the default figure", () => {
     const game = settledAbroad(content);
     closeTypes(game, "upkeep");
     markBy(game, 60);
@@ -103,7 +103,7 @@ describe("rent", () => {
     expect(keysOf(third.lines, "line.obligation.")).toEqual(["line.obligation.missed", "line.obligation.rent-default"]);
   });
 
-  test("[R-ABROAD-003] given rent missed twice, when the next month is paid, then the misses start over and no eviction follows", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given rent missed twice, when the next month is paid, then the misses start over and no eviction follows", () => {
     const game = settledAbroad(content);
     closeTypes(game, "upkeep");
     setPockets(game, { GBP: 0 });
@@ -120,7 +120,7 @@ describe("rent", () => {
   const depositOf = (result: { events: BaseEvent[] }) =>
     eventsOf(result, "wallet/credited").filter((event) => event.reason === "deposit-return").map((event) => [event.currency, event.pocket, event.amount]);
 
-  test("[R-ABROAD-003] given a flat taken with one month's rent as its deposit, when the character goes home, then the deposit comes back to the pound bank as deposit-return", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a flat taken with one month's rent as its deposit, when the character goes home, then the deposit comes back to the pound bank as deposit-return", () => {
     const game = settledAbroad(content);
     markBy(game, 60);
     setPockets(game, { GBP: 1000000 });
@@ -131,13 +131,13 @@ describe("rent", () => {
     expect(depositOf(home)).toEqual([["GBP", "bank", entryOf(RENT_FLAT).amount]]);
   });
 
-  test("[R-ABROAD-003] given a shared room with no deposit, when the character goes home, then nothing comes back", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a shared room with no deposit, when the character goes home, then nothing comes back", () => {
     const game = settledAbroad(content);
     expect(isOpen(game, RENT_ROOM)).toBe(true);
     expect(depositOf(game.accept({ type: "return/home" }))).toEqual([]);
   });
 
-  test("[R-ABROAD-003] given a flat taken with its deposit, when it is lost to the third missed rent, then the eviction returns no deposit", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a flat taken with its deposit, when it is lost to the third missed rent, then the eviction returns no deposit", () => {
     const game = settledAbroad(content);
     markBy(game, 60);
     setPockets(game, { GBP: 1000000 });
@@ -152,7 +152,7 @@ describe("rent", () => {
 });
 
 describe("the phone", () => {
-  test("[R-ABROAD-004] given a phone contract, when it is paid on time, then it adds to the file each month and keeps running after its 24 months", () => {
+  test("[abroad-money:phone-contract-builds-credit] given a phone contract, when it is paid on time, then it adds to the file each month and keeps running after its 24 months", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
     const phone = openOwed(game, UK_PHONE);
@@ -163,7 +163,7 @@ describe("the phone", () => {
     expect(game.view().credit?.onTime).toBe(25);
   });
 
-  test("[R-ABROAD-004] given a phone contract open, when the free slots are read, then a second contract is not offered and a month that asks for one is rejected; once it ends, it is offered again", () => {
+  test("[abroad-money:phone-contract-builds-credit] given a phone contract open, when the free slots are read, then a second contract is not offered and a month that asks for one is rejected; once it ends, it is offered again", () => {
     const game = settledAbroad(content);
     markBy(game, 60);
     const contract = "activity.phone-contract-uk" as Id<"activity">;
@@ -177,7 +177,7 @@ describe("the phone", () => {
     expect(offered()?.allowed).toBe(true);
   });
 
-  test("[R-ABROAD-004] given a phone contract, when three months are missed in a row, then the contract ends and the file takes the default figure", () => {
+  test("[abroad-money:phone-contract-builds-credit] given a phone contract, when three months are missed in a row, then the contract ends and the file takes the default figure", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
     markBy(game, 60);
@@ -193,7 +193,7 @@ describe("the phone", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Tuition: R-ABROAD-005
+// Tuition: abroad-money:tuition-paid-in-instalments
 // ---------------------------------------------------------------------------
 
 describe("tuition", () => {
@@ -201,12 +201,12 @@ describe("tuition", () => {
 
   function student(): { game: Game; tuition: ObligationState } {
     const game = abroad(content);
-    // The study gate opened the real tuition on departure (R-ABROAD-005); these tests pin a round figure instead.
+    // The study gate opened the real tuition on departure (abroad-money:tuition-paid-in-instalments); these tests pin a round figure instead.
     closeTypes(game, "rent", "upkeep", "tuition");
     return { game, tuition: openOwed(game, TUITION, PRINCIPAL) };
   }
 
-  test("[R-ABROAD-005] given tuition in three instalments, when the course runs, then a third is charged in months 1, 4 and 7 and nothing between, and it closes paid", () => {
+  test("[abroad-money:tuition-paid-in-instalments] given tuition in three instalments, when the course runs, then a third is charged in months 1, 4 and 7 and nothing between, and it closes paid", () => {
     const { game, tuition } = student();
     const part = divCeil(PRINCIPAL, entryOf(TUITION).term!);
     const charged: number[] = [];
@@ -221,7 +221,7 @@ describe("tuition", () => {
     expect(game.state.wallet.totals.out["fee-school"]?.GBP).toBeGreaterThanOrEqual(PRINCIPAL);
   });
 
-  test("[R-ABROAD-005] given an instalment missed, when the next month pays it, then the student stays and the next instalment falls three months after the first", () => {
+  test("[abroad-money:tuition-paid-in-instalments] given an instalment missed, when the next month pays it, then the student stays and the next instalment falls three months after the first", () => {
     const { game, tuition } = student();
     const pounds = game.state.wallet.pockets.GBP.bank;
     setPockets(game, { GBP: 0 });
@@ -237,7 +237,7 @@ describe("tuition", () => {
     expect(eventsOf(fourth, "obligation/charged").filter((event) => event.id === tuition.id)).toHaveLength(1);
   });
 
-  test("[R-ABROAD-005] given an instalment missed twice, when the grace of one month is passed, then the tuition defaults and the student is withdrawn: the status lapses at once", () => {
+  test("[abroad-money:tuition-paid-in-instalments] given an instalment missed twice, when the grace of one month is passed, then the tuition defaults and the student is withdrawn: the status lapses at once", () => {
     const { game } = student();
     setPockets(game, { GBP: 0 });
     nextMonth(game);
@@ -255,12 +255,12 @@ describe("tuition", () => {
 });
 
 // ---------------------------------------------------------------------------
-// The car: R-CAR-001 to 005, 007
+// The car: car:car-bought-on-finance, car:open-finance-gives-the-car, car:missed-payments-take-the-car, car:car-handed-back-after-half, car:final-payment-owns-the-car, car:view-shows-car-terms
 // ---------------------------------------------------------------------------
 
 const CAR_ENTRY = entryOf(CAR);
 const TERMS = carTerms(CAR_ENTRY);
-/** What the activity opens: the price less the 10% deposit (R-CAR-001). */
+/** What the activity opens: the price less the 10% deposit (car:car-bought-on-finance). */
 const CAR_PRINCIPAL = TERMS.price - bp(TERMS.price, CAR_ENTRY.car!.depositBp);
 /** The part of the price paid each month, the final payment left aside. */
 const MONTHLY = divCeil(CAR_PRINCIPAL - TERMS.final, CAR_ENTRY.term!);
@@ -277,7 +277,7 @@ function carAfter(payments: number, mark = 30): { game: Game; car: ObligationSta
 }
 
 describe("the car", () => {
-  test("[R-CAR-001] [R-CREDIT-005] given marks of 30, 50 and 70, when the car is opened, then the price less the deposit is owed over 36 months with the ladder's rate fixed as its monthly interest", () => {
+  test("[car:car-bought-on-finance] [credit:rate-follows-credit-ladder] given marks of 30, 50 and 70, when the car is opened, then the price less the deposit is owed over 36 months with the ladder's rate fixed as its monthly interest", () => {
     expect(CAR_PRINCIPAL).toBe(855000);
     for (const [mark, rate] of [
       [30, 120],
@@ -292,7 +292,7 @@ describe("the car", () => {
     }
   });
 
-  test("[R-CAR-002] given a car on finance, when it is open, then obligation/has car holds; it goes when the car is taken", () => {
+  test("[car:open-finance-gives-the-car] given a car on finance, when it is open, then obligation/has car holds; it goes when the car is taken", () => {
     const { game } = carAfter(2);
     expect(hasCar(game)).toBe(true);
     setPockets(game, { GBP: 0 });
@@ -301,7 +301,7 @@ describe("the car", () => {
     expect(hasCar(game)).toBe(false);
   });
 
-  test("[R-CAR-003] given 13 payments made, under a third of the price, when the third miss in a row comes, then the car is taken at once and the shortfall is owed with a judgment", () => {
+  test("[car:missed-payments-take-the-car] given 13 payments made, under a third of the price, when the third miss in a row comes, then the car is taken at once and the shortfall is owed with a judgment", () => {
     const { game, car } = carAfter(13);
     expect(carPaid(CAR_ENTRY, car)).toBeLessThan(TERMS.third);
     const outstanding = car.outstanding;
@@ -322,7 +322,7 @@ describe("the car", () => {
     expect(markOf(game)).toBe(Math.max(0, 30 + 13 * CREDIT.onTime - 2 * CREDIT.onMiss - CREDIT.onDefault));
   });
 
-  test("[R-CAR-003] given 14 payments made, a third of the price, when the third miss in a row comes, then the lender goes to court and the car is taken three months later", () => {
+  test("[car:missed-payments-take-the-car] given 14 payments made, a third of the price, when the third miss in a row comes, then the lender goes to court and the car is taken three months later", () => {
     const { game, car } = carAfter(14);
     expect(carPaid(CAR_ENTRY, car)).toBeGreaterThanOrEqual(TERMS.third);
     setPockets(game, { GBP: 0 });
@@ -340,7 +340,7 @@ describe("the car", () => {
     expect(eventsOf(taken, "obligation/repossessed")).toHaveLength(1);
   });
 
-  test("[R-CAR-003] given a car in court, when the arrears are paid whole with obligation/pay, then the car stays and payments run again; any other amount is a bad amount", () => {
+  test("[car:missed-payments-take-the-car] given a car in court, when the arrears are paid whole with obligation/pay, then the car stays and payments run again; any other amount is a bad amount", () => {
     const { game } = carAfter(14);
     setPockets(game, { GBP: 0 });
     playMonths(game, 3);
@@ -357,7 +357,7 @@ describe("the car", () => {
     expect(hasCar(game)).toBe(true);
   });
 
-  test("[R-CAR-003] given a car with nothing missed, when its arrears are paid, then it is not legal; with too little money it cannot be afforded", () => {
+  test("[car:missed-payments-take-the-car] given a car with nothing missed, when its arrears are paid, then it is not legal; with too little money it cannot be afforded", () => {
     const { game, car } = carAfter(1);
     expect(game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: MONTHLY }, "not-legal").code).toBe("not-legal");
     setPockets(game, { GBP: 0 });
@@ -367,7 +367,7 @@ describe("the car", () => {
     expect(game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: arrears }, "cannot-afford").code).toBe("cannot-afford");
   });
 
-  test("[R-CAR-004] given 23 payments and then 24, when the car is handed back with 0, then under half it is not legal; at half it goes back with nothing owed and no judgment", () => {
+  test("[car:car-handed-back-after-half] given 23 payments and then 24, when the car is handed back with 0, then under half it is not legal; at half it goes back with nothing owed and no judgment", () => {
     const under = carAfter(23);
     expect(carPaid(CAR_ENTRY, under.car)).toBeLessThan(TERMS.half);
     under.game.expectRejected({ type: "obligation/pay", obligation: under.car.id, amount: 0 }, "not-legal");
@@ -381,7 +381,7 @@ describe("the car", () => {
     expect(result.lines.find((line) => line.key === "line.obligation.handed-back")).toBeDefined();
   });
 
-  test("[R-CAR-005] given every monthly payment made, when the term ends, then the final payment is charged; paid, the car is owned with nothing owed and hasCar stays", () => {
+  test("[car:final-payment-owns-the-car] given every monthly payment made, when the term ends, then the final payment is charged; paid, the car is owned with nothing owed and hasCar stays", () => {
     const { game, car } = carAfter(36);
     expect(car).toMatchObject({ monthsLeft: 0 });
     // The monthly part stops at the final payment, so what is left is exactly the final payment.
@@ -397,7 +397,7 @@ describe("the car", () => {
     game.expectRejected({ type: "obligation/pay", obligation: car.id, amount: 0 }, "not-legal");
   });
 
-  test("[R-CAR-005] [R-OBLIGATION-001] given the car paid off and owned, when the view lists what is owed, then the car is not there: it is kept with no obligation, and the car's work still counts it", () => {
+  test("[car:final-payment-owns-the-car] [obligation:due-phase-charges-oldest-first] given the car paid off and owned, when the view lists what is owed, then the car is not there: it is kept with no obligation, and the car's work still counts it", () => {
     const { game, car } = carAfter(36);
     expect(game.view().obligations.some((owed) => owed.id === car.id)).toBe(true);
     nextMonth(game);
@@ -406,7 +406,7 @@ describe("the car", () => {
     expect(hasCar(game)).toBe(true);
   });
 
-  test("[R-CAR-005] given every monthly payment made, when the final payment is missed, then the car goes back with nothing owed", () => {
+  test("[car:final-payment-owns-the-car] given every monthly payment made, when the final payment is missed, then the car goes back with nothing owed", () => {
     const { game } = carAfter(36);
     setPockets(game, { GBP: 0 });
     const missed = nextMonth(game);
@@ -417,7 +417,7 @@ describe("the car", () => {
     expect(keysOf(missed.lines, "line.obligation.")).toEqual(["line.obligation.missed", "line.obligation.handed-back"]);
   });
 
-  test("[R-CAR-007] given a car partway paid, when the screen asks, then it has the price, the paid so far, the third and half marks, the final payment, the rate, months left and misses", () => {
+  test("[car:view-shows-car-terms] given a car partway paid, when the screen asks, then it has the price, the paid so far, the third and half marks, the final payment, the rate, months left and misses", () => {
     const { game, car } = carAfter(5);
     const owed = game.view().obligations.find((item) => item.id === car.id);
     expect(owed).toMatchObject({ monthsLeft: 31, missed: 0 });
@@ -438,21 +438,21 @@ describe("the car", () => {
     expect(carView(readOf(game), { ...car, entry: UK_PHONE })).toBeNull();
   });
 
-  test("[R-CAR-003] [R-CAR-005] given each car line, when it is looked up, then it has words, and money in it is typed", () => {
+  test("[car:missed-payments-take-the-car] [car:final-payment-owns-the-car] given each car line, when it is looked up, then it has words, and money in it is typed", () => {
     const keys = ["car-notice", "car-court", "caught-up", "repossessed", "repossessed-owing", "handed-back", "handed-back-owing", "owned"].map((what) => `line.obligation.${what}`);
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
   });
 });
 
 // ---------------------------------------------------------------------------
-// The agent's debt: R-ROAD-006, 007
+// The agent's debt: road:chain-steps-monthly, road:exit-is-assisted-return
 // ---------------------------------------------------------------------------
 
 describe("the car on the way home", () => {
   const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
   const official = (game: Game) => ({ GBP: game.world().rates.GBP.official, USD: game.world().rates.USD.official, CAD: game.world().rates.CAD.official, AED: game.world().rates.AED.official, EUR: game.world().rates.EUR.official });
 
-  test("[R-RETURN-006] [R-CAR-004] given a car under half paid, when the character comes home, then it is handed back and the shortfall opens at home in naira at the day's official rate, with nothing left in pounds", () => {
+  test("[return:return-reopens-home-charges] [car:car-handed-back-after-half] given a car under half paid, when the character comes home, then it is handed back and the shortfall opens at home in naira at the day's official rate, with nothing left in pounds", () => {
     const { game, car } = carAfter(2);
     expect(carPaid(CAR_ENTRY, car)).toBeLessThan(TERMS.half);
     const shortfall = car.outstanding - TERMS.resale;
@@ -467,7 +467,7 @@ describe("the car on the way home", () => {
     expect(owedOf(game, HOME_SHORTFALL)).toMatchObject({ principal: naira, outstanding: naira });
   });
 
-  test("[R-RETURN-006] [R-CAR-004] given a car half paid, when the character comes home, then it is handed back with nothing owed anywhere", () => {
+  test("[return:return-reopens-home-charges] [car:car-handed-back-after-half] given a car half paid, when the character comes home, then it is handed back with nothing owed anywhere", () => {
     const { game, car } = carAfter(24);
     expect(carPaid(CAR_ENTRY, car)).toBeGreaterThanOrEqual(TERMS.half);
     game.accept({ type: "return/home" });
@@ -489,7 +489,7 @@ describe("the agent's debt", () => {
     return offer.terms.sum as number;
   }
 
-  test("[R-ROAD-006] given the compound's ransom call on the road, when nobody can pay, then the sum opens as the agent's debt in naira; a second call adds to the same debt", () => {
+  test("[road:chain-steps-monthly] given the compound's ransom call on the road, when nobody can pay, then the sum opens as the agent's debt in naira; a second call adds to the same debt", () => {
     const game = abroad(content);
     game.accept({ type: "return/home" });
     applyEffects(game, [{ type: "place/move", to: "road", country: null }]);
@@ -501,7 +501,7 @@ describe("the agent's debt", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-ROAD-007] given the agent's debt, when the character is brought home, then the debt stays open in naira, charges nothing and cannot be paid ahead", () => {
+  test("[road:exit-is-assisted-return] given the agent's debt, when the character is brought home, then the debt stays open in naira, charges nothing and cannot be paid ahead", () => {
     const game = abroad(content);
     game.accept({ type: "return/home" });
     applyEffects(game, [{ type: "place/move", to: "road", country: null }]);
@@ -516,7 +516,7 @@ describe("the agent's debt", () => {
     game.expectRejected({ type: "obligation/pay", obligation: debt.id, amount: sum }, "not-legal");
   });
 
-  test("[R-ROAD-007] given the agent's debt carried abroad, when the character returns home by any road, then the debt follows and the abroad obligations close", () => {
+  test("[road:exit-is-assisted-return] given the agent's debt carried abroad, when the character returns home by any road, then the debt follows and the abroad obligations close", () => {
     const game = abroad(content);
     openOwed(game, AGENT_DEBT, 50000000);
     game.accept({ type: "return/home" });

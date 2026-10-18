@@ -36,22 +36,22 @@ function abroad(country: Id<"country">, status: Id<"status">, held: Id<"activity
   return game;
 }
 
-describe("R-UNDERTAKING-001: the checks in order", () => {
-  test("[R-UNDERTAKING-001] given a character at home, and one abroad who fails only the floor, when the checks run, then each names the first check that fails, and one who passes them all gets none", () => {
+describe("undertaking:agreeing-to-sponsor: the checks in order", () => {
+  test("[undertaking:agreeing-to-sponsor] given a character at home, and one abroad who fails only the floor, when the checks run, then each names the first check that fails, and one who passes them all gets none", () => {
     expect(sponsorCheck(readOf(life(used)), UK_PARTNER)).toBe("status");
     expect(sponsorCheck(readOf(abroad("country.uk", "status.uk-settled", null)), UK_PARTNER)).toBe("floor");
     expect(sponsorCheck(readOf(abroad("country.uk", "status.uk-settled", JOB)), UK_PARTNER)).toBeNull();
   });
 });
 
-describe("R-UNDERTAKING-001: agreeing to sponsor runs the checks", () => {
+describe("undertaking:agreeing-to-sponsor: agreeing to sponsor runs the checks", () => {
   /** A married bond with a friend, with no joint yet, so a joint can be proposed on it. */
   function married(game: Game): void {
     joint(game, UK_PARTNER, "me", { stage: "married", facts: facts() });
     setPeople(game, (slice) => ({ ...slice, joint: null }));
   }
 
-  test("[R-UNDERTAKING-001] given a settled character abroad under the floor, and then one earning it, when each proposes to sponsor on the UK partner route, then the first is rejected naming the floor and the second's proposal goes out", () => {
+  test("[undertaking:agreeing-to-sponsor] given a settled character abroad under the floor, and then one earning it, when each proposes to sponsor on the UK partner route, then the first is rejected naming the floor and the second's proposal goes out", () => {
     const under = abroad("country.uk", "status.uk-settled", null);
     married(under);
     const rejected = under.expectRejected({ type: "people/propose", bond: BOND, step: "joint", route: UK_PARTNER, lead: "me" }, "not-legal");
@@ -62,7 +62,7 @@ describe("R-UNDERTAKING-001: agreeing to sponsor runs the checks", () => {
     expect(earning.state.people.bonds[BOND]?.pending.mine).toEqual({ step: "joint", route: UK_PARTNER, lead: "me" });
   });
 
-  test("[R-UNDERTAKING-001] given a joint proposed with this life as sponsor, when it answers yes while failing the floor, then the answer is rejected naming the check, and no is accepted", () => {
+  test("[undertaking:agreeing-to-sponsor] given a joint proposed with this life as sponsor, when it answers yes while failing the floor, then the answer is rejected naming the check, and no is accepted", () => {
     const game = abroad("country.uk", "status.uk-settled", null);
     married(game);
     game.accept({ type: "people/proposal", pair: "pair-1", proposal: { step: "joint", route: UK_PARTNER, lead: "me" } }, "authority");
@@ -71,8 +71,8 @@ describe("R-UNDERTAKING-001: agreeing to sponsor runs the checks", () => {
   });
 });
 
-describe("R-INTERVIEW-010: a caught sponsor's bar", () => {
-  test("[R-INTERVIEW-010] given a resident in Canada whose interview on the spouse route was caught, when the bar is read and a joint proposed, then sponsoring into Canada waits for the country's ban months and the view shows the month it lifts", () => {
+describe("interview:caught-sponsor-carries-bar: a caught sponsor's bar", () => {
+  test("[interview:caught-sponsor-carries-bar] given a resident in Canada whose interview on the spouse route was caught, when the bar is read and a joint proposed, then sponsoring into Canada waits for the country's ban months and the view shows the month it lifts", () => {
     const game = abroad("country.canada", "status.ca-resident", null);
     const month = game.state.turn.month;
     const ban = content.country["country.canada"]!.deceptionBanMonths;
@@ -82,15 +82,15 @@ describe("R-INTERVIEW-010: a caught sponsor's bar", () => {
     joint(game, CA_SPOUSE, "me", { stage: "married", facts: facts() });
     setPeople(game, (slice) => ({ ...slice, joint: null }));
     expect(game.expectRejected({ type: "people/propose", bond: BOND, step: "joint", route: CA_SPOUSE, lead: "me" }, "not-legal").detail).toContain("bar");
-    // The bar lifts in the month it names, as R-GATE-005 lifts the ban.
+    // The bar lifts in the month it names, as route-gates:deception-bans-country lifts the ban.
     game.state = { ...game.state, interview: { ...game.state.interview, last: { route: CA_SPOUSE, result: "caught", matched: 0, asked: 5, month: month - ban, standIn: { a: false, b: false } } } };
     expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBeNull();
     expect(game.view().people.barUntilMonth).toBeNull();
   });
 });
 
-describe("R-UNDERTAKING-002: the sponsor's status", () => {
-  test("[R-UNDERTAKING-002] given settled, citizen, a sponsored worker in the UK, and a settled character in Canada, when the UK check runs, then only the first two hold", () => {
+describe("undertaking:sponsor-settled-in-country: the sponsor's status", () => {
+  test("[undertaking:sponsor-settled-in-country] given settled, citizen, a sponsored worker in the UK, and a settled character in Canada, when the UK check runs, then only the first two hold", () => {
     expect(sponsorCheck(readOf(abroad("country.uk", "status.uk-citizen", JOB)), UK_PARTNER)).toBeNull();
     expect(sponsorCheck(readOf(abroad("country.uk", "status.uk-sponsored", JOB)), UK_PARTNER)).toBe("status");
     expect(sponsorCheck(readOf(abroad("country.canada", "status.ca-resident", CA_JOB)), UK_PARTNER)).toBe("status");
@@ -98,8 +98,8 @@ describe("R-UNDERTAKING-002: the sponsor's status", () => {
   });
 });
 
-describe("R-UNDERTAKING-003: the earnings floor", () => {
-  test("[R-UNDERTAKING-003] given pay a year of exactly the floor, and the floor raised by one, when the floor is judged, then it is met only at the floor", () => {
+describe("undertaking:sponsor-earnings-floor: the earnings floor", () => {
+  test("[undertaking:sponsor-earnings-floor] given pay a year of exactly the floor, and the floor raised by one, when the floor is judged, then it is met only at the floor", () => {
     const at = abroad("country.uk", "status.uk-settled", JOB);
     expect(ownPayAYear(readOf(at))).toEqual({ currency: "GBP", amount: FLOOR });
     expect(meetsFloor(readOf(at), UK_PARTNER)).toBe(true);
@@ -107,7 +107,7 @@ describe("R-UNDERTAKING-003: the earnings floor", () => {
     expect(meetsFloor(readOf(under), UK_PARTNER)).toBe(false);
   });
 
-  test("[R-UNDERTAKING-003] given a cash job paying twice the floor, no job, and Canada's route with no floor, when the floor is judged, then cash counts as nothing and Canada asks for none", () => {
+  test("[undertaking:sponsor-earnings-floor] given a cash job paying twice the floor, no job, and Canada's route with no floor, when the floor is judged, then cash counts as nothing and Canada asks for none", () => {
     expect(meetsFloor(readOf(abroad("country.uk", "status.uk-settled", CASH_JOB)), UK_PARTNER)).toBe(false);
     const idle = abroad("country.uk", "status.uk-settled", null);
     expect(meetsFloor(readOf(idle), UK_PARTNER)).toBe(false);
@@ -116,8 +116,8 @@ describe("R-UNDERTAKING-003: the earnings floor", () => {
   });
 });
 
-describe("R-UNDERTAKING-004: the five-year bar", () => {
-  test("[R-UNDERTAKING-004] given an arrival on Canada's spouse route 59 and 60 months ago, when the bar is read, then it stands at 59 and has lifted at 60", () => {
+describe("undertaking:sponsored-arrivals-wait-to-sponsor: the five-year bar", () => {
+  test("[undertaking:sponsored-arrivals-wait-to-sponsor] given an arrival on Canada's spouse route 59 and 60 months ago, when the bar is read, then it stands at 59 and has lifted at 60", () => {
     const game = abroad("country.canada", "status.ca-resident", null);
     const month = game.state.turn.month;
     setPeople(game, (slice) => ({ ...slice, arrived: { route: CA_SPOUSE, month: month - (BAR - 1) } }));
@@ -128,7 +128,7 @@ describe("R-UNDERTAKING-004: the five-year bar", () => {
     expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBeNull();
   });
 
-  test("[R-UNDERTAKING-004] given an arrival on the UK partner route, or on Canada's points route, when the bar is read, then there is none", () => {
+  test("[undertaking:sponsored-arrivals-wait-to-sponsor] given an arrival on the UK partner route, or on Canada's points route, when the bar is read, then there is none", () => {
     const uk = abroad("country.uk", "status.uk-settled", JOB);
     setPeople(uk, (slice) => ({ ...slice, arrived: { route: UK_PARTNER, month: uk.state.turn.month } }));
     expect(content.country["country.uk"]!.partnerBarMonths).toBe(0);
@@ -139,8 +139,8 @@ describe("R-UNDERTAKING-004: the five-year bar", () => {
   });
 });
 
-describe("R-UNDERTAKING-005: undertakings that bar sponsoring", () => {
-  test("[R-UNDERTAKING-005] given an undertaking still running in Canada, when a new sponsorship is checked, then Canada's is barred and the UK's is not", () => {
+describe("undertaking:defaults-bar-sponsoring: undertakings that bar sponsoring", () => {
+  test("[undertaking:defaults-bar-sponsoring] given an undertaking still running in Canada, when a new sponsorship is checked, then Canada's is barred and the UK's is not", () => {
     const game = abroad("country.canada", "status.ca-resident", null);
     applyAs(game, [{ type: "obligation/open", obligation: UNDERTAKING }]);
     expect(sponsorCheck(readOf(game), CA_SPOUSE)).toBe("running");
@@ -149,7 +149,7 @@ describe("R-UNDERTAKING-005: undertakings that bar sponsoring", () => {
     expect(sponsorCheck(readOf(game), UK_PARTNER)).toBeNull();
   });
 
-  test("[R-UNDERTAKING-005] given an undertaking in default, when any sponsorship is checked, then it is barred", () => {
+  test("[undertaking:defaults-bar-sponsoring] given an undertaking in default, when any sponsorship is checked, then it is barred", () => {
     const game = abroad("country.canada", "status.ca-resident", null);
     joint(game, CA_SPOUSE, "me", { stage: "married", facts: facts({ assistanceTaken: 1 }) });
     setPeople(game, (slice) => ({ ...slice, sponsoring: { bond: slice.joint!.bond, route: CA_SPOUSE, month: game.state.turn.month } }));

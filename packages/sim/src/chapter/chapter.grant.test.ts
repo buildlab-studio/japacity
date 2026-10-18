@@ -1,4 +1,4 @@
-// The chapters follow the grant: docs/rules/chapter.md R-CHAPTER-002 and R-CHAPTER-009.
+// The chapters follow the grant: chapter:met-items-close-the-chapter and chapter:chapters-follow-lean-route.
 // A life that leans to the master's and flies on the skilled worker's route still gets its send-off and its chapters abroad.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -29,7 +29,7 @@ function playTo(game: Game, commands: SavedCommand[], from: number, until: (game
 const routeIs = (route: Id<"route">, state: string) => (game: Game) => game.state.route[route]?.state === state;
 
 describe("a grant on a route with no file of its own", () => {
-  test("[R-CHAPTER-002] [R-CHAPTER-009] given Tunde's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
+  test("[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] given Tunde's abroad life leaning to the master's at decision day, when the skilled worker's visa is granted, then decision day closes on the grant's turn, the bank is refilled and the lean is now the skilled route", () => {
     // With the lives recorded under decision 0013, Tunde's abroad life is the one granted at decision day (month 19);
     // Ada's is granted while still building the file and flies with decision day open, read below.
     // A first pass finds the command whose turn brings the grant; the second stops just before it.
@@ -41,7 +41,7 @@ describe("a grant on a route with no file of its own", () => {
     expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK_ROUTE);
     expect(game.state.chapter.current).toBe(DECISION);
     const { result } = playTo(game, commands, granting, routeIs(SKILLED, "granted"));
-    // R-CHAPTER-003: a close the grant made carries the route it rested on.
+    // chapter:done-chapter-stays-done: a close the grant made carries the route it rested on.
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: SKILLED }]);
     expect(game.state.turn.banked).toBe(cap);
     expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(SKILLED);
@@ -50,7 +50,7 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.state.route[UK_ROUTE]?.state).toBe("known");
   });
 
-  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Tunde granted the skilled worker's visa, when he flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
+  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given Tunde granted the skilled worker's visa, when he flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
     // Decision 0013's re-recording: Tunde's abroad life reaches the send-off on the grant and flies from it.
     const { game, commands } = replayedGame("tunde-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
@@ -65,7 +65,7 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card?.kind).not.toBe("send-off");
   });
 
-  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Ada's abroad life flying with decision day still open, when she flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
+  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given Ada's abroad life flying with decision day still open, when she flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
     // Decision 0013's re-recording: Ada's abroad life is granted while building the file (month 40) and flies that month.
     const { game, commands } = replayedGame("ada-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
@@ -75,7 +75,7 @@ describe("a grant on a route with no file of its own", () => {
     expect(game.view().card).toMatchObject({ kind: "send-off", route: SKILLED, chapter: SEND_OFF });
     const month = game.state.turn.month;
     const { result } = playTo(game, commands, flight.next, (now) => now.state.turn.month > month);
-    // R-CHAPTER-003: decision day closed on the flight's grant says so; the send-off's own item closed it.
+    // chapter:done-chapter-stays-done: decision day closed on the flight's grant says so; the send-off's own item closed it.
     expect(closed(result)).toEqual([
       { type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: SKILLED },
       { type: "chapter/closed", chapter: SEND_OFF, next: LANDING },
@@ -88,7 +88,7 @@ describe("a grant on a route with no file of its own", () => {
 });
 
 describe("the plan follows the grant", () => {
-  test("[R-CHAPTER-009] given Ada's abroad life leaning to the master's, when the skilled worker's visa is granted, then the view's plan names the skilled route and its ways carry it, though it has no file of its own", () => {
+  test("[chapter:chapters-follow-lean-route] given Ada's abroad life leaning to the master's, when the skilled worker's visa is granted, then the view's plan names the skilled route and its ways carry it, though it has no file of its own", () => {
     const { game, commands } = replayedGame("ada-abroad", content);
     playTo(game, commands, 0, routeIs(SKILLED, "known"));
     expect(game.view().plan.route).toBe(UK_ROUTE);
@@ -103,7 +103,7 @@ describe("the plan follows the grant", () => {
 });
 
 describe("the flight's report has one card", () => {
-  test("[R-CHAPTER-006] [R-SHARE-001] given Ada's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
+  test("[chapter:send-off-card-on-close] [share:cards-due-at-set-moments] given Ada's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
     // Decision 0013's re-recording: Ada's abroad life is the one whose flight turn closes both.
     const { game, commands } = replayedGame("ada-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
@@ -129,7 +129,7 @@ describe("a grant on a route with a file of its own", () => {
     game.state = { ...game.state, route: { ...game.state.route, [CARE_ROUTE]: { ...game.state.route[CARE_ROUTE]!, state: "granted" } } };
   }
 
-  test("[R-CHAPTER-009] given a life leaning to the master's at decision day, when care work is granted, then the view's items are care's decision day, and the month's end closes care's decision day in its place", () => {
+  test("[chapter:chapters-follow-lean-route] given a life leaning to the master's at decision day, when care work is granted, then the view's items are care's decision day, and the month's end closes care's decision day in its place", () => {
     const game = atDecision();
     expect(leanRoute(game.state.route, content)).toBe(UK_ROUTE);
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["deposit", "held", "tb", "applied", "granted"]);
@@ -144,21 +144,21 @@ describe("a grant on a route with a file of its own", () => {
     expect(game.state.chapter.done).not.toContain(DECISION);
   });
 
-  test("[R-CHAPTER-009] given a life in the master's file, when care work is granted, then the file closes as care's and care's decision day follows, whatever the lean was", () => {
+  test("[chapter:chapters-follow-lean-route] given a life in the master's file, when care work is granted, then the file closes as care's and care's decision day follows, whatever the lean was", () => {
     const game = start({ scenario: "scenario.tunde", content });
     for (let month = 0; month < 8 && game.state.route[UK_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
     game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
     expect(game.state.chapter.current).toBe(FILE);
     grantCare(game);
     const result = game.endTurn();
-    // R-CHAPTER-003: the grant closed the file, and the close says so.
+    // chapter:done-chapter-stays-done: the grant closed the file, and the close says so.
     expect(closed(result)).toEqual([{ type: "chapter/closed", chapter: "chapter.build-the-file-care", next: "chapter.decision-day-care", onGrant: CARE_ROUTE }]);
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["tb", "police", "applied", "granted"]);
   });
 });
 
 describe("the routes a grant leads by", () => {
-  test("[R-CHAPTER-002] [R-CHAPTER-009] given the real content, when the routes a grant leads by are listed, then they are the routes whose flight closes the send-off: every route with a country, a partner's and a dependant's among them, never the road", () => {
+  test("[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] given the real content, when the routes a grant leads by are listed, then they are the routes whose flight closes the send-off: every route with a country, a partner's and a dependant's among them, never the road", () => {
     const item = content.chapter[SEND_OFF]!.items[0]!.requirement;
     const flown = item.type === "any" ? item.of.flatMap((each) => (each.type === "route/state" ? [each.route] : [])) : [];
     const leading = Object.keys(content.route).filter((id) => {
@@ -173,14 +173,14 @@ describe("the routes a grant leads by", () => {
 });
 
 describe("a partner's route", () => {
-  test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given a life in the master's file granted the partner visa, when the grant's turn ends, the life flies on it and the month ends, then the file closes, the send-off card shows from the flight, and decision day and the send-off close on the flight's turn", () => {
+  test("[chapter:met-items-close-the-chapter] [chapter:send-off-card-on-close] [chapter:chapters-follow-lean-route] given a life in the master's file granted the partner visa, when the grant's turn ends, the life flies on it and the month ends, then the file closes, the send-off card shows from the flight, and decision day and the send-off close on the flight's turn", () => {
     const game = start({ scenario: "scenario.tunde", content });
     for (let month = 0; month < 8 && game.state.route[UK_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
     game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
     expect(game.state.chapter.current).toBe(FILE);
     // A partner's grant takes a bond and a decision; the route's state is written as the decision would leave it.
     game.state = { ...game.state, route: { ...game.state.route, [UK_PARTNER]: { ...game.state.route[UK_PARTNER]!, state: "granted" } } };
-    // R-CHAPTER-003: the closes the grant made carry the route they rested on.
+    // chapter:done-chapter-stays-done: the closes the grant made carry the route they rested on.
     expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: UK_PARTNER }]);
     expect(leanRoute(game.state.route, content)).toBe(UK_PARTNER);
     expect(game.view().plan.route).toBe(UK_PARTNER);

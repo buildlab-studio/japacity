@@ -50,7 +50,7 @@ function siblingSlots(game: Game): string[] {
 }
 
 describe("a sibling made from an invite", () => {
-  test("[R-PEOPLE-011] given a save with the inviter's family, when the prologue's first card is answered, then the draw is the inviter's, copied with no draw of its own, and its qualities follow it", () => {
+  test("[person:real-sibling-shares-family-draw] given a save with the inviter's family, when the prologue's first card is answered, then the draw is the inviter's, copied with no draw of its own, and its qualities follow it", () => {
     const game = siblingLife();
     const [first] = legalCommands(game.view());
     if (first === undefined) throw new Error("The prologue has no first answer.");
@@ -65,7 +65,7 @@ describe("a sibling made from an invite", () => {
     expect((game.state.draws.prologue ?? 0) - drawsBefore).toBeLessThan((own.state.draws.prologue ?? 0) - drawsBefore);
   });
 
-  test("[R-PEOPLE-011] given a save with the inviter's family, when the life begins, then its sibling slots mirror the family with the inviter's slot waiting for the link and the others drawn as computer lives after the prologue", () => {
+  test("[person:real-sibling-shares-family-draw] given a save with the inviter's family, when the life begins, then its sibling slots mirror the family with the inviter's slot waiting for the link and the others drawn as computer lives after the prologue", () => {
     const game = siblingLife();
     expect(siblingSlots(game)).toEqual(["sibling-1", "sibling-2", "sibling-3"]);
     expect(game.state.people.slots[INVITER_SLOT]).toEqual({ state: "invited", bond: null, person: null, invite: { looking: "sibling", fill: null } });
@@ -85,7 +85,7 @@ describe("a sibling made from an invite", () => {
     expect(game.state.people.bonds[slot.bond!]).toMatchObject({ role: "sibling", stage: "connected", with: { kind: "player", pair: "pair-sib" } });
   });
 
-  test("[R-PEOPLE-011] given a sibling's life played some way, when its save is replayed, then the family comes back from the save and the state is the same, and the same commands without the family make another life", () => {
+  test("[person:real-sibling-shares-family-draw] given a sibling's life played some way, when its save is replayed, then the family comes back from the save and the state is the same, and the same commands without the family make another life", () => {
     const game = siblingLife();
     finishPrologue(game);
     game.grant(1);

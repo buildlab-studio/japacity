@@ -1,5 +1,4 @@
-// The Friday draw's public method: docs/rules/lottery.md R-LOTTERY-007 to 012,
-// 021, 022. Pure code, so the server that runs the draw and the client page
+// The Friday draw's public method: lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:seed-from-secret-and-beacon, lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open, lottery:expected-return-below-price. Pure code, so the server that runs the draw and the client page
 // that checks it run the same function. SHA-256 is written out here because
 // Web Crypto's digest is asynchronous and platform code (decision 0016).
 import { BP_WHOLE, bp, divFloor, mulDiv } from "../engine/int";
@@ -10,7 +9,7 @@ export type Tier = "jackpot" | "mid" | "small";
 /** The tiers in the order a result lists them. */
 export const TIERS: readonly Tier[] = ["jackpot", "mid", "small"];
 
-/** R-LOTTERY-010: a ticket's draw is one in a million. */
+/** lottery:ticket-result-is-public-function: a ticket's draw is one in a million. */
 export const PER_MILLION = 1_000_000;
 
 // ---------------------------------------------------------------------------
@@ -114,7 +113,7 @@ function concat(parts: Uint8Array[]): Uint8Array {
 // The draw
 // ---------------------------------------------------------------------------
 
-/** The draw number as eight bytes, big end first, the way R-LOTTERY-010 writes its block counter. */
+/** The draw number as eight bytes, big end first, the way lottery:ticket-result-is-public-function writes its block counter. */
 function drawBytes(draw: number): Uint8Array {
   const bytes = new Uint8Array(8);
   new DataView(bytes.buffer).setBigUint64(0, BigInt(draw), false);
@@ -122,7 +121,7 @@ function drawBytes(draw: number): Uint8Array {
 }
 
 /**
- * R-LOTTERY-007: the SHA-256 of the secret followed by the draw number, in hex.
+ * lottery:fingerprint-commits-secret: the SHA-256 of the secret followed by the draw number, in hex.
  * The secret is read as the bytes its hex spells and the number as eight bytes, big end first.
  */
 export function fingerprintOf(secret: string, draw: number): string {
@@ -130,7 +129,7 @@ export function fingerprintOf(secret: string, draw: number): string {
 }
 
 /**
- * R-LOTTERY-008: the frozen list's SHA-256 in hex.
+ * lottery:ticket-list-frozen-anonymously: the frozen list's SHA-256 in hex.
  * The hash is of the tokens' bytes in ticket order, eight bytes each, so the client's draw page recomputes it the way the server made it.
  */
 export function listHashOf(tokens: readonly string[]): string {
@@ -138,7 +137,7 @@ export function listHashOf(tokens: readonly string[]): string {
 }
 
 /**
- * R-LOTTERY-009: the seed is the SHA-256 of the secret, the list's hash and the
+ * lottery:seed-from-secret-and-beacon: the seed is the SHA-256 of the secret, the list's hash and the
  * beacon round's randomness, joined in that order.
  * Each is given in hex and joined as the bytes the hex spells.
  */
@@ -146,7 +145,7 @@ export function drawSeed(secret: string, listHash: string, beaconRandomness: str
   return sha256(concat([fromHex(secret), fromHex(listHash), fromHex(beaconRandomness)]));
 }
 
-/** R-LOTTERY-010: block `index` of the seed's counter-mode stream, the SHA-256 of the seed and `index` as eight bytes, big end first. */
+/** lottery:ticket-result-is-public-function: block `index` of the seed's counter-mode stream, the SHA-256 of the seed and `index` as eight bytes, big end first. */
 function blockOf(seed: Uint8Array, index: number): Uint8Array {
   const input = new Uint8Array(seed.length + 8);
   input.set(seed);
@@ -157,7 +156,7 @@ function blockOf(seed: Uint8Array, index: number): Uint8Array {
 const MILLION = BigInt(PER_MILLION);
 
 /**
- * R-LOTTERY-010: the ticket's draw of one in a million, from 0 to 999,999.
+ * lottery:ticket-result-is-public-function: the ticket's draw of one in a million, from 0 to 999,999.
  * The block's first eight bytes, big end first, modulo a million; the
  * lowest numbers are favoured by under one part in ten trillion, which no odds
  * in whole draws per million can feel.
@@ -167,7 +166,7 @@ export function ticketDraw(seed: Uint8Array, ticket: number): number {
   return Number(new DataView(blockOf(seed, ticket).buffer).getBigUint64(0, false) % MILLION);
 }
 
-/** R-LOTTERY-010: a draw of one in a million read against the odds: the jackpot first, then the mid prize, then the small. */
+/** lottery:ticket-result-is-public-function: a draw of one in a million read against the odds: the jackpot first, then the mid prize, then the small. */
 export function tierOfDraw(draw: number, odds: LotteryOdds): Tier | null {
   if (draw < odds.jackpotPerMillion) return "jackpot";
   if (draw < odds.jackpotPerMillion + odds.midPerMillion) return "mid";
@@ -175,13 +174,13 @@ export function tierOfDraw(draw: number, odds: LotteryOdds): Tier | null {
   return null;
 }
 
-/** R-LOTTERY-010: what one ticket won, a pure public function of the seed, its number and the draw's odds. */
+/** lottery:ticket-result-is-public-function: what one ticket won, a pure public function of the seed, its number and the draw's odds. */
 export function ticketResult(seed: Uint8Array, ticket: number, odds: LotteryOdds): Tier | null {
   return tierOfDraw(ticketDraw(seed, ticket), odds);
 }
 
 /**
- * R-LOTTERY-012: the forced win's ticket, the sold ticket whose draw is
+ * lottery:jackpot-rolls-over: the forced win's ticket, the sold ticket whose draw is
  * highest; the lowest number among equals. Null with no ticket sold.
  */
 export function forcedTicket(seed: Uint8Array, count: number): number | null {
@@ -198,11 +197,11 @@ export function forcedTicket(seed: Uint8Array, count: number): number | null {
 }
 
 /**
- * R-LOTTERY-010, R-LOTTERY-011: every sold ticket's result, as the published
+ * lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot: every sold ticket's result, as the published
  * winners: each tier's tickets in number order and what one of them is paid.
  * The small and mid prizes are their fixed amounts; the jackpot is shared
  * equally to the kobo among its hits, and with no hit its amount is what one
- * hit would have taken. `forced` (R-LOTTERY-012) gives the jackpot to the
+ * hit would have taken. `forced` (lottery:jackpot-rolls-over) gives the jackpot to the
  * forced ticket when no ticket hit it.
  */
 export function drawResults(seed: Uint8Array, count: number, odds: LotteryOdds, jackpot: number, forced = false): LotteryResult["winners"] {
@@ -227,18 +226,18 @@ export function drawResults(seed: Uint8Array, count: number, odds: LotteryOdds, 
   ];
 }
 
-/** R-LOTTERY-012: whether any ticket of a result hit the jackpot. */
+/** lottery:jackpot-rolls-over: whether any ticket of a result hit the jackpot. */
 export function jackpotHit(winners: LotteryResult["winners"]): boolean {
   return winners.some((tier) => tier.tier === "jackpot" && tier.tickets.length > 0);
 }
 
-/** R-LOTTERY-014: what R-LOTTERY-011 pays for a result: every winning ticket at its tier's amount. */
+/** lottery:money-report-checks-draws: what lottery:fixed-prizes-shared-jackpot pays for a result: every winning ticket at its tier's amount. */
 export function prizesOwed(winners: LotteryResult["winners"]): number {
   return winners.reduce((sum, tier) => sum + tier.tickets.length * tier.amount, 0);
 }
 
 /**
- * R-LOTTERY-012: the jackpot after a draw under its own odds: the start after
+ * lottery:jackpot-rolls-over: the jackpot after a draw under its own odds: the start after
  * a hit, else the smaller of the cap and the jackpot plus `jackpotGrowthBp` of
  * the draw's sales, rounded down.
  */
@@ -248,12 +247,12 @@ export function rollJackpot(jackpot: number, sales: number, hit: boolean, odds: 
 }
 
 /**
- * R-LOTTERY-012, R-LOTTERY-021: the jackpot a draw opens with under the odds
+ * lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open: the jackpot a draw opens with under the odds
  * it opens with, from the last draw's result: the start for the first draw or
  * after a hit, else the rolled-over amount.
  * When the settings changed between the two draws, the start is the
  * new one and the rolled-over amount is held under the new cap, so a draw never
- * stands above the cap its odds were checked at (R-LOTTERY-022).
+ * stands above the cap its odds were checked at (lottery:expected-return-below-price).
  */
 export function openingJackpot(previous: Pick<LotteryResult, "winners" | "nextJackpot"> | null, odds: LotteryOdds): number {
   if (previous === null || jackpotHit(previous.winners)) return odds.jackpotStart;
@@ -261,7 +260,7 @@ export function openingJackpot(previous: Pick<LotteryResult, "winners" | "nextJa
 }
 
 /**
- * R-LOTTERY-022: what a ticket returns on average under the odds with the
+ * lottery:expected-return-below-price: what a ticket returns on average under the odds with the
  * jackpot at `jackpot`, in kobo times a million, so it is exact:
  * `small × smallPerMillion + mid × midPerMillion + jackpot × jackpotPerMillion`.
  */
@@ -270,7 +269,7 @@ export function expectedReturnPerMillion(odds: LotteryOdds, jackpot: number): nu
 }
 
 /**
- * R-LOTTERY-021, R-LOTTERY-022: the odds leave room in a million, the jackpot
+ * lottery:odds-fixed-at-draw-open, lottery:expected-return-below-price: the odds leave room in a million, the jackpot
  * starts under its cap, and a ticket returns less than its price on average at
  * the starting jackpot and at the cap.
  */
@@ -278,9 +277,9 @@ export function checkLotteryContent(content: Content): string[] {
   const { ticket, odds } = content.tuning.lottery;
   const problems: string[] = [];
   const chances = odds.jackpotPerMillion + odds.midPerMillion + odds.smallPerMillion;
-  if (chances > PER_MILLION) problems.push(`tuning.lottery.odds: the chances add up to ${String(chances)} in a million, more than a million (R-LOTTERY-010).`);
+  if (chances > PER_MILLION) problems.push(`tuning.lottery.odds: the chances add up to ${String(chances)} in a million, more than a million (lottery:ticket-result-is-public-function).`);
   if (odds.jackpotStart > odds.jackpotCap) {
-    problems.push(`tuning.lottery.odds: the jackpot starts at ${String(odds.jackpotStart)}, over its cap of ${String(odds.jackpotCap)} (R-LOTTERY-012).`);
+    problems.push(`tuning.lottery.odds: the jackpot starts at ${String(odds.jackpotStart)}, over its cap of ${String(odds.jackpotCap)} (lottery:jackpot-rolls-over).`);
   }
   for (const [name, jackpot] of [
     ["the starting jackpot", odds.jackpotStart],
@@ -288,10 +287,10 @@ export function checkLotteryContent(content: Content): string[] {
   ] as const) {
     const back = expectedReturnPerMillion(odds, jackpot);
     if (!Number.isSafeInteger(back)) {
-      problems.push(`tuning.lottery.odds: the expected return at ${name} is past a whole number of kobo (R-LOTTERY-022).`);
+      problems.push(`tuning.lottery.odds: the expected return at ${name} is past a whole number of kobo (lottery:expected-return-below-price).`);
     } else if (back >= ticket * PER_MILLION) {
       problems.push(
-        `tuning.lottery.odds: a ticket returns ${String(divFloor(back, PER_MILLION))} kobo on average at ${name}, not under its price of ${String(ticket)} (R-LOTTERY-022).`,
+        `tuning.lottery.odds: a ticket returns ${String(divFloor(back, PER_MILLION))} kobo on average at ${name}, not under its price of ${String(ticket)} (lottery:expected-return-below-price).`,
       );
     }
   }
@@ -357,7 +356,7 @@ function uniform(next: () => bigint, below: number): number {
 }
 
 /**
- * The raffle (R-LOTTERY-010 before decision 0016): the winning ticket numbers of each tier, in the tiers' order.
+ * The raffle (lottery:ticket-result-is-public-function before decision 0016): the winning ticket numbers of each tier, in the tiers' order.
  * "Without replacement by rejection sampling" means: draw a
  * ticket number uniformly, and draw again if it has already won. A tier takes
  * tickets until it is full or none is left; the tiers after an empty pool
@@ -383,7 +382,7 @@ export function drawWinners(seed: Uint8Array, count: number, tiers: TierSpec[]):
 }
 
 /**
- * The raffle (R-LOTTERY-012 before decision 0016): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
+ * The raffle (lottery:jackpot-rolls-over before decision 0016): one jackpot, `midCount` mid prizes, and one small prize in every `smallEvery` tickets sold.
  * The page says at least one small place. With few tickets sold, and above all with the house top-up filling the
  * pot, one in fifty sold can make a small prize pay more than a mid one (₦41,250 against ₦16,500), so there are
  * never fewer small places than keep a small share under a mid share.
@@ -417,7 +416,7 @@ function shareBp(tier: Tier, tuning: RaffleSettings): number {
 }
 
 /**
- * The raffle (R-LOTTERY-011 before decision 0016): the prize fund and what each winning ticket is paid.
+ * The raffle (lottery:fixed-prizes-shared-jackpot before decision 0016): the prize fund and what each winning ticket is paid.
  * The fund is the pot times what is not burnt, rounded down; a tier's
  * share is split over the tickets its spec names, so the shares of places
  * left unfilled are destroyed with the rest.
@@ -440,7 +439,7 @@ export function prizesFor(
 }
 
 /**
- * The raffle's house top-up (R-LOTTERY-021 before decision 0016): the top-up of a draw that sold `count` tickets under its
+ * The raffle's house top-up (lottery:odds-fixed-at-draw-open before decision 0016): the top-up of a draw that sold `count` tickets under its
  * declared `topUpTickets`: the pot made up to that many tickets' worth, and 0
  * once sales reach it.
  */
@@ -449,7 +448,7 @@ export function topUpFor(count: number, topUpTickets: number, ticket: number): n
 }
 
 /**
- * The raffle (R-LOTTERY-022 before decision 0016): the part of a prize credited as `pot-top-up`: the prize times
+ * The raffle (lottery:expected-return-below-price before decision 0016): the part of a prize credited as `pot-top-up`: the prize times
  * the top-up over the pot, rounded down. An empty pot pays nothing, so its part is 0.
  */
 export function topUpPart(amount: number, topUp: number, pot: number): number {

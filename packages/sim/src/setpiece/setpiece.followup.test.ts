@@ -51,7 +51,7 @@ function interviewAs(changed: SetpieceEntry): typeof content {
 }
 
 describe("the follow-up question", () => {
-  test("[R-SETPIECE-008] given who-pays drawn first, when a sponsor is the answer, then who the sponsor is comes next, ahead of the questions drawn after it, shown as a follow-up and counted in the total", () => {
+  test("[route:answer-may-ask-follow-up] given who-pays drawn first, when a sponsor is the answer, then who the sponsor is comes next, ahead of the questions drawn after it, shown as a follow-up and counted in the total", () => {
     const game = lifeAsking("who-pays", 0);
     toApplied(game);
     const drawn = [...game.state.setpiece.open!.questions];
@@ -62,7 +62,7 @@ describe("the follow-up question", () => {
     expect(legalCommands(game.view()).filter((command) => command.type === "setpiece/answer")).toEqual(followUp.answers.map((answer) => ({ type: "setpiece/answer", question: followUp.id, answer: answer.id })));
   });
 
-  test("[R-SETPIECE-008] given who-pays drawn first, when an answer that names no follow-up is given, then the next drawn question comes and the total is what was drawn", () => {
+  test("[route:answer-may-ask-follow-up] given who-pays drawn first, when an answer that names no follow-up is given, then the next drawn question comes and the total is what was drawn", () => {
     const game = lifeAsking("who-pays", 0);
     toApplied(game);
     const drawn = [...game.state.setpiece.open!.questions];
@@ -72,13 +72,13 @@ describe("the follow-up question", () => {
     expect(game.view().setpiece).toMatchObject({ asked: 1, total: entry.ask, question: { id: drawn[1], followUp: false } });
   });
 
-  test("[R-SETPIECE-008] given the first question's own view, when nothing is answered yet, then it is not a follow-up", () => {
+  test("[route:answer-may-ask-follow-up] given the first question's own view, when nothing is answered yet, then it is not a follow-up", () => {
     const game = lifeAsking("why-uk", 0);
     toApplied(game);
     expect(game.view().setpiece?.question).toMatchObject({ id: "why-uk", followUp: false });
   });
 
-  test("[R-SETPIECE-008] given the follow-up answered, when the next question comes, then it is the next one drawn: never a second follow-up for the one question", () => {
+  test("[route:answer-may-ask-follow-up] given the follow-up answered, when the next question comes, then it is the next one drawn: never a second follow-up for the one question", () => {
     const followUp = followUpOf("why-uk", "agent");
     // A follow-up whose own answer names another follow-up: the content check forbids it, and the set piece asks only one anyway.
     const chained: SetpieceEntry = {
@@ -97,7 +97,7 @@ describe("the follow-up question", () => {
     }
   });
 
-  test("[R-SETPIECE-008] [R-SETPIECE-004] given who-pays drawn last, when a sponsor is the answer, then the interview stays open for the follow-up and the score recorded counts the follow-up's answer", () => {
+  test("[route:answer-may-ask-follow-up] [route:answers-score-and-close] given who-pays drawn last, when a sponsor is the answer, then the interview stays open for the follow-up and the score recorded counts the follow-up's answer", () => {
     const game = lifeAsking("who-pays", entry.ask - 1);
     toApplied(game);
     answerFirstUntil(game, "who-pays");
@@ -114,7 +114,7 @@ describe("the follow-up question", () => {
     expect(uk(game).visa?.interviewScore).toBe(before + answerOf("who-pays", "sponsor").score + last.score);
   });
 
-  test("[R-SETPIECE-008] [R-SETPIECE-005] given one answer that scores differently with interview prep 0 and 20, when it names a follow-up, then the follow-up is asked at both: it follows what was said, never what it scored", () => {
+  test("[route:answer-may-ask-follow-up] [route:view-shows-progress-not-score] given one answer that scores differently with interview prep 0 and 20, when it names a follow-up, then the follow-up is asked at both: it follows what was said, never what it scored", () => {
     const followUp = followUpOf("why-uk", "agent");
     const why = entry.questions.find((question) => question.id === "why-uk")!;
     const changed: SetpieceEntry = { ...entry, questions: entry.questions.map((question) => (question.id === "why-uk" ? { ...why, answers: why.answers.map((answer) => (answer.id === "course" ? { ...answer, followUp: followUp.id } : answer)) } : question)) };
@@ -130,7 +130,7 @@ describe("the follow-up question", () => {
     expect(scores.size).toBe(2);
   });
 
-  test("[R-SETPIECE-008] given a follow-up whose conditions fail, when its answer is given, then it is not asked and the next drawn question comes", () => {
+  test("[route:answer-may-ask-follow-up] given a follow-up whose conditions fail, when its answer is given, then it is not asked and the next drawn question comes", () => {
     const followUp = followUpOf("who-pays", "sponsor");
     const never: SetpieceEntry = {
       ...entry,
@@ -144,7 +144,7 @@ describe("the follow-up question", () => {
     expect(game.view().setpiece?.question).toMatchObject({ id: drawn[1], followUp: false });
   });
 
-  test("[R-SETPIECE-008] [R-SETPIECE-004] given an answer marked closes that names a follow-up, when it is given, then the set piece closes and the follow-up is not asked", () => {
+  test("[route:answer-may-ask-follow-up] [route:answers-score-and-close] given an answer marked closes that names a follow-up, when it is given, then the set piece closes and the follow-up is not asked", () => {
     const followUp = followUpOf("who-pays", "sponsor");
     const who = entry.questions.find((question) => question.id === "who-pays")!;
     const closing: SetpieceEntry = { ...entry, questions: entry.questions.map((question) => (question.id === "who-pays" ? { ...who, answers: who.answers.map((answer): SetpieceAnswer => (answer.id === "sponsor" ? { ...answer, closes: true } : answer)) } : question)) };
@@ -157,7 +157,7 @@ describe("the follow-up question", () => {
     expect(game.state.setpiece.given[INTERVIEW]?.[followUp.id]).toBeUndefined();
   });
 
-  test("[R-SETPIECE-008] [R-SETPIECE-001] given follow-ups in the entry, when many interviews open, then none is ever drawn and the draws on visa are as many as the entry asks", () => {
+  test("[route:answer-may-ask-follow-up] [route:set-piece-draws-questions] given follow-ups in the entry, when many interviews open, then none is ever drawn and the draws on visa are as many as the entry asks", () => {
     const followUps = new Set((entry.followUps ?? []).map((question) => question.id));
     expect(followUps.size).toBeGreaterThan(0);
     for (let index = 0; index < 8; index += 1) {
@@ -171,7 +171,7 @@ describe("the follow-up question", () => {
     }
   });
 
-  test("[R-SETPIECE-008] [R-SETPIECE-007] given the follow-up answered, when the answer is looked up, then it is kept as the last answer to that question", () => {
+  test("[route:answer-may-ask-follow-up] [route:last-answers-remembered] given the follow-up answered, when the answer is looked up, then it is kept as the last answer to that question", () => {
     const game = lifeAsking("who-pays", 0);
     toApplied(game);
     const followUp = followUpOf("who-pays", "sponsor");

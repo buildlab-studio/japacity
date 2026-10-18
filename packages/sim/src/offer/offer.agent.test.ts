@@ -1,6 +1,6 @@
-// The agents: docs/rules/advice.md R-ADVICE-005 to 012, played through the
+// The agents: advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells, advice:agents-never-read-money, advice:agent-loss-is-the-fee, advice:bad-news-told-straight, advice:advisers-are-invented-people and advice:free-ways-pointed-first, played through the
 // harness with the real content.
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content, text } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
@@ -49,7 +49,7 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
 }
 
 /**
- * R-ACTIVITY-015: going to the stop or up to the office is an act done at once, so the agent is at the
+ * activity:now-acts-and-month-acts: going to the stop or up to the office is an act done at once, so the agent is at the
  * table in the month it is sent, not as the month ends.
  */
 function openAt(game: Game, activity: Id<"activity"> = TO_STOP): OfferState {
@@ -75,7 +75,7 @@ function eventsOf<T extends OfferEvent["type"]>(result: Accepted, type: T): Extr
 }
 
 describe("who the agent is", () => {
-  test("[R-ADVICE-005] [R-ADVICE-013] given every draw out of 10000, when the kind is read, then fixers, chasers, overpromisers and scammers come at exactly the tuning's shares", () => {
+  test("[advice:agent-kind-drawn-on-offer] [advice:chaser-runs-around-cheaper] given every draw out of 10000, when the kind is read, then fixers, chasers, overpromisers and scammers come at exactly the tuning's shares", () => {
     const counts: Record<AgentKind, number> = { fixer: 0, chaser: 0, overpromiser: 0, scammer: 0 };
     for (let draw = 0; draw < 10000; draw += 1) counts[kindAt(draw, advice.agentKindsBp)] += 1;
     expect(counts).toEqual(advice.agentKindsBp);
@@ -87,7 +87,7 @@ describe("who the agent is", () => {
   });
 
   test.prop([fc.integer({ min: 0, max: 999 })], { numRuns: 12 })(
-    "[R-ADVICE-005] [R-ADVICE-006] given any seed, when the agent at the stop opens, then his fee is in his kind's range in whole thousands, he carries his kind's tells, one shows at once, and the view never carries the kind",
+    "[advice:agent-kind-drawn-on-offer] [advice:scams-show-their-tells] given any seed, when the agent at the stop opens, then his fee is in his kind's range in whole thousands, he carries his kind's tells, one shows at once, and the view never carries the kind",
     (n) => {
       const game = pastChapterOne(`prop-${String(n)}`);
       const item = openAt(game);
@@ -106,7 +106,7 @@ describe("who the agent is", () => {
     },
   );
 
-  test("[R-ADVICE-005] given 240 seeds, when the agent at the stop opens for each, then each kind comes near its share", () => {
+  test("[advice:agent-kind-drawn-on-offer] given 240 seeds, when the agent at the stop opens for each, then each kind comes near its share", () => {
     const counts: Record<AgentKind, number> = { fixer: 0, chaser: 0, overpromiser: 0, scammer: 0 };
     const seeds = 240;
     for (let n = 0; n < seeds; n += 1) counts[kindOf(openAt(pastChapterOne(`share-${String(n)}`)))] += 1;
@@ -115,13 +115,13 @@ describe("who the agent is", () => {
     }
   });
 
-  test("[R-ADVICE-005] given the fee ranges, when they are compared, then every two overlap, so the fee never tells the kind", () => {
+  test("[advice:agent-kind-drawn-on-offer] given the fee ranges, when they are compared, then every two overlap, so the fee never tells the kind", () => {
     const ranges = Object.values(advice.fees);
     for (const [aMin, aMax] of ranges) for (const [bMin, bMax] of ranges) expect(aMin <= bMax && bMin <= aMax).toBe(true);
     expect(advice.fees.scammer[1]).toBeGreaterThanOrEqual(advice.fees.fixer[1]);
   });
 
-  test("[R-ADVICE-010] given the desk in the agent's office, when he opens on any seed, then he is a fixer named Ameh; the men at the stop are three faces from the name pool", () => {
+  test("[advice:advisers-are-invented-people] given the desk in the agent's office, when he opens on any seed, then he is a fixer named Ameh; the men at the stop are three faces from the name pool", () => {
     for (let n = 0; n < 6; n += 1) {
       const item = openAt(pastChapterOne(`desk-${String(n)}`), TO_OFFICE);
       expect(kindOf(item)).toBe("fixer");
@@ -137,7 +137,7 @@ describe("who the agent is", () => {
 });
 
 describe("the tells", () => {
-  test("[R-ADVICE-006] given the entries, when each kind's tells are read, then a scammer carries at least the tuning's count, an overpromiser at least his, a fixer at most one, and every tell is in content's list", () => {
+  test("[advice:scams-show-their-tells] given the entries, when each kind's tells are read, then a scammer carries at least the tuning's count, an overpromiser at least his, a fixer at most one, and every tell is in content's list", () => {
     expect(carriedTells(stop, "scammer", advice).length).toBeGreaterThanOrEqual(advice.scamTells);
     expect(carriedTells(stop, "overpromiser", advice).length).toBeGreaterThanOrEqual(advice.overpromiseTells);
     expect(carriedTells(stop, "fixer", advice).length).toBeLessThanOrEqual(1);
@@ -145,7 +145,7 @@ describe("the tells", () => {
     expect(agentProblems(content)).toEqual([]);
   });
 
-  test("[R-ADVICE-006] given a scammer, when the three looks are made, then each costs no slot and no money, finds every tell it would find, and he shows at least two tells before any fee", () => {
+  test("[advice:scams-show-their-tells] given a scammer, when the three looks are made, then each costs no slot and no money, finds every tell it would find, and he shows at least two tells before any fee", () => {
     const { game, item } = agentOfKind("scammer");
     const before = { cash: cash(game), month: game.state.turn.month, banked: game.state.turn.banked };
     for (const look of LOOKS) {
@@ -161,13 +161,13 @@ describe("the tells", () => {
     game.expectRejected({ type: "offer/choose", offer: item.id, choice: "look-office" }, "not-legal");
   });
 
-  test("[R-ADVICE-006] given a fixer, when every look is made, then he shows at most one tell", () => {
+  test("[advice:scams-show-their-tells] given a fixer, when every look is made, then he shows at most one tell", () => {
     const { game, item } = agentOfKind("fixer");
     for (const look of LOOKS) game.accept({ type: "offer/choose", offer: item.id, choice: look });
     expect(game.state.offer.items[item.id]!.signs.filter((key) => !LOOKS.includes(key as never)).length).toBeLessThanOrEqual(1);
   });
 
-  test("[R-ADVICE-006] given no bond and a network under the bar, when the name look is tried, then it is not legal; the office look still is", () => {
+  test("[advice:scams-show-their-tells] given no bond and a network under the bar, when the name look is tried, then it is not legal; the office look still is", () => {
     for (let n = 0; n < 4; n += 1) {
       const game = pastChapterOne(`alone-${String(n)}`, 0, 0);
       expect(game.state.quality[NETWORK]).toBeLessThan(advice.networkToAsk);
@@ -180,17 +180,17 @@ describe("the tells", () => {
 });
 
 describe("what the agent's appearance reads", () => {
-  test("[R-ADVICE-007] given the agent entries, when the content check reads them, then none reads money; a planted money condition, inside not or any, fails it", () => {
+  test("[advice:agents-never-read-money] given the agent entries, when the content check reads them, then none reads money; a planted money condition, inside not or any, fails it", () => {
     expect(Object.values(content.offer).filter(agentReadsMoney)).toEqual([]);
     const planted = (when: OfferEntry["when"]): Content => ({ ...content, offer: { ...content.offer, [STOP]: { ...stop, when } } });
     const money = { type: "money/min", currency: "NGN", amount: 1 } as const;
-    expect(agentProblems(planted([money]))).toEqual([`${STOP}: an agent's when reads money (R-ADVICE-007).`, `${STOP}: an agent's when reads money/min (R-ADVICE-007).`, `${STOP}: opens before ${FEET} is done (R-ADVICE-012).`]);
+    expect(agentProblems(planted([money]))).toEqual([`${STOP}: an agent's when reads money (advice:agents-never-read-money).`, `${STOP}: an agent's when reads money/min (advice:agents-never-read-money).`, `${STOP}: opens before ${FEET} is done (advice:free-ways-pointed-first).`]);
     expect(agentReadsMoney({ ...stop, when: [{ type: "not", of: money }] })).toBe(true);
     expect(agentReadsMoney({ ...stop, when: [{ type: "any", of: [{ type: "wallet/total", flow: "out", reason: "remit", currency: "GBP", amount: 1 }] }] })).toBe(true);
-    expect(agentProblems(planted([...stop.when, { type: "quality/min", quality: NETWORK, value: 1 }]))).toEqual([`${STOP}: an agent's when reads quality/min (R-ADVICE-007).`]);
+    expect(agentProblems(planted([...stop.when, { type: "quality/min", quality: NETWORK, value: 1 }]))).toEqual([`${STOP}: an agent's when reads quality/min (advice:agents-never-read-money).`]);
   });
 
-  test("[R-ADVICE-012] given a life before the first chapter is done, when the agent is sought, then the act is not legal and opening the offer opens nothing", () => {
+  test("[advice:free-ways-pointed-first] given a life before the first chapter is done, when the agent is sought, then the act is not legal and opening the offer opens nothing", () => {
     const game = readyLife(content, { quiet: true });
     applyEffects(game, [{ type: "route/hear", route: GULF_ROUTE, via: "test" }]);
     game.expectRejected({ type: "activity/now", activity: TO_STOP, param: GULF_ROUTE }, "not-legal");
@@ -203,7 +203,7 @@ describe("what the agent's appearance reads", () => {
 });
 
 describe("paying the agent", () => {
-  test("[R-ADVICE-001] [R-ADVICE-005] [R-WALLET-018] given a fixer and a paper being made, when he is paid, then the fee, over the line for cash, leaves the bank first, the route is known through him, and the paper comes the fixer's months sooner", () => {
+  test("[advice:four-ways-to-learn-route] [advice:agent-kind-drawn-on-offer] [wallet:money-lands-as-in-lagos] given a fixer and a paper being made, when he is paid, then the fee, over the line for cash, leaves the bank first, the route is known through him, and the paper comes the fixer's months sooner", () => {
     const { game, item } = agentOfKind("fixer");
     applyEffects(game, [{ type: "document/request", document: "document.medical" }]);
     const due = game.state.document["document.medical"]!.readyMonth!;
@@ -219,7 +219,7 @@ describe("paying the agent", () => {
     expect(eventsOf(result, "offer/agent-paid")[0]).toMatchObject({ kind: "fixer", paper: "document.medical" });
   });
 
-  test("[R-ADVICE-005] given an overpromiser, when he is paid, then nothing moves, his promise waits, and when its month comes the report says nothing moved", () => {
+  test("[advice:agent-kind-drawn-on-offer] given an overpromiser, when he is paid, then nothing moves, his promise waits, and when its month comes the report says nothing moved", () => {
     const { game, item } = agentOfKind("overpromiser");
     applyEffects(game, [{ type: "document/request", document: "document.medical" }]);
     const due = game.state.document["document.medical"]!.readyMonth;
@@ -236,7 +236,7 @@ describe("paying the agent", () => {
     expect(lines.find((line) => line.key === "line.offer.agent-promise-broken")?.params).toEqual({ agent: item.terms["agent"], month: promise.expiresMonth });
   });
 
-  test("[R-ADVICE-008] given cash one naira short of the fee plus the floor, and then exactly that, when the agent is paid, then the first is refused and lapses into a decline, and the second is taken", () => {
+  test("[advice:agent-loss-is-the-fee] given cash one naira short of the fee plus the floor, and then exactly that, when the agent is paid, then the first is refused and lapses into a decline, and the second is taken", () => {
     const { game, item } = agentOfKind("fixer");
     const fee = item.terms["fee"] as number;
     // The floor is kept in cash and bank together (decision 0014): empty the bank so cash is the only naira.
@@ -251,7 +251,7 @@ describe("paying the agent", () => {
     expect(stop.onExpire).toBe("decline");
   });
 
-  test("[R-ADVICE-009] given a scammer whose tells were seen, when he is paid, then the report names him, says the fee is gone, and names every tell seen; he offers fake papers", () => {
+  test("[advice:bad-news-told-straight] given a scammer whose tells were seen, when he is paid, then the report names him, says the fee is gone, and names every tell seen; he offers fake papers", () => {
     const { game, item } = agentOfKind("scammer");
     game.accept({ type: "offer/choose", offer: item.id, choice: "look-office" });
     const seen = game.state.offer.items[item.id]!.signs.filter((key) => !LOOKS.includes(key as never));
@@ -283,7 +283,7 @@ describe("fake papers", () => {
     return game;
   }
 
-  test("[R-ADVICE-008] given a fake transcript used for the UK route, when the application is sent and decided, then the interview opens as usual and the visa is refused for the agent's papers, with no ban", () => {
+  test("[advice:agent-loss-is-the-fee] given a fake transcript used for the UK route, when the application is sent and decided, then the interview opens as usual and the visa is refused for the agent's papers, with no ban", () => {
     const game = withFakeTranscript();
     expect(game.state.document["document.transcript"]).toMatchObject({ state: "held", genuine: false });
     toApplied(game);
@@ -294,7 +294,7 @@ describe("fake papers", () => {
     expect(game.state.route[UK_ROUTE]?.lastRefusal?.reasons[0]).toBe("agent");
   });
 
-  test("[R-ADVICE-008] given a fake transcript, when the interview's questions are read, then the papers question is asked and every answer scores below zero; with a genuine transcript it is never asked", () => {
+  test("[advice:agent-loss-is-the-fee] given a fake transcript, when the interview's questions are read, then the papers question is asked and every answer scores below zero; with a genuine transcript it is never asked", () => {
     const interview = content.setpiece["setpiece.credibility-interview"]!;
     const papers = interview.questions.find((question) => question.id === "papers")!;
     const faked = withFakeTranscript();
@@ -307,7 +307,7 @@ describe("fake papers", () => {
     expect(papers.when.every((requirement) => judgeHonest(requirement).met)).toBe(false);
   });
 
-  test("[R-ADVICE-008] given a fake never used, when the genuine paper is requested and issued, then the record is genuine; once used, the issued paper keeps the mark", () => {
+  test("[advice:agent-loss-is-the-fee] given a fake never used, when the genuine paper is requested and issued, then the record is genuine; once used, the issued paper keeps the mark", () => {
     const unused = withFakeTranscript();
     applyEffects(unused, [{ type: "document/request", document: "document.transcript" }]);
     for (let month = 0; month < 6 && unused.state.document["document.transcript"]!.readyMonth !== null; month += 1) unused.endTurn();

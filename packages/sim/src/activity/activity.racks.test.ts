@@ -1,6 +1,6 @@
-// The fish racks at Makoko (docs/rules/activity.md R-ACTIVITY-017): the child of the water's work at hand, a main
+// The fish racks at Makoko (activity:fish-racks-at-makoko): the child of the water's work at hand, a main
 // job for anyone who lives in Makoko's room, with the rent small enough that most of the pay stays. Real content,
-// real draws, the lives played from the prologue as the tiles play them (R-PROLOGUE-012).
+// real draws, the lives played from the prologue as the tiles play them (prologue:makoko-start-never-a-trap).
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -43,7 +43,7 @@ function huntRacks(game: Game): boolean {
 }
 
 describe("the fish racks at Makoko", () => {
-  test("[R-ACTIVITY-017] [R-PROLOGUE-012] given the child of the water in Makoko's room, when the first month's hunt goes to the racks, then the racks are on the board from the first month and hire on most seeds", () => {
+  test("[activity:fish-racks-at-makoko] [prologue:makoko-start-never-a-trap] given the child of the water in Makoko's room, when the first month's hunt goes to the racks, then the racks are on the board from the first month and hire on most seeds", () => {
     let hired = 0;
     for (let at = 0; at < SEEDS; at += 1) {
       const game = sixteen(`racks-${String(at)}`, WATER);
@@ -56,7 +56,7 @@ describe("the fish racks at Makoko", () => {
     expect(content.activity[RACKS]).toMatchObject({ slot: "main", where: "home" });
   });
 
-  test("[R-ACTIVITY-017] [R-HOME-002] given the racks held in Makoko, when a month is worked, then the pay lands as salary, it covers the room's rent, and the month leaves naira over to save", () => {
+  test("[activity:fish-racks-at-makoko] [home:move-home-once-a-month] given the racks held in Makoko, when a month is worked, then the pay lands as salary, it covers the room's rent, and the month leaves naira over to save", () => {
     const pay = content.activity[RACKS]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The racks pay nothing.");
     expect(pay.currency).toBe("NGN");
@@ -75,7 +75,7 @@ describe("the fish racks at Makoko", () => {
     throw new Error("No seed gave a quiet month at the racks.");
   });
 
-  test("[R-ACTIVITY-017] [R-ACTIVITY-010] given the racks held, when the character flies, then the racks end with the flight and pay nothing after", () => {
+  test("[activity:fish-racks-at-makoko] [activity:side-job-holds-a-slot] given the racks held, when the character flies, then the racks end with the flight and pay nothing after", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     applyEffects(game, [{ type: "activity/start-job", job: RACKS }]);
@@ -86,7 +86,7 @@ describe("the fish racks at Makoko", () => {
     expect(salaries(game.endTurn())).toEqual([]);
   });
 
-  test("[R-ACTIVITY-017] given every fixed life and the shop worker at the family house, when the hunt is listed, then none of them sees the racks", () => {
+  test("[activity:fish-racks-at-makoko] given every fixed life and the shop worker at the family house, when the hunt is listed, then none of them sees the racks", () => {
     const lives = [...Object.keys(content.scenario).filter((id) => id !== "scenario.prologue").map((scenario) => start({ content, scenario: scenario as Id<"scenario"> })), sixteen("racks-0", SHOP_WORKER)];
     for (const game of lives) {
       expect(game.state.home.place).not.toBe(MAKOKO);

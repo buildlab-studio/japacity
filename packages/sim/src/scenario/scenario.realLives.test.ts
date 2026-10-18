@@ -14,17 +14,17 @@ import { finishPrologue, start } from "../testing/play";
 const lives = Object.keys(content.scenario) as Id<"scenario">[];
 
 describe("the real content", () => {
-  test("[R-ENGINE-014] given the real content, when checked, then nothing is wrong", () => {
+  test("[engine:content-checked-before-play] given the real content, when checked, then nothing is wrong", () => {
     expect(content.version).toBe("1");
     expect(checkContent(content)).toEqual([]);
   });
 
-  test("[R-SCENARIO-001] given the six lives, when states are built from them, then every invariant holds", () => {
+  test("[scenario:state-built-from-scenario] given the six lives, when states are built from them, then every invariant holds", () => {
     expect(lives).toHaveLength(6);
     for (const life of lives) expect(checkInvariants(newState(life, "seed", content), content)).toEqual([]);
   });
 
-  test.each(lives)("[R-SCENARIO-003] [R-ENGINE-011] given %s, when twelve months are played from the legal list, then every command is accepted and the view hides nothing", (life) => {
+  test.each(lives)("[scenario:first-turn-always-endable] [engine:player-never-stuck] given %s, when twelve months are played from the legal list, then every command is accepted and the view hides nothing", (life) => {
     const game = start({ scenario: life, content });
     finishPrologue(game);
     for (let month = 0; month < 12; month += 1) {
@@ -39,7 +39,7 @@ describe("the real content", () => {
     expect(game.state.turn.banked).toBe(content.tuning.turn.start - 12);
   });
 
-  test.each(lives)("[R-SCENARIO-003] [R-ENGINE-011] given %s, when 40 months are played with every slot resting, then each turn is accepted and every invariant holds", (life) => {
+  test.each(lives)("[scenario:first-turn-always-endable] [engine:player-never-stuck] given %s, when 40 months are played with every slot resting, then each turn is accepted and every invariant holds", (life) => {
     const game = start({ scenario: life, content });
     finishPrologue(game);
     for (let month = 0; month < 40; month += 1) {

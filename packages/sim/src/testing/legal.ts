@@ -9,7 +9,7 @@ import type { Loose } from "./play";
 
 function fromTurn(view: PlayerView): Loose[] {
   if (view.turns.banked < 1 || view.setpiece !== null) return [];
-  // Each playable activity with its first param, then every other param on its own. A now-act fills no slot (R-ACTIVITY-015).
+  // Each playable activity with its first param, then every other param on its own. A now-act fills no slot (activity:now-acts-and-month-acts).
   const playable = view.activities.filter((option) => option.allowed && option.affordable && option.when === "month");
   const first: SlotPick[] = [];
   const commands: Loose[] = [{ type: "turn/end", slots: [] }];
@@ -50,23 +50,23 @@ function fromOffers(view: PlayerView): Loose[] {
 function fromSetpiece(view: PlayerView): Loose[] {
   const question = view.setpiece?.question;
   if (question === undefined || question === null) return [];
-  // Only an allowed answer is accepted (R-SETPIECE-003).
+  // Only an allowed answer is accepted (route:set-piece-answers-in-order).
   return question.allowed.map((answer) => ({ type: "setpiece/answer", question: question.id, answer }));
 }
 
-/** R-INTERVIEW-004: every option of the question this life must answer now. */
+/** interview:answers-taken-in-order: every option of the question this life must answer now. */
 function fromInterview(view: PlayerView): Loose[] {
   const question = view.interview?.question;
   if (question === undefined || question === null) return [];
   return question.options.map((option) => ({ type: "interview/answer", question: question.id, option }));
 }
 
-/** R-PEOPLE-016: the moments partners needs in the shipped content and the mini content alike. */
+/** person:proposing-a-step: the moments partners needs in the shipped content and the mini content alike. */
 const PARTNER_MOMENTS = 6;
 const TOGETHER: readonly string[] = ["partner", "married"];
 
 /**
- * R-PEOPLE-016: partners asked of a courting bond with the moments for it,
+ * person:proposing-a-step: partners asked of a courting bond with the moments for it,
  * while nothing else is waiting on it, no other bond is together and the
  * cooldown after a no has passed. Marriage is not sampled, because
  * the view carries no `partnerMonth` to tell the months as partners.
@@ -90,11 +90,11 @@ function proposals(view: PlayerView): Loose[] {
 function fromPeople(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
   const { slots, bonds, candidates, joint } = view.people;
-  // R-PEOPLE-013: any courting limit allows one bond.
+  // person:courting-opens-a-bond: any courting limit allows one bond.
   if (!bonds.some((bond) => bond.stage === "courting")) {
     for (const candidate of candidates) if (candidate.role === "partner") commands.push({ type: "people/court", with: candidate.person });
   }
-  // R-PEOPLE-010: a card on the empty partner slot or a computer sibling's, and taking one back.
+  // person:invite-fills-a-slot: a card on the empty partner slot or a computer sibling's, and taking one back.
   for (const [slot, held] of Object.entries(slots)) {
     if (held.state === "invited") commands.push({ type: "people/invite", slot });
     else if (slot === "partner" && held.state === "empty") commands.push({ type: "people/invite", slot, looking: "partner" });
@@ -105,9 +105,9 @@ function fromPeople(view: PlayerView): Loose[] {
     if (bond.stage === "ended") continue;
     if (bond.pending.mine !== null) commands.push({ type: "people/withdraw", bond: bond.id });
     if (bond.pending.theirs !== null) commands.push({ type: "people/answer", bond: bond.id, step: bond.pending.theirs.step, yes: false });
-    // R-PEOPLE-044: consent may be given while a joint is asked for, before it is agreed.
+    // person:stand-in-acts-narrowly: consent may be given while a joint is asked for, before it is agreed.
     if (joint?.bond !== bond.id && (bond.pending.mine?.step === "joint" || bond.pending.theirs?.step === "joint")) commands.push({ type: "people/consent", bond: bond.id, standInMay: true });
-    // R-PEOPLE-035: an end is never refused for a bond still open.
+    // person:either-side-ends-a-bond: an end is never refused for a bond still open.
     commands.push({ type: "people/end", bond: bond.id });
   }
   if (joint !== null) commands.push({ type: "people/consent", bond: joint.bond, countFunds: true });
@@ -146,7 +146,7 @@ function fromWallet(view: PlayerView): Loose[] {
   if (pounds.bank >= SMALL_FOREIGN && allowance >= poundCents) {
     commands.push({ type: "wallet/convert", from: "GBP", to: "USD", amount: SMALL_FOREIGN, via: "bank" });
   }
-  // R-ABROAD-006: from abroad, a small sum home by each channel.
+  // abroad-money:remit-sends-money-home: from abroad, a small sum home by each channel.
   if (view.place.where === "abroad") {
     for (const currency of foreign) {
       if (view.pockets[currency].bank < SMALL_FOREIGN) continue;
@@ -173,10 +173,10 @@ const LOANS: Record<string, Currency> = {
 const CAR = "obligation.car";
 
 /**
- * Paying ahead (R-OBLIGATION-008), and a car's arrears (R-CAR-003): the view's
+ * Paying ahead (obligation:paying-down-obligations), and a car's arrears (car:missed-payments-take-the-car): the view's
  * `due` on a car behind on its payments is what clears them. Held funds still
  * hold their principal. Everything else is paid month by month and is never
- * offered. The car's hand-back (R-CAR-004) needs its price, which the view does
+ * offered. The car's hand-back (car:car-handed-back-after-half) needs its price, which the view does
  * not carry, so it is not sampled.
  */
 function fromObligations(view: PlayerView): Loose[] {
@@ -229,7 +229,7 @@ function fromRoute(view: PlayerView): Loose[] {
 }
 
 /**
- * Coming home (R-PLACE-004). The view carries no fare. The sampler
+ * Coming home (place:return-home-paid-or-assisted). The view carries no fare. The sampler
  * offers the return when the character holds no lawful status (none, or a
  * cash-only one, which in content is always the overstayer's), since that is
  * accepted whether or not the fare can be paid; otherwise only when the
@@ -252,7 +252,7 @@ function fromPlace(view: PlayerView): Loose[] {
   return pocket.bank + pocket.cash >= bound.amount ? [{ type: "return/home" }] : [];
 }
 
-/** R-PROLOGUE-003: every answer of the current card that is allowed now. */
+/** prologue:steps-offer-legal-answers: every answer of the current card that is allowed now. */
 function fromPrologue(view: PlayerView): Loose[] {
   const card = view.prologue;
   if (card === null) return [];
@@ -260,7 +260,7 @@ function fromPrologue(view: PlayerView): Loose[] {
 }
 
 /**
- * Quitting, and each now-act the view allows with its first param (R-ACTIVITY-015). Another param only for a free act:
+ * Quitting, and each now-act the view allows with its first param (activity:now-acts-and-month-acts). Another param only for a free act:
  * the view prices the first param alone, and a now-act that cannot be paid is refused where a slot only failed.
  */
 function fromActivity(view: PlayerView): Loose[] {
@@ -275,7 +275,7 @@ function fromActivity(view: PlayerView): Loose[] {
 }
 
 /**
- * R-LOTTERY-003: one ticket while the cap and the naira bank allow it.
+ * lottery:ticket-buying-capped: one ticket while the cap and the naira bank allow it.
  * The server's world shows a closed draw from its close until the
  * next draw opens with its result (`lotteryFor`), and the view carries no tick
  * to tell it from a draw on sale, so in that window this offers a ticket the
@@ -283,9 +283,9 @@ function fromActivity(view: PlayerView): Loose[] {
  */
 function fromLottery(view: PlayerView): Loose[] {
   const draw = view.lottery;
-  // R-LOTTERY-002: nothing is on sale between a draw's close and the next opening.
+  // lottery:draw-sells-between-ticks: nothing is on sale between a draw's close and the next opening.
   if (draw === null || !draw.onSale || draw.tickets >= draw.maxTickets || view.pockets.NGN.bank < draw.ticket) return [];
-  // R-WALLET-020: a ticket is bought with earned naira only, the naira held less the marked share.
+  // wallet:top-ups-are-marked: a ticket is bought with earned naira only, the naira held less the marked share.
   if (view.pockets.NGN.bank + view.pockets.NGN.cash - view.wallet.marked < draw.ticket) return [];
   return [{ type: "lottery/buy", tickets: 1 }];
 }
@@ -296,7 +296,7 @@ function fromLottery(view: PlayerView): Loose[] {
  */
 export function legalCommands(view: PlayerView): Loose[] {
   if (view.ended) return [];
-  // R-PROLOGUE-001: while the prologue is open, its answers are all a player may send.
+  // prologue:prologue-life-starts-empty: while the prologue is open, its answers are all a player may send.
   if (view.prologue !== null) return fromPrologue(view).filter((command) => handles(command.type));
   return [
     ...fromTurn(view),
@@ -311,7 +311,7 @@ export function legalCommands(view: PlayerView): Loose[] {
     ...fromInterview(view),
     ...fromPeople(view),
   ].filter(
-    // R-INTERVIEW-004: a question waiting holds the turn as a set piece does.
+    // interview:answers-taken-in-order: a question waiting holds the turn as a set piece does.
     (command) => handles(command.type) && !(command.type === "turn/end" && (view.interview?.question ?? null) !== null),
   );
 }

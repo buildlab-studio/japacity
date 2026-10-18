@@ -1,4 +1,4 @@
-// Preset phrases between players: docs/rules/pair.md R-PAIR-010 to 013. The
+// Preset phrases between players: pair:preset-phrases-only, pair:conversation-phrases-stored, pair:place-phrases-not-stored and pair:phrase-checks-before-send. The
 // caller passes its own clock; nothing here reads one.
 import type { ConversationRow, Content, PairRecord, PhraseEntry, PlayerView, Tuning } from "../engine/types";
 import type { PairWrite, Side } from "../pair/pair.events";
@@ -48,9 +48,9 @@ function fillFits(phrase: PhraseEntry, fill: string | null, fills: string[]): bo
 const refuse = (failed: SayRefusal): SayResult => ({ ok: false, failed });
 
 /**
- * Whether `from` may send `phrase` in the pair's conversation (R-PAIR-013):
+ * Whether `from` may send `phrase` in the pair's conversation (pair:phrase-checks-before-send):
  * connected, not blocked and within the hourly count, in that order; then the
- * phrase itself (R-PAIR-010, R-PAIR-012).
+ * phrase itself (pair:preset-phrases-only, pair:place-phrases-not-stored).
  */
 export function canSay(record: PairRecord, from: Side, phrase: PhraseEntry, fill: string | null, policy: SayPolicy): SayResult {
   const them = flip(from);
@@ -63,7 +63,7 @@ export function canSay(record: PairRecord, from: Side, phrase: PhraseEntry, fill
   return { ok: true };
 }
 
-/** Whether a phrase may be said aloud in a place (R-PAIR-012, R-PAIR-013). Who hears it is `heardBy`. */
+/** Whether a phrase may be said aloud in a place (pair:place-phrases-not-stored, pair:phrase-checks-before-send). Who hears it is `heardBy`. */
 export function canSayInPlace(phrase: PhraseEntry, fill: string | null, policy: PlacePolicy): SayResult {
   if (!policy.here) return refuse("not-here");
   if (sentWithin(policy.sent, policy.now, MINUTE_MS) >= policy.tuning.placePhrasesPerMinute) return refuse("too-many");
@@ -74,7 +74,7 @@ export function canSayInPlace(phrase: PhraseEntry, fill: string | null, policy: 
 
 /**
  * Who hears a phrase said in a place: everyone there but the speaker, except
- * anyone with a block either way (R-PAIR-013, R-PAIR-015).
+ * anyone with a block either way (pair:phrase-checks-before-send, pair:block-ends-every-bond).
  */
 export function heardBy(speaker: string, present: { id: string }[], blocks: { from: string; to: string }[]): string[] {
   const blockedWith = (listener: string): boolean =>
@@ -83,7 +83,7 @@ export function heardBy(speaker: string, present: { id: string }[], blocks: { fr
 }
 
 /**
- * A phrase's fill-ins, from fixed lists only (R-PAIR-010): the shared spots, the
+ * A phrase's fill-ins, from fixed lists only (pair:preset-phrases-only): the shared spots, the
  * routes the sender has heard of, the news delivered to the sender, or the
  * entry's own options.
  */
@@ -108,7 +108,7 @@ export function fillOptions(phrase: PhraseEntry, content: Content, view: PlayerV
 }
 
 /**
- * The `said` moment a stored phrase appends to the record (R-PAIR-011), to be
+ * The `said` moment a stored phrase appends to the record (pair:conversation-phrases-stored), to be
  * written from the sender's side. The fill is kept as the spot only when it is one.
  */
 export function saidMoment(row: ConversationRow, phrase: PhraseEntry, tick: number): PairWrite {

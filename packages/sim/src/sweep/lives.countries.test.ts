@@ -19,7 +19,7 @@ const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
 const recorded = Object.entries(countryLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
 describe("the lives recorded for the three countries", () => {
-  test("[R-ENGINE-010] given the countries' recordings, when listed, then a life lands in each country recorded (the UAE and Canada today), each starts from a life in the content, and none shares a name with another recording", () => {
+  test("[engine:state-is-plain-data] given the countries' recordings, when listed, then a life lands in each country recorded (the UAE and Canada today), each starts from a life in the content, and none shares a name with another recording", () => {
     expect(recorded.map((script) => script.name).sort()).toEqual(Object.keys(LANDS).sort());
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
@@ -29,7 +29,7 @@ describe("the lives recorded for the three countries", () => {
   });
 
   test.each(recorded.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted, both replays agree, and the life stands in its country by its route",
+    "[engine:same-inputs-same-result] [engine:state-is-plain-data] given %s, when its save is replayed twice through the real content, then every command is accepted, both replays agree, and the life stands in its country by its route",
     (name, script) => {
       const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);

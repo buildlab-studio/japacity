@@ -1,4 +1,4 @@
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -23,7 +23,7 @@ const entry = content.route[TALENT]!;
 const block = entry.endorsement!;
 const ENDORSEMENT = block.document;
 const startVar = (id: Id<"var">): number => content.var[id]!.start;
-/** The bars of R-ENDORSE-001, each exactly met. */
+/** The bars of route-gates:applying-for-endorsement, each exactly met. */
 const AT_BARS = { "quality.tech": 75, "quality.portfolio": 3, "quality.network": 50 };
 
 /** Content whose talent route has the endorsement block changed. */
@@ -42,8 +42,8 @@ function withCooldownStep(used: Content): Content {
 
 /**
  * Ada, who holds no job, so her tech and network stay where they are set. The talent route's window is held open
- * unless a test sets it: the world's own pool may close it in any world (`news.uk-talent-body-closes`, R-DIRECTOR-003),
- * and with the one-chance story in the pool (wallet.md R-WALLET-019) it does so in the test world's first months.
+ * unless a test sets it: the world's own pool may close it in any world (`news.uk-talent-body-closes`, director:stories-start-by-roll),
+ * and with the one-chance story in the pool (wallet:cash-pile-warning) it does so in the test world's first months.
  */
 function talentLife(options: LifeOptions = {}): Game {
   const vars = (tick: number) => ({ [entry.window!]: 2, ...options.vars?.(tick) });
@@ -70,7 +70,7 @@ function toKnown(game: Game): void {
 }
 
 /**
- * Asks for the endorsement and plays to the month before it is issued. Returns that month. R-ACTIVITY-015: the request is sent at once and the month left open, so the letter is never issued in the month it
+ * Asks for the endorsement and plays to the month before it is issued. Returns that month. activity:now-acts-and-month-acts: the request is sent at once and the month left open, so the letter is never issued in the month it
  * is asked for before the test can read it.
  */
 function toRequested(game: Game): number {
@@ -90,7 +90,7 @@ function toIssued(game: Game): string[] {
 
 describe("the endorsement gate", () => {
   describe("asking for the endorsement", () => {
-    test("[R-ENDORSE-001] given the route known and every bar met, when the endorsement is asked for, then the fee is paid in pounds as a document fee and the letter is on its way", () => {
+    test("[route-gates:applying-for-endorsement] given the route known and every bar met, when the endorsement is asked for, then the fee is paid in pounds as a document fee and the letter is on its way", () => {
       const game = talentLife();
       toKnown(game);
       const before = game.state.wallet.pockets.GBP.bank;
@@ -108,20 +108,20 @@ describe("the endorsement gate", () => {
       ["quality.tech", 74],
       ["quality.portfolio", 2],
       ["quality.network", 49],
-    ] as const)("[R-ENDORSE-001] given %s one under its bar at %i, when the endorsement is asked for, then the turn is rejected", (quality, value) => {
+    ] as const)("[route-gates:applying-for-endorsement] given %s one under its bar at %i, when the endorsement is asked for, then the turn is rejected", (quality, value) => {
       const game = talentLife({ qualities: { [quality]: value } });
       toKnown(game);
       expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
     });
 
-    test("[R-ENDORSE-001] given an endorsement already being made, when it is asked for again, then the turn is rejected", () => {
+    test("[route-gates:applying-for-endorsement] given an endorsement already being made, when it is asked for again, then the turn is rejected", () => {
       const game = talentLife();
       toKnown(game);
       game.endTurn([slot(APPLY_ENDORSEMENT)]);
       expect(game.expectRejected({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null }, "not-legal").code).toBe("not-legal");
     });
 
-    test("[R-ENDORSE-001] given the window closed, when the endorsement is asked for, then the turn is rejected", () => {
+    test("[route-gates:applying-for-endorsement] given the window closed, when the endorsement is asked for, then the turn is rejected", () => {
       let closed = false;
       const game = talentLife({ vars: () => (closed ? { [entry.window!]: 0 } : {}) });
       toKnown(game);
@@ -137,12 +137,12 @@ describe("the endorsement gate", () => {
       [3, 51, 2510],
       [2, 40, 2500],
       [10, 100, 7900],
-    ])("[R-ENDORSE-002] given portfolio %i and network %i, when the chance is worked out, then it is %i basis points", (portfolio, network, chance) => {
+    ])("[route-gates:endorsement-decided-by-draw] given portfolio %i and network %i, when the chance is worked out, then it is %i basis points", (portfolio, network, chance) => {
       const game = talentLife({ qualities: { "quality.portfolio": portfolio, "quality.network": network } });
       expect(endorsementChanceBp(readOf(game), TALENT)).toBe(chance);
     });
 
-    test("[R-ENDORSE-002] given a cap below the sum, when the chance is worked out, then it stops at the cap, and one point less is under it", () => {
+    test("[route-gates:endorsement-decided-by-draw] given a cap below the sum, when the chance is worked out, then it stops at the cap, and one point less is under it", () => {
       const capped = withBlock({ capBp: 3210 });
       const over = talentLife({ change: capped, qualities: { "quality.portfolio": 4, "quality.network": 52 } });
       expect(endorsementChanceBp(readOf(over), TALENT)).toBe(3210);
@@ -153,7 +153,7 @@ describe("the endorsement gate", () => {
     });
 
     test.each(["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6"])(
-      "[R-ENDORSE-002] given %s, when the endorsement is issued, then one draw on visa decides it against the chance",
+      "[route-gates:endorsement-decided-by-draw] given %s, when the endorsement is issued, then one draw on visa decides it against the chance",
       (seed) => {
         // Tech above its bar: an event of the month can take a point or two off it.
         const game = talentLife({ seed, qualities: { "quality.tech": 85, "quality.portfolio": 5, "quality.network": 70 } });
@@ -171,7 +171,7 @@ describe("the endorsement gate", () => {
       },
     );
 
-    test("[R-ENDORSE-002] given an endorsement that is sure to pass, when it is issued, then it is held for its months and nothing is refused", () => {
+    test("[route-gates:endorsement-decided-by-draw] given an endorsement that is sure to pass, when it is issued, then it is held for its months and nothing is refused", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED });
       toIssued(game);
       const held = game.state.document[ENDORSEMENT];
@@ -181,7 +181,7 @@ describe("the endorsement gate", () => {
       expect(talent(game).state).toBe("known");
     });
 
-    test("[R-ENDORSE-002] given an endorsement that is sure to fail, when it is issued, then it is voided at once and the route records the refusal's month with its line", () => {
+    test("[route-gates:endorsement-decided-by-draw] given an endorsement that is sure to fail, when it is issued, then it is voided at once and the route records the refusal's month with its line", () => {
       const game = talentLife({ change: NEVER_ENDORSED });
       const keys = toIssued(game);
       expect(game.state.document[ENDORSEMENT]).toBeUndefined();
@@ -191,7 +191,7 @@ describe("the endorsement gate", () => {
       expect(checkInvariants(game.state, game.content)).toEqual([]);
     });
 
-    test("[R-ENDORSE-002] given a refused endorsement, when months pass, then the cooled step is not reached for the cooldown's months and is reached after", () => {
+    test("[route-gates:endorsement-decided-by-draw] given a refused endorsement, when months pass, then the cooled step is not reached for the cooldown's months and is reached after", () => {
       const game = talentLife({ change: NEVER_ENDORSED });
       toIssued(game);
       const refused = game.state.turn.month;
@@ -205,7 +205,7 @@ describe("the endorsement gate", () => {
       expect(cooled()).toBe(true);
     });
 
-    test("[R-ENDORSE-002] given apply-endorsement reading the cooled step, when it is sent in the cooldown's last month it is rejected, and the month after it is accepted: six months with no new request", () => {
+    test("[route-gates:endorsement-decided-by-draw] given apply-endorsement reading the cooled step, when it is sent in the cooldown's last month it is rejected, and the month after it is accepted: six months with no new request", () => {
       // Tech starts above the bar so an ordinary offer taking two points does not unmake the step while the months pass.
       const game = talentLife({ change: (used) => withCooldownStep(NEVER_ENDORSED(used)), qualities: { "quality.tech": 85 } });
       toIssued(game);
@@ -220,11 +220,11 @@ describe("the endorsement gate", () => {
   });
 
   describe("the visa", () => {
-    test("[R-ENDORSE-003] given the endorsement held with the passport and TB certificate, when the visa is applied for, then the fee and five years of surcharge are paid and the route is applying", () => {
+    test("[route-gates:talent-visa-needs-endorsement] given the endorsement held with the passport and TB certificate, when the visa is applied for, then the fee and five years of surcharge are paid and the route is applying", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED });
       toIssued(game);
       const before = game.state.wallet.pockets.GBP.bank;
-      // R-ACTIVITY-015: the application is sent at once, so the route is applying in the month it is sent.
+      // activity:now-acts-and-month-acts: the application is sent at once, so the route is applying in the month it is sent.
       game.accept({ type: "activity/now", activity: APPLY_VISA, param: null });
       expect(talent(game).state).toBe("applying");
       const surcharge = startVar("var.uk-surcharge-year");
@@ -233,7 +233,7 @@ describe("the endorsement gate", () => {
       expect(game.state.wallet.pockets.GBP.bank).toBe(before - startVar("var.uk-talent-visa-fee") - 5 * surcharge);
     });
 
-    test("[R-ENDORSE-003] given no endorsement held, when an application is sent to the route as a slot would, then nothing happens; with it held, it goes", () => {
+    test("[route-gates:talent-visa-needs-endorsement] given no endorsement held, when an application is sent to the route as a slot would, then nothing happens; with it held, it goes", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED });
       toKnown(game);
       const before = talent(game);
@@ -245,7 +245,7 @@ describe("the endorsement gate", () => {
       expect(talent(game).state).toBe("applying");
     });
 
-    test("[R-ENDORSE-003] given an endorsement issued, when its three months run out, then it is no longer held and the visa cannot be applied for", () => {
+    test("[route-gates:talent-visa-needs-endorsement] given an endorsement issued, when its three months run out, then it is no longer held and the visa cannot be applied for", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED });
       toIssued(game);
       expect(content.document[ENDORSEMENT]!.validMonths).toBe(3);
@@ -254,7 +254,7 @@ describe("the endorsement gate", () => {
       expect(game.expectRejected({ type: "activity/now", activity: APPLY_VISA, param: null }, "not-legal").code).toBe("not-legal");
     });
 
-    test("[R-ENDORSE-003] given the gate's terms, when the chance is worked out, then it is the base of 300 plus earlier refusals and nothing else", () => {
+    test("[route-gates:talent-visa-needs-endorsement] given the gate's terms, when the chance is worked out, then it is the base of 300 plus earlier refusals and nothing else", () => {
       const numbers = content.tuning.route;
       const game = talentLife();
       const decision = GATES.endorsement.decision(readOf(game), entry, talent(game));
@@ -265,7 +265,7 @@ describe("the endorsement gate", () => {
       expect(refusalChanceBp(numbers, entry.refusalBaseBp, { ...file, refusals: 1 }, decision.terms)).toBe(300 + numbers.refusalPerRefusalBp);
     });
 
-    test("[R-ENDORSE-003] given an application sent, when its decision month comes and it is granted, then departing gives the talent status in the UK", () => {
+    test("[route-gates:talent-visa-needs-endorsement] given an application sent, when its decision month comes and it is granted, then departing gives the talent status in the UK", () => {
       const game = talentLife({ change: ALWAYS_ENDORSED, tuning: ALWAYS_GRANTED });
       toIssued(game);
       game.endTurn([slot(APPLY_VISA)]);
@@ -278,14 +278,14 @@ describe("the endorsement gate", () => {
   });
 
   describe("the gate", () => {
-    test("[R-GATE-001] given the talent route, when its steps are listed, then cooled is the one step, and any other step is never reached", () => {
+    test("[route-gates:route-runs-its-gate-steps] given the talent route, when its steps are listed, then cooled is the one step, and any other step is never reached", () => {
       const game = talentLife();
       expect(GATES.endorsement.steps).toEqual([COOLED]);
       expect(GATES.endorsement.reached(readOf(game), entry, talent(game), COOLED)).toBe(true);
       expect(GATES.endorsement.reached(readOf(game), entry, talent(game), "pool")).toBe(false);
     });
 
-    test("[R-GATE-002] given the talent route, when its decision is asked for, then it reads earlier refusals only on the route's own base, with no override", () => {
+    test("[route-gates:gate-decision-draw-terms] given the talent route, when its decision is asked for, then it reads earlier refusals only on the route's own base, with no override", () => {
       const game = talentLife();
       const decision = GATES.endorsement.decision(readOf(game), entry, talent(game));
       expect(decision.override).toBeNull();

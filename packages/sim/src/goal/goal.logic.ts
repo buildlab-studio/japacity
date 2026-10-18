@@ -1,6 +1,6 @@
 // Life goals: docs/rules/goal.md. A goal opens when its `openIf` holds and is
 // done when its `doneIf` holds. Goals gate nothing and refill nothing: they
-// are what the view offers once the chapters are over (R-GOAL-002).
+// are what the view offers once the chapters are over (goal:done-goal-stays-done).
 import { check } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
 import { emit } from "../engine/kind";
@@ -34,7 +34,7 @@ function openGoal(ctx: Ctx, goal: Id<"goal">): BaseEvent[] {
   return emit(ctx, "goal", [opened]);
 }
 
-/** R-GOAL-001: done, then the reward once, under the goal as source. A goal already done is left as it is (R-GOAL-002). */
+/** goal:goals-open-and-complete: done, then the reward once, under the goal as source. A goal already done is left as it is (goal:done-goal-stays-done). */
 function finishGoal(ctx: Ctx, goal: Id<"goal">): BaseEvent[] {
   if (isDone(ctx.state, goal)) return [];
   const finished: GoalEvent = { type: "goal/done", goal, month: ctx.state.turn.month };
@@ -45,9 +45,9 @@ function finishGoal(ctx: Ctx, goal: Id<"goal">): BaseEvent[] {
 }
 
 /**
- * R-GOAL-001. Runs in the `chapter` phase; the goal kind comes after the
+ * goal:goals-open-and-complete. Runs in the `chapter` phase; the goal kind comes after the
  * chapter kind in the registry, so chapters are judged first. Every goal not
- * yet open whose `openIf` holds where it applies (R-PLACE-003) opens; then
+ * yet open whose `openIf` holds where it applies (place:entries-legal-by-where) opens; then
  * every open goal whose `doneIf` holds is done, the ones just opened included.
  * `where` decides where a goal opens; an open goal is judged done
  * wherever the character is, since its `doneIf` says what it needs.
@@ -82,7 +82,7 @@ function evolve(slice: GoalSlice, event: GoalEvent): GoalSlice {
     case "goal/opened":
       return { ...slice, open: { ...slice.open, [event.goal]: { openedMonth: event.month } } };
     case "goal/done": {
-      // R-GOAL-002: done only grows, and a done goal is no longer open.
+      // goal:done-goal-stays-done: done only grows, and a done goal is no longer open.
       const open = { ...slice.open };
       delete open[event.goal];
       return { open, done: { ...slice.done, [event.goal]: { month: event.month } } };
@@ -108,14 +108,14 @@ function lines(event: GoalEvent): ReportLine[] {
   }
 }
 
-/** `goal/done`: the goal has been done, whatever has happened since (R-GOAL-002). */
+/** `goal/done`: the goal has been done, whatever has happened since (goal:done-goal-stays-done). */
 function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "goal/done") throw new Error(`The goal kind cannot judge ${requirement.type}.`);
   return { met: isDone(read.state, requirement.goal) };
 }
 
 /**
- * R-GOAL-003: open goals by the month they opened, then by id, each `doneIf`
+ * goal:view-shows-goal-items: open goals by the month they opened, then by id, each `doneIf`
  * requirement an item met or not; its id is its place in `doneIf`, which is
  * where the interface finds its words (`<goal>.item.<id>`, else the
  * requirement itself). The done list by month, then by id.

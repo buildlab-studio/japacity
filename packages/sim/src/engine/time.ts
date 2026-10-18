@@ -1,5 +1,5 @@
 // Real-time lengths the design gives, in milliseconds, in one place.
-// The simulation never reads a clock (R-ENGINE-012), so nothing in the sim
+// The simulation never reads a clock (engine:simulation-reads-no-clock), so nothing in the sim
 // uses these. The authorities do: the local one in the tab and the server.
 // They are plain numbers so either can read them without a clock.
 import { divFloor } from "./int";
@@ -12,7 +12,7 @@ export const DAY_MS = 24 * HOUR_MS;
 /** A day in seconds, as cookies and HTTP caches count it. */
 export const DAY_S = 24 * 60 * 60;
 
-/** R-SERVER-011: a UTC day as a whole number of days since 1970. */
+/** server:daily-money-report: a UTC day as a whole number of days since 1970. */
 export function utcDay(ms: number): number {
   return divFloor(ms, DAY_MS);
 }
@@ -29,7 +29,7 @@ const ERA_DAYS = 146_097;
 const pad = (value: number, width: number) => String(value).padStart(width, "0");
 
 /**
- * R-ANALYTICS-005: a UTC day number as its date, `YYYY-MM-DD`, for the years 0 to 9999. Whole-number calendar
+ * analytics:rows-stored-as-day-totals: a UTC day number as its date, `YYYY-MM-DD`, for the years 0 to 9999. Whole-number calendar
  * arithmetic (Howard Hinnant's civil_from_days), so it needs no `Date`.
  * https://howardhinnant.github.io/date_algorithms.html#civil_from_days
  */
@@ -48,7 +48,7 @@ export function dayName(day: number): string {
 
 const DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-/** R-ANALYTICS-005: the UTC day number of a date `YYYY-MM-DD`, or null when it is not a real date. */
+/** analytics:rows-stored-as-day-totals: the UTC day number of a date `YYYY-MM-DD`, or null when it is not a real date. */
 export function dayNumber(name: string): number | null {
   const parts = DATE.exec(name);
   if (parts === null) return null;
@@ -63,24 +63,24 @@ export function dayNumber(name: string): number | null {
   return dayName(day) === name ? day : null;
 }
 
-/** Lagos keeps UTC+1 all year (R-CLOCK-014). */
+/** Lagos keeps UTC+1 all year (clock:december-by-lagos-time). */
 export const LAGOS_OFFSET_MS = HOUR_MS;
 
-/** The hour in Lagos a sealed result opens: what real life made you wait for comes in the morning (R-CLOCK-032). */
+/** The hour in Lagos a sealed result opens: what real life made you wait for comes in the morning (clock:envelopes-show-real-waits). */
 export const MORNING_HOUR_LAGOS = 7;
 
-// The world's own clock (R-CLOCK-033, decision 0011): one game day runs on real time but faster than life, the same
+// The world's own clock (clock:game-day-on-real-time, decision 0011): one game day runs on real time but faster than life, the same
 // moment for everyone, so a sitting sees the sun move. Each life's months turn only when that life sleeps.
 
 /**
- * One game day in real time: an hour and three quarters. Not a divisor of the real day (R-CLOCK-033):
+ * One game day in real time: an hour and three quarters. Not a divisor of the real day (clock:game-day-on-real-time):
  * 24 hours hold 13 and five sevenths game days, so a player who sits down at the same real hour
  * each evening meets a different hour of the game's day each day of the week, every part of it inside a week.
  * 105 minutes split into 1,440 game minutes of 4,375 ms each, whole, so the clock's arithmetic stays in integers.
  */
 export const GAME_DAY_MS = 105 * MINUTE_MS;
 
-/** The real moment game day 0 began at its midnight: a Friday 18:00 UTC, the same epoch as the server's ticks (R-CLOCK-002), so day 0 is a Friday. */
+/** The real moment game day 0 began at its midnight: a Friday 18:00 UTC, the same epoch as the server's ticks (clock:world-tick-length-and-epoch), so day 0 is a Friday. */
 export const GAME_DAY_EPOCH_MS = 1_791_568_800_000;
 
 /** The game day's hours, 0 to 23, and where its parts begin: morning at six, the afternoon at noon, evening at six, night at ten. */

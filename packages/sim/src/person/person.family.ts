@@ -1,7 +1,7 @@
-// A sibling made from an invite: docs/rules/person.md R-PEOPLE-011, decision
+// A sibling made from an invite: person:real-sibling-shares-family-draw, decision
 // 0020. The new life begins inside the inviter's family, so its sibling slots
 // are that family's: the inviter in the first, the others computer lives drawn
-// as R-PEOPLE-047 draws them once the prologue closes. Pure: `newState` calls
+// as person:computer-siblings-drawn-with-family draws them once the prologue closes. Pure: `newState` calls
 // it on the slice `initial` built.
 import type { PeopleSlice, Save } from "../engine/types";
 

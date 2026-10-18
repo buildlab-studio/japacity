@@ -43,9 +43,9 @@ export { factsOf } from "./person.facts";
 
 const RECOVERY: Id<"offer"> = "offer.people-recovery";
 const PAPERS_OFFER: Id<"offer"> = "offer.papers-marriage";
-/** R-PEOPLE-017: where a wedding is held, drawn on `people`. */
+/** person:agreed-partner-and-marriage: where a wedding is held, drawn on `people`. */
 export const WEDDING_SPOTS: readonly string[] = ["family-compound", "church", "mosque", "registry", "event-hall"];
-/** R-PAIR-007: what an invite card may say it is looking for. */
+/** pair:invite-card-contents: what an invite card may say it is looking for. */
 const FILLS: Record<"partner" | "sibling", readonly string[]> = {
   partner: ["already-in-uk", "already-in-canada", "abroad-anywhere", "who-is-a-nurse", "who-codes", "to-start-out-with-me"],
   sibling: ["to-start-out-with-me", "to-go-first", "to-follow-me"],
@@ -56,7 +56,7 @@ const TOGETHER: readonly BondStage[] = ["partner", "married"];
 const COURTED: readonly BondStage[] = ["courting", "partner", "married"];
 const KNOWN_OR_LATER: readonly string[] = ["known", "applying", "granted", "departed"];
 const WEDDING_WHAT = "wedding";
-/** R-PEOPLE-034: what a sibling earns when another sibling paid the shared request. */
+/** person:family-requests-shared: what a sibling earns when another sibling paid the shared request. */
 const HANDLED_STANDING = 1;
 
 type Slot = PeopleSlice["slots"][string];
@@ -70,7 +70,7 @@ function record(ctx: Ctx, events: PeopleEvent[]): BaseEvent[] {
   return emit(ctx, "people", events);
 }
 
-/** R-PEOPLE-044: a stand-in only answers the interview and says yes to a joint step the absent side allowed; it never does this. */
+/** person:stand-in-acts-narrowly: a stand-in only answers the interview and says yes to a joint step the absent side allowed; it never does this. */
 function byStandIn(ctx: Ctx, what: string): Rejection | null {
   return ctx.sender === "stand-in" ? reject("not-legal", `A stand-in never ${what}.`) : null;
 }
@@ -83,7 +83,7 @@ function computerOf(content: Content, bond: Bond): PersonEntry | null {
   return bond.with.kind === "computer" ? (content.person[bond.with.entry] ?? null) : null;
 }
 
-/** The bond at `partner` or `married`, if any (R-PEOPLE-018). */
+/** The bond at `partner` or `married`, if any (person:one-partner-at-a-time). */
 function partnerBond(slice: PeopleSlice): [string, Bond] | null {
   return Object.entries(slice.bonds).find(([, bond]) => TOGETHER.includes(bond.stage)) ?? null;
 }
@@ -115,7 +115,7 @@ function slotRole(slot: string): "partner" | "sibling" | null {
   return slot.startsWith(SIBLING_PREFIX) ? "sibling" : null;
 }
 
-/** R-PEOPLE-039: an ended bond with this person or pair still cooling, or null. */
+/** person:ended-bond-record-kept: an ended bond with this person or pair still cooling, or null. */
 function coolingUntil(slice: PeopleSlice, matches: (bond: Bond) => boolean, month: number): number | null {
   const until = Object.values(slice.bonds)
     .filter((bond) => matches(bond) && bond.cooldownUntil !== null && bond.cooldownUntil > month && !live(bond))
@@ -128,9 +128,9 @@ function withPerson(person: Id<"person">): (bond: Bond) => boolean {
 }
 
 /**
- * R-PEOPLE-009: every computer partner whose `when` holds, with whom the
+ * person:computer-candidates-labelled: every computer partner whose `when` holds, with whom the
  * character has no bond and no ended one still cooling. A papers partner is
- * never a candidate (R-PEOPLE-050).
+ * never a candidate (person:papers-marriage-offer).
  */
 function candidatesOf(read: ReadCtx): PersonEntry[] {
   const { bonds } = read.state.people;
@@ -143,13 +143,13 @@ function candidatesOf(read: ReadCtx): PersonEntry[] {
     .sort((left, right) => left.id.localeCompare(right.id));
 }
 
-/** True when the other side is where the character is: home, or the same country abroad (R-PEOPLE-014). */
+/** True when the other side is where the character is: home, or the same country abroad (person:time-together-is-an-act). */
 function samePlace(state: State, facts: PersonFacts): boolean {
   if (facts.where !== state.place.where) return false;
   return facts.where !== "abroad" || facts.country === state.place.country;
 }
 
-/** R-PEOPLE-021, R-PEOPLE-020: a status that lets a partner come as a dependant of this job. */
+/** person:joint-application-proposed, person:statuses-name-dependants: a status that lets a partner come as a dependant of this job. */
 function statusAllows(content: Content, status: Id<"status"> | null, job: Id<"activity"> | null): boolean {
   const entry: StatusEntry | undefined = status === null ? undefined : content.status[status];
   if (entry === undefined) return false;
@@ -158,7 +158,7 @@ function statusAllows(content: Content, status: Id<"status"> | null, job: Id<"ac
   return job !== null && entry.dependants.includes(job);
 }
 
-/** The lists a bond's moments are drawn from: a computer's own, or the ones every computer partner shares (R-PEOPLE-014). */
+/** The lists a bond's moments are drawn from: a computer's own, or the ones every computer partner shares (person:time-together-is-an-act). */
 function listsOf(content: Content, bond: Bond): { spots: readonly string[]; whats: readonly string[]; calls: readonly string[] } {
   const own = computerOf(content, bond);
   if (own !== null) return { spots: own.spots, whats: own.whats, calls: own.calls };
@@ -177,23 +177,23 @@ function drawFrom(ctx: Ctx, list: readonly string[]): string | null {
   return list[ctx.random.int("people", list.length)] ?? null;
 }
 
-/** R-PEOPLE-016: the naira wedding share could be paid now. */
+/** person:proposing-a-step: the naira wedding share could be paid now. */
 function canPayShare(read: Pick<Ctx, "check" | "content">): boolean {
   return read.check({ type: "money/can-pay", currency: "NGN", amount: read.content.tuning.people.weddingShare }).met;
 }
 
 // ---------------------------------------------------------------------------
-// The slots: R-PEOPLE-007, R-PEOPLE-047
+// The slots: person:family-and-partner-slots, person:computer-siblings-drawn-with-family
 // ---------------------------------------------------------------------------
 
 function emptySlot(state: Slot["state"]): Slot {
   return { state, bond: null, person: null, invite: null };
 }
 
-/** R-PEOPLE-007: the partner slot, the parents, and a fixed life's siblings, whose lives are drawn in the first turn. */
+/** person:family-and-partner-slots: the partner slot, the parents, and a fixed life's siblings, whose lives are drawn in the first turn. */
 function initial(scenario: ScenarioEntry): PeopleSlice {
   const slots: PeopleSlice["slots"] = { [PARTNER_SLOT]: emptySlot("empty"), mother: emptySlot("computer"), father: emptySlot("computer") };
-  // A prologue life learns its count from the family draw (R-PROLOGUE-002).
+  // A prologue life learns its count from the family draw (prologue:family-draw-on-first-answer).
   const count = scenario.prologue === true ? 0 : scenario.siblings;
   for (let index = 1; index <= count; index += 1) slots[`${SIBLING_PREFIX}${String(index)}`] = emptySlot("computer");
   return { slots, bonds: {}, joint: null, sponsoring: null, arrived: null, assistanceTaken: 0, secret: { computerAnswers: null } };
@@ -225,7 +225,7 @@ function drawAge(ctx: Ctx, entry: PersonEntry): number {
 }
 
 /**
- * R-PEOPLE-047: each sibling slot not yet drawn gets a computer life by
+ * person:computer-siblings-drawn-with-family: each sibling slot not yet drawn gets a computer life by
  * weight on `people`. `initial` has no seed, so the draw is made at
  * the first turn, as the prologue makes its own draw on its first answer.
  */
@@ -249,7 +249,7 @@ function drawSiblings(ctx: Ctx): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// Commands: invites and links, R-PEOPLE-008, R-PEOPLE-010
+// Commands: invites and links, person:three-ways-to-fill-slots, person:invite-fills-a-slot
 // ---------------------------------------------------------------------------
 
 function invite(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
@@ -263,7 +263,7 @@ function invite(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     return record(ctx, [{ type: "people/invite-withdrawn", slot: command.slot }]);
   }
   const role = slotRole(command.slot);
-  // R-PEOPLE-007: the parents stay computer-run.
+  // person:family-and-partner-slots: the parents stay computer-run.
   if (role === null) return reject("not-legal", `${command.slot} is not a slot a card can fill.`);
   if (command.looking !== role) return reject("not-legal", `A card for ${command.slot} looks for a ${role}.`);
   const open = role === "partner" ? "empty" : "computer";
@@ -283,7 +283,7 @@ function link(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 // ---------------------------------------------------------------------------
-// Commands: courting, R-PEOPLE-013, R-PEOPLE-039
+// Commands: courting, person:courting-opens-a-bond, person:ended-bond-record-kept
 // ---------------------------------------------------------------------------
 
 function courtComputer(ctx: Ctx, person: Id<"person">): BaseEvent[] | Rejection {
@@ -330,10 +330,10 @@ function court(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 // ---------------------------------------------------------------------------
-// Commands: proposals, R-PEOPLE-016, R-PEOPLE-017, R-PEOPLE-021, R-PEOPLE-049
+// Commands: proposals, person:proposing-a-step, person:agreed-partner-and-marriage, person:joint-application-proposed, person:behaviour-block-fields
 // ---------------------------------------------------------------------------
 
-/** Why a joint cannot be asked for, or null when it can (R-PEOPLE-021). */
+/** Why a joint cannot be asked for, or null when it can (person:joint-application-proposed). */
 function jointProblem(ctx: Ctx, bond: Bond, route: Id<"route"> | undefined, lead: "me" | "them" | undefined): string | null {
   if (!TOGETHER.includes(bond.stage)) return "A joint needs the bond at partner or married.";
   if (ctx.state.people.joint !== null) return "A joint is already agreed.";
@@ -344,7 +344,7 @@ function jointProblem(ctx: Ctx, bond: Bond, route: Id<"route"> | undefined, lead
   if (!partnerGate && entry.dependants === null) return `${route} brings no partner.`;
   if (lead === "me") {
     if (partnerGate) {
-      // R-PEOPLE-026, R-UNDERTAKING-001: the sponsor leads a partner route, and agreeing runs the sponsor's checks in this life.
+      // person:partner-gate-needs, undertaking:agreeing-to-sponsor: the sponsor leads a partner route, and agreeing runs the sponsor's checks in this life.
       const failed = sponsorCheck(ctx, route);
       return failed === null ? null : `The sponsor's check failed: ${failed}.`;
     }
@@ -355,7 +355,7 @@ function jointProblem(ctx: Ctx, bond: Bond, route: Id<"route"> | undefined, lead
   const facts = bond.facts;
   if (facts === null) return "Nothing is known of the other side yet.";
   if (partnerGate) return facts.country === entry.country && facts.status !== null && (entry.partner?.sponsorStatuses ?? []).includes(facts.status) ? null : "The other side is not a sponsor for this route.";
-  // R-PEOPLE-021: a computer leads only on a status it holds; a player's own life judges the route it holds.
+  // person:joint-application-proposed: a computer leads only on a status it holds; a player's own life judges the route it holds.
   if (bond.with.kind === "player") return null;
   return facts.country === entry.country && statusAllows(ctx.content, facts.status, facts.job) ? null : "A computer leads only on a status it holds already.";
 }
@@ -388,7 +388,7 @@ function proposeProblem(ctx: Ctx, id: string, bond: Bond, command: Extract<Comma
   }
 }
 
-/** R-PEOPLE-049: the computer's own conditions for this step. */
+/** person:behaviour-block-fields: the computer's own conditions for this step. */
 function computerWilling(ctx: Ctx, bond: Bond, entry: PersonEntry, step: Proposal["step"]): boolean {
   const month = ctx.state.turn.month;
   switch (step) {
@@ -406,13 +406,13 @@ function computerWilling(ctx: Ctx, bond: Bond, entry: PersonEntry, step: Proposa
   }
 }
 
-/** A computer's wedding waits for December when its entry says so (R-PEOPLE-049). */
+/** A computer's wedding waits for December when its entry says so (person:behaviour-block-fields). */
 function waitsForDecember(ctx: Ctx, entry: PersonEntry, step: Proposal["step"]): boolean {
   return step === "marry" && entry.behaviour.marryInDecember && worldVar(ctx, VAR.seasonDecember) !== 1;
 }
 
 /**
- * What an agreement does in this life (R-PEOPLE-017, R-PEOPLE-021): the stage,
+ * What an agreement does in this life (person:agreed-partner-and-marriage, person:joint-application-proposed): the stage,
  * the wedding's share, standing and moment, the joint, and the route a
  * dependant follows on.
  */
@@ -443,13 +443,13 @@ function agree(ctx: Ctx, id: string, proposal: Proposal): BaseEvent[] | Rejectio
       const route = ctx.content.route[proposal.route];
       if (route === undefined) return reject("unknown-id", `There is no route ${proposal.route}.`);
       const events = record(ctx, [agreed]);
-      // No effect moves a route straight to known (R-PEOPLE-021), so the dependant route is heard of and the gate reads the joint.
+      // No effect moves a route straight to known (person:joint-application-proposed), so the dependant route is heard of and the gate reads the joint.
       if (proposal.lead === "them" && route.dependants !== null) events.push(...ctx.apply([{ type: "route/hear", route: route.dependants, via: "partner" }], cause));
       return events;
     }
     case "landed": {
       const events = record(ctx, [agreed]);
-      // R-UNDERTAKING-006: the undertaking names the bond.
+      // undertaking:landing-opens-undertaking: the undertaking names the bond.
       const undertaking = Object.values(ctx.content.obligation).find((entry) => entry.type === "undertaking");
       if (undertaking !== undefined) events.push(...ctx.apply([undertakingOpening(undertaking.id, id)], cause));
       return events;
@@ -474,7 +474,7 @@ function propose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = record(ctx, [{ type: "people/proposed", bond: command.bond, proposal }]);
   const entry = computerOf(ctx.content, bond);
   if (entry === null) return events;
-  // R-PEOPLE-016: a computer answers at once, on `people`.
+  // person:proposing-a-step: a computer answers at once, on `people`.
   const yes = computerWilling(ctx, bond, entry, command.step) && ctx.random.chance("people", entry.behaviour.agreeBp);
   if (!yes) return [...events, ...record(ctx, [{ type: "people/declined", bond: command.bond, step: command.step }])];
   if (waitsForDecember(ctx, entry, command.step)) return [...events, ...record(ctx, [{ type: "people/wedding-waits", bond: command.bond }])];
@@ -491,7 +491,7 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (!live(bond) || theirs === null || theirs.step !== command.step) return reject("not-legal", `No ${command.step} proposal is waiting on this bond.`);
   if (ctx.sender === "stand-in" && !standInMayAgree(ctx, command.bond, theirs, command.yes)) return reject("not-legal", "A stand-in says only yes, only to a joint the absent side allowed it to, and never to sponsoring.");
   if (command.yes && command.step === "marry" && !canPayShare(ctx)) return reject("cannot-afford", "The wedding share cannot be paid.");
-  // R-UNDERTAKING-001: a yes that makes this life the sponsor runs the sponsor's checks; the proposal comes in this life's terms.
+  // undertaking:agreeing-to-sponsor: a yes that makes this life the sponsor runs the sponsor's checks; the proposal comes in this life's terms.
   if (command.yes && theirs.step === "joint" && theirs.lead === "me" && theirs.route !== null && ctx.content.route[theirs.route]?.gate === "partner") {
     const failed = sponsorCheck(ctx, theirs.route);
     if (failed !== null) return reject("not-legal", `The sponsor's check failed: ${failed}.`);
@@ -510,7 +510,7 @@ function withdraw(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 /**
- * R-PEOPLE-044, R-UNDERTAKING-001: a stand-in says yes to a pending joint step
+ * person:stand-in-acts-narrowly, undertaking:agreeing-to-sponsor: a stand-in says yes to a pending joint step
  * only where the absent side set `standInMay` on that bond, and never to a
  * joint that makes this life the sponsor.
  */
@@ -522,12 +522,12 @@ function standInMayAgree(ctx: Ctx, id: string, proposal: Proposal, yes: boolean)
   return !sponsors;
 }
 
-/** A joint step waiting on the bond, either way: consent may be given before it is agreed (R-PEOPLE-044). */
+/** A joint step waiting on the bond, either way: consent may be given before it is agreed (person:stand-in-acts-narrowly). */
 function jointPending(bond: Bond): boolean {
   return bond.pending.mine?.step === "joint" || bond.pending.theirs?.step === "joint";
 }
 
-/** R-PEOPLE-004, R-PEOPLE-044: what the joint may use of this life, on an agreed joint or one still pending. */
+/** person:money-counted-never-moved, person:stand-in-acts-narrowly: what the joint may use of this life, on an agreed joint or one still pending. */
 function consent(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "people/consent") throw new Error(`people/consent cannot handle ${command.type}.`);
   const standIn = byStandIn(ctx, "consents");
@@ -542,10 +542,10 @@ function consent(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 // ---------------------------------------------------------------------------
-// Letting people down: R-PEOPLE-029, R-PEOPLE-035 to 039, R-PEOPLE-041, R-PEOPLE-042
+// Letting people down: person:tied-status-clock-on-breakup, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:gossip-when-two-timing, person:computer-partner-drifts
 // ---------------------------------------------------------------------------
 
-/** R-PEOPLE-036: the applications in this life resting on the bond, not yet used. */
+/** person:joint-collapses-with-bond: the applications in this life resting on the bond, not yet used. */
 function restingOn(state: State, content: Content, id: string): Id<"route">[] {
   const onJoint = state.people.joint?.bond === id;
   const routes: Id<"route">[] = [];
@@ -560,14 +560,14 @@ function restingOn(state: State, content: Content, id: string): Id<"route">[] {
   return routes;
 }
 
-/** R-PEOPLE-037: a joint application on the bond is `applying` in this life. */
+/** person:ender-pays-in-standing: a joint application on the bond is `applying` in this life. */
 function applyingOn(state: State, content: Content, id: string): boolean {
   if (state.people.joint?.bond !== id) return false;
   const route = jointRouteOf(state.people, content);
   return route !== null && state.route[route]?.state === "applying";
 }
 
-/** R-PEOPLE-037: what the one who ends it pays in standing. */
+/** person:ender-pays-in-standing: what the one who ends it pays in standing. */
 function endStanding(state: State, content: Content, id: string, stage: BondStage): number {
   const numbers = content.tuning.people.endStanding;
   const byStage = stage === "courting" ? numbers.courting : stage === "partner" ? numbers.partner : stage === "married" ? numbers.married : 0;
@@ -608,13 +608,13 @@ function end(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const bond = ownBond(ctx.state.people, command.bond);
   if (bond === undefined) return reject("unknown-id", `There is no bond ${command.bond}.`);
   if (!live(bond)) return reject("not-legal", "The bond has ended already.");
-  // R-PEOPLE-044: with the stand-in on, the waiting side may end it as an absence end, costing nobody.
+  // person:stand-in-acts-narrowly: with the stand-in on, the waiting side may end it as an absence end, costing nobody.
   if (bond.standIn === "on") return endBond(ctx, command.bond, "absence", "none");
   return endBond(ctx, command.bond, "me", "me");
 }
 
 // ---------------------------------------------------------------------------
-// Authority commands: R-PEOPLE-002
+// Authority commands: person:lives-meet-by-authority-command
 // ---------------------------------------------------------------------------
 
 function pairBond(ctx: Ctx, pair: string, open: boolean): [string, Bond] | Rejection {
@@ -646,7 +646,7 @@ const FROM_AUTHORITY: readonly string[] = [
 type FamilyRequest = Extract<Command, { type: "people/family-request" }>;
 
 /**
- * R-PEOPLE-034: a copy whose request a sibling paid elsewhere. This life gets
+ * person:family-requests-shared: a copy whose request a sibling paid elsewhere. This life gets
  * standing +1 and the line instead of the lapse choice, and the copy closes
  * unanswered through `offer/close`: nothing of it is paid or lapsed.
  */
@@ -688,7 +688,7 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
       return endBond(ctx, found[0], command.why, command.why === "them" ? "left" : "none");
     }
     case "people/declined": {
-      // R-PEOPLE-016: the other life said no; the proposer's own proposal clears and the same step waits out the cooldown.
+      // person:proposing-a-step: the other life said no; the proposer's own proposal clears and the same step waits out the cooldown.
       const found = pairBond(ctx, command.pair, true);
       if (!Array.isArray(found)) return found;
       if (found[1].pending.mine?.step !== command.step) return reject("not-legal", `No ${command.step} proposal of this life is waiting.`);
@@ -724,11 +724,11 @@ function authority(ctx: Ctx, sent: Command): BaseEvent[] | Rejection {
 }
 
 // ---------------------------------------------------------------------------
-// The effect: R-PEOPLE-014, R-PEOPLE-050
+// The effect: person:time-together-is-an-act, person:papers-marriage-offer
 // ---------------------------------------------------------------------------
 
 /**
- * R-PEOPLE-050: taking the papers offer opens a bond at `married` with no
+ * person:papers-marriage-offer: taking the papers offer opens a bond at `married` with no
  * moments and a joint on the partner route into the person's country, with
  * the person as sponsor. The offer's `take` choice carries this as a
  * `people/moment` of kind `wedding`, since no effect opens a bond.
@@ -753,7 +753,7 @@ function papersMarriage(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * The bond a slot's time goes to (R-PEOPLE-014): the one the param names, or
+ * The bond a slot's time goes to (person:time-together-is-an-act): the one the param names, or
  * else the bond at courting or later that has waited longest for a moment.
  * An activity's `param` has no `bond` kind, so a slot cannot name one.
  */
@@ -780,14 +780,14 @@ function momentEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return record(ctx, [{ type: "people/moment-added", bond: id, moment }]);
 }
 
-/** R-PEOPLE-027: the departure on a partner route records the arrival, for the bar (R-UNDERTAKING-004) and the assistance count. */
+/** person:partner-application-decided: the departure on a partner route records the arrival, for the bar (undertaking:sponsored-arrivals-wait-to-sponsor) and the assistance count. */
 function arrivedEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "people/arrived") throw new Error(`people/arrived cannot carry out ${effect.type}.`);
   return record(ctx, [{ type: "people/arrived", route: effect.route, month: ctx.state.turn.month }]);
 }
 
 /**
- * R-UNDERTAKING-010: a month of assistance counts while `arrived` names the
+ * undertaking:social-assistance-offer: a month of assistance counts while `arrived` names the
  * effect's route and fewer than `tuning.undertaking.months` of this life's
  * months have passed since. The sponsor reads the count in the facts.
  */
@@ -800,10 +800,10 @@ function assistanceEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// The month: R-PEOPLE-041, R-PEOPLE-042, R-PEOPLE-048, R-PEOPLE-049
+// The month: person:gossip-when-two-timing, person:computer-partner-drifts, person:computer-partner-facts, person:behaviour-block-fields
 // ---------------------------------------------------------------------------
 
-/** R-PEOPLE-048: each computer's facts rebuilt, a month older. */
+/** person:computer-partner-facts: each computer's facts rebuilt, a month older. */
 function refreshFacts(ctx: Ctx): BaseEvent[] {
   const read = readOf(ctx);
   const events: PeopleEvent[] = [];
@@ -815,7 +815,7 @@ function refreshFacts(ctx: Ctx): BaseEvent[] {
   return events.length === 0 ? [] : record(ctx, events);
 }
 
-/** R-PEOPLE-049: a December wedding a computer agreed to is held once December comes. */
+/** person:behaviour-block-fields: a December wedding a computer agreed to is held once December comes. */
 function decemberWeddings(ctx: Ctx): BaseEvent[] {
   const waiting = Object.entries(ctx.state.people.bonds).filter(([, bond]) => live(bond) && bond.pending.mine?.step === "marry" && computerOf(ctx.content, bond) !== null);
   if (waiting.length === 0 || worldVar(ctx, VAR.seasonDecember) !== 1) return [];
@@ -829,7 +829,7 @@ function decemberWeddings(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-PEOPLE-041: for each bond courting beside a partner, one draw at
+ * person:gossip-when-two-timing: for each bond courting beside a partner, one draw at
  * `gossipBp`. A real partner hears through the authority; a computer partner
  * may end it, and the courter pays as if they had.
  */
@@ -852,7 +852,7 @@ function gossip(ctx: Ctx): BaseEvent[] {
   return events;
 }
 
-/** R-PEOPLE-042: a computer partner with no moment for its patience ends the bond, and the character is the one left. */
+/** person:computer-partner-drifts: a computer partner with no moment for its patience ends the bond, and the character is the one left. */
 function drift(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   const month = ctx.state.turn.month;
@@ -881,7 +881,7 @@ function newBond(withWhom: Bond["with"], role: Bond["role"], stage: BondStage, m
     firstMonth: null,
     partnerMonth: null,
     marriedMonth: null,
-    // Courting starts the patience clock (R-PEOPLE-042), so a bond with no moment yet can drift too.
+    // Courting starts the patience clock (person:computer-partner-drifts), so a bond with no moment yet can drift too.
     lastMomentMonth: month,
     moments: [],
     facts,
@@ -928,7 +928,7 @@ function evolveAgreed(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "p
       return withBond(cleared, event.bond, (held) => ({ ...held, stage: "married", marriedMonth: event.month }));
     case "joint": {
       if (event.route === null || event.lead === null) return cleared;
-      // Consent given while the joint was asked for carries into it (R-PEOPLE-044).
+      // Consent given while the joint was asked for carries into it (person:stand-in-acts-narrowly).
       const given = bond.consent ?? { countFunds: false, standInMay: false };
       const joint = { bond: event.bond, route: event.route, lead: event.lead, ...given };
       const sponsors = event.lead === "me" && content.route[event.route]?.gate === "partner";
@@ -949,8 +949,8 @@ function evolveEnded(slice: PeopleSlice, event: Extract<PeopleEvent, { type: "pe
   if (next.joint?.bond === event.bond) next = { ...next, joint: null };
   if (next.sponsoring?.bond === event.bond) next = { ...next, sponsoring: null };
   if (next.slots[PARTNER_SLOT]?.bond === event.bond) next = withSlot(next, PARTNER_SLOT, emptySlot("empty"));
-  // R-PEOPLE-040 (decision 0020): a sibling slot whose player started a new life goes back to a computer sibling, drawn
-  // again at the next month's start as an undrawn slot is (R-PEOPLE-047).
+  // person:leaving-player-ends-bonds (decision 0020): a sibling slot whose player started a new life goes back to a computer sibling, drawn
+  // again at the next month's start as an undrawn slot is (person:computer-siblings-drawn-with-family).
   if (event.by === "restart") {
     for (const [slot, held] of Object.entries(next.slots)) {
       if (slot.startsWith(SIBLING_PREFIX) && held.bond === event.bond) next = withSlot(next, slot, emptySlot("computer"));
@@ -982,7 +982,7 @@ function evolve(slice: PeopleSlice, event: PeopleEvent, state: State, content: C
       const role = slotRole(event.slot) ?? "partner";
       const bonds = { ...slice.bonds, [event.bond]: newBond({ kind: "player", pair: event.pair }, role, "connected", null, event.facts) };
       const replaced = slice.slots[event.slot]?.bond;
-      // A computer sibling keeps its life only until the slot is linked (R-PEOPLE-010).
+      // A computer sibling keeps its life only until the slot is linked (person:invite-fills-a-slot).
       if (role === "sibling" && replaced !== undefined && replaced !== null) delete bonds[replaced];
       const slot: Slot = role === "sibling" ? { state: "player", bond: event.bond, person: null, invite: null } : emptySlot("empty");
       return withSlot({ ...slice, bonds }, event.slot, slot);
@@ -1172,7 +1172,7 @@ function lines(event: PeopleEvent, state: State): ReportLine[] {
 }
 
 // ---------------------------------------------------------------------------
-// Requirements: R-PEOPLE-031, R-PEOPLE-046 and the joint
+// Requirements: person:canada-sibling-bonus, person:computer-is-a-person-entry and the joint
 // ---------------------------------------------------------------------------
 
 function bondMeets(read: ReadCtx, requirement: Requirement): RequirementResult {
@@ -1206,7 +1206,7 @@ function jointMeets(read: ReadCtx, requirement: Requirement): RequirementResult 
 }
 
 // ---------------------------------------------------------------------------
-// The view: R-PEOPLE-051
+// The view: person:view-shows-people
 // ---------------------------------------------------------------------------
 
 function labelOf(bond: Bond): PlayerView["people"]["bonds"][number]["label"] {
@@ -1235,7 +1235,7 @@ function slotLabel(slice: PeopleSlice, slot: Slot): PlayerView["people"]["slots"
 }
 
 /**
- * R-PEOPLE-030: on a points route, the score alone (`mine`) and the score
+ * person:canada-spouse-points: on a points route, the score alone (`mine`) and the score
  * leading with this partner from their facts (`theirs`), read fresh from the
  * state as the points gate reads its own. Null on any other route.
  */
@@ -1249,7 +1249,7 @@ function jointScores(read: ReadCtx, joint: NonNullable<PeopleSlice["joint"]>): {
 
 function view(read: ReadCtx): Pick<PlayerView, "people"> {
   const slice = read.state.people;
-  // R-INTERVIEW-005: while an interview is open each side answers from memory.
+  // interview:one-question-at-a-time: while an interview is open each side answers from memory.
   const interviewOpen = read.state.interview.open !== null;
   return {
     people: {
@@ -1269,7 +1269,7 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
         cooldownUntil: bond.cooldownUntil,
         partnerMonth: bond.partnerMonth,
         consent: bond.consent,
-        // R-PEOPLE-051: funds only on the joint's bond, where consent put them in the facts.
+        // person:view-shows-people: funds only on the joint's bond, where consent put them in the facts.
         facts: bond.facts === null ? null : { ...bond.facts, funds: slice.joint?.bond === id ? bond.facts.funds : null },
       })),
       candidates: candidatesOf(read).map((entry) => ({ person: entry.id, role: entry.role })),
@@ -1284,7 +1284,7 @@ function view(read: ReadCtx): Pick<PlayerView, "people"> {
 // Invariants and the kind
 // ---------------------------------------------------------------------------
 
-/** R-PEOPLE-044: a stand-in never ends a turn. */
+/** person:stand-in-acts-narrowly: a stand-in never ends a turn. */
 function turnEnd(ctx: Ctx): BaseEvent[] | Rejection {
   return byStandIn(ctx, "ends a turn") ?? [];
 }
@@ -1294,12 +1294,12 @@ function invariants(state: State, content: Content): string[] {
   const slice = state.people;
   if (!Number.isSafeInteger(slice.assistanceTaken) || slice.assistanceTaken < 0) problems.push("The people slice counts negative assistance.");
   const together = Object.values(slice.bonds).filter((bond) => TOGETHER.includes(bond.stage)).length;
-  if (together > 1) problems.push(`R-PEOPLE-018: ${String(together)} bonds are at partner or married.`);
-  if (courtingCount(slice) > content.tuning.people.maxCourting) problems.push("R-PEOPLE-013: more bonds are courting than the tuning allows.");
+  if (together > 1) problems.push(`person:one-partner-at-a-time: ${String(together)} bonds are at partner or married.`);
+  if (courtingCount(slice) > content.tuning.people.maxCourting) problems.push("person:courting-opens-a-bond: more bonds are courting than the tuning allows.");
   for (const [key, slot] of Object.entries(slice.slots)) {
     if (slot.bond !== null && slice.bonds[slot.bond] === undefined) problems.push(`The slot ${key} names the missing bond ${slot.bond}.`);
   }
-  if (slice.joint !== null && slice.bonds[slice.joint.bond]?.stage === "ended") problems.push("R-PEOPLE-036: a joint rests on an ended bond.");
+  if (slice.joint !== null && slice.bonds[slice.joint.bond]?.stage === "ended") problems.push("person:joint-collapses-with-bond: a joint rests on an ended bond.");
   return problems;
 }
 

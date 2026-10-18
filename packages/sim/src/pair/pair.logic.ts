@@ -1,5 +1,4 @@
-// The one record two players share: docs/rules/pair.md R-PAIR-001 to 006 and
-// R-PAIR-015 to 016. Pure functions over plain data, read and written by the
+// The one record two players share: pair:one-record-per-two, pair:record-fields, pair:record-holds-no-personal-data, pair:only-server-writes-record, pair:joint-steps-need-both-sides, pair:who-may-read-a-record, pair:block-ends-every-bond and pair:report-holds-conversation. Pure functions over plain data, read and written by the
 // server and both clients alike. No clock, no randomness, no platform feature.
 import type { BondStage, Id, InterviewResult, Moment, PairRecord, Proposal } from "../engine/types";
 import type { PairWrite, Side } from "./pair.events";
@@ -8,10 +7,10 @@ export type { PairWrite, Side } from "./pair.events";
 
 const JOIN = "~";
 
-/** Every surface that shows another player carries these, one tap away (R-PAIR-014). */
+/** Every surface that shows another player carries these, one tap away (pair:block-and-report-one-tap). */
 export const SAFETY_CONTROLS = ["block", "report"] as const;
 
-/** The record's id: the two character ids, sorted, joined by `~` (R-PAIR-001). */
+/** The record's id: the two character ids, sorted, joined by `~` (pair:one-record-per-two). */
 export function pairId(x: string, y: string): string {
   if (x === y) throw new Error(`A pair needs two characters, not ${x} twice.`);
   return x < y ? `${x}${JOIN}${y}` : `${y}${JOIN}${x}`;
@@ -33,7 +32,7 @@ export function other(record: PairRecord, me: string): string {
   return record[flip(side(record, me))];
 }
 
-/** A record at `connected`, made when a partner link is opened (R-PAIR-008). */
+/** A record at `connected`, made when a partner link is opened (pair:invite-link-single-use). */
 export function newRecord(x: string, y: string, role: PairRecord["role"], invitedBy: string, tick: number): PairRecord {
   if (invitedBy !== x && invitedBy !== y) throw new Error(`${invitedBy} is not one of the two.`);
   const id = pairId(x, y);
@@ -69,7 +68,7 @@ function sameTerms(left: Proposal, right: Proposal): boolean {
 }
 
 /**
- * The step both sides hold, in side a's terms, or null (R-PAIR-005). Each
+ * The step both sides hold, in side a's terms, or null (pair:joint-steps-need-both-sides). Each
  * pending proposal is kept in its own side's terms.
  */
 export function agreed(record: PairRecord): Proposal | null {
@@ -104,7 +103,7 @@ function endWith(record: PairRecord, by: NonNullable<PairRecord["ended"]>["by"],
     ended: { by, tick },
     pending: { a: null, b: null },
     joint: null,
-    // An interview not yet scored closes unscored when the bond ends (R-INTERVIEW-011).
+    // An interview not yet scored closes unscored when the bond ends (interview:players-answer-at-own-pace).
     interview: record.interview !== null && record.interview.result !== null ? record.interview : null,
     standIn: { a: null, b: null },
   };
@@ -136,7 +135,7 @@ function applyAgreed(record: PairRecord, tick: number): PairRecord {
 }
 
 /**
- * The record after one write from one side (R-PAIR-004). The lives have
+ * The record after one write from one side (pair:only-server-writes-record). The lives have
  * already accepted the command; a write that no longer fits the record (a
  * proposal on an ended bond, a second answer) leaves it as it was.
  */
@@ -145,7 +144,7 @@ export function writeEvent(record: PairRecord, from: Side, write: PairWrite): Pa
   const them = flip(from);
   switch (write.type) {
     case "pair/linked": {
-      // Lifting a block restores nothing: a new invite relinks an ended record (R-PAIR-015).
+      // Lifting a block restores nothing: a new invite relinks an ended record (pair:block-ends-every-bond).
       if (live || record.blocked.a || record.blocked.b || record.a === "" || record.b === "") return record;
       return {
         ...record,
@@ -166,7 +165,7 @@ export function writeEvent(record: PairRecord, from: Side, write: PairWrite): Pa
     case "pair/moment-added": {
       if (!live) return record;
       const last = record.moments.at(-1);
-      // Only the six fields of a moment are kept, whatever else a write carries (R-PAIR-003).
+      // Only the six fields of a moment are kept, whatever else a write carries (pair:record-holds-no-personal-data).
       const moment = { n: last === undefined ? 1 : last.n + 1, by: from, kind: write.kind, spot: write.spot, what: write.what, tick: write.tick };
       return { ...record, moments: [...record.moments, moment] };
     }
@@ -190,7 +189,7 @@ export function writeEvent(record: PairRecord, from: Side, write: PairWrite): Pa
       return { ...record, consent: bySide(record.consent, from, { countFunds: write.countFunds, standInMay: write.standInMay }) };
     case "pair/ended":
       if (!live) return record;
-      // Only the waiting side ends by absence, and only while the stand-in is on (R-PEOPLE-044).
+      // Only the waiting side ends by absence, and only while the stand-in is on (person:stand-in-acts-narrowly).
       if (write.absence && record.standIn[them] !== "on") return record;
       return endWith(record, write.absence ? "absence" : from, write.tick);
     case "pair/blocked": {
@@ -246,7 +245,7 @@ export function writeEvent(record: PairRecord, from: Side, write: PairWrite): Pa
   }
 }
 
-/** What one side may see of a record (R-PAIR-006). */
+/** What one side may see of a record (pair:who-may-read-a-record). */
 export interface PairView {
   id: string;
   side: Side;
@@ -275,7 +274,7 @@ export interface PairView {
   /** Whether this side has blocked the other. The other side's block is never shown. */
   blocked: boolean;
   standIn: { mine: "warned" | "on" | null; theirs: "warned" | "on" | null };
-  /** `by` is null where this side may learn only that the bond ended (R-PAIR-015). */
+  /** `by` is null where this side may learn only that the bond ended (pair:block-ends-every-bond). */
   ended: { by: "me" | "them" | "absence" | "block" | null; tick: number } | null;
   controls: typeof SAFETY_CONTROLS;
 }
@@ -289,7 +288,7 @@ function endedFor(record: PairRecord, mine: Side): PairView["ended"] {
       return { by: ended.by === mine ? "me" : "them", tick: ended.tick };
     case "absence":
       return { by: "absence", tick: ended.tick };
-    // The one who stays sees an absence end (R-PEOPLE-040).
+    // The one who stays sees an absence end (person:leaving-player-ends-bonds).
     case "deleted":
       return { by: "absence", tick: ended.tick };
     case "block":
@@ -319,9 +318,9 @@ function interviewFor(record: PairRecord, mine: Side): PairView["interview"] {
 
 /**
  * The record as one of its two sides may read it, or null for anyone else
- * (R-PAIR-006). Never the other side's consents, its interview answers before
+ * (pair:who-may-read-a-record). Never the other side's consents, its interview answers before
  * scoring, its block, or whether a report holds the record.
- * R-PAIR-006 names only the answers and the report; the other side's consents and block are hidden as well.
+ * pair:who-may-read-a-record names only the answers and the report; the other side's consents and block are hidden as well.
  */
 export function pairView(record: PairRecord, me: string): PairView | null {
   if (me === "" || (record.a !== me && record.b !== me)) return null;

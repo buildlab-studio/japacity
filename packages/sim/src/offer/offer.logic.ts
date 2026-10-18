@@ -1,7 +1,7 @@
 // Offers: docs/rules/offer.md. Anything that comes to the character with
 // choices and a date: a family request, a job, a loan, a man who says he can
 // arrange things. Whether an offer is a fraud is fixed when it opens and kept
-// in `secret`, which the view never carries (R-OFFER-006, R-ENGINE-007).
+// in `secret`, which the view never carries (offer:fraud-hidden-signs-shown, engine:view-holds-no-hidden-field).
 import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
 import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
@@ -48,9 +48,9 @@ import { handedTerms, inFamily, isLook, kindOf, lookFinds, openAgent, paperToMov
 import { officialRates } from "../wallet/wallet.rates";
 
 /**
- * The groups that are rolled, in the order R-OFFER-001 takes them. `job` is
+ * The groups that are rolled, in the order offer:come-up-rolls-in-order takes them. `job` is
  * never rolled. Life abroad and coming home follow family; the road comes last
- * (R-ROAD-002).
+ * (road:pitch-rises-with-pressure).
  */
 const ROLL_ORDER: readonly OfferEntry["group"][] = ["money", "life", "family", "abroad", "return", "road"];
 
@@ -83,7 +83,7 @@ function reachedLimit(state: State, entry: OfferEntry): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Terms: R-OFFER-002
+// Terms: offer:opening-fixes-terms-and-fraud
 // ---------------------------------------------------------------------------
 
 /**
@@ -121,7 +121,7 @@ function fixTerm(ctx: Ctx, spec: TermSpec): number {
 }
 
 /**
- * R-ABROAD-007: the family expects more once a relative is abroad. A request
+ * abroad-money:family-asks-more-abroad: the family expects more once a relative is abroad. A request
  * names what it asks in its terms, and every term a `money/take` of its
  * choices reads is scaled by the factor when it opens abroad, so the view, the
  * check that it can be paid and the payment all read the same figure.
@@ -141,20 +141,20 @@ function scaleAsked(entry: OfferEntry, terms: Terms, factorBp: number): void {
 }
 
 /**
- * Opens an offer (R-OFFER-002): terms, expiry, the hidden fraud on the `fraud`
+ * Opens an offer (offer:opening-fixes-terms-and-fraud): terms, expiry, the hidden fraud on the `fraud`
  * stream, then each sign on the `offer` stream by the chance for what the
  * offer really is. `extra` terms come with the effect that opened it
- * (R-OFFER-007) and are added to the offer's own.
+ * (offer:effect-opens-named-offer) and are added to the offer's own.
  */
 function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms, rolled = false): BaseEvent[] {
   const own: Terms = {};
   for (const [name, spec] of Object.entries(entry.terms)) own[name] = fixTerm(ctx, spec);
-  // R-ADVICE-005, 006: an agent's kind, fee and tells; R-OFFER-006's draws do not apply.
+  // advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells: an agent's kind, fee and tells; offer:fraud-hidden-signs-shown's draws do not apply.
   if (standsAsAgent(entry)) return record(ctx, { type: "offer/opened", item: openAgent(ctx, entry, own, extra) });
   if (entry.group === "family" && ctx.state.place.where === "abroad") scaleAsked(entry, own, ctx.content.tuning.remit.abroadBp);
   const fraud = ctx.random.chance("fraud", entry.fraudBp);
   const signs = entry.signs.filter((sign) => ctx.random.chance("offer", fraud ? sign.fraudBp : sign.honestBp)).map((sign) => sign.key);
-  // R-STREET-004: the theft takes the cash as it opens, so this comes before the offer is recorded.
+  // streets:sleeping-under-the-bridge: the theft takes the cash as it opens, so this comes before the offer is recorded.
   const bridge = bridgeTerms(ctx, entry);
   // Things shipped home: who sent it and the thing in it, drawn on `offer`.
   const parcel = parcelTerms(readOf(ctx), ctx.random, entry);
@@ -165,7 +165,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms, rolled = false): B
     openedMonth: month,
     expiresMonth: month + entry.expiresAfter,
     // A term handed over by the effect wins over one of the same name. None clash in content.
-    // A luck offer's payment is read from the tuning as a term (R-LUCK-002, 007).
+    // A luck offer's payment is read from the tuning as a term (luck:whip-round-once-per-life, luck:telco-promo-may-be-fraud).
     terms: { ...own, ...luckTerms(readOf(ctx), entry.id), ...bridge, ...parcel, ...extra },
     signs,
     secret: { fraud },
@@ -174,7 +174,7 @@ function openOffer(ctx: Ctx, entry: OfferEntry, extra: Terms, rolled = false): B
 }
 
 // ---------------------------------------------------------------------------
-// Whether a choice can be taken: R-OFFER-003
+// Whether a choice can be taken: offer:choice-needs-conditions-and-funds
 // ---------------------------------------------------------------------------
 
 interface Problem {
@@ -243,7 +243,7 @@ function debitsPayable(read: ReadCtx, judge: Judge, effects: readonly Effect[], 
  * Why a choice may not be taken with this amount, or null when it may. The
  * amount comes first because the conditions and debits read it. The
  * debits are judged on the ordinary effects, never the fraud ones, so whether
- * a choice is allowed never gives a fraud away (R-OFFER-006).
+ * a choice is allowed never gives a fraud away (offer:fraud-hidden-signs-shown).
  */
 function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: OfferChoice, amount: unknown): Problem | null {
   const range = pickRange(item, choice);
@@ -268,7 +268,7 @@ function choiceProblem(read: ReadCtx, judge: Judge, item: OfferState, choice: Of
 }
 
 /**
- * R-ADVICE-008: an agent's fee never takes the last `floorNaira` of the naira. The naira the choice
+ * advice:agent-loss-is-the-fee: an agent's fee never takes the last `floorNaira` of the naira. The naira the choice
  * takes (cash first, then the bank, decision 0014) must leave the floor behind in cash and bank together.
  */
 function floorKept(read: ReadCtx, judge: Judge, effects: readonly Effect[], terms: Terms): boolean {
@@ -280,17 +280,17 @@ function floorKept(read: ReadCtx, judge: Judge, effects: readonly Effect[], term
   return judge({ type: "money/min", currency: "NGN", amount: taken + read.content.tuning.advice.floorNaira }, terms).met;
 }
 
-/** Carries out a choice (R-OFFER-003, R-OFFER-004). The source names the offer and the choice. */
+/** Carries out a choice (offer:choice-needs-conditions-and-funds, offer:fraud-effects-replace-ordinary). The source names the offer and the choice. */
 function takeChoice(ctx: Ctx, item: OfferState, choice: OfferChoice, amount: number | null): void {
   const effects = item.secret.fraud && choice.fraudEffects !== null ? choice.fraudEffects : choice.effects;
   const cause: Cause = { source: `${item.entry}.${choice.id}`, param: null, terms: { ...choiceTerms(item, amount), ...roadKind(ctx, item, choice) } };
   ctx.apply(effects, cause);
 }
 
-/** The agent's choice that pays him (R-ADVICE-005). */
+/** The agent's choice that pays him (advice:agent-kind-drawn-on-offer). */
 const TAKE = "take";
 
-/** R-ADVICE-013: what an honest agent does for his fee; the others do nothing for it. */
+/** advice:chaser-runs-around-cheaper: what an honest agent does for his fee; the others do nothing for it. */
 function honestWork(kind: AgentKind): Pitch | null {
   switch (kind) {
     case "fixer":
@@ -308,7 +308,7 @@ function honestWork(kind: AgentKind): Pitch | null {
 }
 
 /**
- * R-ADVICE-005, 013, after the fee: a fixer brings the next paper forward by
+ * advice:agent-kind-drawn-on-offer, advice:chaser-runs-around-cheaper, after the fee: a fixer brings the next paper forward by
  * his months, a chaser the next paper she follows up by hers, an overpromiser
  * leaves his promise on the table, a scammer's fake papers come from the
  * content's fraud effects. The next appointment (a school's answer, a visa
@@ -327,16 +327,16 @@ function agentPaid(ctx: Ctx, item: OfferState): BaseEvent[] {
   return events;
 }
 
-/** R-ADVICE-006: a look costs nothing and finds every tell it would find. The offer stays open. */
+/** advice:scams-show-their-tells: a look costs nothing and finds every tell it would find. The offer stays open. */
 function look(ctx: Ctx, item: OfferState, choice: Look): BaseEvent[] {
   const found = lookFinds(entryOf(ctx.content, item.entry), item, choice, ctx.content.tuning.advice);
   return record(ctx, { type: "offer/looked", id: item.id, entry: item.entry, look: choice, found });
 }
 
 /**
- * R-ROAD-003: taking a pitch decides, hidden, what it really is. The fraud
+ * road:taking-pitch-pays-deposit: taking a pitch decides, hidden, what it really is. The fraud
  * share is the offer's own fraud, drawn when it opened so its signs follow it
- * (R-OFFER-006); taking an honest one splits the rest between real-ish and
+ * (offer:fraud-hidden-signs-shown); taking an honest one splits the rest between real-ish and
  * the road by the entry's `kinds`, one draw on `road`, handed on as the term
  * `kind`. Only a choice with fraud effects is a take.
  */
@@ -357,7 +357,7 @@ const judgeIn =
 
 function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "offer/choose") throw new Error(`offer/choose cannot handle ${command.type}.`);
-  // R-PEOPLE-044: a stand-in never spends.
+  // person:stand-in-acts-narrowly: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   // A name the player sent may be a built-in object key; only the slice's own items are offers.
   const item = typeof command.offer === "string" && Object.hasOwn(ctx.state.offer.items, command.offer) ? ctx.state.offer.items[command.offer] : undefined;
@@ -367,7 +367,7 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const problem = choiceProblem(readOf(ctx), judgeIn(ctx), item, choice, command.amount);
   if (problem !== null) return reject(problem.code, problem.detail);
   if (inFamily(item.entry) && isLook(choice.id)) return look(ctx, item, choice.id);
-  // R-ADVICE-005: waiting on a promise changes nothing and keeps it open; the month passing tells the rest.
+  // advice:agent-kind-drawn-on-offer: waiting on a promise changes nothing and keeps it open; the month passing tells the rest.
   if (item.entry === PROMISE && choice.id === "wait") return [];
   takeChoice(ctx, item, choice, choice.pick === null ? null : (command.amount ?? null));
   const paid = standsAsAgent(entryOf(ctx.content, item.entry)) && choice.id === TAKE ? agentPaid(ctx, item) : [];
@@ -379,7 +379,7 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // ---------------------------------------------------------------------------
 
 /**
- * R-OFFER-005: an offer whose month has come is removed. Its lapse choice is
+ * offer:lapsed-offer-removed: an offer whose month has come is removed. Its lapse choice is
  * applied first if it can be taken. A choice that asks for an amount has none
  * to lapse with, so it is never applied.
  */
@@ -391,7 +391,7 @@ function expire(ctx: Ctx): BaseEvent[] {
     const entry = entryOf(ctx.content, item.entry);
     const choice = entry.onExpire === null ? undefined : entry.choices.find((candidate) => candidate.id === entry.onExpire);
     let applied: string | null = null;
-    // R-ADVICE-005: the overpromiser's month has come and nothing moved.
+    // advice:agent-kind-drawn-on-offer: the overpromiser's month has come and nothing moved.
     if (item.entry === PROMISE) {
       const agent = typeof item.terms["agent"] === "string" ? item.terms["agent"] : item.entry;
       events.push(...record(ctx, { type: "offer/promise-broken", id: item.id, agent, month: item.expiresMonth }));
@@ -406,7 +406,7 @@ function expire(ctx: Ctx): BaseEvent[] {
   return events;
 }
 
-/** The entries rolled each month, in the order R-OFFER-001 takes them. */
+/** The entries rolled each month, in the order offer:come-up-rolls-in-order takes them. */
 export function rollOrder(content: Content): OfferEntry[] {
   return ROLL_ORDER.flatMap((group) =>
     Object.values(content.offer)
@@ -415,14 +415,14 @@ export function rollOrder(content: Content): OfferEntry[] {
   );
 }
 
-/** R-ROAD-001: the content switch turns the road's whole pool off. */
+/** road:road-route-has-no-figure: the content switch turns the road's whole pool off. */
 function switchedOff(content: Content, entry: OfferEntry): boolean {
   return entry.group === "road" && !content.tuning.road.enabled;
 }
 
 const MONTHS_A_YEAR = 12;
 
-/** R-ROAD-002: the pitch's chance with the character's situation, between 0 and 10000. */
+/** road:pitch-rises-with-pressure: the pitch's chance with the character's situation, between 0 and 10000. */
 export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requirement: Requirement) => RequirementResult): number {
   const pressure = entry.pressure;
   if (pressure === undefined) return entry.chanceBp;
@@ -444,7 +444,7 @@ export function pressureChanceBp(read: ReadCtx, entry: OfferEntry, judge: (requi
 }
 
 /**
- * R-RETURN-003: the returnee group is in the pool for the tuning's months
+ * return:returnee-offers-for-a-year: the returnee group is in the pool for the tuning's months
  * after the last return, and its entries' `when` is judged against that
  * return alone. The record is narrowed to the last return for the
  * judging, so `place/returned` in such a `when` reads the shape of the last
@@ -457,7 +457,7 @@ function lastReturnRead(ctx: Ctx): ReadCtx | null {
   return { state: { ...ctx.state, place: { ...place, returns: [last] } }, world: ctx.world, content: ctx.content };
 }
 
-/** An entry's conditions: where it applies (R-PLACE-003), then its `when`, the returnee group's against the last return. */
+/** An entry's conditions: where it applies (place:entries-legal-by-where), then its `when`, the returnee group's against the last return. */
 function conditionsHold(ctx: Ctx, entry: OfferEntry, terms: Terms): boolean {
   if (!appliesHere(entry, ctx.state)) return false;
   if (entry.group !== "return") return entry.when.every((requirement) => ctx.check(requirement, terms).met);
@@ -465,10 +465,10 @@ function conditionsHold(ctx: Ctx, entry: OfferEntry, terms: Terms): boolean {
   return read !== null && entry.when.every((requirement) => checkWith(read, requirement, terms).met);
 }
 
-/** Whether an entry is rolled this month (R-OFFER-001): conditions, not open, cooldown passed, under its limit. */
+/** Whether an entry is rolled this month (offer:come-up-rolls-in-order): conditions, not open, cooldown passed, under its limit. */
 function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
   if (switchedOff(ctx.content, entry)) return false;
-  // R-ROAD-005: on the road the month is the chain's own; nothing from home reaches it.
+  // road:road-truth-asks-more: on the road the month is the chain's own; nothing from home reaches it.
   if (ctx.state.place.where === "road" && entry.group !== "road") return false;
   if (isOpen(ctx.state, entry.id) || reachedLimit(ctx.state, entry)) return false;
   const last = ctx.state.offer.lastOpened[entry.id];
@@ -476,7 +476,7 @@ function mayRoll(ctx: Ctx, entry: OfferEntry): boolean {
   return conditionsHold(ctx, entry, {});
 }
 
-/** The chance an entry rolls at this month: the road's pressure, then the luck marks and the dry spell (R-LUCK-003, 004). */
+/** The chance an entry rolls at this month: the road's pressure, then the luck marks and the dry spell (luck:no-kicking-while-down, luck:dry-spell-raises-luck). */
 function rollChanceBp(ctx: Ctx, entry: OfferEntry): number {
   const read = readOf(ctx);
   const risk = CHANCE_VARS[entry.id];
@@ -485,7 +485,7 @@ function rollChanceBp(ctx: Ctx, entry: OfferEntry): number {
 }
 
 /**
- * R-LUCK-002: the whip-round is opened by its rule, never rolled, after the
+ * luck:whip-round-once-per-life: the whip-round is opened by its rule, never rolled, after the
  * month's rolls so it moves none of them. It respects its entry's place, its
  * `when` and its limit of one, and none of the monthly limits.
  */
@@ -509,21 +509,21 @@ function parcelShipped(ctx: Ctx): BaseEvent[] {
   return openOffer(ctx, entry, {});
 }
 
-/** The offers opened by roll this month so far, at the day's arrivals and the close together (R-OFFER-001, R-OFFER-008). */
+/** The offers opened by roll this month so far, at the day's arrivals and the close together (offer:come-up-rolls-in-order, offer:day-arrivals-roll-offers). */
 function rolledThisMonth(state: State): number {
   return state.offer.rolledMonth === state.turn.month ? state.offer.rolled : 0;
 }
 
 /**
- * The month's roll (R-OFFER-001): the groups in order, each entry rolled where it may be, inside the month's cap of rolled
- * offers and the cap of open ones; at most `max` of them this time. The day's arrivals (R-OFFER-008) roll one at a time
+ * The month's roll (offer:come-up-rolls-in-order): the groups in order, each entry rolled where it may be, inside the month's cap of rolled
+ * offers and the cap of open ones; at most `max` of them this time. The day's arrivals (offer:day-arrivals-roll-offers) roll one at a time
  * as the month's time is lived; the close rolls what the cap still allows.
  */
 function roll(ctx: Ctx, max: number): BaseEvent[] {
   const { maxNewPerMonth, maxOpen } = ctx.content.tuning.offer;
   const events: BaseEvent[] = [];
   let opened = 0;
-  // R-HOME-003: the month the settlement is cleared, no other blow comes up beside it.
+  // home:makoko-eviction-draw: the month the settlement is cleared, no other blow comes up beside it.
   const cleared = evictedThisMonth(ctx.state);
   for (const entry of rollOrder(ctx.content)) {
     // Checked before each roll: an offer opened by roll this month counts toward the month's cap, an open one toward the other.
@@ -536,7 +536,7 @@ function roll(ctx: Ctx, max: number): BaseEvent[] {
   return events;
 }
 
-/** R-OFFER-008: the effect `offer/come-up`, the roll alone, at most `max` offers. */
+/** offer:day-arrivals-roll-offers: the effect `offer/come-up`, the roll alone, at most `max` offers. */
 function comeUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "offer/come-up") throw new Error(`offer/come-up cannot carry out ${effect.type}.`);
   return roll(ctx, effect.max);
@@ -544,7 +544,7 @@ function comeUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 
 function comeUp(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = roll(ctx, ctx.content.tuning.offer.maxNewPerMonth);
-  // R-HEALTH-002, R-HEALTH-003: illness, its relapse and its worse turn, on the stream `health`.
+  // health:illness-rolls-when-run-down, health:worse-illness-locks-slots: illness, its relapse and its worse turn, on the stream `health`.
   events.push(...healthComeUp(ctx, (entry, terms) => openOffer(ctx, entry, terms)));
   events.push(...whipRound(ctx));
   events.push(...parcelShipped(ctx));
@@ -552,7 +552,7 @@ function comeUp(ctx: Ctx): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// The effect: R-OFFER-007
+// The effect: offer:effect-opens-named-offer
 // ---------------------------------------------------------------------------
 
 function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
@@ -562,9 +562,9 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const handed = handedTerms(entry, inFamily(entry.id) && cause.param !== null ? { ...cause.terms, route: cause.param } : cause.terms);
   if (!conditionsHold(ctx, entry, handed)) return [];
   if (reachedLimit(ctx.state, entry)) return [];
-  // R-ADVICE-005: an agent already on the table stays; going back to him does not draw him again.
+  // advice:agent-kind-drawn-on-offer: an agent already on the table stays; going back to him does not draw him again.
   if (standsAsAgent(entry) && isOpen(ctx.state, entry.id)) return [];
-  // R-OFFER-007: the entry already open closes unanswered, with no lapse effects, and the new one
+  // offer:effect-opens-named-offer: the entry already open closes unanswered, with no lapse effects, and the new one
   // opens, so a job landed while an earlier job offer waits is the one on the table.
   const waiting = Object.values(ctx.state.offer.items).find((item) => item.entry === entry.id);
   const events = waiting === undefined ? [] : record(ctx, { type: "offer/replaced", id: waiting.id, entry: waiting.entry });
@@ -572,8 +572,8 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * The effect `offer/close` (R-PEOPLE-034): the open offer of the named entry
- * closes unanswered, with no choice recorded and nothing paid. R-OFFER-007
+ * The effect `offer/close` (person:family-requests-shared): the open offer of the named entry
+ * closes unanswered, with no choice recorded and nothing paid. offer:effect-opens-named-offer
  * keeps one open offer to an entry, so there is at most one.
  * An offer that is not open does nothing, since the other life's handling may
  * arrive after this copy lapsed or was answered.
@@ -598,7 +598,7 @@ function evolve(slice: OfferSlice, event: OfferEvent): OfferSlice {
   switch (event.type) {
     case "offer/opened": {
       const { item } = event;
-      // R-OFFER-001: the month's rolled count, kept across the day's arrivals and the close.
+      // offer:come-up-rolls-in-order: the month's rolled count, kept across the day's arrivals and the close.
       const sameMonth = slice.rolledMonth === item.openedMonth;
       const rolled = event.rolled === true ? (sameMonth ? slice.rolled + 1 : 1) : sameMonth ? slice.rolled : 0;
       return {
@@ -634,7 +634,7 @@ function line(key: string, params: ReportLine["params"], attention: boolean): Re
   return { key, params, tone: "plain", attention, counts: [] };
 }
 
-/** R-ADVICE-009: a scam told straight, naming the agent, the fee gone and every tell the player saw. */
+/** advice:bad-news-told-straight: a scam told straight, naming the agent, the fee gone and every tell the player saw. */
 function agentLines(event: Extract<OfferEvent, { type: "offer/agent-paid" }>): ReportLine[] {
   const amount = { currency: "NGN" as const, amount: event.fee };
   switch (event.kind) {
@@ -645,7 +645,7 @@ function agentLines(event: Extract<OfferEvent, { type: "offer/agent-paid" }>): R
       ];
     case "fixer":
       return [line(event.paper === null ? "line.offer.agent-paid-nothing-waiting" : "line.offer.agent-paid", { agent: event.agent, amount }, false)];
-    // R-ADVICE-013: her own words, since the friend's chaser is a woman and the men at the stop are not.
+    // advice:chaser-runs-around-cheaper: her own words, since the friend's chaser is a woman and the men at the stop are not.
     case "chaser":
       return [line(event.paper === null ? "line.offer.agent-chaser-paid-nothing-waiting" : "line.offer.agent-chaser-paid", { agent: event.agent, amount }, false)];
     case "overpromiser":
@@ -710,7 +710,7 @@ function invariants(state: State, content: Content): string[] {
  * smallest amount a choice may take, so a larger amount may still be refused
  * with cannot-afford.
  */
-/** R-WALLET-016: what the job an offer names would pay a month as the wallet will book it, or nothing when it names none. */
+/** wallet:view-carries-month-pay: what the job an offer names would pay a month as the wallet will book it, or nothing when it names none. */
 function offeredPay(read: ReadCtx, item: OfferState): Pick<OfferView, "pay"> {
   const job = item.terms["job"];
   const entry = typeof job === "string" ? read.content.activity[job as Id<"activity">] : undefined;
@@ -726,7 +726,7 @@ function offerView(read: ReadCtx, item: OfferState): OfferView {
     entry: item.entry,
     openedMonth: item.openedMonth,
     expiresMonth: item.expiresMonth,
-    // R-ENGINE-007: an agent's kind is never shown.
+    // engine:view-holds-no-hidden-field: an agent's kind is never shown.
     terms: shownTerms(item.terms),
     signs: item.signs,
     // A parcel shows only the thing in it.
@@ -747,6 +747,6 @@ export const offerKind: RegisteredKind<OfferSlice, OfferEvent> = {
   evolve,
   lines,
   invariants,
-  // R-ROAD-012: the road's pitches sit under every other offer.
+  // road:pitch-reaches-anyone-at-home: the road's pitches sit under every other offer.
   view: (read) => ({ offers: [...openItems(read.state)].sort((a, b) => Number(roadGroup(read, a)) - Number(roadGroup(read, b))).map((item) => offerView(read, item)) }),
 };

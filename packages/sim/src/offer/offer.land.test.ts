@@ -1,5 +1,5 @@
-// The plot sold to a buyer the game brings (docs/rules/offer.md, the land buyer; wallet.md R-WALLET-011; route.md
-// R-ROUTE-013): selling the plot put ₦8,500,000 in the bank "from somewhere a visa officer will ask
+// The plot sold to a buyer the game brings (docs/rules/offer.md, the land buyer; wallet:large-deposits-record-lots; route.md
+// route:unexplained-share-of-funds): selling the plot put ₦8,500,000 in the bank "from somewhere a visa officer will ask
 // about". A sale the game itself made is documented money, the deed of sale its paper: it records no lot and adds
 // nothing to the unexplained share. A gift still does. Played through the harness with the real content.
 import { content } from "@japacity/content";
@@ -11,7 +11,7 @@ import { UK_ROUTE } from "../testing/ids";
 const LAND_BUYER = "offer.land-buyer";
 
 describe("the plot's sale is a traced source", () => {
-  test("[R-WALLET-011] [R-ROUTE-013] given land held and the master's known, when the land buyer's offer is answered with Sell the plot, then the price lands in the bank, no lot is recorded, no deposit is flagged and the unexplained share stays as it was", () => {
+  test("[wallet:large-deposits-record-lots] [route:unexplained-share-of-funds] given land held and the master's known, when the land buyer's offer is answered with Sell the plot, then the price lands in the bank, no lot is recorded, no deposit is flagged and the unexplained share stays as it was", () => {
     const game = readyLife(content, { quiet: true, qualities: { "quality.land": 1 } });
     toKnown(game);
     applyEffects(game, [{ type: "offer/open", offer: LAND_BUYER }]);
@@ -30,7 +30,7 @@ describe("the plot's sale is a traced source", () => {
     expect(game.state.quality["quality.land"]).toBe(0);
   });
 
-  test("[R-WALLET-011] given the land's sale and the relative's gift, when their effects are read, then the sale is not flagged and the gift still is", () => {
+  test("[wallet:large-deposits-record-lots] given the land's sale and the relative's gift, when their effects are read, then the sale is not flagged and the gift still is", () => {
     const sell = content.offer[LAND_BUYER]?.choices.find((choice) => choice.id === "sell")?.effects ?? [];
     expect(sell.find((effect) => effect.type === "money/add")).toMatchObject({ reason: "sale" });
     expect(sell.some((effect) => effect.type === "money/add" && effect.flagged === true)).toBe(false);

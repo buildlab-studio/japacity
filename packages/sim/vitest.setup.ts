@@ -1,5 +1,5 @@
 // Every property test runs on one fixed seed, so a run is reproducible and a
-// failure is a finding with a seed, never luck (R-ENGINE-016's minute holds
+// failure is a finding with a seed, never luck (engine:limits-tested-through-step's minute holds
 // too: a random seed once shrank a 300-command life for half an hour). Set
 // FC_SEED to explore another seed on purpose; report what it finds.
 import { fc } from "@fast-check/vitest";

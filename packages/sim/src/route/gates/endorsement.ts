@@ -1,4 +1,4 @@
-// The endorsement gate: docs/rules/route-gates.md R-ENDORSE-001 to 003. The
+// The endorsement gate: route-gates:applying-for-endorsement, route-gates:endorsement-decided-by-draw and route-gates:talent-visa-needs-endorsement. The
 // endorsing body's letter is a document the document kind issues; the gate
 // decides in `clocks`, the month it is issued, whether the body really backs
 // the character, and keeps the month of a refusal for the cooldown.
@@ -12,7 +12,7 @@ import type { Gate } from "./gate";
 type EndorsementBlock = NonNullable<RouteEntry["endorsement"]>;
 type EndorsementState = Extract<RouteGateState, { gate: "endorsement" }>;
 
-/** The step `activity.apply-endorsement` needs: no refusal, or its cooldown run (R-ENDORSE-002). */
+/** The step `activity.apply-endorsement` needs: no refusal, or its cooldown run (route-gates:endorsement-decided-by-draw). */
 export const COOLED = "cooled";
 
 function blockOf(entry: RouteEntry): EndorsementBlock {
@@ -25,9 +25,9 @@ function gateOf(held: RouteState): EndorsementState {
 }
 
 /**
- * The figure R-ENDORSE-001 asks of a quality, read from the route's own
- * checklist. The points above 3 and above 50 in R-ENDORSE-002 are the
- * bars of R-ENDORSE-001, which the checklist holds, so the chance reads them
+ * The figure route-gates:applying-for-endorsement asks of a quality, read from the route's own
+ * checklist. The points above 3 and above 50 in route-gates:endorsement-decided-by-draw are the
+ * bars of route-gates:applying-for-endorsement, which the checklist holds, so the chance reads them
  * there rather than keeping a copy in code or in the endorsement block.
  */
 function barOf(entry: RouteEntry, quality: Id<"quality">): number {
@@ -38,7 +38,7 @@ function barOf(entry: RouteEntry, quality: Id<"quality">): number {
 }
 
 /**
- * R-ENDORSE-002: `baseBp`, plus `perPortfolioBp` for each portfolio point
+ * route-gates:endorsement-decided-by-draw: `baseBp`, plus `perPortfolioBp` for each portfolio point
  * above the bar, plus `perNetworkBp` for each network point above the bar,
  * never above `capBp`.
  */
@@ -63,7 +63,7 @@ function issuedNow(ctx: Ctx, document: Id<"document">): boolean {
 }
 
 /**
- * R-ENDORSE-002: one draw on `visa` the month the letter is issued. A refusal
+ * route-gates:endorsement-decided-by-draw: one draw on `visa` the month the letter is issued. A refusal
  * voids it at once, counts as a refusal on the route, and starts the cooldown.
  */
 function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
@@ -88,18 +88,18 @@ export const endorsementGate: Gate = {
   gate: "endorsement",
   steps: [COOLED],
   initial: () => ({ gate: "endorsement", endorsementRefusedMonth: null }),
-  /** R-ENDORSE-002: `cooled` holds with no refusal on record, or from `cooldown` months after the refusal's month. */
+  /** route-gates:endorsement-decided-by-draw: `cooled` holds with no refusal on record, or from `cooldown` months after the refusal's month. */
   reached: (read, entry, held, step) => {
     if (step !== COOLED) return false;
     const refused = gateOf(held).endorsementRefusedMonth;
     return refused === null || read.state.turn.month >= refused + blockOf(entry).cooldown;
   },
-  // R-ENDORSE-003: the endorsement held and in date.
+  // route-gates:talent-visa-needs-endorsement: the endorsement held and in date.
   mayApply: (ctx, entry) => ctx.check({ type: "document/held", document: blockOf(entry).document }).met,
-  // R-ENDORSE-003: earlier refusals only, on the route's own base.
+  // route-gates:talent-visa-needs-endorsement: earlier refusals only, on the route's own base.
   decision: () => ({ terms: { strictness: false, unexplained: false, refusals: true, interview: false, goodGrade: false }, override: null, bans: false }),
   clocks,
-  // R-ENDORSE-003: no strictness read; the surcharge for the status's years is refunded on a refusal (R-ROUTE-018).
+  // route-gates:talent-visa-needs-endorsement: no strictness read; the surcharge for the status's years is refunded on a refusal (route:refusal-refunds-and-resets).
   application: (read, entry) => ({ strictness: 0, surchargePaid: blockOf(entry).surchargeYears * surchargeYear(read), decisionMonths: read.content.tuning.route.decisionMonths }),
   funds: () => null,
   view: (_read, entry, held) => {

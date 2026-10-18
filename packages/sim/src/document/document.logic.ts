@@ -2,7 +2,7 @@
 // and usually runs out.
 //
 // The contract keeps one DocumentState per document, so a new copy
-// being made while an old one is held (R-DOCUMENT-004) is written as
+// being made while an old one is held (document:one-pending-copy) is written as
 // `state: "held"` with the held copy's `expiresMonth` and `value`, and
 // `readyMonth` set to the month the new copy is due. A held document with no
 // copy being made has `readyMonth` null.
@@ -61,7 +61,7 @@ export function beingMade(doc: DocumentState): number | null {
 }
 
 /**
- * Held and in date (R-DOCUMENT-003). A copy whose expiry month has come no
+ * Held and in date (document:expired-document-not-held). A copy whose expiry month has come no
  * longer counts, even in the phases of that month before `papers` marks it.
  */
 function inForce(doc: DocumentState | undefined, month: number): doc is DocumentState {
@@ -69,7 +69,7 @@ function inForce(doc: DocumentState | undefined, month: number): doc is Document
 }
 
 /**
- * The English band (R-DOCUMENT-005): the base, plus the per-hundred figure for
+ * The English band (document:english-test-band-value): the base, plus the per-hundred figure for
  * every 100 points of English rounded down, plus the drawn band steps, moved
  * down to a step and kept in range. `steps` is the draw, from -noiseSteps to
  * noiseSteps.
@@ -97,11 +97,11 @@ function valueOnIssue(ctx: Ctx, entry: DocumentEntry): number | null {
   }
 }
 
-/** The route states that mean an application was sent (R-ROUTE-014). */
+/** The route states that mean an application was sent (route:application-fixes-figures). */
 const SENT: readonly string[] = ["applying", "granted", "departed"];
 
 /**
- * R-ADVICE-008: a fake paper counts as used once an application rests on it:
+ * advice:agent-loss-is-the-fee: a fake paper counts as used once an application rests on it:
  * a route whose checklist asks for the paper has been sent, or was refused
  * for the agent's papers. The record keeps no month of use, so a
  * route's state and its last refusal are what show the use.
@@ -115,7 +115,7 @@ function usedInApplication(read: ReadCtx, id: Id<"document">): boolean {
   });
 }
 
-/** Issue a copy now: held from this month, running out `validMonths` later (R-DOCUMENT-002). */
+/** Issue a copy now: held from this month, running out `validMonths` later (document:due-document-issued). */
 function issue(ctx: Ctx, id: Id<"document">): DocumentEvent {
   const entry = entryOf(ctx.content, id);
   const month = ctx.state.turn.month;
@@ -125,17 +125,17 @@ function issue(ctx: Ctx, id: Id<"document">): DocumentEvent {
     expiresMonth: entry.validMonths === null ? null : month + entry.validMonths,
     value: valueOnIssue(ctx, entry),
   };
-  // R-ADVICE-008: the mark of a fake once used stays on the record for the life.
+  // advice:agent-loss-is-the-fee: the mark of a fake once used stays on the record for the life.
   return ctx.state.document[id]?.genuine === false && usedInApplication(ctx, id) ? { ...event, genuine: false } : event;
 }
 
-/** The term a fixer's request carries: months to bring the copy being made forward (R-ADVICE-005). */
+/** The term a fixer's request carries: months to bring the copy being made forward (advice:agent-kind-drawn-on-offer). */
 export const HASTEN_TERM = "hasten";
-/** The term fake papers carry on their grant (R-ADVICE-008). */
+/** The term fake papers carry on their grant (advice:agent-loss-is-the-fee). */
 const FAKE_TERM = "fake";
 
 /**
- * R-ADVICE-005: a fixer brings the copy being made forward. The
+ * advice:agent-kind-drawn-on-offer: a fixer brings the copy being made forward. The
  * contract has no effect for this, so it is read as a request for a paper
  * already being made that carries the term `hasten`. Never earlier than the
  * earliest a request at this moment could be issued.
@@ -146,7 +146,7 @@ function hasten(ctx: Ctx, id: Id<"document">, due: number, months: number): Docu
   return { type: "document/hastened", document: id, readyMonth: Math.max(earliest, due - months), was: due };
 }
 
-/** R-DOCUMENT-001, R-DOCUMENT-004. */
+/** document:request-starts-pending, document:one-pending-copy. */
 function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "document/request") throw new Error(`The document kind cannot request from ${effect.type}.`);
   const id = effect.document;
@@ -167,7 +167,7 @@ function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   // director.md: the lecturers' strike adds its months to the transcript's wait while in force.
   const extra = id === TRANSCRIPT ? worldVarOr(ctx.world, TRANSCRIPT_EXTRA) : 0;
   const wait = ctx.random.between("document", entry.wait[0], entry.wait[1]) + extra;
-  // R-DOCUMENT-002: a request between turns, as from an offer, comes after
+  // document:due-document-issued: a request between turns, as from an offer, comes after
   // this month's papers phase, so the earliest it can be issued is next
   // month's. Inside a turn it is this month's, so a wait of zero from a slot
   // is issued in the same turn.
@@ -177,12 +177,12 @@ function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-DOCUMENT-006. A grant replaces whatever is there, so a copy being
+ * document:grant-and-void-commands. A grant replaces whatever is there, so a copy being
  * made is the one issued, and the English test draws its band as on any issue.
  */
 function grant(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "document/grant") throw new Error(`The document kind cannot grant from ${effect.type}.`);
-  // R-ADVICE-008. The contract has no effect for fake papers, so a grant whose cause carries the term `fake` makes one.
+  // advice:agent-loss-is-the-fee. The contract has no effect for fake papers, so a grant whose cause carries the term `fake` makes one.
   if (cause.terms[FAKE_TERM] === 1) {
     const entry = entryOf(ctx.content, effect.document);
     const event: DocumentEvent = { type: "document/faked", document: effect.document, expiresMonth: entry.validMonths === null ? null : ctx.state.turn.month + entry.validMonths };
@@ -191,7 +191,7 @@ function grant(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return [issue(ctx, effect.document)];
 }
 
-/** R-DOCUMENT-006. Voiding what is not there does nothing. */
+/** document:grant-and-void-commands. Voiding what is not there does nothing. */
 function voidDocument(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "document/void") throw new Error(`The document kind cannot void from ${effect.type}.`);
   if (ctx.state.document[effect.document] === undefined) return [];
@@ -200,7 +200,7 @@ function voidDocument(ctx: Ctx, effect: Effect): BaseEvent[] {
 }
 
 /**
- * R-DOCUMENT-002, R-DOCUMENT-003. Documents are walked in content order so the
+ * document:due-document-issued, document:expired-document-not-held. Documents are walked in content order so the
  * `test` draws come in the same order on every machine. A copy due this month
  * is issued before the old one's expiry is looked at: the new copy replaces
  * it, so a renewal that lands on the expiry month leaves no gap and no
@@ -225,7 +225,7 @@ function evolve(slice: DocumentSlice, event: DocumentEvent): DocumentSlice {
   switch (event.type) {
     case "document/requested": {
       const doc = slice[event.document];
-      // R-DOCUMENT-004: a held copy stays in force while the new one is made.
+      // document:one-pending-copy: a held copy stays in force while the new one is made.
       const next: DocumentState =
         doc?.state === "held"
           ? { ...doc, readyMonth: event.readyMonth }
@@ -250,7 +250,7 @@ function evolve(slice: DocumentSlice, event: DocumentEvent): DocumentSlice {
       if (doc === undefined) throw new Error(`${event.document} expired but is not in the state.`);
       const due = beingMade(doc);
       // An old copy that runs out while a new one is made leaves only the new one, pending.
-      // R-ADVICE-008: an expired fake keeps its mark.
+      // advice:agent-loss-is-the-fee: an expired fake keeps its mark.
       const mark = doc.genuine === false ? { genuine: false } : {};
       const next: DocumentState =
         due === null
@@ -300,7 +300,7 @@ function lines(event: DocumentEvent): ReportLine[] {
 function held(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "document/held") throw new Error(`The document kind cannot judge ${requirement.type} as held.`);
   const doc = read.state.document[requirement.document];
-  // R-STATUS-009: while the employer holds the passport, no route can use it.
+  // status:gulf-status-holds-passport: while the employer holds the passport, no route can use it.
   const valid = inForce(doc, read.state.turn.month) && !(requirement.document === PASSPORT && passportHeldByEmployer(read));
   if (requirement.min === undefined) return { met: valid };
   const have = valid ? (doc.value ?? 0) : 0;
@@ -317,7 +317,7 @@ function absent(read: ReadCtx, requirement: Requirement): RequirementResult {
 function genuine(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "document/genuine") throw new Error(`The document kind cannot judge ${requirement.type} as genuine.`);
   const doc = read.state.document[requirement.document];
-  // R-ADVICE-008: a paper from a scammer is held but never genuine.
+  // advice:agent-loss-is-the-fee: a paper from a scammer is held but never genuine.
   return { met: inForce(doc, read.state.turn.month) && doc.genuine !== false };
 }
 
@@ -374,7 +374,7 @@ export const documentKind: RegisteredKind<DocumentSlice, DocumentEvent> = {
       readyMonth: held.readyMonth,
       expiresMonth: held.expiresMonth,
       value: held.value,
-      // R-DOCUMENT-008: a held paper with a new copy requested is on its way as a pending one is.
+      // document:paper-on-its-way: a held paper with a new copy requested is on its way as a pending one is.
       onItsWay: beingMade(held),
     })),
   }),

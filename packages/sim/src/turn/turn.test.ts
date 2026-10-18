@@ -51,13 +51,13 @@ function sendWith(kinds: ReturnType<typeof registry>, state: State, command: Loo
 }
 
 describe("turns", () => {
-  test("[R-TURN-001] [R-TURN-010] given a new character, when the state is built, then 24 turns are banked, the month is 0 and no time is spent", () => {
+  test("[turn:new-character-full-bank] [turn:month-lived-in-half-days] given a new character, when the state is built, then 24 turns are banked, the month is 0 and no time is spent", () => {
     const game = start();
     expect(game.state.turn).toEqual({ month: 0, banked: tuning.start, spent: 0, ended: false, report: null, locks: [] });
     expect(tuning.start).toBe(24);
   });
 
-  test("[R-TURN-002] given a full bank, when the authority grants more, then the bank stays at the cap", () => {
+  test("[turn:bank-capped-at-full] given a full bank, when the authority grants more, then the bank stays at the cap", () => {
     const game = start();
     game.endTurn();
     const result = game.grant(5);
@@ -65,13 +65,13 @@ describe("turns", () => {
     expect(result.events[0]).toEqual({ type: "turn/granted", count: 1, banked: tuning.cap });
   });
 
-  test("[R-TURN-002] given the cap, when a grant would pass it, then it is cut to the cap and never above", () => {
+  test("[turn:bank-capped-at-full] given the cap, when a grant would pass it, then it is cut to the cap and never above", () => {
     const game = start();
     game.grant(1000);
     expect(game.state.turn.banked).toBe(tuning.cap);
   });
 
-  test("[R-TURN-003] given a banked turn, when the turn is ended, then one is spent and the month goes up by one", () => {
+  test("[turn:month-turns-on-empty-bank] given a banked turn, when the turn is ended, then one is spent and the month goes up by one", () => {
     const game = start();
     game.endTurn();
     expect(game.state.turn.banked).toBe(tuning.start - 1);
@@ -81,7 +81,7 @@ describe("turns", () => {
     expect(game.state.turn.month).toBe(2);
   });
 
-  test("[R-TURN-003] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0011)", () => {
+  test("[turn:month-turns-on-empty-bank] given no turn banked, when the turn is ended, then the month turns, as the bank gates nothing (decision 0011)", () => {
     const game = start();
     for (let i = 0; i < tuning.start; i += 1) game.endTurn();
     expect(game.state.turn.banked).toBe(0);
@@ -90,14 +90,14 @@ describe("turns", () => {
     expect(game.state.turn.month).toBe(tuning.start + 1);
   });
 
-  test("[R-TURN-010] given a life with no job, when the month's free time is read, then it is the whole month, and with a job what the job leaves", () => {
+  test("[turn:month-lived-in-half-days] given a life with no job, when the month's free time is read, then it is the whole month, and with a job what the job leaves", () => {
     const game = start();
     expect(freeHalfDays(game.state, miniContent)).toBe(tuning.halfDays.noJob);
     expect(tuning.halfDays.noJob).toBe(60);
     expect(tuning.halfDays.withJob).toBe(20);
   });
 
-  test("[R-TURN-010] given time spent this month, when the turn is ended, then the new month starts with none spent", () => {
+  test("[turn:month-lived-in-half-days] given time spent this month, when the turn is ended, then the new month starts with none spent", () => {
     const game = start();
     const result = sendWith(
       registryWithEffectCommand({ type: "turn/spend-days", halfDays: 3 }),
@@ -113,7 +113,7 @@ describe("turns", () => {
     expect(game.state.turn.spent).toBe(0);
   });
 
-  test("[R-TURN-010] [R-OFFER-008] given the arrival marks at a third and two thirds, when a spend is read against them, then a mark counts once, when the time was under it and is now at or past it, and one spend may cross both", () => {
+  test("[turn:month-lived-in-half-days] [offer:day-arrivals-roll-offers] given the arrival marks at a third and two thirds, when a spend is read against them, then a mark counts once, when the time was under it and is now at or past it, and one spend may cross both", () => {
     const marks = tuning.arrivalsBp;
     expect(marks).toEqual([3333, 6667]);
     const first = bp(60, 3333);
@@ -129,7 +129,7 @@ describe("turns", () => {
     expect(arrivalsCrossed(0, bp(20, 3333), 20, marks)).toBe(1);
   });
 
-  test("[R-TURN-010] given time spent up to the month, when more is spent, then it never passes the month's free time", () => {
+  test("[turn:month-lived-in-half-days] given time spent up to the month, when more is spent, then it never passes the month's free time", () => {
     const game = start();
     const spend = (state: State, halfDays: number) => {
       const result = sendWith(registryWithEffectCommand({ type: "turn/spend-days", halfDays }), state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
@@ -141,7 +141,7 @@ describe("turns", () => {
     expect(checkInvariants(state, miniContent)).toEqual([]);
   });
 
-  test("[R-TURN-004] given a part-spent bank, when the effect turn/refill is carried out, then the bank is full", () => {
+  test("[turn:refill-fills-the-bank] given a part-spent bank, when the effect turn/refill is carried out, then the bank is full", () => {
     const game = start();
     game.endTurn();
     game.endTurn();
@@ -156,14 +156,14 @@ describe("turns", () => {
     expect(result.events.map((event) => event.type)).toEqual(["turn/refilled", "engine/stepped"]);
   });
 
-  test("[R-TURN-005] given a player, when they send turns/grant, then it is rejected with not-yours", () => {
+  test("[turn:only-authority-grants-turns] given a player, when they send turns/grant, then it is rejected with not-yours", () => {
     const game = start();
     game.endTurn();
     game.expectRejected({ type: "turns/grant", count: 1 }, "not-yours", "player");
     expect(game.state.turn.banked).toBe(tuning.start - 1);
   });
 
-  test("[R-TURN-005] given the authority, when it sends turns/grant, then turns are added", () => {
+  test("[turn:only-authority-grants-turns] given the authority, when it sends turns/grant, then turns are added", () => {
     const game = start();
     game.endTurn();
     game.endTurn();
@@ -171,25 +171,25 @@ describe("turns", () => {
     expect(game.state.turn.banked).toBe(tuning.start - 1);
   });
 
-  test("[R-TURN-005] given the authority, when it grants zero or a fraction, then it is rejected with bad-amount", () => {
+  test("[turn:only-authority-grants-turns] given the authority, when it grants zero or a fraction, then it is rejected with bad-amount", () => {
     const game = start();
     expect(game.expectRejected({ type: "turns/grant", count: 0 }, "bad-amount", "authority").code).toBe("bad-amount");
     expect(game.expectRejected({ type: "turns/grant", count: Number("1.5") }, "bad-amount", "authority").code).toBe("bad-amount");
   });
 
-  test("[R-TURN-006] given no job, when the view is read, then there are 3 free slots", () => {
+  test("[turn:free-slots-per-month] given no job, when the view is read, then there are 3 free slots", () => {
     const game = start({ scenario: "scenario.plain" });
     expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob);
     expect(tuning.freeSlotsNoJob).toBe(3);
   });
 
-  test("[R-TURN-006] given a job and wellbeing under 25, when the view is read, then there is one slot fewer than 2", () => {
+  test("[turn:free-slots-per-month] given a job and wellbeing under 25, when the view is read, then there is one slot fewer than 2", () => {
     const game = start({ scenario: "scenario.worker" });
     expect(game.state.quality["quality.wellbeing"]).toBeLessThan(miniContent.tuning.quality.burnoutBelow);
     expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
   });
 
-  test("[R-TURN-006] given a job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps both and 24 loses one, and the turn check follows", () => {
+  test("[turn:free-slots-per-month] given a job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps both and 24 loses one, and the turn check follows", () => {
     const burnout = miniContent.tuning.quality.burnoutBelow;
     expect(burnout).toBe(25);
     const rest = { activity: "activity.rest" as const, param: null };
@@ -204,7 +204,7 @@ describe("turns", () => {
     under.endTurn([rest]);
   });
 
-  test("[R-TURN-006] given no job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps three and 24 loses one", () => {
+  test("[turn:free-slots-per-month] given no job and wellbeing at 25 and at 24, when the free slots are counted, then 25 keeps three and 24 loses one", () => {
     const burnout = miniContent.tuning.quality.burnoutBelow;
     const rest = { activity: "activity.rest" as const, param: null };
     const at = start({ scenario: "scenario.plain" });
@@ -218,7 +218,7 @@ describe("turns", () => {
     under.endTurn([rest, rest]);
   });
 
-  test("[R-TURN-006] given 3 free slots, when 4 are filled, then the turn is rejected with not-legal", () => {
+  test("[turn:free-slots-per-month] given 3 free slots, when 4 are filled, then the turn is rejected with not-legal", () => {
     const game = start({ scenario: "scenario.plain" });
     const rest = { activity: "activity.rest" as const, param: null };
     game.expectRejected({ type: "turn/end", slots: [rest, rest, rest, rest] }, "not-legal");
@@ -226,14 +226,14 @@ describe("turns", () => {
     expect(game.state.turn.month).toBe(1);
   });
 
-  test("[R-TURN-006] given free slots, when fewer are filled, then the empty ones count as rest and the turn is accepted", () => {
+  test("[turn:free-slots-per-month] given free slots, when fewer are filled, then the empty ones count as rest and the turn is accepted", () => {
     const game = start({ scenario: "scenario.plain" });
     game.endTurn([{ activity: "activity.rest", param: null }]);
     game.endTurn([]);
     expect(game.state.turn.month).toBe(2);
   });
 
-  test("[R-TURN-006] given rest, which the player never plans since an empty slot rests, when a recorded pick of it and an empty month are played, then the pick still plays and every empty slot rests", () => {
+  test("[turn:free-slots-per-month] given rest, which the player never plans since an empty slot rests, when a recorded pick of it and an empty month are played, then the pick still plays and every empty slot rests", () => {
     const game = start({ scenario: "scenario.plain" });
     const recorded = game.endTurn([{ activity: "activity.rest", param: null }]);
     expect(recorded.events.some((event) => event.type === "activity/slot-played")).toBe(true);
@@ -241,7 +241,7 @@ describe("turns", () => {
     expect(empty.events.find((event) => event.type === "activity/rested")).toMatchObject({ slots: game.view().freeSlots });
   });
 
-  test("[R-TURN-007] given the effect turn/finish, when it is carried out, then the life is ended and only turns/grant is accepted", () => {
+  test("[turn:finish-ends-the-life] given the effect turn/finish, when it is carried out, then the life is ended and only turns/grant is accepted", () => {
     const game = start();
     const kinds = registryWithEffectCommand({ type: "turn/finish" });
     const finished = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" });
@@ -256,7 +256,7 @@ describe("turns", () => {
     expect(granted.ok).toBe(true);
   });
 
-  test("[R-TURN-008] given a turn, when it ends, then a report with the month, the lines, japacity before and after, and attention is stored", () => {
+  test("[turn:turn-stores-a-report] given a turn, when it ends, then a report with the month, the lines, japacity before and after, and attention is stored", () => {
     const game = start({ scenario: "scenario.plain" });
     const result = game.endTurn([{ activity: "activity.rest", param: null }]);
     const report = game.state.turn.report;
@@ -267,7 +267,7 @@ describe("turns", () => {
     expect(game.view().report).toEqual(report);
   });
 
-  test("[R-TURN-009] given a lock of one slot for two months, when the months pass, then the free slots drop by one for those months and come back after", () => {
+  test("[turn:slots-can-be-locked] given a lock of one slot for two months, when the months pass, then the free slots drop by one for those months and come back after", () => {
     const game = start({ scenario: "scenario.plain" });
     const kinds = registryWithEffectCommand({ type: "turn/lock", slots: 1, months: 2, why: "illness" });
     const locked = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);
@@ -285,7 +285,7 @@ describe("turns", () => {
     expect(game.state.turn.locks).toEqual([]);
   });
 
-  test("[R-TURN-009] given a job, burnout and the most slots locked, when the free slots are counted, then they stop at zero, and only an empty turn is legal", () => {
+  test("[turn:slots-can-be-locked] given a job, burnout and the most slots locked, when the free slots are counted, then they stop at zero, and only an empty turn is legal", () => {
     const game = start({ scenario: "scenario.worker" });
     expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
     const kinds = registryWithEffectCommand({ type: "turn/lock", slots: tuning.maxLocked, months: 1, why: "illness" });
@@ -300,7 +300,7 @@ describe("turns", () => {
     expect(game.view().freeSlots).toBe(tuning.freeSlots - 1);
   });
 
-  test("[R-TURN-009] given a lock of one month applied while a turn resolves, when it lands, then that turn keeps the slots it was checked with, the month in hand is locked, and the lock ends in the next spend", () => {
+  test("[turn:slots-can-be-locked] given a lock of one month applied while a turn resolves, when it lands, then that turn keeps the slots it was checked with, the month in hand is locked, and the lock ends in the next spend", () => {
     const rest = miniContent.activity["activity.rest"]!;
     const lockingRest = { ...rest, id: "activity.lock-rest" as const, effects: [...rest.effects, { type: "turn/lock" as const, slots: 1, months: 1, why: "night" }] };
     const used = { ...miniContent, activity: { ...miniContent.activity, [lockingRest.id]: lockingRest } };
@@ -323,7 +323,7 @@ describe("turns", () => {
     expect(game.view().freeSlots).toBe(tuning.freeSlotsNoJob);
   });
 
-  test("[R-TURN-009] given locks at the most allowed, when another lock is asked for, then it is cut to what is left and never below zero slots", () => {
+  test("[turn:slots-can-be-locked] given locks at the most allowed, when another lock is asked for, then it is cut to what is left and never below zero slots", () => {
     const game = start({ scenario: "scenario.plain" });
     const kinds = registryWithEffectCommand({ type: "turn/lock", slots: 5, months: 1, why: "burial" });
     const locked = sendWith(kinds, game.state, { type: "offer/choose", offer: "x", choice: "y" }, game.tick);

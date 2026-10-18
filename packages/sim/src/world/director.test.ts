@@ -36,7 +36,7 @@ function withPool(news: NewsEntry[], change: { eras?: Content["era"]; director?:
 }
 
 describe("determinism", () => {
-  test("[R-DIRECTOR-008] [R-RATE-001] given 20 world seeds, when 300 ticks are built twice and asked for at single ticks, then the worlds are equal", () => {
+  test("[director:world-stepped-from-seed] [rate:world-follows-seed-and-tick] given 20 world seeds, when 300 ticks are built twice and asked for at single ticks, then the worlds are equal", () => {
     for (const seed of SEEDS) {
       const walked = standInWorlds(seed, 300, content);
       expect(standInWorlds(seed, 300, content)).toEqual(walked);
@@ -45,7 +45,7 @@ describe("determinism", () => {
     }
   });
 
-  test("[R-DIRECTOR-008] given two world seeds, when 300 ticks pass, then their eras or stories differ", () => {
+  test("[director:world-stepped-from-seed] given two world seeds, when 300 ticks pass, then their eras or stories differ", () => {
     const one = directorTicks(SEEDS[0]!, 300, content);
     const two = directorTicks(SEEDS[1]!, 300, content);
     expect(one.map((tick) => [tick.era, tick.started])).not.toEqual(two.map((tick) => [tick.era, tick.started]));
@@ -53,7 +53,7 @@ describe("determinism", () => {
 });
 
 describe("eras", () => {
-  test("[R-DIRECTOR-002] given 20 world seeds, when 300 ticks pass, then calm opens, every era ends inside its range, no era follows itself, each follows one that names it, and a once era runs once", () => {
+  test("[director:one-era-at-a-time] given 20 world seeds, when 300 ticks pass, then calm opens, every era ends inside its range, no era follows itself, each follows one that names it, and a once era runs once", () => {
     const seen = new Set<Id<"era">>();
     for (const seed of SEEDS) {
       const ticks = directorTicks(seed, 300, content);
@@ -83,7 +83,7 @@ describe("eras", () => {
     expect(seen.size).toBeGreaterThanOrEqual(6);
   });
 
-  test("[R-DIRECTOR-002] given an era begins, when that tick is read, then its own story is announced that tick and the story of the era before has ended", () => {
+  test("[director:one-era-at-a-time] given an era begins, when that tick is read, then its own story is announced that tick and the story of the era before has ended", () => {
     for (const seed of SEEDS.slice(0, 5)) {
       const ticks = directorTicks(seed, 300, content);
       for (const tick of ticks) {
@@ -98,7 +98,7 @@ describe("eras", () => {
     }
   });
 
-  test("[R-DIRECTOR-002] given two eras that each follow only the other, when the eras turn, then they alternate with lengths drawn inside their ranges", () => {
+  test("[director:one-era-at-a-time] given two eras that each follow only the other, when the eras turn, then they alternate with lengths drawn inside their ranges", () => {
     const eras = { [CALM]: era(CALM, [3, 5], { [OTHER]: 1 }), [OTHER]: era(OTHER, [2, 2], { [CALM]: 1 }) };
     const ticks = directorTicks("w", 60, withPool([], { eras }));
     const order = ticks.map((tick) => tick.era!.id).filter((id, index, all) => id !== all[index - 1]);
@@ -109,23 +109,23 @@ describe("eras", () => {
 });
 
 describe("the story roll", () => {
-  test("[R-DIRECTOR-003] given a story marked once that may always fire, when 200 ticks pass, then it fires once, on the first tick", () => {
+  test("[director:stories-start-by-roll] given a story marked once that may always fire, when 200 ticks pass, then it fires once, on the first tick", () => {
     const ticks = directorTicks("w", 200, withPool([pooled("news.t-once", { once: true })]));
     expect(starts(ticks, "news.t-once")).toEqual([1]);
   });
 
-  test("[R-DIRECTOR-003] given a story with a cooldown of 10, when it may always fire, then it fires every tenth tick and never within its cooldown", () => {
+  test("[director:stories-start-by-roll] given a story with a cooldown of 10, when it may always fire, then it fires every tenth tick and never within its cooldown", () => {
     const ticks = directorTicks("w", 40, withPool([pooled("news.t-cool", { cooldown: 10 })]));
     expect(starts(ticks, "news.t-cool")).toEqual([1, 11, 21, 31]);
   });
 
-  test("[R-DIRECTOR-003] given a story that ends, when it may always fire, then it never runs two passes at once", () => {
+  test("[director:stories-start-by-roll] given a story that ends, when it may always fire, then it never runs two passes at once", () => {
     const ticks = directorTicks("w", 40, withPool([pooled("news.t-ends", {}, { rumourLead: 1, endsAfter: 3 })]));
     // A pass: rumour, announced one tick later, in force two after that, ended three after that.
     expect(starts(ticks, "news.t-ends")).toEqual([1, 8, 15, 22, 29, 36]);
   });
 
-  test("[R-DIRECTOR-003] given four stories that may always fire, when a tick is rolled, then at most the most allowed are announced, in id order", () => {
+  test("[director:stories-start-by-roll] given four stories that may always fire, when a tick is rolled, then at most the most allowed are announced, in id order", () => {
     const pool = ["news.t-a", "news.t-b", "news.t-c", "news.t-d"].map((id) => pooled(id as Id<"news">, { once: true }));
     const ticks = directorTicks("w", 6, withPool(pool));
     expect(director.maxNewPerTick).toBe(2);
@@ -135,7 +135,7 @@ describe("the story roll", () => {
     expect(three[1]?.started).toEqual(["news.t-a", "news.t-b", "news.t-c"]);
   });
 
-  test("[R-DIRECTOR-003] given two shocks that may always fire, when one era runs, then the second waits out the gap and neither fires twice in the era", () => {
+  test("[director:stories-start-by-roll] given two shocks that may always fire, when one era runs, then the second waits out the gap and neither fires twice in the era", () => {
     const pool = [pooled("news.t-shock-a", { shock: true }), pooled("news.t-shock-b", { shock: true })];
     const ticks = directorTicks("w", 100, withPool(pool));
     expect(director.shockGapTicks).toBe(6);
@@ -145,13 +145,13 @@ describe("the story roll", () => {
     expect(starts(wider, "news.t-shock-b")).toEqual([10]);
   });
 
-  test("[R-DIRECTOR-003] given a shock and eras of 20 ticks, when the eras turn, then it fires again in each new era", () => {
+  test("[director:stories-start-by-roll] given a shock and eras of 20 ticks, when the eras turn, then it fires again in each new era", () => {
     const eras = { [CALM]: era(CALM, [20, 20], { [OTHER]: 1 }), [OTHER]: era(OTHER, [20, 20], { [CALM]: 1 }) };
     const ticks = directorTicks("w", 70, withPool([pooled("news.t-shock", { shock: true })], { eras }));
     expect(starts(ticks, "news.t-shock")).toEqual([1, 20, 40, 60]);
   });
 
-  test("[R-DIRECTOR-003] given many seeds of the real world, when 300 ticks pass, then no two shocks start within the gap and no shock starts twice in one era", () => {
+  test("[director:stories-start-by-roll] given many seeds of the real world, when 300 ticks pass, then no two shocks start within the gap and no shock starts twice in one era", () => {
     const shocks = Object.values(content.news).filter((entry) => entry.director?.shock === true).map((entry) => entry.id);
     expect(shocks.length).toBeGreaterThan(3);
     for (const seed of SEEDS) {
@@ -162,7 +162,7 @@ describe("the story roll", () => {
     }
   });
 
-  test("[R-DIRECTOR-003] given the era's weight for a story's group, when it is rolled, then the chance is multiplied by it, and a weight of 0 stops it", () => {
+  test("[director:stories-start-by-roll] given the era's weight for a story's group, when it is rolled, then the chance is multiplied by it, and a weight of 0 stops it", () => {
     const eras = { [CALM]: era(CALM, [400, 400], {}, { heavy: 4, muted: 0 }) };
     const heavy = pooled("news.t-heavy", { group: "heavy", once: true }, { chanceBp: 2500 });
     const muted = pooled("news.t-muted", { group: "muted", once: true });
@@ -175,7 +175,7 @@ describe("the story roll", () => {
     }
   });
 
-  test("[R-DIRECTOR-003] given a story whose needs read a variable and the era, when they do not hold, then it never fires, and when they do it fires", () => {
+  test("[director:stories-start-by-roll] given a story whose needs read a variable and the era, when they do not hold, then it never fires, and when they do it fires", () => {
     const unmet = pooled("news.t-unmet", { needs: [{ type: "var/min", var: STUDY_WINDOW, value: 3 }] });
     const wrongEra = pooled("news.t-era", { needs: [{ type: "era/is", eras: [OTHER] }] });
     const met = pooled("news.t-met", { once: true, needs: [{ type: "any", of: [{ type: "var/max", var: STUDY_WINDOW, value: 2 }] }, { type: "era/is", eras: [CALM] }] });
@@ -187,7 +187,7 @@ describe("the story roll", () => {
 });
 
 describe("stages", () => {
-  test("[R-DIRECTOR-004] given a story with a rumour lead, a force lag and an end, when it fires, then it passes each stage on its tick and its sets hold only while in force", () => {
+  test("[director:stories-pass-through-stages] given a story with a rumour lead, a force lag and an end, when it fires, then it passes each stage on its tick and its sets hold only while in force", () => {
     const story = pooled("news.t-stages", { once: true }, { rumourLead: 2, forceLag: 3, endsAfter: 4, sets: [{ var: "var.fx-bank-queue", value: 5 }], revert: true });
     const ticks = directorTicks("w", 14, withPool([story]));
     const stages = ticks.map((tick) => stageOf(tick, "news.t-stages")?.stage ?? null);
@@ -195,7 +195,7 @@ describe("stages", () => {
     expect(ticks.map((tick) => tick.vars["var.fx-bank-queue"])).toEqual([0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0]);
   });
 
-  test("[R-DIRECTOR-004] given a story ended by another, when that one comes into force, then the first ends on that very tick", () => {
+  test("[director:stories-pass-through-stages] given a story ended by another, when that one comes into force, then the first ends on that very tick", () => {
     const ended = pooled("news.t-closes", { once: true, endedBy: "news.t-opens" }, { forceLag: 2, sets: [{ var: "var.uae-window", value: 0 }], revert: true });
     const ender = pooled("news.t-opens", { once: true, needs: [{ type: "var/max", var: "var.uae-window", value: 0 }] }, { forceLag: 3, sets: [{ var: "var.uae-window", value: 2 }] });
     const ticks = directorTicks("w", 30, withPool([ended, ender], { director: { closedTicks: 4 } }));
@@ -207,13 +207,13 @@ describe("stages", () => {
     expect(ticks[opensInForce]?.vars["var.uae-window"]).toBe(2);
   });
 
-  test("[R-DIRECTOR-004] given a story that adds to a variable, when it comes into force, then the variable rises by that much from where it was", () => {
+  test("[director:stories-pass-through-stages] given a story that adds to a variable, when it comes into force, then the variable rises by that much from where it was", () => {
     const story = pooled("news.t-adds", { cooldown: 5, adds: [{ var: "var.inflation", value: 300 }] });
     const ticks = directorTicks("w", 12, withPool([story]));
     expect(ticks.map((tick) => tick.vars["var.inflation"])).toEqual([0, 0, 0, 300, 300, 300, 300, 300, 600, 600, 600, 600, 600]);
   });
 
-  test("[R-DIRECTOR-004] given a story with no director fields beside the director's pool, when the world is built, then it keeps its fixed schedule", () => {
+  test("[director:stories-pass-through-stages] given a story with no director fields beside the director's pool, when the world is built, then it keeps its fixed schedule", () => {
     const fixed: NewsEntry = { ...pooled("news.t-fixed", {}, { announce: { between: [5, 5] } }) };
     delete fixed.director;
     const ticks = directorTicks("w", 10, withPool([fixed, pooled("news.t-pooled", { once: true })]));
@@ -231,7 +231,7 @@ describe("the policy cycle", () => {
     return Math.max(0, surge - 2 * director.surgePerTick);
   }
 
-  test("[R-DIRECTOR-005] given each route's window, when a tick passes, then its surge rises while open, holds while narrowing and falls twice as fast while closed, inside 0 to 100", () => {
+  test("[director:policy-cycle-surge-backlash] given each route's window, when a tick passes, then its surge rises while open, holds while narrowing and falls twice as fast while closed, inside 0 to 100", () => {
     const pairs = Object.keys(content.var)
       .filter((id) => id.endsWith("-window"))
       .map((window) => [window, window.replace(/-window$/, "-surge")] as [Id<"var">, Id<"var">]);
@@ -242,7 +242,7 @@ describe("the policy cycle", () => {
       expect(ticks[1]?.vars[STUDY_SURGE]).toBe(content.var[STUDY_SURGE]!.start + director.surgePerTick);
       for (const tick of ticks.slice(1)) {
         const before = ticks[tick.tick - 1]!;
-        // A story that sets or adds to a surge as it comes into force, or takes an add back as it ends (R-DIRECTOR-004).
+        // A story that sets or adds to a surge as it comes into force, or takes an add back as it ends (director:stories-pass-through-stages).
         const names = (id: Id<"news">, ending: boolean) => {
           const entry = content.news[id];
           const sets = ending ? [] : (entry?.standIn.sets ?? []);
@@ -260,7 +260,7 @@ describe("the policy cycle", () => {
     }
   });
 
-  test("[R-DIRECTOR-005] given a reopening, when it is rolled, then its window has been 0 for at least the closed ticks", () => {
+  test("[director:policy-cycle-surge-backlash] given a reopening, when it is rolled, then its window has been 0 for at least the closed ticks", () => {
     const reopenings = Object.values(content.news).filter((entry) =>
       entry.director?.needs.some((need) => need.type === "var/max" && need.var.endsWith("-window") && need.value === 0),
     );
@@ -280,7 +280,7 @@ describe("the policy cycle", () => {
     expect(seen).toBeGreaterThan(20);
   });
 
-  test("[R-DIRECTOR-005] given 1000 world seeds, when the UK study route runs its cycle, then it goes open, backlash, restriction, closure, shortage and never skips a step", () => {
+  test("[director:policy-cycle-surge-backlash] given 1000 world seeds, when the UK study route runs its cycle, then it goes open, backlash, restriction, closure, shortage and never skips a step", () => {
     const steps: Record<string, Id<"news">> = {
       backlash: "news.uk-refusals-up",
       restriction: "news.uk-study-narrows",
@@ -321,7 +321,7 @@ describe("the policy cycle", () => {
         const rolled = ticks.findLast((earlier) => earlier.started.includes(steps.shortage!));
         const lateShortage = move === "1>2" && tick.cameIntoForce.includes(steps.shortage!) && rolled?.vars[STUDY_WINDOW] === 0;
         const stepped = moves[move] !== undefined && tick.cameIntoForce.includes(moves[move]);
-        // A narrowing announced as a closure or the pandemic lands sets 1 over their 0 and gives it back when it ends (R-RATE-006).
+        // A narrowing announced as a closure or the pandemic lands sets 1 over their 0 and gives it back when it ends (rate:latest-story-sets-variable).
         const restrictionPass = tick.cameIntoForce.includes(steps.restriction!) || tick.ended.includes(steps.restriction!);
         if (!ranOut && !lateShortage && !stepped && !restrictionPass) fail(tick, `the window moved ${move} with ${tick.cameIntoForce.join(", ")} in force`);
       }
@@ -330,7 +330,7 @@ describe("the policy cycle", () => {
     for (const step of Object.keys(steps)) expect(counted[step]).toBeGreaterThan(0);
   });
 
-  test("[R-DIRECTOR-005] given the care route, when its closure is rolled, then the backlash before it is in force", () => {
+  test("[director:policy-cycle-surge-backlash] given the care route, when its closure is rolled, then the backlash before it is in force", () => {
     let closed = 0;
     for (const seed of Array.from({ length: 300 }, (_, index) => `care-${String(index)}`)) {
       for (const tick of directorTicks(seed, 160, content)) {
@@ -344,7 +344,7 @@ describe("the policy cycle", () => {
 });
 
 describe("December and inflation", () => {
-  test("[R-DIRECTOR-006] given 300 ticks, when December's variable is read, then it is 1 on every twelfth tick, the eleventh of each year, and 0 on every other", () => {
+  test("[director:december-and-inflation] given 300 ticks, when December's variable is read, then it is 1 on every twelfth tick, the eleventh of each year, and 0 on every other", () => {
     for (const seed of SEEDS.slice(0, 3)) {
       for (const world of standInWorlds(seed, 300, content)) {
         expect(world.vars["var.season-december"]).toBe(world.tick % 12 === 11 ? 1 : 0);
@@ -352,7 +352,7 @@ describe("December and inflation", () => {
     }
   });
 
-  test("[R-DIRECTOR-006] given the fuel subsidy story, when it comes into force, then inflation rises by its basis points that tick and holds", () => {
+  test("[director:december-and-inflation] given the fuel subsidy story, when it comes into force, then inflation rises by its basis points that tick and holds", () => {
     let seen = 0;
     for (const seed of Array.from({ length: 100 }, (_, index) => `fuel-${String(index)}`)) {
       const ticks = directorTicks(seed, 200, content);
@@ -367,7 +367,7 @@ describe("December and inflation", () => {
 });
 
 describe("the world's variables", () => {
-  test("[R-DIRECTOR-001] given many seeds, when a variable changes between ticks, then a story came into force or ended that names it, or it is a surge or December", () => {
+  test("[director:world-variables-per-route] given many seeds, when a variable changes between ticks, then a story came into force or ended that names it, or it is a surge or December", () => {
     const names = (id: Id<"news">) => {
       const entry = content.news[id]!;
       return [...entry.standIn.sets.map((set) => set.var), ...(entry.director?.adds ?? []).map((add) => add.var)];
@@ -388,7 +388,7 @@ describe("the world's variables", () => {
 });
 
 describe("the front page", () => {
-  test("[R-DIRECTOR-009] given a character who has heard of a route, when an era's story is shown, then it is for them", () => {
+  test("[director:story-touches-and-hearing] given a character who has heard of a route, when an era's story is shown, then it is for them", () => {
     const game = start({ scenario: "scenario.ada", content, worldSeed: "director-1" });
     for (let month = 0; month < 8; month += 1) {
       if (game.state.turn.banked === 0) game.grant(1);
@@ -401,7 +401,7 @@ describe("the front page", () => {
 });
 
 describe("the real world's windows", () => {
-  test("[R-DIRECTOR-005] given 200 seeds of the real content, when 120 ticks pass, then windows narrow, close and open in some worlds and not in all", () => {
+  test("[director:policy-cycle-surge-backlash] given 200 seeds of the real content, when 120 ticks pass, then windows narrow, close and open in some worlds and not in all", () => {
     const share = (test: (ticks: DirectorTick[]) => boolean) => {
       let count = 0;
       for (let index = 0; index < 200; index += 1) if (test(directorTicks(`rates-${String(index)}`, 120, content))) count += 1;
@@ -422,7 +422,7 @@ describe("the Gulf ban", () => {
   const BAN: Id<"news"> = "news.uae-ban";
   const WINDOW: Id<"var"> = "var.uae-window";
 
-  test("[R-DIRECTOR-004] [R-DIRECTOR-005] given world seeds where the UAE ban comes into force, when the ticks pass, then the ban ends 18 ticks later and the window stays shut until then", () => {
+  test("[director:stories-pass-through-stages] [director:policy-cycle-surge-backlash] given world seeds where the UAE ban comes into force, when the ticks pass, then the ban ends 18 ticks later and the window stays shut until then", () => {
     const lasts = content.news[BAN]!.standIn.endsAfter!;
     expect(lasts).toBe(18);
     let seen = 0;

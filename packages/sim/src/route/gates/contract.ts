@@ -1,5 +1,5 @@
-// The contract gate: docs/rules/route-gates.md R-CONTRACT-001 to 004. Hearing
-// (R-CONTRACT-001) and the agent's fee (R-CONTRACT-002) are content's.
+// The contract gate: route-gates:gulf-route-heard-at-park, route-gates:gulf-agent-offer, route-gates:gulf-application-needs and route-gates:employer-flies-and-holds-passport. Hearing
+// (route-gates:gulf-route-heard-at-park) and the agent's fee (route-gates:gulf-agent-offer) are content's.
 import { QUALITY } from "../../engine/ids";
 import { emit } from "../../engine/kind";
 import type { BaseEvent, Cause, Ctx, Effect, Id, RouteEntry, RouteState, Terms } from "../../engine/types";
@@ -11,7 +11,7 @@ type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Agent = { employer: string; salary: number; role: string };
 
 /**
- * The offer's `role` term and what it means (R-CONTRACT-004). The content
+ * The offer's `role` term and what it means (route-gates:employer-flies-and-holds-passport). The content
  * carries the role as a number, since a term is a number: 1 a guard, 2 a cleaner.
  */
 const ROLES: Record<number, { role: string; job: Id<"activity"> }> = {
@@ -29,7 +29,7 @@ function agentOf(held: RouteState): Agent | null {
 }
 
 /**
- * The salary a record carries (R-SPONSOR-002, R-CONTRACT-002). The content's
+ * The salary a record carries (route-gates:taking-sponsor-records-it, route-gates:gulf-agent-offer). The content's
  * record names 0 when the salary is a draw, and the offer's `salary` term in
  * hand is the salary.
  */
@@ -48,7 +48,7 @@ function roleOf(terms: Terms): { role: string; job: Id<"activity"> } {
   return role;
 }
 
-/** R-CONTRACT-004: the job the agent's contract gives on arrival, by its role. Null with no agent. */
+/** route-gates:employer-flies-and-holds-passport: the job the agent's contract gives on arrival, by its role. Null with no agent. */
 export function contractJob(held: RouteState): Id<"activity"> | null {
   const agent = agentOf(held);
   if (agent === null) return null;
@@ -58,7 +58,7 @@ export function contractJob(held: RouteState): Id<"activity"> | null {
 }
 
 /**
- * R-CONTRACT-002: the agent goes on a known route with the contract's salary
+ * route-gates:gulf-agent-offer: the agent goes on a known route with the contract's salary
  * in fils a month and its role. The fee was taken by the offer's own effect.
  * The sponsor module claims `route/record-sponsor` and hands contract routes
  * here, since one effect type has one handler.
@@ -67,7 +67,7 @@ export function recordAgent(ctx: Ctx, entry: RouteEntry, effect: RecordSponsor, 
   const held = ctx.state.route[entry.id];
   if (held?.state !== "known") return [];
   const agent: Agent = { employer: effect.employer, salary: recordedSalary(effect, cause.terms), role: roleOf(cause.terms).role };
-  // The fraud rides on the route's secret, never in the view (R-CONTRACT-002).
+  // The fraud rides on the route's secret, never in the view (route-gates:gulf-agent-offer).
   const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "contract", agent }, note: "agent-recorded", secret: { sponsorFraud: effect.fraud } };
   return emit(ctx, "route", [event]);
 }
@@ -78,16 +78,16 @@ export const contractGate: Gate = {
   steps: ["sponsor"],
   initial: () => ({ gate: "contract", agent: null }),
   reached: (_read, _entry, held, step) => step === "sponsor" && agentOf(held) !== null,
-  // R-CONTRACT-003: the agent, the medical, and under the age cap. The passport and the schooling are the slot's.
+  // route-gates:gulf-application-needs: the agent, the medical, and under the age cap. The passport and the schooling are the slot's.
   mayApply: (ctx, entry, held) => {
     const { medical, maxAgeMonths } = settings(entry);
     if (agentOf(held) === null || !ctx.check({ type: "document/held", document: medical }).met) return false;
     return (ctx.state.quality[QUALITY.age] ?? 0) < maxAgeMonths;
   },
-  // R-CONTRACT-003: the base alone, and a fraud agent refused whatever the draw. Nothing was forged in
-  // the character's name, so the refusal bans nothing (R-GATE-005).
+  // route-gates:gulf-application-needs: the base alone, and a fraud agent refused whatever the draw. Nothing was forged in
+  // the character's name, so the refusal bans nothing (route-gates:deception-bans-country).
   decision: (_read, _entry, held) => ({ terms: NO_TERM, override: held.secret.sponsorFraud === true ? "agent" : null, bans: false }),
-  // R-CONTRACT-003: no fee, no surcharge, no strictness; the employer's flight and the route's status (R-CONTRACT-004).
+  // route-gates:gulf-application-needs: no fee, no surcharge, no strictness; the employer's flight and the route's status (route-gates:employer-flies-and-holds-passport).
   application: (read) => ({ strictness: 0, surchargePaid: 0, decisionMonths: read.content.tuning.route.decisionMonths }),
   funds: () => null,
   departureJob: (_entry, held) => contractJob(held),

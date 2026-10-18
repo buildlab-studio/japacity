@@ -48,13 +48,13 @@ function tell(): Told {
 describe("joke versions in play", () => {
   const told = tell();
 
-  test("[R-ENGINE-014] given the simulated players on every life, when every line told in a bad tone is gathered, then each one that is not money going out is bad news on content's list", () => {
+  test("[engine:content-checked-before-play] given the simulated players on every life, when every line told in a bad tone is gathered, then each one that is not money going out is bad news on content's list", () => {
     const bad = new Set(told.reports.flatMap((report) => report.lines.filter((line) => line.tone === "bad" && !spending(line)).map((line) => line.key)));
     expect(bad.size).toBeGreaterThan(5);
     expect([...bad].filter((key) => !badNews(key, text[key] ?? ""))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every report the simulated players are told, when its versions are drawn as the screen draws them, then no joke shows on the road or beside bad news, and jokes do show in other months", () => {
+  test("[engine:content-checked-before-play] given every report the simulated players are told, when its versions are drawn as the screen draws them, then no joke shows on the road or beside bad news, and jokes do show in other months", () => {
     let jokes = 0;
     const wrong: string[] = [];
     for (const report of told.reports) {
@@ -70,7 +70,7 @@ describe("joke versions in play", () => {
     expect(jokes).toBeGreaterThan(0);
   });
 
-  test("[R-ENGINE-014] given the same reports, when a line with jokes is told in a bad tone, then it is only ever a cost of living", () => {
+  test("[engine:content-checked-before-play] given the same reports, when a line with jokes is told in a bad tone, then it is only ever a cost of living", () => {
     const bad = new Set(told.reports.flatMap((report) => report.lines.filter((line) => line.tone === "bad").map((line) => line.key)));
     expect([...bad].filter((key) => versionCount(key) > 1 && !spendingLines.includes(key))).toEqual([]);
   });

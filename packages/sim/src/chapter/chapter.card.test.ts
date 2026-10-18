@@ -1,6 +1,6 @@
-// The nurse's chapter card (docs/rules/share.md R-SHARE-004, chapter.md R-CHAPTER-009): her
-// first chapter's card showed two empty bands, since care work, shut to applicants from abroad (R-SPONSOR-005), gives
-// no japacity figure (R-JAPACITY-003). The card names the way out the chapters follow and its own figure.
+// The nurse's chapter card (share:card-contents, chapter:chapters-follow-lean-route): her
+// first chapter's card showed two empty bands, since care work, shut to applicants from abroad (route-gates:care-route-needs-verification), gives
+// no japacity figure (japacity:best-open-route-is-japacity). The card names the way out the chapters follow and its own figure.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -23,7 +23,7 @@ function nurseLooksIntoCare(): Game {
 }
 
 describe("the nurse's chapter card", () => {
-  test("[R-SHARE-004] [R-CHAPTER-009] given the ready nurse whose first chapter closes on care work while it is shut to applicants from abroad, when the card is read, then it names care work and its own figure", () => {
+  test("[share:card-contents] [chapter:chapters-follow-lean-route] given the ready nurse whose first chapter closes on care work while it is shut to applicants from abroad, when the card is read, then it names care work and its own figure", () => {
     const game = nurseLooksIntoCare();
     const view = game.view();
     expect(view.japacity).toEqual({ percent: null, route: null });

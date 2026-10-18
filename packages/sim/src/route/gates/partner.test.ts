@@ -1,4 +1,4 @@
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -31,7 +31,7 @@ function married(route: Id<"route">, sponsor = SETTLED, options: LifeOptions = {
   return game;
 }
 
-/** A month for the route to be heard of (R-PEOPLE-025), then a slot to look into it. */
+/** A month for the route to be heard of (person:partner-routes-heard-via-bond), then a slot to look into it. */
 function toKnown(game: Game, route: Id<"route">): void {
   game.endTurn();
   expect(routeOf(game, route).state).toBe("heard");
@@ -39,7 +39,7 @@ function toKnown(game: Game, route: Id<"route">): void {
   expect(routeOf(game, route).state).toBe("known");
 }
 
-/** The application sent, which opens the interview (R-INTERVIEW-001), and this side's answers in: the result waits for the sponsor's. */
+/** The application sent, which opens the interview (interview:partner-application-opens-interview), and this side's answers in: the result waits for the sponsor's. */
 function applied(route: Id<"route"> = UK_PARTNER, sponsor = SETTLED, options: LifeOptions = {}): Game {
   const game = married(route, sponsor, options);
   toKnown(game, route);
@@ -50,14 +50,14 @@ function applied(route: Id<"route"> = UK_PARTNER, sponsor = SETTLED, options: Li
   return game;
 }
 
-describe("R-PEOPLE-025: hearing of the partner route", () => {
-  test("[R-PEOPLE-025] given a married partner whose facts show them settled in the UK, when a month ends, then the UK partner route is heard of and can be looked into", () => {
+describe("person:partner-routes-heard-via-bond: hearing of the partner route", () => {
+  test("[person:partner-routes-heard-via-bond] given a married partner whose facts show them settled in the UK, when a month ends, then the UK partner route is heard of and can be looked into", () => {
     const game = married(UK_PARTNER);
     toKnown(game, UK_PARTNER);
     expect(game.view().routes.find((view) => view.id === UK_PARTNER)?.checklist.length).toBe(ukPartner.checklist.length);
   });
 
-  test("[R-PEOPLE-025] given a partner in the UK on a sponsored worker's visa, or a partner only courting, when a month ends, then the route is not heard of", () => {
+  test("[person:partner-routes-heard-via-bond] given a partner in the UK on a sponsored worker's visa, or a partner only courting, when a month ends, then the route is not heard of", () => {
     const worker = married(UK_PARTNER, { ...SETTLED, status: "status.uk-sponsored" });
     worker.endTurn();
     expect(routeOf(worker, UK_PARTNER).state).toBe("unknown");
@@ -67,7 +67,7 @@ describe("R-PEOPLE-025: hearing of the partner route", () => {
     expect(routeOf(courting, UK_PARTNER).state).toBe("unknown");
   });
 
-  test("[R-PEOPLE-025] given a resident partner in Canada, when a month ends, then the spouse route into Canada is heard of and the UK one is not", () => {
+  test("[person:partner-routes-heard-via-bond] given a resident partner in Canada, when a month ends, then the spouse route into Canada is heard of and the UK one is not", () => {
     const game = married(CA_SPOUSE, CA_RESIDENT);
     game.endTurn();
     expect(routeOf(game, CA_SPOUSE).state).toBe("heard");
@@ -75,8 +75,8 @@ describe("R-PEOPLE-025: hearing of the partner route", () => {
   });
 });
 
-describe("R-PEOPLE-026: applying on the partner gate", () => {
-  test("[R-PEOPLE-026] given a married sponsor settled in the UK who meets the floor, when the application is sent, then the fee and three years of surcharge are paid and it is decided three months on", () => {
+describe("person:partner-gate-needs: applying on the partner gate", () => {
+  test("[person:partner-gate-needs] given a married sponsor settled in the UK who meets the floor, when the application is sent, then the fee and three years of surcharge are paid and it is decided three months on", () => {
     const game = married(UK_PARTNER);
     toKnown(game, UK_PARTNER);
     const before = pounds(game);
@@ -89,7 +89,7 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     expect(held.gate).toEqual({ gate: "partner", bond: BOND });
   });
 
-  test("[R-PEOPLE-026] given the sponsor's facts saying the floor is not met, or saying nothing of it, when the application is sent, then the slot is not legal", () => {
+  test("[person:partner-gate-needs] given the sponsor's facts saying the floor is not met, or saying nothing of it, when the application is sent, then the slot is not legal", () => {
     for (const meetsFloor of [{ [UK_PARTNER]: false }, {}]) {
       const game = married(UK_PARTNER, { ...SETTLED, meetsFloor });
       toKnown(game, UK_PARTNER);
@@ -98,7 +98,7 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     }
   });
 
-  test("[R-PEOPLE-026] given partners, not married, for 23 of the applicant's months and then for 24, when the application is sent, then only 24 is enough for the UK", () => {
+  test("[person:partner-gate-needs] given partners, not married, for 23 of the applicant's months and then for 24, when the application is sent, then only 24 is enough for the UK", () => {
     const game = life(content);
     joint(game, UK_PARTNER, "them", { stage: "partner", facts: SETTLED });
     toKnown(game, UK_PARTNER);
@@ -109,14 +109,14 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     expect(routeOf(game, UK_PARTNER).state).toBe("applying");
   });
 
-  test("[R-PEOPLE-026] given partners for years but not married, when Canada's spouse route is asked, then it is never reached: only marriage counts there", () => {
+  test("[person:partner-gate-needs] given partners for years but not married, when Canada's spouse route is asked, then it is never reached: only marriage counts there", () => {
     const game = life(content);
     joint(game, CA_SPOUSE, "them", { stage: "partner", partnerMonth: -120, facts: CA_RESIDENT });
     expect(partnerGate.reached(readOf(game), caSpouse, routeOf(game, CA_SPOUSE), "married")).toBe(false);
     expect(partnerGate.reached(readOf(game), caSpouse, routeOf(game, CA_SPOUSE), "sponsor")).toBe(true);
   });
 
-  test("[R-PEOPLE-026] given an English band of 3.0 and one of 2.5, when the UK application is sent, then only 3.0 is enough", () => {
+  test("[person:partner-gate-needs] given an English band of 3.0 and one of 2.5, when the UK application is sent, then only 3.0 is enough", () => {
     const band = (value: number): LifeOptions => ({ documents: READY_PAPERS.map((paper) => (paper.document === "document.english-test" ? { ...paper, value } : paper)) });
     const low = married(UK_PARTNER, SETTLED, band(ukPartner.partner!.bandMin! - 5));
     toKnown(low, UK_PARTNER);
@@ -127,7 +127,7 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     expect(routeOf(edge, UK_PARTNER).state).toBe("applying");
   });
 
-  test("[R-PEOPLE-026] given a joint with the applicant leading, or the sponsor gone home, when the gate is asked, then applying is not legal", () => {
+  test("[person:partner-gate-needs] given a joint with the applicant leading, or the sponsor gone home, when the gate is asked, then applying is not legal", () => {
     const leading = married(UK_PARTNER);
     toKnown(leading, UK_PARTNER);
     setPeople(leading, (slice) => ({ ...slice, joint: { ...slice.joint!, lead: "me" } }));
@@ -138,14 +138,14 @@ describe("R-PEOPLE-026: applying on the partner gate", () => {
     expect(home.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-PEOPLE-026] given Canada's spouse route with no floor, when a resident spouse's facts say nothing of a floor, then the application goes in and the fee is taken", () => {
+  test("[person:partner-gate-needs] given Canada's spouse route with no floor, when a resident spouse's facts say nothing of a floor, then the application goes in and the fee is taken", () => {
     const game = applied(CA_SPOUSE, CA_RESIDENT);
     expect(routeOf(game, CA_SPOUSE).visa?.surchargePaid).toBe(0);
     expect(routeOf(game, CA_SPOUSE).visa?.decisionMonth).toBe(routeOf(game, CA_SPOUSE).visa!.submittedMonth + caSpouse.partner!.decisionMonths);
   });
 });
 
-describe("R-PLACE-008: a removal's ban and the partner gate", () => {
+describe("place:removal-bans-the-country: a removal's ban and the partner gate", () => {
   /** The UK overstayer's ban made short, so a test can play past it. */
   const SHORT_BAN = 2;
   const shortBan = (used: Content): Content => ({
@@ -153,7 +153,7 @@ describe("R-PLACE-008: a removal's ban and the partner gate", () => {
     status: { ...used.status, "status.uk-overstayer": { ...used.status["status.uk-overstayer"]!, banMonths: SHORT_BAN } },
   });
 
-  test("[R-PLACE-008] [R-GATE-005] [R-PEOPLE-026] given a removal from the UK with a ban of 2 months and a married sponsor settled there, when the partner application is sent, then while the ban holds it is not offered and is refused with nothing taken, and it goes in from the month the ban lifts", () => {
+  test("[place:removal-bans-the-country] [route-gates:deception-bans-country] [person:partner-gate-needs] given a removal from the UK with a ban of 2 months and a married sponsor settled there, when the partner application is sent, then while the ban holds it is not offered and is refused with nothing taken, and it goes in from the month the ban lifts", () => {
     const game = married(UK_PARTNER, SETTLED, { change: shortBan });
     toKnown(game, UK_PARTNER);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }, { type: "status/grant", status: "status.uk-student" }, { type: "status/remove" }]);
@@ -170,7 +170,7 @@ describe("R-PLACE-008: a removal's ban and the partner gate", () => {
     expect(routeOf(game, UK_PARTNER).state).toBe("applying");
   });
 
-  test("[R-PLACE-008] [R-PEOPLE-026] given a removal from Canada and a married sponsor resident there, when the spouse application is sent while the ban holds, then it is not offered and is refused with nothing taken", () => {
+  test("[place:removal-bans-the-country] [person:partner-gate-needs] given a removal from Canada and a married sponsor resident there, when the spouse application is sent while the ban holds, then it is not offered and is refused with nothing taken", () => {
     const game = married(CA_SPOUSE, CA_RESIDENT);
     toKnown(game, CA_SPOUSE);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: "status.ca-overstayer" }, { type: "status/remove" }]);
@@ -181,8 +181,8 @@ describe("R-PLACE-008: a removal's ban and the partner gate", () => {
   });
 });
 
-describe("R-PEOPLE-027: the decision waits for the interview", () => {
-  test("[R-PEOPLE-027] given no interview result, or one still open, when the decision month passes, then the application waits", () => {
+describe("person:partner-application-decided: the decision waits for the interview", () => {
+  test("[person:partner-application-decided] given no interview result, or one still open, when the decision month passes, then the application waits", () => {
     const game = applied();
     pastDecision(game, UK_PARTNER);
     game.endTurn();
@@ -192,7 +192,7 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
     expect(routeOf(game, UK_PARTNER).state).toBe("applying");
   });
 
-  test("[R-PEOPLE-027] given a fail, when the decision comes, then it is refused for the relationship with no draw, and the surcharge comes back", () => {
+  test("[person:partner-application-decided] given a fail, when the decision comes, then it is refused for the relationship with no draw, and the surcharge comes back", () => {
     const game = applied();
     scored(game, UK_PARTNER, "fail");
     const draws = game.state.draws.visa ?? 0;
@@ -204,7 +204,7 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
     expect(game.state.wallet.pockets.GBP.bank - before).toBe(3 * SURCHARGE_YEAR);
   });
 
-  test("[R-PEOPLE-027] given caught, when the decision comes, then it is refused as a sham and every known or applying UK route is banned for the country's months", () => {
+  test("[person:partner-application-decided] given caught, when the decision comes, then it is refused as a sham and every known or applying UK route is banned for the country's months", () => {
     const game = applied();
     scored(game, UK_PARTNER, "caught");
     pastDecision(game, UK_PARTNER);
@@ -214,10 +214,10 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
     expect(held.bannedUntil).toBe(game.state.turn.month + content.country["country.uk"]!.deceptionBanMonths);
   });
 
-  test("[R-PEOPLE-027] given a seed whose draw falls between the base and the base plus the doubt, when the result is pass and when it is doubt, then pass is granted and doubt refused", () => {
+  test("[person:partner-application-decided] given a seed whose draw falls between the base and the base plus the doubt, when the result is pass and when it is doubt, then pass is granted and doubt refused", () => {
     const base = refusalChanceBp(content.tuning.route, ukPartner.refusalBaseBp, { strictness: 0, unexplainedBp: 0, refusals: 0, interviewScore: 0, grade: 0 }, partnerGate.decision(readOf(life(content)), ukPartner, { visa: null } as RouteState).terms);
     const doubted = base + content.tuning.interview.doubtBp;
-    // The interview's questions are drawn on `visa` first (R-INTERVIEW-003), so the decision's roll is the next one after them.
+    // The interview's questions are drawn on `visa` first (interview:questions-drawn-from-record), so the decision's roll is the next one after them.
     const seed = seedWhere((candidate) => {
       const roll = draw(candidate, "visa", applied(UK_PARTNER, SETTLED, { seed: candidate }).state.draws.visa ?? 0, 10000);
       return roll >= base && roll < doubted;
@@ -233,13 +233,13 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
     expect(routeOf(doubt, UK_PARTNER).lastRefusal?.reasons).toEqual(["credibility"]);
   });
 
-  test("[R-PEOPLE-027] given an earlier refusal, when the gate's decision is read, then only earlier refusals are among its terms", () => {
+  test("[person:partner-application-decided] given an earlier refusal, when the gate's decision is read, then only earlier refusals are among its terms", () => {
     const game = applied();
     scored(game, UK_PARTNER, "pass");
     expect(partnerGate.decision(readOf(game), ukPartner, routeOf(game, UK_PARTNER)).terms).toEqual({ strictness: false, unexplained: false, refusals: true, interview: false, goodGrade: false });
   });
 
-  test("[R-PEOPLE-027] given a pass and a granted visa, when the applicant departs, then they are in the UK on the partner visa", () => {
+  test("[person:partner-application-decided] given a pass and a granted visa, when the applicant departs, then they are in the UK on the partner visa", () => {
     const game = applied(UK_PARTNER, SETTLED, { tuning: ALWAYS_GRANTED });
     scored(game, UK_PARTNER, "pass");
     pastDecision(game, UK_PARTNER);
@@ -251,8 +251,8 @@ describe("R-PEOPLE-027: the decision waits for the interview", () => {
   });
 });
 
-describe("R-PEOPLE-028: the partner visa", () => {
-  test("[R-PEOPLE-028] given the partner visa granted on arrival, when it is read, then it lasts 33 months, allows any work, renews for 30 and counts to settlement at 60 months", () => {
+describe("person:partner-status-renews: the partner visa", () => {
+  test("[person:partner-status-renews] given the partner visa granted on arrival, when it is read, then it lasts 33 months, allows any work, renews for 30 and counts to settlement at 60 months", () => {
     const game = applied(UK_PARTNER, SETTLED, { tuning: ALWAYS_GRANTED });
     scored(game, UK_PARTNER, "pass");
     pastDecision(game, UK_PARTNER);
@@ -264,7 +264,7 @@ describe("R-PEOPLE-028: the partner visa", () => {
     expect(game.view().status?.renew?.months).toBe(30);
   });
 
-  test("[R-PEOPLE-028] given the partner visa held, when it is renewed with the sponsor meeting the floor, then it runs 30 months more; with the floor no longer met, or the bond ended, the renewal is not legal", () => {
+  test("[person:partner-status-renews] given the partner visa held, when it is renewed with the sponsor meeting the floor, then it runs 30 months more; with the floor no longer met, or the bond ended, the renewal is not legal", () => {
     const flown = (): Game => {
       const game = applied(UK_PARTNER, SETTLED, { tuning: ALWAYS_GRANTED });
       scored(game, UK_PARTNER, "pass");
@@ -286,7 +286,7 @@ describe("R-PEOPLE-028: the partner visa", () => {
     ended.expectRejected({ type: "status/renew" }, "not-legal");
   });
 
-  test("[R-STATUS-012] given the partner visa held, when the sponsor no longer meets the floor or the bond has ended, then the view shows no renew terms, as the renewal is refused; with the floor met it shows them", () => {
+  test("[status:one-renewability-test] given the partner visa held, when the sponsor no longer meets the floor or the bond has ended, then the view shows no renew terms, as the renewal is refused; with the floor met it shows them", () => {
     const flown = (): Game => {
       const game = applied(UK_PARTNER, SETTLED, { tuning: ALWAYS_GRANTED });
       scored(game, UK_PARTNER, "pass");
@@ -305,7 +305,7 @@ describe("R-PEOPLE-028: the partner visa", () => {
     ended.expectRejected({ type: "status/renew" }, "not-legal");
   });
 
-  test("[R-PEOPLE-029] given the partner and dependant visas, when their entries are read, then each is tied to the partner with a clock of 2 months, and permanent residence in Canada is not", () => {
+  test("[person:tied-status-clock-on-breakup] given the partner and dependant visas, when their entries are read, then each is tied to the partner with a clock of 2 months, and permanent residence in Canada is not", () => {
     for (const id of ["status.uk-partner", "status.uk-dependant"] as const) expect(content.status[id]).toMatchObject({ tiedTo: "partner", clockMonths: 2 });
     expect(content.status["status.ca-resident"]?.tiedTo).toBeNull();
   });

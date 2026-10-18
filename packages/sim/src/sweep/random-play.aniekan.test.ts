@@ -1,6 +1,6 @@
 // Layer 3 of docs/design/02-quality-and-testing.md: long
 // random lives from Aniekan, every always-true rule
-// checked after every command, in a file of its own to stay inside R-ENGINE-016's minute.
+// checked after every command, in a file of its own to stay inside engine:limits-tested-through-step's minute.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
@@ -13,7 +13,7 @@ import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
 
 const LIFE: Id<"scenario"> = "scenario.aniekan";
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
-const RULES = "[R-ENGINE-001] [R-ENGINE-007] [R-ENGINE-010] [R-ENGINE-011] [R-WALLET-002] [R-QUALITY-001] [R-SCENARIO-001]";
+const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range] [scenario:state-built-from-scenario]";
 
 describe("random play on Aniekan's life", () => {
   test.prop([fc.string({ minLength: 1, maxLength: 10 }), fc.array(fc.nat(), { minLength: COMMANDS, maxLength: COMMANDS })], { numRuns: SEEDS_PER_LIFE, endOnFailure: true })(

@@ -203,7 +203,7 @@ const PLAYED = {
     road: LEAVE_ROAD,
     prologue: "first",
   },
-  // The broke return (R-PLACE-005) needs the fare paid and little else left anywhere. The first fix batch made the
+  // The broke return (place:return-shape-decided-at-once) needs the fare paid and little else left anywhere. The first fix batch made the
   // first months abroad survivable, so the borrowers come home with a buffer; this player keeps none abroad.
   spender: {
     englishBeforeTest: 66,
@@ -277,14 +277,14 @@ function option(view: PlayerView, id: string) {
   return view.activities.find((item) => item.id === id);
 }
 
-/** R-ACTIVITY-015: a now-act is sent at once and fills no slot of the month. */
+/** activity:now-acts-and-month-acts: a now-act is sent at once and fills no slot of the month. */
 function takesMonth(view: PlayerView, id: string): boolean {
   return option(view, id)?.when !== "now";
 }
 
 /**
  * The room this player gives the month's picks: its free slots, less the now-acts already done this month. A now-act
- * fills no slot (R-ACTIVITY-015), but this player counts it against the slots, so a month holds as many things as
+ * fills no slot (activity:now-acts-and-month-acts), but this player counts it against the slots, so a month holds as many things as
  * there are slots.
  */
 function monthRoom(view: PlayerView): number {
@@ -292,7 +292,7 @@ function monthRoom(view: PlayerView): number {
 }
 
 /**
- * The month as commands (R-ACTIVITY-015): each now-act in the plan sent first as `activity/now`, then the month's end
+ * The month as commands (activity:now-acts-and-month-acts): each now-act in the plan sent first as `activity/now`, then the month's end
  * with the picks that fill a slot. The run sends the first command accepted and asks again, and a now-act done this
  * month is no longer allowed, so the plan drops it the next time round.
  */
@@ -393,7 +393,7 @@ function settlingRouteInReach(view: PlayerView, habits: Habits): boolean {
     if (!habits.otherRoutes.includes(item.id) || item.id === GULF) return false;
     if (item.state !== "known" && item.state !== "applying" && item.state !== "granted") return false;
     if (item.window === "closed") return false;
-    // R-POINTS-006: the clocks would invite now; the care cut-off counts only for a carer.
+    // route-gates:points-view-carries-invites: the clocks would invite now; the care cut-off counts only for a carer.
     if (item.gate?.gate === "points") return item.gate.invites;
     return true;
   });
@@ -407,7 +407,7 @@ function studyOn(view: PlayerView, habits: Habits): boolean {
   if (!habits.prefersSettling) return true;
   // Once money is down on the study route it is seen through.
   if (uk.school !== null || uk.state === "applying" || uk.state === "granted") return true;
-  // R-ACTIVITY-015: the family meeting is held at once, so the pledge comes sooner; given on an offer held, it is money down too.
+  // activity:now-acts-and-month-acts: the family meeting is held at once, so the pledge comes sooner; given on an offer held, it is money down too.
   if (uk.schools.some((school) => school.state === "offer") && quality(view, "quality.family-stake") > 0) return true;
   return !settlingRouteInReach(view, habits);
 }
@@ -588,7 +588,7 @@ function bestJobParam(view: PlayerView, content: Content): string | null {
   let best: string | null = null;
   let bestPay = current;
   for (const job of hunt.params) {
-    // A side job is hunted the same way and is not a better job (R-ACTIVITY-010).
+    // A side job is hunted the same way and is not a better job (activity:side-job-holds-a-slot).
     if (content.activity[job as Id<"activity">]?.slot !== "main") continue;
     const pay = payOf(view, content, job);
     if (pay > bestPay) {
@@ -754,7 +754,7 @@ function slotPlan(view: PlayerView, content: Content, habits: Habits): SlotPick[
 
 function departures(view: PlayerView): Loose[] {
   const commands: Loose[] = [];
-  // R-PLACE-002: a flight leaves only from home.
+  // place:departure-moves-abroad: a flight leaves only from home.
   const granted = view.place.where === "home" ? view.routes.filter((item) => item.state === "granted") : [];
   if (granted.length === 0) return commands;
   for (const owed of view.obligations) {
@@ -932,7 +932,7 @@ const BUY_MARGIN_BP = 10300;
 
 /**
  * What the local pockets cannot meet of next month's dues, bought at the bank
- * from dollars and then naira: abroad the Lagos allowance does not bind (R-WALLET-005).
+ * from dollars and then naira: abroad the Lagos allowance does not bind (wallet:monthly-fx-allowance).
  */
 function coverDues(view: PlayerView, currency: ForeignCurrency, dues: number): Loose[] {
   const pocket = view.pockets[currency];
@@ -1084,7 +1084,7 @@ export interface Decision {
   unexplainedBp: number;
   interviewScore: number;
   earlierRefusals: number;
-  /** The chance of refusal the decision drew against, in basis points (R-ROUTE-016). */
+  /** The chance of refusal the decision drew against, in basis points (route:visa-refusal-chance). */
   chanceBp: number;
 }
 

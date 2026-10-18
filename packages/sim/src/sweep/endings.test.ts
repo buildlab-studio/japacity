@@ -57,8 +57,8 @@ const ROAD_SEEDS = 700;
 const roads = roadRuns(ROAD_SEEDS);
 
 /**
- * The first broke return (R-PLACE-005) by the spender, each run cut at its first return home. The first fix batch
- * made the far shore's return assisted (R-ROAD-009) and the first months abroad survivable, so the borrowers and the
+ * The first broke return (place:return-shape-decided-at-once) by the spender, each run cut at its first return home. The first fix batch
+ * made the far shore's return assisted (road:sea-arrival-in-italy) and the first months abroad survivable, so the borrowers and the
  * risky come home with their savings; the spender pays its debts and the school ahead from them and keeps only the fare.
  */
 const spent: RunRecord[] = [];
@@ -78,14 +78,14 @@ function brokeReturn(seeds: number): RunRecord | null {
 
 describe("simulated players to an ending on the real content", () => {
   test.each(ENDINGS.filter((ending) => ending !== "road-lost").map((ending) => [ending] as const))(
-    "[R-PLACE-005] [R-STATUS-007] [R-STATUS-008] given the four strategies from every life, when they play up to 120 months, then some strategy on some seed ends %s",
+    "[place:return-shape-decided-at-once] [status:lawful-months-reach-settlement] [status:removal-sends-home-banned] given the four strategies from every life, when they play up to 120 months, then some strategy on some seed ends %s",
     (ending: Ending) => {
       const found = ending === "returned-broke" ? brokeReturn(40) : find((record) => record.ending === ending, 12);
       expect(found?.ending).toBe(ending);
     },
   );
 
-  test("[R-ROAD-006] [R-ROAD-008] given players who take the road's pitch, when the seeds are run, then the road's loss is reached on some seed and stays about 2 in 100 of those who set out", () => {
+  test("[road:chain-steps-monthly] [road:lost-is-final] given players who take the road's pitch, when the seeds are run, then the road's loss is reached on some seed and stays about 2 in 100 of those who set out", () => {
     const lost = roads.filter((record) => record.ending === "road-lost").length;
     expect(roads.length).toBeGreaterThanOrEqual(50);
     expect(lost).toBeGreaterThanOrEqual(1);
@@ -93,11 +93,11 @@ describe("simulated players to an ending on the real content", () => {
     expect(lost).toBeLessThanOrEqual(mulDiv(roads.length, 400, 10000) + 3);
   });
 
-  test.each(LIVES.map((life) => [life] as const))("[R-STATUS-007] given %s played carefully, when the seeds are run, then some seed reaches a settled status", (life) => {
+  test.each(LIVES.map((life) => [life] as const))("[status:lawful-months-reach-settlement] given %s played carefully, when the seeds are run, then some seed reaches a settled status", (life) => {
     expect(find((record) => record.settledMonth !== null, 30, ["careful"], [life])?.life).toBe(life);
   });
 
-  test("[R-ENGINE-011] given every run played here, when each month was ended, then a resting turn was always there, no turn built from allowed options was rejected and no step threw", () => {
+  test("[engine:player-never-stuck] given every run played here, when each month was ended, then a resting turn was always there, no turn built from allowed options was rejected and no step threw", () => {
     const all = [...played.values(), ...roads, ...spent];
     expect(all.reduce((sum, record) => sum + record.stuck, 0)).toBe(0);
     expect(all.flatMap((record) => record.rejectedTurns)).toEqual([]);

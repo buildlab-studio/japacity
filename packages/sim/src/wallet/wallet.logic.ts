@@ -1,6 +1,6 @@
 // Money: docs/rules/wallet.md. One pocket set per currency: bank, cash and
 // locked. The opening balances are recorded as credits with the reason
-// `opening` (R-SCENARIO-002), so the ledger identity of R-WALLET-002 holds
+// `opening` (scenario:new-state-starts-clean), so the ledger identity of wallet:ledger-balances-each-currency holds
 // from the first state.
 import { resolveAmount, worldVarOr } from "../engine/check";
 import { bp, convertMinor, mulDiv, mulDivCeil, valueInKobo } from "../engine/int";
@@ -41,7 +41,7 @@ import { CURRENCIES, isCurrency, officialRates, placeCurrency, streetRates } fro
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
 
-/** A bank remit waits in the queue under an id with this prefix and arrives under `remit` (R-ABROAD-006). */
+/** A bank remit waits in the queue under an id with this prefix and arrives under `remit` (abroad-money:remit-sends-money-home). */
 const REMIT_PREFIX = "remit";
 
 /**
@@ -109,12 +109,12 @@ export const REASON_LINE: Record<Reason, string | null> = {
 // Reading the world
 // ---------------------------------------------------------------------------
 
-/** R-WALLET-012: a whole number above zero. */
+/** wallet:amounts-whole-and-positive: a whole number above zero. */
 function isGoodAmount(amount: unknown): amount is number {
   return typeof amount === "number" && Number.isSafeInteger(amount) && amount > 0;
 }
 
-/** US cents bought at the bank this month (R-WALLET-005). A record from an earlier month counts as nothing. */
+/** US cents bought at the bank this month (wallet:monthly-fx-allowance). A record from an earlier month counts as nothing. */
 function boughtThisMonth(state: State): number {
   return state.wallet.bought.month === state.turn.month ? state.wallet.bought.cents : 0;
 }
@@ -124,7 +124,7 @@ function allowanceLeft(read: ReadCtx): number {
   return Math.max(0, worldVarOr(read.world, ALLOWANCE) - boughtThisMonth(read.state));
 }
 
-/** R-WALLET-005, 006: the allowance is the Lagos bank's, so the view shows none abroad. */
+/** wallet:monthly-fx-allowance, wallet:bank-queue-delays-purchases: the allowance is the Lagos bank's, so the view shows none abroad. */
 function allowanceShown(read: ReadCtx): number | null {
   return atHome(read.state) ? allowanceLeft(read) : null;
 }
@@ -135,16 +135,16 @@ function atHome(state: State): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Marked money: R-WALLET-020
+// Marked money: wallet:top-ups-are-marked
 // ---------------------------------------------------------------------------
 
-/** The topped-up naira not yet spent (R-WALLET-020); 0 while there is none. */
+/** The topped-up naira not yet spent (wallet:top-ups-are-marked); 0 while there is none. */
 function markedOf(wallet: Pick<WalletSlice, "marked">): number {
   return wallet.marked ?? 0;
 }
 
 /**
- * R-WALLET-020, R-LOTTERY-018: the naira earned in the game, the naira bank and cash less the marked figure. A Friday
+ * wallet:top-ups-are-marked, lottery:tickets-bought-with-earned-naira: the naira earned in the game, the naira bank and cash less the marked figure. A Friday
  * ticket and the kiosk's slip are paid from it alone, so a top-up never stakes a ticket.
  */
 export function earnedNaira(wallet: Pick<WalletSlice, "pockets" | "marked">): number {
@@ -152,7 +152,7 @@ export function earnedNaira(wallet: Pick<WalletSlice, "pockets" | "marked">): nu
   return Math.max(0, bank + cash - markedOf(wallet));
 }
 
-/** R-WALLET-020, R-LOTTERY-018: the detail a ticket or a slip is refused with when only the marked naira would cover it. */
+/** wallet:top-ups-are-marked, lottery:tickets-bought-with-earned-naira: the detail a ticket or a slip is refused with when only the marked naira would cover it. */
 export const EARNED_ONLY = "Tickets come from money you earned.";
 
 /** The slice with the marked figure set, the key dropped at zero so no state hash moves while nothing is marked. */
@@ -165,7 +165,7 @@ function withMarked(slice: WalletSlice, marked: number): WalletSlice {
 }
 
 /**
- * R-WALLET-020: earned naira is spent first, the marked naira only once the earned runs out, so
+ * wallet:top-ups-are-marked: earned naira is spent first, the marked naira only once the earned runs out, so
  * after a naira debit the marked figure is never above what is left. A move between pockets is the same money and spends
  * nothing; a ticket and a slip are paid only when the earned share covers them, so they never reach it.
  */
@@ -176,7 +176,7 @@ function markedAfterDebit(slice: WalletSlice, event: Extract<WalletEvent, { type
   return withMarked(slice, Math.min(marked, bank + cash));
 }
 
-/** R-WALLET-020: naira credited as `top-up` is marked; every other credit, a prize among them, is earned. */
+/** wallet:top-ups-are-marked: naira credited as `top-up` is marked; every other credit, a prize among them, is earned. */
 function markedAfterCredit(slice: WalletSlice, event: Extract<WalletEvent, { type: "wallet/credited" }>): WalletSlice {
   if (event.reason !== "top-up" || event.currency !== "NGN" || event.pocket === "locked") return slice;
   return withMarked(slice, markedOf(slice) + event.amount);
@@ -200,7 +200,7 @@ function moved(events: WalletEvent[]): WalletEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// Foreign fees: R-WALLET-009
+// Foreign fees: wallet:foreign-fee-payment-order
 // ---------------------------------------------------------------------------
 
 interface FeePlan {
@@ -219,7 +219,7 @@ function feeSplit(read: Pick<ReadCtx, "state" | "world" | "content">, currency: 
   const fromCash = Math.min(pocket.cash, amount - fromBank);
   const rest = amount - fromBank - fromCash;
   if (rest === 0) return { fromBank, fromCash, bought: 0, naira: 0, charge: 0 };
-  // R-WALLET-005: the naira leg settles an invoice rather than buying currency, so it does not
+  // wallet:monthly-fx-allowance: the naira leg settles an invoice rather than buying currency, so it does not
   // count against the month's allowance.
   const naira = mulDivCeil(rest, read.world.rates[currency].official, 100);
   return { fromBank, fromCash, bought: rest, naira, charge: bp(naira, read.content.tuning.wallet.bankChargeBp) };
@@ -238,7 +238,7 @@ function planFee(read: ReadCtx, currency: ForeignCurrency, amount: number): FeeP
 }
 
 /**
- * R-WALLET-009, for a forecast: the naira a foreign fee would take from the naira bank now, the bank's charge
+ * wallet:foreign-fee-payment-order, for a forecast: the naira a foreign fee would take from the naira bank now, the bank's charge
  * included, whether or not the bank holds it; nothing while the currency's own pockets cover the fee.
  */
 export function feeInNaira(read: Pick<ReadCtx, "state" | "world" | "content">, currency: ForeignCurrency, amount: number): number {
@@ -261,7 +261,7 @@ export type Payment = { type: "money/take"; currency: Currency; pocket: "any" | 
 
 /**
  * The wallet once a payment is made exactly as the wallet makes it, or null when it would not be: what a forecast
- * reads (the way home, R-PLACE-011) so that it never books money its own way.
+ * reads (the way home, place:view-carries-way-home) so that it never books money its own way.
  */
 export function walletAfter(read: ReadCtx, payment: Payment): WalletSlice | null {
   const events = payment.type === "money/take" ? takeEvents(read.state, read.content, payment.currency, payment.pocket, payment.amount, payment.reason) : feePlanned(read, payment);
@@ -306,13 +306,13 @@ function addMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   // "A credit to the bank marked locked goes to the locked pocket."
   const pocket: AnyPocket = effect.locked === true ? "locked" : effect.pocket;
   const events = [credit(effect.currency, pocket, amount, effect.reason)];
-  // R-WALLET-011: locked money sits in the bank too, so a flagged locked credit is a lot as well.
+  // wallet:large-deposits-record-lots: locked money sits in the bank too, so a flagged locked credit is a lot as well.
   if (effect.flagged === true && pocket !== "cash") events.push(lotOf(ctx.state, effect.currency, amount, effect.reason));
   return events;
 }
 
 /**
- * R-WALLET-018 (decision 0014): the pocket a naira credit of work, a gig, a prize or the prologue's earnings lands
+ * wallet:money-lands-as-in-lagos (decision 0014): the pocket a naira credit of work, a gig, a prize or the prologue's earnings lands
  * in, and the pocket a street debit is taken from first, by its size. Small money changes hands as cash; past
  * the line people ask for a transfer.
  */
@@ -328,11 +328,11 @@ function takeInOrder(currency: Currency, first: Pocket, amount: number, held: Po
   return moved([debit(currency, first, fromFirst, reason), debit(currency, second, amount - fromFirst, reason)]);
 }
 
-/** The debits a whole amount taken from a pocket makes, or null when it cannot be taken: R-WALLET-001, all or nothing. */
+/** The debits a whole amount taken from a pocket makes, or null when it cannot be taken: wallet:no-pocket-below-zero, all or nothing. */
 function takeEvents(state: State, content: Content, currency: Currency, from: "any" | "transfer" | AnyPocket, amount: number, reason: Reason): WalletEvent[] | null {
   if (amount === 0) return [];
   const pocket = state.wallet.pockets[currency];
-  // The street: cash first at or under the line, the bank first above it (R-WALLET-018, "Pockets" in wallet.md).
+  // The street: cash first at or under the line, the bank first above it (wallet:money-lands-as-in-lagos, "Pockets" in wallet.md).
   if (from === "any") return takeInOrder(currency, pocketFor(amount, content.tuning.wallet), amount, pocket, reason);
   // A transfer: the bank first, then cash (decision 0014).
   if (from === "transfer") return takeInOrder(currency, "bank", amount, pocket, reason);
@@ -346,8 +346,8 @@ function takeMoney(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * `wallet/top-up` (R-WALLET-020): naira bought with real money lands in the naira bank as `top-up`, a lot the visa
- * officer asks about (R-WALLET-011), and the marked figure rises by the amount as the credit is evolved.
+ * `wallet/top-up` (wallet:top-ups-are-marked): naira bought with real money lands in the naira bank as `top-up`, a lot the visa
+ * officer asks about (wallet:large-deposits-record-lots), and the marked figure rises by the amount as the credit is evolved.
  */
 function topUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "wallet/top-up") throw new Error(`wallet/top-up cannot carry out ${effect.type}.`);
@@ -360,7 +360,7 @@ function topUpEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * The authority's `wallet/top-up` (R-WALLET-020, R-SERVER-013): the engine refuses it from anyone else. The processor's
+ * The authority's `wallet/top-up` (wallet:top-ups-are-marked, server:apologies-never-currency): the engine refuses it from anyone else. The processor's
  * receipts, the monthly cap and the server route that sends it come with the payment processor.
  */
 function topUp(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
@@ -377,11 +377,11 @@ function move(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (to !== "bank" && to !== "cash") return reject("not-legal", "Money moves to the bank or to cash.");
   if (!isGoodAmount(amount)) return reject("bad-amount", "An amount is a whole number above zero.");
   const from: Pocket = to === "bank" ? "cash" : "bank";
-  // Locked money is never in `bank` here, so it cannot be moved (R-WALLET-010).
+  // Locked money is never in `bank` here, so it cannot be moved (wallet:locked-money-stays-put).
   if (amount > ctx.state.wallet.pockets[currency][from]) return reject("cannot-afford", `The ${from} pocket holds less than that.`);
   const events = [debit(currency, from, amount, "move"), credit(currency, to, amount, "move")];
   if (to !== "bank") return events;
-  // R-WALLET-011. Every move that leaves the month's cash paid in over the line is a lot of its own amount.
+  // wallet:large-deposits-record-lots. Every move that leaves the month's cash paid in over the line is a lot of its own amount.
   const month = ctx.state.turn.month;
   const { cashIn } = ctx.state.wallet;
   const kobo = (cashIn.month === month ? cashIn.kobo : 0) + valueInKobo(amount, currency, officialRates(ctx.world));
@@ -391,8 +391,8 @@ function move(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 /**
- * What the aboki gives: buying costs the street rate, selling earns it less the spread (R-WALLET-007).
- * R-WALLET-007 does not say whether the aboki changes pounds for dollars. It is allowed,
+ * What the aboki gives: buying costs the street rate, selling earns it less the spread (wallet:aboki-trades-at-street-rate).
+ * wallet:aboki-trades-at-street-rate does not say whether the aboki changes pounds for dollars. It is allowed,
  * as a sale for naira then a purchase, with one chance of a short count.
  */
 function abokiGives(amount: number, from: Currency, to: Currency, world: World, content: Content): number {
@@ -405,11 +405,11 @@ function abokiGives(amount: number, from: Currency, to: Currency, world: World, 
 function convertAtAboki(ctx: Ctx, from: Currency, to: Currency, amount: number): BaseEvent[] | Rejection {
   if (amount > ctx.state.wallet.pockets[from].cash) return reject("cannot-afford", "The aboki takes cash, and there is less than that in cash.");
   const received = abokiGives(amount, from, to, ctx.world, ctx.content);
-  // R-WALLET-012: a conversion must give back at least one unit of the other currency.
+  // wallet:amounts-whole-and-positive: a conversion must give back at least one unit of the other currency.
   if (received === 0) return reject("bad-amount", "That is too little to change.");
   const { streetShortBp, streetShortLossBp } = ctx.content.tuning.wallet;
   const events = [debit(from, "cash", amount, "convert"), credit(to, "cash", received, "convert")];
-  // R-WALLET-008: the count is short after the money is handed over, so it shows as a debit.
+  // wallet:aboki-short-count: the count is short after the money is handed over, so it shows as a debit.
   if (ctx.random.chance("street", streetShortBp)) {
     const lossBp = ctx.random.between("street", streetShortLossBp[0], streetShortLossBp[1]);
     events.push(debit(to, "cash", bp(received, lossBp), "short-count"));
@@ -432,11 +432,11 @@ function convertAtBank(ctx: Ctx, from: Currency, to: Currency, amount: number): 
   const leaving = [debit(from, "bank", charge, "bank-charge"), debit(from, "bank", net, "convert")];
   const bought: WalletEvent[] = buying ? [{ type: "wallet/bought", month, cents }] : [];
   const received = convertMinor(net, from, to, official);
-  // R-WALLET-012, as at the aboki. A queued purchase is judged at today's rate, before it waits.
+  // wallet:amounts-whole-and-positive, as at the aboki. A queued purchase is judged at today's rate, before it waits.
   if (received === 0) return reject("bad-amount", "That is too little to change.");
   const queue = worldVarOr(world, QUEUE);
   if (buying && queue > 0) {
-    // R-WALLET-006: the money leaves now; the rate is the one on the day it arrives.
+    // wallet:bank-queue-delays-purchases: the money leaves now; the rate is the one on the day it arrives.
     const queued: WalletEvent = { type: "wallet/queued", conversion: { id: ctx.nextId("conversion"), from, to, paid: net, readyMonth: month + queue } };
     return [...moved(leaving), queued, ...bought];
   }
@@ -454,7 +454,7 @@ function convert(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 // ---------------------------------------------------------------------------
-// Sending money home: R-ABROAD-006 and 008
+// Sending money home: abroad-money:remit-sends-money-home and abroad-money:remit-quote-is-shared
 // ---------------------------------------------------------------------------
 
 export const REMIT_CHANNELS: readonly RemitChannel[] = ["app", "bank", "informal"];
@@ -467,7 +467,7 @@ export interface RemitTerms {
 
 /**
  * What each channel gives for an amount sent from a foreign bank pocket, from the
- * view's rates and the content's tuning (R-ABROAD-008), so the interface quotes the
+ * view's rates and the content's tuning (abroad-money:remit-quote-is-shared), so the interface quotes the
  * same figures the command pays. The app pays the official rate less its margin;
  * the bank the official rate, here today's, though the money arrives next month at
  * that month's; the informal channel the street rate with no fee. The fee
@@ -495,7 +495,7 @@ function isForeign(value: unknown): value is ForeignCurrency {
 }
 
 /**
- * `wallet/remit` (R-ABROAD-006): the amount leaves the currency's bank pocket as
+ * `wallet/remit` (abroad-money:remit-sends-money-home): the amount leaves the currency's bank pocket as
  * `remit` and the fee as `remit-fee`; the naira arrives as `remit`, documented, in
  * the home bank pocket by app at once or by bank next month, or as cash by the
  * informal channel, which may not arrive at all (stream `street`). Only
@@ -560,7 +560,7 @@ function settle(ctx: Ctx): BaseEvent[] {
     const reason: Reason = isRemit(conversion) ? "remit" : "convert";
     events.push(credit(conversion.to, "bank", convertMinor(conversion.paid, conversion.from, conversion.to, official), reason));
   }
-  // R-WALLET-011: a lot is remembered for lotMonths whole months after the one it landed in.
+  // wallet:large-deposits-record-lots: a lot is remembered for lotMonths whole months after the one it landed in.
   const keepFrom = month - content.tuning.wallet.lotMonths;
   const count = state.wallet.lots.filter((lot) => lot.month < keepFrom).length;
   if (count > 0) events.push({ type: "wallet/lots-dropped", keepFrom, count });
@@ -572,7 +572,7 @@ function settle(ctx: Ctx): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * Money that is not the month's own on the results sheet (R-WORLD-008): a move between pockets is the
+ * Money that is not the month's own on the results sheet (world:month-end-results-sheet): a move between pockets is the
  * same money, a change of money is a move between currencies (decision 0024: what is done with
  * it afterwards is the spending), and held funds only sit locked from the day they land to the day they go back.
  */
@@ -601,7 +601,7 @@ function withPaceNet(slice: WalletSlice, currency: Currency, change: number, rea
 }
 
 /**
- * R-WALLET-019: nothing moves by itself; the world warns. The first month of a life to close with more naira cash
+ * wallet:cash-pile-warning: nothing moves by itself; the world warns. The first month of a life to close with more naira cash
  * on the character than the warning line, after the prologue, draws the warning once.
  */
 function cashWarning(state: State, content: Content): WalletEvent[] {
@@ -756,7 +756,7 @@ function lines(event: WalletEvent): ReportLine[] {
       if (reason === "convert") return [line(event.type === "wallet/credited" ? "line.wallet.converted" : "line.wallet.convert-paid", { amount: money }, "plain")];
       if (reason === "move") return event.type === "wallet/credited" ? [line("line.wallet.moved", { amount: money, pocket: event.pocket }, "plain")] : [];
       const key = REASON_LINE[reason];
-      // R-WALLET-017: the tone is the event's, so a remit's foreign leg is money out and a refund under a fee's reason money in.
+      // wallet:tone-follows-money-direction: the tone is the event's, so a remit's foreign leg is money out and a refund under a fee's reason money in.
       return key === null ? [] : [line(key, { amount: money }, event.type === "wallet/credited" ? "good" : "bad")];
     }
     case "wallet/queued": {
@@ -773,7 +773,7 @@ function lines(event: WalletEvent): ReportLine[] {
     case "wallet/lot-recorded":
       return [line("line.wallet.flagged", { amount: { currency: event.lot.currency, amount: event.lot.amount } }, "bad")];
     case "wallet/cash-warned":
-      // R-WALLET-019: someone who cares says it, with no figure; moving the money stays the player's act.
+      // wallet:cash-pile-warning: someone who cares says it, with no figure; moving the money stays the player's act.
       return [{ ...line("line.wallet.cash-warning", {}, "plain"), attention: true }];
     case "wallet/stamped": {
       // The passbook: a stamp is told as people tell it, its figure in naira; the road's own figure names the way.
@@ -823,7 +823,7 @@ function moneyCanPay(read: ReadCtx, requirement: Requirement, terms: Terms): Req
   return { met: planFee(read, currency, need) !== null, need };
 }
 
-/** R-WALLET-014: the ledger's total under one reason, in one currency. */
+/** wallet:ledger-total-requirement: the ledger's total under one reason, in one currency. */
 function walletTotal(read: ReadCtx, requirement: Requirement, terms: Terms): RequirementResult {
   if (requirement.type !== "wallet/total") throw new Error(`wallet/total cannot judge ${requirement.type}.`);
   const have = read.state.wallet.totals[requirement.flow][requirement.reason]?.[requirement.currency] ?? 0;
@@ -844,18 +844,18 @@ function invariants(state: State): string[] {
   for (const currency of CURRENCIES) {
     const pocket = state.wallet.pockets[currency];
     for (const [name, value] of Object.entries(pocket)) {
-      if (!Number.isSafeInteger(value) || value < 0) problems.push(`${currency} ${name} is ${String(value)} (R-WALLET-001).`);
+      if (!Number.isSafeInteger(value) || value < 0) problems.push(`${currency} ${name} is ${String(value)} (wallet:no-pocket-below-zero).`);
     }
     const held = pocket.bank + pocket.cash + pocket.locked;
     const booked = sumFor(state.wallet.totals.in, currency) - sumFor(state.wallet.totals.out, currency);
-    if (held !== booked) problems.push(`${currency} holds ${String(held)} but the ledger says ${String(booked)} (R-WALLET-002).`);
+    if (held !== booked) problems.push(`${currency} holds ${String(held)} but the ledger says ${String(booked)} (wallet:ledger-balances-each-currency).`);
   }
-  // R-WALLET-020: the marked figure is a share of the naira held, never negative, missing while zero.
+  // wallet:top-ups-are-marked: the marked figure is a share of the naira held, never negative, missing while zero.
   const { marked } = state.wallet;
   if (marked !== undefined) {
     const { bank, cash } = state.wallet.pockets.NGN;
-    if (!Number.isSafeInteger(marked) || marked <= 0) problems.push(`The marked figure is ${String(marked)}; it is a whole number above zero or missing (R-WALLET-020).`);
-    if (marked > bank + cash) problems.push(`The marked figure ${String(marked)} is over the naira bank and cash, ${String(bank + cash)} (R-WALLET-020).`);
+    if (!Number.isSafeInteger(marked) || marked <= 0) problems.push(`The marked figure is ${String(marked)}; it is a whole number above zero or missing (wallet:top-ups-are-marked).`);
+    if (marked > bank + cash) problems.push(`The marked figure ${String(marked)} is over the naira bank and cash, ${String(bank + cash)} (wallet:top-ups-are-marked).`);
   }
   for (const conversion of state.wallet.queued) {
     if (!Number.isSafeInteger(conversion.paid) || conversion.paid <= 0) problems.push(`Queued conversion ${conversion.id} carries ${String(conversion.paid)}.`);

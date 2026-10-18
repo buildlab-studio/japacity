@@ -1,4 +1,4 @@
-// The content check (R-ENGINE-014): keys equal ids, ids are well formed, every
+// The content check (engine:content-checked-before-play): keys equal ids, ids are well formed, every
 // id mentioned anywhere exists, every number is whole. The Zod schemas check
 // shape; this checks what a schema cannot see across tables.
 import { directorFairness } from "../world/fairness";
@@ -59,7 +59,7 @@ export function checkContent(content: Content): string[] {
   walk(content, "content", (value, path) => {
     if (typeof value === "number" && !Number.isSafeInteger(value)) problems.push(`${path} is ${String(value)}, not a whole number.`);
     if (typeof value === "string" && ID.test(value) && !known.has(value)) problems.push(`${path} names ${value}, which does not exist.`);
-    // The renames table's keys are ids this version no longer has (R-SERVER-022); its values must exist.
+    // The renames table's keys are ids this version no longer has (server:upgrade-state-is-pure); its values must exist.
     if (value !== null && typeof value === "object" && !Array.isArray(value) && path !== "content.renames") {
       for (const key of Object.keys(value)) {
         if (ID.test(key) && !known.has(key)) problems.push(`${path} has the key ${key}, which names nothing.`);
@@ -67,25 +67,25 @@ export function checkContent(content: Content): string[] {
     }
   });
   for (const route of Object.values(content.route)) {
-    // The road has no checklist and no japacity (R-ROAD-001).
+    // The road has no checklist and no japacity (road:road-route-has-no-figure).
     if (route.gate === "road") continue;
     const total = route.checklist.reduce((sum, item) => sum + item.weight, 0);
-    if (total !== 100) problems.push(`${route.id}: checklist weights add up to ${String(total)}, not 100 (R-JAPACITY-004).`);
+    if (total !== 100) problems.push(`${route.id}: checklist weights add up to ${String(total)}, not 100 (japacity:figure-is-whole-percent).`);
   }
   for (const story of Object.values(content.news)) {
-    if (story.standIn.forceLag < 2) problems.push(`${story.id}: comes into force ${String(story.standIn.forceLag)} ticks after announcement, under 2 (R-NEWS-002).`);
+    if (story.standIn.forceLag < 2) problems.push(`${story.id}: comes into force ${String(story.standIn.forceLag)} ticks after announcement, under 2 (news:force-waits-after-announcement).`);
   }
-  // R-DIRECTOR-007: the director's stories and eras are fair to every player.
+  // director:stories-never-undo-player-gains: the director's stories and eras are fair to every player.
   problems.push(...directorFairness(content));
   problems.push(...placeChecks(content));
   problems.push(...checkLotteryContent(content));
-  // R-LUCK-001: luck never reads money, so it cannot be farmed by looking broke.
-  for (const offer of Object.values(content.offer)) if (luckReadsMoney(offer)) problems.push(`${offer.id}: a luck offer whose when reads money (R-LUCK-001).`);
-  // R-ADVICE-007: no agent entry reads money, and the tells follow the kind.
+  // luck:luck-never-reads-money: luck never reads money, so it cannot be farmed by looking broke.
+  for (const offer of Object.values(content.offer)) if (luckReadsMoney(offer)) problems.push(`${offer.id}: a luck offer whose when reads money (luck:luck-never-reads-money).`);
+  // advice:agents-never-read-money: no agent entry reads money, and the tells follow the kind.
   problems.push(...agentProblems(content));
-  // R-STREET-004: the bridge's price opens only after a night there, and never reads money.
+  // streets:sleeping-under-the-bridge: the bridge's price opens only after a night there, and never reads money.
   problems.push(...bridgeProblems(content));
-  // R-PAIR-010: every phrase's fill-ins have a source and nothing forbidden.
+  // pair:preset-phrases-only: every phrase's fill-ins have a source and nothing forbidden.
   problems.push(...phraseChecks(content));
   return problems;
 }

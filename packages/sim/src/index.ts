@@ -29,7 +29,7 @@ export { japacity, routePercent } from "./japacity/japacity.logic";
 export { remitQuote, REMIT_CHANNELS } from "./wallet/wallet.logic";
 export type { RemitChannel } from "./wallet/wallet.events";
 export { ledgerReport } from "./wallet/wallet.report";
-// Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.
+// Where a naira credit lands by its size (wallet:money-lands-as-in-lagos): content's prologue earnings read it too.
 export { pocketFor } from "./wallet/wallet.logic";
 export { CURRENCIES, isCurrency, placeCurrency, spendable } from "./wallet/wallet.rates";
 export { qualityIn } from "./quality/quality.logic";
@@ -37,7 +37,7 @@ export { startYearOf } from "./prologue/prologue.logic";
 export { rideFare, metresApart, PASS_ACT, withinMetres } from "./place/place.logic";
 export type { RideFare } from "./place/place.logic";
 export * as time from "./engine/time";
-// The Friday draw's public method: the server draws with it and the client's draw page checks with it (docs/rules/lottery.md R-LOTTERY-015).
+// The Friday draw's public method: the server draws with it and the client's draw page checks with it (lottery:result-published-in-tick-row).
 export {
   drawSeed,
   ticketDraw,
@@ -68,8 +68,8 @@ export type { SayPolicy, PlacePolicy, SayResult, SayRefusal } from "./phrase/phr
 export { phraseChecks } from "./phrase/phrase.check";
 export { inviteCard, inviteExpires, mayOpenInvite, useInvite, rewardFor, mayPair, INVITE_FILLS } from "./pair/pair.invite";
 export type { InviteCard, InviteSlot, LinkResult, Milestone, InviteProgress, InviteReward } from "./pair/pair.invite";
-// What one life knows of another (docs/rules/person.md R-PEOPLE-003, 005): the server sends it as `people/facts`.
+// What one life knows of another (person:both-lives-step-together, person:facts-function-is-pure): the server sends it as `people/facts`.
 export { factsOf } from "./person/person.facts";
-// The generated names drawn from content's pool by its mix (R-PEOPLE-053, R-CITY-033).
+// The generated names drawn from content's pool by its mix (person:computer-names-generated, city:residents-carry-no-tag).
 export { drawName, drawPeople, MIX_TOTAL } from "./person/person.names";
 export type { NameDrawEntry } from "./person/person.names";

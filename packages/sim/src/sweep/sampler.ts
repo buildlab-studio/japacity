@@ -6,7 +6,7 @@ import { legalCommands } from "../testing/legal";
 import type { Loose } from "../testing/play";
 
 /**
- * R-STATUS-006. The view's `renew` carries the fee and the surcharge. It is
+ * status:renewing-a-status. The view's `renew` carries the fee and the surcharge. It is
  * offered when the status's own currency's bank pocket alone covers both and,
  * on a one-employer status, a job is held.
  */
@@ -19,15 +19,15 @@ function fromStatus(view: PlayerView): Loose[] {
 }
 
 /**
- * R-CAR-004: the car handed back with the amount 0 once half its price is
+ * car:car-handed-back-after-half: the car handed back with the amount 0 once half its price is
  * paid, which the view's `car` now carries. A car paid off and owned is not
- * listed (R-CAR-005) and cannot be handed back.
+ * listed (car:final-payment-owns-the-car) and cannot be handed back.
  */
 function fromCar(view: PlayerView): Loose[] {
   return view.obligations.flatMap((owed): Loose[] => (owed.car !== null && owed.outstanding > 0 && owed.car.paid >= owed.car.half ? [{ type: "obligation/pay", obligation: owed.id, amount: 0 }] : []));
 }
 
-/** R-ACTIVITY-010: the side job given up on its own. */
+/** activity:side-job-holds-a-slot: the side job given up on its own. */
 function fromSide(view: PlayerView): Loose[] {
   return view.job.side === null ? [] : [{ type: "activity/quit", side: true }];
 }

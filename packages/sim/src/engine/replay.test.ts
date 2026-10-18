@@ -1,4 +1,4 @@
-// Saves in segments: docs/rules/server.md R-SERVER-020 to 024 and decision 0004.
+// Saves in segments: server:save-is-list-of-segments, server:newer-content-upgrades-state, server:upgrade-state-is-pure, server:older-contents-bundled and server:overlay-change-opens-segment and decision 0004.
 import { content as realContent } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -60,7 +60,7 @@ function twoSegments() {
 }
 
 describe("the flat save", () => {
-  test("[R-SERVER-020] [R-ENGINE-010] given every committed golden and recorded life, when loaded, then each is one segment starting from its scenario and replays to its blessed months and final hash", () => {
+  test("[server:save-is-list-of-segments] [engine:state-is-plain-data] given every committed golden and recorded life, when loaded, then each is one segment starting from its scenario and replays to its blessed months and final hash", () => {
     const flat = Object.entries(lifeSaves);
     // Three flights and three recorded lives abroad.
     expect(flat.length).toBe(6);
@@ -80,7 +80,7 @@ describe("the flat save", () => {
     }
   });
 
-  test("[R-SERVER-020] given a flat save of schema 1 with an overlay, when loaded, then the overlay is kept on its one segment and a save in segments loads as itself", () => {
+  test("[server:save-is-list-of-segments] given a flat save of schema 1 with an overlay, when loaded, then the overlay is kept on its one segment and a save in segments loads as itself", () => {
     const save: FlatSave = { schema: 1, content: "mini.1", overlay: "dials-1", scenario: "scenario.plain", seed: "s", worldSeed: "w", commands: [] };
     expect(loadSave(save)).toEqual({ schema: 3, segments: [{ content: "mini.1", overlay: "dials-1", start: { scenario: "scenario.plain", seed: "s", worldSeed: "w" }, commands: [] }] });
     const segmented = newSave("scenario.plain", "s", "w", miniContent);
@@ -89,7 +89,7 @@ describe("the flat save", () => {
 });
 
 describe("saves in segments", () => {
-  test("[R-SERVER-020] given a new life, when commands are recorded, then the save is one segment from the scenario holding them in order", () => {
+  test("[server:save-is-list-of-segments] given a new life, when commands are recorded, then the save is one segment from the scenario holding them in order", () => {
     const game = start({ scenario: "scenario.worker", seed: "rec", worldSeed: "world-1" });
     expect(game.save).toEqual({ schema: 3, segments: [{ content: miniContent.version, start: { scenario: "scenario.worker", seed: "rec", worldSeed: "world-1" }, commands: [] }] });
     game.endTurn();
@@ -101,7 +101,7 @@ describe("saves in segments", () => {
     expect(lastSegment(game.save).commands).toHaveLength(2);
   });
 
-  test("[R-SERVER-020] [R-SERVER-021] [R-SERVER-022] given a life carried from one content to the next in a second segment, when the save is replayed with both contents, then each segment runs under its own and the final state and every version match", () => {
+  test("[server:save-is-list-of-segments] [server:newer-content-upgrades-state] [server:upgrade-state-is-pure] given a life carried from one content to the next in a second segment, when the save is replayed with both contents, then each segment runs under its own and the final state and every version match", () => {
     const { state, save, base, before } = twoSegments();
     expect(save.segments.map((segment) => segment.content)).toEqual(["mini.1", "mini.2"]);
     expect(save.segments[1]!.start).toEqual({ base });
@@ -114,14 +114,14 @@ describe("saves in segments", () => {
     expect(replay(JSON.parse(JSON.stringify(save)) as Save, [miniContent, miniTwo], worldAt).state).toEqual(state);
   });
 
-  test("[R-SERVER-021] given a second segment whose base is not the upgrade of the first segment's end, when replayed, then it throws", () => {
+  test("[server:newer-content-upgrades-state] given a second segment whose base is not the upgrade of the first segment's end, when replayed, then it throws", () => {
     const { save, base } = twoSegments();
     const doctored = { ...base, wallet: { ...base.wallet, pockets: { ...base.wallet.pockets, NGN: { ...base.wallet.pockets.NGN, bank: base.wallet.pockets.NGN.bank + 100 } } } };
     const tampered: Save = { ...save, segments: [save.segments[0]!, { ...save.segments[1]!, start: { base: doctored } }] };
     expect(() => replay(tampered, [miniContent, miniTwo], worldAt)).toThrow(/base is not the state the segment before ended in/);
   });
 
-  test("[R-SERVER-020] given a save of two segments, when replayed without the content one names, or with a second segment that starts a new life, then it throws", () => {
+  test("[server:save-is-list-of-segments] given a save of two segments, when replayed without the content one names, or with a second segment that starts a new life, then it throws", () => {
     const { save } = twoSegments();
     expect(() => replay(save, [miniContent], worldAt)).toThrow(/No content mini.2 under overlay none/);
     expect(() => replay(save, miniContent, worldAt)).toThrow(/for content mini.2, not mini.1/);
@@ -129,7 +129,7 @@ describe("saves in segments", () => {
     expect(() => replay(restart, [miniContent, miniTwo], worldAt)).toThrow(/only the first segment may/);
   });
 
-  test("[R-SERVER-024] [R-ENGINE-010] given a new overlay on the same content, when the life goes on in a new segment, then the segment records the overlay and the save replays with both", () => {
+  test("[server:overlay-change-opens-segment] [engine:state-is-plain-data] given a new overlay on the same content, when the life goes on in a new segment, then the segment records the overlay and the save replays with both", () => {
     const over = applyOverlay(miniContent, { version: "dials-9", tuning: { quality: { wellbeingRest: 20 } } });
     const game = start({ scenario: "scenario.plain", seed: "dials", worldSeed: "world-1" });
     game.endTurn();
@@ -142,7 +142,7 @@ describe("saves in segments", () => {
     expect(() => replay(held.save, miniContent, worldAt)).toThrow(/overlay dials-9, not none/);
   });
 
-  test("[R-SERVER-021] given a base for other content, when a segment is opened on it, then it throws", () => {
+  test("[server:newer-content-upgrades-state] given a base for other content, when a segment is opened on it, then it throws", () => {
     const game = start({ scenario: "scenario.plain" });
     expect(() => openSegment(game.save, game.state, miniTwo)).toThrow(/for content mini.1, not mini.2/);
   });

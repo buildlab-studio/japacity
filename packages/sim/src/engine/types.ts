@@ -77,13 +77,13 @@ export type Reason =
   | "fee-visa"
   | "fee-surcharge"
   | "fee-agent"
-  /** A licensed adviser's fee (docs/rules/advice.md R-ADVICE-004), a sink. */
+  /** A licensed adviser's fee (advice:licensed-adviser-is-truthful), a sink. */
   | "fee-advice"
-  /** A meal or the water bought and eaten today (R-HOME-012, decision 0013), a sink. */
+  /** A meal or the water bought and eaten today (home:living-by-hand, decision 0013), a sink. */
   | "food"
   /** Foodstuff bought for the family house's pot, the share a child at home gives, a sink. */
   | "foodstuff"
-  /** Enjoyment and spending on the street, paid as it is had (R-STREET-011, decision 0012), a sink. */
+  /** Enjoyment and spending on the street, paid as it is had (streets:lagos-street-spending, decision 0012), a sink. */
   | "enjoyment"
   | "bank-charge"
   | "loan-repay"
@@ -125,7 +125,7 @@ export type Reason =
   | "undertaking"
   /** Social assistance received abroad (docs/rules/undertaking.md), a source. */
   | "assistance"
-  /** Naira bought with real money, credited only by the authority's `wallet/top-up` (docs/rules/wallet.md R-WALLET-020), a source. Marked until spent. */
+  /** Naira bought with real money, credited only by the authority's `wallet/top-up` (wallet:top-ups-are-marked), a source. Marked until spent. */
   | "top-up"
   // transfers: always in matched pairs
   | "convert"
@@ -149,7 +149,7 @@ export type Stream =
   | "health"
   /** The people kind's draws: courting, a computer's answers, gossip (docs/rules/person.md). */
   | "people"
-  /** The settlement cleared (docs/rules/home.md R-HOME-003), on its own stream so living in Makoko moves no other draw. */
+  /** The settlement cleared (home:makoko-eviction-draw), on its own stream so living in Makoko moves no other draw. */
   | "home";
 
 /** Where a character is. `road` is the chain in docs/rules/road.md. */
@@ -157,7 +157,7 @@ export type Where = "home" | "abroad" | "road";
 /** Where an entry applies. */
 export type WhereEntry = "home" | "abroad" | "any";
 /**
- * The way home today, as `return/home` would take it (place.md R-PLACE-011): the fare now and off peak, where it
+ * The way home today, as `return/home` would take it (place:view-carries-way-home): the fare now and off peak, where it
  * would come from (the country's money, naira through the bank, or nobody), the naira it takes when bought from
  * naira, the shape the return would take (null when it would be refused) and the standing it would bring.
  */
@@ -170,16 +170,16 @@ export interface WayHome {
   standing: number;
 }
 
-/** The shapes of a return home: docs/rules/place.md R-PLACE-005. */
+/** The shapes of a return home: place:return-shape-decided-at-once. */
 export type ReturnShape = "removed" | "assisted" | "broke" | "by-choice" | "with-papers";
-/** Why the home card's move is shut (R-HOME-008): a move made this month, or what the move takes at once not held. */
+/** Why the home card's move is shut (home:moves-carry-cost-and-reason): a move made this month, or what the move takes at once not held. */
 export type HomeMoveShut = "moved" | "short";
 
-/** Where the character lives at home: docs/rules/home.md R-HOME-001, the three home places. */
+/** Where the character lives at home: home:home-slice-fields, the three home places. */
 export type HomePlace = "place.family-house" | "place.makoko" | "place.compound-room" | "place.hostel-room";
-/** Who takes the character in after an eviction (R-HOME-004). */
+/** Who takes the character in after an eviction (home:taken-in-after-eviction). */
 export type HomeHost = "friend" | "someone";
-/** What a status lets you do for work: docs/rules/status.md R-STATUS-002. */
+/** What a status lets you do for work: status:status-sets-work-rule. */
 export type WorkRule = "any" | "part" | "one-employer" | "cash" | "none";
 /** A route's gate: docs/rules/route-gates.md. */
 export type RouteGate = "study" | "sponsor" | "points" | "endorsement" | "contract" | "road" | "partner" | "dependant";
@@ -237,7 +237,7 @@ export type Requirement =
   | { type: "document/absent"; document: Id<"document"> }
   /** Being made now. */
   | { type: "document/pending"; document: Id<"document"> }
-  /** The document is held and did not come from a scammer (advice.md R-ADVICE-008). */
+  /** The document is held and did not come from a scammer (advice:agent-loss-is-the-fee). */
   | { type: "document/genuine"; document: Id<"document"> }
   | { type: "route/state"; route: Id<"route">; in: RouteStateName[] }
   /** Holds an offer from at least one school on this route. */
@@ -250,7 +250,7 @@ export type Requirement =
   | { type: "route/unexplained-max"; route: Id<"route">; bp: number }
   /** Without a pocket: bank and cash together. Locked money never counts. */
   | { type: "money/min"; currency: Currency; amount: Amount; pocket?: Pocket }
-  /** The amount could be paid now: naira from cash and bank, a foreign fee by R-WALLET-009. */
+  /** The amount could be paid now: naira from cash and bank, a foreign fee by wallet:foreign-fee-payment-order. */
   | { type: "money/can-pay"; currency: Currency; amount: Amount }
   | { type: "var/min"; var: Id<"var">; value: number }
   | { type: "var/max"; var: Id<"var">; value: number }
@@ -275,29 +275,29 @@ export type Requirement =
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */
   | { type: "activity/local-tenure"; months: number }
-  /** The activity filled a slot in the month just played: a free slot sent with it, or the job or side job held (docs/rules/streets.md R-STREET-004). */
+  /** The activity filled a slot in the month just played: a free slot sent with it, or the job or side job held (streets:sleeping-under-the-bridge). */
   | { type: "activity/played"; activity: Id<"activity"> }
-  /** The set piece has closed at least `times` times (default 1): docs/rules/route.md R-SETPIECE-006. */
+  /** The set piece has closed at least `times` times (default 1): route:answers-carry-effects. */
   | { type: "setpiece/answered"; setpiece: Id<"setpiece">; times?: number }
-  /** The last answer given to this question of this set piece was this one (R-SETPIECE-007). */
+  /** The last answer given to this question of this set piece was this one (route:last-answers-remembered). */
   | { type: "setpiece/answered-with"; setpiece: Id<"setpiece">; question: string; answer: string }
   /** The world runs the Friday draw (`online` true) or not (docs/rules/lottery.md). */
   | { type: "world/lottery"; online: boolean }
-  /** A bond of this role at one of these stages, and where the other is (docs/rules/person.md R-PEOPLE-046). */
+  /** A bond of this role at one of these stages, and where the other is (person:computer-is-a-person-entry). */
   | { type: "people/bond"; role: "partner" | "sibling"; stages: BondStage[]; where?: Where; country?: Id<"country">; statuses?: Id<"status">[] }
-  /** A sibling in this country with one of these statuses, old enough (R-PEOPLE-031). */
+  /** A sibling in this country with one of these statuses, old enough (person:canada-sibling-bonus). */
   | { type: "people/sibling-abroad"; country: Id<"country">; statuses: Id<"status">[]; minAgeMonths: number }
-  /** A joint application on this route with the character as lead or dependant (R-PEOPLE-029). */
+  /** A joint application on this route with the character as lead or dependant (person:tied-status-clock-on-breakup). */
   | { type: "people/joint"; route: Id<"route">; as: "lead" | "dependant" }
-  /** The ledger's total under a reason, in or out, in one currency, is at least this: docs/rules/wallet.md R-WALLET-014. */
+  /** The ledger's total under a reason, in or out, in one currency, is at least this: wallet:ledger-total-requirement. */
   | { type: "wallet/total"; flow: "in" | "out"; reason: Reason; currency: Currency; amount: Amount }
   /** A return of one of these shapes is on record: docs/rules/place.md. */
   | { type: "place/returned"; shapes: ReturnShape[] }
   /** The character has been where they are, in `where`, for at least this many months. */
   | { type: "place/months-here"; where: Where; months: number }
-  /** A removal's ban holds on the country this month (R-PLACE-008). */
+  /** A removal's ban holds on the country this month (place:removal-bans-the-country). */
   | { type: "place/banned"; country: Id<"country"> }
-  /** A host of this kind would take the character in now (docs/rules/home.md R-HOME-004). */
+  /** A host of this kind would take the character in now (home:taken-in-after-eviction). */
   | { type: "home/host"; host: HomeHost }
   | { type: "not"; of: Requirement }
   | { type: "any"; of: Requirement[] };
@@ -316,21 +316,21 @@ export interface RequirementResult {
 export type Effect =
   // wallet
   | { type: "money/add"; currency: Currency; pocket: Pocket; amount: Amount; reason: Reason; flagged?: boolean; locked?: boolean }
-  /** `any`: the street, cash first at or under `tuning.wallet.cashUpTo` and bank first above it (R-WALLET-018); `transfer`: bank first, then cash (decision 0014: how Lagos pays by transfer, and abroad by tap). */
+  /** `any`: the street, cash first at or under `tuning.wallet.cashUpTo` and bank first above it (wallet:money-lands-as-in-lagos); `transfer`: bank first, then cash (decision 0014: how Lagos pays by transfer, and abroad by tap). */
   | { type: "money/take"; currency: Currency; pocket: Pocket | "any" | "transfer" | "locked"; amount: Amount; reason: Reason }
-  /** Pay a foreign-currency fee from whatever the character holds: see R-WALLET-009. */
+  /** Pay a foreign-currency fee from whatever the character holds: see wallet:foreign-fee-payment-order. */
   | { type: "money/pay-fee"; currency: ForeignCurrency; amount: Amount; reason: Reason }
-  /** Naira bought with real money (R-WALLET-020): to the naira bank as `top-up`, a lot recorded, and the marked figure raised by the amount. Only the authority's `wallet/top-up` applies it. */
+  /** Naira bought with real money (wallet:top-ups-are-marked): to the naira bank as `top-up`, a lot recorded, and the marked figure raised by the amount. Only the authority's `wallet/top-up` applies it. */
   | { type: "wallet/top-up"; amount: number }
   // quality
   | { type: "quality/add"; quality: Id<"quality">; amount: number }
   // activity
   | { type: "activity/hunt" } // the slot's param names the job
   | { type: "activity/start-job"; job: Id<"activity"> | { term: string } }
-  /** `side` names the side slot (the home side job ends at the flight, R-ACTIVITY-010). */
+  /** `side` names the side slot (the home side job ends at the flight, activity:side-job-holds-a-slot). */
   | { type: "activity/end-job"; why: string; side?: true }
   | { type: "activity/gig"; min: number; max: number; perTech: number }
-  /** The open set piece is the named activity's quiz: its right answers are counted and a pass applies the quiz's effects (R-ACTIVITY-013). */
+  /** The open set piece is the named activity's quiz: its right answers are counted and a pass applies the quiz's effects (activity:waiting-months-build-profile). */
   | { type: "activity/exam"; activity: Id<"activity"> }
   // document
   | { type: "document/request"; document: Id<"document"> }
@@ -343,51 +343,51 @@ export type Effect =
   | { type: "route/apply-school" } // the slot's param names the school
   | { type: "route/apply"; route: Id<"route"> }
   | { type: "route/support"; route: Id<"route">; currency: Currency; amount: Amount }
-  /** The set piece finished: its score goes on the route's open visa application (R-SETPIECE-004). */
+  /** The set piece finished: its score goes on the route's open visa application (route:answers-score-and-close). */
   | { type: "route/interview-scored"; route: Id<"route">; score: number }
   /** A sponsor, agent or connection is recorded on a gate route. `fraud` is hidden on the route. */
   | { type: "route/record-sponsor"; route: Id<"route">; employer: string; salary: number; fraud: boolean }
   /** The road chain moves to a step or ends: docs/rules/road.md. */
   | { type: "route/road-step"; step: string }
-  /** The pool entered on the points route, from `activity.enter-pool` (R-POINTS-002). */
+  /** The pool entered on the points route, from `activity.enter-pool` (route-gates:entering-the-pool). */
   | { type: "route/enter-pool"; route: Id<"route"> }
   // setpiece
-  /** Opens a set piece for a route (R-SETPIECE-001). */
-  /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (R-SETPIECE-006). */
+  /** Opens a set piece for a route (route:set-piece-draws-questions). */
+  /** Open a set piece. With a route, the score goes to its visa application; with none, nothing is scored (route:answers-carry-effects). */
   | { type: "setpiece/open"; setpiece: Id<"setpiece">; route: Id<"route"> | null }
-  /** Closes the open scene unscored (a flight during a road scene, R-ROAD-004). */
+  /** Closes the open scene unscored (a flight during a road scene, road:road-night-allows-turn-back). */
   | { type: "setpiece/close"; setpiece: Id<"setpiece"> }
-  /** A moment with the bond the slot's param names (docs/rules/person.md R-PEOPLE-015). */
+  /** A moment with the bond the slot's param names (person:talking-adds-moments). */
   | { type: "people/moment"; kind: Moment["kind"] }
-  /** Withdraws an application in progress (R-PEOPLE-038). */
+  /** Withdraws an application in progress (person:one-left-keeps-own-gains). */
   | { type: "route/withdraw"; route: Id<"route"> }
-  /** The application just sent on this route, resting on this bond, opens the genuineness interview (R-INTERVIEW-001, 002). */
+  /** The application just sent on this route, resting on this bond, opens the genuineness interview (interview:partner-application-opens-interview, interview:thin-record-triggers-interview). */
   | { type: "interview/open"; route: Id<"route">; bond: string }
-  /** The interview open for this route closes unscored (R-PEOPLE-036, R-INTERVIEW-011). */
+  /** The interview open for this route closes unscored (person:joint-collapses-with-bond, interview:players-answer-at-own-pace). */
   | { type: "interview/close"; route: Id<"route"> }
-  /** The character arrived on this route, as the people slice records it (R-PEOPLE-027). */
+  /** The character arrived on this route, as the people slice records it (person:partner-application-decided). */
   | { type: "people/arrived"; route: Id<"route"> }
-  /** One month of social assistance taken, counted while `arrived` names this route (R-UNDERTAKING-010). */
+  /** One month of social assistance taken, counted while `arrived` names this route (undertaking:social-assistance-offer). */
   | { type: "people/assistance-taken"; route: Id<"route"> }
   // obligation
-  /** `bond`: the bond an undertaking is for (R-UNDERTAKING-006). */
+  /** `bond`: the bond an undertaking is for (undertaking:landing-opens-undertaking). */
   | { type: "obligation/open"; obligation: Id<"obligation">; principal?: Amount; amount?: Amount; bond?: string }
   // offer: opens nothing when the offer's own `when` does not hold
   | { type: "offer/open"; offer: Id<"offer"> }
-  /** Closes an open offer unanswered, as a family request handled in another life (R-PEOPLE-034). */
+  /** Closes an open offer unanswered, as a family request handled in another life (person:family-requests-shared). */
   | { type: "offer/close"; offer: Id<"offer"> }
-  /** The day's arrivals (R-OFFER-008): rolls as the come-up phase does and opens at most `max` offers inside the month's cap. */
+  /** The day's arrivals (offer:day-arrivals-roll-offers): rolls as the come-up phase does and opens at most `max` offers inside the month's cap. */
   | { type: "offer/come-up"; max: number }
   // obligation, whole life
   | { type: "obligation/close"; obligationType: ObligationType }
-  /** The next charge of the open obligation of this type that applies where the character lives falls by `bp` of its amount, once (R-OBLIGATION-014). */
+  /** The next charge of the open obligation of this type that applies where the character lives falls by `bp` of its amount, once (obligation:cooking-and-fetching-water). */
   | { type: "obligation/relief"; obligationType: ObligationType; bp: number }
   // place (docs/rules/place.md)
   | { type: "place/move"; to: Where; country: Id<"country"> | null }
-  /** The authority sends the character home with this shape, as `return/home` would (R-PLACE-004, R-ROAD-007, R-STATUS-008). */
+  /** The authority sends the character home with this shape, as `return/home` would (place:return-home-paid-or-assisted, road:exit-is-assisted-return, status:removal-sends-home-banned). */
   | { type: "place/return"; shape: ReturnShape }
   // status (docs/rules/status.md)
-  /** `kept`: a status kept from a return with papers carries on with the months it had (R-RETURN-004). */
+  /** `kept`: a status kept from a return with papers carries on with the months it had (return:papers-return-keeps-status). */
   | { type: "status/grant"; status: Id<"status">; job?: Id<"activity">; kept?: { monthsHeld: number; lawfulMonths: number } }
   | { type: "status/lose" }
   | { type: "status/remove" }
@@ -400,19 +400,19 @@ export type Effect =
   | { type: "goal/done"; goal: Id<"goal"> }
   // turn
   | { type: "turn/refill" }
-  /** A now-act spends free time of the month, in half-days (R-TURN-010, R-ACTIVITY-018). */
+  /** A now-act spends free time of the month, in half-days (turn:month-lived-in-half-days, activity:now-acts-spend-half-days). */
   | { type: "turn/spend-days"; halfDays: number }
-  /** Locks free slots for some months (R-TURN-009). */
+  /** Locks free slots for some months (turn:slots-can-be-locked). */
   | { type: "turn/lock"; slots: number; months: number; why: string }
-  /** The one final ending: the road's `lost` (R-ROAD-008). Departure does not end the life. */
+  /** The one final ending: the road's `lost` (road:lost-is-final). Departure does not end the life. */
   | { type: "turn/finish" }
   // home (docs/rules/home.md)
-  /** The move an answer makes, as `home/move` does (R-HOME-002, R-HOME-004). */
+  /** The move an answer makes, as `home/move` does (home:move-home-once-a-month, home:taken-in-after-eviction). */
   | { type: "home/move"; place: HomePlace }
-  /** The character is taken in by a host of this kind for `tuning.home.guestMonths` (R-HOME-004). */
+  /** The character is taken in by a host of this kind for `tuning.home.guestMonths` (home:taken-in-after-eviction). */
   | { type: "home/guest"; host: HomeHost }
   // things
-  /** Leaving Lagos, what is owned is sold at its resale figure, as the room is let go (R-PLACE-002). */
+  /** Leaving Lagos, what is owned is sold at its resale figure, as the room is let go (place:departure-moves-abroad). */
   | { type: "things/sell-off" };
 
 export type EffectType = Effect["type"];
@@ -442,46 +442,46 @@ export interface QualityEntry {
   shown: boolean;
   /** Routes a gain in this quality counts toward. Shown beside every gain. */
   counts: Id<"route">[];
-  /** Where a life starts when its scenario says nothing (R-QUALITY-007, the body). Missing: `min`. */
+  /** Where a life starts when its scenario says nothing (quality:body-belly-and-energy, the body). Missing: `min`. */
   start?: number;
 }
 
 export interface ActivityEntry {
   id: Id<"activity">;
-  /** `side` holds one free slot while kept: docs/rules/activity.md R-ACTIVITY-010. `none` fills no slot: it rides with the month (R-TURN-006, R-ADVICE-003). */
+  /** `side` holds one free slot while kept: activity:side-job-holds-a-slot. `none` fills no slot: it rides with the month (turn:free-slots-per-month, advice:someone-who-went-answers-free). */
   slot: "main" | "free" | "side" | "none";
-  /** A job that keeps paying through a sick month (docs/rules/health.md R-HEALTH-004). Missing means no. */
+  /** A job that keeps paying through a sick month (health:sick-pay-unless-sick-leave). Missing means no. */
   sickLeave?: boolean;
-  /** Where it applies. Missing means `home`. docs/rules/ladders.md R-LADDER-001. */
+  /** Where it applies. Missing means `home`. ladders:activities-filtered-by-where. */
   where?: WhereEntry;
   /** Abroad: the country it belongs to. Null or missing: every country. */
   country?: Id<"country"> | null;
-  /** A job within the student cap (R-LADDER-006). */
+  /** A job within the student cap (ladders:student-holds-one-part-job). */
   part?: boolean;
-  /** Cash work: paid to cash, untaxed, pay may be withheld (R-LADDER-003). */
+  /** Cash work: paid to cash, untaxed, pay may be withheld (ladders:cash-jobs-paid-in-hand). */
   cash?: boolean;
   withheldBp?: number;
-  /** A job that carries its own sponsorship certificate (R-LADDER-005). */
+  /** A job that carries its own sponsorship certificate (ladders:sponsor-job-ties-status). */
   sponsor?: boolean;
-  /** Needs the car (R-CAR-002). */
+  /** Needs the car (car:open-finance-gives-the-car). */
   needsCar?: boolean;
   /** Yearly bonus paid while the character has the car, in the pay's currency. */
   carBonus?: number;
-  /** A side job's pay by level: the highest tier whose `min` is met pays, else `pay` (docs/rules/activity.md R-ACTIVITY-014). Missing: no tiers. */
+  /** A side job's pay by level: the highest tier whose `min` is met pays, else `pay` (activity:side-jobs-pay-by-tier). Missing: no tiers. */
   tiers?: ActivityTier[];
-  /** True: one slot a month at most; a second pick in the same month is not legal (R-ACTIVITY-013). Missing: no limit. */
+  /** True: one slot a month at most; a second pick in the same month is not legal (activity:waiting-months-build-profile). Missing: no limit. */
   once?: true;
-  /** When it answers (docs/rules/activity.md R-ACTIVITY-015): `now` runs at once by `activity/now`, `month` stays a slot pick. Missing: `month`. */
+  /** When it answers (activity:now-acts-and-month-acts): `now` runs at once by `activity/now`, `month` stays a slot pick. Missing: `month`. */
   when?: "now" | "month";
-  /** The month's free time a now-act spends, in half-days (R-ACTIVITY-018): 1 a morning, 2 a day, 4 a weekend, 10 a week. Missing: a morning for a now-act, none for a purchase or a month-act. */
+  /** The month's free time a now-act spends, in half-days (activity:now-acts-spend-half-days): 1 a morning, 2 a day, 4 a weekend, 10 a week. Missing: a morning for a now-act, none for a purchase or a month-act. */
   halfDays?: number;
-  /** A now-act that may run again in the same month, each time counted as played, until the month's free time is spent (R-ACTIVITY-019). Missing: once a month. */
+  /** A now-act that may run again in the same month, each time counted as played, until the month's free time is spent (activity:acts-may-repeat-in-month). Missing: once a month. */
   repeat?: true;
-  /** A now-act that is a purchase runs as often as money allows; any other now-act once a month (R-ACTIVITY-015). Missing: no. */
+  /** A now-act that is a purchase runs as often as money allows; any other now-act once a month (activity:now-acts-and-month-acts). Missing: no. */
   purchase?: true;
-  /** Effects applied in the month the activity fills a slot for the `at`th time, and every `at`th time with `repeat` (R-ACTIVITY-013). Missing: none. */
+  /** Effects applied in the month the activity fills a slot for the `at`th time, and every `at`th time with `repeat` (activity:waiting-months-build-profile). Missing: none. */
   onMonth?: ActivityMilestone[];
-  /** A quiz sat as a set piece: `pass` right answers or more apply `effects` when the paper is marked (R-ACTIVITY-013). Missing: no quiz. */
+  /** A quiz sat as a set piece: `pass` right answers or more apply `effects` when the paper is marked (activity:waiting-months-build-profile). Missing: no quiz. */
   exam?: ActivityExam;
   requires: Requirement[];
   /** What the player picks along with a free-slot activity. */
@@ -497,20 +497,20 @@ export interface ActivityEntry {
   counts: Id<"route">[];
 }
 
-/** One rung of a side job's pay (R-ACTIVITY-014). */
+/** One rung of a side job's pay (activity:side-jobs-pay-by-tier). */
 export interface ActivityTier {
   min: { quality: Id<"quality">; value: number };
   pay: Money;
 }
 
-/** Effects tied to the count of months an activity has filled a slot (R-ACTIVITY-013). */
+/** Effects tied to the count of months an activity has filled a slot (activity:waiting-months-build-profile). */
 export interface ActivityMilestone {
   at: number;
   repeat?: true;
   effects: Effect[];
 }
 
-/** A quiz: the set piece it is sat as, the right answers that pass, and what a pass gives (R-ACTIVITY-013). An answer is right when its `score` is above zero. */
+/** A quiz: the set piece it is sat as, the right answers that pass, and what a pass gives (activity:waiting-months-build-profile). An answer is right when its `score` is above zero. */
 export interface ActivityExam {
   setpiece: Id<"setpiece">;
   pass: number;
@@ -554,12 +554,12 @@ export interface ChecklistItem {
 
 export interface RouteEntry {
   id: Id<"route">;
-  /** Which steps the route runs through: docs/rules/route-gates.md R-GATE-001. */
+  /** Which steps the route runs through: route-gates:route-runs-its-gate-steps. */
   gate: RouteGate;
   country: Id<"country"> | null;
   /** The status held abroad after departure. Null for the road. */
   status: Id<"status"> | null;
-  /** The route's own refusal base, in place of the tuning base (R-GATE-002). */
+  /** The route's own refusal base, in place of the tuning base (route-gates:gate-decision-draw-terms). */
   refusalBaseBp: number;
   flightPaidByEmployer: boolean;
   hearIf: Requirement[];
@@ -574,17 +574,17 @@ export interface RouteEntry {
   /** Sponsor gate: the salary bar and the maintenance line, as vars. */
   sponsor?: { salaryVar: Id<"var">; maintenanceVar: Id<"var"> | null; findBp: number; bandMin: number; documents: Id<"document">[]; strictnessVar: Id<"var">; surchargeYears: number; job: Id<"activity"> };
   /** Points gate. */
-  /** `spouseTable`: the lead's columns with a spouse and the spouse's factors (R-PEOPLE-030). Null: no spouse counts. */
+  /** `spouseTable`: the lead's columns with a spouse and the spouse's factors (person:canada-spouse-points). Null: no spouse counts. */
   points?: { table: Id<"points">; spouseTable: Id<"points"> | null; fundsVar: Id<"var">; cutoffVar: Id<"var">; careCutoffVar: Id<"var"> | null; feeVar: Id<"var">; decisionVar: Id<"var">; profileMonths: number };
   /** Endorsement gate. */
   endorsement?: { document: Id<"document">; baseBp: number; perPortfolioBp: number; perNetworkBp: number; capBp: number; cooldown: number; feeVar: Id<"var">; surchargeYears: number };
   /** Contract gate. */
   contract?: { medical: Id<"document">; maxAgeMonths: number };
-  /** The route a partner may follow as a dependant, or null when this route brings none (docs/rules/person.md R-PEOPLE-024). */
+  /** The route a partner may follow as a dependant, or null when this route brings none (person:dependant-status-ends-with-lead). */
   dependants: Id<"route"> | null;
-  /** The partner gate (R-PEOPLE-026 to 028). */
+  /** The partner gate (person:partner-gate-needs, person:partner-application-decided and person:partner-status-renews). */
   partner?: { sponsorStatuses: Id<"status">[]; bandMin: number | null; feeVar: Id<"var">; surchargeYears: number; decisionMonths: number; livingTogetherMonths: number | null; floorVar: Id<"var"> | null };
-  /** The dependant gate (R-PEOPLE-022 to 025). */
+  /** The dependant gate (person:dependant-gate-needs, person:dependant-application-decided, person:dependant-status-ends-with-lead and person:partner-routes-heard-via-bond). */
   dependant?: { maintenanceVar: Id<"var"> | null; leadMonthsExempt: number | null; feeVar: Id<"var"> | null; feeFromLead: boolean; decisionMonths: number };
   /** Road gate: the outcome tables by step, in basis points. */
   road?: { steps: { id: string; months: [min: number, max: number]; on: number; held: number; turned: number; lost: number }[] };
@@ -600,11 +600,11 @@ export interface PointsEntry {
   /** English band (times ten) to points per ability; the last row's band is a floor. */
   language: { band: number; points: number }[];
   transfer: { educationLowBand: number; educationHighBand: number; workLowBand: number; workHighBand: number; workLongLowBand: number; workLongHighBand: number; highBand: number; workMonths: number; longMonths: number; cap: number };
-  /** Points for a sibling in the country (R-PEOPLE-031). */
+  /** Points for a sibling in the country (person:canada-sibling-bonus). */
   siblingBonus: number;
-  /** The spouse's factors when applying with a partner (R-PEOPLE-030). */
+  /** The spouse's factors when applying with a partner (person:canada-spouse-points). */
   spouse?: { education: { level: number; points: number }[]; language: { band: number; points: number }[]; canadianWork: { years: number; points: number }[]; cap: number };
-  /** `quality.care` at or above this reads the care cut-off (R-POINTS-003). */
+  /** `quality.care` at or above this reads the care cut-off (route-gates:pool-draws-invite). */
   careMin: number;
 }
 
@@ -614,13 +614,13 @@ export interface SetpieceAnswer {
   /** When these hold, `thenScore` is used instead of `score`. */
   when: Requirement[];
   thenScore: number | null;
-  /** Applied the moment the answer is given (R-SETPIECE-006). */
+  /** Applied the moment the answer is given (route:answers-carry-effects). */
   effects: Effect[];
-  /** Judged when the answer is given; an answer whose requirements fail is rejected `not-legal` (R-SETPIECE-003). Missing: always allowed. */
+  /** Judged when the answer is given; an answer whose requirements fail is rejected `not-legal` (route:set-piece-answers-in-order). Missing: always allowed. */
   requires?: Requirement[];
-  /** True: giving this answer closes the set piece with the questions after it unasked (R-SETPIECE-004). */
+  /** True: giving this answer closes the set piece with the questions after it unasked (route:answers-score-and-close). */
   closes?: true;
-  /** The id of a question in the entry's `followUps`, asked next when this answer is given (R-SETPIECE-008). */
+  /** The id of a question in the entry's `followUps`, asked next when this answer is given (route:answer-may-ask-follow-up). */
   followUp?: string;
 }
 
@@ -635,10 +635,10 @@ export interface SetpieceEntry {
   id: Id<"setpiece">;
   /** How many questions are asked. */
   ask: number;
-  /** `fixed`: the first `ask` questions whose conditions hold, in the order written. Missing: drawn on `visa` (R-SETPIECE-001). */
+  /** `fixed`: the first `ask` questions whose conditions hold, in the order written. Missing: drawn on `visa` (route:set-piece-draws-questions). */
   order?: "fixed";
   questions: SetpieceQuestion[];
-  /** Questions asked only after an answer that names one, never drawn (R-SETPIECE-008). Missing: none. */
+  /** Questions asked only after an answer that names one, never drawn (route:answer-may-ask-follow-up). Missing: none. */
   followUps?: SetpieceQuestion[];
 }
 
@@ -664,15 +664,15 @@ export interface ObligationEntry {
   currency: Currency;
   /** Months between charges. Missing means every month. */
   everyMonths?: number;
-  /** With `everyMonths`: the first period was paid when it opened, so the first charge falls `everyMonths` on (R-OBLIGATION-015). */
+  /** With `everyMonths`: the first period was paid when it opened, so the first charge falls `everyMonths` on (obligation:prepaid-entries-skip-first-charge). */
   prepaid?: boolean;
-  /** Abroad: the credit mark needed to open it (R-CREDIT-004). */
+  /** Abroad: the credit mark needed to open it (credit:approval-reads-the-mark). */
   creditMin?: number;
-  /** Paid and missed months move the credit file (R-CREDIT-002). */
+  /** Paid and missed months move the credit file (credit:payments-move-the-mark). */
   reportsToCredit?: boolean;
-  /** Paid by the activity that opens it, and returned when it closes by any way but its own default (R-ABROAD-003). */
+  /** Paid by the activity that opens it, and returned when it closes by any way but its own default (abroad-money:arrival-opens-upkeep-and-room). */
   deposit?: number;
-  /** The monthly rate by credit mark, first rung whose `min` the mark reaches (R-CREDIT-005). */
+  /** The monthly rate by credit mark, first rung whose `min` the mark reaches (credit:rate-follows-credit-ladder). */
   rateByCredit?: { min: number; rateBp: number }[];
   /** The car: deposit, final payment, resale and thresholds (docs/rules/car.md). */
   car?: {
@@ -683,10 +683,10 @@ export interface ObligationEntry {
     courtThirdBp: number;
     handBackBp: number;
     courtMonths: number;
-    /** The loan opened for what is still owed after the car goes (R-CAR-003, R-CAR-005). */
+    /** The loan opened for what is still owed after the car goes (car:missed-payments-take-the-car, car:final-payment-owns-the-car). */
     shortfall: Id<"obligation">;
   };
-  /** The group loan's named asset, taken on default (R-OBLIGATION-011). */
+  /** The group loan's named asset, taken on default (obligation:group-covers-misses-at-cost). */
   seize?: Effect[];
   /** A fixed charge each month. A scenario or an effect may override it. */
   amount: number;
@@ -722,15 +722,15 @@ export interface OfferEntry {
   id: Id<"offer">;
   group: "family" | "job" | "money" | "life" | "road" | "abroad" | "return";
   where?: WhereEntry;
-  /** The road: how the chance moves with the character's situation (R-ROAD-002). */
+  /** The road: how the chance moves with the character's situation (road:pitch-rises-with-pressure). */
   pressure?: { refusalBp: number; defaultBp: number; lowStandingBp: number; perYearOver30Bp: number; strongRouteBp: number };
-  /** The road pitch: what the offer really is, in basis points (R-ROAD-003). */
+  /** The road pitch: what the offer really is, in basis points (road:taking-pitch-pays-deposit). */
   kinds?: { fraud: number; realish: number; road: number };
-  /** A win from the world or the profile; its `when` may never read money (docs/rules/luck.md R-LUCK-001). */
+  /** A win from the world or the profile; its `when` may never read money (luck:luck-never-reads-money). */
   luck?: boolean;
-  /** A blow; rolls at half chance while the character is down (R-LUCK-003). */
+  /** A blow; rolls at half chance while the character is down (luck:no-kicking-while-down). */
   bad?: boolean;
-  /** What the choice that takes the slot will lock, said a month ahead; the choice's own `turn/lock` effect does the locking (docs/rules/health.md R-HEALTH-006). */
+  /** What the choice that takes the slot will lock, said a month ahead; the choice's own `turn/lock` effect does the locking (health:forced-months-warned-ahead). */
   lockNext?: { slots: number; months: number; why: string };
   /** Rolled each month while these hold. */
   when: Requirement[];
@@ -757,13 +757,13 @@ export interface ChapterEntry {
   id: Id<"chapter">;
   order: number;
   items: { id: string; requirement: Requirement }[];
-  /** An item that closes the chapter alone when it is met, whatever the others say (R-CHAPTER-002). */
+  /** An item that closes the chapter alone when it is met, whatever the others say (chapter:met-items-close-the-chapter). */
   closesOn?: string;
-  /** R-ADVERT-003: no advert shows while this chapter is open. */
+  /** advert:no-adverts-on-protected-screens: no advert shows while this chapter is open. */
   noAdverts?: boolean;
-  /** R-CHAPTER-009: the way out this variant is for. Set with `variantOf`, never alone. */
+  /** chapter:chapters-follow-lean-route: the way out this variant is for. Set with `variantOf`, never alone. */
   route?: Id<"route">;
-  /** R-CHAPTER-009: the base chapter this one stands in for when the life leans to `route`. */
+  /** chapter:chapters-follow-lean-route: the base chapter this one stands in for when the life leans to `route`. */
   variantOf?: Id<"chapter">;
 }
 
@@ -853,7 +853,7 @@ export interface NewsEntry {
 export interface CountryEntry {
   id: Id<"country">;
   currency: Currency;
-  /** The fare home, one way, in the currency's smallest unit (R-PLACE-006). */
+  /** The fare home, one way, in the currency's smallest unit (place:fare-home-in-local-currency). */
   fare: number;
   decemberFactorBp: number;
   taxFreeLine: number;
@@ -864,11 +864,11 @@ export interface CountryEntry {
   phone: Id<"obligation"> | null;
   overstayer: Id<"status"> | null;
   deceptionBanMonths: number;
-  /** Months after arriving through a partner before sponsoring a new one (R-UNDERTAKING-004). */
+  /** Months after arriving through a partner before sponsoring a new one (undertaking:sponsored-arrivals-wait-to-sponsor). */
   partnerBarMonths: number;
   /**
    * Where the room abroad stands on the country's painted map, in thousandths of a degree (design pages 14 and 15,
-   * world.md R-WORLD-038): a made-up spot, since the room is country-less and has no position of
+   * world:painted-maps-abroad): a made-up spot, since the room is country-less and has no position of
    * its own. Null for a country with no painted map.
    */
   homeSpot: { latE3: number; lonE3: number } | null;
@@ -877,12 +877,12 @@ export interface CountryEntry {
 export interface StatusEntry {
   id: Id<"status">;
   country: Id<"country">;
-  /** Months it lasts. Null: it does not expire. A var id reads the length from the world; `lead`: as long as the lead's status (R-PEOPLE-024). */
+  /** Months it lasts. Null: it does not expire. A var id reads the length from the world; `lead`: as long as the lead's status (person:dependant-status-ends-with-lead). */
   months: number | Id<"var"> | "lead" | null;
   work: WorkRule;
-  /** Who may come as a dependant: none, anyone, or holders of these jobs (R-PEOPLE-024). */
+  /** Who may come as a dependant: none, anyone, or holders of these jobs (person:dependant-status-ends-with-lead). */
   dependants: "none" | "any" | Id<"activity">[];
-  /** A status that ends when the partnership ends, with the clock (R-PEOPLE-037). */
+  /** A status that ends when the partnership ends, with the clock (person:ender-pays-in-standing). */
   tiedTo: "partner" | null;
   /** Months on the clock when the job goes. Null: no clock; `lapsesAtOnce` says the status lapses instead. */
   clockMonths: number | null;
@@ -915,7 +915,7 @@ export interface GoalEntry {
   reward: Effect[];
 }
 
-/** One place of the city: docs/rules/city.md R-CITY-002 to 024. Read by the city and the content check, never by a kind. */
+/** One place of the city: city:place-shows-only-the-view, city:overheard-talk-from-view, city:place-entry-fields, city:four-kinds-of-name, city:namesakes-never-shown, city:made-up-names-checked, city:positions-rough-on-purpose, city:positions-not-for-geometry, city:places-stage-their-acts, city:set-piece-shown-where-staged, city:enterable-places-follow-view, city:ojuelegba-is-the-hub, city:crowd-sample-capped, city:players-fill-the-crowd, city:dress-mix-by-place, city:sample-seeded-by-date, city:places-load-on-entry, city:two-graphics-modes, city:landmarks-built-to-outline, city:credits-screen-attributions, city:sponsor-shows-name-only, city:road-places-are-stylised and city:place-words-are-text-keys. Read by the city and the content check, never by a kind. */
 export interface PlaceEntry {
   id: Id<"place">;
   where: Where;
@@ -926,7 +926,7 @@ export interface PlaceEntry {
   /** A slug; null for a stylised place. */
   area: string | null;
   nameKind: "public" | "institution" | "business" | "stylised";
-  /** The real name of a public place, else null (R-CITY-005). */
+  /** The real name of a public place, else null (city:four-kinds-of-name). */
   realName: string | null;
   /** Thousandths of a degree, or null. */
   position: { latE3: number; lonE3: number } | null;
@@ -935,13 +935,13 @@ export interface PlaceEntry {
   scope: "exterior" | "interior";
   hub: boolean;
   occasion: boolean;
-  /** What is staged here, by id (R-CITY-010). */
+  /** What is staged here, by id (city:places-stage-their-acts). */
   stages: (Id<"activity"> | Id<"offer"> | Id<"setpiece"> | Id<"chapter">)[];
   crowd: { low: number; high: number; target: number };
   traditionalBp: number;
   /** The folder under `public/assets/places/`. */
   assets: string;
-  /** R-PLACE-013 (decision 0017): the employer's shuttle serves it, so a ride by bus to or from it asks no fare. */
+  /** place:employer-shuttle-rides-free (decision 0017): the employer's shuttle serves it, so a ride by bus to or from it asks no fare. */
   shuttle: boolean;
 }
 
@@ -979,7 +979,7 @@ export interface PersonEntry {
   calls: string[];
 }
 
-/** What one life knows of another person (R-PEOPLE-003): facts, never state. */
+/** What one life knows of another person (person:both-lives-step-together): facts, never state. */
 export interface PersonFacts {
   label: PersonLabel;
   ageMonths: number;
@@ -1028,19 +1028,19 @@ export interface Bond {
   standIn: "warned" | "on" | null;
   ended: { month: number; by: "me" | "them" | "absence" | "block" | "drift" | "restart" } | null;
   cooldownUntil: number | null;
-  /** This life's own consents for a joint on the bond, agreed or pending (R-PEOPLE-004, 044). Null before any was given. */
+  /** This life's own consents for a joint on the bond, agreed or pending (person:money-counted-never-moved, person:stand-in-acts-narrowly). Null before any was given. */
   consent: { countFunds: boolean; standInMay: boolean } | null;
 }
 
 export interface PeopleSlice {
   slots: Record<string, { state: "empty" | "computer" | "invited" | "player" | "stand-in"; bond: string | null; person: Id<"person"> | null; invite: { looking: string; fill: string | null } | null }>;
   bonds: Record<string, Bond>;
-  /** The view reads the two scores of R-PEOPLE-030 fresh from the state: the slice holds none. */
+  /** The view reads the two scores of person:canada-spouse-points fresh from the state: the slice holds none. */
   joint: { bond: string; route: Id<"route">; lead: "me" | "them"; countFunds: boolean; standInMay: boolean } | null;
   sponsoring: { bond: string; route: Id<"route">; month: number } | null;
   arrived: { route: Id<"route">; month: number } | null;
   assistanceTaken: number;
-  /** Hidden. A computer partner's interview answers (R-INTERVIEW-006). */
+  /** Hidden. A computer partner's interview answers (interview:answers-scored-without-draw). */
   secret: { computerAnswers: Record<string, string> | null };
 }
 
@@ -1060,15 +1060,15 @@ export interface InterviewEntry {
 }
 
 export interface InterviewSlice {
-  /** `thin`: the record measured once, in the applicant's life at opening, and carried to the other life (R-INTERVIEW-012). */
+  /** `thin`: the record measured once, in the applicant's life at opening, and carried to the other life (interview:draws-made-in-one-life). */
   open: { pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; answers: string[]; standIn: boolean; thin: boolean } | null;
-  /** `standIn` marks whose answers were a stand-in's, so the result view can say so (R-INTERVIEW-008). */
+  /** `standIn` marks whose answers were a stand-in's, so the result view can say so (interview:stand-in-answers-when-absent). */
   last: { route: Id<"route">; result: InterviewResult; matched: number; asked: number; month: number; standIn: { a: boolean; b: boolean } } | null;
-  /** Hidden. The true answers for the questions asked (R-INTERVIEW-004). */
+  /** Hidden. The true answers for the questions asked (interview:answers-taken-in-order). */
   secret: { truths: (string | null)[] | null };
 }
 
-/** The interview as the pair record holds it (R-INTERVIEW-007). */
+/** The interview as the pair record holds it (interview:computer-answers-by-recall). */
 export interface PairInterview {
   route: Id<"route">;
   questions: { id: string; options: string[] }[];
@@ -1077,7 +1077,7 @@ export interface PairInterview {
   result: InterviewResult | null;
 }
 
-/** A preset phrase (docs/rules/pair.md R-PAIR-010 to 013). */
+/** A preset phrase (pair:preset-phrases-only, pair:conversation-phrases-stored, pair:place-phrases-not-stored and pair:phrase-checks-before-send). */
 export interface PhraseEntry {
   id: Id<"phrase">;
   fill: "spot" | "route" | "news" | "event" | "thing" | null;
@@ -1094,7 +1094,7 @@ export interface PairMoment {
   tick: number;
 }
 
-/** The one row per pair the server keeps (docs/rules/pair.md R-PAIR-001 to 006). Pure data; the simulation's pair module reads and writes it. */
+/** The one row per pair the server keeps (pair:one-record-per-two, pair:record-fields, pair:record-holds-no-personal-data, pair:only-server-writes-record, pair:joint-steps-need-both-sides and pair:who-may-read-a-record). Pure data; the simulation's pair module reads and writes it. */
 export interface PairRecord {
   id: string;
   a: string;
@@ -1114,7 +1114,7 @@ export interface PairRecord {
   held: boolean;
 }
 
-/** A stored phrase between two players (R-PAIR-011). Times are the server's and never enter a state. */
+/** A stored phrase between two players (pair:conversation-phrases-stored). Times are the server's and never enter a state. */
 export interface ConversationRow {
   id: string;
   conversation: string;
@@ -1157,16 +1157,16 @@ export interface PrologueStep {
 
 export interface ScenarioEntry {
   id: Id<"scenario">;
-  /** True for `scenario.prologue`: the life is built by the prologue's choices (R-PROLOGUE-001). */
+  /** True for `scenario.prologue`: the life is built by the prologue's choices (prologue:prologue-life-starts-empty). */
   prologue?: boolean;
   qualities: Record<Id<"quality">, number>;
   job: Id<"activity"> | null;
   tenure: Record<Id<"activity">, number>;
-  /** Siblings the life starts with (R-PEOPLE-010). */
+  /** Siblings the life starts with (person:invite-fills-a-slot). */
   siblings: number;
-  /** A fixed life's hometown, `hometown.<slug>` (R-PROLOGUE-002); a life from sixteen reads its own from the family drawn. */
+  /** A fixed life's hometown, `hometown.<slug>` (prologue:family-draw-on-first-answer); a life from sixteen reads its own from the family drawn. */
   hometown?: string;
-  /** The character's sex, where the life says (docs/rules/streets.md R-STREET-009); the prologue's life does not. */
+  /** The character's sex, where the life says (streets:sex-optional-with-neutral-path); the prologue's life does not. */
   sex?: "f" | "m";
   pockets: Partial<Record<Currency, { bank: number; cash: number }>>;
   documents: { document: Id<"document">; monthsLeft: number | null; value: number | null }[];
@@ -1181,13 +1181,13 @@ export interface Tuning {
     freeSlots: number;
     freeSlotsNoJob: number;
     maxLocked: number;
-    /** The month's free time in half-days (R-TURN-010): the whole month lived by hand with no job; a job takes its own days and leaves the rest. */
+    /** The month's free time in half-days (turn:month-lived-in-half-days): the whole month lived by hand with no job; a job takes its own days and leaves the rest. */
     halfDays: { noJob: number; withJob: number };
-    /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (R-ACTIVITY-019). */
+    /** An act that repeats, kept as a commitment in a slot, runs this many times as the month turns (activity:acts-may-repeat-in-month). */
     repeatPerSlot: number;
-    /** The day's arrivals (R-OFFER-008): shares of the month's free time, in basis points, at which one offer may come up as the time is lived. */
+    /** The day's arrivals (offer:day-arrivals-roll-offers): shares of the month's free time, in basis points, at which one offer may come up as the time is lived. */
     arrivalsBp: number[];
-    /** The body (R-QUALITY-007): what each half-day lived takes off the belly and the energy, where the month's rest brings each back to, and what a hungry or spent month takes off wellbeing. */
+    /** The body (quality:body-belly-and-energy): what each half-day lived takes off the belly and the energy, where the month's rest brings each back to, and what a hungry or spent month takes off wellbeing. */
     body: { bellyPerHalfDay: number; energyPerHalfDay: number; restTo: number; restBy: number; lowBelow: number; hungryWellbeing: number; spentWellbeing: number; spentBelow: number };
   };
   quality: {
@@ -1199,9 +1199,9 @@ export interface Tuning {
     hireMaxBp: number;
     /** A gain to a skill is halved, rounding up, once the skill is at or above this. */
     skillSoftAt: number;
-    /** The share of a skill gain kept at or above the soft cap, rounding up (R-QUALITY-005). */
+    /** The share of a skill gain kept at or above the soft cap, rounding up (quality:high-skills-gain-slower). */
     skillSoftBp: number;
-    /** The share of a skill gain kept while a side job is held, rounding up (R-ACTIVITY-010). */
+    /** The share of a skill gain kept while a side job is held, rounding up (activity:side-job-holds-a-slot). */
     sideJobSkillBp: number;
   };
   wallet: {
@@ -1212,9 +1212,9 @@ export interface Tuning {
     streetShortLossBp: [min: number, max: number];
     lotMonths: number;
     flagDepositAbove: number;
-    /** A naira credit of work, a gig, a prize or the prologue's earnings at or under this lands in cash, above it in the bank; a street debit at or under it is cash first (R-WALLET-018). */
+    /** A naira credit of work, a gig, a prize or the prologue's earnings at or under this lands in cash, above it in the bank; a street debit at or under it is cash first (wallet:money-lands-as-in-lagos). */
     cashUpTo: number;
-    /** Naira cash over this at a month's close draws the once-in-a-life warning (R-WALLET-019). */
+    /** Naira cash over this at a month's close draws the once-in-a-life warning (wallet:cash-pile-warning). */
     cashWarnAt: number;
     /** The passbook's stamps, in kobo held for the road, lowest first; the road's own target is the last stamp (the passbook). */
     stamps: number[];
@@ -1228,17 +1228,17 @@ export interface Tuning {
     premiumNoiseBp: number;
     floatPremiumBp: number;
   };
-  /** `bandStep`: bands move in steps of this, a band times ten (R-DOCUMENT-005). */
+  /** `bandStep`: bands move in steps of this, a band times ten (document:english-test-band-value). */
   english: { base: number; perHundred: number; noiseSteps: number; min: number; max: number; bandStep: number };
   route: {
-    /** R-ROUTE-007: an offer's chance rises this much for each grade above the school's minimum, up to `offerMaxBp`. */
+    /** route:school-answers-by-grade: an offer's chance rises this much for each grade above the school's minimum, up to `offerMaxBp`. */
     offerPerGradeBp: number;
     offerMaxBp: number;
-    /** R-ROUTE-016: the grade from which the good-grade figure comes off the chance of refusal. */
+    /** route:visa-refusal-chance: the grade from which the good-grade figure comes off the chance of refusal. */
     goodGrade: number;
-    /** R-ROUTE-019: an unexplained share at or above this makes `funds` a refusal reason. */
+    /** route:refusal-reasons-recorded: an unexplained share at or above this makes `funds` a refusal reason. */
     fundsReasonBp: number;
-    /** R-ROUTE-006: months after a school's refusal before it takes a new application. */
+    /** route:applying-to-a-school: months after a school's refusal before it takes a new application. */
     reapplyMonths: number;
     refusalPerStrictnessBp: number;
     refusalPerUnexplainedBp: number;
@@ -1255,53 +1255,53 @@ export interface Tuning {
   };
   offer: { maxNewPerMonth: number; maxOpen: number };
   place: { brokeLine: number; fareFromNaira: boolean };
-  /** The streets' life (docs/rules/streets.md R-STREET-001 to 008). */
+  /** The streets' life (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:street-shopping-abroad, streets:street-finds-abroad, streets:peckham-talks-like-lagos and streets:stadium-morning-run). */
   street: { phonePrice: number; phoneMood: number; phoneNetwork: number; salesPay: number; salesHireBp: number; apprenticeTech: number; apprenticeUntil: number; theftBp: number; theftNaira: number; mosquitoBp: number; harassBp: number; harassMood: number; shoppingGbp: number; shoppingAed: number; shoppingMood: number; findBp: number; findMood: number; runMood: number };
   /** Things shipped home: the cargo office's handling charge, and what a laptop and clothes give (the parcel offer, `offer.parcel-shipped`). */
   parcel: { handling: number; laptopMood: number; clothesPrep: number };
   status: { courseMonths: number };
-  /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (R-CREDIT-006). */
-  /** `cleanMonths`: months without a miss before the file drifts up (R-CREDIT-003). */
+  /** `judgmentCap`: while a judgment stands, `credit/min` above it is never met (credit:judgment-blocks-credit). */
+  /** `cleanMonths`: months without a miss before the file drifts up (credit:clean-mark-drifts-up). */
   credit: { onTime: number; onMiss: number; onDefault: number; drift: number; driftTo: number; judgmentMonths: number; judgmentCap: number; returnPenalty: number; cleanMonths: number };
   car: { lessons: number; testFee: number; passBp: number; passPerAttemptBp: number; passCapBp: number };
   remit: { appFeeBp: number; appMarginBp: number; bankFeeBp: number; informalLossBp: number; abroadBp: number };
   return: { standing: Record<ReturnShape, number>; capitalPer: number; capitalCap: number; offerMonths: number; residentLapseMonths: number };
   director: { surgePerTick: number; closedTicks: number; maxNewPerTick: number; shockGapTicks: number; onlineTickScale: number };
   /**
-   * `meansStep`: family means fall one point for each this much the family pays (R-ROAD-005). The pressure
-   * lines (R-ROAD-002): standing under `pressureStandingUnder`, each year of age over `pressureAgeOver`, and a
+   * `meansStep`: family means fall one point for each this much the family pays (road:road-truth-asks-more). The pressure
+   * lines (road:pitch-rises-with-pressure): standing under `pressureStandingUnder`, each year of age over `pressureAgeOver`, and a
    * formal route at a japacity figure of `pressureStrongRoute` or more.
    */
   road: { enabled: boolean; meansStep: number; pressureStandingUnder: number; pressureAgeOver: number; pressureStrongRoute: number };
-  /** `robberyWellbeing`: wellbeing lost to the one chance (R-ACTIVITY-011). */
+  /** `robberyWellbeing`: wellbeing lost to the one chance (activity:one-chance-bus-robbery). */
   ladder: { cashDetectBp: number; accountRent: number; overtimeBp: number; oneChanceBp: number; phone: number; robberyWellbeing: number };
   prologue: {
     startAgeMonths: number;
     siblings: [min: number, max: number];
     familyMeans: [min: number, max: number];
     cityBp: number;
-    /** The parents' chance of schooling: this plus `parentsEducatedPerPoint` for each point of family means (R-PROLOGUE-002). */
+    /** The parents' chance of schooling: this plus `parentsEducatedPerPoint` for each point of family means (prologue:family-draw-on-first-answer). */
     parentsEducatedBp: number;
     parentsEducatedPerPoint: number;
     /** Starting network by town, plus the educated parents' share; starting standing. */
     network: { city: number; town: number; educated: number };
     standing: number;
-    /** The school certificate fee strains a family under `under`: standing changes by `standing` (R-PROLOGUE-003). */
+    /** The school certificate fee strains a family under `under`: standing changes by `standing` (prologue:steps-offer-legal-answers). */
     waecStrain: { under: number; standing: number };
     /** The degree's grade: base plus the grade base, up one at `upBp`, down one at `downBp`, kept between min and max. */
     grade: { base: number; upBp: number; downBp: number; min: number; max: number };
-    /** A private university's session, passed through the account by the family (R-PROLOGUE-003). */
+    /** A private university's session, passed through the account by the family (prologue:steps-offer-legal-answers). */
     privateSession: number;
-    /** R-HOME-009: the family support a life from sixteen sends home once abroad, in kobo, before the remit share. */
+    /** home:starting-charges-from-one-function: the family support a life from sixteen sends home once abroad, in kobo, before the remit share. */
     homeSupport: number;
     /**
-     * R-PROLOGUE-002: the hometowns a family drawn in the city or in a town may be from, as
+     * prologue:family-draw-on-first-answer: the hometowns a family drawn in the city or in a town may be from, as
      * `hometown.<slug>` with words in content; one is read from the family drawn, never drawn on its own. `byHome`:
-     * the hometown a home answer says the life was born to, the child of the water's Lagos (R-PROLOGUE-012).
+     * the hometown a home answer says the life was born to, the child of the water's Lagos (prologue:makoko-start-never-a-trap).
      */
     hometowns: { city: string[]; town: string[]; byHome: Record<string, string> };
   };
-  /** `downUnder`: wellbeing or standing under this is "down" (R-LUCK-003); `rescueAfterMonths`: months played before the whip-round (R-LUCK-002). */
+  /** `downUnder`: wellbeing or standing under this is "down" (luck:no-kicking-while-down); `rescueAfterMonths`: months played before the whip-round (luck:whip-round-once-per-life). */
   /** advice.md: the four ways to look into a route, and the agents. */
   advice: { networkToAsk: number; adviserFee: number; agentKindsBp: { fixer: number; chaser: number; overpromiser: number; scammer: number }; fees: { fixer: [number, number]; overpromiser: [number, number]; scammer: [number, number] }; chaserFee: [number, number]; fixerMonths: number; chaserMonths: number; fakePapersFee: number; scamTells: number; overpromiseTells: number; floorNaira: number };
   luck: {
@@ -1313,7 +1313,7 @@ export interface Tuning {
     drySpellMonths: number;
     drySpellBp: number;
     drySpellCapBp: number;
-    /** Wellbeing gained on a won bet slip and lost on a lost one (R-LUCK-006). */
+    /** Wellbeing gained on a won bet slip and lost on a lost one (luck:bet-slip-stake-and-odds). */
     betWellbeing: number;
     ticket: number;
     maxTickets: number;
@@ -1340,15 +1340,15 @@ export interface Tuning {
     sickPayBp: number;
     gapMonths: number;
   };
-  /** `cardLines`: the lines the send-off card names (R-CHAPTER-006). `sendOffNaira`: the party at the house the month of the grant, in kobo (R-CHAPTER-008). */
+  /** `cardLines`: the lines the send-off card names (chapter:send-off-card-on-close). `sendOffNaira`: the party at the house the month of the grant, in kobo (chapter:family-marks-the-grant). */
   chapter: { cardLines: number; sendOffNaira: number };
-  /** `visit`: the second miss in a row, the officer and the group at the house (R-OBLIGATION-011). */
+  /** `visit`: the second miss in a row, the officer and the group at the house (obligation:group-covers-misses-at-cost). */
   groupLoan: { feeBp: number; savingsBp: number; vanishBp: number; visit: { standing: number; wellbeing: number } };
-  /** The waiting months' acts (R-ACTIVITY-013): a raise's size and its chance each month the player tries to be noticed. */
+  /** The waiting months' acts (activity:waiting-months-build-profile): a raise's size and its chance each month the player tries to be noticed. */
   activity: { raiseBp: number; raiseChanceBp: number };
-  /** The room's basics (R-OBLIGATION-014): the share of the upkeep's next charge that cooking and fetching water take off. */
+  /** The room's basics (obligation:cooking-and-fetching-water): the share of the upkeep's next charge that cooking and fetching water take off. */
   room: { cookedBp: number; waterBp: number };
-  /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (R-LOTTERY-021). */
+  /** The Friday draw (docs/rules/lottery.md): the ticket price, the cap per player, and the odds a draw takes when it opens (lottery:odds-fixed-at-draw-open). */
   lottery: { ticket: number; maxTickets: number; odds: LotteryOdds };
   /** docs/rules/advert.md Numbers. */
   advert: { maxSlotsPerPlace: number; maxPhoneTiles: number; impressionMs: number };
@@ -1376,16 +1376,16 @@ export interface Tuning {
     guestMonths: number;
     hostBp: number;
     returnStanding: number;
-    /** The room in a compound (R-HOME-010): a year's rent upfront, the agent's and the agreement's fees on it, and the month's living there. */
+    /** The room in a compound (home:compound-room-is-a-home): a year's rent upfront, the agent's and the agreement's fees on it, and the month's living there. */
     compound: { rentYear: number; feesBp: number; upkeep: number };
-    /** The self-contain's rent a year, shown on the door as a goal (R-PROLOGUE-013). */
+    /** The self-contain's rent a year, shown on the door as a goal (prologue:front-door-three-screens). */
     selfContainRentYear: number;
     /** A hostel room's rent a month, in kobo: about half the room in a compound's month of rent. */
     hostelRentKobo: number;
-    /** R-HOME-012 (decision 0013): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
+    /** home:living-by-hand (decision 0013): the share of a naira upkeep that is lived by hand (meals, water, fares, data) and never charged as the month turns. */
     livingByHandBp: number;
   };
-  /** The market's things: the car's own way on the map, priced by distance as the rides are (R-PLACE-010). */
+  /** The market's things: the car's own way on the map, priced by distance as the rides are (place:rides-between-city-places). */
   thing: { drive: { fareKobo: number; farePerKmKobo: number; metresPerMinute: number } };
 }
 
@@ -1395,7 +1395,7 @@ export interface Tuning {
  */
 export type RideWay = "danfo" | "keke" | "okada" | "walk" | "drive" | AbroadWay;
 
-/** The ways a country abroad may list (R-PLACE-010). */
+/** The ways a country abroad may list (place:rides-between-city-places). */
 export type AbroadWay = "bus" | "train" | "taxi";
 
 /** One way of a country's rides, in that country's smallest unit: the flag-down figure, the figure a kilometre, and the pace. */
@@ -1406,7 +1406,7 @@ export interface RideFigures {
 }
 
 /**
- * A country's rides (R-PLACE-010, R-PLACE-012, decision 0017): the ways it lists, the step every
+ * A country's rides (place:rides-between-city-places, place:country-pass-covers-ways, decision 0017): the ways it lists, the step every
  * fare is rounded up to, the month's pass, null where there is none, the ways the pass covers, the metres a thousandth
  * of a degree of longitude is worth there, and the pace on foot (the heat of the Gulf slows a walk). A country with no
  * ways listed refuses a ride.
@@ -1415,7 +1415,7 @@ export interface CountryRides {
   ways: { bus?: RideFigures; train?: RideFigures; taxi?: RideFigures };
   step: number;
   pass: number | null;
-  /** The ways the month's pass makes ask nothing (R-PLACE-012): the UK the bus, Canada and the UAE the bus and the train, Italy none. */
+  /** The ways the month's pass makes ask nothing (place:country-pass-covers-ways): the UK the bus, Canada and the UAE the bus and the train, Italy none. */
   passWays: AbroadWay[];
   lonMetresPerE3: number;
   /** Metres a minute on foot in that country (design page 15 section 4: the UAE 60, elsewhere 80). */
@@ -1423,8 +1423,8 @@ export interface CountryRides {
 }
 
 /**
- * One way the ride sheet offers where the character is (R-PLACE-010): its figures in `currency`'s
- * smallest unit, as `rideFare` takes them, and `passed` when this month's pass covers it and it asks nothing (R-PLACE-012:
+ * One way the ride sheet offers where the character is (place:rides-between-city-places): its figures in `currency`'s
+ * smallest unit, as `rideFare` takes them, and `passed` when this month's pass covers it and it asks nothing (place:country-pass-covers-ways:
  * every way the country's `passWays` names).
  */
 export interface RideWayView {
@@ -1433,7 +1433,7 @@ export interface RideWayView {
   fare: number;
   farePerKm: number;
   step: number;
-  /** The metres a thousandth of a degree of longitude is worth where the character is (R-PLACE-010). */
+  /** The metres a thousandth of a degree of longitude is worth where the character is (place:rides-between-city-places). */
   lonMetresPerE3: number;
   metresPerMinute: number;
   passed: boolean;
@@ -1477,15 +1477,15 @@ export interface ThingEntry {
   acts: ThingMod[];
   /** Another thing whose running cost it cuts, in basis points of that cost: the phone that makes the data go further. */
   eases?: { thing: Id<"thing">; bp: number };
-  /** The car: a way of its own on the map (R-WORLD-017). */
+  /** The car: a way of its own on the map (world:ride-sheet-shows-fares). */
   drive?: true;
 }
 
 export interface Content {
   version: string;
-  /** The version of the overlay applied at load, if any (R-ENGINE-017). Set by `applyOverlay` alone. */
+  /** The version of the overlay applied at load, if any (engine:numbers-read-from-content). Set by `applyOverlay` alone. */
   overlay?: string;
-  /** Ids this version renamed, old to new, for `upgradeState` (docs/rules/server.md R-SERVER-017). */
+  /** Ids this version renamed, old to new, for `upgradeState` (server:build-scanned-for-secrets). */
   renames?: Record<string, string>;
   quality: Record<Id<"quality">, QualityEntry>;
   activity: Record<Id<"activity">, ActivityEntry>;
@@ -1510,7 +1510,7 @@ export interface Content {
   interview: Record<Id<"interview">, InterviewEntry>;
   /** The market's things for the home: price, resale, running cost, where each may stand and what it does in life. */
   thing: Record<Id<"thing">, ThingEntry>;
-  /** The spots people meet at, named by key (docs/rules/person.md R-PEOPLE-014). */
+  /** The spots people meet at, named by key (person:time-together-is-an-act). */
   people: { spots: string[] };
   /** The advert slots, the guides and the counters (advert.md, guide.md, analytics.md). The simulation never reads them; the content checks and the client and server do. */
   advert: Record<Id<"advert">, AdvertSlotEntry>;
@@ -1542,14 +1542,14 @@ export interface World {
   /** The era running. Null until the director runs (docs/rules/director.md). */
   era: { id: Id<"era">; since: number; until: number } | null;
   /** The Friday draw the server runs (docs/rules/lottery.md). Null offline: the stand-in world sets it to null. */
-  /** `onSale` is false between a draw's close and the next draw's opening (R-LOTTERY-002). */
+  /** `onSale` is false between a draw's close and the next draw's opening (lottery:draw-sells-between-ticks). */
   lottery: { draw: number; closesTick: number; onSale: boolean; fingerprint: string; beaconRound: number; salesSoFar: number; jackpot: number; rolledOver: boolean; odds: LotteryOdds; last: LotteryResult | null } | null;
-  /** R-ADVERT-017: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
+  /** advert:real-name-only-by-agreement: the server's overlay of real names on sponsored places. Empty offline; the simulation never reads it. */
   placeNames: Record<string, { name: string; sign: string }>;
 }
 
 /**
- * A draw's odds and amounts (docs/rules/lottery.md R-LOTTERY-010 to 012, 021):
+ * A draw's odds and amounts (lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open):
  * chances in draws per million, amounts in kobo, growth in basis points of a
  * week's sales. Fixed for a draw when it opens.
  */
@@ -1565,21 +1565,21 @@ export interface LotteryOdds {
   forcedWinWeeks: number | null;
 }
 
-/** One draw's published result (docs/rules/lottery.md R-LOTTERY-010 to 015). */
+/** One draw's published result (lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:winners-paid-by-authority, lottery:money-report-checks-draws and lottery:result-published-in-tick-row). */
 export interface LotteryResult {
   draw: number;
-  /** The server's secret for the draw, published after it (R-LOTTERY-015); named so the view's hidden-key check stays a net. */
+  /** The server's secret for the draw, published after it (lottery:result-published-in-tick-row); named so the view's hidden-key check stays a net. */
   revealed: string;
   beaconRound: number;
   beaconRandomness: string;
   listHash: string;
   count: number;
-  /** The odds and the jackpot the draw ran under (R-LOTTERY-021, R-LOTTERY-012). */
+  /** The odds and the jackpot the draw ran under (lottery:odds-fixed-at-draw-open, lottery:jackpot-rolls-over). */
   odds: LotteryOdds;
   jackpot: number;
-  /** Each tier's winning tickets and what one of them is paid: the jackpot's amount is its share (R-LOTTERY-011). */
+  /** Each tier's winning tickets and what one of them is paid: the jackpot's amount is its share (lottery:fixed-prizes-shared-jackpot). */
   winners: { tier: "jackpot" | "mid" | "small"; tickets: number[]; amount: number }[];
-  /** R-LOTTERY-012: the jackpot the next draw opens with under these odds. */
+  /** lottery:jackpot-rolls-over: the jackpot the next draw opens with under these odds. */
   nextJackpot: number;
 }
 
@@ -1606,7 +1606,7 @@ export interface ReportLine {
   key: string;
   params: Record<string, ReportParam>;
   tone: "good" | "bad" | "plain";
-  /** A staged moment, not a line in a list (docs/rules/text.md, R-LUCK-008). */
+  /** A staged moment, not a line in a list (docs/rules/text.md, luck:big-wins-are-staged). */
   big?: boolean;
   /** True when the player should stop and look: an answer arrived, an offer opened, a chapter closed. */
   attention: boolean;
@@ -1623,7 +1623,7 @@ export interface TurnReport {
   attention: boolean;
 }
 
-/** A lock on free slots (R-TURN-009). */
+/** A lock on free slots (turn:slots-can-be-locked). */
 export interface SlotLock {
   slots: number;
   /** The last month the lock holds. */
@@ -1634,9 +1634,9 @@ export interface SlotLock {
 export interface TurnSlice {
   month: number;
   banked: number;
-  /** The month's free time spent by now-acts so far, in half-days (R-TURN-010, decision 0011). */
+  /** The month's free time spent by now-acts so far, in half-days (turn:month-lived-in-half-days, decision 0011). */
   spent: number;
-  /** True once the life is over (`turn/finish`, R-TURN-007; only the road's `lost` applies it). Only `turns/grant` is accepted after that. */
+  /** True once the life is over (`turn/finish`, turn:finish-ends-the-life; only the road's `lost` applies it). Only `turns/grant` is accepted after that. */
   ended: boolean;
   report: TurnReport | null;
   locks: SlotLock[];
@@ -1646,18 +1646,18 @@ export type QualitySlice = Record<Id<"quality">, number>;
 
 export interface ActivitySlice {
   job: Id<"activity"> | null;
-  /** The side job held (R-ACTIVITY-010). */
+  /** The side job held (activity:side-job-holds-a-slot). */
   side: Id<"activity"> | null;
   tenure: Record<Id<"activity">, number>;
   /** What filled the free slots last month, for "same again". */
   lastSlots: SlotPick[];
-  /** Months each activity filled a slot, main or free, over the whole life (R-ACTIVITY-012); the send-off card reads it. */
+  /** Months each activity filled a slot, main or free, over the whole life (activity:months-played-counted); the send-off card reads it. */
   played: Record<Id<"activity">, number>;
-  /** The jobs whose pay has risen once by `tuning.activity.raiseBp` (R-ACTIVITY-013). Missing: none yet. */
+  /** The jobs whose pay has risen once by `tuning.activity.raiseBp` (activity:waiting-months-build-profile). Missing: none yet. */
   raised?: Id<"activity">[];
-  /** The month each raise landed, for the Jobs app (R-ACTIVITY-013). Missing until a raise lands, so no state hash moves before one. */
+  /** The month each raise landed, for the Jobs app (activity:waiting-months-build-profile). Missing until a raise lands, so no state hash moves before one. */
   raisedIn?: Record<Id<"activity">, number>;
-  /** The now-acts sent in the month in hand, in order, cleared as the month closes (R-ACTIVITY-015). Missing: none. */
+  /** The now-acts sent in the month in hand, in order, cleared as the month closes (activity:now-acts-and-month-acts). Missing: none. */
   now?: SlotPick[];
 }
 
@@ -1695,20 +1695,20 @@ export interface WalletSlice {
   };
   /** Foreign currency bought at the bank in the given month, valued in US cents. */
   bought: { month: number; cents: number };
-  /** Cash moved into the bank in the given month, in kobo at the official rate, for R-WALLET-011's monthly threshold. */
+  /** Cash moved into the bank in the given month, in kobo at the official rate, for wallet:large-deposits-record-lots's monthly threshold. */
   cashIn: { month: number; kobo: number };
   /**
-   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0024, R-WORLD-008):
+   * The month in hand's money in less out, by currency, as the results sheet counts it (decision 0024, world:month-end-results-sheet):
    * a change's two sides, a move between pockets and held funds locked and given back count nothing (a change's bank
    * charge and a short count are money out); nothing before the prologue closed counts. Missing until money moves in the month, and cleared as it closes.
    */
   monthNet?: Partial<Record<Currency, number>>;
   /** Months ended whose net in the money of the place was above zero (decision 0024). Missing until the first, so no state hash moves before one. */
   keptMonths?: number;
-  /** True once the cash warning was told (R-WALLET-019). Missing until then, so no state hash moves before it. */
+  /** True once the cash warning was told (wallet:cash-pile-warning). Missing until then, so no state hash moves before it. */
   cashWarned?: true;
   /**
-   * R-WALLET-020: naira topped up with real money and not yet spent, in kobo. Earned naira is spent first, so it falls only
+   * wallet:top-ups-are-marked: naira topped up with real money and not yet spent, in kobo. Earned naira is spent first, so it falls only
    * when a debit outruns the earned share; never above the naira bank and cash, never negative, missing while zero so no state hash moves.
    */
   marked?: number;
@@ -1725,7 +1725,7 @@ export interface WalletSlice {
 
 export interface DocumentState {
   state: "pending" | "held" | "expired";
-  /** False once the paper came from a scammer and was used (advice.md R-ADVICE-008); absent means genuine. */
+  /** False once the paper came from a scammer and was used (advice:agent-loss-is-the-fee); absent means genuine. */
   genuine?: boolean;
   readyMonth: number | null;
   expiresMonth: number | null;
@@ -1744,12 +1744,12 @@ export interface SchoolApplication {
 export interface VisaApplication {
   submittedMonth: number;
   decisionMonth: number;
-  /** The rule numbers on the day of submission. The decision uses these: R-ROUTE-014. */
+  /** The rule numbers on the day of submission. The decision uses these: route:application-fixes-figures. */
   rules: { livingLine: number; livingMonths: number; strictness: number };
   unexplainedBp: number;
   /** Null until the interview is finished. */
   interviewScore: number | null;
-  /** Pence of surcharge paid with the application, refunded on a refusal (R-ROUTE-018). */
+  /** Pence of surcharge paid with the application, refunded on a refusal (route:refusal-refunds-and-resets). */
   surchargePaid: number;
 }
 
@@ -1791,16 +1791,16 @@ export type RouteGateState =
 export type RouteSlice = Record<Id<"route">, RouteState>;
 
 export interface SetpieceSlice {
-  /** How many times each set piece has closed (R-SETPIECE-006). */
+  /** How many times each set piece has closed (route:answers-carry-effects). */
   answered: Partial<Record<Id<"setpiece">, number>>;
-  /** The last answer given to each question of each set piece (R-SETPIECE-007). */
+  /** The last answer given to each question of each set piece (route:last-answers-remembered). */
   given: Partial<Record<Id<"setpiece">, Record<string, string>>>;
   open: {
     entry: Id<"setpiece">;
     route: Id<"route"> | null;
     questions: string[];
     answers: Record<string, string>;
-    /** The sum of the answers so far, each scored when it was given (R-SETPIECE-004). */
+    /** The sum of the answers so far, each scored when it was given (route:answers-score-and-close). */
     score: number;
   } | null;
 }
@@ -1815,14 +1815,14 @@ export interface CarTerms {
   courtMonths: number;
 }
 
-/** R-CAR-007: what a screen shows of one car beyond the obligation's own fields. */
+/** car:view-shows-car-terms: what a screen shows of one car beyond the obligation's own fields. */
 export interface CarView extends CarTerms {
   paid: number;
   /** The monthly interest fixed at opening by the credit ladder. */
   interest: number;
   /** That interest as basis points of the opening principal. */
   rateBp: number;
-  /** Two misses in a row: the lender's notice stands (R-CAR-003). */
+  /** Two misses in a row: the lender's notice stands (car:missed-payments-take-the-car). */
   notice: boolean;
   /** The month the car is taken while the lender waits on the court, or null. */
   courtMonth: number | null;
@@ -1845,11 +1845,11 @@ export interface ObligationState {
   bond: string | null;
   /** Months of assistance already charged on an undertaking. */
   charged: number;
-  /** Shares off the next charge, each from the activity that earned it, spent by that charge (R-OBLIGATION-014). Absent when there are none. */
+  /** Shares off the next charge, each from the activity that earned it, spent by that charge (obligation:cooking-and-fetching-water). Absent when there are none. */
   relief?: Relief[];
 }
 
-/** One share off an obligation's next charge, in basis points of it, and the activity that earned it (R-OBLIGATION-014). */
+/** One share off an obligation's next charge, in basis points of it, and the activity that earned it (obligation:cooking-and-fetching-water). */
 export interface Relief {
   source: string;
   bp: number;
@@ -1877,7 +1877,7 @@ export interface OfferSlice {
   items: Record<string, OfferState>;
   lastOpened: Record<Id<"offer">, number>;
   timesOpened: Record<Id<"offer">, number>;
-  /** The offers opened by roll in `rolledMonth`, at the day's arrivals and the close together, for the month's cap (R-OFFER-001, R-OFFER-008). */
+  /** The offers opened by roll in `rolledMonth`, at the day's arrivals and the close together, for the month's cap (offer:come-up-rolls-in-order, offer:day-arrivals-roll-offers). */
   rolled: number;
   rolledMonth: number;
 }
@@ -1885,11 +1885,11 @@ export interface OfferSlice {
 export interface ChapterSlice {
   current: Id<"chapter"> | null;
   done: Id<"chapter">[];
-  /** The way out the player made the plan (R-CHAPTER-009), read before the order looked into; absent until one is chosen. */
+  /** The way out the player made the plan (chapter:chapters-follow-lean-route), read before the order looked into; absent until one is chosen. */
   chosen?: Id<"route">;
   /**
    * The done chapters a grant closed and no flight has made final, each with the route it rested on, in the order they
-   * closed (R-CHAPTER-003): a withdrawal of that grant before the flight reopens them. Absent while none.
+   * closed (chapter:done-chapter-stays-done): a withdrawal of that grant before the flight reopens them. Absent while none.
    */
   byGrant?: { chapter: Id<"chapter">; route: Id<"route"> }[];
 }
@@ -1903,11 +1903,11 @@ export interface PlaceSlice {
   where: Where;
   country: Id<"country"> | null;
   movedMonth: number;
-  /** The record of returns. `country` is null for a return from the road (R-ROAD-007). */
+  /** The record of returns. `country` is null for a return from the road (road:exit-is-assisted-return). */
   returns: { month: number; shape: ReturnShape; country: Id<"country"> | null }[];
-  /** A settled or citizen status kept after a return with papers (R-RETURN-004). */
+  /** A settled or citizen status kept after a return with papers (return:papers-return-keeps-status). */
   heldAbroad: { status: Id<"status">; sinceMonth: number; monthsHeld: number; lawfulMonths: number } | null;
-  /** The month the December visit opened, null before (R-PLACE-009). */
+  /** The month the December visit opened, null before (place:view-shows-place-and-returns). */
   decemberMonth: number | null;
 }
 
@@ -2004,7 +2004,7 @@ export interface ThingsSlice {
   owned: { thing: Id<"thing">; month: number; paid: number }[];
 }
 
-/** Where the character lives at home (docs/rules/home.md R-HOME-001, 002, 003, 005). */
+/** Where the character lives at home (home:home-slice-fields, home:move-home-once-a-month, home:makoko-eviction-draw, home:hosting-costs-the-host). */
 export interface HomeSlice {
   /** Null after an eviction and while a guest. */
   place: HomePlace | null;
@@ -2012,11 +2012,11 @@ export interface HomeSlice {
   since: number;
   /** While taken in: the kind of host, who it is (a bond or a person entry) and the month the stay ends. */
   guest: { host: HomeHost | null; by: string | null; until: number } | null;
-  /** The month of the last move, for once a month (R-HOME-002). Null before any. */
+  /** The month of the last move, for once a month (home:move-home-once-a-month). Null before any. */
   moved: number | null;
-  /** The month of the last eviction (R-HOME-003). Null before any. */
+  /** The month of the last eviction (home:makoko-eviction-draw). Null before any. */
   evicted: number | null;
-  /** A real player's character staying with this one, as the authority sent it, and the last month of the stay (R-HOME-005). */
+  /** A real player's character staying with this one, as the authority sent it, and the last month of the stay (home:hosting-costs-the-host). */
   hosting: { pair: string; until: number } | null;
 }
 
@@ -2038,7 +2038,7 @@ export interface LotterySlice {
 export type Command = { basedOn: number } & (
   | { type: "turn/end"; slots: SlotPick[] }
   | { type: "activity/quit"; side?: boolean }
-  /** A now-act at once, where it is staged (docs/rules/activity.md R-ACTIVITY-015). */
+  /** A now-act at once, where it is staged (activity:now-acts-and-month-acts). */
   | { type: "activity/now"; activity: Id<"activity">; param: string | null }
   | { type: "offer/choose"; offer: string; choice: string; amount?: number }
   | { type: "wallet/convert"; from: Currency; to: Currency; amount: number; via: "bank" | "aboki" }
@@ -2053,53 +2053,53 @@ export type Command = { basedOn: number } & (
   | { type: "prologue/choose"; step: string; answer: string }
   | { type: "status/renew" }
   | { type: "return/home" }
-  /** A ride between two places of the city (docs/rules/place.md R-PLACE-010, world.md R-WORLD-017, decision 0017). */
+  /** A ride between two places of the city (place:rides-between-city-places, world:ride-sheet-shows-fares, decision 0017). */
   | { type: "place/ride"; from: Id<"place">; to: Id<"place">; way: RideWay }
   // online (docs/rules/lottery.md)
   | { type: "lottery/buy"; tickets: number }
   /** Sent by the authority alone, after the draw. */
   | { type: "lottery/pay"; draw: number; prizes: { tier: "jackpot" | "mid" | "small"; amount: number }[] }
-  /** Sent by the authority alone (R-WALLET-020, R-SERVER-013): naira bought with real money, marked. No server route sends it. */
+  /** Sent by the authority alone (wallet:top-ups-are-marked, server:apologies-never-currency): naira bought with real money, marked. No server route sends it. */
   | { type: "wallet/top-up"; amount: number }
-  // people (docs/rules/person.md R-PEOPLE-012 to 020, 034 to 040)
+  // people (person:nobody-real-is-needed, person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:routes-name-dependant-routes, person:statuses-name-dependants, person:family-requests-shared, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept and person:leaving-player-ends-bonds)
   | { type: "people/invite"; slot: string; looking?: string; fill?: string }
-  /** `with` names a computer character (`person.*`) or a slot holding an invited player (R-PEOPLE-014). */
+  /** `with` names a computer character (`person.*`) or a slot holding an invited player (person:time-together-is-an-act). */
   | { type: "people/court"; with: string }
   | { type: "people/propose"; bond: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
   | { type: "people/answer"; bond: string; step: Proposal["step"]; yes: boolean }
   | { type: "people/withdraw"; bond: string }
   | { type: "people/consent"; bond: string; countFunds?: boolean; standInMay?: boolean }
   | { type: "people/end"; bond: string }
-  // people, from the authority alone (R-PEOPLE-004): another life's actions, recorded in the save
+  // people, from the authority alone (person:money-counted-never-moved): another life's actions, recorded in the save
   | { type: "people/link"; slot: string; pair: string; facts: PersonFacts }
   | { type: "people/facts"; pair: string; facts: PersonFacts }
   | { type: "people/moments"; pair: string; moments: Moment[] }
   | { type: "people/proposal"; pair: string; proposal: Proposal }
   | { type: "people/agreed"; pair: string; step: Proposal["step"]; route?: Id<"route">; lead?: "me" | "them" }
-  /** `restart`: the other player ended their life to start another (R-ACCOUNT-030, decision 0020): no cost, the moments kept. */
+  /** `restart`: the other player ended their life to start another (account:start-a-new-life, decision 0020): no cost, the moments kept. */
   | { type: "people/ended"; pair: string; why: "them" | "absence" | "block" | "restart" }
   /** Decision 0020: the other life's answer to a proposal, carried across lives by the server. */
   | { type: "people/declined"; pair: string; step: Proposal["step"] }
   | { type: "people/withdrawn"; pair: string; step: Proposal["step"] }
   | { type: "people/gossip"; pair: string }
   | { type: "people/stand-in"; pair: string; stage: "warned" | "on" | null }
-  /** `handled` says another copy of the request was handled (R-PEOPLE-034). */
+  /** `handled` says another copy of the request was handled (person:family-requests-shared). */
   | { type: "people/family-request"; offer: Id<"offer">; terms: Terms; handled?: true }
   // the interview (docs/rules/interview.md)
   | { type: "interview/answer"; question: string; option: string }
-  /** `thin`: the applicant's measure of the record (R-INTERVIEW-012). Missing: measured in this life. */
+  /** `thin`: the applicant's measure of the record (interview:draws-made-in-one-life). Missing: measured in this life. */
   | { type: "interview/open"; pair: string; route: Id<"route">; questions: { id: string; options: string[] }[]; thin?: boolean }
   | { type: "interview/scored"; pair: string; theirs: string[] }
   // home (docs/rules/home.md)
   | { type: "home/move"; to: HomePlace }
-  /** From the authority alone: a joined player's character stays with this one until `until`, or no longer with null (R-HOME-005). */
+  /** From the authority alone: a joined player's character stays with this one until `until`, or no longer with null (home:hosting-costs-the-host). */
   | { type: "home/host"; pair: string; until: number | null }
   // things
   /** Buy a thing from the market: at home in Lagos, the price held, delivered at once. */
   | { type: "thing/buy"; thing: Id<"thing"> }
   /** Sell a thing owned back at its resale figure. */
   | { type: "thing/sell"; thing: Id<"thing"> }
-  // chapter (docs/rules/chapter.md R-CHAPTER-009)
+  // chapter (chapter:chapters-follow-lean-route)
   /** Make a way out heard of or looked into the plan the chapters follow. */
   | { type: "chapter/lean"; route: Id<"route"> }
 );
@@ -2117,7 +2117,7 @@ export type RejectionCode =
   | "bad-amount"
   | "not-yours"
   | "ended"
-  /** The prologue is open: only prologue/choose and turns/grant are accepted (R-PROLOGUE-001). */
+  /** The prologue is open: only prologue/choose and turns/grant are accepted (prologue:prologue-life-starts-empty). */
   | "prologue-open";
 
 export interface Rejection {
@@ -2145,7 +2145,7 @@ export interface Accepted<E extends BaseEvent = BaseEvent> {
 export type StepResult<E extends BaseEvent = BaseEvent> = Accepted<E> | Rejection;
 
 /** Who sent a command. A player may not send `turns/grant`. */
-/** Who sent a command: the player, the authority, or the stand-in that plays for an absent partner (R-PEOPLE-041). */
+/** Who sent a command: the player, the authority, or the stand-in that plays for an absent partner (person:gossip-when-two-timing). */
 export type Sender = "player" | "authority" | "stand-in";
 
 // ---------------------------------------------------------------------------
@@ -2213,23 +2213,23 @@ export interface SavedCommand {
   sender: Sender;
 }
 
-/** Where a segment begins: a new life from its scenario and seeds, or a state carried over (R-SERVER-020). */
+/** Where a segment begins: a new life from its scenario and seeds, or a state carried over (server:save-is-list-of-segments). */
 export type SegmentStart = { scenario: Id<"scenario">; seed: string; worldSeed: string } | { base: State };
 
 /** The commands accepted under one content version and one overlay (decision 0004). */
 export interface SaveSegment {
   content: string;
-  /** The overlay's version, when the content was loaded with one (R-ENGINE-010). */
+  /** The overlay's version, when the content was loaded with one (engine:state-is-plain-data). */
   overlay?: string;
   start: SegmentStart;
   commands: SavedCommand[];
 }
 
-/** Everything needed to rebuild a state: R-ENGINE-010 and R-SERVER-020. Schema 3 is the save in segments. */
+/** Everything needed to rebuild a state: engine:state-is-plain-data and server:save-is-list-of-segments. Schema 3 is the save in segments. */
 export interface Save {
   schema: 3;
   segments: SaveSegment[];
-  /** Decision 0020: a sibling made from an invite takes the inviter's family draw (R-PEOPLE-011). */
+  /** Decision 0020: a sibling made from an invite takes the inviter's family draw (person:real-sibling-shares-family-draw). */
   family?: { from: string; draw: NonNullable<PrologueSlice["draw"]> };
 }
 
@@ -2293,7 +2293,7 @@ export interface RouteView {
 /** The gate's own part of a route's view. Nothing hidden: no fraud, no draw. */
 export type RouteGateView =
   | { gate: "sponsor"; employer: string | null; salary: number | null; underBar: boolean }
-  /** `invites` (R-POINTS-006): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
+  /** `invites` (route-gates:points-view-carries-invites): the score is at a cut-off the clocks would invite at now, the care cut-off for a carer among them. */
   | { gate: "points"; points: number; cutoff: number; careCutoff: number | null; invites: boolean; poolMonth: number | null; profileEndsMonth: number | null; invitedMonth: number | null }
   | { gate: "endorsement"; refusedMonth: number | null; cooledFromMonth: number | null }
   | { gate: "partner"; bond: string | null; lead: RouteStateName | null }
@@ -2310,13 +2310,13 @@ export interface ActivityOption {
   params: string[] | null;
   cost: { currency: Currency; amount: number }[];
   affordable: boolean;
-  /** `now` is sent as `activity/now`; `month` fills a slot (R-ACTIVITY-015). */
+  /** `now` is sent as `activity/now`; `month` fills a slot (activity:now-acts-and-month-acts). */
   when: "now" | "month";
-  /** A now-act that is not a purchase, already done this month: not `allowed` again until the next (R-ACTIVITY-015). */
+  /** A now-act that is not a purchase, already done this month: not `allowed` again until the next (activity:now-acts-and-month-acts). */
   done: boolean;
-  /** The hunt only: this life's next hunt is its sure first one (R-GUIDE-014). Missing otherwise. */
+  /** The hunt only: this life's next hunt is its sure first one (guide:early-win-in-three-turns). Missing otherwise. */
   sure?: true;
-  /** R-ACTIVITY-020: the act takes effort and the body is spent, so it waits for sleep. Missing otherwise. */
+  /** activity:spent-body-refuses-acts: the act takes effort and the body is spent, so it waits for sleep. Missing otherwise. */
   spent?: true;
   /** The act's time in half-days when a thing owned changes it (the gas cooker's pot). Missing otherwise: the entry's own. */
   halfDays?: number;
@@ -2330,7 +2330,7 @@ export interface OfferView {
   terms: Terms;
   signs: string[];
   choices: { id: string; allowed: boolean; pick: { min: number; max: number } | null }[];
-  /** On an offer whose terms name a job: what it would pay a month as the wallet will book it (R-WALLET-016). */
+  /** On an offer whose terms name a job: what it would pay a month as the wallet will book it (wallet:view-carries-month-pay). */
   pay?: MoneyParam;
 }
 
@@ -2340,20 +2340,20 @@ export interface PlayerView {
   month: number;
   ended: boolean;
   turns: { banked: number; cap: number };
-  /** The month's free time in half-days: spent so far and the month's total (R-TURN-010). */
+  /** The month's free time in half-days: spent so far and the month's total (turn:month-lived-in-half-days). */
   halfDays: { spent: number; free: number };
-  /** Locks on free slots now, with their reasons (R-TURN-009). */
+  /** Locks on free slots now, with their reasons (turn:slots-can-be-locked). */
   locks: SlotLock[];
   japacity: { percent: number | null; route: Id<"route"> | null };
   qualities: { id: Id<"quality">; value: number }[];
-  /** The run-down warning stands: two months under the wellbeing line (R-HEALTH-001, R-HEALTH-007). */
+  /** The run-down warning stands: two months under the wellbeing line (health:low-wellbeing-warns-first, health:view-shows-health-warning). */
   runDown: boolean;
-  /** The job, its tenure, and the side job held if any (R-ACTIVITY-010). */
+  /** The job, its tenure, and the side job held if any (activity:side-job-holds-a-slot). */
   /**
-   * `raise` (R-ACTIVITY-013): the held job's pay a month with the raise from being noticed, and the month the raise
+   * `raise` (activity:waiting-months-build-profile): the held job's pay a month with the raise from being noticed, and the month the raise
    * landed (null for a raise kept from before the month was recorded). Absent while the job held has no raise.
    */
-  /** `pay` and `sidePay` (R-WALLET-016): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read. */
+  /** `pay` and `sidePay` (wallet:view-carries-month-pay): each job's month as the wallet will book it, net of tax; null with no job or no pay it can read. */
   job: { id: Id<"activity"> | null; months: number; side: Id<"activity"> | null; pay: MoneyParam | null; sidePay: MoneyParam | null; raise?: { pay: MoneyParam; month: number | null } };
   freeSlots: number;
   activities: ActivityOption[];
@@ -2362,45 +2362,45 @@ export interface PlayerView {
   queued: QueuedConversion[];
   rates: World["rates"];
   /** What may still be bought at the bank this month, in US cents. */
-  /** Null abroad, where the Lagos allowance does not bind (R-WALLET-005, 006). */
+  /** Null abroad, where the Lagos allowance does not bind (wallet:monthly-fx-allowance, wallet:bank-queue-delays-purchases). */
   bankAllowanceLeft: number | null;
   /** Months ended in which the character kept more than they spent (decision 0024). A count the japa type reads; never shown as a figure. */
   keptMonths: number;
   /**
-   * R-WALLET-020: `marked` is the topped-up naira not yet spent, 0 while there is none. The kiosk's sheet and slip read it
+   * wallet:top-ups-are-marked: `marked` is the topped-up naira not yet spent, 0 while there is none. The kiosk's sheet and slip read it
    * (a ticket is bought only with the naira held less it); the Bank shows one balance.
    */
   wallet: { marked: number };
-  /** `onItsWay` (R-DOCUMENT-008): the month the copy being made is due, pending or held with a new copy requested; null when none is. */
+  /** `onItsWay` (document:paper-on-its-way): the month the copy being made is due, pending or held with a new copy requested; null when none is. */
   documents: { id: Id<"document">; state: DocumentState["state"]; readyMonth: number | null; expiresMonth: number | null; value: number | null; onItsWay: number | null }[];
   routes: RouteView[];
   setpiece: {
     entry: Id<"setpiece">;
     asked: number;
     total: number;
-    /** `answers` is every answer; `allowed` those whose requirements hold now (R-SETPIECE-003); `weak` those that would score below zero, shown only with enough prep (R-SETPIECE-005); `followUp` true when it is asked after the answer before it (R-SETPIECE-008). */
+    /** `answers` is every answer; `allowed` those whose requirements hold now (route:set-piece-answers-in-order); `weak` those that would score below zero, shown only with enough prep (route:view-shows-progress-not-score); `followUp` true when it is asked after the answer before it (route:answer-may-ask-follow-up). */
     question: { id: string; answers: string[]; allowed: string[]; weak: string[]; followUp: boolean } | null;
   } | null;
-  /** Every open obligation with its next charge; `car` carries R-CAR-007's figures for a car and is null for anything else. */
+  /** Every open obligation with its next charge; `car` carries car:view-shows-car-terms's figures for a car and is null for anything else. */
   obligations: (ObligationState & { due: number; car: CarView | null })[];
   offers: OfferView[];
   /**
-   * R-CHAPTER-010: `closes` is true when the current chapter closes at this month's end as things stand (every item
+   * chapter:view-says-closes-and-next: `closes` is true when the current chapter closes at this month's end as things stand (every item
    * met, or the one its `closesOn` names); `next` is the chapter that follows it, with the lean as it stands now.
    */
   chapter: { current: Id<"chapter"> | null; items: { id: string; met: boolean }[]; done: Id<"chapter">[]; closes: boolean; next: Id<"chapter"> | null };
-  /** The chapter kind's plan (R-CHAPTER-009), beside its chapter part so that part keeps its shape. */
+  /** The chapter kind's plan (chapter:chapters-follow-lean-route), beside its chapter part so that part keeps its shape. */
   plan: {
     /** The way out the chapters follow, or null while no own-effort way is heard of. */
     route: Id<"route"> | null;
-    /** Each own-effort way heard of or further on, with the figure its checklist earns now (R-JAPACITY-001), for the switch. */
+    /** Each own-effort way heard of or further on, with the figure its checklist earns now (japacity:figure-sums-checklist-items), for the switch. */
     ways: { route: Id<"route">; percent: number }[];
   };
   news: { id: Id<"news">; stage: NewsStage; since: number; forYou: boolean }[];
-  /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (R-PLACE-006). */
-  /** `wayHome` (R-PLACE-011): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
-  /** `ways` (R-PLACE-010): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view written by hand before it stays whole. */
-  /** `shuttles` (R-PLACE-013, decision 0017): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`. */
+  /** `fareHome` is the fare from the country the character is in, December factor applied, or null at home (place:fare-home-in-local-currency). */
+  /** `wayHome` (place:view-carries-way-home): the way home from where the character is today, as `return/home` would take it; null when not abroad. */
+  /** `ways` (place:rides-between-city-places): the ways a ride may take where the character is, with their figures; empty on the road and in a country with none. Always set by the simulation; optional only so a view written by hand before it stays whole. */
+  /** `shuttles` (place:employer-shuttle-rides-free, decision 0017): the stops of the character's country the employer's shuttle serves, so a bus to or from one asks no fare; empty at home, on the road and in a country with none. Always set by the simulation; optional for the same reason as `ways`. */
   place: { where: Where; country: Id<"country"> | null; monthsHere: number; returns: PlaceSlice["returns"]; heldAbroad: Id<"status"> | null; fareHome: MoneyParam | null; fareBp: number; wayHome: WayHome | null; ways?: RideWayView[]; shuttles?: Id<"place">[] };
   status: {
     entry: Id<"status">;
@@ -2410,7 +2410,7 @@ export interface PlayerView {
     settleMonths: number | null;
     work: WorkRule;
     nextStep: string | null;
-    /** What `status/renew` would cost today from the world's variables, or null when the status cannot be renewed by asking (R-STATUS-010). */
+    /** What `status/renew` would cost today from the world's variables, or null when the status cannot be renewed by asking (status:view-shows-status). */
     renew: { months: number; currency: ForeignCurrency; fee: number; surcharge: number } | null;
   } | null;
   credit: { mark: number; onTime: number; missed: number; judgmentUntil: number | null; needs: { id: Id<"obligation">; creditMin: number }[] } | null;
@@ -2422,14 +2422,14 @@ export interface PlayerView {
     draw: PrologueSlice["draw"];
   } | null;
   /**
-   * Where the life is from (R-PROLOGUE-002): `hometown.<slug>`, with
+   * Where the life is from (prologue:family-draw-on-first-answer): `hometown.<slug>`, with
    * words in content, read from the family drawn or the fixed life's own, kept after the prologue closes. Null until
    * the family is drawn.
    */
   hometown: string | null;
   /** The era running, with its start and end as this player's months (the tick difference from now). Null until the director runs. */
   era: { id: Id<"era">; since: number; until: number; sinceMonth: number; untilMonth: number } | null;
-  /** The send-off card or the real-story card, when one is due (R-CHAPTER-006, R-ROAD-011). */
+  /** The send-off card or the real-story card, when one is due (chapter:send-off-card-on-close, road:real-story-card-after-chain). */
   card: {
     kind: "chapter" | "granted" | "send-off" | "first-pay-abroad" | "secured" | "december" | "draw-win" | "real-story" | "lost";
     chapter: Id<"chapter"> | null;
@@ -2438,10 +2438,10 @@ export interface PlayerView {
     months: number;
     standing: number;
     topActivities: Id<"activity">[];
-    /** The name the player chose, never the account's (R-SHARE-007). */
+    /** The name the player chose, never the account's (share:card-art-shows-no-face). */
     name: string | null;
   } | null;
-  /** The people around the character (docs/rules/person.md R-PEOPLE-051). */
+  /** The people around the character (person:view-shows-people). */
   people: {
     slots: Record<string, { state: PeopleSlice["slots"][string]["state"]; label: PersonLabel | null; bond: string | null; invite: { looking: string; fill: string | null } | null }>;
     bonds: { id: string; role: "partner" | "sibling"; stage: BondStage; label: PersonLabel; person: Id<"person"> | null; pair: string | null; lastMomentMonth: number | null; cooldownUntil: number | null; partnerMonth: number | null; consent: { countFunds: boolean; standInMay: boolean } | null; moments: Moment[] | null; pending: { mine: Proposal | null; theirs: Proposal | null }; standIn: "warned" | "on" | null; facts: PersonFacts | null }[];
@@ -2452,13 +2452,13 @@ export interface PlayerView {
   };
   /** The genuineness interview as it stands (docs/rules/interview.md), or null. */
   interview: { route: Id<"route">; question: { id: string; options: string[] } | null; asked: number; total: number; waiting: boolean; standIn: boolean; result: InterviewResult | null; matched: number | null } | null;
-  /** The Friday draw as this character sees it, or null offline (docs/rules/lottery.md R-LOTTERY-015). */
+  /** The Friday draw as this character sees it, or null offline (lottery:result-published-in-tick-row). */
   lottery: { ticket: number; maxTickets: number; draw: number; closesTick: number; onSale: boolean; tickets: number; numbers: number[] | null; jackpot: number; rolledOver: boolean; odds: LotteryOdds; fingerprint: string; last: LotteryResult | null } | null;
-  /** R-ADVERT-003: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
+  /** advert:no-adverts-on-protected-screens: whether an advert may show now (never on the road, in a set piece, or in a chapter with `noAdverts`). */
   adverts: boolean;
-  /** Where the character lives at home (docs/rules/home.md R-HOME-007): the monthly charge there, the eviction chance a month in Makoko now, and the month of the last move, so the card shuts the move made this month. */
+  /** Where the character lives at home (home:view-carries-home): the monthly charge there, the eviction chance a month in Makoko now, and the month of the last move, so the card shuts the move made this month. */
   /**
-   * `rent` is the month's charge where the character lives as the bill takes it (R-HOME-008); `moves` the moves the
+   * `rent` is the month's charge where the character lives as the bill takes it (home:moves-carry-cost-and-reason); `moves` the moves the
    * card offers at home, each with what it charges a month, what it takes at once, and why it is shut (empty abroad).
    */
   home: {
@@ -2470,7 +2470,7 @@ export interface PlayerView {
     moved: number | null;
     moves: { to: HomePlace; monthly: MoneyParam; now: number; shut: HomeMoveShut | null }[];
     /**
-     * R-HOME-010: the room's yearly rent while it is open, in naira: `year` the rent the
+     * home:compound-room-is-a-home: the room's yearly rent while it is open, in naira: `year` the rent the
      * landlord asks each year, `fees` the agent's and the agreement's fees paid on it at the move, and `dueIn` the
      * months until the next year's rent is taken, 0 at this month's end (or while a missed one is asked for again).
      * Null where no yearly rent is open.

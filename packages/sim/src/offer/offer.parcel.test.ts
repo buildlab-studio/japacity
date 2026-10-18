@@ -1,8 +1,8 @@
 // Things shipped home: on a birthday, a relative abroad ships the character something, and it waits
 // at the cargo office on Bode Thomas Street until it is collected for the clerk's handling charge.
 // Played through the harness on the real content. The opening and the answer follow offer.md
-// (R-OFFER-002, 003, 005); what each thing does is what the game already gives for it (R-STREET-001,
-// R-ACTIVITY-005, R-OBLIGATION-014); and nothing moves between lives (R-PEOPLE-004).
+// (offer:opening-fixes-terms-and-fraud, offer:choice-needs-conditions-and-funds, offer:lapsed-offer-removed); what each thing does is what the game already gives for it (streets:buy-phone-at-computer-village,
+// activity:job-hunt-lands-offer, obligation:cooking-and-fetching-water); and nothing moves between lives (person:money-counted-never-moved).
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -70,7 +70,7 @@ function bank(game: Game): number {
 const PLENTY = 50_000_000;
 
 describe("the parcel: when it is shipped", () => {
-  test("[R-STREET-010] [R-OFFER-002] given Ada with a sibling settled in the UK, when her months are played to her birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
+  test("[streets:parcels-shipped-home] [offer:opening-fixes-terms-and-fraud] given Ada with a sibling settled in the UK, when her months are played to her birthday, then the parcel opens in the birthday month and in no month before it, from that sibling", () => {
     const game = life(SIBLING_ABROAD);
     const { opened, result } = toBirthday(game);
     expect(age(game.state) % MONTHS_A_YEAR).toBe(0);
@@ -81,7 +81,7 @@ describe("the parcel: when it is shipped", () => {
     expect(item?.expiresMonth).toBe(game.state.turn.month + 3);
   });
 
-  test("[R-OFFER-002] given Ada with no relative abroad in her story, when her months are played past her birthday, then no parcel opens", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given Ada with no relative abroad in her story, when her months are played past her birthday, then no parcel opens", () => {
     const game = life(NO_ONE_ABROAD);
     expect(parcelSender({ state: game.state, world: game.world(), content })).toBeNull();
     const { opened } = toBirthday(game);
@@ -91,7 +91,7 @@ describe("the parcel: when it is shipped", () => {
     expect(parcelOf(game.state)).toBeUndefined();
   });
 
-  test("[R-OFFER-002] given Ada with no sibling abroad but the UK route looked into, so her aunty abroad has heard she is travelling, when her birthday comes, then the parcel opens from the aunty", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given Ada with no sibling abroad but the UK route looked into, so her aunty abroad has heard she is travelling, when her birthday comes, then the parcel opens from the aunty", () => {
     const game = life(NO_ONE_ABROAD);
     toKnown(game);
     expect(age(game.state) % MONTHS_A_YEAR).not.toBe(0);
@@ -102,7 +102,7 @@ describe("the parcel: when it is shipped", () => {
     expect(String(item?.terms["holds"]).startsWith("aunty-")).toBe(true);
   });
 
-  test("[R-OFFER-002] given a sibling abroad, when the months that are not a birthday are played, then nothing opens until the birthday, and a parcel waiting is never opened twice", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a sibling abroad, when the months that are not a birthday are played, then nothing opens until the birthday, and a parcel waiting is never opened twice", () => {
     const game = life(SIBLING_ABROAD);
     toBirthday(game);
     const first = parcelOf(game.state);
@@ -112,7 +112,7 @@ describe("the parcel: when it is shipped", () => {
     expect(parcelOf(game.state)?.id).toBe(first?.id);
   });
 
-  test("[R-OFFER-002] given many lives with a sibling abroad, when each parcel opens, then the thing in it is drawn by the life's seed, and every thing of the sibling's comes up", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given many lives with a sibling abroad, when each parcel opens, then the thing in it is drawn by the life's seed, and every thing of the sibling's comes up", () => {
     const held = new Set<string>();
     for (let index = 0; index < 400 && held.size < 4; index += 1) {
       const game = life(`parcel-${String(index)}`);
@@ -130,7 +130,7 @@ describe("the parcel: when it is shipped", () => {
 });
 
 describe("the parcel: collecting it", () => {
-  test("[R-OFFER-003] given a parcel holding a laptop, when the view is read and the other things are asked for, then the view offers only the laptop and the others are not legal", () => {
+  test("[offer:choice-needs-conditions-and-funds] given a parcel holding a laptop, when the view is read and the other things are asked for, then the view offers only the laptop and the others are not legal", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
     const item = withParcel(game, "sibling-laptop");
@@ -140,7 +140,7 @@ describe("the parcel: collecting it", () => {
     game.expectRejected({ type: "offer/choose", offer: item.id, choice: "aunty-laptop" }, "not-legal");
   });
 
-  test("[R-OFFER-003] given a parcel and cash enough, when it is collected, then the handling charge leaves the cash and not the bank, and the parcel is gone", () => {
+  test("[offer:choice-needs-conditions-and-funds] given a parcel and cash enough, when it is collected, then the handling charge leaves the cash and not the bank, and the parcel is gone", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
     setPockets(game, { NGN: { cash: parcel.handling * 4, bank: parcel.handling * 10 } });
@@ -152,7 +152,7 @@ describe("the parcel: collecting it", () => {
     expect(parcelOf(game.state)).toBeUndefined();
   });
 
-  test("[R-OFFER-003] given cash under the charge, when the parcel is collected, then the cash goes first and the bank pays the rest", () => {
+  test("[offer:choice-needs-conditions-and-funds] given cash under the charge, when the parcel is collected, then the cash goes first and the bank pays the rest", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
     setPockets(game, { NGN: { cash: parcel.handling - 100, bank: parcel.handling } });
@@ -161,7 +161,7 @@ describe("the parcel: collecting it", () => {
     expect(cash(game) + bank(game)).toBe(parcel.handling - 100);
   });
 
-  test("[R-OFFER-003] given less naira than the charge in cash and bank together, when the parcel is collected, then it is refused as cannot-afford and nothing changes", () => {
+  test("[offer:choice-needs-conditions-and-funds] given less naira than the charge in cash and bank together, when the parcel is collected, then it is refused as cannot-afford and nothing changes", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
     setPockets(game, { NGN: { cash: parcel.handling - 1, bank: 0 } });
@@ -170,7 +170,7 @@ describe("the parcel: collecting it", () => {
     game.expectRejected({ type: "offer/choose", offer: item.id, choice: "sibling-food" }, "cannot-afford");
   });
 
-  test("[R-PEOPLE-004] given a parcel from a sibling abroad, when it is collected, then the only money that moves is the charge out of the player's own naira: nothing is credited from anyone", () => {
+  test("[person:money-counted-never-moved] given a parcel from a sibling abroad, when it is collected, then the only money that moves is the charge out of the player's own naira: nothing is credited from anyone", () => {
     const game = life(SIBLING_ABROAD);
     game.endTurn();
     setPockets(game, { NGN: { cash: parcel.handling * 2, bank: 0 } });
@@ -197,7 +197,7 @@ describe("the parcel: what each thing gives", () => {
 
   const quality = (state: State, id: Id<"quality">): number => state.quality[id] ?? 0;
 
-  test("[R-STREET-001] given a phone in the parcel, when it is collected, then it gives what buying one at Computer Village gives, and the hunt's chance rises with the network (R-ACTIVITY-005)", () => {
+  test("[streets:buy-phone-at-computer-village] given a phone in the parcel, when it is collected, then it gives what buying one at Computer Village gives, and the hunt's chance rises with the network (activity:job-hunt-lands-offer)", () => {
     const { game, before } = collect("sibling-phone");
     const buy = content.activity["activity.buy-phone"]!;
     expect(content.offer[PARCEL]!.choices.find((choice) => choice.id === "sibling-phone")?.effects.slice(1)).toEqual(buy.effects);
@@ -207,17 +207,17 @@ describe("the parcel: what each thing gives", () => {
     expect(read(game.state) - read(before)).toBe(street.phoneNetwork * content.tuning.quality.networkHireBp);
   });
 
-  test("[R-OFFER-003] given a laptop in the parcel, when it is collected, then wellbeing rises by the tuning's laptop mood, since no rule asks for a laptop", () => {
+  test("[offer:choice-needs-conditions-and-funds] given a laptop in the parcel, when it is collected, then wellbeing rises by the tuning's laptop mood, since no rule asks for a laptop", () => {
     const { game, before } = collect("sibling-laptop");
     expect(quality(game.state, "quality.wellbeing") - quality(before, "quality.wellbeing")).toBe(parcel.laptopMood);
   });
 
-  test("[R-OFFER-003] given clothes in the parcel, when they are collected, then interview prep rises by the tuning's figure", () => {
+  test("[offer:choice-needs-conditions-and-funds] given clothes in the parcel, when they are collected, then interview prep rises by the tuning's figure", () => {
     const { game, before } = collect("sibling-clothes");
     expect(quality(game.state, "quality.interview-prep") - quality(before, "quality.interview-prep")).toBe(parcel.clothesPrep);
   });
 
-  test("[R-OBLIGATION-014] given foodstuff in the parcel, when it is collected, then the next month's living costs fall by what cooking gives, once", () => {
+  test("[obligation:cooking-and-fetching-water] given foodstuff in the parcel, when it is collected, then the next month's living costs fall by what cooking gives, once", () => {
     const { game } = collect("sibling-food", CHARGED);
     const twinOf = (): Game => {
       const twin = life(SIBLING_ABROAD, ADA, CHARGED);
@@ -242,7 +242,7 @@ describe("the parcel: what each thing gives", () => {
 });
 
 describe("the parcel: left at the office", () => {
-  test("[R-OFFER-005] given a parcel left uncollected, when two months pass it still waits, and at the end of the third it lapses with nothing paid", () => {
+  test("[offer:lapsed-offer-removed] given a parcel left uncollected, when two months pass it still waits, and at the end of the third it lapses with nothing paid", () => {
     const game = life(SIBLING_ABROAD);
     toBirthday(game);
     const item = parcelOf(game.state);

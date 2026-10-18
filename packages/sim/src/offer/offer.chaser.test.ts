@@ -1,5 +1,5 @@
 // The chaser beside the fixer and the police certificate: docs/rules/advice.md
-// R-ADVICE-013, docs/rules/document.md R-DOCUMENT-007 and luck.md R-LUCK-001,
+// advice:chaser-runs-around-cheaper, document:police-certificate-for-routes and luck:luck-never-reads-money,
 // played through the harness with the real content.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -32,7 +32,7 @@ function pastChapterOne(seed: string, cash?: number): Game {
   return game;
 }
 
-/** R-ACTIVITY-015: going to the stop is an act done at once, so the agent is at the table in the month it is sent. */
+/** activity:now-acts-and-month-acts: going to the stop is an act done at once, so the agent is at the table in the month it is sent. */
 function openAt(game: Game): OfferState {
   game.accept({ type: "activity/now", activity: TO_STOP, param: GULF_ROUTE });
   const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === STOP);
@@ -52,12 +52,12 @@ function agentOfKind(kind: AgentKind): { game: Game; item: OfferState } {
 }
 
 describe("the chaser among the agents", () => {
-  test("[R-ADVICE-013] given the tuning, when the agents' shares are read, then the chaser's 2000 comes out of the fixer's: fixer 3000, chaser 2000, overpromiser 3000, scammer 2000", () => {
+  test("[advice:chaser-runs-around-cheaper] given the tuning, when the agents' shares are read, then the chaser's 2000 comes out of the fixer's: fixer 3000, chaser 2000, overpromiser 3000, scammer 2000", () => {
     expect(advice.agentKindsBp).toEqual({ fixer: 3000, chaser: 2000, overpromiser: 3000, scammer: 2000 });
     expect(AGENT_KINDS).toEqual(["fixer", "chaser", "overpromiser", "scammer"]);
   });
 
-  test("[R-ADVICE-013] given every draw out of 10000, when the kind is read, then each of the four kinds comes at exactly its share, fixer first and the chaser after him", () => {
+  test("[advice:chaser-runs-around-cheaper] given every draw out of 10000, when the kind is read, then each of the four kinds comes at exactly its share, fixer first and the chaser after him", () => {
     const counts: Record<AgentKind, number> = { fixer: 0, chaser: 0, overpromiser: 0, scammer: 0 };
     for (let draw = 0; draw < 10000; draw += 1) counts[kindAt(draw, advice.agentKindsBp)] += 1;
     expect(counts).toEqual(advice.agentKindsBp);
@@ -69,7 +69,7 @@ describe("the chaser among the agents", () => {
     expect(kindAt(10000 - shares.scammer, shares)).toBe("scammer");
   });
 
-  test("[R-ADVICE-013] given every draw out of 10000, when what the agent says he does is read, then an honest agent says what he is, and the overpromisers and scammers say insider or chaser in the same proportion, so the claim never tells who is honest", () => {
+  test("[advice:chaser-runs-around-cheaper] given every draw out of 10000, when what the agent says he does is read, then an honest agent says what he is, and the overpromisers and scammers say insider or chaser in the same proportion, so the claim never tells who is honest", () => {
     const shares = advice.agentKindsBp;
     const said: Record<AgentKind, Record<Pitch, number>> = { fixer: { insider: 0, chaser: 0 }, chaser: { insider: 0, chaser: 0 }, overpromiser: { insider: 0, chaser: 0 }, scammer: { insider: 0, chaser: 0 } };
     for (let draw = 0; draw < 10000; draw += 1) said[kindAt(draw, shares)][pitchAt(draw, shares)] += 1;
@@ -82,7 +82,7 @@ describe("the chaser among the agents", () => {
     }
   });
 
-  test("[R-ADVICE-013] given the chaser's fee, when it is read, then it runs from ₦8,000 to ₦25,000 and overlaps every other kind's range, so the fee alone never names the kind", () => {
+  test("[advice:chaser-runs-around-cheaper] given the chaser's fee, when it is read, then it runs from ₦8,000 to ₦25,000 and overlaps every other kind's range, so the fee alone never names the kind", () => {
     expect(advice.chaserFee).toEqual([800000, 2500000]);
     expect(feeRange("chaser", advice)).toEqual(advice.chaserFee);
     for (const kind of ["fixer", "overpromiser", "scammer"] as const) {
@@ -92,18 +92,18 @@ describe("the chaser among the agents", () => {
     }
   });
 
-  test("[R-ADVICE-013] given the entries, when the chaser's tells are read, then they are the fixer's, at most one, and the content check holds", () => {
+  test("[advice:chaser-runs-around-cheaper] given the entries, when the chaser's tells are read, then they are the fixer's, at most one, and the content check holds", () => {
     expect(carriedTells(stop, "chaser", advice)).toEqual(carriedTells(stop, "fixer", advice));
     expect(carriedTells(stop, "chaser", advice).length).toBeLessThanOrEqual(1);
     expect(agentProblems(content)).toEqual([]);
   });
 
-  test("[R-ADVICE-013] given the months, when the tuning is read, then the fixer brings a paper forward by two and the chaser by one", () => {
+  test("[advice:chaser-runs-around-cheaper] given the months, when the tuning is read, then the fixer brings a paper forward by two and the chaser by one", () => {
     expect(advice.fixerMonths).toBe(2);
     expect(advice.chaserMonths).toBe(1);
   });
 
-  test("[R-ADVICE-013] given a chaser at the stop, when he opens, then his fee is in the chaser's range in whole thousands, he says he will chase it, names the paper he would move and the month, and the view never carries his kind", () => {
+  test("[advice:chaser-runs-around-cheaper] given a chaser at the stop, when he opens, then his fee is in the chaser's range in whole thousands, he says he will chase it, names the paper he would move and the month, and the view never carries his kind", () => {
     const { game, item } = agentOfKind("chaser");
     const fee = item.terms["fee"] as number;
     expect(fee).toBeGreaterThanOrEqual(advice.chaserFee[0]);
@@ -117,10 +117,10 @@ describe("the chaser among the agents", () => {
     expect(shown.terms[MONTHS_TERM]).toBe(advice.chaserMonths);
   });
 
-  test("[R-ADVICE-013] [R-DOCUMENT-007] given a chaser and the police certificate being made, when he is paid, then the fee leaves, the certificate comes one month sooner, and the line says he follows it up", () => {
+  test("[advice:chaser-runs-around-cheaper] [document:police-certificate-for-routes] given a chaser and the police certificate being made, when he is paid, then the fee leaves, the certificate comes one month sooner, and the line says he follows it up", () => {
     const { game, item } = agentOfKind("chaser");
     const due = game.state.document[POLICE]!.readyMonth!;
-    // The fee is a street price taken by its size, from cash and bank together (wallet.md R-WALLET-018).
+    // The fee is a street price taken by its size, from cash and bank together (wallet:money-lands-as-in-lagos).
     const held = (): number => game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
     const before = held();
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "take" });
@@ -132,14 +132,14 @@ describe("the chaser among the agents", () => {
     expect(text["line.offer.agent-chaser-paid"]).toBeDefined();
   });
 
-  test("[R-ADVICE-013] [R-DOCUMENT-007] given a fixer and the police certificate being made, when he is paid, then the certificate comes two months sooner", () => {
+  test("[advice:chaser-runs-around-cheaper] [document:police-certificate-for-routes] given a fixer and the police certificate being made, when he is paid, then the certificate comes two months sooner", () => {
     const { game, item } = agentOfKind("fixer");
     const due = game.state.document[POLICE]!.readyMonth!;
     game.accept({ type: "offer/choose", offer: item.id, choice: "take" });
     expect(game.state.document[POLICE]!.readyMonth).toBe(Math.max(game.state.turn.month + 1, due - advice.fixerMonths));
   });
 
-  test("[R-ADVICE-013] given a chaser and only a passport being made, when he is paid, then nothing moves, since he chases only the transcript, the police certificate and the TB test", () => {
+  test("[advice:chaser-runs-around-cheaper] given a chaser and only a passport being made, when he is paid, then nothing moves, since he chases only the transcript, the police certificate and the TB test", () => {
     expect(CHASED).toEqual([TRANSCRIPT, POLICE, "document.tb-certificate"]);
     for (let n = 0; n < 120; n += 1) {
       const game = pastChapterOne(`chaser-passport-${String(n)}`);
@@ -161,7 +161,7 @@ describe("the chaser among the agents", () => {
 describe("the chaser a friend puts you onto", () => {
   const friend = content.offer[CHASER]!;
 
-  test("[R-ADVICE-013] [R-ADVICE-007] given the friend's chaser, when its entry is read, then it is rolled, reads the place, the first chapter and the chased papers being made, and never money", () => {
+  test("[advice:chaser-runs-around-cheaper] [advice:agents-never-read-money] given the friend's chaser, when its entry is read, then it is rolled, reads the place, the first chapter and the chased papers being made, and never money", () => {
     expect(friend.chanceBp).toBeGreaterThan(0);
     expect(friend.fraudBp).toBe(0);
     expect(agentReadsMoney(friend)).toBe(false);
@@ -170,7 +170,7 @@ describe("the chaser a friend puts you onto", () => {
     expect(friend.when).toContainEqual({ type: "any", of: CHASED.map((document) => ({ type: "document/pending", document })) });
   });
 
-  test("[R-ADVICE-013] given the transcript or the police certificate being made, when the friend's chaser opens, then she is a chaser from the name pool, names that paper, and is paid to bring it a month sooner", () => {
+  test("[advice:chaser-runs-around-cheaper] given the transcript or the police certificate being made, when the friend's chaser opens, then she is a chaser from the name pool, names that paper, and is paid to bring it a month sooner", () => {
     for (const paper of [TRANSCRIPT, POLICE]) {
       const game = pastChapterOne(`friend-${paper}`);
       applyEffects(game, [{ type: "document/request", document: paper }]);
@@ -186,13 +186,13 @@ describe("the chaser a friend puts you onto", () => {
     }
   });
 
-  test("[R-ADVICE-013] given no chased paper being made, when the friend's chaser is opened, then nothing opens", () => {
+  test("[advice:chaser-runs-around-cheaper] given no chased paper being made, when the friend's chaser is opened, then nothing opens", () => {
     const game = pastChapterOne("friend-none");
     applyEffects(game, [{ type: "offer/open", offer: CHASER }]);
     expect(Object.values(game.state.offer.items).filter((item) => item.entry === CHASER)).toEqual([]);
   });
 
-  test("[R-ADVICE-013] given the transcript being made for months on end, when the months pass on some seed, then the friend's chaser comes up by herself", () => {
+  test("[advice:chaser-runs-around-cheaper] given the transcript being made for months on end, when the months pass on some seed, then the friend's chaser comes up by herself", () => {
     let came = 0;
     for (let n = 0; n < 20 && came === 0; n += 1) {
       const game = pastChapterOne(`friend-roll-${String(n)}`);
@@ -207,7 +207,7 @@ describe("the chaser a friend puts you onto", () => {
 });
 
 describe("no kind and no fee reads money", () => {
-  test("[R-LUCK-001] [R-ADVICE-013] given two lives alike but for the money they hold, when the same agent opens in each, then his kind, his claim, his fee and the paper he names are the same", () => {
+  test("[luck:luck-never-reads-money] [advice:chaser-runs-around-cheaper] given two lives alike but for the money they hold, when the same agent opens in each, then his kind, his claim, his fee and the paper he names are the same", () => {
     for (let n = 0; n < 12; n += 1) {
       const seed = `money-${String(n)}`;
       const opened = (cash: number) => {
@@ -228,7 +228,7 @@ describe("no kind and no fee reads money", () => {
 });
 
 describe("the police certificate", () => {
-  test("[R-DOCUMENT-007] given the police certificate, when it is requested at the visa centre's notice, then ₦5,000 leaves and it is issued between one and three months later, valid twelve", () => {
+  test("[document:police-certificate-for-routes] given the police certificate, when it is requested at the visa centre's notice, then ₦5,000 leaves and it is issued between one and three months later, valid twelve", () => {
     const entry = content.document[POLICE]!;
     expect(entry).toMatchObject({ wait: [1, 3], validMonths: 12 });
     const seen = new Set<number>();
@@ -236,7 +236,7 @@ describe("the police certificate", () => {
       const game = readyLife(content, { quiet: true, seed: `police-${String(n)}` });
       const paid = () => game.state.wallet.totals.out["fee-document"]?.NGN ?? 0;
       const before = paid();
-      // R-ACTIVITY-015: the request is made at once, in the month in hand, and its wait runs from that month.
+      // activity:now-acts-and-month-acts: the request is made at once, in the month in hand, and its wait runs from that month.
       game.accept({ type: "activity/now", activity: GET_POLICE, param: null });
       const month = game.state.turn.month;
       const doc = game.state.document[POLICE]!;

@@ -1,7 +1,7 @@
-// The prologue: docs/rules/prologue.md, R-PROLOGUE-001 to 008. The choices
+// The prologue: docs/rules/prologue.md, prologue:prologue-life-starts-empty, prologue:family-draw-on-first-answer, prologue:steps-offer-legal-answers, prologue:age-advances-with-steps, prologue:headlines-and-friend-route, prologue:closing-opens-home-charges, prologue:fixed-life-skips-prologue and prologue:view-shows-step-card. The choices
 // from sixteen to twenty-two that build a starting life. The steps, their
 // answers, effects and draws are content; this kind walks them, and keeps the
-// age picked on the age card (R-PROLOGUE-004, decision 0023).
+// age picked on the age card (prologue:age-advances-with-steps, decision 0023).
 import { allMet } from "../engine/check";
 import { QUALITY } from "../engine/ids";
 import { BP_WHOLE, clamp, divFloor } from "../engine/int";
@@ -39,13 +39,13 @@ const FIRST_STEP = "draw";
 
 const AFTER_SCHOOL = "after-school";
 const GRADUATION = "graduation";
-/** The flag `expo` sets: the grade can fall by one (R-PROLOGUE-003, step 8). */
+/** The flag `expo` sets: the grade can fall by one (prologue:steps-offer-legal-answers, step 8). */
 const CUT_CORNER = "cut-corner";
 
 const YEAR = 12;
 
 /**
- * R-PROLOGUE-004 (decision 0023): the steps a draw's bad outcome leads to. A retake or a strike puts the path's end
+ * prologue:age-advances-with-steps (decision 0023): the steps a draw's bad outcome leads to. A retake or a strike puts the path's end
  * later; it is drawn only while the years picked still leave work after it.
  */
 const SETBACKS: readonly string[] = ["retake", "strike-drag"];
@@ -55,7 +55,7 @@ export const WORK = "work";
 const START = /^start-(\d+)$/;
 
 /**
- * R-PROLOGUE-005: the headlines pass as these steps are answered, one each. Every path passes both.
+ * prologue:headlines-and-friend-route: the headlines pass as these steps are answered, one each. Every path passes both.
  * The page names no steps; the school certificate and the send-off are the two every path shares.
  */
 const HEADLINE_STEPS: readonly string[] = [AFTER_SCHOOL, "friend"];
@@ -68,13 +68,13 @@ function stepEntry(content: Content, id: string): PrologueStep | null {
   return content.prologue[id] ?? null;
 }
 
-/** The step whose answer says where the life sleeps at twenty-two; Makoko's says where it was born (R-PROLOGUE-012). */
+/** The step whose answer says where the life sleeps at twenty-two; Makoko's says where it was born (prologue:makoko-start-never-a-trap). */
 const HOME_STEP = "home";
 
 /**
- * Where the family drawn is from (R-PROLOGUE-002): a town or a city by
+ * Where the family drawn is from (prologue:family-draw-on-first-answer): a town or a city by
  * the draw's own split, picked by its means, its siblings and its parents' schooling, so the same family is always from
- * the same place, a sibling's life too (R-PEOPLE-011), and no stream moves: nothing new is drawn.
+ * the same place, a sibling's life too (person:real-sibling-shares-family-draw), and no stream moves: nothing new is drawn.
  */
 export function familyHometown(draw: NonNullable<PrologueSlice["draw"]>, numbers: Tuning["prologue"]): string | null {
   const list = draw.town === "city" ? numbers.hometowns.city : numbers.hometowns.town;
@@ -84,9 +84,9 @@ export function familyHometown(draw: NonNullable<PrologueSlice["draw"]>, numbers
 }
 
 /**
- * R-PROLOGUE-002: where the life is from. A fixed life names its own; a life from sixteen reads
+ * prologue:family-draw-on-first-answer: where the life is from. A fixed life names its own; a life from sixteen reads
  * it from the family drawn, unless its home answer says where it was born (the child of the water's Lagos,
- * R-PROLOGUE-012). Null until the family is drawn.
+ * prologue:makoko-start-never-a-trap). Null until the family is drawn.
  */
 export function hometownOf(state: State, content: Content): string | null {
   const own = content.scenario[state.scenario]?.hometown;
@@ -99,19 +99,19 @@ export function hometownOf(state: State, content: Content): string | null {
   return born ?? familyHometown(draw, numbers);
 }
 
-/** R-PROLOGUE-002: the parents' chance of schooling, by family means. */
+/** prologue:family-draw-on-first-answer: the parents' chance of schooling, by family means. */
 export function parentsEducatedBp(familyMeans: number, numbers: Tuning["prologue"]): number {
   return numbers.parentsEducatedBp + numbers.parentsEducatedPerPoint * familyMeans;
 }
 
-/** The grade a degree ends with, from the grade base and the two draws (R-PROLOGUE-003, step 8). */
+/** The grade a degree ends with, from the grade base and the two draws (prologue:steps-offer-legal-answers, step 8). */
 export function gradeOf(gradeBase: number, up: boolean, down: boolean, numbers: Tuning["prologue"]): number {
   const { grade } = numbers;
   return clamp(grade.base + gradeBase + (up ? 1 : 0) - (down ? 1 : 0), grade.min, grade.max);
 }
 
 /**
- * The stories a headline can be. R-PROLOGUE-005 wants the years before the
+ * The stories a headline can be. prologue:headlines-and-friend-route wants the years before the
  * game's start: stories the world announced before tick 0, oldest first. The
  * stand-in world has none, so the era pool's stories follow, in content order,
  * as flavour.
@@ -125,13 +125,13 @@ function headlinePool(world: World, content: Content): Id<"news">[] {
   return [...new Set([...before, ...eras])];
 }
 
-/** R-PROLOGUE-004: the year an age card's answer picks, or null for any other answer. */
+/** prologue:age-advances-with-steps: the year an age card's answer picks, or null for any other answer. */
 export function startYearOf(answer: string): number | null {
   const found = START.exec(answer);
   return found === null ? null : Number(found[1]);
 }
 
-/** R-PROLOGUE-004: the year the life starts at, from the age card answered, or null before one is. */
+/** prologue:age-advances-with-steps: the year the life starts at, from the age card answered, or null before one is. */
 export function startYear(choices: Readonly<Record<string, string>>): number | null {
   for (const answer of Object.values(choices)) {
     const year = startYearOf(answer);
@@ -151,7 +151,7 @@ function isSetback(step: PrologueStep, answer: Answer, outcome: Outcome): boolea
 }
 
 /**
- * R-PROLOGUE-004: the months from entering `from` to the path's end (the years worked, or the close), the longest
+ * prologue:age-advances-with-steps: the months from entering `from` to the path's end (the years worked, or the close), the longest
  * way with no setback: every answer, whatever it requires, and every outcome of a draw but a retake or a strike.
  */
 export function pathMonths(steps: Readonly<Record<string, PrologueStep>>, from: string | null, seen: readonly string[] = []): number {
@@ -168,7 +168,7 @@ export function pathMonths(steps: Readonly<Record<string, PrologueStep>>, from: 
 }
 
 /**
- * R-PROLOGUE-004 (decision 0023): a draw whose retake or strike would leave no year of work before the age picked is
+ * prologue:age-advances-with-steps (decision 0023): a draw whose retake or strike would leave no year of work before the age picked is
  * not made, and the first outcome that is no setback is taken in its place: the exam passes, the strike does not come.
  * Null when the draw is made.
  */
@@ -182,7 +182,7 @@ function spared(ctx: Ctx, step: PrologueStep, answer: Answer): Outcome | null {
 }
 
 /**
- * R-PROLOGUE-004 (decision 0023): the years from the path's end to the age picked, worked one by one with the work
+ * prologue:age-advances-with-steps (decision 0023): the years from the path's end to the age picked, worked one by one with the work
  * card's answers in order (the last for every year after), so the life closes at the picked year and the months into
  * it the path had reached. Returns the step after the work.
  */
@@ -210,7 +210,7 @@ function add(quality: Id<"quality">, amount: number): Effect {
   return { type: "quality/add", quality, amount };
 }
 
-/** R-PROLOGUE-002: the family drawn on stream `prologue`. */
+/** prologue:family-draw-on-first-answer: the family drawn on stream `prologue`. */
 function drawFamily(ctx: Ctx): NonNullable<PrologueSlice["draw"]> {
   const { familyMeans, siblings, cityBp } = ctx.content.tuning.prologue;
   const means = ctx.random.between("prologue", familyMeans[0], familyMeans[1]);
@@ -221,8 +221,8 @@ function drawFamily(ctx: Ctx): NonNullable<PrologueSlice["draw"]> {
 }
 
 /**
- * R-PROLOGUE-002: step 0's draw and the qualities it sets from their minimum.
- * A sibling's life begins holding the inviter's draw (R-PEOPLE-011), which is
+ * prologue:family-draw-on-first-answer: step 0's draw and the qualities it sets from their minimum.
+ * A sibling's life begins holding the inviter's draw (person:real-sibling-shares-family-draw), which is
  * copied here and never drawn again.
  */
 function draw(ctx: Ctx): BaseEvent[] {
@@ -256,13 +256,13 @@ function drawOutcome(ctx: Ctx, outcomes: readonly Outcome[]): Outcome {
   return last;
 }
 
-/** R-PROLOGUE-003, step 2: the school certificate fee strains a family under 30. */
+/** prologue:steps-offer-legal-answers, step 2: the school certificate fee strains a family under 30. */
 function waec(ctx: Ctx): void {
   const { waecStrain } = ctx.content.tuning.prologue;
   if ((ctx.state.quality[QUALITY.familyMeans] ?? 0) < waecStrain.under) ctx.apply([add(QUALITY.standing, waecStrain.standing)], cause());
 }
 
-/** R-PROLOGUE-003, step 8: the grade draw, set on `quality.edu-grade`. */
+/** prologue:steps-offer-legal-answers, step 8: the grade draw, set on `quality.edu-grade`. */
 function graduate(ctx: Ctx): BaseEvent[] {
   const slice = ctx.state.prologue;
   const numbers = ctx.content.tuning.prologue;
@@ -274,7 +274,7 @@ function graduate(ctx: Ctx): BaseEvent[] {
   return emit(ctx, "prologue", [graded]);
 }
 
-/** R-PROLOGUE-005: the headline that passes as this step is answered, if one does. */
+/** prologue:headlines-and-friend-route: the headline that passes as this step is answered, if one does. */
 function headline(ctx: Ctx, step: string): BaseEvent[] {
   const index = HEADLINE_STEPS.indexOf(step);
   if (index < 0) return [];
@@ -285,10 +285,10 @@ function headline(ctx: Ctx, step: string): BaseEvent[] {
 }
 
 /**
- * `prologue/choose` (R-PROLOGUE-003). The answer must be one of the current
+ * `prologue/choose` (prologue:steps-offer-legal-answers). The answer must be one of the current
  * step's with its requires holding. Its effects apply, its flags and grade
  * base are kept, its draw is made, age moves by the step's months
- * (R-PROLOGUE-004), and when nothing follows the prologue closes (R-PROLOGUE-006).
+ * (prologue:age-advances-with-steps), and when nothing follows the prologue closes (prologue:closing-opens-home-charges).
  */
 function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "prologue/choose") throw new Error(`prologue/choose cannot handle ${command.type}.`);
@@ -328,7 +328,7 @@ function choose(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   };
   events.push(...emit(ctx, "prologue", [chosen]));
   if (next === null) {
-    // R-PROLOGUE-006: the upkeep was opened by the last answer's effects. No turn can be spent while the
+    // prologue:closing-opens-home-charges: the upkeep was opened by the last answer's effects. No turn can be spent while the
     // prologue is open, so the bank closes where the turn kind started it, at `tuning.turn.start`.
     const closed: PrologueEvent = { type: "prologue/closed" };
     events.push(...emit(ctx, "prologue", [closed]));
@@ -355,7 +355,7 @@ function evolve(slice: PrologueSlice, event: PrologueEvent): PrologueSlice {
       };
     case "prologue/graded":
     case "prologue/headline":
-      // The grade lives on `quality.edu-grade`; a headline is flavour and changes nothing (R-PROLOGUE-005).
+      // The grade lives on `quality.edu-grade`; a headline is flavour and changes nothing (prologue:headlines-and-friend-route).
       return slice;
     case "prologue/closed":
       return { ...slice, open: false, step: null };
@@ -384,7 +384,7 @@ function lines(event: PrologueEvent): ReportLine[] {
     case "prologue/closed":
       return [line("line.prologue.closed", {}, "good", true)];
     case "prologue/chosen":
-      // The answer is on the card the player just pressed, and its outcome shows on the next (R-PROLOGUE-008).
+      // The answer is on the card the player just pressed, and its outcome shows on the next (prologue:view-shows-step-card).
       return [];
     default: {
       const never: never = event;
@@ -401,7 +401,7 @@ function invariants(state: State, content: Content): string[] {
   return [];
 }
 
-/** R-PROLOGUE-008: the card, its answers with `allowed`, and the draws already made. Nothing before it is drawn. Where the life is from stays after the close (R-PROLOGUE-002). */
+/** prologue:view-shows-step-card: the card, its answers with `allowed`, and the draws already made. Nothing before it is drawn. Where the life is from stays after the close (prologue:family-draw-on-first-answer). */
 function view(read: ReadCtx): Pick<PlayerView, "prologue" | "hometown"> {
   const slice = read.state.prologue;
   const hometown = hometownOf(read.state, read.content);
@@ -421,7 +421,7 @@ function view(read: ReadCtx): Pick<PlayerView, "prologue" | "hometown"> {
 
 export const prologueKind: RegisteredKind<PrologueSlice, PrologueEvent> = {
   kind: "prologue",
-  // R-PROLOGUE-001 and 007: open at step 0 for the prologue's own life; closed, with nothing recorded, for a fixed one.
+  // prologue:prologue-life-starts-empty and prologue:fixed-life-skips-prologue: open at step 0 for the prologue's own life; closed, with nothing recorded, for a fixed one.
   initial: (scenario) => ({
     open: scenario.prologue === true,
     step: scenario.prologue === true ? FIRST_STEP : null,

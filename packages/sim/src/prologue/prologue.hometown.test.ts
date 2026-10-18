@@ -1,4 +1,4 @@
-// Where the life is from (prologue.md R-PROLOGUE-002): read from the
+// Where the life is from (prologue:family-draw-on-first-answer): read from the
 // family drawn, never drawn on its own, and kept in the view after the prologue closes.
 import { content, hometownRegion, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -46,7 +46,7 @@ function everyFamily(): { draw: Draw; weight: number }[] {
 }
 
 describe("where the life is from", () => {
-  test("[R-PROLOGUE-002] given a new prologue, when nothing is drawn yet, then the view names no hometown; once the family is drawn it names one from the draw's own list, reading it moves no stream, and it stays in the view after the prologue closes", () => {
+  test("[prologue:family-draw-on-first-answer] given a new prologue, when nothing is drawn yet, then the view names no hometown; once the family is drawn it names one from the draw's own list, reading it moves no stream, and it stays in the view after the prologue closes", () => {
     for (let run = 0; run < 40; run += 1) {
       const game = newGame(`hometown-${String(run)}`);
       expect(game.view().hometown).toBeNull();
@@ -64,7 +64,7 @@ describe("where the life is from", () => {
     }
   });
 
-  test("[R-PROLOGUE-002] given every family the draw can make, when its hometown is read, then a family drawn in the city is from a city and one in a town from a town, every hometown is someone's, and none is more than a fifth above its fair share", () => {
+  test("[prologue:family-draw-on-first-answer] given every family the draw can make, when its hometown is read, then a family drawn in the city is from a city and one in a town from a town, every hometown is someone's, and none is more than a fifth above its fair share", () => {
     const families = everyFamily();
     for (const side of ["city", "town"] as const) {
       const list = numbers.hometowns[side];
@@ -82,11 +82,11 @@ describe("where the life is from", () => {
     }
   });
 
-  test("[R-PROLOGUE-002] given the same family drawn twice, as a sibling's life holds its inviter's draw (R-PEOPLE-011), when the hometown is read, then it is the same place", () => {
+  test("[prologue:family-draw-on-first-answer] given the same family drawn twice, as a sibling's life holds its inviter's draw (person:real-sibling-shares-family-draw), when the hometown is read, then it is the same place", () => {
     for (const { draw } of everyFamily().slice(0, 200)) expect(familyHometown({ ...draw }, numbers)).toBe(familyHometown(draw, numbers));
   });
 
-  test("[R-PROLOGUE-002] [R-PROLOGUE-012] given the child of the water, whose home answer is Makoko, when the prologue closes, then the life is from Lagos, whatever the family drawn", () => {
+  test("[prologue:family-draw-on-first-answer] [prologue:makoko-start-never-a-trap] given the child of the water, whose home answer is Makoko, when the prologue closes, then the life is from Lagos, whatever the family drawn", () => {
     expect(numbers.hometowns.byHome["makoko"]).toBe("hometown.lagos");
     const game = newGame("hometown-water");
     playOut(game, "makoko");
@@ -94,7 +94,7 @@ describe("where the life is from", () => {
     expect(game.view().hometown).toBe("hometown.lagos");
   });
 
-  test("[R-PROLOGUE-002] given every fixed life, when it starts, then it is from its own hometown, named in content, and never Lagos", () => {
+  test("[prologue:family-draw-on-first-answer] given every fixed life, when it starts, then it is from its own hometown, named in content, and never Lagos", () => {
     const fixed = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => id !== PROLOGUE);
     expect(fixed.length).toBeGreaterThan(0);
     for (const life of fixed) {
@@ -107,7 +107,7 @@ describe("where the life is from", () => {
     }
   });
 
-  test("[R-PROLOGUE-002] given every hometown in content, when its words are looked up, then it has a name, none repeats, Lagos is in neither list, and both lists reach the north and the south", () => {
+  test("[prologue:family-draw-on-first-answer] given every hometown in content, when its words are looked up, then it has a name, none repeats, Lagos is in neither list, and both lists reach the north and the south", () => {
     const all = [...numbers.hometowns.city, ...numbers.hometowns.town, ...Object.values(numbers.hometowns.byHome)];
     expect(all.filter((hometown) => (text[`${hometown}.name`] ?? "").trim() === "")).toEqual([]);
     const listed = [...numbers.hometowns.city, ...numbers.hometowns.town];

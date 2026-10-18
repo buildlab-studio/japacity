@@ -1,5 +1,4 @@
-// What one life knows of another person: docs/rules/person.md R-PEOPLE-001,
-// R-PEOPLE-005 and R-PEOPLE-046 to 048. Pure: the server, the kind and the
+// What one life knows of another person: person:others-known-by-facts, person:facts-function-is-pure, person:computer-is-a-person-entry, person:computer-siblings-drawn-with-family and person:computer-partner-facts. Pure: the server, the kind and the
 // tests all read the same facts, and none of it reads the seed or a secret.
 import { resolveAmount } from "../engine/check";
 import { QUALITY } from "../engine/ids";
@@ -18,8 +17,8 @@ export function jointRouteOf(slice: PeopleSlice, content: Content): Id<"route"> 
 }
 
 /**
- * R-PEOPLE-005: this character's facts as the server hands them to another life.
- * `funds` only under consent (R-PEOPLE-004), valued as R-ROUTE-010 values them
+ * person:facts-function-is-pure: this character's facts as the server hands them to another life.
+ * `funds` only under consent (person:money-counted-never-moved), valued as route:funds-shown-exclude-cash values them
  * for the joint route; pay only as `meetsFloor`.
  */
 export function factsOf(state: State, content: Content, world: World): PersonFacts {
@@ -53,14 +52,14 @@ export function factsOf(state: State, content: Content, world: World): PersonFac
   };
 }
 
-/** Where a computer character is at the character's month (R-PEOPLE-047). */
+/** Where a computer character is at the character's month (person:computer-siblings-drawn-with-family). */
 function abroadAt(entry: PersonEntry, month: number): boolean {
   const { country, abroadFromMonth } = entry.profile;
   return country !== null && abroadFromMonth !== null && month >= abroadFromMonth;
 }
 
 /**
- * R-PEOPLE-046 to 048: a computer character's facts, built from its entry at
+ * person:computer-is-a-person-entry, person:computer-siblings-drawn-with-family and person:computer-partner-facts: a computer character's facts, built from its entry at
  * the character's month. Its age is kept on the bond and moves with the months.
  * A computer's status never runs out, so `statusMonthsLeft` is null.
  */

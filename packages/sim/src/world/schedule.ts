@@ -1,11 +1,11 @@
-// The stand-in world's news schedule: docs/rules/news.md, R-NEWS-001 to 003.
+// The stand-in world's news schedule: docs/rules/news.md, news:stages-move-forward-only, news:force-waits-after-announcement and news:story-fate-drawn-from-seed.
 // Drawn once from the world seed on the world's own `shock` stream. Each story
 // owns a fixed run of draw positions, by its place in id order, so whether one
 // story happens never moves the draws of another.
 import { createRandom } from "../engine/random";
 import type { Content, Id, NewsEntry, NewsStage, WorldNews } from "../engine/types";
 
-/** The world's own streams (engine.md section 6, and `era` from director.md R-DIRECTOR-002). A character's draws never touch them. */
+/** The world's own streams (engine.md section 6, and `era` from director:one-era-at-a-time). A character's draws never touch them. */
 export type WorldStream = "rate" | "shock" | "rule" | "era";
 
 /** Draw positions each story owns on `shock`: whether it happens, then its announce tick or lag. */
@@ -25,7 +25,7 @@ export type NewsSchedule = Partial<Record<Id<"news">, StoryTicks>>;
 function tickOfStage(ticks: StoryTicks, stage: NewsStage): number | null {
   switch (stage) {
     case "rumour":
-      // A story with no rumour lead starts at announced (R-NEWS-001), so "after its rumour" is after its announcement.
+      // A story with no rumour lead starts at announced (news:stages-move-forward-only), so "after its rumour" is after its announcement.
       return ticks.rumour ?? ticks.announced;
     case "announced":
       return ticks.announced;
@@ -46,7 +46,7 @@ function followsOn(entry: NewsEntry, leader: Id<"news">): boolean {
   return "after" in announce && announce.after === leader;
 }
 
-/** Draws the whole schedule from the world seed (R-NEWS-003). */
+/** Draws the whole schedule from the world seed (news:story-fate-drawn-from-seed). */
 export function newsSchedule(worldSeed: string, content: Content): NewsSchedule {
   const ids = (Object.keys(content.news) as Id<"news">[]).sort();
   const resolved = new Map<Id<"news">, StoryTicks | null>();
@@ -72,7 +72,7 @@ export function newsSchedule(worldSeed: string, content: Content): NewsSchedule 
       const lag = random.between("shock", min, max);
       const { after, stage } = standIn.announce;
       const leader = start(after);
-      // A story that follows one that never reaches the named stage never happens (R-NEWS-003).
+      // A story that follows one that never reaches the named stage never happens (news:story-fate-drawn-from-seed).
       const at = leader === null ? null : stage === "ended" ? endedOf(after, leader) : tickOfStage(leader, stage);
       announced = at === null ? null : at + lag;
     }

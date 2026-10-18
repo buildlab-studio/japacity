@@ -15,7 +15,7 @@ function ngozi(): Game {
 }
 
 describe("the body", () => {
-  test("[R-QUALITY-007] given a new life, when its body is read, then the belly and the energy start where the scenario says, hidden from the profile and said in words only", () => {
+  test("[quality:body-belly-and-energy] given a new life, when its body is read, then the belly and the energy start where the scenario says, hidden from the profile and said in words only", () => {
     const game = ngozi();
     expect(game.state.quality[BELLY]).toBe(60);
     expect(game.state.quality[ENERGY]).toBe(70);
@@ -23,7 +23,7 @@ describe("the body", () => {
     expect(content.quality[ENERGY]).toMatchObject({ shown: false, start: 70 });
   });
 
-  test("[R-QUALITY-007] given a new life, when its view is read, then it carries the belly and the energy for the screen to say in words, and no other hidden quality", () => {
+  test("[quality:body-belly-and-energy] given a new life, when its view is read, then it carries the belly and the energy for the screen to say in words, and no other hidden quality", () => {
     const qualities = ngozi().view().qualities;
     expect(qualities.find((quality) => quality.id === BELLY)?.value).toBe(60);
     expect(qualities.find((quality) => quality.id === ENERGY)?.value).toBe(70);
@@ -31,7 +31,7 @@ describe("the body", () => {
     expect(hidden.sort()).toEqual([BELLY, ENERGY].sort());
   });
 
-  test("[R-QUALITY-007] [R-ACTIVITY-019] given a meal and a nap, when each is done now, then the belly and the energy move at once, less the time the act takes", () => {
+  test("[quality:body-belly-and-energy] [activity:acts-may-repeat-in-month] given a meal and a nap, when each is done now, then the belly and the energy move at once, less the time the act takes", () => {
     const game = ngozi();
     const { body } = content.tuning.turn;
     const meal = content.activity[COOK]!;
@@ -45,11 +45,11 @@ describe("the body", () => {
     expect(game.state.activity.played[COOK]).toBe(2);
   });
 
-  test("[R-QUALITY-007] given a hungry and spent life, when the month turns, then wellbeing pays for both and the body rests back toward sixty", () => {
+  test("[quality:body-belly-and-energy] given a hungry and spent life, when the month turns, then wellbeing pays for both and the body rests back toward sixty", () => {
     const game = ngozi();
     const { body } = content.tuning.turn;
     // Nollywood until the belly is low (the time lived takes it down), then water, which tires, until the body is spent:
-    // an act that takes effort then waits for sleep (R-ACTIVITY-020).
+    // an act that takes effort then waits for sleep (activity:spent-body-refuses-acts).
     while ((game.state.quality[BELLY] ?? 0) >= body.lowBelow) game.accept({ type: "activity/now", activity: "activity.watch-tv", param: null });
     while ((game.state.quality[ENERGY] ?? 0) >= body.spentBelow) game.accept({ type: "activity/now", activity: "activity.fetch-water", param: null });
     game.expectRejected({ type: "activity/now", activity: "activity.fetch-water", param: null }, "not-legal");

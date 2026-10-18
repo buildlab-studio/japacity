@@ -1,7 +1,7 @@
-// The points gate: docs/rules/route-gates.md R-POINTS-001 to 005. The score is
+// The points gate: route-gates:points-score-from-table, route-gates:entering-the-pool, route-gates:pool-draws-invite, route-gates:points-decision-gives-residence and route-gates:profile-lapses-and-score-ages. The score is
 // worked out from the state each time it is asked for; the gate keeps only the
 // month the profile went into the pool and the month of the invitation. The
-// invitation, not a slot, sends the application (R-POINTS-003).
+// invitation, not a slot, sends the application (route-gates:pool-draws-invite).
 import { heldBand, tenureAcross } from "../../activity/activity.logic";
 import { check, worldVar } from "../../engine/check";
 import { QUALITY } from "../../engine/ids";
@@ -29,12 +29,12 @@ type PointsBlock = NonNullable<RouteEntry["points"]>;
 type PointsState = Extract<RouteGateState, { gate: "points" }>;
 
 const CARE: Id<"quality"> = "quality.care";
-/** The Canadian line is counted in Canadian cents (R-POINTS-002). */
+/** The Canadian line is counted in Canadian cents (route-gates:entering-the-pool). */
 const FUNDS_CURRENCY: ForeignCurrency = "CAD";
 const MONTHS_PER_YEAR = 12;
-/** R-POINTS-001: one band scores each of the four abilities. */
+/** route-gates:points-score-from-table: one band scores each of the four abilities. */
 const ABILITIES = 4;
-/** Education after secondary school earns the transferability points (R-POINTS-001). */
+/** Education after secondary school earns the transferability points (route-gates:points-score-from-table). */
 const POST_SECONDARY = 2;
 
 function blockOf(entry: RouteEntry): PointsBlock {
@@ -73,7 +73,7 @@ export interface PointsParts {
   transfer: number;
 }
 
-/** R-POINTS-001, part by part, from the state as it is now. */
+/** route-gates:points-score-from-table, part by part, from the state as it is now. */
 export function pointsParts(read: ReadCtx, route: Id<"route">): PointsParts {
   return partsFrom(read, tableOf(read.content, blockOf(routeEntry(read.content, route))));
 }
@@ -110,7 +110,7 @@ function sumOf(parts: PointsParts): number {
   return parts.age + parts.education + parts.language + parts.transfer;
 }
 
-/** R-PEOPLE-030: the table the points block names for the lead's columns with a spouse. */
+/** person:canada-spouse-points: the table the points block names for the lead's columns with a spouse. */
 function spouseTableOf(content: Content, block: PointsBlock): PointsEntry & { spouse: NonNullable<PointsEntry["spouse"]> } {
   const table = block.spouseTable === null ? undefined : content.points[block.spouseTable];
   if (table?.spouse === undefined) throw new Error(`The content has no spouse table for ${block.table}.`);
@@ -118,7 +118,7 @@ function spouseTableOf(content: Content, block: PointsBlock): PointsEntry & { sp
 }
 
 /**
- * R-PEOPLE-030: the facts of the partner a joint on this route names as the
+ * person:canada-spouse-points: the facts of the partner a joint on this route names as the
  * dependant, while the character leads it. Null: the character applies alone.
  */
 function spouseOnJoint(read: ReadCtx, route: Id<"route">): PersonFacts | null {
@@ -129,7 +129,7 @@ function spouseOnJoint(read: ReadCtx, route: Id<"route">): PersonFacts | null {
 }
 
 /**
- * R-PEOPLE-030: the spouse's own factors from the facts, capped: education by
+ * person:canada-spouse-points: the spouse's own factors from the facts, capped: education by
  * `eduLevel`, the band for each of four abilities, and Canadian work. A
  * spouse has Canadian work only while working in the route's country, a
  * year for each twelve months there.
@@ -158,7 +158,7 @@ function residentStatuses(read: ReadCtx, entry: RouteEntry): Id<"status">[] {
 }
 
 /**
- * R-PEOPLE-031: `siblingBonus` for a sibling, real or computer, abroad in the
+ * person:canada-sibling-bonus: `siblingBonus` for a sibling, real or computer, abroad in the
  * route's country with the status the route gives or one after it, aged at
  * least the table's first age, as the people kind judges `people/sibling-abroad`.
  * One is enough.
@@ -172,21 +172,21 @@ export function siblingPoints(read: ReadCtx, route: Id<"route">): number {
   return found ? table.siblingBonus : 0;
 }
 
-/** R-POINTS-001 and R-PEOPLE-031: the score applying alone. */
+/** route-gates:points-score-from-table and person:canada-sibling-bonus: the score applying alone. */
 export function pointsScoreAlone(read: ReadCtx, route: Id<"route">): number {
   return sumOf(pointsParts(read, route)) + siblingPoints(read, route);
 }
 
-/** R-PEOPLE-030, 031: the score leading with this spouse: the with-spouse columns, the spouse's factors, the sibling. */
+/** person:canada-spouse-points, person:canada-sibling-bonus: the score leading with this spouse: the with-spouse columns, the spouse's factors, the sibling. */
 export function pointsScoreWith(read: ReadCtx, route: Id<"route">, spouse: PersonFacts): number {
   const table = spouseTableOf(read.content, blockOf(routeEntry(read.content, route)));
   return sumOf(partsFrom(read, table)) + spouseFactors(read, route, spouse) + siblingPoints(read, route);
 }
 
 /**
- * R-POINTS-001: the score, a pure reading of the state. Age makes it a clock
- * (R-POINTS-005). With a dependant on the joint the lead's score uses the
- * spouse's table (R-PEOPLE-030); a sibling there adds its bonus (R-PEOPLE-031).
+ * route-gates:points-score-from-table: the score, a pure reading of the state. Age makes it a clock
+ * (route-gates:profile-lapses-and-score-ages). With a dependant on the joint the lead's score uses the
+ * spouse's table (person:canada-spouse-points); a sibling there adds its bonus (person:canada-sibling-bonus).
  */
 export function pointsScore(read: ReadCtx, route: Id<"route">): number {
   const spouse = spouseOnJoint(read, route);
@@ -195,7 +195,7 @@ export function pointsScore(read: ReadCtx, route: Id<"route">): number {
 }
 
 /**
- * R-POINTS-002 with R-ROUTE-010's reading in Canadian cents: the bank and
+ * route-gates:entering-the-pool with route:funds-shown-exclude-cash's reading in Canadian cents: the bank and
  * locked pockets of every currency and any family support, each pocket
  * converted in one step and rounded down once. Cash never counts.
  */
@@ -213,7 +213,7 @@ export function pointsFunds(read: ReadCtx, route: Id<"route">): { shown: number;
 }
 
 /**
- * R-ROUTE-013 against the Canadian line: the wallet's lots in Canadian cents
+ * route:unexplained-share-of-funds against the Canadian line: the wallet's lots in Canadian cents
  * as a share of `fundsVar`, never above the whole.
  */
 export function pointsUnexplainedBp(read: ReadCtx, route: Id<"route">): number {
@@ -224,7 +224,7 @@ export function pointsUnexplainedBp(read: ReadCtx, route: Id<"route">): number {
   return required <= 0 ? BP_WHOLE : Math.min(BP_WHOLE, mulDiv(lots, BP_WHOLE, required));
 }
 
-/** R-POINTS-003: the general cut-off at or below the score, or the care cut-off for a carer. */
+/** route-gates:pool-draws-invite: the general cut-off at or below the score, or the care cut-off for a carer. */
 export function invites(read: ReadCtx, route: Id<"route">): boolean {
   const block = blockOf(routeEntry(read.content, route));
   const score = pointsScore(read, route);
@@ -243,7 +243,7 @@ function updated(ctx: Ctx, route: Id<"route">, gate: PointsState, note: string |
 }
 
 /**
- * R-POINTS-002: `route/enter-pool` from the slot. The slot's requirements,
+ * route-gates:entering-the-pool: `route/enter-pool` from the slot. The slot's requirements,
  * the Canadian funds among them, were judged when the turn was accepted; the
  * route kind's funds check reads this gate's line in Canadian cents.
  */
@@ -263,7 +263,7 @@ function canPayFee(ctx: Ctx, block: PointsBlock): boolean {
 }
 
 /**
- * R-POINTS-003, R-ROUTE-014: pay the fee as a foreign fee in Canadian cents
+ * route-gates:pool-draws-invite, route:application-fixes-figures: pay the fee as a foreign fee in Canadian cents
  * and send the application, decided `decisionVar` months later. The caller has
  * judged that the fee can be paid.
  *
@@ -295,10 +295,10 @@ function payAndSend(ctx: Ctx, entry: RouteEntry, block: PointsBlock): BaseEvent[
  * lapses, a profile lapses at `profileMonths`, and a live profile is invited.
  *
  * A profile entered in month m is live in months m to m + 11 and
- * lapses in m + 12 (R-POINTS-005). An invitation that cannot be paid stands
+ * lapses in m + 12 (route-gates:profile-lapses-and-score-ages). An invitation that cannot be paid stands
  * through the next month's clocks, which try the fee once more, and lapses
  * there if it still cannot be paid; the profile goes on and is looked at again
- * the month after. No invitation comes while the window is closed (R-ROUTE-005).
+ * the month after. No invitation comes while the window is closed (route:closed-window-blocks-applying).
  */
 function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const block = blockOf(entry);
@@ -340,9 +340,9 @@ export const pointsGate: Gate = {
     if (step === "invited") return gate.invitedMonth !== null;
     return false;
   },
-  // R-POINTS-003: the invitation sends the application; no slot does.
+  // route-gates:pool-draws-invite: the invitation sends the application; no slot does.
   mayApply: () => false,
-  // R-POINTS-004: the unexplained share and earlier refusals, not the strictness.
+  // route-gates:points-decision-gives-residence: the unexplained share and earlier refusals, not the strictness.
   decision: () => ({ terms: { strictness: false, unexplained: true, refusals: true, interview: false, goodGrade: false }, override: null, bans: false }),
   clocks,
   effects: {
@@ -351,9 +351,9 @@ export const pointsGate: Gate = {
       return enterPool(ctx, routeEntry(ctx.content, effect.route));
     },
   },
-  // R-POINTS-002: the settlement funds in Canadian cents are what this route shows.
+  // route-gates:entering-the-pool: the settlement funds in Canadian cents are what this route shows.
   funds: (read, entry) => ({ required: worldVar(read, blockOf(entry).fundsVar), currency: FUNDS_CURRENCY }),
-  // R-POINTS-001: the score shows from the moment the route is known.
+  // route-gates:points-score-from-table: the score shows from the moment the route is known.
   view: (read, entry, held) => {
     const block = blockOf(entry);
     const gate = gateOf(held);
@@ -362,7 +362,7 @@ export const pointsGate: Gate = {
       points: pointsScore(read, entry.id),
       cutoff: worldVar(read, block.cutoffVar),
       careCutoff: block.careCutoffVar === null ? null : worldVar(read, block.careCutoffVar),
-      // R-POINTS-006: the clocks' own test, the care cut-off for a carer among it.
+      // route-gates:points-view-carries-invites: the clocks' own test, the care cut-off for a carer among it.
       invites: invites(read, entry.id),
       poolMonth: gate.poolMonth,
       profileEndsMonth: gate.poolMonth === null ? null : gate.poolMonth + block.profileMonths,

@@ -1,4 +1,4 @@
-// The months kept (decision 0024, world.md R-WORLD-008): as each month closes, the wallet counts it as kept
+// The months kept (decision 0024, world:month-end-results-sheet): as each month closes, the wallet counts it as kept
 // when its net in the money of the place was above zero, from the same ledger the results sheet reads.
 // Read on the recorded lives and on months played from them.
 import { content } from "@japacity/content";
@@ -69,7 +69,7 @@ function netOf(events: readonly BaseEvent[], currency: Currency): number {
 }
 
 describe("the months kept", () => {
-  test("[R-WALLET-015] [R-WORLD-008] given each recorded life, when each month closes, then its net is the month's ledger in the money of the place where it ended, and the count is the months whose net was above zero", () => {
+  test("[wallet:months-kept-counted] [world:month-end-results-sheet] given each recorded life, when each month closes, then its net is the month's ledger in the money of the place where it ended, and the count is the months whose net was above zero", () => {
     for (const [name, save] of Object.entries(SAVES)) {
       const game = start({ content, scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed });
       const month: BaseEvent[] = [];
@@ -97,7 +97,7 @@ describe("the months kept", () => {
     }
   });
 
-  test("[R-WORLD-008] given a new life, when months close before the first kept one, then the slice carries no count and no month's net at a month's end, and the view's count is nothing", () => {
+  test("[world:month-end-results-sheet] given a new life, when months close before the first kept one, then the slice carries no count and no month's net at a month's end, and the view's count is nothing", () => {
     const game = start({ content, scenario: "scenario.ada", seed: "kept-1", worldSeed: "golden-world" });
     expect(game.view().keptMonths).toBe(0);
     expect(game.state.wallet).not.toHaveProperty("keptMonths");
@@ -114,7 +114,7 @@ describe("the months kept", () => {
     expect(game.view().keptMonths).toBe(0);
   });
 
-  test("[R-WORLD-008] [R-WALLET-015] given a month in hand, when Zainab's remote dollars are changed into naira before it ends, then the change's two sides count nothing, the bank's charge is held as the month's net in dollars, and nothing is counted until the month closes", () => {
+  test("[world:month-end-results-sheet] [wallet:months-kept-counted] given a month in hand, when Zainab's remote dollars are changed into naira before it ends, then the change's two sides count nothing, the bank's charge is held as the month's net in dollars, and nothing is counted until the month closes", () => {
     // A month late in her life at home, before the flight, whichever month the cut flies in.
     const game = replay("zainab-remote", upToMonth("zainab-remote", Math.min(30, monthsOf("zainab-remote") - 2)));
     const before = game.view().keptMonths;
@@ -132,7 +132,7 @@ describe("the months kept", () => {
     expect(game.state.wallet).not.toHaveProperty("monthNet");
   });
 
-  test("[R-WALLET-003] given a month in hand, when the only money moved is a move between pockets, then the month's net does not move, and the month closes as it would have without it", () => {
+  test("[wallet:conversions-are-matched-pairs] given a month in hand, when the only money moved is a move between pockets, then the month's net does not move, and the month closes as it would have without it", () => {
     const at = upToMonth("ada-careful", 10);
     const plain = replay("ada-careful", at);
     const moved = replay("ada-careful", at);
@@ -144,7 +144,7 @@ describe("the months kept", () => {
     expect(moved.view().keptMonths).toBe(plain.view().keptMonths);
   });
 
-  test("[R-WALLET-004] [R-WALLET-015] given a month in hand, when naira is changed into pounds at the bank, then the change's two sides count nothing either way and only the bank's charge is money out of the naira", () => {
+  test("[wallet:bank-converts-at-official-rate] [wallet:months-kept-counted] given a month in hand, when naira is changed into pounds at the bank, then the change's two sides count nothing either way and only the bank's charge is money out of the naira", () => {
     const game = replay("ada-careful", upToMonth("ada-careful", 10));
     expect(game.state.wallet).not.toHaveProperty("monthNet");
     const amount = 100_000_00;
@@ -154,7 +154,7 @@ describe("the months kept", () => {
     expect(game.state.wallet.monthNet).toEqual({ NGN: -charge });
   });
 
-  test("[R-ABROAD-006] given a month in hand abroad, when money is sent home, then the pounds that leave are money out of the money of the place, and the naira that land are not counted there", () => {
+  test("[abroad-money:remit-sends-money-home] given a month in hand abroad, when money is sent home, then the pounds that leave are money out of the money of the place, and the naira that land are not counted there", () => {
     const game = replay("ada-careful");
     expect(local(game.state)).toBe("GBP");
     game.endTurn();
@@ -167,7 +167,7 @@ describe("the months kept", () => {
     expect(closed?.currency).toBe("GBP");
   });
 
-  test("[R-WORLD-008] given a life with a prologue, when the prologue closes, then the money of its years is not the first month's", () => {
+  test("[world:month-end-results-sheet] given a life with a prologue, when the prologue closes, then the money of its years is not the first month's", () => {
     const game = start({ content, scenario: "scenario.prologue", seed: "sixteen-0", worldSeed: "golden-world" });
     finishPrologue(game);
     // The years before the first month earned money, and none of it is the month in hand's.
@@ -180,7 +180,7 @@ describe("the months kept", () => {
     expect(closed).toBeDefined();
   });
 
-  test("[R-WORLD-008] given a recorded life that ends on its flight, when it is read, then the month of the flight, not ended, is not counted", () => {
+  test("[world:month-end-results-sheet] given a recorded life that ends on its flight, when it is read, then the month of the flight, not ended, is not counted", () => {
     const game = replay("ada-careful");
     expect(game.state.wallet.monthNet).toBeDefined();
     const closed = replay("ada-careful", upToMonth("ada-careful", game.state.turn.month));

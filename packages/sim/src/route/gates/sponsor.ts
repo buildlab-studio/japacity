@@ -1,4 +1,4 @@
-// The sponsor gate: docs/rules/route-gates.md R-SPONSOR-001 to 007.
+// The sponsor gate: the sponsor rules of docs/rules/route-gates.md.
 //
 // This module imports nothing from the route kind or the engine's checker at
 // run time: both import the gate table, and the table imports this file.
@@ -16,7 +16,7 @@ const FIND: Id<"activity"> = "activity.find-sponsor";
 type RecordSponsor = Extract<Effect, { type: "route/record-sponsor" }>;
 type Sponsor = { employer: string; salary: number };
 
-/** R-SPONSOR-004: strictness, earlier refusals and the good grade; the unexplained share and the interview are not read. */
+/** route-gates:fraud-sponsor-refused: strictness, earlier refusals and the good grade; the unexplained share and the interview are not read. */
 const SPONSOR_TERMS: DecisionTerms = { strictness: true, unexplained: false, refusals: true, interview: false, goodGrade: true };
 
 function settings(entry: RouteEntry): NonNullable<RouteEntry["sponsor"]> {
@@ -34,27 +34,27 @@ function sponsorOf(held: RouteState): Sponsor | null {
   return held.gate?.gate === "sponsor" ? held.gate.sponsor : null;
 }
 
-/** The salary bar, in pence a year, from the route's world variable (R-SPONSOR-003, 006). */
+/** The salary bar, in pence a year, from the route's world variable (route-gates:sponsor-application-needs, route-gates:skilled-route-needs-degree). */
 function salaryBar(read: ReadCtx, entry: RouteEntry): number {
   return worldVar(read, settings(entry).salaryVar);
 }
 
-/** R-ROUTE-005 for a looked-for sponsor: the window at 1 or more. */
+/** route:closed-window-blocks-applying for a looked-for sponsor: the window at 1 or more. */
 function windowOpen(read: ReadCtx, entry: RouteEntry): boolean {
   return entry.window === null || worldVar(read, entry.window) >= 1;
 }
 
-/** R-SPONSOR-007: the job a sponsor route gives on arrival. */
+/** route-gates:sponsored-status-on-departure: the job a sponsor route gives on arrival. */
 export function sponsorJob(entry: RouteEntry): Id<"activity"> {
   return settings(entry).job;
 }
 
 // ---------------------------------------------------------------------------
-// R-SPONSOR-001: looking for a sponsor
+// route-gates:sponsor-offers-come-up: looking for a sponsor
 // ---------------------------------------------------------------------------
 
 /**
- * R-SPONSOR-001: the route's find figure plus 20 for each point of network,
+ * route-gates:sponsor-offers-come-up: the route's find figure plus 20 for each point of network,
  * capped at 9500. The 20 and the cap are the job hunt's network
  * figures in tuning, which are the same two numbers.
  */
@@ -74,7 +74,7 @@ function sponsorOffers(content: Content, route: Id<"route">): OfferEntry[] {
 }
 
 /**
- * R-SPONSOR-001: one draw on `job` at the route's find chance. A hit
+ * route-gates:sponsor-offers-come-up: one draw on `job` at the route's find chance. A hit
  * opens one of the route's sponsor offers whose own conditions hold, picked
  * with one more draw on `job` when more than one does, so the offer's own
  * fraud draw and terms decide the rest as for any offer.
@@ -98,20 +98,20 @@ export function findSponsor(ctx: Ctx, route: Id<"route">): BaseEvent[] {
  * turn's slots and rolls each find there, after the slots and in the same month.
  */
 function findsThisTurn(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
-  // R-ACTIVITY-015: the find is sent now and answered with the month, so the month's now-acts are read with its slots.
+  // activity:now-acts-and-month-acts: the find is sent now and answered with the month, so the month's now-acts are read with its slots.
   const finds = [...turnSlots(ctx), ...(ctx.state.activity.now ?? [])].filter((pick) => pick.activity === FIND && pick.param === entry.id);
   return finds.flatMap(() => findSponsor(ctx, entry.id));
 }
 
 // ---------------------------------------------------------------------------
-// R-SPONSOR-003: the maintenance funds
+// route-gates:sponsor-application-needs: the maintenance funds
 // ---------------------------------------------------------------------------
 
 /**
- * R-SPONSOR-003 for a route with a maintenance line: R-ROUTE-011's month-end
+ * route-gates:sponsor-application-needs for a route with a maintenance line: route:funds-held-month-count's month-end
  * check with the line in place of the study figure. It runs while the
  * route is known with a sponsor recorded, as the study check runs with a
- * deposit paid. The funds shown are R-ROUTE-010's, read through the route
+ * deposit paid. The funds shown are route:funds-shown-exclude-cash's, read through the route
  * kind's own requirement. The checklist's `funds` item and the apply
  * activity's `route/funds` requirement read the same line, through this gate's
  * `funds`.
@@ -129,20 +129,20 @@ function maintenanceCheck(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// R-SPONSOR-002: recording a sponsor
+// route-gates:taking-sponsor-records-it: recording a sponsor
 // ---------------------------------------------------------------------------
 
 /**
- * R-SPONSOR-002: the employer and the salary in pence a year go on a known
+ * route-gates:taking-sponsor-records-it: the employer and the salary in pence a year go on a known
  * route. A fraud's fee was taken by the offer's own fraud effects. A sponsor
  * under the bar is recorded all the same and the line says it cannot be used
- * (R-SPONSOR-006).
+ * (route-gates:skilled-route-needs-degree).
  */
 function recordSponsor(ctx: Ctx, entry: RouteEntry, effect: RecordSponsor, cause: Cause): BaseEvent[] {
   if (routeOf(ctx, entry.id).state !== "known") return [];
   const sponsor: Sponsor = { employer: effect.employer, salary: recordedSalary(effect, cause.terms) };
   const note = sponsor.salary >= salaryBar(ctx, entry) ? "sponsor-recorded" : "sponsor-under-bar";
-  // The fraud rides on the route's secret, never in the view (R-SPONSOR-002).
+  // The fraud rides on the route's secret, never in the view (route-gates:taking-sponsor-records-it).
   const event: RouteKindEvent = { type: "route/gate-updated", route: entry.id, gate: { gate: "sponsor", sponsor }, note, secret: { sponsorFraud: effect.fraud } };
   return emit(ctx, "route", [event]);
 }
@@ -150,7 +150,7 @@ function recordSponsor(ctx: Ctx, entry: RouteEntry, effect: RecordSponsor, cause
 /**
  * `route/record-sponsor` for every gate: one effect type has one handler, so
  * this module claims it and hands the contract route's agent to its module
- * (R-CONTRACT-002). On any other gate it does nothing (R-GATE-001).
+ * (route-gates:gulf-agent-offer). On any other gate it does nothing (route-gates:route-runs-its-gate-steps).
  */
 function record(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/record-sponsor") throw new Error(`route/record-sponsor cannot carry out ${effect.type}.`);
@@ -186,9 +186,9 @@ export const sponsorGate: Gate = {
     return false;
   },
   /**
-   * R-SPONSOR-003: the sponsor at the bar, the route's qualification papers,
+   * route-gates:sponsor-application-needs: the sponsor at the bar, the route's qualification papers,
    * the English band and, with a maintenance line, the funds covered at one
-   * month end. As on the study route (R-ROUTE-012), the month end stands for
+   * month end. As on the study route (route:visa-application-needs), the month end stands for
    * "covered", since the activity's fees come out of the funds shown.
    */
   mayApply: (ctx, entry, held) => {
@@ -199,20 +199,20 @@ export const sponsorGate: Gate = {
     if (band === null || band < bandMin) return false;
     return maintenanceVar === null || held.funds.heldMonths >= 1;
   },
-  /** R-SPONSOR-004 and R-GATE-005: a fraud sponsor is refused with the reason `sponsor` before any draw, and that refusal bans. */
+  /** route-gates:fraud-sponsor-refused and route-gates:deception-bans-country: a fraud sponsor is refused with the reason `sponsor` before any draw, and that refusal bans. */
   decision: (_read, _entry, held) => {
     const fraud = held.secret.sponsorFraud === true;
     return { terms: SPONSOR_TERMS, override: fraud ? "sponsor" : null, bans: fraud };
   },
   clocks: (ctx, entry) => [...findsThisTurn(ctx, entry), ...maintenanceCheck(ctx, entry)],
   effects: { "route/record-sponsor": record },
-  // R-ROUTE-014 for this gate: the route's own strictness and the surcharge its status needs.
+  // route:application-fixes-figures for this gate: the route's own strictness and the surcharge its status needs.
   application: (read, entry) => ({
     strictness: worldVar(read, settings(entry).strictnessVar),
     surchargePaid: settings(entry).surchargeYears * worldVar(read, VAR.ukSurchargeYear),
     decisionMonths: read.content.tuning.route.decisionMonths,
   }),
-  // The maintenance line is the funds this route shows; the care route shows none (R-SPONSOR-003).
+  // The maintenance line is the funds this route shows; the care route shows none (route-gates:sponsor-application-needs).
   funds: (read, entry) => {
     const line = settings(entry).maintenanceVar;
     return line === null ? null : { required: worldVar(read, line), currency: "GBP" };

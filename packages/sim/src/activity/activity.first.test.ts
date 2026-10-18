@@ -1,4 +1,4 @@
-// The first session: docs/rules/guide.md R-GUIDE-014.
+// The first session: guide:early-win-in-three-turns.
 // Every starting life sees an early win by its third month; the life's first
 // hunt in those months is sure, at the lowest wage on offer.
 import { content } from "@japacity/content";
@@ -48,7 +48,7 @@ function everyFirstSession(seed?: string): FirstSession[] {
 }
 
 describe("the first session", () => {
-  test("[R-GUIDE-014] given every starting life and every prologue answer, when the first three months are played toward the chapter, then each has an early win by the third", () => {
+  test("[guide:early-win-in-three-turns] given every starting life and every prologue answer, when the first three months are played toward the chapter, then each has an early win by the third", () => {
     const sessions = everyFirstSession();
     expect(new Set(sessions.map((session) => session.life.scenario))).toEqual(new Set(Object.keys(content.scenario)));
     const offered = Object.values(content.prologue).flatMap((step) => step.answers.map((answer) => `${step.id}:${answer.id}`));
@@ -58,7 +58,7 @@ describe("the first session", () => {
     for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_MONTHS);
   }, 120000);
 
-  test("[R-GUIDE-014] given report lines, when the early win is looked for, then only a good line from pay, a landed hunt, a chapter or goal, or a route heard by a choice counts", () => {
+  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a landed hunt, a chapter or goal, or a route heard by a choice counts", () => {
     const line = (key: string, tone: "good" | "plain" = "good") => ({ key, params: {}, tone, attention: false, counts: [] });
     const busy = [{ activity: "activity.meetup" as Id<"activity">, param: null }];
     const resting = [{ activity: "activity.rest" as Id<"activity">, param: null }];
@@ -73,7 +73,7 @@ describe("the first session", () => {
 });
 
 describe("the sure first hunt", () => {
-  test("[R-GUIDE-014] given Ada's first hunt in her first month, when the job it lands is read, then it is the main job with the lowest month's pay that covers her month's dues of those she may hunt, whichever she names", () => {
+  test("[guide:early-win-in-three-turns] given Ada's first hunt in her first month, when the job it lands is read, then it is the main job with the lowest month's pay that covers her month's dues of those she may hunt, whichever she names", () => {
     const game = start({ scenario: "scenario.ada", content });
     const wages = byWage(game, "main");
     expect(wages.length).toBeGreaterThan(1);
@@ -88,21 +88,21 @@ describe("the sure first hunt", () => {
     for (const named of wages) expect(sureHuntJob(readOf(game), entryOf(named), 1, false)?.id).toBe(covering);
   });
 
-  test("[R-GUIDE-014] given a side job named, when the sure hunt's job is read, then it is the side job with the lowest pay", () => {
+  test("[guide:early-win-in-three-turns] given a side job named, when the sure hunt's job is read, then it is the side job with the lowest pay", () => {
     const game = start({ scenario: "scenario.ada", content });
     const sides = byWage(game, "side");
     expect(sides.length).toBeGreaterThan(1);
     expect(sureHuntJob(readOf(game), entryOf(sides[sides.length - 1]!), 1, false)?.id).toBe(sides[0]);
   });
 
-  test("[R-GUIDE-014] given the months, when the sure hunt is read, then the third month is the last that has it and the fourth has none", () => {
+  test("[guide:early-win-in-three-turns] given the months, when the sure hunt is read, then the third month is the last that has it and the fourth has none", () => {
     const game = start({ scenario: "scenario.ada", content });
     const named = entryOf(byWage(game, "main")[0]!);
     expect(sureHuntJob(readOf(game), named, FIRST_SESSION_MONTHS, false)).not.toBeNull();
     expect(sureHuntJob(readOf(game), named, FIRST_SESSION_MONTHS + 1, false)).toBeNull();
   });
 
-  test("[R-GUIDE-014] given a hunt earlier this month or in a month before, when the sure hunt is read, then there is none: only the life's first hunt is sure", () => {
+  test("[guide:early-win-in-three-turns] given a hunt earlier this month or in a month before, when the sure hunt is read, then there is none: only the life's first hunt is sure", () => {
     const game = start({ scenario: "scenario.ada", content });
     const named = entryOf(byWage(game, "main")[0]!);
     expect(sureHuntJob(readOf(game), named, 1, true)).toBeNull();
@@ -113,7 +113,7 @@ describe("the sure first hunt", () => {
     expect(sureHuntJob(readOf(rested), named, 2, false)).not.toBeNull();
   });
 
-  test("[R-GUIDE-014] [R-ACTIVITY-005] given a starting life's first hunt, for the best-paid job it may hunt, whatever the draw, when the turn is ended, then the hunt lands (the named job or the lowest-paid), the job offer opens, and the view's hunt reads sure before it and not after", () => {
+  test("[guide:early-win-in-three-turns] [activity:job-hunt-lands-offer] given a starting life's first hunt, for the best-paid job it may hunt, whatever the draw, when the turn is ended, then the hunt lands (the named job or the lowest-paid), the job offer opens, and the view's hunt reads sure before it and not after", () => {
     for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6", "seed-7", "seed-8"]) {
       const game = start({ scenario: "scenario.ada", content, seed });
       const wages = byWage(game, "main");
@@ -139,7 +139,7 @@ describe("the sure hunt that lands another job", () => {
     { activity: "activity.study-english", param: null },
   ];
 
-  test("[R-ACTIVITY-005] [R-GUIDE-014] given Ada's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
+  test("[activity:job-hunt-lands-offer] [guide:early-win-in-three-turns] given Ada's first hunt for the junior developer's job with the month full (study, tech and the meetup), when the draw misses, then the month says the job asked for came to nothing and then the offer for the job the sure hunt landed; when it lands, the offer is the job asked for and nothing else is said", () => {
     const asked = "activity.job-junior-dev";
     const sure = sureHuntJob(readOf(start({ scenario: "scenario.ada", content })), entryOf(asked), 1, false)?.id;
     expect(sure).not.toBe(asked);

@@ -1,5 +1,5 @@
-// Rides in Calgary, Dubai and Castel Volturno: docs/rules/place.md R-PLACE-010 (the three countries' ways, design page
-// 15 section 4), R-PLACE-012 (the pass covers the country's ways) and R-PLACE-013 (the employer's shuttle),
+// Rides in Calgary, Dubai and Castel Volturno: place:rides-between-city-places (the three countries' ways, design page
+// 15 section 4), place:country-pass-covers-ways (the pass covers the country's ways) and place:employer-shuttle-rides-free (the employer's shuttle),
 // decision 0017. Each country's ways and figures are content's; the pass is the country's own act; a bus to or from a
 // shuttle's stop asks nothing in any month.
 import { content } from "@japacity/content";
@@ -57,7 +57,7 @@ function ride(game: Game, from: Id<"place">, to: Id<"place">, way: RideWay): Acc
 }
 
 describe("the three countries' ways", () => {
-  test("[R-PLACE-010] given the tuning, when Canada's, the UAE's and Italy's rides are read, then each has design page 15's ways, figures, step, pass, covered ways and walking pace", () => {
+  test("[place:rides-between-city-places] given the tuning, when Canada's, the UAE's and Italy's rides are read, then each has design page 15's ways, figures, step, pass, covered ways and walking pace", () => {
     expect(ridesOf(CANADA_COUNTRY)).toEqual({
       ways: { bus: { fare: 380, farePerKm: 0, metresPerMinute: 300 }, train: { fare: 380, farePerKm: 0, metresPerMinute: 700 }, taxi: { fare: 380, farePerKm: 200, metresPerMinute: 600 } },
       step: 5,
@@ -77,7 +77,7 @@ describe("the three countries' ways", () => {
     expect(ridesOf(ITALY)).toEqual({ ways: { bus: { fare: 160, farePerKm: 0, metresPerMinute: 200 } }, step: 5, pass: null, passWays: [], lonMetresPerE3: 84, walkMetresPerMinute: 80 });
   });
 
-  test("[R-PLACE-010] given a life in each country, when the view is read, then the ways are the country's in its money with on foot at the country's pace, the Gulf's walk the slowest", () => {
+  test("[place:rides-between-city-places] given a life in each country, when the view is read, then the ways are the country's in its money with on foot at the country's pace, the Gulf's walk the slowest", () => {
     const calgary = landed(CANADA_COUNTRY, 0).view().place.ways?.map((way) => [way.way, way.currency, way.fare, way.metresPerMinute]);
     expect(calgary).toEqual([
       ["bus", "CAD", 380, 300],
@@ -101,7 +101,7 @@ describe("the three countries' ways", () => {
     expect(flown(content).view().place.ways?.find((way) => way.way === "walk")?.metresPerMinute).toBe(content.tuning.city.ride.metresPerMinute.walk);
   });
 
-  test("[R-PLACE-010] given a life in Calgary with dollars in cash, when the bus, the CTrain and a taxi are taken, then the bus and the train are one flat fare, the taxi grows with the distance in fives of cents, each paid in dollars as a fare", () => {
+  test("[place:rides-between-city-places] given a life in Calgary with dollars in cash, when the bus, the CTrain and a taxi are taken, then the bus and the train are one flat fare, the taxi grows with the distance in fives of cents, each paid in dollars as a fare", () => {
     const game = landed(CANADA_COUNTRY, 10000);
     const byBus = ride(game, "place.calgary-north-east", "place.office-ca", "bus");
     expect(debits(byBus)).toMatchObject([{ currency: "CAD", pocket: "cash", amount: 380, reason: "fare" }]);
@@ -114,7 +114,7 @@ describe("the three countries' ways", () => {
     expect(game.state.wallet.pockets.CAD.cash).toBe(10000 - 380 - 380 - taxi);
   });
 
-  test("[R-PLACE-010] given a life in Dubai, when the bus and the metro are taken, then each is the zone fare read as distance, rounded up to twenty-five fils", () => {
+  test("[place:rides-between-city-places] given a life in Dubai, when the bus and the metro are taken, then each is the zone fare read as distance, rounded up to twenty-five fils", () => {
     const game = landed(UAE, 20000);
     const metres = metresApart(positionOf(content, "place.deira"), positionOf(content, "place.dubai-airport"), 100);
     const bus = divCeil(400 + mulDiv(50, metres, 1000), 25) * 25;
@@ -127,7 +127,7 @@ describe("the three countries' ways", () => {
     expect(rideFare({ fare: 425, farePerKm: 0, step: 25, lonMetresPerE3: 100 }, null, null)).toBe(425);
   });
 
-  test("[R-PLACE-010] given a life in Castel Volturno, when the bus goes to Naples airport, then it is accepted at the flat fare; the train and the taxi are refused, as the country has neither", () => {
+  test("[place:rides-between-city-places] given a life in Castel Volturno, when the bus goes to Naples airport, then it is accepted at the flat fare; the train and the taxi are refused, as the country has neither", () => {
     const game = landed(ITALY, 1000);
     expect(rode(ride(game, "place.castel-volturno", "place.naples-airport", "bus"))).toMatchObject({ way: "bus", fare: 160, currency: "EUR" });
     game.expectRejected({ type: "place/ride", from: "place.castel-volturno", to: "place.via-domitiana", way: "train" }, "not-legal");
@@ -135,7 +135,7 @@ describe("the three countries' ways", () => {
     expect(game.state.wallet.pockets.EUR.cash).toBe(1000 - 160);
   });
 
-  test("[R-PLACE-010] given each country's money one cent short of the bus and then holding it, when the bus is taken, then it is refused as unaffordable and then taken", () => {
+  test("[place:rides-between-city-places] given each country's money one cent short of the bus and then holding it, when the bus is taken, then it is refused as unaffordable and then taken", () => {
     const game = landed(ITALY, 159);
     game.expectRejected({ type: "place/ride", from: "place.castel-volturno", to: "place.via-domitiana", way: "bus" }, "cannot-afford");
     money(game, ITALY, 160);
@@ -143,7 +143,7 @@ describe("the three countries' ways", () => {
     expect(game.state.wallet.pockets.EUR.cash).toBe(0);
   });
 
-  test("[R-PLACE-010] given a life in Calgary, when a ride goes to a place of another country, then it is refused", () => {
+  test("[place:rides-between-city-places] given a life in Calgary, when a ride goes to a place of another country, then it is refused", () => {
     const game = landed(CANADA_COUNTRY, 10000);
     game.expectRejected({ type: "place/ride", from: "place.calgary-north-east", to: "place.peckham", way: "bus" }, "not-legal");
     game.expectRejected({ type: "place/ride", from: "place.calgary-north-east", to: "place.deira", way: "bus" }, "not-legal");
@@ -155,7 +155,7 @@ const TRANSIT_PASS: Id<"activity"> = "activity.transit-pass-ca";
 const ZONE_PASS: Id<"activity"> = "activity.transit-pass-uae";
 
 describe("the pass covers the country's ways", () => {
-  test("[R-PLACE-012] given the two new passes, when their entries are read, then each is a now-act once a month in its country at no time, costing the country's pass figure as a fare, staged at its station's machine", () => {
+  test("[place:country-pass-covers-ways] given the two new passes, when their entries are read, then each is a now-act once a month in its country at no time, costing the country's pass figure as a fare, staged at its station's machine", () => {
     for (const [act, country, currency, station] of [
       [TRANSIT_PASS, CANADA_COUNTRY, "CAD", "place.ctrain-station-ca"],
       [ZONE_PASS, UAE, "AED", "place.metro-station-uae"],
@@ -167,7 +167,7 @@ describe("the pass covers the country's ways", () => {
     expect([ridesOf(CANADA_COUNTRY).pass, ridesOf(UAE).pass]).toEqual([11800, 14000]);
   });
 
-  test("[R-PLACE-012] given a life in Calgary that buys the transit pass, when the bus and the CTrain are taken that month, then both ask nothing and the view marks both passed; the taxi asks its fare", () => {
+  test("[place:country-pass-covers-ways] given a life in Calgary that buys the transit pass, when the bus and the CTrain are taken that month, then both ask nothing and the view marks both passed; the taxi asks its fare", () => {
     const game = landed(CANADA_COUNTRY, 20000);
     expect(debits(game.accept({ type: "activity/now", activity: TRANSIT_PASS, param: null }))).toMatchObject([{ currency: "CAD", amount: 11800, reason: "fare" }]);
     expect(game.view().place.ways?.map((way) => [way.way, way.passed])).toEqual([
@@ -186,7 +186,7 @@ describe("the pass covers the country's ways", () => {
     game.expectRejected({ type: "activity/now", activity: TRANSIT_PASS, param: null }, "not-legal");
   });
 
-  test("[R-PLACE-012] given a life in Dubai that buys the zone pass, when the bus and the metro are taken, then both ask nothing; the taxi asks its fare", () => {
+  test("[place:country-pass-covers-ways] given a life in Dubai that buys the zone pass, when the bus and the metro are taken, then both ask nothing; the taxi asks its fare", () => {
     const game = landed(UAE, 30000);
     game.accept({ type: "activity/now", activity: ZONE_PASS, param: null });
     expect(game.view().place.ways?.filter((way) => way.passed).map((way) => way.way)).toEqual(["bus", "train"]);
@@ -195,7 +195,7 @@ describe("the pass covers the country's ways", () => {
     expect(rode(ride(game, "place.deira", "place.dubai-airport", "taxi"))).toMatchObject({ fare: fareOf(UAE, "taxi", "place.deira", "place.dubai-airport") });
   });
 
-  test("[R-PLACE-012] given a life in London that buys the bus pass, when the train is taken that month, then the train still asks its fare, as the UK's pass covers the bus alone", () => {
+  test("[place:country-pass-covers-ways] given a life in London that buys the bus pass, when the train is taken that month, then the train still asks its fare, as the UK's pass covers the bus alone", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: 20000, reason: "gift" }]);
     game.accept({ type: "activity/now", activity: "activity.bus-pass-uk", param: null });
@@ -207,7 +207,7 @@ describe("the pass covers the country's ways", () => {
     expect(fare).toBeGreaterThan(0);
   });
 
-  test("[R-PLACE-012] given the transit pass bought last month, when the next month comes, then the bus and the CTrain ask their fares again", () => {
+  test("[place:country-pass-covers-ways] given the transit pass bought last month, when the next month comes, then the bus and the CTrain ask their fares again", () => {
     const game = landed(CANADA_COUNTRY, 50000);
     game.accept({ type: "activity/now", activity: TRANSIT_PASS, param: null });
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
@@ -217,7 +217,7 @@ describe("the pass covers the country's ways", () => {
     expect(rode(ride(game, "place.calgary-north-east", "place.office-ca", "train"))).toMatchObject({ fare: 380 });
   });
 
-  test("[R-PLACE-012] given Italy with no pass, when the view is read and the bus is taken, then no way is passed, no pass act exists for Italy, and the bus asks its fare", () => {
+  test("[place:country-pass-covers-ways] given Italy with no pass, when the view is read and the bus is taken, then no way is passed, no pass act exists for Italy, and the bus asks its fare", () => {
     expect(ridesOf(ITALY)).toMatchObject({ pass: null, passWays: [] });
     expect(Object.values(content.activity).filter((entry) => entry.country === ITALY && entry.cost.some((cost) => cost.reason === "fare"))).toEqual([]);
     const game = landed(ITALY, 1000);
@@ -225,7 +225,7 @@ describe("the pass covers the country's ways", () => {
     expect(rode(ride(game, "place.castel-volturno", "place.via-domitiana", "bus"))).toMatchObject({ fare: 160 });
   });
 
-  test("[R-PLACE-012] given a pass act played in a country whose pass covers no way, when the bus is taken, then it still asks its fare", () => {
+  test("[place:country-pass-covers-ways] given a pass act played in a country whose pass covers no way, when the bus is taken, then it still asks its fare", () => {
     const canada = ridesOf(CANADA_COUNTRY);
     const none = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...abroad, [CANADA_COUNTRY]: { ...canada, passWays: [] } } } } } };
     const game = start({ content: none, scenario: "scenario.ada" });
@@ -241,11 +241,11 @@ const SITE: Id<"place"> = "place.site-uae";
 const FIELDS: Id<"place"> = "place.farm-it";
 
 describe("the employer's shuttle", () => {
-  test("[R-PLACE-013] given the places, when the shuttle is read, then the site in Dubai and the fields in Castel Volturno carry it and no other place does", () => {
+  test("[place:employer-shuttle-rides-free] given the places, when the shuttle is read, then the site in Dubai and the fields in Castel Volturno carry it and no other place does", () => {
     expect(Object.values(content.place).filter((place) => place.shuttle).map((place) => place.id).sort()).toEqual([FIELDS, SITE]);
   });
 
-  test("[R-PLACE-013] given a life in Dubai with no pass, when the bus goes to the site and back, from Deira and from the room, then each asks nothing and is on record at 0; the taxi to the site asks its fare", () => {
+  test("[place:employer-shuttle-rides-free] given a life in Dubai with no pass, when the bus goes to the site and back, from Deira and from the room, then each asks nothing and is on record at 0; the taxi to the site asks its fare", () => {
     const game = landed(UAE, 20000);
     const there = ride(game, "place.deira", SITE, "bus");
     expect(debits(there)).toEqual([]);
@@ -259,7 +259,7 @@ describe("the employer's shuttle", () => {
     expect(game.state.wallet.pockets.AED.cash).toBe(20000 - taxi - fareOf(UAE, "train", "place.deira", SITE));
   });
 
-  test("[R-PLACE-013] given a life in Castel Volturno with no euros, when the bus goes to the fields and back, then each asks nothing in any month; the walk from the roundabout keeps its limit", () => {
+  test("[place:employer-shuttle-rides-free] given a life in Castel Volturno with no euros, when the bus goes to the fields and back, then each asks nothing in any month; the walk from the roundabout keeps its limit", () => {
     const game = landed(ITALY, 0);
     expect(rode(ride(game, "place.castel-volturno", FIELDS, "bus"))).toMatchObject({ way: "bus", fare: 0, currency: "EUR" });
     expect(rode(ride(game, FIELDS, "place.via-domitiana", "bus"))).toMatchObject({ way: "bus", fare: 0 });
@@ -272,7 +272,7 @@ describe("the employer's shuttle", () => {
     expect(rode(ride(game, "place.via-domitiana", FIELDS, "bus"))).toMatchObject({ way: "bus", fare: 0 });
   });
 
-  test("[R-PLACE-013] given the shuttle, when a bus goes between two stops neither of which it serves, then the fare is asked: it covers no other stop", () => {
+  test("[place:employer-shuttle-rides-free] given the shuttle, when a bus goes between two stops neither of which it serves, then the fare is asked: it covers no other stop", () => {
     const game = landed(UAE, 20000);
     expect(rode(ride(game, "place.deira", "place.naif", "bus"))).toMatchObject({ fare: fareOf(UAE, "bus", "place.deira", "place.naif") });
     expect(shuttleRide({ shuttle: false }, { shuttle: false }, "bus")).toBe(false);
@@ -281,7 +281,7 @@ describe("the employer's shuttle", () => {
     expect(shuttleRide({ shuttle: true }, { shuttle: true }, "taxi")).toBe(false);
   });
 
-  test("[R-PLACE-013] given a life in each country, at home and in London, when the view is read, then the stops the shuttle serves are the country's alone: the site in Dubai, the fields in Italy, none elsewhere", () => {
+  test("[place:employer-shuttle-rides-free] given a life in each country, at home and in London, when the view is read, then the stops the shuttle serves are the country's alone: the site in Dubai, the fields in Italy, none elsewhere", () => {
     expect(landed(UAE, 0).view().place.shuttles).toEqual([SITE]);
     expect(landed(ITALY, 0).view().place.shuttles).toEqual([FIELDS]);
     expect(landed(CANADA_COUNTRY, 0).view().place.shuttles).toEqual([]);

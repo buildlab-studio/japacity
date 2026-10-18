@@ -1,6 +1,6 @@
 // Counter-based random streams: docs/decisions/0003-random-draws-by-position.md.
 // The nth draw of a stream depends only on the seed, the stream's name and n
-// (R-ENGINE-005), so streams never disturb each other and a save stores only
+// (engine:randomness-from-named-streams), so streams never disturb each other and a save stores only
 // how many draws each stream has made. Only Math.imul, shifts and xor are used,
 // which every JavaScript engine computes the same way.
 import { mulDiv } from "./int";
@@ -65,7 +65,7 @@ export interface RandomOf<S extends string> {
  * A Random bound to a draw-count table. Each draw reads the stream's count,
  * draws at that position and raises the count by one. The table is changed in
  * place: the caller owns it, and the engine keeps it in its draft so a
- * rejected command drops the draws with everything else (R-ENGINE-002).
+ * rejected command drops the draws with everything else (engine:only-events-change-state).
  */
 export function createRandom<S extends string>(seed: string, counts: Partial<Record<S, number>>): RandomOf<S> {
   const next = (stream: S): number => {

@@ -19,15 +19,15 @@ export type PeopleEvent =
   | { type: "people/gossip-heard"; bond: string }
   | { type: "people/stand-in-changed"; bond: string; stage: "warned" | "on" | null }
   | { type: "people/request-shared"; offer: Id<"offer"> }
-  // Added by the people kind: the sibling draw (R-PEOPLE-047), a card taken back (R-PEOPLE-010), gossip that reaches a partner (R-PEOPLE-041).
+  // Added by the people kind: the sibling draw (person:computer-siblings-drawn-with-family), a card taken back (person:invite-fills-a-slot), gossip that reaches a partner (person:gossip-when-two-timing).
   | { type: "people/siblings-drawn"; siblings: { slot: string; bond: string; person: Id<"person">; facts: PersonFacts }[] }
   | { type: "people/invite-withdrawn"; slot: string }
   | { type: "people/gossip-spread"; bond: string; about: string }
-  // A computer's yes to marrying that waits for December (R-PEOPLE-049).
+  // A computer's yes to marrying that waits for December (person:behaviour-block-fields).
   | { type: "people/wedding-waits"; bond: string }
-  // The arrival on a partner route (R-PEOPLE-027), and a month of assistance counted (R-UNDERTAKING-010).
+  // The arrival on a partner route (person:partner-application-decided), and a month of assistance counted (undertaking:social-assistance-offer).
   | { type: "people/arrived"; route: Id<"route">; month: number }
   | { type: "people/assistance-counted"; route: Id<"route"> }
-  // The other life took back its proposal (R-PEOPLE-016), and a shared request paid in a sibling's life (R-PEOPLE-034).
+  // The other life took back its proposal (person:proposing-a-step), and a shared request paid in a sibling's life (person:family-requests-shared).
   | { type: "people/proposal-withdrawn"; bond: string; step: Proposal["step"] }
   | { type: "people/request-handled"; offer: Id<"offer"> };

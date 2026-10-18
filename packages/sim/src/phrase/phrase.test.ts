@@ -17,7 +17,7 @@ const MINUTE = 60_000;
 const NOW = 100 * HOUR;
 const pair = content.tuning.pair;
 
-/** The shared spots of person.md R-PEOPLE-014. */
+/** The shared spots of person:time-together-is-an-act. */
 const SHARED_SPOTS = ["beach", "suya-spot", "church", "cinema", "mall", "friends-wedding", "campus", "bus-stop"];
 const withSpots: Content = { ...content, people: { spots: SHARED_SPOTS } };
 /** Words that pass every check, for planting one bad line among. The real words are checked in content's phrase test. */
@@ -57,31 +57,31 @@ function sentWithin(count: number, span: number): number[] {
 }
 
 describe("the phrases in content", () => {
-  test("[R-PAIR-010] given the 23 phrases with the shared spots, when checked, then nothing is found", () => {
+  test("[pair:preset-phrases-only] given the 23 phrases with the shared spots, when checked, then nothing is found", () => {
     expect(Object.keys(content.phrase)).toHaveLength(23);
     expect(phraseChecks(withSpots)).toEqual([]);
     expect(phraseChecks(withSpots, words)).toEqual([]);
   });
 
-  test("[R-PAIR-010] given every phrase, when its fill-in is read, then events and things list their options and nothing else carries a list", () => {
+  test("[pair:preset-phrases-only] given every phrase, when its fill-in is read, then events and things list their options and nothing else carries a list", () => {
     const listed = (entry: PhraseEntry): boolean => entry.fill === "event" || entry.fill === "thing";
     const off = Object.values(content.phrase).filter((entry) => (listed(entry) ? (entry.options?.length ?? 0) === 0 : entry.options !== undefined));
     expect(off).toEqual([]);
   });
 
-  test("[R-PAIR-010] given no shared spots, when the phrases are checked, then each spot phrase is found without a source", () => {
+  test("[pair:preset-phrases-only] given no shared spots, when the phrases are checked, then each spot phrase is found without a source", () => {
     expect(phraseChecks({ ...content, people: { spots: [] } })).toEqual([
       "phrase.meet-at: fills a spot, and there are no spots.",
       "phrase.see-you: fills a spot, and there are no spots.",
     ]);
   });
 
-  test("[R-PAIR-010] given the real content and then no shared spots, when the whole content is checked, then nothing is found and then each spot phrase is named", () => {
+  test("[pair:preset-phrases-only] given the real content and then no shared spots, when the whole content is checked, then nothing is found and then each spot phrase is named", () => {
     expect(checkContent(content)).toEqual([]);
     expect(checkContent({ ...content, people: { spots: [] } })).toEqual(expect.arrayContaining(["phrase.meet-at: fills a spot, and there are no spots."]));
   });
 
-  test("[R-PAIR-010] given a phrase with an empty list, options it should not have, or a bad key, when checked, then each is found", () => {
+  test("[pair:preset-phrases-only] given a phrase with an empty list, options it should not have, or a bad key, when checked, then each is found", () => {
     const broken: Content = {
       ...withSpots,
       phrase: {
@@ -105,11 +105,11 @@ describe("the phrases in content", () => {
     ["Let us meet in person.", "in person"],
     ["Send a photo.", "photo"],
     ["Add me on WhatsApp.", "whatsapp"],
-  ])("[R-PAIR-010] given a phrase that says %s, when checked with its words, then it is found", (said, found) => {
+  ])("[pair:preset-phrases-only] given a phrase that says %s, when checked with its words, then it is found", (said, found) => {
     expect(phraseChecks(withSpots, { ...words, "phrase.hello.name": said }).join("\n")).toContain(`says "${found}"`);
   });
 
-  test("[R-PAIR-010] given words whose fill-in does not match the entry, or a missing option's words, when checked, then each is found", () => {
+  test("[pair:preset-phrases-only] given words whose fill-in does not match the entry, or a missing option's words, when checked, then each is found", () => {
     const off = { ...words, "phrase.meet-at.name": "Let us meet at {route}.", "phrase.good-news.fill.landed": "" };
     const found = phraseChecks(withSpots, off).join("\n");
     expect(found).toContain("phrase.meet-at: its words hold {route} where the entry fills spot.");
@@ -118,7 +118,7 @@ describe("the phrases in content", () => {
 });
 
 describe("fill-ins", () => {
-  test("[R-PAIR-010] given Ada's view, when the fill-ins are asked for, then spots, heard routes, delivered news and options come from their lists only", () => {
+  test("[pair:preset-phrases-only] given Ada's view, when the fill-ins are asked for, then spots, heard routes, delivered news and options come from their lists only", () => {
     const view = start({ scenario: "scenario.ada", content }).view();
     const routes: PlayerView["routes"] = [
       { ...(view.routes[0] as PlayerView["routes"][number]), id: "route.uk-masters", state: "heard" },
@@ -133,7 +133,7 @@ describe("fill-ins", () => {
     expect(fillOptions(phrase("phrase.looking-at"), withSpots, view)).toEqual(view.routes.filter((route) => route.state !== "unknown").map((route) => route.id));
   });
 
-  test("[R-PAIR-010] given a fill-in off the list, a fill-in where none is wanted, or none where one is, when the phrase is checked, then it is refused", () => {
+  test("[pair:preset-phrases-only] given a fill-in off the list, a fill-in where none is wanted, or none where one is, when the phrase is checked, then it is refused", () => {
     const fills = fillOptions(MEET_AT, withSpots, start({ scenario: "scenario.ada", content }).view());
     expect(canSay(connected(), "a", MEET_AT, "my-house", policy({ fills }))).toEqual({ ok: false, failed: "bad-fill" });
     expect(canSay(connected(), "a", MEET_AT, null, policy({ fills }))).toEqual({ ok: false, failed: "bad-fill" });
@@ -145,12 +145,12 @@ describe("fill-ins", () => {
 describe("a phrase stored in a conversation", () => {
   const row = (entry: PhraseEntry, fill: string | null): ConversationRow => ({ id: "m-1", conversation: connected().id, sender: TUNDE, phrase: entry.id, fill, sentAt: NOW, readAt: null });
 
-  test("[R-PAIR-011] given a stored phrase with a spot, when its moment is written from the sender's side, then a said moment holds the phrase and the spot", () => {
+  test("[pair:conversation-phrases-stored] given a stored phrase with a spot, when its moment is written from the sender's side, then a said moment holds the phrase and the spot", () => {
     const record = writeEvent(connected(), "b", saidMoment(row(MEET_AT, "beach"), MEET_AT, 4));
     expect(record.moments).toEqual([{ n: 1, by: "b", kind: "said", spot: "beach", what: "phrase.meet-at", tick: 4 }]);
   });
 
-  test("[R-PAIR-011] given a stored phrase whose fill-in is not a spot, when its moment is written, then the spot is empty and the sent time stays out", () => {
+  test("[pair:conversation-phrases-stored] given a stored phrase whose fill-in is not a spot, when its moment is written, then the spot is empty and the sent time stays out", () => {
     const record = writeEvent(connected(), "b", saidMoment(row(GOOD_NEWS, "landed"), GOOD_NEWS, 4));
     expect(record.moments).toEqual([{ n: 1, by: "b", kind: "said", spot: null, what: "phrase.good-news", tick: 4 }]);
     expect(JSON.stringify(record)).not.toContain(String(NOW));
@@ -159,14 +159,14 @@ describe("a phrase stored in a conversation", () => {
 });
 
 describe("a phrase said in a place", () => {
-  test("[R-PAIR-012] given phrases marked for a conversation, a place or both, when said aloud, then only place and both go", () => {
+  test("[pair:place-phrases-not-stored] given phrases marked for a conversation, a place or both, when said aloud, then only place and both go", () => {
     expect(canSayInPlace(EVENING, null, placePolicy())).toEqual({ ok: true });
     expect(canSayInPlace(HELLO, null, placePolicy())).toEqual({ ok: true });
     expect(canSayInPlace(phrase("phrase.miss-you"), null, placePolicy())).toEqual({ ok: false, failed: "wrong-place" });
     expect(canSay(connected(), "a", EVENING, null, policy())).toEqual({ ok: false, failed: "wrong-place" });
   });
 
-  test("[R-PAIR-012] given players in a place, when a phrase is said, then everyone there but the speaker hears it, except a block either way", () => {
+  test("[pair:place-phrases-not-stored] given players in a place, when a phrase is said, then everyone there but the speaker hears it, except a block either way", () => {
     const present = [{ id: ADA }, { id: TUNDE }, { id: "life-zainab" }, { id: "life-ngozi" }, { id: "life-chidi" }];
     const blocks = [{ from: "life-zainab", to: ADA }, { from: ADA, to: "life-chidi" }];
     expect(heardBy(ADA, present, blocks)).toEqual([TUNDE, "life-ngozi"]);
@@ -174,26 +174,26 @@ describe("a phrase said in a place", () => {
 });
 
 describe("the checks before a phrase goes", () => {
-  test("[R-PAIR-013] given an ended record, when either side sends, then it is not possible", () => {
+  test("[pair:phrase-checks-before-send] given an ended record, when either side sends, then it is not possible", () => {
     const ended = writeEvent(connected(), "b", { type: "pair/ended", absence: false, tick: 3 });
     expect(canSay(ended, "a", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
     expect(canSay(ended, "b", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
   });
 
-  test("[R-PAIR-013] given the sender at one under the hourly count, at it, and with the oldest send just an hour old, when sending, then only at the count is it refused", () => {
+  test("[pair:phrase-checks-before-send] given the sender at one under the hourly count, at it, and with the oldest send just an hour old, when sending, then only at the count is it refused", () => {
     expect(canSay(connected(), "a", HELLO, null, policy({ sent: sentWithin(pair.phrasesPerHour - 1, HOUR) }))).toEqual({ ok: true });
     expect(canSay(connected(), "a", HELLO, null, policy({ sent: sentWithin(pair.phrasesPerHour, HOUR) }))).toEqual({ ok: false, failed: "too-many" });
     const aged = [NOW - HOUR, ...sentWithin(pair.phrasesPerHour - 1, HOUR)];
     expect(canSay(connected(), "a", HELLO, null, policy({ sent: aged }))).toEqual({ ok: true });
   });
 
-  test("[R-PAIR-013] given the sender at one under the count a minute in a place, and at it, when saying, then only at the count is it refused", () => {
+  test("[pair:phrase-checks-before-send] given the sender at one under the count a minute in a place, and at it, when saying, then only at the count is it refused", () => {
     expect(canSayInPlace(HELLO, null, placePolicy({ sent: sentWithin(pair.placePhrasesPerMinute - 1, MINUTE) }))).toEqual({ ok: true });
     expect(canSayInPlace(HELLO, null, placePolicy({ sent: sentWithin(pair.placePhrasesPerMinute, MINUTE) }))).toEqual({ ok: false, failed: "too-many" });
     expect(canSayInPlace(HELLO, null, placePolicy({ here: false }))).toEqual({ ok: false, failed: "not-here" });
   });
 
-  test("[R-PAIR-013] given several checks failing at once, when sending, then the first in the page's order is the one reported", () => {
+  test("[pair:phrase-checks-before-send] given several checks failing at once, when sending, then the first in the page's order is the one reported", () => {
     const ended = writeEvent(connected(), "a", { type: "pair/ended", absence: false, tick: 3 });
     const many = sentWithin(pair.phrasesPerHour, HOUR);
     expect(canSay(ended, "a", HELLO, null, policy({ sent: many }))).toEqual({ ok: false, failed: "not-possible" });
@@ -201,7 +201,7 @@ describe("the checks before a phrase goes", () => {
   });
 
   test.prop([fc.array(fc.integer({ min: NOW - 2 * HOUR, max: NOW }), { maxLength: 60 })])(
-    "[R-PAIR-013] given any send times, when sending, then it is refused for count exactly when the last hour holds the count",
+    "[pair:phrase-checks-before-send] given any send times, when sending, then it is refused for count exactly when the last hour holds the count",
     (sent) => {
       const recent = sent.filter((at) => at > NOW - HOUR).length;
       const result = canSay(connected(), "a", HELLO, null, policy({ sent }));
@@ -211,7 +211,7 @@ describe("the checks before a phrase goes", () => {
 });
 
 describe("a block and the phrases", () => {
-  test("[R-PAIR-015] given a block from either side, when the blocked side sends, then it is not possible, and the blocker learns its own block", () => {
+  test("[pair:block-ends-every-bond] given a block from either side, when the blocked side sends, then it is not possible, and the blocker learns its own block", () => {
     const blockedByTunde = writeEvent(connected(), "b", { type: "pair/blocked", tick: 3 });
     expect(canSay(blockedByTunde, "a", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
     expect(canSay(blockedByTunde, "b", HELLO, null, policy())).toEqual({ ok: false, failed: "not-possible" });
@@ -222,7 +222,7 @@ describe("a block and the phrases", () => {
 });
 
 describe("one way to meet for everyone", () => {
-  test("[R-PAIR-018] given two players connected by an invite, when either side sends, then the phrase goes, with nothing about where either plays", () => {
+  test("[pair:everyone-meets-by-invite] given two players connected by an invite, when either side sends, then the phrase goes, with nothing about where either plays", () => {
     expect(canSay(connected(), "a", HELLO, null, policy())).toEqual({ ok: true });
     expect(canSay(connected(), "b", HELLO, null, policy())).toEqual({ ok: true });
     expect(Object.keys(policy()).sort()).toEqual(["fills", "now", "sent", "tuning"]);

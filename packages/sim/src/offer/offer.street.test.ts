@@ -1,5 +1,5 @@
-// The price of sleeping under the bridge: docs/rules/streets.md R-STREET-004 and
-// R-STREET-009, played through the harness with the real content.
+// The price of sleeping under the bridge: streets:sleeping-under-the-bridge and
+// streets:sex-optional-with-neutral-path, played through the harness with the real content.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -52,7 +52,7 @@ describe("the bridge's price: when it opens", () => {
     [BRIDGE_THEFT, street.theftBp],
     [BRIDGE_MOSQUITOES, street.mosquitoBp],
     [BRIDGE_NIGHT, street.harassBp],
-  ] as const)("[R-STREET-004] given a night under the bridge over many seeds, when %s is drawn on the offer stream, then it opens exactly when the draw falls under its chance of %i", (id, chanceBp) => {
+  ] as const)("[streets:sleeping-under-the-bridge] given a night under the bridge over many seeds, when %s is drawn on the offer stream, then it opens exactly when the draw falls under its chance of %i", (id, chanceBp) => {
     const entry = content.offer[id]!;
     expect(entry.chanceBp).toBe(chanceBp);
     expect(entry.group).toBe("life");
@@ -70,7 +70,7 @@ describe("the bridge's price: when it opens", () => {
     expect(Math.abs(divFloor(opened * 10000, SEEDS.length) - chanceBp)).toBeLessThan(500);
   });
 
-  test("[R-STREET-004] given every seed and the whole offer pool, when a month is rested or spent at the stadium instead of under the bridge, then none of the bridge's offers ever opens", () => {
+  test("[streets:sleeping-under-the-bridge] given every seed and the whole offer pool, when a month is rested or spent at the stadium instead of under the bridge, then none of the bridge's offers ever opens", () => {
     for (const seed of SEEDS.slice(0, 120)) {
       const game = life(content, seed);
       for (const slots of [[], [slot("activity.morning-run")]]) {
@@ -80,17 +80,17 @@ describe("the bridge's price: when it opens", () => {
     }
   });
 
-  test("[R-STREET-004] [R-LUCK-001] given the content check, when it reads the bridge's offers, then none reads money; a planted money condition, inside not or any, a missing night under the bridge or an offer not bad fails it", () => {
+  test("[streets:sleeping-under-the-bridge] [luck:luck-never-reads-money] given the content check, when it reads the bridge's offers, then none reads money; a planted money condition, inside not or any, a missing night under the bridge or an offer not bad fails it", () => {
     expect(bridgeProblems(content)).toEqual([]);
-    expect(checkContent(content).filter((problem) => problem.includes("R-STREET"))).toEqual([]);
+    expect(checkContent(content).filter((problem) => problem.includes("streets:"))).toEqual([]);
     const theft = content.offer[BRIDGE_THEFT]!;
     const planted = (entry: OfferEntry): Content => ({ ...content, offer: { ...content.offer, [BRIDGE_THEFT]: entry } });
     const money: Requirement = { type: "money/min", currency: "NGN", amount: 1 };
-    const reads = `${BRIDGE_THEFT}: the bridge's price reads money (R-STREET-004, R-LUCK-001).`;
+    const reads = `${BRIDGE_THEFT}: the bridge's price reads money (streets:sleeping-under-the-bridge, luck:luck-never-reads-money).`;
     expect(checkContent(planted({ ...theft, when: [...theft.when, { type: "not", of: money }] }))).toContain(reads);
     expect(checkContent(planted({ ...theft, when: [...theft.when, { type: "any", of: [{ type: "wallet/total", flow: "out", reason: "mishap", currency: "NGN", amount: 1 }] }] }))).toContain(reads);
-    expect(checkContent(planted({ ...theft, when: [] }))).toContain(`${BRIDGE_THEFT}: opens in a month the character did not sleep rough (R-STREET-004).`);
-    expect(checkContent(planted({ ...theft, bad: false }))).toContain(`${BRIDGE_THEFT}: is not a bad offer of the life group (R-STREET-004).`);
+    expect(checkContent(planted({ ...theft, when: [] }))).toContain(`${BRIDGE_THEFT}: opens in a month the character did not sleep rough (streets:sleeping-under-the-bridge).`);
+    expect(checkContent(planted({ ...theft, bad: false }))).toContain(`${BRIDGE_THEFT}: is not a bad offer of the life group (streets:sleeping-under-the-bridge).`);
   });
 });
 
@@ -105,14 +105,14 @@ describe("the bridge's price: what each does", () => {
     return twin.state.wallet.pockets.NGN.cash;
   }
 
-  test("[R-STREET-004] [R-WALLET-001] given the theft drawn, when the cash in hand is the tuning's figure, then it all goes from cash as it opens; one kobo less and nothing is taken; each is told by its own line", () => {
+  test("[streets:sleeping-under-the-bridge] [wallet:no-pocket-below-zero] given the theft drawn, when the cash in hand is the tuning's figure, then it all goes from cash as it opens; one kobo less and nothing is taken; each is told by its own line", () => {
     const seed = seedOpening(BRIDGE_THEFT);
     for (const [short, line] of [
       [0, `${BRIDGE_THEFT}.taken`],
       [1, `${BRIDGE_THEFT}.nothing`],
     ] as const) {
       // The month's own movements before the offers come up are the same whether the night is rough or not.
-      // Cash enough for the upkeep (taken cash first, R-OBLIGATION-002) and then some, so the month's movements are linear in the cash.
+      // Cash enough for the upkeep (taken cash first, obligation:charges-paid-whole-or-missed) and then some, so the month's movements are linear in the cash.
       const base = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 2;
       const cash = base + (street.theftNaira - short) - cashAtComeUp(seed, base);
       expect(cashAtComeUp(seed, cash)).toBe(street.theftNaira - short);
@@ -132,7 +132,7 @@ describe("the bridge's price: what each does", () => {
     }
   });
 
-  test("[R-STREET-004] [R-HEALTH-001] given the mosquitoes, when the player carries on, then one more run-down month is on the counter; left to lapse, the same", () => {
+  test("[streets:sleeping-under-the-bridge] [health:low-wellbeing-warns-first] given the mosquitoes, when the player carries on, then one more run-down month is on the counter; left to lapse, the same", () => {
     const seed = seedOpening(BRIDGE_MOSQUITOES);
     const bitten = (): { game: Game; item: OfferState } => {
       const game = life(alone(BRIDGE_MOSQUITOES), seed);
@@ -147,7 +147,7 @@ describe("the bridge's price: what each does", () => {
     expect(lapsed.game.endTurn().events).toContainEqual(added);
   });
 
-  test("[R-STREET-004] given a bad night, when the player carries on, then wellbeing falls by the tuning's figure", () => {
+  test("[streets:sleeping-under-the-bridge] given a bad night, when the player carries on, then wellbeing falls by the tuning's figure", () => {
     const seed = seedOpening(BRIDGE_NIGHT);
     const game = life(alone(BRIDGE_NIGHT), seed);
     const item = openedIn(game.endTurn([slot(SLEEP_ROUGH)]), BRIDGE_NIGHT)!;
@@ -157,7 +157,7 @@ describe("the bridge's price: what each does", () => {
 });
 
 describe("the bad night by the character's sex", () => {
-  test("[R-STREET-009] [R-STREET-004] given a woman, a man and the prologue's life that does not say, when the bad night opens, then its line is harassment, a fight, and trouble in the night, each with words", () => {
+  test("[streets:sex-optional-with-neutral-path] [streets:sleeping-under-the-bridge] given a woman, a man and the prologue's life that does not say, when the bad night opens, then its line is harassment, a fight, and trouble in the night, each with words", () => {
     const pool = alone(BRIDGE_NIGHT);
     const lines: Record<string, string> = {};
     for (const scenario of ["scenario.ada", "scenario.tunde", "scenario.prologue"] as const) {

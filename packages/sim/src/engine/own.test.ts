@@ -1,4 +1,4 @@
-// R-ENGINE-019: a key the player sent is read as an own property, so a built-in name is refused, never thrown on.
+// engine:player-keys-read-as-own: a key the player sent is read as an own property, so a built-in name is refused, never thrown on.
 import { describe, expect, test } from "vitest";
 
 import { start } from "../testing/play";
@@ -7,7 +7,7 @@ import { ownOf } from "./kind";
 const BUILT_IN = ["constructor", "__proto__", "toString", "hasOwnProperty", "valueOf"];
 
 describe("ownOf", () => {
-  test("[R-ENGINE-019] given a record, when read with a built-in name or a non-string, then nothing is found", () => {
+  test("[engine:player-keys-read-as-own] given a record, when read with a built-in name or a non-string, then nothing is found", () => {
     const record: Record<string, number> = { "offer-1": 1 };
     expect(ownOf(record, "offer-1")).toBe(1);
     for (const key of BUILT_IN) expect(ownOf(record, key)).toBeUndefined();
@@ -15,7 +15,7 @@ describe("ownOf", () => {
     expect(ownOf(record, null)).toBeUndefined();
   });
 
-  test("[R-ENGINE-019] given a started life, when each command names a built-in key, then it is rejected and nothing throws", () => {
+  test("[engine:player-keys-read-as-own] given a started life, when each command names a built-in key, then it is rejected and nothing throws", () => {
     const game = start();
     const commands = (key: string) => [
       { type: "obligation/pay", obligation: key, amount: 100 },

@@ -1,4 +1,4 @@
-// Home's send-off the month the visa is granted (docs/rules/chapter.md R-CHAPTER-008), on the real
+// Home's send-off the month the visa is granted (chapter:family-marks-the-grant), on the real
 // content through the real kinds: a ready life on the UK study route, never refused, played to its
 // decision month.
 import { content, text } from "@japacity/content";
@@ -66,7 +66,7 @@ function movedBy(events: readonly { type: string }[], choice: string): Record<st
 }
 
 describe("home's send-off, the month of the grant", () => {
-  test("[R-CHAPTER-008] given the entry, when it is read, then it opens at home while the story's route is granted, certain and never by chance, at most once, lapsing into dinner after two months, and the party costs the tuning's figure", () => {
+  test("[chapter:family-marks-the-grant] given the entry, when it is read, then it opens at home while the story's route is granted, certain and never by chance, at most once, lapsing into dinner after two months, and the party costs the tuning's figure", () => {
     expect(entry.when).toEqual([{ type: "route/state", route: UK_ROUTE, in: ["granted"] }]);
     expect(entry.where ?? "home").toBe("home");
     expect(entry.chanceBp).toBe(10000);
@@ -79,7 +79,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(COST).toBe(150000 * UNIT);
   });
 
-  test("[R-CHAPTER-008] given a life played to its decision, when the months pass, then the send-off is never open before the grant, opens at the end of the month the visa is granted, and once only", () => {
+  test("[chapter:family-marks-the-grant] given a life played to its decision, when the months pass, then the send-off is never open before the grant, opens at the end of the month the visa is granted, and once only", () => {
     const game = applied();
     expect(game.state.offer.timesOpened[SEND_OFF]).toBeUndefined();
     expect(uk(game).state).toBe("applying");
@@ -97,7 +97,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(game.state.offer.timesOpened[SEND_OFF]).toBe(1);
   });
 
-  test("[R-CHAPTER-008] given the send-off open, when the party is chosen, then its cost leaves the naira by transfer, the bank first, wellbeing is up 6, standing 4 and network 3, and the results line is the party's", () => {
+  test("[chapter:family-marks-the-grant] given the send-off open, when the party is chosen, then its cost leaves the naira by transfer, the bank first, wellbeing is up 6, standing 4 and network 3, and the results line is the party's", () => {
     const { game, item } = granted();
     const before = { money: naira(game), social: socialOut(game), wellbeing: quality(game, WELLBEING), standing: quality(game, STANDING), network: quality(game, NETWORK) };
     expect(before.money.bank).toBeGreaterThanOrEqual(COST);
@@ -113,7 +113,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(sendOff(game)).toBeUndefined();
   });
 
-  test("[R-CHAPTER-008] given less in the bank than the party costs, when it is chosen, then the bank goes first and cash pays the rest", () => {
+  test("[chapter:family-marks-the-grant] given less in the bank than the party costs, when it is chosen, then the bank goes first and cash pays the rest", () => {
     const short = 50000 * UNIT;
     const { game, item } = granted();
     // Draw the bank down to cash until less than the party costs is left in it.
@@ -124,7 +124,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(naira(game)).toEqual({ bank: 0, cash: cash - (COST - short) });
   });
 
-  test("[R-CHAPTER-008] given the send-off open, when dinner is chosen, then nothing is paid, wellbeing is up 3 and standing 2, and its line is the dinner's", () => {
+  test("[chapter:family-marks-the-grant] given the send-off open, when dinner is chosen, then nothing is paid, wellbeing is up 3 and standing 2, and its line is the dinner's", () => {
     const { game, item } = granted();
     const before = { money: naira(game), wellbeing: quality(game, WELLBEING), standing: quality(game, STANDING), network: quality(game, NETWORK) };
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "dinner" });
@@ -136,7 +136,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(text[`${SEND_OFF}.said.dinner`]).toBeDefined();
   });
 
-  test("[R-CHAPTER-008] given the send-off open, when it is skipped, then standing is down 2 and nothing else moves", () => {
+  test("[chapter:family-marks-the-grant] given the send-off open, when it is skipped, then standing is down 2 and nothing else moves", () => {
     const { game, item } = granted();
     const before = { money: naira(game), wellbeing: quality(game, WELLBEING), standing: quality(game, STANDING), network: quality(game, NETWORK) };
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "skip" });
@@ -148,7 +148,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(text[`${SEND_OFF}.said.skip`]).toBeDefined();
   });
 
-  test("[R-CHAPTER-008] given the send-off left unanswered, when its two months pass, then it lapses into dinner, with dinner's line", () => {
+  test("[chapter:family-marks-the-grant] given the send-off left unanswered, when its two months pass, then it lapses into dinner, with dinner's line", () => {
     const { game, item } = granted();
     // Answerable for two months: it lapses as the second ends.
     expect(item.expiresMonth).toBe(item.openedMonth + entry.expiresAfter);
@@ -169,7 +169,7 @@ describe("home's send-off, the month of the grant", () => {
     expect(game.state.offer.timesOpened[SEND_OFF]).toBe(1);
   });
 
-  test("[R-CHAPTER-008] given each choice, when its effects are read, then they are money and qualities only: nothing else in the simulation changes, so the flight still waits on the held funds", () => {
+  test("[chapter:family-marks-the-grant] given each choice, when its effects are read, then they are money and qualities only: nothing else in the simulation changes, so the flight still waits on the held funds", () => {
     const kinds = new Set(entry.choices.flatMap((choice) => choice.effects.map((effect) => effect.type)));
     expect([...kinds].sort()).toEqual(["money/take", "quality/add"]);
     expect(entry.choices.every((choice) => choice.fraudEffects === null && choice.pick === null && choice.requires.length === 0)).toBe(true);
@@ -177,16 +177,16 @@ describe("home's send-off, the month of the grant", () => {
     expect(party?.effects[0]).toEqual({ type: "money/take", currency: "NGN", pocket: "transfer", amount: { term: "cost" }, reason: "social" });
   });
 
-  test("[R-CHAPTER-008] [R-OFFER-001] given the month's rolls, when their order is read, then the send-off is rolled first of all, so the grant month's loan offers never take both of the month's places before it", () => {
+  test("[chapter:family-marks-the-grant] [offer:come-up-rolls-in-order] given the month's rolls, when their order is read, then the send-off is rolled first of all, so the grant month's loan offers never take both of the month's places before it", () => {
     expect(rollOrder(content)[0]?.id).toBe(SEND_OFF);
   });
 
-  test("[R-CHAPTER-008] given the house in content, when what it stages is read, then the send-off is staged there", () => {
+  test("[chapter:family-marks-the-grant] given the house in content, when what it stages is read, then the send-off is staged there", () => {
     expect(content.place["place.family-house"]?.stages).toContain(SEND_OFF);
   });
 
 describe("no funds loan after the grant", () => {
-  test("[R-ROUTE-020] given the visa granted, when months pass, then offer.held-funds never opens again", () => {
+  test("[route:departure-pays-flight] given the visa granted, when months pass, then offer.held-funds never opens again", () => {
     const { game } = granted();
     for (let month = 0; month < 6; month += 1) {
       game.endTurn();

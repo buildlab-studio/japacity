@@ -1,4 +1,4 @@
-// The view: all the interface ever sees (R-ENGINE-007). Every kind gives its
+// The view: all the interface ever sees (engine:view-holds-no-hidden-field). Every kind gives its
 // part and the engine joins them, adds japacity, and refuses to hand out a
 // view with a key missing.
 import { firstPayAbroadCard } from "../activity/activity.logic";
@@ -79,7 +79,7 @@ export function hiddenPaths(value: unknown, path = ""): string[] {
   return found;
 }
 
-/** The era with its ticks read as this player's months: one tick is one month played (R-DIRECTOR-002). */
+/** The era with its ticks read as this player's months: one tick is one month played (director:one-era-at-a-time). */
 function eraView(read: ReadCtx): PlayerView["era"] {
   const era = read.world.era;
   if (era === null) return null;
@@ -104,7 +104,7 @@ export function viewWith(kinds: Registry, read: ReadCtx): PlayerView {
 }
 
 /**
- * R-SHARE-001: each kind says when its card is due; the view carries one. The
+ * share:cards-due-at-set-moments: each kind says when its card is due; the view carries one. The
  * send-off and the road's cards come first, then the rarer moment before the
  * commoner, so a chapter that closes on a grant gives the granted card.
  */
@@ -121,7 +121,7 @@ function cardDue(read: ReadCtx): PlayerView["card"] {
   );
 }
 
-/** R-ADVERT-003: an advert may show only at home or abroad, outside a set piece, in a chapter without `noAdverts`. */
+/** advert:no-adverts-on-protected-screens: an advert may show only at home or abroad, outside a set piece, in a chapter without `noAdverts`. */
 function advertsAllowed(read: ReadCtx): boolean {
   if (read.state.place.where === "road" || read.state.setpiece.open !== null) return false;
   const chapter = read.state.chapter.current === null ? null : read.content.chapter[read.state.chapter.current];

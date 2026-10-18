@@ -241,7 +241,7 @@ function applyNextMonth(game: Game, route: Id<"route">): void {
   PENDING.set(game, route);
 }
 
-/** The turn that sends the application through the gate, which opens the interview (R-INTERVIEW-001, 002). */
+/** The turn that sends the application through the gate, which opens the interview (interview:partner-application-opens-interview, interview:thin-record-triggers-interview). */
 function send(game: Game): void {
   const route = PENDING.get(game)!;
   game.endTurn([{ activity: APPLY[route]!, param: null }]);
@@ -289,7 +289,7 @@ function standInKinds(): Registry {
 // ---------------------------------------------------------------------------
 
 describe("the questions in content", () => {
-  test("[R-INTERVIEW-003] given the entry, when it is read, then it asks the tuning's count from the ten questions of the page, each with its truth and needs", () => {
+  test("[interview:questions-drawn-from-record] given the entry, when it is read, then it asks the tuning's count from the ten questions of the page, each with its truth and needs", () => {
     expect(entry.ask).toBe(numbers.ask);
     expect(ALL).toEqual(["first-spot", "first-what", "last-spot", "times-met", "wedding-spot", "calls", "partner-job", "partner-home", "last-said", "plans"]);
     expect(entry.questions.filter((question) => question.about === "other").map((question) => question.id)).toEqual(["partner-job", "partner-home", "last-said"]);
@@ -297,7 +297,7 @@ describe("the questions in content", () => {
     expect(entry.questions.find((question) => question.id === "last-spot")?.needs).toEqual({ met: 2 });
   });
 
-  test("[R-INTERVIEW-003] given the record, when each truth is worked out, then it reads the moments and the facts as the page's table says", () => {
+  test("[interview:questions-drawn-from-record] given the record, when each truth is worked out, then it reads the moments and the facts as the page's table says", () => {
     const game = sponsorLife();
     const read = { state: game.state, world: game.world(), content: game.content };
     const bond = game.state.people.bonds[BOND]!;
@@ -325,7 +325,7 @@ describe("the questions in content", () => {
     [9, "nine-to-fifteen"],
     [15, "nine-to-fifteen"],
     [16, "sixteen-or-more"],
-  ])("[R-INTERVIEW-003] given %i meetings, when the times-met truth is worked out, then it is the band %s", (count, band) => {
+  ])("[interview:questions-drawn-from-record] given %i meetings, when the times-met truth is worked out, then it is the band %s", (count, band) => {
     const game = sponsorLife();
     const moments = Array.from({ length: count }, (_unused, index) => ({ ...moment("me", "met", "beach", "talked"), n: index + 1, tick: index + 1 }));
     const bond = bondWith(game.state, { moments });
@@ -334,7 +334,7 @@ describe("the questions in content", () => {
 });
 
 describe("opening", () => {
-  test("[R-INTERVIEW-001] [R-INTERVIEW-003] given an application on the partner gate with a computer partner, when the month it is sent resolves, then the interview opens with the tuning's count drawn on visa without repeats, each with the truth among its options", () => {
+  test("[interview:partner-application-opens-interview] [interview:questions-drawn-from-record] given an application on the partner gate with a computer partner, when the month it is sent resolves, then the interview opens with the tuning's count drawn on visa without repeats, each with the truth among its options", () => {
     const game = applicantWithComputer();
     const visaBefore = game.state.draws.visa ?? 0;
     send(game);
@@ -354,7 +354,7 @@ describe("opening", () => {
     });
   });
 
-  test("[R-INTERVIEW-003] given a question about the couple, when it opens, then its options are the truth and the tuning's decoys from its list, never the truth twice", () => {
+  test("[interview:questions-drawn-from-record] given a question about the couple, when it opens, then its options are the truth and the tuning's decoys from its list, never the truth twice", () => {
     for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4"]) {
       const game = applicantWithComputer({ seed });
       send(game);
@@ -371,14 +371,14 @@ describe("opening", () => {
     }
   });
 
-  test("[R-INTERVIEW-003] given a record with no moments, when the interview opens, then only the questions that need nothing are asked", () => {
+  test("[interview:questions-drawn-from-record] given a record with no moments, when the interview opens, then only the questions that need nothing are asked", () => {
     const game = applicantWithComputer({ bond: { moments: [], stage: "married" } });
     send(game);
     const asked = game.state.interview.open!.questions.map((question) => question.id);
     expect([...asked].sort()).toEqual(["partner-home", "partner-job", "plans", "times-met"]);
   });
 
-  test("[R-INTERVIEW-001] given a real sponsor's life, when the authority sends the questions, then the same questions and options open there, with no draw", () => {
+  test("[interview:partner-application-opens-interview] given a real sponsor's life, when the authority sends the questions, then the same questions and options open there, with no draw", () => {
     const game = sponsorLife();
     const questions = questionsFor(game, ["first-spot", "times-met", "partner-job", "plans", "calls"]);
     const before = game.state.draws;
@@ -388,13 +388,13 @@ describe("opening", () => {
     expect(game.view().interview?.question).toEqual(questions[0]);
   });
 
-  test("[R-INTERVIEW-001] given a player, when they send interview/open or interview/scored, then each is rejected as not theirs", () => {
+  test("[interview:partner-application-opens-interview] given a player, when they send interview/open or interview/scored, then each is rejected as not theirs", () => {
     const game = sponsorLife();
     game.expectRejected({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "not-yours");
     expect(game.expectRejected({ type: "interview/scored", pair: PAIR, theirs: [] }, "not-yours").code).toBe("not-yours");
   });
 
-  test("[R-INTERVIEW-001] given an interview already open, a pair with no bond or a question the entry lacks, when the authority opens one, then it is rejected", () => {
+  test("[interview:partner-application-opens-interview] given an interview already open, a pair with no bond or a question the entry lacks, when the authority opens one, then it is rejected", () => {
     const game = sponsorLife();
     game.expectRejected({ type: "interview/open", pair: "pair-9", route: PARTNER_ROUTE, questions: questionsFor(game) }, "not-legal", "authority");
     game.expectRejected({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: [{ id: "favourite-colour", options: ["red"] }] }, "not-legal", "authority");
@@ -415,20 +415,20 @@ describe("opening", () => {
       return game;
     }
 
-    test("[R-INTERVIEW-002] given a record with the tuning's moments and months together, when a dependant application goes in, then no interview opens", () => {
+    test("[interview:thin-record-triggers-interview] given a record with the tuning's moments and months together, when a dependant application goes in, then no interview opens", () => {
       const game = dependant(numbers.thinMoments, numbers.thinMonths);
       send(game);
       expect(game.state.interview.open).toBeNull();
       expect(game.view().interview).toBeNull();
     });
 
-    test("[R-INTERVIEW-002] given one moment fewer than the tuning's, when a dependant application goes in, then the interview opens", () => {
+    test("[interview:thin-record-triggers-interview] given one moment fewer than the tuning's, when a dependant application goes in, then the interview opens", () => {
       const game = dependant(numbers.thinMoments - 1, numbers.thinMonths);
       send(game);
       expect(game.state.interview.open?.route).toBe(DEPENDANT_ROUTE);
     });
 
-    test("[R-INTERVIEW-002] given one month fewer together than the tuning's, when a dependant application goes in, then the interview opens", () => {
+    test("[interview:thin-record-triggers-interview] given one month fewer together than the tuning's, when a dependant application goes in, then the interview opens", () => {
       const game = dependant(richMoments().length, numbers.thinMonths - 1);
       send(game);
       expect(game.state.interview.open?.route).toBe(DEPENDANT_ROUTE);
@@ -437,7 +437,7 @@ describe("opening", () => {
 });
 
 describe("answering", () => {
-  test("[R-INTERVIEW-004] given an open interview, when an answer names another question or an option not offered, then it is rejected with not-legal", () => {
+  test("[interview:answers-taken-in-order] given an open interview, when an answer names another question or an option not offered, then it is rejected with not-legal", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     game.expectRejected({ type: "interview/answer", question: "plans", option: "uk" }, "not-legal");
@@ -446,11 +446,11 @@ describe("answering", () => {
     expect(game.state.interview.open?.answers).toEqual(["beach"]);
   });
 
-  test("[R-INTERVIEW-004] given no interview open, when an answer is sent, then it is rejected with not-legal", () => {
+  test("[interview:answers-taken-in-order] given no interview open, when an answer is sent, then it is rejected with not-legal", () => {
     expect(sponsorLife().expectRejected({ type: "interview/answer", question: "plans", option: "uk" }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-INTERVIEW-004] given a question to answer, when the turn is ended, then it is rejected with setpiece-open, and other commands work as usual", () => {
+  test("[interview:answers-taken-in-order] given a question to answer, when the turn is ended, then it is rejected with setpiece-open, and other commands work as usual", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     game.expectRejected({ type: "turn/end", slots: [] }, "setpiece-open");
@@ -459,7 +459,7 @@ describe("answering", () => {
     expect(legalCommands(game.view()).filter((command) => command.type === "interview/answer")).toHaveLength(game.view().interview!.question!.options.length);
   });
 
-  test("[R-INTERVIEW-004] [R-INTERVIEW-011] given every answer in and a real partner still answering, when the turn is ended, then it goes ahead and the view says the interview is waiting", () => {
+  test("[interview:answers-taken-in-order] [interview:players-answer-at-own-pace] given every answer in and a real partner still answering, when the turn is ended, then it goes ahead and the view says the interview is waiting", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     const result = (() => {
@@ -475,7 +475,7 @@ describe("answering", () => {
     game.expectRejected({ type: "interview/answer", question: "plans", option: "uk" }, "not-legal");
   });
 
-  test("[R-INTERVIEW-004] given random legal play through an open interview, when every command offered is sent, then each is accepted and the invariants hold", () => {
+  test("[interview:answers-taken-in-order] given random legal play through an open interview, when every command offered is sent, then each is accepted and the invariants hold", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     for (let guard = 0; guard < ALL.length; guard += 1) {
@@ -489,7 +489,7 @@ describe("answering", () => {
 });
 
 describe("the view", () => {
-  test("[R-INTERVIEW-005] given an open interview, when it is viewed, then it shows one question and its options and never a truth, a score or a hidden field", () => {
+  test("[interview:one-question-at-a-time] given an open interview, when it is viewed, then it shows one question and its options and never a truth, a score or a hidden field", () => {
     const game = sponsorLife();
     const questions = questionsFor(game);
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions }, "authority");
@@ -500,13 +500,13 @@ describe("the view", () => {
     expect(JSON.stringify(shown)).not.toContain("secret");
   });
 
-  test("[R-INTERVIEW-005] given a scored interview, when it is viewed, then it shows the result and how many matched, never which", () => {
+  test("[interview:one-question-at-a-time] given a scored interview, when it is viewed, then it shows the result and how many matched, never which", () => {
     const game = sponsorLife();
     scoreWith(game, ALL.length);
     expect(game.view().interview).toEqual({ route: PARTNER_ROUTE, question: null, asked: ALL.length, total: ALL.length, waiting: false, standIn: false, result: "pass", matched: ALL.length });
   });
 
-  test("[R-INTERVIEW-005] [R-INTERVIEW-007] given a computer partner, when the interview is open and when it is scored, then the computer's answers and the truths are nowhere in the view", () => {
+  test("[interview:one-question-at-a-time] [interview:computer-answers-by-recall] given a computer partner, when the interview is open and when it is scored, then the computer's answers and the truths are nowhere in the view", () => {
     const game = applicantWithComputer();
     send(game);
     const truths = game.state.interview.secret.truths!;
@@ -530,32 +530,32 @@ describe("scoring", () => {
     return mulDiv(bp, TEN, 10000);
   };
 
-  test("[R-INTERVIEW-006] given a deep record and ten questions, when the matches are exactly the pass share, then the result is pass", () => {
+  test("[interview:answers-scored-without-draw] given a deep record and ten questions, when the matches are exactly the pass share, then the result is pass", () => {
     expect(scoreWith(sponsorLife(), at(numbers.passBp))).toBe("pass");
   });
 
-  test("[R-INTERVIEW-006] given a deep record, when one match fewer than the pass share is made, then the result is doubt", () => {
+  test("[interview:answers-scored-without-draw] given a deep record, when one match fewer than the pass share is made, then the result is doubt", () => {
     expect(scoreWith(sponsorLife(), at(numbers.passBp) - 1)).toBe("doubt");
   });
 
-  test("[R-INTERVIEW-006] given a deep record, when the matches are exactly the fail share, then the result is doubt, and one fewer is fail", () => {
+  test("[interview:answers-scored-without-draw] given a deep record, when the matches are exactly the fail share, then the result is doubt, and one fewer is fail", () => {
     expect(scoreWith(sponsorLife(), at(numbers.failBp))).toBe("doubt");
     expect(scoreWith(sponsorLife(), at(numbers.failBp) - 1)).toBe("fail");
   });
 
-  test("[R-INTERVIEW-006] given a deep record, when the matches are exactly the caught share, then the result is fail, and one fewer is caught", () => {
+  test("[interview:answers-scored-without-draw] given a deep record, when the matches are exactly the caught share, then the result is fail, and one fewer is caught", () => {
     expect(scoreWith(sponsorLife(), at(numbers.caughtBelowBp))).toBe("fail");
     expect(scoreWith(sponsorLife(), at(numbers.caughtBelowBp) - 1)).toBe("caught");
   });
 
-  test("[R-INTERVIEW-006] given a thin record, when the result would not be pass, then it is caught, and a pass stays a pass", () => {
+  test("[interview:answers-scored-without-draw] given a thin record, when the result would not be pass, then it is caught, and a pass stays a pass", () => {
     const thin = (month: number): Partial<Bond> => ({ partnerMonth: month - numbers.thinMonths + 1, marriedMonth: null });
     expect(scoreWith(sponsorLife(thin), at(numbers.passBp))).toBe("pass");
     expect(scoreWith(sponsorLife(thin), at(numbers.passBp) - 1)).toBe("caught");
     expect(scoreWith(sponsorLife({ moments: richMoments().slice(0, numbers.thinMoments - 1) }), at(numbers.failBp))).toBe("caught");
   });
 
-  test("[R-INTERVIEW-006] given a share in basis points, when the result is worked out, then each edge falls as the page says", () => {
+  test("[interview:answers-scored-without-draw] given a share in basis points, when the result is worked out, then each edge falls as the page says", () => {
     const asked = 10000;
     expect(resultOf(numbers.passBp, asked, false, numbers)).toBe("pass");
     expect(resultOf(numbers.passBp - 1, asked, false, numbers)).toBe("doubt");
@@ -568,7 +568,7 @@ describe("scoring", () => {
   });
 
   test.prop([fc.integer({ min: 1, max: 40 }), fc.nat(), fc.boolean()])(
-    "[R-INTERVIEW-006] given any count asked and matched, when the result is worked out, then caught under the caught share, pass at the pass share, and a thin record never doubts or fails",
+    "[interview:answers-scored-without-draw] given any count asked and matched, when the result is worked out, then caught under the caught share, pass at the pass share, and a thin record never doubts or fails",
     (asked, seed, thin) => {
       const matched = seed % (asked + 1);
       const share = mulDiv(matched, 10000, asked);
@@ -580,7 +580,7 @@ describe("scoring", () => {
     },
   );
 
-  test("[R-INTERVIEW-006] given a question about the other person, when one side gives the truth about the other but the other does not, then it does not match", () => {
+  test("[interview:answers-scored-without-draw] given a question about the other person, when one side gives the truth about the other but the other does not, then it does not match", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game, ["partner-job", "plans"]) }, "authority");
     answerAll(game, ["activity.job-nurse", "uk"]);
@@ -589,7 +589,7 @@ describe("scoring", () => {
     expect(game.state.interview.last?.matched).toBe(1);
   });
 
-  test("[R-INTERVIEW-006] [R-INTERVIEW-012] given both answers in, when the authority scores, then no draw is made", () => {
+  test("[interview:answers-scored-without-draw] [interview:draws-made-in-one-life] given both answers in, when the authority scores, then no draw is made", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     const { mine, theirs } = rightAnswers(game);
@@ -599,7 +599,7 @@ describe("scoring", () => {
     expect(game.state.draws).toEqual(before);
   });
 
-  test("[R-INTERVIEW-006] given a score for answers that are not all in, the wrong count or an option not offered, when it is sent, then it is rejected with not-legal", () => {
+  test("[interview:answers-scored-without-draw] given a score for answers that are not all in, the wrong count or an option not offered, when it is sent, then it is rejected with not-legal", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     const { mine, theirs } = rightAnswers(game);
@@ -613,7 +613,7 @@ describe("scoring", () => {
 });
 
 describe("a computer partner", () => {
-  test("[R-INTERVIEW-007] given a computer that always recalls, when the player answers rightly, then the comparison runs with the last answer and passes", () => {
+  test("[interview:computer-answers-by-recall] given a computer that always recalls, when the player answers rightly, then the comparison runs with the last answer and passes", () => {
     const game = applicantWithComputer({ content: testContent({ recallBp: 10000 }) });
     send(game);
     const plan = game.state.interview.open!.questions.findIndex((asked) => asked.id === "plans");
@@ -626,7 +626,7 @@ describe("a computer partner", () => {
     expect(game.state.interview.last).toEqual({ route: PARTNER_ROUTE, result: "pass", matched: numbers.ask, asked: numbers.ask, month: game.state.turn.month, standIn: { a: false, b: false } });
   });
 
-  test("[R-INTERVIEW-007] given a computer that never recalls and plans otherwise, when the player answers rightly, then nothing matches and the result is caught", () => {
+  test("[interview:computer-answers-by-recall] given a computer that never recalls and plans otherwise, when the player answers rightly, then nothing matches and the result is caught", () => {
     const game = applicantWithComputer({ content: testContent({ recallBp: 0, plan: "not-decided" }) });
     send(game);
     const peopleBefore = game.state.draws.people ?? 0;
@@ -638,7 +638,7 @@ describe("a computer partner", () => {
     expect((game.state.draws.people ?? 0) - peopleBefore).toBe(withTruth * 2);
   });
 
-  test("[R-INTERVIEW-007] given a papers partner with no moments, when the interview is scored, then it is caught unless every answer matched", () => {
+  test("[interview:computer-answers-by-recall] given a papers partner with no moments, when the interview is scored, then it is caught unless every answer matched", () => {
     for (const seed of ["seed-1", "seed-2", "seed-3", "seed-4", "seed-5", "seed-6"]) {
       const game = applicantWithComputer({ seed, content: testContent({ recallBp: 2000, papers: true, plan: "not-decided" }), bond: { moments: [], partnerMonth: null, marriedMonth: 0 } });
       send(game);
@@ -650,7 +650,7 @@ describe("a computer partner", () => {
 });
 
 describe("the stand-in", () => {
-  test("[R-INTERVIEW-008] given the stand-in answering a question with a truth, when its draw on people is under the stand-in recall, then it gives the truth, and otherwise a decoy", () => {
+  test("[interview:stand-in-answers-when-absent] given the stand-in answering a question with a truth, when its draw on people is under the stand-in recall, then it gives the truth, and otherwise a decoy", () => {
     const hit = seedWhere((seed) => draw(seed, "people", 0, 10000) < numbers.standInRecallBp);
     const miss = seedWhere((seed) => draw(seed, "people", 0, 10000) >= numbers.standInRecallBp);
     for (const [seed, recalls] of [
@@ -666,7 +666,7 @@ describe("the stand-in", () => {
   });
 
   test.prop([fc.integer({ min: 0, max: 400 })], { numRuns: 30 })(
-    "[R-INTERVIEW-008] given any seed, when the stand-in answers the first question, then it gives the truth exactly when the people draw is under the stand-in recall",
+    "[interview:stand-in-answers-when-absent] given any seed, when the stand-in answers the first question, then it gives the truth exactly when the people draw is under the stand-in recall",
     (index) => {
       const seed = `stand-${String(index)}`;
       const game = sponsorLife({}, { seed, kinds: standInKinds() });
@@ -676,7 +676,7 @@ describe("the stand-in", () => {
     },
   );
 
-  test("[R-INTERVIEW-008] given the plans question, when the stand-in answers, then it gives the waiting side's answer on a hit and the first option on a miss", () => {
+  test("[interview:stand-in-answers-when-absent] given the plans question, when the stand-in answers, then it gives the waiting side's answer on a hit and the first option on a miss", () => {
     const hit = seedWhere((seed) => draw(seed, "people", 0, 10000) < numbers.standInRecallBp);
     const miss = seedWhere((seed) => draw(seed, "people", 0, 10000) >= numbers.standInRecallBp);
     for (const [seed, expected] of [
@@ -690,7 +690,7 @@ describe("the stand-in", () => {
     }
   });
 
-  test("[R-INTERVIEW-008] given the stand-in on for the other side while this side waits, when the view is read, then it marks the interview as answered by a stand-in", () => {
+  test("[interview:stand-in-answers-when-absent] given the stand-in on for the other side while this side waits, when the view is read, then it marks the interview as answered by a stand-in", () => {
     const game = sponsorLife({ standIn: "on" });
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game, ["plans"]) }, "authority");
     expect(game.view().interview?.standIn).toBe(false);
@@ -707,7 +707,7 @@ describe("the stand-in mark on the result", () => {
     return game.accept({ type: "interview/scored", pair: PAIR, theirs: game.state.interview.open!.questions.map((asked) => asked.options[0]!) }, "authority");
   }
 
-  test("[R-INTERVIEW-008] given the stand-in answering in this life, when the result comes, then the result keeps this side's mark, the view after the result says a stand-in answered, and so does the report", () => {
+  test("[interview:stand-in-answers-when-absent] given the stand-in answering in this life, when the result comes, then the result keeps this side's mark, the view after the result says a stand-in answered, and so does the report", () => {
     const game = sponsorLife({}, { kinds: standInKinds() });
     const result = scoredAfter(game);
     expect(game.state.interview.last?.standIn).toEqual({ a: true, b: false });
@@ -716,7 +716,7 @@ describe("the stand-in mark on the result", () => {
     expect(result.lines.map((line) => line.key)).toContain("line.interview.stood-in");
   });
 
-  test("[R-INTERVIEW-008] given the stand-in on for the other side when the result comes, when this side answered itself, then the result keeps the other side's mark and the view and the report say a stand-in answered", () => {
+  test("[interview:stand-in-answers-when-absent] given the stand-in on for the other side when the result comes, when this side answered itself, then the result keeps the other side's mark and the view and the report say a stand-in answered", () => {
     const game = sponsorLife({ standIn: "on" });
     const result = scoredAfter(game);
     expect(game.state.interview.last?.standIn).toEqual({ a: false, b: true });
@@ -724,7 +724,7 @@ describe("the stand-in mark on the result", () => {
     expect(result.lines.map((line) => line.key)).toContain("line.interview.stood-in");
   });
 
-  test("[R-INTERVIEW-008] given no stand-in on either side, or one only warned, when the result comes, then nothing is marked and the report does not mention a stand-in", () => {
+  test("[interview:stand-in-answers-when-absent] given no stand-in on either side, or one only warned, when the result comes, then nothing is marked and the report does not mention a stand-in", () => {
     for (const standIn of [null, "warned"] as const) {
       const game = sponsorLife({ standIn });
       const result = scoredAfter(game);
@@ -736,7 +736,7 @@ describe("the stand-in mark on the result", () => {
 });
 
 describe("what the result does", () => {
-  test("[R-INTERVIEW-009] given a caught result, when it is scored, then standing falls by the tuning's figure and the result is kept for the application", () => {
+  test("[interview:result-applies-to-application] given a caught result, when it is scored, then standing falls by the tuning's figure and the result is kept for the application", () => {
     const game = sponsorLife();
     const standing = game.state.quality["quality.standing"]!;
     const result = (() => {
@@ -751,7 +751,7 @@ describe("what the result does", () => {
     expect(result.lines.find((line) => line.key === "line.interview.caught")?.params).toEqual({ route: PARTNER_ROUTE, matched: 0, asked: ALL.length });
   });
 
-  test.each(["pass", "doubt", "fail"] as const)("[R-INTERVIEW-009] given a %s result, when it is scored, then standing does not move", (wanted) => {
+  test.each(["pass", "doubt", "fail"] as const)("[interview:result-applies-to-application] given a %s result, when it is scored, then standing does not move", (wanted) => {
     const right: Record<typeof wanted, number> = { pass: ALL.length, doubt: 5, fail: 3 };
     const game = sponsorLife();
     const standing = game.state.quality["quality.standing"];
@@ -759,7 +759,7 @@ describe("what the result does", () => {
     expect(game.state.quality["quality.standing"]).toBe(standing);
   });
 
-  test("[R-INTERVIEW-010] given a sponsor already living abroad, when the interview is caught, then the sponsor keeps their status and the caught result is kept with its month", () => {
+  test("[interview:caught-sponsor-carries-bar] given a sponsor already living abroad, when the interview is caught, then the sponsor keeps their status and the caught result is kept with its month", () => {
     const game = sponsorLife();
     const status = game.state.status;
     expect(scoreWith(game, 0)).toBe("caught");
@@ -769,7 +769,7 @@ describe("what the result does", () => {
 });
 
 describe("two lives", () => {
-  test("[R-INTERVIEW-011] given an open interview, when the bond ends before both have answered, then the turn goes ahead and the interview closes unscored", () => {
+  test("[interview:players-answer-at-own-pace] given an open interview, when the bond ends before both have answered, then the turn goes ahead and the interview closes unscored", () => {
     const game = sponsorLife();
     game.accept({ type: "interview/open", pair: PAIR, route: PARTNER_ROUTE, questions: questionsFor(game) }, "authority");
     game.accept({ type: "interview/answer", question: "first-spot", option: "beach" });
@@ -781,7 +781,7 @@ describe("two lives", () => {
     expect(game.state.interview).toEqual({ open: null, last: null, secret: { truths: null } });
   });
 
-  test("[R-INTERVIEW-012] given the applicant's life and the sponsor's, when each answers the same questions and each is scored with the other's answers, then both reach the same result", () => {
+  test("[interview:draws-made-in-one-life] given the applicant's life and the sponsor's, when each answers the same questions and each is scored with the other's answers, then both reach the same result", () => {
     const applicant = life({ seed: "seed-7" });
     const sponsor = life({ seed: "seed-8" });
     // The two lives hold the same record, each from its own side.
@@ -816,7 +816,7 @@ describe("two lives", () => {
     expect(sponsor.state.draws).toEqual(sponsorDraws);
   });
 
-  test("[R-INTERVIEW-012] given a deep record in this life and the applicant's measure sent as thin, when a result short of pass is scored, then it is caught as the applicant's life finds it", () => {
+  test("[interview:draws-made-in-one-life] given a deep record in this life and the applicant's measure sent as thin, when a result short of pass is scored, then it is caught as the applicant's life finds it", () => {
     const at = mulDiv(numbers.passBp, ALL.length, 10000) - 1;
     const measured = sponsorLife();
     expect(isThin(measured.state, measured.state.people.bonds[BOND]!, numbers)).toBe(false);
@@ -834,13 +834,13 @@ describe("two lives", () => {
     expect(sent(false)).toBe("doubt");
   });
 
-  test("[R-INTERVIEW-012] given an application sent on a thin record, when the interview opens, then the applicant's measure is kept with it", () => {
+  test("[interview:draws-made-in-one-life] given an application sent on a thin record, when the interview opens, then the applicant's measure is kept with it", () => {
     const game = applicantWithComputer({ bond: { moments: [], stage: "married" } });
     send(game);
     expect(game.state.interview.open?.thin).toBe(true);
   });
 
-  test("[R-INTERVIEW-012] given the same start and commands, when the life is played again, then the interview's draws and result are the same", () => {
+  test("[interview:draws-made-in-one-life] given the same start and commands, when the life is played again, then the interview's draws and result are the same", () => {
     const play = (): State => {
       const game = applicantWithComputer({ seed: "seed-11" });
       send(game);
@@ -854,7 +854,7 @@ describe("two lives", () => {
 });
 
 describe("thinness", () => {
-  test("[R-INTERVIEW-002] given months together counted from the earlier of partner and married, when the record is measured, then the edges fall at the tuning's figures", () => {
+  test("[interview:thin-record-triggers-interview] given months together counted from the earlier of partner and married, when the record is measured, then the edges fall at the tuning's figures", () => {
     const game = sponsorLife();
     const month = game.state.turn.month;
     const rich = richMoments();
@@ -869,7 +869,7 @@ describe("thinness", () => {
 });
 
 describe("words", () => {
-  test("[R-INTERVIEW-003] given the questions, when their words are looked up, then each question and each fixed option has words", () => {
+  test("[interview:questions-drawn-from-record] given the questions, when their words are looked up, then each question and each fixed option has words", () => {
     const keys = [
       `${GENUINENESS}.name`,
       `${GENUINENESS}.a.partner-job.${NO_JOB}`,

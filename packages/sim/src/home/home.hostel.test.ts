@@ -1,4 +1,4 @@
-// A hostel room of your own (home.md R-HOME-001, 002, 008, 011): the fourth home, one small room
+// A hostel room of your own (home:home-slice-fields, home:move-home-once-a-month, home:moves-carry-cost-and-reason, home:rent-default-returns-to-family): the fourth home, one small room
 // off a shared corridor rented by the month at `tuning.home.hostelRentKobo`, about half the room in a compound's month
 // of rent. A move to it needs one month's rent held and takes it; each month's end pays the month to come; there is no
 // year's lump, which is why it is the cheap way out of the family house. A rent gone bad sends the character home.
@@ -35,14 +35,14 @@ function inTheHostel(spare = 0): Game {
 }
 
 describe("the hostel as a home", () => {
-  test("[R-HOME-001] given the home slice, when its places are read, then there are four homes, the hostel room among them, and it is a place of the city's homes", () => {
+  test("[home:home-slice-fields] given the home slice, when its places are read, then there are four homes, the hostel room among them, and it is a place of the city's homes", () => {
     expect(HomePlaceSchema.options).toEqual(["place.family-house", "place.makoko", "place.compound-room", HOSTEL]);
     expect(content.place[HOSTEL]).toMatchObject({ where: "home", nameKind: "stylised", scope: "interior" });
     expect(content.obligation[RENT]).toMatchObject({ type: "rent", currency: "NGN", amount: MONTH, sink: "rent", grace: 2 });
     expect(content.obligation[RENT]?.everyMonths).toBeUndefined();
   });
 
-  test("[R-HOME-001] given the hostel's rent, when it is set against the room in a compound's, then it is a whole kobo figure about half the room's month of rent, the year divided by twelve", () => {
+  test("[home:home-slice-fields] given the hostel's rent, when it is set against the room in a compound's, then it is a whole kobo figure about half the room's month of rent, the year divided by twelve", () => {
     expect(Number.isSafeInteger(MONTH)).toBe(true);
     const roomMonth = divFloor(home.compound.rentYear, 12);
     const half = divFloor(roomMonth, 2);
@@ -50,7 +50,7 @@ describe("the hostel as a home", () => {
     expect(MONTH).toBeLessThanOrEqual(half + bp(half, 1500));
   });
 
-  test("[R-HOME-002] [R-HOME-008] given Ada at the family house, when the home card's moves are read, then the hostel is offered at its rent a month with its first month taken now, shut short until a month's rent is held", () => {
+  test("[home:move-home-once-a-month] [home:moves-carry-cost-and-reason] given Ada at the family house, when the home card's moves are read, then the hostel is offered at its rent a month with its first month taken now, shut short until a month's rent is held", () => {
     const game = ada();
     setPockets(game, { NGN: MONTH - 1 });
     const shut = game.view().home.moves.find((move) => move.to === HOSTEL);
@@ -60,7 +60,7 @@ describe("the hostel as a home", () => {
     expect(game.view().home.moves.find((move) => move.to === HOSTEL)?.shut).toBeNull();
   });
 
-  test("[R-HOME-002] given Ada with exactly a month's rent, when she moves to the hostel, then the month is taken under rent, the hostel's rent opens by the month with no year's lump and the family's upkeep closes, and the card says the rent a month", () => {
+  test("[home:move-home-once-a-month] given Ada with exactly a month's rent, when she moves to the hostel, then the month is taken under rent, the hostel's rent opens by the month with no year's lump and the family's upkeep closes, and the card says the rent a month", () => {
     const game = ada();
     setPockets(game, { NGN: MONTH });
     const result = game.accept({ type: "home/move", to: HOSTEL });
@@ -75,7 +75,7 @@ describe("the hostel as a home", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-HOME-002] given Ada in the hostel, when months end, then each month's end pays the month to come at the hostel's rent, never more", () => {
+  test("[home:move-home-once-a-month] given Ada in the hostel, when months end, then each month's end pays the month to come at the hostel's rent, never more", () => {
     const game = inTheHostel();
     for (let at = 0; at < 3; at += 1) {
       setPockets(game, { NGN: 5_000_000_00 });
@@ -86,7 +86,7 @@ describe("the hostel as a home", () => {
     }
   });
 
-  test("[R-HOME-011] given Ada in the hostel with nothing at the months' ends, when the rent is missed past its grace, then in the same month's clocks she is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
+  test("[home:rent-default-returns-to-family] given Ada in the hostel with nothing at the months' ends, when the rent is missed past its grace, then in the same month's clocks she is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
     const game = inTheHostel();
     const grace = content.obligation[RENT]!.grace;
     let last: Accepted | null = null;
@@ -105,7 +105,7 @@ describe("the hostel as a home", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-HOME-011] given Ada's hostel rent missed but not yet past its grace, when the month ends, then she still lives in the hostel", () => {
+  test("[home:rent-default-returns-to-family] given Ada's hostel rent missed but not yet past its grace, when the month ends, then she still lives in the hostel", () => {
     const game = inTheHostel();
     setPockets(game, { NGN: 0 });
     restMonth(game);
@@ -113,7 +113,7 @@ describe("the hostel as a home", () => {
     expect(openObligations(game)).toEqual([RENT]);
   });
 
-  test("[R-OBLIGATION-014] given Ada in the hostel, when the water acts are read, then the drum is filled free from the tap and no water is bought", () => {
+  test("[obligation:cooking-and-fetching-water] given Ada in the hostel, when the water acts are read, then the drum is filled free from the tap and no water is bought", () => {
     const game = inTheHostel(1_000_000_00);
     const allowed = (id: string): boolean => game.view().activities.find((option) => option.id === id)?.allowed ?? false;
     expect([allowed("activity.fill-drum"), allowed("activity.fetch-water"), allowed("activity.cook-own")]).toEqual([true, false, true]);
@@ -121,7 +121,7 @@ describe("the hostel as a home", () => {
 });
 
 describe("the hostel on the door", () => {
-  test("[R-PROLOGUE-013] [R-HOME-002] given a life from sixteen whose last card picks the hostel room, when the prologue closes, then the rent by the month is open and the life starts in the hostel, nothing taken on the move as the room on the water's, the first month charged at the month's end", () => {
+  test("[prologue:front-door-three-screens] [home:move-home-once-a-month] given a life from sixteen whose last card picks the hostel room, when the prologue closes, then the rent by the month is open and the life starts in the hostel, nothing taken on the move as the room on the water's, the first month charged at the month's end", () => {
     const answer = content.prologue["home"]?.answers.find((one) => one.id === "hostel-room");
     expect(answer?.requires ?? []).toEqual([]);
     const game = start({ content, scenario: "scenario.prologue", seed: "seed-1" });

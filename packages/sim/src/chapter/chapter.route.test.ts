@@ -1,4 +1,4 @@
-// The chapters follow the way out the life leans to: docs/rules/chapter.md R-CHAPTER-009.
+// The chapters follow the way out the life leans to: chapter:chapters-follow-lean-route.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -27,7 +27,7 @@ function closedTo(result: { events: { type: string }[] }): unknown {
 }
 
 describe("the file follows the lean", () => {
-  test("[R-CHAPTER-009] given a nurse who has heard of the master's and of care work, when she reads the care page first and the first chapter closes, then the care file stands in for the file, with its own items and the months on the ward already ticked", () => {
+  test("[chapter:chapters-follow-lean-route] given a nurse who has heard of the master's and of care work, when she reads the care page first and the first chapter closes, then the care file stands in for the file, with its own items and the months on the ward already ticked", () => {
     const game = life("scenario.ngozi");
     untilHeard(game, CARE_ROUTE);
     // The master's was heard of first: hearing alone does not decide the lean.
@@ -45,7 +45,7 @@ describe("the file follows the lean", () => {
     expect(content.chapter["chapter.build-the-file-care"]).toMatchObject({ variantOf: FILE, route: CARE_ROUTE });
   });
 
-  test("[R-CHAPTER-009] given a developer whose first meetup hears of the talent visa, when the talent page is read first and the first chapter closes, then the talent file stands in", () => {
+  test("[chapter:chapters-follow-lean-route] given a developer whose first meetup hears of the talent visa, when the talent page is read first and the first chapter closes, then the talent file stands in", () => {
     const game = life("scenario.zainab");
     game.endTurn([slot("activity.meetup")]);
     expect(game.state.route[TALENT]?.state).toBe("heard");
@@ -54,7 +54,7 @@ describe("the file follows the lean", () => {
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["portfolio", "endorsement", "applied"]);
   });
 
-  test("[R-CHAPTER-009] given a life that asks around at the motor park and looks into the Gulf contract first, when the first chapter closes, then the Gulf file stands in", () => {
+  test("[chapter:chapters-follow-lean-route] given a life that asks around at the motor park and looks into the Gulf contract first, when the first chapter closes, then the Gulf file stands in", () => {
     const game = life("scenario.tunde");
     game.endTurn([slot("activity.ask-around")]);
     expect(game.state.route[GULF_ROUTE]?.state).toBe("heard");
@@ -63,7 +63,7 @@ describe("the file follows the lean", () => {
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["passport", "medical", "agent", "contract"]);
   });
 
-  test("[R-CHAPTER-009] given a graduate who looks into Canada's points before the master's, when the first chapter closes, then the points file stands in", () => {
+  test("[chapter:chapters-follow-lean-route] given a graduate who looks into Canada's points before the master's, when the first chapter closes, then the points file stands in", () => {
     const game = life("scenario.tunde");
     untilHeard(game, CANADA_ROUTE);
     expect(game.state.route[UK_ROUTE]?.state).toBe("heard");
@@ -72,7 +72,7 @@ describe("the file follows the lean", () => {
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["eca", "english", "pool", "invited"]);
   });
 
-  test("[R-CHAPTER-009] given a graduate on the master's, when the master's is looked into and the first chapter closes, then the file stays the master's, and looking into Canada later does not move the lean", () => {
+  test("[chapter:chapters-follow-lean-route] given a graduate on the master's, when the master's is looked into and the first chapter closes, then the file stays the master's, and looking into Canada later does not move the lean", () => {
     const game = life("scenario.tunde");
     untilHeard(game, UK_ROUTE);
     const result = game.endTurn([slot(LOOK, UK_ROUTE)]);
@@ -83,25 +83,25 @@ describe("the file follows the lean", () => {
     expect(leanRoute(game.state.route, content)).toBe(UK_ROUTE);
   });
 
-  test("[R-CHAPTER-009] given a nurse who looks into the master's before care work, when the first chapter closes, then the file is the master's: the route looked into first leads", () => {
+  test("[chapter:chapters-follow-lean-route] given a nurse who looks into the master's before care work, when the first chapter closes, then the file is the master's: the route looked into first leads", () => {
     const game = life("scenario.ngozi");
     untilHeard(game, UK_ROUTE);
     const result = game.endTurn([slot(LOOK, UK_ROUTE)]);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: FILE });
   });
 
-  test("[R-CHAPTER-009] given a nurse who looks into the master's and care work in the same month, when the first chapter closes, then the page's order breaks the tie and care leads", () => {
+  test("[chapter:chapters-follow-lean-route] given a nurse who looks into the master's and care work in the same month, when the first chapter closes, then the page's order breaks the tie and care leads", () => {
     const game = life("scenario.ngozi");
     untilHeard(game, CARE_ROUTE);
     untilHeard(game, UK_ROUTE);
-    // R-ACTIVITY-015: reading the official page runs once a month, so the two routes are looked into in
-    // one month by the adviser, who looks into every route only heard of in one visit (R-ADVICE-004).
+    // activity:now-acts-and-month-acts: reading the official page runs once a month, so the two routes are looked into in
+    // one month by the adviser, who looks into every route only heard of in one visit (advice:licensed-adviser-is-truthful).
     const result = game.endTurn([slot("activity.see-adviser")]);
     expect(game.state.route[UK_ROUTE]?.knownMonth).toBe(game.state.route[CARE_ROUTE]?.knownMonth);
     expect(closedTo(result)).toEqual({ type: "chapter/closed", chapter: FEET, next: "chapter.build-the-file-care" });
   });
 
-  test("[R-CHAPTER-009] given no way out heard of, when the lean is read, then it is the master's; given only a route with no variant looked into, then the first heard of leads", () => {
+  test("[chapter:chapters-follow-lean-route] given no way out heard of, when the lean is read, then it is the master's; given only a route with no variant looked into, then the first heard of leads", () => {
     const game = life("scenario.ngozi");
     expect(leanRoute(game.state.route, content)).toBe(UK_ROUTE);
     untilHeard(game, SKILLED);
@@ -122,7 +122,7 @@ describe("the lean is read again at each close", () => {
     return { ...used, chapter: chapters };
   }
 
-  test("[R-CHAPTER-009] given a nurse whose first close leaned to the master's, when she looks into care work in the file's month and the file closes, then care's decision day stands in", () => {
+  test("[chapter:chapters-follow-lean-route] given a nurse whose first close leaned to the master's, when she looks into care work in the file's month and the file closes, then care's decision day stands in", () => {
     const game = life("scenario.ngozi", quickFile(content));
     untilHeard(game, SKILLED);
     game.endTurn([slot(LOOK, SKILLED)]);
@@ -132,7 +132,7 @@ describe("the lean is read again at each close", () => {
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["tb", "police", "applied", "granted"]);
   });
 
-  test("[R-CHAPTER-009] given the care file done, when a base chapter's turn is asked after, then the base counts as done and the next base's variant follows", () => {
+  test("[chapter:chapters-follow-lean-route] given the care file done, when a base chapter's turn is asked after, then the base counts as done and the next base's variant follows", () => {
     const game = life("scenario.ngozi", quickFile(content));
     untilHeard(game, CARE_ROUTE);
     game.endTurn([slot(LOOK, CARE_ROUTE)]);
@@ -148,7 +148,7 @@ describe("the lean is read again at each close", () => {
 });
 
 describe("the variants in content", () => {
-  test("[R-CHAPTER-009] given the variants, when they are read, then each names a base and a way out of the player's own effort, the file and decision day have one for care, talent, points and the Gulf with the page's items, and decision day closes on the grant", () => {
+  test("[chapter:chapters-follow-lean-route] given the variants, when they are read, then each names a base and a way out of the player's own effort, the file and decision day have one for care, talent, points and the Gulf with the page's items, and decision day closes on the grant", () => {
     const variants = Object.values(content.chapter).filter((entry) => entry.variantOf !== undefined);
     const items = (id: string) => content.chapter[id as Id<"chapter">]?.items.map((item) => item.id);
     expect(variants.map((entry) => `${entry.variantOf ?? ""} ${entry.route ?? ""}`).sort()).toEqual(
@@ -167,7 +167,7 @@ describe("the variants in content", () => {
     expect(variants.some((entry) => entry.variantOf === FEET || entry.variantOf === "chapter.send-off")).toBe(false);
   });
 
-  test("[R-CHAPTER-009] given the care file, when its numbers are read, then the months on the ward are the council's twenty-four, the English band is 6.0 for points, and the portfolio bar is the endorsement's", () => {
+  test("[chapter:chapters-follow-lean-route] given the care file, when its numbers are read, then the months on the ward are the council's twenty-four, the English band is 6.0 for points, and the portfolio bar is the endorsement's", () => {
     const requirement = (chapter: string, item: string) => content.chapter[chapter as Id<"chapter">]?.items.find((entry) => entry.id === item)?.requirement;
     expect(requirement("chapter.build-the-file-care", "tenure")).toEqual({ type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 });
     expect(requirement("chapter.build-the-file-points", "english")).toEqual({ type: "document/held", document: "document.english-test", min: 60 });

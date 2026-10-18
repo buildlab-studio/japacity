@@ -1,6 +1,6 @@
 // The currencies the wallet keeps, what a pocket has to spend, the money of a
-// place, and the rate tables the kinds convert with (R-ABROAD-001,
-// R-WALLET-009). One list and one reading of the world's rates, so every kind
+// place, and the rate tables the kinds convert with (abroad-money:foreign-currencies-join-wallet,
+// wallet:foreign-fee-payment-order). One list and one reading of the world's rates, so every kind
 // values a pocket the same way.
 import type { Content, Currency, ForeignCurrency, PlaceSlice, World } from "../engine/types";
 

@@ -1,7 +1,7 @@
 // The director: docs/rules/director.md. Eras, the per-tick story roll, the
 // stages of each story and the policy cycle, stepped one tick at a time from a
-// book of plain data (R-CLOCK-010, R-CLOCK-011). Everything it reads is the
-// book, the world seed, the content and the tick's calendar (R-RATE-001): no
+// book of plain data (clock:world-is-stored-history, clock:tick-row-is-pure-step). Everything it reads is the
+// book, the world seed, the content and the tick's calendar (rate:world-follows-seed-and-tick): no
 // character reaches it. Stories without director fields keep the fixed
 // schedule of news.md, drawn in `schedule.ts`.
 //
@@ -23,10 +23,10 @@
 // - `endedBy` ends a pass already in force; a pass still at rumour or announced runs on.
 // - Surges move on the window as it stood at the end of the tick before, then the tick's stories land,
 //   so a reopening that sets the surge to 0 leaves it at 0. Surges and strictness stay inside 0 to 100.
-// - The book keys stories and variables by id, so a stored book steps on under newer content (R-CLOCK-016):
+// - The book keys stories and variables by id, so a stored book steps on under newer content (clock:new-content-from-next-tick):
 //   a story new to the content starts unfired, a variable new to it starts at its start value, and a story
 //   or variable the content no longer has leaves the book and the world on the first tick under it.
-// - `scale` (R-CLOCK-015) multiplies an era's drawn length, a story's rumour lead, force lag, end and
+// - `scale` (clock:online-lengths-scaled) multiplies an era's drawn length, a story's rumour lead, force lag, end and
 //   cooldown, the closed ticks and the shock gap. The fixed schedule of news.md is not the director's and
 //   keeps its own ticks.
 import { VAR } from "../engine/ids";
@@ -46,7 +46,7 @@ const WINDOW_NARROWING = 1;
 const SCALE_MAX = 100;
 const ERA_DRAWS = 2;
 const MONTHS_A_YEAR = 12;
-/** Offline, the eleventh tick of each game year is December (R-DIRECTOR-006). */
+/** Offline, the eleventh tick of each game year is December (director:december-and-inflation). */
 const DECEMBER_TICK = 11;
 
 /** One tick of the director's world, with what moved on it. */
@@ -62,7 +62,7 @@ export interface DirectorTick {
   ended: Id<"news">[];
 }
 
-/** What a variable held before a story in force changed it, for `revert` (R-RATE-006). */
+/** What a variable held before a story in force changed it, for `revert` (rate:latest-story-sets-variable). */
 interface HeldValue {
   value: number;
   setBy: Id<"news"> | null;
@@ -84,11 +84,11 @@ interface BookEra {
 }
 
 /**
- * Everything the world carries from one tick to the next (R-CLOCK-010): the
+ * Everything the world carries from one tick to the next (clock:world-is-stored-history): the
  * era and the eras run, the shocks this era, each story's pass, the variables'
  * values and the stories holding them, the rates, and the world's draw counts.
  * Plain data: it survives JSON, and the server stores it beside each tick's
- * world. It never reaches a client (R-SERVER-015).
+ * world. It never reaches a client (server:secrets-stay-on-server).
  */
 export interface DirectorBook {
   /** The tick this book stands at. */
@@ -107,7 +107,7 @@ export interface DirectorBook {
   draws: Partial<Record<WorldStream, number>>;
 }
 
-/** The facts of the real calendar a tick needs (R-CLOCK-014, R-DIRECTOR-006). */
+/** The facts of the real calendar a tick needs (clock:december-by-lagos-time, director:december-and-inflation). */
 export interface WorldCalendar {
   december: boolean;
 }
@@ -118,7 +118,7 @@ interface Story {
   entry: NewsEntry;
   /** The stories this one ends when it comes into force (their `endedBy`). */
   ends: number[];
-  /** A reopening's window (R-DIRECTOR-005), or null. */
+  /** A reopening's window (director:policy-cycle-surge-backlash), or null. */
   reopens: Id<"var"> | null;
   /** In force for good once it gets there: no end and nothing ends it. */
   forGood: boolean;
@@ -174,13 +174,13 @@ function valueOf(book: DirectorBook, variable: Id<"var">): number {
   return value;
 }
 
-/** Surges and strictness run 0 to 100 (R-DIRECTOR-001). */
+/** Surges and strictness run 0 to 100 (director:world-variables-per-route). */
 function bounded(variable: Id<"var">, value: number): number {
   if (variable.endsWith("-surge") || variable.endsWith("-strictness")) return Math.min(SCALE_MAX, Math.max(0, value));
   return value;
 }
 
-/** The windows that have a surge beside them: `var.<route>-window` and `var.<route>-surge` (R-DIRECTOR-001). */
+/** The windows that have a surge beside them: `var.<route>-window` and `var.<route>-surge` (director:world-variables-per-route). */
 function cyclePairs(content: Content): [window: Id<"var">, surge: Id<"var">][] {
   return (Object.keys(content.var) as Id<"var">[])
     .filter((id) => id.endsWith("-window"))
@@ -189,7 +189,7 @@ function cyclePairs(content: Content): [window: Id<"var">, surge: Id<"var">][] {
     .filter(([, surge]) => content.var[surge] !== undefined);
 }
 
-/** A reopening's window: the one its needs hold at 0 (R-DIRECTOR-005). */
+/** A reopening's window: the one its needs hold at 0 (director:policy-cycle-surge-backlash). */
 function reopeningWindow(entry: NewsEntry): Id<"var"> | null {
   const need = entry.director?.needs.find((one) => one.type === "var/max" && one.var.endsWith("-window") && one.value === 0);
   return need !== undefined && need.type === "var/max" ? need.var : null;
@@ -228,7 +228,7 @@ function eraLength(worldSeed: string, entry: EraEntry, index: number, scale: num
 }
 
 /**
- * The era after one that ends (R-DIRECTOR-002): weighted by each entry's `after` weight for the era
+ * The era after one that ends (director:one-era-at-a-time): weighted by each entry's `after` weight for the era
  * that ended, never the same era twice in a row, and an era marked once never twice in a world.
  */
 function nextEra(worldSeed: string, content: Content, ended: BookEra, erasRun: readonly Id<"era">[], scale: number): BookEra {
@@ -240,7 +240,7 @@ function nextEra(worldSeed: string, content: Content, ended: BookEra, erasRun: r
     .map((entry) => ({ entry, weight: entry.after[ended.id] ?? 0 }))
     .filter((candidate) => candidate.weight > 0);
   const total = candidates.reduce((sum, candidate) => sum + candidate.weight, 0);
-  if (total === 0) throw new Error(`No era may follow ${ended.id}: every era needs one that names it in \`after\` (R-DIRECTOR-007).`);
+  if (total === 0) throw new Error(`No era may follow ${ended.id}: every era needs one that names it in \`after\` (director:stories-never-undo-player-gains).`);
   let draw = createRandom<WorldStream>(worldSeed, { era: index * ERA_DRAWS }).int("era", total);
   for (const { entry, weight } of candidates) {
     if (draw < weight) return { id: entry.id, since: ended.until, until: ended.until + eraLength(worldSeed, entry, index, scale), index };
@@ -329,7 +329,7 @@ function copyBook(book: DirectorBook): DirectorBook {
   };
 }
 
-/** R-CLOCK-016: the book follows the content it is stepped under. */
+/** clock:new-content-from-next-tick: the book follows the content it is stepped under. */
 function followContent(book: DirectorBook, content: Content, reading: Reading): void {
   for (const story of reading.stories) book.stories[story.id] ??= unfired();
   for (const id of Object.keys(book.stories) as Id<"news">[]) {
@@ -356,7 +356,7 @@ function markClosed(book: DirectorBook, reading: Reading, tick: number): void {
   }
 }
 
-/** R-DIRECTOR-005: surges follow their windows as they stood at the end of the tick before. */
+/** director:policy-cycle-surge-backlash: surges follow their windows as they stood at the end of the tick before. */
 function turnCycle(book: DirectorBook, content: Content, reading: Reading): void {
   const step = content.tuning.director.surgePerTick;
   for (const [window, surge] of reading.pairs) {
@@ -376,7 +376,7 @@ function storiesWhere(book: DirectorBook, reading: Reading, test: (pass: StoryTi
 }
 
 /**
- * The stages that land on this tick (R-DIRECTOR-004). Endings go first, so a
+ * The stages that land on this tick (director:stories-pass-through-stages). Endings go first, so a
  * story that comes into force on the tick another ends is the later one and
  * wins. A revert puts back only what the ending story itself still holds.
  */
@@ -438,7 +438,7 @@ function free(book: DirectorBook, story: Story, tick: number): boolean {
 }
 
 /**
- * What a variable goes back to when a story reverts (R-RATE-006). The story that held the value before
+ * What a variable goes back to when a story reverts (rate:latest-story-sets-variable). The story that held the value before
  * may itself have ended and reverted since, while this story kept the variable: then its own `before`
  * is what stands, and so on down the chain.
  */
@@ -457,7 +457,7 @@ function heldNow(book: DirectorBook, reading: Reading, variable: Id<"var">, held
   return back;
 }
 
-/** R-DIRECTOR-003: each story of the pool, in id order, rolled on its own position of `shock`. */
+/** director:stories-start-by-roll: each story of the pool, in id order, rolled on its own position of `shock`. */
 function rollStories(book: DirectorBook, worldSeed: string, content: Content, reading: Reading, tick: number, scale: number): void {
   const { director } = content.tuning;
   const weights = book.era === null ? null : (content.era[book.era.id]?.weights ?? null);
@@ -481,7 +481,7 @@ function rollStories(book: DirectorBook, worldSeed: string, content: Content, re
     // The same draw `chance` makes, read at this story's own position for the tick.
     if (scaleDraw(drawAt(worldSeed, SHOCK, reading.base + tick * reading.pool.length + place), BP_WHOLE) >= chance) continue;
     // The roll starts the story at its first stage. With a rumour lead the rumour runs from now
-    // and the announcement follows the lead later; R-DIRECTOR-004 counts the lead back from the announcement.
+    // and the announcement follows the lead later; director:stories-pass-through-stages counts the lead back from the announcement.
     const { rumourLead, forceLag, endsAfter } = entry.standIn;
     const announced = tick + rumourLead * scale;
     const inForce = announced + forceLag * scale;
@@ -526,7 +526,7 @@ interface WorldStep {
 
 /**
  * Steps the world one tick: from nothing to tick 0, or from a book to the tick
- * after it (R-CLOCK-011). Tick 0 holds every start value, calm and its story;
+ * after it (clock:tick-row-is-pure-step). Tick 0 holds every start value, calm and its story;
  * the pool is rolled from tick 1. Never changes the book it is given.
  */
 function stepWorldTick(book: DirectorBook | null, worldSeed: string, content: Content, calendar: WorldCalendar, scale: number): WorldStep {
@@ -574,16 +574,16 @@ function stepWorldTick(book: DirectorBook | null, worldSeed: string, content: Co
 }
 
 /**
- * The world one tick on (R-CLOCK-011): a pure function of the book before, the
+ * The world one tick on (clock:tick-row-is-pure-step): a pure function of the book before, the
  * world seed, the content, the tick's calendar and the online scale
- * (R-CLOCK-015). `null` makes tick 0 from the world seed alone.
+ * (clock:online-lengths-scaled). `null` makes tick 0 from the world seed alone.
  */
 export function stepWorld(book: DirectorBook | null, worldSeed: string, content: Content, calendar: WorldCalendar, scale: number): { book: DirectorBook; world: World } {
   const { book: next, world } = stepWorldTick(book, worldSeed, content, calendar, scale);
   return { book: next, world };
 }
 
-/** The calendar offline, where one tick is one month played (R-DIRECTOR-006). */
+/** The calendar offline, where one tick is one month played (director:december-and-inflation). */
 export function offlineCalendar(tick: number): WorldCalendar {
   return { december: tick % MONTHS_A_YEAR === DECEMBER_TICK };
 }

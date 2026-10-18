@@ -40,7 +40,7 @@ export const NewsEntrySchema = z.strictObject({
       z.strictObject({ after: idOf("news"), stage: NewsStageSchema, lag: RangeSchema }),
     ]),
     rumourLead: CountSchema,
-    // R-NEWS-002: a story comes into force no sooner than two ticks after it is announced.
+    // news:force-waits-after-announcement: a story comes into force no sooner than two ticks after it is announced.
     forceLag: z.int().min(2),
     endsAfter: z.int().positive().nullable(),
     sets: z.array(z.strictObject({ var: idOf("var"), value: IntSchema })),

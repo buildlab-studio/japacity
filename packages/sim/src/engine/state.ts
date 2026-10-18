@@ -25,12 +25,12 @@ function idSource(start: number): IdSource & { peek(): number } {
   };
 }
 
-/** What a new life may begin with besides its scenario: the inviter's family for a sibling made from an invite (R-PEOPLE-011, decision 0020). */
+/** What a new life may begin with besides its scenario: the inviter's family for a sibling made from an invite (person:real-sibling-shares-family-draw, decision 0020). */
 export interface NewStateOptions {
   family?: Save["family"];
 }
 
-/** A new state from a scenario, a seed and the content, built from every kind's `initial` (R-SCENARIO-001). */
+/** A new state from a scenario, a seed and the content, built from every kind's `initial` (scenario:state-built-from-scenario). */
 function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: string, content: Content, options: NewStateOptions = {}): State {
   const scenario = content.scenario[scenarioId];
   if (scenario === undefined) throw new Error(`The content has no scenario ${scenarioId}.`);
@@ -52,7 +52,7 @@ function newStateWith(kinds: Registry, scenarioId: Id<"scenario">, seed: string,
     ...(slices as Pick<State, SliceKey>),
   };
   const { family } = options;
-  // R-PEOPLE-011: the prologue takes this draw in place of its own, and the sibling slots mirror the family.
+  // person:real-sibling-shares-family-draw: the prologue takes this draw in place of its own, and the sibling slots mirror the family.
   return family === undefined ? state : { ...state, prologue: { ...state.prologue, draw: family.draw }, people: familySlots(state.people, family) };
 }
 
@@ -77,7 +77,7 @@ function isSliceKey(prefix: string): prefix is SliceKey {
 
 /**
  * Apply one event: the kind named before the slash evolves its own slice, and
- * only that slice is replaced (R-ENGINE-013). Engine events change only the
+ * only that slice is replaced (engine:kinds-own-their-state). Engine events change only the
  * engine's four counters.
  */
 export function applyEventWith(kinds: Registry, state: State, event: BaseEvent, content: Content): State {
@@ -127,12 +127,12 @@ function grownTo4(kinds: Registry, state: State, scenario: Content["scenario"][I
 }
 
 /**
- * A state carried from one content to the next (R-SERVER-022, decision 0004):
+ * A state carried from one content to the next (server:upgrade-state-is-pure, decision 0004):
  * ids renamed through the newer content's table, any slice the state lacks
  * built by its kind's `initial` (decision 0001), a slice that grew inside
  * filled where the state's schema is older (`grownTo4`), the schema raised to
  * the current shape and the newer content's version recorded. Pure. Between two
- * loads of the same version (a new overlay, R-SERVER-024) nothing is renamed.
+ * loads of the same version (a new overlay, server:overlay-change-opens-segment) nothing is renamed.
  */
 function upgradeStateWith(kinds: Registry, state: State, from: Content, to: Content): State {
   if (state.content !== from.version) throw new Error(`The state is for content ${state.content}, not ${from.version}.`);

@@ -1,5 +1,5 @@
-// London lived by hand with the real content: docs/rules/streets.md R-STREET-012 (design page 14 section 6) and
-// abroad-money.md R-ABROAD-003. Food is bought and cooked in pounds as it is eaten, the evenings
+// London lived by hand with the real content: streets:london-life-by-hand (design page 14 section 6) and
+// abroad-money:arrival-opens-upkeep-and-room. Food is bought and cooked in pounds as it is eaten, the evenings
 // are paid as they are had, and the UK's upkeep is the phone alone.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -46,7 +46,7 @@ function pounds(game: Game, cash: number): void {
 }
 
 describe("London lived by hand", () => {
-  test("[R-STREET-012] given each act the rule lists, when its entry is read, then it is a now-act in the UK with the rule's price in pounds under its reason, its time, how often it runs and its lift", () => {
+  test("[streets:london-life-by-hand] given each act the rule lists, when its entry is read, then it is a now-act in the UK with the rule's price in pounds under its reason, its time, how often it runs and its lift", () => {
     for (const act of RULE) {
       const entry = content.activity[act.id];
       expect({ id: act.id, entry }).toEqual({
@@ -71,7 +71,7 @@ describe("London lived by hand", () => {
     }
   });
 
-  test("[R-STREET-012] given a life in London holding exactly each act's price, when each is done, then the price leaves the pounds under its reason and the body moves by its lift; a penny short and it is refused", () => {
+  test("[streets:london-life-by-hand] given a life in London holding exactly each act's price, when each is done, then the price leaves the pounds under its reason and the body moves by its lift; a penny short and it is refused", () => {
     for (const act of RULE) {
       const game = flown(content);
       middling(game, [BELLY, WELLBEING, ENERGY, "quality.standing", "quality.interview-prep"]);
@@ -81,7 +81,7 @@ describe("London lived by hand", () => {
       const before = { ...game.state.quality };
       const result = game.accept({ type: "activity/now", activity: act.id, param: null });
       expect({ id: act.id, debits: debits(result) }).toMatchObject({ id: act.id, debits: [{ currency: "GBP", amount: act.price, reason: act.reason }] });
-      // The time the act spends takes its little off the body as well (R-QUALITY-007).
+      // The time the act spends takes its little off the body as well (quality:body-belly-and-energy).
       const spent = (quality: Id<"quality">): number => (quality === BELLY ? body.bellyPerHalfDay : quality === ENERGY ? body.energyPerHalfDay : 0) * act.halfDays;
       for (const [quality, amount] of act.effects) {
         expect({ id: act.id, quality, moved: (game.state.quality[quality] ?? 0) - (before[quality] ?? 0) }).toEqual({ id: act.id, quality, moved: amount - spent(quality) });
@@ -90,7 +90,7 @@ describe("London lived by hand", () => {
     }
   });
 
-  test("[R-STREET-012] given a life in London, when the weekly shop is done twice and the barber and the clothes twice in one month, then the shop runs again, filling the belly each time, and the barber and the clothes are once a month", () => {
+  test("[streets:london-life-by-hand] given a life in London, when the weekly shop is done twice and the barber and the clothes twice in one month, then the shop runs again, filling the belly each time, and the barber and the clothes are once a month", () => {
     const game = flown(content);
     pounds(game, 100000);
     applyEffects(game, [{ type: "quality/add", quality: BELLY, amount: 10 - (game.state.quality[BELLY] ?? 0) }]);
@@ -103,13 +103,13 @@ describe("London lived by hand", () => {
     }
   });
 
-  test("[R-STREET-012] given a life at home in Lagos, when any of London's acts is asked for, then it is refused", () => {
+  test("[streets:london-life-by-hand] given a life at home in Lagos, when any of London's acts is asked for, then it is refused", () => {
     const game = start({ content });
     const refused = RULE.map((act) => game.expectRejected({ type: "activity/now", activity: act.id, param: null }, "not-legal").ok);
     expect(refused).toEqual(RULE.map(() => false));
   });
 
-  test("[R-STREET-012] given each act, when its words are read, then its name, blurb and the place's answer resolve with no dash, and the names are the rule's", () => {
+  test("[streets:london-life-by-hand] given each act, when its words are read, then its name, blurb and the place's answer resolve with no dash, and the names are the rule's", () => {
     const names = RULE.map((act) => text[`${act.id}.name`]);
     expect(names).toEqual(["The weekly shop", "A meal of your own", "The chicken shop", "A taste of home", "A pint", "A fresh cut", "New clothes"]);
     for (const act of RULE) {
@@ -121,7 +121,7 @@ describe("London lived by hand", () => {
 });
 
 describe("the UK's upkeep", () => {
-  test("[R-ABROAD-003] given a life landed in the UK, when its upkeep is read, then it is the phone's pay as you go alone, £15 a month, named so", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a life landed in the UK, when its upkeep is read, then it is the phone's pay as you go alone, £15 a month, named so", () => {
     expect(content.obligation["obligation.upkeep-uk"]).toMatchObject({ type: "upkeep", currency: "GBP", amount: 1500 });
     expect(text["obligation.upkeep-uk.name"]).toBe("Your phone, pay as you go, in the UK");
     const game = flown(content);

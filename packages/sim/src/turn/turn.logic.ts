@@ -1,5 +1,5 @@
 // Turns: docs/rules/turn.md. A turn is one month. Since decision 0011 the month is lived: now-acts spend its
-// free days (R-TURN-010) and the bank gates nothing (it goes at the online step).
+// free days (turn:month-lived-in-half-days) and the bank gates nothing (it goes at the online step).
 import { QUALITY } from "../engine/ids";
 import { bp } from "../engine/int";
 import { reject } from "../engine/reject";
@@ -9,22 +9,22 @@ import type { BaseEvent, Command, Content, Ctx, Id, Rejection, SlotLock, SlotPic
 import { japacity } from "../japacity/japacity.logic";
 import type { TurnEvent } from "./turn.events";
 
-/** The locks still holding in `month` (R-TURN-009). */
+/** The locks still holding in `month` (turn:slots-can-be-locked). */
 export function activeLocks(locks: readonly SlotLock[], month: number): SlotLock[] {
   return locks.filter((lock) => lock.untilMonth >= month);
 }
 
-/** R-TURN-006: true when a pick of the activity fills one of the month's slots; an activity whose `slot` is `none` rides with the month. */
+/** turn:free-slots-per-month: true when a pick of the activity fills one of the month's slots; an activity whose `slot` is `none` rides with the month. */
 export function fillsSlot(content: Content, activity: string): boolean {
   return content.activity[activity as Id<"activity">]?.slot !== "none";
 }
 
 /**
- * Free slots this month (R-TURN-006, R-TURN-009): by job, one fewer when
+ * Free slots this month (turn:free-slots-per-month, turn:slots-can-be-locked): by job, one fewer when
  * wellbeing is under the burnout line, then the locked slots come off.
  */
 export function freeSlots(state: State, content: Content): number {
-  // R-ROAD-005: on the road the month's activities are the chain's own.
+  // road:road-truth-asks-more: on the road the month's activities are the chain's own.
   if (state.place.where === "road") return 0;
   const { turn, quality } = content.tuning;
   const base = state.activity.job === null ? turn.freeSlotsNoJob : turn.freeSlots;
@@ -34,13 +34,13 @@ export function freeSlots(state: State, content: Content): number {
   return Math.max(0, (burnt ? base - 1 : base) - locked);
 }
 
-/** The month's free time in half-days (R-TURN-010): the whole month with no job, what a job leaves with one. */
+/** The month's free time in half-days (turn:month-lived-in-half-days): the whole month with no job, what a job leaves with one. */
 export function freeHalfDays(state: State, content: Content): number {
   const { halfDays } = content.tuning.turn;
   return state.activity.job === null ? halfDays.noJob : halfDays.withJob;
 }
 
-/** Validates `turn/end` before any phase runs (R-SETPIECE-002, R-TURN-006). The bank does not gate it (R-TURN-003, decision 0011). */
+/** Validates `turn/end` before any phase runs (route:open-set-piece-holds-month, turn:free-slots-per-month). The bank does not gate it (turn:month-turns-on-empty-bank, decision 0011). */
 function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "turn/end") throw new Error(`The turn kind cannot validate ${command.type}.`);
   const { state, content } = ctx;
@@ -54,7 +54,7 @@ function validateEnd(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return [];
 }
 
-/** Only the authority may send this; the engine checks the sender (R-TURN-005). */
+/** Only the authority may send this; the engine checks the sender (turn:only-authority-grants-turns). */
 function grant(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "turns/grant") throw new Error(`The turn kind cannot grant from ${command.type}.`);
   const { count } = command;
@@ -67,7 +67,7 @@ function grant(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 /**
  * How many of the arrival marks (shares of the month's free time, in basis points) one spend carries the time across:
- * a mark at `bp` is crossed when the time was under it and is now at or past it (R-OFFER-008).
+ * a mark at `bp` is crossed when the time was under it and is now at or past it (offer:day-arrivals-roll-offers).
  */
 export function arrivalsCrossed(before: number, after: number, free: number, marksBp: readonly number[]): number {
   return marksBp.filter((markBp) => {
@@ -85,7 +85,7 @@ function spend(ctx: Ctx): BaseEvent[] {
   return events;
 }
 
-/** Stores the month's report (R-TURN-008). */
+/** Stores the month's report (turn:turn-stores-a-report). */
 function close(ctx: Ctx): BaseEvent[] {
   const turn = turnInProgress(ctx);
   if (turn === null) throw new Error("The close phase runs only inside a turn.");
@@ -109,7 +109,7 @@ function evolve(slice: TurnSlice, event: TurnEvent): TurnSlice {
     case "turn/granted":
       return { ...slice, banked: event.banked };
     case "turn/spent":
-      // The new month starts with no days spent (R-TURN-010).
+      // The new month starts with no days spent (turn:month-lived-in-half-days).
       return { ...slice, month: event.month, banked: event.banked, spent: 0 };
     case "turn/days-spent":
       return { ...slice, spent: event.spent };
@@ -132,14 +132,14 @@ function evolve(slice: TurnSlice, event: TurnEvent): TurnSlice {
 
 export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
   kind: "turn",
-  // R-TURN-001.
+  // turn:new-character-full-bank.
   initial: (_scenario, content) => ({ month: 0, banked: content.tuning.turn.start, spent: 0, ended: false, report: null, locks: [] }),
   commands: {
     "turn/end": validateEnd,
     "turns/grant": grant,
   },
   effects: {
-    // R-TURN-010: a now-act spends free time, never past the month's; a spend past it is simply the month lived.
+    // turn:month-lived-in-half-days: a now-act spends free time, never past the month's; a spend past it is simply the month lived.
     "turn/spend-days": (ctx, effect) => {
       if (effect.type !== "turn/spend-days") throw new Error(`The turn kind cannot spend days from ${effect.type}.`);
       if (!(effect.halfDays > 0)) return [];
@@ -147,30 +147,30 @@ export const turnKind: RegisteredKind<TurnSlice, TurnEvent> = {
       const spent = Math.min(free, ctx.state.turn.spent + effect.halfDays);
       if (spent === ctx.state.turn.spent) return [];
       const taken = spent - ctx.state.turn.spent;
-      // R-QUALITY-007: the time lived takes a little off the belly and the energy, where content has them.
+      // quality:body-belly-and-energy: the time lived takes a little off the belly and the energy, where content has them.
       const { body } = ctx.content.tuning.turn;
       const drain = ([["quality.belly", body.bellyPerHalfDay], ["quality.energy", body.energyPerHalfDay]] as const)
         .filter(([quality]) => ctx.content.quality[quality] !== undefined)
         .map(([quality, per]) => ({ type: "quality/add" as const, quality, amount: -per * taken }));
       if (drain.length > 0) ctx.apply(drain, { source: "turn/spend-days", param: null, terms: {} });
-      // R-OFFER-008: an ask may land as the day is lived: one offer may come up for each arrival mark this spend crosses.
+      // offer:day-arrivals-roll-offers: an ask may land as the day is lived: one offer may come up for each arrival mark this spend crosses.
       const crossed = arrivalsCrossed(ctx.state.turn.spent, spent, free, ctx.content.tuning.turn.arrivalsBp);
       for (let mark = 0; mark < crossed; mark += 1) ctx.apply([{ type: "offer/come-up", max: 1 }], { source: "turn/spend-days", param: null, terms: {} });
       const event: TurnEvent = { type: "turn/days-spent", halfDays: taken, spent };
       return [event];
     },
-    // R-TURN-004.
+    // turn:refill-fills-the-bank.
     "turn/refill": (ctx) => {
       const event: TurnEvent = { type: "turn/refilled", banked: ctx.content.tuning.turn.cap };
       return [event];
     },
-    // R-TURN-007.
+    // turn:finish-ends-the-life.
     "turn/finish": (ctx) => {
       if (ctx.state.turn.ended) return [];
       const event: TurnEvent = { type: "turn/finished" };
       return [event];
     },
-    // R-TURN-009. The month in hand counts, so `months` of 1 locks this month only.
+    // turn:slots-can-be-locked. The month in hand counts, so `months` of 1 locks this month only.
     "turn/lock": (ctx, effect) => {
       if (effect.type !== "turn/lock") throw new Error(`The turn kind cannot lock from ${effect.type}.`);
       const { month, locks } = ctx.state.turn;

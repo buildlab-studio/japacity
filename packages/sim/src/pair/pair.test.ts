@@ -39,14 +39,14 @@ function interviewing(): PairRecord {
 }
 
 describe("the record's id and sides", () => {
-  test("[R-PAIR-001] given two character ids in either order, when the pair id is made, then it is the two sorted and joined by a tilde", () => {
+  test("[pair:one-record-per-two] given two character ids in either order, when the pair id is made, then it is the two sorted and joined by a tilde", () => {
     expect(pairId(TUNDE, ADA)).toBe(`${ADA}~${TUNDE}`);
     expect(pairId(ADA, TUNDE)).toBe(`${ADA}~${TUNDE}`);
     expect(() => pairId(ADA, ADA)).toThrow();
   });
 
   test.prop([fc.string({ minLength: 1, maxLength: 12 }), fc.string({ minLength: 1, maxLength: 12 })])(
-    "[R-PAIR-001] given any two different ids, when the pair id is made both ways, then it is the same",
+    "[pair:one-record-per-two] given any two different ids, when the pair id is made both ways, then it is the same",
     (x, y) => {
       fc.pre(x !== y);
       expect(pairId(x, y)).toBe(pairId(y, x));
@@ -54,7 +54,7 @@ describe("the record's id and sides", () => {
     },
   );
 
-  test("[R-PAIR-001] given a record, when a side asks for itself and the other, then each gets its own letter and the other's id, and a stranger gets nothing", () => {
+  test("[pair:one-record-per-two] given a record, when a side asks for itself and the other, then each gets its own letter and the other's id, and a stranger gets nothing", () => {
     const record = linked();
     expect([record.a, record.b]).toEqual([ADA, TUNDE]);
     expect(side(record, ADA)).toBe("a");
@@ -67,7 +67,7 @@ describe("the record's id and sides", () => {
 });
 
 describe("what the record holds", () => {
-  test("[R-PAIR-002] given a partner link opened at tick 1, when the record is made, then it is connected with nothing pending, agreed or ended", () => {
+  test("[pair:record-fields] given a partner link opened at tick 1, when the record is made, then it is connected with nothing pending, agreed or ended", () => {
     const record = linked();
     expect(Object.keys(record).sort()).toEqual(RECORD_KEYS);
     expect(record).toMatchObject({
@@ -87,13 +87,13 @@ describe("what the record holds", () => {
     });
   });
 
-  test("[R-PAIR-002] given a sibling pair, when either side courts or proposes, then it stays connected, and it can still end", () => {
+  test("[pair:record-fields] given a sibling pair, when either side courts or proposes, then it stays connected, and it can still end", () => {
     const sibling = linked("sibling");
     expect(play(sibling, ["a", { type: "pair/courted", tick: 2 }], ["a", propose("partner")])).toEqual(sibling);
     expect(play(sibling, ["b", { type: "pair/ended", absence: false, tick: 3 }]).stage).toBe("ended");
   });
 
-  test("[R-PAIR-003] given a moment and a proposal carrying extra fields, when written, then the record keeps only the contract's fields", () => {
+  test("[pair:record-holds-no-personal-data] given a moment and a proposal carrying extra fields, when written, then the record keeps only the contract's fields", () => {
     const sneaky = { type: "pair/moment-added", kind: "met", spot: "beach", what: "suya", tick: 3, amount: 500_000, phone: "08000000000" } as PairWrite;
     const offer = { type: "pair/proposed", proposal: { step: "partner", route: null, lead: null, money: 1 } } as PairWrite;
     const record = play(linked(), ["a", { type: "pair/courted", tick: 2 }], ["a", sneaky], ["b", offer]);
@@ -104,14 +104,14 @@ describe("what the record holds", () => {
 });
 
 describe("writing the record", () => {
-  test("[R-PAIR-004] given a connected pair, when one side courts, then it is courting from that tick, and a second court changes nothing", () => {
+  test("[pair:only-server-writes-record] given a connected pair, when one side courts, then it is courting from that tick, and a second court changes nothing", () => {
     const courting = play(linked(), ["a", { type: "pair/courted", tick: 2 }]);
     expect(courting.stage).toBe("courting");
     expect(courting.since).toEqual({ connected: 1, courting: 2 });
     expect(play(courting, ["b", { type: "pair/courted", tick: 3 }])).toEqual(courting);
   });
 
-  test("[R-PAIR-004] given moments from both sides, when written, then they are appended in order with their side and numbered from 1", () => {
+  test("[pair:only-server-writes-record] given moments from both sides, when written, then they are appended in order with their side and numbered from 1", () => {
     const record = play(linked(), ["a", met(2)], ["b", { type: "pair/moment-added", kind: "call", spot: null, what: "late", tick: 3 }]);
     expect(record.moments).toEqual([
       { n: 1, by: "a", kind: "met", spot: "beach", what: "suya", tick: 2 },
@@ -119,29 +119,29 @@ describe("writing the record", () => {
     ]);
   });
 
-  test("[R-PAIR-004] given a pending proposal, when the same side proposes again, then the second replaces the first", () => {
+  test("[pair:only-server-writes-record] given a pending proposal, when the same side proposes again, then the second replaces the first", () => {
     const record = play(partners(), ["a", propose("marry")], ["a", propose("joint", SKILLED, "me")]);
     expect(record.pending).toEqual({ a: { step: "joint", route: SKILLED, lead: "me" }, b: null });
   });
 
-  test("[R-PAIR-004] given proposals from both sides, when one withdraws, then only its own is cleared", () => {
+  test("[pair:only-server-writes-record] given proposals from both sides, when one withdraws, then only its own is cleared", () => {
     const record = play(partners(), ["a", propose("marry")], ["b", propose("joint", SKILLED, "me")], ["a", { type: "pair/withdrawn" }]);
     expect(record.pending).toEqual({ a: null, b: { step: "joint", route: SKILLED, lead: "me" } });
   });
 
-  test("[R-PAIR-004] given a proposal for a step the stage does not allow, when written, then nothing changes", () => {
+  test("[pair:only-server-writes-record] given a proposal for a step the stage does not allow, when written, then nothing changes", () => {
     const courting = play(linked(), ["a", { type: "pair/courted", tick: 2 }]);
     expect(play(courting, ["a", propose("marry")])).toEqual(courting);
     expect(play(courting, ["a", propose("joint", SKILLED, "me")])).toEqual(courting);
     expect(play(linked(), ["a", propose("partner")])).toEqual(linked());
   });
 
-  test("[R-PAIR-004] given consents from one side, when written, then only that side's consents change", () => {
+  test("[pair:only-server-writes-record] given consents from one side, when written, then only that side's consents change", () => {
     const record = play(partners(), ["b", { type: "pair/consented", countFunds: true, standInMay: false }]);
     expect(record.consent).toEqual({ a: { countFunds: false, standInMay: false }, b: { countFunds: true, standInMay: false } });
   });
 
-  test.each<Side>(["a", "b"])("[R-PAIR-004] given partners with a joint and a pending proposal, when side %s ends it, then it is ended by that side and the joint parts go", (from) => {
+  test.each<Side>(["a", "b"])("[pair:only-server-writes-record] given partners with a joint and a pending proposal, when side %s ends it, then it is ended by that side and the joint parts go", (from) => {
     const joint = play(partners(), ["a", propose("joint", SKILLED, "me")], ["b", propose("joint", SKILLED, "them")], ["a", { type: "pair/agreed", tick: 6 }], ["b", propose("marry")]);
     const ended = play(joint, [from, { type: "pair/ended", absence: false, tick: 9 }]);
     expect(ended.stage).toBe("ended");
@@ -153,7 +153,7 @@ describe("writing the record", () => {
     expect(play(ended, ["a", met(10)], ["b", propose("partner")], ["a", { type: "pair/ended", absence: false, tick: 11 }])).toEqual(ended);
   });
 
-  test("[R-PAIR-004] given a stand-in warned and then on, when the waiting side ends by absence, then only the stand-in being on allows it", () => {
+  test("[pair:only-server-writes-record] given a stand-in warned and then on, when the waiting side ends by absence, then only the stand-in being on allows it", () => {
     const warned = play(partners(), ["b", { type: "pair/stand-in-changed", stage: "warned" }]);
     expect(warned.standIn).toEqual({ a: null, b: "warned" });
     expect(play(warned, ["a", { type: "pair/ended", absence: true, tick: 7 }])).toEqual(warned);
@@ -163,7 +163,7 @@ describe("writing the record", () => {
     expect(ended.standIn).toEqual({ a: null, b: null });
   });
 
-  test("[R-PAIR-004] given an interview opened, when each side answers and it is scored, then the answers and result are kept, and a second answer or an early score changes nothing", () => {
+  test("[pair:only-server-writes-record] given an interview opened, when each side answers and it is scored, then the answers and result are kept, and a second answer or an early score changes nothing", () => {
     const open = interviewing();
     expect(open.interview).toEqual({ route: SKILLED, questions: QUESTIONS, answers: { a: null, b: null }, standIn: { a: false, b: false }, result: null });
     const one = play(open, ["a", { type: "pair/interview-answered", answers: ["beach", "few"], standIn: false }]);
@@ -175,12 +175,12 @@ describe("writing the record", () => {
     expect(scored.interview).toMatchObject({ answers: { a: ["beach", "few"], b: ["beach", "many"] }, standIn: { a: false, b: true }, result: "doubt" });
   });
 
-  test("[R-PAIR-004] given an interview not yet scored, when the bond ends, then it closes unscored", () => {
+  test("[pair:only-server-writes-record] given an interview not yet scored, when the bond ends, then it closes unscored", () => {
     const ended = play(interviewing(), ["b", { type: "pair/ended", absence: false, tick: 9 }]);
     expect(ended.interview).toBeNull();
   });
 
-  test("[R-PAIR-004] given a side's account deleted, when written, then the bond ends as deleted, that side is nameless, and its moments stay", () => {
+  test("[pair:only-server-writes-record] given a side's account deleted, when written, then the bond ends as deleted, that side is nameless, and its moments stay", () => {
     const record = play(partners(), ["b", met(6)], ["b", { type: "pair/consented", countFunds: true, standInMay: true }]);
     const gone = play(record, ["b", { type: "pair/deleted", tick: 7 }]);
     expect(gone.b).toBe("");
@@ -197,13 +197,13 @@ describe("writing the record", () => {
 });
 
 describe("agreeing a step", () => {
-  test("[R-PAIR-005] given a proposal from one side only, when agreement is written, then nothing changes but its own pending proposal", () => {
+  test("[pair:joint-steps-need-both-sides] given a proposal from one side only, when agreement is written, then nothing changes but its own pending proposal", () => {
     const courting = play(linked(), ["a", { type: "pair/courted", tick: 2 }], ["a", propose("partner")]);
     expect(agreed(courting)).toBeNull();
     expect(play(courting, ["a", { type: "pair/agreed", tick: 4 }])).toEqual(courting);
   });
 
-  test("[R-PAIR-005] given both sides proposing the same step, when agreement is written, then the stage moves and both proposals clear", () => {
+  test("[pair:joint-steps-need-both-sides] given both sides proposing the same step, when agreement is written, then the stage moves and both proposals clear", () => {
     const courting = play(linked(), ["a", { type: "pair/courted", tick: 2 }], ["a", propose("partner")], ["b", propose("partner")]);
     expect(agreed(courting)).toEqual({ step: "partner", route: null, lead: null });
     const record = play(courting, ["b", { type: "pair/agreed", tick: 5 }]);
@@ -215,7 +215,7 @@ describe("agreeing a step", () => {
     expect(married.since).toEqual({ connected: 1, courting: 2, partner: 5, married: 20 });
   });
 
-  test("[R-PAIR-005] given a joint proposed with a lead, when the other answers yes or proposes the same terms, then it is agreed with the lead on the right side", () => {
+  test("[pair:joint-steps-need-both-sides] given a joint proposed with a lead, when the other answers yes or proposes the same terms, then it is agreed with the lead on the right side", () => {
     const asked = play(partners(), ["b", propose("joint", SKILLED, "me")]);
     const yes = play(asked, ["a", { type: "pair/answered", step: "joint", yes: true }]);
     expect(agreed(yes)).toEqual({ step: "joint", route: SKILLED, lead: "them" });
@@ -224,14 +224,14 @@ describe("agreeing a step", () => {
     expect(agreed(same)).toEqual({ step: "joint", route: SKILLED, lead: "them" });
   });
 
-  test("[R-PAIR-005] given terms that differ in lead, route or step, when checked, then nothing is agreed", () => {
+  test("[pair:joint-steps-need-both-sides] given terms that differ in lead, route or step, when checked, then nothing is agreed", () => {
     const base = play(partners(), ["b", propose("joint", SKILLED, "me")]);
     expect(agreed(play(base, ["a", propose("joint", SKILLED, "me")]))).toBeNull();
     expect(agreed(play(base, ["a", propose("joint", "route.canada-points", "them")]))).toBeNull();
     expect(agreed(play(base, ["a", propose("marry")]))).toBeNull();
   });
 
-  test("[R-PAIR-005] given a proposal, when the other answers no or answers a different step, then it is declined or left waiting", () => {
+  test("[pair:joint-steps-need-both-sides] given a proposal, when the other answers no or answers a different step, then it is declined or left waiting", () => {
     const asked = play(partners(), ["b", propose("marry")]);
     expect(play(asked, ["a", { type: "pair/answered", step: "marry", yes: false }]).pending).toEqual({ a: null, b: null });
     expect(play(asked, ["a", { type: "pair/answered", step: "joint", yes: true }])).toEqual(asked);
@@ -239,7 +239,7 @@ describe("agreeing a step", () => {
 });
 
 describe("what each side may read", () => {
-  test("[R-PAIR-006] given a record with moments and proposals, when each side reads it, then each sees its own side as me and the other's proposal in its own terms", () => {
+  test("[pair:who-may-read-a-record] given a record with moments and proposals, when each side reads it, then each sees its own side as me and the other's proposal in its own terms", () => {
     const record = play(partners(), ["b", met(6)], ["b", propose("joint", SKILLED, "me")]);
     const ada = pairView(record, ADA);
     const tunde = pairView(record, TUNDE);
@@ -251,13 +251,13 @@ describe("what each side may read", () => {
     expect(tunde?.invitedBy).toBe("me");
   });
 
-  test("[R-PAIR-006] given one side's consents, when the other side reads the record, then it sees only its own", () => {
+  test("[pair:who-may-read-a-record] given one side's consents, when the other side reads the record, then it sees only its own", () => {
     const record = play(partners(), ["b", { type: "pair/consented", countFunds: true, standInMay: true }]);
     expect(pairView(record, ADA)?.consent).toEqual({ countFunds: false, standInMay: false });
     expect(pairView(record, TUNDE)?.consent).toEqual({ countFunds: true, standInMay: true });
   });
 
-  test("[R-PAIR-006] given an interview, when read before both answer, after both answer and after scoring, then the other's answers show only after scoring", () => {
+  test("[pair:who-may-read-a-record] given an interview, when read before both answer, after both answer and after scoring, then the other's answers show only after scoring", () => {
     const one = play(interviewing(), ["b", { type: "pair/interview-answered", answers: ["church", "few"], standIn: false }]);
     expect(pairView(one, ADA)?.interview).toMatchObject({ mine: null, theirs: null, waiting: false });
     expect(pairView(one, TUNDE)?.interview).toMatchObject({ mine: ["church", "few"], theirs: null, waiting: true });
@@ -269,7 +269,7 @@ describe("what each side may read", () => {
     expect(pairView(scored, TUNDE)?.interview?.theirs).toEqual(["beach", "few"]);
   });
 
-  test("[R-PAIR-006] given a record held under a report, when either side reads it, then the view is the same as unheld", () => {
+  test("[pair:who-may-read-a-record] given a record held under a report, when either side reads it, then the view is the same as unheld", () => {
     const record = partners();
     const held = play(record, ["a", { type: "pair/held" }]);
     expect(pairView(held, TUNDE)).toEqual(pairView(record, TUNDE));
@@ -277,7 +277,7 @@ describe("what each side may read", () => {
     expect(Object.keys(pairView(held, ADA) ?? {})).not.toContain("held");
   });
 
-  test("[R-PAIR-006] given an ended record, when both sides read it, then both still can", () => {
+  test("[pair:who-may-read-a-record] given an ended record, when both sides read it, then both still can", () => {
     const ended = play(partners(), ["a", { type: "pair/ended", absence: false, tick: 9 }]);
     expect(pairView(ended, ADA)?.ended).toEqual({ by: "me", tick: 9 });
     expect(pairView(ended, TUNDE)?.ended).toEqual({ by: "them", tick: 9 });
@@ -285,12 +285,12 @@ describe("what each side may read", () => {
 });
 
 describe("block and report", () => {
-  test("[R-PAIR-014] given a pair view, when it is read, then it carries block and report", () => {
+  test("[pair:block-and-report-one-tap] given a pair view, when it is read, then it carries block and report", () => {
     expect(pairView(partners(), ADA)?.controls).toEqual(["block", "report"]);
     expect(pairView(partners(), TUNDE)?.controls).toEqual(["block", "report"]);
   });
 
-  test("[R-PAIR-015] given partners, when one side blocks, then the bond ends as a block, the blocker sees why and the blocked side only that it ended", () => {
+  test("[pair:block-ends-every-bond] given partners, when one side blocks, then the bond ends as a block, the blocker sees why and the blocked side only that it ended", () => {
     const blocked = play(partners(), ["a", propose("marry")], ["b", { type: "pair/blocked", tick: 8 }]);
     expect(blocked.stage).toBe("ended");
     expect(blocked.ended).toEqual({ by: "block", tick: 8 });
@@ -301,19 +301,19 @@ describe("block and report", () => {
     expect(JSON.stringify(pairView(blocked, ADA))).not.toContain('"by":"block"');
   });
 
-  test("[R-PAIR-015] given a block, when the blocked side proposes, adds a moment or relinks, then nothing changes", () => {
+  test("[pair:block-ends-every-bond] given a block, when the blocked side proposes, adds a moment or relinks, then nothing changes", () => {
     const blocked = play(partners(), ["b", { type: "pair/blocked", tick: 8 }]);
     expect(play(blocked, ["a", propose("marry")], ["a", met(9)], ["a", { type: "pair/linked", tick: 9 }], ["b", { type: "pair/linked", tick: 9 }])).toEqual(blocked);
   });
 
-  test("[R-PAIR-015] given a block on an ended record, when written, then the block holds and the first end stays", () => {
+  test("[pair:block-ends-every-bond] given a block on an ended record, when written, then the block holds and the first end stays", () => {
     const ended = play(partners(), ["a", { type: "pair/ended", absence: false, tick: 9 }]);
     const blocked = play(ended, ["b", { type: "pair/blocked", tick: 10 }]);
     expect(blocked.ended).toEqual({ by: "a", tick: 9 });
     expect(blocked.blocked.b).toBe(true);
   });
 
-  test("[R-PAIR-015] given a block lifted, when nothing else happens, then nothing is restored, and only a new link reconnects", () => {
+  test("[pair:block-ends-every-bond] given a block lifted, when nothing else happens, then nothing is restored, and only a new link reconnects", () => {
     const lifted = play(partners(), ["b", { type: "pair/blocked", tick: 8 }], ["b", { type: "pair/unblocked" }]);
     expect(lifted.stage).toBe("ended");
     expect(lifted.blocked).toEqual({ a: false, b: false });
@@ -325,7 +325,7 @@ describe("block and report", () => {
     expect(relinked.moments).toEqual(lifted.moments);
   });
 
-  test("[R-PAIR-016] given a report, when the record is held and released, then only the held mark changes and nothing is deleted", () => {
+  test("[pair:report-holds-conversation] given a report, when the record is held and released, then only the held mark changes and nothing is deleted", () => {
     const record = play(partners(), ["b", met(6)]);
     const held = play(record, ["a", { type: "pair/held" }]);
     expect(held).toEqual({ ...record, held: true });
@@ -366,7 +366,7 @@ const writes: fc.Arbitrary<PairWrite> = fc.oneof(
 
 describe("any sequence of writes", () => {
   test.prop([fc.constantFrom<PairRecord["role"]>("partner", "sibling"), fc.array(fc.tuple(sides, writes), { maxLength: 40 })])(
-    "[R-PAIR-006] given any writes from either side, when each remaining side reads the record, then it can, and never sees the other's answers before scoring",
+    "[pair:who-may-read-a-record] given any writes from either side, when each remaining side reads the record, then it can, and never sees the other's answers before scoring",
     (role, sequence) => {
       const record = play(linked(role), ...sequence);
       for (const [mine, theirs] of [["a", "b"], ["b", "a"]] as const) {
@@ -386,7 +386,7 @@ describe("any sequence of writes", () => {
   );
 
   test.prop([fc.array(fc.tuple(sides, writes), { maxLength: 40 })])(
-    "[R-PAIR-003] given any writes, when the record is read back, then it holds the contract's fields and nothing else",
+    "[pair:record-holds-no-personal-data] given any writes, when the record is read back, then it holds the contract's fields and nothing else",
     (sequence) => {
       const record = play(linked(), ...sequence);
       expect(Object.keys(record).sort()).toEqual(RECORD_KEYS);

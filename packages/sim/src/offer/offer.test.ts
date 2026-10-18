@@ -154,7 +154,7 @@ function qualityChanges(result: { events: BaseEvent[] }, source: string): [strin
 const CERTAIN = 10000;
 
 describe("coming up", () => {
-  test("[R-OFFER-001] given every rolled offer certain and holding, when a month comes up, then money opens first in id order, and only the monthly limit", () => {
+  test("[offer:come-up-rolls-in-order] given every rolled offer certain and holding, when a month comes up, then money opens first in id order, and only the monthly limit", () => {
     const always = variant(Object.fromEntries(rolled.map((entry) => [entry.id, { chanceBp: CERTAIN, when: [] }])));
     const subject = lab({ content: always });
     const first = subject.end();
@@ -165,7 +165,7 @@ describe("coming up", () => {
     expect(opened(second).map((item) => item.entry)).toEqual(money.slice(2, 4));
   });
 
-  test("[R-OFFER-008] [R-OFFER-001] given every rolled offer certain, when the month's free time is lived past a third and then past two thirds, then one offer comes up at each, at once, and the close rolls none more: the month's cap holds across the day and the close, and the next month counts afresh", () => {
+  test("[offer:day-arrivals-roll-offers] [offer:come-up-rolls-in-order] given every rolled offer certain, when the month's free time is lived past a third and then past two thirds, then one offer comes up at each, at once, and the close rolls none more: the month's cap holds across the day and the close, and the next month counts afresh", () => {
     const always = variant(Object.fromEntries(rolled.map((entry) => [entry.id, { chanceBp: CERTAIN, when: [] }])));
     const subject = lab({ content: always });
     const money = rolled.filter((entry) => entry.group === "money").map((entry) => entry.id).sort();
@@ -199,7 +199,7 @@ describe("coming up", () => {
     expect(quiet.game.state.offer.rolled).toBeLessThanOrEqual(1);
   });
 
-  test("[R-OFFER-008] [R-OFFER-007] given an offer opened by an effect, when the month's rolled count is read, then it does not count: the effect ignores the monthly limit and leaves it to the rolls", () => {
+  test("[offer:day-arrivals-roll-offers] [offer:effect-opens-named-offer] given an offer opened by an effect, when the month's rolled count is read, then it does not count: the effect ignores the monthly limit and leaves it to the rolls", () => {
     const subject = lab({ content: variant({}, true) });
     const month = subject.game.state.turn.month;
     const byEffect = subject.apply([{ type: "offer/open", offer: "offer.nepa-bill" }]);
@@ -210,7 +210,7 @@ describe("coming up", () => {
     expect(opened(subject.apply([{ type: "offer/come-up", max: 1 }]))).toEqual([]);
   });
 
-  test("[R-OFFER-001] given only life and family offers certain, when a month comes up, then life comes before family, and family in id order", () => {
+  test("[offer:come-up-rolls-in-order] given only life and family offers certain, when a month comes up, then life comes before family, and family in id order", () => {
     const subject = lab({
       scenario: TUNDE,
       content: variant(
@@ -225,7 +225,7 @@ describe("coming up", () => {
     expect(opened(subject.end()).map((item) => item.entry)).toEqual(["offer.fuel-scarcity", "offer.aso-ebi"]);
   });
 
-  test("[R-OFFER-001] given one fewer open than the most allowed, when two certain offers come up, then one opens; at the most allowed, none is rolled", () => {
+  test("[offer:come-up-rolls-in-order] given one fewer open than the most allowed, when two certain offers come up, then one opens; at the most allowed, none is rolled", () => {
     const long = { expiresAfter: 6 };
     const certain = variant(
       {
@@ -250,40 +250,40 @@ describe("coming up", () => {
     expect(full.game.state.draws.offer ?? 0).toBe(draws);
   });
 
-  test("[R-OFFER-001] given a certain offer whose conditions do not hold, when months come up, then it never opens and no draw is made for it", () => {
+  test("[offer:come-up-rolls-in-order] given a certain offer whose conditions do not hold, when months come up, then it never opens and no draw is made for it", () => {
     const subject = lab({ content: variant({ "offer.recruiter-message": { chanceBp: CERTAIN } }, true) });
     for (let month = 0; month < 3; month += 1) expect(opened(subject.end())).toEqual([]);
     expect(subject.game.state.draws.offer ?? 0).toBe(0);
   });
 
-  test("[R-OFFER-001] given a certain offer that is still open, when the next month comes up, then a second one does not open", () => {
+  test("[offer:come-up-rolls-in-order] given a certain offer that is still open, when the next month comes up, then a second one does not open", () => {
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN, expiresAfter: 3, cooldown: 0 } }, true) });
     expect(opened(subject.end())).toHaveLength(1);
     expect(opened(subject.end())).toEqual([]);
     expect(openOffers(subject.game)).toEqual(["offer.fuel-scarcity"]);
   });
 
-  test("[R-OFFER-001] given a cooldown of 3, when the offer opened in month 1, then it does not come up in months 2 and 3, and does in month 4", () => {
+  test("[offer:come-up-rolls-in-order] given a cooldown of 3, when the offer opened in month 1, then it does not come up in months 2 and 3, and does in month 4", () => {
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN, cooldown: 3, expiresAfter: 1 } }, true) });
     const months = [1, 2, 3, 4].map(() => opened(subject.end()).length);
     expect(months).toEqual([1, 0, 0, 1]);
     expect(subject.game.state.offer.lastOpened["offer.fuel-scarcity"]).toBe(4);
   });
 
-  test("[R-OFFER-001] given a limit of two times, when the offer keeps coming up, then it opens twice and never again", () => {
+  test("[offer:come-up-rolls-in-order] given a limit of two times, when the offer keeps coming up, then it opens twice and never again", () => {
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN, cooldown: 0, expiresAfter: 1, maxTimes: 2 } }, true) });
     const months = [1, 2, 3, 4].map(() => opened(subject.end()).length);
     expect(months).toEqual([1, 1, 0, 0]);
     expect(subject.game.state.offer.timesOpened["offer.fuel-scarcity"]).toBe(2);
   });
 
-  test("[R-OFFER-001] given offers with no chance whose conditions hold, when months come up, then they never open", () => {
+  test("[offer:come-up-rolls-in-order] given offers with no chance whose conditions hold, when months come up, then they never open", () => {
     const subject = lab({ content: variant({ "offer.salary-loan": { chanceBp: 0, when: [] } }, true) });
     for (let month = 0; month < 4; month += 1) expect(opened(subject.end())).toEqual([]);
     expect(subject.game.state.draws.offer ?? 0).toBe(0);
   });
 
-  test("[R-OFFER-001] given one holding offer with a small chance, when a month comes up, then exactly one draw is made on the offer stream", () => {
+  test("[offer:come-up-rolls-in-order] given one holding offer with a small chance, when a month comes up, then exactly one draw is made on the offer stream", () => {
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: 1 } }, true) });
     subject.end();
     expect(subject.game.state.draws.offer).toBe(1);
@@ -291,7 +291,7 @@ describe("coming up", () => {
 });
 
 describe("opening", () => {
-  test("[R-OFFER-002] given a range term, when the offer opens, then it is one draw in whole steps between its ends, each end reachable", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a range term, when the offer opens, then it is one draw in whole steps between its ends, each end reachable", () => {
     const spec = entryOf(content, "offer.quick-loan").terms.max;
     if (typeof spec !== "object" || spec.from !== "range") throw new Error("The quick loan's max is a range.");
     const easy = variant({ "offer.quick-loan": { when: [] } });
@@ -310,14 +310,14 @@ describe("opening", () => {
     expect(seen.has(spec.max)).toBe(true);
   });
 
-  test("[R-OFFER-002] given a quality term, when the offer opens, then it is the quality times its figure", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a quality term, when the offer opens, then it is the quality times its figure", () => {
     const subject = lab();
     const means = subject.game.state.quality["quality.family-means"]!;
     const item = subject.open("offer.family-pledge")!;
     expect(item.terms).toEqual({ show: means * 30000000, gift: means * 6000000 });
   });
 
-  test("[R-OFFER-002] given a pay term, when the offer opens, then it is the monthly pay of the job held times its figure, up to its cap", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a pay term, when the offer opens, then it is the monthly pay of the job held times its figure, up to its cap", () => {
     const tunde = lab({ scenario: TUNDE });
     const pay = content.activity["activity.job-bank-officer"]!.pay!.amount as number;
     expect(tunde.open("offer.salary-loan")!.terms.max).toBe(4 * pay);
@@ -329,7 +329,7 @@ describe("opening", () => {
     expect(senior.open("offer.salary-loan")!.terms.max).toBe(300000000);
   });
 
-  test("[R-OFFER-002] given a job paid in dollars, when a pay term is fixed, then the pay is valued in naira at the official rate", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a job paid in dollars, when a pay term is fixed, then the pay is valued in naira at the official rate", () => {
     const wide = variant({ "offer.salary-loan": { terms: { min: 10000000, max: { from: "pay", times: 4, cap: 100000000000 } } } });
     const subject = lab({ scenario: TUNDE, content: wide });
     subject.apply([{ type: "activity/start-job", job: "activity.job-remote-dev" }]);
@@ -341,14 +341,14 @@ describe("opening", () => {
     expect(subject.open("offer.salary-loan")!.terms.max).toBe(4 * naira);
   });
 
-  test("[R-OFFER-002] given a job held whose pay reads a salary no route has recorded, when a pay term is fixed, then the job pays nothing and the term is zero", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a job held whose pay reads a salary no route has recorded, when a pay term is fixed, then the job pays nothing and the term is zero", () => {
     const subject = lab({ scenario: TUNDE, content: variant({ "offer.salary-loan": { when: [] } }) });
     subject.apply([{ type: "activity/start-job", job: "activity.job-gulf-cleaner" }]);
     expect(content.activity["activity.job-gulf-cleaner"]!.pay!.amount).toMatchObject({ term: "salary" });
     expect(subject.open("offer.salary-loan")!.terms.max).toBe(0);
   });
 
-  test("[R-OFFER-002] given a sponsor's job abroad paid a year, when a pay term is fixed, then it is the month's pay from the recorded salary, valued in naira at the official rate", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given a sponsor's job abroad paid a year, when a pay term is fixed, then it is the month's pay from the recorded salary, valued in naira at the official rate", () => {
     const abroad = replayTo("tunde-abroad", content, (game) => content.activity[game.state.activity.job ?? "activity.rest"]?.where === "abroad");
     // The bonus is a home offer; placed anywhere here so the term is fixed on a job paid a year.
     const subject = lab({ from: abroad, content: variant({ "offer.december-bonus": { when: [], where: "any" } }) });
@@ -363,12 +363,12 @@ describe("opening", () => {
     expect(subject.open("offer.december-bonus")!.terms.pay).toBe(month);
   });
 
-  test("[R-OFFER-002] given no job, when a pay term is fixed, then it is zero", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given no job, when a pay term is fixed, then it is zero", () => {
     const subject = lab({ content: variant({ "offer.salary-loan": { when: [] } }) });
     expect(subject.open("offer.salary-loan")!.terms.max).toBe(0);
   });
 
-  test("[R-OFFER-002] given an offer opening in a month, when it opens, then its month, its expiry and the entry's record are kept", () => {
+  test("[offer:opening-fixes-terms-and-fraud] given an offer opening in a month, when it opens, then its month, its expiry and the entry's record are kept", () => {
     // Tunde, so two months of upkeep leave enough for a family request to hold.
     const subject = lab({ scenario: TUNDE, content: variant({}, true) });
     subject.end();
@@ -379,7 +379,7 @@ describe("opening", () => {
     expect(subject.game.state.offer.timesOpened["offer.nepa-bill"]).toBe(1);
   });
 
-  test("[R-OFFER-002] [R-OFFER-006] given a sure fraud or a sure honest offer, when it opens, then the hidden fraud is fixed on the fraud stream and each sign by its own chance on the offer stream", () => {
+  test("[offer:opening-fixes-terms-and-fraud] [offer:fraud-hidden-signs-shown] given a sure fraud or a sure honest offer, when it opens, then the hidden fraud is fixed on the fraud stream and each sign by its own chance on the offer stream", () => {
     const signs = [
       { key: "cash-only", honestBp: 0, fraudBp: CERTAIN },
       { key: "office", honestBp: CERTAIN, fraudBp: 0 },
@@ -399,7 +399,7 @@ describe("opening", () => {
 });
 
 describe("choosing", () => {
-  test("[R-OFFER-003] given an open offer, when a choice is taken, then its effects apply with the offer as the source and the offer is removed", () => {
+  test("[offer:choice-needs-conditions-and-funds] given an open offer, when a choice is taken, then its effects apply with the offer as the source and the offer is removed", () => {
     const subject = lab();
     const item = subject.open("offer.nepa-bill")!;
     const bank = subject.game.state.wallet.pockets.NGN.bank;
@@ -413,7 +413,7 @@ describe("choosing", () => {
     expect(result.lines.find((line) => line.key === "line.offer.taken")).toMatchObject({ params: { offer: "offer.nepa-bill", choice: "pay" } });
   });
 
-  test("[R-OFFER-003] given an offer that asks for an amount, when one between its terms is picked, then it is the term amount for the effects; each end is allowed", () => {
+  test("[offer:choice-needs-conditions-and-funds] given an offer that asks for an amount, when one between its terms is picked, then it is the term amount for the effects; each end is allowed", () => {
     for (const pick of ["min", "max"] as const) {
       const subject = lab({ scenario: TUNDE });
       const item = subject.open("offer.salary-loan")!;
@@ -426,7 +426,7 @@ describe("choosing", () => {
     }
   });
 
-  test("[R-OFFER-003] given an offer that asks for an amount, when it is outside the terms, a fraction or missing, then it is rejected with bad-amount", () => {
+  test("[offer:choice-needs-conditions-and-funds] given an offer that asks for an amount, when it is outside the terms, a fraction or missing, then it is rejected with bad-amount", () => {
     const subject = lab({ scenario: TUNDE });
     const item = subject.open("offer.salary-loan")!;
     const min = item.terms.min as number;
@@ -437,14 +437,14 @@ describe("choosing", () => {
     expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "take" }, "bad-amount").code).toBe("bad-amount");
   });
 
-  test("[R-OFFER-003] given no such offer or no such choice, when one is chosen, then it is rejected with unknown-id or not-legal", () => {
+  test("[offer:choice-needs-conditions-and-funds] given no such offer or no such choice, when one is chosen, then it is rejected with unknown-id or not-legal", () => {
     const subject = lab();
     const item = subject.open("offer.nepa-bill")!;
     expect(subject.reject({ type: "offer/choose", offer: "offer-999", choice: "pay" }, "unknown-id").code).toBe("unknown-id");
     expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "dance" }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-OFFER-003] given an offer name that is a built-in object key, when it is chosen, then it is rejected with unknown-id and nothing throws", () => {
+  test("[offer:choice-needs-conditions-and-funds] given an offer name that is a built-in object key, when it is chosen, then it is rejected with unknown-id and nothing throws", () => {
     const subject = lab();
     subject.open("offer.nepa-bill");
     for (const offer of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
@@ -452,7 +452,7 @@ describe("choosing", () => {
     }
   });
 
-  test("[R-OFFER-003] given a choice whose conditions do not hold, when it is chosen, then it is rejected with not-legal", () => {
+  test("[offer:choice-needs-conditions-and-funds] given a choice whose conditions do not hold, when it is chosen, then it is rejected with not-legal", () => {
     const nepa = entryOf(content, "offer.nepa-bill");
     const strict = variant({
       "offer.nepa-bill": { choices: nepa.choices.map((choice) => (choice.id === "pay" ? { ...choice, requires: [{ type: "quality/min", quality: STANDING, value: 100 }] } : choice)) },
@@ -463,7 +463,7 @@ describe("choosing", () => {
     subject.accept({ type: "offer/choose", offer: item.id, choice: "leave" });
   });
 
-  test("[R-OFFER-003] given a debit that cannot be paid, when the choice is taken, then it is rejected with cannot-afford; exactly enough is accepted", () => {
+  test("[offer:choice-needs-conditions-and-funds] given a debit that cannot be paid, when the choice is taken, then it is rejected with cannot-afford; exactly enough is accepted", () => {
     const short = lab();
     const item = short.open("offer.nepa-bill")!;
     setPockets(short.game, { NGN: { cash: 0, bank: 2499999 } }, { apply: short.apply });
@@ -476,7 +476,7 @@ describe("choosing", () => {
     expect(exact.game.state.wallet.pockets.NGN.cash).toBe(0);
   });
 
-  test("[R-OFFER-003] [R-WALLET-018] given an agent's fee with the naira short in cash and bank together, when the offer is taken, then it is rejected with cannot-afford; with the bank short and cash holding the rest, the fee being over the line for cash, the bank goes first and cash pays the rest", () => {
+  test("[offer:choice-needs-conditions-and-funds] [wallet:money-lands-as-in-lagos] given an agent's fee with the naira short in cash and bank together, when the offer is taken, then it is rejected with cannot-afford; with the bank short and cash holding the rest, the fee being over the line for cash, the bank goes first and cash pays the rest", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
@@ -496,7 +496,7 @@ describe("choosing", () => {
 });
 
 describe("fraud", () => {
-  test("[R-OFFER-004] given an agent who is a fraud, when his offer is taken, then the fee is paid and nothing else happens", () => {
+  test("[offer:fraud-effects-replace-ordinary] given an agent who is a fraud, when his offer is taken, then the fee is paid and nothing else happens", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
@@ -509,7 +509,7 @@ describe("fraud", () => {
     expect(subject.game.state.wallet.pockets.NGN.locked).toBe(0);
   });
 
-  test("[R-OFFER-004] given an honest agent, when his offer is taken, then the fee is paid and the held funds open", () => {
+  test("[offer:fraud-effects-replace-ordinary] given an honest agent, when his offer is taken, then the fee is paid and the held funds open", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
@@ -521,7 +521,7 @@ describe("fraud", () => {
 });
 
 describe("lapsing", () => {
-  test("[R-OFFER-005] given a family request, when its month comes, then its lapse choice is applied and it is removed", () => {
+  test("[offer:lapsed-offer-removed] given a family request, when its month comes, then its lapse choice is applied and it is removed", () => {
     const subject = lab({ content: variant({}, true) });
     const item = subject.open("offer.nepa-bill")!;
     expect(item.expiresMonth).toBe(1);
@@ -534,7 +534,7 @@ describe("lapsing", () => {
     expect(subject.game.state.offer.items).toEqual({});
   });
 
-  test("[R-OFFER-005] given a lapse choice that cannot be paid, when the month comes, then the offer is removed and nothing is applied", () => {
+  test("[offer:lapsed-offer-removed] given a lapse choice that cannot be paid, when the month comes, then the offer is removed and nothing is applied", () => {
     const subject = lab({ content: variant({ "offer.nepa-bill": { onExpire: "pay" } }, true) });
     const item = subject.open("offer.nepa-bill")!;
     setPockets(subject.game, { NGN: { cash: 0, bank: 0 } }, { apply: subject.apply });
@@ -543,7 +543,7 @@ describe("lapsing", () => {
     expect(qualityChanges(result, "offer.nepa-bill.pay")).toEqual([]);
   });
 
-  test("[R-OFFER-005] given an offer that lapses after two months and names no choice, when one month passes it is still open; after two it is removed and nothing happens", () => {
+  test("[offer:lapsed-offer-removed] given an offer that lapses after two months and names no choice, when one month passes it is still open; after two it is removed and nothing happens", () => {
     const subject = lab({ scenario: TUNDE, content: variant({}, true) });
     const item = subject.open("offer.salary-loan")!;
     expect(entryOf(content, "offer.salary-loan")).toMatchObject({ expiresAfter: 2, onExpire: null });
@@ -556,7 +556,7 @@ describe("lapsing", () => {
 });
 
 describe("the view", () => {
-  test("[R-OFFER-006] given a fraud offer open, when the view is read, then nothing hidden shows and its signs, terms and choices do", () => {
+  test("[offer:fraud-hidden-signs-shown] given a fraud offer open, when the view is read, then nothing hidden shows and its signs, terms and choices do", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
     const item = subject.open("offer.held-funds-agent")!;
     // Enough cash for the agent's fee at the smallest amount.
@@ -579,7 +579,7 @@ describe("the view", () => {
     ]);
   });
 
-  test("[R-OFFER-006] given a choice that cannot be paid or an amount range that is empty, when the view is read, then that choice is not allowed", () => {
+  test("[offer:fraud-hidden-signs-shown] given a choice that cannot be paid or an amount range that is empty, when the view is read, then that choice is not allowed", () => {
     const poor = lab();
     poor.open("offer.nepa-bill");
     setPockets(poor.game, { NGN: { cash: 0, bank: 0 } }, { apply: poor.apply });
@@ -595,7 +595,7 @@ describe("the view", () => {
 });
 
 describe("opened by an effect", () => {
-  test("[R-OFFER-007] given an offer with no chance, when an effect opens it with terms, then it opens and the terms are added to its own", () => {
+  test("[offer:effect-opens-named-offer] given an offer with no chance, when an effect opens it with terms, then it opens and the terms are added to its own", () => {
     const subject = lab();
     const item = subject.open("offer.job", { job: "activity.job-teacher" })!;
     expect(item.terms).toEqual({ job: "activity.job-teacher" });
@@ -604,13 +604,13 @@ describe("opened by an effect", () => {
     expect(result.lines.find((line) => line.key === "line.offer.taken")).toBeDefined();
   });
 
-  test("[R-OFFER-007] given conditions that do not hold, when an effect opens the offer, then nothing opens", () => {
+  test("[offer:effect-opens-named-offer] given conditions that do not hold, when an effect opens the offer, then nothing opens", () => {
     const subject = lab();
     expect(subject.open("offer.recruiter-message")).toBeUndefined();
     expect(subject.game.state.offer).toEqual({ items: {}, lastOpened: {}, timesOpened: {}, rolled: 0, rolledMonth: 0 });
   });
 
-  test("[R-OFFER-007] given the monthly limit and a cooldown, when effects open offers, then neither stops them", () => {
+  test("[offer:effect-opens-named-offer] given the monthly limit and a cooldown, when effects open offers, then neither stops them", () => {
     const subject = lab();
     for (const id of ["offer.nepa-bill", "offer.brother-fees", "offer.mum-shop"] as const) expect(subject.open(id)).toBeDefined();
     expect(Object.keys(subject.game.state.offer.items)).toHaveLength(3);
@@ -620,7 +620,7 @@ describe("opened by an effect", () => {
     expect(subject.game.state.offer.timesOpened["offer.nepa-bill"]).toBe(2);
   });
 
-  test("[R-OFFER-007] given an offer that may open once, when an effect opens it again, then nothing opens", () => {
+  test("[offer:effect-opens-named-offer] given an offer that may open once, when an effect opens it again, then nothing opens", () => {
     const subject = lab();
     const item = subject.open("offer.family-pledge")!;
     subject.accept({ type: "offer/choose", offer: item.id, choice: "decline" });
@@ -628,7 +628,7 @@ describe("opened by an effect", () => {
     expect(subject.game.state.offer.timesOpened["offer.family-pledge"]).toBe(1);
   });
 
-  test("[R-PEOPLE-034] given a family request open beside another offer, when offer/close names it, then it closes unanswered with its own line: no choice taken, nothing paid, the other offer and the counts untouched", () => {
+  test("[person:family-requests-shared] given a family request open beside another offer, when offer/close names it, then it closes unanswered with its own line: no choice taken, nothing paid, the other offer and the counts untouched", () => {
     const subject = lab();
     const nepa = subject.open("offer.nepa-bill")!;
     const fees = subject.open("offer.brother-fees")!;
@@ -645,7 +645,7 @@ describe("opened by an effect", () => {
     expect({ lastOpened: subject.game.state.offer.lastOpened, timesOpened: subject.game.state.offer.timesOpened }).toEqual(counts);
   });
 
-  test("[R-PEOPLE-034] given the named offer not open, when offer/close is applied, then nothing happens", () => {
+  test("[person:family-requests-shared] given the named offer not open, when offer/close is applied, then nothing happens", () => {
     const subject = lab();
     const fees = subject.open("offer.brother-fees")!;
     const before = subject.game.state.offer;
@@ -656,7 +656,7 @@ describe("opened by an effect", () => {
     expect(subject.game.state.offer.items[fees.id]).toBeDefined();
   });
 
-  test("[R-OFFER-007] given an offer already open, when an effect opens it again, then the waiting one closes unanswered and the new one opens with its own terms", () => {
+  test("[offer:effect-opens-named-offer] given an offer already open, when an effect opens it again, then the waiting one closes unanswered and the new one opens with its own terms", () => {
     const subject = lab();
     const first = subject.open("offer.job", { job: "activity.job-teacher" })!;
     const result = subject.apply([{ type: "offer/open", offer: "offer.job" }], { job: "activity.job-customer-service" });
@@ -671,7 +671,7 @@ describe("opened by an effect", () => {
     expect(subject.game.state.activity.job).toBeNull();
   });
 
-  test("[R-OFFER-007] given an offer with a lapse choice already open, when an effect opens it again, then the lapse choice's effects are not applied", () => {
+  test("[offer:effect-opens-named-offer] given an offer with a lapse choice already open, when an effect opens it again, then the lapse choice's effects are not applied", () => {
     const subject = lab();
     expect(entryOf(content, "offer.nepa-bill").onExpire).toBe("leave");
     subject.open("offer.nepa-bill");
@@ -684,12 +684,12 @@ describe("opened by an effect", () => {
     expect(openOffers(subject.game)).toEqual(["offer.nepa-bill"]);
   });
 
-  test("[R-OFFER-007] given a job hunt that lands, when the month resolves, then a job offer opens naming the job, and accepting it starts the job", () => {
+  test("[offer:effect-opens-named-offer] given a job hunt that lands, when the month resolves, then a job offer opens naming the job, and accepting it starts the job", () => {
     const subject = lab({ content: variant({}, true) });
     const hunt = { activity: "activity.job-hunt" as const, param: "activity.job-customer-service" };
     let item: OfferState | undefined;
     for (let month = 0; month < 20 && item === undefined; month += 1) {
-      // R-ACTIVITY-015: the hunt is applied for at once and the employer answers as the month ends.
+      // activity:now-acts-and-month-acts: the hunt is applied for at once and the employer answers as the month ends.
       subject.accept({ type: "activity/now", ...hunt });
       item = opened(subject.accept({ type: "turn/end", slots: [] }))[0];
     }
@@ -700,7 +700,7 @@ describe("opened by an effect", () => {
 });
 
 describe("a hunt that lands while a job offer waits", () => {
-  test("[R-OFFER-007] [R-ACTIVITY-005] given a job offer waiting, when a later hunt lands another job, then the later job offer is the one on the table", () => {
+  test("[offer:effect-opens-named-offer] [activity:job-hunt-lands-offer] given a job offer waiting, when a later hunt lands another job, then the later job offer is the one on the table", () => {
     const sure = (id: Id<"activity">) => ({ ...content.activity[id]!, hireBp: 10000 });
     const certain: Content = {
       ...content,
@@ -708,7 +708,7 @@ describe("a hunt that lands while a job offer waits", () => {
       tuning: { ...content.tuning, quality: { ...content.tuning.quality, hireMaxBp: 10000 } },
     };
     const subject = lab({ content: certain });
-    // R-ACTIVITY-015: each hunt is applied for at once and answered as its month ends.
+    // activity:now-acts-and-month-acts: each hunt is applied for at once and answered as its month ends.
     subject.accept({ type: "activity/now", activity: "activity.job-hunt", param: "activity.job-teacher" });
     const first = opened(subject.accept({ type: "turn/end", slots: [] }))[0]!;
     expect(first.terms).toEqual({ job: "activity.job-teacher" });
@@ -723,7 +723,7 @@ describe("a hunt that lands while a job offer waits", () => {
 });
 
 describe("lines and invariants", () => {
-  test("[R-OFFER-002] [R-OFFER-005] given each line, when it is shown, then it has words; an opened offer calls for attention and names its entry", () => {
+  test("[offer:opening-fixes-terms-and-fraud] [offer:lapsed-offer-removed] given each line, when it is shown, then it has words; an opened offer calls for attention and names its entry", () => {
     const keys = ["opened", "taken", "lapsed"].map((what) => `line.offer.${what}`);
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN } }, true) });
@@ -741,7 +741,7 @@ describe("lines and invariants", () => {
 
   test.prop([fc.constantFrom<Id<"scenario">>("scenario.ada", "scenario.tunde", "scenario.zainab"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
     numRuns: 20,
-  })("[R-OFFER-003] [R-OFFER-006] given offers coming up often, when random legal commands are played, then each is accepted, the invariants hold and nothing hidden shows", (scenario, seed, picks) => {
+  })("[offer:choice-needs-conditions-and-funds] [offer:fraud-hidden-signs-shown] given offers coming up often, when random legal commands are played, then each is accepted, the invariants hold and nothing hidden shows", (scenario, seed, picks) => {
     const often = variant(Object.fromEntries(rolled.map((entry) => [entry.id, { chanceBp: 5000 }])));
     const subject = lab({ scenario, seed, content: often, routeHolds: true });
     for (const pick of picks) {

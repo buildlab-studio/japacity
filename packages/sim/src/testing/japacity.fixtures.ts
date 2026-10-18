@@ -52,8 +52,8 @@ export function carryOut(game: Game, effects: Effect[]): Accepted {
 /**
  * Writes a route's state straight into the game's state, for states a test
  * cannot reach in a few commands: `refused` comes only from a ban after a
- * refusal (R-GATE-005), and no event takes a route back along an arrow
- * (R-ROUTE-001).
+ * refusal (route-gates:deception-bans-country), and no event takes a route back along an arrow
+ * (route:routes-move-along-arrows).
  */
 export function writeRoute(game: Game, route: Id<"route">, to: "refused" | "heard"): void {
   const held = game.state.route[route];

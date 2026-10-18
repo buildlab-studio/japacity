@@ -1,4 +1,4 @@
-// Routes and schools: docs/rules/route.md, R-ROUTE-001 to 020. A school has no
+// Routes and schools: docs/rules/route.md. A school has no
 // slice of its own: its applications live on the route (`RouteState.schools`),
 // and its rules are carried out here.
 import { heldBand, takesApplication } from "../activity/activity.logic";
@@ -55,15 +55,15 @@ const LIVING_MONTHS: Id<"var"> = "var.uk-living-months";
 const STRICTNESS: Id<"var"> = "var.uk-study-strictness";
 const SURCHARGE: Id<"var"> = "var.uk-surcharge";
 
-/** Funds, tuition and deposits are counted in pence (R-ROUTE-009, 010). */
+/** Funds, tuition and deposits are counted in pence (route:funds-required, route:funds-shown-exclude-cash). */
 const FUNDS_CURRENCY: ForeignCurrency = "GBP";
 
-/** R-ROUTE-016 counts the unexplained share in whole percents. */
+/** route:visa-refusal-chance counts the unexplained share in whole percents. */
 const BP_PER_PERCENT = 100;
-/** R-ROUTE-003: how talk of a route reaches a character who has not heard by `hearBy`. */
+/** route:friend-tells-by-month: how talk of a route reaches a character who has not heard by `hearBy`. */
 export const FRIEND = "friend";
 
-/** The arrows of the page's diagram (R-ROUTE-001). A ban moves a route to `refused`, and its lifting back to `known` (R-GATE-005). */
+/** The arrows of the page's diagram (route:routes-move-along-arrows). A ban moves a route to `refused`, and its lifting back to `known` (route-gates:deception-bans-country). */
 const ARROWS: Record<RouteStateName, readonly RouteStateName[]> = {
   unknown: ["heard"],
   heard: ["known"],
@@ -130,7 +130,7 @@ function grade(state: State): number {
   return state.quality[QUALITY.eduGrade] ?? 0;
 }
 
-/** R-ROUTE-005: the route's window, from its world variable. 0 closed, 1 narrowing, 2 open. */
+/** route:closed-window-blocks-applying: the route's window, from its world variable. 0 closed, 1 narrowing, 2 open. */
 function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {
   const window = entryOf(read.content, route).window;
   // A route with no window var (the road) is never closed by the world.
@@ -140,7 +140,7 @@ function windowOf(read: ReadCtx, route: Id<"route">): RouteView["window"] {
   return value === 1 ? "narrowing" : "open";
 }
 
-/** R-ROUTE-007: the school's base chance plus the figure for each grade above its minimum, capped. */
+/** route:school-answers-by-grade: the school's base chance plus the figure for each grade above its minimum, capped. */
 export function offerChanceBp(school: SchoolEntry, grade: number, numbers: Tuning["route"]): number {
   return clamp(school.offerBp + numbers.offerPerGradeBp * (grade - school.minGrade), 0, numbers.offerMaxBp);
 }
@@ -159,7 +159,7 @@ function cheapest(read: ReadCtx, held: RouteState, schools: readonly Id<"school"
   return best;
 }
 
-/** The currency a route's funds are counted in: the gate's, or pence for the study route (R-ROUTE-009). */
+/** The currency a route's funds are counted in: the gate's, or pence for the study route (route:funds-required). */
 export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrency {
   const entry = entryOf(read.content, route);
   const gate = GATES[entry.gate];
@@ -168,7 +168,7 @@ export function fundsCurrency(read: ReadCtx, route: Id<"route">): ForeignCurrenc
 }
 
 /**
- * R-ROUTE-009, in pence: the school's tuition less its discount less the
+ * route:funds-required, in pence: the school's tuition less its discount less the
  * deposit paid, plus the living line times the living months. Before a
  * deposit, the cheapest school holding an offer, after its discount, or else
  * the cheapest school on the route with no discount.
@@ -190,7 +190,7 @@ export function fundsRequired(read: ReadCtx, route: Id<"route">): number {
 }
 
 /**
- * R-ROUTE-010, in pence: the bank and locked pockets of every currency and
+ * route:funds-shown-exclude-cash, in pence: the bank and locked pockets of every currency and
  * any family support, at the official rate. Cash never counts. Each pocket
  * goes straight to pounds with `convertMinor`, rounded down once per pocket,
  * so naira is valued as kobo * 100 / the pound rate in one step.
@@ -209,7 +209,7 @@ export function fundsShown(read: ReadCtx, route: Id<"route">): number {
 }
 
 /**
- * R-ROUTE-013: the wallet's lots at the official rate as a share of the funds
+ * route:unexplained-share-of-funds: the wallet's lots at the official rate as a share of the funds
  * required, in basis points, never above 10000. Lots with nothing required
  * against them are wholly unexplained.
  */
@@ -222,7 +222,7 @@ export function unexplainedBp(read: ReadCtx, route: Id<"route">): number {
   return required === 0 ? BP_WHOLE : Math.min(BP_WHOLE, mulDiv(lots, BP_WHOLE, required));
 }
 
-/** What the decision weighs (R-ROUTE-016). */
+/** What the decision weighs (route:visa-refusal-chance). */
 export interface VisaFile {
   strictness: number;
   unexplainedBp: number;
@@ -232,7 +232,7 @@ export interface VisaFile {
 }
 
 /**
- * R-ROUTE-016: the route's own base, plus each point of strictness, plus each
+ * route:visa-refusal-chance: the route's own base, plus each point of strictness, plus each
  * whole percent of unexplained share, plus each earlier refusal, less each
  * interview point, less the good grade's figure, kept between the floor and
  * the ceiling.
@@ -248,7 +248,7 @@ export function refusalChanceBp(numbers: Tuning["route"], baseBp: number, file: 
   return clamp(raw, numbers.refusalMinBp, numbers.refusalMaxBp);
 }
 
-/** R-ROUTE-019: most telling first, and `credibility` only when nothing else applies. */
+/** route:refusal-reasons-recorded: most telling first, and `credibility` only when nothing else applies. */
 export function refusalReasons(visa: VisaApplication, earlierRefusals: number, numbers: Tuning["route"]): RefusalReason[] {
   const reasons: RefusalReason[] = [];
   if (visa.unexplainedBp >= numbers.fundsReasonBp) reasons.push("funds");
@@ -271,7 +271,7 @@ function own(event: RouteKindEvent): RouteKindEvent {
   return event;
 }
 
-/** R-PLACE-008: a removal's ban holds through the months before its last, and lifts in that month. */
+/** place:removal-bans-the-country: a removal's ban holds through the months before its last, and lifts in that month. */
 function banned(read: ReadCtx, country: Id<"country"> | null): boolean {
   return country !== null && bannedNow(read, country);
 }
@@ -285,7 +285,7 @@ function allHold(ctx: Ctx, requirements: readonly Requirement[]): boolean {
 }
 
 /**
- * R-GUIDE-016: the routes a first meetup tells of, in the order a life's profile fits them. Each but the last
+ * guide:first-meetup-hears-fitting-route: the routes a first meetup tells of, in the order a life's profile fits them. Each but the last
  * carries its own bar, which stands in for the route's `hearIf` on that first meetup; the last keeps its `hearIf`.
  */
 export const FIRST_MEETUP_FITS: readonly { route: Id<"route">; bar: Requirement | null }[] = [
@@ -295,7 +295,7 @@ export const FIRST_MEETUP_FITS: readonly { route: Id<"route">; bar: Requirement 
 ];
 
 /**
- * The route the first meetup of a life hears of for sure (R-GUIDE-016): the first that fits the profile and is
+ * The route the first meetup of a life hears of for sure (guide:first-meetup-hears-fitting-route): the first that fits the profile and is
  * still unknown, so a way already heard of never leaves the first meetup with nothing to tell.
  */
 function firstMeetupFit(ctx: Ctx): { route: Id<"route">; bar: Requirement | null } | null {
@@ -303,7 +303,7 @@ function firstMeetupFit(ctx: Ctx): { route: Id<"route">; bar: Requirement | null
 }
 
 /**
- * R-ROUTE-002. Hearing is talk that comes up, not a school's draw, so a chance
+ * route:hearing-a-route. Hearing is talk that comes up, not a school's draw, so a chance
  * to hear draws on `offer`. The draw comes first, and only for a route still
  * unknown.
  */
@@ -311,24 +311,24 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "route/hear") throw new Error(`route/hear cannot carry out ${effect.type}.`);
   const entry = entryOf(ctx.content, effect.route);
   if (routeOf(ctx.state, effect.route).state !== "unknown") return [];
-  // R-PLACE-008: a removal bans every route into that country for its months.
+  // place:removal-bans-the-country: a removal bans every route into that country for its months.
   if (banned(readOf(ctx), entry.country)) return [];
-  // R-GUIDE-016: the first meetup of a life hears for sure of the route that fits the life (a nil chance stays nil); the chance applies from the second on. The draw is made either way, so the stream keeps its walk (R-ROUTE-002).
+  // guide:first-meetup-hears-fitting-route: the first meetup of a life hears for sure of the route that fits the life (a nil chance stays nil); the chance applies from the second on. The draw is made either way, so the stream keeps its walk (route:hearing-a-route).
   const fit = effect.via === "meetup" && (ctx.state.activity.played["activity.meetup"] ?? 0) === 0 ? firstMeetupFit(ctx) : null;
   const sure = fit !== null && fit.route === entry.id && (effect.chanceBp ?? 0) > 0;
   const rolled = effect.chanceBp === undefined ? true : ctx.random.chance("offer", effect.chanceBp);
   if (!sure && !rolled) return [];
-  // The sure hear stands on the profile's bar where the rule gives one (R-GUIDE-016), on the route's own `hearIf` otherwise.
+  // The sure hear stands on the profile's bar where the rule gives one (guide:first-meetup-hears-fitting-route), on the route's own `hearIf` otherwise.
   if (!(sure && fit.bar !== null) && !allHold(ctx, entry.hearIf)) return [];
   return [moved(entry.id, "heard", effect.via)];
 }
 
-/** R-ADVICE-001: the official page is the look-into activity; its line is the one R-ROUTE-004 always gave. */
+/** advice:four-ways-to-learn-route: the official page is the look-into activity; its line is the one route:looking-into-makes-known always gave. */
 const OFFICIAL_PAGE = "activity.look-into-route";
 
 /**
  * The route a look names: the slot's param, or the term `route` an agent's
- * offer carries (R-ADVICE-001), since an offer's choice has no param.
+ * offer carries (advice:four-ways-to-learn-route), since an offer's choice has no param.
  */
 function lookedRoute(ctx: Ctx, cause: Cause, effect?: Effect): Id<"route"> | null {
   // Decision 0001: the effect's own route first, then the slot's param or a string term.
@@ -336,19 +336,19 @@ function lookedRoute(ctx: Ctx, cause: Cause, effect?: Effect): Id<"route"> | nul
   return typeof named === "string" && ctx.content.route[named as Id<"route">] !== undefined ? (named as Id<"route">) : null;
 }
 
-/** R-ROUTE-004: the effect's route or the slot's param names the route (decision 0001). Only a heard route becomes known. */
+/** route:looking-into-makes-known: the effect's route or the slot's param names the route (decision 0001). Only a heard route becomes known. */
 function lookInto(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const route = lookedRoute(ctx, cause, effect);
   if (route === null) return [];
   if (routeOf(ctx.state, route).state !== "heard") return [];
   const country = entryOf(ctx.content, route).country;
   if (banned(readOf(ctx), country)) return [];
-  // R-ADVICE-001: each of the four ways looks into the route; the event names the way unless it is the official page.
+  // advice:four-ways-to-learn-route: each of the four ways looks into the route; the event names the way unless it is the official page.
   return [cause.source === OFFICIAL_PAGE ? moved(route, "known") : moved(route, "known", cause.source)];
 }
 
 /**
- * R-ROUTE-006, and R-ROUTE-005 for the window. The slot's param names the
+ * route:applying-to-a-school, and route:closed-window-blocks-applying for the window. The slot's param names the
  * school. The application is written at once, so a later slot of the same
  * month cannot apply there again. A school that refused takes a new one once
  * its wait has run, and the new application replaces the refusal.
@@ -369,7 +369,7 @@ function applySchool(ctx: Ctx, _effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * The application's conditions, judged again (R-ROUTE-012). The slot that
+ * The application's conditions, judged again (route:visa-application-needs). The slot that
  * carries this effect judged "covered now" a moment ago, before its fees were
  * taken. Paying the visa fee and the surcharge lowers the funds shown, so it
  * is not judged a second time here: the months held, judged at the last month
@@ -383,7 +383,7 @@ function conditionsHold(ctx: Ctx, held: RouteState, cause: Cause): boolean {
   );
 }
 
-/** R-ROUTE-012, 013, 014, 015: the application's conditions, then the sending. */
+/** route:visa-application-needs, route:unexplained-share-of-funds, route:application-fixes-figures, route:application-opens-interview: the application's conditions, then the sending. */
 function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/apply") throw new Error(`route/apply cannot carry out ${effect.type}.`);
   const { route } = effect;
@@ -394,13 +394,13 @@ function applyVisa(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return sendApplication(ctx, entry, cause);
 }
 
-/** The study route's figures (R-ROUTE-014): the UK study strictness, the student surcharge, the tuning's months. */
+/** The study route's figures (route:application-fixes-figures): the UK study strictness, the student surcharge, the tuning's months. */
 function studyFigures(read: ReadCtx): ApplicationFigures {
   return { strictness: ukVar(read, STRICTNESS), surchargePaid: ukVar(read, SURCHARGE), decisionMonths: read.content.tuning.route.decisionMonths };
 }
 
 /**
- * R-ROUTE-013, 014, 015: send the application, record the day's figures, open
+ * route:unexplained-share-of-funds, route:application-fixes-figures, route:application-opens-interview: send the application, record the day's figures, open
  * the interview where the entry has one. A gate that sends on its own clock
  * (the points gate's invitation) calls this with its conditions already judged.
  */
@@ -424,7 +424,7 @@ function sendApplication(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[]
   return events;
 }
 
-/** The family pledge: money in a parent's account that counts toward the route (R-ROUTE-010). */
+/** The family pledge: money in a parent's account that counts toward the route (route:funds-shown-exclude-cash). */
 function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/support") throw new Error(`route/support cannot carry out ${effect.type}.`);
   entryOf(ctx.content, effect.route);
@@ -434,9 +434,9 @@ function support(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-PEOPLE-036: an application resting on a bond goes back to known, the fee
+ * person:joint-collapses-with-bond: an application resting on a bond goes back to known, the fee
  * kept, the surcharge refunded to the pound bank pocket, where a refusal
- * refunds it (R-ROUTE-018), and an open interview closed unscored. A
+ * refunds it (route:refusal-refunds-and-resets), and an open interview closed unscored. A
  * dependant's grant not yet used is voided the same way. Nothing else moves:
  * no refusal is recorded, and an earlier one stands.
  */
@@ -453,7 +453,7 @@ function withdraw(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** R-SETPIECE-004: the interview's score goes on the open application, and only there. */
+/** route:answers-score-and-close: the interview's score goes on the open application, and only there. */
 function interviewScored(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "route/interview-scored") throw new Error(`route/interview-scored cannot carry out ${effect.type}.`);
   const held = routeOf(ctx.state, effect.route);
@@ -465,10 +465,10 @@ function interviewScored(ctx: Ctx, effect: Effect): BaseEvent[] {
 // Commands
 // ---------------------------------------------------------------------------
 
-/** R-ROUTE-008. */
+/** route:deposit-secures-school. */
 function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/pay-deposit") throw new Error(`route/pay-deposit cannot handle ${command.type}.`);
-  // R-PEOPLE-044: a stand-in never spends.
+  // person:stand-in-acts-narrowly: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const entry = ownOf(ctx.content.route, command.route);
   const held = ownOf(ctx.state.route, command.route);
@@ -479,7 +479,7 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   }
   if (held.schools[school.id]?.state !== "offer") return reject("not-legal", `There is no offer from ${school.id}.`);
   if (held.school !== null) return reject("not-legal", `A deposit is already paid on ${entry.id}, to ${held.school}.`);
-  // R-ROUTE-005 does not apply: a deposit is paid to a school, not with a visa application.
+  // route:closed-window-blocks-applying does not apply: a deposit is paid to a school, not with a visa application.
   if (!ctx.check({ type: "money/can-pay", currency: FUNDS_CURRENCY, amount: school.deposit }).met) {
     return reject("cannot-afford", `The deposit of ${String(school.deposit)} pence cannot be paid.`);
   }
@@ -490,7 +490,7 @@ function payDeposit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** R-RETURN-004: the status kept from a return with papers, as it is granted again with its months, when it is for the route's country. */
+/** return:papers-return-keeps-status: the status kept from a return with papers, as it is granted again with its months, when it is for the route's country. */
 function tokenFor(read: ReadCtx, entry: RouteEntry): Effect | null {
   const token = read.state.place.heldAbroad;
   if (token === null || entry.country === null || read.content.status[token.status]?.country !== entry.country) return null;
@@ -498,7 +498,7 @@ function tokenFor(read: ReadCtx, entry: RouteEntry): Effect | null {
 }
 
 /**
- * R-OFFER-005: an open ask that belongs at home (the family's send-off, a pitch at the park) cannot be
+ * offer:lapsed-offer-removed: an open ask that belongs at home (the family's send-off, a pitch at the park) cannot be
  * answered abroad; the plane closes it unanswered, as a lapse with no choice, so nothing waits on the player abroad.
  */
 function closeHomeOffers(ctx: Ctx, cause: Cause): void {
@@ -507,14 +507,14 @@ function closeHomeOffers(ctx: Ctx, cause: Cause): void {
 }
 
 /**
- * R-ROUTE-020, with R-GATE-003's arrival in place of the ending: the life goes on abroad. R-RETURN-004: a status kept
+ * route:departure-pays-flight, with route-gates:departure-grants-status's arrival in place of the ending: the life goes on abroad. return:papers-return-keeps-status: a status kept
  * from a return with papers flies any route into its country, with no gate and no fee but the flight, and the
  * arrival is on that status; the route itself does not move. A granted route into that country departs as any
- * granted route does, and the arrival is still on the status kept, since a settled status never expires (R-STATUS-007).
+ * granted route does, and the arrival is still on the status kept, since a settled status never expires (status:lawful-months-reach-settlement).
  */
 function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/depart") throw new Error(`route/depart cannot handle ${command.type}.`);
-  // R-PEOPLE-044: a stand-in never spends.
+  // person:stand-in-acts-narrowly: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const entry = ownOf(ctx.content.route, command.route);
   const held = ownOf(ctx.state.route, command.route);
@@ -522,7 +522,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const kept = tokenFor(readOf(ctx), entry);
   const token = held.state === "granted" ? null : kept;
   if (held.state !== "granted" && token === null) return reject("not-legal", "Only a granted route, or a route into the country of a status kept, can be flown.");
-  // R-PLACE-002: the airport's gate is in Lagos, so a flight leaves only from home; R-ROAD-005 makes the chain the month's
+  // place:departure-moves-abroad: the airport's gate is in Lagos, so a flight leaves only from home; road:road-truth-asks-more makes the chain the month's
   // only business on the road.
   if (ctx.state.place.where === "road") return reject("not-legal", "No flight leaves from the road.");
   if (ctx.state.place.where === "abroad") return reject("not-legal", "No flight leaves from abroad. The gate is at the Lagos airport.");
@@ -530,7 +530,7 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
   const flight = ctx.content.tuning.route.flight;
   const amount = ctx.amount(flight.amount);
-  // R-GATE-003: the employer's flight costs nothing. A flight on a kept status is the character's own.
+  // route-gates:departure-grants-status: the employer's flight costs nothing. A flight on a kept status is the character's own.
   const paid = token !== null || !entry.flightPaidByEmployer;
   if (paid && !ctx.check({ type: "money/can-pay", currency: flight.currency, amount }).met) {
     return reject("cannot-afford", `The flight costs ${String(amount)} and cannot be paid.`);
@@ -555,10 +555,10 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
   if (kept !== null) ctx.apply([kept], cause);
   else if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
-  // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
+  // ladders:sponsor-job-ties-status: the sponsor's job is the job held on arrival. place:entries-legal-by-where: a home job does not fly.
   // activity.md is silent on when; it is the moment of the flight, so no job is held that cannot be worked.
   ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }, { type: "activity/end-job", why: "moved", side: true }], cause);
-  // R-PEOPLE-027: an arrival through a partner is recorded for the bar and the assistance count (R-UNDERTAKING-004, 010).
+  // person:partner-application-decided: an arrival through a partner is recorded for the bar and the assistance count (undertaking:sponsored-arrivals-wait-to-sponsor, undertaking:social-assistance-offer).
   if (entry.gate === "partner") ctx.apply([{ type: "people/arrived", route: entry.id }], cause);
   gate.onDepart?.(ctx, entry, held, cause);
   closeHomeOffers(ctx, cause);
@@ -569,13 +569,13 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** R-ROUTE-003: by `hearBy`, anyone who meets `hearIf` has heard, through a friend. Nobody talks routes on the road (R-PLACE-003). */
+/** route:friend-tells-by-month: by `hearBy`, anyone who meets `hearIf` has heard, through a friend. Nobody talks routes on the road (place:entries-legal-by-where). */
 function hearPhase(ctx: Ctx): BaseEvent[] {
   const month = ctx.state.turn.month;
   const events: RouteKindEvent[] = [];
   if (ctx.state.place.where === "road") return events;
   for (const entry of Object.values(ctx.content.route)) {
-    // A route with no `hearBy` is heard of only through an effect (R-ROUTE-003).
+    // A route with no `hearBy` is heard of only through an effect (route:friend-tells-by-month).
     if (entry.hearBy === null || routeOf(ctx.state, entry.id).state !== "unknown" || month < entry.hearBy) continue;
     if (banned(readOf(ctx), entry.country)) continue;
     if (allHold(ctx, entry.hearIf)) events.push(moved(entry.id, "heard", FRIEND));
@@ -583,7 +583,7 @@ function hearPhase(ctx: Ctx): BaseEvent[] {
   return events;
 }
 
-/** R-ROUTE-018: a refund booked by a refusal lands in the pound bank pocket when its month comes. */
+/** route:refusal-refunds-and-resets: a refund booked by a refusal lands in the pound bank pocket when its month comes. */
 function refundArrives(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const due = routeOf(ctx.state, route).depositRefund;
   if (due === null || due.readyMonth > ctx.state.turn.month) return [];
@@ -593,7 +593,7 @@ function refundArrives(ctx: Ctx, route: Id<"route">): BaseEvent[] {
 }
 
 /**
- * R-ROUTE-007, in the route's school order. One draw on `school` for the
+ * route:school-answers-by-grade, in the route's school order. One draw on `school` for the
  * offer, and one more for the merit discount only when an offer is made.
  */
 function schoolsAnswer(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
@@ -613,7 +613,7 @@ function schoolsAnswer(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 }
 
 /**
- * R-ROUTE-011. "No visa application pending" is read as the route being
+ * route:funds-held-month-count. "No visa application pending" is read as the route being
  * `known`: a route applying has one pending, and a granted or departed
  * route has nothing left to show funds for.
  */
@@ -630,18 +630,18 @@ function fundsCheck(ctx: Ctx, route: Id<"route">): BaseEvent[] {
 
 /**
  * The papers an application on this route rests on: every document its
- * checklist asks to be held (R-ADVICE-008).
+ * checklist asks to be held (advice:agent-loss-is-the-fee).
  */
 export function papersOf(entry: RouteEntry): Id<"document">[] {
   return entry.checklist.flatMap((item) => (item.requirement.type === "document/held" ? [item.requirement.document] : []));
 }
 
 /**
- * R-ADVICE-008: a route refuses an application that rests on fake papers,
+ * advice:agent-loss-is-the-fee: a route refuses an application that rests on fake papers,
  * before any draw, with the reason `agent` (the agent's papers did not hold
  * up). Every route's checklist asks for its papers to be genuine, judged by
  * `document/genuine` on each paper held. No ban, since nothing here takes a
- * status or ends a life, so a fake knowingly used carries no R-GATE-005
+ * status or ends a life, so a fake knowingly used carries no route-gates:deception-bans-country
  * deception ban.
  */
 function withPapers(read: ReadCtx, entry: RouteEntry, decision: Decision): Decision {
@@ -652,7 +652,7 @@ function withPapers(read: ReadCtx, entry: RouteEntry, decision: Decision): Decis
   return fake ? { ...decision, override: "agent", bans: false } : decision;
 }
 
-/** R-ROUTE-016 to 019: one draw on `visa`, from the figures recorded on the day of submission. */
+/** route:visa-refusal-chance, route:grant-moves-to-granted, route:refusal-refunds-and-resets and route:refusal-reasons-recorded: one draw on `visa`, from the figures recorded on the day of submission. */
 function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const held = routeOf(ctx.state, route);
   const month = ctx.state.turn.month;
@@ -660,7 +660,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const { visa } = held;
   const numbers = ctx.content.tuning.route;
   const entry = entryOf(ctx.content, route);
-  // R-GATE-002: the gate says which terms the draw reads, and whether something refuses before any draw.
+  // route-gates:gate-decision-draw-terms: the gate says which terms the draw reads, and whether something refuses before any draw.
   const decision = withPapers(readOf(ctx), entry, GATES[entry.gate].decision(readOf(ctx), entry, held));
   if (decision.wait === true) return [];
   const chance = refusalChanceBp(
@@ -684,7 +684,7 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const cause: Cause = { source: route, param: null, terms: {} };
   if (held.visa.surchargePaid > 0) ctx.apply([{ type: "money/add", currency: FUNDS_CURRENCY, pocket: "bank", amount: held.visa.surchargePaid, reason: "refund" }], cause);
   if (entry.gate === "study") ctx.apply([{ type: "document/void", document: CAS }], cause);
-  // R-GATE-005: deception bans every route into the country for the country's months.
+  // route-gates:deception-bans-country: deception bans every route into the country for the country's months.
   if (decision.override !== null && decision.bans && entry.country !== null) {
     const months = ctx.content.country[entry.country]?.deceptionBanMonths ?? 0;
     if (months > 0) {
@@ -698,14 +698,14 @@ function decide(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   return events;
 }
 
-/** R-GATE-005: a ban lifts in the month it names, and the route is known again. */
+/** route-gates:deception-bans-country: a ban lifts in the month it names, and the route is known again. */
 function unban(ctx: Ctx, route: Id<"route">): BaseEvent[] {
   const held = routeOf(ctx.state, route);
   if (held.state !== "refused" || held.bannedUntil === null || held.bannedUntil > ctx.state.turn.month) return [];
   return record(ctx, { type: "route/unbanned", route });
 }
 
-/** R-ROUTE-007, 011, 016 and the refund of 018, route by route in content order. */
+/** route:school-answers-by-grade, route:funds-held-month-count, route:visa-refusal-chance and the refund of route:refusal-refunds-and-resets, route by route in content order. */
 function clocks(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   for (const entry of Object.values(ctx.content.route)) {
@@ -802,7 +802,7 @@ function withRoute(slice: RouteSlice, id: Id<"route">, change: (held: RouteState
   return { ...slice, [id]: change(held) };
 }
 
-/** R-ROUTE-001: an arrow that is not on the page is a bug, never a quiet change. */
+/** route:routes-move-along-arrows: an arrow that is not on the page is a bug, never a quiet change. */
 function arrow(held: RouteState, to: RouteStateName, route: Id<"route">): RouteStateName {
   if (!ARROWS[held.state].includes(to)) throw new Error(`${route} cannot move from ${held.state} to ${to}.`);
   return to;
@@ -868,7 +868,7 @@ function evolve(slice: RouteSlice, event: RouteKindEvent, state: State): RouteSl
     case "route/unbanned":
       return withRoute(slice, event.route, (held) => ({ ...held, state: arrow(held, "known", event.route), bannedUntil: null }));
     case "route/withdrawn":
-      // R-PEOPLE-036 adds the one arrow the diagram lacks: a dependant's unused grant back to known.
+      // person:joint-collapses-with-bond adds the one arrow the diagram lacks: a dependant's unused grant back to known.
       return withRoute(slice, event.route, (held) => ({
         ...held,
         state: held.state === "granted" ? "known" : arrow(held, "known", event.route),
@@ -893,12 +893,12 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
   return { key: `line.route.${key}`, params, tone, attention, counts: [] };
 }
 
-/** Funds, tuition, deposits and discounts are pence (R-ROUTE-009), shown as pounds. */
+/** Funds, tuition, deposits and discounts are pence (route:funds-required), shown as pounds. */
 function pounds(amount: number): MoneyParam {
   return { currency: FUNDS_CURRENCY, amount };
 }
 
-/** R-ADVICE-001: the way a route was looked into, for its line. The official page keeps the line it always had. */
+/** advice:four-ways-to-learn-route: the way a route was looked into, for its line. The official page keeps the line it always had. */
 function lookedLine(via: string | undefined): string {
   if (via === undefined) return "looked-into";
   if (via === "activity.ask-someone-who-went") return "looked-into-told";
@@ -935,7 +935,7 @@ function movedLines(event: Extract<RouteKindEvent, { type: "route/moved" }>): Re
 function lines(event: RouteKindEvent, _state: State, content: Content): ReportLine[] {
   switch (event.type) {
     case "route/moved":
-      // R-ROAD-001: the road is never told as a route; its own notes tell the chain.
+      // road:road-route-has-no-figure: the road is never told as a route; its own notes tell the chain.
       return content.route[event.route]?.gate === "road" ? [] : movedLines(event);
     case "route/school-applied":
       return [line("school-applied", { school: event.school, month: event.readyMonth }, "plain")];
@@ -957,7 +957,7 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
     case "route/applied":
       return [line("applied", { route: event.route, month: event.visa.decisionMonth }, "plain")];
     case "route/interview-scored":
-      // The score is never shown (R-SETPIECE-005).
+      // The score is never shown (route:view-shows-progress-not-score).
       return [];
     case "route/refused":
       return [line("refused", { route: event.route, reason: event.reasons[0] ?? "credibility" }, "bad", true)];
@@ -966,7 +966,7 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
     case "route/supported":
       return [line("supported", { route: event.route, amount: { currency: event.support.currency, amount: event.support.amount } }, "good")];
     case "route/gate-updated":
-      // R-ROAD-010: the chain's lines are tone `bad`.
+      // road:road-earns-nothing: the chain's lines are tone `bad`.
       return event.note === null ? [] : [line(event.note, { route: event.route }, event.gate?.gate === "road" ? "bad" : "plain", true)];
     case "route/refusal-noted":
       return [line("refused", { route: event.route, reason: event.reason }, "bad", true)];
@@ -1005,7 +1005,7 @@ function checklistItemView(read: ReadCtx, item: ChecklistItem): ChecklistItemVie
   return { id: item.id, weight: item.weight, met: result.met, have, need, earned };
 }
 
-/** R-ROUTE-004: the checklist shows once the route is known, and stays. */
+/** route:looking-into-makes-known: the checklist shows once the route is known, and stays. */
 function checklistShown(state: RouteStateName): boolean {
   return state !== "unknown" && state !== "heard";
 }
@@ -1050,7 +1050,7 @@ function routeProblems(id: Id<"route">, held: RouteState, content: Content): str
   }
   if (held.school === null && held.depositPaid !== 0) problems.push(`${id} has ${String(held.depositPaid)} paid in deposit but no school.`);
   if (held.school !== null && held.schools[held.school]?.state !== "offer") problems.push(`${id} paid a deposit to ${held.school} without an offer from it.`);
-  // R-ROAD-005: the road is applying while its chain runs, with no application.
+  // road:road-truth-asks-more: the road is applying while its chain runs, with no application.
   if (held.state === "applying" && held.visa === null && entry.gate !== "road") problems.push(`${id} is applying with no application.`);
   if (held.visa !== null && !["applying", "granted", "departed"].includes(held.state)) problems.push(`${id} is ${held.state} but holds an application.`);
   for (const [name, value] of [
@@ -1072,7 +1072,7 @@ function gateEffects(): Partial<Record<EffectType, GateEffectHandler>> {
   return merged;
 }
 
-/** R-SHARE-001: the granted card through the month after a visa is granted (R-ROUTE-017), for the route granted. */
+/** share:cards-due-at-set-moments: the granted card through the month after a visa is granted (route:grant-moves-to-granted), for the route granted. */
 export function grantedCard(read: ReadCtx): PlayerView["card"] {
   if (!cardsAllowed(read)) return null;
   const granted = reportLines(read, "line.route.granted")[0];
@@ -1081,7 +1081,7 @@ export function grantedCard(read: ReadCtx): PlayerView["card"] {
 
 export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
   kind: "route",
-  // Every route starts unknown (R-SCENARIO-002).
+  // Every route starts unknown (scenario:new-state-starts-clean).
   initial(_scenario, content) {
     const slice: RouteSlice = {};
     for (const entry of Object.values(content.route)) slice[entry.id] = unknownRoute(entry.gate);
@@ -1099,7 +1099,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     "route/support": support,
     "route/interview-scored": interviewScored,
     "route/withdraw": withdraw,
-    // Each gate's own effects (R-GATE-001): the sponsor's record, the road's steps.
+    // Each gate's own effects (route-gates:route-runs-its-gate-steps): the sponsor's record, the road's steps.
     ...gateEffects(),
   },
   phases: { clocks, hear: hearPhase },
@@ -1117,7 +1117,7 @@ export const routeKind: RegisteredKind<RouteSlice, RouteKindEvent> = {
     return Object.entries(state.route).flatMap(([id, held]) => routeProblems(id as Id<"route">, held, content));
   },
   view: (read) => ({
-    // R-ROAD-001: the road never appears in the routes view. R-ROUTE-004: in content order, never the stored state's
+    // road:road-route-has-no-figure: the road never appears in the routes view. route:looking-into-makes-known: in content order, never the stored state's
     // key order, which a database may hand back reordered, so every client lists the routes the same way.
     routes: (Object.keys(read.content.route) as Id<"route">[]).flatMap((id) => {
       const held = ownOf(read.state.route, id);

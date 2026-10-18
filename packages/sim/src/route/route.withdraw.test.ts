@@ -1,4 +1,4 @@
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -39,8 +39,8 @@ function dependantGranted(): Game {
   return game;
 }
 
-describe("R-PEOPLE-036: an application resting on a bond is withdrawn", () => {
-  test("[R-PEOPLE-036] given a partner application mid-way, when it is withdrawn, then the route is known again with no application, the surcharge comes back, the fee does not, and no refusal is recorded", () => {
+describe("person:joint-collapses-with-bond: an application resting on a bond is withdrawn", () => {
+  test("[person:joint-collapses-with-bond] given a partner application mid-way, when it is withdrawn, then the route is known again with no application, the surcharge comes back, the fee does not, and no refusal is recorded", () => {
     const game = partnerApplying();
     const bank = game.state.wallet.pockets.GBP.bank;
     const lines = applyAs(game, [{ type: "route/withdraw", route: UK_PARTNER }]);
@@ -54,25 +54,25 @@ describe("R-PEOPLE-036: an application resting on a bond is withdrawn", () => {
     expect(lines.map((line) => line.key)).toContain("line.route.withdrawn");
   });
 
-  test("[R-PEOPLE-036] given a withdrawn partner application and an interview result arriving late, when the months pass, then nothing is decided", () => {
+  test("[person:joint-collapses-with-bond] given a withdrawn partner application and an interview result arriving late, when the months pass, then nothing is decided", () => {
     const game = partnerApplying();
     applyAs(game, [{ type: "route/withdraw", route: UK_PARTNER }]);
     scored(game, UK_PARTNER, "pass");
-    // The interview's questions were drawn on `visa` when it opened (R-INTERVIEW-003); no decision draws after them.
+    // The interview's questions were drawn on `visa` when it opened (interview:questions-drawn-from-record); no decision draws after them.
     const drawn = game.state.draws.visa ?? 0;
     for (let month = 0; month < 4; month += 1) game.endTurn();
     expect(routeOf(game, UK_PARTNER).state).toBe("known");
     expect(game.state.draws.visa ?? 0).toBe(drawn);
   });
 
-  test("[R-PEOPLE-036] given a dependant's visa granted and not yet used, when it is withdrawn, then it is void: known again, and flying is no longer legal", () => {
+  test("[person:joint-collapses-with-bond] given a dependant's visa granted and not yet used, when it is withdrawn, then it is void: known again, and flying is no longer legal", () => {
     const game = dependantGranted();
     applyAs(game, [{ type: "route/withdraw", route: UK_DEPENDANT }]);
     expect(routeOf(game, UK_DEPENDANT)).toMatchObject({ state: "known", visa: null });
     game.expectRejected({ type: "route/depart", route: UK_DEPENDANT }, "not-legal");
   });
 
-  test("[R-PEOPLE-036] given a route only known, and a dependant route already flown, when each is withdrawn, then nothing changes", () => {
+  test("[person:joint-collapses-with-bond] given a route only known, and a dependant route already flown, when each is withdrawn, then nothing changes", () => {
     const known = life(used);
     joint(known, UK_PARTNER, "them", { stage: "married", facts: SETTLED });
     known.endTurn();

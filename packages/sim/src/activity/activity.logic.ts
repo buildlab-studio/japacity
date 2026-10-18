@@ -1,7 +1,7 @@
 // Activities and jobs: docs/rules/activity.md, ladders.md and car.md. The month
 // has one main activity, the job, a side job if one is held, and a few free
 // slots. The slot rules read here are judged twice: once when `turn/end` is
-// checked (R-ACTIVITY-002), and again when each slot resolves (R-ACTIVITY-003),
+// checked (activity:illegal-slot-rejects-turn), and again when each slot resolves (activity:slots-resolve-in-order),
 // because an earlier slot can change the state.
 import { check, resolveAmount, worldVarOr } from "../engine/check";
 import { DOCUMENT, QUALITY } from "../engine/ids";
@@ -63,12 +63,12 @@ export { cashWorkedThisMonth, localTenure, sideJobHeld } from "./activity.pay";
 
 const TECH: Id<"quality"> = "quality.tech";
 const DRIVING: Id<"quality"> = "quality.driving";
-/** The offer a landed hunt opens. It learns the job from the terms (R-OFFER-007). */
+/** The offer a landed hunt opens. It learns the job from the terms (offer:effect-opens-named-offer). */
 const JOB_OFFER = "offer.job" as const;
 const HUNT_ACTIVITY: Id<"activity"> = "activity.job-hunt";
-/** R-GUIDE-014: the months in which a life's first hunt is sure, counted as the month being played. */
+/** guide:early-win-in-three-turns: the months in which a life's first hunt is sure, counted as the month being played. */
 const SURE_HUNT_MONTHS = 3;
-/** A side gig pays naira cash (R-ACTIVITY-008). */
+/** A side gig pays naira cash (activity:side-gig-pays-a-draw). */
 const GIG_CURRENCY: Currency = "NGN";
 /** The source named on the rest an empty slot gives. */
 const REST_SOURCE = "rest";
@@ -77,27 +77,27 @@ const REST_SOURCE = "rest";
 const OVERTIME: Id<"activity"> = "activity.overtime";
 const LOTTO: Id<"activity"> = "activity.play-lotto";
 const BET: Id<"activity"> = "activity.bet-slip";
-/** R-STREET-001: the phone is paid from cash, at the tuning's price. */
+/** streets:buy-phone-at-computer-village: the phone is paid from cash, at the tuning's price. */
 const PHONE: Id<"activity"> = "activity.buy-phone";
-/** R-ACTIVITY-013: being noticed at work, a raise on a draw. */
+/** activity:waiting-months-build-profile: being noticed at work, a raise on a draw. */
 const NOTICED: Id<"activity"> = "activity.be-noticed";
-/** R-ACTIVITY-013: open source tells its month even when no piece comes of it. */
+/** activity:waiting-months-build-profile: open source tells its month even when no piece comes of it. */
 const OPEN_SOURCE: Id<"activity"> = "activity.open-source";
-/** R-ACTIVITY-011: a slot of either keeps the bus home safe that month. */
+/** activity:one-chance-bus-robbery: a slot of either keeps the bus home safe that month. */
 const COUNTER_MOVES: readonly Id<"activity">[] = ["activity.safe-ride", "activity.sleep-at-office"];
-/** R-ACTIVITY-015: the now-acts whose draw lands with the month: the kiosk's draw and the match. */
+/** activity:now-acts-and-month-acts: the now-acts whose draw lands with the month: the kiosk's draw and the match. */
 const DRAWN_LATER: readonly Id<"activity">[] = [LOTTO, BET];
-/** R-ACTIVITY-015: the effects of a now-act that land with the month: the employer's answer to a hunt. */
+/** activity:now-acts-and-month-acts: the effects of a now-act that land with the month: the employer's answer to a hunt. */
 const LATER_EFFECTS: readonly Effect["type"][] = ["activity/hunt"];
 
-/** The lock reasons this kind reads and writes (R-TURN-009, R-HEALTH-004). */
+/** The lock reasons this kind reads and writes (turn:slots-can-be-locked, health:sick-pay-unless-sick-leave). */
 export const SIDE_JOB_LOCK = "side-job";
 const ILLNESS_LOCK = "illness";
 const UNLOCKED_LINE = "line.turn.unlocked";
-/** The staged line of the first pay abroad (R-LUCK-008), which the first-pay card reads (R-SHARE-001). */
+/** The staged line of the first pay abroad (luck:big-wins-are-staged), which the first-pay card reads (share:cards-due-at-set-moments). */
 const FIRST_PAY_ABROAD = "line.activity.salary-first-abroad";
 
-/** The kiosk draws each ticket out of a million (R-LUCK-005). */
+/** The kiosk draws each ticket out of a million (luck:kiosk-sells-lotto-tickets). */
 export const PER_MILLION = 1000000;
 const BP_IN_MILLION = 100;
 
@@ -112,18 +112,18 @@ function allHold(requirements: readonly Requirement[], judge: Judge): boolean {
   return requirements.every((requirement) => judge(requirement).met);
 }
 
-/** R-ACTIVITY-015: an entry that answers now, sent as `activity/now`; every other entry fills the month. */
+/** activity:now-acts-and-month-acts: an entry that answers now, sent as `activity/now`; every other entry fills the month. */
 export function answersNow(entry: Pick<ActivityEntry, "when">): boolean {
   return entry.when === "now";
 }
 
-/** R-ACTIVITY-015: the now-acts sent in the month in hand, in order. */
+/** activity:now-acts-and-month-acts: the now-acts sent in the month in hand, in order. */
 function nowThisMonth(state: State): SlotPick[] {
   return state.activity.now ?? [];
 }
 
 /**
- * R-ACTIVITY-020 (decision 0011): the body is spent for an act that takes effort (any time at all) when energy is under
+ * activity:spent-body-refuses-acts (decision 0011): the body is spent for an act that takes effort (any time at all) when energy is under
  * `tuning.turn.body.spentBelow`; a purchase, and an act that takes no time, never waits.
  */
 function bodySpent(state: State, content: Content, entry: Pick<ActivityEntry, "purchase" | "halfDays">): boolean {
@@ -131,13 +131,13 @@ function bodySpent(state: State, content: Content, entry: Pick<ActivityEntry, "p
   return (state.quality["quality.energy"] ?? 0) < content.tuning.turn.body.spentBelow;
 }
 
-/** R-ACTIVITY-015: a now-act that is not a purchase and does not repeat (R-ACTIVITY-019), already done this month, so shut until the next. */
+/** activity:now-acts-and-month-acts: a now-act that is not a purchase and does not repeat (activity:acts-may-repeat-in-month), already done this month, so shut until the next. */
 function doneThisMonth(state: State, entry: Pick<ActivityEntry, "id" | "purchase" | "repeat">): boolean {
   return entry.purchase !== true && entry.repeat !== true && nowThisMonth(state).some((pick) => pick.activity === entry.id);
 }
 
 // ---------------------------------------------------------------------------
-// The kiosk's numbers: R-LUCK-005 and 006
+// The kiosk's numbers: luck:kiosk-sells-lotto-tickets and luck:bet-slip-stake-and-odds
 // ---------------------------------------------------------------------------
 
 /**
@@ -162,13 +162,13 @@ function prizeFor(draw: number, luck: Tuning["luck"]): { prize: Prize; amount: n
   return null;
 }
 
-/** The ticket counts the kiosk sells (R-LUCK-005, R-ENGINE-016): 1 up to the cap. */
+/** The ticket counts the kiosk sells (luck:kiosk-sells-lotto-tickets, engine:limits-tested-through-step): 1 up to the cap. */
 export function ticketParams(luck: Tuning["luck"]): string[] {
   return Array.from({ length: luck.maxTickets }, (_unused, index) => String(index + 1));
 }
 
 /**
- * R-LUCK-005: the counts the kiosk still sells this month, under its ceiling less the tickets already bought, so the view
+ * luck:kiosk-sells-lotto-tickets: the counts the kiosk still sells this month, under its ceiling less the tickets already bought, so the view
  * never offers a slip `activity/now` refuses. None once the month's ceiling is reached.
  */
 function ticketsLeft(read: ReadCtx): string[] {
@@ -198,7 +198,7 @@ export function heldBand(read: ReadCtx): number | null {
 }
 
 /**
- * Jobs that may be hunted (R-ACTIVITY-005, R-LADDER-001, R-ACTIVITY-010): main and
+ * Jobs that may be hunted (activity:job-hunt-lands-offer, ladders:activities-filtered-by-where, activity:side-job-holds-a-slot): main and
  * side jobs of this place whose requirements hold, that the status lets the
  * character work, and that are not held already. A job with no hiring chance is
  * never hunted: it is started by a departure or a starting life.
@@ -220,19 +220,19 @@ function huntableJobs(read: ReadCtx, judge: Judge): string[] {
     .map((entry) => entry.id);
 }
 
-/** Routes that may be looked into: heard of and not yet known (R-ROUTE-004). */
+/** Routes that may be looked into: heard of and not yet known (route:looking-into-makes-known). */
 function heardRoutes(read: ReadCtx): string[] {
   return Object.keys(read.content.route).filter((id) => read.state.route[id as Id<"route">]?.state === "heard");
 }
 
-/** Routes known, for the activities that work a route already looked into (the sponsor's find, R-SPONSOR-001). */
+/** Routes known, for the activities that work a route already looked into (the sponsor's find, route-gates:sponsor-offers-come-up). */
 function knownRoutes(read: ReadCtx): string[] {
   return Object.keys(read.content.route).filter((id) => read.state.route[id as Id<"route">]?.state === "known");
 }
 
 /**
  * The month from which a school that refused takes a new application
- * (R-ROUTE-006): its answer's month plus `reapplyMonths`. Null when there is
+ * (route:applying-to-a-school): its answer's month plus `reapplyMonths`. Null when there is
  * no refusal there.
  */
 function reapplyFrom(application: SchoolApplication | undefined, numbers: Tuning["route"]): number | null {
@@ -240,7 +240,7 @@ function reapplyFrom(application: SchoolApplication | undefined, numbers: Tuning
 }
 
 /**
- * Whether a school takes an application now (R-ROUTE-006): none there yet, or
+ * Whether a school takes an application now (route:applying-to-a-school): none there yet, or
  * a refusal whose wait has run. The route kind judges the same.
  */
 export function takesApplication(application: SchoolApplication | undefined, month: number, numbers: Tuning["route"]): boolean {
@@ -267,7 +267,7 @@ function reachableSchools(read: ReadCtx): { id: Id<"school">; application: Schoo
 }
 
 /**
- * Schools that may be applied to (R-ROUTE-006): on a known route, the grade
+ * Schools that may be applied to (route:applying-to-a-school): on a known route, the grade
  * and the band held meet the school's minimums, and there is no application
  * or offer there already, unless it refused and its wait has run.
  */
@@ -280,7 +280,7 @@ function openSchools(read: ReadCtx): string[] {
 
 /**
  * While no school may be applied to but one that refused will take a new
- * application, the view names the month it can (R-ROUTE-006).
+ * application, the view names the month it can (route:applying-to-a-school).
  */
 function schoolWait(read: ReadCtx): Requirement[] {
   const months = reachableSchools(read)
@@ -290,7 +290,7 @@ function schoolWait(read: ReadCtx): Requirement[] {
 }
 
 /**
- * The params a free activity may take now (R-ACTIVITY-002). Null when it
+ * The params a free activity may take now (activity:illegal-slot-rejects-turn). Null when it
  * takes none. Pure: the turn check, each slot as it resolves, the view and
  * the route kind all read the same list. Pass a judge to run inside a step.
  * The contract's `param` has no `tickets`, so the kiosk's ticket counts are read by its id.
@@ -324,7 +324,7 @@ function paramAllowed(read: ReadCtx, entry: ActivityEntry, param: string | null,
 // Costs
 // ---------------------------------------------------------------------------
 
-/** A price as the kind pays it. `cash` is paid from the cash pocket only (R-LUCK-005, 006). `earned`: paid from earned naira only (R-WALLET-020). */
+/** A price as the kind pays it. `cash` is paid from the cash pocket only (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds). `earned`: paid from earned naira only (wallet:top-ups-are-marked). */
 interface Price {
   currency: Currency;
   amount: number;
@@ -354,7 +354,7 @@ function canPayPrices(prices: readonly Price[], judge: Judge, wallet: State["wal
   return canPayAll(prices, judge) && earnedCovers(prices, wallet);
 }
 
-/** R-WALLET-020, R-LOTTERY-018: the kiosk's slip is paid from earned naira only, the naira held less the marked, topped-up share. */
+/** wallet:top-ups-are-marked, lottery:tickets-bought-with-earned-naira: the kiosk's slip is paid from earned naira only, the naira held less the marked, topped-up share. */
 function earnedCovers(prices: readonly Price[], wallet: State["wallet"]): boolean {
   const owed = prices.reduce((sum, price) => sum + (price.earned && price.currency === "NGN" ? price.amount : 0), 0);
   return owed <= earnedNaira(wallet);
@@ -373,11 +373,11 @@ function ticketsOf(param: string | null, luck: Tuning["luck"]): number {
 function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Price[] {
   const prices: Price[] = entry.cost.map((cost) => ({ currency: cost.currency, amount: resolveAmount(read, cost.amount), reason: cost.reason, cash: false, earned: false }));
   const { luck, car } = read.content.tuning;
-  // R-LUCK-005 with R-WALLET-020: the slip is paid from earned naira only.
+  // luck:kiosk-sells-lotto-tickets with wallet:top-ups-are-marked: the slip is paid from earned naira only.
   if (entry.id === LOTTO) prices.push({ currency: "NGN", amount: luck.ticket * ticketsOf(param, luck), reason: "social", cash: true, earned: true });
   if (entry.id === BET) prices.push({ currency: "NGN", amount: luck.stake, reason: "social", cash: true, earned: false });
   if (entry.id === PHONE) prices.push({ currency: "NGN", amount: read.content.tuning.street.phonePrice, reason: "phone", cash: true, earned: false });
-  // R-ADVICE-004: the adviser's fee under its own reason, `fee-advice`.
+  // advice:licensed-adviser-is-truthful: the adviser's fee under its own reason, `fee-advice`.
   // The licensed adviser is paid by transfer like any office; the street prices above are cash first.
   if (entry.id === ADVISER) prices.push({ currency: "NGN", amount: read.content.tuning.advice.adviserFee, reason: "fee-advice", cash: false, earned: false });
   if (entry.id === DRIVING_TEST) {
@@ -389,7 +389,7 @@ function pricesOf(read: ReadCtx, entry: ActivityEntry, param: string | null): Pr
   return prices;
 }
 
-/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0014); a foreign fee by R-WALLET-009 (R-ACTIVITY-004). */
+/** Pays each cost under its own reason: naira by transfer, bank first, or cash first for a street price (decision 0014); a foreign fee by wallet:foreign-fee-payment-order (activity:costs-paid-bank-or-cash). */
 function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
   for (const price of prices) {
     if (price.amount <= 0) continue;
@@ -403,7 +403,7 @@ function payPrices(ctx: Ctx, prices: readonly Price[], cause: Cause): void {
 // Jobs
 // ---------------------------------------------------------------------------
 
-/** The chance one month of hunting lands a job (R-ACTIVITY-005). */
+/** The chance one month of hunting lands a job (activity:job-hunt-lands-offer). */
 export function hireChanceBp(entry: ActivityEntry, network: number, tuning: Tuning["quality"]): number {
   return Math.min(tuning.hireMaxBp, (entry.hireBp ?? 0) + tuning.networkHireBp * network);
 }
@@ -412,7 +412,7 @@ export function hireChanceBp(entry: ActivityEntry, network: number, tuning: Tuni
 const REMOTE_JOB: Id<"activity"> = "activity.job-remote-dev";
 const REMOTE_BONUS: Id<"var"> = "var.remote-hire-bonus";
 
-/** R-ACTIVITY-005: a hunt's chance now, the world's bonus for the remote job included. */
+/** activity:job-hunt-lands-offer: a hunt's chance now, the world's bonus for the remote job included. */
 export function huntChanceBp(read: ReadCtx, entry: ActivityEntry): number {
   const tuning = read.content.tuning.quality;
   const network = read.state.quality[QUALITY.network] ?? 0;
@@ -427,7 +427,7 @@ function jobEntry(content: Content, id: string): ActivityEntry {
 }
 
 /**
- * R-HEALTH-004 reads the lock's reason. A lock for this turn either still holds
+ * health:sick-pay-unless-sick-leave reads the lock's reason. A lock for this turn either still holds
  * or was dropped by this turn's `spend`, which the turn kind reports in a line.
  * The turn in progress carries no locks, so the dropped ones are read from
  * that line.
@@ -438,14 +438,14 @@ function lockedThisTurn(ctx: Ctx, why: string): boolean {
   return lines.some((line) => line.key === UNLOCKED_LINE && typeof line.params.why === "string" && line.params.why.split(", ").includes(why));
 }
 
-/** The country's one-employer status that a sponsor's certificate grants (R-LADDER-005). */
+/** The country's one-employer status that a sponsor's certificate grants (ladders:sponsor-job-ties-status). */
 function sponsoredStatusOf(content: Content, country: Id<"country">): Id<"status"> | null {
   const found = Object.values(content.status).find((entry) => entry.country === country && entry.work === "one-employer" && entry.clockMonths !== null);
   return found?.id ?? null;
 }
 
 /**
- * Leaving a job (R-ACTIVITY-006). R-STATUS-003: on a one-employer status, losing
+ * Leaving a job (activity:new-job-replaces-held). status:lost-job-starts-clock: on a one-employer status, losing
  * a job of the country starts the clock. A home job left behind on moving is not that.
  */
 function endJob(ctx: Ctx, why: string): BaseEvent[] {
@@ -465,17 +465,17 @@ function endSide(ctx: Ctx, why: string): BaseEvent[] {
   return side === null ? [] : record(ctx, { type: "activity/side-ended", side, why });
 }
 
-/** R-ACTIVITY-010: one slot locked for the month in hand, renewed each month the side job is kept. */
+/** activity:side-job-holds-a-slot: one slot locked for the month in hand, renewed each month the side job is kept. */
 function lockForSide(ctx: Ctx, side: Id<"activity">): void {
   ctx.apply([{ type: "turn/lock", slots: 1, months: 1, why: SIDE_JOB_LOCK }], { source: side, param: null, terms: {} });
 }
 
 /**
- * Takes a job at once (R-ACTIVITY-006), or a side job beside it (R-ACTIVITY-010).
+ * Takes a job at once (activity:new-job-replaces-held), or a side job beside it (activity:side-job-holds-a-slot).
  * Its requirements are not judged again: they were judged when it was hunted
- * (R-ACTIVITY-005, 007). The status's work rule is (R-STATUS-002): a job it does
+ * (activity:job-hunt-lands-offer, activity:requirements-judged-at-hunt). The status's work rule is (status:status-sets-work-rule): a job it does
  * not allow does not start. A sponsor's job carries its own certificate and
- * grants the country's one-employer status for it (R-LADDER-005), unless the
+ * grants the country's one-employer status for it (ladders:sponsor-job-ties-status), unless the
  * status held is a settled or citizen one.
  */
 function startJob(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
@@ -494,7 +494,7 @@ function startJob(ctx: Ctx, entry: ActivityEntry): BaseEvent[] {
   const kept = status.current !== null && isKept(ctx.content, status.current.entry);
   if (entry.sponsor === true && place.where === "abroad" && place.country !== null && !kept) {
     const sponsored = sponsoredStatusOf(ctx.content, place.country);
-    // The status granted on arrival already names this job (R-SPONSOR-007).
+    // The status granted on arrival already names this job (route-gates:sponsored-status-on-departure).
     const named = status.current?.entry === sponsored && status.current.job === entry.id;
     if (sponsored !== null && !named) ctx.apply([{ type: "status/grant", status: sponsored, job: entry.id }], { source: entry.id, param: null, terms: {} });
   }
@@ -512,7 +512,7 @@ function startJobEffect(ctx: Ctx, effect: { job: Id<"activity"> | { term: string
 // ---------------------------------------------------------------------------
 
 /**
- * R-CAR-006: a driver holds the home licence from arrival. It is granted in
+ * car:licence-and-driving-test: a driver holds the home licence from arrival. It is granted in
  * the first month abroad, so its 12 months run from that month.
  */
 function licenceOnArrival(ctx: Ctx): void {
@@ -522,7 +522,7 @@ function licenceOnArrival(ctx: Ctx): void {
   ctx.apply([{ type: "document/grant", document: DOCUMENT.homeLicence }], { source: DRIVING, param: null, terms: {} });
 }
 
-/** R-LADDER-005: the job a one-employer status names is the job held, until it is lost and the clock runs. */
+/** ladders:sponsor-job-ties-status: the job a one-employer status names is the job held, until it is lost and the clock runs. */
 function followStatus(ctx: Ctx): BaseEvent[] {
   const current = ctx.state.status.current;
   if (current === null || current.job === null || current.clock !== null) return [];
@@ -532,7 +532,7 @@ function followStatus(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-PLACE-003 and R-STATUS-002 for the jobs held: a job of another place ends,
+ * place:entries-legal-by-where and status:status-sets-work-rule for the jobs held: a job of another place ends,
  * unless it is the job the status names, and so does one the status does not let
  * the character work. They end before the month is paid.
  */
@@ -555,7 +555,7 @@ function dropUnfit(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * Cash work is paid under its own reason, in naira to the pocket its size takes (R-WALLET-018) and abroad in hand;
+ * Cash work is paid under its own reason, in naira to the pocket its size takes (wallet:money-lands-as-in-lagos) and abroad in hand;
  * everything else to the bank as salary.
  */
 function payEffect(entry: ActivityEntry, pay: MoneyParam, content: Content): Effect {
@@ -566,7 +566,7 @@ function payEffect(entry: ActivityEntry, pay: MoneyParam, content: Content): Eff
 }
 
 /**
- * The job's month (R-ACTIVITY-001, R-ABROAD-002, R-LADDER-003, R-HEALTH-004): pay,
+ * The job's month (activity:one-job-paid-monthly, abroad-money:salary-abroad-taxed-locally, ladders:cash-jobs-paid-in-hand, health:sick-pay-unless-sick-leave): pay,
  * less tax, a month more in the job, then its effects. A cash job may not pay at
  * all (stream `status`); a sick month pays `sickPayBp` of it without sick leave.
  */
@@ -605,12 +605,12 @@ function workJob(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-ACTIVITY-011: at home with a side job, the bus home may be a robbery, unless
+ * activity:one-chance-bus-robbery: at home with a side job, the bus home may be a robbery, unless
  * a slot this month is a counter-move. The slots sent for the month are read.
  */
 function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
   if (ctx.state.place.where !== "home") return [];
-  // R-ACTIVITY-015: the safe ride is bought now, for the month.
+  // activity:now-acts-and-month-acts: the safe ride is bought now, for the month.
   if ([...turnSlots(ctx), ...nowThisMonth(ctx.state)].some((pick) => COUNTER_MOVES.includes(pick.activity))) return [];
   const { oneChanceBp, phone } = ctx.content.tuning.ladder;
   if (!ctx.random.chance("street", oneChanceBp)) return [];
@@ -630,9 +630,9 @@ function oneChance(ctx: Ctx, side: Id<"activity">): BaseEvent[] {
 }
 
 /**
- * The side job's month (R-ACTIVITY-010): its pay, its toll, the slot locked for
+ * The side job's month (activity:side-job-holds-a-slot): its pay, its toll, the slot locked for
  * the month to come, and at home the one chance. Naira pay goes as `gig` to the
- * pocket its size takes (R-WALLET-018), and a foreign currency to the bank as `salary`.
+ * pocket its size takes (wallet:money-lands-as-in-lagos), and a foreign currency to the bank as `salary`.
  */
 function workSide(ctx: Ctx): BaseEvent[] {
   const side = ctx.state.activity.side;
@@ -665,13 +665,13 @@ function main(ctx: Ctx): BaseEvent[] {
 // Slots
 // ---------------------------------------------------------------------------
 
-/** R-PLACE-003, R-LADDER-001 and R-LADDER-004: the place, the car and the requirements. */
+/** place:entries-legal-by-where, ladders:activities-filtered-by-where and ladders:car-bonus-needs-car: the place, the car and the requirements. */
 function requirementsHold(read: ReadCtx, entry: ActivityEntry, judge: Judge): boolean {
   return appliesHere(entry, read.state) && carHolds(read, entry) && allHold(entry.requires, judge);
 }
 
 /**
- * R-ACTIVITY-013: an act sat as a set piece (the talk, the exam) needs the stage to itself. With a
+ * activity:waiting-months-build-profile: an act sat as a set piece (the talk, the exam) needs the stage to itself. With a
  * set piece already open from an earlier slot this month, it fails before it is paid, since its set piece
  * could not open and what it gives would come without it.
  */
@@ -690,7 +690,7 @@ function slotProblem(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, withCost: b
   return null;
 }
 
-/** R-WALLET-020: the money held would pay, and only the marked, topped-up share is short, so the kiosk says tickets come from money earned. */
+/** wallet:top-ups-are-marked: the money held would pay, and only the marked, topped-up share is short, so the kiosk says tickets come from money earned. */
 function earnedShort(ctx: Ctx, entry: ActivityEntry, pick: SlotPick): boolean {
   const prices = pricesOf(readOf(ctx), entry, pick.param);
   return canPayAll(prices, judgeOf(ctx)) && !earnedCovers(prices, ctx.state.wallet);
@@ -702,7 +702,7 @@ function isPick(value: unknown): value is SlotPick {
   return typeof activity === "string" && (param === null || typeof param === "string");
 }
 
-/** Checks every slot of `turn/end` before anything happens (R-ACTIVITY-002). Never returns events. */
+/** Checks every slot of `turn/end` before anything happens (activity:illegal-slot-rejects-turn). Never returns events. */
 function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "turn/end") throw new Error(`The activity kind cannot validate ${command.type}.`);
   const slots: unknown[] = Array.isArray(command.slots) ? command.slots : [];
@@ -711,10 +711,10 @@ function validateSlots(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     if (!isPick(pick)) return reject("not-legal", `${where} is not an activity and a param.`);
     const entry = ctx.content.activity[pick.activity];
     if (entry?.slot !== "free" && entry?.slot !== "none") return reject("not-legal", `${where}: ${pick.activity} is not a free-slot activity.`);
-    // R-ACTIVITY-015: a now-act fills no slot; it is sent at once as `activity/now`. An act that repeats (R-ACTIVITY-019) may
+    // activity:now-acts-and-month-acts: a now-act fills no slot; it is sent at once as `activity/now`. An act that repeats (activity:acts-may-repeat-in-month) may
     // also stand as a commitment in a slot, resolved as the month turns, so a recorded life that planned it still plays.
     if (answersNow(entry) && entry.repeat !== true) return reject("not-legal", `${where}: ${entry.id} answers now. It is sent as activity/now and fills no slot.`);
-    // Cost is not checked here: a slot that cannot be paid fails when it resolves (R-ACTIVITY-003).
+    // Cost is not checked here: a slot that cannot be paid fails when it resolves (activity:slots-resolve-in-order).
     const problem = slotProblem(ctx, entry, pick, false);
     if (problem === "requirements") return reject("not-legal", `${where}: ${entry.id} cannot be done here and now.`);
     if (problem === "param") return reject("not-legal", `${where}: ${String(pick.param)} is not a param ${entry.id} may take now.`);
@@ -733,7 +733,7 @@ function overtime(ctx: Ctx, cause: Cause): BaseEvent[] {
   return record(ctx, { type: "activity/overtime-paid", job, pay });
 }
 
-/** R-CAR-006: 5500 plus 500 for each earlier attempt, capped, on stream `status`. A pass grants the UK licence. */
+/** car:licence-and-driving-test: 5500 plus 500 for each earlier attempt, capped, on stream `status`. A pass grants the UK licence. */
 export function passChanceBp(attempts: number, car: Tuning["car"]): number {
   return Math.min(car.passCapBp, car.passBp + car.passPerAttemptBp * attempts);
 }
@@ -746,7 +746,7 @@ function drivingTest(ctx: Ctx, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** R-LUCK-005: each ticket drawn on stream `lotto`; winnings as `win`, never flagged, to the pocket their size takes (R-WALLET-018). */
+/** luck:kiosk-sells-lotto-tickets: each ticket drawn on stream `lotto`; winnings as `win`, never flagged, to the pocket their size takes (wallet:money-lands-as-in-lagos). */
 function lotto(ctx: Ctx, pick: SlotPick, cause: Cause): BaseEvent[] {
   const { luck } = ctx.content.tuning;
   const tickets = ticketsOf(pick.param, luck);
@@ -764,7 +764,7 @@ function lotto(ctx: Ctx, pick: SlotPick, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** R-LUCK-006: the stake on stream `lotto`; a win pays `betOddsBp` of it, to the pocket its size takes (R-WALLET-018). */
+/** luck:bet-slip-stake-and-odds: the stake on stream `lotto`; a win pays `betOddsBp` of it, to the pocket its size takes (wallet:money-lands-as-in-lagos). */
 function betSlip(ctx: Ctx, cause: Cause): BaseEvent[] {
   const { stake, betWinBp, betOddsBp, betWellbeing } = ctx.content.tuning.luck;
   const win = ctx.random.chance("lotto", betWinBp);
@@ -775,14 +775,14 @@ function betSlip(ctx: Ctx, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** R-ADVICE-003: someone who went tells the checklist as it stood when they left. Their look-into is the entry's effect. */
+/** advice:someone-who-went-answers-free: someone who went tells the checklist as it stood when they left. Their look-into is the entry's effect. */
 function friendTells(ctx: Ctx, pick: SlotPick): BaseEvent[] {
   const route = pick.param as Id<"route"> | null;
   if (route === null || ctx.content.route[route] === undefined) return [];
   return record(ctx, { type: "activity/word-of-mouth", route, ...friendWord(readOf(ctx), route) });
 }
 
-/** R-ADVICE-004: the adviser reads every route heard or known, then looks into every one only heard. */
+/** advice:licensed-adviser-is-truthful: the adviser reads every route heard or known, then looks into every one only heard. */
 function adviserReads(ctx: Ctx, cause: Cause): BaseEvent[] {
   const routes = adviserReading(readOf(ctx));
   const events = record(ctx, { type: "activity/advised", routes });
@@ -815,7 +815,7 @@ function runById(ctx: Ctx, entry: ActivityEntry, pick: SlotPick, cause: Cause): 
 }
 
 /**
- * R-ACTIVITY-013: one draw on `job` at `tuning.activity.raiseChanceBp`; a landed draw raises the held
+ * activity:waiting-months-build-profile: one draw on `job` at `tuning.activity.raiseChanceBp`; a landed draw raises the held
  * job's pay by `raiseBp`, once for each job. The page names no stream, and the raise is the
  * job's, so it is drawn on `job`; a job already raised, or one with no pay of its own, draws nothing.
  */
@@ -833,7 +833,7 @@ function beNoticed(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-ACTIVITY-013: the raise from being noticed, for the Jobs app. The held job's pay a
+ * activity:waiting-months-build-profile: the raise from being noticed, for the Jobs app. The held job's pay a
  * month with the raise and the month it landed; nothing while the job held has no raise or no pay of its own.
  */
 function raiseView(read: ReadCtx): { raise?: { pay: MoneyParam; month: number | null } } {
@@ -843,11 +843,11 @@ function raiseView(read: ReadCtx): { raise?: { pay: MoneyParam; month: number | 
   return pay === null ? {} : { raise: { pay, month: read.state.activity.raisedIn?.[job] ?? null } };
 }
 
-/** Why the flight ends a job: the move abroad (R-PLACE-003). */
+/** Why the flight ends a job: the move abroad (place:entries-legal-by-where). */
 const MOVED = "moved";
 
 /**
- * R-ACTIVITY-013: a course at home in progress ends with the flight. A course is an
+ * activity:waiting-months-build-profile: a course at home in progress ends with the flight. A course is an
  * activity whose months open fees; it is in progress once those fees are open and before its last month. Its
  * fees close by their type, so nothing of it is charged after. The flight ends the main job and the side job
  * in turn, so this is reached twice; the second time the fees are gone and nothing is told again.
@@ -870,7 +870,7 @@ function endCourses(ctx: Ctx, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-ACTIVITY-013: the effects tied to the months an activity has filled a slot, this month counted. The
+ * activity:waiting-months-build-profile: the effects tied to the months an activity has filled a slot, this month counted. The
  * count before this month is the life's `played`, which the slots phase raises after every slot resolves.
  */
 function milestones(ctx: Ctx, entry: ActivityEntry, cause: Cause): void {
@@ -886,7 +886,7 @@ function questionIn(content: Content, setpiece: Id<"setpiece">, id: string): Set
 }
 
 /**
- * R-ACTIVITY-013: the effect `activity/exam`, given with the quiz's last answer. The answers given in the
+ * activity:waiting-months-build-profile: the effect `activity/exam`, given with the quiz's last answer. The answers given in the
  * open set piece are counted right when they score above zero in content (the quiz is opened with no route,
  * so nothing is scored on the state); `pass` or more applies the quiz's effects under the activity.
  */
@@ -905,7 +905,7 @@ function examEffect(ctx: Ctx, effect: Extract<Effect, { type: "activity/exam" }>
   return events;
 }
 
-/** R-ACTIVITY-015: the month the paper the act just asked for is due, so the place can say how long; null for an act that asks for none. */
+/** activity:now-acts-and-month-acts: the month the paper the act just asked for is due, so the place can say how long; null for an act that asks for none. */
 function paperDue(ctx: Ctx, entry: ActivityEntry): number | null {
   for (const effect of entry.effects) {
     if (effect.type !== "document/request") continue;
@@ -916,8 +916,8 @@ function paperDue(ctx: Ctx, entry: ActivityEntry): number | null {
 }
 
 /**
- * `activity/now` (R-ACTIVITY-015): a now-act at once, with a slot's own checks, cost, effects and
- * lines (R-ACTIVITY-003, 004), then the place's answer. The kiosk's draw, the match and a hunt's
+ * `activity/now` (activity:now-acts-and-month-acts): a now-act at once, with a slot's own checks, cost, effects and
+ * lines (activity:slots-resolve-in-order, activity:costs-paid-bank-or-cash), then the place's answer. The kiosk's draw, the match and a hunt's
  * answer wait for the month. A now-act that is not a purchase runs once a month.
  */
 function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
@@ -930,9 +930,9 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const entry = withThings(ctx, plain);
   if ((entry.slot !== "free" && entry.slot !== "none") || !answersNow(entry)) return reject("not-legal", `${entry.id} fills the month: it is a slot pick, not an act now.`);
   if (doneThisMonth(ctx.state, entry)) return reject("not-legal", `${entry.id} was done this month already. It runs once a month.`);
-  // R-ACTIVITY-020 (decision 0011): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
+  // activity:spent-body-refuses-acts (decision 0011): an act that takes effort waits for sleep once the body is spent; what takes none is always open.
   if (bodySpent(ctx.state, ctx.content, entry)) return reject("not-legal", `${entry.id} takes effort, and you are spent. Sleep.`);
-  // R-LUCK-005: the kiosk sells at most `maxTickets` a month across visits; a ticket past it
+  // luck:kiosk-sells-lotto-tickets: the kiosk sells at most `maxTickets` a month across visits; a ticket past it
   // is refused, and the kiosk says so in its own voice on the screen.
   if (entry.id === LOTTO) {
     const bought = nowThisMonth(ctx.state).filter((done) => done.activity === LOTTO).reduce((sum, done) => sum + Number(done.param ?? 0), 0);
@@ -946,7 +946,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const events = record(ctx, { type: "activity/now-played", activity: entry.id, param: pick.param, ...(entry.repeat === true ? { counted: true as const } : {}) });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   payPrices(ctx, pricesOf(readOf(ctx), entry, pick.param), cause);
-  // R-ACTIVITY-018 (decision 0011): the act spends its time of the month, a morning without a figure; a purchase spends none.
+  // activity:now-acts-spend-half-days (decision 0011): the act spends its time of the month, a morning without a figure; a purchase spends none.
   if (entry.purchase !== true) ctx.apply([{ type: "turn/spend-days", halfDays: entry.halfDays ?? 1 }], cause);
   if (!DRAWN_LATER.includes(entry.id)) events.push(...runById(ctx, entry, pick, cause));
   ctx.apply(
@@ -958,7 +958,7 @@ function actNow(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** R-ACTIVITY-015: what the month's now-acts left to the month, first sent first: the kiosk's draw, the match, the employer's answer. */
+/** activity:now-acts-and-month-acts: what the month's now-acts left to the month, first sent first: the kiosk's draw, the match, the employer's answer. */
 function answerNowActs(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   for (const pick of nowThisMonth(ctx.state)) {
@@ -972,17 +972,17 @@ function answerNowActs(ctx: Ctx): BaseEvent[] {
   return events;
 }
 
-/** R-ACTIVITY-015: as the month closes, its now-acts are done with. */
+/** activity:now-acts-and-month-acts: as the month closes, its now-acts are done with. */
 function closeMonth(ctx: Ctx): BaseEvent[] {
   return nowThisMonth(ctx.state).length === 0 ? [] : record(ctx, { type: "activity/now-cleared" });
 }
 
-/** One slot (R-ACTIVITY-003, R-ACTIVITY-004): checked again, paid, then its effects. A failure pays nothing. */
+/** One slot (activity:slots-resolve-in-order, activity:costs-paid-bank-or-cash): checked again, paid, then its effects. A failure pays nothing. */
 function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   const plain = ctx.content.activity[pick.activity];
   if (plain === undefined) throw new Error(`The slot names ${pick.activity}, which the turn check let through.`);
   const entry = withThings(ctx, plain);
-  // R-ACTIVITY-013: an act done once a month at most; a second pick of it fails as a slot, with nothing paid.
+  // activity:waiting-months-build-profile: an act done once a month at most; a second pick of it fails as a slot, with nothing paid.
   const again = entry.once === true && turnSlots(ctx).slice(0, slot).some((earlier) => earlier.activity === entry.id);
   const why = again ? "requirements" : slotProblem(ctx, entry, pick, true);
   if (why !== null) {
@@ -991,7 +991,7 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
   const events = record(ctx, { type: "activity/slot-played", slot, activity: entry.id, param: pick.param });
   const cause: Cause = { source: entry.id, param: pick.param, terms: {} };
   const pieces = ctx.state.quality[QUALITY.portfolio] ?? 0;
-  // R-ACTIVITY-019: an act that repeats, kept as a commitment in a slot, is a month's worth of it: `repeatPerSlot` times,
+  // activity:acts-may-repeat-in-month: an act that repeats, kept as a commitment in a slot, is a month's worth of it: `repeatPerSlot` times,
   // each paid, stopping when one can no longer be paid.
   const times = entry.repeat === true ? ctx.content.tuning.turn.repeatPerSlot : 1;
   for (let time = 0; time < times; time += 1) {
@@ -1006,7 +1006,7 @@ function resolveSlot(ctx: Ctx, pick: SlotPick, slot: number): BaseEvent[] {
 }
 
 /**
- * R-ACTIVITY-013, R-WORLD-008: a month of open source that added no piece is told all the same, its first
+ * activity:waiting-months-build-profile, world:month-end-results-sheet: a month of open source that added no piece is told all the same, its first
  * merge or a quiet month of fixes. A piece added is told by the portfolio's own line.
  */
 function outcome(ctx: Ctx, entry: ActivityEntry, before: number): BaseEvent[] {
@@ -1016,7 +1016,7 @@ function outcome(ctx: Ctx, entry: ActivityEntry, before: number): BaseEvent[] {
 
 /**
  * The free slots, first slot first. Then each slot left empty counts as rest
- * (R-TURN-006), and the slots sent are kept for "same again" (R-ACTIVITY-009).
+ * (turn:free-slots-per-month), and the slots sent are kept for "same again" (activity:last-month-plan-kept).
  */
 function slots(ctx: Ctx): BaseEvent[] {
   const picks = turnSlots(ctx);
@@ -1036,7 +1036,7 @@ function slots(ctx: Ctx): BaseEvent[] {
     }
   }
   events.push(...record(ctx, { type: "activity/slots-recorded", slots: picks.map((pick) => ({ ...pick })) }));
-  // The picks are the month's `lastSlots` now; a now-act done this month is counted with them, once (R-ACTIVITY-015).
+  // The picks are the month's `lastSlots` now; a now-act done this month is counted with them, once (activity:now-acts-and-month-acts).
   const filled = playedThisMonth(ctx.state, ctx.content);
   if (filled.size > 0) events.push(...record(ctx, { type: "activity/played-counted", activities: [...filled] }));
   return events;
@@ -1055,7 +1055,7 @@ function nairaDues(read: ReadCtx): number {
 }
 
 /**
- * R-GUIDE-014: the job a life's first hunt lands, in its first
+ * guide:early-win-in-three-turns: the job a life's first hunt lands, in its first
  * three months, when the draw misses. `month` is the month being played. Null
  * when the hunt is not that one: a month past the third, a month before with a hunt in it, or a hunt earlier in
  * this month. The job is the lowest month's pay, valued in naira at the
@@ -1083,7 +1083,7 @@ export function sureHuntJob(read: ReadCtx, named: ActivityEntry, month: number, 
   return covering?.entry ?? best?.entry ?? named;
 }
 
-/** True while this life's next hunt is its sure first one (R-GUIDE-014): the first three months, no hunt before, none earlier this month. */
+/** True while this life's next hunt is its sure first one (guide:early-win-in-three-turns): the first three months, no hunt before, none earlier this month. */
 function firstHuntSure(read: ReadCtx): boolean {
   const named = Object.values(read.content.activity).find((entry) => isJob(entry) && entry.hireBp !== null);
   return named !== undefined && sureHuntJob(read, named, read.state.turn.month + 1, huntedThisMonth(read.state)) !== null;
@@ -1095,10 +1095,10 @@ function huntedThisMonth(state: State): boolean {
 }
 
 /**
- * One month of hunting the job the slot names (R-ACTIVITY-005). A landed hunt opens the job offer with the job in its terms.
- * R-GUIDE-014: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
+ * One month of hunting the job the slot names (activity:job-hunt-lands-offer). A landed hunt opens the job offer with the job in its terms.
+ * guide:early-win-in-three-turns: a starting life's first hunt in its first three months lands for sure: the draw is made as ever, and when it
  * misses, the sure hunt lands the lowest-paid job the life may hunt in the slot (the named one when none reads a pay).
- * R-ACTIVITY-005: when that is another job, the named one is told as missed before it.
+ * activity:job-hunt-lands-offer: when that is another job, the named one is told as missed before it.
  */
 function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   if (cause.param === null) throw new Error(`A hunt from ${cause.source} names no job.`);
@@ -1117,7 +1117,7 @@ function huntEffect(ctx: Ctx, _effect: unknown, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** A side gig (R-ACTIVITY-008): a draw between its figures plus its figure for each point of tech, in naira, to the pocket its size takes (R-WALLET-018). */
+/** A side gig (activity:side-gig-pays-a-draw): a draw between its figures plus its figure for each point of tech, in naira, to the pocket its size takes (wallet:money-lands-as-in-lagos). */
 function gigEffect(ctx: Ctx, effect: { min: number; max: number; perTech: number }, cause: Cause): BaseEvent[] {
   const tech = ctx.state.quality[TECH] ?? 0;
   const amount = ctx.random.between("gig", effect.min, effect.max) + effect.perTech * tech;
@@ -1127,7 +1127,7 @@ function gigEffect(ctx: Ctx, effect: { min: number; max: number; perTech: number
   return events;
 }
 
-/** `activity/quit` (R-ACTIVITY-006), or with `side` the side job (R-ACTIVITY-010). Nothing to leave is not legal. */
+/** `activity/quit` (activity:new-job-replaces-held), or with `side` the side job (activity:side-job-holds-a-slot). Nothing to leave is not legal. */
 function quit(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "activity/quit") throw new Error(`activity/quit cannot handle ${command.type}.`);
   if (command.side === true) {
@@ -1149,13 +1149,13 @@ export function tenureAcross(state: State, activities: readonly Id<"activity">[]
 }
 
 /**
- * R-STREET-004: what filled a slot in the month just played, the way R-ACTIVITY-012 counts it: the
+ * streets:sleeping-under-the-bridge: what filled a slot in the month just played, the way activity:months-played-counted counts it: the
  * job and the side job held, and every free slot sent. At the `come-up` phase the slots sent are this
- * month's, recorded at `slots`. A slot that failed still counts, as it does for R-ACTIVITY-012.
+ * month's, recorded at `slots`. A slot that failed still counts, as it does for activity:months-played-counted.
  */
 function playedThisMonth(state: State, content: Content): Set<Id<"activity">> {
   const { job, side, lastSlots } = state.activity;
-  // R-ACTIVITY-015: the month's now-acts are kept until the month closes, after `come-up`; a repeat act was counted at once (R-ACTIVITY-019).
+  // activity:now-acts-and-month-acts: the month's now-acts are kept until the month closes, after `come-up`; a repeat act was counted at once (activity:acts-may-repeat-in-month).
   const done = nowThisMonth(state).map((pick) => pick.activity).filter((id) => content.activity[id]?.repeat !== true);
   return new Set<Id<"activity">>([...(job === null ? [] : [job]), ...(side === null ? [] : [side]), ...lastSlots.map((pick) => pick.activity), ...done]);
 }
@@ -1231,7 +1231,7 @@ function judgeJob(read: ReadCtx, requirement: Requirement): RequirementResult {
 
 /**
  * Every free-slot activity as the player may pick it now; abroad, only those of
- * the place (R-LADDER-001). `allowed` needs the place, the requirements and,
+ * the place (ladders:activities-filtered-by-where). `allowed` needs the place, the requirements and,
  * where it takes one, a param to pick. The cost shown is the first param's.
  */
 function activityOptions(read: ReadCtx): ActivityOption[] {
@@ -1246,7 +1246,7 @@ function activityOptions(read: ReadCtx): ActivityOption[] {
       const missing = [...entry.requires.filter((requirement) => !judge(requirement).met), ...waiting];
       const prices = pricesOf(read, entry, params?.[0] ?? null);
       const done = doneThisMonth(read.state, entry);
-      // R-ACTIVITY-020: a now-act that takes effort waits for sleep once the body is spent; what takes none stays open.
+      // activity:spent-body-refuses-acts: a now-act that takes effort waits for sleep once the body is spent; what takes none stays open.
       const spent = answersNow(entry) && bodySpent(read.state, read.content, entry);
       const sure = entry.id === HUNT_ACTIVITY && firstHuntSure(read);
       return {
@@ -1285,7 +1285,7 @@ function onlyPay(state: State, pay: MoneyParam, currencies: readonly Currency[] 
 /**
  * The first pay of a life is a staged win; so is the first pay in a foreign
  * currency, shown in naira: the first dollar salary, the first pay abroad
- * (docs/rules/text.md "Money on screen", R-LUCK-008). The wallet credits the
+ * (docs/rules/text.md "Money on screen", luck:big-wins-are-staged). The wallet credits the
  * pay before the month is recorded, so the ledger already counts it.
  */
 function salaryLines(state: State, event: Extract<ActivityEvent, { type: "activity/month-worked" }>): ReportLine[] {
@@ -1301,7 +1301,7 @@ function salaryLines(state: State, event: Extract<ActivityEvent, { type: "activi
   return [onlyPay(state, event.pay, null) ? { ...salary, big: true } : salary];
 }
 
-/** R-SHARE-001: the first-pay-abroad card through the month after the first pay abroad is told (R-LUCK-008). */
+/** share:cards-due-at-set-moments: the first-pay-abroad card through the month after the first pay abroad is told (luck:big-wins-are-staged). */
 export function firstPayAbroadCard(read: ReadCtx): PlayerView["card"] {
   if (!cardsAllowed(read) || reportLines(read, FIRST_PAY_ABROAD).length === 0) return null;
   return cardOf(read, "first-pay-abroad");
@@ -1347,7 +1347,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
         ? [line("line.activity.driving-passed", { attempt: event.attempt }, "good", true)]
         : [line("line.activity.driving-failed", { attempt: event.attempt }, "bad")];
     case "activity/lotto-played": {
-      // A jackpot or a mid prize is staged (R-LUCK-008).
+      // A jackpot or a mid prize is staged (luck:big-wins-are-staged).
       const big = event.prizes.includes("jackpot") || event.prizes.includes("mid");
       if (event.won.amount === 0) return [line("line.activity.lotto-lost", { tickets: event.tickets, stake: event.stake }, "plain")];
       const won = line("line.activity.lotto-won", { tickets: event.tickets, stake: event.stake, won: event.won }, "good", big);
@@ -1392,7 +1392,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
       return [line(nowLineKey(event.activity), { ...pickParams(event.activity, event.param), ...(event.ready === null ? {} : { month: event.ready }) }, "plain")];
     case "activity/now-played":
       // The act itself, told with the month's other lines as a slot's is, and named before the money it spends. A repeat act
-      // answers on the spot and is not listed at the month's end (R-ACTIVITY-019).
+      // answers on the spot and is not listed at the month's end (activity:acts-may-repeat-in-month).
       return event.counted === true ? [] : [line("line.activity.played-now", pickParams(event.activity, event.param), "plain")];
     case "activity/now-cleared":
       return [];
@@ -1403,7 +1403,7 @@ function lines(event: ActivityEvent, state: State): ReportLine[] {
   }
 }
 
-/** R-ACTIVITY-015: the place's answer to a now-act, `line.activity.<slug>.now`. */
+/** activity:now-acts-and-month-acts: the place's answer to a now-act, `line.activity.<slug>.now`. */
 function nowLineKey(activity: Id<"activity">): string {
   return `line.activity.${activity.slice("activity.".length)}.now`;
 }
@@ -1414,7 +1414,7 @@ function itemParam(route: Id<"route">, item: string): string {
 }
 
 /**
- * R-ADVICE-003: the friend's checklist, the out-of-date item said the same way
+ * advice:someone-who-went-answers-free: the friend's checklist, the out-of-date item said the same way
  * as the rest, and marked out of date only when the player meets it.
  */
 function friendLines(event: Extract<ActivityEvent, { type: "activity/word-of-mouth" }>): ReportLine[] {
@@ -1423,7 +1423,7 @@ function friendLines(event: Extract<ActivityEvent, { type: "activity/word-of-mou
   return [line("line.activity.went-told", { route: event.route }, "plain"), ...told, ...marked];
 }
 
-/** R-ADVICE-004: fits or not, what is missing, and "at least N months". */
+/** advice:licensed-adviser-is-truthful: fits or not, what is missing, and "at least N months". */
 function adviserLines(reading: Extract<ActivityEvent, { type: "activity/advised" }>["routes"][number]): ReportLine[] {
   if (reading.fits) return [line("line.activity.adviser-fits", { route: reading.route }, "good")];
   return [
@@ -1437,7 +1437,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
     case "activity/job-started":
       return { ...slice, job: event.job };
     case "activity/job-ended":
-      // Tenure stays: time served is kept when a job is left (R-ACTIVITY-006).
+      // Tenure stays: time served is kept when a job is left (activity:new-job-replaces-held).
       return { ...slice, job: null };
     case "activity/month-worked":
       return { ...slice, tenure: { ...slice.tenure, [event.job]: event.tenure } };
@@ -1460,7 +1460,7 @@ function evolve(slice: ActivitySlice, event: ActivityEvent): ActivitySlice {
       return {
         ...slice,
         now: [...(slice.now ?? []), { activity: event.activity, param: event.param }],
-        // R-ACTIVITY-019: a repeat act counts as played each time, at once.
+        // activity:acts-may-repeat-in-month: a repeat act counts as played each time, at once.
         ...(event.counted === true ? { played: { ...slice.played, [event.activity]: (slice.played[event.activity] ?? 0) + 1 } } : {}),
       };
     case "activity/now-cleared":
@@ -1529,7 +1529,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
     },
     "activity/end-job": (ctx, effect, cause) => {
       if (effect.type !== "activity/end-job") throw new Error(`end-job cannot carry out ${effect.type}.`);
-      // R-ACTIVITY-010: `side` ends the side job and leaves the main job.
+      // activity:side-job-holds-a-slot: `side` ends the side job and leaves the main job.
       const ended = effect.side === true ? endSide(ctx, effect.why) : endJob(ctx, effect.why);
       return effect.why === MOVED ? [...ended, ...endCourses(ctx, cause)] : ended;
     },
@@ -1559,7 +1559,7 @@ export const activityKind: RegisteredKind<ActivitySlice, ActivityEvent> = {
       id: read.state.activity.job,
       months: read.state.activity.job === null ? 0 : (read.state.activity.tenure[read.state.activity.job] ?? 0),
       side: read.state.activity.side,
-      // R-WALLET-016: the month as the wallet will book it; the side job is paid from no route's terms (`workSide`).
+      // wallet:view-carries-month-pay: the month as the wallet will book it; the side job is paid from no route's terms (`workSide`).
       pay: read.state.activity.job === null ? null : bookedPay(read, jobEntry(read.content, read.state.activity.job)),
       sidePay: read.state.activity.side === null ? null : bookedPay(read, jobEntry(read.content, read.state.activity.side), {}),
       ...raiseView(read),

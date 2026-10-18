@@ -32,8 +32,8 @@ const fixture: ScenarioEntry = { id: PROLOGUE, prologue: true, qualities: {}, jo
 const withPrologue: Content = { ...content, scenario: { ...content.scenario, [PROLOGUE]: content.scenario[PROLOGUE] ?? fixture } };
 
 /**
- * The quality kind with the prologue's exception to R-QUALITY-003 written out:
- * age moves when the prologue is the cause (R-PROLOGUE-004). The real kind
+ * The quality kind with the prologue's exception to quality:age-moves-monthly written out:
+ * age moves when the prologue is the cause (prologue:age-advances-with-steps). The real kind
  * holds the same exception.
  */
 function ageMoves(kinds: Registry): Registry {
@@ -103,7 +103,7 @@ function playOut(game: Game, choice: (index: number, allowed: number) => number 
   return lines;
 }
 
-/** The oldest start the age cards offer: years enough that every retake and strike can still be drawn (R-PROLOGUE-004). */
+/** The oldest start the age cards offer: years enough that every retake and strike can still be drawn (prologue:age-advances-with-steps). */
 const OLDEST_START = "start-29";
 
 /** Begins, takes science, starts at 29 and sits the exam until it passes, or until the second retake sends the character to work. */
@@ -132,7 +132,7 @@ function quality(game: Game, id: Id<"quality">): number {
 const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY_COMMANDS)[number]>]: Loose } = {
   "turn/end": { type: "turn/end", slots: [] },
   "activity/quit": { type: "activity/quit" },
-  // R-ACTIVITY-015 added the command.
+  // activity:now-acts-and-month-acts added the command.
   "activity/now": { type: "activity/now", activity: "activity.meetup", param: null },
   "offer/choose": { type: "offer/choose", offer: "offer-1", choice: "yes" },
   "wallet/convert": { type: "wallet/convert", from: "NGN", to: "USD", amount: 100, via: "aboki" },
@@ -161,7 +161,7 @@ const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY
 };
 
 describe("a new prologue", () => {
-  test("[R-PROLOGUE-001] [R-QUALITY-007] given scenario.prologue, when a new state is built, then every quality is at its minimum but age at 192 and the body where its entry starts, with no money, job, documents or obligations, and the prologue open at step 0", () => {
+  test("[prologue:prologue-life-starts-empty] [quality:body-belly-and-energy] given scenario.prologue, when a new state is built, then every quality is at its minimum but age at 192 and the body where its entry starts, with no money, job, documents or obligations, and the prologue open at step 0", () => {
     const state = newState(PROLOGUE, "seed", withPrologue);
     for (const entry of Object.values(withPrologue.quality)) {
       expect(state.quality[entry.id]).toBe(entry.id === AGE ? withPrologue.tuning.prologue.startAgeMonths : (entry.start ?? entry.min));
@@ -176,11 +176,11 @@ describe("a new prologue", () => {
   });
 
   test.each(Object.keys(OTHERS) as (keyof typeof OTHERS)[])(
-    "[R-PROLOGUE-001] given the prologue open, when %s is sent, then it is rejected with prologue-open",
+    "[prologue:prologue-life-starts-empty] given the prologue open, when %s is sent, then it is rejected with prologue-open",
     (type) => {
       const fresh = newGame("others");
       fresh.expectRejected(OTHERS[type], "prologue-open");
-      // Mid-prologue too, with money held: a year's earnings, in the bank by their size (R-WALLET-018).
+      // Mid-prologue too, with money held: a year's earnings, in the bank by their size (wallet:money-lands-as-in-lagos).
       const later = seedWhere("others-work", (game) => {
         choose(game, "begin");
         pick(game, "science");
@@ -191,14 +191,14 @@ describe("a new prologue", () => {
     },
   );
 
-  test("[R-PROLOGUE-001] given the prologue open, when the authority grants turns or the player answers, then both are accepted", () => {
+  test("[prologue:prologue-life-starts-empty] given the prologue open, when the authority grants turns or the player answers, then both are accepted", () => {
     const game = newGame("grant");
     game.grant(1);
     choose(game, "begin");
     expect(game.state.prologue.step).toBe("subjects");
   });
 
-  test("[R-PROLOGUE-001] given the prologue closed, when the turn is ended, then the guard lets it through", () => {
+  test("[prologue:prologue-life-starts-empty] given the prologue closed, when the turn is ended, then the guard lets it through", () => {
     const game = newGame("closed");
     playOut(game);
     expect(game.state.prologue.open).toBe(false);
@@ -208,7 +208,7 @@ describe("a new prologue", () => {
 });
 
 describe("step 0: the draw", () => {
-  test("[R-PROLOGUE-002] given a new prologue, when it begins, then the draw is made on stream prologue and sets family means, network and standing", () => {
+  test("[prologue:family-draw-on-first-answer] given a new prologue, when it begins, then the draw is made on stream prologue and sets family means, network and standing", () => {
     const game = newGame("draw");
     expect(game.state.draws.prologue).toBeUndefined();
     const result = choose(game, "begin");
@@ -223,7 +223,7 @@ describe("step 0: the draw", () => {
     expect(result.lines.map((line) => line.key)).toContain("line.prologue.drawn");
   });
 
-  test("[R-PROLOGUE-002] given 200 seeds, when each prologue begins, then every draw is in its range and each side of each coin comes up", () => {
+  test("[prologue:family-draw-on-first-answer] given 200 seeds, when each prologue begins, then every draw is in its range and each side of each coin comes up", () => {
     const { familyMeans, siblings } = withPrologue.tuning.prologue;
     const seen = { city: 0, town: 0, educated: 0, not: 0, low: Number.MAX_SAFE_INTEGER, high: 0 };
     for (let run = 0; run < 200; run += 1) {
@@ -248,7 +248,7 @@ describe("step 0: the draw", () => {
     expect(seen.high).toBeGreaterThan(familyMeans[1] - 5);
   });
 
-  test("[R-PROLOGUE-002] given family means at the edges of its draw, when the parents' chance is read, then it is 2000 plus 60 a point", () => {
+  test("[prologue:family-draw-on-first-answer] given family means at the edges of its draw, when the parents' chance is read, then it is 2000 plus 60 a point", () => {
     expect(parentsEducatedBp(10, content.tuning.prologue)).toBe(2600);
     expect(parentsEducatedBp(80, content.tuning.prologue)).toBe(6800);
     expect(parentsEducatedBp(0, content.tuning.prologue)).toBe(2000);
@@ -256,7 +256,7 @@ describe("step 0: the draw", () => {
 });
 
 describe("answers", () => {
-  test("[R-PROLOGUE-003] given the current step, when another step, an unknown answer or no open prologue is named, then it is rejected with not-legal", () => {
+  test("[prologue:steps-offer-legal-answers] given the current step, when another step, an unknown answer or no open prologue is named, then it is rejected with not-legal", () => {
     const game = newGame("names");
     game.expectRejected({ type: "prologue/choose", step: "subjects", answer: "science" }, "not-legal");
     game.expectRejected({ type: "prologue/choose", step: FIRST, answer: "nonsense" }, "not-legal");
@@ -266,7 +266,7 @@ describe("answers", () => {
     expect(game.expectRejected({ type: "prologue/choose", step: FIRST, answer: "begin" }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-PROLOGUE-003] given 300 random prologues, when every answer of every step is tried, then each is accepted exactly when its requires hold, and every answer with requires is seen both ways", () => {
+  test("[prologue:steps-offer-legal-answers] given 300 random prologues, when every answer of every step is tried, then each is accepted exactly when its requires hold, and every answer with requires is seen both ways", () => {
     const allowedSeen = new Set<string>();
     const refusedSeen = new Set<string>();
     for (let run = 0; run < 300; run += 1) {
@@ -293,7 +293,7 @@ describe("answers", () => {
         choose(game, allowed[choice(index, allowed.length)]!);
       }
     }
-    // The age cards' years before their path's end are never open, by R-PROLOGUE-004; they are tested with the age.
+    // The age cards' years before their path's end are never open, by prologue:age-advances-with-steps; they are tested with the age.
     const withRequires = Object.values(withPrologue.prologue)
       .filter((step) => !step.answers.every((answer) => startYear({ [step.id]: answer.id }) !== null))
       .flatMap((step) => step.answers.filter((answer) => answer.requires.length > 0).map((answer) => `${step.id}.${answer.id}`));
@@ -302,7 +302,7 @@ describe("answers", () => {
     expect(withRequires.filter((at) => !refusedSeen.has(at))).toEqual([]);
   });
 
-  test("[R-PROLOGUE-003] [R-WALLET-018] given the shop job after school, when it is chosen, then its year's earnings arrive as gig money in the bank, being over the line for cash", () => {
+  test("[prologue:steps-offer-legal-answers] [wallet:money-lands-as-in-lagos] given the shop job after school, when it is chosen, then its year's earnings arrive as gig money in the bank, being over the line for cash", () => {
     const game = newGame("shop");
     choose(game, "begin");
     pick(game, "commercial");
@@ -311,11 +311,11 @@ describe("answers", () => {
     expect(game.state.wallet.pockets.NGN).toEqual({ bank: 30000000, cash: 0, locked: 0 });
     expect(game.state.wallet.totals.in.gig?.NGN).toBe(30000000);
     expect(quality(game, "quality.edu-level")).toBe(1);
-    // The shop's age card comes first (R-PROLOGUE-004).
+    // The shop's age card comes first (prologue:age-advances-with-steps).
     expect(game.state.prologue.step).toBe("age-shop");
   });
 
-  test("[R-PROLOGUE-003] given a family with means of 60 or more, when the private university is chosen, then the family's money passes through as a flagged gift, with a grade base of 1", () => {
+  test("[prologue:steps-offer-legal-answers] given a family with means of 60 or more, when the private university is chosen, then the family's money passes through as a flagged gift, with a grade base of 1", () => {
     const game = seedWhere("private", toCourse, (played) => played.state.prologue.step === "course" && quality(played, "quality.family-means") >= 60);
     pick(game, "computer-science");
     choose(game, "private");
@@ -325,7 +325,7 @@ describe("answers", () => {
     expect(game.state.wallet.pockets.NGN.bank).toBe(0);
   });
 
-  test("[R-PROLOGUE-003] given the exam, when it is answered, then its draw is made on stream prologue, shown on the next card, and decides the next step", () => {
+  test("[prologue:steps-offer-legal-answers] given the exam, when it is answered, then its draw is made on stream prologue, shown on the next card, and decides the next step", () => {
     const steps = new Set<string>();
     for (let run = 0; run < 40; run += 1) {
       const game = newGame(`exam-${String(run)}`);
@@ -348,7 +348,7 @@ describe("answers", () => {
     expect([...steps].sort()).toEqual(["course", "retake"]);
   });
 
-  test("[R-PROLOGUE-003] given the school certificate fee, when a family under 30 answers after school, then standing falls by 2, and not for a family of 30", () => {
+  test("[prologue:steps-offer-legal-answers] given the school certificate fee, when a family under 30 answers after school, then standing falls by 2, and not for a family of 30", () => {
     const poor = seedWhere("waec-poor", (game) => {
       choose(game, "begin");
       pick(game, "science");
@@ -367,7 +367,7 @@ describe("answers", () => {
 });
 
 describe("the grade", () => {
-  test("[R-PROLOGUE-003] given the grade draw, when it is worked out at its edges, then it is 2 plus the base, up 1 or down 1, and kept between 2 and 5", () => {
+  test("[prologue:steps-offer-legal-answers] given the grade draw, when it is worked out at its edges, then it is 2 plus the base, up 1 or down 1, and kept between 2 and 5", () => {
     expect(content.tuning.prologue.grade.base).toBe(2);
     expect(gradeOf(0, false, false, content.tuning.prologue)).toBe(2);
     expect(gradeOf(0, true, false, content.tuning.prologue)).toBe(3);
@@ -381,7 +381,7 @@ describe("the grade", () => {
     expect(gradeOf(3, true, true, content.tuning.prologue)).toBe(5);
   });
 
-  test("[R-PROLOGUE-003] given 60 degrees, when the results are out, then edu-level is 3 and the grade is the base plus at most one, both ways seen", () => {
+  test("[prologue:steps-offer-legal-answers] given 60 degrees, when the results are out, then edu-level is 3 and the grade is the base plus at most one, both ways seen", () => {
     const grades = new Set<number>();
     for (let run = 0; run < 60; run += 1) {
       const game = newGame(`grade-${String(run)}`);
@@ -409,13 +409,13 @@ function playStep(game: Game) {
 }
 
 describe("age", () => {
-  test("[R-PROLOGUE-004] [R-WALLET-018] given the apprenticeship path, when it is played to the end, then the character is about 22 with capital in the bank, no degree and a network in the market", () => {
+  test("[prologue:age-advances-with-steps] [wallet:money-lands-as-in-lagos] given the apprenticeship path, when it is played to the end, then the character is about 22 with capital in the bank, no degree and a network in the market", () => {
     const game = seedWhere("apprentice", (played) => {
       choose(played, "begin");
       pick(played, "arts");
     }, (played) => played.view().prologue!.answers.find((answer) => answer.id === "apprentice")?.allowed === true);
     choose(game, "apprentice");
-    // The age the trade's path reaches with no setback (R-PROLOGUE-004).
+    // The age the trade's path reaches with no setback (prologue:age-advances-with-steps).
     choose(game, "start-23");
     choose(game, "spare-parts");
     choose(game, "stay");
@@ -433,7 +433,7 @@ describe("age", () => {
     expect(game.state.prologue.open).toBe(false);
   });
 
-  test("[R-PROLOGUE-004] given the strike draw, when the strike comes, then the side-skill card is reached eight months older than when it does not", () => {
+  test("[prologue:age-advances-with-steps] given the strike draw, when the strike comes, then the side-skill card is reached eight months older than when it does not", () => {
     const ageAtSideSkill = (game: Game): number => {
       pick(game, "computer-science");
       choose(game, "federal");
@@ -458,7 +458,7 @@ describe("age", () => {
     expect(withPrologue.prologue["strike-drag"]?.months).toBe(8);
   });
 
-  test("[R-PROLOGUE-004] given 200 random prologues, when each closes, then age is in the year picked on the age card, inside 18 to 29", () => {
+  test("[prologue:age-advances-with-steps] given 200 random prologues, when each closes, then age is in the year picked on the age card, inside 18 to 29", () => {
     for (let run = 0; run < 200; run += 1) {
       const game = newGame(`ages-${String(run)}`);
       playOut(game, spread(run));
@@ -510,7 +510,7 @@ function degreeTo(game: Game, year: number, way: string): string[] {
 }
 
 describe("the age picked (decision 0023)", () => {
-  test("[R-PROLOGUE-004] given each path after school, when its age card shows, then it opens each year from the one its path ends in with no setback to 29, and never one before", () => {
+  test("[prologue:age-advances-with-steps] given each path after school, when its age card shows, then it opens each year from the one its path ends in with no setback to 29, and never one before", () => {
     // The kind's own walk and the cards agree: the degree's longest way is 67 months from its card, the trade's 73, the shop's 49.
     const card = (id: string) => withPrologue.prologue[id]!;
     expect([pathMonths(withPrologue.prologue, card("age-degree").next), pathMonths(withPrologue.prologue, card("age-trade").next), pathMonths(withPrologue.prologue, card("age-shop").next)]).toEqual([67, 73, 49]);
@@ -528,7 +528,7 @@ describe("the age picked (decision 0023)", () => {
     expect(withPrologue.prologue["friend"]?.next).toBe(WORK);
   });
 
-  test("[R-PROLOGUE-004] given the shop counter's life at each year it may start, when it closes, then it is that year and the 7 months its path reached, each year worked saves a year of the month's saving, and two years bring the passport", () => {
+  test("[prologue:age-advances-with-steps] given the shop counter's life at each year it may start, when it closes, then it is that year and the 7 months its path reached, each year worked saves a year of the month's saving, and two years bring the passport", () => {
     const at = (year: number) => shopLife("worked", year);
     const own = at(21);
     expect(quality(own, AGE)).toBe(21 * 12 + 7);
@@ -544,7 +544,7 @@ describe("the age picked (decision 0023)", () => {
     }
   });
 
-  test("[R-PROLOGUE-004] given a degree at the year its path ends in, or one later, when the exam is crammed over many seeds, then a retake that would leave no year of work is never drawn and the exam passes, and from the year after it a retake comes", () => {
+  test("[prologue:age-advances-with-steps] given a degree at the year its path ends in, or one later, when the exam is crammed over many seeds, then a retake that would leave no year of work is never drawn and the exam passes, and from the year after it a retake comes", () => {
     // A retake puts the end 15 months on, past 24 years: at 23 or 24 it would leave nothing.
     for (const year of [23, 24]) {
       for (let run = 0; run < 30; run += 1) {
@@ -565,7 +565,7 @@ describe("the age picked (decision 0023)", () => {
     expect(retook.length).toBeGreaterThan(0);
   });
 
-  test("[R-PROLOGUE-004] given a degree at the year its path ends in, when the strike card comes over many seeds, then the strike is never drawn; a year later it comes, and the life still closes in the year picked", () => {
+  test("[prologue:age-advances-with-steps] given a degree at the year its path ends in, when the strike card comes over many seeds, then the strike is never drawn; a year later it comes, and the life still closes in the year picked", () => {
     for (let run = 0; run < 30; run += 1) expect(degreeTo(newGame(`no-strike-${String(run)}`), 23, "study")).not.toContain("strike-drag");
     const lives = Array.from({ length: 30 }, (_, run) => {
       const game = newGame(`strike-24-${String(run)}`);
@@ -587,7 +587,7 @@ function isHeadline(event: BaseEvent): event is Extract<PrologueEvent, { type: "
 describe("headlines and the friend", () => {
   const eraStories = Object.values(withPrologue.era).map((era) => era.story);
 
-  test("[R-PROLOGUE-005] given the stand-in world, which has no story before tick 0, when a prologue is played, then two headlines pass, the era pool's first two, and they change nothing", () => {
+  test("[prologue:headlines-and-friend-route] given the stand-in world, which has no story before tick 0, when a prologue is played, then two headlines pass, the era pool's first two, and they change nothing", () => {
     const game = newGame("headlines");
     const headlines: string[] = [];
     let state = game.state;
@@ -607,7 +607,7 @@ describe("headlines and the friend", () => {
     expect(headlines).toEqual(eraStories.slice(0, 2));
   });
 
-  test("[R-PROLOGUE-005] given a world with stories announced before tick 0, when a prologue is played, then its headlines are those stories", () => {
+  test("[prologue:headlines-and-friend-route] given a world with stories announced before tick 0, when a prologue is played, then its headlines are those stories", () => {
     const worldAt = (tick: number): World => {
       const world = standInWorld("world-1", tick, withPrologue);
       return {
@@ -632,7 +632,7 @@ describe("headlines and the friend", () => {
     expect(headlines).toEqual(["news.naira-float", "news.dollar-scarcity"]);
   });
 
-  test("[R-PROLOGUE-005] given the send-off at step 10, when the player listens to the UK crowd after a degree, then the master's route is heard through a friend", () => {
+  test("[prologue:headlines-and-friend-route] given the send-off at step 10, when the player listens to the UK crowd after a degree, then the master's route is heard through a friend", () => {
     const game = seedWhere("friend", toCourse, (played) => played.state.prologue.step === "course");
     while (game.state.prologue.step !== "friend") playStep(game);
     expect(game.state.route["route.uk-masters"]?.state).toBe("unknown");
@@ -644,7 +644,7 @@ describe("headlines and the friend", () => {
   });
 });
 
-/** What is wrong with a closed prologue as a starting life, by R-SCENARIO-001 to 003 and R-PROLOGUE-006. Empty when nothing is. */
+/** What is wrong with a closed prologue as a starting life, by scenario:state-built-from-scenario, scenario:new-state-starts-clean, scenario:first-turn-always-endable and prologue:closing-opens-home-charges. Empty when nothing is. */
 function startProblems(game: Game, label: string): string[] {
   const { state } = game;
   const problems: string[] = [];
@@ -653,12 +653,12 @@ function startProblems(game: Game, label: string): string[] {
   };
   say(state.prologue.open || state.prologue.step !== null, "the prologue is still open");
   problems.push(...checkInvariants(state, withPrologue).map((broken) => `${label}: ${broken}`));
-  // R-SCENARIO-002: nothing open, and the routes unknown but for one heard at the send-off.
+  // scenario:new-state-starts-clean: nothing open, and the routes unknown but for one heard at the send-off.
   say(Object.keys(state.offer.items).length > 0, "an offer is open");
   say(state.setpiece.open !== null, "a set piece is open");
   for (const [id, route] of Object.entries(state.route)) say(route.state !== "unknown" && route.state !== "heard", `${id} is ${route.state}`);
-  // R-PROLOGUE-006: what the last answer opened is all that is owed: the upkeep it chose, a room in Makoko's own
-  // (R-PROLOGUE-012), or the room in a compound's year's rent and its upkeep (R-PROLOGUE-013).
+  // prologue:closing-opens-home-charges: what the last answer opened is all that is owed: the upkeep it chose, a room in Makoko's own
+  // (prologue:makoko-start-never-a-trap), or the room in a compound's year's rent and its upkeep (prologue:front-door-three-screens).
   const home = withPrologue.prologue["home"]?.answers.find((answer) => answer.id === state.prologue.choices["home"]);
   const opens = (home?.effects ?? []).flatMap((effect) => (effect.type === "obligation/open" && typeof effect.amount === "number" ? [`${effect.obligation} ${String(effect.amount)}`] : []));
   const wanted = opens.length === 0 ? null : opens.join(",");
@@ -666,13 +666,13 @@ function startProblems(game: Game, label: string): string[] {
   say(owed.join(",") !== wanted, `owes ${owed.join(", ")}`);
   say(state.turn.banked !== withPrologue.tuning.turn.start, `the bank holds ${String(state.turn.banked)} turns`);
   say(state.turn.month !== 0, "a month has passed");
-  // R-PROLOGUE-004 (decision 0023): the page prints the year picked, and the life is in that year.
+  // prologue:age-advances-with-steps (decision 0023): the page prints the year picked, and the life is in that year.
   const picked = startYear(state.prologue.choices);
   say(picked === null || divFloor(state.quality[AGE] ?? 0, 12) !== picked, `is ${String(state.quality[AGE])} months old, picked ${String(picked)}`);
   const view = game.view();
   say(view.prologue !== null, "the view still shows the prologue");
   say(hiddenPaths(view).length > 0, "the view shows a hidden field");
-  // R-SCENARIO-003: a turn ends at once with every slot resting.
+  // scenario:first-turn-always-endable: a turn ends at once with every slot resting.
   const ended = game.send({ type: "turn/end", slots: [] });
   say(!ended.ok, "the first turn cannot be ended resting");
   problems.push(...checkInvariants(game.state, withPrologue).map((broken) => `${label}, a month on: ${broken}`));
@@ -680,7 +680,7 @@ function startProblems(game: Game, label: string): string[] {
 }
 
 describe("the close", () => {
-  test("[R-PROLOGUE-006] [R-PROLOGUE-013] [R-SCENARIO-001] [R-SCENARIO-002] [R-SCENARIO-003] given 200 random prologues, when each is played from the legal list to its end, then each is a legal starting life, in the year its age card picked", () => {
+  test("[prologue:closing-opens-home-charges] [prologue:front-door-three-screens] [scenario:state-built-from-scenario] [scenario:new-state-starts-clean] [scenario:first-turn-always-endable] given 200 random prologues, when each is played from the legal list to its end, then each is a legal starting life, in the year its age card picked", () => {
     const closes = new Set<string>();
     const problems: string[] = [];
     for (let run = 0; run < 200; run += 1) {
@@ -703,7 +703,7 @@ describe("the close", () => {
     expect([...closes].sort()).toEqual(["compound-room", "family-house", "hostel-room", "makoko"]);
   });
 
-  test("[R-PROLOGUE-006] given 200 random prologues on the quality kind as it stands, when each closes, then each is still a legal starting life", () => {
+  test("[prologue:closing-opens-home-charges] given 200 random prologues on the quality kind as it stands, when each closes, then each is still a legal starting life", () => {
     const problems: string[] = [];
     for (let run = 0; run < 200; run += 1) {
       const game = newGame(`legal-real-${String(run)}`, registry());
@@ -713,7 +713,7 @@ describe("the close", () => {
     expect(problems).toEqual([]);
   });
 
-  test("[R-PROLOGUE-006] given the authority grants turns during the prologue, when it closes, then the bank is at the start", () => {
+  test("[prologue:closing-opens-home-charges] given the authority grants turns during the prologue, when it closes, then the bank is at the start", () => {
     const game = newGame("bank");
     game.grant(3);
     choose(game, "begin");
@@ -726,7 +726,7 @@ describe("the close", () => {
 describe("the fixed lives", () => {
   const fixed = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => id !== PROLOGUE);
 
-  test.each(fixed)("[R-PROLOGUE-007] given %s, when a new state is built, then the prologue is closed with no steps recorded and cannot be answered", (life) => {
+  test.each(fixed)("[prologue:fixed-life-skips-prologue] given %s, when a new state is built, then the prologue is closed with no steps recorded and cannot be answered", (life) => {
     const game = start({ scenario: life, content });
     expect(game.state.prologue).toEqual({ open: false, step: null, draw: null, choices: {}, lastOutcome: null, flags: [], gradeBase: 0 });
     expect(game.view().prologue).toBeNull();
@@ -737,14 +737,14 @@ describe("the fixed lives", () => {
 });
 
 describe("the view", () => {
-  test("[R-PROLOGUE-008] given a new prologue, when it is viewed, then it shows the opening card with no draw, as nothing is drawn yet", () => {
+  test("[prologue:view-shows-step-card] given a new prologue, when it is viewed, then it shows the opening card with no draw, as nothing is drawn yet", () => {
     const game = newGame("view");
     const view = game.view();
     expect(view.prologue).toEqual({ step: FIRST, answers: [{ id: "begin", allowed: true }], lastOutcome: null, draw: null });
     expect(hiddenPaths(view)).toEqual([]);
   });
 
-  test("[R-PROLOGUE-008] given the draw and some answers, when viewed, then the card, its answers, the draw and the life so far show as they stand", () => {
+  test("[prologue:view-shows-step-card] given the draw and some answers, when viewed, then the card, its answers, the draw and the life so far show as they stand", () => {
     const game = newGame("view-later");
     choose(game, "begin");
     pick(game, "commercial");
@@ -762,7 +762,7 @@ describe("the view", () => {
 });
 
 describe("the prologue's fees", () => {
-  test("[R-PROLOGUE-003] [R-ENGINE-017] given the private university, when its answer is read, then the session passed through the account is the tuning's figure", () => {
+  test("[prologue:steps-offer-legal-answers] [engine:numbers-read-from-content] given the private university, when its answer is read, then the session passed through the account is the tuning's figure", () => {
     const answer = content.prologue.university?.answers.find((candidate) => candidate.id === "private");
     const session = content.tuning.prologue.privateSession;
     expect(answer?.effects).toEqual(

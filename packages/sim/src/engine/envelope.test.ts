@@ -25,17 +25,17 @@ const visa: ReportLine = { key: "line.route.granted", params: { route: TALENT },
 const pay: ReportLine = { key: "line.wallet.pay", params: {}, tone: "good", attention: false, counts: [] };
 
 describe("the next morning in Lagos", () => {
-  test("[R-CLOCK-032] given an evening, when the morning is worked out, then it is seven the next day in Lagos", () => {
+  test("[clock:envelopes-show-real-waits] given an evening, when the morning is worked out, then it is seven the next day in Lagos", () => {
     expect(nextMorning(lagos(11, 21))).toBe(lagos(12, 7));
   });
-  test("[R-CLOCK-032] given a time before seven, when the morning is worked out, then it is seven that same day", () => {
+  test("[clock:envelopes-show-real-waits] given a time before seven, when the morning is worked out, then it is seven that same day", () => {
     expect(nextMorning(lagos(12, 6, 59))).toBe(lagos(12, 7));
     expect(nextMorning(lagos(12, 7))).toBe(lagos(13, 7));
   });
 });
 
 describe("sealing a result", () => {
-  test("[R-CLOCK-032] given the English result and a visa decision landing with the month, when sealed, then both are envelopes with their lines held and a passport is not", () => {
+  test("[clock:envelopes-show-real-waits] given the English result and a visa decision landing with the month, when sealed, then both are envelopes with their lines held and a passport is not", () => {
     const before = viewWith([pending, { ...pending, id: "document.passport" }], [applying]);
     const after = viewWith([held, { ...held, id: "document.passport", value: null }], [granted]);
     const sealed = sealFrom(before, after, [band, visa, pay], lagos(12, 7));
@@ -47,7 +47,7 @@ describe("sealing a result", () => {
     expect(sealed[1]?.held).toEqual([visa]);
   });
 
-  test("[R-CLOCK-032] given a result already held before the month, when sealed, then nothing is sealed", () => {
+  test("[clock:envelopes-show-real-waits] given a result already held before the month, when sealed, then nothing is sealed", () => {
     expect(sealFrom(viewWith([held]), viewWith([held]), [band], lagos(12, 7))).toEqual([]);
   });
 });
@@ -55,7 +55,7 @@ describe("sealing a result", () => {
 describe("withholding a sealed result", () => {
   const sealed = sealFrom(viewWith([pending], [applying]), viewWith([held], [granted], 5), [band, visa, pay], lagos(12, 7));
 
-  test("[R-CLOCK-032] given the evening before, when the view is shown, then the paper is still on its way this month, the decision still pending, and their lines are kept back", () => {
+  test("[clock:envelopes-show-real-waits] given the evening before, when the view is shown, then the paper is still on its way this month, the decision still pending, and their lines are kept back", () => {
     const shown = withhold(viewWith([held], [granted], 5), sealed, lagos(11, 23));
     expect(shown.opened).toEqual([]);
     expect(shown.view.documents[0]).toEqual({ ...pending, readyMonth: 5 });
@@ -63,7 +63,7 @@ describe("withholding a sealed result", () => {
     expect(withholdLines([band, visa, pay], sealed, lagos(11, 23))).toEqual([pay]);
   });
 
-  test("[R-CLOCK-032] given the morning has come, when the view is shown, then the result stands and the envelopes are opened with their lines", () => {
+  test("[clock:envelopes-show-real-waits] given the morning has come, when the view is shown, then the result stands and the envelopes are opened with their lines", () => {
     const shown = withhold(viewWith([held], [granted], 5), sealed, lagos(12, 7));
     expect(shown.view.documents[0]).toEqual(held);
     expect(shown.view.routes[0]).toEqual(granted);
@@ -71,7 +71,7 @@ describe("withholding a sealed result", () => {
     expect(withholdLines([band, visa, pay], sealed, lagos(12, 7) + HOUR_MS)).toEqual([band, visa, pay]);
   });
 
-  test("[R-CLOCK-032] given the month's report telling a sealed result, when the view is shown before the morning, then the report keeps that line back, a copy read back from storage too, and gives it again once the morning has come", () => {
+  test("[clock:envelopes-show-real-waits] given the month's report telling a sealed result, when the view is shown before the morning, then the report keeps that line back, a copy read back from storage too, and gives it again once the morning has come", () => {
     const report = { month: 4, lines: [pay, band, visa], japacityBefore: null, japacityAfter: null, attention: true };
     const after = { ...viewWith([held], [granted], 5), report } as PlayerView;
     const stored = JSON.parse(JSON.stringify(sealed)) as typeof sealed;
@@ -79,7 +79,7 @@ describe("withholding a sealed result", () => {
     expect(withhold(after, stored, lagos(12, 7)).view.report?.lines).toEqual([pay, band, visa]);
   });
 
-  test("[R-CLOCK-032] given a day passes, when the same envelopes are read again, then the answer is the same (a reload changes nothing)", () => {
+  test("[clock:envelopes-show-real-waits] given a day passes, when the same envelopes are read again, then the answer is the same (a reload changes nothing)", () => {
     expect(withhold(viewWith([held], [granted], 5), sealed, lagos(12, 7) + DAY_MS).opened).toHaveLength(2);
     expect(withhold(viewWith([held], [granted], 5), sealed, lagos(12, 6)).opened).toHaveLength(0);
   });

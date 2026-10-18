@@ -17,7 +17,7 @@ const flights = lifeScripts.filter((script) => !script.name.endsWith("-abroad"))
 const abroad = lifeScripts.filter((script) => script.name.endsWith("-abroad"));
 
 describe("the three real lives as golden scripts", () => {
-  test("[R-ENGINE-010] given the scripts, when listed, then there is one to the flight and one abroad for each starting life", () => {
+  test("[engine:state-is-plain-data] given the scripts, when listed, then there is one to the flight and one abroad for each starting life", () => {
     // The three recorded lives. Ngozi, a scenario as well, has none.
     expect(flights.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
     expect(abroad.map((script) => lifeStart(script.save)?.scenario).sort()).toEqual(["scenario.ada", "scenario.tunde", "scenario.zainab"]);
@@ -25,7 +25,7 @@ describe("the three real lives as golden scripts", () => {
   });
 
   test.each(flights.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player, both replays agree month by month, and the save ends on a flight within the recorder's window with the life going on abroad",
+    "[engine:same-inputs-same-result] [engine:state-is-plain-data] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player, both replays agree month by month, and the save ends on a flight within the recorder's window with the life going on abroad",
     (_name, script) => {
       const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);
@@ -33,7 +33,7 @@ describe("the three real lives as golden scripts", () => {
       expect(second).toEqual(first);
 
       const { state } = replay(script.save, content, worldAt);
-      // R-GATE-003: the flight does not end the life.
+      // route-gates:departure-grants-status: the flight does not end the life.
       expect(state.turn.ended).toBe(false);
       expect(state.place).toMatchObject({ where: "abroad", country: "country.uk" });
       expect(state.route["route.uk-masters"]?.state).toBe("departed");
@@ -45,14 +45,14 @@ describe("the three real lives as golden scripts", () => {
       const saved = savedCommands(script.save);
       expect(new Set(saved.map((entry) => entry.sender))).toEqual(new Set(["player"]));
       expect(saved[saved.length - 1]?.command).toEqual(expect.objectContaining({ type: "route/depart", route: "route.uk-masters" }));
-      // The master's route flies only with the school's deposit paid (R-ROUTE-012) and the credibility interview answered (R-ROUTE-015).
+      // The master's route flies only with the school's deposit paid (route:visa-application-needs) and the credibility interview answered (route:application-opens-interview).
       const types = new Set(saved.map((entry) => entry.command.type));
       expect([...types]).toEqual(expect.arrayContaining(["route/pay-deposit", "setpiece/answer", "route/depart"]));
     },
   );
 
   test.each(abroad.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-010] [R-STATUS-006] [R-RETURN-005] [R-PLACE-004] [R-PLACE-005] given %s, when its save is replayed through the real content, then the life flies, holds a lawful status for 36 months abroad, renews it, never misses its rent, answers the December scene and comes home by choice",
+    "[engine:state-is-plain-data] [status:renewing-a-status] [return:december-visit-set-piece] [place:return-home-paid-or-assisted] [place:return-shape-decided-at-once] given %s, when its save is replayed through the real content, then the life flies, holds a lawful status for 36 months abroad, renews it, never misses its rent, answers the December scene and comes home by choice",
     (_name, script) => {
       const first = lifeStart(script.save)!;
       const worldAt = (tick: number) => standInWorld(first.worldSeed, tick, content);
@@ -89,7 +89,7 @@ describe("the three real lives as golden scripts", () => {
   );
 
   test.each(abroad.map((script) => [script.name, script] as const))(
-    "[R-CHAPTER-002] [R-CHAPTER-009] given %s, which flies on the skilled worker's route it never leaned to, when its save is replayed through the real content, then its chapters end past the send-off: the send-off and Landing are done and Secure is current",
+    "[chapter:met-items-close-the-chapter] [chapter:chapters-follow-lean-route] given %s, which flies on the skilled worker's route it never leaned to, when its save is replayed through the real content, then its chapters end past the send-off: the send-off and Landing are done and Secure is current",
     (_name, script) => {
       const first = lifeStart(script.save)!;
       const { state } = replay(script.save, content, (tick) => standInWorld(first.worldSeed, tick, content));
@@ -100,7 +100,7 @@ describe("the three real lives as golden scripts", () => {
   );
 
   // Finding: engine/goldens.test.ts replays every blessed golden against the
-  test("[R-ENGINE-010] given the life scripts, when compared with the blessed goldens, then each has a golden with the same save", () => {
+  test("[engine:state-is-plain-data] given the life scripts, when compared with the blessed goldens, then each has a golden with the same save", () => {
     for (const script of lifeScripts) {
       expect(goldens.find((golden) => golden.name === script.name)?.save).toEqual(script.save);
     }

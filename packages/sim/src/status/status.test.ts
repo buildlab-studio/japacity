@@ -31,7 +31,7 @@ function statusLines(lines: ReportLine[]): ReportLine[] {
   return lines.filter((line) => line.key.startsWith("line.status."));
 }
 
-/** The real registry with quitting the job also starting the status clock, as the activity kind will (R-LADDER-005). */
+/** The real registry with quitting the job also starting the status clock, as the activity kind will (ladders:sponsor-job-ties-status). */
 function quitStartsClock(): Registry {
   return registry().map((kind) => {
     const quit = kind.commands?.["activity/quit"];
@@ -63,14 +63,14 @@ function totalOut(game: Game, reason: "fee-visa" | "fee-surcharge"): number {
 }
 
 describe("granting a status", () => {
-  test("[R-STATUS-001] given a granted study route, when the character departs, then the student status opens for its months with no clock and nothing held or counted", () => {
+  test("[status:granting-a-status] given a granted study route, when the character departs, then the student status opens for its months with no clock and nothing held or counted", () => {
     const game = flown(content);
     const month = game.state.turn.month;
     expect(game.state.status.current).toEqual({ entry: STUDENT, grantedMonth: month, expiresMonth: month + 16, clock: null, lawfulMonths: 0, monthsHeld: 0, job: null });
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-STATUS-001] given a status that counts from before, when it replaces one, then the lawful months carry over; one that does not starts again at 0", () => {
+  test("[status:granting-a-status] given a status that counts from before, when it replaces one, then the lawful months carry over; one that does not starts again at 0", () => {
     const game = sponsored({ vars: () => ({ "var.uk-settle-months": 100 }) });
     playMonths(game, 3);
     expect(current(game).lawfulMonths).toBe(3);
@@ -80,7 +80,7 @@ describe("granting a status", () => {
     expect(current(game)).toMatchObject({ entry: STUDENT, lawfulMonths: 0 });
   });
 
-  test("[R-STATUS-001] given a status whose months are a world variable, when it is granted, then it runs for the variable's value that day", () => {
+  test("[status:granting-a-status] given a status whose months are a world variable, when it is granted, then it runs for the variable's value that day", () => {
     const game = flown(content, { vars: () => ({ "var.uk-graduate-months": 18 }) });
     applyEffects(game, [{ type: "status/grant", status: GRADUATE }]);
     expect(current(game).expiresMonth).toBe(game.state.turn.month + 18);
@@ -90,7 +90,7 @@ describe("granting a status", () => {
 describe("what a status lets you work at", () => {
   const job = (fields: Partial<ActivityEntry>): ActivityEntry => ({ ...content.activity["activity.job-clerk"]!, ...fields });
 
-  test("[R-STATUS-002] given each work rule, when a job is judged, then any allows all, part only part jobs, cash only cash jobs, one-employer the named job or a sponsor's, none nothing", () => {
+  test("[status:status-sets-work-rule] given each work rule, when a job is judged, then any allows all, part only part jobs, cash only cash jobs, one-employer the named job or a sponsor's, none nothing", () => {
     const game = flown(content);
     const read = (status: Id<"status">, held: Id<"activity"> | null = null): ReadCtx => ({
       ...readOf(game),
@@ -113,7 +113,7 @@ describe("what a status lets you work at", () => {
 });
 
 describe("the sponsored worker's clock", () => {
-  test("[R-STATUS-003] given a sponsored worker, when the job goes, then the clock starts at two months, runs one a month, and at zero the status lapses to the overstayer", () => {
+  test("[status:lost-job-starts-clock] given a sponsored worker, when the job goes, then the clock starts at two months, runs one a month, and at zero the status lapses to the overstayer", () => {
     const game = sponsored({ kinds: quitStartsClock() });
     const quit = game.accept({ type: "activity/quit" });
     expect(current(game).clock).toBe(entryOf(SPONSORED).clockMonths);
@@ -129,7 +129,7 @@ describe("the sponsored worker's clock", () => {
     expect(check(readOf(game), { type: "status/clock-under", months: 2 }).met).toBe(false);
   });
 
-  test("[R-STATUS-003] given a running clock, when a job the status allows is held again, then the clock stops at the next month end", () => {
+  test("[status:lost-job-starts-clock] given a running clock, when a job the status allows is held again, then the clock stops at the next month end", () => {
     const game = sponsored({ kinds: quitStartsClock() });
     game.accept({ type: "activity/quit" });
     applyEffects(game, [{ type: "activity/start-job", job: JUNIOR_DEV }]);
@@ -138,7 +138,7 @@ describe("the sponsored worker's clock", () => {
     expect(statusLines(result.lines)).toContainEqual({ key: "line.status.clock-cleared", params: {}, tone: "good", attention: false, counts: [] });
   });
 
-  test("[R-STATUS-003] given a status with no clock, when the job goes, then nothing starts", () => {
+  test("[status:lost-job-starts-clock] given a status with no clock, when the job goes, then nothing starts", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/clock-start" }]);
     expect(current(game)).toMatchObject({ entry: STUDENT, clock: null });
@@ -146,7 +146,7 @@ describe("the sponsored worker's clock", () => {
 });
 
 describe("expiry and the next status", () => {
-  test("[R-STATUS-004] given a student, when 16 months pass, then the status becomes the graduate status for the graduate months, not a month before", () => {
+  test("[status:expiry-lapses-or-moves-on] given a student, when 16 months pass, then the status becomes the graduate status for the graduate months, not a month before", () => {
     const game = flown(content);
     const start = game.state.turn.month;
     playMonths(game, 15);
@@ -156,13 +156,13 @@ describe("expiry and the next status", () => {
     expect(current(game)).toMatchObject({ entry: GRADUATE, grantedMonth: start + 16, expiresMonth: start + 16 + game.world().vars["var.uk-graduate-months"]! });
   });
 
-  test("[R-STATUS-004] given the graduate route closed (its months at 0), when the student status runs out, then it lapses instead", () => {
+  test("[status:expiry-lapses-or-moves-on] given the graduate route closed (its months at 0), when the student status runs out, then it lapses instead", () => {
     const game = flown(content, { vars: () => ({ "var.uk-graduate-months": 0 }) });
     playMonths(game, 16);
     expect(current(game).entry).toBe(OVERSTAYER);
   });
 
-  test("[R-STATUS-004] given a graduate with no next status, when the months run out, then the status lapses", () => {
+  test("[status:expiry-lapses-or-moves-on] given a graduate with no next status, when the months run out, then the status lapses", () => {
     const game = flown(content, { vars: () => ({ "var.uk-graduate-months": 2 }) });
     applyEffects(game, [{ type: "status/grant", status: GRADUATE }]);
     playMonths(game, 1);
@@ -176,7 +176,7 @@ describe("the overstayer", () => {
   const sure: (used: Content) => Content = (used) => ({ ...used, status: { ...used.status, [OVERSTAYER]: { ...used.status[OVERSTAYER]!, detectBp: 10000 } } });
   const never: (used: Content) => Content = (used) => ({ ...used, status: { ...used.status, [OVERSTAYER]: { ...used.status[OVERSTAYER]!, detectBp: 0 } } });
 
-  test("[R-STATUS-005] given a lapse, when it happens, then the country's overstayer status follows: cash work only, no expiry", () => {
+  test("[status:overstayer-risks-detection] given a lapse, when it happens, then the country's overstayer status follows: cash work only, no expiry", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/lose" }]);
     expect(current(game)).toMatchObject({ entry: OVERSTAYER, expiresMonth: null });
@@ -187,7 +187,7 @@ describe("the overstayer", () => {
     expect(current(game).entry).toBe(OVERSTAYER);
   });
 
-  test("[R-STATUS-005] [R-STATUS-008] given an overstayer certain to be found, when a month ends, then the status is removed and the character is home with the removal on record", () => {
+  test("[status:overstayer-risks-detection] [status:removal-sends-home-banned] given an overstayer certain to be found, when a month ends, then the status is removed and the character is home with the removal on record", () => {
     const game = flown(content, { change: sure });
     applyEffects(game, [{ type: "status/lose" }]);
     const result = game.endTurn();
@@ -199,14 +199,14 @@ describe("the overstayer", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-STATUS-005] given an overstayer who is never found, when a year passes, then the status is still held", () => {
+  test("[status:overstayer-risks-detection] given an overstayer who is never found, when a year passes, then the status is still held", () => {
     const game = flown(content, { change: never });
     applyEffects(game, [{ type: "status/lose" }]);
     playMonths(game, 12);
     expect(current(game).entry).toBe(OVERSTAYER);
   });
 
-  test("[R-STATUS-005] given an overstayer with a 3% chance, when months pass, then each month draws once on the status stream and nothing else", () => {
+  test("[status:overstayer-risks-detection] given an overstayer with a 3% chance, when months pass, then each month draws once on the status stream and nothing else", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/lose" }]);
     const before = game.state.draws.status ?? 0;
@@ -216,7 +216,7 @@ describe("the overstayer", () => {
 });
 
 describe("renewing", () => {
-  test("[R-STATUS-006] given a sponsored worker in the job, when the status is renewed, then it runs 24 months more and the fee and the surcharge are paid in pounds", () => {
+  test("[status:renewing-a-status] given a sponsored worker in the job, when the status is renewed, then it runs 24 months more and the fee and the surcharge are paid in pounds", () => {
     const game = sponsored();
     const expires = current(game).expiresMonth ?? 0;
     const fee = totalOut(game, "fee-visa");
@@ -231,13 +231,13 @@ describe("renewing", () => {
     ]);
   });
 
-  test("[R-STATUS-006] given a status that does not renew, a sponsored worker out of the job, or a renewal that cannot be paid, when renewal is asked for, then it is rejected", () => {
+  test("[status:renewing-a-status] given a status that does not renew, a sponsored worker out of the job, or a renewal that cannot be paid, when renewal is asked for, then it is rejected", () => {
     const student = flown(content);
     student.expectRejected({ type: "status/renew" }, "not-legal");
     const jobless = sponsored();
     jobless.accept({ type: "activity/quit" });
     jobless.expectRejected({ type: "status/renew" }, "not-legal");
-    // R-STATUS-010: the view shows no terms where asking would be refused.
+    // status:view-shows-status: the view shows no terms where asking would be refused.
     expect(jobless.view().status?.renew).toBeNull();
     const broke = sponsored();
     const pockets = broke.state.wallet.pockets;
@@ -256,13 +256,13 @@ describe("renewing", () => {
 });
 
 describe("settling", () => {
-  test("[R-STATUS-007] given a status that does not count, when months pass, then the lawful months stay at 0 while the months held go up", () => {
+  test("[status:lawful-months-reach-settlement] given a status that does not count, when months pass, then the lawful months stay at 0 while the months held go up", () => {
     const game = flown(content);
     playMonths(game, 3);
     expect(current(game)).toMatchObject({ entry: STUDENT, lawfulMonths: 0, monthsHeld: 3 });
   });
 
-  test("[R-STATUS-007] given a sponsored worker and settling at 3 lawful months, when the third lawful month has passed, then the next month's clocks grant settled status for the fee, and a year later citizenship for its fee", () => {
+  test("[status:lawful-months-reach-settlement] given a sponsored worker and settling at 3 lawful months, when the third lawful month has passed, then the next month's clocks grant settled status for the fee, and a year later citizenship for its fee", () => {
     const game = sponsored({ vars: () => ({ "var.uk-settle-months": 3 }) });
     const fee = totalOut(game, "fee-visa");
     playMonths(game, 3);
@@ -280,7 +280,7 @@ describe("settling", () => {
     expect(current(game).entry).toBe(CITIZEN);
   });
 
-  test("[R-SHARE-001] given settled status or citizenship granted, when the view is read through the month after it, then the card is the secured card, gone the month after", () => {
+  test("[share:cards-due-at-set-moments] given settled status or citizenship granted, when the view is read through the month after it, then the card is the secured card, gone the month after", () => {
     const game = sponsored({ vars: () => ({ "var.uk-settle-months": 3 }) });
     playMonths(game, 3);
     expect(game.view().card?.kind).not.toBe("secured");
@@ -294,7 +294,7 @@ describe("settling", () => {
     expect(game.view().card).toMatchObject({ kind: "secured", months: game.state.turn.month });
   });
 
-  test("[R-STATUS-007] given the settling months reached and no money for the fee, when months pass, then nothing is granted until it can be paid", () => {
+  test("[status:lawful-months-reach-settlement] given the settling months reached and no money for the fee, when months pass, then nothing is granted until it can be paid", () => {
     const game = sponsored({ vars: () => ({ "var.uk-settle-months": 1 }) });
     const pockets = game.state.wallet.pockets;
     applyEffects(game, [
@@ -309,14 +309,14 @@ describe("settling", () => {
     expect(current(game).entry).toBe(SETTLED);
   });
 
-  test("[R-STATUS-007] given the real settling months, when they are read, then the sponsored worker's bar is 60 lawful months and the view shows it", () => {
+  test("[status:lawful-months-reach-settlement] given the real settling months, when they are read, then the sponsored worker's bar is 60 lawful months and the view shows it", () => {
     const game = sponsored();
     expect(game.view().status).toMatchObject({ entry: SPONSORED, lawfulMonths: 0, settleMonths: 60, work: "one-employer", nextStep: "status.next.settle" });
   });
 });
 
 describe("removal and the Gulf contract", () => {
-  test("[R-STATUS-008] given a status removed, when it is carried out, then the removal is recorded and the character comes home with the shape removed", () => {
+  test("[status:removal-sends-home-banned] given a status removed, when it is carried out, then the removal is recorded and the character comes home with the shape removed", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/remove" }]);
     expect(game.state.status.removals).toEqual([{ country: UK_COUNTRY, month: game.state.turn.month }]);
@@ -326,7 +326,7 @@ describe("removal and the Gulf contract", () => {
     expect(game.state.status.removals).toHaveLength(1);
   });
 
-  test("[R-STATUS-009] given a Gulf worker, when the passport is asked about and the job goes, then the employer holds it, and the status lapses at once to the irregular one", () => {
+  test("[status:gulf-status-holds-passport] given a Gulf worker, when the passport is asked about and the job goes, then the employer holds it, and the status lapses at once to the irregular one", () => {
     const game = flown(content);
     expect(passportHeldByEmployer(readOf(game))).toBe(false);
     applyEffects(game, [
@@ -339,7 +339,7 @@ describe("removal and the Gulf contract", () => {
     expect(passportHeldByEmployer(readOf(game))).toBe(false);
   });
 
-  test("[R-STATUS-009] given a Gulf worker holding a passport in force, when a route asks for the passport, then it is not held while the employer keeps it, and is held again once the contract has ended", () => {
+  test("[status:gulf-status-holds-passport] given a Gulf worker holding a passport in force, when a route asks for the passport, then it is not held while the employer keeps it, and is held again once the contract has ended", () => {
     const game = flown(content);
     const passport = { type: "document/held", document: "document.passport" } as const;
     expect(check(readOf(game), passport).met).toBe(true);
@@ -352,7 +352,7 @@ describe("removal and the Gulf contract", () => {
     expect(check(readOf(game), passport).met).toBe(true);
   });
 
-  test("[R-ABROAD-003] [R-STATUS-009] given a Gulf worker housed by the employer, when the contract runs, then no room rent is owed; when it lapses to the irregular status, the room is rented", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] [status:gulf-status-holds-passport] given a Gulf worker housed by the employer, when the contract runs, then no room rent is owed; when it lapses to the irregular status, the room is rented", () => {
     const game = flown(content);
     const rentOpen = () => Object.values(game.state.obligation.items).filter((item) => content.obligation[item.entry]?.type === "rent").map((item) => item.entry);
     applyEffects(game, [
@@ -367,7 +367,7 @@ describe("removal and the Gulf contract", () => {
 });
 
 describe("the view", () => {
-  test("[R-STATUS-010] given a student, a settled and a citizen, when the view is read, then it shows the entry, months left, clock, lawful months, the bar, the work rule and the way up, and never the detection chance", () => {
+  test("[status:view-shows-status] given a student, a settled and a citizen, when the view is read, then it shows the entry, months left, clock, lawful months, the bar, the work rule and the way up, and never the detection chance", () => {
     const game = flown(content);
     expect(game.view().status).toEqual({ entry: STUDENT, monthsLeft: 16, clock: null, lawfulMonths: 0, settleMonths: null, work: "part", nextStep: "status.next.course", renew: null });
     playMonths(game, 1);
@@ -386,7 +386,7 @@ describe("the view", () => {
 });
 
 describe("the course", () => {
-  test("[R-STATUS-011] given a student, when the months held are 11 and then 12, then the course counts as passed only from 12", () => {
+  test("[status:course-passed-or-withdrawn] given a student, when the months held are 11 and then 12, then the course counts as passed only from 12", () => {
     const game = flown(content);
     playMonths(game, content.tuning.status.courseMonths - 1);
     expect(coursePassed(readOf(game))).toBe(false);
@@ -394,7 +394,7 @@ describe("the course", () => {
     expect(coursePassed(readOf(game))).toBe(true);
   });
 
-  test("[R-STATUS-011] given a tuition obligation in default, when the student status runs out, then the course is not passed and the status lapses", () => {
+  test("[status:course-passed-or-withdrawn] given a tuition obligation in default, when the student status runs out, then the course is not passed and the status lapses", () => {
     const game = flown(content);
     playMonths(game, 15);
     // The tuition default is written in, too large for the bank to clear.
@@ -409,7 +409,7 @@ describe("the course", () => {
 });
 
 describe("requirements", () => {
-  test("[R-STATUS-010] given a status held or none, when status/is is judged, then it holds only for a listed status", () => {
+  test("[status:view-shows-status] given a status held or none, when status/is is judged, then it holds only for a listed status", () => {
     const game = flown(content);
     expect(check(readOf(game), { type: "status/is", statuses: [STUDENT, GRADUATE] }).met).toBe(true);
     expect(check(readOf(game), { type: "status/is", statuses: [GRADUATE] }).met).toBe(false);
@@ -419,7 +419,7 @@ describe("requirements", () => {
   });
 
   test.prop([fc.integer({ min: 0, max: 40 }), fc.integer({ min: 0, max: 40 })])(
-    "[R-STATUS-003] given any clock and any bar, when status/clock-under is judged, then it holds exactly when the clock is under the bar",
+    "[status:lost-job-starts-clock] given any clock and any bar, when status/clock-under is judged, then it holds exactly when the clock is under the bar",
     (clock, months) => {
       const game = flown(content);
       const read: ReadCtx = { ...readOf(game), state: { ...game.state, status: { ...game.state.status, current: { ...current(game), clock } } } };
@@ -429,7 +429,7 @@ describe("requirements", () => {
 });
 
 describe("the status kind's words", () => {
-  test("[R-ENGINE-014] given every line the status kind gives and every way up, when the words are looked up, then each has words naming only figures its line carries", () => {
+  test("[engine:content-checked-before-play] given every line the status kind gives and every way up, when the words are looked up, then each has words naming only figures its line carries", () => {
     const keys = [
       "granted",
       "moved-on",

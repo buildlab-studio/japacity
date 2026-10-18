@@ -69,7 +69,7 @@ function answerWith(game: Game, pick: (question: string, answers: string[]) => s
 }
 
 describe("opening the interview", () => {
-  test("[R-SETPIECE-001] given a clean file, when the application goes in, then as many questions as the entry asks are drawn on visa, without repeats, in the order drawn", () => {
+  test("[route:set-piece-draws-questions] given a clean file, when the application goes in, then as many questions as the entry asks are drawn on visa, without repeats, in the order drawn", () => {
     for (const index of [0, 1, 2, 3]) {
       const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= index * 7);
       const game = life({ seed });
@@ -83,7 +83,7 @@ describe("opening the interview", () => {
     }
   });
 
-  test("[R-SETPIECE-001] given a share of unexplained money above 30%, when the application goes in, then the deposit question may be drawn too", () => {
+  test("[route:set-piece-draws-questions] given a share of unexplained money above 30%, when the application goes in, then the deposit question may be drawn too", () => {
     const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, WITH_DEPOSIT, entry.ask).includes("deposit"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 40000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
@@ -95,7 +95,7 @@ describe("opening the interview", () => {
     expect(game.state.setpiece.open?.questions).toContain("deposit");
   });
 
-  test("[R-SETPIECE-001] given a clean file, when many applications go in, then the deposit question is never asked", () => {
+  test("[route:set-piece-draws-questions] given a clean file, when many applications go in, then the deposit question is never asked", () => {
     for (let i = 0; i < 12; i += 1) {
       const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= i);
       const game = life({ seed });
@@ -106,7 +106,7 @@ describe("opening the interview", () => {
 });
 
 describe("while the interview is open", () => {
-  test("[R-SETPIECE-002] given an open interview, when the turn is ended, then it is rejected with setpiece-open, while other commands work as usual", () => {
+  test("[route:open-set-piece-holds-month] given an open interview, when the turn is ended, then it is rejected with setpiece-open, while other commands work as usual", () => {
     const game = life();
     toApplied(game);
     game.expectRejected({ type: "turn/end", slots: [] }, "setpiece-open");
@@ -118,9 +118,9 @@ describe("while the interview is open", () => {
     expect(game.state.turn.month).toBeGreaterThan(0);
   });
 
-  test("[R-ENGINE-011] given an open interview and no turn banked, when each question comes up, then the view offers answers, every one offered is accepted by step, and answering closes it", () => {
+  test("[engine:player-never-stuck] given an open interview and no turn banked, when each question comes up, then the view offers answers, every one offered is accepted by step, and answering closes it", () => {
     // A first life finds how many months the file takes; the second banks exactly that many turns.
-    // R-ACTIVITY-015: the application is sent at once and the interview opens in the month in hand, so it takes no turn.
+    // activity:now-acts-and-month-acts: the application is sent at once and the interview opens in the month in hand, so it takes no turn.
     const trial = life();
     toHeld(trial);
     const months = trial.state.turn.month;
@@ -140,7 +140,7 @@ describe("while the interview is open", () => {
     expect(game.state.setpiece.open).toBeNull();
   });
 
-  test("[R-SETPIECE-003] given an open interview, when a later question, an unknown answer or nothing open is answered, then it is rejected with not-legal", () => {
+  test("[route:set-piece-answers-in-order] given an open interview, when a later question, an unknown answer or nothing open is answered, then it is rejected with not-legal", () => {
     const game = life();
     game.expectRejected({ type: "setpiece/answer", question: "why-uk", answer: "course" }, "not-legal");
     toApplied(game);
@@ -158,7 +158,7 @@ describe("while the interview is open", () => {
 });
 
 describe("scoring", () => {
-  test("[R-SETPIECE-004] given an answer and the conditions of its other score, when it is scored, then it gives the other score only when they all hold", () => {
+  test("[route:answers-score-and-close] given an answer and the conditions of its other score, when it is scored, then it gives the other score only when they all hold", () => {
     const course = entry.questions.find((question) => question.id === "why-uk")!.answers.find((answer) => answer.id === "course")!;
     expect(answerScore(course, () => ({ met: true }))).toBe(course.thenScore);
     expect(answerScore(course, () => ({ met: false }))).toBe(course.score);
@@ -166,7 +166,7 @@ describe("scoring", () => {
     expect(answerScore(plain, () => ({ met: true }))).toBe(-1);
   });
 
-  test("[R-SETPIECE-004] given interview prep at each edge, when every question is answered with its first answer, then the sum the page gives is recorded on the visa application and the interview closes", () => {
+  test("[route:answers-score-and-close] given interview prep at each edge, when every question is answered with its first answer, then the sum the page gives is recorded on the visa application and the interview closes", () => {
     for (const prep of [0, 19, 20, 39, 40]) {
       const game = life({ qualities: { [PREP]: prep } });
       toApplied(game);
@@ -176,7 +176,7 @@ describe("scoring", () => {
     }
   });
 
-  test("[R-SETPIECE-004] given money from flagged sources over 20% of what is needed, when the student says they pay from savings, then that answer scores against them", () => {
+  test("[route:answers-score-and-close] given money from flagged sources over 20% of what is needed, when the student says they pay from savings, then that answer scores against them", () => {
     const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 30000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
@@ -194,7 +194,7 @@ describe("scoring", () => {
   /** A life rich in cash, so a cash move into the bank can make a lot of any size. */
   const CASH_RICH = { NGN: { bank: 1000000 * UNIT, cash: 30000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } };
 
-  /** Moves into the bank the least naira cash that makes the unexplained share exactly `target` basis points (R-ROUTE-013). */
+  /** Moves into the bank the least naira cash that makes the unexplained share exactly `target` basis points (route:unexplained-share-of-funds). */
   function lotTo(game: Game, target: number): void {
     const required = fundsRequired(readOf(game), UK_ROUTE);
     const pence = mulDivCeil(target, required, 10000);
@@ -215,7 +215,7 @@ describe("scoring", () => {
     throw new Error("The set piece did not close.");
   }
 
-  test("[R-SETPIECE-004] given a clean file, when a cash lot is made between two answers, then each answer keeps the score it was judged at when given, and the running sum is what is recorded", () => {
+  test("[route:answers-score-and-close] given a clean file, when a cash lot is made between two answers, then each answer keeps the score it was judged at when given, and the running sum is what is recorded", () => {
     const seed = seedWhere((candidate) => {
       if (!northgateOffers(content, candidate)) return false;
       const asked = drawnQuestions(candidate, CLEAN, entry.ask);
@@ -234,7 +234,7 @@ describe("scoring", () => {
     expect(uk(game).visa?.interviewScore).toBe(expected);
   });
 
-  test("[R-SETPIECE-004] given an unexplained share of 2000 and of 2001 basis points when who-pays is answered, when the student says own, then it scores +2 at 2000 and -2 at 2001", () => {
+  test("[route:answers-score-and-close] given an unexplained share of 2000 and of 2001 basis points when who-pays is answered, when the student says own, then it scores +2 at 2000 and -2 at 2001", () => {
     const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
     for (const [share, own] of [
       [2000, 2],
@@ -250,7 +250,7 @@ describe("scoring", () => {
     }
   });
 
-  test("[R-SETPIECE-004] given the interview closes, when the last answer is given, then the closing is told without a score, and a score with no open application changes nothing", () => {
+  test("[route:answers-score-and-close] given the interview closes, when the last answer is given, then the closing is told without a score, and a score with no open application changes nothing", () => {
     const game = life();
     toApplied(game);
     const questions = game.state.setpiece.open!.questions;
@@ -268,7 +268,7 @@ describe("scoring", () => {
 });
 
 describe("what the player sees", () => {
-  test("[R-SETPIECE-005] given an open interview, when the view is read, then it shows one question with its answers and nothing that is a score", () => {
+  test("[route:view-shows-progress-not-score] given an open interview, when the view is read, then it shows one question with its answers and nothing that is a score", () => {
     const game = life();
     toApplied(game);
     const view = game.view().setpiece!;
@@ -282,7 +282,7 @@ describe("what the player sees", () => {
     expect(JSON.stringify(game.view()).toLowerCase()).not.toContain("score");
   });
 
-  test("[R-SETPIECE-005] given interview prep one under the hint and at it, when the view is read, then weak answers are marked only at the hint, and they are those scoring below zero now", () => {
+  test("[route:view-shows-progress-not-score] given interview prep one under the hint and at it, when the view is read, then weak answers are marked only at the hint, and they are those scoring below zero now", () => {
     for (const prep of [hintPrep - 1, hintPrep]) {
       const game = life({ qualities: { [PREP]: prep } });
       toApplied(game);
@@ -300,7 +300,7 @@ describe("what the player sees", () => {
 describe("answers with effects, and set pieces with no route", () => {
   const WELLBEING: Id<"quality"> = "quality.wellbeing";
 
-  test("[R-SETPIECE-006] given an answer carrying an effect, when it is given, then the effect applies at that moment under the set piece as source, and the close counts once", () => {
+  test("[route:answers-carry-effects] given an answer carrying an effect, when it is given, then the effect applies at that moment under the set piece as source, and the close counts once", () => {
     const first = entry.questions[0]!;
     const changed = {
       ...content,
@@ -326,7 +326,7 @@ describe("answers with effects, and set pieces with no route", () => {
     expect(check(readOf(game), { type: "setpiece/answered", setpiece: INTERVIEW, times: 2 }).met).toBe(false);
   });
 
-  test("[R-SETPIECE-006] given a set piece opened with no route, when it is answered through, then it closes, counts, and records no score anywhere", () => {
+  test("[route:answers-carry-effects] given a set piece opened with no route, when it is answered through, then it closes, counts, and records no score anywhere", () => {
     const game = life();
     expect(check(readOf(game), { type: "setpiece/answered", setpiece: INTERVIEW }).met).toBe(false);
     applyEffects(game, [{ type: "setpiece/open", setpiece: INTERVIEW, route: null }]);
@@ -339,7 +339,7 @@ describe("answers with effects, and set pieces with no route", () => {
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
   });
 
-  test("[R-SETPIECE-006] [R-SETPIECE-002] given a set piece open, when setpiece/close names another, then nothing changes; when it names the open one, then it closes unscored and uncounted, and the turn may end", () => {
+  test("[route:answers-carry-effects] [route:open-set-piece-holds-month] given a set piece open, when setpiece/close names another, then nothing changes; when it names the open one, then it closes unscored and uncounted, and the turn may end", () => {
     const game = life();
     applyEffects(game, [{ type: "setpiece/open", setpiece: INTERVIEW, route: null }]);
     applyEffects(game, [{ type: "setpiece/close", setpiece: DECEMBER_SETPIECE }]);
@@ -397,7 +397,7 @@ function interviewAs(changed: SetpieceEntry, options: LifeOptions = {}): Game {
 }
 
 describe("a set piece asked in a fixed order", () => {
-  test("[R-SETPIECE-001] given a fixed entry whose second question's conditions fail, when it opens, then the first that many whose conditions hold are asked in the order written, with no draw", () => {
+  test("[route:set-piece-draws-questions] given a fixed entry whose second question's conditions fail, when it opens, then the first that many whose conditions hold are asked in the order written, with no draw", () => {
     const deposit = entry.questions.find((question) => question.id === "deposit")!;
     const others = entry.questions.filter((question) => question.id !== "deposit");
     const game = interviewAs({ ...entry, order: "fixed", questions: [others[0]!, deposit, ...others.slice(1)] });
@@ -406,7 +406,7 @@ describe("a set piece asked in a fixed order", () => {
     expect(game.state.draws.visa ?? 0).toBe(0);
   });
 
-  test("[R-SETPIECE-001] given a character in the UK in December, when the visit opens, then its four UK questions are asked, the going question first, and nothing is drawn on visa", () => {
+  test("[route:set-piece-draws-questions] given a character in the UK in December, when the visit opens, then its four UK questions are asked, the going question first, and nothing is drawn on visa", () => {
     const game = flownInDecember();
     const before = game.state.draws.visa ?? 0;
     game.endTurn();
@@ -416,7 +416,7 @@ describe("a set piece asked in a fixed order", () => {
 });
 
 describe("closing on an answer", () => {
-  test("[R-SETPIECE-004] [R-SETPIECE-006] given the December visit, when staying home is the first answer, then the set piece closes there, the questions after it are not asked, the count rises by one, and no score is recorded", () => {
+  test("[route:answers-score-and-close] [route:answers-carry-effects] given the December visit, when staying home is the first answer, then the set piece closes there, the questions after it are not asked, the count rises by one, and no score is recorded", () => {
     const game = december();
     const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
     expect(result.events.map((event) => event.type)).toEqual(["setpiece/answered", "setpiece/closed", "engine/stepped"]);
@@ -428,7 +428,7 @@ describe("closing on an answer", () => {
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
   });
 
-  test("[R-SETPIECE-004] given an answer marked closes on the only question, when it is given, then the set piece closes once, the count rises by one and the score is recorded", () => {
+  test("[route:answers-score-and-close] given an answer marked closes on the only question, when it is given, then the set piece closes once, the count rises by one and the score is recorded", () => {
     const after = entry.questions.find((question) => question.id === "after")!;
     const game = interviewAs({ ...entry, ask: 1, questions: [{ ...after, answers: after.answers.map((item): SetpieceAnswer => ({ ...item, closes: true })) }] });
     toApplied(game);
@@ -440,7 +440,7 @@ describe("closing on an answer", () => {
 });
 
 describe("answers that need something", () => {
-  test("[R-SETPIECE-003] given the pounds one penny short of the fare both ways, when going is answered, then it is refused with not-legal and nothing moves, though the naira bank could cover it", () => {
+  test("[route:set-piece-answers-in-order] given the pounds one penny short of the fare both ways, when going is answered, then it is refused with not-legal and nothing moves, though the naira bank could cover it", () => {
     const game = december();
     holdOnly(game, "GBP", priceOf("go-uk", "go").amount - 1, 1000000000 * UNIT);
     const before = game.state;
@@ -449,7 +449,7 @@ describe("answers that need something", () => {
     expect(game.view().setpiece?.question?.id).toBe("go-uk");
   });
 
-  test("[R-SETPIECE-003] [R-LUCK-008] given exactly the fare both ways, when going is answered, then it is accepted, the fare is taken, the going is staged as a big line, and the party comes next", () => {
+  test("[route:set-piece-answers-in-order] [luck:big-wins-are-staged] given exactly the fare both ways, when going is answered, then it is accepted, the fare is taken, the going is staged as a big line, and the party comes next", () => {
     const game = december();
     holdOnly(game, "GBP", priceOf("go-uk", "go").amount, 0);
     const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
@@ -460,7 +460,7 @@ describe("answers that need something", () => {
     expect(game.view().setpiece).toMatchObject({ asked: 1, total: 4, question: { id: "party-uk" } });
   });
 
-  test("[R-SETPIECE-003] given a spending answer, when the pocket is one penny short of its price and then holds exactly it, then it is refused and then accepted, and the free answers are allowed with nothing", () => {
+  test("[route:set-piece-answers-in-order] given a spending answer, when the pocket is one penny short of its price and then holds exactly it, then it is refused and then accepted, and the free answers are allowed with nothing", () => {
     const game = december();
     holdOnly(game, "GBP", priceOf("go-uk", "go").amount, 0);
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
@@ -479,7 +479,7 @@ describe("answers that need something", () => {
     expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
   });
 
-  test("[R-SHARE-001] given the December visit, when going is answered and the scene is answered through, then the December card is due for the rest of that month; staying home gives none", () => {
+  test("[share:cards-due-at-set-moments] given the December visit, when going is answered and the scene is answered through, then the December card is due for the rest of that month; staying home gives none", () => {
     const game = december();
     holdOnly(game, "GBP", priceOf("go-uk", "go").amount, 0);
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
@@ -497,7 +497,7 @@ describe("answers that need something", () => {
     expect(stayed.view().card?.kind).not.toBe("december");
   });
 
-  test("[R-SETPIECE-003] [R-ENGINE-011] given the pounds for the fare and the party but not the gifts, when the view is read at each question, then it lists only the answers allowed now, and step accepts every one", () => {
+  test("[route:set-piece-answers-in-order] [engine:player-never-stuck] given the pounds for the fare and the party but not the gifts, when the view is read at each question, then it lists only the answers allowed now, and step accepts every one", () => {
     const game = december();
     holdOnly(game, "GBP", priceOf("go-uk", "go").amount + priceOf("party-uk", "small").amount, 0);
     const listed: string[][] = [];
@@ -511,7 +511,7 @@ describe("answers that need something", () => {
     expect(game.state.setpiece.open).toBeNull();
   });
 
-  test("[R-SETPIECE-003] given an answer whose requirement fails when the set piece opens, when it is met before answering, then the answer is judged at that moment and allowed", () => {
+  test("[route:set-piece-answers-in-order] given an answer whose requirement fails when the set piece opens, when it is met before answering, then the answer is judged at that moment and allowed", () => {
     const after = entry.questions.find((question) => question.id === "after")!;
     const guarded: SetpieceAnswer = { ...after.answers[0]!, requires: [{ type: "quality/min", quality: PREP, value: 50 }] };
     const game = interviewAs({ ...entry, ask: 1, questions: [{ ...after, answers: [guarded, ...after.answers.slice(1)] }] }, { qualities: { [PREP]: 49 } });
@@ -524,7 +524,7 @@ describe("answers that need something", () => {
 });
 
 describe("the staged December line", () => {
-  test("[R-LUCK-008] given the interview, and the December visit stayed home from, when they are answered through, then no big line is given", () => {
+  test("[luck:big-wins-are-staged] given the interview, and the December visit stayed home from, when they are answered through, then no big line is given", () => {
     const interview = life();
     toApplied(interview);
     const lines: ReturnType<Game["accept"]>["lines"] = [];
@@ -537,7 +537,7 @@ describe("the staged December line", () => {
 });
 
 describe("the interview, unchanged", () => {
-  test("[R-SETPIECE-001] [R-SETPIECE-004] given the interview, which has no fixed order and no closing answer, when it opens and is answered, then its order is drawn on visa and it stays open until the last answer", () => {
+  test("[route:set-piece-draws-questions] [route:answers-score-and-close] given the interview, which has no fixed order and no closing answer, when it opens and is answered, then its order is drawn on visa and it stays open until the last answer", () => {
     expect(entry.order).toBeUndefined();
     expect(entry.questions.flatMap((question) => question.answers).filter((answer) => answer.closes === true || answer.requires !== undefined)).toEqual([]);
     const seed = seedWhere((seed) => northgateOffers(content, seed));
@@ -554,7 +554,7 @@ describe("the interview, unchanged", () => {
 });
 
 describe("the December visit, once a year", () => {
-  test("[R-RETURN-005] given two turns played in one December tick, when the second ends, then the visit does not open again", () => {
+  test("[return:december-visit-set-piece] given two turns played in one December tick, when the second ends, then the visit does not open again", () => {
     const game = december();
     // The handle moves the tick on after each turn; holding it back plays the answer and a second turn in the same tick.
     game.tick -= 1;
@@ -564,7 +564,7 @@ describe("the December visit, once a year", () => {
     expect(game.state.setpiece.open).toBeNull();
   });
 
-  test("[R-RETURN-005] [R-PLACE-009] given a December that spans many ticks, as online, when turns are played through it, then the visit opens again only twelve months of the character's own time on, and the place slice records that month", () => {
+  test("[return:december-visit-set-piece] [place:view-shows-place-and-returns] given a December that spans many ticks, as online, when turns are played through it, then the visit opens again only twelve months of the character's own time on, and the place slice records that month", () => {
     const game = december();
     const opened = game.state.turn.month;
     expect(game.state.place.decemberMonth).toBe(opened);
@@ -580,7 +580,7 @@ describe("the December visit, once a year", () => {
     expect(game.state.place.decemberMonth).toBe(opened + MONTHS_A_YEAR);
   });
 
-  test("[R-RETURN-005] given the visit opened in the last turn played and the world twelve ticks on, when the next turn ends in December, then the visit does not open: the gap is read in the character's months, not the ticks", () => {
+  test("[return:december-visit-set-piece] given the visit opened in the last turn played and the world twelve ticks on, when the next turn ends in December, then the visit does not open: the gap is read in the character's months, not the ticks", () => {
     const game = december();
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
     game.tick += MONTHS_A_YEAR;

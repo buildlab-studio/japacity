@@ -1,6 +1,6 @@
 // The trader's own shop: a life from sixteen that came out of the master's years with
-// the settlement opens a shop of her own, a main job no hunt lists (docs/rules/activity.md R-ACTIVITY-001, the
-// job held and paid each month; prologue.md R-PROLOGUE-011, the life read as lived). Real content, real draws.
+// the settlement opens a shop of her own, a main job no hunt lists (activity:one-job-paid-monthly, the
+// job held and paid each month; prologue:tile-path-open-from-start, the life read as lived). Real content, real draws.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -46,7 +46,7 @@ function allowed(game: Game, id: Id<"activity">): boolean | undefined {
 }
 
 describe("the trader's own shop", () => {
-  test("[R-ACTIVITY-016] [R-ACTIVITY-001] [R-PROLOGUE-011] given a trader from sixteen with the master's settlement, when she takes the shop's act, then she runs her own shop, the first chapter's job item is met, and no hunt ever lists the shop", () => {
+  test("[activity:trader-opens-own-shop] [activity:one-job-paid-monthly] [prologue:tile-path-open-from-start] given a trader from sixteen with the master's settlement, when she takes the shop's act, then she runs her own shop, the first chapter's job item is met, and no hunt ever lists the shop", () => {
     const game = trader();
     expect(game.view().chapter.current).toBe(FIRST_CHAPTER);
     expect(allowed(game, OPEN)).toBe(true);
@@ -61,7 +61,7 @@ describe("the trader's own shop", () => {
     expect(game.view().activities.find((option) => option.id === HUNT)?.params ?? []).not.toContain(SHOP);
   });
 
-  test("[R-ACTIVITY-016] [R-ACTIVITY-001] given the shop open, when the months pass, then each month's takings land in the bank as its pay, a little more with each month the shop has stood", () => {
+  test("[activity:trader-opens-own-shop] [activity:one-job-paid-monthly] given the shop open, when the months pass, then each month's takings land in the bank as its pay, a little more with each month the shop has stood", () => {
     const game = trader();
     game.endTurn([{ activity: OPEN, param: null }]);
     const pay = content.activity[SHOP]?.pay;
@@ -80,7 +80,7 @@ describe("the trader's own shop", () => {
     expect(game.view().chapter.items.find((item) => item.id === "pay")?.met ?? game.view().chapter.done.includes(FIRST_CHAPTER)).toBe(true);
   });
 
-  test("[R-ACTIVITY-016] [R-ACTIVITY-001] given every fixed life and a graduate from sixteen, when the activities are read, then the shop's act is offered to none of them", () => {
+  test("[activity:trader-opens-own-shop] [activity:one-job-paid-monthly] given every fixed life and a graduate from sixteen, when the activities are read, then the shop's act is offered to none of them", () => {
     const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true);
     expect(fixed.length).toBeGreaterThan(0);
     const offered = fixed.filter((scenario) => allowed(start({ content, scenario: scenario.id }), OPEN) !== false).map((scenario) => scenario.id);

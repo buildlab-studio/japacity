@@ -1,4 +1,4 @@
-// Acts that answer in the place: docs/rules/activity.md R-ACTIVITY-015. A now-act runs at once by
+// Acts that answer in the place: activity:now-acts-and-month-acts. A now-act runs at once by
 // `activity/now`, with a slot's checks, cost, effects and lines, and fills no slot; a month-act stays
 // a slot pick. Played on the real content.
 import { content, text } from "@japacity/content";
@@ -17,7 +17,7 @@ const LEARN: Id<"activity"> = "activity.learn-tech";
 
 /** The rule's two lists. Every entry not named a now-act is a month-act. */
 const NOW_ACTS: readonly string[] = [
-  // the room and the family, the study that answers at once (R-ACTIVITY-019)
+  // the room and the family, the study that answers at once (activity:acts-may-repeat-in-month)
   "activity.family-time",
   "activity.study-english",
   LEARN,
@@ -67,11 +67,11 @@ const NOW_ACTS: readonly string[] = [
   "activity.enter-pool",
   "activity.find-sponsor",
   HUNT,
-  // Cooking and the water answer now (R-OBLIGATION-014).
+  // Cooking and the water answer now (obligation:cooking-and-fetching-water).
   "activity.cook-at-home",
   "activity.fetch-water",
   "activity.fill-drum",
-  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0012).
+  // The street's enjoyment and spending (streets:lagos-street-spending, decision 0012).
   "activity.buy-suya",
   "activity.mallam-tea",
   "activity.pure-water",
@@ -117,7 +117,7 @@ function entries(): ActivityEntry[] {
 }
 
 describe("when an act answers", () => {
-  test("[R-ACTIVITY-015] given the real content, when every activity entry is walked, then each says when it answers, the sorted lists hold, every job and side job takes the month, and only a now-act is a purchase", () => {
+  test("[activity:now-acts-and-month-acts] given the real content, when every activity entry is walked, then each says when it answers, the sorted lists hold, every job and side job takes the month, and only a now-act is a purchase", () => {
     expect(entries().filter((entry) => entry.when === undefined).map((entry) => entry.id)).toEqual([]);
     for (const id of NOW_ACTS) expect({ id, when: content.activity[id as Id<"activity">]?.when }).toEqual({ id, when: "now" });
     for (const id of MONTH_ACTS) expect({ id, when: content.activity[id as Id<"activity">]?.when }).toEqual({ id, when: "month" });
@@ -127,7 +127,7 @@ describe("when an act answers", () => {
     for (const id of [ASK_AROUND, PASSPORT, HUNT, MEETUP]) expect(content.activity[id]?.purchase).toBeUndefined();
   });
 
-  test("[R-ACTIVITY-015] given every now-act in content, when its words are read, then the place has its now-line in a person's voice, with no number the line does not carry", () => {
+  test("[activity:now-acts-and-month-acts] given every now-act in content, when its words are read, then the place has its now-line in a person's voice, with no number the line does not carry", () => {
     for (const entry of entries().filter((candidate) => candidate.when === "now")) {
       const key = `line.activity.${entry.id.slice("activity.".length)}.now`;
       const words = text[key];
@@ -139,7 +139,7 @@ describe("when an act answers", () => {
 });
 
 describe("a now-act", () => {
-  test("[R-ACTIVITY-018] [R-TURN-010] given the month in hand, when a ticket is bought and the motor park is asked, then the ticket spends no time and asking spends a morning, told in the view", () => {
+  test("[activity:now-acts-spend-half-days] [turn:month-lived-in-half-days] given the month in hand, when a ticket is bought and the motor park is asked, then the ticket spends no time and asking spends a morning, told in the view", () => {
     const game = ada();
     expect(game.view().halfDays).toEqual({ spent: 0, free: content.tuning.turn.halfDays.noJob });
     now(game, LOTTO, "1");
@@ -151,7 +151,7 @@ describe("a now-act", () => {
     expect(game.state.turn.spent).toBe(0);
   });
 
-  test("[R-ACTIVITY-015] [R-LUCK-005] given the kiosk, when a ticket is bought now, then the slip is paid now from cash and said by the kiosk, no ticket is drawn yet, and the draw lands as the month ends", () => {
+  test("[activity:now-acts-and-month-acts] [luck:kiosk-sells-lotto-tickets] given the kiosk, when a ticket is bought now, then the slip is paid now from cash and said by the kiosk, no ticket is drawn yet, and the draw lands as the month ends", () => {
     const game = ada();
     const cash = game.state.wallet.pockets.NGN.cash;
     const drawn = game.state.draws.lotto ?? 0;
@@ -167,7 +167,7 @@ describe("a now-act", () => {
     expect(game.state.activity.now).toEqual([]);
   });
 
-  test("[R-ACTIVITY-015] [R-ROAD-002] given the motor park, when asking around now, then the Gulf is heard of now and the pitch opens now, before the month ends", () => {
+  test("[activity:now-acts-and-month-acts] [road:pitch-rises-with-pressure] given the motor park, when asking around now, then the Gulf is heard of now and the pitch opens now, before the month ends", () => {
     const game = ada();
     expect(game.state.route[GULF_ROUTE]?.state ?? "unheard").not.toBe("heard");
     const asked = now(game, ASK_AROUND);
@@ -177,7 +177,7 @@ describe("a now-act", () => {
     expect(game.state.turn.month).toBe(0);
   });
 
-  test("[R-ACTIVITY-015] [R-DOCUMENT-002] given no passport, when it is asked for now, then the fee is paid now, the passport is on its way now, and the place says the month it is due", () => {
+  test("[activity:now-acts-and-month-acts] [document:due-document-issued] given no passport, when it is asked for now, then the fee is paid now, the passport is on its way now, and the place says the month it is due", () => {
     const game = ada();
     const asked = now(game, PASSPORT);
     const passport = game.state.document["document.passport"];
@@ -187,7 +187,7 @@ describe("a now-act", () => {
     expect(asked.events.some((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === "fee-document")).toBe(true);
   });
 
-  test("[R-ACTIVITY-015] [R-ACTIVITY-005] given a job to hunt, when the hunt is applied for now, then nothing is drawn now and the employer answers as the month ends", () => {
+  test("[activity:now-acts-and-month-acts] [activity:job-hunt-lands-offer] given a job to hunt, when the hunt is applied for now, then nothing is drawn now and the employer answers as the month ends", () => {
     const game = ada();
     const job = game.view().activities.find((option) => option.id === HUNT)?.params?.[0];
     if (job === undefined) throw new Error("Ada has no job to hunt.");
@@ -200,7 +200,7 @@ describe("a now-act", () => {
     expect(eventsOf(month, "activity/hunted")).toMatchObject([{ job }]);
   });
 
-  test("[R-ACTIVITY-015] given a now-act done this month, when it is sent again, then it is refused until the next month, and the view says it is done; a purchase is not", () => {
+  test("[activity:now-acts-and-month-acts] given a now-act done this month, when it is sent again, then it is refused until the next month, and the view says it is done; a purchase is not", () => {
     const game = ada();
     now(game, MEETUP);
     expect(game.view().activities.find((option) => option.id === MEETUP)).toMatchObject({ when: "now", done: true, allowed: false });
@@ -215,7 +215,7 @@ describe("a now-act", () => {
     now(game, MEETUP);
   });
 
-  test("[R-ACTIVITY-015] given a now-act it cannot pay for, when it is sent, then it is refused with cannot-afford and nothing changes", () => {
+  test("[activity:now-acts-and-month-acts] given a now-act it cannot pay for, when it is sent, then it is refused with cannot-afford and nothing changes", () => {
     const game = ada();
     const naira = game.state.wallet.pockets.NGN;
     applyEffects(game, [
@@ -226,7 +226,7 @@ describe("a now-act", () => {
     expect(game.expectRejected({ type: "activity/now", activity: "activity.nobody", param: null }, "unknown-id").code).toBe("unknown-id");
   });
 
-  test("[R-ACTIVITY-015] [R-ACTIVITY-002] given a now-act, when it is put in a slot, then the month is refused with not-legal; it fills no slot", () => {
+  test("[activity:now-acts-and-month-acts] [activity:illegal-slot-rejects-turn] given a now-act, when it is put in a slot, then the month is refused with not-legal; it fills no slot", () => {
     const game = ada();
     game.expectRejected({ type: "turn/end", slots: [slot(MEETUP)] }, "not-legal");
     game.expectRejected({ type: "turn/end", slots: [slot(LOTTO, "1")] }, "not-legal");
@@ -238,7 +238,7 @@ describe("a now-act", () => {
 });
 
 describe("a month-act", () => {
-  test("[R-ACTIVITY-015] given a month-act, when it is sent now, then it is refused with not-legal, and in a slot it fills the month", () => {
+  test("[activity:now-acts-and-month-acts] given a month-act, when it is sent now, then it is refused with not-legal, and in a slot it fills the month", () => {
     const game = ada();
     const PREP: Id<"activity"> = "activity.morning-run";
     game.expectRejected({ type: "activity/now", activity: PREP, param: null }, "not-legal");

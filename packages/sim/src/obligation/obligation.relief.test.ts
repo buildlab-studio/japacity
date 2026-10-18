@@ -1,4 +1,4 @@
-// The room's basics: docs/rules/obligation.md R-OBLIGATION-014. Cooking and fetching water are two
+// The room's basics: obligation:cooking-and-fetching-water. Cooking and fetching water are two
 // slot-none activities that take a share off the upkeep's next charge where the character lives,
 // played through the harness on the real content.
 import { content as realContent, text } from "@japacity/content";
@@ -64,7 +64,7 @@ function wellbeingFrom(result: Accepted, source: string): number[] {
 }
 
 describe("the two activities", () => {
-  test("[R-OBLIGATION-014] given the content, when cooking and water are read, then both fill no slot, both apply at home only, and each relieves the upkeep by its tuning share", () => {
+  test("[obligation:cooking-and-fetching-water] given the content, when cooking and water are read, then both fill no slot, both apply at home only, and each relieves the upkeep by its tuning share", () => {
     // Decision 0013: a meal is bought and eaten now, and repeats; it still relieves a charged upkeep by its share.
     // The naira meal is cooked at home only; the room abroad cooks in the country's money.
     expect(entry(COOK)).toMatchObject({ slot: "none", where: "home", when: "now", repeat: true, requires: [] });
@@ -93,7 +93,7 @@ describe("the two activities", () => {
     expect([room.cookedBp, room.waterBp]).toEqual([1500, 400]);
   });
 
-  test("[R-OBLIGATION-014] given Ada at home, when the month's choices are listed, then cooking and water are both offered and allowed", () => {
+  test("[obligation:cooking-and-fetching-water] given Ada at home, when the month's choices are listed, then cooking and water are both offered and allowed", () => {
     const options = ada().view().activities.filter((option) => option.id === COOK || option.id === WATER || option.id === DRUM);
     expect(options.map((option) => [option.id, option.allowed])).toEqual([
       [COOK, true],
@@ -104,7 +104,7 @@ describe("the two activities", () => {
 });
 
 describe("cooking at home", () => {
-  test("[R-OBLIGATION-014] [R-ACTIVITY-019] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and she may cook again this month (decision 0012)", () => {
+  test("[obligation:cooking-and-fetching-water] [activity:acts-may-repeat-in-month] given Ada at home, when she cooks now, then it fills no slot, the relief is recorded at once on the upkeep for its next charge, and she may cook again this month (decision 0012)", () => {
     const game = ada();
     expect(entry(COOK).when).toBe("now");
     expect(entry(WATER).when).toBe("now");
@@ -116,7 +116,7 @@ describe("cooking at home", () => {
     expect(owedOf(game, FAMILY_UPKEEP).relief).toEqual([{ source: COOK, bp: room.cookedBp }]);
   });
 
-  test("[R-OBLIGATION-014] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and a meal lifts wellbeing (decision 0013)", () => {
+  test("[obligation:cooking-and-fetching-water] given cooking chosen this month, when the month ends, then the upkeep's charge falls by the cooked share, the results say so in a line of its own, and a meal lifts wellbeing (decision 0013)", () => {
     const { played, plain } = againstNone([COOK]);
     const full = upkeepPaid(plain);
     const less = bp(full, room.cookedBp);
@@ -124,7 +124,7 @@ describe("cooking at home", () => {
     expect(upkeepPaid(played)).toBe(full - less);
     expect(reliefLines(played)).toEqual([{ key: COOKED_LINE, amount: { currency: "NGN", amount: less } }]);
     expect(reliefLines(plain)).toEqual([]);
-    // A committed slot is a month of meals, three of them (R-ACTIVITY-019); the relief is taken once.
+    // A committed slot is a month of meals, three of them (activity:acts-may-repeat-in-month); the relief is taken once.
     expect(wellbeingFrom(played, COOK)).toEqual([2, 2, 2]);
     // It rides with the month: every free slot still rests.
     const rested = (result: Accepted): BaseEvent | undefined => result.events.find((event) => event.type === "activity/rested");
@@ -132,7 +132,7 @@ describe("cooking at home", () => {
     expect(rested(played)).toBeDefined();
   });
 
-  test("[R-OBLIGATION-014] given cooking chosen one month, when the next month is played without it, then the relief was spent by the first charge and the next is charged whole", () => {
+  test("[obligation:cooking-and-fetching-water] given cooking chosen one month, when the next month is played without it, then the relief was spent by the first charge and the next is charged whole", () => {
     const { played, plain, game } = againstNone([COOK]);
     expect(upkeepPaid(played)).toBeLessThan(upkeepPaid(plain));
     expect(owedOf(game, FAMILY_UPKEEP).relief).toBeUndefined();
@@ -141,7 +141,7 @@ describe("cooking at home", () => {
     expect(eventsOf(next, "obligation/charged").every((event) => event["relief"] === undefined)).toBe(true);
   });
 
-  test("[R-OBLIGATION-014] given cooking chosen twice in one month, when the month ends, then the share is taken once and never twice", () => {
+  test("[obligation:cooking-and-fetching-water] given cooking chosen twice in one month, when the month ends, then the share is taken once and never twice", () => {
     const { played, plain } = againstNone([COOK, COOK]);
     const full = upkeepPaid(plain);
     expect(upkeepPaid(played)).toBe(full - bp(full, room.cookedBp));
@@ -149,7 +149,7 @@ describe("cooking at home", () => {
     expect(reliefLines(played)).toHaveLength(1);
   });
 
-  test("[R-OBLIGATION-014] given cooking in two months running, when each month ends, then each month's charge falls by the share once", () => {
+  test("[obligation:cooking-and-fetching-water] given cooking in two months running, when each month ends, then each month's charge falls by the share once", () => {
     const game = ada();
     const twin = ada();
     for (let month = 0; month < 2; month += 1) {
@@ -161,7 +161,7 @@ describe("cooking at home", () => {
 });
 
 describe("water at home", () => {
-  test("[R-OBLIGATION-014] given water fetched and cooking chosen in one month, when it ends, then the charge falls by both shares of the whole charge and each is told as its own line", () => {
+  test("[obligation:cooking-and-fetching-water] given water fetched and cooking chosen in one month, when it ends, then the charge falls by both shares of the whole charge and each is told as its own line", () => {
     const { played, plain } = againstNone([COOK, WATER]);
     const full = upkeepPaid(plain);
     const cooked = bp(full, room.cookedBp);
@@ -174,7 +174,7 @@ describe("water at home", () => {
     expect(wellbeingFrom(played, WATER)).toEqual([]);
   });
 
-  test("[R-OBLIGATION-014] given reliefs that would take more than the charge, when the month ends, then the charge stops at zero and the second relief takes only what was left", () => {
+  test("[obligation:cooking-and-fetching-water] given reliefs that would take more than the charge, when the month ends, then the charge stops at zero and the second relief takes only what was left", () => {
     const whole = (id: Id<"activity">): ActivityEntry => ({ ...entry(id), effects: [{ type: "obligation/relief", obligationType: "upkeep", bp: 8000 }] });
     const base: Content = { ...content, activity: { ...content.activity, [COOK]: whole(COOK), [WATER]: whole(WATER) } };
     const { played, plain } = againstNone([COOK, WATER], () => undefined, base);
@@ -189,7 +189,7 @@ describe("water at home", () => {
 });
 
 describe("abroad", () => {
-  test("[R-OBLIGATION-014] given a life landed in the UK, when the month's choices are listed and water and the naira meal are sent, then neither is offered and both are refused, and the meal in pounds is offered", () => {
+  test("[obligation:cooking-and-fetching-water] given a life landed in the UK, when the month's choices are listed and water and the naira meal are sent, then neither is offered and both are refused, and the meal in pounds is offered", () => {
     const game = abroad(content);
     setPockets(game, { GBP: 1_000_000 });
     const ids = game.view().activities.map((option) => option.id);
@@ -201,7 +201,7 @@ describe("abroad", () => {
     game.expectRejected({ type: "activity/now", activity: COOK, param: null }, "not-legal");
   });
 
-  test("[R-OBLIGATION-014] given the meal in pounds cooked in the room in the UK, when the month ends, then nothing is relieved: the upkeep is charged whole and no relief is recorded or told", () => {
+  test("[obligation:cooking-and-fetching-water] given the meal in pounds cooked in the room in the UK, when the month ends, then nothing is relieved: the upkeep is charged whole and no relief is recorded or told", () => {
     // Abroad the country's own meal relieves nothing, since the UK's upkeep is the phone alone.
     const game = abroad(content);
     const twin = abroad(content);
@@ -219,7 +219,7 @@ describe("abroad", () => {
 });
 
 describe("the words", () => {
-  test("[R-OBLIGATION-014] given the two relief lines, when their words are read, then each says what was saved in its own words", () => {
+  test("[obligation:cooking-and-fetching-water] given the two relief lines, when their words are read, then each says what was saved in its own words", () => {
     expect(text[COOKED_LINE]).toBe("Food, cooked at home: {amount} less.");
     expect(text[WATER_LINE]).toBe("Water, fetched yourself: {amount} less.");
     expect(text[`${COOK}.name`]).toBe("Indomie and egg");

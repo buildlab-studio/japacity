@@ -1,5 +1,5 @@
-// The dependant gate: docs/rules/person.md R-PEOPLE-019 to 024. The lead is
-// known only by the facts on the bond (R-PEOPLE-001).
+// The dependant gate: person:routes-name-dependant-routes, person:statuses-name-dependants, person:joint-application-proposed, person:dependant-gate-needs, person:dependant-application-decided and person:dependant-status-ends-with-lead. The lead is
+// known only by the facts on the bond (person:others-known-by-facts).
 //
 // The people kind holds the bonds and the joint; this module only reads them.
 import { worldVar } from "../../engine/check";
@@ -17,17 +17,17 @@ function blockOf(entry: RouteEntry): DependantBlock {
   return entry.dependant;
 }
 
-/** A route that brings `entry` as its dependants' route (R-PEOPLE-019). */
+/** A route that brings `entry` as its dependants' route (person:routes-name-dependant-routes). */
 function leadsTo(read: ReadCtx, route: Id<"route">, entry: RouteEntry): boolean {
   return route === entry.id || read.content.route[route]?.dependants === entry.id;
 }
 
-/** R-PEOPLE-022: the joint agreed with the other side leading, and its bond intact. */
+/** person:dependant-gate-needs: the joint agreed with the other side leading, and its bond intact. */
 function leadOf(read: ReadCtx, entry: RouteEntry): { id: string; bond: Bond } | null {
   return ledBond(read, (route) => leadsTo(read, route, entry));
 }
 
-/** R-PEOPLE-020, 021: the lead already holds a status in the route's country whose `dependants` lets a partner join. */
+/** person:statuses-name-dependants, person:joint-application-proposed: the lead already holds a status in the route's country whose `dependants` lets a partner join. */
 function statusAllows(read: ReadCtx, entry: RouteEntry, facts: PersonFacts): boolean {
   if (facts.where !== "abroad" || facts.country !== entry.country || facts.status === null) return false;
   const status = read.content.status[facts.status];
@@ -63,7 +63,7 @@ function leadRoute(read: ReadCtx, entry: RouteEntry, facts: PersonFacts | null):
 }
 
 /**
- * R-PEOPLE-022: the fee. With `feeFromLead`, the lead route's visa fee and the
+ * person:dependant-gate-needs: the fee. With `feeFromLead`, the lead route's visa fee and the
  * surcharge for the lead's years, read from the costs of the activity that
  * applies for the lead's route, which hold exactly those. Else `feeVar` in the
  * country's currency.
@@ -88,7 +88,7 @@ export function dependantFee(read: ReadCtx, entry: RouteEntry, facts: PersonFact
   return fees;
 }
 
-/** R-PEOPLE-022: the maintenance funds are asked for unless the route has none or the lead has `leadMonthsExempt` months in the country. */
+/** person:dependant-gate-needs: the maintenance funds are asked for unless the route has none or the lead has `leadMonthsExempt` months in the country. */
 function maintenanceAsked(entry: RouteEntry, facts: PersonFacts | null): boolean {
   const block = blockOf(entry);
   if (block.maintenanceVar === null) return false;
@@ -106,16 +106,16 @@ function mayApply(ctx: Ctx, entry: RouteEntry, held: RouteState): boolean {
   if (lead === null) return false;
   const facts = lead.bond.facts;
   if (leadStanding(ctx, entry, facts) === "not") return false;
-  // R-PEOPLE-022, as R-SPONSOR-003 reads "covered at one month end".
+  // person:dependant-gate-needs, as route-gates:sponsor-application-needs reads "covered at one month end".
   if (maintenanceAsked(entry, facts) && held.funds.heldMonths < 1) return false;
   const fees = dependantFee(ctx, entry, facts);
   return fees !== null && canPay(ctx, fees);
 }
 
 /**
- * The fee is paid as the application goes in, as foreign fees (R-WALLET-009),
+ * The fee is paid as the application goes in, as foreign fees (wallet:foreign-fee-payment-order),
  * the bond is noted on the route, and the interview is asked to open, which it
- * does only over a thin record (R-INTERVIEW-002).
+ * does only over a thin record (interview:thin-record-triggers-interview).
  */
 function onSend(ctx: Ctx, entry: RouteEntry, cause: Cause): void {
   const lead = leadOf(ctx, entry);
@@ -128,7 +128,7 @@ function onSend(ctx: Ctx, entry: RouteEntry, cause: Cause): void {
 }
 
 /**
- * R-PEOPLE-023: waits while the lead's route is applying; refused with `lead`
+ * person:dependant-application-decided: waits while the lead's route is applying; refused with `lead`
  * when the lead is neither through nor applying; else the interview where one
  * was held, then one draw with earlier refusals only.
  */
@@ -139,13 +139,13 @@ function decision(read: ReadCtx, entry: RouteEntry, held: RouteState): Decision 
   if (standing === "not") return { terms: REFUSALS_ONLY, override: "lead", bans: false };
   const result = held.visa === null ? "none" : interviewSince(read, entry.id, held.visa.submittedMonth);
   if (result === "waiting") return { terms: REFUSALS_ONLY, override: null, bans: false, wait: true };
-  // A dependant application without an interview never waits for one (R-INTERVIEW-009).
+  // A dependant application without an interview never waits for one (interview:result-applies-to-application).
   if (result === "none") return { terms: REFUSALS_ONLY, override: null, bans: false };
   return afterInterview(read, result);
 }
 
 /**
- * R-PEOPLE-022, as R-ROUTE-011 runs: the maintenance covered at each month end
+ * person:dependant-gate-needs, as route:funds-held-month-count runs: the maintenance covered at each month end
  * while the route is known with a lead to follow. Once the lead has their year
  * in the country nothing is required, so the month end is covered all the same
  * and the apply activity's `route/funds` holds.
@@ -164,7 +164,7 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 }
 
 /**
- * R-PEOPLE-024: a status whose `months` is `lead` lasts as long as the lead's,
+ * person:dependant-status-ends-with-lead: a status whose `months` is `lead` lasts as long as the lead's,
  * from the facts on the joint's bond. Null: the lead's does not expire. The
  * status kind reads it when it grants such a status.
  */
@@ -189,7 +189,7 @@ export const dependantGate: Gate = {
   decision,
   onSend,
   clocks,
-  // R-ROUTE-014 for this gate: no strictness; the surcharge part of the fee is what a refusal or a withdrawal refunds.
+  // route:application-fixes-figures for this gate: no strictness; the surcharge part of the fee is what a refusal or a withdrawal refunds.
   application: (read, entry) => {
     const lead = leadOf(read, entry);
     const fees = dependantFee(read, entry, lead?.bond.facts ?? null) ?? [];

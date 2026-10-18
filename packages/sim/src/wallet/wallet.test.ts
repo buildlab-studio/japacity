@@ -99,7 +99,7 @@ function nairaForCents(cents: number, rates: World["rates"]): number {
 }
 
 describe("pockets and debits", () => {
-  test("[R-WALLET-001] given a pocket, when an effect takes more than it holds, then nothing is taken; taking exactly all of it leaves zero", () => {
+  test("[wallet:no-pocket-below-zero] given a pocket, when an effect takes more than it holds, then nothing is taken; taking exactly all of it leaves zero", () => {
     const { game } = play();
     const cash = game.state.wallet.pockets.NGN.cash;
     const over = apply(game, [{ type: "money/take", currency: "NGN", pocket: "cash", amount: cash + 1, reason: "social" }]);
@@ -111,7 +111,7 @@ describe("pockets and debits", () => {
     expect(game.state.wallet.pockets.NGN.cash).toBe(0);
   });
 
-  test("[R-WALLET-001] [R-WALLET-018] given cash and bank, when an effect takes a sum over the line for cash from any pocket, then the bank goes first, then cash, and too much takes nothing", () => {
+  test("[wallet:no-pocket-below-zero] [wallet:money-lands-as-in-lagos] given cash and bank, when an effect takes a sum over the line for cash from any pocket, then the bank goes first, then cash, and too much takes nothing", () => {
     const { game } = play();
     const { bank, cash } = game.state.wallet.pockets.NGN;
     const tooMuch = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: bank + cash + 1, reason: "family" }]);
@@ -127,7 +127,7 @@ describe("pockets and debits", () => {
     expect(game.state.wallet.pockets.NGN).toEqual({ bank: 0, cash: cash - 500, locked: 0 });
   });
 
-  test("[R-WALLET-001] given a debit from the bank, when it cannot be met in full, then no pocket goes below zero and the invariants hold", () => {
+  test("[wallet:no-pocket-below-zero] given a debit from the bank, when it cannot be met in full, then no pocket goes below zero and the invariants hold", () => {
     const { game } = play();
     const { bank } = game.state.wallet.pockets.NGN;
     apply(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: bank + 1, reason: "mishap" }]);
@@ -145,14 +145,14 @@ function setNaira(game: Game, pockets: { cash: number; bank: number }): void {
 }
 
 describe("money lands where it would (decision 0014)", () => {
-  test("[R-WALLET-018] given the line for cash, when a sum at it and one kobo over are read, then the first changes hands as cash and the second goes by the bank", () => {
+  test("[wallet:money-lands-as-in-lagos] given the line for cash, when a sum at it and one kobo over are read, then the first changes hands as cash and the second goes by the bank", () => {
     expect(tuning.cashUpTo).toBe(1_000_000);
     expect(pocketFor(tuning.cashUpTo, tuning)).toBe("cash");
     expect(pocketFor(1, tuning)).toBe("cash");
     expect(pocketFor(tuning.cashUpTo + 1, tuning)).toBe("bank");
   });
 
-  test("[R-WALLET-018] given cash short of a street price at the line, when it is taken from any pocket, then cash goes first and the bank pays the rest", () => {
+  test("[wallet:money-lands-as-in-lagos] given cash short of a street price at the line, when it is taken from any pocket, then cash goes first and the bank pays the rest", () => {
     const { game } = play();
     setNaira(game, { cash: 300_000, bank: 5_000_000 });
     const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: tuning.cashUpTo, reason: "social" }]);
@@ -162,7 +162,7 @@ describe("money lands where it would (decision 0014)", () => {
     ]);
   });
 
-  test("[R-WALLET-018] given the bank short of a street price one kobo over the line, when it is taken from any pocket, then the bank goes first and cash pays the rest", () => {
+  test("[wallet:money-lands-as-in-lagos] given the bank short of a street price one kobo over the line, when it is taken from any pocket, then the bank goes first and cash pays the rest", () => {
     const { game } = play();
     setNaira(game, { cash: 5_000_000, bank: 200_000 });
     const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: tuning.cashUpTo + 1, reason: "social" }]);
@@ -172,7 +172,7 @@ describe("money lands where it would (decision 0014)", () => {
     ]);
   });
 
-  test("[R-WALLET-018] [R-WALLET-010] given locked money, when the street takes more than cash and bank hold, at or over the line, then nothing is taken and the locked money stays", () => {
+  test("[wallet:money-lands-as-in-lagos] [wallet:locked-money-stays-put] given locked money, when the street takes more than cash and bank hold, at or over the line, then nothing is taken and the locked money stays", () => {
     const { game } = play();
     setNaira(game, { cash: 400_000, bank: 400_000 });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 9_000_000, reason: "held-funds", locked: true }]);
@@ -182,7 +182,7 @@ describe("money lands where it would (decision 0014)", () => {
     expect(game.state.wallet.pockets.NGN).toEqual({ cash: 400_000, bank: 400_000, locked: 9_000_000 });
   });
 
-  test("[R-WALLET-018] given a credit or a debit that names its pocket, when it is over or under the line, then it keeps the pocket it names", () => {
+  test("[wallet:money-lands-as-in-lagos] given a credit or a debit that names its pocket, when it is over or under the line, then it keeps the pocket it names", () => {
     const { game } = play();
     setNaira(game, { cash: 5_000_000, bank: 5_000_000 });
     const named = apply(game, [
@@ -195,14 +195,14 @@ describe("money lands where it would (decision 0014)", () => {
   });
 });
 
-describe("the world warns about cash (R-WALLET-019)", () => {
+describe("the world warns about cash (wallet:cash-pile-warning)", () => {
   const WARNING = "line.wallet.cash-warning";
 
   function warnings(lines: readonly { key: string }[]): number {
     return lines.filter((line) => line.key === WARNING).length;
   }
 
-  test("[R-WALLET-019] given naira cash at the warning line when the month closes, then nothing is said; one kobo over the next month, Mama says it once, with attention and no figure; over it again later, nothing more", () => {
+  test("[wallet:cash-pile-warning] given naira cash at the warning line when the month closes, then nothing is said; one kobo over the next month, Mama says it once, with attention and no figure; over it again later, nothing more", () => {
     const { game } = play();
     expect(tuning.cashWarnAt).toBe(10_000_000);
     setNaira(game, { cash: tuning.cashWarnAt, bank: 50_000_000 });
@@ -225,18 +225,18 @@ describe("the world warns about cash (R-WALLET-019)", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-WALLET-019] given the warning's words, when they are read, then a person says that cash on you is at risk and the bank is safer, with no figure, written straight", () => {
+  test("[wallet:cash-pile-warning] given the warning's words, when they are read, then a person says that cash on you is at risk and the bank is safer, with no figure, written straight", () => {
     const words = text[WARNING] ?? "";
     expect(words).toMatch(/^Mama/);
     expect(words).toMatch(/bank/);
     expect(words).not.toMatch(/\{|\d|₦/);
-    // Bad news is written straight, with no joke version (text.md R-TEXT-002).
+    // Bad news is written straight, with no joke version (text:bad-news-never-joked).
     expect(badNews(WARNING, words)).toBe(true);
   });
 });
 
 describe("the ledger", () => {
-  test("[R-WALLET-002] given credits and debits, when they happen, then each is an event with currency, pocket, amount and reason, and the totals follow", () => {
+  test("[wallet:ledger-balances-each-currency] given credits and debits, when they happen, then each is an event with currency, pocket, amount and reason, and the totals follow", () => {
     const { game } = play();
     const result = apply(game, [
       { type: "money/add", currency: "NGN", pocket: "bank", amount: 700000, reason: "salary" },
@@ -257,7 +257,7 @@ describe("the ledger", () => {
     }
   });
 
-  test("[R-WALLET-002] given a queued purchase, when it leaves and later arrives, then each currency still balances: debited on leaving, credited on arrival", () => {
+  test("[wallet:ledger-balances-each-currency] given a queued purchase, when it leaves and later arrives, then each currency still balances: debited on leaving, credited on arrival", () => {
     const { game, live } = play({ vars: { [QUEUE]: 1 } });
     game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000000, via: "bank" });
     expect(game.state.wallet.queued).toHaveLength(1);
@@ -271,7 +271,7 @@ describe("the ledger", () => {
 
   test.prop([fc.constantFrom<Id<"scenario">>("scenario.ada", "scenario.tunde", "scenario.zainab"), fc.string({ minLength: 1, maxLength: 6 }), fc.array(fc.nat(), { minLength: 40, maxLength: 40 })], {
     numRuns: 20,
-  })("[R-WALLET-002] [R-WALLET-001] given random legal commands, when played, then for each currency bank plus cash plus locked equals credits less debits", (scenario, seed, picks) => {
+  })("[wallet:ledger-balances-each-currency] [wallet:no-pocket-below-zero] given random legal commands, when played, then for each currency bank plus cash plus locked equals credits less debits", (scenario, seed, picks) => {
     const game = start({ scenario, seed, content });
     for (const pick of picks) {
       const legal = legalCommands(game.view());
@@ -290,7 +290,7 @@ describe("the ledger", () => {
     }
   });
 
-  test("[R-WALLET-002] given every reason, when its line is looked up, then the words exist", () => {
+  test("[wallet:ledger-balances-each-currency] given every reason, when its line is looked up, then the words exist", () => {
     const keys = [...new Set(Object.values(REASON_LINE).filter((key): key is string => key !== null))];
     expect(keys.length).toBeGreaterThan(20);
     const all = [...keys, "line.wallet.converted", "line.wallet.moved", "line.wallet.queued", "line.wallet.flagged"];
@@ -299,7 +299,7 @@ describe("the ledger", () => {
 });
 
 describe("transfers", () => {
-  test("[R-WALLET-003] given a move from bank to cash, when it is made, then it is a debit and a credit of the same amount under move", () => {
+  test("[wallet:conversions-are-matched-pairs] given a move from bank to cash, when it is made, then it is a debit and a credit of the same amount under move", () => {
     const { game } = play();
     const { bank, cash } = game.state.wallet.pockets.NGN;
     const result = game.accept({ type: "wallet/move", currency: "NGN", amount: 250000, to: "cash" });
@@ -311,7 +311,7 @@ describe("transfers", () => {
     expect(result.lines.map((line) => line.key)).toEqual(["line.wallet.moved"]);
   });
 
-  test("[R-WALLET-003] given a conversion, when it is made, then it is a debit and a credit under convert", () => {
+  test("[wallet:conversions-are-matched-pairs] given a conversion, when it is made, then it is a debit and a credit under convert", () => {
     const { game } = play();
     const result = game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 2100000, via: "aboki" });
     const pair = walletEvents(result).filter((event) => event.type !== "wallet/debited" || event.reason === "convert");
@@ -323,7 +323,7 @@ describe("transfers", () => {
 });
 
 describe("the bank", () => {
-  test("[R-WALLET-004] given naira in the bank, when dollars are bought at the bank, then 1.5% is charged on what is paid in and the rest converts at the official rate", () => {
+  test("[wallet:bank-converts-at-official-rate] given naira in the bank, when dollars are bought at the bank, then 1.5% is charged on what is paid in and the rest converts at the official rate", () => {
     const { game } = play();
     const { bank, cash } = game.state.wallet.pockets.NGN;
     const amount = 10000000;
@@ -339,7 +339,7 @@ describe("the bank", () => {
     expect(game.state.wallet.pockets.USD).toEqual({ bank: 9850, cash: 0, locked: 0 });
   });
 
-  test("[R-WALLET-004] given dollars in the bank, when they are sold, then the charge is in dollars and the rest converts at the official rate", () => {
+  test("[wallet:bank-converts-at-official-rate] given dollars in the bank, when they are sold, then the charge is in dollars and the rest converts at the official rate", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: 20000, reason: "salary" }]);
     const nairaBefore = game.state.wallet.pockets.NGN.bank;
@@ -348,7 +348,7 @@ describe("the bank", () => {
     expect(game.state.wallet.pockets.NGN.bank - nairaBefore).toBe(mulDiv(19700, ROUND_RATES.USD.official, 100));
   });
 
-  test("[R-WALLET-004] given pounds in the bank, when they are converted to dollars, then it goes through naira at the official rates with one charge", () => {
+  test("[wallet:bank-converts-at-official-rate] given pounds in the bank, when they are converted to dollars, then it goes through naira at the official rates with one charge", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 10000, reason: "gift" }]);
     const result = game.accept({ type: "wallet/convert", from: "GBP", to: "USD", amount: 10000, via: "bank" });
@@ -358,7 +358,7 @@ describe("the bank", () => {
     expect(game.state.wallet.pockets.USD.bank).toBe(19700);
   });
 
-  test("[R-WALLET-004] given naira only in cash, when a bank conversion is asked for, then it is rejected: the bank uses bank pockets only", () => {
+  test("[wallet:bank-converts-at-official-rate] given naira only in cash, when a bank conversion is asked for, then it is rejected: the bank uses bank pockets only", () => {
     const { game } = play();
     const { bank } = game.state.wallet.pockets.NGN;
     apply(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: bank, reason: "mishap" }]);
@@ -366,7 +366,7 @@ describe("the bank", () => {
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 100000, via: "bank" }, "cannot-afford").code).toBe("cannot-afford");
   });
 
-  test("[R-WALLET-005] given the month's allowance, when a purchase uses exactly all of it, then it is accepted; one cent more is bad-amount", () => {
+  test("[wallet:monthly-fx-allowance] given the month's allowance, when a purchase uses exactly all of it, then it is accepted; one cent more is bad-amount", () => {
     const allowance = content.var[ALLOWANCE]!.start;
     const exact = nairaForCents(allowance, ROUND_RATES);
     const over = nairaForCents(allowance + 1, ROUND_RATES);
@@ -381,7 +381,7 @@ describe("the bank", () => {
     first.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: nairaForCents(1, ROUND_RATES), via: "bank" }, "bad-amount");
   });
 
-  test("[R-WALLET-005] given purchases in one month, when they add up past the allowance, then the one that passes it is refused, and a new month starts it again", () => {
+  test("[wallet:monthly-fx-allowance] given purchases in one month, when they add up past the allowance, then the one that passes it is refused, and a new month starts it again", () => {
     const allowance = content.var[ALLOWANCE]!.start;
     const { game } = play();
     const half = nairaForCents(allowance - 20000, ROUND_RATES);
@@ -395,7 +395,7 @@ describe("the bank", () => {
     expect(game.state.wallet.bought).toEqual({ month: 1, cents: 0 });
   });
 
-  test("[R-WALLET-005] given pounds bought at the bank, when the allowance is read, then the purchase is valued in US cents at the official rates", () => {
+  test("[wallet:monthly-fx-allowance] given pounds bought at the bank, when the allowance is read, then the purchase is valued in US cents at the official rates", () => {
     const allowance = content.var[ALLOWANCE]!.start;
     const { game } = play();
     game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 10000000, via: "bank" });
@@ -403,7 +403,7 @@ describe("the bank", () => {
     expect(game.view().bankAllowanceLeft).toBe(allowance - 9850);
   });
 
-  test("[R-WALLET-005] given an allowance of zero and of one cent, when a pound fee is paid mostly from the naira bank, then it is paid and the allowance is not touched", () => {
+  test("[wallet:monthly-fx-allowance] given an allowance of zero and of one cent, when a pound fee is paid mostly from the naira bank, then it is paid and the allowance is not touched", () => {
     for (const allowance of [0, 1]) {
       const { game } = play({ vars: { [ALLOWANCE]: allowance, [QUEUE]: 0 } });
       apply(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 800, reason: "gift" }]);
@@ -418,7 +418,7 @@ describe("the bank", () => {
     }
   });
 
-  test("[R-WALLET-005] given an allowance of zero, when foreign currency is sold at the bank for more than any allowance, then there is no limit", () => {
+  test("[wallet:monthly-fx-allowance] given an allowance of zero, when foreign currency is sold at the bank for more than any allowance, then there is no limit", () => {
     const { game } = play({ vars: { [ALLOWANCE]: 0 } });
     apply(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: 5000000, reason: "salary" }]);
     expect(game.view().bankAllowanceLeft).toBe(0);
@@ -427,14 +427,14 @@ describe("the bank", () => {
     game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000000, via: "bank" }, "bad-amount");
   });
 
-  test("[R-WALLET-006] given a bank queue of 0, when dollars are bought at the bank, then they arrive at once", () => {
+  test("[wallet:bank-queue-delays-purchases] given a bank queue of 0, when dollars are bought at the bank, then they arrive at once", () => {
     const { game } = play({ vars: { [QUEUE]: 0 } });
     game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000000, via: "bank" });
     expect(game.state.wallet.queued).toEqual([]);
     expect(game.state.wallet.pockets.USD.bank).toBe(985);
   });
 
-  test("[R-WALLET-006] given a bank queue of 1, when dollars are bought, then the naira leaves now and the dollars arrive next month at that day's official rate", () => {
+  test("[wallet:bank-queue-delays-purchases] given a bank queue of 1, when dollars are bought, then the naira leaves now and the dollars arrive next month at that day's official rate", () => {
     const { game, live } = play({ vars: { [QUEUE]: 1 } });
     const nairaBefore = game.state.wallet.pockets.NGN.bank;
     const result = game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000000, via: "bank" });
@@ -453,7 +453,7 @@ describe("the bank", () => {
     expect(game.state.wallet.pockets.USD.bank).toBe(788);
   });
 
-  test("[R-WALLET-006] given a bank queue of 2, when one month passes, then the purchase is still waiting; it arrives in the second", () => {
+  test("[wallet:bank-queue-delays-purchases] given a bank queue of 2, when one month passes, then the purchase is still waiting; it arrives in the second", () => {
     const { game } = play({ vars: { [QUEUE]: 2 } });
     game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000000, via: "bank" });
     expect(game.state.wallet.queued[0]?.readyMonth).toBe(2);
@@ -465,7 +465,7 @@ describe("the bank", () => {
     expect(game.state.wallet.pockets.USD.bank).toBe(985);
   });
 
-  test("[R-WALLET-006] given a bank queue, when dollars are sold at the bank, then the naira arrives at once: only purchases wait", () => {
+  test("[wallet:bank-queue-delays-purchases] given a bank queue, when dollars are sold at the bank, then the naira arrives at once: only purchases wait", () => {
     const { game } = play({ vars: { [QUEUE]: 2 } });
     apply(game, [{ type: "money/add", currency: "USD", pocket: "bank", amount: 10000, reason: "salary" }]);
     const nairaBefore = game.state.wallet.pockets.NGN.bank;
@@ -478,7 +478,7 @@ describe("the bank", () => {
 describe("the aboki", () => {
   const sure = { ...content, tuning: { ...content.tuning, wallet: { ...tuning, streetShortBp: 0 } } };
 
-  test("[R-WALLET-007] given naira cash, when dollars are bought at the aboki, then it is instant, cash only, at the street rate", () => {
+  test("[wallet:aboki-trades-at-street-rate] given naira cash, when dollars are bought at the aboki, then it is instant, cash only, at the street rate", () => {
     const { game } = play({ content: sure });
     const before = game.state.wallet.pockets.NGN;
     game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 5250000, via: "aboki" });
@@ -487,7 +487,7 @@ describe("the aboki", () => {
     expect(game.state.wallet.pockets.NGN).toEqual({ bank: before.bank, cash: before.cash - 5250000, locked: 0 });
   });
 
-  test("[R-WALLET-007] given dollar cash, when it is sold at the aboki, then it earns the street rate less 2%", () => {
+  test("[wallet:aboki-trades-at-street-rate] given dollar cash, when it is sold at the aboki, then it earns the street rate less 2%", () => {
     const { game } = play({ content: sure });
     apply(game, [{ type: "money/add", currency: "USD", pocket: "cash", amount: 10000, reason: "gift" }]);
     const cashBefore = game.state.wallet.pockets.NGN.cash;
@@ -497,7 +497,7 @@ describe("the aboki", () => {
     expect(game.state.wallet.pockets.NGN.cash - cashBefore).toBe(mulDiv(10000, rate, 100));
   });
 
-  test("[R-WALLET-007] given no allowance and a bank queue, when far more than any allowance is bought at the aboki, then there is no limit", () => {
+  test("[wallet:aboki-trades-at-street-rate] given no allowance and a bank queue, when far more than any allowance is bought at the aboki, then there is no limit", () => {
     const { game } = play({ content: sure, vars: { [ALLOWANCE]: 0, [QUEUE]: 2 } });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 300000000, reason: "sale" }]);
     game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 300000000, via: "aboki" });
@@ -505,14 +505,14 @@ describe("the aboki", () => {
     expect(game.state.wallet.pockets.USD.cash).toBeGreaterThan(content.var[ALLOWANCE]!.start);
   });
 
-  test("[R-WALLET-007] given naira in the bank but too little cash, when the aboki is asked, then it is cannot-afford: the aboki takes cash only", () => {
+  test("[wallet:aboki-trades-at-street-rate] given naira in the bank but too little cash, when the aboki is asked, then it is cannot-afford: the aboki takes cash only", () => {
     const { game } = play({ content: sure });
     const { cash } = game.state.wallet.pockets.NGN;
     expect(game.state.wallet.pockets.NGN.bank).toBeGreaterThan(cash + 1);
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: cash + 1, via: "aboki" }, "cannot-afford").code).toBe("cannot-afford");
   });
 
-  test("[R-WALLET-007] given pound cash, when it is changed for dollars at the aboki, then it is sold for naira less the spread and the naira buys dollars at street", () => {
+  test("[wallet:aboki-trades-at-street-rate] given pound cash, when it is changed for dollars at the aboki, then it is sold for naira less the spread and the naira buys dollars at street", () => {
     const { game } = play({ content: sure });
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: 1000, reason: "gift" }]);
     game.accept({ type: "wallet/convert", from: "GBP", to: "USD", amount: 1000, via: "aboki" });
@@ -521,7 +521,7 @@ describe("the aboki", () => {
     expect(game.state.wallet.pockets.USD.cash).toBe(1960);
   });
 
-  test("[R-WALLET-008] given a short count is certain, when dollars are bought, then between 3% and 8% of them is taken back as a short-count debit", () => {
+  test("[wallet:aboki-short-count] given a short count is certain, when dollars are bought, then between 3% and 8% of them is taken back as a short-count debit", () => {
     const always = { ...content, tuning: { ...content.tuning, wallet: { ...tuning, streetShortBp: 10000 } } };
     const [min, max] = tuning.streetShortLossBp;
     for (const seed of ["a", "b", "c", "d", "e", "f"]) {
@@ -537,7 +537,7 @@ describe("the aboki", () => {
     }
   });
 
-  test("[R-WALLET-008] given a short count is certain, when the loss draw is at its top and at its bottom, then exactly 8% and exactly 3% are lost", () => {
+  test("[wallet:aboki-short-count] given a short count is certain, when the loss draw is at its top and at its bottom, then exactly 8% and exactly 3% are lost", () => {
     const always = { ...content, tuning: { ...content.tuning, wallet: { ...tuning, streetShortBp: 10000 } } };
     const [min, max] = tuning.streetShortLossBp;
     expect([min, max]).toEqual([300, 800]);
@@ -556,7 +556,7 @@ describe("the aboki", () => {
     }
   });
 
-  test("[R-WALLET-008] given the loss is fixed at 3%, when a short count happens, then exactly 3% is lost", () => {
+  test("[wallet:aboki-short-count] given the loss is fixed at 3%, when a short count happens, then exactly 3% is lost", () => {
     const fixed = { ...content, tuning: { ...content.tuning, wallet: { ...tuning, streetShortBp: 10000, streetShortLossBp: [300, 300] as [number, number] } } };
     const { game } = play({ content: fixed });
     game.accept({ type: "wallet/convert", from: "NGN", to: "USD", amount: 5250000, via: "aboki" });
@@ -564,7 +564,7 @@ describe("the aboki", () => {
     expect(game.state.wallet.totals.out["short-count"]).toEqual({ USD: 150 });
   });
 
-  test("[R-WALLET-008] given the real 1.5% chance, when the aboki is used 2000 times, then a short count happens about 1.5% of the time and is drawn on the street stream", () => {
+  test("[wallet:aboki-short-count] given the real 1.5% chance, when the aboki is used 2000 times, then a short count happens about 1.5% of the time and is drawn on the street stream", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 250000000, reason: "sale" }]);
     let shorts = 0;
@@ -584,7 +584,7 @@ describe("the aboki", () => {
 describe("foreign fees", () => {
   const fee = 55800;
 
-  test("[R-WALLET-009] given pounds in the bank and in cash, when a pound fee is paid, then the bank pays first and cash the rest", () => {
+  test("[wallet:foreign-fee-payment-order] given pounds in the bank and in cash, when a pound fee is paid, then the bank pays first and cash the rest", () => {
     const { game } = play();
     apply(game, [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 50000, reason: "gift" },
@@ -598,7 +598,7 @@ describe("foreign fees", () => {
     expect(game.state.wallet.pockets.GBP).toEqual({ bank: 0, cash: 4200, locked: 0 });
   });
 
-  test("[R-WALLET-009] given too few pounds, when the fee is paid, then the rest comes from the naira bank at the official rate plus the 1.5% charge", () => {
+  test("[wallet:foreign-fee-payment-order] given too few pounds, when the fee is paid, then the rest comes from the naira bank at the official rate plus the 1.5% charge", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: 800, reason: "gift" }]);
     const nairaBefore = game.state.wallet.pockets.NGN.bank;
@@ -613,7 +613,7 @@ describe("foreign fees", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-WALLET-009] given a bank queue above zero, when the pounds are short, then the naira leg is refused and nothing at all is paid", () => {
+  test("[wallet:foreign-fee-payment-order] given a bank queue above zero, when the pounds are short, then the naira leg is refused and nothing at all is paid", () => {
     const { game, live } = play({ vars: { [QUEUE]: 1 } });
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 800, reason: "gift" }]);
     const before = game.state.wallet;
@@ -627,7 +627,7 @@ describe("foreign fees", () => {
     expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(true);
   });
 
-  test("[R-WALLET-009] given not enough money anywhere, when the fee is paid, then nothing is paid", () => {
+  test("[wallet:foreign-fee-payment-order] given not enough money anywhere, when the fee is paid, then nothing is paid", () => {
     const { game } = play({ scenario: "scenario.ada" });
     const { bank } = game.state.wallet.pockets.NGN;
     const tooBig = mulDiv(bank, 100, ROUND_RATES.GBP.official) + 1;
@@ -637,7 +637,7 @@ describe("foreign fees", () => {
     expect(game.state.wallet.pockets.NGN.bank).toBe(bank);
   });
 
-  test("[R-WALLET-009] given the naira bank holds exactly the fee and its charge, when it is paid, then it is accepted; a kobo less and it is not", () => {
+  test("[wallet:foreign-fee-payment-order] given the naira bank holds exactly the fee and its charge, when it is paid, then it is accepted; a kobo less and it is not", () => {
     const { game } = play({ scenario: "scenario.ada" });
     const naira = mulDivCeil(10000, ROUND_RATES.GBP.official, 100);
     const needed = naira + bp(naira, tuning.bankChargeBp);
@@ -653,7 +653,7 @@ describe("foreign fees", () => {
 });
 
 describe("locked money", () => {
-  test("[R-WALLET-010] given a locked credit, when it lands, then it is in the locked pocket and cannot be moved, converted or spent from any pocket", () => {
+  test("[wallet:locked-money-stays-put] given a locked credit, when it lands, then it is in the locked pocket and cannot be moved, converted or spent from any pocket", () => {
     const { game } = play({ scenario: "scenario.ada" });
     const { bank } = game.state.wallet.pockets.NGN;
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500000000, reason: "held-funds", locked: true }]);
@@ -666,7 +666,7 @@ describe("locked money", () => {
     expect(game.state.wallet.pockets.NGN.locked).toBe(500000000);
   });
 
-  test("[R-WALLET-010] given locked money, when a debit names the locked pocket, then it is removed", () => {
+  test("[wallet:locked-money-stays-put] given locked money, when a debit names the locked pocket, then it is removed", () => {
     const { game } = play({ scenario: "scenario.ada" });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500000000, reason: "held-funds", locked: true }]);
     const result = apply(game, [{ type: "money/take", currency: "NGN", pocket: "locked", amount: 500000000, reason: "held-funds-return" }]);
@@ -676,7 +676,7 @@ describe("locked money", () => {
 });
 
 describe("flagged deposits", () => {
-  test("[R-WALLET-011] given a flagged credit to the bank, when it lands, then a lot is recorded with the currency, amount, month and reason", () => {
+  test("[wallet:large-deposits-record-lots] given a flagged credit to the bank, when it lands, then a lot is recorded with the currency, amount, month and reason", () => {
     const { game } = play();
     game.endTurn();
     const result = apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 80000000, reason: "sale", flagged: true }]);
@@ -686,7 +686,7 @@ describe("flagged deposits", () => {
     expect(game.state.wallet.lots).toHaveLength(1);
   });
 
-  test("[R-WALLET-011] given naira cash, when exactly ₦500,000 is moved into the bank, then no lot; one kobo more records one", () => {
+  test("[wallet:large-deposits-record-lots] given naira cash, when exactly ₦500,000 is moved into the bank, then no lot; one kobo more records one", () => {
     const { game } = play();
     expect(tuning.flagDepositAbove).toBe(50000000);
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 200000000, reason: "sale" }]);
@@ -696,7 +696,7 @@ describe("flagged deposits", () => {
     expect(game.state.wallet.lots).toEqual([{ currency: "NGN", amount: tuning.flagDepositAbove + 1, month: 0, reason: "move" }]);
   });
 
-  test("[R-WALLET-011] given pound cash, when it is moved into the bank, then it is valued at the official rate against the line", () => {
+  test("[wallet:large-deposits-record-lots] given pound cash, when it is moved into the bank, then it is valued at the official rate against the line", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: 60000, reason: "gift" }]);
     // £250 at ₦2,000 is exactly ₦500,000.
@@ -706,7 +706,7 @@ describe("flagged deposits", () => {
     expect(game.state.wallet.lots).toEqual([{ currency: "GBP", amount: 25001, month: 0, reason: "move" }]);
   });
 
-  test("[R-WALLET-011] given a lot, when months pass in the settle phase, then it is kept for 3 months and dropped after", () => {
+  test("[wallet:large-deposits-record-lots] given a lot, when months pass in the settle phase, then it is kept for 3 months and dropped after", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 80000000, reason: "gift", flagged: true }]);
     for (let month = 1; month <= tuning.lotMonths; month += 1) {
@@ -720,7 +720,7 @@ describe("flagged deposits", () => {
 });
 
 describe("command amounts", () => {
-  test.each([0, -100, Number("1.5"), Number.NaN])("[R-WALLET-012] given the amount %s, when a move or conversion is asked for, then it is bad-amount", (amount) => {
+  test.each([0, -100, Number("1.5"), Number.NaN])("[wallet:amounts-whole-and-positive] given the amount %s, when a move or conversion is asked for, then it is bad-amount", (amount) => {
     const { game } = play();
     const codes = [
       game.expectRejected({ type: "wallet/move", currency: "NGN", amount, to: "cash" }, "bad-amount"),
@@ -730,21 +730,21 @@ describe("command amounts", () => {
     expect(codes).toEqual(["bad-amount", "bad-amount", "bad-amount"]);
   });
 
-  test("[R-WALLET-012] given an amount too small to give back a single cent, when it is changed, then it is bad-amount and nothing moves", () => {
+  test("[wallet:amounts-whole-and-positive] given an amount too small to give back a single cent, when it is changed, then it is bad-amount and nothing moves", () => {
     const { game } = play();
     expect(mulDiv(1000, 100, ROUND_RATES.USD.street)).toBe(0);
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "aboki" }, "bad-amount").code).toBe("bad-amount");
     expect(game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "bank" }, "bad-amount").code).toBe("bad-amount");
   });
 
-  test("[R-WALLET-012] given a bank queue, when a purchase too small to give back a single cent at today's rate is asked for, then it is bad-amount and nothing is queued", () => {
+  test("[wallet:amounts-whole-and-positive] given a bank queue, when a purchase too small to give back a single cent at today's rate is asked for, then it is bad-amount and nothing is queued", () => {
     const { game } = play({ vars: { [QUEUE]: 1, [ALLOWANCE]: 50000 } });
     expect(convertMinor(1000 - bp(1000, tuning.bankChargeBp), "NGN", "USD", officialOf(ROUND_RATES))).toBe(0);
     game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: 1000, via: "bank" }, "bad-amount");
     expect(game.state.wallet.queued).toEqual([]);
   });
 
-  test("[R-WALLET-012] given a pocket, when exactly all of it is moved, then it is accepted; one more is cannot-afford", () => {
+  test("[wallet:amounts-whole-and-positive] given a pocket, when exactly all of it is moved, then it is accepted; one more is cannot-afford", () => {
     const { game } = play();
     const { cash } = game.state.wallet.pockets.NGN;
     game.expectRejected({ type: "wallet/move", currency: "NGN", amount: cash + 1, to: "bank" }, "cannot-afford");
@@ -754,7 +754,7 @@ describe("command amounts", () => {
 });
 
 describe("requirements and view", () => {
-  test("[R-WALLET-010] given bank, cash and locked money, when money/min is judged, then bank and cash count, a named pocket counts alone, locked never", () => {
+  test("[wallet:locked-money-stays-put] given bank, cash and locked money, when money/min is judged, then bank and cash count, a named pocket counts alone, locked never", () => {
     const { game } = play({ scenario: "scenario.ada" });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 900000000, reason: "held-funds", locked: true }]);
     const { bank, cash } = game.state.wallet.pockets.NGN;
@@ -765,7 +765,7 @@ describe("requirements and view", () => {
     expect(judged(game, { type: "money/min", currency: "NGN", amount: { var: ALLOWANCE } }).need).toBe(content.var[ALLOWANCE]!.start);
   });
 
-  test("[R-WALLET-005] given the world, when the view is read, then it shows the pockets, the queue, the world's rates and the allowance left", () => {
+  test("[wallet:monthly-fx-allowance] given the world, when the view is read, then it shows the pockets, the queue, the world's rates and the allowance left", () => {
     const { game } = play();
     const view = game.view();
     expect(view.pockets).toEqual(game.state.wallet.pockets);
@@ -776,7 +776,7 @@ describe("requirements and view", () => {
 });
 
 describe("lines", () => {
-  test("[R-WALLET-002] given a salary and a fee, when they happen, then the lines are keyed by reason with the amount and currency", () => {
+  test("[wallet:ledger-balances-each-currency] given a salary and a fee, when they happen, then the lines are keyed by reason with the amount and currency", () => {
     const { game } = play();
     const result = apply(game, [
       { type: "money/add", currency: "NGN", pocket: "bank", amount: 700000, reason: "salary" },
@@ -792,7 +792,7 @@ describe("lines", () => {
 });
 
 describe("totals as a requirement", () => {
-  test("[R-WALLET-014] given money that came in under a reason, when wallet/total is judged, then it reads the ledger's total for that reason and currency, in or out, with have and need", () => {
+  test("[wallet:ledger-total-requirement] given money that came in under a reason, when wallet/total is judged, then it reads the ledger's total for that reason and currency, in or out, with have and need", () => {
     const { game } = play({ scenario: TUNDE });
     const opening = game.state.wallet.totals.in.opening?.NGN ?? 0;
     expect(opening).toBeGreaterThan(0);

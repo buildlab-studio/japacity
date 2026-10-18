@@ -27,15 +27,15 @@ const careful = runs("careful", CAREFUL_SEEDS);
 const others = [...runs("borrower", OTHER_SEEDS), ...runs("risky", OTHER_SEEDS), ...runs("honest-home", 2)];
 
 describe("simulated players to the flight on the real content", () => {
-  test.each(FIXED.map((life) => [life] as const))("[R-ROUTE-017] given %s, when the seeds are run, then some strategy reaches a grant", (life: Id<"scenario">) => {
+  test.each(FIXED.map((life) => [life] as const))("[route:grant-moves-to-granted] given %s, when the seeds are run, then some strategy reaches a grant", (life: Id<"scenario">) => {
     expect([...careful, ...others].some((record) => record.life === life && record.granted !== null)).toBe(true);
   });
 
-  test.each(FIXED.map((life) => [life] as const))("[R-ROUTE-017] [R-GATE-003] given %s played carefully, when the seeds are run, then some seed is granted a visa and flies", (life) => {
+  test.each(FIXED.map((life) => [life] as const))("[route:grant-moves-to-granted] [route-gates:departure-grants-status] given %s played carefully, when the seeds are run, then some seed is granted a visa and flies", (life) => {
     expect(careful.some((record) => record.life === life && record.departed !== null)).toBe(true);
   });
 
-  test("[R-ROUTE-016] given every player with a clean file on the study route, when the visas are decided, then the chance of refusal they face sits between 3% and 15%, and the share refused is within reach of it", () => {
+  test("[route:visa-refusal-chance] given every player with a clean file on the study route, when the visas are decided, then the chance of refusal they face sits between 3% and 15%, and the share refused is within reach of it", () => {
     const decisions = [...careful, ...others].flatMap((record) => record.decisions).filter(cleanFile);
     expect(decisions.length).toBeGreaterThanOrEqual(20);
     const chance = mulDiv(
@@ -50,14 +50,14 @@ describe("simulated players to the flight on the real content", () => {
     expect(refused).toBeLessThanOrEqual(mulDiv(decisions.length, chance * 2, 10000) + 5);
   });
 
-  test("[R-ENGINE-011] given every strategy from every fixed life, when played for up to 60 months, then a resting turn or a legal command was always there while a turn was banked and no set piece was open, no turn built from allowed options was rejected and no step threw", () => {
+  test("[engine:player-never-stuck] given every strategy from every fixed life, when played for up to 60 months, then a resting turn or a legal command was always there while a turn was banked and no set piece was open, no turn built from allowed options was rejected and no step threw", () => {
     const all = [...careful, ...others];
     expect(all.reduce((sum, record) => sum + record.stuck, 0)).toBe(0);
     expect(all.flatMap((record) => record.rejectedTurns)).toEqual([]);
     expect(all.flatMap((record) => (record.crash === null ? [] : [`${record.strategy} ${record.life} ${record.seed}: ${record.crash.message}`]))).toEqual([]);
   });
 
-  test("[R-PLACE-002] given the honest-home player, who never departs, when it plays, then it is never anywhere but home", () => {
+  test("[place:departure-moves-abroad] given the honest-home player, who never departs, when it plays, then it is never anywhere but home", () => {
     expect(others.filter((record) => record.strategy === "honest-home" && (record.departed !== null || record.road !== null))).toEqual([]);
   });
 });

@@ -27,8 +27,8 @@ function rentPaid(game: Game): number {
   return game.state.wallet.totals.out.rent?.CAD ?? 0;
 }
 
-describe("R-PEOPLE-032: the couch", () => {
-  test("[R-PEOPLE-032] given a sibling living in Canada, when Ada arrives, then upkeep opens at once and the room only after the couch's months, none of them charged rent", () => {
+describe("person:sibling-couch-delays-rent: the couch", () => {
+  test("[person:sibling-couch-delays-rent] given a sibling living in Canada, when Ada arrives, then upkeep opens at once and the room only after the couch's months, none of them charged rent", () => {
     const game = arrives(IN_CANADA);
     expect(holds(game, UPKEEP)).toBe(true);
     expect(holds(game, ROOM)).toBe(false);
@@ -43,14 +43,14 @@ describe("R-PEOPLE-032: the couch", () => {
     expect(rentPaid(game)).toBe(content.obligation[ROOM]!.amount);
   });
 
-  test("[R-PEOPLE-032] given no sibling, a sibling in the UK, or one still at home, when Ada arrives in Canada, then the room opens at once", () => {
+  test("[person:sibling-couch-delays-rent] given no sibling, a sibling in the UK, or one still at home, when Ada arrives in Canada, then the room opens at once", () => {
     for (const facts of [null, { where: "abroad", country: "country.uk", status: "status.uk-settled" }, { where: "home" }] as (Partial<PersonFacts> | null)[]) {
       const game = arrives(facts);
       expect(holds(game, ROOM)).toBe(true);
     }
   });
 
-  test("[R-PEOPLE-032] given the couch over and the room open, when rent is closed by other means later, then the couch never reopens it", () => {
+  test("[person:sibling-couch-delays-rent] given the couch over and the room open, when rent is closed by other means later, then the couch never reopens it", () => {
     const game = arrives(IN_CANADA);
     for (let month = 0; month < COUCH; month += 1) game.endTurn();
     applyAs(game, [{ type: "obligation/close", obligationType: "rent" }]);

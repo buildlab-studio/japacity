@@ -27,12 +27,12 @@ import type { LotteryEvent } from "./lottery.events";
 /** Tickets and prizes are this kind's own doing, not an entry's. */
 const CAUSE: Cause = { source: "lottery", param: null, terms: {} };
 
-/** R-LOTTERY-004: tickets count only for the draw they were bought in. */
+/** lottery:tickets-kept-per-draw: tickets count only for the draw they were bought in. */
 function heldIn(slice: LotterySlice, draw: number): number {
   return slice.draw === draw ? slice.tickets : 0;
 }
 
-/** R-LOTTERY-002 to 004: tickets for the draw on sale, from the naira bank, up to the cap. */
+/** lottery:draw-sells-between-ticks, lottery:ticket-buying-capped and lottery:tickets-kept-per-draw: tickets for the draw on sale, from the naira bank, up to the cap. */
 function buy(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "lottery/buy") throw new Error(`lottery/buy cannot handle ${command.type}.`);
   const open = ctx.world.lottery;
@@ -45,16 +45,16 @@ function buy(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     return reject("bad-amount", `Tickets are a whole number from 1, and ${String(held)} are held of the ${String(maxTickets)} allowed.`);
   }
   const cost = tickets * ticket;
-  // R-LOTTERY-003: tickets are paid from the naira bank pocket.
+  // lottery:ticket-buying-capped: tickets are paid from the naira bank pocket.
   if (ctx.state.wallet.pockets.NGN.bank < cost) return reject("cannot-afford", "The naira bank holds less than the tickets cost.");
-  // R-LOTTERY-018, R-WALLET-020: a ticket is bought only with earned naira, the balance less the marked, topped-up share.
+  // lottery:tickets-bought-with-earned-naira, wallet:top-ups-are-marked: a ticket is bought only with earned naira, the balance less the marked, topped-up share.
   if (earnedNaira(ctx.state.wallet) < cost) return reject("cannot-afford", EARNED_ONLY);
   ctx.apply([{ type: "money/take", currency: "NGN", pocket: "bank", amount: cost, reason: "ticket" }], CAUSE);
   const bought: LotteryEvent = { type: "lottery/bought", draw: open.draw, tickets, cost };
   return [bought];
 }
 
-/** R-LOTTERY-013: the authority's payout, to the naira bank as `win`, never flagged, once per draw. */
+/** lottery:winners-paid-by-authority: the authority's payout, to the naira bank as `win`, never flagged, once per draw. */
 function pay(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "lottery/pay") throw new Error(`lottery/pay cannot handle ${command.type}.`);
   const { draw, prizes } = command;
@@ -76,7 +76,7 @@ function pay(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return [event];
 }
 
-/** R-LOTTERY-016: the last draw, once, to a character who has not been shown it. */
+/** lottery:draw-result-on-front-page: the last draw, once, to a character who has not been shown it. */
 function tell(ctx: Ctx): BaseEvent[] {
   const last = ctx.world.lottery?.last ?? null;
   if (last === null) return [];
@@ -118,7 +118,7 @@ function lines(event: LotteryEvent): ReportLine[] {
       ];
     case "lottery/paid": {
       const won = event.prizes.reduce((sum, prize) => sum + prize.amount, 0);
-      // R-LUCK-008: a jackpot or a mid prize is staged.
+      // luck:big-wins-are-staged: a jackpot or a mid prize is staged.
       const big = event.prizes.some((prize) => prize.tier === "jackpot" || prize.tier === "mid");
       return [{ key: "line.lottery.letter", params: { draw: event.draw, won: { currency: "NGN", amount: won } }, tone: "good", big, attention: true, counts: [] }];
     }
@@ -129,16 +129,16 @@ function lines(event: LotteryEvent): ReportLine[] {
   }
 }
 
-/** R-LOTTERY-001: `activity.play-lotto` holds only while the world runs no draw. */
+/** lottery:draw-runs-online-only: `activity.play-lotto` holds only while the world runs no draw. */
 function judgeWorld(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "world/lottery") throw new Error(`world/lottery cannot judge ${requirement.type}.`);
   return { met: (read.world.lottery !== null) === requirement.online };
 }
 
 /**
- * R-LOTTERY-006, R-LOTTERY-023: the draw on sale with its odds, the jackpot
+ * lottery:view-shows-draw-state, lottery:screen-states-odds-plainly: the draw on sale with its odds, the jackpot
  * standing and whether it rolled over. No pot: every prize is fixed by the odds.
- * R-LOTTERY-005's ticket numbers are the server's; nothing in the world or the slice carries them, so `numbers` stays null.
+ * lottery:tickets-numbered-by-commit's ticket numbers are the server's; nothing in the world or the slice carries them, so `numbers` stays null.
  */
 function view(read: ReadCtx): Pick<PlayerView, "lottery"> {
   const draw = read.world.lottery;
@@ -163,9 +163,9 @@ function view(read: ReadCtx): Pick<PlayerView, "lottery"> {
 }
 
 /**
- * R-SHARE-001: the draw-win card from the payment until the draw is told in a
- * turn's news (R-LOTTERY-016). The server pays before it publishes the result
- * (R-LOTTERY-015), so a draw paid and not yet seen is a win still fresh.
+ * share:cards-due-at-set-moments: the draw-win card from the payment until the draw is told in a
+ * turn's news (lottery:draw-result-on-front-page). The server pays before it publishes the result
+ * (lottery:result-published-in-tick-row), so a draw paid and not yet seen is a win still fresh.
  */
 export function drawWinCard(read: ReadCtx): PlayerView["card"] {
   const { paid, seen } = read.state.lottery;

@@ -30,8 +30,8 @@ function score(game: Game): number | null {
   return gate?.gate === "points" ? gate.points : null;
 }
 
-describe("R-PEOPLE-030: the lead's score with a spouse", () => {
-  test("[R-PEOPLE-030] given Ada leading the points route with a spouse who has a bachelor's and band 7.0, when the score is read, then it uses the with-spouse columns and adds the spouse's 28", () => {
+describe("person:canada-spouse-points: the lead's score with a spouse", () => {
+  test("[person:canada-spouse-points] given Ada leading the points route with a spouse who has a bachelor's and band 7.0, when the score is read, then it uses the with-spouse columns and adds the spouse's 28", () => {
     const game = leading();
     const { transfer } = pointsParts(readOf(game), CANADA_ROUTE);
     // Alone: 110 for 25, 120 for a bachelor's, 31 for each ability at band 7.0.
@@ -43,7 +43,7 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
     expect(score(game)).toBe(pointsScoreWith(readOf(game), CANADA_ROUTE, SPOUSE));
   });
 
-  test("[R-PEOPLE-030] given a joint on the points route either way round, when the people view is read, then it shows the score alone and the score with this partner, so the couple can choose who leads", () => {
+  test("[person:canada-spouse-points] given a joint on the points route either way round, when the people view is read, then it shows the score alone and the score with this partner, so the couple can choose who leads", () => {
     for (const lead of ["me", "them"] as const) {
       const game = life(content, ADA);
       joint(game, CANADA_ROUTE, lead, { stage: "married", facts: SPOUSE });
@@ -57,7 +57,7 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
     }
   });
 
-  test("[R-PEOPLE-030] given a joint on the points route whose partner's facts are not known, or a joint on a route without points, when the people view is read, then only what can be scored shows", () => {
+  test("[person:canada-spouse-points] given a joint on the points route whose partner's facts are not known, or a joint on a route without points, when the people view is read, then only what can be scored shows", () => {
     const unknown = life(content, ADA);
     joint(unknown, CANADA_ROUTE, "me", { stage: "married", facts: null });
     expect(unknown.view().people.joint).toMatchObject({ myScore: pointsScoreAlone(readOf(unknown), CANADA_ROUTE), theirScore: null });
@@ -66,7 +66,7 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
     expect(skilled.view().people.joint).toMatchObject({ myScore: null, theirScore: null });
   });
 
-  test("[R-PEOPLE-030] given no joint, a joint the partner leads, or a bond that has ended, when the score is read, then Ada scores alone", () => {
+  test("[person:canada-spouse-points] given no joint, a joint the partner leads, or a bond that has ended, when the score is read, then Ada scores alone", () => {
     const alone = life(content, ADA);
     const theirs = life(content, ADA);
     joint(theirs, CANADA_ROUTE, "them", { stage: "married", facts: SPOUSE });
@@ -75,14 +75,14 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
     for (const game of [alone, theirs, ended]) expect(pointsScore(readOf(game), CANADA_ROUTE)).toBe(pointsScoreAlone(readOf(game), CANADA_ROUTE));
   });
 
-  test("[R-PEOPLE-030] given a spouse's school and band at each step of the table, when their factors are read, then each step scores as the page's table", () => {
+  test("[person:canada-spouse-points] given a spouse's school and band at each step of the table, when their factors are read, then each step scores as the page's table", () => {
     const game = leading();
     const factors = (over: Partial<PersonFacts>): number => spouseFactors(readOf(game), CANADA_ROUTE, facts({ englishBand: null, ...over }));
     expect([1, 2, 3, 4, 5].map((eduLevel) => factors({ eduLevel }))).toEqual([2, 7, 8, 10, 10]);
     expect([45, 50, 55, 60, 65, 70, 80].map((englishBand) => factors({ eduLevel: 0, englishBand }))).toEqual([0, 4, 4, 12, 12, 20, 20]);
   });
 
-  test("[R-PEOPLE-030] given a spouse working in Canada 11, 12, 23, 24 and 60 months, and one at home, when the Canadian work is read, then a year counts from twelve months there", () => {
+  test("[person:canada-spouse-points] given a spouse working in Canada 11, 12, 23, 24 and 60 months, and one at home, when the Canadian work is read, then a year counts from twelve months there", () => {
     const game = leading();
     const work = (monthsInCountry: number): number =>
       spouseFactors(readOf(game), CANADA_ROUTE, facts({ eduLevel: 0, englishBand: null, where: "abroad", country: "country.canada", job: "activity.job-teacher", monthsInCountry }));
@@ -90,7 +90,7 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
     expect(spouseFactors(readOf(game), CANADA_ROUTE, facts({ eduLevel: 0, englishBand: null, monthsInCountry: 60 }))).toBe(0);
   });
 
-  test("[R-PEOPLE-030] given a cap of 30 and a spouse who would score 40, when the factors are read, then they are 30", () => {
+  test("[person:canada-spouse-points] given a cap of 30 and a spouse who would score 40, when the factors are read, then they are 30", () => {
     const capped = (base: Content): Content => {
       const table = base.points["points.canada-spouse"]!;
       return { ...base, points: { ...base.points, "points.canada-spouse": { ...table, spouse: { ...table.spouse!, cap: 30 } } } };
@@ -102,8 +102,8 @@ describe("R-PEOPLE-030: the lead's score with a spouse", () => {
   });
 });
 
-describe("R-PEOPLE-031: a sibling in Canada", () => {
-  test("[R-PEOPLE-031] given a sibling resident in Canada aged exactly 18, and one a month younger, when the score is read, then only the first adds the bonus", () => {
+describe("person:canada-sibling-bonus: a sibling in Canada", () => {
+  test("[person:canada-sibling-bonus] given a sibling resident in Canada aged exactly 18, and one a month younger, when the score is read, then only the first adds the bonus", () => {
     const adult = life(content, ADA);
     const base = pointsScore(readOf(adult), CANADA_ROUTE);
     sibling(adult, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-resident", ageMonths: 18 * YEAR });
@@ -114,7 +114,7 @@ describe("R-PEOPLE-031: a sibling in Canada", () => {
     expect(siblingPoints(readOf(young), CANADA_ROUTE)).toBe(0);
   });
 
-  test("[R-PEOPLE-031] given two siblings who are citizens, one in the UK, and one with no status, when the bonus is read, then it is counted once, and only for Canada with residence or citizenship", () => {
+  test("[person:canada-sibling-bonus] given two siblings who are citizens, one in the UK, and one with no status, when the bonus is read, then it is counted once, and only for Canada with residence or citizenship", () => {
     const two = life(content, ADA);
     sibling(two, "sib-1", { where: "abroad", country: "country.canada", status: "status.ca-citizen" });
     sibling(two, "sib-2", { where: "abroad", country: "country.canada", status: "status.ca-resident" });
@@ -125,7 +125,7 @@ describe("R-PEOPLE-031: a sibling in Canada", () => {
     expect(siblingPoints(readOf(elsewhere), CANADA_ROUTE)).toBe(0);
   });
 
-  test("[R-PEOPLE-031] given a cut-off exactly the bonus above Ada's score, when the world's draw looks, then she is invited with the sibling and not without", () => {
+  test("[person:canada-sibling-bonus] given a cut-off exactly the bonus above Ada's score, when the world's draw looks, then she is invited with the sibling and not without", () => {
     const probe = life(content, ADA);
     const cutoff = pointsScore(readOf(probe), CANADA_ROUTE) + BONUS;
     const vars = (): Record<Id<"var">, number> => ({ "var.ca-cutoff": cutoff });

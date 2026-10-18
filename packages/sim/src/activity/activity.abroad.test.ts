@@ -1,6 +1,6 @@
-// Working life abroad: docs/rules/ladders.md, abroad-money.md R-ABROAD-002, car.md,
-// health.md R-HEALTH-004. Lives reach abroad through the real route kind (`flown`).
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// Working life abroad: docs/rules/ladders.md, abroad-money:salary-abroad-taxed-locally, car.md,
+// health:sick-pay-unless-sick-leave. Lives reach abroad through the real route kind (`flown`).
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -45,7 +45,7 @@ function yearly(id: Id<"activity">): number {
   return amount;
 }
 
-/** The route the character left on, with the sponsor's salary recorded, as the sponsor gate leaves it (R-SPONSOR-007). */
+/** The route the character left on, with the sponsor's salary recorded, as the sponsor gate leaves it (route-gates:sponsored-status-on-departure). */
 function leftOnSponsor(game: Game, salary: number): void {
   const route = game.state.route["route.uk-care"];
   if (route === undefined) throw new Error("The content has no care route.");
@@ -74,7 +74,7 @@ function hunts(game: Game): string[] | null {
 }
 
 describe("what may be done abroad", () => {
-  test("[R-LADDER-001] [R-PLACE-003] given a student in the UK, when the view is read, then the free slots are only those of anywhere, of abroad and of the UK; a home one or another country's in a slot is rejected, as a UK one is at home", () => {
+  test("[ladders:activities-filtered-by-where] [place:entries-legal-by-where] given a student in the UK, when the view is read, then the free slots are only those of anywhere, of abroad and of the UK; a home one or another country's in a slot is rejected, as a UK one is at home", () => {
     const game = flown(content);
     const listed = game.view().activities.map((option) => option.id);
     const wrong = listed.filter((id) => {
@@ -95,7 +95,7 @@ describe("what may be done abroad", () => {
     expect(home.view().activities.find((option) => option.id === "activity.call-home")?.allowed).toBe(false);
   });
 
-  test("[R-LADDER-001] [R-LADDER-006] [R-STATUS-002] given a student, an overstayer and a graduate, when the jobs to hunt are listed, then the student has the one part-time job, the overstayer the cash jobs, the graduate every UK job it qualifies for; none a job with no hiring chance", () => {
+  test("[ladders:activities-filtered-by-where] [ladders:student-holds-one-part-job] [status:status-sets-work-rule] given a student, an overstayer and a graduate, when the jobs to hunt are listed, then the student has the one part-time job, the overstayer the cash jobs, the graduate every UK job it qualifies for; none a job with no hiring chance", () => {
     expect(hunts(flown(content))).toEqual([RETAIL]);
     expect(hunts(holding(OVERSTAYER))).toEqual([KITCHEN, COURIER]);
     const graduate = hunts(holding(GRADUATE)) ?? [];
@@ -106,7 +106,7 @@ describe("what may be done abroad", () => {
     expect(graduate.every((id) => entry(id as Id<"activity">).country === "country.uk")).toBe(true);
   });
 
-  test("[R-LADDER-001] [R-LADDER-005] given a sponsored care worker, when the jobs to hunt are listed, then only jobs that carry their own sponsorship are, and the nurse's once the pin is held", () => {
+  test("[ladders:activities-filtered-by-where] [ladders:sponsor-job-ties-status] given a sponsored care worker, when the jobs to hunt are listed, then only jobs that carry their own sponsorship are, and the nurse's once the pin is held", () => {
     const game = careWorker();
     expect(hunts(game)).toEqual([]);
     expect(game.view().activities.find((option) => option.id === HUNT)?.allowed).toBe(false);
@@ -114,7 +114,7 @@ describe("what may be done abroad", () => {
     expect(hunts(game)).toEqual([NURSE]);
   });
 
-  test("[R-LADDER-006] [R-PLACE-003] given Zainab's developer job at home, when she arrives as a student, then the job ends with the flight, no pay comes from it and no clock starts", () => {
+  test("[ladders:student-holds-one-part-job] [place:entries-legal-by-where] given Zainab's developer job at home, when she arrives as a student, then the job ends with the flight, no pay comes from it and no clock starts", () => {
     const game = readyLife(content, { from: "scenario.zainab", seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(game.state.activity.job).toBe("activity.job-junior-dev");
@@ -131,7 +131,7 @@ describe("what may be done abroad", () => {
 });
 
 describe("local tenure", () => {
-  test("[R-LADDER-002] given months in a UK job and months in a job at home, when local tenure is judged abroad, then only the UK months count, and at home only the home ones", () => {
+  test("[ladders:local-tenure-counted] given months in a UK job and months in a job at home, when local tenure is judged abroad, then only the UK months count, and at home only the home ones", () => {
     const game = holding(GRADUATE, WAREHOUSE, { from: "scenario.zainab" });
     const atHome = game.state.activity.tenure["activity.job-junior-dev"] ?? 0;
     expect(atHome).toBeGreaterThan(0);
@@ -148,7 +148,7 @@ describe("local tenure", () => {
 });
 
 describe("pay and tax abroad", () => {
-  test("[R-ABROAD-002] [R-LADDER-005] given a sponsored care worker on £27,000, when a month is played, then the sponsor's job is the job held, the salary over twelve goes to the pound bank and the tax on the part above the line is taken in the same phase", () => {
+  test("[abroad-money:salary-abroad-taxed-locally] [ladders:sponsor-job-ties-status] given a sponsored care worker on £27,000, when a month is played, then the sponsor's job is the job held, the salary over twelve goes to the pound bank and the tax on the part above the line is taken in the same phase", () => {
     const game = careWorker();
     const result = game.endTurn();
     expect(game.state.activity.job).toBe(CARE);
@@ -165,9 +165,9 @@ describe("pay and tax abroad", () => {
     expect(moneyOf(result, "rent").length + moneyOf(result, "upkeep").length).toBeGreaterThan(0);
   });
 
-  test("[R-WALLET-016] given a sponsored care worker on the route's salary, when the view is read before the month, then the month's pay is the salary the wallet credits less the tax it takes", () => {
+  test("[wallet:view-carries-month-pay] given a sponsored care worker on the route's salary, when the view is read before the month, then the month's pay is the salary the wallet credits less the tax it takes", () => {
     const game = careWorker();
-    // The sponsor's job is taken up in the first month's work (R-SPONSOR-007); from then the view reads it.
+    // The sponsor's job is taken up in the first month's work (route-gates:sponsored-status-on-departure); from then the view reads it.
     game.endTurn();
     const pay = game.view().job.pay;
     const result = game.endTurn();
@@ -177,7 +177,7 @@ describe("pay and tax abroad", () => {
     expect(pay).toEqual({ currency: "GBP", amount: credited - taxed });
   });
 
-  test("[R-WALLET-016] given a job abroad under the tax line and one above it, when the view is read, then each month's pay is the wallet's credit less its tax", () => {
+  test("[wallet:view-carries-month-pay] given a job abroad under the tax line and one above it, when the view is read, then each month's pay is the wallet's credit less its tax", () => {
     for (const [status, job] of [[STUDENT, RETAIL], [GRADUATE, WAREHOUSE]] as const) {
       const game = holding(status, job);
       const pay = game.view().job.pay;
@@ -187,7 +187,7 @@ describe("pay and tax abroad", () => {
     }
   });
 
-  test("[R-ABROAD-002] given a job under the line, one above it and a job in the UAE, when a month is played, then the first pays no tax, the second the share above the line, the UAE none", () => {
+  test("[abroad-money:salary-abroad-taxed-locally] given a job under the line, one above it and a job in the UAE, when a month is played, then the first pays no tax, the second the share above the line, the UAE none", () => {
     const retail = holding(STUDENT, RETAIL);
     expect(yearly(RETAIL)).toBeLessThan(content.country["country.uk"]!.taxFreeLine);
     const under = retail.endTurn();
@@ -211,7 +211,7 @@ describe("pay and tax abroad", () => {
     expect(moneyOf(month, "tax")).toEqual([]);
   });
 
-  test("[R-ABROAD-002] given a yearly salary at the line, a penny over it, and twelve pence over, when the month's tax is worked out, then it is nothing, nothing, and one penny less what rounds away", () => {
+  test("[abroad-money:salary-abroad-taxed-locally] given a yearly salary at the line, a penny over it, and twelve pence over, when the month's tax is worked out, then it is nothing, nothing, and one penny less what rounds away", () => {
     const game = careWorker();
     const line = content.country["country.uk"]!.taxFreeLine;
     const taxAt = (salary: number) => monthlyTax(readOf(game), entry(CARE), { salary });
@@ -221,7 +221,7 @@ describe("pay and tax abroad", () => {
     expect(taxAt(line - 100000)).toBe(0);
   });
 
-  test("[R-LUCK-008] given the first pay abroad, when the month is reported, then it is a staged line showing the pay in naira at the official rate, and the next month's is a plain salary line", () => {
+  test("[luck:big-wins-are-staged] given the first pay abroad, when the month is reported, then it is a staged line showing the pay in naira at the official rate, and the next month's is a plain salary line", () => {
     const game = careWorker();
     const rate = game.world().rates.GBP.official;
     const first = game.endTurn();
@@ -240,7 +240,7 @@ describe("pay and tax abroad", () => {
     expect(second.lines.some((line) => line.big === true && line.key.startsWith("line.activity."))).toBe(false);
   });
 
-  test("[R-SHARE-001] given the first pay abroad, when the view is read through the month after it, then the card is the first pay abroad's, with the month and no name; the next month's pay brings none", () => {
+  test("[share:cards-due-at-set-moments] given the first pay abroad, when the view is read through the month after it, then the card is the first pay abroad's, with the month and no name; the next month's pay brings none", () => {
     const game = careWorker();
     expect(game.view().card?.kind).not.toBe("first-pay-abroad");
     game.endTurn();
@@ -249,7 +249,7 @@ describe("pay and tax abroad", () => {
     expect(game.view().card?.kind).not.toBe("first-pay-abroad");
   });
 
-  test("[R-ACTIVITY-001] [R-ABROAD-002] given a sponsor's job with no salary recorded, when its month is played, then nothing is paid and the job is still worked", () => {
+  test("[activity:one-job-paid-monthly] [abroad-money:salary-abroad-taxed-locally] given a sponsor's job with no salary recorded, when its month is played, then nothing is paid and the job is still worked", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SPONSORED, job: CARE }]);
     expect(jobTerms(readOf(game))).toEqual({});
@@ -271,7 +271,7 @@ describe("cash work", () => {
     return holding(OVERSTAYER, job, { change });
   }
 
-  test("[R-LADDER-003] given an overstayer in a cash job, when months are played, then the pay goes to the pound cash pocket as cash work with no tax, and a month the draw on `status` falls under `withheldBp` pays nothing", () => {
+  test("[ladders:cash-jobs-paid-in-hand] given an overstayer in a cash job, when months are played, then the pay goes to the pound cash pocket as cash work with no tax, and a month the draw on `status` falls under `withheldBp` pays nothing", () => {
     const game = kitchen();
     const pay = divFloor(yearly(KITCHEN), 12);
     let withheld = 0;
@@ -294,14 +294,14 @@ describe("cash work", () => {
     expect(paid).toBeGreaterThan(0);
   });
 
-  test("[R-LADDER-003] given the courier's rented account, when a month is paid, then £60 a week comes off the pay before it reaches cash", () => {
+  test("[ladders:cash-jobs-paid-in-hand] given the courier's rented account, when a month is paid, then £60 a week comes off the pay before it reaches cash", () => {
     const game = kitchen(COURIER);
     const rent = mulDiv(tuning.ladder.accountRent, 52, 12);
     expect(monthlyPay(readOf(game), entry(COURIER))).toEqual({ currency: "GBP", amount: divFloor(yearly(COURIER), 12) - rent });
     expect(rent).toBe(26000);
   });
 
-  test("[R-LADDER-003] given a cash job held and not, when the status kind asks, then cash work this month is read from the job held", () => {
+  test("[ladders:cash-jobs-paid-in-hand] given a cash job held and not, when the status kind asks, then cash work this month is read from the job held", () => {
     const game = kitchen();
     expect(cashWorkedThisMonth(readOf(game))).toBe(true);
     game.accept({ type: "activity/quit" });
@@ -309,7 +309,7 @@ describe("cash work", () => {
     expect(cashWorkedThisMonth(readOf(holding(GRADUATE, WAREHOUSE)))).toBe(false);
   });
 
-  test("[R-LADDER-003] [R-STATUS-005] given an overstayer with the base detection taken out, when a month is played in a cash job, with no job, and with the cash raise at 0, then only cash work found at a raise of 10000 removes the status", () => {
+  test("[ladders:cash-jobs-paid-in-hand] [status:overstayer-risks-detection] given an overstayer with the base detection taken out, when a month is played in a cash job, with no job, and with the cash raise at 0, then only cash work found at a raise of 10000 removes the status", () => {
     const removed = (job: Id<"activity"> | null, cashDetectBp: number): boolean => {
       const change = (used: Content): Content => ({
         ...used,
@@ -326,7 +326,7 @@ describe("cash work", () => {
     expect(removed(KITCHEN, 0)).toBe(false);
   });
 
-  test("[R-STATUS-002] [R-LADDER-003] given a graduate in the warehouse whose status lapses to the overstayer's, when the next month is played, then the job ends before it is paid", () => {
+  test("[status:status-sets-work-rule] [ladders:cash-jobs-paid-in-hand] given a graduate in the warehouse whose status lapses to the overstayer's, when the next month is played, then the job ends before it is paid", () => {
     const game = holding(GRADUATE, WAREHOUSE);
     applyEffects(game, [{ type: "status/grant", status: OVERSTAYER }]);
     const result = game.endTurn();
@@ -340,7 +340,7 @@ describe("the car as a work tool", () => {
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.car", principal: 855000 }]);
   }
 
-  test("[R-LADDER-004] [R-CAR-002] given the care worker's visiting round, when months are played with the car, with it in default and without it, then the bonus is paid only while the car is held and not in default", () => {
+  test("[ladders:car-bonus-needs-car] [car:open-finance-gives-the-car] given the care worker's visiting round, when months are played with the car, with it in default and without it, then the bonus is paid only while the car is held and not in default", () => {
     const without = careWorker();
     expect(moneyOf(without.endTurn(), "salary")[0]?.amount).toBe(225000);
 
@@ -359,7 +359,7 @@ describe("the car as a work tool", () => {
     expect(moneyOf(driving.endTurn(), "salary")[0]?.amount).toBe(225000);
   });
 
-  test("[R-LADDER-004] [R-CAR-006] given an activity that needs the car, when it is judged with no car, with a car and no licence, and with both, then only the last allows it", () => {
+  test("[ladders:car-bonus-needs-car] [car:licence-and-driving-test] given an activity that needs the car, when it is judged with no car, with a car and no licence, and with both, then only the last allows it", () => {
     const needing: Content = { ...content, activity: { ...content.activity, "activity.call-home": { ...entry("activity.call-home"), needsCar: true } } };
     const game = flown(content, { from: "scenario.tunde", change: (used) => ({ ...used, activity: { ...used.activity, "activity.call-home": needing.activity["activity.call-home"]! } }) });
     const allowed = () => game.view().activities.find((option) => option.id === "activity.call-home")?.allowed;
@@ -375,7 +375,7 @@ describe("the car as a work tool", () => {
 });
 
 describe("the sponsor's job", () => {
-  test("[R-LADDER-005] [R-STATUS-003] given a sponsored care worker, when the job is quit, then the status clock starts, and the job is not taken up again while it runs", () => {
+  test("[ladders:sponsor-job-ties-status] [status:lost-job-starts-clock] given a sponsored care worker, when the job is quit, then the status clock starts, and the job is not taken up again while it runs", () => {
     const game = careWorker();
     game.endTurn();
     game.accept({ type: "activity/quit" });
@@ -384,7 +384,7 @@ describe("the sponsor's job", () => {
     expect(game.state.activity.job).toBeNull();
   });
 
-  test("[R-LADDER-005] [R-STATUS-003] given a Gulf worker, when the job ends by an effect, then the status lapses at once", () => {
+  test("[ladders:sponsor-job-ties-status] [status:lost-job-starts-clock] given a Gulf worker, when the job ends by an effect, then the status lapses at once", () => {
     const game = flown(content);
     applyEffects(game, [
       { type: "place/move", to: "abroad", country: "country.uae" },
@@ -396,7 +396,7 @@ describe("the sponsor's job", () => {
     expect(game.state.status.current?.entry).toBe("status.uae-irregular");
   });
 
-  test("[R-LADDER-005] given a graduate and a settled resident, when a job that carries its own sponsorship is started, then the graduate is granted the sponsored status for that job and the settled resident keeps theirs", () => {
+  test("[ladders:sponsor-job-ties-status] given a graduate and a settled resident, when a job that carries its own sponsorship is started, then the graduate is granted the sponsored status for that job and the settled resident keeps theirs", () => {
     const graduate = holding(GRADUATE);
     applyEffects(graduate, [{ type: "activity/start-job", job: NURSE }]);
     expect(graduate.state.status.current).toMatchObject({ entry: SPONSORED, job: NURSE });
@@ -406,7 +406,7 @@ describe("the sponsor's job", () => {
     expect(settled.state.activity.job).toBe(NURSE);
   });
 
-  test("[R-STATUS-002] given a student, when a job the status does not allow is offered and accepted, then it does not start", () => {
+  test("[status:status-sets-work-rule] given a student, when a job the status does not allow is offered and accepted, then it does not start", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "activity/start-job", job: WAREHOUSE }]);
     expect(game.state.activity.job).toBeNull();
@@ -414,7 +414,7 @@ describe("the sponsor's job", () => {
 });
 
 describe("overtime", () => {
-  test("[R-LADDER-001] [R-LADDER-006] given a warehouse job and a cash job, when overtime fills a slot, then a quarter of the month's pay more comes in, to the bank as salary or to cash as cash work; a student's part-time job may not", () => {
+  test("[ladders:activities-filtered-by-where] [ladders:student-holds-one-part-job] given a warehouse job and a cash job, when overtime fills a slot, then a quarter of the month's pay more comes in, to the bank as salary or to cash as cash work; a student's part-time job may not", () => {
     const game = holding(GRADUATE, WAREHOUSE);
     game.endTurn();
     const month = divFloor(yearly(WAREHOUSE), 12);
@@ -438,7 +438,7 @@ describe("sick pay", () => {
     applyEffects(game, [{ type: "turn/lock", slots: 1, months, why: "illness" }]);
   }
 
-  test("[R-HEALTH-004] given a slot locked for illness, when the month is played, then a job with no sick leave pays half and one with sick leave pays in full", () => {
+  test("[health:sick-pay-unless-sick-leave] given a slot locked for illness, when the month is played, then a job with no sick leave pays half and one with sick leave pays in full", () => {
     const teacher = start({ content, scenario: "scenario.ada" });
     applyEffects(teacher, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
     lockedFor(teacher, 1);
@@ -454,7 +454,7 @@ describe("sick pay", () => {
     expect(moneyOf(banker.endTurn(), "salary")[0]?.amount).toBe(yearly("activity.job-bank-officer"));
   });
 
-  test("[R-HEALTH-004] given an illness lock for two months and another reason's lock, when months are played, then both sick months pay half and the other lock pays in full", () => {
+  test("[health:sick-pay-unless-sick-leave] given an illness lock for two months and another reason's lock, when months are played, then both sick months pay half and the other lock pays in full", () => {
     const teacher = start({ content, scenario: "scenario.ada" });
     applyEffects(teacher, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
     const pay = yearly("activity.job-teacher");
@@ -473,7 +473,7 @@ describe("buying the car and the driving test", () => {
     return registry().map((kind) => (kind.kind !== "credit" ? kind : { ...kind, requirements: { ...kind.requirements, "credit/min": () => ({ met: true }) } }));
   }
 
-  test("[R-CAR-001] [R-CAR-006] given a driver a month into the UK with the credit the lender asks, when the car is bought, then the deposit is paid as car-deposit and the car opens for the price less the deposit; without a licence it may not be", () => {
+  test("[car:car-bought-on-finance] [car:licence-and-driving-test] given a driver a month into the UK with the credit the lender asks, when the car is bought, then the deposit is paid as car-deposit and the car opens for the price less the deposit; without a licence it may not be", () => {
     const tunde = flown(content, { from: "scenario.tunde", kinds: creditMet() });
     tunde.endTurn();
     expect(check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met).toBe(true);
@@ -492,11 +492,11 @@ describe("buying the car and the driving test", () => {
     ada.expectRejected({ type: "activity/now", activity: "activity.buy-car-finance", param: null }, "not-legal");
   });
 
-  test("[R-CAR-006] given the tuning, when the driving test's fee is read, then it is the practical test's £62, as the page says", () => {
+  test("[car:licence-and-driving-test] given the tuning, when the driving test's fee is read, then it is the practical test's £62, as the page says", () => {
     expect(content.tuning.car.testFee).toBe(6200);
   });
 
-  test("[R-CAR-006] given a driver who arrives, when months pass, then the home licence holds for the 12 months from the first month abroad and not the 13th, and a non-driver never holds it", () => {
+  test("[car:licence-and-driving-test] given a driver who arrives, when months pass, then the home licence holds for the 12 months from the first month abroad and not the 13th, and a non-driver never holds it", () => {
     const tunde = flown(content, { from: "scenario.tunde" });
     const held = () => check(readOf(tunde), { type: "document/held", document: HOME_LICENCE }).met;
     expect(held()).toBe(false);
@@ -513,7 +513,7 @@ describe("buying the car and the driving test", () => {
     expect(check(readOf(ada), { type: "document/held", document: HOME_LICENCE }).met).toBe(false);
   });
 
-  test("[R-CAR-006] [R-CAR-002] [R-LADDER-004] given a driver with a car, when the home licence runs out after 12 months, then the car's activities close and the car cannot be bought, until the UK test is passed", () => {
+  test("[car:licence-and-driving-test] [car:open-finance-gives-the-car] [ladders:car-bonus-needs-car] given a driver with a car, when the home licence runs out after 12 months, then the car's activities close and the car cannot be bought, until the UK test is passed", () => {
     const needing = (used: Content): Content => ({ ...used, activity: { ...used.activity, "activity.call-home": { ...used.activity["activity.call-home"]!, needsCar: true } } });
     const tunde = flown(content, { from: "scenario.tunde", kinds: creditMet(), change: needing });
     applyEffects(tunde, [
@@ -539,11 +539,11 @@ describe("buying the car and the driving test", () => {
     tunde.endTurn([slot("activity.call-home")]);
   });
 
-  test("[R-CAR-006] given earlier attempts, when the pass chance is worked out, then it is 5500 plus 500 for each, capped at 9000", () => {
+  test("[car:licence-and-driving-test] given earlier attempts, when the pass chance is worked out, then it is 5500 plus 500 for each, capped at 9000", () => {
     expect([0, 1, 6, 7, 8, 20].map((attempts) => passChanceBp(attempts, tuning.car))).toEqual([5500, 6000, 8500, 9000, 9000, 9000]);
   });
 
-  test("[R-CAR-006] given a learner in the UK, when the test is taken until it is passed, then the lessons are paid once and the fee each time, the draw on `status` decides, and a pass grants the UK licence", () => {
+  test("[car:licence-and-driving-test] given a learner in the UK, when the test is taken until it is passed, then the lessons are paid once and the fee each time, the draw on `status` decides, and a pass grants the UK licence", () => {
     const game = flown(content);
     const before = game.state.wallet.totals.out;
     let attempts = 0;
@@ -568,7 +568,7 @@ describe("buying the car and the driving test", () => {
 });
 
 describe("requirements the activity kind judges", () => {
-  test("[R-LADDER-002] given the local tenure requirement, when it is judged at home with no job months, then it is not met and shows what is needed", () => {
+  test("[ladders:local-tenure-counted] given the local tenure requirement, when it is judged at home with no job months, then it is not met and shows what is needed", () => {
     const ada = start({ content, scenario: "scenario.ada" });
     const requirement: Requirement = { type: "activity/local-tenure", months: 1 };
     expect(check({ state: ada.state, world: ada.world(), content }, requirement)).toEqual({ met: false, have: 0, need: 1 });

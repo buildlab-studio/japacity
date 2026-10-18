@@ -7,7 +7,7 @@ import { appliedAmount } from "./quality.logic";
 import { TECH } from "../testing/ids";
 
 describe("gains beside a side job", () => {
-  test("[R-ACTIVITY-010] given a side job held, when a skill gains, then the gain is halved rounding up, and a quality that is not a skill is not", () => {
+  test("[activity:side-job-holds-a-slot] given a side job held, when a skill gains, then the gain is halved rounding up, and a quality that is not a skill is not", () => {
     const game = start({ content, scenario: "scenario.zainab" });
     const before = game.state.quality[TECH] ?? 0;
     applyEffects(game, [{ type: "quality/add", quality: TECH, amount: 4 }]);
@@ -26,7 +26,7 @@ describe("gains beside a side job", () => {
     expect(appliedAmount(tech, 10, 5, content.tuning.quality, false)).toBe(5);
   });
 
-  test("[R-ACTIVITY-010] [R-ENGINE-017] given the side job's share of a skill gain moved in the tuning, when a skill gains, then the share is the tuning's, rounding up", () => {
+  test("[activity:side-job-holds-a-slot] [engine:numbers-read-from-content] given the side job's share of a skill gain moved in the tuning, when a skill gains, then the share is the tuning's, rounding up", () => {
     const tech = content.quality[TECH]!;
     const numbers = content.tuning.quality;
     expect(numbers.sideJobSkillBp).toBe(5000);

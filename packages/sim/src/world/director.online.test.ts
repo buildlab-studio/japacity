@@ -66,7 +66,7 @@ function fromStoredBooks(worldSeed: string, upTo: number, used: Content, scale: 
 }
 
 describe("the resumable director", () => {
-  test("[R-CLOCK-010] [R-CLOCK-011] [R-DIRECTOR-008] given four world seeds at the offline and the online scale, when 300 ticks are stepped in one go and again tick by tick from books stored as JSON, then every world and every book's hash agree", () => {
+  test("[clock:world-is-stored-history] [clock:tick-row-is-pure-step] [director:world-stepped-from-seed] given four world seeds at the offline and the online scale, when 300 ticks are stepped in one go and again tick by tick from books stored as JSON, then every world and every book's hash agree", () => {
     for (const seed of SEEDS) {
       for (const [scale, calendar] of [
         [1, offlineCalendar],
@@ -80,14 +80,14 @@ describe("the resumable director", () => {
     }
   });
 
-  test("[R-DIRECTOR-008] [R-CLOCK-011] given the stand-in world, when it is compared with stepWorld at scale 1 on the offline calendar, then they are the same worlds", () => {
+  test("[director:world-stepped-from-seed] [clock:tick-row-is-pure-step] given the stand-in world, when it is compared with stepWorld at scale 1 on the offline calendar, then they are the same worlds", () => {
     for (const seed of SEEDS) {
       expect(standInWorlds(seed, 120, content)).toEqual(inOneGo(seed, 120, content, 1, offlineCalendar).worlds);
       expect(standInWorld(seed, 0, content)).toEqual(stepWorld(null, seed, content, offlineCalendar(0), 1).world);
     }
   });
 
-  test("[R-CLOCK-011] given a book, when the world is stepped from it, then the book is left as it was and the next book stands one tick on", () => {
+  test("[clock:tick-row-is-pure-step] given a book, when the world is stepped from it, then the book is left as it was and the next book stands one tick on", () => {
     let book = stepWorld(null, "online-0", content, offlineCalendar(0), SCALE).book;
     for (let tick = 1; tick <= 40; tick += 1) book = stepWorld(book, "online-0", content, realish(tick), SCALE).book;
     const text = JSON.stringify(book);
@@ -99,14 +99,14 @@ describe("the resumable director", () => {
     expect(JSON.parse(JSON.stringify(next.book))).toEqual(next.book);
   });
 
-  test("[R-CLOCK-011] given a scale that is not a whole number from 1, when the world is stepped, then it throws", () => {
+  test("[clock:tick-row-is-pure-step] given a scale that is not a whole number from 1, when the world is stepped, then it throws", () => {
     expect(() => stepWorld(null, "online-0", content, offlineCalendar(0), 0)).toThrow(/scale/);
     expect(() => stepWorld(null, "online-0", content, offlineCalendar(0), -2)).toThrow(/scale/);
   });
 });
 
 describe("the online scale", () => {
-  test("[R-CLOCK-015] [R-DIRECTOR-002] given many world seeds, when the world runs at the online scale, then the eras come in the same order with each length the scale times the offline one, and the era's story comes into force the scale times its lag after the era begins", () => {
+  test("[clock:online-lengths-scaled] [director:one-era-at-a-time] given many world seeds, when the world runs at the online scale, then the eras come in the same order with each length the scale times the offline one, and the era's story comes into force the scale times its lag after the era begins", () => {
     const erasOf = (ticks: DirectorTick[]) =>
       ticks.map((tick) => tick.era!).filter((one, index, all) => index === 0 || one.since !== all[index - 1]!.since);
     for (const seed of SEEDS) {
@@ -123,7 +123,7 @@ describe("the online scale", () => {
     expect(stageOf(ticks[lag * SCALE]!, calmStory)).toEqual({ id: calmStory, stage: "in-force", since: lag * SCALE });
   });
 
-  test("[R-CLOCK-015] [R-DIRECTOR-004] given a story with a rumour lead, a force lag and an end, when it fires at the online scale, then each gap between its stages is the scale times its own", () => {
+  test("[clock:online-lengths-scaled] [director:stories-pass-through-stages] given a story with a rumour lead, a force lag and an end, when it fires at the online scale, then each gap between its stages is the scale times its own", () => {
     const story = pooled("news.t-stages", { once: true }, { rumourLead: 2, forceLag: 3, endsAfter: 4 });
     expect(SCALE).toBe(2);
     const ticks = directorTicks("w", 24, withPool([story]), SCALE);
@@ -139,12 +139,12 @@ describe("the online scale", () => {
     expect(stage(19)).toEqual({ id: "news.t-stages", stage: "ended", since: 19 });
   });
 
-  test("[R-CLOCK-015] [R-DIRECTOR-003] given a story with a cooldown of 10, when it may always fire at the online scale, then it fires every twentieth tick", () => {
+  test("[clock:online-lengths-scaled] [director:stories-start-by-roll] given a story with a cooldown of 10, when it may always fire at the online scale, then it fires every twentieth tick", () => {
     const ticks = directorTicks("w", 80, withPool([pooled("news.t-cool", { cooldown: 10 })]), SCALE);
     expect(starts(ticks, "news.t-cool")).toEqual([1, 21, 41, 61]);
   });
 
-  test("[R-CLOCK-015] [R-DIRECTOR-003] given two shocks that may always fire, when one era runs at the online scale, then the second waits the scale times the gap", () => {
+  test("[clock:online-lengths-scaled] [director:stories-start-by-roll] given two shocks that may always fire, when one era runs at the online scale, then the second waits the scale times the gap", () => {
     const pool = [pooled("news.t-shock-a", { shock: true }), pooled("news.t-shock-b", { shock: true })];
     const ticks = directorTicks("w", 100, withPool(pool), SCALE);
     expect(starts(ticks, "news.t-shock-a")).toEqual([1]);
@@ -153,7 +153,7 @@ describe("the online scale", () => {
     expect(starts(edge, "news.t-shock-b")).toEqual([1 + SCALE]);
   });
 
-  test("[R-CLOCK-015] [R-DIRECTOR-005] given a closure and its reopening, when they run at the online scale, then the reopening waits the scale times the closed ticks and comes into force the scale times its lag later", () => {
+  test("[clock:online-lengths-scaled] [director:policy-cycle-surge-backlash] given a closure and its reopening, when they run at the online scale, then the reopening waits the scale times the closed ticks and comes into force the scale times its lag later", () => {
     const ended = pooled("news.t-closes", { once: true, endedBy: "news.t-opens" }, { forceLag: 2, sets: [{ var: "var.uae-window", value: 0 }], revert: true });
     const ender = pooled("news.t-opens", { once: true, needs: [{ type: "var/max", var: "var.uae-window", value: 0 }] }, { forceLag: 3, sets: [{ var: "var.uae-window", value: 2 }] });
     const ticks = directorTicks("w", 40, withPool([ended, ender], { director: { closedTicks: 4 } }), SCALE);
@@ -164,7 +164,7 @@ describe("the online scale", () => {
 });
 
 describe("the calendar", () => {
-  test("[R-CLOCK-014] [R-DIRECTOR-006] given the tick's calendar, when the world is stepped, then the December variable follows the calendar and not the tick", () => {
+  test("[clock:december-by-lagos-time] [director:december-and-inflation] given the tick's calendar, when the world is stepped, then the December variable follows the calendar and not the tick", () => {
     const ticks = directorTicks("online-0", 300, content, SCALE, realish);
     for (const tick of ticks) expect(tick.vars[DECEMBER_VAR]).toBe(realish(tick.tick).december ? 1 : 0);
     expect(ticks.filter((tick) => tick.vars[DECEMBER_VAR] === 1)).toHaveLength(62);
@@ -174,7 +174,7 @@ describe("the calendar", () => {
 });
 
 describe("a book under new content", () => {
-  test("[R-CLOCK-016] given a book stepped under one content, when the next tick is stepped under content that adds a story and a variable and drops a story, then the new story starts unfired, the new variable starts at its start, and the dropped story leaves the book and the world", () => {
+  test("[clock:new-content-from-next-tick] given a book stepped under one content, when the next tick is stepped under content that adds a story and a variable and drops a story, then the new story starts unfired, the new variable starts at its start, and the dropped story leaves the book and the world", () => {
     const before = withPool([pooled("news.t-old", { once: true }), pooled("news.t-kept", { once: true })]);
     let book = stepWorld(null, "w", before, offlineCalendar(0), SCALE).book;
     for (let tick = 1; tick <= 5; tick += 1) book = stepWorld(book, "w", before, offlineCalendar(tick), SCALE).book;

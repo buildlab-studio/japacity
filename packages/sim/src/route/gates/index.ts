@@ -1,4 +1,4 @@
-// One module for each gate the contract names (R-GATE-001).
+// One module for each gate the contract names (route-gates:route-runs-its-gate-steps).
 import type { RouteGate } from "../../engine/types";
 import { contractGate } from "./contract";
 import { endorsementGate } from "./endorsement";

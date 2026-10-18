@@ -1,4 +1,4 @@
-// Saves and replay (R-ENGINE-010, R-SERVER-020 to 022, decision 0004). A save
+// Saves and replay (engine:state-is-plain-data, server:save-is-list-of-segments, server:newer-content-upgrades-state and server:upgrade-state-is-pure, decision 0004). A save
 // is a list of segments, each the commands accepted under one content version
 // and one overlay. The first starts from the scenario and the seeds; a later
 // one starts from a base state, the state the segment before ended in carried
@@ -62,7 +62,7 @@ export function lastSegment(save: Save | FlatSave): SaveSegment {
 /**
  * The content a segment names, by its version and overlay. Given one content,
  * a segment under anything else is refused: numbers an overlay changed would
- * replay the commands to another life (R-ENGINE-017).
+ * replay the commands to another life (engine:numbers-read-from-content).
  */
 function contentFor(segment: SaveSegment, contents: Content | readonly Content[]): Content {
   if (!Array.isArray(contents)) {
@@ -78,7 +78,7 @@ function contentFor(segment: SaveSegment, contents: Content | readonly Content[]
   return found;
 }
 
-/** The state a segment begins from (R-SERVER-021): a later segment's base must be the upgrade of the state before it. */
+/** The state a segment begins from (server:newer-content-upgrades-state): a later segment's base must be the upgrade of the state before it. */
 function startOf(segment: SaveSegment, index: number, before: { state: State; content: Content } | null, content: Content, family: Save["family"]): State {
   const { start } = segment;
   if (before === null) {
@@ -146,7 +146,7 @@ export function recordCommand(save: Save, command: Command, tick: number, sender
   return { ...save, segments: [...save.segments.slice(0, -1), { ...last, commands: [...last.commands, { command, tick, sender }] }] };
 }
 
-/** The save with a new segment under `content`, beginning from `base` (R-SERVER-021, R-SERVER-024). */
+/** The save with a new segment under `content`, beginning from `base` (server:newer-content-upgrades-state, server:overlay-change-opens-segment). */
 export function openSegment(save: Save, base: State, content: Content): Save {
   if (base.content !== content.version) throw new Error(`The base is for content ${base.content}, not ${content.version}.`);
   return { ...save, segments: [...save.segments, segmentOf(content, { base })] };

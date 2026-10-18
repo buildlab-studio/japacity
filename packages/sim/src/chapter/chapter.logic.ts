@@ -10,17 +10,17 @@ import { checklistEarned, japacity, routePercent } from "../japacity/japacity.lo
 import { cardOf, cardsAllowed, reportLines, topActivities } from "./chapter.card";
 import type { ChapterEvent } from "./chapter.events";
 
-/** The chapter whose close makes the send-off card (R-CHAPTER-006). */
+/** The chapter whose close makes the send-off card (chapter:send-off-card-on-close). */
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
-/** The last chapter a grant finishes on its own (R-CHAPTER-002). */
+/** The last chapter a grant finishes on its own (chapter:met-items-close-the-chapter). */
 const DECISION_DAY: Id<"chapter"> = "chapter.decision-day";
 const CLOSED_LINE = "line.chapter.closed";
 const REOPENED_LINE = "line.chapter.reopened";
 
-/** The way out the base chapters are written for: the lean when the life leans to no variant's route (R-CHAPTER-009). */
+/** The way out the base chapters are written for: the lean when the life leans to no variant's route (chapter:chapters-follow-lean-route). */
 const BASE_ROUTE: Id<"route"> = "route.uk-masters";
 
-/** Every base chapter in content, by order. A variant only ever stands in for its base (R-CHAPTER-009). */
+/** Every base chapter in content, by order. A variant only ever stands in for its base (chapter:chapters-follow-lean-route). */
 function byOrder(content: Content): ChapterEntry[] {
   return Object.values(content.chapter)
     .filter((entry) => entry.variantOf === undefined)
@@ -33,7 +33,7 @@ function entryOf(content: Content, id: Id<"chapter">): ChapterEntry {
   return entry;
 }
 
-/** R-CHAPTER-009: the base chapter a chapter stands in for, or itself when it is a base. */
+/** chapter:chapters-follow-lean-route: the base chapter a chapter stands in for, or itself when it is a base. */
 function baseChapterOf(content: Content, id: Id<"chapter">): Id<"chapter"> {
   return content.chapter[id]?.variantOf ?? id;
 }
@@ -45,7 +45,7 @@ function leanCandidates(content: Content): Id<"route">[] {
 }
 
 /**
- * R-CHAPTER-009: the way out the life leans to. "The first own-effort route the life has heard
+ * chapter:chapters-follow-lean-route: the way out the life leans to. "The first own-effort route the life has heard
  * of or looked into" is read in time, not by the page's list. The route looked into first wins, else the
  * route heard of first; the page's order (care, talent, points, the Gulf, the master's) only breaks a tie
  * in the same month. Every graduate hears of Canada's points by month 5, so a list read first would turn a
@@ -61,14 +61,14 @@ export function leanRoute(routes: RouteSlice, content: Content, chosen: Id<"rout
 
 /**
  * The routes a visa is granted and flown on: every route with a country, a partner's and a dependant's among
- * them, never the road (`FLOWN_ROUTES` in chapter.data.ts, R-CHAPTER-002).
+ * them, never the road (`FLOWN_ROUTES` in chapter.data.ts, chapter:met-items-close-the-chapter).
  */
 function flightRoutes(content: Content): RouteEntry[] {
   return Object.values(content.route).filter((entry) => entry.country !== null && entry.gate !== "road");
 }
 
 /**
- * R-CHAPTER-009: the grant decides the plan. The route flown, else the one granted, in
+ * chapter:chapters-follow-lean-route: the grant decides the plan. The route flown, else the one granted, in
  * content's order; null while none is. The chapters follow it before the chosen way and the time order.
  */
 export function grantedRoute(routes: RouteSlice, content: Content): Id<"route"> | null {
@@ -88,7 +88,7 @@ function live(routes: RouteSlice, id: Id<"route">): boolean {
 }
 
 /**
- * R-CHAPTER-009: the lean as the view names it: the route granted or flown, else the chosen way,
+ * chapter:chapters-follow-lean-route: the lean as the view names it: the route granted or flown, else the chosen way,
  * else the order in time, else none heard of.
  */
 export function planOf(routes: RouteSlice, content: Content, chosen: Id<"route"> | null): Id<"route"> | null {
@@ -111,7 +111,7 @@ export function planOf(routes: RouteSlice, content: Content, chosen: Id<"route">
 
 /**
  * Each way the plan can take that the life has heard of, with the figure the japacity kind gives it: its
- * own once looked into (R-JAPACITY-001, 002), and while only heard of, the sum its checklist earns now,
+ * own once looked into (japacity:figure-sums-checklist-items, japacity:granted-route-scores-full), and while only heard of, the sum its checklist earns now,
  * so the switch can say what making it the plan would do.
  */
 function waysOf(read: ReadCtx): PlayerView["plan"]["ways"] {
@@ -125,10 +125,10 @@ function waysOf(read: ReadCtx): PlayerView["plan"]["ways"] {
     });
 }
 
-/** The states past the plan: once a visa is granted the chapters follow the grant, not a lean (R-CHAPTER-009). */
+/** The states past the plan: once a visa is granted the chapters follow the grant, not a lean (chapter:chapters-follow-lean-route). */
 const PAST_PLAN = new Set(["granted", "departed"]);
 
-/** R-CHAPTER-009: the player makes a way heard of or looked into the plan; the chapters follow it from the next close. */
+/** chapter:chapters-follow-lean-route: the player makes a way heard of or looked into the plan; the chapters follow it from the next close. */
 function leanCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "chapter/lean") throw new Error(`chapter/lean cannot handle ${command.type}.`);
   const { route } = command;
@@ -144,20 +144,20 @@ function leanCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return [leaned];
 }
 
-/** R-CHAPTER-009: the chapter that takes a base's turn: its variant for the lean route when content has one, else the base. */
+/** chapter:chapters-follow-lean-route: the chapter that takes a base's turn: its variant for the lean route when content has one, else the base. */
 function standingIn(content: Content, base: ChapterEntry, lean: Id<"route">): Id<"chapter"> {
   return Object.values(content.chapter).find((entry) => entry.variantOf === base.id && entry.route === lean)?.id ?? base.id;
 }
 
-/** The base a chapter stands in for, or itself when it is a base (R-CHAPTER-009). */
+/** The base a chapter stands in for, or itself when it is a base (chapter:chapters-follow-lean-route). */
 function baseOf(content: Content, entry: ChapterEntry): ChapterEntry {
   return entry.variantOf === undefined ? entry : entryOf(content, entry.variantOf);
 }
 
 /**
- * The chapter that follows by its base's order, or null after the last (R-CHAPTER-004), with the
- * lean read again as the chapter closes (R-CHAPTER-009). A base already done is passed over: only a
- * reopening (R-CHAPTER-003) leaves a done chapter after the current one.
+ * The chapter that follows by its base's order, or null after the last (chapter:no-chapter-after-last), with the
+ * lean read again as the chapter closes (chapter:chapters-follow-lean-route). A base already done is passed over: only a
+ * reopening (chapter:done-chapter-stays-done) leaves a done chapter after the current one.
  */
 function nextAfter(content: Content, entry: ChapterEntry, routes: RouteSlice, chapters: ChapterSlice): Id<"chapter"> | null {
   const base = baseOf(content, entry);
@@ -167,7 +167,7 @@ function nextAfter(content: Content, entry: ChapterEntry, routes: RouteSlice, ch
 }
 
 /**
- * R-CHAPTER-009: the chapter the current one is judged as. Once an own route is granted or
+ * chapter:chapters-follow-lean-route: the chapter the current one is judged as. Once an own route is granted or
  * flown, the variant standing in for its base under that route, whichever variant happened to be current.
  */
 function judgedEntry(content: Content, current: Id<"chapter">, routes: RouteSlice): ChapterEntry {
@@ -177,11 +177,11 @@ function judgedEntry(content: Content, current: Id<"chapter">, routes: RouteSlic
 }
 
 /**
- * R-CHAPTER-002: why the chapter is finished, or null while it is not. `items`: every item met, or the one
+ * chapter:met-items-close-the-chapter: why the chapter is finished, or null while it is not. `items`: every item met, or the one
  * item the entry names in `closesOn`. `grant`: a chapter whose base comes at or before
  * decision day once a route is granted or flown, its items unmet: a route with no variant of its own (the
  * skilled worker's) could never meet the master's items the base names. The items are read first, so a
- * close the items earn never rests on the grant (R-CHAPTER-003).
+ * close the items earn never rests on the grant (chapter:done-chapter-stays-done).
  */
 function finishedBy(content: Content, entry: ChapterEntry, routes: RouteSlice, met: (requirement: Requirement) => boolean): "items" | "grant" | null {
   const alone = entry.closesOn === undefined ? undefined : entry.items.find((item) => item.id === entry.closesOn);
@@ -197,10 +197,10 @@ function finished(content: Content, entry: ChapterEntry, routes: RouteSlice, met
 }
 
 /**
- * R-CHAPTER-003: a grant withdrawn before the flight (R-PEOPLE-036) reopens the chapters closed on
+ * chapter:done-chapter-stays-done: a grant withdrawn before the flight (person:joint-collapses-with-bond) reopens the chapters closed on
  * it. Read from the state: closes on a grant are kept, the character is at home, and no route is granted or
  * flown any more, which only a withdrawal brings about (a grant otherwise only goes on to the flight). The first
- * of them by order is current again as it stands in under the lean now (R-CHAPTER-009); the rest come by order.
+ * of them by order is current again as it stands in under the lean now (chapter:chapters-follow-lean-route); the rest come by order.
  */
 function reopenWithdrawn(ctx: Ctx): BaseEvent[] {
   const byGrant = ctx.state.chapter.byGrant ?? [];
@@ -214,7 +214,7 @@ function reopenWithdrawn(ctx: Ctx): BaseEvent[] {
   return emit(ctx, "chapter", [reopened]);
 }
 
-/** R-CHAPTER-003: once a route is flown, the closes on the grant are final. */
+/** chapter:done-chapter-stays-done: once a route is flown, the closes on the grant are final. */
 function sealFlown(ctx: Ctx): BaseEvent[] {
   const byGrant = ctx.state.chapter.byGrant ?? [];
   if (byGrant.length === 0 || !flown(ctx.state.route, ctx.content)) return [];
@@ -223,7 +223,7 @@ function sealFlown(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-CHAPTER-002. The phase runs once a turn and looks only at the current
+ * chapter:met-items-close-the-chapter. The phase runs once a turn and looks only at the current
  * chapter, so at most one chapter closes in a turn even when the next one's
  * items already hold: it closes at the end of the following turn. The one
  * exception is the flight: on a turn an own route is flown, the
@@ -245,7 +245,7 @@ function closeFinished(ctx: Ctx): BaseEvent[] {
     if (by === null) break;
     const next = nextAfter(ctx.content, entry, ctx.state.route, ctx.state.chapter);
     const grant = by === "grant" ? grantedRoute(ctx.state.route, ctx.content) : null;
-    // R-CHAPTER-003: a close the grant made remembers the route it rested on.
+    // chapter:done-chapter-stays-done: a close the grant made remembers the route it rested on.
     const closed: ChapterEvent = grant === null ? { type: "chapter/closed", chapter: entry.id, next } : { type: "chapter/closed", chapter: entry.id, next, onGrant: grant };
     // Applied first, so the report reads the close before the refill it pays for.
     emit(ctx, "chapter", [closed]);
@@ -259,7 +259,7 @@ function closeFinished(ctx: Ctx): BaseEvent[] {
 function evolve(slice: ChapterSlice, event: ChapterEvent): ChapterSlice {
   switch (event.type) {
     case "chapter/closed": {
-      // R-CHAPTER-003: done grows, and only a grant withdrawn before the flight takes chapters out of it.
+      // chapter:done-chapter-stays-done: done grows, and only a grant withdrawn before the flight takes chapters out of it.
       const closed = { ...slice, current: event.next, done: [...slice.done, event.chapter] };
       return event.onGrant === undefined ? closed : { ...closed, byGrant: [...(slice.byGrant ?? []), { chapter: event.chapter, route: event.onGrant }] };
     }
@@ -296,7 +296,7 @@ function lines(event: ChapterEvent): ReportLine[] {
       const opened: ReportLine = { key: "line.chapter.opened", params: { chapter: event.next }, tone: "plain", attention: false, counts: [] };
       return [closed, opened];
     }
-    // The visa is gone: the report names the chapter the life is back in (R-CHAPTER-003).
+    // The visa is gone: the report names the chapter the life is back in (chapter:done-chapter-stays-done).
     case "chapter/reopened":
       return [{ key: REOPENED_LINE, params: { chapter: event.current }, tone: "bad", attention: true, counts: [] }];
     // The switch says what it did on the page; the month's report has nothing to add. The flight's own lines tell the flight.
@@ -311,8 +311,8 @@ function lines(event: ChapterEvent): ReportLine[] {
 }
 
 /**
- * `chapter/done`: the chapter has been finished, whatever has happened since (R-CHAPTER-003). A base is
- * done when the variant that stood in for it is (R-CHAPTER-009).
+ * `chapter/done`: the chapter has been finished, whatever has happened since (chapter:done-chapter-stays-done). A base is
+ * done when the variant that stood in for it is (chapter:chapters-follow-lean-route).
  */
 function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "chapter/done") throw new Error(`The chapter kind cannot judge ${requirement.type}.`);
@@ -320,7 +320,7 @@ function judgeDone(read: ReadCtx, requirement: Requirement): RequirementResult {
 }
 
 // ---------------------------------------------------------------------------
-// The send-off card: R-CHAPTER-006
+// The send-off card: chapter:send-off-card-on-close
 // ---------------------------------------------------------------------------
 
 export { topActivities };
@@ -328,7 +328,7 @@ export { topActivities };
 /**
  * The flight has been taken this month and the send-off closes at the end of it:
  * the send-off is current, or a chapter before it, which the
- * flight's turn closes in order up to the send-off (R-CHAPTER-002).
+ * flight's turn closes in order up to the send-off (chapter:met-items-close-the-chapter).
  */
 function sendOffDue(read: ReadCtx): boolean {
   const { current } = read.state.chapter;
@@ -339,7 +339,7 @@ function sendOffDue(read: ReadCtx): boolean {
 }
 
 /**
- * R-CHAPTER-006: the card of the flight month, read from the state and never
+ * chapter:send-off-card-on-close: the card of the flight month, read from the state and never
  * stored. It shows from the flight until the month after it is played,
  * when the send-off closes, so its standing and its lines are the flight
  * month's. The route is the one flown; the figure is its japacity figure,
@@ -352,18 +352,18 @@ export function sendOffCard(read: ReadCtx): PlayerView["card"] {
 }
 
 /**
- * R-SHARE-001: a chapter card through the month after a chapter closes. The
- * send-off's close has the send-off card (R-CHAPTER-006) and no second one.
+ * share:cards-due-at-set-moments: a chapter card through the month after a chapter closes. The
+ * send-off's close has the send-off card (chapter:send-off-card-on-close) and no second one.
  */
 export function chapterCard(read: ReadCtx): PlayerView["card"] {
   if (!cardsAllowed(read)) return null;
   const closes = reportLines(read, CLOSED_LINE);
-  // A chapter closed in the same report as the send-off (the flight's turn, R-CHAPTER-002) has no card of its own: the
-  // send-off card is that report's (R-CHAPTER-006).
+  // A chapter closed in the same report as the send-off (the flight's turn, chapter:met-items-close-the-chapter) has no card of its own: the
+  // send-off card is that report's (chapter:send-off-card-on-close).
   if (closes.some((line) => line.params.chapter === SEND_OFF)) return null;
   for (const line of closes) {
     const chapter = line.params.chapter as Id<"chapter">;
-    // The way out the chapters follow stands on the card while no route's figure counts yet (R-CHAPTER-009): the nurse's care
+    // The way out the chapters follow stands on the card while no route's figure counts yet (chapter:chapters-follow-lean-route): the nurse's care
     // work, shut to applicants from abroad, has its own figure from the month its page is read.
     const route = japacity(read).route ?? planOf(read.state.route, read.content, read.state.chapter.chosen ?? null);
     if (chapter !== SEND_OFF) return cardOf(read, "chapter", { chapter, route });
@@ -373,7 +373,7 @@ export function chapterCard(read: ReadCtx): PlayerView["card"] {
 
 export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
   kind: "chapter",
-  // R-CHAPTER-001.
+  // chapter:first-chapter-starts-current.
   initial(_scenario, content) {
     return { current: byOrder(content)[0]?.id ?? null, done: [] };
   },
@@ -390,25 +390,25 @@ export const chapterKind: RegisteredKind<ChapterSlice, ChapterEvent> = {
     for (const id of done) {
       if (content.chapter[id] === undefined) problems.push(`The done chapter ${id} is not in content.`);
     }
-    // R-CHAPTER-009: one chapter takes each base's turn, the base or one of its variants. Repeats of one id are named above.
+    // chapter:chapters-follow-lean-route: one chapter takes each base's turn, the base or one of its variants. Repeats of one id are named above.
     const bases = [...new Set(done)].map((id) => baseChapterOf(content, id));
     if (new Set(bases).size !== bases.length) problems.push(`A base chapter's turn is done twice, by it and a variant: ${done.join(", ")}.`);
     if (current !== null && !done.includes(current) && bases.includes(baseChapterOf(content, current))) problems.push(`The current chapter ${current} stands in for one already done.`);
     if (new Set(done).size !== done.length) problems.push(`A chapter is done more than once: ${done.join(", ")}.`);
     const { chosen } = state.chapter;
     if (chosen !== undefined && content.route[chosen] === undefined) problems.push(`The chosen plan ${chosen} is not a route in content.`);
-    // R-CHAPTER-003: the closes kept on a grant are done chapters, on a route in content.
+    // chapter:done-chapter-stays-done: the closes kept on a grant are done chapters, on a route in content.
     for (const kept of state.chapter.byGrant ?? []) {
       if (!done.includes(kept.chapter)) problems.push(`The chapter ${kept.chapter} closed on a grant is not done.`);
       if (content.route[kept.route] === undefined) problems.push(`The grant ${kept.route} a chapter closed on is not a route in content.`);
     }
     return problems;
   },
-  // R-CHAPTER-005: each item of the current chapter, judged against the state as it is now. R-CHAPTER-010: whether it
+  // chapter:items-are-live-requirements: each item of the current chapter, judged against the state as it is now. chapter:view-says-closes-and-next: whether it
   // closes at this month's end as the phase would judge it, and the chapter that follows it with the lean as it stands.
   view: (read) => {
     const { current, done } = read.state.chapter;
-    // R-CHAPTER-009: the items are the variant's the phase judges, the grant's once there is one.
+    // chapter:chapters-follow-lean-route: the items are the variant's the phase judges, the grant's once there is one.
     const entry = current === null ? undefined : judgedEntry(read.content, current, read.state.route);
     const items = entry === undefined ? [] : entry.items.map((item) => ({ id: item.id, met: check(read, item.requirement).met }));
     const closes = entry !== undefined && finished(read.content, entry, read.state.route, (requirement) => check(read, requirement).met);

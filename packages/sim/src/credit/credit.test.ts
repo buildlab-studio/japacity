@@ -37,14 +37,14 @@ function carer(): Game {
 }
 
 describe("the file", () => {
-  test("[R-CREDIT-001] given a life arriving abroad, when it lands, then its file there reads 0 with no payments counted", () => {
+  test("[credit:file-starts-at-zero-abroad] given a life arriving abroad, when it lands, then its file there reads 0 with no payments counted", () => {
     const game = abroad(content);
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY });
     expect(game.view().credit).toMatchObject({ mark: 0, onTime: 0, missed: 0, judgmentUntil: null });
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-CREDIT-001] given a file at home, when the life is at home or on the road, then the view shows no file and credit/min reads 0", () => {
+  test("[credit:file-starts-at-zero-abroad] given a file at home, when the life is at home or on the road, then the view shows no file and credit/min reads 0", () => {
     const game = abroad(content);
     markBy(game, 50);
     game.accept({ type: "return/home" });
@@ -61,7 +61,7 @@ describe("the file", () => {
     [20, 0],
     [15, 0],
   ])(
-    "[R-CREDIT-001] given a UK file at %i, when the character goes home and comes back to the UK, then it starts from %i, never below 0, and Canada starts empty",
+    "[credit:file-starts-at-zero-abroad] given a UK file at %i, when the character goes home and comes back to the UK, then it starts from %i, never below 0, and Canada starts empty",
     (before, after) => {
       const game = abroad(content);
       markBy(game, before);
@@ -81,7 +81,7 @@ describe("the file", () => {
 });
 
 describe("payments", () => {
-  test("[R-CREDIT-002] given a carer paying rent and phone on time, when five months pass, then the mark reaches 30, the car's minimum, and not a month sooner", () => {
+  test("[credit:payments-move-the-mark] given a carer paying rent and phone on time, when five months pass, then the mark reaches 30, the car's minimum, and not a month sooner", () => {
     const game = carer();
     const marks: number[] = [];
     for (let month = 0; month < 5; month += 1) {
@@ -95,7 +95,7 @@ describe("payments", () => {
     expect(creditMin(game, entryOf("obligation.car").creditMin!).met).toBe(true);
   });
 
-  test("[R-CREDIT-002] given a carer four months in, when a whole month is missed, then rent and phone each take 12 and the four months' progress is gone", () => {
+  test("[credit:payments-move-the-mark] given a carer four months in, when a whole month is missed, then rent and phone each take 12 and the four months' progress is gone", () => {
     const game = carer();
     playMonths(game, 4);
     expect(markOf(game)).toBe(8 * CREDIT.onTime);
@@ -106,7 +106,7 @@ describe("payments", () => {
     expect(game.view().credit).toMatchObject({ onTime: 8, missed: 2 });
   });
 
-  test("[R-CREDIT-002] given only the rent missed, when the month ends, then the rent takes 12 and the phone paid still adds 3; upkeep moves nothing", () => {
+  test("[credit:payments-move-the-mark] given only the rent missed, when the month ends, then the rent takes 12 and the phone paid still adds 3; upkeep moves nothing", () => {
     const game = carer();
     playMonths(game, 4);
     // Upkeep is charged first and the phone last: enough for both, not for the rent between them.
@@ -118,7 +118,7 @@ describe("payments", () => {
     expect(result.lines).toContainEqual({ key: "line.credit.missed", params: { country: UK_COUNTRY, mark: markOf(game) - CREDIT.onTime }, tone: "bad", attention: false, counts: [] });
   });
 
-  test("[R-CREDIT-002] given a file at 0 or at 100, when a payment is missed or made, then the mark stays within 0 to 100 and the payment is still counted", () => {
+  test("[credit:payments-move-the-mark] given a file at 0 or at 100, when a payment is missed or made, then the mark stays within 0 to 100 and the payment is still counted", () => {
     const game = carer();
     setPockets(game, { GBP: 0 });
     playMonths(game, 1);
@@ -131,7 +131,7 @@ describe("payments", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-CREDIT-002] given the first payment on an empty file, when it is made, then a line says the file has begun", () => {
+  test("[credit:payments-move-the-mark] given the first payment on an empty file, when it is made, then a line says the file has begun", () => {
     const game = abroad(content);
     const result = game.endTurn();
     expect(result.lines).toContainEqual({ key: "line.credit.first", params: { country: UK_COUNTRY, mark: CREDIT.onTime }, tone: "good", attention: false, counts: [] });
@@ -140,7 +140,7 @@ describe("payments", () => {
 });
 
 describe("drift", () => {
-  test("[R-CREDIT-003] given a file with nothing reporting, when a clean year passes from arrival, then the mark gains 1 a month, not before the twelfth month", () => {
+  test("[credit:clean-mark-drifts-up] given a file with nothing reporting, when a clean year passes from arrival, then the mark gains 1 a month, not before the twelfth month", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent");
     playMonths(game, 11);
@@ -151,7 +151,7 @@ describe("drift", () => {
     expect(markOf(game)).toBe(2 * CREDIT.drift);
   });
 
-  test("[R-CREDIT-003] [R-ENGINE-017] given the clean months moved to 3 in the tuning, when months pass from arrival, then the drift starts in the third month", () => {
+  test("[credit:clean-mark-drifts-up] [engine:numbers-read-from-content] given the clean months moved to 3 in the tuning, when months pass from arrival, then the drift starts in the third month", () => {
     const moved = { ...content, tuning: { ...content.tuning, credit: { ...CREDIT, cleanMonths: 3 } } };
     const game = settledAbroad(moved);
     closeTypes(game, "rent");
@@ -161,7 +161,7 @@ describe("drift", () => {
     expect(markOf(game)).toBe(CREDIT.drift);
   });
 
-  test("[R-CREDIT-003] given a miss on the file, when months pass, then the drift stops until twelve months after the miss", () => {
+  test("[credit:clean-mark-drifts-up] given a miss on the file, when months pass, then the drift stops until twelve months after the miss", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent");
     playMonths(game, 6);
@@ -172,7 +172,7 @@ describe("drift", () => {
     expect(markOf(game)).toBe(CREDIT.drift);
   });
 
-  test("[R-CREDIT-003] given a mark one under the drift's ceiling and one above it, when a clean year has passed, then the first reaches the ceiling and stops, the second never moves", () => {
+  test("[credit:clean-mark-drifts-up] given a mark one under the drift's ceiling and one above it, when a clean year has passed, then the first reaches the ceiling and stops, the second never moves", () => {
     const low = settledAbroad(content);
     closeTypes(low, "rent");
     markBy(low, CREDIT.driftTo - 1);
@@ -187,7 +187,7 @@ describe("drift", () => {
 });
 
 describe("approval and rates", () => {
-  test("[R-CREDIT-004] given a mark one under and at each entry's creditMin, when credit/min is judged, then it is met only from the minimum: phone 10, flat 20, car 30", () => {
+  test("[credit:approval-reads-the-mark] given a mark one under and at each entry's creditMin, when credit/min is judged, then it is met only from the minimum: phone 10, flat 20, car 30", () => {
     for (const id of [UK_PHONE, "obligation.rent-flat-uk", "obligation.car"] as Id<"obligation">[]) {
       const need = entryOf(id).creditMin!;
       const game = abroad(content);
@@ -207,13 +207,13 @@ describe("approval and rates", () => {
     [69, 90],
     [70, 50],
     [100, 50],
-  ])("[R-CREDIT-005] given a mark of %i, when the car's ladder is read, then the monthly rate is %s basis points", (mark, rate) => {
+  ])("[credit:rate-follows-credit-ladder] given a mark of %i, when the car's ladder is read, then the monthly rate is %s basis points", (mark, rate) => {
     const game = abroad(content);
     markBy(game, mark);
     expect(rateFor(readOf(game), entryOf("obligation.car"))).toBe(rate);
   });
 
-  test("[R-CREDIT-005] given an entry with no ladder, when its rate is read, then it is the entry's own rate whatever the mark", () => {
+  test("[credit:rate-follows-credit-ladder] given an entry with no ladder, when its rate is read, then it is the entry's own rate whatever the mark", () => {
     const game = abroad(content);
     const shortfall = entryOf("obligation.car-shortfall");
     expect(rateFor(readOf(game), shortfall)).toBe(shortfall.rateBp);
@@ -221,7 +221,7 @@ describe("approval and rates", () => {
 });
 
 describe("judgments", () => {
-  test("[R-CREDIT-006] given a judgment on a file at 100, when 72 months pass, then credit/min above 20 is never met until the month it clears, and 20 always is", () => {
+  test("[credit:judgment-blocks-credit] given a judgment on a file at 100, when 72 months pass, then credit/min above 20 is never met until the month it clears, and 20 always is", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
     markBy(game, 100);
@@ -242,7 +242,7 @@ describe("judgments", () => {
     expect(game.view().credit?.judgmentUntil).toBeNull();
   });
 
-  test("[R-CREDIT-006] given a judgment, when it is put on the file, then a line gives the month it clears and asks for attention", () => {
+  test("[credit:judgment-blocks-credit] given a judgment, when it is put on the file, then a line gives the month it clears and asks for attention", () => {
     const game = abroad(content);
     const month = game.state.turn.month;
     applyEffects(game, [{ type: "credit/judgment" }]);
@@ -256,7 +256,7 @@ describe("judgments", () => {
 });
 
 describe("the view", () => {
-  test("[R-CREDIT-007] given a file abroad, when the view is read, then it shows the mark, the counts, the judgment and what each entry needing credit asks, lowest first", () => {
+  test("[credit:view-shows-credit-file] given a file abroad, when the view is read, then it shows the mark, the counts, the judgment and what each entry needing credit asks, lowest first", () => {
     const game = carer();
     playMonths(game, 1);
     setPockets(game, { GBP: 0 });
@@ -275,7 +275,7 @@ describe("the view", () => {
     });
   });
 
-  test("[R-CREDIT-007] given a life in Canada, when the view is read, then the needs are Canada's phone and flat and the car, never the UK's", () => {
+  test("[credit:view-shows-credit-file] given a life in Canada, when the view is read, then the needs are Canada's phone and flat and the car, never the UK's", () => {
     const game = abroad(content);
     game.accept({ type: "return/home" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA_COUNTRY }]);
@@ -286,7 +286,7 @@ describe("the view", () => {
     ]);
   });
 
-  test("[R-CREDIT-007] given every credit line, when it is looked up, then it has words and no mark is shown as money", () => {
+  test("[credit:view-shows-credit-file] given every credit line, when it is looked up, then it has words and no mark is shown as money", () => {
     const keys = ["first", "missed", "judgment", "reopened"].map((what) => `line.credit.${what}`);
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
   });

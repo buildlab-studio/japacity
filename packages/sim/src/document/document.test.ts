@@ -162,7 +162,7 @@ function bandFor(english: number, seed: string, tuning?: Partial<Tuning["english
 }
 
 describe("requesting a document", () => {
-  test("[R-DOCUMENT-001] given no passport, when one is requested, then it is pending and due after a wait between the entry's two figures", () => {
+  test("[document:request-starts-pending] given no passport, when one is requested, then it is pending and due after a wait between the entry's two figures", () => {
     const game = life();
     game.endTurn();
     const result = applyNow(game, [request(PASSPORT)]);
@@ -181,7 +181,7 @@ describe("requesting a document", () => {
     ]);
   });
 
-  test("[R-DOCUMENT-001] given a seed whose draw is the shortest wait, when a passport is requested, then it is due one month on and arrives then", () => {
+  test("[document:request-starts-pending] given a seed whose draw is the shortest wait, when a passport is requested, then it is due one month on and arrives then", () => {
     const game = life({ seed: SEED_SHORT });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
@@ -191,7 +191,7 @@ describe("requesting a document", () => {
     expect(paper(game, PASSPORT)?.state).toBe("held");
   });
 
-  test("[R-DOCUMENT-001] given a seed whose draw is the longest wait, when a passport is requested, then it is due three months on and not a month sooner", () => {
+  test("[document:request-starts-pending] given a seed whose draw is the longest wait, when a passport is requested, then it is due three months on and not a month sooner", () => {
     const game = life({ seed: SEED_LONG });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
@@ -204,7 +204,7 @@ describe("requesting a document", () => {
     expect(paper(game, PASSPORT)?.state).toBe("held");
   });
 
-  test("[R-DOCUMENT-001] given the transcript's wait of 1 to 4, when it is requested on seeds drawing each end, then it is due 1 and 4 months on", () => {
+  test("[document:request-starts-pending] given the transcript's wait of 1 to 4, when it is requested on seeds drawing each end, then it is due 1 and 4 months on", () => {
     const short = life({ seed: SEED_SHORT_TRANSCRIPT });
     short.endTurn();
     applyNow(short, [request(TRANSCRIPT)]);
@@ -215,7 +215,7 @@ describe("requesting a document", () => {
     expect(paper(long, TRANSCRIPT)?.readyMonth).toBe(1 + entries[TRANSCRIPT]!.wait[1]);
   });
 
-  test("[R-DOCUMENT-001] [R-DIRECTOR-001] given the strike's extra wait in the world, when the transcript is requested, then that many months are added to its wait, and nothing to the passport's", () => {
+  test("[document:request-starts-pending] [director:world-variables-per-route] given the strike's extra wait in the world, when the transcript is requested, then that many months are added to its wait, and nothing to the passport's", () => {
     for (const extra of [0, 4]) {
       const game = life({ seed: SEED_SHORT_TRANSCRIPT });
       game.endTurn();
@@ -236,7 +236,7 @@ describe("requesting a document", () => {
   });
 
   test.prop([fc.string({ minLength: 1, maxLength: 12 }), fc.constantFrom(PASSPORT, TRANSCRIPT)], { numRuns: 60 })(
-    "[R-DOCUMENT-001] given any seed, when a document is requested, then its wait is inside the entry's range and one draw is made on the document stream",
+    "[document:request-starts-pending] given any seed, when a document is requested, then its wait is inside the entry's range and one draw is made on the document stream",
     (seed, id) => {
       const game = life({ seed });
       game.endTurn();
@@ -251,7 +251,7 @@ describe("requesting a document", () => {
     },
   );
 
-  test("[R-DOCUMENT-001] given a request, when it is carried out, then no money moves: the fee is the requesting activity's cost", () => {
+  test("[document:request-starts-pending] given a request, when it is carried out, then no money moves: the fee is the requesting activity's cost", () => {
     const game = life();
     const pockets = game.state.wallet.pockets;
     const result = applyNow(game, [request(PASSPORT)]);
@@ -259,14 +259,14 @@ describe("requesting a document", () => {
     expect(result.events.map((event) => event.type)).toEqual(["document/requested", "engine/stepped"]);
   });
 
-  test("[R-DOCUMENT-001] given a request from a slot, when the turn resolves, then the wait is counted from that turn's month", () => {
+  test("[document:request-starts-pending] given a request from a slot, when the turn resolves, then the wait is counted from that turn's month", () => {
     const game = life({ seed: SEED_LONG });
     endTurnWith(game, [request(PASSPORT)]);
     expect(game.state.turn.month).toBe(1);
     expect(paper(game, PASSPORT)).toMatchObject({ state: "pending", readyMonth: 1 + entries[PASSPORT]!.wait[1] });
   });
 
-  test("[R-DOCUMENT-001] given a request, when the view is read, then the document is listed pending with its month", () => {
+  test("[document:request-starts-pending] given a request, when the view is read, then the document is listed pending with its month", () => {
     const game = life();
     applyNow(game, [request(PASSPORT)]);
     expect(game.view().documents).toEqual([
@@ -276,7 +276,7 @@ describe("requesting a document", () => {
 });
 
 describe("issuing", () => {
-  test("[R-DOCUMENT-002] given a pending passport, when the papers phase of its month runs, then it is held from that month and expires 60 months on", () => {
+  test("[document:due-document-issued] given a pending passport, when the papers phase of its month runs, then it is held from that month and expires 60 months on", () => {
     const game = life({ seed: SEED_SHORT });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
@@ -290,7 +290,7 @@ describe("issuing", () => {
     expect(result.lines).toContainEqual({ key: "line.document.issued", params: { document: PASSPORT }, tone: "good", attention: false, counts: [] });
   });
 
-  test("[R-DOCUMENT-002] given a wait of zero, when the TB test is requested in a slot, then the papers phase of the same turn issues it", () => {
+  test("[document:due-document-issued] given a wait of zero, when the TB test is requested in a slot, then the papers phase of the same turn issues it", () => {
     const game = life();
     expect(entries[TB]!.wait).toEqual([0, 0]);
     const result = endTurnWith(game, [request(TB)]);
@@ -299,7 +299,7 @@ describe("issuing", () => {
     expect(result.lines.map((line) => line.key)).toEqual(expect.arrayContaining(["line.document.requested", "line.document.issued"]));
   });
 
-  test("[R-DOCUMENT-002] given a wait of zero, when it is requested between turns, then it is due in the next month and issued by that turn's papers phase", () => {
+  test("[document:due-document-issued] given a wait of zero, when it is requested between turns, then it is due in the next month and issued by that turn's papers phase", () => {
     const game = life();
     game.endTurn();
     applyNow(game, [request(TB)]);
@@ -308,7 +308,7 @@ describe("issuing", () => {
     expect(paper(game, TB)).toEqual({ state: "held", readyMonth: null, expiresMonth: 2 + entries[TB]!.validMonths!, value: null });
   });
 
-  test("[R-DOCUMENT-002] given a transcript, which never expires, when it is issued, then it has no expiry month and is still held years later", () => {
+  test("[document:due-document-issued] given a transcript, which never expires, when it is issued, then it has no expiry month and is still held years later", () => {
     const game = life({ seed: SEED_SHORT_TRANSCRIPT });
     applyNow(game, [request(TRANSCRIPT)]);
     game.endTurn();
@@ -320,7 +320,7 @@ describe("issuing", () => {
 });
 
 describe("expiry", () => {
-  test("[R-DOCUMENT-003] given a TB certificate valid 6 months, when its expiry month comes, then it is held the month before and expired on the month", () => {
+  test("[document:expired-document-not-held] given a TB certificate valid 6 months, when its expiry month comes, then it is held the month before and expired on the month", () => {
     const game = life();
     endTurnWith(game, [request(TB)]);
     const expires = 1 + entries[TB]!.validMonths!;
@@ -336,7 +336,7 @@ describe("expiry", () => {
     expect(result.lines).toContainEqual({ key: "line.document.expired", params: { document: TB }, tone: "bad", attention: false, counts: [] });
   });
 
-  test("[R-DOCUMENT-003] given a passport with 22 months left at the start, when month 22 is played, then it runs out on that month", () => {
+  test("[document:expired-document-not-held] given a passport with 22 months left at the start, when month 22 is played, then it runs out on that month", () => {
     const game = life({ scenario: "scenario.tunde" });
     expect(paper(game, PASSPORT)?.expiresMonth).toBe(22);
     endTurns(game, 21);
@@ -347,7 +347,7 @@ describe("expiry", () => {
     expect(game.view().documents).toEqual([{ id: PASSPORT, state: "expired", readyMonth: paper(game, PASSPORT)?.readyMonth ?? null, expiresMonth: 22, value: null, onItsWay: null }]);
   });
 
-  test("[R-DOCUMENT-003] given a document whose expiry month has come, when a slot reads it before the papers phase, then it no longer counts as held", () => {
+  test("[document:expired-document-not-held] given a document whose expiry month has come, when a slot reads it before the papers phase, then it no longer counts as held", () => {
     const game = life({ scenario: "scenario.tunde", documents: [{ document: PASSPORT, monthsLeft: 1, value: null }] });
     let seen: { held: boolean; absent: boolean } | null = null;
     endTurnWith(game, [], (ctx) => {
@@ -362,7 +362,7 @@ describe("expiry", () => {
 });
 
 describe("one copy at a time", () => {
-  test("[R-DOCUMENT-004] given a passport pending, when it is requested again, then nothing changes, nothing is drawn and a line says so", () => {
+  test("[document:one-pending-copy] given a passport pending, when it is requested again, then nothing changes, nothing is drawn and a line says so", () => {
     const game = life();
     applyNow(game, [request(PASSPORT)]);
     const before = game.state;
@@ -380,7 +380,7 @@ describe("one copy at a time", () => {
     ]);
   });
 
-  test("[R-DOCUMENT-004] given a held passport, when a new one is requested, then the old one stays in force until the new one is issued and replaces it", () => {
+  test("[document:one-pending-copy] given a held passport, when a new one is requested, then the old one stays in force until the new one is issued and replaces it", () => {
     const game = life({ scenario: "scenario.tunde", seed: SEED_LONG });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
@@ -397,7 +397,7 @@ describe("one copy at a time", () => {
     expect(pending(game, PASSPORT)).toBe(false);
   });
 
-  test("[R-DOCUMENT-008] given a held passport, when a new one is requested, then the view says it is on its way with the month it is due, and once issued nothing is on its way", () => {
+  test("[document:paper-on-its-way] given a held passport, when a new one is requested, then the view says it is on its way with the month it is due, and once issued nothing is on its way", () => {
     const game = life({ scenario: "scenario.tunde", seed: SEED_LONG });
     game.endTurn();
     const viewed = () => game.view().documents.find((doc) => doc.id === PASSPORT);
@@ -410,7 +410,7 @@ describe("one copy at a time", () => {
     expect(viewed()).toMatchObject({ state: "held", onItsWay: null });
   });
 
-  test("[R-DOCUMENT-008] given a passport requested for the first time, then the view says it is on its way at its ready month", () => {
+  test("[document:paper-on-its-way] given a passport requested for the first time, then the view says it is on its way at its ready month", () => {
     const game = life();
     applyNow(game, [request(PASSPORT)]);
     const doc = game.view().documents.find((each) => each.id === PASSPORT);
@@ -418,7 +418,7 @@ describe("one copy at a time", () => {
     expect(doc?.onItsWay).toBe(doc?.readyMonth);
   });
 
-  test("[R-DOCUMENT-004] given a held passport with a new one being made, when it is requested a third time, then nothing changes", () => {
+  test("[document:one-pending-copy] given a held passport with a new one being made, when it is requested a third time, then nothing changes", () => {
     const game = life({ scenario: "scenario.tunde" });
     applyNow(game, [request(PASSPORT)]);
     const before = game.state.document;
@@ -427,7 +427,7 @@ describe("one copy at a time", () => {
     expect(result.lines.map((line) => line.key)).toEqual(["line.document.already-pending"]);
   });
 
-  test("[R-DOCUMENT-004] [R-DOCUMENT-003] given a held passport that runs out while the new one is being made, when it runs out, then it is pending and not held", () => {
+  test("[document:one-pending-copy] [document:expired-document-not-held] given a held passport that runs out while the new one is being made, when it runs out, then it is pending and not held", () => {
     const game = life({ scenario: "scenario.tunde", seed: SEED_LONG, documents: [{ document: PASSPORT, monthsLeft: 2, value: null }] });
     game.endTurn();
     applyNow(game, [request(PASSPORT)]);
@@ -441,7 +441,7 @@ describe("one copy at a time", () => {
     expect(paper(game, PASSPORT)?.state).toBe("held");
   });
 
-  test("[R-DOCUMENT-004] given an expired document, when it is requested, then a fresh copy is pending", () => {
+  test("[document:one-pending-copy] given an expired document, when it is requested, then a fresh copy is pending", () => {
     const game = life({ scenario: "scenario.tunde", documents: [{ document: PASSPORT, monthsLeft: 1, value: null }] });
     game.endTurn();
     expect(paper(game, PASSPORT)?.state).toBe("expired");
@@ -465,13 +465,13 @@ describe("the English band", () => {
   ] as const;
 
   test.each(levels.flatMap((level) => draws.map((draw) => ({ ...level, ...draw }))))(
-    "[R-DOCUMENT-005] given English $english and a draw $name, when the result is issued, then the band is $even moved by the draw",
+    "[document:english-test-band-value] given English $english and a draw $name, when the result is issued, then the band is $even moved by the draw",
     ({ english, even, seed, step }) => {
       expect(bandFor(english, seed)).toBe(even + step * 5);
     },
   );
 
-  test("[R-DOCUMENT-005] given the result is issued, when the line is read, then it carries the band and asks for attention", () => {
+  test("[document:english-test-band-value] given the result is issued, when the line is read, then it carries the band and asks for attention", () => {
     const game = life({ english: 72, seed: SEED_DRAW_EVEN });
     applyNow(game, [request(ENGLISH)]);
     const result = game.endTurn();
@@ -480,13 +480,13 @@ describe("the English band", () => {
     expect(game.state.draws.test).toBe(1);
   });
 
-  test("[R-DOCUMENT-005] given English 0 and a draw down, when the result is issued, then the band is kept at the lowest, 40", () => {
+  test("[document:english-test-band-value] given English 0 and a draw down, when the result is issued, then the band is kept at the lowest, 40", () => {
     expect(bandFor(0, SEED_DRAW_DOWN)).toBe(band.min);
     expect(bandFor(0, SEED_DRAW_EVEN)).toBe(band.min);
     expect(band.min).toBe(40);
   });
 
-  test("[R-DOCUMENT-005] given a band that would pass the highest, when the result is issued, then it is kept at 90", () => {
+  test("[document:english-test-band-value] given a band that would pass the highest, when the result is issued, then it is kept at 90", () => {
     // The real numbers top out at 80 for English 100, so the base is raised to reach the ceiling.
     expect(bandFor(100, SEED_DRAW_UP)).toBe(80);
     const raised = { base: 60 };
@@ -498,7 +498,7 @@ describe("the English band", () => {
   });
 
   test.prop([fc.integer({ min: 0, max: 100 }), fc.string({ minLength: 1, maxLength: 12 })], { numRuns: 40 })(
-    "[R-DOCUMENT-005] given any English and any seed, when the result is issued, then the band is a multiple of 5 within one step of the even band and between 40 and 90",
+    "[document:english-test-band-value] given any English and any seed, when the result is issued, then the band is a multiple of 5 within one step of the even band and between 40 and 90",
     (english, seed) => {
       const value = bandFor(english, seed) ?? -1;
       const even = clamp(roundDownTo(band.base + mulDiv(band.perHundred, english, 100), 5), band.min, band.max);
@@ -509,7 +509,7 @@ describe("the English band", () => {
     },
   );
 
-  test("[R-DOCUMENT-005] given a result held, when document/held asks for a minimum, then the value is compared and given as have and need", () => {
+  test("[document:english-test-band-value] given a result held, when document/held asks for a minimum, then the value is compared and given as have and need", () => {
     const game = life({ english: 60, seed: SEED_DRAW_EVEN });
     applyNow(game, [request(ENGLISH)]);
     game.endTurn();
@@ -518,7 +518,7 @@ describe("the English band", () => {
     expect(judged(game, { type: "document/held", document: PASSPORT, min: 60 })).toEqual({ met: false, have: 0, need: 60 });
   });
 
-  test("[R-DOCUMENT-005] given a document with no result, when it is issued, then it has no value", () => {
+  test("[document:english-test-band-value] given a document with no result, when it is issued, then it has no value", () => {
     const game = life({ seed: SEED_SHORT });
     applyNow(game, [request(PASSPORT)]);
     game.endTurn();
@@ -528,7 +528,7 @@ describe("the English band", () => {
 });
 
 describe("granting and voiding", () => {
-  test("[R-DOCUMENT-006] given no confirmation, when it is granted, then it is held at once, for good, with no wait drawn", () => {
+  test("[document:grant-and-void-commands] given no confirmation, when it is granted, then it is held at once, for good, with no wait drawn", () => {
     const game = life();
     game.endTurn();
     const result = applyNow(game, [grant(CAS)]);
@@ -538,20 +538,20 @@ describe("granting and voiding", () => {
     expect(result.lines).toEqual([{ key: "line.document.issued", params: { document: CAS }, tone: "good", attention: false, counts: [] }]);
   });
 
-  test("[R-DOCUMENT-006] given a passport, when it is granted, then its validity runs from this month", () => {
+  test("[document:grant-and-void-commands] given a passport, when it is granted, then its validity runs from this month", () => {
     const game = life();
     endTurns(game, 3);
     applyNow(game, [grant(PASSPORT)]);
     expect(paper(game, PASSPORT)).toEqual({ state: "held", readyMonth: null, expiresMonth: 3 + entries[PASSPORT]!.validMonths!, value: null });
   });
 
-  test("[R-DOCUMENT-006] [R-DOCUMENT-005] given the English test, when it is granted, then its band is set at once", () => {
+  test("[document:grant-and-void-commands] [document:english-test-band-value] given the English test, when it is granted, then its band is set at once", () => {
     const game = life({ english: 86, seed: SEED_DRAW_UP });
     applyNow(game, [grant(ENGLISH)]);
     expect(paper(game, ENGLISH)?.value).toBe(75);
   });
 
-  test("[R-DOCUMENT-006] given a pending passport, when it is granted, then the copy being made is the one issued", () => {
+  test("[document:grant-and-void-commands] given a pending passport, when it is granted, then the copy being made is the one issued", () => {
     const game = life({ seed: SEED_LONG });
     applyNow(game, [request(PASSPORT)]);
     applyNow(game, [grant(PASSPORT)]);
@@ -559,7 +559,7 @@ describe("granting and voiding", () => {
     expect(pending(game, PASSPORT)).toBe(false);
   });
 
-  test("[R-DOCUMENT-006] given a held confirmation, when it is voided, then it is gone from the state and the view", () => {
+  test("[document:grant-and-void-commands] given a held confirmation, when it is voided, then it is gone from the state and the view", () => {
     const game = life();
     applyNow(game, [grant(CAS)]);
     const result = applyNow(game, [voidIt(CAS)]);
@@ -570,7 +570,7 @@ describe("granting and voiding", () => {
     expect(result.lines).toEqual([{ key: "line.document.voided", params: { document: CAS }, tone: "bad", attention: false, counts: [] }]);
   });
 
-  test("[R-DOCUMENT-006] given a pending passport, when it is voided, then it is gone and never issued", () => {
+  test("[document:grant-and-void-commands] given a pending passport, when it is voided, then it is gone and never issued", () => {
     const game = life({ seed: SEED_SHORT });
     applyNow(game, [request(PASSPORT)]);
     applyNow(game, [voidIt(PASSPORT)]);
@@ -580,7 +580,7 @@ describe("granting and voiding", () => {
     expect(absent(game, PASSPORT)).toBe(true);
   });
 
-  test("[R-DOCUMENT-006] given no confirmation, when it is voided, then nothing happens", () => {
+  test("[document:grant-and-void-commands] given no confirmation, when it is voided, then nothing happens", () => {
     const game = life();
     const result = applyNow(game, [voidIt(CAS)]);
     expect(result.events.map((event) => event.type)).toEqual(["engine/stepped"]);
@@ -589,7 +589,7 @@ describe("granting and voiding", () => {
 });
 
 describe("what always holds", () => {
-  test("[R-DOCUMENT-001] [R-DOCUMENT-002] [R-DOCUMENT-005] given papers requested, issued, expired and voided, when the invariants are checked, then nothing is wrong", () => {
+  test("[document:request-starts-pending] [document:due-document-issued] [document:english-test-band-value] given papers requested, issued, expired and voided, when the invariants are checked, then nothing is wrong", () => {
     const game = life({ scenario: "scenario.tunde", documents: [{ document: PASSPORT, monthsLeft: 2, value: null }] });
     applyNow(game, [request(TRANSCRIPT), request(ENGLISH), grant(CAS)]);
     endTurnWith(game, [request(TB)]);
@@ -599,7 +599,7 @@ describe("what always holds", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-DOCUMENT-001] [R-DOCUMENT-002] [R-DOCUMENT-005] given a broken document slice, when the invariants are checked, then each break is named", () => {
+  test("[document:request-starts-pending] [document:due-document-issued] [document:english-test-band-value] given a broken document slice, when the invariants are checked, then each break is named", () => {
     const game = life();
     const broken = {
       ...game.state,

@@ -1,4 +1,4 @@
-// The agent family: docs/rules/advice.md R-ADVICE-005 to 013. An agent is an
+// The agent family: advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells, advice:agents-never-read-money, advice:agent-loss-is-the-fee, advice:bad-news-told-straight, advice:advisers-are-invented-people, advice:free-ways-pointed-first and advice:chaser-runs-around-cheaper. An agent is an
 // offer whose kind (fixer, chaser, overpromiser, scammer) is drawn when it
 // opens. The kind fixes the tells he carries; one shows at once and the looks
 // find the rest. Nothing here reads money to decide who appears or what he is.
@@ -6,12 +6,12 @@ import { beingMade } from "../document/document.logic";
 import { BP_WHOLE, divFloor } from "../engine/int";
 import type { Content, Ctx, Id, OfferEntry, OfferState, Requirement, RouteEntry, State, Terms, Tuning } from "../engine/types";
 
-/** R-ADVICE-005, 013: the four kinds, in the order the draw takes them. */
+/** advice:agent-kind-drawn-on-offer, advice:chaser-runs-around-cheaper: the four kinds, in the order the draw takes them. */
 export const AGENT_KINDS = ["fixer", "chaser", "overpromiser", "scammer"] as const;
 export type AgentKind = (typeof AGENT_KINDS)[number];
 
 /**
- * R-ADVICE-013: what an agent says he does. The insider moves a paper's date
+ * advice:chaser-runs-around-cheaper: what an agent says he does. The insider moves a paper's date
  * himself (the fixer's way); the chaser follows it up for you. An honest agent
  * says what he is; the others say one or the other.
  */
@@ -23,23 +23,23 @@ const AGENT_PREFIX = "offer.agent-";
 export const PROMISE: Id<"offer"> = "offer.agent-promise";
 /** What a scammer offers after the fee: fake papers. */
 export const PAPERS: Id<"offer"> = "offer.agent-papers";
-/** R-ADVICE-013: the chaser a friend puts the player onto. Always a chaser. */
+/** advice:chaser-runs-around-cheaper: the chaser a friend puts the player onto. Always a chaser. */
 export const CHASER: Id<"offer"> = "offer.agent-chaser";
-/** R-ADVICE-013: the papers a chaser follows up. The fixer moves any paper. */
+/** advice:chaser-runs-around-cheaper: the papers a chaser follows up. The fixer moves any paper. */
 export const CHASED: readonly Id<"document">[] = ["document.transcript", "document.police-certificate", "document.tb-certificate"];
 /**
  * The term that keeps the kind. The contract's `secret` holds only
- * `fraud`, so the kind rides as a term the view leaves out (R-ENGINE-007).
+ * `fraud`, so the kind rides as a term the view leaves out (engine:view-holds-no-hidden-field).
  */
 export const KIND_TERM = "kind";
-/** R-ADVICE-013: the terms the sheet reads: what he says he does, the paper he would move ("" for none) and by how many months. */
+/** advice:chaser-runs-around-cheaper: the terms the sheet reads: what he says he does, the paper he would move ("" for none) and by how many months. */
 export const PITCH_TERM = "pitch";
 export const PAPER_TERM = "paper";
 export const MONTHS_TERM = "months";
 /** Terms an effect may hand an agent's follow-up offers: who he is and the route he looked at. */
 const HANDED_TERMS = ["agent", "route"] as const;
 
-/** The three free looks on an agent's sheet, and the tells each one finds (R-ADVICE-006). */
+/** The three free looks on an agent's sheet, and the tells each one finds (advice:scams-show-their-tells). */
 export const LOOKS = ["look-office", "look-licence", "look-name"] as const;
 export type Look = (typeof LOOKS)[number];
 export const LOOK_FINDS: Record<Look, readonly string[]> = {
@@ -65,7 +65,7 @@ export function isLook(id: string): id is Look {
 }
 
 /**
- * R-ADVICE-010: an agent entry with no scammer share (`fraudBp` 0) is a desk
+ * advice:advisers-are-invented-people: an agent entry with no scammer share (`fraudBp` 0) is a desk
  * in the agent's office, which only a fixer keeps. Its kind is still drawn so
  * the stream moves the same way.
  */
@@ -75,7 +75,7 @@ function hasDesk(entry: OfferEntry): boolean {
 
 /**
  * The kind an entry always is, whatever the draw: the friend's chaser
- * (R-ADVICE-013) and the desk upstairs (R-ADVICE-010). Null for the stop,
+ * (advice:chaser-runs-around-cheaper) and the desk upstairs (advice:advisers-are-invented-people). Null for the stop,
  * where the draw decides.
  */
 function fixedKind(entry: OfferEntry): AgentKind | null {
@@ -95,14 +95,14 @@ function bandStart(kind: AgentKind, shares: Shares): number {
   return start;
 }
 
-/** R-ADVICE-005, 013: the kind from one draw out of 10000 at the tuning's shares, fixer first, then the chaser. */
+/** advice:agent-kind-drawn-on-offer, advice:chaser-runs-around-cheaper: the kind from one draw out of 10000 at the tuning's shares, fixer first, then the chaser. */
 export function kindAt(draw: number, shares: Shares): AgentKind {
   for (const kind of AGENT_KINDS) if (draw < bandStart(kind, shares) + shares[kind]) return kind;
   return "scammer";
 }
 
 /**
- * R-ADVICE-013: what the agent says he does, from the same draw as his kind,
+ * advice:chaser-runs-around-cheaper: what the agent says he does, from the same draw as his kind,
  * so no draw is added. An honest agent says what he is. An overpromiser or a
  * scammer says insider or chaser in the proportion the honest kinds come in:
  * the first part of his band in the fixer's share says insider, the rest
@@ -127,18 +127,18 @@ export function pitchAt(draw: number, shares: Shares): Pitch {
   }
 }
 
-/** R-ADVICE-005, 013: the range a kind's fee is drawn from. The chaser's is his own, cheaper one. */
+/** advice:agent-kind-drawn-on-offer, advice:chaser-runs-around-cheaper: the range a kind's fee is drawn from. The chaser's is his own, cheaper one. */
 export function feeRange(kind: AgentKind, advice: Tuning["advice"]): readonly [number, number] {
   return kind === "chaser" ? advice.chaserFee : advice.fees[kind];
 }
 
-/** R-ADVICE-005, 013: months a paper comes sooner for what he says he does: the insider's two, the chaser's one. */
+/** advice:agent-kind-drawn-on-offer, advice:chaser-runs-around-cheaper: months a paper comes sooner for what he says he does: the insider's two, the chaser's one. */
 export function pitchMonths(pitch: Pitch, advice: Tuning["advice"]): number {
   return pitch === "insider" ? advice.fixerMonths : advice.chaserMonths;
 }
 
 /**
- * R-ADVICE-005, 013: the paper being made that is due first, in content order
+ * advice:agent-kind-drawn-on-offer, advice:chaser-runs-around-cheaper: the paper being made that is due first, in content order
  * on a tie: what an insider brings forward. A chaser follows up only the
  * papers in CHASED.
  */
@@ -154,7 +154,7 @@ export function paperToMove(state: State, content: Content, pitch: Pitch): Id<"d
 }
 
 /**
- * R-ADVICE-006: the tells the kind carries, in the entry's order. A fixer
+ * advice:scams-show-their-tells: the tells the kind carries, in the entry's order. A fixer
  * carries the signs marked for an honest agent (at most one); a scammer the
  * signs marked for a fraud; an overpromiser the fixer's and the first
  * `overpromiseTells` of the scammer's that a fixer does not carry. A sign is
@@ -164,7 +164,7 @@ export function carriedTells(entry: OfferEntry, kind: AgentKind, advice: Tuning[
   const honest = entry.signs.filter((sign) => sign.honestBp === BP_WHOLE).map((sign) => sign.key);
   const fraud = entry.signs.filter((sign) => sign.fraudBp === BP_WHOLE).map((sign) => sign.key);
   switch (kind) {
-    // R-ADVICE-013: the chaser's signs are the fixer's.
+    // advice:chaser-runs-around-cheaper: the chaser's signs are the fixer's.
     case "fixer":
     case "chaser":
       return honest;
@@ -188,7 +188,7 @@ export function kindOf(item: OfferState): AgentKind {
   return found;
 }
 
-/** The tells a look finds on this agent: every one it would find, always (R-ADVICE-006). */
+/** The tells a look finds on this agent: every one it would find, always (advice:scams-show-their-tells). */
 export function lookFinds(entry: OfferEntry, item: OfferState, look: Look, advice: Tuning["advice"]): string[] {
   return carriedTells(entry, kindOf(item), advice).filter((key) => LOOK_FINDS[look].includes(key));
 }
@@ -199,12 +199,12 @@ export function tellsSeen(item: OfferState): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Opening an agent: R-ADVICE-005, 006
+// Opening an agent: advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells
 // ---------------------------------------------------------------------------
 
 /**
  * The agent's version of the route's checklist, as item ids joined by commas
- * (R-ADVICE-005): a fixer's is true; an overpromiser's or a scammer's leaves
+ * (advice:agent-kind-drawn-on-offer): a fixer's is true; an overpromiser's or a scammer's leaves
  * out the heaviest item, the first on a tie, so it understates.
  */
 function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string {
@@ -216,7 +216,7 @@ function agentChecklist(route: RouteEntry | undefined, kind: AgentKind): string 
 }
 
 /**
- * R-ADVICE-010: who stands there this time, as the text key whose `.name`
+ * advice:advisers-are-invented-people: who stands there this time, as the text key whose `.name`
  * carries his name: `<entry>.who.<n>`, `n` drawn by the entry's term `who`.
  */
 function agentName(entry: OfferEntry, own: Terms): string {
@@ -236,7 +236,7 @@ export function handedTerms(entry: OfferEntry, terms: Terms): Terms {
 }
 
 /**
- * Opens an agent (R-ADVICE-005, 006, 013): the kind on `offer`, then the fee
+ * Opens an agent (advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells, advice:chaser-runs-around-cheaper): the kind on `offer`, then the fee
  * from the kind's range on `offer` in whole thousands, then the tells. One
  * tell shows at once: the first he carries. What he says he does comes from
  * the kind's draw, and the paper he names is the one he would move now.
@@ -275,7 +275,7 @@ export function openAgent(ctx: Ctx, entry: OfferEntry, own: Terms, extra: Terms)
   };
 }
 
-/** The terms the view shows: all but the kind (R-ENGINE-007). */
+/** The terms the view shows: all but the kind (engine:view-holds-no-hidden-field). */
 export function shownTerms(terms: Terms): Terms {
   const shown: Terms = { ...terms };
   delete shown[KIND_TERM];
@@ -283,10 +283,10 @@ export function shownTerms(terms: Terms): Terms {
 }
 
 // ---------------------------------------------------------------------------
-// The content check: R-ADVICE-006, 007, 012
+// The content check: advice:scams-show-their-tells, advice:agents-never-read-money, advice:free-ways-pointed-first
 // ---------------------------------------------------------------------------
 
-/** Requirement types an agent's `when` may read: routes, documents, the place and the chapter (R-ADVICE-007). */
+/** Requirement types an agent's `when` may read: routes, documents, the place and the chapter (advice:agents-never-read-money). */
 const AGENT_READS: readonly string[] = ["route/", "document/", "place/is", "chapter/done"];
 const MONEY: readonly Requirement["type"][] = ["money/min", "money/can-pay", "wallet/total"];
 const FIRST_CHAPTER: Id<"chapter"> = "chapter.find-your-feet";
@@ -299,7 +299,7 @@ function flatten(requirements: readonly Requirement[]): Requirement[] {
   });
 }
 
-/** R-ADVICE-007: true when an agent entry's `when` reads money, directly or inside `not` or `any`. */
+/** advice:agents-never-read-money: true when an agent entry's `when` reads money, directly or inside `not` or `any`. */
 export function agentReadsMoney(entry: OfferEntry): boolean {
   return inFamily(entry.id) && flatten(entry.when).some((requirement) => MONEY.includes(requirement.type));
 }
@@ -311,22 +311,22 @@ export function agentProblems(content: Content): string[] {
   const findable = new Set<string>(Object.values(LOOK_FINDS).flat());
   for (const entry of Object.values(content.offer)) {
     if (!inFamily(entry.id)) continue;
-    if (agentReadsMoney(entry)) problems.push(`${entry.id}: an agent's when reads money (R-ADVICE-007).`);
+    if (agentReadsMoney(entry)) problems.push(`${entry.id}: an agent's when reads money (advice:agents-never-read-money).`);
     for (const requirement of flatten(entry.when)) {
-      if (!AGENT_READS.some((prefix) => requirement.type.startsWith(prefix))) problems.push(`${entry.id}: an agent's when reads ${requirement.type} (R-ADVICE-007).`);
+      if (!AGENT_READS.some((prefix) => requirement.type.startsWith(prefix))) problems.push(`${entry.id}: an agent's when reads ${requirement.type} (advice:agents-never-read-money).`);
     }
     if (!standsAsAgent(entry)) continue;
     if (!entry.when.some((requirement) => requirement.type === "chapter/done" && requirement.chapter === FIRST_CHAPTER)) {
-      problems.push(`${entry.id}: opens before ${FIRST_CHAPTER} is done (R-ADVICE-012).`);
+      problems.push(`${entry.id}: opens before ${FIRST_CHAPTER} is done (advice:free-ways-pointed-first).`);
     }
-    if (carriedTells(entry, "fixer", advice).length > 1) problems.push(`${entry.id}: a fixer carries more than one tell (R-ADVICE-006).`);
-    if (fixedKind(entry) === null && carriedTells(entry, "scammer", advice).length < advice.scamTells) problems.push(`${entry.id}: a scammer carries fewer than ${String(advice.scamTells)} tells (R-ADVICE-006).`);
-    if (fixedKind(entry) === null && carriedTells(entry, "overpromiser", advice).length < advice.overpromiseTells) problems.push(`${entry.id}: an overpromiser carries too few tells (R-ADVICE-006).`);
+    if (carriedTells(entry, "fixer", advice).length > 1) problems.push(`${entry.id}: a fixer carries more than one tell (advice:scams-show-their-tells).`);
+    if (fixedKind(entry) === null && carriedTells(entry, "scammer", advice).length < advice.scamTells) problems.push(`${entry.id}: a scammer carries fewer than ${String(advice.scamTells)} tells (advice:scams-show-their-tells).`);
+    if (fixedKind(entry) === null && carriedTells(entry, "overpromiser", advice).length < advice.overpromiseTells) problems.push(`${entry.id}: an overpromiser carries too few tells (advice:scams-show-their-tells).`);
     for (const sign of entry.signs) {
-      if (!findable.has(sign.key)) problems.push(`${entry.id}: no look finds the tell ${sign.key} (R-ADVICE-006).`);
+      if (!findable.has(sign.key)) problems.push(`${entry.id}: no look finds the tell ${sign.key} (advice:scams-show-their-tells).`);
     }
     for (const look of LOOKS) {
-      if (!entry.choices.some((choice) => choice.id === look)) problems.push(`${entry.id}: has no ${look} (R-ADVICE-006).`);
+      if (!entry.choices.some((choice) => choice.id === look)) problems.push(`${entry.id}: has no ${look} (advice:scams-show-their-tells).`);
     }
   }
   return problems;

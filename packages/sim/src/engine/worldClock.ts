@@ -1,7 +1,7 @@
-// The world's own clock (docs/rules/clock.md R-CLOCK-033; decision 0011): one game day runs on real time, faster
+// The world's own clock (clock:game-day-on-real-time; decision 0011): one game day runs on real time, faster
 // than life, the same moment for everyone, so a sitting sees the sun move; events hang on it and the city opens
 // and shuts by it. Each life's months turn only when that life sleeps. Pure: `now` is given, never read, and the
-// simulation never sees this (R-ENGINE-012); the authority carries it in the clock view.
+// simulation never sees this (engine:simulation-reads-no-clock); the authority carries it in the clock view.
 import { divFloor } from "./int";
 import { AFTERNOON_HOUR, EVENING_HOUR, GAME_DAY_EPOCH_MS, GAME_DAY_MS, GAME_HOURS, MORNING_HOUR, NIGHT_HOUR } from "./time";
 

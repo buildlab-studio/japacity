@@ -1,4 +1,4 @@
-// The things a life owns at home (home.md R-HOME-013; design page 12 sections 2 and 4). The market sells a
+// The things a life owns at home (home:things-a-life-owns; design page 12 sections 2 and 4). The market sells a
 // thing delivered at once; it stands in the home lived in when that home may hold it (the family house only the small
 // things, in your corner, and the car in its carport), and while it stands it does something in life: a lift once, a
 // lift each month it is lived with, and a change to acts the simulation already has. Some cost to run a month, taken at
@@ -99,7 +99,7 @@ function buyShut(read: Pick<ReadCtx, "state" | "content">, entry: ThingEntry): T
   return null;
 }
 
-/** The car stands at home: the ride sheet offers Drive (R-WORLD-017). */
+/** The car stands at home: the ride sheet offers Drive (world:ride-sheet-shows-fares). */
 export function drives(read: Pick<ReadCtx, "state" | "content">): boolean {
   return working(read).some((entry) => entry.drive === true);
 }
@@ -137,7 +137,7 @@ function sellCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return events;
 }
 
-/** R-PLACE-002 with the market: leaving Lagos, what is owned is sold at its resale figures, one line saying so. */
+/** place:departure-moves-abroad with the market: leaving Lagos, what is owned is sold at its resale figures, one line saying so. */
 function sellOffEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "things/sell-off") throw new Error(`things/sell-off cannot carry out ${effect.type}.`);
   const { owned } = ctx.state.things;

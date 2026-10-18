@@ -106,13 +106,13 @@ export function start(options: StartOptions = {}): Game {
       return result;
     },
     endTurn(slots = []) {
-      // R-ACTIVITY-015: a now-act fills no slot; it is sent at once as `activity/now`. A month written with one in its
+      // activity:now-acts-and-month-acts: a now-act fills no slot; it is sent at once as `activity/now`. A month written with one in its
       // slots plays it first, at the same tick, as the recorded lives do, and the month's events and lines carry its own
       // in front. One that cannot be paid, or done again this month, does not happen, as such a slot failed before.
       const early: { events: BaseEvent[]; lines: ReportLine[] } = { events: [], lines: [] };
       const month: SlotPick[] = [];
       for (const pick of slots) {
-        // An act that repeats may stand as a commitment in a slot (R-ACTIVITY-019), so it stays a slot pick.
+        // An act that repeats may stand as a commitment in a slot (activity:acts-may-repeat-in-month), so it stays a slot pick.
         if (content.activity[pick.activity]?.when !== "now" || content.activity[pick.activity]?.repeat === true) {
           month.push(pick);
           continue;
@@ -130,7 +130,7 @@ export function start(options: StartOptions = {}): Game {
       // such a slot was held; the month is then left to the test's next end.
       if (early.events.length > 0 && game.state.setpiece.open !== null) return { ok: true, state: game.state, events: early.events, lines: early.lines };
       const result = game.send({ type: "turn/end", slots: month });
-      // The pair's interview holds the month the same way (R-INTERVIEW-004).
+      // The pair's interview holds the month the same way (interview:answers-taken-in-order).
       if (!result.ok && early.events.length > 0 && result.code === "setpiece-open") return { ok: true, state: game.state, events: early.events, lines: early.lines };
       if (!result.ok) throw new Error(`turn/end was rejected with ${result.code}: ${result.detail}`);
       return { ...result, events: [...early.events, ...result.events], lines: [...early.lines, ...result.lines] };
@@ -151,7 +151,7 @@ export function start(options: StartOptions = {}): Game {
 /**
  * Plays a life's prologue to its close by the first legal answer each step, so
  * tests over every life can treat the prologue life like the fixed ones
- * (R-PROLOGUE-006). A life whose prologue is closed is left as it is.
+ * (prologue:closing-opens-home-charges). A life whose prologue is closed is left as it is.
  */
 export function finishPrologue(game: Game): void {
   for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {

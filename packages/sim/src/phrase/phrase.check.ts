@@ -1,4 +1,4 @@
-// The preset phrases' content checks: docs/rules/pair.md R-PAIR-010.
+// The preset phrases' content checks: pair:preset-phrases-only.
 import type { Content, PhraseEntry } from "../engine/types";
 
 const PHRASE_ID = /^phrase\.[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -96,7 +96,7 @@ function wordProblems(phrase: PhraseEntry, words: Readonly<Record<string, string
 
 /**
  * Sentences describing what is wrong with the phrases: each well formed, its
- * fill-in with a source, its options not empty (R-PAIR-010). Pass the words to
+ * fill-in with a source, its options not empty (pair:preset-phrases-only). Pass the words to
  * check what each phrase says as well.
  */
 export function phraseChecks(content: Content, words?: Readonly<Record<string, string>>): string[] {

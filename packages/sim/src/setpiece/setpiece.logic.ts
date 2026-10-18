@@ -1,4 +1,4 @@
-// Set pieces: docs/rules/route.md, R-SETPIECE-001 to 008. A set piece is a
+// Set pieces: the set piece rules of docs/rules/route.md. A set piece is a
 // short run of questions that blocks the next turn until it is answered: the
 // credibility interview a visa application opens, the road's scenes and the
 // December visit.
@@ -49,7 +49,7 @@ function questionOf(entry: SetpieceEntry, id: string): SetpieceQuestion {
   return question;
 }
 
-/** R-SETPIECE-008: a question asked only after an answer that names it. */
+/** route:answer-may-ask-follow-up: a question asked only after an answer that names it. */
 function isFollowUp(entry: SetpieceEntry, id: string): boolean {
   return entry.followUps?.some((candidate) => candidate.id === id) ?? false;
 }
@@ -59,19 +59,19 @@ function nextQuestion(open: Open): string | null {
   return open.questions.find((id) => open.answers[id] === undefined) ?? null;
 }
 
-/** R-SETPIECE-004: the other score when its conditions hold, else the plain one. */
+/** route:answers-score-and-close: the other score when its conditions hold, else the plain one. */
 export function answerScore(answer: SetpieceAnswer, judge: Judge): number {
   if (answer.thenScore !== null && answer.when.every((requirement) => judge(requirement).met)) return answer.thenScore;
   return answer.score;
 }
 
-/** R-SETPIECE-003: an answer may be given only while every one of its `requires` holds. */
+/** route:set-piece-answers-in-order: an answer may be given only while every one of its `requires` holds. */
 function answerAllowed(answer: SetpieceAnswer, judge: Judge): boolean {
   return (answer.requires ?? []).every((requirement) => judge(requirement).met);
 }
 
 /**
- * R-SETPIECE-001: the questions whose conditions hold, the first `ask` of them
+ * route:set-piece-draws-questions: the questions whose conditions hold, the first `ask` of them
  * in the order written for a fixed entry, else `ask` drawn on `visa` without
  * repeats and kept in the order drawn.
  */
@@ -87,11 +87,11 @@ function askedQuestions(ctx: Ctx, entry: SetpieceEntry): string[] {
 }
 
 /**
- * R-SETPIECE-001: opens the set piece with the questions it asks. It runs
+ * route:set-piece-draws-questions: opens the set piece with the questions it asks. It runs
  * for the effect `setpiece/open`, which the route sends when an application
- * goes in (R-ROUTE-015). A set piece already open is left as it
+ * goes in (route:application-opens-interview). A set piece already open is left as it
  * is, and with no question to ask the interview scores 0 at once rather than
- * open with nothing to answer, which would leave the player stuck (R-ENGINE-011).
+ * open with nothing to answer, which would leave the player stuck (engine:player-never-stuck).
  */
 function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): BaseEvent[] {
   if (ctx.state.setpiece.open !== null) return [];
@@ -105,12 +105,12 @@ function openSetpiece(ctx: Ctx, id: Id<"setpiece">, route: Id<"route"> | null): 
 }
 
 /**
- * R-SETPIECE-003 and 004. An answer whose requirements fail now is refused.
+ * route:set-piece-answers-in-order and route:answers-score-and-close. An answer whose requirements fail now is refused.
  * Each answer is scored the moment it is given, before its own effects
  * apply, and the score is added to the open set piece's running sum. The
  * close records that sum, so a lot made between two answers moves only the
  * answers given after it. A set piece with no route records no score anywhere
- * (R-SETPIECE-006), so its answers score 0. The set piece closes on its last
+ * (route:answers-carry-effects), so its answers score 0. The set piece closes on its last
  * question or on an answer marked `closes`.
  */
 function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
@@ -126,7 +126,7 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const score = open.route === null ? 0 : answerScore(chosen, (requirement) => ctx.check(requirement));
   const answered: SetpieceEvent = { type: "setpiece/answered", question: next, answer: chosen.id, score };
   const events = emit(ctx, "setpiece", [answered]);
-  // R-SETPIECE-006: an answer's effects apply the moment it is given.
+  // route:answers-carry-effects: an answer's effects apply the moment it is given.
   if (chosen.effects.length > 0) ctx.apply(chosen.effects, { source: open.entry, param: null, terms: {} });
   if (chosen.closes !== true) events.push(...followUp(ctx, entry, next, chosen));
   const now = ctx.state.setpiece.open;
@@ -138,7 +138,7 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 /**
- * R-SETPIECE-008: the follow-up the answer names is asked next, once its
+ * route:answer-may-ask-follow-up: the follow-up the answer names is asked next, once its
  * conditions hold. It follows the answer given, never its score. A follow-up
  * leads to no other, and one already asked is not asked again, so a question
  * has at most one.
@@ -158,7 +158,7 @@ function followUp(ctx: Ctx, entry: SetpieceEntry, after: string, chosen: Setpiec
 /**
  * The effect `setpiece/close`: the open set piece, when it is the one named,
  * closes unscored. No score reaches a route and `answered` does not count it,
- * since nothing was answered (a flight during a road scene, R-ROAD-004).
+ * since nothing was answered (a flight during a road scene, road:road-night-allows-turn-back).
  */
 function closeSetpiece(ctx: Ctx, id: Id<"setpiece">): BaseEvent[] {
   const open = ctx.state.setpiece.open;
@@ -202,7 +202,7 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
       // It blocks the next turn, so the player must look.
       return [{ key: "line.setpiece.opened", params: { setpiece: event.entry, questions: event.questions.length }, tone: "plain", attention: true, counts: [] }];
     case "setpiece/answered":
-      // R-LUCK-008: going home for December is staged. The set piece is still open when its answer is told.
+      // luck:big-wins-are-staged: going home for December is staged. The set piece is still open when its answer is told.
       if (state.setpiece.open?.entry === SETPIECE.december && event.answer === GO) {
         return [{ key: "line.setpiece.december-go", params: { setpiece: SETPIECE.december }, tone: "good", attention: true, big: true, counts: [] }];
       }
@@ -221,8 +221,8 @@ function lines(event: SetpieceEvent, state: State): ReportLine[] {
 }
 
 /**
- * R-SHARE-001: the December card, once the visit opened at the last turn's end
- * has closed with the going answer given (R-LUCK-008), through the rest of that month.
+ * share:cards-due-at-set-moments: the December card, once the visit opened at the last turn's end
+ * has closed with the going answer given (luck:big-wins-are-staged), through the rest of that month.
  * The going question is the one this scene asks where the character is now.
  */
 export function decemberCard(read: ReadCtx): PlayerView["card"] {
@@ -236,9 +236,9 @@ export function decemberCard(read: ReadCtx): PlayerView["card"] {
 }
 
 /**
- * R-SETPIECE-005: one question at a time and never a score. With enough
+ * route:view-shows-progress-not-score: one question at a time and never a score. With enough
  * interview prep, the answers that would score below zero now are marked.
- * R-SETPIECE-003: `allowed` lists the answers whose requirements hold now.
+ * route:set-piece-answers-in-order: `allowed` lists the answers whose requirements hold now.
  */
 function view(read: ReadCtx): Pick<PlayerView, "setpiece"> {
   const open = read.state.setpiece.open;
@@ -273,7 +273,7 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
   initial: () => ({ open: null, answered: {}, given: {} }),
   commands: { "setpiece/answer": answer },
   requirements: {
-    // R-SETPIECE-006.
+    // route:answers-carry-effects.
     "setpiece/answered": (read, requirement) => {
       if (requirement.type !== "setpiece/answered") throw new Error(`setpiece/answered cannot judge ${requirement.type}.`);
       const have = read.state.setpiece.answered[requirement.setpiece] ?? 0;
@@ -317,7 +317,7 @@ export const setpieceKind: RegisteredKind<SetpieceSlice, SetpieceEvent> = {
       if (given !== undefined && !question.answers.some((candidate) => candidate.id === given)) problems.push(`${id} was answered with ${given}.`);
       const earlier = open.questions[index - 1];
       if (given !== undefined && earlier !== undefined && open.answers[earlier] === undefined) problems.push(`${id} was answered before ${earlier}.`);
-      // R-SETPIECE-008: a follow-up sits right after the question answered with the answer that names it.
+      // route:answer-may-ask-follow-up: a follow-up sits right after the question answered with the answer that names it.
       const before = earlier === undefined ? undefined : findQuestion(entry, earlier);
       const named = before?.answers.find((candidate) => candidate.id === open.answers[earlier ?? ""])?.followUp;
       if (isFollowUp(entry, id) && named !== id) problems.push(`${open.entry} asks the follow-up ${id} where no answer before it names it.`);

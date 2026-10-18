@@ -58,7 +58,7 @@ export function idOf<K extends KindName>(kind: K) {
 export const CurrencySchema = z.enum(["NGN", "GBP", "USD", "CAD", "AED", "EUR"]);
 export const ForeignCurrencySchema = z.enum(["GBP", "USD", "CAD", "AED", "EUR"]);
 export const PocketSchema = z.enum(["bank", "cash"]);
-/** A hometown (R-PROLOGUE-002): `hometown.<slug>`, its words in content. Not a kind: a town the family is from, never a place the game shows. */
+/** A hometown (prologue:family-draw-on-first-answer): `hometown.<slug>`, its words in content. Not a kind: a town the family is from, never a place the game shows. */
 export const HometownSchema = z.string().regex(new RegExp(`^hometown\\.${SLUG}$`), { error: "Expected a hometown of the form hometown.slug" });
 export const ReasonSchema = z.enum([
   "opening",
@@ -302,7 +302,7 @@ export const EffectSchema = z.discriminatedUnion("type", [
     amount: AmountSchema,
     reason: ReasonSchema,
   }),
-  // R-WALLET-020: the authority's top-up alone applies it; a test proves no content entry carries it.
+  // wallet:top-ups-are-marked: the authority's top-up alone applies it; a test proves no content entry carries it.
   z.strictObject({ type: z.literal("wallet/top-up"), amount: z.int().positive() }),
   z.strictObject({ type: z.literal("quality/add"), quality: idOf("quality"), amount: IntSchema }),
   z.strictObject({ type: z.literal("activity/hunt") }),
@@ -409,13 +409,13 @@ export type TermSpecMatches = Proof<Same<z.infer<typeof TermSpecSchema>, TermSpe
 // Tuning
 // ---------------------------------------------------------------------------
 
-// The ways of a country abroad (R-PLACE-010, decision 0017), in that country's smallest unit.
+// The ways of a country abroad (place:rides-between-city-places, decision 0017), in that country's smallest unit.
 const RideFiguresSchema = z.strictObject({ fare: CountSchema, farePerKm: CountSchema, metresPerMinute: z.int().positive() });
 const CountryRidesSchema = z.strictObject({
   ways: z.strictObject({ bus: RideFiguresSchema.exactOptional(), train: RideFiguresSchema.exactOptional(), taxi: RideFiguresSchema.exactOptional() }),
   step: z.int().positive(),
   pass: CountSchema.nullable(),
-  // R-PLACE-012 (decision 0017): the ways the pass covers.
+  // place:country-pass-covers-ways (decision 0017): the ways the pass covers.
   passWays: z.array(z.enum(["bus", "train", "taxi"])),
   lonMetresPerE3: z.int().positive(),
   walkMetresPerMinute: z.int().positive(),
@@ -627,7 +627,7 @@ export const TuningSchema = z.strictObject({
   interview: z.strictObject({ ask: CountSchema, decoys: CountSchema, passBp: BpSchema, failBp: BpSchema, caughtBelowBp: BpSchema, thinMoments: CountSchema, thinMonths: CountSchema, doubtBp: BpSchema, standInRecallBp: BpSchema, caughtStanding: IntSchema }),
   undertaking: z.strictObject({ months: CountSchema, assistanceUnder: CountSchema }),
   home: HomeTuningSchema,
-  // The market: the car's way on the map, priced by distance as the rides are (R-PLACE-010).
+  // The market: the car's way on the map, priced by distance as the rides are (place:rides-between-city-places).
   thing: z.strictObject({ drive: z.strictObject({ fareKobo: CountSchema, farePerKmKobo: CountSchema, metresPerMinute: z.int().positive() }) }),
 });
 

@@ -1,5 +1,4 @@
-// The sponsor's undertaking: docs/rules/undertaking.md R-UNDERTAKING-006 to
-// 009 and 012. The obligation kind calls these for an undertaking whose sink is
+// The sponsor's undertaking: undertaking:landing-opens-undertaking, undertaking:assistance-charged-to-sponsor, undertaking:missed-charges-lead-to-default, undertaking:undertaking-outlives-relationship and undertaking:view-lists-undertaking. The obligation kind calls these for an undertaking whose sink is
 // `undertaking`; any other undertaking (a guarantee) keeps the kind's own path.
 import { worldVar } from "../engine/check";
 import { isWhole } from "../engine/int";
@@ -24,12 +23,12 @@ function causeOf(item: ObligationState): Cause {
   return { source: item.entry, param: null, terms: {} };
 }
 
-/** R-UNDERTAKING-006, 009: the undertaking's months, counted from the month it opened. */
+/** undertaking:landing-opens-undertaking, undertaking:undertaking-outlives-relationship: the undertaking's months, counted from the month it opened. */
 function termEnds(read: ReadCtx, item: ObligationState): number {
   return item.openedMonth + read.content.tuning.undertaking.months;
 }
 
-/** R-UNDERTAKING-012: months left of the undertaking, for the view. */
+/** undertaking:view-lists-undertaking: months left of the undertaking, for the view. */
 export function undertakingMonthsLeft(read: ReadCtx, item: ObligationState): number {
   return Math.max(0, termEnds(read, item) - read.state.turn.month);
 }
@@ -40,7 +39,7 @@ function bondOf(state: State, bond: string | undefined): string | null {
   return state.people.sponsoring?.bond ?? null;
 }
 
-/** R-UNDERTAKING-006: open with nothing owed, naming the bond. */
+/** undertaking:landing-opens-undertaking: open with nothing owed, naming the bond. */
 export function openUndertaking(ctx: Ctx, entry: ObligationEntry, bond: string | undefined): BaseEvent[] {
   const item: ObligationState = {
     id: ctx.nextId("obligation"),
@@ -59,19 +58,19 @@ export function openUndertaking(ctx: Ctx, entry: ObligationEntry, bond: string |
   return record(ctx, [{ type: "obligation/opened", item }]);
 }
 
-/** The effect `obligation/open` naming the bond, for the people kind to apply when the authority sends `people/agreed` with `landed` (R-UNDERTAKING-006). */
+/** The effect `obligation/open` naming the bond, for the people kind to apply when the authority sends `people/agreed` with `landed` (undertaking:landing-opens-undertaking). */
 export function undertakingOpening(obligation: Id<"obligation">, bond: string): Effect {
   return { type: "obligation/open", obligation, bond };
 }
 
-/** R-UNDERTAKING-007: months of assistance in the partner's facts not yet charged. A bond that has gone keeps its last facts. */
+/** undertaking:assistance-charged-to-sponsor: months of assistance in the partner's facts not yet charged. A bond that has gone keeps its last facts. */
 function newMonths(state: State, item: ObligationState): number {
   const taken = item.bond === null ? 0 : (state.people.bonds[item.bond]?.facts?.assistanceTaken ?? 0);
   return Math.max(0, taken - item.charged);
 }
 
 
-/** R-UNDERTAKING-007: from the bank pocket first, then cash. The caller has judged that both together hold it. */
+/** undertaking:assistance-charged-to-sponsor: from the bank pocket first, then cash. The caller has judged that both together hold it. */
 function takeBankFirst(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount: number): void {
   const fromBank = Math.min(ctx.state.wallet.pockets[entry.currency].bank, amount);
   const takes: Effect[] = [];
@@ -80,18 +79,18 @@ function takeBankFirst(ctx: Ctx, item: ObligationState, entry: ObligationEntry, 
   ctx.apply(takes, causeOf(item));
 }
 
-/** R-UNDERTAKING-008: in default, what is owed is taken from the bank pocket as R-OBLIGATION-005 takes a defaulted loan. */
+/** undertaking:missed-charges-lead-to-default: in default, what is owed is taken from the bank pocket as obligation:loan-default-and-recovery takes a defaulted loan. */
 function collect(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const amount = Math.min(ctx.state.wallet.pockets[entry.currency].bank, item.outstanding);
   if (amount === 0) return [];
   ctx.apply([{ type: "money/take", currency: entry.currency, pocket: "bank", amount, reason: entry.sink }], causeOf(item));
   const events = record(ctx, [{ type: "obligation/seized", id: item.id, entry: item.entry, amount }]);
-  // What is owed taken in full lifts the default, as paying it all does (R-UNDERTAKING-008).
+  // What is owed taken in full lifts the default, as paying it all does (undertaking:missed-charges-lead-to-default).
   return item.outstanding === amount ? [...events, ...record(ctx, [{ type: "obligation/cleared", id: item.id, entry: item.entry }])] : events;
 }
 
 /**
- * R-UNDERTAKING-007, 008: everything owed is asked for at once, paid in full or
+ * undertaking:assistance-charged-to-sponsor, undertaking:missed-charges-lead-to-default: everything owed is asked for at once, paid in full or
  * missed. A missed charge is asked for again each month with what is
  * new, and each month it cannot be paid is one more miss in a row.
  */
@@ -110,7 +109,7 @@ function charge(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEv
   return events;
 }
 
-/** The `due` phase for one sponsor's undertaking (R-UNDERTAKING-007 to 009). A month with nothing new and nothing owed records nothing. */
+/** The `due` phase for one sponsor's undertaking (undertaking:assistance-charged-to-sponsor, undertaking:missed-charges-lead-to-default and undertaking:undertaking-outlives-relationship). A month with nothing new and nothing owed records nothing. */
 export function undertakingDue(ctx: Ctx, start: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const events: BaseEvent[] = [];
   const months = newMonths(ctx.state, start);
@@ -120,18 +119,18 @@ export function undertakingDue(ctx: Ctx, start: ObligationState, entry: Obligati
   }
   const item = ctx.state.obligation.items[start.id];
   if (item === undefined) return events;
-  // The default was in force before this month's charge, so collection starts the month after it (R-UNDERTAKING-008).
+  // The default was in force before this month's charge, so collection starts the month after it (undertaking:missed-charges-lead-to-default).
   if (start.state === "defaulted") events.push(...collect(ctx, item, entry));
   else if (item.outstanding > 0) events.push(...charge(ctx, item, entry));
   const after = ctx.state.obligation.items[start.id];
-  // R-UNDERTAKING-009: only the end of its months with nothing owed closes it; the bond, the place and the status do not.
+  // undertaking:undertaking-outlives-relationship: only the end of its months with nothing owed closes it; the bond, the place and the status do not.
   if (after !== undefined && after.outstanding === 0 && ctx.state.turn.month >= termEnds(ctx, after)) {
     events.push(...record(ctx, [{ type: "obligation/closed", id: after.id, entry: after.entry, why: "ended" }]));
   }
   return events;
 }
 
-/** R-UNDERTAKING-008: `obligation/pay` pays down what is owed, bank first; paying it all lifts the default. */
+/** undertaking:missed-charges-lead-to-default: `obligation/pay` pays down what is owed, bank first; paying it all lifts the default. */
 export function payUndertaking(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount: unknown): BaseEvent[] | Rejection {
   if (item.outstanding === 0) return reject("not-legal", "Nothing is owed on the undertaking.");
   if (!isWhole(amount) || amount <= 0 || amount > item.outstanding) {

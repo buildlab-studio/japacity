@@ -1,5 +1,5 @@
-// A room in a compound (docs/rules/home.md R-HOME-010, R-HOME-011; obligation.md R-OBLIGATION-015; place.md
-// R-PLACE-002; prologue.md R-PROLOGUE-013), played through the harness on the real content. The year's rent is paid
+// A room in a compound (home:compound-room-is-a-home, home:rent-default-returns-to-family; obligation:prepaid-entries-skip-first-charge; place.md
+// place:departure-moves-abroad; prologue:front-door-three-screens), played through the harness on the real content. The year's rent is paid
 // upfront with the fees, the room's own upkeep replaces the family's, and the next year's rent falls due twelve
 // months on. A rent gone bad sends the character back to the family house; a flight lets the room go.
 import { content } from "@japacity/content";
@@ -79,7 +79,7 @@ function homeAnswer(game: Game, answer: string) {
 }
 
 describe("the numbers", () => {
-  test("[R-HOME-010] given the content, when the room's entries are read, then its rent is yearly and paid upfront, its upkeep is an upkeep at the tuning's charge, and the move-in is the year's rent with the fees on it", () => {
+  test("[home:compound-room-is-a-home] given the content, when the room's entries are read, then its rent is yearly and paid upfront, its upkeep is an upkeep at the tuning's charge, and the move-in is the year's rent with the fees on it", () => {
     expect(content.obligation[RENT]).toMatchObject({ type: "rent", currency: "NGN", everyMonths: 12, prepaid: true, amount: home.compound.rentYear, sink: "rent" });
     expect(content.obligation[UPKEEP]).toMatchObject({ type: "upkeep", currency: "NGN", amount: home.compound.upkeep, sink: "upkeep" });
     expect(content.obligation[UPKEEP]?.onMiss).toEqual(content.obligation[FAMILY_UPKEEP]?.onMiss);
@@ -87,13 +87,13 @@ describe("the numbers", () => {
     expect(home.compound.feesBp).toBe(2000);
     expect(compoundMoveIn(home)).toBe(MOVE_IN);
     expect(MOVE_IN).toBe(420_000_00);
-    // Its made-up spot in Ojuelegba (R-CITY-008) is its own, so the map and the fares read one position for it.
+    // Its made-up spot in Ojuelegba (city:positions-rough-on-purpose) is its own, so the map and the fares read one position for it.
     expect(content.place[COMPOUND]).toMatchObject({ where: "home", city: "lagos", nameKind: "stylised", position: { latE3: 6513, lonE3: 3360 }, data: { source: "own" }, scope: "interior" });
   });
 });
 
 describe("moving into the room", () => {
-  test("[R-HOME-010] [R-HOME-002] given Ada at the family house with plenty, when she moves into the room, then the year's rent and the fees are taken at once under rent, the family's upkeep closes, the room's rent and upkeep open, and standing does not move", () => {
+  test("[home:compound-room-is-a-home] [home:move-home-once-a-month] given Ada at the family house with plenty, when she moves into the room, then the year's rent and the fees are taken at once under rent, the family's upkeep closes, the room's rent and upkeep open, and standing does not move", () => {
     const game = ada(CHARGED);
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const standing = game.state.quality[STANDING];
@@ -109,7 +109,7 @@ describe("moving into the room", () => {
     expect(checkInvariants(game.state, CHARGED)).toEqual([]);
   });
 
-  test("[R-HOME-010] [R-HOME-008] given Ada one kobo short of the year's rent and fees, when the card is read and she moves, then the move is shut as short and refused with cannot-afford; with it exactly held it is open and taken", () => {
+  test("[home:compound-room-is-a-home] [home:moves-carry-cost-and-reason] given Ada one kobo short of the year's rent and fees, when the card is read and she moves, then the move is shut as short and refused with cannot-afford; with it exactly held it is open and taken", () => {
     const short = ada(CHARGED);
     setPockets(short, { NGN: { cash: 0, bank: MOVE_IN - 1 } });
     expect(short.view().home.moves.find((move) => move.to === COMPOUND)).toEqual({ to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "short" });
@@ -121,7 +121,7 @@ describe("moving into the room", () => {
     expect(naira(exact)).toBe(0);
   });
 
-  test("[R-HOME-010] given Ada in the room, when months pass, then the room's upkeep is charged each month in place of the family's, the move month included, and the year's rent nothing before month 12", () => {
+  test("[home:compound-room-is-a-home] given Ada in the room, when months pass, then the room's upkeep is charged each month in place of the family's, the move month included, and the year's rent nothing before month 12", () => {
     const game = inTheRoom();
     for (let at = 1; at < 12; at += 1) {
       const result = restMonth(game);
@@ -136,7 +136,7 @@ describe("moving into the room", () => {
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
   });
 
-  test("[R-HOME-008] [R-HOME-010] given Ada in the room, when the card is read, then it offers the family house at no cost now and Makoko at its first month, and shuts both the month she moved", () => {
+  test("[home:moves-carry-cost-and-reason] [home:compound-room-is-a-home] given Ada in the room, when the card is read, then it offers the family house at no cost now and Makoko at its first month, and shuts both the month she moved", () => {
     const game = inTheRoom(CHARGED);
     expect(game.view().home.moves).toEqual([
       { to: FAMILY, monthly: { currency: "NGN", amount: ADA_UPKEEP }, now: 0, shut: "moved" },
@@ -149,15 +149,15 @@ describe("moving into the room", () => {
   });
 });
 
-describe("water in the room (R-OBLIGATION-014)", () => {
-  test("[R-OBLIGATION-014] [R-HOME-010] given Ada in the room, when the month's choices are listed, then the drum filled from the yard is offered and the water seller's act is not, and cooking still is", () => {
+describe("water in the room (obligation:cooking-and-fetching-water)", () => {
+  test("[obligation:cooking-and-fetching-water] [home:compound-room-is-a-home] given Ada in the room, when the month's choices are listed, then the drum filled from the yard is offered and the water seller's act is not, and cooking still is", () => {
     const game = inTheRoom();
     const allowed = (id: string) => game.view().activities.find((option) => option.id === id)?.allowed;
     expect([allowed("activity.fill-drum"), allowed("activity.fetch-water"), allowed("activity.cook-at-home")]).toEqual([true, false, true]);
     game.expectRejected({ type: "turn/end", slots: [{ activity: "activity.fetch-water", param: null }] }, "not-legal");
   });
 
-  test("[R-OBLIGATION-014] [R-HOME-010] given Ada in the room, when she fills the drum in a month, then the room's upkeep is charged whole, with no relief and no money line, as in a month she does not", () => {
+  test("[obligation:cooking-and-fetching-water] [home:compound-room-is-a-home] given Ada in the room, when she fills the drum in a month, then the room's upkeep is charged whole, with no relief and no money line, as in a month she does not", () => {
     const there = inTheRoom(CHARGED);
     const twin = inTheRoom(CHARGED);
     restMonth(there);
@@ -173,7 +173,7 @@ describe("water in the room (R-OBLIGATION-014)", () => {
 });
 
 describe("moving back", () => {
-  test("[R-HOME-010] [R-HOME-002] given Ada in the room, when she moves back to the family house, then the family's upkeep reopens at her starting life's charge, the rent closes with nothing given back, and the family talks", () => {
+  test("[home:compound-room-is-a-home] [home:move-home-once-a-month] given Ada in the room, when she moves back to the family house, then the family's upkeep reopens at her starting life's charge, the rent closes with nothing given back, and the family talks", () => {
     const game = inTheRoom();
     restMonth(game);
     const standing = game.state.quality[STANDING]!;
@@ -188,7 +188,7 @@ describe("moving back", () => {
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
   });
 
-  test("[R-HOME-010] given Ada in the room, when she moves on to Makoko, then the room's rent and upkeep close and Makoko's rent opens, taken as R-HOME-002 takes it", () => {
+  test("[home:compound-room-is-a-home] given Ada in the room, when she moves on to Makoko, then the room's rent and upkeep close and Makoko's rent opens, taken as home:move-home-once-a-month takes it", () => {
     const game = inTheRoom();
     restMonth(game);
     game.accept({ type: "home/move", to: MAKOKO });
@@ -197,13 +197,13 @@ describe("moving back", () => {
   });
 });
 
-describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
-  test("[R-OBLIGATION-015] given the room's rent opened in month 0, when twenty-five months pass with the rent held, then it is charged in months 12 and 24 and in no other", () => {
+describe("the year's rent paid upfront (obligation:prepaid-entries-skip-first-charge)", () => {
+  test("[obligation:prepaid-entries-skip-first-charge] given the room's rent opened in month 0, when twenty-five months pass with the rent held, then it is charged in months 12 and 24 and in no other", () => {
     const game = inTheRoom();
     expect(rentMonths(game, 30)).toEqual([12, 24]);
   });
 
-  test("[R-OBLIGATION-015] given the room's rent opened in a later month, when it is read, then its first charge falls twelve months after that month", () => {
+  test("[obligation:prepaid-entries-skip-first-charge] given the room's rent opened in a later month, when it is read, then its first charge falls twelve months after that month", () => {
     const game = ada();
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     for (let at = 0; at < 3; at += 1) restMonth(game);
@@ -212,7 +212,7 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
     expect(rentMonths(game, 20)).toEqual([15]);
   });
 
-  test("[R-OBLIGATION-015] [R-OBLIGATION-003] given the year's rent due and not held, when it is missed, then it is asked for again the next month, and once paid the next falls twelve months after the opening year's", () => {
+  test("[obligation:prepaid-entries-skip-first-charge] [obligation:miss-applies-its-effects] given the year's rent due and not held, when it is missed, then it is asked for again the next month, and once paid the next falls twelve months after the opening year's", () => {
     const game = inTheRoom();
     toRentDue(game);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
@@ -226,7 +226,7 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
 });
 
 describe("the room's rent in the view", () => {
-  test("[R-HOME-010] given Ada in the room from month 0, when months pass with the rent held, then the view carries the year's rent, the fees paid on it and the months to the next year, counting down to 0 in the month whose end takes it, then 11 again", () => {
+  test("[home:compound-room-is-a-home] given Ada in the room from month 0, when months pass with the rent held, then the view carries the year's rent, the fees paid on it and the months to the next year, counting down to 0 in the month whose end takes it, then 11 again", () => {
     const game = inTheRoom();
     const fees = bp(home.compound.rentYear, home.compound.feesBp);
     const seen: number[] = [];
@@ -242,7 +242,7 @@ describe("the room's rent in the view", () => {
     expect(seen).toEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 11]);
   });
 
-  test("[R-HOME-010] given the year's rent missed, when the view is read, then it is due again at this month's end", () => {
+  test("[home:compound-room-is-a-home] given the year's rent missed, when the view is read, then it is due again at this month's end", () => {
     const game = inTheRoom();
     toRentDue(game);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
@@ -250,7 +250,7 @@ describe("the room's rent in the view", () => {
     expect(game.view().home.roomRent?.dueIn).toBe(0);
   });
 
-  test("[R-HOME-010] given Ada at the family house, and Ada moved back from the room, when the view is read, then no yearly rent is carried", () => {
+  test("[home:compound-room-is-a-home] given Ada at the family house, and Ada moved back from the room, when the view is read, then no yearly rent is carried", () => {
     expect(ada().view().home.roomRent).toBeNull();
     const game = inTheRoom();
     restMonth(game);
@@ -259,8 +259,8 @@ describe("the room's rent in the view", () => {
   });
 });
 
-describe("a rent gone bad (R-HOME-011)", () => {
-  test("[R-HOME-011] given Ada in the room with nothing when the year's rent falls due, when it is missed past its grace, then in the same month's clocks she is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
+describe("a rent gone bad (home:rent-default-returns-to-family)", () => {
+  test("[home:rent-default-returns-to-family] given Ada in the room with nothing when the year's rent falls due, when it is missed past its grace, then in the same month's clocks she is back at the family house: the family's upkeep reopens, the rent closes, the standing cost is paid and a line with attention says it", () => {
     const game = inTheRoom();
     toRentDue(game);
     const grace = content.obligation[RENT]!.grace;
@@ -284,7 +284,7 @@ describe("a rent gone bad (R-HOME-011)", () => {
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
   });
 
-  test("[R-HOME-011] given Ada's room rent missed but not yet past its grace, when the month ends, then she still lives in the room", () => {
+  test("[home:rent-default-returns-to-family] given Ada's room rent missed but not yet past its grace, when the month ends, then she still lives in the room", () => {
     const game = inTheRoom();
     toRentDue(game);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
@@ -294,7 +294,7 @@ describe("a rent gone bad (R-HOME-011)", () => {
     expect(openObligations(game)).toEqual([RENT, UPKEEP]);
   });
 
-  test("[R-HOME-011] given the standing cost of a move back, when Ada is put out, then her standing falls by the tuning's figure on top of the misses' own costs", () => {
+  test("[home:rent-default-returns-to-family] given the standing cost of a move back, when Ada is put out, then her standing falls by the tuning's figure on top of the misses' own costs", () => {
     const game = inTheRoom();
     toRentDue(game);
     const twin = inTheRoom(applyOverlay(QUIET, { version: "test-compound-no-talk", tuning: { home: { returnStanding: 0 } } }));
@@ -311,8 +311,8 @@ describe("a rent gone bad (R-HOME-011)", () => {
   });
 });
 
-describe("a flight lets the room go (R-PLACE-002)", () => {
-  test("[R-PLACE-002] [R-HOME-010] [R-PLACE-007] given Ada in the room, when she flies, then the room's rent closes with its upkeep; when she comes home, the family house takes her back at its own charge", () => {
+describe("a flight lets the room go (place:departure-moves-abroad)", () => {
+  test("[place:departure-moves-abroad] [home:compound-room-is-a-home] [place:family-takes-you-back] given Ada in the room, when she flies, then the room's rent closes with its upkeep; when she comes home, the family house takes her back at its own charge", () => {
     const game = inTheRoom();
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
@@ -328,8 +328,8 @@ describe("a flight lets the room go (R-PLACE-002)", () => {
   });
 });
 
-describe("a start in the room (R-PROLOGUE-013)", () => {
-  test("[R-PROLOGUE-013] [R-HOME-001] [R-HOME-010] [R-OBLIGATION-015] given a life from sixteen that answers the room, when the prologue closes, then the year and the fees are taken, it lives in the room with no move made, owes the room's rent and upkeep, and owes the rent again at month 12 and nothing before", () => {
+describe("a start in the room (prologue:front-door-three-screens)", () => {
+  test("[prologue:front-door-three-screens] [home:home-slice-fields] [home:compound-room-is-a-home] [obligation:prepaid-entries-skip-first-charge] given a life from sixteen that answers the room, when the prologue closes, then the year and the fees are taken, it lives in the room with no move made, owes the room's rent and upkeep, and owes the rent again at month 12 and nothing before", () => {
     let held = 0;
     const game = fromSixteen("compound-room", (before) => {
       held = naira(before);
@@ -351,7 +351,7 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
     expect(game.state.turn.month).toBe(12);
   });
 
-  test("[R-PROLOGUE-013] given the home card, when the life holds the year, the fees and a month of the room's living costs less one kobo, then the room is shut; with it exactly held it is open", () => {
+  test("[prologue:front-door-three-screens] given the home card, when the life holds the year, the fees and a month of the room's living costs less one kobo, then the room is shut; with it exactly held it is open", () => {
     const need = MOVE_IN + home.compound.upkeep;
     const short = fromSixteenTo("home");
     holding(short, need - 1);
@@ -364,7 +364,7 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
     expect(naira(exact)).toBe(home.compound.upkeep);
   });
 
-  test("[R-PROLOGUE-013] given the home card, then it offers the family house, the room in a compound and Makoko, in that order, and the room's answer takes the year and the fees, opens the room's rent and upkeep and moves the life there", () => {
+  test("[prologue:front-door-three-screens] given the home card, then it offers the family house, the room in a compound and Makoko, in that order, and the room's answer takes the year and the fees, opens the room's rent and upkeep and moves the life there", () => {
     const card = content.prologue["home"];
     // The hostel room is the card's fourth home (home.hostel.test.ts).
     expect(card?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);

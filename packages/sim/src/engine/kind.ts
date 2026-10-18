@@ -80,7 +80,7 @@ function instanceNumber(id: string): number | null {
 }
 
 /**
- * Oldest first, for the instances a kind keeps (R-OBLIGATION-001): by the month
+ * Oldest first, for the instances a kind keeps (obligation:due-phase-charges-oldest-first): by the month
  * opened, then by instance number, so `offer-10` comes after `offer-9` as it was
  * opened after it, then by id.
  */
@@ -170,7 +170,7 @@ export function prefixOf(type: string): string {
 }
 
 /**
- * A record read with a key a player sent (R-ENGINE-019): only an own property counts, so a built-in
+ * A record read with a key a player sent (engine:player-keys-read-as-own): only an own property counts, so a built-in
  * name ("constructor", "toString") finds nothing and is refused as any unknown id is, never thrown on.
  */
 export function ownOf<T>(record: Readonly<Record<string, T>>, key: unknown): T | undefined {

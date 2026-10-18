@@ -9,7 +9,7 @@ export const ScenarioEntrySchema = z.strictObject({
   qualities: z.record(idOf("quality"), IntSchema),
   job: idOf("activity").nullable(),
   tenure: z.record(idOf("activity"), CountSchema),
-  // At most the prologue's draw allows (R-PROLOGUE-002: one to six), so no overlay can build a life with a million sibling slots.
+  // At most the prologue's draw allows (prologue:family-draw-on-first-answer: one to six), so no overlay can build a life with a million sibling slots.
   siblings: CountSchema.max(6),
   hometown: HometownSchema.exactOptional(),
   sex: z.enum(["f", "m"]).exactOptional(),

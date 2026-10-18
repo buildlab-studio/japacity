@@ -18,7 +18,7 @@ export function checkInvariantsWith(kinds: Registry, state: State, content: Cont
   return problems;
 }
 
-/** Sentences describing what is broken. Empty when all is well (R-SCENARIO-001). */
+/** Sentences describing what is broken. Empty when all is well (scenario:state-built-from-scenario). */
 export function checkInvariants(state: State, content: Content): string[] {
   return checkInvariantsWith(registry(), state, content);
 }

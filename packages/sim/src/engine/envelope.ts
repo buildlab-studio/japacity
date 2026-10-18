@@ -1,4 +1,4 @@
-// Envelopes: the one place the real clock shows (docs/rules/clock.md R-CLOCK-032; decision 0011;
+// Envelopes: the one place the real clock shows (clock:envelopes-show-real-waits; decision 0011;
 // docs/design/12-the-lived-month-and-the-files.md). A result real life makes you wait for, the English
 // test's band, the endorsing body's answer, a visa decision, is worked out by the simulation as the month
 // turns, as ever, and the authority holds it back until the next morning in Lagos. Nothing here reads a
@@ -17,7 +17,7 @@ export type Envelope =
 /** The papers whose result real life delays: a board marks, a body decides. A passport is printed in life's time. */
 export const REAL_WAIT_DOCUMENTS: readonly Id<"document">[] = ["document.english-test", "document.endorsement"];
 
-/** The next 07:00 in Lagos after `now` (R-CLOCK-032): Lagos keeps UTC+1 all year. */
+/** The next 07:00 in Lagos after `now` (clock:envelopes-show-real-waits): Lagos keeps UTC+1 all year. */
 export function nextMorning(now: number): number {
   const lagos = now + LAGOS_OFFSET_MS;
   const dayStart = divFloor(lagos, DAY_MS) * DAY_MS;

@@ -13,7 +13,7 @@ import { FLIGHT_WINDOW } from "./lives.window";
 const recorded = Object.entries(newLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
 describe("the lives recorded after the goldens", () => {
-  test("[R-ENGINE-010] given the recordings beyond the goldens, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
+  test("[engine:state-is-plain-data] given the recordings beyond the goldens, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
     expect(recorded.map((script) => lifeStart(script.save)?.scenario)).toEqual(["scenario.aniekan"]);
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
@@ -22,7 +22,7 @@ describe("the lives recorded after the goldens", () => {
   });
 
   test.each(recorded.map((script) => [script.name, script] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player (the authority only granting turns), both replays agree month by month, and the save ends on a flight within the recorder's window",
+    "[engine:same-inputs-same-result] [engine:state-is-plain-data] given %s, when its save is replayed twice through the real content, then every command is accepted and sent by the player (the authority only granting turns), both replays agree month by month, and the save ends on a flight within the recorder's window",
     (_name, script) => {
       const worldAt = (tick: number) => standInWorld(lifeStart(script.save)!.worldSeed, tick, content);
       const first = measure(script.save, content, worldAt);

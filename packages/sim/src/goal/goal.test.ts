@@ -1,4 +1,4 @@
-// Life goals: docs/rules/goal.md R-GOAL-001 to 003, on Ada's recorded life
+// Life goals: goal:goals-open-and-complete, goal:done-goal-stays-done and goal:view-shows-goal-items, on Ada's recorded life
 // carried on abroad and home again.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -72,7 +72,7 @@ function untilOpen(game: Game, goal: Id<"goal">, most = 24): Accepted {
 }
 
 /**
- * Applies the effects and plays the month; the goal phase runs at its end. R-ACTIVITY-015: the hunt is
+ * Applies the effects and plays the month; the goal phase runs at its end. activity:now-acts-and-month-acts: the hunt is
  * an act done at once and fills no slot, so the months before rest and the recorded life lands high;
  * standing and wellbeing are brought down from the top again first, so a reward still shows in full.
  */
@@ -94,7 +94,7 @@ function homeByChoice(): Game {
 }
 
 describe("goals open and are done in the chapter phase", () => {
-  test("[R-GOAL-001] given Ada abroad, when her sixth month abroad ends, then her own door opens with a quiet line, and not a month sooner", () => {
+  test("[goal:goals-open-and-complete] given Ada abroad, when her sixth month abroad ends, then her own door opens with a quiet line, and not a month sooner", () => {
     const game = landed();
     while (monthsAbroad(game) < 5) monthAbroad(game);
     expect(isOpen(game, "goal.own-door")).toBe(false);
@@ -105,7 +105,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(goalLines(result)).toContainEqual({ key: "line.goal.opened", params: { goal: "goal.own-door" }, tone: "plain", attention: false, counts: [] });
   });
 
-  test("[R-GOAL-001] [R-GOAL-004] given her own door open and a room rented, when her file reaches 20, then it is not done; when she takes a flat, it is done with a line that asks for attention and its reward, once", () => {
+  test("[goal:goals-open-and-complete] [goal:goals-need-the-real-deed] given her own door open and a room rented, when her file reaches 20, then it is not done; when she takes a flat, it is done with a line that asks for attention and its reward, once", () => {
     const game = landed();
     // Her rent payments would have her file at 20 by six months; it is brought down so the door opens undone.
     while (monthsAbroad(game) < 5) monthAbroad(game);
@@ -124,7 +124,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(later, "goal.own-door")).toEqual([]);
   });
 
-  test("[R-GOAL-001] given December answered in her first month abroad, when her twelfth month abroad ends, then the December goal opens and is done in the same phase, the opening first", () => {
+  test("[goal:goals-open-and-complete] given December answered in her first month abroad, when her twelfth month abroad ends, then the December goal opens and is done in the same phase, the opening first", () => {
     const game = landed("last");
     expect(game.state.setpiece.answered["setpiece.december"]).toBe(1);
     while (monthsAbroad(game) < 11) monthAbroad(game);
@@ -138,7 +138,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.december")).toEqual([[WELLBEING, 5]]);
   });
 
-  test("[R-GOAL-004] given December answered by staying away, when her twelfth month abroad ends, then the December goal opens and is not done; going home the next December does it", () => {
+  test("[goal:goals-need-the-real-deed] given December answered by staying away, when her twelfth month abroad ends, then the December goal opens and is not done; going home the next December does it", () => {
     const game = landed("first");
     expect(game.state.setpiece.given["setpiece.december"]?.["go-uk"]).toBe("stay");
     while (monthsAbroad(game) < 12) monthAbroad(game);
@@ -153,7 +153,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(isDone(game, "goal.december")).toBe(true);
   });
 
-  test("[R-GOAL-001] given twelve months abroad, when Ada starts a job a step above, then a step up opens at twelve months and is done", () => {
+  test("[goal:goals-open-and-complete] given twelve months abroad, when Ada starts a job a step above, then a step up opens at twelve months and is done", () => {
     const game = landed();
     untilOpen(game, "goal.step-up");
     expect(monthsAbroad(game)).toBe(12);
@@ -166,7 +166,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.step-up")).toEqual([[STANDING, 5]]);
   });
 
-  test("[R-GOAL-001] given her file at 10 and then at 60, when the months end, then a clean file opens and then is done", () => {
+  test("[goal:goals-open-and-complete] given her file at 10 and then at 60, when the months end, then a clean file opens and then is done", () => {
     const game = landed();
     thenMonth(game, [{ type: "credit/mark", amount: 10 }]);
     expect(isOpen(game, "goal.clean-file")).toBe(true);
@@ -176,13 +176,13 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.clean-file")).toEqual([[WELLBEING, 3]]);
   });
 
-  test("[R-GOAL-001] given her file at 20 and then a car on finance, when the months end, then the first car opens and then is done", () => {
+  test("[goal:goals-open-and-complete] given her file at 20 and then a car on finance, when the months end, then the first car opens and then is done", () => {
     const game = landed();
     thenMonth(game, [{ type: "credit/mark", amount: 20 }]);
     expect(isOpen(game, "goal.first-car")).toBe(true);
     const result = thenMonth(game, [
       { type: "credit/mark", amount: 20 },
-      // The price less the tenth paid down (R-CAR-001).
+      // The price less the tenth paid down (car:car-bought-on-finance).
       { type: "obligation/open", obligation: "obligation.car", principal: 855000 },
     ]);
     expect(isDone(game, "goal.first-car")).toBe(true);
@@ -192,7 +192,7 @@ describe("goals open and are done in the chapter phase", () => {
     ]);
   });
 
-  test("[R-GOAL-001] given a first sum sent home and then two million naira in all, when the months end, then sending well opens and then is done", () => {
+  test("[goal:goals-open-and-complete] given a first sum sent home and then two million naira in all, when the months end, then sending well opens and then is done", () => {
     const game = landed();
     game.accept({ type: "wallet/remit", currency: "GBP", amount: 100 * POUNDS, channel: "app" });
     thenMonth(game, []);
@@ -203,7 +203,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.send-well")).toEqual([[STANDING, 6]]);
   });
 
-  test("[R-GOAL-001] given a status that counts to settlement and then a settled one, when the months end, then settled opens and then is done", () => {
+  test("[goal:goals-open-and-complete] given a status that counts to settlement and then a settled one, when the months end, then settled opens and then is done", () => {
     const game = landed();
     thenMonth(game, [{ type: "status/grant", status: "status.uk-sponsored", job: "activity.job-uk-care" }]);
     expect(isOpen(game, "goal.settled")).toBe(true);
@@ -215,7 +215,7 @@ describe("goals open and are done in the chapter phase", () => {
     ]);
   });
 
-  test("[R-GOAL-001] given Ada home by choice, when the month ends and then ten and a half million naira is in the bank, then home with capital opens and then is done", () => {
+  test("[goal:goals-open-and-complete] given Ada home by choice, when the month ends and then ten and a half million naira is in the bank, then home with capital opens and then is done", () => {
     const game = homeByChoice();
     game.endTurn();
     expect(isOpen(game, "goal.home-with-capital")).toBe(true);
@@ -225,7 +225,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.home-with-capital")).toEqual([[STANDING, 8]]);
   });
 
-  test("[R-GOAL-001] given Ada home, when a route is granted after the return, then a second route opens and then is done", () => {
+  test("[goal:goals-open-and-complete] given Ada home, when a route is granted after the return, then a second route opens and then is done", () => {
     const game = homeByChoice();
     game.endTurn();
     expect(isOpen(game, "goal.second-route")).toBe(true);
@@ -237,7 +237,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.second-route")).toEqual([[WELLBEING, 8]]);
   });
 
-  test("[R-GOAL-001] given five million naira and then land and fifteen million, when the months end, then the house opens and then is done, wherever Ada is", () => {
+  test("[goal:goals-open-and-complete] given five million naira and then land and fifteen million, when the months end, then the house opens and then is done, wherever Ada is", () => {
     const game = landed();
     thenMonth(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500000000, reason: "gift" }]);
     expect(isOpen(game, "goal.the-house")).toBe(true);
@@ -249,7 +249,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(rewardOf(result, "goal.the-house")).toEqual([[STANDING, 10]]);
   });
 
-  test("[R-GOAL-001] [R-PLACE-003] given money sent home and Ada home before the month ends, when it ends, then sending well, a goal abroad, does not open at home", () => {
+  test("[goal:goals-open-and-complete] [place:entries-legal-by-where] given money sent home and Ada home before the month ends, when it ends, then sending well, a goal abroad, does not open at home", () => {
     const game = landed();
     game.accept({ type: "wallet/remit", currency: "GBP", amount: 100 * POUNDS, channel: "app" });
     game.accept({ type: "return/home" });
@@ -258,7 +258,7 @@ describe("goals open and are done in the chapter phase", () => {
     expect(game.state.goal.done["goal.send-well"]).toBeUndefined();
   });
 
-  test("[R-GOAL-001] given the effects, when goal/open and goal/done are applied, then the first opens whatever its conditions say and the second finishes with its reward, once", () => {
+  test("[goal:goals-open-and-complete] given the effects, when goal/open and goal/done are applied, then the first opens whatever its conditions say and the second finishes with its reward, once", () => {
     const game = start({ scenario: "scenario.ada", content });
     applyEffects(game, [{ type: "goal/open", goal: "goal.settled" }]);
     expect(isOpen(game, "goal.settled")).toBe(true);
@@ -276,7 +276,7 @@ describe("goals open and are done in the chapter phase", () => {
 });
 
 describe("the December visit", () => {
-  test("[R-RETURN-005] given Ada's first month abroad in the December tick, when she goes and spends on everything, then the fare and each answer's price leave her pounds as each is given and the page's standing comes", () => {
+  test("[return:december-visit-set-piece] given Ada's first month abroad in the December tick, when she goes and spends on everything, then the fare and each answer's price leave her pounds as each is given and the page's standing comes", () => {
     const game = flownAda(content);
     applyEffects(game, [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 10000 * POUNDS, reason: "gift" },
@@ -302,7 +302,7 @@ describe("the December visit", () => {
 });
 
 describe("done stays done", () => {
-  test("[R-GOAL-002] given a clean file done, when the file falls back to nothing, then it stays done, the requirement still holds and no reward comes twice", () => {
+  test("[goal:done-goal-stays-done] given a clean file done, when the file falls back to nothing, then it stays done, the requirement still holds and no reward comes twice", () => {
     const game = landed();
     thenMonth(game, [{ type: "credit/mark", amount: 10 }]);
     thenMonth(game, [{ type: "credit/mark", amount: 60 }]);
@@ -315,7 +315,7 @@ describe("done stays done", () => {
     expect(goalKind.requirements?.["goal/done"]?.({ state: game.state, world: game.world(), content }, { type: "goal/done", goal: "goal.clean-file" }, {}).met).toBe(true);
   });
 
-  test("[R-GOAL-002] given a goal done in a month no chapter closes, when the month ends, then the bank is one turn lower: goals do not refill it", () => {
+  test("[goal:done-goal-stays-done] given a goal done in a month no chapter closes, when the month ends, then the bank is one turn lower: goals do not refill it", () => {
     const game = landed();
     // Landing closes with the first job; the months after it close no chapter.
     playUntil(game, SECURE);
@@ -327,7 +327,7 @@ describe("done stays done", () => {
     expect(game.state.turn.banked).toBe(banked - 1);
   });
 
-  test("[R-GOAL-002] given the content, when every entry outside the goals is read, then none waits on a goal", () => {
+  test("[goal:done-goal-stays-done] given the content, when every entry outside the goals is read, then none waits on a goal", () => {
     const { goal: _goals, ...rest } = content;
     expect(Object.keys(_goals).length).toBe(10);
     expect(JSON.stringify(rest)).not.toContain('"goal/done"');
@@ -335,7 +335,7 @@ describe("done stays done", () => {
 });
 
 describe("the goals in the view", () => {
-  test("[R-GOAL-003] given goals open in different months and one done, when the view is read, then open goals come by the month they opened, each item met or not, and the done list carries the month", () => {
+  test("[goal:view-shows-goal-items] given goals open in different months and one done, when the view is read, then open goals come by the month they opened, each item met or not, and the done list carries the month", () => {
     const game = landed();
     thenMonth(game, [{ type: "credit/mark", amount: 10 }]);
     const cleanMonth = game.state.turn.month;
@@ -350,7 +350,7 @@ describe("the goals in the view", () => {
     // Each item is its place in `doneIf`.
     expect(view.open.find((goal) => goal.id === "goal.step-up")?.items).toEqual([{ id: "0", met: false }]);
     expect(view.open.find((goal) => goal.id === "goal.clean-file")?.items).toEqual([{ id: "0", met: false }]);
-    // She still rents a shared room, so her own door opened at six months and is not done (R-GOAL-004).
+    // She still rents a shared room, so her own door opened at six months and is not done (goal:goals-need-the-real-deed).
     expect(game.state.goal.open["goal.own-door"]?.openedMonth).toBe(game.state.place.movedMonth + 6);
     expect(view.open.find((goal) => goal.id === "goal.own-door")?.items).toEqual([{ id: "0", met: false }]);
     thenMonth(game, [{ type: "credit/mark", amount: 60 }]);
@@ -358,14 +358,14 @@ describe("the goals in the view", () => {
     expect(game.view().goals.open.map((goal) => goal.id)).not.toContain("goal.clean-file");
   });
 
-  test("[R-GOAL-003] given a new life, when the view is read, then no goal is open or done, and every goal has a name and words for its lines", () => {
+  test("[goal:view-shows-goal-items] given a new life, when the view is read, then no goal is open or done, and every goal has a name and words for its lines", () => {
     expect(start({ scenario: "scenario.ada", content }).view().goals).toEqual({ open: [], done: [] });
     for (const key of ["line.goal.opened", "line.goal.done"]) expect(text[key]).toContain("{goal}");
   });
 });
 
 describe("what must hold", () => {
-  test("[R-GOAL-002] given a played life abroad, when the invariants are checked, then they hold, and a goal open and done at once or unknown is named", () => {
+  test("[goal:done-goal-stays-done] given a played life abroad, when the invariants are checked, then they hold, and a goal open and done at once or unknown is named", () => {
     const game = landed();
     thenMonth(game, [{ type: "credit/mark", amount: 10 }]);
     expect(checkInvariants(game.state, content)).toEqual([]);

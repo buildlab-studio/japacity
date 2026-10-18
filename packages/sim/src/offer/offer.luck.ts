@@ -1,4 +1,4 @@
-// Luck in the offer roll: docs/rules/luck.md R-LUCK-001 to 004. Every rule
+// Luck in the offer roll: luck:luck-never-reads-money, luck:whip-round-once-per-life, luck:no-kicking-while-down and luck:dry-spell-raises-luck. Every rule
 // here reads qualities, months and the place, never how little money the
 // character holds, except the whip-round, whose page says so in the open.
 import { requirementsIn } from "../engine/check";
@@ -7,19 +7,19 @@ import { BP_WHOLE, clamp, divFloor } from "../engine/int";
 import type { Id, ObligationType, OfferEntry, ReadCtx, Requirement, Terms } from "../engine/types";
 import { wealthInNaira } from "../place/place.logic";
 
-/** R-LUCK-002: the one rescue a life. */
+/** luck:whip-round-once-per-life: the one rescue a life. */
 export const WHIP_ROUND: Id<"offer"> = "offer.whip-round";
-/** R-LUCK-007: the promo that pays when it is honest. */
+/** luck:telco-promo-may-be-fraud: the promo that pays when it is honest. */
 const TELCO_PROMO: Id<"offer"> = "offer.telco-promo";
 
-/** R-LUCK-002: the loans whose default rules the rescue out. Held funds are a loan too. */
+/** luck:whip-round-once-per-life: the loans whose default rules the rescue out. Held funds are a loan too. */
 const LOAN_TYPES: readonly ObligationType[] = ["loan", "group-loan", "held-funds"];
 
 /** The requirement types that read money held or money moved. */
 const MONEY_TYPES: readonly Requirement["type"][] = ["money/min", "money/can-pay", "wallet/total"];
 
 /**
- * R-LUCK-001, for `checkContent`: true when a luck offer's `when` reads money,
+ * luck:luck-never-reads-money, for `checkContent`: true when a luck offer's `when` reads money,
  * directly or inside `not` or `any`. An entry that is not luck never fails.
  */
 export function luckReadsMoney(entry: OfferEntry): boolean {
@@ -27,7 +27,7 @@ export function luckReadsMoney(entry: OfferEntry): boolean {
   return requirementsIn(entry.when).some((requirement) => MONEY_TYPES.includes(requirement.type));
 }
 
-/** R-LUCK-003: wellbeing or standing under the line. Qualities only. */
+/** luck:no-kicking-while-down: wellbeing or standing under the line. Qualities only. */
 export function isDown(read: ReadCtx): boolean {
   const { quality } = read.state;
   const { downUnder } = read.content.tuning.luck;
@@ -46,7 +46,7 @@ export function monthsWithoutLuck(read: ReadCtx): number {
   return state.turn.month - last;
 }
 
-/** R-LUCK-004: what the dry spell adds to every luck entry's chance now. Months, never money. */
+/** luck:dry-spell-raises-luck: what the dry spell adds to every luck entry's chance now. Months, never money. */
 export function drySpellBp(read: ReadCtx): number {
   const { drySpellMonths, drySpellBp: perMonth, drySpellCapBp } = read.content.tuning.luck;
   const further = monthsWithoutLuck(read) - drySpellMonths;
@@ -54,7 +54,7 @@ export function drySpellBp(read: ReadCtx): number {
 }
 
 /**
- * R-LUCK-003 and 004: an entry's chance after the marks. The marks
+ * luck:no-kicking-while-down and luck:dry-spell-raises-luck: an entry's chance after the marks. The marks
  * scale the chance the entry would otherwise roll at (its own, or the road's
  * pressure), and the dry spell is added after, so it is never doubled.
  */
@@ -68,7 +68,7 @@ export function markedChanceBp(read: ReadCtx, entry: OfferEntry, chance: number)
 }
 
 /**
- * R-LUCK-002: the money and debt half of the whip-round's rule. The months
+ * luck:whip-round-once-per-life: the money and debt half of the whip-round's rule. The months
  * played and the place are in the entry's `when`. Bank and cash in every
  * currency, valued in naira at the official rate, under the line; no loan in
  * default.
@@ -86,7 +86,7 @@ export function rescueDue(read: ReadCtx): boolean {
 /**
  * The tuning figures a luck offer pays, handed over as terms when it opens,
  * so the entry's effects read them and an overlay that changes the tuning
- * changes the payment (R-ENGINE-017).
+ * changes the payment (engine:numbers-read-from-content).
  */
 export function luckTerms(read: ReadCtx, entry: Id<"offer">): Terms {
   const { luck } = read.content.tuning;

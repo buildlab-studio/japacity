@@ -30,7 +30,7 @@ import type { InterviewEvent } from "./interview.events";
 
 /** The one interview entry in content. */
 export const GENUINENESS: Id<"interview"> = "interview.genuineness";
-/** The `partner-job` option for a partner with no job (R-INTERVIEW-003). */
+/** The `partner-job` option for a partner with no job (interview:questions-drawn-from-record). */
 export const NO_JOB = "no-job";
 
 /**
@@ -123,7 +123,7 @@ function myHome(state: State): string {
 }
 
 /**
- * R-INTERVIEW-003: a question's truth from the record and the facts. `about`
+ * interview:questions-drawn-from-record: a question's truth from the record and the facts. `about`
  * says whose truth an `other` question asks for: the other's ("them"), as
  * this side must answer it, or this side's own ("me"), as the other must.
  */
@@ -156,7 +156,7 @@ export function truthOf(read: ReadCtx, bond: Bond, truth: Question["truth"], abo
   }
 }
 
-/** R-INTERVIEW-003: whether the record meets what a question needs. */
+/** interview:questions-drawn-from-record: whether the record meets what a question needs. */
 export function needsMet(question: Question, bond: Bond): boolean {
   const { needs } = question;
   if (needs.met !== undefined && momentsOf(bond, "met").length < needs.met) return false;
@@ -173,7 +173,7 @@ function sharedList(content: Content, list: "whats" | "calls"): string[] {
 
 /**
  * The list a question's options are drawn from. A computer's lists are its
- * entry's; a real pair's spots are the shared spots (R-PEOPLE-014).
+ * entry's; a real pair's spots are the shared spots (person:time-together-is-an-act).
  * Content holds no shared list of whats or calls for a real pair, so a real
  * pair draws from every computer partner's lists.
  */
@@ -208,10 +208,10 @@ export function listOf(content: Content, bond: Bond, question: Question): string
 }
 
 /**
- * R-INTERVIEW-002 and 006: the record is thin with fewer moments than
+ * interview:thin-record-triggers-interview and interview:answers-scored-without-draw: the record is thin with fewer moments than
  * `thinMoments`, or fewer than `thinMonths` of this life's months at
  * `partner` or `married`.
- * Measured once, in the applicant's life at opening, and carried to the other (R-INTERVIEW-012).
+ * Measured once, in the applicant's life at opening, and carried to the other (interview:draws-made-in-one-life).
  */
 export function isThin(state: State, bond: Bond, numbers: Numbers): boolean {
   const since = [bond.partnerMonth, bond.marriedMonth].filter((month): month is number => month !== null);
@@ -223,7 +223,7 @@ export function isThin(state: State, bond: Bond, numbers: Numbers): boolean {
 // The result
 // ---------------------------------------------------------------------------
 
-/** R-INTERVIEW-006: the result from the matches, with no draw. */
+/** interview:answers-scored-without-draw: the result from the matches, with no draw. */
 export function resultOf(matched: number, asked: number, thin: boolean, numbers: Numbers): InterviewResult {
   const matchBp = asked === 0 ? 0 : mulDiv(matched, BP_WHOLE, asked);
   if (matchBp < numbers.caughtBelowBp) return "caught";
@@ -232,11 +232,11 @@ export function resultOf(matched: number, asked: number, thin: boolean, numbers:
 }
 
 /**
- * R-INTERVIEW-006: a question about the couple matches when both answers are
+ * interview:answers-scored-without-draw: a question about the couple matches when both answers are
  * the same; one about the other person when each answer is the truth about the
  * other. The truths about each person are read at the comparison, from
  * this life's own state and its facts of the other, which the authority makes
- * fresh before it (R-PEOPLE-003), so both lives read the same truths.
+ * fresh before it (person:both-lives-step-together), so both lives read the same truths.
  */
 function matchedCount(read: ReadCtx, open: Open, bond: Bond, theirs: readonly string[]): number {
   const entry = entryOf(read.content);
@@ -273,7 +273,7 @@ function drawSome(ctx: Ctx, pool: readonly string[], count: number): string[] {
 }
 
 /**
- * R-INTERVIEW-003: the questions whose needs the record meets, `ask` of them
+ * interview:questions-drawn-from-record: the questions whose needs the record meets, `ask` of them
  * drawn on `visa`; each with its truth and its options: the truth and
  * `decoys` others in an order drawn on `visa`, or a `plans` question's whole list.
  * A question about the other person has two truths, one for each
@@ -301,7 +301,7 @@ function drawQuestions(ctx: Ctx, bond: Bond): { questions: Asked[]; truths: (str
       );
       options = drawSome(ctx, [...right, ...decoys], right.length + decoys.length);
     }
-    // A question with nothing to choose would leave the player stuck (R-ENGINE-011).
+    // A question with nothing to choose would leave the player stuck (engine:player-never-stuck).
     if (options.length === 0) continue;
     questions.push({ id, options });
     truths.push(truth);
@@ -310,10 +310,10 @@ function drawQuestions(ctx: Ctx, bond: Bond): { questions: Asked[]; truths: (str
 }
 
 /**
- * R-INTERVIEW-001 and 002: the application just sent on the `partner` gate
+ * interview:partner-application-opens-interview and interview:thin-record-triggers-interview: the application just sent on the `partner` gate
  * opens the interview in the applicant's life; one on the `dependant` gate only
  * over a thin record. The gate applies this as the application goes in, naming
- * the bond it rests on. The record is measured here once and carried (R-INTERVIEW-012).
+ * the bond it rests on. The record is measured here once and carried (interview:draws-made-in-one-life).
  */
 function openEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "interview/open") throw new Error(`interview/open cannot carry out ${effect.type}.`);
@@ -331,7 +331,7 @@ function openEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   return emit(ctx, "interview", [opened]);
 }
 
-/** R-PEOPLE-036: the application withdrawn takes its open interview with it, unscored. */
+/** person:joint-collapses-with-bond: the application withdrawn takes its open interview with it, unscored. */
 function closeEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "interview/close") throw new Error(`interview/close cannot carry out ${effect.type}.`);
   const open = ctx.state.interview.open;
@@ -340,7 +340,7 @@ function closeEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
   return emit(ctx, "interview", [withdrawn]);
 }
 
-/** R-INTERVIEW-011: a bond that ended while the interview was open closes it unscored. */
+/** interview:players-answer-at-own-pace: a bond that ended while the interview was open closes it unscored. */
 function withdrawIfEnded(ctx: Ctx): BaseEvent[] {
   const open = ctx.state.interview.open;
   if (open === null || intact(bondFor(ctx.state, open.pair))) return [];
@@ -352,7 +352,7 @@ function slotsPhase(ctx: Ctx): BaseEvent[] {
   return withdrawIfEnded(ctx);
 }
 
-/** R-INTERVIEW-001: the authority opens the same questions in the sponsor's life. */
+/** interview:partner-application-opens-interview: the authority opens the same questions in the sponsor's life. */
 function openCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "interview/open") throw new Error(`interview/open cannot handle ${command.type}.`);
   if (ctx.state.interview.open !== null) return reject("not-legal", "An interview is already open.");
@@ -391,7 +391,7 @@ function decoyOf(ctx: Ctx, options: readonly string[], truth: string | null): st
 }
 
 /**
- * R-INTERVIEW-008: the stand-in gives the truth at `standInRecallBp` on
+ * interview:stand-in-answers-when-absent: the stand-in gives the truth at `standInRecallBp` on
  * `people`, otherwise a decoy. On a `plans` question it gives the waiting
  * side's answer at the same chance, otherwise the first option.
  * On `plans` the authority sends the waiting side's answer as the
@@ -406,7 +406,7 @@ function standInOption(ctx: Ctx, asked: Asked, truth: string | null, sent: strin
 }
 
 /**
- * R-INTERVIEW-007: a computer's answers: the truth at its `recallBp` on
+ * interview:computer-answers-by-recall: a computer's answers: the truth at its `recallBp` on
  * `people`, otherwise a decoy; its `plan` on `plans`.
  * The interview slice has no field to keep them from the opening and
  * nothing writes `people.secret.computerAnswers`, so they are drawn at the
@@ -429,9 +429,9 @@ function computerAnswers(ctx: Ctx, open: Open, bond: Bond): string[] {
 }
 
 /**
- * R-INTERVIEW-008: whose answers were a stand-in's. This side's from its own
+ * interview:stand-in-answers-when-absent: whose answers were a stand-in's. This side's from its own
  * answers; the other side's when the stand-in is on for it as the result comes,
- * since a command from the absent player turns it off (R-PEOPLE-043).
+ * since a command from the absent player turns it off (person:stand-in-after-absence).
  * The life does not know its side of the pair record and
  * `interview/scored` carries no marks, so `a` holds this life's mark and `b`
  * the other side's; the record's `standIn` on the command would make both exact.
@@ -441,7 +441,7 @@ function standInMarks(open: Open, bond: Bond): { a: boolean; b: boolean } {
 }
 
 /**
- * R-INTERVIEW-006 and 009: compare, record the result, and on `caught` take
+ * interview:answers-scored-without-draw and interview:result-applies-to-application: compare, record the result, and on `caught` take
  * the standing. The refusal, the ban and the doubt are the route's, read from `last`.
  */
 function score(ctx: Ctx, open: Open, bond: Bond, theirs: readonly string[]): BaseEvent[] {
@@ -458,7 +458,7 @@ function score(ctx: Ctx, open: Open, bond: Bond, theirs: readonly string[]): Bas
   return events;
 }
 
-/** R-INTERVIEW-004: answer the first question not yet answered with one of its options. */
+/** interview:answers-taken-in-order: answer the first question not yet answered with one of its options. */
 function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "interview/answer") throw new Error(`interview/answer cannot handle ${command.type}.`);
   const open = ctx.state.interview.open;
@@ -478,12 +478,12 @@ function answer(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (now === null || now.answers.length < now.questions.length) return events;
   const closed: InterviewEvent = { type: "interview/closed", pair: now.pair };
   events.push(...emit(ctx, "interview", [closed]));
-  // R-INTERVIEW-007: with a computer the comparison runs at once.
+  // interview:computer-answers-by-recall: with a computer the comparison runs at once.
   if (found.bond.with.kind === "computer") events.push(...score(ctx, now, found.bond, computerAnswers(ctx, now, found.bond)));
   return events;
 }
 
-/** R-INTERVIEW-006: the authority brings the other side's answers once both are in. */
+/** interview:answers-scored-without-draw: the authority brings the other side's answers once both are in. */
 function scoredCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "interview/scored") throw new Error(`interview/scored cannot handle ${command.type}.`);
   const open = ctx.state.interview.open;
@@ -497,11 +497,11 @@ function scoredCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return score(ctx, open, found.bond, command.theirs);
 }
 
-/** R-INTERVIEW-004: `turn/end` waits while this life has a question to answer. */
+/** interview:answers-taken-in-order: `turn/end` waits while this life has a question to answer. */
 function turnEnd(ctx: Ctx): BaseEvent[] | Rejection {
   const open = ctx.state.interview.open;
   if (open === null || open.answers.length >= open.questions.length) return [];
-  // An ended bond withdraws the interview in the next turn, so it never holds the turn up (R-ENGINE-011).
+  // An ended bond withdraws the interview in the next turn, so it never holds the turn up (engine:player-never-stuck).
   if (!intact(bondFor(ctx.state, open.pair))) return [];
   return reject("setpiece-open", "The interview is open: answer its questions before the month can end.");
 }
@@ -558,10 +558,10 @@ function lines(event: InterviewEvent, state: State): ReportLine[] {
     case "interview/answered":
       return [];
     case "interview/closed":
-      // A computer's comparison follows at once; only a real partner keeps this side waiting (R-INTERVIEW-011).
+      // A computer's comparison follows at once; only a real partner keeps this side waiting (interview:players-answer-at-own-pace).
       return bondFor(state, event.pair)?.bond.with.kind === "player" ? [{ key: "line.interview.waiting", params: {}, tone: "plain", attention: false, counts: [] }] : [];
     case "interview/scored":
-      // R-INTERVIEW-008: the report says when a stand-in answered for either side.
+      // interview:stand-in-answers-when-absent: the report says when a stand-in answered for either side.
       return event.standIn.a || event.standIn.b ? [scoredLine(event), { key: "line.interview.stood-in", params: {}, tone: "plain", attention: false, counts: [] }] : [scoredLine(event)];
     case "interview/withdrawn":
       return [{ key: "line.interview.withdrawn", params: { route: event.route }, tone: "plain", attention: true, counts: [] }];
@@ -573,9 +573,9 @@ function lines(event: InterviewEvent, state: State): ReportLine[] {
 }
 
 /**
- * R-INTERVIEW-005: one question at a time and its options, never a score, a
+ * interview:one-question-at-a-time: one question at a time and its options, never a score, a
  * truth or the other side's answers; after the result, the result and the
- * count matched. R-INTERVIEW-008: a stand-in on either side is marked.
+ * count matched. interview:stand-in-answers-when-absent: a stand-in on either side is marked.
  */
 function view(read: ReadCtx): Pick<PlayerView, "interview"> {
   const { open, last } = read.state.interview;

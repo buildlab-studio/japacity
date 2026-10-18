@@ -3,38 +3,38 @@ import type { Currency, Id } from "../engine/types";
 /** How a status came to be granted: by an effect, by its own `next`, by settling, by citizenship, or as the overstayer after a lapse. */
 export type GrantWhy = "granted" | "next" | "settled" | "citizen" | "lapsed";
 
-/** Why a status lapsed: its time ran out, its clock ran out, it was lost (a withdrawal), or the job it held went (R-STATUS-009). */
+/** Why a status lapsed: its time ran out, its clock ran out, it was lost (a withdrawal), or the job it held went (status:gulf-status-holds-passport). */
 export type LapseWhy = "expired" | "clock" | "lost" | "job";
 
 export type StatusEvent =
-  /** R-STATUS-001. `fee` is what settling or citizenship cost, paid as a foreign fee (R-STATUS-007). */
+  /** status:granting-a-status. `fee` is what settling or citizenship cost, paid as a foreign fee (status:lawful-months-reach-settlement). */
   | {
       type: "status/granted";
       status: Id<"status">;
       month: number;
       expiresMonth: number | null;
       lawfulMonths: number;
-      /** 0 for a status granted anew; a status kept from a return with papers carries its months on (R-RETURN-004). */
+      /** 0 for a status granted anew; a status kept from a return with papers carries its months on (return:papers-return-keeps-status). */
       monthsHeld: number;
       job: Id<"activity"> | null;
       why: GrantWhy;
       fee: { currency: Currency; amount: number } | null;
     }
-  /** R-STATUS-004, 005, 011. The current status is gone; the overstayer status follows in its own event. */
+  /** status:expiry-lapses-or-moves-on, status:overstayer-risks-detection, status:course-passed-or-withdrawn. The current status is gone; the overstayer status follows in its own event. */
   | { type: "status/lapsed"; status: Id<"status">; why: LapseWhy }
-  /** R-STATUS-003: the job went on a status with a clock. */
+  /** status:lost-job-starts-clock: the job went on a status with a clock. */
   | { type: "status/clock-started"; months: number }
   /** One month of the clock has run; `left` months remain. */
   | { type: "status/clock-ran"; left: number }
   /** A job the status allows is held again, so the clock stops. */
   | { type: "status/clock-cleared" }
-  /** R-STATUS-006. */
+  /** status:renewing-a-status. */
   | { type: "status/renewed"; expiresMonth: number; months: number; currency: Currency; fee: number; surcharge: number }
-  /** R-STATUS-006: the employer renewed the contract in its last month, for no fee. */
+  /** status:renewing-a-status: the employer renewed the contract in its last month, for no fee. */
   | { type: "status/employer-renewed"; status: Id<"status">; expiresMonth: number; months: number }
-  /** One month held; `lawful` when it counts toward settling (R-STATUS-007). */
+  /** One month held; `lawful` when it counts toward settling (status:lawful-months-reach-settlement). */
   | { type: "status/aged"; lawful: boolean }
-  /** R-STATUS-008. */
+  /** status:removal-sends-home-banned. */
   | { type: "status/removed"; status: Id<"status"> | null; country: Id<"country">; month: number; banMonths: number }
-  /** The character is home and holds nothing abroad (R-PLACE-004). */
+  /** The character is home and holds nothing abroad (place:return-home-paid-or-assisted). */
   | { type: "status/closed"; status: Id<"status"> };

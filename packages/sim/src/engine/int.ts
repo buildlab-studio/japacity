@@ -1,5 +1,5 @@
 // Whole-number arithmetic. This is the one file in the simulation allowed to
-// divide (R-ENGINE-009). Every helper takes and returns safe integers and
+// divide (engine:no-fractions-in-simulation). Every helper takes and returns safe integers and
 // throws on anything else, so a fraction can never leak into the state.
 //
 // Money convention. A rate is kobo for one whole unit of a currency: GBP
@@ -123,7 +123,7 @@ export function isqrt(n: number): number {
   if (n < 0) throw new Error(`isqrt: n ${String(n)} is below zero.`);
   if (n < 2) return n;
   // Newton's steps from n itself (always at or above the root), in whole numbers, until they stop falling: about forty
-  // steps for the largest safe whole number, and no floating-point root, so every device agrees (R-ENGINE-009).
+  // steps for the largest safe whole number, and no floating-point root, so every device agrees (engine:no-fractions-in-simulation).
   let r = n;
   for (;;) {
     const next = divFloor(r + divFloor(n, r), 2);

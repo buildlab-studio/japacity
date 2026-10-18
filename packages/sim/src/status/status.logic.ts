@@ -1,4 +1,4 @@
-// Status abroad: docs/rules/status.md, R-STATUS-001 to 011. One current status,
+// Status abroad: docs/rules/status.md. One current status,
 // held only abroad, with its clocks: expiry, the job clock, settling.
 import { worldVar } from "../engine/check";
 import { mulDiv } from "../engine/int";
@@ -58,13 +58,13 @@ function foreignCurrencyOf(content: Content, country: Id<"country">): ForeignCur
   return currency;
 }
 
-/** R-STATUS-005: the status a lapse ends in. */
+/** status:overstayer-risks-detection: the status a lapse ends in. */
 export function isOverstayer(content: Content, id: Id<"status">): boolean {
   return countryEntry(content, statusEntry(content, id).country).overstayer === id;
 }
 
 /**
- * A settled, citizen or permanent resident status (R-PLACE-005, R-RETURN-004).
+ * A settled, citizen or permanent resident status (place:return-shape-decided-at-once, return:papers-return-keeps-status).
  * The contract has no field for it, so it is a status that never
  * expires and is not its country's overstayer.
  */
@@ -73,9 +73,9 @@ export function isKept(content: Content, id: Id<"status">): boolean {
 }
 
 /**
- * R-STATUS-002, for the activity kind: whether the current status lets the
+ * status:status-sets-work-rule, for the activity kind: whether the current status lets the
  * character hold this job. At home, with no status, it says yes. A
- * `one-employer` status allows the job it names and, by R-LADDER-005, any job
+ * `one-employer` status allows the job it names and, by ladders:sponsor-job-ties-status, any job
  * marked `sponsor`, which carries a certificate of its own.
  */
 export function workAllows(read: ReadCtx, job: ActivityEntry): boolean {
@@ -101,7 +101,7 @@ export function workAllows(read: ReadCtx, job: ActivityEntry): boolean {
 }
 
 /**
- * R-STATUS-009, for the route kind: the employer holds the passport while a
+ * status:gulf-status-holds-passport, for the route kind: the employer holds the passport while a
  * status that says so is current. Nothing is applied to the document kind; a
  * route that needs the passport reads this.
  */
@@ -110,7 +110,7 @@ export function passportHeldByEmployer(read: ReadCtx): boolean {
   return current !== null && statusEntry(read.content, current.entry).holdsPassport;
 }
 
-/** R-STATUS-011: held long enough, and no tuition obligation has gone into default. */
+/** status:course-passed-or-withdrawn: held long enough, and no tuition obligation has gone into default. */
 export function coursePassed(read: ReadCtx): boolean {
   const current = read.state.status.current;
   if (current === null || current.monthsHeld < read.content.tuning.status.courseMonths) return false;
@@ -119,7 +119,7 @@ export function coursePassed(read: ReadCtx): boolean {
   );
 }
 
-/** The ban on the country's routes after a removal, in months: the country's overstayer's figure (R-PLACE-008). */
+/** The ban on the country's routes after a removal, in months: the country's overstayer's figure (place:removal-bans-the-country). */
 export function removalBanMonths(content: Content, country: Id<"country">): number {
   const overstayer = countryEntry(content, country).overstayer;
   return overstayer === null ? 0 : statusEntry(content, overstayer).banMonths;
@@ -140,7 +140,7 @@ function currentOf(ctx: Ctx): { held: StatusState; entry: StatusEntry } | null {
 
 function lengthOf(read: ReadCtx, entry: StatusEntry): number | null {
   if (entry.months === null) return null;
-  // R-PEOPLE-024: a dependant's status ends when the lead's does, read from the lead's facts.
+  // person:dependant-status-ends-with-lead: a dependant's status ends when the lead's does, read from the lead's facts.
   if (entry.months === "lead") return leadStatusMonths(read);
   return typeof entry.months === "number" ? entry.months : worldVar(read, entry.months);
 }
@@ -161,7 +161,7 @@ function housing(ctx: Ctx, before: Id<"status"> | null, after: Id<"status"> | nu
   if (wasHoused && !isHoused && room !== null && ctx.state.place.where === "abroad") ctx.apply([{ type: "obligation/open", obligation: room }], cause);
 }
 
-/** R-STATUS-001: the old status, if any, is replaced. */
+/** status:granting-a-status: the old status, if any, is replaced. */
 function grant(
   ctx: Ctx,
   status: Id<"status">,
@@ -191,7 +191,7 @@ function grant(
   return events;
 }
 
-/** R-STATUS-005: the status goes and the country's overstayer status takes its place. */
+/** status:overstayer-risks-detection: the status goes and the country's overstayer status takes its place. */
 function lapse(ctx: Ctx, why: LapseWhy): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null) return [];
@@ -208,9 +208,9 @@ function grantEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 }
 
 /**
- * Abroad a lost status lapses (R-ABROAD-005 withdraws a student this way).
+ * Abroad a lost status lapses (abroad-money:tuition-paid-in-instalments withdraws a student this way).
  * At home the same effect closes the status with nothing after it,
- * which is how a return closes every status (R-PLACE-004).
+ * which is how a return closes every status (place:return-home-paid-or-assisted).
  */
 function lose(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
@@ -220,7 +220,7 @@ function lose(ctx: Ctx): BaseEvent[] {
   return lapse(ctx, "lost");
 }
 
-/** R-STATUS-003; R-STATUS-009 lapses a status that goes with the job at once. */
+/** status:lost-job-starts-clock; status:gulf-status-holds-passport lapses a status that goes with the job at once. */
 function clockStart(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null) return [];
@@ -230,9 +230,9 @@ function clockStart(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-STATUS-008. The ban on the country's routes is not applied as an
+ * status:removal-sends-home-banned. The ban on the country's routes is not applied as an
  * effect, since the contract has none; the route kind reads `status.removals`
- * with `removalBanMonths` and `place.returns` (R-PLACE-008).
+ * with `removalBanMonths` and `place.returns` (place:removal-bans-the-country).
  */
 function remove(ctx: Ctx, cause: Cause): BaseEvent[] {
   const { where, country } = ctx.state.place;
@@ -255,7 +255,7 @@ function remove(ctx: Ctx, cause: Cause): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * R-PEOPLE-028: a status tied to a partner renews only while a bond is at
+ * person:partner-status-renews: a status tied to a partner renews only while a bond is at
  * `partner` or `married` and its facts show `meetsFloor` for each partner route
  * granting this status that has a floor.
  */
@@ -267,12 +267,12 @@ function partnerStillSponsors(read: ReadCtx, status: Id<"status">): boolean {
 }
 
 /**
- * R-STATUS-012: why asking to renew the held status would be refused, or null when it would be taken (cost aside).
+ * status:one-renewability-test: why asking to renew the held status would be refused, or null when it would be taken (cost aside).
  * The command and the view's terms both read it, so terms show only where the renewal is legal.
  */
 function renewRefusal(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): string | null {
   if (entry.renewMonths <= 0 || held.expiresMonth === null) return `${held.entry} does not renew.`;
-  // R-STATUS-006: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
+  // status:renewing-a-status: a status the employer renews (`renewBp`, no fee var) is never renewed at the player's asking.
   if (entry.renewFeeVar === null) return `${held.entry} renews only by the employer's choice.`;
   const job = read.state.activity.job;
   if (entry.work === "one-employer" && (job === null || (held.job !== null && held.job !== job))) return `${held.entry} renews only while the job is held.`;
@@ -280,10 +280,10 @@ function renewRefusal(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, 
   return null;
 }
 
-/** R-STATUS-006, R-STATUS-012. */
+/** status:renewing-a-status, status:one-renewability-test. */
 function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "status/renew") throw new Error(`status/renew cannot handle ${command.type}.`);
-  // R-PEOPLE-044: a stand-in never spends.
+  // person:stand-in-acts-narrowly: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const now = currentOf(ctx);
   if (now === null) return reject("not-legal", "No status is held.");
@@ -311,7 +311,7 @@ function renew(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** R-STATUS-005 and R-LADDER-003: cash work this month raises the detection chance. */
+/** status:overstayer-risks-detection and ladders:cash-jobs-paid-in-hand: cash work this month raises the detection chance. */
 function detect(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null || !isOverstayer(ctx.content, now.held.entry)) return [];
@@ -321,7 +321,7 @@ function detect(ctx: Ctx): BaseEvent[] {
   return remove(ctx, { source: now.held.entry, param: null, terms: {} });
 }
 
-/** R-STATUS-003: the clock runs a month at a time and lapses the status at zero, unless an allowed job is held again. */
+/** status:lost-job-starts-clock: the clock runs a month at a time and lapses the status at zero, unless an allowed job is held again. */
 function runClock(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null || now.held.clock === null) return [];
@@ -334,7 +334,7 @@ function runClock(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-STATUS-004 and 011. The course rule is read for any status that
+ * status:expiry-lapses-or-moves-on and status:course-passed-or-withdrawn. The course rule is read for any status that
  * moves on to a `next` by its clock, which in content is only the student's.
  */
 function expire(ctx: Ctx): BaseEvent[] {
@@ -360,7 +360,7 @@ function moveUp(ctx: Ctx, entry: StatusEntry, to: Id<"status">, feeVar: Id<"var"
   return grant(ctx, to, null, why, { currency, amount });
 }
 
-/** R-STATUS-007: settling at the country's months, then citizenship after the settled status's months. */
+/** status:lawful-months-reach-settlement: settling at the country's months, then citizenship after the settled status's months. */
 function settle(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null) return [];
@@ -376,7 +376,7 @@ function settle(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-STATUS-006: in the contract's last month the employer renews a status
+ * status:renewing-a-status: in the contract's last month the employer renews a status
  * whose entry has `renewBp`, on the `status` stream, for no fee. A lost draw
  * leaves it to lapse the month after.
  */
@@ -395,7 +395,7 @@ function clocks(ctx: Ctx): BaseEvent[] {
   return [...detect(ctx), ...runClock(ctx), ...employerRenew(ctx), ...expire(ctx), ...settle(ctx)];
 }
 
-/** R-STATUS-007: a month held, and a lawful month where the status counts. */
+/** status:lawful-months-reach-settlement: a month held, and a lawful month where the status counts. */
 function month(ctx: Ctx): BaseEvent[] {
   const now = currentOf(ctx);
   if (now === null) return [];
@@ -496,7 +496,7 @@ function grantedLines(event: Extract<StatusEvent, { type: "status/granted" }>): 
   }
 }
 
-/** R-SHARE-001: the secured card through the month after settlement or citizenship is granted (R-STATUS-007). */
+/** share:cards-due-at-set-moments: the secured card through the month after settlement or citizenship is granted (status:lawful-months-reach-settlement). */
 export function securedCard(read: ReadCtx): PlayerView["card"] {
   if (!cardsAllowed(read)) return null;
   const secured = [...reportLines(read, "line.status.settled"), ...reportLines(read, "line.status.citizen")];
@@ -544,7 +544,7 @@ function lines(event: StatusEvent): ReportLine[] {
 // The view
 // ---------------------------------------------------------------------------
 
-/** R-STATUS-010: the text key for the way up from a status. Null when there is none. */
+/** status:view-shows-status: the text key for the way up from a status. Null when there is none. */
 export function nextStepOf(content: Content, entry: StatusEntry): string | null {
   if (entry.citizen !== null) return "status.next.citizen";
   if (entry.countsToSettlement && entry.settled !== null) return "status.next.settle";
@@ -572,7 +572,7 @@ function view(read: ReadCtx): Pick<PlayerView, "status"> {
   };
 }
 
-/** R-STATUS-010, R-STATUS-012: what `status/renew` would cost today, or null wherever `renew` would refuse it. */
+/** status:view-shows-status, status:one-renewability-test: what `status/renew` would cost today, or null wherever `renew` would refuse it. */
 function renewTerms(read: ReadCtx, held: NonNullable<StatusSlice["current"]>, entry: StatusEntry): NonNullable<PlayerView["status"]>["renew"] {
   if (renewRefusal(read, held, entry) !== null || entry.renewFeeVar === null) return null;
   const currency = foreignCurrencyOf(read.content, entry.country);

@@ -1,7 +1,7 @@
 // Obligations: docs/rules/obligation.md, and for life abroad abroad-money.md
-// R-ABROAD-003 to 005, car.md R-CAR-003 to 005 and luck.md R-LUCK-009. The
+// abroad-money:arrival-opens-upkeep-and-room, abroad-money:phone-contract-builds-credit and abroad-money:tuition-paid-in-instalments, car:missed-payments-take-the-car, car:car-handed-back-after-half and car:final-payment-owns-the-car and luck:savings-circle-holds-pot. The
 // scenario's obligations are real from the first state and get instance ids from
-// the engine's counter (R-SCENARIO-002).
+// the engine's counter (scenario:new-state-starts-clean).
 import { rateFor } from "../credit/credit.logic";
 import { worldVarOr } from "../engine/check";
 import { QUALITY } from "../engine/ids";
@@ -41,16 +41,16 @@ import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, 
 import { officialRates, spendable } from "../wallet/wallet.rates";
 
 const INFLATION: Id<"var"> = "var.inflation";
-/** R-RETURN-006: the car's shortfall once it has followed you home, in naira. */
+/** return:return-reopens-home-charges: the car's shortfall once it has followed you home, in naira. */
 const HOME_SHORTFALL: Id<"obligation"> = "obligation.car-shortfall-home";
 
-/** Types whose misses run a grace and can default (R-OBLIGATION-004, 005, R-ABROAD-003 to 005, R-CAR-003). */
+/** Types whose misses run a grace and can default (obligation:upkeep-never-defaults, obligation:loan-default-and-recovery, abroad-money:arrival-opens-upkeep-and-room, abroad-money:phone-contract-builds-credit, abroad-money:tuition-paid-in-instalments, car:missed-payments-take-the-car). */
 const GRACE_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "rent", "phone", "car", "undertaking"];
-/** Types that stay open in default as a debt (R-OBLIGATION-005, R-STATUS-011, R-UNDERTAKING-008). */
+/** Types that stay open in default as a debt (obligation:loan-default-and-recovery, status:course-passed-or-withdrawn, undertaking:missed-charges-lead-to-default). */
 const DEBT_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition", "undertaking"];
-/** Types the lender collects from the bank once in default (R-OBLIGATION-005, 011). */
+/** Types the lender collects from the bank once in default (obligation:loan-default-and-recovery, obligation:group-covers-misses-at-cost). */
 const COLLECTED_TYPES: readonly ObligationType[] = ["loan", "group-loan"];
-/** Types repaid in equal parts over their term (R-OBLIGATION-001, R-ABROAD-005). */
+/** Types repaid in equal parts over their term (obligation:due-phase-charges-oldest-first, abroad-money:tuition-paid-in-instalments). */
 const SCHEDULED_TYPES: readonly ObligationType[] = ["loan", "group-loan", "tuition"];
 /** Types with nothing to open when no principal is given. */
 const OWING_TYPES: readonly ObligationType[] = ["loan", "held-funds", "group-loan", "car", "tuition", "undertaking", "agent-debt"];
@@ -92,7 +92,7 @@ export function carTerms(entry: ObligationEntry): CarTerms {
 }
 
 /**
- * R-CAR-003, 004: what has been paid toward the car's price, the deposit
+ * car:missed-payments-take-the-car, car:car-handed-back-after-half: what has been paid toward the car's price, the deposit
  * included. The total is the price, so paid is the price less what is
  * still owed; interest paid does not count toward the thirds and the half.
  */
@@ -100,12 +100,12 @@ export function carPaid(entry: ObligationEntry, item: ObligationState): number {
   return carTerms(entry).price - item.outstanding;
 }
 
-/** R-CAR-005: the final payment made, the car is the character's with nothing owed. */
+/** car:final-payment-owns-the-car: the final payment made, the car is the character's with nothing owed. */
 function isOwned(item: ObligationState, entry: ObligationEntry): boolean {
   return entry.type === "car" && item.monthsLeft === 0 && item.outstanding === 0;
 }
 
-/** R-CAR-003: a third or more was paid and the lender is waiting on the court. */
+/** car:missed-payments-take-the-car: a third or more was paid and the lender is waiting on the court. */
 function inCourt(item: ObligationState, entry: ObligationEntry): boolean {
   return entry.type === "car" && item.missed > entry.grace;
 }
@@ -116,7 +116,7 @@ function modulo(value: number, every: number): number {
 }
 
 /**
- * R-ABROAD-005, R-OBLIGATION-015: whether a charge falls in this month. An entry with
+ * abroad-money:tuition-paid-in-instalments, obligation:prepaid-entries-skip-first-charge: whether a charge falls in this month. An entry with
  * `everyMonths` is charged in the first month after opening and every
  * `everyMonths` after it; one `prepaid` had its first period paid when it opened,
  * so it is first charged `everyMonths` after the opening month, then every
@@ -130,7 +130,7 @@ function dueIn(item: ObligationState, entry: ObligationEntry, month: number): bo
   return age >= 0 && modulo(age, entry.everyMonths) === 0;
 }
 
-/** One month's charge, split by the sink it is paid under (R-OBLIGATION-001). */
+/** One month's charge, split by the sink it is paid under (obligation:due-phase-charges-oldest-first). */
 interface Charge {
   /** The fixed amount plus the principal part, paid under the entry's sink. */
   base: number;
@@ -138,12 +138,12 @@ interface Charge {
   interest: number;
   /** The part of `base` that lowers what is owed. */
   principal: number;
-  /** What each relief took off `base`, already taken (R-OBLIGATION-014). Empty when the item has none. */
+  /** What each relief took off `base`, already taken (obligation:cooking-and-fetching-water). Empty when the item has none. */
   relief: { source: string; amount: number }[];
 }
 
 /**
- * R-OBLIGATION-014: each relief on the item takes its share of the charge's base, never below zero.
+ * obligation:cooking-and-fetching-water: each relief on the item takes its share of the charge's base, never below zero.
  * Each share is of the whole base, so the order of two reliefs changes nothing until the base runs out.
  */
 function relieve(item: ObligationState, charge: Omit<Charge, "relief">): Charge {
@@ -157,7 +157,7 @@ function relieve(item: ObligationState, charge: Omit<Charge, "relief">): Charge 
   return { ...charge, base, relief };
 }
 
-/** R-CAR-001, 005: the car's monthly part stops at the final payment; at term end the final payment is the charge. */
+/** car:car-bought-on-finance, car:final-payment-owns-the-car: the car's monthly part stops at the final payment; at term end the final payment is the charge. */
 function carCharge(item: ObligationState, entry: ObligationEntry): Charge {
   const { final } = carTerms(entry);
   if (item.monthsLeft === 0) return { base: item.outstanding, interest: 0, principal: item.outstanding, relief: [] };
@@ -172,15 +172,15 @@ function chargeOf(read: ReadCtx, item: ObligationState, entry: ObligationEntry):
 }
 
 /**
- * R-HOME-008: one month's charge of an upkeep or support held at `amount`, as the bill takes it before any relief.
- * R-DIRECTOR-006: "at home" is a naira charge, so money sent home from abroad rises with it too.
+ * home:moves-carry-cost-and-reason: one month's charge of an upkeep or support held at `amount`, as the bill takes it before any relief.
+ * director:december-and-inflation: "at home" is a naira charge, so money sent home from abroad rises with it too.
  * The home view and the scheduled charge both read it, so the home card and the bill agree. Content without the
  * entry (a test's small world has no room on the water) charges the amount as it stands.
  */
 export function livingCharge(read: Pick<ReadCtx, "world" | "content">, obligation: Id<"obligation">, amount: number): number {
   const entry = read.content.obligation[obligation];
   const rise = entry?.currency === "NGN" ? bp(amount, worldVarOr(read.world, INFLATION)) : 0;
-  // R-HOME-012 (decision 0013): at home the living is lived by hand, as meals, water, fares and data; that share is never charged.
+  // home:living-by-hand (decision 0013): at home the living is lived by hand, as meals, water, fares and data; that share is never charged.
   // Makoko's figure goes the same way (the child of the water keeps equal or better odds); the room's first month is paid on the move.
   const byHand = entry?.currency === "NGN" && entry.type === "upkeep" ? bp(amount + rise, read.content.tuning.home.livingByHandBp) : 0;
   return Math.max(0, amount + rise - byHand);
@@ -189,7 +189,7 @@ export function livingCharge(read: Pick<ReadCtx, "world" | "content">, obligatio
 /** The charge as scheduled, before any relief. */
 function scheduledCharge(read: ReadCtx, item: ObligationState, entry: ObligationEntry): Omit<Charge, "relief"> {
   const interest = bp(item.principal, entry.rateBp);
-  // Held funds are returned whole (R-OBLIGATION-008); only these types repay principal on a schedule.
+  // Held funds are returned whole (obligation:paying-down-obligations); only these types repay principal on a schedule.
   const scheduled = SCHEDULED_TYPES.includes(entry.type) && entry.term !== null ? divCeil(item.principal, entry.term) : 0;
   const principal = Math.min(scheduled, item.outstanding);
   switch (entry.type) {
@@ -222,7 +222,7 @@ function totalOf(charge: Charge): number {
   return charge.base + charge.interest;
 }
 
-/** R-CAR-003: what clears a car's arrears with `obligation/pay`: every missed charge, the ones left in the term at most. */
+/** car:missed-payments-take-the-car: what clears a car's arrears with `obligation/pay`: every missed charge, the ones left in the term at most. */
 function carArrears(item: ObligationState, entry: ObligationEntry): Charge & { months: number } {
   const months = Math.min(item.missed, item.monthsLeft ?? 0);
   const monthly = carCharge(item, entry);
@@ -232,13 +232,13 @@ function carArrears(item: ObligationState, entry: ObligationEntry): Charge & { m
 
 /**
  * What the view shows as due this coming month. A defaulted loan has no charge
- * any more: the lender takes what is owed from the bank (R-OBLIGATION-005).
+ * any more: the lender takes what is owed from the bank (obligation:loan-default-and-recovery).
  * So the view shows what is still owed, the most the lender can take;
  * a car behind on its payments shows its arrears, the amount `obligation/pay`
- * takes to clear them (R-CAR-003).
+ * takes to clear them (car:missed-payments-take-the-car).
  */
 function dueNext(read: ReadCtx, item: ObligationState, entry: ObligationEntry): number {
-  // R-UNDERTAKING-012: what is owed now, all of it asked for at once.
+  // undertaking:view-lists-undertaking: what is owed now, all of it asked for at once.
   if (isSponsorUndertaking(entry)) return item.outstanding;
   if (item.state === "defaulted") return COLLECTED_TYPES.includes(entry.type) ? item.outstanding : 0;
   if (entry.type === "car" && item.missed > 0 && item.monthsLeft !== 0) return totalOf(carArrears(item, entry));
@@ -247,7 +247,7 @@ function dueNext(read: ReadCtx, item: ObligationState, entry: ObligationEntry): 
 }
 
 /**
- * True when this much could be taken from cash and bank now (R-OBLIGATION-002).
+ * True when this much could be taken from cash and bank now (obligation:charges-paid-whole-or-missed).
  * Naira is judged with `money/can-pay`. A foreign charge is taken from that
  * currency's own pockets, never through naira, so it is judged with
  * `money/min` instead.
@@ -275,20 +275,20 @@ function take(ctx: Ctx, cause: Cause, currency: Currency, pocket: "any" | "bank"
   ctx.apply([{ type: "money/take", currency, pocket, amount, reason }], cause);
 }
 
-/** R-CREDIT-002: a payment on an entry that reports to the file moves it. */
+/** credit:payments-move-the-mark: a payment on an entry that reports to the file moves it. */
 function report(ctx: Ctx, item: ObligationState, entry: ObligationEntry, points: number): void {
   if (entry.reportsToCredit !== true) return;
   ctx.apply([{ type: "credit/mark", amount: points }], causeOf(item));
 }
 
-/** R-OBLIGATION-010: the savings held back come back when a group loan closes paid. */
+/** obligation:group-loan-fees-up-front: the savings held back come back when a group loan closes paid. */
 function returnSavings(ctx: Ctx, item: ObligationState, entry: ObligationEntry): void {
   if (entry.type !== "group-loan" || item.state === "defaulted") return;
   if (item.amount > 0) ctx.apply([{ type: "money/add", currency: entry.currency, pocket: "bank", amount: item.amount, reason: "deposit-return" }], causeOf(item));
 }
 
 /**
- * R-ABROAD-003: a flat's deposit comes back to the bank of its currency when the tenancy ends. An eviction, the
+ * abroad-money:arrival-opens-upkeep-and-room: a flat's deposit comes back to the bank of its currency when the tenancy ends. An eviction, the
  * flat's own default closing it, keeps it: the rent it was missed for is never charged again.
  */
 function returnDeposit(ctx: Ctx, item: ObligationState, entry: ObligationEntry, cause: Cause): void {
@@ -307,7 +307,7 @@ function closePaid(ctx: Ctx, item: ObligationState, entry: ObligationEntry): Bas
 }
 
 /**
- * A defaulted loan (R-OBLIGATION-005): no charge and no misses any more. The
+ * A defaulted loan (obligation:loan-default-and-recovery): no charge and no misses any more. The
  * lender takes whatever is in the bank pocket of the loan's currency, up to
  * what is owed, and the loan closes when nothing is owed. What is owed is the
  * principal still outstanding: interest stops once a loan is in default, and
@@ -325,7 +325,7 @@ function seize(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEve
 }
 
 /**
- * R-LUCK-009: after a paid month, one draw in the months still to come gives
+ * luck:savings-circle-holds-pot: after a paid month, one draw in the months still to come gives
  * the pot, once per circle; the circle ends with its last month. The pot is
  * held as the circle's outstanding until it is paid.
  */
@@ -341,7 +341,7 @@ function drawPot(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseE
 }
 
 /**
- * R-OBLIGATION-012: three months after standing guarantor, the relative may be
+ * obligation:three-roads-to-group-loan: three months after standing guarantor, the relative may be
  * gone, and the undertaking's `onDefault` opens the loan on the character for
  * the balance. The draw is on `offer`, the stream of the offer that opened it.
  */
@@ -356,7 +356,7 @@ function callGuarantee(ctx: Ctx, item: ObligationState, entry: ObligationEntry):
   return events;
 }
 
-/** A charge paid in full (R-OBLIGATION-002): fixed and principal under the sink, interest under the interest sink. */
+/** A charge paid in full (obligation:charges-paid-whole-or-missed): fixed and principal under the sink, interest under the interest sink. */
 function pay(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Charge): BaseEvent[] {
   const cause = causeOf(item);
   take(ctx, cause, entry.currency, "any", charge.base, entry.sink);
@@ -375,7 +375,7 @@ function pay(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Ch
     case "loan":
     case "group-loan":
     case "tuition":
-      // R-OBLIGATION-002, 009: paid off by its charges.
+      // obligation:charges-paid-whole-or-missed, obligation:closed-obligation-removed: paid off by its charges.
       if (item.outstanding - charge.principal === 0) events.push(...closePaid(ctx, item, entry));
       return events;
     case "car":
@@ -400,7 +400,7 @@ function pay(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Ch
   }
 }
 
-/** R-CAR-003: the car is taken. What is owed less its resale is still owed, with a judgment, when above zero. */
+/** car:missed-payments-take-the-car: the car is taken. What is owed less its resale is still owed, with a judgment, when above zero. */
 function repossess(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const cause = causeOf(item);
   const shortfall = Math.max(0, item.outstanding - carTerms(entry).resale);
@@ -411,13 +411,13 @@ function repossess(ctx: Ctx, item: ObligationState, entry: ObligationEntry): Bas
   return events;
 }
 
-/** R-CAR-003, 005: a missed car payment. */
+/** car:missed-payments-take-the-car, car:final-payment-owns-the-car: a missed car payment. */
 function missCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Charge): BaseEvent[] {
   const missed = item.missed + 1;
   const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed });
   ctx.apply(entry.onMiss, causeOf(item));
   if (item.monthsLeft === 0) {
-    // R-CAR-005: the final payment missed, the car goes back with nothing owed.
+    // car:final-payment-owns-the-car: the final payment missed, the car goes back with nothing owed.
     report(ctx, item, entry, -ctx.content.tuning.credit.onMiss);
     return [...events, ...record(ctx, { type: "obligation/handed-back", id: item.id, entry: item.entry, shortfall: 0 })];
   }
@@ -431,7 +431,7 @@ function missCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge
   return [...events, ...record(ctx, { type: "obligation/court", id: item.id, entry: item.entry, takenMonth: ctx.state.turn.month + terms.courtMonths })];
 }
 
-/** R-CAR-003: waiting on the court, nothing is charged; each month is another miss until the car is taken. */
+/** car:missed-payments-take-the-car: waiting on the court, nothing is charged; each month is another miss until the car is taken. */
 function courtMonth(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const missed = item.missed + 1;
   const charge = carCharge(item, entry);
@@ -441,7 +441,7 @@ function courtMonth(ctx: Ctx, item: ObligationState, entry: ObligationEntry): Ba
   return events;
 }
 
-/** R-OBLIGATION-011: what each miss in a row costs on a group loan before the default. */
+/** obligation:group-covers-misses-at-cost: what each miss in a row costs on a group loan before the default. */
 function groupMissEffects(ctx: Ctx, entry: ObligationEntry, missed: number): Effect[] {
   if (missed === 1) return entry.onMiss;
   if (missed === 2) {
@@ -454,11 +454,11 @@ function groupMissEffects(ctx: Ctx, entry: ObligationEntry, missed: number): Eff
   return [];
 }
 
-/** A charge that could not be paid (R-OBLIGATION-003, 004, 005, 007, 011, R-ABROAD-003 to 005, R-LUCK-009). */
+/** A charge that could not be paid (obligation:miss-applies-its-effects, obligation:upkeep-never-defaults, obligation:loan-default-and-recovery, obligation:missed-interest-recalls-held-funds, obligation:group-covers-misses-at-cost, abroad-money:arrival-opens-upkeep-and-room, abroad-money:phone-contract-builds-credit, abroad-money:tuition-paid-in-instalments, luck:savings-circle-holds-pot). */
 function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: Charge): BaseEvent[] {
   const cause = causeOf(item);
   if (entry.type === "held-funds") {
-    // R-OBLIGATION-007: the lender takes the principal back at once, then onMiss. A missed
+    // obligation:missed-interest-recalls-held-funds: the lender takes the principal back at once, then onMiss. A missed
     // month on held funds counts no miss and checks no grace, since the obligation is gone.
     const amount = Math.min(ctx.state.wallet.pockets[entry.currency].locked, item.outstanding);
     take(ctx, cause, entry.currency, "locked", amount, "held-funds-return");
@@ -469,36 +469,36 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
   if (entry.type === "car") return missCar(ctx, item, entry, charge);
   const missed = item.missed + 1;
   if (entry.type === "ajo") {
-    // R-LUCK-009: a missed month closes the circle, and no pot.
+    // luck:savings-circle-holds-pot: a missed month closes the circle, and no pot.
     const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed });
     ctx.apply(entry.onMiss, cause);
     return [...events, ...close(ctx, item, "dropped")];
   }
   if (entry.type === "group-loan" && missed === 1) {
-    // R-OBLIGATION-011: the group covers the charge and adds it to what is owed.
+    // obligation:group-covers-misses-at-cost: the group covers the charge and adds it to what is owed.
     const events = record(ctx, { type: "obligation/covered", id: item.id, entry: item.entry, total: totalOf(charge), principal: charge.principal, missed });
     ctx.apply(entry.onMiss, cause);
     return events;
   }
-  // R-OBLIGATION-002 (decision 0013): the upkeep takes what the naira holds and the shortfall is the miss, so a bill
+  // obligation:charges-paid-whole-or-missed (decision 0013): the upkeep takes what the naira holds and the shortfall is the miss, so a bill
   // short by a little never leaves the whole month's money untouched and the results saying nothing moved.
   const paid = entry.type === "upkeep" && entry.currency === "NGN" ? Math.min(totalOf(charge), spendable(ctx.state.wallet.pockets.NGN)) : 0;
   if (paid > 0) take(ctx, cause, entry.currency, "any", paid, "upkeep");
   const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed, ...(paid > 0 ? { paid } : {}) });
   ctx.apply(entry.type === "group-loan" ? groupMissEffects(ctx, entry, missed) : entry.onMiss, cause);
-  // R-OBLIGATION-004: upkeep and support never default. R-OBLIGATION-005: the miss that passes the grace applies onMiss, then onDefault.
+  // obligation:upkeep-never-defaults: upkeep and support never default. obligation:loan-default-and-recovery: the miss that passes the grace applies onMiss, then onDefault.
   const defaults = GRACE_TYPES.includes(entry.type) && missed > entry.grace;
-  // R-CREDIT-002: the month that defaults takes the default figure in place of the miss figure.
+  // credit:payments-move-the-mark: the month that defaults takes the default figure in place of the miss figure.
   report(ctx, item, entry, -(defaults ? ctx.content.tuning.credit.onDefault : ctx.content.tuning.credit.onMiss));
   if (!defaults) return events;
   events.push(...record(ctx, { type: "obligation/defaulted", id: item.id, entry: item.entry, outstanding: item.outstanding }));
   ctx.apply(entry.onDefault, cause);
-  // R-OBLIGATION-011: the named asset goes with the default.
+  // obligation:group-covers-misses-at-cost: the named asset goes with the default.
   if (entry.seize !== undefined) ctx.apply(entry.seize, cause);
   return events;
 }
 
-/** Everything owed this month, oldest first (R-OBLIGATION-001). */
+/** Everything owed this month, oldest first (obligation:due-phase-charges-oldest-first). */
 function due(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   // Ids first, then each item read again: an earlier charge may have changed the state.
@@ -511,7 +511,7 @@ function due(ctx: Ctx): BaseEvent[] {
       continue;
     }
     if (item.state === "defaulted") {
-      // A withdrawn student's tuition stays on record (R-STATUS-011 reads it) and is collected no further.
+      // A withdrawn student's tuition stays on record (status:course-passed-or-withdrawn reads it) and is collected no further.
       if (COLLECTED_TYPES.includes(entry.type)) events.push(...seize(ctx, item, entry));
       continue;
     }
@@ -524,7 +524,7 @@ function due(ctx: Ctx): BaseEvent[] {
     const paid = canTake(ctx, entry.currency, totalOf(charge));
     events.push(...(paid ? pay(ctx, item, entry, charge) : miss(ctx, item, entry, charge)));
   }
-  // R-PEOPLE-032: after the month's charges, so the couch's months are free.
+  // person:sibling-couch-delays-rent: after the month's charges, so the couch's months are free.
   ctx.apply(couchEnds(ctx), { source: "people.couch", param: null, terms: {} });
   return events;
 }
@@ -539,7 +539,7 @@ function takenOver(content: Content, cause: Cause): boolean {
 }
 
 /**
- * R-OBLIGATION-006, 010, R-PLACE-003. An obligation opened by another
+ * obligation:loan-opening-credits-principal, obligation:group-loan-fees-up-front, place:entries-legal-by-where. An obligation opened by another
  * obligation's effects (the room after an eviction, the shortfall after a
  * repossession, a guarantee called in) is owed but credits nothing.
  */
@@ -551,17 +551,17 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const given = effect.principal === undefined ? 0 : ctx.amount(effect.principal, cause.terms);
   let amount = effect.amount === undefined ? entry.amount : ctx.amount(effect.amount, cause.terms);
   if (given < 0 || amount < 0) throw new Error(`${entry.id} cannot open owing a negative amount.`);
-  // R-LUCK-009: the circle holds the pot it will pay, `amount` times `term`.
+  // luck:savings-circle-holds-pot: the circle holds the pot it will pay, `amount` times `term`.
   const principal = entry.type === "ajo" ? amount * (entry.term ?? 1) : given;
-  // R-CAR-001, R-CREDIT-005. An obligation keeps no rate of its own, and R-OBLIGATION-001's interest on the
+  // car:car-bought-on-finance, credit:rate-follows-credit-ladder. An obligation keeps no rate of its own, and obligation:due-phase-charges-oldest-first's interest on the
   // opening principal is a fixed sum, so the ladder's rate is fixed now as the monthly interest, held in `amount`.
   if (entry.type === "car") amount = bp(principal, rateFor(ctx, entry) ?? entry.rateBp);
   const lent = !takenOver(ctx.content, cause);
-  // R-OBLIGATION-010. A group loan has no fixed charge, so `amount` holds the savings held back, none when taken over.
+  // obligation:group-loan-fees-up-front. A group loan has no fixed charge, so `amount` holds the savings held back, none when taken over.
   if (entry.type === "group-loan") amount = lent ? bp(principal, ctx.content.tuning.groupLoan.savingsBp) : 0;
   // A debt of nothing would close before it was ever owed, and a circle of nothing has no pot, so nothing opens.
   if ((OWING_TYPES.includes(entry.type) || entry.type === "ajo") && principal === 0) return [];
-  // R-ROAD-006: a ransom nobody pays is added to the debt already owed to the same men.
+  // road:chain-steps-monthly: a ransom nobody pays is added to the debt already owed to the same men.
   const owed = entry.type === "agent-debt" ? openItems(ctx.state).find((open) => open.entry === entry.id) : undefined;
   if (owed !== undefined) return record(ctx, { type: "obligation/grown", id: owed.id, entry: owed.entry, amount: principal });
   const item: ObligationState = {
@@ -587,7 +587,7 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
     ctx.apply([{ type: "money/add", currency: entry.currency, pocket: "bank", amount: principal, reason: "held-funds", flagged: true, locked: true }], credit);
   }
   if (entry.type === "group-loan") {
-    // R-OBLIGATION-010: the savings are held back from the credit, then the fee is paid out of it.
+    // obligation:group-loan-fees-up-front: the savings are held back from the credit, then the fee is paid out of it.
     const fee = bp(principal, ctx.content.tuning.groupLoan.feeBp);
     ctx.apply([{ type: "money/add", currency: entry.currency, pocket: "bank", amount: principal - amount, reason: "loan", flagged: true }], credit);
     if (fee > 0) ctx.apply([{ type: "money/take", currency: entry.currency, pocket: "bank", amount: fee, reason: "fee-agent" }], credit);
@@ -596,7 +596,7 @@ function openEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-RETURN-006 for a car closed by type: it is handed back as R-CAR-004, and
+ * return:return-reopens-home-charges for a car closed by type: it is handed back as car:car-handed-back-after-half, and
  * when under half is paid what is owed less its resale still follows. Closed on
  * the way home, the shortfall opens in naira at the day's official rate.
  */
@@ -615,7 +615,7 @@ function closeCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, cause
   return events;
 }
 
-/** Closes every open obligation of one type: a move, a return, an eviction (R-PLACE-002, R-ABROAD-003, R-RETURN-006). */
+/** Closes every open obligation of one type: a move, a return, an eviction (place:departure-moves-abroad, abroad-money:arrival-opens-upkeep-and-room, return:return-reopens-home-charges). */
 function closeEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "obligation/close") throw new Error(`obligation/close cannot carry out ${effect.type}.`);
   const events: BaseEvent[] = [];
@@ -633,7 +633,7 @@ function closeEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-OBLIGATION-014: a share off the next charge of the open obligation of the type that applies where
+ * obligation:cooking-and-fetching-water: a share off the next charge of the open obligation of the type that applies where
  * the character lives, the oldest when there are several. A source already on the item adds nothing,
  * so cooking twice in a month takes the share once. With nothing open of the type, nothing happens.
  */
@@ -648,7 +648,7 @@ function reliefEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// Paying early: R-OBLIGATION-008, R-CAR-003, 004
+// Paying early: obligation:paying-down-obligations, car:missed-payments-take-the-car, car:car-handed-back-after-half
 // ---------------------------------------------------------------------------
 
 function isGoodAmount(amount: unknown): amount is number {
@@ -666,7 +666,7 @@ function payLoan(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount
   return events;
 }
 
-/** R-CAR-004: an amount of 0 hands the car back once half is paid. R-CAR-003: any other amount must clear the arrears exactly. */
+/** car:car-handed-back-after-half: an amount of 0 hands the car back once half is paid. car:missed-payments-take-the-car: any other amount must clear the arrears exactly. */
 function payCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount: unknown): BaseEvent[] | Rejection {
   if (!isWhole(amount) || amount < 0) return reject("bad-amount", "A car takes 0 to hand it back, or the whole of its arrears.");
   if (isOwned(item, entry)) return reject("not-legal", "The car is yours. Nothing is owed on it.");
@@ -686,7 +686,7 @@ function payCar(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount:
 
 function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "obligation/pay") throw new Error(`obligation/pay cannot handle ${command.type}.`);
-  // R-PEOPLE-044: a stand-in never spends.
+  // person:stand-in-acts-narrowly: a stand-in never spends.
   if (ctx.sender === "stand-in") return reject("not-legal", "A stand-in never spends.");
   const item = ownOf(ctx.state.obligation.items, command.obligation);
   if (item === undefined) return reject("unknown-id", `There is no open obligation ${String(command.obligation)}.`);
@@ -695,7 +695,7 @@ function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   switch (entry.type) {
     case "loan":
     case "group-loan":
-      // R-OBLIGATION-013: a group loan can be paid ahead like any loan.
+      // obligation:way-out-at-every-stage: a group loan can be paid ahead like any loan.
       return payLoan(ctx, item, entry, amount);
     case "held-funds": {
       if (!isGoodAmount(amount) || amount !== item.outstanding) {
@@ -707,14 +707,14 @@ function payCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
     }
     case "car":
       return payCar(ctx, item, entry, amount);
-    // R-OBLIGATION-008 rejects anything else, the agent's debt and tuition included; neither can be paid ahead.
+    // obligation:paying-down-obligations rejects anything else, the agent's debt and tuition included; neither can be paid ahead.
     case "upkeep":
     case "support":
     case "rent":
     case "phone":
     case "surcharge":
     case "undertaking":
-      // R-UNDERTAKING-008: what a sponsor owes can be paid down; a guarantee cannot.
+      // undertaking:missed-charges-lead-to-default: what a sponsor owes can be paid down; a guarantee cannot.
       if (isSponsorUndertaking(entry)) return payUndertaking(ctx, item, entry, amount);
       return reject("not-legal", `${entry.id} is paid month by month and cannot be paid ahead.`);
     case "tuition":
@@ -744,7 +744,7 @@ function without(slice: ObligationSlice, id: string): ObligationSlice {
   return { ...slice, items };
 }
 
-/** The item with its reliefs spent by the charge that just fell (R-OBLIGATION-014). */
+/** The item with its reliefs spent by the charge that just fell (obligation:cooking-and-fetching-water). */
 function spent(item: ObligationState): ObligationState {
   if (item.relief === undefined) return item;
   const rest = { ...item };
@@ -763,7 +763,7 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
     case "obligation/charged":
       return withItem(slice, event.id, (item) => ({
         ...spent(item),
-        // A paid charge ends a grace (R-OBLIGATION-003).
+        // A paid charge ends a grace (obligation:miss-applies-its-effects).
         state: item.state === "grace" ? "active" : item.state,
         outstanding: item.outstanding - event.principal,
         monthsLeft: item.monthsLeft === null ? null : Math.max(0, item.monthsLeft - 1),
@@ -772,7 +772,7 @@ function evolve(slice: ObligationSlice, event: ObligationEvent, _state: State, c
     case "obligation/missed":
       return withItem(slice, event.id, (item) => ({
         ...spent(item),
-        // Only these types have a grace to be in. Upkeep and support carry no arrears (R-OBLIGATION-004).
+        // Only these types have a grace to be in. Upkeep and support carry no arrears (obligation:upkeep-never-defaults).
         state: item.state === "active" && GRACE_TYPES.includes(typeOf(content, item)) ? "grace" : item.state,
         missed: event.missed,
       }));
@@ -844,7 +844,7 @@ function defaultKey(entry: ObligationEntry): string {
   switch (entry.type) {
     case "rent":
       // A room at home keeps no credit file: its landlord takes the room back, and the home kind sends the character
-      // home (R-HOME-011). Abroad, a flat's default sends the character back to a room; a room has nowhere cheaper to go.
+      // home (home:rent-default-returns-to-family). Abroad, a flat's default sends the character back to a room; a room has nowhere cheaper to go.
       if (entry.reportsToCredit !== true) return "rent-lost";
       return entry.onDefault.length > 0 ? "evicted" : "rent-default";
     case "phone":
@@ -871,12 +871,12 @@ function defaultKey(entry: ObligationEntry): string {
   }
 }
 
-/** R-OBLIGATION-014: a relief is told in its activity's own words: `line.obligation.relief.cook-at-home`. */
+/** obligation:cooking-and-fetching-water: a relief is told in its activity's own words: `line.obligation.relief.cook-at-home`. */
 function reliefKey(source: string): string {
   return `relief.${source.slice(source.indexOf(".") + 1)}`;
 }
 
-/** The key a miss is told with: the car's notice and the group's visit are their own (R-CAR-003, R-OBLIGATION-011). */
+/** The key a miss is told with: the car's notice and the group's visit are their own (car:missed-payments-take-the-car, obligation:group-covers-misses-at-cost). */
 function missKey(entry: ObligationEntry, missed: number): string {
   if (entry.type === "car" && missed === entry.grace) return "car-notice";
   if (entry.type === "group-loan" && missed === 2) return "group-visit";
@@ -907,7 +907,7 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
   const money = (entry: Id<"obligation">, amount: number): MoneyParam => ({ currency: entryOf(content, entry).currency, amount });
   switch (event.type) {
     case "obligation/charged":
-      // Said quietly: the wallet's own lines already show the money leaving. Each relief is its own line (R-OBLIGATION-014).
+      // Said quietly: the wallet's own lines already show the money leaving. Each relief is its own line (obligation:cooking-and-fetching-water).
       return [
         ...(event.total === 0 ? [] : [line("charged", { obligation: event.entry, amount: money(event.entry, event.total) }, "plain", false)]),
         ...(event.relief ?? []).filter((relief) => relief.amount > 0).map((relief) => line(reliefKey(relief.source), { obligation: event.entry, amount: money(event.entry, relief.amount) }, "good", false)),
@@ -925,7 +925,7 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
       return [line(key, { obligation: event.entry, amount: money(event.entry, event.amount) }, "bad", false)];
     }
     case "obligation/assessed":
-      // R-UNDERTAKING-007: the months the sponsored partner took, never what they did with them.
+      // undertaking:assistance-charged-to-sponsor: the months the sponsored partner took, never what they did with them.
       return [line("assessed", { obligation: event.entry, months: event.months, amount: money(event.entry, event.amount) }, "bad", true)];
     case "obligation/cleared":
       return [line("cleared", { obligation: event.entry }, "good", true)];
@@ -973,9 +973,9 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
 // ---------------------------------------------------------------------------
 
 /**
- * R-CAR-002: an open obligation of the type, not in default; with `obligation` set, only that entry (R-GOAL-004);
+ * car:open-finance-gives-the-car: an open obligation of the type, not in default; with `obligation` set, only that entry (goal:goals-need-the-real-deed);
  * with `defaulted`, only one in default; with `localCurrency`, only one owed in the currency of the country the
- * character is in, naira at home (R-HEALTH-006).
+ * character is in, naira at home (health:forced-months-warned-ahead).
  */
 function judgeHas(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "obligation/has") throw new Error(`obligation/has cannot judge ${requirement.type}.`);
@@ -1005,13 +1005,13 @@ function invariants(state: State, content: Content): string[] {
     for (const [name, value] of Object.entries({ amount: item.amount, principal: item.principal, outstanding: item.outstanding, missed: item.missed })) {
       if (!Number.isSafeInteger(value) || value < 0) problems.push(`Obligation ${id} has ${name} ${String(value)}.`);
     }
-    // R-OBLIGATION-011: only the group's cover adds to what is owed.
+    // obligation:group-covers-misses-at-cost: only the group's cover adds to what is owed.
     if (item.outstanding > item.principal && entry.type !== "group-loan") {
       problems.push(`Obligation ${id} owes ${String(item.outstanding)}, more than its principal ${String(item.principal)}.`);
     }
     if (item.state === "grace" && !GRACE_TYPES.includes(entry.type)) problems.push(`Obligation ${id} is in grace, but a ${entry.type} has none.`);
     if (item.state === "defaulted" && !DEBT_TYPES.includes(entry.type)) problems.push(`Obligation ${id} is in default, but a ${entry.type} does not stay open in default.`);
-    // R-OBLIGATION-014: one share per source, each a share of the charge.
+    // obligation:cooking-and-fetching-water: one share per source, each a share of the charge.
     const sources = (item.relief ?? []).map((relief) => relief.source);
     if (new Set(sources).size !== sources.length) problems.push(`Obligation ${id} holds the same relief twice.`);
     if ((item.relief ?? []).some((relief) => !Number.isSafeInteger(relief.bp) || relief.bp <= 0 || relief.bp > 10000)) problems.push(`Obligation ${id} holds a relief that is not a share.`);
@@ -1020,18 +1020,18 @@ function invariants(state: State, content: Content): string[] {
 }
 
 function obligationsView(read: ReadCtx): (ObligationState & { due: number; car: CarView | null })[] {
-  // R-CAR-005: an owned car is kept with no obligation. The contract has no other place for the car, so the item stays in the state for hasCar.
+  // car:final-payment-owns-the-car: an owned car is kept with no obligation. The contract has no other place for the car, so the item stays in the state for hasCar.
   return openItems(read.state)
     .filter((item) => !isOwned(item, entryOf(read.content, item.entry)))
     .map((item) => {
       const entry = entryOf(read.content, item.entry);
-      // R-UNDERTAKING-012: an undertaking's months run from the month it opened, whether or not anything was charged.
+      // undertaking:view-lists-undertaking: an undertaking's months run from the month it opened, whether or not anything was charged.
       const monthsLeft = isSponsorUndertaking(entry) ? undertakingMonthsLeft(read, item) : item.monthsLeft;
       return { ...item, monthsLeft, due: dueNext(read, item, entry), car: carView(read, item) };
     });
 }
 
-/** R-CAR-007's figures for one car; the view carries them on the item as `car`. */
+/** car:view-shows-car-terms's figures for one car; the view carries them on the item as `car`. */
 export function carView(read: ReadCtx, item: ObligationState): CarView | null {
   const entry = read.content.obligation[item.entry];
   if (entry?.type !== "car") return null;

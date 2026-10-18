@@ -67,8 +67,8 @@ function obligationLines(lines: readonly ReportLine[]): string[] {
   return lines.filter((line) => line.key.startsWith("line.obligation.")).map((line) => line.key);
 }
 
-describe("R-UNDERTAKING-006: the undertaking opens as the partner lands", () => {
-  test("[R-UNDERTAKING-006] given the partner landed, when the undertaking opens, then it names the bond, owes nothing, and runs the tuning's 36 months", () => {
+describe("undertaking:landing-opens-undertaking: the undertaking opens as the partner lands", () => {
+  test("[undertaking:landing-opens-undertaking] given the partner landed, when the undertaking opens, then it names the bond, owes nothing, and runs the tuning's 36 months", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     const opened = landed(game);
     expect(opened).toMatchObject({ bond: BOND, outstanding: 0, principal: 0, charged: 0, state: "active", openedMonth: game.state.turn.month });
@@ -76,13 +76,13 @@ describe("R-UNDERTAKING-006: the undertaking opens as the partner lands", () => 
     expect(game.view().obligations.find((item) => item.entry === UNDERTAKING)).toMatchObject({ monthsLeft: MONTHS, charged: 0, due: 0 });
   });
 
-  test("[R-UNDERTAKING-006] given no bond named by the cause, when the undertaking opens, then it names the sponsorship's bond", () => {
+  test("[undertaking:landing-opens-undertaking] given no bond named by the cause, when the undertaking opens, then it names the sponsorship's bond", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     applyAs(game, [{ type: "obligation/open", obligation: UNDERTAKING }]);
     expect(undertaking(game)?.bond).toBe(BOND);
   });
 
-  test("[R-UNDERTAKING-006] given no assistance taken, when a month passes, then nothing is charged and nothing recorded", () => {
+  test("[undertaking:landing-opens-undertaking] given no assistance taken, when a month passes, then nothing is charged and nothing recorded", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     landed(game);
     const before = undertaking(game);
@@ -92,8 +92,8 @@ describe("R-UNDERTAKING-006: the undertaking opens as the partner lands", () => 
   });
 });
 
-describe("R-UNDERTAKING-007: charged for each month of assistance taken", () => {
-  test("[R-UNDERTAKING-007] given two months of assistance taken, when the month ends, then two months are charged under `undertaking`, bank first and then cash, and the same two never again", () => {
+describe("undertaking:assistance-charged-to-sponsor: charged for each month of assistance taken", () => {
+  test("[undertaking:assistance-charged-to-sponsor] given two months of assistance taken, when the month ends, then two months are charged under `undertaking`, bank first and then cash, and the same two never again", () => {
     const game = sponsor({ bank: ASSISTANCE, cash: 2 * ASSISTANCE });
     landed(game);
     taken(game, 2);
@@ -106,7 +106,7 @@ describe("R-UNDERTAKING-007: charged for each month of assistance taken", () => 
     expect(obligationLines(month.lines)).toEqual([]);
   });
 
-  test("[R-UNDERTAKING-007] given a third month taken later, when the month ends, then only that month is charged", () => {
+  test("[undertaking:assistance-charged-to-sponsor] given a third month taken later, when the month ends, then only that month is charged", () => {
     const game = sponsor({ bank: 10 * ASSISTANCE, cash: 0 });
     landed(game);
     taken(game, 2);
@@ -119,8 +119,8 @@ describe("R-UNDERTAKING-007: charged for each month of assistance taken", () => 
   });
 });
 
-describe("R-UNDERTAKING-008: missed, in default, and paid down", () => {
-  test("[R-UNDERTAKING-008] given no Canadian money, when the charge is missed twice, then it stays owed and costs standing 3 each time, and the third miss is a default costing 10 and a mark on the file", () => {
+describe("undertaking:missed-charges-lead-to-default: missed, in default, and paid down", () => {
+  test("[undertaking:missed-charges-lead-to-default] given no Canadian money, when the charge is missed twice, then it stays owed and costs standing 3 each time, and the third miss is a default costing 10 and a mark on the file", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     landed(game);
     taken(game, 1);
@@ -137,7 +137,7 @@ describe("R-UNDERTAKING-008: missed, in default, and paid down", () => {
     expect(last.map((line) => line.key)).toContain("line.credit.missed");
   });
 
-  test("[R-UNDERTAKING-008] given a default, when money reaches the bank, then it is taken from the next month, and paying the rest lifts the default", () => {
+  test("[undertaking:missed-charges-lead-to-default] given a default, when money reaches the bank, then it is taken from the next month, and paying the rest lifts the default", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     landed(game);
     taken(game, 1);
@@ -153,7 +153,7 @@ describe("R-UNDERTAKING-008: missed, in default, and paid down", () => {
     expect(undertaking(game)).toMatchObject({ state: "active", missed: 0, outstanding: 0 });
   });
 
-  test("[R-UNDERTAKING-008] given one miss, when the money is there next month, then the whole of it is paid and the grace ends", () => {
+  test("[undertaking:missed-charges-lead-to-default] given one miss, when the money is there next month, then the whole of it is paid and the grace ends", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     landed(game);
     taken(game, 1);
@@ -166,7 +166,7 @@ describe("R-UNDERTAKING-008: missed, in default, and paid down", () => {
     expect(cad(game)).toBe(0);
   });
 
-  test("[R-UNDERTAKING-008] given nothing owed, when the sponsor tries to pay, then it is not legal; a guarantee still cannot be paid ahead", () => {
+  test("[undertaking:missed-charges-lead-to-default] given nothing owed, when the sponsor tries to pay, then it is not legal; a guarantee still cannot be paid ahead", () => {
     const game = sponsor({ bank: ASSISTANCE, cash: 0 });
     const opened = landed(game);
     game.expectRejected({ type: "obligation/pay", obligation: opened.id, amount: 1 }, "not-legal");
@@ -174,8 +174,8 @@ describe("R-UNDERTAKING-008: missed, in default, and paid down", () => {
   });
 });
 
-describe("R-UNDERTAKING-009: it outlives the relationship", () => {
-  test("[R-UNDERTAKING-009] given the bond ended and the sponsor gone home, when the partner takes assistance, then the sponsor is still charged in Canadian dollars", () => {
+describe("undertaking:undertaking-outlives-relationship: it outlives the relationship", () => {
+  test("[undertaking:undertaking-outlives-relationship] given the bond ended and the sponsor gone home, when the partner takes assistance, then the sponsor is still charged in Canadian dollars", () => {
     const game = sponsor({ bank: 10 * ASSISTANCE, cash: 0 });
     landed(game);
     setPeople(game, (slice) => ({ ...slice, bonds: { [BOND]: { ...slice.bonds[BOND]!, stage: "ended" } }, joint: null }));
@@ -187,7 +187,7 @@ describe("R-UNDERTAKING-009: it outlives the relationship", () => {
     expect(game.state.wallet.totals.out.undertaking?.CAD).toBe(ASSISTANCE);
   });
 
-  test("[R-UNDERTAKING-009] given 36 months with nothing owed, when the last of them ends, then it closes; one month short, it is still open", () => {
+  test("[undertaking:undertaking-outlives-relationship] given 36 months with nothing owed, when the last of them ends, then it closes; one month short, it is still open", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     const opened = landed(game);
     while (game.state.turn.month < opened.openedMonth + MONTHS - 1) month(game);
@@ -196,7 +196,7 @@ describe("R-UNDERTAKING-009: it outlives the relationship", () => {
     expect(undertaking(game)).toBeUndefined();
   });
 
-  test("[R-UNDERTAKING-009] given something still owed when the 36 months end, when it is paid, then it closes only after that", () => {
+  test("[undertaking:undertaking-outlives-relationship] given something still owed when the 36 months end, when it is paid, then it closes only after that", () => {
     const game = sponsor({ bank: 0, cash: 0 });
     const opened = landed(game);
     while (game.state.turn.month < opened.openedMonth + MONTHS - 1) month(game);
@@ -209,10 +209,10 @@ describe("R-UNDERTAKING-009: it outlives the relationship", () => {
   });
 });
 
-describe("R-UNDERTAKING-010: social assistance", () => {
+describe("undertaking:social-assistance-offer: social assistance", () => {
   const OFFER: Id<"offer"> = "offer.ca-assistance";
 
-  test("[R-UNDERTAKING-010] given the offer, when it is read, then it comes up every month in Canada for a resident or citizen under the tuning's line, and take credits the assistance figure", () => {
+  test("[undertaking:social-assistance-offer] given the offer, when it is read, then it comes up every month in Canada for a resident or citizen under the tuning's line, and take credits the assistance figure", () => {
     const offer = used.offer[OFFER]!;
     expect(offer).toMatchObject({ group: "abroad", where: "abroad", chanceBp: 10000, cooldown: 1, expiresAfter: 1, terms: { amount: ASSISTANCE } });
     expect(offer.when).toContainEqual({ type: "not", of: { type: "money/min", currency: "CAD", amount: content.tuning.undertaking.assistanceUnder } });
@@ -221,7 +221,7 @@ describe("R-UNDERTAKING-010: social assistance", () => {
     expect(take.effects).toContainEqual({ type: "money/add", currency: "CAD", pocket: "bank", amount: { term: "amount" }, reason: "assistance" });
   });
 
-  test("[R-UNDERTAKING-010] given a resident with C$999.99 and one with C$1,000, when a month ends, then only the first is offered assistance, and taking it credits the bank", () => {
+  test("[undertaking:social-assistance-offer] given a resident with C$999.99 and one with C$1,000, when a month ends, then only the first is offered assistance, and taking it credits the bank", () => {
     const under = content.tuning.undertaking.assistanceUnder;
     const poor = sponsor({ bank: under - 1, cash: 0 });
     poor.endTurn();
@@ -235,7 +235,7 @@ describe("R-UNDERTAKING-010: social assistance", () => {
     enough.endTurn();
     expect(Object.values(enough.state.offer.items).some((open) => open.entry === OFFER)).toBe(false);
   });
-  test("[R-UNDERTAKING-010] given a partner who arrived on Canada's spouse route, when assistance is taken inside the term and after it, then only the months inside count in the people slice; one who came another way counts none", () => {
+  test("[undertaking:social-assistance-offer] given a partner who arrived on Canada's spouse route, when assistance is taken inside the term and after it, then only the months inside count in the people slice; one who came another way counts none", () => {
     const under = content.tuning.undertaking.assistanceUnder;
     const takeOne = (game: Game): void => {
       game.endTurn();
@@ -261,16 +261,16 @@ describe("R-UNDERTAKING-010: social assistance", () => {
   });
 });
 
-describe("R-UNDERTAKING-011: the UK asks for no undertaking", () => {
-  test("[R-UNDERTAKING-011] given the obligations and the partner gate, when they are read, then the only sponsor's undertaking is Canada's and departing on a partner route opens nothing of the gate's own", () => {
+describe("undertaking:uk-partner-has-no-undertaking: the UK asks for no undertaking", () => {
+  test("[undertaking:uk-partner-has-no-undertaking] given the obligations and the partner gate, when they are read, then the only sponsor's undertaking is Canada's and departing on a partner route opens nothing of the gate's own", () => {
     const undertakings = Object.values(content.obligation).filter(isSponsorUndertaking);
     expect(undertakings.map((item) => [item.id, item.currency])).toEqual([[UNDERTAKING, "CAD"]]);
     expect("onDepart" in partnerGate).toBe(false);
   });
 });
 
-describe("R-UNDERTAKING-012: the undertaking in the view", () => {
-  test("[R-UNDERTAKING-012] given an undertaking with a month charged and one owed, when the view is read, then it shows the months left, the months charged and what is owed", () => {
+describe("undertaking:view-lists-undertaking: the undertaking in the view", () => {
+  test("[undertaking:view-lists-undertaking] given an undertaking with a month charged and one owed, when the view is read, then it shows the months left, the months charged and what is owed", () => {
     const game = sponsor({ bank: ASSISTANCE, cash: 0 });
     const opened = landed(game);
     taken(game, 1);

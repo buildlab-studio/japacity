@@ -89,7 +89,7 @@ describe("report lines on the real lives", () => {
   for (const life of LIVES) {
     describe(`the life ${life}`, () => {
       test.prop([fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: 50, maxLength: 50 })], { numRuns: 3 })(
-        "[R-ENGINE-018] given this life, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from",
+        "[engine:report-money-is-typed] given this life, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from",
         (seed, picks) => {
           const lines = playForty(life, seed, picks);
           expect(lines.length).toBeGreaterThan(0);
@@ -99,7 +99,7 @@ describe("report lines on the real lives", () => {
     });
   }
 
-  test.each(LIVES)("[R-ENGINE-014] given %s, when 40 months of random legal commands are played, then every line key emitted has words in content", (life) => {
+  test.each(LIVES)("[engine:content-checked-before-play] given %s, when 40 months of random legal commands are played, then every line key emitted has words in content", (life) => {
     const picks = Array.from({ length: 50 }, (_unused, index) => index * 7 + 3);
     const keys = new Set(playForty(life, `words-${life}`, picks).map((line) => line.key));
     expect([...keys].filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
@@ -134,7 +134,7 @@ function keysInSource(): string[] {
 }
 
 describe("report line keys in the source", () => {
-  test("[R-ENGINE-014] given every line key the simulation's source names, when looked up in content, then each has words", () => {
+  test("[engine:content-checked-before-play] given every line key the simulation's source names, when looked up in content, then each has words", () => {
     const keys = keysInSource();
     expect(keys).toContain("line.route.granted");
     expect(keys).toContain("line.document.issued");
@@ -143,7 +143,7 @@ describe("report line keys in the source", () => {
 });
 
 describe("staged wins", () => {
-  test("[R-ACTIVITY-001] [R-ROUTE-017] [R-ROUTE-020] [R-LUCK-008] given the ada-careful golden, when its save is replayed, then the first salary, the first dollar salary, the grant and the send-off each come once as a big line, and nothing else is big", () => {
+  test("[activity:one-job-paid-monthly] [route:grant-moves-to-granted] [route:departure-pays-flight] [luck:big-wins-are-staged] given the ada-careful golden, when its save is replayed, then the first salary, the first dollar salary, the grant and the send-off each come once as a big line, and nothing else is big", () => {
     const save = lifeSaves["ada-careful"]!;
     let state = newState(save.scenario, save.seed, content);
     const lines: ReportLine[] = [];

@@ -1,5 +1,5 @@
-// A grant withdrawn before the flight reopens the chapters it closed: docs/rules/chapter.md R-CHAPTER-003 and R-CHAPTER-002,
-// docs/rules/person.md R-PEOPLE-036. A dependant's grant not yet used is voided
+// A grant withdrawn before the flight reopens the chapters it closed: chapter:done-chapter-stays-done and chapter:met-items-close-the-chapter,
+// person:joint-collapses-with-bond. A dependant's grant not yet used is voided
 // when the joint collapses; the chapters that grant closed come back, and a flight makes such closes final.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -46,7 +46,7 @@ function grant(game: Game, route: Id<"route">): void {
 }
 
 describe("a dependant grant withdrawn before the flight", () => {
-  test("[R-CHAPTER-003] [R-CHAPTER-002] [R-PEOPLE-036] given a life leaning to the master's whose dependant grant closed the file and decision day, when the joint collapses and the month ends, then both reopen, the file is current under the lean again, no refill is taken back, and the report says the visa is gone", () => {
+  test("[chapter:done-chapter-stays-done] [chapter:met-items-close-the-chapter] [person:joint-collapses-with-bond] given a life leaning to the master's whose dependant grant closed the file and decision day, when the joint collapses and the month ends, then both reopen, the file is current under the lean again, no refill is taken back, and the report says the visa is gone", () => {
     const game = inTheFile();
     grantDependant(game);
     expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: UK_DEPENDANT }]);
@@ -61,7 +61,7 @@ describe("a dependant grant withdrawn before the flight", () => {
     });
     expect(game.view().plan.route).toBe(UK_DEPENDANT);
 
-    // R-PEOPLE-036: the bond ends, and the grant not yet used is voided back to known.
+    // person:joint-collapses-with-bond: the bond ends, and the grant not yet used is voided back to known.
     game.accept({ type: "people/end", bond: BOND });
     expect(game.state.route[UK_DEPENDANT]?.state).toBe("known");
     expect(grantedRoute(game.state.route, content)).toBeNull();
@@ -77,7 +77,7 @@ describe("a dependant grant withdrawn before the flight", () => {
     expect(eventsOf(result, "turn/refilled")).toEqual([]);
     expect(game.state.turn.banked).toBe(banked - 1);
     expect(result.lines).toContainEqual(expect.objectContaining({ key: "line.chapter.reopened", params: { chapter: FILE }, tone: "bad", attention: true }));
-    // The plan names the lean again, and the Japa app's checklist is the file's (R-CHAPTER-005, R-CHAPTER-009).
+    // The plan names the lean again, and the Japa app's checklist is the file's (chapter:items-are-live-requirements, chapter:chapters-follow-lean-route).
     const view = game.view();
     expect(view.plan.route).toBe(UK_ROUTE);
     expect(view.chapter).toMatchObject({ current: FILE, done: [FEET], closes: false, next: DECISION });
@@ -89,13 +89,13 @@ describe("a dependant grant withdrawn before the flight", () => {
     expect(game.state.chapter.current).toBe(FILE);
   });
 
-  test("[R-CHAPTER-003] [R-CHAPTER-009] given the nurse in the care file whose dependant grant closed it as the master's file, when the grant is withdrawn, then the chapter that comes back is the care file, the variant standing in under the lean as it is now", () => {
+  test("[chapter:done-chapter-stays-done] [chapter:chapters-follow-lean-route] given the nurse in the care file whose dependant grant closed it as the master's file, when the grant is withdrawn, then the chapter that comes back is the care file, the variant standing in under the lean as it is now", () => {
     const game = start({ scenario: "scenario.ngozi", content });
     for (let month = 0; month < 8 && game.state.route[CARE_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
     game.endTurn([slot("activity.look-into-route", CARE_ROUTE)]);
     expect(game.state.chapter.current).toBe(CARE_FILE);
     grantDependant(game);
-    // Under the grant the file is judged as the master's base, the grant's own stand-in (R-CHAPTER-009).
+    // Under the grant the file is judged as the master's base, the grant's own stand-in (chapter:chapters-follow-lean-route).
     expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: UK_DEPENDANT }]);
     game.accept({ type: "people/end", bond: BOND });
     const result = game.endTurn();
@@ -104,7 +104,7 @@ describe("a dependant grant withdrawn before the flight", () => {
     expect(game.view().plan.route).toBe(CARE_ROUTE);
   });
 
-  test("[R-CHAPTER-003] [R-CHAPTER-002] given a dependant grant standing when the first chapter's own items close it, when the grant is withdrawn, then that close carries no onGrant and stays done, and only the file the grant closed reopens", () => {
+  test("[chapter:done-chapter-stays-done] [chapter:met-items-close-the-chapter] given a dependant grant standing when the first chapter's own items close it, when the grant is withdrawn, then that close carries no onGrant and stays done, and only the file the grant closed reopens", () => {
     const game = aboutToLookIntoUk();
     grantDependant(game);
     const looked = game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
@@ -118,7 +118,7 @@ describe("a dependant grant withdrawn before the flight", () => {
     expect(game.state.chapter).toMatchObject({ current: FILE, done: [FEET] });
   });
 
-  test("[R-CHAPTER-003] given closes earned by the items alone and no grant, when a later month ends, then nothing reopens and nothing is remembered", () => {
+  test("[chapter:done-chapter-stays-done] given closes earned by the items alone and no grant, when a later month ends, then nothing reopens and nothing is remembered", () => {
     const game = inTheFile();
     const result = game.endTurn();
     expect(eventsOf(result, "chapter/reopened")).toEqual([]);
@@ -128,7 +128,7 @@ describe("a dependant grant withdrawn before the flight", () => {
 });
 
 describe("a flight makes the closes final", () => {
-  test("[R-CHAPTER-003] [R-CHAPTER-002] [R-PEOPLE-036] given a life whose partner grant closed the file and who flew on it, when a later dependant grant is withdrawn abroad, then every chapter stays done and the closes on the grant were sealed at the flight", () => {
+  test("[chapter:done-chapter-stays-done] [chapter:met-items-close-the-chapter] [person:joint-collapses-with-bond] given a life whose partner grant closed the file and who flew on it, when a later dependant grant is withdrawn abroad, then every chapter stays done and the closes on the grant were sealed at the flight", () => {
     const game = inTheFile();
     grant(game, UK_PARTNER);
     expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: UK_PARTNER }]);
@@ -152,7 +152,7 @@ describe("a flight makes the closes final", () => {
     expect(game.state.chapter.done).toEqual(expect.arrayContaining([FILE, DECISION, SEND_OFF]));
   });
 
-  test("[R-CHAPTER-003] [R-PEOPLE-036] given a dependant grant that closed the file, when the life flies on it, then the closes are sealed, and a withdrawal of the flown route changes nothing", () => {
+  test("[chapter:done-chapter-stays-done] [person:joint-collapses-with-bond] given a dependant grant that closed the file, when the life flies on it, then the closes are sealed, and a withdrawal of the flown route changes nothing", () => {
     const game = inTheFile();
     grantDependant(game);
     game.endTurn();

@@ -23,7 +23,7 @@ function withBasedOn(state: State, loose: Loose): Command {
 }
 
 describe("the step function", () => {
-  test("[R-ENGINE-001] given the same state, world and command, when stepped twice, then the results are equal", () => {
+  test("[engine:same-inputs-same-result] given the same state, world and command, when stepped twice, then the results are equal", () => {
     const state = newState("scenario.plain", "seed-1", miniContent);
     const command = withBasedOn(state, { type: "turn/end", slots: [{ activity: "activity.rest", param: null }] });
     const a = step(state, command, world(0), miniContent);
@@ -32,7 +32,7 @@ describe("the step function", () => {
     expect(stableJson(a)).toBe(stableJson(b));
   });
 
-  test("[R-ENGINE-001] given two seeds, when a life is played the same way, then the states differ only through draws", () => {
+  test("[engine:same-inputs-same-result] given two seeds, when a life is played the same way, then the states differ only through draws", () => {
     const a = start({ seed: "a" });
     const b = start({ seed: "b" });
     a.endTurn();
@@ -43,7 +43,7 @@ describe("the step function", () => {
     expect(a.state.seed).not.toBe(b.state.seed);
   });
 
-  test("[R-ENGINE-002] given a command that is rejected, when stepped, then the state is untouched and no event is recorded", () => {
+  test("[engine:only-events-change-state] given a command that is rejected, when stepped, then the state is untouched and no event is recorded", () => {
     const state = newState("scenario.plain", "seed-1", miniContent);
     const before = stableJson(state);
     const rest = { activity: "activity.rest" as const, param: null };
@@ -53,7 +53,7 @@ describe("the step function", () => {
     expect("events" in result).toBe(false);
   });
 
-  test("[R-ENGINE-002] given an accepted command, when stepped, then the input state is not mutated", () => {
+  test("[engine:only-events-change-state] given an accepted command, when stepped, then the input state is not mutated", () => {
     const state = newState("scenario.plain", "seed-1", miniContent);
     const before = stableJson(state);
     const result = step(state, withBasedOn(state, { type: "turn/end", slots: [] }), world(0), miniContent);
@@ -61,7 +61,7 @@ describe("the step function", () => {
     expect(stableJson(state)).toBe(before);
   });
 
-  test("[R-ENGINE-003] given a command based on an old version, when stepped, then it is rejected with stale", () => {
+  test("[engine:stale-commands-rejected] given a command based on an old version, when stepped, then it is rejected with stale", () => {
     const game = start();
     game.endTurn();
     expect(game.state.v).toBe(1);
@@ -71,7 +71,7 @@ describe("the step function", () => {
     expect(ahead).toMatchObject({ ok: false, code: "stale" });
   });
 
-  test("[R-ENGINE-003] given accepted commands, when stepped, then each raises the version by exactly one", () => {
+  test("[engine:stale-commands-rejected] given accepted commands, when stepped, then each raises the version by exactly one", () => {
     const game = start();
     expect(game.state.v).toBe(0);
     game.endTurn();
@@ -82,7 +82,7 @@ describe("the step function", () => {
     expect(game.state.v).toBe(2);
   });
 
-  test("[R-ENGINE-004] given a turn, when it resolves, then every phase runs in the order of engine.md section 4, and each sees the state the one before left", () => {
+  test("[engine:turn-phases-in-fixed-order] given a turn, when it resolves, then every phase runs in the order of engine.md section 4, and each sees the state the one before left", () => {
     const seen: Phase[] = [];
     const sawWellbeing: Partial<Record<Phase, number>> = {};
     const kinds: Registry = registry().map((kind) => {
@@ -122,7 +122,7 @@ describe("the step function", () => {
     expect(result.state.quality["quality.wellbeing"]).toBe(70 + PHASES.length);
   });
 
-  test("[R-ENGINE-006] given a new life, when its wallet is read, then no pocket is below zero and every opening balance has a reason", () => {
+  test("[engine:money-in-whole-minor-units] given a new life, when its wallet is read, then no pocket is below zero and every opening balance has a reason", () => {
     const state = newState("scenario.worker", "seed-1", miniContent);
     for (const pocket of Object.values(state.wallet.pockets)) {
       expect(pocket.bank).toBeGreaterThanOrEqual(0);
@@ -133,7 +133,7 @@ describe("the step function", () => {
     expect(checkInvariants(state, miniContent)).toEqual([]);
   });
 
-  test("[R-ENGINE-007] given a view, when walked, then it holds no key named seed, draws or secret", () => {
+  test("[engine:view-holds-no-hidden-field] given a view, when walked, then it holds no key named seed, draws or secret", () => {
     const game = start({ scenario: "scenario.worker" });
     game.endTurn();
     const view = game.view();
@@ -141,11 +141,11 @@ describe("the step function", () => {
     expect(stableJson(view)).not.toContain(game.state.seed);
   });
 
-  test("[R-ENGINE-007] given a planted hidden field, when walked, then the walker finds it", () => {
+  test("[engine:view-holds-no-hidden-field] given a planted hidden field, when walked, then the walker finds it", () => {
     expect(hiddenPaths({ a: { secret: { fraud: true } }, list: [{ draws: {} }], seed: "x" })).toEqual(["a.secret", "list[0].draws", "seed"]);
   });
 
-  test("[R-ENGINE-007] given a kind that gives no part of the view, when the view is joined, then it throws naming the missing keys", () => {
+  test("[engine:view-holds-no-hidden-field] given a kind that gives no part of the view, when the view is joined, then it throws naming the missing keys", () => {
     const kinds: Registry = registry().map((kind) => {
       if (kind.kind !== "news") return kind;
       const rest = { ...kind };
@@ -156,7 +156,7 @@ describe("the step function", () => {
     expect(() => viewWith(kinds, { state, world: world(0), content: miniContent })).toThrow(/view keys: news/);
   });
 
-  test("[R-ENGINE-008] given a state, when the view is built, then the seed and the draw counts stay with the authority", () => {
+  test("[engine:seed-never-leaves-authority] given a state, when the view is built, then the seed and the draw counts stay with the authority", () => {
     const state = newState("scenario.plain", "my-secret-seed", miniContent);
     const view = viewFor({ state, world: world(0), content: miniContent });
     expect(JSON.stringify(view)).not.toContain("my-secret-seed");
@@ -164,7 +164,7 @@ describe("the step function", () => {
     expect("draws" in view).toBe(false);
   });
 
-  test("[R-ENGINE-010] given a state, when turned to JSON and back, then it is equal", () => {
+  test("[engine:state-is-plain-data] given a state, when turned to JSON and back, then it is equal", () => {
     const game = start({ scenario: "scenario.worker" });
     game.endTurn([{ activity: "activity.rest", param: null }]);
     game.grant(2);
@@ -173,7 +173,7 @@ describe("the step function", () => {
     expect(hashState(copy)).toBe(hashState(game.state));
   });
 
-  test("[R-ENGINE-010] given a save, when replayed, then the state is rebuilt exactly", () => {
+  test("[engine:state-is-plain-data] given a save, when replayed, then the state is rebuilt exactly", () => {
     const game = start({ scenario: "scenario.worker", seed: "replay-me" });
     game.endTurn([{ activity: "activity.rest", param: null }]);
     game.endTurn();
@@ -187,19 +187,19 @@ describe("the step function", () => {
     expect(rebuilt.versions).toEqual([1, 2, 3, 4]);
   });
 
-  test("[R-ENGINE-010] given a save for other content, when replayed, then it throws", () => {
+  test("[engine:state-is-plain-data] given a save for other content, when replayed, then it throws", () => {
     const game = start();
     expect(() => replay({ ...game.save, segments: [{ ...game.save.segments[0]!, content: "other" }] }, miniContent, world)).toThrow(/for content other/);
   });
 
-  test("[R-ENGINE-011] given a turn banked and no set piece open, when the turn is ended with every slot resting, then it is accepted whatever is owed", () => {
+  test("[engine:player-never-stuck] given a turn banked and no set piece open, when the turn is ended with every slot resting, then it is accepted whatever is owed", () => {
     for (const scenario of ["scenario.plain", "scenario.worker"] as const) {
       const game = start({ scenario });
       for (let i = 0; i < 5; i += 1) expect(game.send({ type: "turn/end", slots: [] }).ok).toBe(true);
     }
   });
 
-  test("[R-ENGINE-012] given a world tick lower than the last accepted one, when stepped, then it is rejected with clock-went-back", () => {
+  test("[engine:simulation-reads-no-clock] given a world tick lower than the last accepted one, when stepped, then it is rejected with clock-went-back", () => {
     const game = start();
     game.endTurn();
     game.endTurn();
@@ -212,7 +212,7 @@ describe("the step function", () => {
     expect(ahead.ok && ahead.state.tick).toBe(9);
   });
 
-  test("[R-ENGINE-013] given a turn event, when applied, then only the turn slice changes and every other slice is the same object", () => {
+  test("[engine:kinds-own-their-state] given a turn event, when applied, then only the turn slice changes and every other slice is the same object", () => {
     const state = newState("scenario.plain", "seed-1", miniContent);
     const granted: TurnEvent = { type: "turn/granted", count: 1, banked: 24 };
     const after = applyEventWith(registry(), state, granted, miniContent);
@@ -223,7 +223,7 @@ describe("the step function", () => {
     expect(after.v).toBe(state.v);
   });
 
-  test("[R-ENGINE-013] given an accepted command, when stepped, then it ends with one engine/stepped event carrying the four counters", () => {
+  test("[engine:kinds-own-their-state] given an accepted command, when stepped, then it ends with one engine/stepped event carrying the four counters", () => {
     const game = start();
     const result = game.endTurn();
     const last = result.events.at(-1);
@@ -231,7 +231,7 @@ describe("the step function", () => {
     expect(result.events.filter((event) => event.type === "engine/stepped")).toHaveLength(1);
   });
 
-  test("[R-ENGINE-013] given a kind that returns another kind's event, when stepped, then the engine refuses it", () => {
+  test("[engine:kinds-own-their-state] given a kind that returns another kind's event, when stepped, then the engine refuses it", () => {
     const kinds: Registry = registry().map((kind) =>
       kind.kind === "quality" ? { ...kind, phases: { month: () => [{ type: "turn/refilled", banked: 24 }] } } : kind,
     );
@@ -241,7 +241,7 @@ describe("the step function", () => {
     );
   });
 
-  test("[R-ENGINE-013] given an event naming no kind, when applied, then it throws", () => {
+  test("[engine:kinds-own-their-state] given an event naming no kind, when applied, then it throws", () => {
     const state = newState("scenario.plain", "seed-1", miniContent);
     const ghost = { type: "ghost/moved" } as unknown as BaseEvent;
     expect(() => applyEventWith(registry(), state, ghost, miniContent)).toThrow(/names no kind/);

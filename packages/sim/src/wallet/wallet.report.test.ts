@@ -1,4 +1,4 @@
-// The ledger report: docs/rules/wallet.md R-WALLET-013. Played lives come from
+// The ledger report: wallet:ledger-report-raises-alarms. Played lives come from
 // the goldens; a doctored state is a played one with one total raised by hand,
 // as a tampered account would arrive.
 import { content } from "@japacity/content";
@@ -39,7 +39,7 @@ function ceilingOf(state: State, reason: Reason, currency: Currency): number {
 }
 
 describe("the ledger report", () => {
-  test.each(Object.keys(lifeSaves))("[R-WALLET-013] given the golden %s played to its end, when the report is made, then it shows money made and spent by reason and currency, transfers left out, and names nothing as suspect", (name) => {
+  test.each(Object.keys(lifeSaves))("[wallet:ledger-report-raises-alarms] given the golden %s played to its end, when the report is made, then it shows money made and spent by reason and currency, transfers left out, and names nothing as suspect", (name) => {
     const state = played(name);
     const report = ledgerReport(state, content);
     expect(report.alarms).toEqual([]);
@@ -53,7 +53,7 @@ describe("the ledger report", () => {
     expect(report.destroyed.upkeep).toEqual(state.wallet.totals.out.upkeep);
   });
 
-  test("[R-WALLET-013] given months played at home, when the salary ceiling in naira is read, then it is the best naira job's month with overtime in every free slot, times the months; at it nothing is suspect and one kobo over names the account", () => {
+  test("[wallet:ledger-report-raises-alarms] given months played at home, when the salary ceiling in naira is read, then it is the best naira job's month with overtime in every free slot, times the months; at it nothing is suspect and one kobo over names the account", () => {
     const state = tunde();
     const months = state.turn.month;
     expect(months).toBe(3);
@@ -73,7 +73,7 @@ describe("the ledger report", () => {
     expect(over.suspect).toBe(true);
   });
 
-  test("[R-WALLET-013] given the opening money, when it is read, then the ceiling is the richest starting life's; at it nothing is suspect and one kobo over names the account", () => {
+  test("[wallet:ledger-report-raises-alarms] given the opening money, when it is read, then the ceiling is the richest starting life's; at it nothing is suspect and one kobo over names the account", () => {
     const state = tunde();
     const richest = Math.max(...Object.values(content.scenario).map((life) => (life.pockets.NGN?.bank ?? 0) + (life.pockets.NGN?.cash ?? 0)));
     expect(ceilingOf(state, "opening", "NGN")).toBe(richest);
@@ -81,7 +81,7 @@ describe("the ledger report", () => {
     expect(ledgerReport(doctored(state, "opening", "NGN", richest + 1), content).alarms).toEqual([{ reason: "opening", currency: "NGN", total: richest + 1, ceiling: richest }]);
   });
 
-  test("[R-WALLET-013] given decision 0016, under which pot-top-up is never credited, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
+  test("[wallet:ledger-report-raises-alarms] given decision 0016, under which pot-top-up is never credited, when the report is made, then its ceiling is 0: none credited is clean and one kobo names the account", () => {
     const state = tunde();
     expect(ceilingOf(state, "pot-top-up", "NGN")).toBe(0);
     expect(ledgerReport(doctored(state, "pot-top-up", "NGN", 0), content).alarms).toEqual([]);
@@ -93,7 +93,7 @@ describe("the ledger report", () => {
     ["cash-work", "GBP"],
     ["gig", "NGN"],
     ["salary", "USD"],
-  ] as const)("[R-WALLET-013] given a played life whose %s total in %s is doctored, when the report is made, then at the ceiling nothing is suspect and one unit over trips the alarm for that reason alone", (reason, currency) => {
+  ] as const)("[wallet:ledger-report-raises-alarms] given a played life whose %s total in %s is doctored, when the report is made, then at the ceiling nothing is suspect and one unit over trips the alarm for that reason alone", (reason, currency) => {
     const state = played("ada-careful");
     const ceiling = ceilingOf(state, reason, currency);
     expect(ceiling).toBeGreaterThan(0);

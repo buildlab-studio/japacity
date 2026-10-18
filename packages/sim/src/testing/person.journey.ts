@@ -65,7 +65,7 @@ export function setPeople(game: Game, change: (slice: PeopleSlice) => PeopleSlic
   game.state = { ...game.state, people: change(game.state.people) };
 }
 
-/** Meetings enough, and months enough together, that the record is not thin (R-INTERVIEW-002). */
+/** Meetings enough, and months enough together, that the record is not thin (interview:thin-record-triggers-interview). */
 function deepRecord(game: Game): Partial<Bond> {
   const { thinMoments, thinMonths } = game.content.tuning.interview;
   const moments: Moment[] = Array.from({ length: thinMoments }, (_unused, index) => ({ n: index + 1, by: index % 2 === 0 ? "me" : "them", kind: "met", spot: "beach", what: "talked", tick: 0 }));
@@ -76,7 +76,7 @@ function deepRecord(game: Game): Partial<Bond> {
 /**
  * A bond `BOND` with these facts, and a joint on `route` with `lead` leading.
  * The record is deep unless `other` says otherwise, so a dependant
- * application opens no interview of its own (R-INTERVIEW-002).
+ * application opens no interview of its own (interview:thin-record-triggers-interview).
  */
 export function joint(game: Game, route: Id<"route">, lead: "me" | "them", other: Partial<Bond> = {}): void {
   setPeople(game, (slice) => ({
@@ -86,7 +86,7 @@ export function joint(game: Game, route: Id<"route">, lead: "me" | "them", other
   }));
 }
 
-/** This side answers every question of the open interview with its first option, as a player would, and then waits for the other (R-INTERVIEW-004, 011). */
+/** This side answers every question of the open interview with its first option, as a player would, and then waits for the other (interview:answers-taken-in-order, interview:players-answer-at-own-pace). */
 export function answerInterview(game: Game): void {
   for (let open = game.state.interview.open; open !== null && open.answers.length < open.questions.length; open = game.state.interview.open) {
     const asked = open.questions[open.answers.length]!;
@@ -108,7 +108,7 @@ export function sibling(game: Game, id: string, over: Partial<PersonFacts>): voi
   setPeople(game, (slice) => ({ ...slice, bonds: { ...slice.bonds, [id]: bond({ role: "sibling", stage: "connected", facts: facts(over) }) } }));
 }
 
-/** The interview's last result, as `interview/scored` would record it (R-INTERVIEW-009). */
+/** The interview's last result, as `interview/scored` would record it (interview:result-applies-to-application). */
 export function scored(game: Game, route: Id<"route">, result: InterviewResult): void {
   game.state = { ...game.state, interview: { ...game.state.interview, open: null, last: { route, result, matched: 0, asked: 5, month: game.state.turn.month, standIn: { a: false, b: false } } } };
 }

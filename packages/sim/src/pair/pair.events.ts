@@ -4,7 +4,7 @@ import type { Id, InterviewResult, PairMoment, Proposal } from "../engine/types"
 export type Side = "a" | "b";
 
 /**
- * What the server writes into a pair record (docs/rules/pair.md R-PAIR-004),
+ * What the server writes into a pair record (pair:only-server-writes-record),
  * each from an accepted command or its events in one of the two lives. The
  * side passed with a write is the side it comes from; for `pair/stand-in-changed`
  * and `pair/deleted` it is the absent or deleted side.

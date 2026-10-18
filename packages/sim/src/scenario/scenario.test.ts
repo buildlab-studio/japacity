@@ -9,18 +9,18 @@ import { start } from "../testing/play";
 const scenarios = Object.keys(miniContent.scenario) as Id<"scenario">[];
 
 describe("starting lives", () => {
-  test.each(scenarios)("[R-SCENARIO-001] given %s, when a new state is built, then every invariant holds", (scenario) => {
+  test.each(scenarios)("[scenario:state-built-from-scenario] given %s, when a new state is built, then every invariant holds", (scenario) => {
     const state = newState(scenario, "seed", miniContent);
     expect(checkInvariants(state, miniContent)).toEqual([]);
     expect(state.scenario).toBe(scenario);
     expect(state.content).toBe(miniContent.version);
   });
 
-  test("[R-SCENARIO-001] given a scenario that is not in content, when a state is built, then it throws", () => {
+  test("[scenario:state-built-from-scenario] given a scenario that is not in content, when a state is built, then it throws", () => {
     expect(() => newState("scenario.nobody", "seed", miniContent)).toThrow(/no scenario/);
   });
 
-  test.each(scenarios)("[R-SCENARIO-002] given %s, when a new state is built, then routes are unknown, nothing is open, and only the listed obligations exist", (scenario) => {
+  test.each(scenarios)("[scenario:new-state-starts-clean] given %s, when a new state is built, then routes are unknown, nothing is open, and only the listed obligations exist", (scenario) => {
     const state = newState(scenario, "seed", miniContent);
     const entry = miniContent.scenario[scenario]!;
     for (const route of Object.values(state.route)) expect(route.state).toBe("unknown");
@@ -31,7 +31,7 @@ describe("starting lives", () => {
     expect(state.nextInstance).toBe(1 + entry.obligations.length);
   });
 
-  test.each(scenarios)("[R-SCENARIO-002] given %s, when a new state is built, then the opening balances are credited under the reason opening", (scenario) => {
+  test.each(scenarios)("[scenario:new-state-starts-clean] given %s, when a new state is built, then the opening balances are credited under the reason opening", (scenario) => {
     const state = newState(scenario, "seed", miniContent);
     const entry = miniContent.scenario[scenario]!;
     for (const [currency, given] of Object.entries(entry.pockets)) {
@@ -42,7 +42,7 @@ describe("starting lives", () => {
     expect(state.wallet.pockets.USD).toEqual({ bank: 0, cash: 0, locked: 0 });
   });
 
-  test.each(scenarios)("[R-SCENARIO-003] given %s, when the first turn is ended with every slot resting, then it is accepted", (scenario) => {
+  test.each(scenarios)("[scenario:first-turn-always-endable] given %s, when the first turn is ended with every slot resting, then it is accepted", (scenario) => {
     const game = start({ scenario });
     const result = game.endTurn([]);
     expect(result.ok).toBe(true);

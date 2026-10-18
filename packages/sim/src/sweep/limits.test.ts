@@ -1,4 +1,4 @@
-// R-ENGINE-016: every limit the player can meet is a rule of the simulation.
+// engine:limits-tested-through-step: every limit the player can meet is a rule of the simulation.
 // Each test sends the over-limit command straight through `step`, on the real
 // content, and checks the code it is rejected with; the command just inside
 // the limit is accepted, so the edge is where the rule puts it.
@@ -26,7 +26,7 @@ function centsOf(rates: Record<ForeignCurrency, number>, naira: number): number 
 /**
  * Ada, rested until the quick loan opens: under ₦100,000 and nothing on her credit mark. Since decision 0013 nothing of
  * her living is charged as a month turns at home, so resting alone never brings her under the line: each month she eats
- * by hand as the month's time allows (R-HOME-012), the meals spending about what the month's living charge took.
+ * by hand as the month's time allows (home:living-by-hand), the meals spending about what the month's living charge took.
  */
 function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
   // A meal bought: the family house's pot is free, so the meal bought is one of your own.
@@ -34,7 +34,7 @@ function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
   const play = (seed: string): Game => {
     const game = start({ scenario: "scenario.ada", seed, content });
     for (let month = 0; month < 8 && !game.view().offers.some((offer) => offer.entry === "offer.quick-loan"); month += 1) {
-      // A meal a morning until the month's free time is spent (R-TURN-010), or the money for one is gone.
+      // A meal a morning until the month's free time is spent (turn:month-lived-in-half-days), or the money for one is gone.
       for (let fed = true; fed && game.view().halfDays.spent < game.view().halfDays.free; ) fed = game.send(meal).ok;
       game.endTurn();
     }
@@ -46,24 +46,24 @@ function withQuickLoan(): { game: Game; offer: PlayerView["offers"][number] } {
   return { game, offer };
 }
 
-describe("[R-ENGINE-016] limits the player can meet", () => {
-  test("[R-ENGINE-016] [R-TURN-006] given three free slots, when a fourth slot is filled, then the turn is rejected with not-legal, and three are accepted", () => {
+describe("[engine:limits-tested-through-step] limits the player can meet", () => {
+  test("[engine:limits-tested-through-step] [turn:free-slots-per-month] given three free slots, when a fourth slot is filled, then the turn is rejected with not-legal, and three are accepted", () => {
     const game = start({ scenario: "scenario.ada", content });
     expect(game.view().freeSlots).toBe(content.tuning.turn.freeSlotsNoJob);
     game.expectRejected({ type: "turn/end", slots: [rest, rest, rest, rest] }, "not-legal");
     game.endTurn([rest, rest, rest]);
   });
 
-  test("[R-ENGINE-016] [R-TURN-006] given a job and two free slots, when a third slot is filled, then the turn is rejected with not-legal", () => {
+  test("[engine:limits-tested-through-step] [turn:free-slots-per-month] given a job and two free slots, when a third slot is filled, then the turn is rejected with not-legal", () => {
     const game = start({ scenario: "scenario.tunde", content });
     expect(game.view().freeSlots).toBe(content.tuning.turn.freeSlots);
     game.expectRejected({ type: "turn/end", slots: [rest, rest, rest] }, "not-legal");
     game.endTurn([rest, rest]);
   });
 
-  test("[R-ENGINE-016] [R-WALLET-005] given the month's bank allowance, when a purchase is one US cent over what is left, then it is rejected with bad-amount, and a purchase of exactly what is left is accepted", () => {
+  test("[engine:limits-tested-through-step] [wallet:monthly-fx-allowance] given the month's bank allowance, when a purchase is one US cent over what is left, then it is rejected with bad-amount, and a purchase of exactly what is left is accepted", () => {
     const game = start({ scenario: "scenario.tunde", content });
-    // At home the view shows the allowance (R-WALLET-005); a null here fails the test below.
+    // At home the view shows the allowance (wallet:monthly-fx-allowance); a null here fails the test below.
     const left = game.view().bankAllowanceLeft ?? -1;
     expect(left).toBeGreaterThan(0);
     const rates = official(game.view());
@@ -86,7 +86,7 @@ describe("[R-ENGINE-016] limits the player can meet", () => {
     expect(game.view().bankAllowanceLeft).toBe(0);
   });
 
-  test("[R-ENGINE-016] [R-OFFER-003] given an offer that asks for an amount, when the amount is one kobo over its max or one under its min, then the choice is rejected with bad-amount, and the min itself is accepted", () => {
+  test("[engine:limits-tested-through-step] [offer:choice-needs-conditions-and-funds] given an offer that asks for an amount, when the amount is one kobo over its max or one under its min, then the choice is rejected with bad-amount, and the min itself is accepted", () => {
     const { game, offer } = withQuickLoan();
     const range = offer.choices.find((choice) => choice.id === "take")?.pick;
     expect(range).not.toBeNull();
@@ -97,7 +97,7 @@ describe("[R-ENGINE-016] limits the player can meet", () => {
     game.accept({ type: "offer/choose", offer: offer.id, choice: "take", amount: min });
   });
 
-  test("[R-ENGINE-016] [R-OBLIGATION-008] given a loan, when a payment is one kobo over what is owed, then it is rejected with bad-amount, and paying exactly what is owed closes it", () => {
+  test("[engine:limits-tested-through-step] [obligation:paying-down-obligations] given a loan, when a payment is one kobo over what is owed, then it is rejected with bad-amount, and paying exactly what is owed closes it", () => {
     const { game, offer } = withQuickLoan();
     const min = offer.choices.find((choice) => choice.id === "take")!.pick!.min;
     game.accept({ type: "offer/choose", offer: offer.id, choice: "take", amount: min });
@@ -109,26 +109,26 @@ describe("[R-ENGINE-016] limits the player can meet", () => {
     expect(game.view().obligations.some((item) => item.id === loan!.id)).toBe(false);
   });
 
-  test("[R-ENGINE-016] [R-OBLIGATION-008] given upkeep, when it is paid ahead, then it is rejected with not-legal", () => {
+  test("[engine:limits-tested-through-step] [obligation:paying-down-obligations] given upkeep, when it is paid ahead, then it is rejected with not-legal", () => {
     const game = start({ scenario: "scenario.ada", content });
     const upkeep = game.view().obligations.find((item) => item.entry === "obligation.upkeep");
     expect(upkeep).toBeDefined();
     game.expectRejected({ type: "obligation/pay", obligation: upkeep!.id, amount: 100 }, "not-legal");
   });
 
-  test("[R-ENGINE-016] [R-ROUTE-008] given no offer from the school, when the deposit is paid, then it is rejected with not-legal", () => {
+  test("[engine:limits-tested-through-step] [route:deposit-secures-school] given no offer from the school, when the deposit is paid, then it is rejected with not-legal", () => {
     const game = readyLife(content);
     expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(content.school[NORTHGATE]!.deposit);
     game.expectRejected({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE }, "not-legal");
   });
 
-  test("[R-ENGINE-016] [R-ROUTE-020] given no grant, when the character departs, then it is rejected with not-legal", () => {
+  test("[engine:limits-tested-through-step] [route:departure-pays-flight] given no grant, when the character departs, then it is rejected with not-legal", () => {
     const game = start({ scenario: "scenario.tunde", content });
     expect(game.state.wallet.pockets.NGN.bank).toBeGreaterThan(160000000);
     game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
-  test("[R-ENGINE-016] [R-SETPIECE-003] given the interview open, when a later question is answered first, then it is rejected with not-legal, and with no set piece open any answer is", () => {
+  test("[engine:limits-tested-through-step] [route:set-piece-answers-in-order] given the interview open, when a later question is answered first, then it is rejected with not-legal, and with no set piece open any answer is", () => {
     const quiet = start({ scenario: "scenario.ada", content });
     quiet.expectRejected({ type: "setpiece/answer", question: "why-uk", answer: "course" }, "not-legal");
 
@@ -148,7 +148,7 @@ describe("[R-ENGINE-016] limits the player can meet", () => {
     game.accept({ type: "setpiece/answer", question: first!, answer: answerTo(first!) });
   });
 
-  test("[R-ENGINE-016] [R-TURN-005] given a player, when it sends turns/grant, then it is rejected with not-yours", () => {
+  test("[engine:limits-tested-through-step] [turn:only-authority-grants-turns] given a player, when it sends turns/grant, then it is rejected with not-yours", () => {
     const game = start({ scenario: "scenario.zainab", content });
     game.expectRejected({ type: "turns/grant", count: 1 }, "not-yours", "player");
     const banked = game.state.turn.banked;

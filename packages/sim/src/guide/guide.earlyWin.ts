@@ -1,10 +1,10 @@
-// The early win (docs/rules/guide.md R-GUIDE-014): a report line of tone good
+// The early win (guide:early-win-in-three-turns): a report line of tone good
 // that follows from the player's own choice. The client's ask gate
-// (R-GUIDE-015), the nightly count (R-ANALYTICS-011) and the first-session
+// (guide:nothing-asked-before-early-win), the nightly count (analytics:day-one-and-seven-return) and the first-session
 // test read this one definition.
 import type { Command, Id, ReportLine, SlotPick } from "../engine/types";
 
-/** Pay from a job or a gig, and the job the sure first hunt lands, the good line R-GUIDE-014 makes certain. */
+/** Pay from a job or a gig, and the job the sure first hunt lands, the good line guide:early-win-in-three-turns makes certain. */
 const PAY = new Set([
   "line.activity.salary",
   "line.activity.salary-first-foreign",

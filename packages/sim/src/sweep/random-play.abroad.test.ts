@@ -14,7 +14,7 @@ import { atFlight, COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-
 /** The first recording of each life, which flies the study route; the second has a file of its own. */
 const FLOWN = Object.keys(lifeSaves).filter((name) => !name.endsWith("-abroad"));
 const NAMES: StrategyName[] = ["careful", "borrower", "risky"];
-const RULES = "[R-ENGINE-001] [R-ENGINE-007] [R-ENGINE-010] [R-ENGINE-011] [R-WALLET-002] [R-QUALITY-001] [R-PLACE-004]";
+const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range] [place:return-home-paid-or-assisted]";
 
 describe("random play abroad", () => {
   for (const name of FLOWN) {

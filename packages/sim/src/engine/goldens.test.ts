@@ -13,7 +13,7 @@ import { lifeStart, loadSave } from "./replay";
 const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent, [realContent.version]: realContent };
 
 describe("golden replays", () => {
-  test("[R-ENGINE-010] given the golden scripts, when compared with the blessed files, then every script has a golden and no golden is stale", () => {
+  test("[engine:state-is-plain-data] given the golden scripts, when compared with the blessed files, then every script has a golden and no golden is stale", () => {
     expect(goldens.map((golden) => golden.name).sort()).toEqual(goldenScripts.map((script) => script.name).sort());
     for (const script of goldenScripts) {
       expect(goldens.find((golden) => golden.name === script.name)?.save).toEqual(script.save);
@@ -21,7 +21,7 @@ describe("golden replays", () => {
   });
 
   test.each(goldens.map((golden) => [golden.name, golden] as const))(
-    "[R-ENGINE-001] [R-ENGINE-010] given the golden %s, when its save is replayed, then every month's figures and the final hash match",
+    "[engine:same-inputs-same-result] [engine:state-is-plain-data] given the golden %s, when its save is replayed, then every month's figures and the final hash match",
     (_name, golden) => {
       const version = loadSave(golden.save).segments[0]!.content;
       const content = CONTENTS[version];

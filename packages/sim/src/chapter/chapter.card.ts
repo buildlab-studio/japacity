@@ -1,4 +1,4 @@
-// The share card's common fields (docs/rules/share.md R-SHARE-001, 002, 004).
+// The share card's common fields (share:cards-due-at-set-moments, share:no-card-for-harm, share:card-contents).
 // Each kind says when its own card is due; this file fills the rest the same
 // way for all of them. A card is read from the state and never stored.
 import { QUALITY } from "../engine/ids";
@@ -10,8 +10,8 @@ export type Card = NonNullable<PlayerView["card"]>;
 export type CardKind = Card["kind"];
 
 /**
- * The activities played in the most months (R-ACTIVITY-012), most first, then by id. An act that repeats counts each
- * time it is done (R-ACTIVITY-019), so its count is read as months: a month's worth is `tuning.turn.repeatPerSlot`.
+ * The activities played in the most months (activity:months-played-counted), most first, then by id. An act that repeats counts each
+ * time it is done (activity:acts-may-repeat-in-month), so its count is read as months: a month's worth is `tuning.turn.repeatPerSlot`.
  */
 export function topActivities(state: State, content: Content): Id<"activity">[] {
   const monthsOf = (id: Id<"activity">, count: number): number =>
@@ -34,7 +34,7 @@ export function reportLines(read: ReadCtx, key: string): ReportLine[] {
 }
 
 /**
- * R-SHARE-002: no card for a moment on the road chain or after the life has
+ * share:no-card-for-harm: no card for a moment on the road chain or after the life has
  * ended; the road's own cards are the only ones there.
  */
 export function cardsAllowed(read: ReadCtx): boolean {
@@ -42,10 +42,10 @@ export function cardsAllowed(read: ReadCtx): boolean {
 }
 
 /**
- * R-SHARE-004: the card for a moment. `route` is the moment's own route where
+ * share:card-contents: the card for a moment. `route` is the moment's own route where
  * it has one, else the route of the character's japacity figure; `chapter` is
  * the chapter a chapter card closes, else the chapter current.
- * `name` is the player's own choice (R-SHARE-008) and nothing in the state
+ * `name` is the player's own choice (share:card-shows-only-own-character) and nothing in the state
  * holds one; the first name is words (`share.first-name.<scenario>`),
  * which the simulation does not read, so it stays null and the client names
  * the character, as `apps/client/src/shared/share/face.ts` does.

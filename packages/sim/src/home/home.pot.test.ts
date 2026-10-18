@@ -1,4 +1,4 @@
-// The family house's pot and a home of your own's (home.md R-HOME-012): at the family house the pot is
+// The family house's pot and a home of your own's (home:living-by-hand): at the family house the pot is
 // the house's, so eating from it costs nothing and the big pot is foodstuff bought for the house; in a home of your own a
 // meal and a pot cost what they cost. Each corner offers its own acts by id in its place file; the simulation charges an
 // act what its entry says, wherever it is done.
@@ -42,7 +42,7 @@ function price(activity: Id<"activity">): number {
 }
 
 describe("the family house's pot", () => {
-  test("[R-HOME-012] [R-OBLIGATION-014] given Ada at the family house, when she eats from the pot, then no money moves and she is fed: the pot is the house's", () => {
+  test("[home:living-by-hand] [obligation:cooking-and-fetching-water] given Ada at the family house, when she eats from the pot, then no money moves and she is fed: the pot is the house's", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(game.view().home.place).toBe("place.family-house");
     expect(content.activity[POT]?.cost).toEqual([]);
@@ -54,7 +54,7 @@ describe("the family house's pot", () => {
     expect(quality(game, BELLY)).toBeGreaterThan(hungry);
   });
 
-  test("[R-HOME-012] given Ada at the family house, when she buys the big pot for the house, then ₦7,500 goes out under foodstuff, the house eats and her standing rises", () => {
+  test("[home:living-by-hand] given Ada at the family house, when she buys the big pot for the house, then ₦7,500 goes out under foodstuff, the house eats and her standing rises", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(price(BIG_POT)).toBe(7_500_00);
     const before = naira(game);
@@ -67,7 +67,7 @@ describe("the family house's pot", () => {
 });
 
 describe("a home of your own's corner", () => {
-  test("[R-HOME-012] given Ada moved into the room in a compound, when she cooks her own meal and her own pot, then ₦1,500 and ₦7,500 go out under food, as the room's meals always cost", () => {
+  test("[home:living-by-hand] given Ada moved into the room in a compound, when she cooks her own meal and her own pot, then ₦1,500 and ₦7,500 go out under food, as the room's meals always cost", () => {
     const game = start({ content, scenario: "scenario.ada" });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 5_000_000_00, reason: "gift" }]);
     game.accept({ type: "home/move", to: "place.compound-room" });
@@ -77,7 +77,7 @@ describe("a home of your own's corner", () => {
     expect(taken(eat(game, OWN_POT))).toEqual([{ reason: "food", amount: 7_500_00 }]);
   });
 
-  test("[R-HOME-012] given the four cooking acts, when their entries are read, then the pot and the big pot are the family house's, at home only, and a meal of your own in naira is had at home only, the room abroad cooking in pounds; each lifts the belly as before", () => {
+  test("[home:living-by-hand] given the four cooking acts, when their entries are read, then the pot and the big pot are the family house's, at home only, and a meal of your own in naira is had at home only, the room abroad cooking in pounds; each lifts the belly as before", () => {
     expect(content.activity[POT]?.where).toBe("home");
     expect(content.activity[BIG_POT]?.where).toBe("home");
     // No naira is charged abroad; in the UK the room's meal is activity.cook-own-uk.

@@ -5,7 +5,7 @@ export type TurnEvent =
   | { type: "turn/granted"; count: number; banked: number }
   /** One banked turn was spent and the month went up by one. */
   | { type: "turn/spent"; month: number; banked: number }
-  /** A now-act spent free time of the month in half-days; `spent` is the month's total so far (R-TURN-010). */
+  /** A now-act spent free time of the month in half-days; `spent` is the month's total so far (turn:month-lived-in-half-days). */
   | { type: "turn/days-spent"; halfDays: number; spent: number }
   /** The bank was filled to the cap. */
   | { type: "turn/refilled"; banked: number }
@@ -13,7 +13,7 @@ export type TurnEvent =
   | { type: "turn/finished" }
   /** The month's report was stored. */
   | { type: "turn/ended"; report: TurnReport }
-  /** Free slots were locked until `untilMonth` (R-TURN-009). */
+  /** Free slots were locked until `untilMonth` (turn:slots-can-be-locked). */
   | { type: "turn/locked"; slots: number; untilMonth: number; why: string }
   /** Locks whose month has passed were dropped. */
   | { type: "turn/unlocked"; why: string[] };

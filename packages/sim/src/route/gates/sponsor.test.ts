@@ -1,4 +1,4 @@
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content, text } from "@japacity/content";
@@ -28,7 +28,7 @@ const SKILLED_BAR = content.var["var.uk-skilled-salary"]!.start;
 const MAINTENANCE = content.var["var.uk-skilled-maintenance"]!.start;
 const CARE_FEE = content.var["var.uk-care-visa-fee"]!.start;
 
-/** The floor and the ceiling of R-ROUTE-016 pinned together: never refused, or always. */
+/** The floor and the ceiling of route:visa-refusal-chance pinned together: never refused, or always. */
 const ALWAYS_REFUSED: Partial<Tuning["route"]> = { refusalMinBp: 10000, refusalMaxBp: 10000 };
 
 /** Everything the care route asks for, in date: passport, licence, verification, English at band 4.0, TB. */
@@ -59,7 +59,7 @@ function working(job: Id<"activity"> | null, tenure: Record<Id<"activity">, numb
   return (used) => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, job, tenure } } });
 }
 
-/** Ngozi with the care route's papers in hand and the care window opened by the world (R-SPONSOR-005). */
+/** Ngozi with the care route's papers in hand and the care window opened by the world (route-gates:care-route-needs-verification). */
 function ngozi(options: LifeOptions = {}): Game {
   return readyLife(content, { from: "scenario.ngozi", documents: CARE_PAPERS, quiet: true, vars: () => ({ "var.uk-care-window": 2 }), ...options });
 }
@@ -134,7 +134,7 @@ function runAsCommand(game: Game, run: (ctx: Ctx) => void): void {
 }
 
 describe("the sponsor gate's place in the route kind", () => {
-  test("[R-GATE-001] given the UK master's known, when a sponsor is recorded on it, then the study gate is untouched", () => {
+  test("[route-gates:route-runs-its-gate-steps] given the UK master's known, when a sponsor is recorded on it, then the study gate is untouched", () => {
     const game = readyLife(content, { quiet: true });
     for (let month = 0; month < 5 && routeOf(game, UK_ROUTE).state !== "heard"; month += 1) game.endTurn();
     game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
@@ -144,19 +144,19 @@ describe("the sponsor gate's place in the route kind", () => {
     expect(routeOf(game, UK_ROUTE).gate).toEqual({ gate: "study" });
   });
 
-  test("[R-GATE-001] given the care route, when its steps are asked for, then only `sponsor` and `salary` are named and any other step is never reached", () => {
+  test("[route-gates:route-runs-its-gate-steps] given the care route, when its steps are asked for, then only `sponsor` and `salary` are named and any other step is never reached", () => {
     const game = readyToApply();
     expect(sponsorGate.steps).toEqual(["sponsor", "salary"]);
     expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "sponsor" })).toBe(true);
     expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "pool" })).toBe(false);
   });
 
-  test("[R-GATE-001] given a fresh sponsor route, when it starts, then no sponsor is recorded", () => {
+  test("[route-gates:route-runs-its-gate-steps] given a fresh sponsor route, when it starts, then no sponsor is recorded", () => {
     expect(sponsorGate.initial()).toEqual({ gate: "sponsor", sponsor: null });
     expect(unknownRoute("sponsor").gate).toEqual({ gate: "sponsor", sponsor: null });
   });
 
-  test("[R-GATE-002] given the sponsor gate, when its decision is asked for, then the draw reads strictness, earlier refusals and the good grade, and not the unexplained share or the interview", () => {
+  test("[route-gates:gate-decision-draw-terms] given the sponsor gate, when its decision is asked for, then the draw reads strictness, earlier refusals and the good grade, and not the unexplained share or the interview", () => {
     const game = readyToApply();
     const decision = sponsorGate.decision(readOf(game), care, routeOf(game, CARE_ROUTE));
     expect(decision.terms).toEqual({ strictness: true, unexplained: false, refusals: true, interview: false, goodGrade: true });
@@ -164,8 +164,8 @@ describe("the sponsor gate's place in the route kind", () => {
   });
 });
 
-describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
-  test("[R-SPONSOR-001] given the care route known, when its window is open or closed, then the care home's offer may come up only while it is open", () => {
+describe("route-gates:sponsor-offers-come-up: sponsor offers and looking for one", () => {
+  test("[route-gates:sponsor-offers-come-up] given the care route known, when its window is open or closed, then the care home's offer may come up only while it is open", () => {
     const open = ngozi();
     toKnown(open, CARE_ROUTE);
     const when = content.offer["offer.sponsor-care-home"]!.when;
@@ -177,7 +177,7 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     expect(when.every((requirement) => judge(shut, requirement))).toBe(false);
   });
 
-  test("[R-SPONSOR-001] given a route's find figure, when the chance is worked out, then it adds 20 for each point of network and stops at 9500", () => {
+  test("[route-gates:sponsor-offers-come-up] given a route's find figure, when the chance is worked out, then it adds 20 for each point of network and stops at 9500", () => {
     const quality = content.tuning.quality;
     expect(findChanceBp(care, 0, quality)).toBe(care.sponsor!.findBp);
     expect(findChanceBp(care, 25, quality)).toBe(care.sponsor!.findBp + 20 * 25);
@@ -187,7 +187,7 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     expect(findChanceBp(near, 26, quality)).toBe(9500);
   });
 
-  test("[R-SPONSOR-001] given the care route known, when a sponsor is looked for, then one draw on `job` at the route's chance decides whether one care offer opens at once", () => {
+  test("[route-gates:sponsor-offers-come-up] given the care route known, when a sponsor is looked for, then one draw on `job` at the route's chance decides whether one care offer opens at once", () => {
     let hits = 0;
     let misses = 0;
     for (let index = 0; index < 40; index += 1) {
@@ -211,7 +211,7 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     expect(misses).toBeGreaterThan(0);
   });
 
-  test("[R-SPONSOR-001] given the care route known, when a sponsor is looked for and none answers, then the month's results say so in the sim's own words, and a find that answers says no such thing", () => {
+  test("[route-gates:sponsor-offers-come-up] given the care route known, when a sponsor is looked for and none answers, then the month's results say so in the sim's own words, and a find that answers says no such thing", () => {
     let misses = 0;
     for (let index = 0; index < 30; index += 1) {
       const seed = `missed-${String(index)}`;
@@ -236,7 +236,7 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     expect(text["line.route.sponsor-missed"]).toBe("No trust answered this month. The search goes on.");
   });
 
-  test("[R-SPONSOR-001] given the care window closed, when a sponsor is looked for, then nothing is drawn and nothing opens", () => {
+  test("[route-gates:sponsor-offers-come-up] given the care window closed, when a sponsor is looked for, then nothing is drawn and nothing opens", () => {
     const game = ngozi({ vars: (tick) => ({ "var.uk-care-window": tick < 5 ? 2 : 0 }) });
     toKnown(game, CARE_ROUTE);
     for (let month = 0; month < 6; month += 1) game.endTurn();
@@ -248,8 +248,8 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
   });
 });
 
-describe("R-SPONSOR-002: taking a sponsor", () => {
-  test("[R-SPONSOR-002] given the care home's honest take, when it is carried out, then the employer and the drawn salary are recorded and no money moves", () => {
+describe("route-gates:taking-sponsor-records-it: taking a sponsor", () => {
+  test("[route-gates:taking-sponsor-records-it] given the care home's honest take, when it is carried out, then the employer and the drawn salary are recorded and no money moves", () => {
     const game = ngozi();
     toKnown(game, CARE_ROUTE);
     const wallet = game.state.wallet;
@@ -258,7 +258,7 @@ describe("R-SPONSOR-002: taking a sponsor", () => {
     expect(game.state.wallet).toEqual(wallet);
   });
 
-  test("[R-SPONSOR-002] [R-WALLET-018] given the care home's fraud, when it is taken, then its fee, over the line for cash, leaves the bank first and cash for the rest as an agent's fee, and a sponsor is recorded all the same", () => {
+  test("[route-gates:taking-sponsor-records-it] [wallet:money-lands-as-in-lagos] given the care home's fraud, when it is taken, then its fee, over the line for cash, leaves the bank first and cash for the rest as an agent's fee, and a sponsor is recorded all the same", () => {
     const pockets = { NGN: { bank: 2000000 * UNIT, cash: 6000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } };
     const honest = ngozi({ pockets });
     const fraud = ngozi({ pockets });
@@ -279,27 +279,27 @@ describe("R-SPONSOR-002: taking a sponsor", () => {
     expect(view(fraud)).toEqual(view(honest));
   });
 
-  test("[R-SPONSOR-002] given the trust's take, when its record names a salary, then that salary is recorded", () => {
+  test("[route-gates:taking-sponsor-records-it] given the trust's take, when its record names a salary, then that salary is recorded", () => {
     const game = ngozi();
     toKnown(game, CARE_ROUTE);
     applyEffects(game, offerEffects("offer.sponsor-trust", false), { salary: 3130000 });
     expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: 3130000 } });
   });
 
-  test("[R-SPONSOR-002] given the care route only heard of, when a sponsor's take arrives, then nothing is recorded", () => {
+  test("[route-gates:taking-sponsor-records-it] given the care route only heard of, when a sponsor's take arrives, then nothing is recorded", () => {
     const game = ngozi();
     applyEffects(game, [{ type: "route/hear", route: CARE_ROUTE, via: "friend" }]);
     takeSponsor(game, CARE_ROUTE, CARE_BAR);
     expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: null });
   });
 
-  test("[R-SPONSOR-002] given a sponsor recorded, when a second one is taken, then the second replaces it", () => {
+  test("[route-gates:taking-sponsor-records-it] given a sponsor recorded, when a second one is taken, then the second replaces it", () => {
     const game = readyToApply();
     takeSponsor(game, CARE_ROUTE, 2800000, false, "trust");
     expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: 2800000 } });
   });
 
-  test("[R-SPONSOR-002] given a sponsor taken, when it is carried out, then a line names the route, and one under the bar says it cannot be used", () => {
+  test("[route-gates:taking-sponsor-records-it] given a sponsor taken, when it is carried out, then a line names the route, and one under the bar says it cannot be used", () => {
     const game = ngozi();
     toKnown(game, CARE_ROUTE);
     expect(linesOf(game, [{ type: "route/record-sponsor", route: CARE_ROUTE, employer: "care-home", salary: 0, fraud: false }], { salary: CARE_BAR })).toEqual([
@@ -313,8 +313,8 @@ describe("R-SPONSOR-002: taking a sponsor", () => {
   });
 });
 
-describe("R-SPONSOR-003: applying with a sponsor", () => {
-  test("[R-SPONSOR-003] given Ngozi with an honest sponsor at the bar and every paper in hand, when she applies, then the application goes in and the care visa fee is paid", () => {
+describe("route-gates:sponsor-application-needs: applying with a sponsor", () => {
+  test("[route-gates:sponsor-application-needs] given Ngozi with an honest sponsor at the bar and every paper in hand, when she applies, then the application goes in and the care visa fee is paid", () => {
     const game = readyToApply();
     const before = pounds(game);
     game.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
@@ -322,7 +322,7 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     expect(before - pounds(game)).toBe(CARE_FEE);
   });
 
-  test("[R-SPONSOR-003] given no sponsor recorded, when Ngozi applies, then the turn is rejected", () => {
+  test("[route-gates:sponsor-application-needs] given no sponsor recorded, when Ngozi applies, then the turn is rejected", () => {
     const game = ngozi();
     toKnown(game, CARE_ROUTE);
     expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
@@ -334,12 +334,12 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     ["the verification", "document.nmcn-verification"],
     ["the English result", "document.english-test"],
     ["the TB certificate", "document.tb-certificate"],
-  ] as const)("[R-SPONSOR-003] given everything but %s, when Ngozi applies, then the turn is rejected", (_name, document) => {
+  ] as const)("[route-gates:sponsor-application-needs] given everything but %s, when Ngozi applies, then the turn is rejected", (_name, document) => {
     const game = readyToApply({ documents: without(CARE_PAPERS, document) });
     expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-SPONSOR-003] given an English band one under the route's 40, when Ngozi applies, then the turn is rejected; at 40 it goes in", () => {
+  test("[route-gates:sponsor-application-needs] given an English band one under the route's 40, when Ngozi applies, then the turn is rejected; at 40 it goes in", () => {
     const under = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin - 1) });
     expect(under.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
     const at = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin) });
@@ -347,7 +347,7 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     expect(routeOf(at, CARE_ROUTE).state).toBe("applying");
   });
 
-  test("[R-SPONSOR-003] given a sponsor one penny a year under the care bar, when Ngozi applies, then the turn is rejected; at the bar it goes in", () => {
+  test("[route-gates:sponsor-application-needs] given a sponsor one penny a year under the care bar, when Ngozi applies, then the turn is rejected; at the bar it goes in", () => {
     const under = ngozi();
     toKnown(under, CARE_ROUTE);
     takeSponsor(under, CARE_ROUTE, CARE_BAR - 1);
@@ -359,7 +359,7 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     expect(routeOf(at, CARE_ROUTE).state).toBe("applying");
   });
 
-  test("[R-SPONSOR-003] given a qualification paper missing, when the gate is asked, then applying is held back even past the slot", () => {
+  test("[route-gates:sponsor-application-needs] given a qualification paper missing, when the gate is asked, then applying is held back even past the slot", () => {
     const game = readyToApply();
     const ready = routeOf(game, CARE_ROUTE);
     const cause = { source: APPLY_CARE, param: null, terms: {} };
@@ -371,15 +371,15 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
   });
 });
 
-describe("R-SPONSOR-004: the sponsor's decision", () => {
-  test("[R-SPONSOR-004] given an honest sponsor and the draw pinned to grant, when the decision month ends, then the visa is granted", () => {
+describe("route-gates:fraud-sponsor-refused: the sponsor's decision", () => {
+  test("[route-gates:fraud-sponsor-refused] given an honest sponsor and the draw pinned to grant, when the decision month ends, then the visa is granted", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY_CARE)]);
     game.endTurn();
     expect(routeOf(game, CARE_ROUTE).state).toBe("granted");
   });
 
-  test("[R-SPONSOR-004] given an honest sponsor and the draw pinned to refuse, when the decision month ends, then the refusal gives no sponsor reason and bans nothing", () => {
+  test("[route-gates:fraud-sponsor-refused] given an honest sponsor and the draw pinned to refuse, when the decision month ends, then the refusal gives no sponsor reason and bans nothing", () => {
     const game = readyToApply({ tuning: ALWAYS_REFUSED });
     game.endTurn([slot(APPLY_CARE)]);
     expect(sponsorGate.decision(readOf(game), care, routeOf(game, CARE_ROUTE))).toMatchObject({ override: null, bans: false });
@@ -388,13 +388,13 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
     expect(routeOf(game, CARE_ROUTE).lastRefusal?.reasons).not.toContain("sponsor");
   });
 
-  test("[R-SPONSOR-004] given a fraud sponsor and the draw pinned to grant, when the decision month ends, then the visa is refused with the reason sponsor and no visa draw is made", () => {
+  test("[route-gates:fraud-sponsor-refused] given a fraud sponsor and the draw pinned to grant, when the decision month ends, then the visa is refused with the reason sponsor and no visa draw is made", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
     hideFraud(game, CARE_ROUTE);
     game.endTurn([slot(APPLY_CARE)]);
     const draws = game.state.draws.visa ?? 0;
     game.endTurn();
-    // R-GATE-005: the deception refusal bans the route into the country.
+    // route-gates:deception-bans-country: the deception refusal bans the route into the country.
     expect(routeOf(game, CARE_ROUTE).state).toBe("refused");
     expect(routeOf(game, CARE_ROUTE).bannedUntil).not.toBeNull();
     expect(routeOf(game, CARE_ROUTE).lastRefusal?.reasons[0]).toBe("sponsor");
@@ -402,7 +402,7 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
   });
 
   test.prop([fc.integer({ min: 0, max: 10000 }), fc.integer({ min: -12, max: 12 }), fc.integer({ min: 0, max: 100 }), fc.integer({ min: 0, max: 4 }), fc.integer({ min: 0, max: 5 })])(
-    "[R-SPONSOR-004] given any file, when an honest sponsor's chance is worked out, then it is the base plus 10 a strictness point plus 800 a refusal less 200 for a second upper, and the unexplained share and the interview never move it",
+    "[route-gates:fraud-sponsor-refused] given any file, when an honest sponsor's chance is worked out, then it is the base plus 10 a strictness point plus 800 a refusal less 200 for a second upper, and the unexplained share and the interview never move it",
     (unexplainedBp, interviewScore, strictness, refusals, grade) => {
       const held: RouteState = { ...unknownRoute("sponsor"), state: "applying", refusals };
       const read = { state: { route: { [CARE_ROUTE]: held } }, world: { vars: {} }, content } as unknown as ReadCtx;
@@ -414,8 +414,8 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
   );
 });
 
-describe("R-GATE-005: the deception ban", () => {
-  test("[R-GATE-005] given a fraud sponsor, when the decision is asked for, then its refusal is the one that bans; an honest sponsor's never does", () => {
+describe("route-gates:deception-bans-country: the deception ban", () => {
+  test("[route-gates:deception-bans-country] given a fraud sponsor, when the decision is asked for, then its refusal is the one that bans; an honest sponsor's never does", () => {
     const game = readyToApply();
     hideFraud(game, CARE_ROUTE);
     expect(sponsorGate.decision(readOf(game), care, routeOf(game, CARE_ROUTE))).toMatchObject({ override: "sponsor", bans: true });
@@ -424,20 +424,20 @@ describe("R-GATE-005: the deception ban", () => {
   });
 });
 
-describe("R-SPONSOR-005: the care route's papers and window", () => {
-  test("[R-SPONSOR-005] given the care window as content starts it, closed, when Ngozi applies with everything in hand, then the turn is rejected", () => {
+describe("route-gates:care-route-needs-verification: the care route's papers and window", () => {
+  test("[route-gates:care-route-needs-verification] given the care window as content starts it, closed, when Ngozi applies with everything in hand, then the turn is rejected", () => {
     expect(content.var["var.uk-care-window"]!.start).toBe(0);
     const game = readyToApply({ vars: () => ({}) });
     expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-SPONSOR-005] given the care window closed, when Ngozi meets the care bar, then she still hears of the route", () => {
+  test("[route-gates:care-route-needs-verification] given the care window closed, when Ngozi meets the care bar, then she still hears of the route", () => {
     const game = readyLife(content, { from: "scenario.ngozi", quiet: true });
     for (let month = 0; month < care.hearBy! + 1 && routeOf(game, CARE_ROUTE).state === "unknown"; month += 1) game.endTurn();
     expect(routeOf(game, CARE_ROUTE).state).toBe("heard");
   });
 
-  test("[R-SPONSOR-005] given 23 months in a nursing job, when the verification is requested, then the turn is rejected; at 24 it is being made", () => {
+  test("[route-gates:care-route-needs-verification] given 23 months in a nursing job, when the verification is requested, then the turn is rejected; at 24 it is being made", () => {
     const papers = without(CARE_PAPERS, "document.nmcn-verification");
     const short = ngozi({ documents: papers, change: working(null, { "activity.job-nurse": 23 }) });
     expect(short.expectRejected({ type: "activity/now", activity: "activity.request-verification", param: null }, "not-legal").code).toBe("not-legal");
@@ -446,11 +446,11 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
     expect(judge(enough, { type: "document/pending", document: "document.nmcn-verification" })).toBe(true);
   });
 
-  test("[R-SPONSOR-005] given the care route, when its qualification papers are listed, then they are the licence and the verification", () => {
+  test("[route-gates:care-route-needs-verification] given the care route, when its qualification papers are listed, then they are the licence and the verification", () => {
     expect(care.sponsor!.documents).toEqual(["document.nursing-licence", "document.nmcn-verification"]);
   });
 
-  test("[R-SPONSOR-005] [R-JAPACITY-001] [R-JAPACITY-004] given the care checklist, when it is read, then the clinic's certificate is an item held or not with the checklist's smallest weight, the application's weight gave it up, and the weights still add up to 100", () => {
+  test("[route-gates:care-route-needs-verification] [japacity:figure-sums-checklist-items] [japacity:figure-is-whole-percent] given the care checklist, when it is read, then the clinic's certificate is an item held or not with the checklist's smallest weight, the application's weight gave it up, and the weights still add up to 100", () => {
     const weights = care.checklist.map((item) => item.weight);
     const certificate = care.checklist.find((item) => item.id === "certificate");
     expect(certificate).toEqual({ id: "certificate", weight: Math.min(...care.checklist.filter((item) => item.id !== "certificate").map((item) => item.weight)), requirement: { type: "document/held", document: "document.nurse-certificate" }, partial: false });
@@ -461,7 +461,7 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
     expect(text[`${CARE_ROUTE}.item.certificate.way`]).toContain("clinic");
   });
 
-  test("[R-SPONSOR-005] [R-JAPACITY-001] given Ngozi with care work known and the same papers but for the clinic's certificate, when the figures are read, then the certified nurse's is higher by the item's weight", () => {
+  test("[route-gates:care-route-needs-verification] [japacity:figure-sums-checklist-items] given Ngozi with care work known and the same papers but for the clinic's certificate, when the figures are read, then the certified nurse's is higher by the item's weight", () => {
     const certified = ngozi({ documents: [...CARE_PAPERS, { document: "document.nurse-certificate", monthsLeft: null, value: null }] });
     const plain = ngozi();
     toKnown(certified, CARE_ROUTE);
@@ -473,8 +473,8 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
   });
 });
 
-describe("R-SPONSOR-006: the skilled route", () => {
-  test("[R-SPONSOR-006] given 23 months of work and a degree, when talk of the skilled route arrives, then it is not heard; at 24 months it is", () => {
+describe("route-gates:skilled-route-needs-degree: the skilled route", () => {
+  test("[route-gates:skilled-route-needs-degree] given 23 months of work and a degree, when talk of the skilled route arrives, then it is not heard; at 24 months it is", () => {
     const short = worker({ change: working(null, { "activity.job-teacher": 23 }) });
     applyEffects(short, [{ type: "route/hear", route: SKILLED, via: "friend" }]);
     expect(routeOf(short, SKILLED).state).toBe("unknown");
@@ -483,7 +483,7 @@ describe("R-SPONSOR-006: the skilled route", () => {
     expect(routeOf(enough, SKILLED).state).toBe("heard");
   });
 
-  test("[R-SPONSOR-006] given a skilled sponsor one penny under the bar, when the route is viewed, then the salary item is unmet and the sponsor cannot be used; at the bar it is met", () => {
+  test("[route-gates:skilled-route-needs-degree] given a skilled sponsor one penny under the bar, when the route is viewed, then the salary item is unmet and the sponsor cannot be used; at the bar it is met", () => {
     const game = worker();
     toKnown(game, SKILLED);
     takeSponsor(game, SKILLED, SKILLED_BAR - 1, false, "agency");
@@ -497,7 +497,7 @@ describe("R-SPONSOR-006: the skilled route", () => {
     expect(routeOf(game, SKILLED).state).toBe("applying");
   });
 
-  test("[R-SPONSOR-003] given a skilled sponsor just taken, when the maintenance funds have not been held over a month end, then applying is rejected; after one covered month end it goes in", () => {
+  test("[route-gates:sponsor-application-needs] given a skilled sponsor just taken, when the maintenance funds have not been held over a month end, then applying is rejected; after one covered month end it goes in", () => {
     const game = worker();
     toKnown(game, SKILLED);
     takeSponsor(game, SKILLED, 5000000, false, "tech-firm");
@@ -511,7 +511,7 @@ describe("R-SPONSOR-006: the skilled route", () => {
   test.each([
     [MAINTENANCE, true, 1],
     [MAINTENANCE - 1, false, 0],
-  ])("[R-SPONSOR-003] given %i pence shown with a skilled sponsor, when the month ends, then the maintenance is covered: %s", (shown, covered, heldMonths) => {
+  ])("[route-gates:sponsor-application-needs] given %i pence shown with a skilled sponsor, when the month ends, then the maintenance is covered: %s", (shown, covered, heldMonths) => {
     const game = worker({ pockets: { NGN: { bank: 0, cash: 1500000 * UNIT }, GBP: { bank: shown, cash: 0 } } });
     toKnown(game, SKILLED);
     takeSponsor(game, SKILLED, 5000000, false, "tech-firm");
@@ -519,7 +519,7 @@ describe("R-SPONSOR-006: the skilled route", () => {
     expect(routeOf(game, SKILLED).funds).toEqual({ heldMonths, covered, shown, required: MAINTENANCE });
   });
 
-  test("[R-SPONSOR-003] given the care route, which has no maintenance line, when months pass with a sponsor, then no funds check runs", () => {
+  test("[route-gates:sponsor-application-needs] given the care route, which has no maintenance line, when months pass with a sponsor, then no funds check runs", () => {
     const game = readyToApply();
     const funds = routeOf(game, CARE_ROUTE).funds;
     game.endTurn();
@@ -527,8 +527,8 @@ describe("R-SPONSOR-006: the skilled route", () => {
   });
 });
 
-describe("R-SPONSOR-007: departure on a sponsor", () => {
-  test("[R-SPONSOR-007] given a granted care visa, when Ngozi flies, then she is in the UK on the sponsored status", () => {
+describe("route-gates:sponsored-status-on-departure: departure on a sponsor", () => {
+  test("[route-gates:sponsored-status-on-departure] given a granted care visa, when Ngozi flies, then she is in the UK on the sponsored status", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY_CARE)]);
     game.endTurn();
@@ -538,7 +538,7 @@ describe("R-SPONSOR-007: departure on a sponsor", () => {
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uk" });
   });
 
-  test("[R-SPONSOR-007] [R-LADDER-005] [R-STATUS-003] given Ngozi nursing at home with the care visa granted, when she flies, then the sponsor's job is the one held that moment, the status is granted once, and quitting it starts the clock", () => {
+  test("[route-gates:sponsored-status-on-departure] [ladders:sponsor-job-ties-status] [status:lost-job-starts-clock] given Ngozi nursing at home with the care visa granted, when she flies, then the sponsor's job is the one held that moment, the status is granted once, and quitting it starts the clock", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY_CARE)]);
     game.endTurn();
@@ -554,7 +554,7 @@ describe("R-SPONSOR-007: departure on a sponsor", () => {
     expect(game.state.status.current).toMatchObject({ entry: "status.uk-sponsored", clock: content.status["status.uk-sponsored"]!.clockMonths });
   });
 
-  test("[R-SPONSOR-007] given each sponsor route, when its job abroad is asked for, then it is the sponsor's job for that route", () => {
+  test("[route-gates:sponsored-status-on-departure] given each sponsor route, when its job abroad is asked for, then it is the sponsor's job for that route", () => {
     expect(sponsorJob(care)).toBe("activity.job-uk-care");
     expect(sponsorJob(skilled)).toBe("activity.job-uk-skilled");
   });

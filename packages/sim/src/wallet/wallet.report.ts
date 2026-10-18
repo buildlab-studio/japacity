@@ -1,4 +1,4 @@
-// The ledger report: docs/rules/wallet.md R-WALLET-013. Pure: it reads only
+// The ledger report: wallet:ledger-report-raises-alarms. Pure: it reads only
 // the totals the ledger already keeps and the content, never the world, so the
 // authority can run it over every saved account.
 import { jobTerms, MONTHS_PER_YEAR, paidYearly } from "../activity/activity.pay";
@@ -122,8 +122,8 @@ const CEILINGS: Partial<Record<Reason, Ceiling>> = {
 };
 
 /**
- * R-WALLET-013: money created and destroyed by reason and currency, and the alarms that name an account as suspect.
- * `topUp` is the ceiling for `top-up` in naira, the processor's receipts for the account (R-WALLET-020); until they
+ * wallet:ledger-report-raises-alarms: money created and destroyed by reason and currency, and the alarms that name an account as suspect.
+ * `topUp` is the ceiling for `top-up` in naira, the processor's receipts for the account (wallet:top-ups-are-marked); until they
  * feed it, it is 0, so any top-up names the account. A top-up in any other currency has no receipts at all.
  */
 export function ledgerReport(state: State, content: Content, topUp = 0): LedgerReport {

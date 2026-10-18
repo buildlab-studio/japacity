@@ -16,7 +16,7 @@ export const ChapterEntrySchema = z
   .refine((entry) => entry.closesOn === undefined || entry.items.some((item) => item.id === entry.closesOn), {
     error: "closesOn must name one of the chapter's items.",
   })
-  // R-CHAPTER-009: a variant names both the base it stands in for and the route it is for.
+  // chapter:chapters-follow-lean-route: a variant names both the base it stands in for and the route it is for.
   .refine((entry) => (entry.route === undefined) === (entry.variantOf === undefined), {
     error: "route and variantOf go together.",
   })

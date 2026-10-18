@@ -1,5 +1,4 @@
-// Someone who went and the licensed adviser: docs/rules/advice.md R-ADVICE-003
-// and 004. Both read the route's checklist; the friend as it stood when they
+// Someone who went and the licensed adviser: advice:someone-who-went-answers-free and advice:licensed-adviser-is-truthful. Both read the route's checklist; the friend as it stood when they
 // left, the adviser as it stands now, item by item, with the months away.
 import { check } from "../engine/check";
 import type { ChecklistItem, Id, NewsEntry, ReadCtx, RouteEntry } from "../engine/types";
@@ -8,7 +7,7 @@ import { beingMade } from "../document/document.logic";
 export const FRIEND: Id<"activity"> = "activity.ask-someone-who-went";
 export const ADVISER: Id<"activity"> = "activity.see-adviser";
 
-/** What the adviser says of one route (R-ADVICE-004). */
+/** What the adviser says of one route (advice:licensed-adviser-is-truthful). */
 export interface AdviserRoute {
   route: Id<"route">;
   fits: boolean;
@@ -17,7 +16,7 @@ export interface AdviserRoute {
 }
 
 /**
- * R-ADVICE-003: the tick the person who went left. Nothing records when a
+ * advice:someone-who-went-answers-free: the tick the person who went left. Nothing records when a
  * friend, a partner abroad or a recurring person left, so they are read as
  * having left before this life's world began, at tick 0. Ticks, not
  * months, since inside a step the month and the tick move apart.
@@ -39,9 +38,9 @@ function changesTo(read: ReadCtx, route: Id<"route">): { story: NewsEntry; since
 }
 
 /**
- * R-ADVICE-003: a route's `changedMonth`, read as the world's tick: the last
+ * advice:someone-who-went-answers-free: a route's `changedMonth`, read as the world's tick: the last
  * tick a story that touches it and moves the era's variables came into force
- * or ended (one tick is one month, R-DIRECTOR-002). Null when none has.
+ * or ended (one tick is one month, director:one-era-at-a-time). Null when none has.
  * An ended story counts from when it ended, since a story that reverts
  * changes the rules again then.
  */
@@ -57,7 +56,7 @@ function changedVars(read: ReadCtx, route: Id<"route">): string[] {
 }
 
 /**
- * R-ADVICE-003: the one item a friend has wrong when the rules changed since
+ * advice:someone-who-went-answers-free: the one item a friend has wrong when the rules changed since
  * they left: the first item that reads a variable the change moved, else the
  * heaviest item, the first on a tie. Null when nothing changed since.
  */
@@ -87,7 +86,7 @@ export function friendWord(read: ReadCtx, route: Id<"route">): { items: string[]
 const AT_LEAST = 1;
 
 /**
- * R-ADVICE-004: the months one missing item is away, at least one, since doing
+ * advice:licensed-adviser-is-truthful: the months one missing item is away, at least one, since doing
  * anything takes a month. A paper: its ready month if it is being made, else
  * its shortest wait. A school's offer: the answer due, else the shortest
  * answer wait among the route's schools. Funds held: the months still to hold.
@@ -114,7 +113,7 @@ function monthsAway(read: ReadCtx, entry: RouteEntry, item: ChecklistItem): numb
   return AT_LEAST;
 }
 
-/** R-ADVICE-004: every route heard or known, in content order, the road never (R-ROAD-001). */
+/** advice:licensed-adviser-is-truthful: every route heard or known, in content order, the road never (road:road-route-has-no-figure). */
 function adviserRoutes(read: ReadCtx): Id<"route">[] {
   return (Object.keys(read.content.route) as Id<"route">[]).filter((route) => {
     const state = read.state.route[route]?.state;
@@ -122,7 +121,7 @@ function adviserRoutes(read: ReadCtx): Id<"route">[] {
   });
 }
 
-/** R-ADVICE-004: the adviser's reading of the whole file. Always true: it judges each item as it stands. */
+/** advice:licensed-adviser-is-truthful: the adviser's reading of the whole file. Always true: it judges each item as it stands. */
 export function adviserReading(read: ReadCtx): AdviserRoute[] {
   return adviserRoutes(read).map((route) => {
     const entry = routeEntry(read, route);

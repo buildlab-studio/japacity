@@ -1,4 +1,4 @@
-// The authority creates no money: docs/rules/server.md R-SERVER-013, decision 0005.
+// The authority creates no money: server:apologies-never-currency, decision 0005.
 // Every command, the authority's and the player's, is sent through `step` on each real
 // life, and the ledger is read before and after.
 import { content } from "@japacity/content";
@@ -99,7 +99,7 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
     // Decision 0016: a prize that carries a house top-up part is refused.
     { type: "lottery/pay", draw: ONLINE.draw, prizes: [{ tier: "mid", amount: 4000000, topUp: 1500000 } as { tier: "mid"; amount: number }] },
   ],
-  // R-WALLET-020: naira bought with real money, and two amounts the wallet refuses.
+  // wallet:top-ups-are-marked: naira bought with real money, and two amounts the wallet refuses.
   "wallet/top-up": [
     { type: "wallet/top-up", amount: 500000 },
     { type: "wallet/top-up", amount: 0 },
@@ -119,7 +119,7 @@ const AUTHORITY_SAMPLES: Record<AuthorityCommand, Loose[]> = {
   "people/family-request": [{ type: "people/family-request", offer: "offer.nepa-bill", terms: {} }],
   "interview/open": [{ type: "interview/open", pair: "pair-1", route: "route.uk-masters", questions: [{ id: "q1", options: ["a", "b"] }] }],
   "interview/scored": [{ type: "interview/scored", pair: "pair-1", theirs: ["a"] }],
-  // docs/rules/home.md R-HOME-005: a guest staying, never money.
+  // home:hosting-costs-the-host: a guest staying, never money.
   "home/host": [{ type: "home/host", pair: "pair-1", until: 3 }],
 };
 
@@ -136,7 +136,7 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
   return {
     "turn/end": [{ type: "turn/end", slots: [] }, ...of("turn/end")],
     "activity/quit": [{ type: "activity/quit" }, { type: "activity/quit", side: true }],
-    // R-ACTIVITY-015 added the command: the kiosk and the meetup now, a month-act refused, and the legal ones.
+    // activity:now-acts-and-month-acts added the command: the kiosk and the meetup now, a month-act refused, and the legal ones.
     "activity/now": [
       { type: "activity/now", activity: "activity.play-lotto", param: "1" },
       { type: "activity/now", activity: "activity.meetup", param: null },
@@ -171,7 +171,7 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
       { type: "lottery/buy", tickets: 1 },
       { type: "lottery/buy", tickets: content.tuning.lottery.maxTickets + 1 },
     ],
-    // docs/rules/home.md R-HOME-002: the move, and the move to where the character already lives.
+    // home:move-home-once-a-month: the move, and the move to where the character already lives.
     "home/move": [
       { type: "home/move", to: "place.makoko" },
       { type: "home/move", to: "place.family-house" },
@@ -182,7 +182,7 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
       { type: "thing/buy", thing: "thing.tv" },
     ],
     "thing/sell": [{ type: "thing/sell", thing: "thing.fan" }],
-    // docs/rules/chapter.md R-CHAPTER-009: the plan chosen, never money.
+    // chapter:chapters-follow-lean-route: the plan chosen, never money.
     "chapter/lean": [
       { type: "chapter/lean", route: "route.uk-care" },
       { type: "chapter/lean", route: "route.uk-masters" },
@@ -191,12 +191,12 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
 }
 
 /**
- * What the ledger says is wrong after one command: the identity (R-WALLET-002), every credit
+ * What the ledger says is wrong after one command: the identity (wallet:ledger-balances-each-currency), every credit
  * no reason may make here, and any reason that now holds more than it can produce in the
- * months played (the ledger report's alarms, R-WALLET-013) when it did not before.
+ * months played (the ledger report's alarms, wallet:ledger-report-raises-alarms) when it did not before.
  */
 function ledgerProblems(before: State, after: State, mayCredit: (reason: Reason, currency: Currency) => boolean): string[] {
-  const problems = checkInvariants(after, content).filter((problem) => problem.includes("R-WALLET"));
+  const problems = checkInvariants(after, content).filter((problem) => problem.includes("wallet:"));
   for (const rise of credited(before.wallet.totals.in, after.wallet.totals.in)) {
     if (!mayCredit(rise.reason, rise.currency)) problems.push(`${rise.currency} ${String(rise.amount)} credited under ${rise.reason}`);
   }
@@ -215,12 +215,12 @@ function send(state: State, loose: Loose, sender: Sender) {
 const LIVES = lives();
 
 describe("the authority's reach", () => {
-  test("[R-SERVER-013] given the simulation, when its authority commands are listed, then they are the closed list: the turn grant, the draw's payout, and the people messages from another life (decision 0005)", () => {
+  test("[server:apologies-never-currency] given the simulation, when its authority commands are listed, then they are the closed list: the turn grant, the draw's payout, and the people messages from another life (decision 0005)", () => {
     expect([...AUTHORITY_COMMANDS].sort()).toEqual(
       [
         "turns/grant",
         "lottery/pay",
-        // R-WALLET-020: the top-up, naira bought with real money and marked.
+        // wallet:top-ups-are-marked: the top-up, naira bought with real money and marked.
         "wallet/top-up",
         "people/link",
         "people/facts",
@@ -235,14 +235,14 @@ describe("the authority's reach", () => {
         "people/family-request",
         "interview/open",
         "interview/scored",
-        // docs/rules/home.md R-HOME-005: a joined player's character staying with this one.
+        // home:hosting-costs-the-host: a joined player's character staying with this one.
         "home/host",
       ].sort(),
     );
   });
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] [R-WALLET-002] given %s, when the authority grants turns, then no money of any currency is credited and the ledger's identity holds",
+    "[server:apologies-never-currency] [wallet:ledger-balances-each-currency] given %s, when the authority grants turns, then no money of any currency is credited and the ledger's identity holds",
     (_name, state) => {
       for (const sample of AUTHORITY_SAMPLES["turns/grant"]) {
         const result = send(state, sample, "authority");
@@ -255,7 +255,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] given %s, when the authority pays a draw, then money is credited only under the win reason to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
+    "[server:apologies-never-currency] given %s, when the authority pays a draw, then money is credited only under the win reason to the naira bank and no more than the prizes, or the payment is rejected and nothing moves",
     (_name, state) => {
       for (const sample of AUTHORITY_SAMPLES["lottery/pay"]) {
         const result = send(state, sample, "authority");
@@ -271,7 +271,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] [R-WALLET-020] given %s, when the authority tops up naira, then money is credited only under top-up to the naira bank, no more than the amount, all of it marked, or the top-up is rejected and nothing moves",
+    "[server:apologies-never-currency] [wallet:top-ups-are-marked] given %s, when the authority tops up naira, then money is credited only under top-up to the naira bank, no more than the amount, all of it marked, or the top-up is rejected and nothing moves",
     (_name, state) => {
       for (const sample of AUTHORITY_SAMPLES["wallet/top-up"]) {
         const result = send(state, sample, "authority");
@@ -281,7 +281,7 @@ describe("the authority's reach", () => {
         const expected = state.turn.ended ? "ended" : state.prologue.open ? "prologue-open" : good ? "accepted" : "bad-amount";
         expect(result.ok ? "accepted" : result.code).toBe(expected);
         const problems = ledgerProblems(state, after, (reason, currency) => reason === "top-up" && currency === "NGN");
-        // R-WALLET-013: until the processor's receipts feed the report, any top-up names the account.
+        // wallet:ledger-report-raises-alarms: until the processor's receipts feed the report, any top-up names the account.
         expect(problems.filter((problem) => !problem.endsWith("under top-up is over what it can make, 0"))).toEqual([]);
         expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBe(result.ok ? amount : 0);
         expect(after.wallet.pockets.NGN.cash).toBe(state.wallet.pockets.NGN.cash);
@@ -291,7 +291,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] given %s, when a player sends an authority command, then it is rejected as not theirs",
+    "[server:apologies-never-currency] given %s, when a player sends an authority command, then it is rejected as not theirs",
     (_name, state) => {
       for (const type of AUTHORITY_COMMANDS) {
         for (const sample of AUTHORITY_SAMPLES[type]) {
@@ -303,7 +303,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-SERVER-013] [R-WALLET-002] [R-WALLET-013] given %s on a world that runs the draw, when every player command is sent, then the ledger's identity holds, no reason makes more than it can, none credits an opening balance and none records a draw as paid",
+    "[server:apologies-never-currency] [wallet:ledger-balances-each-currency] [wallet:ledger-report-raises-alarms] given %s on a world that runs the draw, when every player command is sent, then the ledger's identity holds, no reason makes more than it can, none credits an opening balance and none records a draw as paid",
     (_name, state) => {
       const samples = playerSamples(state, worldFor(state));
       let accepted = 0;
@@ -321,7 +321,7 @@ describe("the authority's reach", () => {
   );
 
   test.each(LIVES.map((life) => [life.name, life.state] as const))(
-    "[R-PEOPLE-044] given %s, when every player command is sent by the stand-in, then only the interview's answer and the people's answer pass the engine; everything else is refused as not the stand-in's",
+    "[person:stand-in-acts-narrowly] given %s, when every player command is sent by the stand-in, then only the interview's answer and the people's answer pass the engine; everything else is refused as not the stand-in's",
     (_name, state) => {
       expect([...STAND_IN_COMMANDS].sort()).toEqual(["interview/answer", "people/answer"]);
       const samples = playerSamples(state, worldFor(state));

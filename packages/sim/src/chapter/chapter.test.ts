@@ -35,13 +35,13 @@ function tunde(): Game {
 }
 
 describe("the first chapter", () => {
-  test("[R-CHAPTER-001] given a new character, when the state is built, then the current chapter is the first by order and none is done", () => {
+  test("[chapter:first-chapter-starts-current] given a new character, when the state is built, then the current chapter is the first by order and none is done", () => {
     expect(start({ scenario: "scenario.ada", content }).state.chapter).toEqual({ current: FEET, done: [] });
     expect(content.chapter[FEET]?.order).toBe(1);
     expect(start({ content: miniContent }).state.chapter).toEqual({ current: ONE, done: [] });
   });
 
-  test("[R-CHAPTER-001] given chapters listed out of order, when the state is built, then the lowest order is current", () => {
+  test("[chapter:first-chapter-starts-current] given chapters listed out of order, when the state is built, then the lowest order is current", () => {
     const one = miniContent.chapter[ONE]!;
     const two = miniContent.chapter[TWO]!;
     const reversed: Content = { ...miniContent, chapter: { [TWO]: { ...two, order: 1 }, [ONE]: { ...one, order: 2 } } };
@@ -50,9 +50,9 @@ describe("the first chapter", () => {
 });
 
 describe("closing a chapter", () => {
-  test("[R-CHAPTER-002] given every item of the current chapter met, when the turn ends, then it is done, the next by order opens and the bank is refilled", () => {
+  test("[chapter:met-items-close-the-chapter] given every item of the current chapter met, when the turn ends, then it is done, the next by order opens and the bank is refilled", () => {
     const game = tunde();
-    // The route is heard of by month 3 (R-ROUTE-003), but not yet looked into.
+    // The route is heard of by month 3 (route:friend-tells-by-month), but not yet looked into.
     for (let month = 0; month < 3; month += 1) {
       const result = game.endTurn();
       expect(result.events.filter((event) => event.type.startsWith("chapter/"))).toEqual([]);
@@ -72,7 +72,7 @@ describe("closing a chapter", () => {
     expect(game.state.turn.banked).toBe(content.tuning.turn.cap);
   });
 
-  test("[R-CHAPTER-002] given an item still unmet, when turns end, then the chapter stays open and the bank is not refilled", () => {
+  test("[chapter:met-items-close-the-chapter] given an item still unmet, when turns end, then the chapter stays open and the bank is not refilled", () => {
     const game = start({ scenario: "scenario.plain", content: miniContent });
     for (let month = 1; month <= 4; month += 1) {
       const result = game.endTurn();
@@ -82,7 +82,7 @@ describe("closing a chapter", () => {
     expect(game.state.chapter).toEqual({ current: ONE, done: [] });
   });
 
-  test("[R-CHAPTER-002] given the next chapter already met as well, when the turn ends, then only one chapter closes, and the next closes a turn later", () => {
+  test("[chapter:met-items-close-the-chapter] given the next chapter already met as well, when the turn ends, then only one chapter closes, and the next closes a turn later", () => {
     const game = start({ scenario: "scenario.worker", content: miniContent });
     // The worker has a job and a passport: both chapters' items hold from the start.
     expect(game.view().chapter.items).toEqual([{ id: "job", met: true }]);
@@ -97,7 +97,7 @@ describe("closing a chapter", () => {
     expect(game.state.turn.banked).toBe(cap);
   });
 
-  test("[R-CHAPTER-002] given a chapter closing, when its lines are read, then the close asks for attention and the opening is quiet, and both have words", () => {
+  test("[chapter:met-items-close-the-chapter] given a chapter closing, when its lines are read, then the close asks for attention and the opening is quiet, and both have words", () => {
     const game = tunde();
     toHeard(game);
     const result = game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
@@ -156,7 +156,7 @@ describe("a chapter that one item closes", () => {
     throw new Error("The golden never reaches its grant.");
   }
 
-  test("[R-CHAPTER-002] given the tunde-borrower golden with its funds no longer held while the visa is pending, when the grant comes, then decision day closes on `granted` alone", () => {
+  test("[chapter:met-items-close-the-chapter] given the tunde-borrower golden with its funds no longer held while the visa is pending, when the grant comes, then decision day closes on `granted` alone", () => {
     expect(content.chapter[DECISION]?.closesOn).toBe("granted");
     const { result, state, world } = grantWithHeldLapsed(content);
     expect(state.route[UK_ROUTE]?.state).toBe("granted");
@@ -165,16 +165,16 @@ describe("a chapter that one item closes", () => {
     expect(state.chapter.current).toBe("chapter.send-off");
   });
 
-  // R-CHAPTER-002: a grant finishes the chapters up to decision day whatever their items say, so with no closesOn the
+  // chapter:met-items-close-the-chapter: a grant finishes the chapters up to decision day whatever their items say, so with no closesOn the
   // grant still closes it. The closesOn item alone is tested below on chapters no grant reaches.
-  test("[R-CHAPTER-002] given the same file with no closesOn on decision day, when the grant comes, then the grant closes it all the same, though not every item holds", () => {
+  test("[chapter:met-items-close-the-chapter] given the same file with no closesOn on decision day, when the grant comes, then the grant closes it all the same, though not every item holds", () => {
     const open: ChapterEntry = { ...content.chapter[DECISION]! };
     delete open.closesOn;
     const without: Content = { ...content, chapter: { ...content.chapter, [DECISION]: open } };
     const { result, state, world } = grantWithHeldLapsed(without);
     expect(state.route[UK_ROUTE]?.state).toBe("granted");
     expect(check({ state, world, content: without }, HELD).met).toBe(false);
-    // R-CHAPTER-003: the grant clause closed it, so the close carries the route.
+    // chapter:done-chapter-stays-done: the grant clause closed it, so the close carries the route.
     expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off", onGrant: UK_ROUTE });
     expect(state.chapter.current).toBe("chapter.send-off");
   });
@@ -189,7 +189,7 @@ describe("a chapter that one item closes", () => {
     return { ...miniContent, chapter: { ...miniContent.chapter, [ONE]: one } };
   }
 
-  test("[R-CHAPTER-002] given a chapter whose closesOn item is met and another item unmet, with no grant anywhere, when the turn ends, then it closes on that item alone; with no closesOn it stays open", () => {
+  test("[chapter:met-items-close-the-chapter] given a chapter whose closesOn item is met and another item unmet, with no grant anywhere, when the turn ends, then it closes on that item alone; with no closesOn it stays open", () => {
     const alone = start({ scenario: "scenario.worker", content: oneItemCloses("job") });
     expect(alone.endTurn().events.filter((event) => event.type === "chapter/closed")).toEqual([{ type: "chapter/closed", chapter: ONE, next: TWO }]);
     const every = start({ scenario: "scenario.worker", content: oneItemCloses(null) });
@@ -203,7 +203,7 @@ describe("a chapter that one item closes", () => {
 });
 
 describe("done stays done", () => {
-  test("[R-CHAPTER-003] given a chapter done, when its items come undone, then it stays done and chapter/done still holds", () => {
+  test("[chapter:done-chapter-stays-done] given a chapter done, when its items come undone, then it stays done and chapter/done still holds", () => {
     const game = start({ scenario: "scenario.worker", content: miniContent });
     expect(done(game, ONE)).toBe(false);
     game.endTurn();
@@ -216,10 +216,10 @@ describe("done stays done", () => {
     expect(done(game, TWO)).toBe(true);
   });
 
-  test("[R-CHAPTER-003] given chapter 1 done, when the route slips back to heard, then chapter 1 stays done and chapter 2 stays current", () => {
+  test("[chapter:done-chapter-stays-done] given chapter 1 done, when the route slips back to heard, then chapter 1 stays done and chapter 2 stays current", () => {
     const game = tunde();
     toKnown(game);
-    // No event takes a route back along an arrow (R-ROUTE-001), so the slip is written into the state.
+    // No event takes a route back along an arrow (route:routes-move-along-arrows), so the slip is written into the state.
     writeRoute(game, UK_ROUTE, "heard");
     game.endTurn();
     expect(game.state.chapter).toEqual({ current: FILE, done: [FEET] });
@@ -229,22 +229,22 @@ describe("done stays done", () => {
 });
 
 describe("the last chapter", () => {
-  test("[R-CHAPTER-004] given the last chapter done, when the turn ends, then there is no current chapter, no opening line, and nothing more closes", () => {
+  test("[chapter:no-chapter-after-last] given the last chapter done, when the turn ends, then there is no current chapter, no opening line, and nothing more closes", () => {
     const game = start({ scenario: "scenario.worker", content: miniContent });
     game.endTurn();
     const last = game.endTurn();
     expect(chapterLines(last.lines)).toEqual([{ key: "line.chapter.closed", params: { chapter: TWO }, tone: "good", attention: true, counts: [] }]);
     expect(game.state.chapter).toEqual({ current: null, done: [ONE, TWO] });
-    // R-CHAPTER-010: with no chapter left, nothing closes and nothing follows.
+    // chapter:view-says-closes-and-next: with no chapter left, nothing closes and nothing follows.
     expect(game.view().chapter).toEqual({ current: null, items: [], done: [ONE, TWO], closes: false, next: null });
     const after = game.endTurn();
     expect(after.events.filter((event) => event.type.startsWith("chapter/"))).toEqual([]);
     expect(game.state.turn.banked).toBe(cap - 1);
   });
 
-  test("[R-CHAPTER-004] given the real chapters, when they are put in order, then the main journey runs from finding your feet to the send-off and on to landing and secure, and nothing follows the last", () => {
+  test("[chapter:no-chapter-after-last] given the real chapters, when they are put in order, then the main journey runs from finding your feet to the send-off and on to landing and secure, and nothing follows the last", () => {
     const ordered = Object.values(content.chapter).sort((a: ChapterEntry, b: ChapterEntry) => a.order - b.order);
-    // R-CHAPTER-009: the variants stand in for a base in its turn, so the journey is the bases'.
+    // chapter:chapters-follow-lean-route: the variants stand in for a base in its turn, so the journey is the bases'.
     const journey = ordered.filter((entry) => entry.variantOf === undefined);
     expect(journey.map((entry) => entry.id)).toEqual([FEET, FILE, "chapter.decision-day", "chapter.send-off", "chapter.landing", "chapter.secure"]);
     expect(new Set(ordered.map((entry) => entry.order)).size).toBe(ordered.length);
@@ -252,7 +252,7 @@ describe("the last chapter", () => {
 });
 
 describe("the chapter in the view", () => {
-  test("[R-CHAPTER-005] given a current chapter, when the view is read, then each item is shown met or not as the state is now", () => {
+  test("[chapter:items-are-live-requirements] given a current chapter, when the view is read, then each item is shown met or not as the state is now", () => {
     const game = tunde();
     expect(game.view().chapter).toEqual({
       current: FEET,
@@ -263,7 +263,7 @@ describe("the chapter in the view", () => {
         { id: "known", met: false },
       ],
       done: [],
-      // R-CHAPTER-010: the chapter does not close with two items open, and the master's file follows.
+      // chapter:view-says-closes-and-next: the chapter does not close with two items open, and the master's file follows.
       closes: false,
       next: FILE,
     });
@@ -274,7 +274,7 @@ describe("the chapter in the view", () => {
     ]);
   });
 
-  test("[R-CHAPTER-005] given no job, when the view is read, then the job item is not met", () => {
+  test("[chapter:items-are-live-requirements] given no job, when the view is read, then the job item is not met", () => {
     expect(start({ scenario: "scenario.plain", content: miniContent }).view().chapter).toEqual({ current: ONE, items: [{ id: "job", met: false }], done: [], closes: false, next: TWO });
   });
 });
@@ -287,12 +287,12 @@ describe("what must hold", () => {
     return chapterKind.invariants?.({ ...good.state, chapter }, miniContent) ?? [];
   }
 
-  test("[R-CHAPTER-003] given a played state, when the invariants are checked, then they hold", () => {
+  test("[chapter:done-chapter-stays-done] given a played state, when the invariants are checked, then they hold", () => {
     expect(broken(good.state.chapter)).toEqual([]);
     expect(registry().find((kind) => kind.kind === "chapter")).toBe(chapterKind);
   });
 
-  test("[R-CHAPTER-003] given a broken chapter record, when the invariants are checked, then each fault is named", () => {
+  test("[chapter:done-chapter-stays-done] given a broken chapter record, when the invariants are checked, then each fault is named", () => {
     expect(broken({ current: "chapter.nowhere", done: [] })).toEqual(["The current chapter chapter.nowhere is not in content."]);
     expect(broken({ current: ONE, done: [ONE] })).toEqual([`The current chapter ${ONE} is also done.`]);
     expect(broken({ current: TWO, done: ["chapter.gone"] })).toEqual(["The done chapter chapter.gone is not in content."]);

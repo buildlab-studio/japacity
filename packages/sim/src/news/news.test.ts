@@ -83,7 +83,7 @@ function life(kinds: Registry, worldAt: (tick: number) => World, used: Content =
 }
 
 describe("delivering the news", () => {
-  test("[R-NEWS-004] given a world whose stories move, when 40 months are played, then each stage of each story is delivered once and the record holds the latest", () => {
+  test("[news:changed-stages-delivered-once] given a world whose stories move, when 40 months are played, then each stage of each story is delivered once and the record holds the latest", () => {
     const game = start({ scenario: "scenario.ada", content, worldSeed: "world-1" });
     const seen: string[] = [];
     for (let month = 0; month < 40; month += 1) {
@@ -98,22 +98,22 @@ describe("delivering the news", () => {
     expect(game.state.news.delivered).toEqual(record);
   });
 
-  test("[R-NEWS-004] given a story reaches a new stage, when the next turn ends, then it is delivered in that turn's news phase, once", () => {
+  test("[news:changed-stages-delivered-once] given a story reaches a new stage, when the next turn ends, then it is delivered in that turn's news phase, once", () => {
     const announced = firstTick("world-1", firstContent, RECRUIT, "announced")!;
     const game = start({ scenario: "scenario.ada", content: firstContent, worldSeed: "world-1" });
     for (let tick = 0; tick < announced; tick += 1) {
       expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
     }
     const lines = deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT);
-    // The story tells Ada of the route, and is judged for her after that (R-NEWS-005). Announced, it does not yet ask for attention.
+    // The story tells Ada of the route, and is judged for her after that (news:for-you-when-touching-route). Announced, it does not yet ask for attention.
     expect(lines).toEqual([{ key: "line.news.delivered", params: { story: RECRUIT, stage: "announced", forYou: 1 }, tone: "plain", attention: false, counts: [] }]);
     expect(game.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
     expect(deliveries(game.endTurn().lines).filter((line) => line.params.story === RECRUIT)).toEqual([]);
   });
 
-  test("[R-NEWS-004] given a character away while stories moved on, when they come back, then each story is shown once, at its latest stage only", () => {
+  test("[news:changed-stages-delivered-once] given a character away while stories moved on, when they come back, then each story is shown once, at its latest stage only", () => {
     const game = start({ scenario: "scenario.ada", content, worldAt: (tick) => standInWorld("world-1", tick === 0 ? 0 : 80, content) });
-    // Tick 0 carries only the opening era's story (R-DIRECTOR-002).
+    // Tick 0 carries only the opening era's story (director:one-era-at-a-time).
     const opening = standInWorld("world-1", 0, content).news;
     expect(deliveries(game.endTurn().lines).map((line) => line.params.story)).toEqual(opening.map((story) => story.id));
     const lines = deliveries(game.endTurn().lines);
@@ -126,7 +126,7 @@ describe("delivering the news", () => {
     expect(deliveries(game.endTurn().lines)).toEqual([]);
   });
 
-  test("[R-DIRECTOR-002] given three months played on the stand-in world, when the view is read, then the era's ticks are shown as this player's months", () => {
+  test("[director:one-era-at-a-time] given three months played on the stand-in world, when the view is read, then the era's ticks are shown as this player's months", () => {
     const game = start({ scenario: "scenario.ada", content });
     for (let month = 0; month < 3; month += 1) game.endTurn();
     const era = game.view().era;
@@ -137,7 +137,7 @@ describe("delivering the news", () => {
     expect(era.sinceMonth).toBeLessThanOrEqual(game.state.turn.month);
   });
 
-  test("[R-NEWS-004] given the delivered line, when its words are looked up, then they exist and every story stage has its headline", () => {
+  test("[news:changed-stages-delivered-once] given the delivered line, when its words are looked up, then they exist and every story stage has its headline", () => {
     expect(text["line.news.delivered"]).toBeTruthy();
     const late = standInWorld("world-1", 80, content).news;
     expect(late.filter((story) => text[`${story.id}.${story.stage}.head`] === undefined)).toEqual([]);
@@ -145,7 +145,7 @@ describe("delivering the news", () => {
 });
 
 describe("for you", () => {
-  test("[R-NEWS-004] [R-NEWS-005] given a story touching a route that tells you of it, when it is delivered, then it is for you, and so is every later story touching the route", () => {
+  test("[news:changed-stages-delivered-once] [news:for-you-when-touching-route] given a story touching a route that tells you of it, when it is delivered, then it is for you, and so is every later story touching the route", () => {
     const heard: Effect[] = [];
     const kinds = hearingRegistry(heard);
     const played = life(kinds, (tick) => standInWorld("world-1", tick, firstContent), firstContent);
@@ -164,12 +164,12 @@ describe("for you", () => {
     const later = after.filter((line) => line.params.story !== RECRUIT && (firstContent.news[line.params.story as Id<"news">]?.touches.includes(UK_ROUTE) ?? false));
     expect(later.length).toBeGreaterThan(0);
     expect(later.every((line) => line.params.forYou === 1 && line.attention === (line.params.stage === "in-force"))).toBe(true);
-    // R-NEWS-004: a story asks for attention only once it is in force and for you.
+    // news:changed-stages-delivered-once: a story asks for attention only once it is in force and for you.
     expect(all.every((line) => line.attention === (line.params.forYou === 1 && line.params.stage === "in-force"))).toBe(true);
     expect(all.some((line) => line.attention)).toBe(true);
   });
 
-  test("[R-NEWS-005] given every story touches a route the character does not know, when the view is read, then none is for you", () => {
+  test("[news:for-you-when-touching-route] given every story touches a route the character does not know, when the view is read, then none is for you", () => {
     // Nobody can hear of the UK route in this copy, so every story stays outside "for you".
     const deaf: Content = JSON.parse(JSON.stringify(content)) as Content;
     for (const route of Object.values(deaf.route)) route.hearIf = [{ type: "quality/min", quality: "quality.edu-level", value: 99 }];
@@ -183,7 +183,7 @@ describe("for you", () => {
 });
 
 describe("hearing through the news", () => {
-  test("[R-NEWS-006] given a story with routes to hear, when it is delivered at announced, then route/hear is carried out for each, via news", () => {
+  test("[news:announcement-makes-routes-heard] given a story with routes to hear, when it is delivered at announced, then route/hear is carried out for each, via news", () => {
     const heard: Effect[] = [];
     const played = life(hearingRegistry(heard), (tick) => standInWorld("world-1", tick, content));
     const announced = firstTick("world-1", content, RECRUIT, "announced")!;
@@ -193,7 +193,7 @@ describe("hearing through the news", () => {
     expect(heard).toEqual([{ type: "route/hear", route: UK_ROUTE, via: "news" }]);
   });
 
-  test("[R-NEWS-006] given a story at rumour, when it is delivered, then nobody hears of anything until it is announced", () => {
+  test("[news:announcement-makes-routes-heard] given a story at rumour, when it is delivered, then nobody hears of anything until it is announced", () => {
     const recruit = content.news[RECRUIT]!;
     const rumoured: NewsEntry = { ...recruit, standIn: { ...recruit.standIn, announce: { between: [3, 3] }, rumourLead: 2 } };
     const used: Content = { ...content, news: { [RECRUIT]: rumoured } };
@@ -212,7 +212,7 @@ describe("hearing through the news", () => {
     expect(RANK[played.state.news.delivered[RECRUIT]!.stage]).toBeGreaterThan(RANK.rumour);
   });
 
-  test("[R-PEOPLE-033] given a sibling living in the UK, when a story about a UK route reaches rumour, then the route is heard of through the sibling; with the sibling at home, nobody hears until it is announced", () => {
+  test("[person:sibling-hears-news-early] given a sibling living in the UK, when a story about a UK route reaches rumour, then the route is heard of through the sibling; with the sibling at home, nobody hears until it is announced", () => {
     const recruit = content.news[RECRUIT]!;
     const rumoured: NewsEntry = { ...recruit, standIn: { ...recruit.standIn, announce: { between: [3, 3] }, rumourLead: 2 } };
     const used: Content = { ...content, news: { [RECRUIT]: rumoured } };
@@ -234,7 +234,7 @@ describe("hearing through the news", () => {
     expect(home.game.state.route[UK_ROUTE]?.state).toBe("unknown");
   });
 
-  test("[R-NEWS-006] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
+  test("[news:announcement-makes-routes-heard] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
     const announced = firstTick("golden-world", content, RECRUIT, "announced")!;
     expect(announced + 1).toBeLessThan(content.route[UK_ROUTE]!.hearBy!);
     const game = start({ scenario: "scenario.ada", content, worldSeed: "golden-world" });

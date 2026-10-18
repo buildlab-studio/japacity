@@ -1,7 +1,7 @@
 // Layer 3 of docs/design/02-quality-and-testing.md on the real content: long
 // random lives from Ada and Tunde, every always-true rule checked after every
 // command. The other lives and life abroad have files of their own, so each
-// file stays inside R-ENGINE-016's minute.
+// file stays inside engine:limits-tested-through-step's minute.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
@@ -14,7 +14,7 @@ import { COMMANDS, play, SEEDS_PER_LIFE, unexplained } from "./random-play";
 
 const LIVES: Id<"scenario">[] = ["scenario.ada", "scenario.tunde"];
 const NAMES: StrategyName[] = ["careful", "borrower", "risky", "honest-home"];
-const RULES = "[R-ENGINE-001] [R-ENGINE-007] [R-ENGINE-010] [R-ENGINE-011] [R-WALLET-002] [R-QUALITY-001]";
+const RULES = "[engine:same-inputs-same-result] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] [engine:player-never-stuck] [wallet:ledger-balances-each-currency] [quality:qualities-stay-in-range]";
 
 describe("random play on the real lives", () => {
   for (const life of LIVES) {

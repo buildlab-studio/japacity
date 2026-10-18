@@ -1,4 +1,4 @@
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -43,7 +43,7 @@ function ngozi(used: Content, options: LifeOptions = {}): Game {
 }
 
 describe("the gates through the dispatcher", () => {
-  test("[R-SPONSOR-002] [R-GATE-005] given a fraud sponsor taken through the offer's effect, when the application is decided, then the fraud rode on the route's secret, the refusal names sponsor, every known route into the country is refused with the ban, and the ban lifts on its month with the routes known again", () => {
+  test("[route-gates:taking-sponsor-records-it] [route-gates:deception-bans-country] given a fraud sponsor taken through the offer's effect, when the application is decided, then the fraud rode on the route's secret, the refusal names sponsor, every known route into the country is refused with the ban, and the ban lifts on its month with the routes known again", () => {
     const game = ngozi(shortBan);
     toKnown(game, CARE_ROUTE);
     // A second route into the same country, known before the decision, is banned too.
@@ -69,7 +69,7 @@ describe("the gates through the dispatcher", () => {
     expect(routeOf(game, SKILLED).state).toBe("known");
   });
 
-  test("[R-SPONSOR-007] [R-CONTRACT-004] given the sponsor and contract gates, when the job on arrival is asked for, then each names the job its block or its agent's role gives, and the study gate names none", () => {
+  test("[route-gates:sponsored-status-on-departure] [route-gates:employer-flies-and-holds-passport] given the sponsor and contract gates, when the job on arrival is asked for, then each names the job its block or its agent's role gives, and the study gate names none", () => {
     const care = content.route[CARE_ROUTE]!;
     const held = { ...GATES.sponsor.initial() };
     expect(GATES.sponsor.departureJob?.(care, { ...routeOf(ngozi(content), CARE_ROUTE), gate: held })).toBe("activity.job-uk-care");
@@ -79,7 +79,7 @@ describe("the gates through the dispatcher", () => {
     expect("departureJob" in GATES.study).toBe(false);
   });
 
-  test("[R-GATE-003] [R-CONTRACT-004] [R-STATUS-009] given a Gulf contract granted, when the character departs, then no flight is paid, the status is the Gulf worker's with the agent's job, and the character is in the UAE", () => {
+  test("[route-gates:departure-grants-status] [route-gates:employer-flies-and-holds-passport] [status:gulf-status-holds-passport] given a Gulf contract granted, when the character departs, then no flight is paid, the status is the Gulf worker's with the agent's job, and the character is in the UAE", () => {
     const game = readyLife(content, { quiet: true, documents: GULF_PAPERS, qualities: { "quality.age-months": 360, "quality.edu-level": 3 }, vars: () => ({ "var.uae-window": 2 }), tuning: ALWAYS_GRANTED });
     toKnown(game, GULF_ROUTE);
     applyEffects(game, [{ type: "route/record-sponsor", route: GULF_ROUTE, employer: "agent", salary: 0, fraud: false }], { salary: 180000, role: 1 });
@@ -96,7 +96,7 @@ describe("the gates through the dispatcher", () => {
     expect(game.state.status.current).toMatchObject({ entry: "status.gulf-worker", job: "activity.job-gulf-guard" });
   });
 
-  test("[R-ABROAD-005] given a student granted, when they depart, then the tuition opens for the course less the deposit and the discount, and nobody else owes tuition", () => {
+  test("[abroad-money:tuition-paid-in-instalments] given a student granted, when they depart, then the tuition opens for the course less the deposit and the discount, and nobody else owes tuition", () => {
     const game = readyLife(content, { quiet: true, tuning: ALWAYS_GRANTED });
     toDecision(game);
     const held = routeOf(game, UK_ROUTE);
@@ -109,7 +109,7 @@ describe("the gates through the dispatcher", () => {
     expect(tuition[0]).toMatchObject({ principal: owed });
   });
 
-  test("[R-ABROAD-006] [R-WALLET-014] given money sent home, when the ledger is read, then the naira arrived under remit, so the total sent is a requirement a goal can read and the ledger counts it as a transfer", () => {
+  test("[abroad-money:remit-sends-money-home] [wallet:ledger-total-requirement] given money sent home, when the ledger is read, then the naira arrived under remit, so the total sent is a requirement a goal can read and the ledger counts it as a transfer", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 100000, reason: "salary" }]);
     expect(check(readOf(game), { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 1 }).met).toBe(false);

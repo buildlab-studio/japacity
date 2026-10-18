@@ -1,4 +1,4 @@
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { fc, test } from "@fast-check/vitest";
 import { content, text } from "@japacity/content";
@@ -34,7 +34,7 @@ function routeOf(game: Game, route: Id<"route"> = GULF_ROUTE): RouteState {
   return game.state.route[route]!;
 }
 
-/** The motor park makes the route heard (R-CONTRACT-001); looking into it needs the UK master's heard, by month 3. */
+/** The motor park makes the route heard (route-gates:gulf-route-heard-at-park); looking into it needs the UK master's heard, by month 3. */
 function toKnown(game: Game): void {
   // A second ask at the park looks the Gulf into once it is heard (decision 0001), so the hub's look-into is needed only while it is still heard.
   if (routeOf(game).state === "unknown") game.endTurn([slot("activity.ask-around")]);
@@ -83,14 +83,14 @@ function monthsToApply(): number {
   return (game.state.quality[AGE] ?? 0) - (life().state.quality[AGE] ?? 0);
 }
 
-describe("R-CONTRACT-001: hearing of the Gulf", () => {
-  test("[R-CONTRACT-001] given a life at home, when months pass without the motor park, then the Gulf is never heard of by itself", () => {
+describe("route-gates:gulf-route-heard-at-park: hearing of the Gulf", () => {
+  test("[route-gates:gulf-route-heard-at-park] given a life at home, when months pass without the motor park, then the Gulf is never heard of by itself", () => {
     const game = life();
     for (let month = 0; month < 8; month += 1) game.endTurn();
     expect(routeOf(game).state).toBe("unknown");
   });
 
-  test("[R-CONTRACT-001] given a life with schooling, when it asks around at the motor park and then looks into the Gulf, then the route is heard and then known with its short checklist", () => {
+  test("[route-gates:gulf-route-heard-at-park] given a life with schooling, when it asks around at the motor park and then looks into the Gulf, then the route is heard and then known with its short checklist", () => {
     const game = life();
     game.endTurn([slot("activity.ask-around")]);
     expect(routeOf(game).state).toBe("heard");
@@ -99,7 +99,7 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
     expect(view.checklist.map((item) => item.id)).toEqual(["passport", "medical", "agent", "police", "applied"]);
   });
 
-  test("[R-CONTRACT-001] [R-CHAPTER-009] given a life that has heard of the Gulf, when it asks around at the motor park, then the ask looks the Gulf into there; a first ask only hears of it, and a life that never heard of it is not looked into by the ask alone", () => {
+  test("[route-gates:gulf-route-heard-at-park] [chapter:chapters-follow-lean-route] given a life that has heard of the Gulf, when it asks around at the motor park, then the ask looks the Gulf into there; a first ask only hears of it, and a life that never heard of it is not looked into by the ask alone", () => {
     const game = life();
     game.endTurn([slot("activity.ask-around")]);
     expect(routeOf(game).state).toBe("heard");
@@ -110,7 +110,7 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
     expect(ask.findIndex((effect) => effect.type === "route/hear")).toBeGreaterThan(0);
   });
 
-  test("[R-CONTRACT-003] given no schooling, when it asks around at the motor park, then the Gulf is not heard of; with secondary school it is", () => {
+  test("[route-gates:gulf-application-needs] given no schooling, when it asks around at the motor park, then the Gulf is not heard of; with secondary school it is", () => {
     const none = life({ qualities: { "quality.edu-level": 0 } });
     none.endTurn([slot("activity.ask-around")]);
     expect(routeOf(none).state).toBe("unknown");
@@ -120,8 +120,8 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
   });
 });
 
-describe("R-CONTRACT-002: the agent", () => {
-  test("[R-CONTRACT-002] given the Gulf known, when the window is open or shut, then the agent may come up only while it is open", () => {
+describe("route-gates:gulf-agent-offer: the agent", () => {
+  test("[route-gates:gulf-agent-offer] given the Gulf known, when the window is open or shut, then the agent may come up only while it is open", () => {
     const when = content.offer[AGENT]!.when;
     const open = life();
     toKnown(open);
@@ -132,7 +132,7 @@ describe("R-CONTRACT-002: the agent", () => {
     expect(when.every((requirement) => judge(shut, requirement))).toBe(false);
   });
 
-  test("[R-CONTRACT-002] [R-WALLET-018] given an honest agent taken, when it is carried out, then the fee, over the line for cash, leaves the bank first as an agent's fee and the agent is recorded with the salary in fils and the role", () => {
+  test("[route-gates:gulf-agent-offer] [wallet:money-lands-as-in-lagos] given an honest agent taken, when it is carried out, then the fee, over the line for cash, leaves the bank first as an agent's fee and the agent is recorded with the salary in fils and the role", () => {
     const game = life();
     toKnown(game);
     const { bank, cash } = game.state.wallet.pockets.NGN;
@@ -145,14 +145,14 @@ describe("R-CONTRACT-002: the agent", () => {
     expect(routeOf(game).gate).toEqual({ gate: "contract", agent: { employer: "gulf-agent", salary: 180000, role: "guard" } });
   });
 
-  test("[R-CONTRACT-002] given an agent whose role term is 2, when the agent is taken, then the role is a cleaner", () => {
+  test("[route-gates:gulf-agent-offer] given an agent whose role term is 2, when the agent is taken, then the role is a cleaner", () => {
     const game = life();
     toKnown(game);
     takeAgent(game, CLEANER);
     expect(routeOf(game).gate).toEqual({ gate: "contract", agent: { employer: "gulf-agent", salary: 150000, role: "cleaner" } });
   });
 
-  test("[R-CONTRACT-002] given a fraud agent, when it is taken, then the same fee goes and the same agent is recorded, and the view shows nothing different", () => {
+  test("[route-gates:gulf-agent-offer] given a fraud agent, when it is taken, then the same fee goes and the same agent is recorded, and the view shows nothing different", () => {
     const honest = life();
     const fraud = life();
     toKnown(honest);
@@ -165,7 +165,7 @@ describe("R-CONTRACT-002: the agent", () => {
     expect(view(fraud)).toEqual(view(honest));
   });
 
-  test("[R-CONTRACT-002] given an agent taken, when it is carried out, then a line names the route", () => {
+  test("[route-gates:gulf-agent-offer] given an agent taken, when it is carried out, then a line names the route", () => {
     const game = life();
     toKnown(game);
     expect(linesOf(game, agentEffects(false), GUARD)).toEqual([
@@ -174,7 +174,7 @@ describe("R-CONTRACT-002: the agent", () => {
     expect(text["line.route.agent-recorded"]).toBeDefined();
   });
 
-  test("[R-GATE-001] given the contract route, when its steps are asked for, then the agent is the one step and the sponsor gate's salary step is never reached", () => {
+  test("[route-gates:route-runs-its-gate-steps] given the contract route, when its steps are asked for, then the agent is the one step and the sponsor gate's salary step is never reached", () => {
     const game = life();
     toKnown(game);
     expect(contractGate.steps).toEqual(["sponsor"]);
@@ -187,38 +187,38 @@ describe("R-CONTRACT-002: the agent", () => {
   });
 });
 
-describe("R-CONTRACT-003: applying and the decision", () => {
-  test("[R-CONTRACT-003] given an agent, the passport and the medical, when the papers are sent, then the route is applying and no fee is taken", () => {
+describe("route-gates:gulf-application-needs: applying and the decision", () => {
+  test("[route-gates:gulf-application-needs] given an agent, the passport and the medical, when the papers are sent, then the route is applying and no fee is taken", () => {
     const game = ready();
     const visaFees = game.state.wallet.totals.out["fee-visa"];
     const foreign = { GBP: game.state.wallet.pockets.GBP, AED: game.state.wallet.pockets.AED };
-    // R-ACTIVITY-015: the papers are sent at once, so the route is applying in the month they are sent.
+    // activity:now-acts-and-month-acts: the papers are sent at once, so the route is applying in the month they are sent.
     game.accept({ type: "activity/now", activity: APPLY, param: null });
     expect(routeOf(game).state).toBe("applying");
     expect(game.state.wallet.totals.out["fee-visa"]).toEqual(visaFees);
     expect({ GBP: game.state.wallet.pockets.GBP, AED: game.state.wallet.pockets.AED }).toEqual(foreign);
   });
 
-  test("[R-CONTRACT-003] given no agent, when the papers are sent, then the turn is rejected", () => {
+  test("[route-gates:gulf-application-needs] given no agent, when the papers are sent, then the turn is rejected", () => {
     const game = life();
     toKnown(game);
     toMedical(game);
     expect(game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-CONTRACT-003] given no medical, when the papers are sent, then the turn is rejected", () => {
+  test("[route-gates:gulf-application-needs] given no medical, when the papers are sent, then the turn is rejected", () => {
     const game = life();
     toKnown(game);
     takeAgent(game);
     expect(game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-CONTRACT-003] given no passport, when the papers are sent, then the turn is rejected", () => {
+  test("[route-gates:gulf-application-needs] given no passport, when the papers are sent, then the turn is rejected", () => {
     const game = ready({ documents: [] });
     expect(game.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-CONTRACT-003] given an age of 539 months on the day, when the papers are sent, then they go in; at 540 the turn is rejected", () => {
+  test("[route-gates:gulf-application-needs] given an age of 539 months on the day, when the papers are sent, then they go in; at 540 the turn is rejected", () => {
     const months = monthsToApply();
     const start = (life().state.quality[AGE] ?? 0) - (content.scenario["scenario.ada"]!.qualities[AGE] ?? 0);
     const young = ready({ qualities: { [AGE]: MAX_AGE - 1 - months - start } });
@@ -230,7 +230,7 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     expect(old.expectRejected({ type: "activity/now", activity: APPLY, param: null }, "not-legal").code).toBe("not-legal");
   });
 
-  test("[R-CONTRACT-003] given the gate asked past the slot, when the medical is gone or the age reaches the cap, then applying is held back", () => {
+  test("[route-gates:gulf-application-needs] given the gate asked past the slot, when the medical is gone or the age reaches the cap, then applying is held back", () => {
     const game = ready();
     const held = routeOf(game);
     const cause = { source: APPLY, param: null, terms: {} };
@@ -243,14 +243,14 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     expect(contractGate.mayApply(asCtx({ ...readOf(game), state: younger }), gulf, held, cause)).toBe(true);
   });
 
-  test("[R-CONTRACT-003] given an honest agent and the draw pinned to grant, when the decision month ends, then the contract is granted", () => {
+  test("[route-gates:gulf-application-needs] given an honest agent and the draw pinned to grant, when the decision month ends, then the contract is granted", () => {
     const game = ready({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY)]);
     game.endTurn();
     expect(routeOf(game).state).toBe("granted");
   });
 
-  test("[R-CONTRACT-003] given a fraud agent and the draw pinned to grant, when the decision month ends, then it is refused with the reason agent, no draw is made, and nothing bans", () => {
+  test("[route-gates:gulf-application-needs] given a fraud agent and the draw pinned to grant, when the decision month ends, then it is refused with the reason agent, no draw is made, and nothing bans", () => {
     const game = ready({ tuning: ALWAYS_GRANTED });
     hideFraud(game);
     expect(contractGate.decision(readOf(game), gulf, routeOf(game))).toMatchObject({ override: "agent", bans: false });
@@ -264,7 +264,7 @@ describe("R-CONTRACT-003: applying and the decision", () => {
   });
 
   test.prop([fc.integer({ min: 0, max: 10000 }), fc.integer({ min: -12, max: 12 }), fc.integer({ min: 0, max: 100 }), fc.integer({ min: 0, max: 5 }), fc.integer({ min: 0, max: 5 })])(
-    "[R-GATE-002] given any file, when the contract's chance is worked out, then it is the route's base alone between the floor and the ceiling",
+    "[route-gates:gate-decision-draw-terms] given any file, when the contract's chance is worked out, then it is the route's base alone between the floor and the ceiling",
     (unexplainedBp, interviewScore, strictness, refusals, grade) => {
       const held: RouteState = { ...unknownRoute("contract"), state: "applying", refusals };
       const read = { state: { route: { [GULF_ROUTE]: held } }, world: { vars: {} }, content } as unknown as ReadCtx;
@@ -276,8 +276,8 @@ describe("R-CONTRACT-003: applying and the decision", () => {
   );
 });
 
-describe("R-CONTRACT-004: going out on the contract", () => {
-  test("[R-CONTRACT-004] given a granted contract, when the character flies, then they are in the Emirates as a Gulf worker", () => {
+describe("route-gates:employer-flies-and-holds-passport: going out on the contract", () => {
+  test("[route-gates:employer-flies-and-holds-passport] given a granted contract, when the character flies, then they are in the Emirates as a Gulf worker", () => {
     const game = ready({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY)]);
     game.endTurn();
@@ -287,7 +287,7 @@ describe("R-CONTRACT-004: going out on the contract", () => {
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uae" });
   });
 
-  test("[R-CONTRACT-004] given the agent's role, when the job abroad is asked for, then a guard's contract gives the guard's job and a cleaner's the cleaner's", () => {
+  test("[route-gates:employer-flies-and-holds-passport] given the agent's role, when the job abroad is asked for, then a guard's contract gives the guard's job and a cleaner's the cleaner's", () => {
     const guard = ready();
     expect(contractJob(routeOf(guard))).toBe("activity.job-gulf-guard");
     const cleaner = life();
@@ -329,11 +329,11 @@ describe("the Gulf contract renewed by the employer", () => {
     return Object.values(game.state.wallet.totals.out["fee-visa"] ?? {}).reduce((sum, amount) => sum + (amount ?? 0), 0);
   }
 
-  test("[R-STATUS-006] given the Gulf contract's entry, when it is read, then the employer renews at 60 in 100 for 24 months and the player has no fee to pay", () => {
+  test("[status:renewing-a-status] given the Gulf contract's entry, when it is read, then the employer renews at 60 in 100 for 24 months and the player has no fee to pay", () => {
     expect(content.status[WORKER]).toMatchObject({ renewBp: 6000, renewMonths: 24, renewFeeVar: null });
   });
 
-  test("[R-STATUS-006] given a Gulf worker in the contract's last month and the employer's draw won, when the month ends, then the contract runs 24 months more with no fee and a line; the player still cannot ask", () => {
+  test("[status:renewing-a-status] given a Gulf worker in the contract's last month and the employer's draw won, when the month ends, then the contract runs 24 months more with no fee and a line; the player still cannot ask", () => {
     const game = toLastMonth(10000);
     const expires = game.state.status.current!.expiresMonth!;
     const fees = feesPaid(game);
@@ -351,7 +351,7 @@ describe("the Gulf contract renewed by the employer", () => {
     expect(game.state.status.current?.entry).toBe(WORKER);
   });
 
-  test("[R-STATUS-006] given the months before the last, when they end, then no draw is made on the status stream", () => {
+  test("[status:renewing-a-status] given the months before the last, when they end, then no draw is made on the status stream", () => {
     const game = ready({ tuning: ALWAYS_GRANTED, change: renewAt(10000) });
     game.endTurn([slot(APPLY)]);
     game.endTurn();
@@ -364,7 +364,7 @@ describe("the Gulf contract renewed by the employer", () => {
     expect(before.expiresMonth).toBe(expires);
   });
 
-  test("[R-STATUS-006] given the employer's draw lost, when the contract's last month and the next end, then it is not renewed and lapses", () => {
+  test("[status:renewing-a-status] given the employer's draw lost, when the contract's last month and the next end, then it is not renewed and lapses", () => {
     const game = toLastMonth(0);
     const expires = game.state.status.current!.expiresMonth!;
     month(game);

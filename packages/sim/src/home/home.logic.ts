@@ -1,8 +1,8 @@
 // Home: where the character lives in Lagos (docs/rules/home.md). The family house, a room on the
 // lagoon in Makoko that costs far less until a month the settlement is cleared (then someone takes
 // the character in, or the family does), or a room in a compound in Ojuelegba, its year's rent paid
-// upfront the Lagos way (R-HOME-010), or a hostel room rented by the month. Nothing here moves
-// money between lives (R-PEOPLE-004).
+// upfront the Lagos way (home:compound-room-is-a-home), or a hostel room rented by the month. Nothing here moves
+// money between lives (person:money-counted-never-moved).
 import { check, resolveAmount } from "../engine/check";
 import { QUALITY } from "../engine/ids";
 import { bp, divCeil, divFloor } from "../engine/int";
@@ -44,12 +44,12 @@ const COMPOUND: HomePlace = "place.compound-room";
 const HOSTEL: HomePlace = "place.hostel-room";
 const HOMES: readonly HomePlace[] = [FAMILY_HOUSE, MAKOKO, COMPOUND, HOSTEL];
 const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
-/** R-HOME-010: the room in a compound's own upkeep, and its year's rent. */
+/** home:compound-room-is-a-home: the room in a compound's own upkeep, and its year's rent. */
 const COMPOUND_UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
 const COMPOUND_RENT: Id<"obligation"> = "obligation.rent-compound";
 /** The hostel room's rent by the month, a rent like the room's year, named as the home's own charge. */
 const HOSTEL_RENT: Id<"obligation"> = "obligation.upkeep-hostel";
-/** The rent each rented room is held by: gone, the room is lost (R-HOME-011). */
+/** The rent each rented room is held by: gone, the room is lost (home:rent-default-returns-to-family). */
 const ROOM_RENT: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [COMPOUND]: COMPOUND_RENT, [HOSTEL]: HOSTEL_RENT };
 /** The upkeep a room of one's own charges in place of the family's. */
 const ROOM_UPKEEP: Readonly<Partial<Record<HomePlace, Id<"obligation">>>> = { [MAKOKO]: MAKOKO_UPKEEP, [COMPOUND]: COMPOUND_UPKEEP };
@@ -63,7 +63,7 @@ const FULL = 10_000;
 /** The words keys a line names a real player by: the other life's own name is never in this state. */
 const HOME_FRIEND = "home.friend";
 const HOME_GUEST = "home.guest";
-/** The bond stages a moment can be added at (R-PEOPLE-014): a friend only connected has no moments yet. */
+/** The bond stages a moment can be added at (person:time-together-is-an-act): a friend only connected has no moments yet. */
 const MOMENT_STAGES: readonly string[] = ["courting", "partner", "married"];
 
 function record(ctx: Ctx, events: HomeEvent[]): BaseEvent[] {
@@ -89,12 +89,12 @@ function upkeepWhereLiving(state: State, content: Content, place: HomePlace): Ob
   return upkeepItems(state, content).find((item) => (own === undefined ? !ROOM_UPKEEPS.includes(item.entry) && (content.obligation[item.entry]?.where ?? "home") === "home" : item.entry === own));
 }
 
-/** R-HOME-010: what moving into the room in a compound takes at once: the year's rent and the agent's and the agreement's fees on it. */
+/** home:compound-room-is-a-home: what moving into the room in a compound takes at once: the year's rent and the agent's and the agreement's fees on it. */
 export function compoundMoveIn(home: Tuning["home"]): number {
   return home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 }
 
-/** R-HOME-008: what a move takes at once: Makoko's first month's rent, the room's year and fees, the hostel's first month, nothing for the family house. */
+/** home:moves-carry-cost-and-reason: what a move takes at once: Makoko's first month's rent, the room's year and fees, the hostel's first month, nothing for the family house. */
 function takesNow(home: Tuning["home"], to: HomePlace): number {
   switch (to) {
     case "place.makoko":
@@ -113,7 +113,7 @@ function takesNow(home: Tuning["home"], to: HomePlace): number {
 }
 
 /**
- * Where the character lives now. Back from abroad, the family house takes them back (R-PLACE-007
+ * Where the character lives now. Back from abroad, the family house takes them back (place:family-takes-you-back
  * reopens its upkeep), whatever the slice held when they left; the slice catches up in the next
  * turn's first phase, and every reading here sees it already.
  */
@@ -123,13 +123,13 @@ export function homeOf(state: State, content: Content): HomeSlice {
   return { ...home, place: FAMILY_HOUSE, guest: null };
 }
 
-/** R-HOME-003: the eviction chance a month in Makoko now, halved while the character is down as a `bad` offer is (R-LUCK-003). */
+/** home:makoko-eviction-draw: the eviction chance a month in Makoko now, halved while the character is down as a `bad` offer is (luck:no-kicking-while-down). */
 function evictionChanceBp(read: ReadCtx): number {
   const chance = read.content.tuning.home.evictionBp;
   return isDown(read) ? divFloor(chance, 2) : chance;
 }
 
-/** R-HOME-003: the settlement was cleared this month, so no other `bad` offer opens in it. */
+/** home:makoko-eviction-draw: the settlement was cleared this month, so no other `bad` offer opens in it. */
 export function evictedThisMonth(state: State): boolean {
   return state.home.evicted !== null && state.home.evicted === state.turn.month;
 }
@@ -137,21 +137,21 @@ export function evictedThisMonth(state: State): boolean {
 /** The home card that closes the life from sixteen (prologue.md, step 11), and its answer for the family house. */
 const HOME_CARD = "home";
 const FAMILY_ANSWER = "family-house";
-/** R-HOME-009: the support a life from sixteen sends home once abroad. */
+/** home:starting-charges-from-one-function: the support a life from sixteen sends home once abroad. */
 const HOME_SUPPORT: Id<"obligation"> = "obligation.home-support";
 
 /**
- * R-HOME-009: the starting life's charges at home, as `obligation/open` effects: a fixed life's starting obligations,
+ * home:starting-charges-from-one-function: the starting life's charges at home, as `obligation/open` effects: a fixed life's starting obligations,
  * or for a life from sixteen, which starts owing nothing, what its home card opens for the family house
- * (R-PROLOGUE-006, 012). Only obligations of `types` are given, each at `shareBp` of its amount. The family house
- * reopens them on a move back (R-HOME-002) and on a return (R-PLACE-007), and the family's support abroad opens
- * from them (R-PLACE-002), so every life is charged the same way whichever way it started.
+ * (prologue:closing-opens-home-charges, prologue:makoko-start-never-a-trap). Only obligations of `types` are given, each at `shareBp` of its amount. The family house
+ * reopens them on a move back (home:move-home-once-a-month) and on a return (place:family-takes-you-back), and the family's support abroad opens
+ * from them (place:departure-moves-abroad), so every life is charged the same way whichever way it started.
  */
 export function homeCharges(read: ReadCtx, types: readonly ObligationType[], shareBp: number = FULL): Effect[] {
   const scenario = read.content.scenario[read.state.scenario];
   if (scenario === undefined) return [];
   // A life from sixteen owes nothing at the start, so its home card's family-house answer stands for its upkeep, and
-  // `tuning.prologue.homeSupport` for the support the fixed lives list (R-HOME-009): the card cannot carry it, since
+  // `tuning.prologue.homeSupport` for the support the fixed lives list (home:starting-charges-from-one-function): the card cannot carry it, since
   // the card's effects open at the close, at home, where no support is sent.
   const opens: Effect[] =
     scenario.prologue === true
@@ -170,7 +170,7 @@ export function homeCharges(read: ReadCtx, types: readonly ObligationType[], sha
   });
 }
 
-/** The family house's own upkeep, as `obligation/open` effects at the starting life's charge (R-HOME-002, R-HOME-009). */
+/** The family house's own upkeep, as `obligation/open` effects at the starting life's charge (home:move-home-once-a-month, home:starting-charges-from-one-function). */
 function familyUpkeep(read: ReadCtx): Effect[] {
   return homeCharges(read, ["upkeep"]).filter((effect) => {
     if (effect.type !== "obligation/open") return false;
@@ -179,7 +179,7 @@ function familyUpkeep(read: ReadCtx): Effect[] {
   });
 }
 
-/** R-HOME-008: what living at a home charges a month, as the bill will take it: Makoko's rent, the room's upkeep, or the family's. */
+/** home:moves-carry-cost-and-reason: what living at a home charges a month, as the bill will take it: Makoko's rent, the room's upkeep, or the family's. */
 function monthlyAt(read: ReadCtx, to: HomePlace): number {
   if (to === MAKOKO) return livingCharge(read, MAKOKO_UPKEEP, read.content.tuning.home.makokoUpkeep);
   if (to === COMPOUND) return livingCharge(read, COMPOUND_UPKEEP, read.content.tuning.home.compound.upkeep);
@@ -193,7 +193,7 @@ function monthlyAt(read: ReadCtx, to: HomePlace): number {
 }
 
 /**
- * R-HOME-002, R-HOME-008: why `home/move` to a home not lived in would be refused at home, or null when it would be
+ * home:move-home-once-a-month, home:moves-carry-cost-and-reason: why `home/move` to a home not lived in would be refused at home, or null when it would be
  * taken. The command and the card read the same answer.
  */
 function moveShut(read: ReadCtx, to: HomePlace): HomeMoveShut | null {
@@ -203,12 +203,12 @@ function moveShut(read: ReadCtx, to: HomePlace): HomeMoveShut | null {
 }
 
 // ---------------------------------------------------------------------------
-// Hosts: R-HOME-004
+// Hosts: home:taken-in-after-eviction
 // ---------------------------------------------------------------------------
 
 /**
  * Who would take the character in. `friend`: a real player joined to this character whose facts
- * show them at home (R-PEOPLE-001), the first bond by id. `someone`: the first `person` entry of
+ * show them at home (person:others-known-by-facts), the first bond by id. `someone`: the first `person` entry of
  * role sibling (the content has no friend role) with a home in Lagos (in the city, not abroad)
  * whose `when` holds.
  */
@@ -240,19 +240,19 @@ function judgeHost(read: ReadCtx, requirement: Requirement): RequirementResult {
 }
 
 // ---------------------------------------------------------------------------
-// Moving: R-HOME-002
+// Moving: home:move-home-once-a-month
 // ---------------------------------------------------------------------------
 
 /**
  * The move itself, for the command and for an answer that moves. Whatever upkeep and rent the old
  * home charged close. To Makoko: the first month's rent is taken cash first then bank, and
- * Makoko's upkeep opens at the tuning's charge. To the room in a compound (R-HOME-010): the year's
+ * Makoko's upkeep opens at the tuning's charge. To the room in a compound (home:compound-room-is-a-home): the year's
  * rent and the fees are taken at once under `rent`, the year's rent opens paid for its first year
- * (R-OBLIGATION-015), and the room's own upkeep opens. To the family house: the family's upkeep
+ * (obligation:prepaid-entries-skip-first-charge), and the room's own upkeep opens. To the family house: the family's upkeep
  * reopens at the starting life's charge, the family talks, and a year's rent paid on a room is gone.
  * An open taken-in or where-next offer is settled by it, except the one being answered. `charge` is
  * false for an answer, whose own effects pay the rent so the offer shows its price and judges it
- * (R-OFFER-003). `putOut`: the move is R-HOME-011's, the rent gone bad.
+ * (offer:choice-needs-conditions-and-funds). `putOut`: the move is home:rent-default-returns-to-family's, the rent gone bad.
  */
 function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean, putOut = false): BaseEvent[] {
   const { tuning } = ctx.content;
@@ -305,7 +305,7 @@ function moveCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   return moveTo(ctx, command.to, { source: MOVE_SOURCE, param: null, terms: {} }, true);
 }
 
-/** The move an answer makes (R-HOME-004). The answer's conditions and its debits were judged before it ran. */
+/** The move an answer makes (home:taken-in-after-eviction). The answer's conditions and its debits were judged before it ran. */
 function moveEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "home/move") throw new Error(`home/move cannot carry out ${effect.type}.`);
   if (ctx.state.place.where !== "home" || homeOf(ctx.state, ctx.content).place === effect.place) return [];
@@ -313,7 +313,7 @@ function moveEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 }
 
 // ---------------------------------------------------------------------------
-// Taken in: R-HOME-004
+// Taken in: home:taken-in-after-eviction
 // ---------------------------------------------------------------------------
 
 function guestEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
@@ -324,14 +324,14 @@ function guestEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   const month = ctx.state.turn.month;
   const events = record(ctx, [{ type: "home/taken-in", host: effect.host, by, month, until: month + ctx.content.tuning.home.guestMonths }]);
   ctx.apply([{ type: "obligation/close", obligationType: "upkeep" }], cause);
-  // A kindness, recorded as a moment with the friend where the bond keeps moments (R-PEOPLE-014).
+  // A kindness, recorded as a moment with the friend where the bond keeps moments (person:time-together-is-an-act).
   const bond = effect.host === "friend" ? ctx.state.people.bonds[by] : undefined;
   if (bond !== undefined && MOMENT_STAGES.includes(bond.stage)) ctx.apply([{ type: "people/moment", kind: "met" }], { ...cause, param: by });
   return events;
 }
 
 // ---------------------------------------------------------------------------
-// Hosting: R-HOME-005
+// Hosting: home:hosting-costs-the-host
 // ---------------------------------------------------------------------------
 
 function hostCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
@@ -346,7 +346,7 @@ function hostCommand(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** The turn's first phase: the family house took the character back on a return (R-PLACE-007), and a stay hosted has run out. */
+/** The turn's first phase: the family house took the character back on a return (place:family-takes-you-back), and a stay hosted has run out. */
 function spend(ctx: Ctx): BaseEvent[] {
   const events: BaseEvent[] = [];
   const { home } = ctx.state;
@@ -356,7 +356,7 @@ function spend(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-HOME-005: while a joined player's character stays, the host's upkeep is up by the tuning's
+ * home:hosting-costs-the-host: while a joined player's character stays, the host's upkeep is up by the tuning's
  * share of its charge, taken as the upkeep is (cash first, then bank, what is held).
  */
 function due(ctx: Ctx): BaseEvent[] {
@@ -373,14 +373,14 @@ function due(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * The `clocks` phase. R-HOME-003: a month lived in Makoko draws on the stream `home`; on it the
- * settlement is cleared. R-HOME-004: a guest whose stay has come to its month is asked where next.
+ * The `clocks` phase. home:makoko-eviction-draw: a month lived in Makoko draws on the stream `home`; on it the
+ * settlement is cleared. home:taken-in-after-eviction: a guest whose stay has come to its month is asked where next.
  */
 function clocks(ctx: Ctx): BaseEvent[] {
   if (ctx.state.place.where !== "home") return [];
   const { home } = ctx.state;
   const month = ctx.state.turn.month;
-  // R-HOME-011: a rent gone bad sends the character back to the family house, as an eviction from Makoko does. The
+  // home:rent-default-returns-to-family: a rent gone bad sends the character back to the family house, as an eviction from Makoko does. The
   // rent's default closed it (the landlord took the room back), so a room lived in with no rent open is a room lost.
   const lives = homeOf(ctx.state, ctx.content).place;
   const held = lives === null ? undefined : ROOM_RENT[lives];
@@ -438,10 +438,10 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 function lines(event: HomeEvent): ReportLine[] {
   switch (event.type) {
     case "home/moved":
-      // R-HOME-011: a rent gone bad is told with attention; a move of one's own is said quietly.
+      // home:rent-default-returns-to-family: a rent gone bad is told with attention; a move of one's own is said quietly.
       return event.putOut === true ? [line("line.home.put-out", { place: event.to }, "bad", true)] : [line("line.home.moved", { place: event.to }, "plain", false)];
     case "home/evicted":
-      // Told straight (text.md R-TEXT-002): what went with the room is its own figure, not the wallet's; with no cash held, none is named.
+      // Told straight (text:bad-news-never-joked): what went with the room is its own figure, not the wallet's; with no cash held, none is named.
       return [line(event.lost > 0 ? "line.home.evicted" : "line.home.evicted-no-cash", { lost: { currency: "NGN", amount: event.lost } }, "bad", true)];
     case "home/taken-in":
       // A friend is named by the words for one (the pair's name is the other life's), someone of the story by their entry.
@@ -473,9 +473,9 @@ function invariants(state: State, content: Content): string[] {
 }
 
 /**
- * R-HOME-010: the room's yearly rent while it is open: the year's figure, the fees paid on it
+ * home:compound-room-is-a-home: the room's yearly rent while it is open: the year's figure, the fees paid on it
  * at the move, and the months until the next year is taken. The month a charge is taken is the turn's month after the
- * month in hand, as the obligation kind's `due` phase reads it (R-OBLIGATION-015: a prepaid rent is first charged
+ * month in hand, as the obligation kind's `due` phase reads it (obligation:prepaid-entries-skip-first-charge: a prepaid rent is first charged
  * `everyMonths` after the opening month, then every `everyMonths`; a missed one is asked for again each month).
  */
 function roomRent(read: ReadCtx): PlayerView["home"]["roomRent"] {
@@ -491,7 +491,7 @@ function roomRent(read: ReadCtx): PlayerView["home"]["roomRent"] {
 }
 
 /**
- * R-HOME-007, R-HOME-008: where the character lives, the monthly charge there as the bill takes it, the eviction
+ * home:view-carries-home, home:moves-carry-cost-and-reason: where the character lives, the monthly charge there as the bill takes it, the eviction
  * chance a month in Makoko now, and at home the moves the card offers, each with its charge a month and why it is shut.
  */
 function homeView(read: ReadCtx): PlayerView["home"] {

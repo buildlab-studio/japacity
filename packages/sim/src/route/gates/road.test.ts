@@ -1,4 +1,4 @@
-// The road: docs/rules/road.md, R-ROAD-001 to 012, played through `step` on
+// The road: docs/rules/road.md, played through `step` on
 // the real content. Where a test needs one outcome for certain it changes the
 // content's rows or the pitch's shares; the whole chain under the real numbers
 // is played under fixed seeds, and each seed's path is asserted step by step.
@@ -35,7 +35,7 @@ const STAKE: Id<"quality"> = "quality.family-stake";
 const road: RouteEntry = content.route[ROAD]!;
 const chain = road.road!.steps;
 const ASSISTED = content.tuning.return.standing.assisted;
-/** ₦100,000, the step R-ROAD-005 reads family means in. */
+/** ₦100,000, the step road:road-truth-asks-more reads family means in. */
 const MEANS_STEP = 100000 * UNIT;
 /** Enough naira in cash for any deposit and the same again; the bank below the broke line, so the return earns no capital bonus. */
 const CASH = 3000000 * UNIT;
@@ -156,11 +156,11 @@ function path(seen: string[]): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// R-ROAD-001: no checklist, no japacity, no routes-view entry, one switch
+// road:road-route-has-no-figure: no checklist, no japacity, no routes-view entry, one switch
 // ---------------------------------------------------------------------------
 
 describe("the road is never a route on the board", () => {
-  test("[R-ROAD-001] given a character on the road, when the view is read, then the routes view has no road and japacity has no figure from it", () => {
+  test("[road:road-route-has-no-figure] given a character on the road, when the view is read, then the routes view has no road and japacity has no figure from it", () => {
     const game = life({ change: HONEST_ROAD });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -171,7 +171,7 @@ describe("the road is never a route on the board", () => {
     expect(view.japacity.route).not.toBe(ROAD);
   });
 
-  test("[R-ROAD-001] given the road's route forced past its window into applying, when japacity is worked out, then the road still never counts", () => {
+  test("[road:road-route-has-no-figure] given the road's route forced past its window into applying, when japacity is worked out, then the road still never counts", () => {
     const game = life();
     const held = game.state.route[ROAD]!;
     game.state = { ...game.state, route: { ...game.state.route, [ROAD]: { ...held, state: "applying" } } };
@@ -179,7 +179,7 @@ describe("the road is never a route on the board", () => {
     expect(japacity(readOf(game)).percent).toBeNull();
   });
 
-  test("[R-ROAD-001] given the content switch off, when the motor park is asked and the pitches would be certain, then no pitch ever opens", () => {
+  test("[road:road-route-has-no-figure] given the content switch off, when the motor park is asked and the pitches would be certain, then no pitch ever opens", () => {
     const certain: Change = (used) => {
       const offer = { ...used.offer };
       for (const id of PITCHES) offer[id] = { ...used.offer[id]!, chanceBp: 10000 };
@@ -192,7 +192,7 @@ describe("the road is never a route on the board", () => {
     for (const id of PITCHES) expect(game.state.offer.timesOpened[id]).toBeUndefined();
   });
 
-  test("[R-ROAD-001] given the switch on and a certain pitch, when the same months pass at home, then the pitch opens: the switch is what stopped it", () => {
+  test("[road:road-route-has-no-figure] given the switch on and a certain pitch, when the same months pass at home, then the pitch opens: the switch is what stopped it", () => {
     const certain: Change = (used) => ({ ...used, offer: { ...used.offer, [RADIO]: { ...used.offer[RADIO]!, chanceBp: 10000 } } });
     const game = life({ change: certain });
     for (let month = 0; month < 8 && game.state.offer.timesOpened[RADIO] === undefined; month += 1) turn(game);
@@ -201,7 +201,7 @@ describe("the road is never a route on the board", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-002: the pitch and its pressure
+// road:pitch-rises-with-pressure: the pitch and its pressure
 // ---------------------------------------------------------------------------
 
 describe("the pitch", () => {
@@ -213,7 +213,7 @@ describe("the pitch", () => {
       check(readOf(game), requirement);
   const chanceOf = (game: Game) => pressureChanceBp(readOf(game), radio, judgeOf(game));
 
-  test("[R-ROAD-002] given every pitch, when its name, title, body and choices are read, then nothing says desert, sea, road, boat or danger", () => {
+  test("[road:pitch-rises-with-pressure] given every pitch, when its name, title, body and choices are read, then nothing says desert, sea, road, boat or danger", () => {
     for (const id of PITCHES) {
       const keys = [`${id}.name`, `${id}.title`, `${id}.body`, ...content.offer[id]!.choices.map((choice) => `${id}.choice.${choice.id}`)];
       for (const key of keys) {
@@ -223,23 +223,23 @@ describe("the pitch", () => {
     }
   });
 
-  test("[R-ROAD-002] given a character with nothing pressing (standing 60, age under 31, no refusal, no default, no strong route), when the chance is read, then it is the entry's own", () => {
+  test("[road:pitch-rises-with-pressure] given a character with nothing pressing (standing 60, age under 31, no refusal, no default, no strong route), when the chance is read, then it is the entry's own", () => {
     const game = life({ qualities: { [AGE]: 30 * 12 + 11, [STANDING]: 30 } });
     expect(chanceOf(game)).toBe(radio.chanceBp);
   });
 
-  test("[R-ROAD-002] given standing at 29 and then 30, when the chance is read, then only under 30 adds the low-standing figure", () => {
+  test("[road:pitch-rises-with-pressure] given standing at 29 and then 30, when the chance is read, then only under 30 adds the low-standing figure", () => {
     expect(chanceOf(life({ qualities: { [STANDING]: 29 } }))).toBe(radio.chanceBp + pressure.lowStandingBp);
     expect(chanceOf(life({ qualities: { [STANDING]: 30 } }))).toBe(radio.chanceBp);
   });
 
-  test("[R-ROAD-002] given an age of 30 years 11 months, 31 years and 35 years, when the chance is read, then each whole year over 30 adds its figure", () => {
+  test("[road:pitch-rises-with-pressure] given an age of 30 years 11 months, 31 years and 35 years, when the chance is read, then each whole year over 30 adds its figure", () => {
     expect(chanceOf(life({ qualities: { [AGE]: 30 * 12 + 11 } }))).toBe(radio.chanceBp);
     expect(chanceOf(life({ qualities: { [AGE]: 31 * 12 } }))).toBe(radio.chanceBp + pressure.perYearOver30Bp);
     expect(chanceOf(life({ qualities: { [AGE]: 35 * 12 } }))).toBe(radio.chanceBp + 5 * pressure.perYearOver30Bp);
   });
 
-  test("[R-ROAD-002] given one and then two earlier refusals, and a loan in default, when the chance is read, then each refusal and the default add theirs", () => {
+  test("[road:pitch-rises-with-pressure] given one and then two earlier refusals, and a loan in default, when the chance is read, then each refusal and the default add theirs", () => {
     const game = life();
     const uk = game.state.route[UK_ROUTE]!;
     game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...uk, refusals: 1 } } };
@@ -252,7 +252,7 @@ describe("the pitch", () => {
     expect(chanceOf(game)).toBe(radio.chanceBp + 2 * pressure.refusalBp + pressure.defaultBp);
   });
 
-  test("[R-ROAD-002] given a known formal route at a figure of 59 and then 60, when the chance is read, then only 60 or more takes the strong-route figure off", () => {
+  test("[road:pitch-rises-with-pressure] given a known formal route at a figure of 59 and then 60, when the chance is read, then only 60 or more takes the strong-route figure off", () => {
     const at = (weight: number): Change => (used) => {
       const uk = used.route[UK_ROUTE]!;
       const checklist = [
@@ -271,7 +271,7 @@ describe("the pitch", () => {
     expect(parkChance(known(life({ change: at(60) })))).toBe(park.chanceBp - pressure.strongRouteBp);
   });
 
-  test("[R-ROAD-002] [R-ENGINE-017] given the pressure lines moved in the tuning (standing under 50, age over 25, a strong route at 10), when the chance is read, then each line is the tuning's", () => {
+  test("[road:pitch-rises-with-pressure] [engine:numbers-read-from-content] given the pressure lines moved in the tuning (standing under 50, age over 25, a strong route at 10), when the chance is read, then each line is the tuning's", () => {
     // The UK route known at a figure of 10, standing 40 and 27 years: no line of the page's is crossed.
     const atTen: Change = (used) => {
       const uk = used.route[UK_ROUTE]!;
@@ -294,7 +294,7 @@ describe("the pitch", () => {
     expect(chanceOf(known(life({ qualities, change: all(atTen, moved) })))).toBe(radio.chanceBp + pressure.lowStandingBp + 2 * pressure.perYearOver30Bp - pressure.strongRouteBp);
   });
 
-  test("[R-ROAD-012] [R-OFFER-005] given a pitch open at home, when the granted visa is flown with it still open, then the plane closes it unanswered, taking it is refused and the chain never starts", () => {
+  test("[road:pitch-reaches-anyone-at-home] [offer:lapsed-offer-removed] given a pitch open at home, when the granted visa is flown with it still open, then the plane closes it unanswered, taking it is refused and the chain never starts", () => {
     const game = life({ change: HONEST_ROAD });
     const pitch = openPitch(game);
     // Abroad, the pitch's take is not allowed even before the plane closes it (its `requires` is the character at home).
@@ -308,15 +308,15 @@ describe("the pitch", () => {
     expect(gateOf(game).step).toBeNull();
   });
 
-  test("[R-ROAD-002] given a strong route and no pressure on a pitch whose chance is below the figure, when the chance is read, then it stops at 0", () => {
+  test("[road:pitch-rises-with-pressure] given a strong route and no pressure on a pitch whose chance is below the figure, when the chance is read, then it stops at 0", () => {
     const game = life();
     game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "granted" } } };
     expect(pressureChanceBp(readOf(game), content.offer[COUSIN]!, judgeOf(game))).toBe(0);
   });
 
-  test("[R-ROAD-002] given a curious character at home, when the free slot asks around at the motor park, then the park's pitch is open that same month", () => {
+  test("[road:pitch-rises-with-pressure] given a curious character at home, when the free slot asks around at the motor park, then the park's pitch is open that same month", () => {
     const game = life();
-    // R-ACTIVITY-015: asking around is an act done at once, so the pitch opens now, in the month in hand.
+    // activity:now-acts-and-month-acts: asking around is an act done at once, so the pitch opens now, in the month in hand.
     const result = game.accept({ type: "activity/now", activity: ASK_AROUND, param: null });
     expect(offerOf(game, ROAD_PARK)).toBeDefined();
     expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === ROAD_PARK)).toBe(true);
@@ -324,11 +324,11 @@ describe("the pitch", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-003: taking the pitch
+// road:taking-pitch-pays-deposit: taking the pitch
 // ---------------------------------------------------------------------------
 
 describe("taking the pitch", () => {
-  test("[R-ROAD-003] given an honest pitch, when it is taken, then the deposit leaves cash as fee-agent, one draw on `road` splits it, and the night meeting opens", () => {
+  test("[road:taking-pitch-pays-deposit] given an honest pitch, when it is taken, then the deposit leaves cash as fee-agent, one draw on `road` splits it, and the night meeting opens", () => {
     const game = life({ change: HONEST_ROAD });
     const before = cash(game);
     const draws = game.state.draws.road ?? 0;
@@ -343,7 +343,7 @@ describe("taking the pitch", () => {
     expect(gateOf(game)).toEqual({ gate: "road", step: "night", monthsHere: 0, debt: deposit });
   });
 
-  test("[R-ROAD-003] given the kinds at their ends, when the pitch is taken, then all real-ish keeps a real-ish connection hidden and all road keeps none, and the view shows neither", () => {
+  test("[road:taking-pitch-pays-deposit] given the kinds at their ends, when the pitch is taken, then all real-ish keeps a real-ish connection hidden and all road keeps none, and the view shows neither", () => {
     const realish = life({ change: HONEST_REALISH });
     take(realish);
     expect(realish.state.route[ROAD]!.secret.sponsorFraud).toBe(true);
@@ -354,7 +354,7 @@ describe("taking the pitch", () => {
     expect(JSON.stringify(realish.view())).not.toContain("secret");
   });
 
-  test("[R-ROAD-003] given a fraud, when it is taken, then the deposit is gone, no draw on `road` is made, nothing opens, and a month later one line says so", () => {
+  test("[road:taking-pitch-pays-deposit] given a fraud, when it is taken, then the deposit is gone, no draw on `road` is made, nothing opens, and a month later one line says so", () => {
     const game = life({ change: ALWAYS_FRAUD });
     const before = cash(game);
     const draws = game.state.draws.road ?? 0;
@@ -371,7 +371,7 @@ describe("taking the pitch", () => {
     expect(after.lines.filter((line) => line.key.startsWith("line.route.road-"))).toEqual([]);
   });
 
-  test("[R-ROAD-003] given a pitch taken with too little naira in cash and bank together, when it is chosen, then it is refused with cannot-afford and nothing moves; with the deposit in the bank alone it is paid, cash first and the bank for the rest (decision 0014)", () => {
+  test("[road:taking-pitch-pays-deposit] given a pitch taken with too little naira in cash and bank together, when it is chosen, then it is refused with cannot-afford and nothing moves; with the deposit in the bank alone it is paid, cash first and the bank for the rest (decision 0014)", () => {
     const game = life({ change: HONEST_ROAD, pockets: { NGN: { bank: 0, cash: 0 } } });
     const pitch = openPitch(game);
     game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "cannot-afford");
@@ -385,11 +385,11 @@ describe("taking the pitch", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-004: the night meeting
+// road:road-night-allows-turn-back: the night meeting
 // ---------------------------------------------------------------------------
 
 describe("the night meeting", () => {
-  test("[R-ROAD-004] given the night meeting, when the character turns back, then standing falls 2, the deposit stays gone, the chain closes, and nothing else changes", () => {
+  test("[road:road-night-allows-turn-back] given the night meeting, when the character turns back, then standing falls 2, the deposit stays gone, the chain closes, and nothing else changes", () => {
     const game = life({ change: HONEST_ROAD });
     take(game);
     const standing = quality(game, STANDING);
@@ -405,7 +405,7 @@ describe("the night meeting", () => {
     expect(game.state.setpiece.open).toBeNull();
   });
 
-  test("[R-ROAD-004] given the night meeting, when the character goes, then the turn is not blocked and the truth is asked in the month that follows", () => {
+  test("[road:road-night-allows-turn-back] given the night meeting, when the character goes, then the turn is not blocked and the truth is asked in the month that follows", () => {
     const game = life({ change: HONEST_ROAD });
     take(game);
     game.expectRejected({ type: "turn/end", slots: [] }, "setpiece-open");
@@ -416,7 +416,7 @@ describe("the night meeting", () => {
     expect(game.state.setpiece.open?.entry).toBe(TRUTH);
   });
 
-  test("[R-ROAD-004] [R-SETPIECE-002] given a road scene open, the night meeting or the truth, when the turn is ended, then it is rejected with setpiece-open; between the two none is open and the month passes", () => {
+  test("[road:road-night-allows-turn-back] [route:open-set-piece-holds-month] given a road scene open, the night meeting or the truth, when the turn is ended, then it is rejected with setpiece-open; between the two none is open and the month passes", () => {
     const game = life({ change: HONEST_ROAD });
     take(game);
     expect(game.state.setpiece.open?.entry).toBe(NIGHT);
@@ -428,7 +428,7 @@ describe("the night meeting", () => {
     game.expectRejected({ type: "turn/end", slots: [] }, "setpiece-open");
   });
 
-  test("[R-ROAD-004] given every set piece of the chain, when its answers are read, then each keeps one that leaves the road", () => {
+  test("[road:road-night-allows-turn-back] given every set piece of the chain, when its answers are read, then each keeps one that leaves the road", () => {
     for (const id of [NIGHT, TRUTH]) {
       const answers = content.setpiece[id]!.questions.flatMap((question) => question.answers);
       const leaves = answers.filter((item) =>
@@ -438,14 +438,14 @@ describe("the night meeting", () => {
     }
   });
 
-  test("[R-ROAD-004] given another set piece already open when the pitch is taken, when the months pass, then the night meeting opens once the first is answered", () => {
+  test("[road:road-night-allows-turn-back] given another set piece already open when the pitch is taken, when the months pass, then the night meeting opens once the first is answered", () => {
     const game = life({ change: HONEST_ROAD });
     applyEffects(game, [{ type: "setpiece/open", setpiece: "setpiece.december", route: null }]);
     take(game);
     expect(game.state.setpiece.open?.entry).toBe("setpiece.december");
     for (let guard = 0; guard < 5 && game.state.setpiece.open !== null; guard += 1) {
       const question = game.view().setpiece!.question!;
-      // The last allowed answer: a spending answer the pocket cannot cover is not allowed (R-SETPIECE-003).
+      // The last allowed answer: a spending answer the pocket cannot cover is not allowed (route:set-piece-answers-in-order).
       answer(game, question.id, question.allowed.at(-1)!);
     }
     turn(game);
@@ -454,11 +454,11 @@ describe("the night meeting", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-005: the truth
+// road:road-truth-asks-more: the truth
 // ---------------------------------------------------------------------------
 
 describe("the truth", () => {
-  test("[R-ROAD-005] given the truth, when the character pays, then the deposit again leaves cash as fee-agent, the character is on the road, the home obligations stop, the job at home ends and there are no free slots", () => {
+  test("[road:road-truth-asks-more] given the truth, when the character pays, then the deposit again leaves cash as fee-agent, the character is on the road, the home obligations stop, the job at home ends and there are no free slots", () => {
     const game = life({ change: HONEST_ROAD });
     const deposit = toTruth(game);
     const money = cash(game);
@@ -477,7 +477,7 @@ describe("the truth", () => {
     expect(game.state.turn.month).toBeGreaterThan(1);
   });
 
-  test("[R-ROAD-005] given a job at home, when the character pays at the truth, then the job ends", () => {
+  test("[road:road-truth-asks-more] given a job at home, when the character pays at the truth, then the job ends", () => {
     const working: Change = (used) => ({ ...used, scenario: { ...used.scenario, "scenario.ready": { ...used.scenario["scenario.ready"]!, job: "activity.job-teacher" } } });
     const game = life({ change: all(HONEST_ROAD, working) });
     expect(game.state.activity.job).toBe("activity.job-teacher");
@@ -486,7 +486,7 @@ describe("the truth", () => {
     expect(game.state.activity.job).toBeNull();
   });
 
-  test("[R-ROAD-005] given less cash than they ask, when the character pays, then cash is emptied and the rest opens as the agent's debt in naira", () => {
+  test("[road:road-truth-asks-more] given less cash than they ask, when the character pays, then cash is emptied and the rest opens as the agent's debt in naira", () => {
     const game = life({ change: all(HONEST_ROAD, pitches(0, { fraud: 0, realish: 0, road: 10000 }, 500000 * UNIT)) });
     toTruth(game);
     const short = 200000 * UNIT;
@@ -497,7 +497,7 @@ describe("the truth", () => {
     expect(game.state.place.where).toBe("road");
   });
 
-  test("[R-ROAD-005] given a deposit of ₦150,000, when the family is called, then cash is untouched, family means fall 1, the stake is 1 and standing falls 5", () => {
+  test("[road:road-truth-asks-more] given a deposit of ₦150,000, when the family is called, then cash is untouched, family means fall 1, the stake is 1 and standing falls 5", () => {
     const game = life({ change: pitches(0, { fraud: 0, realish: 0, road: 10000 }, 150000 * UNIT) });
     toTruth(game);
     const money = cash(game);
@@ -511,7 +511,7 @@ describe("the truth", () => {
     expect(game.state.place.where).toBe("road");
   });
 
-  test("[R-ROAD-005] given a deposit one kobo under ₦100,000 and one of ₦800,000, when the family is called, then means fall 0 and then 8", () => {
+  test("[road:road-truth-asks-more] given a deposit one kobo under ₦100,000 and one of ₦800,000, when the family is called, then means fall 0 and then 8", () => {
     const under = life({ change: pitches(0, { fraud: 0, realish: 0, road: 10000 }, MEANS_STEP - 1) });
     toTruth(under);
     const before = quality(under, MEANS);
@@ -524,7 +524,7 @@ describe("the truth", () => {
     expect(quality(big, MEANS)).toBe(was - 8);
   });
 
-  test("[R-ROAD-005] given the truth, when the character takes the exit, then standing falls 4, the money is gone, the character is at home and the chain ends", () => {
+  test("[road:road-truth-asks-more] given the truth, when the character takes the exit, then standing falls 4, the money is gone, the character is at home and the chain ends", () => {
     const game = life({ change: HONEST_ROAD });
     toTruth(game);
     const money = cash(game);
@@ -540,7 +540,7 @@ describe("the truth", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-006: the chain
+// road:chain-steps-monthly: the chain
 // ---------------------------------------------------------------------------
 
 /** Sets out under the page's numbers with the given seed, pays at the truth, and plays the chain to its end. */
@@ -556,33 +556,33 @@ function setOut(seed: string): { game: Game; seen: string[] } {
 }
 
 describe("the chain under the page's numbers", () => {
-  test("[R-ROAD-006] [R-ROAD-009] given seed-6, when the chain is played, then it crosses the desert, the compound, the coast and the sea, one step a month, and arrives", () => {
+  test("[road:chain-steps-monthly] [road:sea-arrival-in-italy] given seed-6, when the chain is played, then it crosses the desert, the compound, the coast and the sea, one step a month, and arrives", () => {
     const { game, seen } = setOut("seed-6");
     expect(path(seen)).toEqual(["desert", "compound", "coast", "sea", "arrived"]);
     expect(seen.filter((step) => step === "sea")).toHaveLength(1);
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.italy" });
   });
 
-  test("[R-ROAD-006] given seed-51, when the chain is played, then the compound takes 0 months and is passed by", () => {
+  test("[road:chain-steps-monthly] given seed-51, when the chain is played, then the compound takes 0 months and is passed by", () => {
     // The man at the park needs asking around first, which this seed's chain follows.
     const { seen } = setOut("seed-51");
     expect(path(seen)).toEqual(["desert", "coast", "sea", "arrived"]);
   });
 
-  test("[R-ROAD-006] [R-ROAD-007] given seed-0, when the chain is played, then the desert turns the character back and the exit brings them home", () => {
+  test("[road:chain-steps-monthly] [road:exit-is-assisted-return] given seed-0, when the chain is played, then the desert turns the character back and the exit brings them home", () => {
     const { game, seen } = setOut("seed-0");
     expect(path(seen)).toEqual(["desert", "exit"]);
     expect(game.state.place.where).toBe("home");
   });
 
-  test("[R-ROAD-006] [R-ROAD-008] given seed-50, when the chain is played, then the desert is the ending", () => {
+  test("[road:chain-steps-monthly] [road:lost-is-final] given seed-50, when the chain is played, then the desert is the ending", () => {
     const { game, seen } = setOut("seed-50");
     expect(path(seen)).toEqual(["desert"]);
     expect(gateOf(game).step).toBe("lost");
     expect(game.state.turn.ended).toBe(true);
   });
 
-  test("[R-ROAD-006] given the desert's 2 to 4 months and every other row at `on`, when many seeds set out, then the desert lasts 2, 3 or 4 months and each length comes up", () => {
+  test("[road:chain-steps-monthly] given the desert's 2 to 4 months and every other row at `on`, when many seeds set out, then the desert lasts 2, 3 or 4 months and each length comes up", () => {
     const lengths = new Set<number>();
     for (let index = 0; index < 24; index += 1) {
       const game = life({ seed: `seed-${String(index)}`, change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
@@ -597,7 +597,7 @@ describe("the chain under the page's numbers", () => {
     expect([...lengths].sort()).toEqual([2, 3, 4]);
   });
 
-  test("[R-ROAD-006] given the step rows at their ends, when a roll is read, then the last roll under `on` moves on, the first at `on` is held, and the halving gives its half of `held` to `on`", () => {
+  test("[road:chain-steps-monthly] given the step rows at their ends, when a roll is read, then the last roll under `on` moves on, the first at `on` is held, and the halving gives its half of `held` to `on`", () => {
     const compound = chain.find((step) => step.id === "compound")!;
     expect(outcomeOf(compound, false, 0)).toBe("on");
     expect(outcomeOf(compound, false, compound.on - 1)).toBe("on");
@@ -614,7 +614,7 @@ describe("the chain under the page's numbers", () => {
     expect(outcomeOf(compound, true, compound.on + compound.held)).toBe("turned");
   });
 
-  test("[R-ROAD-006] given a real-ish connection, when it is played under the page's numbers, then it is still the road: the same steps and the same ends", () => {
+  test("[road:chain-steps-monthly] given a real-ish connection, when it is played under the page's numbers, then it is still the road: the same steps and the same ends", () => {
     const game = life({ seed: "seed-3" });
     const pitch = openPitch(game);
     game.accept({ type: "offer/choose", offer: pitch.id, choice: "take" });
@@ -625,7 +625,7 @@ describe("the chain under the page's numbers", () => {
     expect(path(playOut(game))).toEqual(["desert", "compound", "coast", "sea", "arrived"]);
   });
 
-  test("[R-ROAD-006] given a month on the road, when it resolves, then the chain draws only on `road` and never on `visa` or `school`", () => {
+  test("[road:chain-steps-monthly] given a month on the road, when it resolves, then the chain draws only on `road` and never on `visa` or `school`", () => {
     const game = life({ change: HONEST_ROAD });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -648,7 +648,7 @@ describe("held, and the call home", () => {
     return game;
   }
 
-  test("[R-ROAD-006] given the compound's `held`, when it comes, then the ransom call goes to the family and the agent's debt opens in naira for its sum", () => {
+  test("[road:chain-steps-monthly] given the compound's `held`, when it comes, then the ransom call goes to the family and the agent's debt opens in naira for its sum", () => {
     const game = heldAtCompound();
     const call = offerOf(game, RANSOM)!;
     const sum = call.terms.sum as number;
@@ -657,7 +657,7 @@ describe("held, and the call home", () => {
     expect(game.state.turn.report?.lines.some((line) => line.key === "line.route.road-held")).toBe(true);
   });
 
-  test("[R-ROAD-006] given the ransom call, when the family pays, then family means and standing fall and the debt stays what the men say", () => {
+  test("[road:chain-steps-monthly] given the ransom call, when the family pays, then family means and standing fall and the debt stays what the men say", () => {
     const game = heldAtCompound();
     const call = offerOf(game, RANSOM)!;
     const debt = owed(game, AGENT_DEBT);
@@ -669,7 +669,7 @@ describe("held, and the call home", () => {
     expect(owed(game, AGENT_DEBT)).toBe(debt);
   });
 
-  test("[R-ROAD-006] given the ransom call, when nobody can pay, then the sum is added to the debt and wellbeing falls 10", () => {
+  test("[road:chain-steps-monthly] given the ransom call, when nobody can pay, then the sum is added to the debt and wellbeing falls 10", () => {
     const game = heldAtCompound();
     const call = offerOf(game, RANSOM)!;
     const sum = call.terms.sum as number;
@@ -680,7 +680,7 @@ describe("held, and the call home", () => {
     expect(result.events).toContainEqual(expect.objectContaining({ type: "obligation/grown", amount: sum }));
   });
 
-  test("[R-ROAD-006] given a held month, when the next month comes, then the outcome is drawn again at once, and each held month brings another call", () => {
+  test("[road:chain-steps-monthly] given a held month, when the next month comes, then the outcome is drawn again at once, and each held month brings another call", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: HELD })) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -695,7 +695,7 @@ describe("held, and the call home", () => {
     expect(owed(game, AGENT_DEBT)).toBeNull();
   });
 
-  test("[R-ROAD-006] given a ransom call nobody answers and a compound that lets go the month after, when that month ends, then the call lapses into `cannot` and the sum is added to the debt", () => {
+  test("[road:chain-steps-monthly] given a ransom call nobody answers and a compound that lets go the month after, when that month ends, then the call lapses into `cannot` and the sum is added to the debt", () => {
     const halfHeld: Change = rows({ desert: { ...ON, months: [1, 1] }, compound: { on: 5000, held: 5000, turned: 0, lost: 0, months: [1, 1] } });
     for (let index = 0; index < 40; index += 1) {
       const game = life({ seed: `seed-${String(index)}`, change: all(HONEST_ROAD, halfHeld) });
@@ -716,7 +716,7 @@ describe("held, and the call home", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-007: the exit, at every step
+// road:exit-is-assisted-return: the exit, at every step
 // ---------------------------------------------------------------------------
 
 describe("the way out", () => {
@@ -724,7 +724,7 @@ describe("the way out", () => {
   const before = (index: number): Record<string, Row> => Object.fromEntries(chain.slice(0, index).map((step) => [step.id, { ...ON, months: [1, 1] }]));
 
   for (const [index, step] of chain.entries()) {
-    test(`[R-ROAD-007] given the character turned back at the ${step.id}, when the exit comes, then it is the assisted return: home, standing by R-RETURN-002, the house takes them back and the debt follows`, () => {
+    test(`[road:exit-is-assisted-return] given the character turned back at the ${step.id}, when the exit comes, then it is the assisted return: home, standing by return:standing-by-return-shape, the house takes them back and the debt follows`, () => {
       const game = life({ change: all(HONEST_ROAD, rows({ ...before(index), [step.id]: { ...TURNED, months: [1, 1] } })) });
       toTruth(game);
       answer(game, "truth", "pay");
@@ -754,7 +754,7 @@ describe("the way out", () => {
     });
   }
 
-  test("[R-ROAD-007] [R-PLACE-004] given a character abroad with no status, when the authority sends them home as assisted, then it is what return/home does with no fare", () => {
+  test("[road:exit-is-assisted-return] [place:return-home-paid-or-assisted] given a character abroad with no status, when the authority sends them home as assisted, then it is what return/home does with no fare", () => {
     const game = abroad(content);
     applyEffects(game, [{ type: "status/lose" }]);
     const pounds = game.state.wallet.pockets.GBP;
@@ -764,7 +764,7 @@ describe("the way out", () => {
     expect(game.state.wallet.pockets.GBP).toEqual(pounds);
   });
 
-  test("[R-ROAD-007] given a character at home, when the authority's return comes, then nothing happens", () => {
+  test("[road:exit-is-assisted-return] given a character at home, when the authority's return comes, then nothing happens", () => {
     const game = life();
     const standing = quality(game, STANDING);
     applyEffects(game, [{ type: "place/return", shape: "assisted" }]);
@@ -772,7 +772,7 @@ describe("the way out", () => {
     expect(quality(game, STANDING)).toBe(standing);
   });
 
-  test("[R-ROAD-007] given the exit's words, when content is read, then the anti-trafficking agency and the migration agency are named in the card's text", () => {
+  test("[road:exit-is-assisted-return] given the exit's words, when content is read, then the anti-trafficking agency and the migration agency are named in the card's text", () => {
     expect(text["road.exit.title"]).toBeTruthy();
     expect(text["road.exit.body"]).toMatch(/anti-trafficking agency/);
     expect(text["road.exit.body"]).toMatch(/migration agency/);
@@ -780,11 +780,11 @@ describe("the way out", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-008: the ending
+// road:lost-is-final: the ending
 // ---------------------------------------------------------------------------
 
 describe("the ending", () => {
-  test("[R-ROAD-008] given `lost` at the sea, when it comes, then the life is over: every command is refused with ended, the view carries the ending card, and turns may still be granted", () => {
+  test("[road:lost-is-final] given `lost` at the sea, when it comes, then the life is over: every command is refused with ended, the view carries the ending card, and turns may still be granted", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: LOST })) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -804,11 +804,11 @@ describe("the ending", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-009: the far shore
+// road:sea-arrival-in-italy: the far shore
 // ---------------------------------------------------------------------------
 
 describe("the far shore", () => {
-  test("[R-ROAD-009] given `on` from the sea, when it comes, then the character is in Italy without papers, works for cash only, keeps the debt, and may go home only by the assisted return", () => {
+  test("[road:sea-arrival-in-italy] given `on` from the sea, when it comes, then the character is in Italy without papers, works for cash only, keeps the debt, and may go home only by the assisted return", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -826,11 +826,11 @@ describe("the far shore", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-010: nothing earned
+// road:road-earns-nothing: nothing earned
 // ---------------------------------------------------------------------------
 
 describe("nothing is earned on the road", () => {
-  test("[R-ROAD-010] given a whole chain to the far shore, when every month's report is read, then japacity never moves, no line is big or good, no goal is done, and the sim marks the place as the road", () => {
+  test("[road:road-earns-nothing] given a whole chain to the far shore, when every month's report is read, then japacity never moves, no line is big or good, no goal is done, and the sim marks the place as the road", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
     toTruth(game);
     const done = game.view().goals.done;
@@ -853,11 +853,11 @@ describe("nothing is earned on the road", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-011: the real-story card
+// road:real-story-card-after-chain: the real-story card
 // ---------------------------------------------------------------------------
 
 describe("the real-story card", () => {
-  test("[R-ROAD-011] given a chain under way, when the view is read, then there is no card; when it ends by the exit, then the real-story card is there for that month and gone the next", () => {
+  test("[road:real-story-card-after-chain] given a chain under way, when the view is read, then there is no card; when it ends by the exit, then the real-story card is there for that month and gone the next", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: TURNED })) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -870,7 +870,7 @@ describe("the real-story card", () => {
     expect(game.view().card).toBeNull();
   });
 
-  test("[R-ROAD-011] given the night turned back, the truth's exit and the far shore, when each ends, then each shows the real-story card", () => {
+  test("[road:real-story-card-after-chain] given the night turned back, the truth's exit and the far shore, when each ends, then each shows the real-story card", () => {
     const back = life({ change: HONEST_ROAD });
     take(back);
     answer(back, "night", "turn-back");
@@ -886,7 +886,7 @@ describe("the real-story card", () => {
     expect(shore.view().card?.kind).toBe("real-story");
   });
 
-  test("[R-ROAD-011] given the card's words, when content is read, then it carries a title, a line and credits, and no more", () => {
+  test("[road:real-story-card-after-chain] given the card's words, when content is read, then it carries a title, a line and credits, and no more", () => {
     expect(text["road.real-story.title"]).toBeTruthy();
     expect(text["road.real-story.line"]).toBeTruthy();
     const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit."));
@@ -895,11 +895,11 @@ describe("the real-story card", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ROAD-012: reach and order
+// road:pitch-reaches-anyone-at-home: reach and order
 // ---------------------------------------------------------------------------
 
 describe("who the pitches reach", () => {
-  test("[R-ROAD-012] given every starting life, when the pitches' conditions are judged at home, then nothing on the profile locks them", () => {
+  test("[road:pitch-reaches-anyone-at-home] given every starting life, when the pitches' conditions are judged at home, then nothing on the profile locks them", () => {
     for (const scenario of Object.keys(content.scenario) as Id<"scenario">[]) {
       if (scenario === "scenario.ready") continue;
       const game = readyLife(content, { from: scenario, quiet: true });
@@ -914,7 +914,7 @@ describe("who the pitches reach", () => {
     }
   });
 
-  test("[R-ROAD-012] given a chain under way or a character on the road, when the pitches' conditions are judged, then none holds", () => {
+  test("[road:pitch-reaches-anyone-at-home] given a chain under way or a character on the road, when the pitches' conditions are judged, then none holds", () => {
     const game = life({ change: HONEST_ROAD });
     take(game);
     const holds = (): boolean => PITCHES.some((id) => content.offer[id]!.when.every((requirement) => check(readOf(game), requirement).met));
@@ -926,7 +926,7 @@ describe("who the pitches reach", () => {
     expect(holds()).toBe(false);
   });
 
-  test("[R-ROAD-012] given a pitch opened before a family request, when the offers are viewed, then the pitch comes last", () => {
+  test("[road:pitch-reaches-anyone-at-home] given a pitch opened before a family request, when the offers are viewed, then the pitch comes last", () => {
     const game = life();
     openPitch(game, RADIO);
     applyEffects(game, [{ type: "offer/open", offer: "offer.nepa-bill" }]);
@@ -945,7 +945,7 @@ const EXIT_OFFER: Id<"offer"> = "offer.road-exit";
 const LONG_DESERT = rows({ desert: { ...ON, months: [3, 3] } });
 
 describe("on the road", () => {
-  test("[R-ROAD-005] given the truth, when the character pays or calls home, then the route is applying and the character is on the road; when the chain ends, the route is known again", () => {
+  test("[road:road-truth-asks-more] given the truth, when the character pays or calls home, then the route is applying and the character is on the road; when the chain ends, the route is known again", () => {
     for (const reply of ["pay", "call-home"]) {
       const game = life({ change: all(HONEST_ROAD, rows({ desert: { ...TURNED, months: [1, 1] } })) });
       toTruth(game);
@@ -959,7 +959,7 @@ describe("on the road", () => {
     }
   });
 
-  test("[R-ROAD-007] given the chain under way, when each month on the road ends, then the exit is an offer with one choice, `ask`; asking it is the assisted return", () => {
+  test("[road:exit-is-assisted-return] given the chain under way, when each month on the road ends, then the exit is an offer with one choice, `ask`; asking it is the assisted return", () => {
     const game = life({ change: all(HONEST_ROAD, LONG_DESERT) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -980,7 +980,7 @@ describe("on the road", () => {
     for (const key of [`${EXIT_OFFER}.name`, `${EXIT_OFFER}.title`, `${EXIT_OFFER}.body`, `${EXIT_OFFER}.choice.ask`]) expect(text[key]).toBeTruthy();
   });
 
-  test("[R-ROAD-010] given a whole chain to the far shore, when every month's report is read, then every line of the chain is tone `bad`, never plain", () => {
+  test("[road:road-earns-nothing] given a whole chain to the far shore, when every month's report is read, then every line of the chain is tone `bad`, never plain", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
     toTruth(game);
     const told = [answer(game, "truth", "pay")];
@@ -990,7 +990,7 @@ describe("on the road", () => {
     for (const line of roadLines) expect(line.tone).toBe("bad");
   });
 
-  test("[R-PLACE-003] [R-ROAD-005] given a family request certain to come and news in the world, when months pass on the road, then no request opens and no story is delivered; at home both come", () => {
+  test("[place:entries-legal-by-where] [road:road-truth-asks-more] given a family request certain to come and news in the world, when months pass on the road, then no request opens and no story is delivered; at home both come", () => {
     const certain: Change = (used) => ({ ...used, offer: { ...used.offer, "offer.nepa-bill": { ...used.offer["offer.nepa-bill"]!, chanceBp: 10000, cooldown: 0 } } });
     const game = life({ change: all(HONEST_ROAD, LONG_DESERT, certain), quiet: false });
     toTruth(game);
@@ -1010,7 +1010,7 @@ describe("on the road", () => {
     expect(offerOf(home, "offer.nepa-bill")).toBeDefined();
   });
 
-  test("[R-ROAD-009] [R-PLACE-011] given the far shore and the fare to hand, when the character asks to go home, then it is the assisted return and no fare is paid: there is no going home by choice from there", () => {
+  test("[road:sea-arrival-in-italy] [place:view-carries-way-home] given the far shore and the fare to hand, when the character asks to go home, then it is the assisted return and no fare is paid: there is no going home by choice from there", () => {
     const game = life({ change: all(HONEST_ROAD, rows({ desert: ON, compound: ON, coast: ON, sea: ON })) });
     toTruth(game);
     answer(game, "truth", "pay");
@@ -1019,7 +1019,7 @@ describe("on the road", () => {
     const fare = content.country["country.italy"]!.fare * 3;
     applyEffects(game, [{ type: "money/add", currency: "EUR", pocket: "bank", amount: fare, reason: "gift" }]);
     const pockets = game.state.wallet.pockets;
-    // R-PLACE-011: the way home the view forecasts is the same assisted return, with no fare taken.
+    // place:view-carries-way-home: the way home the view forecasts is the same assisted return, with no fare taken.
     expect(game.view().place.wayHome).toMatchObject({ paidFrom: null, shape: "assisted" });
     game.accept({ type: "return/home" });
     expect(game.state.place.returns.at(-1)).toMatchObject({ shape: "assisted", country: "country.italy" });
@@ -1047,7 +1047,7 @@ describe("a formal flight and the road", () => {
     return game;
   }
 
-  test("[R-ROAD-012] [R-ROAD-005] given the pitch taken and `go` answered, when the granted visa is flown that month, then the truth never opens abroad, the chain is over and the character stays abroad with the deposit the only loss", () => {
+  test("[road:pitch-reaches-anyone-at-home] [road:road-truth-asks-more] given the pitch taken and `go` answered, when the granted visa is flown that month, then the truth never opens abroad, the chain is over and the character stays abroad with the deposit the only loss", () => {
     const game = granted();
     take(game);
     answer(game, "night", "go");
@@ -1065,7 +1065,7 @@ describe("a formal flight and the road", () => {
     expect(cash(game)).toBeGreaterThanOrEqual(cashAbroad);
   });
 
-  test("[R-ROAD-012] [R-ROAD-004] [R-SETPIECE-002] given the night meeting open, when the granted visa is flown, then the scene closes unscored with a line, nothing is answered or counted, and the month abroad can end", () => {
+  test("[road:pitch-reaches-anyone-at-home] [road:road-night-allows-turn-back] [route:open-set-piece-holds-month] given the night meeting open, when the granted visa is flown, then the scene closes unscored with a line, nothing is answered or counted, and the month abroad can end", () => {
     const game = granted();
     take(game);
     expect(game.state.setpiece.open?.entry).toBe(NIGHT);
@@ -1082,7 +1082,7 @@ describe("a formal flight and the road", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-ROAD-012] [R-ROAD-005] [R-SETPIECE-002] given the truth open at home, when the granted visa is flown, then the truth closes unscored, nobody sets off, no money is taken, no debt opens and the month abroad can end", () => {
+  test("[road:pitch-reaches-anyone-at-home] [road:road-truth-asks-more] [route:open-set-piece-holds-month] given the truth open at home, when the granted visa is flown, then the truth closes unscored, nobody sets off, no money is taken, no debt opens and the month abroad can end", () => {
     const game = granted();
     toTruth(game);
     const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
@@ -1100,7 +1100,7 @@ describe("a formal flight and the road", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-ROAD-005] given a character set off on the road with a granted visa, when the flight is asked for, then it is rejected: no flight leaves from the road", () => {
+  test("[road:road-truth-asks-more] given a character set off on the road with a granted visa, when the flight is asked for, then it is rejected: no flight leaves from the road", () => {
     const game = granted();
     toTruth(game);
     answer(game, "truth", "pay");

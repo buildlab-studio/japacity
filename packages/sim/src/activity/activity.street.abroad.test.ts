@@ -1,7 +1,7 @@
-// The streets abroad with the real content (docs/rules/streets.md R-STREET-005, 006): shopping on
+// The streets abroad with the real content (streets:street-shopping-abroad, streets:street-finds-abroad): shopping on
 // the street takes that currency's money and lifts the mood, and something interesting turns up only
 // while the character is in that country, never at home.
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -68,10 +68,10 @@ function onlyOffers(chances: Partial<Record<Id<"offer">, number>>): Content {
 }
 
 describe("shopping on the street abroad", () => {
-  test("[R-STREET-005] given a student in London whose pounds are all in cash, when the month's free slot shops on Rye Lane, then the price leaves the pound cash as enjoyment and the mood rises by the street's figure", () => {
+  test("[streets:street-shopping-abroad] given a student in London whose pounds are all in cash, when the month's free slot shops on Rye Lane, then the price leaves the pound cash as enjoyment and the mood rises by the street's figure", () => {
     const game = flown(content);
-    // R-STREET-005 says the price comes from the currency's cash, but an entry's cost is paid by
-    // R-WALLET-009 (the bank pocket first). With the pounds all in cash, the two readings agree.
+    // streets:street-shopping-abroad says the price comes from the currency's cash, but an entry's cost is paid by
+    // wallet:foreign-fee-payment-order (the bank pocket first). With the pounds all in cash, the two readings agree.
     const bank = game.state.wallet.pockets.GBP?.bank ?? 0;
     applyEffects(game, [
       { type: "money/take", currency: "GBP", pocket: "bank", amount: bank, reason: "mishap" },
@@ -87,7 +87,7 @@ describe("shopping on the street abroad", () => {
     expect(moodFrom(result, SHOP_UK)).toBe(street.shoppingMood);
   });
 
-  test("[R-STREET-005] given a life in Dubai with dirhams in cash, when the month's free slot shops in the souk, then the dirham price is paid and the mood rises; the London shopping is not allowed there", () => {
+  test("[streets:street-shopping-abroad] given a life in Dubai with dirhams in cash, when the month's free slot shops in the souk, then the dirham price is paid and the mood rises; the London shopping is not allowed there", () => {
     const game = start({ content, scenario: "scenario.ada" });
     applyEffects(game, [
       { type: "place/move", to: "abroad", country: "country.uae" },
@@ -98,14 +98,14 @@ describe("shopping on the street abroad", () => {
     expect(options.find((option) => option.id === SHOP_UAE)?.allowed).toBe(true);
     expect(options.find((option) => option.id === SHOP_UK)?.allowed ?? false).toBe(false);
     const result = month(game, [slot(SHOP_UAE)]);
-    // streets.md R-STREET-014: the souq is paid as enjoyment, as London's stalls are.
+    // streets:dubai-life-by-hand: the souq is paid as enjoyment, as London's stalls are.
     expect(debitsOf(result, "AED").filter((debit) => debit.reason === "enjoyment")).toEqual([
       { type: "wallet/debited", currency: "AED", pocket: "cash", amount: street.shoppingAed, reason: "enjoyment" },
     ]);
     expect(moodFrom(result, SHOP_UAE)).toBe(street.shoppingMood);
   });
 
-  test("[R-STREET-005] given a life at home in Lagos, when the street shopping abroad is put in a slot, then it is rejected", () => {
+  test("[streets:street-shopping-abroad] given a life at home in Lagos, when the street shopping abroad is put in a slot, then it is rejected", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(game.view().activities.filter((option) => (option.id === SHOP_UK || option.id === SHOP_UAE) && option.allowed)).toEqual([]);
     game.expectRejected({ type: "activity/now", activity: SHOP_UK, param: null }, "not-legal");
@@ -116,7 +116,7 @@ describe("shopping on the street abroad", () => {
 describe("something interesting on the street", () => {
   const certain = onlyOffers({ [FIND_UK]: CERTAIN, [FIND_UAE]: CERTAIN });
 
-  test("[R-STREET-006] given both finds made certain, when months come up at home, then neither ever opens", () => {
+  test("[streets:street-finds-abroad] given both finds made certain, when months come up at home, then neither ever opens", () => {
     const game = start({ content: certain, scenario: "scenario.ada" });
     for (let n = 0; n < 4; n += 1) {
       month(game);
@@ -124,7 +124,7 @@ describe("something interesting on the street", () => {
     }
   });
 
-  test("[R-STREET-006] given both finds made certain, when a month comes up in London and then in Dubai, then only that country's find opens", () => {
+  test("[streets:street-finds-abroad] given both finds made certain, when a month comes up in London and then in Dubai, then only that country's find opens", () => {
     const game = start({ content: certain, scenario: "scenario.ada" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     month(game);
@@ -136,7 +136,7 @@ describe("something interesting on the street", () => {
     expect(openOffers(dubai)).toEqual([FIND_UAE]);
   });
 
-  test("[R-STREET-006] given the find open in London, when the player looks, then the mood rises by the street's figure and it cannot come up again inside its cooldown", () => {
+  test("[streets:street-finds-abroad] given the find open in London, when the player looks, then the mood rises by the street's figure and it cannot come up again inside its cooldown", () => {
     const game = start({ content: certain, scenario: "scenario.ada" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     lowMood(game);
@@ -154,7 +154,7 @@ describe("something interesting on the street", () => {
     expect(openOffers(game)).toEqual([FIND_UK]);
   });
 
-  test("[R-STREET-006] given the real chance, when its entry is read, then it is the street's chance a month and the find is no blow and no fraud", () => {
+  test("[streets:street-finds-abroad] given the real chance, when its entry is read, then it is the street's chance a month and the find is no blow and no fraud", () => {
     for (const id of [FIND_UK, FIND_UAE]) {
       expect(content.offer[id]).toMatchObject({ group: "life", chanceBp: street.findBp, bad: false, fraudBp: 0 });
     }

@@ -1,6 +1,6 @@
-// Health: docs/rules/health.md. Illness while run down (R-HEALTH-002), its
-// relapse and its worse turn (R-HEALTH-003), and the gap and the cap that keep
-// forced months apart (R-HEALTH-005). The offer kind's roll calls
+// Health: docs/rules/health.md. Illness while run down (health:illness-rolls-when-run-down), its
+// relapse and its worse turn (health:worse-illness-locks-slots), and the gap and the cap that keep
+// forced months apart (health:forced-months-spaced-apart). The offer kind's roll calls
 // `healthComeUp` once, after the month's other offers; opening an offer stays
 // the offer kind's own work, handed in as `open`.
 //
@@ -43,7 +43,7 @@ export function isOpen(state: State, entry: Id<"offer">): boolean {
 
 /**
  * The prices come from `tuning.health`, so an overlay of the tuning moves them
- * (R-ENGINE-017). health.md gives no place for illness, so it is rolled
+ * (engine:numbers-read-from-content). health.md gives no place for illness, so it is rolled
  * abroad too, at the naira prices; the page gives no prices abroad.
  */
 function illnessTerms(read: ReadCtx): Terms {
@@ -84,9 +84,9 @@ function lastIllnessClosed(read: ReadCtx): number | null {
 
 /**
  * Whether illness may be rolled this month: run down since a month before
- * (R-HEALTH-001, R-HEALTH-002), nothing of the last illness pending, past the
- * gap since it closed and no forced month in the last twelve (R-HEALTH-005).
- * Never on the road, where the month is the chain's own (R-ROAD-005).
+ * (health:low-wellbeing-warns-first, health:illness-rolls-when-run-down), nothing of the last illness pending, past the
+ * gap since it closed and no forced month in the last twelve (health:forced-months-spaced-apart).
+ * Never on the road, where the month is the chain's own (road:road-truth-asks-more).
  */
 function mayFallIll(read: ReadCtx): boolean {
   const { state, content } = read;
@@ -97,7 +97,7 @@ function mayFallIll(read: ReadCtx): boolean {
   return closed === null || state.turn.month - closed >= content.tuning.health.gapMonths;
 }
 
-/** R-HEALTH-002: the relapse after the chemist or after ignoring it, drawn at the first come-up once the illness is closed. */
+/** health:illness-rolls-when-run-down: the relapse after the chemist or after ignoring it, drawn at the first come-up once the illness is closed. */
 function relapse(ctx: Ctx, worse: OfferEntry, step: "chemist" | "ignored", open: OpenOffer): BaseEvent[] {
   const { relapseChemistBp, relapseIgnoreBp } = ctx.content.tuning.health;
   if (!ctx.random.chance("health", step === "chemist" ? relapseChemistBp : relapseIgnoreBp)) return setCourse(ctx, "none");
@@ -106,7 +106,7 @@ function relapse(ctx: Ctx, worse: OfferEntry, step: "chemist" | "ignored", open:
 }
 
 /**
- * R-HEALTH-003: either way wellbeing returns to the entry's `wellbeing` term,
+ * health:worse-illness-locks-slots: either way wellbeing returns to the entry's `wellbeing` term,
  * once the worse turn is over. This happens at the first come-up after it
  * closes, a month of rest or nursing later. Left unanswered when the
  * hospital could have been paid, its lapse choice (`cannot`) fails its
@@ -145,12 +145,12 @@ function afterIllness(ctx: Ctx, worse: OfferEntry, open: OpenOffer): BaseEvent[]
 
 /**
  * The health roll in the `come-up` phase, every draw on the stream `health`
- * (R-HEALTH-002): first what the last illness leaves (a relapse, or the
+ * (health:illness-rolls-when-run-down): first what the last illness leaves (a relapse, or the
  * recovery from the worse turn), then a new illness at
  * `tuning.health.illnessBp` when it may come. The illness is not counted
- * against the month's limits on new and open offers (R-OFFER-001),
+ * against the month's limits on new and open offers (offer:come-up-rolls-in-order),
  * since it is no offer the character could have avoided by having others open.
- * The illness is marked `bad` but rolls at the full `illnessBp` (R-LUCK-003):
+ * The illness is marked `bad` but rolls at the full `illnessBp` (luck:no-kicking-while-down):
  * halving it would always apply, since wellbeing is under 30 whenever it rolls.
  */
 export function healthComeUp(ctx: Ctx, open: OpenOffer): BaseEvent[] {

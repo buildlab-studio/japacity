@@ -1,4 +1,4 @@
-// Place: docs/rules/place.md, R-PLACE-001 to 012, and the mechanics of coming
+// Place: docs/rules/place.md, and the mechanics of coming
 // home in return.md. A character is at home, abroad in one country, or on the road.
 import { check, worldVarOr } from "../engine/check";
 import { QUALITY, SETPIECE, STATUS, VAR } from "../engine/ids";
@@ -43,18 +43,18 @@ import { feeInNaira, walletAfter } from "../wallet/wallet.logic";
 import type { Payment } from "../wallet/wallet.logic";
 import { CURRENCIES, officialRates } from "../wallet/wallet.rates";
 
-/** R-RETURN-005: the least gap between two December visits, in the character's months. */
+/** return:december-visit-set-piece: the least gap between two December visits, in the character's months. */
 const MONTHS_A_YEAR = 12;
-/** R-RETURN-004 names one token that lapses with time away. */
+/** return:papers-return-keeps-status names one token that lapses with time away. */
 const RESIDENT: Id<"status"> = "status.ca-resident";
-/** R-PLACE-007: what the family house charges for again when you come back. */
+/** place:family-takes-you-back: what the family house charges for again when you come back. */
 const HOME_TYPES: readonly ObligationType[] = ["upkeep", "support"];
-/** R-PLACE-002: what closes on a flight: the family house's charges, and a room's rent at home, let go (R-HOME-010). */
+/** place:departure-moves-abroad: what closes on a flight: the family house's charges, and a room's rent at home, let go (home:compound-room-is-a-home). */
 const LEFT_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent"];
 /**
- * R-RETURN-006: what closes on the way home. The car is handed back by the
- * obligation kind (R-CAR-004), which opens any shortfall at home in naira; the
- * agent's debt follows you home (R-ROAD-007).
+ * return:return-reopens-home-charges: what closes on the way home. The car is handed back by the
+ * obligation kind (car:car-handed-back-after-half), which opens any shortfall at home in naira; the
+ * agent's debt follows you home (road:exit-is-assisted-return).
  */
 const ABROAD_TYPES: readonly ObligationType[] = ["upkeep", "support", "rent", "phone", "surcharge", "tuition", "car"];
 
@@ -67,7 +67,7 @@ export interface Placed {
 }
 
 /**
- * R-PLACE-003: whether an entry applies where the character is. `any` applies
+ * place:entries-legal-by-where: whether an entry applies where the character is. `any` applies
  * everywhere, the road included; `home` and `abroad` apply only there; an
  * abroad entry with a country applies only in that country.
  */
@@ -83,7 +83,7 @@ export function appliesHere(entry: Placed, state: State): boolean {
 // Reading
 // ---------------------------------------------------------------------------
 
-/** R-PLACE-006: the fare home from the country the character is in, or null when not abroad. */
+/** place:fare-home-in-local-currency: the fare home from the country the character is in, or null when not abroad. */
 export function fareHome(read: ReadCtx): MoneyParam | null {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return null;
@@ -92,13 +92,13 @@ export function fareHome(read: ReadCtx): MoneyParam | null {
   return { currency: entry.currency, amount: december ? bp(entry.fare, entry.decemberFactorBp) : entry.fare };
 }
 
-/** R-PLACE-004: no status at all, or only the country's overstayer status, which is no permission to be there. */
+/** place:return-home-paid-or-assisted: no status at all, or only the country's overstayer status, which is no permission to be there. */
 function holdsNoStatus(read: ReadCtx): boolean {
   const current = read.state.status.current;
   return current === null || isOverstayer(read.content, current.entry);
 }
 
-/** Bank and cash in every currency, in kobo at the official rate (R-PLACE-005). */
+/** Bank and cash in every currency, in kobo at the official rate (place:return-shape-decided-at-once). */
 export function wealthInNaira(read: ReadCtx): number {
   const rates = officialRates(read.world);
   let kobo = 0;
@@ -110,7 +110,7 @@ export function wealthInNaira(read: ReadCtx): number {
 }
 
 /**
- * R-PLACE-005, first match wins. A removal "followed" is one recorded
+ * place:return-shape-decided-at-once, first match wins. A removal "followed" is one recorded
  * this month for the country being left, and the broke line is read after the
  * fare is paid.
  */
@@ -123,7 +123,7 @@ export function returnShape(read: ReadCtx, farePaid: boolean): ReturnShape {
   return "by-choice";
 }
 
-/** R-RETURN-002: +1 for each step of naira in the bank above the broke line, capped. */
+/** return:standing-by-return-shape: +1 for each step of naira in the bank above the broke line, capped. */
 export function capitalBonus(read: ReadCtx): number {
   const numbers = read.content.tuning.return;
   const above = read.state.wallet.pockets.NGN.bank - read.content.tuning.place.brokeLine;
@@ -131,7 +131,7 @@ export function capitalBonus(read: ReadCtx): number {
 }
 
 /**
- * R-PLACE-008, for the route kind: the last month of the ban on a country's
+ * place:removal-bans-the-country, for the route kind: the last month of the ban on a country's
  * routes, or null when there is none. The contract has no route
  * effect for a ban, so nothing is applied; the route kind reads this, which
  * reads `status.removals` and `place.returns`.
@@ -143,7 +143,7 @@ export function bannedUntil(read: ReadCtx, country: Id<"country">): number | nul
   return Math.max(...removed.map((removal) => removal.month + months));
 }
 
-/** R-PLACE-008: whether a removal's ban holds on the country this month. It lifts in the month `bannedUntil` gives. */
+/** place:removal-bans-the-country: whether a removal's ban holds on the country this month. It lifts in the month `bannedUntil` gives. */
 export function bannedNow(read: ReadCtx, country: Id<"country">): boolean {
   const until = bannedUntil(read, country);
   return until !== null && read.state.turn.month < until;
@@ -164,26 +164,26 @@ function closeObligations(ctx: Ctx, types: readonly ObligationType[], cause: Cau
   );
 }
 
-/** The starting life's obligations of the given types, at the given share of their amount: the home kind's one answer (R-HOME-009). */
+/** The starting life's obligations of the given types, at the given share of their amount: the home kind's one answer (home:starting-charges-from-one-function). */
 function fromStartingLife(read: ReadCtx, types: readonly ObligationType[], shareBp: number): Effect[] {
   return homeCharges(read, types, shareBp);
 }
 
 /**
- * R-PLACE-002, R-ABROAD-003 and 007. `home-support` reopens abroad at
+ * place:departure-moves-abroad, abroad-money:arrival-opens-upkeep-and-room and abroad-money:family-asks-more-abroad. `home-support` reopens abroad at
  * the remit factor; its entry is `where: "any"` so it may.
  */
 function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
   const entry = countryEntry(ctx.content, country);
   const month = ctx.state.turn.month;
-  // R-PLACE-002: leaving Lagos, what is owned is sold as the room is let go.
+  // place:departure-moves-abroad: leaving Lagos, what is owned is sold as the room is let go.
   if (ctx.state.place.where === "home") ctx.apply([{ type: "things/sell-off" }], cause);
   const events = record(ctx, [{ type: "place/moved", to: "abroad", country, month }]);
   const token = ctx.state.place.heldAbroad;
   if (token !== null && statusEntry(ctx.content, token.status).country === country) {
     events.push(...record(ctx, [{ type: "place/token-used", status: token.status }]));
   }
-  // The move comes only from Lagos or the road (R-PLACE-002: no flight leaves from abroad), so a room's rent is let go.
+  // The move comes only from Lagos or the road (place:departure-moves-abroad: no flight leaves from abroad), so a room's rent is let go.
   closeObligations(ctx, LEFT_TYPES, cause);
   const opens: Effect[] = [];
   if (entry.upkeep !== null) opens.push({ type: "obligation/open", obligation: entry.upkeep });
@@ -194,7 +194,7 @@ function arrive(ctx: Ctx, country: Id<"country">, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-PLACE-004, 005 and 007, R-RETURN-002, 004 and 006. The record is written
+ * place:return-home-paid-or-assisted, place:return-shape-decided-at-once, place:family-takes-you-back, return:standing-by-return-shape, return:papers-return-keeps-status and return:return-reopens-home-charges. The record is written
  * while the country is still known, then the character is home and every
  * status closes.
  */
@@ -210,7 +210,7 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   ]);
   ctx.apply([{ type: "status/lose" }], cause);
   closeObligations(ctx, ABROAD_TYPES, cause);
-  // R-PLACE-007: the family house takes you back at the starting life's amounts.
+  // place:family-takes-you-back: the family house takes you back at the starting life's amounts.
   ctx.apply(fromStartingLife(ctx, HOME_TYPES, 10000), cause);
   const standing = ctx.content.tuning.return.standing[shape];
   const bonus = capitalBonus(ctx);
@@ -221,7 +221,7 @@ function comeHome(ctx: Ctx, shape: ReturnShape, cause: Cause): BaseEvent[] {
   return events;
 }
 
-/** R-PLACE-002 for `abroad`; a move home that no command paid for (a removal, R-STATUS-008) is a return with no fare. */
+/** place:departure-moves-abroad for `abroad`; a move home that no command paid for (a removal, status:removal-sends-home-banned) is a return with no fare. */
 function move(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "place/move") throw new Error(`place/move cannot carry out ${effect.type}.`);
   const { place } = ctx.state;
@@ -245,7 +245,7 @@ function move(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   }
 }
 
-/** How the fare is paid now: from the country's currency, or from naira as a foreign fee (R-PLACE-006). Null: it cannot be. */
+/** How the fare is paid now: from the country's currency, or from naira as a foreign fee (place:fare-home-in-local-currency). Null: it cannot be. */
 function farePayment(read: ReadCtx, fare: MoneyParam): Payment | null {
   const { currency, amount } = fare;
   if (check(read, { type: "money/min", currency, amount }).met) return { type: "money/take", currency, pocket: "transfer", amount, reason: "fare" };
@@ -254,15 +254,15 @@ function farePayment(read: ReadCtx, fare: MoneyParam): Payment | null {
   return { type: "money/pay-fee", currency, amount, reason: "fare" };
 }
 
-/** R-ROAD-009: from the far shore the only way home is the assisted scheme, with no fare. */
+/** road:sea-arrival-in-italy: from the far shore the only way home is the assisted scheme, with no fare. */
 function fromFarShore(read: ReadCtx): boolean {
   return read.state.status.current?.entry === STATUS.euIrregular;
 }
 
 /**
- * R-PLACE-011: the way home today, as `returnHome` would take it, for the view: the fare and where it comes from, the
+ * place:view-carries-way-home: the way home today, as `returnHome` would take it, for the view: the fare and where it comes from, the
  * shape by `returnShape` read after the fare is paid as the wallet pays it, and the standing by the shape and the
- * capital. From the far shore the return is assisted with no fare (R-ROAD-009). Null when not abroad.
+ * capital. From the far shore the return is assisted with no fare (road:sea-arrival-in-italy). Null when not abroad.
  */
 function wayHomeOf(read: ReadCtx): WayHome | null {
   const fare = fareHome(read);
@@ -288,7 +288,7 @@ function wayHomeOf(read: ReadCtx): WayHome | null {
 }
 
 /**
- * R-PLACE-004, R-STATUS-009: the fare alone, for a Gulf worker too, whether
+ * place:return-home-paid-or-assisted, status:gulf-status-holds-passport: the fare alone, for a Gulf worker too, whether
  * the contract has ended or not.
  */
 function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
@@ -307,7 +307,7 @@ function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 
 /**
  * Metres on the ground for one thousandth of a degree of latitude, everywhere; longitude's figure is the country's
- * (R-PLACE-010), since a degree of longitude shrinks toward the poles. Near Lagos the two agree.
+ * (place:rides-between-city-places), since a degree of longitude shrinks toward the poles. Near Lagos the two agree.
  */
 const METRES_PER_E3 = 111;
 
@@ -397,7 +397,7 @@ function priced(figures: RideFare, from: { latE3: number; lonE3: number } | null
 }
 
 /**
- * R-PLACE-010 (decision 0017): a farther place costs more. A way's fare is its flag-down figure plus its figure a
+ * place:rides-between-city-places (decision 0017): a farther place costs more. A way's fare is its flag-down figure plus its figure a
  * kilometre times the straight-line distance between the two places, rounded up to the step (fifty naira at home, the country's step abroad), then the month's factor. A place
  * with no position stands at its flag-down figure. On foot nothing. Given the figures and the step, it prices any
  * country's way, as the view's `place.ways` carries them; given content and a way, it prices a way of Lagos.
@@ -419,11 +419,11 @@ export function rideFare(
   return priced({ ...figures, step: FARE_STEP_KOBO, lonMetresPerE3: first.tuning.city.ride.lonMetresPerE3 }, from, to, fifth);
 }
 
-/** The room abroad: the home there, so a walk to it is always accepted (R-PLACE-010). */
+/** The room abroad: the home there, so a walk to it is always accepted (place:rides-between-city-places). */
 const ROOM: Id<"place"> = "place.the-room";
 
 /**
- * R-PLACE-012 (decision 0017): the act that buys a country's pass, the country's own now-act at its
+ * place:country-pass-covers-ways (decision 0017): the act that buys a country's pass, the country's own now-act at its
  * station's machine. Only a country whose rides carry a `pass` figure has one; Italy has none.
  */
 export const PASS_ACT: Readonly<Partial<Record<Id<"country">, Id<"activity">>>> = {
@@ -439,7 +439,7 @@ function countryRides(content: Pick<Content, "tuning">, country: Id<"country">):
   return ABROAD_WAYS.some((way) => rides.ways[way] !== undefined) ? rides : null;
 }
 
-/** R-PLACE-012: the month's pass is bought in the country the character is in, read from the month's played acts. */
+/** place:country-pass-covers-ways: the month's pass is bought in the country the character is in, read from the month's played acts. */
 function passHeld(read: ReadCtx): boolean {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return false;
@@ -449,13 +449,13 @@ function passHeld(read: ReadCtx): boolean {
   return check(read, { type: "activity/played", activity: act }).met;
 }
 
-/** R-PLACE-012 (decision 0017): a way the country's pass covers, in a month it is bought. */
+/** place:country-pass-covers-ways (decision 0017): a way the country's pass covers, in a month it is bought. */
 function passCovers(read: ReadCtx, rides: CountryRides, way: RideWay): boolean {
   return (rides.passWays as readonly RideWay[]).includes(way) && passHeld(read);
 }
 
 /**
- * R-PLACE-013 (decision 0017): a ride by bus to or from a place the employer's shuttle serves (the labour bus to the
+ * place:employer-shuttle-rides-free (decision 0017): a ride by bus to or from a place the employer's shuttle serves (the labour bus to the
  * site, the gangmaster's van to the fields) asks no fare in any month. Every other way is priced, and no other stop is
  * covered. The ride sheet reads the same from the view's `place.shuttles`.
  */
@@ -463,7 +463,7 @@ export function shuttleRide(from: Pick<PlaceEntry, "shuttle">, to: Pick<PlaceEnt
   return way === "bus" && (from.shuttle || to.shuttle);
 }
 
-/** R-PLACE-013: the stops of the character's country the employer's shuttle serves, for the view; none at home or on the road. */
+/** place:employer-shuttle-rides-free: the stops of the character's country the employer's shuttle serves, for the view; none at home or on the road. */
 function shuttlesHere(read: ReadCtx): Id<"place">[] {
   const { where, country } = read.state.place;
   if (where !== "abroad" || country === null) return [];
@@ -478,7 +478,7 @@ function ofCountry(place: Pick<PlaceEntry, "where" | "country">, country: Id<"co
 }
 
 /**
- * R-PLACE-010: the ways a ride may take where the character is, with their figures, so the ride
+ * place:rides-between-city-places: the ways a ride may take where the character is, with their figures, so the ride
  * sheet prices with `rideFare` what the command takes. At home the four ways of Lagos, and the car while it stands at
  * home; abroad the country's ways and on foot; nothing on the road or in a country with no ways.
  */
@@ -505,7 +505,7 @@ function waysHere(read: ReadCtx): RideWayView[] {
   return [...listed, { way: "walk", currency, ...walk, metresPerMinute: rides.walkMetresPerMinute, step: rides.step, lonMetresPerE3: rides.lonMetresPerE3, passed: false }];
 }
 
-/** The fare taken from the currency, cash first and the bank for the rest, and the ride on record (R-PLACE-010). */
+/** The fare taken from the currency, cash first and the bank for the rest, and the ride on record (place:rides-between-city-places). */
 function payRide(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, fare: number, currency: Currency): BaseEvent[] | Rejection {
   const { from, to, way } = command;
   const cause: Cause = { source: command.type, param: to, terms: { way } };
@@ -519,7 +519,7 @@ function payRide(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>, fa
 }
 
 /**
- * R-PLACE-010 (decision 0017), R-PLACE-012 and R-PLACE-013 (decision 0017): a ride abroad,
+ * place:rides-between-city-places (decision 0017), place:country-pass-covers-ways and place:employer-shuttle-rides-free (decision 0017): a ride abroad,
  * between two places of the character's country, on the country's ways or on foot. The scarcity factor is Lagos's and
  * is not applied; a way the pass covers asks nothing in a month it is bought, and the bus to or from a shuttle's stop
  * asks nothing in any month.
@@ -547,7 +547,7 @@ function rideAbroad(ctx: Ctx, command: Extract<Command, { type: "place/ride" }>,
 }
 
 /**
- * R-PLACE-010 (decision 0017): a ride between two places of the city, at home or in the
+ * place:rides-between-city-places (decision 0017): a ride between two places of the city, at home or in the
  * country the character is in. On foot there is no fare, so a character with nothing can always move. The simulation
  * keeps no place of the city, so nothing here moves; the client moves once the ride is accepted.
  */
@@ -576,13 +576,13 @@ function ride(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 }
 
 /**
- * R-ROAD-007 and R-STATUS-008: the authority's way home, as `return/home`
+ * road:exit-is-assisted-return and status:removal-sends-home-banned: the authority's way home, as `return/home`
  * does for the given shape with no fare. Abroad it is the same return. From
  * the road it is the assisted return: the family house takes the character
- * back and standing moves by the shape and the capital (R-PLACE-007,
- * R-RETURN-002); obligations of the road, the agent's debt among them, stay.
+ * back and standing moves by the shape and the capital (place:family-takes-you-back,
+ * return:standing-by-return-shape); obligations of the road, the agent's debt among them, stay.
  * A return from the road is written to the record with no country, since the
- * road has none (R-ROAD-007).
+ * road has none (road:exit-is-assisted-return).
  */
 function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "place/return") throw new Error(`place/return cannot carry out ${effect.type}.`);
@@ -591,7 +591,7 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
     case "abroad":
       return comeHome(ctx, effect.shape, cause);
     case "road": {
-      // R-ROAD-007: the return is on record with no country; the road is not one.
+      // road:exit-is-assisted-return: the return is on record with no country; the road is not one.
       const month = ctx.state.turn.month;
       const events = record(ctx, [
         { type: "place/returned", shape: effect.shape, country: null, month, kept: null, keptMonths: null },
@@ -619,7 +619,7 @@ function returnEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 // Phases
 // ---------------------------------------------------------------------------
 
-/** R-RETURN-004: a resident token lapses after the months away the tuning gives. */
+/** return:papers-return-keeps-status: a resident token lapses after the months away the tuning gives. */
 function tokenLapse(ctx: Ctx): BaseEvent[] {
   const token = ctx.state.place.heldAbroad;
   if (token?.status !== RESIDENT) return [];
@@ -629,10 +629,10 @@ function tokenLapse(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-RETURN-005. In a tick the director makes December, a character
+ * return:december-visit-set-piece. In a tick the director makes December, a character
  * abroad gets the December set piece, opened with no route so that nothing is
- * scored (R-SETPIECE-006). At most once in twelve months of
- * the character's own time, read from `decemberMonth` (R-PLACE-009), so a
+ * scored (route:answers-carry-effects). At most once in twelve months of
+ * the character's own time, read from `decemberMonth` (place:view-shows-place-and-returns), so a
  * December that spans many ticks online opens it once.
  */
 function december(ctx: Ctx): BaseEvent[] {
@@ -645,7 +645,7 @@ function december(ctx: Ctx): BaseEvent[] {
   return record(ctx, [{ type: "place/december-opened", month: ctx.state.turn.month }]);
 }
 
-/** The visit may find nothing to ask and stay shut (R-SETPIECE-001). */
+/** The visit may find nothing to ask and stay shut (route:set-piece-draws-questions). */
 function decemberOpen(state: State): boolean {
   return state.setpiece.open?.entry === SETPIECE.december;
 }
@@ -678,7 +678,7 @@ function judgeMonthsHere(read: ReadCtx, requirement: Requirement): RequirementRe
   return { met: here && have >= requirement.months, have, need: requirement.months };
 }
 
-/** R-PLACE-008, R-PEOPLE-026: the ban read as an application's condition, so a partner application is refused before it is paid. */
+/** place:removal-bans-the-country, person:partner-gate-needs: the ban read as an application's condition, so a partner application is refused before it is paid. */
 function judgeBanned(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "place/banned") throw new Error(`place/banned cannot judge ${requirement.type}.`);
   return { met: bannedNow(read, requirement.country) };
@@ -703,7 +703,7 @@ function evolve(slice: PlaceSlice, event: PlaceEvent): PlaceSlice {
       return { ...slice, heldAbroad: null };
     case "place/december-opened":
       return { ...slice, decemberMonth: event.month };
-    // R-PLACE-010: the simulation keeps no place of the city, so a ride changes nothing here.
+    // place:rides-between-city-places: the simulation keeps no place of the city, so a ride changes nothing here.
     case "place/rode":
       return slice;
     default: {
@@ -741,7 +741,7 @@ function lines(event: PlaceEvent): ReportLine[] {
     // The set piece's own line tells the visit.
     case "place/december-opened":
       return [];
-    // R-WORLD-017: arrival is a toast on the screen, and the fare's own ledger line tells the money.
+    // world:ride-sheet-shows-fares: arrival is a toast on the screen, and the fare's own ledger line tells the money.
     case "place/rode":
       return [];
     default: {
@@ -751,7 +751,7 @@ function lines(event: PlaceEvent): ReportLine[] {
   }
 }
 
-/** R-PLACE-009 and R-RETURN-001: the record newest first. */
+/** place:view-shows-place-and-returns and return:return-record-in-words: the record newest first. */
 function view(read: ReadCtx): Pick<PlayerView, "place"> {
   const { state } = read;
   return {
@@ -774,12 +774,12 @@ function view(read: ReadCtx): Pick<PlayerView, "place"> {
 const FUEL_SCARCITY = "offer.fuel-scarcity" as const;
 
 /**
- * R-PLACE-010: the month's fares as basis points of the flat fares. The month the fuel scarcity opens
+ * place:rides-between-city-places: the month's fares as basis points of the flat fares. The month the fuel scarcity opens
  * (answered or not: `lastOpened` keeps the month), every ride at home costs `tuning.city.ride.scarcityBp` of
  * its fare; any other month, and abroad, the fare as it stands.
  */
 function fareBpOf(read: Pick<ReadCtx, "state" | "content">): number {
-  // The scarcity is Lagos's (R-PLACE-010): abroad, even in the month a flight follows it, fares stand.
+  // The scarcity is Lagos's (place:rides-between-city-places): abroad, even in the month a flight follows it, fares stand.
   if (read.state.place.where !== "home") return BP_WHOLE;
   return read.state.offer.lastOpened[FUEL_SCARCITY] === read.state.turn.month ? read.content.tuning.city.ride.scarcityBp : BP_WHOLE;
 }
@@ -799,12 +799,12 @@ function invariants(state: State, content: Content): string[] {
 
 export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   kind: "place",
-  // R-PLACE-001.
+  // place:new-character-at-home.
   initial: () => ({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null }),
   commands: { "return/home": returnHome, "place/ride": ride },
   effects: {
     "place/move": move,
-    // R-ROAD-007 and R-STATUS-008: the authority's way home.
+    // road:exit-is-assisted-return and status:removal-sends-home-banned: the authority's way home.
     "place/return": returnEffect,
   },
   phases: { month },

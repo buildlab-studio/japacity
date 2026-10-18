@@ -17,7 +17,7 @@ import { sampleCommands } from "./sampler";
 export const COMMANDS = 300;
 export const SEEDS_PER_LIFE = 40;
 
-/** R-WALLET-002: per currency, what the pockets hold less what the ledger says came in and went out. Zero when the books balance. */
+/** wallet:ledger-balances-each-currency: per currency, what the pockets hold less what the ledger says came in and went out. Zero when the books balance. */
 function ledgerGaps(state: State): Partial<Record<Currency, number>> {
   const gaps: Partial<Record<Currency, number>> = {};
   for (const [currency, pocket] of Object.entries(state.wallet.pockets) as [Currency, State["wallet"]["pockets"][Currency]][]) {
@@ -30,7 +30,7 @@ function ledgerGaps(state: State): Partial<Record<Currency, number>> {
   return gaps;
 }
 
-/** R-QUALITY-001: every quality held sits inside its entry's range. */
+/** quality:qualities-stay-in-range: every quality held sits inside its entry's range. */
 function qualitiesOutOfRange(state: State, content: Content): string[] {
   const out: string[] = [];
   for (const [id, value] of Object.entries(state.quality)) {
@@ -52,7 +52,7 @@ function problems(game: Game, view: PlayerView): string[] {
   return found;
 }
 
-/** R-ENGINE-010: what in a value would not come back the same from JSON: undefined, a number that is not finite, or anything but plain objects and arrays. */
+/** engine:state-is-plain-data: what in a value would not come back the same from JSON: undefined, a number that is not finite, or anything but plain objects and arrays. */
 function notPlain(value: unknown, path: string): string[] {
   if (value === null || typeof value === "string" || typeof value === "boolean") return [];
   if (typeof value === "number") return Number.isFinite(value) ? [] : [`${path} is ${String(value)}`];
@@ -62,7 +62,7 @@ function notPlain(value: unknown, path: string): string[] {
   return Object.entries(value).flatMap(([key, item]) => notPlain(item, `${path}.${key}`));
 }
 
-/** R-ENGINE-011, read from the view: a legal command while a turn is banked, and an answer while a set piece is open. */
+/** engine:player-never-stuck, read from the view: a legal command while a turn is banked, and an answer while a set piece is open. */
 function stuck(view: PlayerView, legal: Loose[]): string | null {
   if (view.ended) return null;
   if (view.prologue !== null) return legal.length > 0 ? null : "the prologue is open with no legal answer";
@@ -71,7 +71,7 @@ function stuck(view: PlayerView, legal: Loose[]): string | null {
   return null;
 }
 
-/** R-ENGINE-010: the save replays to the same state. */
+/** engine:state-is-plain-data: the save replays to the same state. */
 function replays(game: Game): boolean {
   // The stand-in world is a walk from tick 0, so it is built once for the whole replay.
   const worldSeed = lifeStart(game.save)?.worldSeed ?? "";

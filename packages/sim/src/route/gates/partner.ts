@@ -1,6 +1,6 @@
-// The partner gate: docs/rules/person.md R-PEOPLE-025 to 028, with the sponsor's
+// The partner gate: person:partner-routes-heard-via-bond, person:partner-gate-needs, person:partner-application-decided and person:partner-status-renews, with the sponsor's
 // side in undertaking.md. The sponsor is known only by the facts on the bond
-// (R-PEOPLE-001), the floor only as `meetsFloor`.
+// (person:others-known-by-facts), the floor only as `meetsFloor`.
 //
 // The people kind holds the bonds and the joint; this module only reads them.
 import { heldBand } from "../../activity/activity.logic";
@@ -14,9 +14,9 @@ import type { Decision, DecisionTerms, Gate } from "./gate";
 
 type PartnerBlock = NonNullable<RouteEntry["partner"]>;
 
-/** The stages at which a bond carries a joint application (R-PEOPLE-021). */
+/** The stages at which a bond carries a joint application (person:joint-application-proposed). */
 const JOINED: readonly BondStage[] = ["partner", "married"];
-/** R-PEOPLE-027, R-PEOPLE-023: the route's base and 800 for each earlier refusal, and nothing else. */
+/** person:partner-application-decided, person:dependant-application-decided: the route's base and 800 for each earlier refusal, and nothing else. */
 export const REFUSALS_ONLY: DecisionTerms = { strictness: false, unexplained: false, refusals: true, interview: false, goodGrade: false };
 
 function blockOf(entry: RouteEntry): PartnerBlock {
@@ -24,7 +24,7 @@ function blockOf(entry: RouteEntry): PartnerBlock {
   return entry.partner;
 }
 
-/** The joint's bond, intact, when the other side leads a joint that `matches` (R-PEOPLE-021). */
+/** The joint's bond, intact, when the other side leads a joint that `matches` (person:joint-application-proposed). */
 export function ledBond(read: ReadCtx, matches: (route: Id<"route">) => boolean): { id: string; bond: Bond } | null {
   const joint = read.state.people.joint;
   if (joint === null || joint.lead !== "them" || !matches(joint.route)) return null;
@@ -37,7 +37,7 @@ function sponsorOf(read: ReadCtx, entry: RouteEntry): { id: string; bond: Bond }
 }
 
 /**
- * R-PEOPLE-026: married, or for a route with `livingTogetherMonths` the bond at
+ * person:partner-gate-needs: married, or for a route with `livingTogetherMonths` the bond at
  * `partner` for that many of the applicant's months.
  * The people slice keeps no record of where each side lived month by
  * month, so "while both lived in the same place" is not read; the months since
@@ -49,13 +49,13 @@ function relationshipHolds(read: ReadCtx, block: PartnerBlock, bond: Bond): bool
   return read.state.turn.month - bond.partnerMonth >= block.livingTogetherMonths;
 }
 
-/** R-PEOPLE-025, 026: the sponsor's facts show them abroad in the route's country holding one of its `sponsorStatuses`. */
+/** person:partner-routes-heard-via-bond, person:partner-gate-needs: the sponsor's facts show them abroad in the route's country holding one of its `sponsorStatuses`. */
 function sponsorHolds(entry: RouteEntry, facts: PersonFacts | null): boolean {
   if (facts === null || facts.where !== "abroad" || facts.country !== entry.country || facts.status === null) return false;
   return blockOf(entry).sponsorStatuses.includes(facts.status);
 }
 
-/** R-PEOPLE-026, R-UNDERTAKING-003: a route with a floor needs the sponsor's facts to say it is met; one with none needs nothing. */
+/** person:partner-gate-needs, undertaking:sponsor-earnings-floor: a route with a floor needs the sponsor's facts to say it is met; one with none needs nothing. */
 function floorHolds(entry: RouteEntry, facts: PersonFacts | null): boolean {
   return blockOf(entry).floorVar === null || facts?.meetsFloor[entry.id] === true;
 }
@@ -68,7 +68,7 @@ function bandHolds(read: ReadCtx, block: PartnerBlock): boolean {
 
 /**
  * The interview's word on an application sent in `submittedMonth`
- * (R-INTERVIEW-009): open or not yet scored is `waiting`, no interview at all
+ * (interview:result-applies-to-application): open or not yet scored is `waiting`, no interview at all
  * is `none`, else the result.
  */
 export function interviewSince(read: ReadCtx, route: Id<"route">, submittedMonth: number): "waiting" | "none" | "pass" | "doubt" | "fail" | "caught" {
@@ -79,8 +79,8 @@ export function interviewSince(read: ReadCtx, route: Id<"route">, submittedMonth
 }
 
 /**
- * R-INTERVIEW-009 on a decision: `fail` refuses with `relationship` and no
- * draw, `caught` refuses with `sham` and bans the country (R-GATE-005),
+ * interview:result-applies-to-application on a decision: `fail` refuses with `relationship` and no
+ * draw, `caught` refuses with `sham` and bans the country (route-gates:deception-bans-country),
  * `doubt` adds `tuning.interview.doubtBp`, and `pass` adds nothing.
  */
 export function afterInterview(read: ReadCtx, result: "pass" | "doubt" | "fail" | "caught"): Decision {
@@ -100,14 +100,14 @@ export function afterInterview(read: ReadCtx, result: "pass" | "doubt" | "fail" 
   }
 }
 
-/** R-PEOPLE-027: the result is waited for; a partner application is never decided without one. */
+/** person:partner-application-decided: the result is waited for; a partner application is never decided without one. */
 function decision(read: ReadCtx, entry: RouteEntry, held: RouteState): Decision {
   const result = held.visa === null ? "waiting" : interviewSince(read, entry.id, held.visa.submittedMonth);
   if (result === "waiting" || result === "none") return { terms: REFUSALS_ONLY, override: null, bans: false, wait: true };
   return afterInterview(read, result);
 }
 
-/** R-PEOPLE-026: everything applying needs beyond the slot's papers, which the apply activity asks for. */
+/** person:partner-gate-needs: everything applying needs beyond the slot's papers, which the apply activity asks for. */
 function mayApply(ctx: Ctx, entry: RouteEntry): boolean {
   const block = blockOf(entry);
   const sponsor = sponsorOf(ctx, entry);
@@ -120,7 +120,7 @@ function mayApply(ctx: Ctx, entry: RouteEntry): boolean {
 
 /**
  * The bond the application rests on goes on the route, so a collapse can find
- * it (R-PEOPLE-036), and the genuineness interview opens on it (R-INTERVIEW-001).
+ * it (person:joint-collapses-with-bond), and the genuineness interview opens on it (interview:partner-application-opens-interview).
  */
 function onSend(ctx: Ctx, entry: RouteEntry, cause: Cause): void {
   const bond = sponsorOf(ctx, entry)?.id ?? null;
@@ -149,7 +149,7 @@ export const partnerGate: Gate = {
   mayApply: (ctx, entry) => mayApply(ctx, entry),
   decision,
   onSend,
-  // R-ROUTE-014 for this gate: no strictness, the surcharge for the route's years, the route's own months to decide.
+  // route:application-fixes-figures for this gate: no strictness, the surcharge for the route's years, the route's own months to decide.
   application: (read, entry) => {
     const block = blockOf(entry);
     return { strictness: 0, surchargePaid: block.surchargeYears === 0 ? 0 : block.surchargeYears * worldVar(read, VAR.ukSurchargeYear), decisionMonths: block.decisionMonths };

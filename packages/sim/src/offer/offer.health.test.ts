@@ -1,5 +1,4 @@
-// Health, locked slots and forced months: docs/rules/health.md R-HEALTH-001 to
-// 003 and 005 to 007. R-HEALTH-004 (sick pay) is the activity kind's and is
+// Health, locked slots and forced months: health:low-wellbeing-warns-first, health:illness-rolls-when-run-down, health:worse-illness-locks-slots, health:forced-months-spaced-apart, health:forced-months-warned-ahead and health:view-shows-health-warning. health:sick-pay-unless-sick-leave (sick pay) is the activity kind's and is
 // tested beside it. Lives play on the real content with the month's ordinary
 // offers turned off, so wellbeing moves only as each test moves it.
 import { content } from "@japacity/content";
@@ -22,13 +21,13 @@ const ILLNESS: Id<"offer"> = "offer.illness";
 const WORSE: Id<"offer"> = "offer.illness-worse";
 const BURIAL: Id<"offer"> = "offer.village-burial";
 const COURT: Id<"offer"> = "offer.court-date";
-/** A month-act for the slots a lock counts; the hunt that was here is now an act done at once (R-ACTIVITY-015) and fills no slot. */
+/** A month-act for the slots a lock counts; the hunt that was here is now an act done at once (activity:now-acts-and-month-acts) and fills no slot. */
 const STUDY: SlotPick = slot("activity.learn-tech");
 const CHANCE = 10000;
 
 /**
  * The real content with no ordinary offer rolled, so nothing but the health roll opens one, and an empty slot's rest
- * worth nothing. R-ACTIVITY-015: the hunt moves no quality and is an act done at once, so the month's slots are
+ * worth nothing. activity:now-acts-and-month-acts: the hunt moves no quality and is an act done at once, so the month's slots are
  * left empty and rest; with the rest at nothing they still move no quality.
  */
 const quiet: Content = applyOverlay(content, { version: "health-quiet", tuning: { offer: { maxNewPerMonth: 0 }, quality: { wellbeingRest: 0 } } });
@@ -132,7 +131,7 @@ function illSeed(relapseBp: number, relapses: boolean): string {
 }
 
 describe("the run-down warning", () => {
-  test("[R-HEALTH-001] given wellbeing under the line at one month's end, when the next month ends at the line, then no warning is given and the count is back to zero", () => {
+  test("[health:low-wellbeing-warns-first] given wellbeing under the line at one month's end, when the next month ends at the line, then no warning is given and the count is back to zero", () => {
     const game = life();
     expect(keys(month(game))).not.toContain("line.quality.run-down");
     expect(quality(game, RUN_DOWN)).toBe(1);
@@ -141,7 +140,7 @@ describe("the run-down warning", () => {
     expect(keys(month(game))).not.toContain("line.quality.run-down");
   });
 
-  test("[R-HEALTH-001] given wellbeing under the line at the month phase of two months in a row, when the second ends, then the warning line is given with attention, once", () => {
+  test("[health:low-wellbeing-warns-first] given wellbeing under the line at the month phase of two months in a row, when the second ends, then the warning line is given with attention, once", () => {
     const game = life();
     month(game);
     const second = month(game);
@@ -154,14 +153,14 @@ describe("the run-down warning", () => {
     expect(keys(month(game))).not.toContain("line.quality.run-down");
   });
 
-  test("[R-HEALTH-001] given wellbeing at the line for two months, when they end, then there is no warning", () => {
+  test("[health:low-wellbeing-warns-first] given wellbeing at the line for two months, when they end, then there is no warning", () => {
     const game = life();
     month(game, health.runDownBelow);
     expect(keys(month(game, health.runDownBelow))).not.toContain("line.quality.run-down");
     expect(quality(game, RUN_DOWN)).toBe(0);
   });
 
-  test("[R-HEALTH-001] given the warning, when it is given, then nothing else happens yet: no health draw and no illness", () => {
+  test("[health:low-wellbeing-warns-first] given the warning, when it is given, then nothing else happens yet: no health draw and no illness", () => {
     const game = life();
     month(game);
     month(game);
@@ -171,7 +170,7 @@ describe("the run-down warning", () => {
 });
 
 describe("illness", () => {
-  test("[R-HEALTH-002] given the warning, when the month after it ends still under the line, then illness is rolled once on `health` and opens when the draw falls under the chance", () => {
+  test("[health:illness-rolls-when-run-down] given the warning, when the month after it ends still under the line, then illness is rolled once on `health` and opens when the draw falls under the chance", () => {
     const sick = illSeed(health.relapseChemistBp, true);
     const well = seedWhere((seed) => !hits(seed, 0, health.illnessBp));
     const game = life(sick);
@@ -189,7 +188,7 @@ describe("illness", () => {
     expect(healthDraws(spared)).toBe(2);
   });
 
-  test("[R-HEALTH-002] given the warning, when wellbeing ends the next month at the line, then illness is not rolled, and the warning must come again before it is", () => {
+  test("[health:illness-rolls-when-run-down] given the warning, when wellbeing ends the next month at the line, then illness is not rolled, and the warning must come again before it is", () => {
     const game = life(illSeed(health.relapseChemistBp, true));
     month(game);
     month(game);
@@ -203,7 +202,7 @@ describe("illness", () => {
     expect(healthDraws(game)).toBe(1);
   });
 
-  test("[R-HEALTH-002] given an illness, when the hospital is chosen, then it pays the hospital as a mishap, locks one slot for the next month, heals 20 and draws no relapse", () => {
+  test("[health:illness-rolls-when-run-down] given an illness, when the hospital is chosen, then it pays the hospital as a mishap, locks one slot for the next month, heals 20 and draws no relapse", () => {
     const game = life(illSeed(health.relapseChemistBp, true));
     toIllness(game);
     const sickAt = quality(game, WELLBEING);
@@ -220,7 +219,7 @@ describe("illness", () => {
     expect(game.view().locks).toEqual([]);
   });
 
-  test("[R-HEALTH-002] given an illness, when the chemist is chosen, then it pays the chemist, adds 8, and the next month draws the relapse at the chemist's chance: at a seed under it the worse turn opens", () => {
+  test("[health:illness-rolls-when-run-down] given an illness, when the chemist is chosen, then it pays the chemist, adds 8, and the next month draws the relapse at the chemist's chance: at a seed under it the worse turn opens", () => {
     const game = life(illSeed(health.relapseChemistBp, true));
     toIllness(game);
     const taken = choose(game, ILLNESS, "chemist");
@@ -233,7 +232,7 @@ describe("illness", () => {
     expect(mustOpen(game, WORSE).terms.hospital).toBe(health.hospitalWorse);
   });
 
-  test("[R-HEALTH-002] given an illness treated at the chemist, when the relapse draw falls at or over the chance, then nothing opens and the illness is over", () => {
+  test("[health:illness-rolls-when-run-down] given an illness treated at the chemist, when the relapse draw falls at or over the chance, then nothing opens and the illness is over", () => {
     const game = life(illSeed(health.relapseChemistBp, false));
     toIllness(game);
     choose(game, ILLNESS, "chemist");
@@ -243,7 +242,7 @@ describe("illness", () => {
     expect(quality(game, COURSE)).toBe(COURSE_STEP.none);
   });
 
-  test("[R-HEALTH-002] given an illness, when it is ignored, then one slot is locked for the next month, wellbeing falls 15, and the relapse is drawn at ignoring's chance", () => {
+  test("[health:illness-rolls-when-run-down] given an illness, when it is ignored, then one slot is locked for the next month, wellbeing falls 15, and the relapse is drawn at ignoring's chance", () => {
     for (const relapses of [true, false]) {
       const game = life(illSeed(health.relapseIgnoreBp, relapses));
       toIllness(game);
@@ -257,7 +256,7 @@ describe("illness", () => {
     }
   });
 
-  test("[R-HEALTH-002] given an illness left unanswered, when the next month is played, then it lapses into ignore: the slot is locked from then and the relapse is drawn the same month", () => {
+  test("[health:illness-rolls-when-run-down] given an illness left unanswered, when the next month is played, then it lapses into ignore: the slot is locked from then and the relapse is drawn the same month", () => {
     const game = life(illSeed(health.relapseIgnoreBp, true));
     toIllness(game);
     const lapsed = game.endTurn();
@@ -268,7 +267,7 @@ describe("illness", () => {
     mustOpen(game, WORSE);
   });
 
-  test("[R-HEALTH-002] [R-HEALTH-001] given the run-down counter and the illness record, when they are read, then they are hidden qualities and never shown", () => {
+  test("[health:illness-rolls-when-run-down] [health:low-wellbeing-warns-first] given the run-down counter and the illness record, when they are read, then they are hidden qualities and never shown", () => {
     for (const id of [RUN_DOWN, COURSE, FORCED_WAIT]) expect(content.quality[id]?.shown).toBe(false);
     const game = life();
     month(game);
@@ -287,7 +286,7 @@ describe("the worse turn", () => {
     return game;
   }
 
-  test("[R-HEALTH-003] given the worse turn and the money, when the hospital is chosen, then it pays the scan and admission as a mishap and locks two slots for two months; `cannot` is not legal", () => {
+  test("[health:worse-illness-locks-slots] given the worse turn and the money, when the hospital is chosen, then it pays the scan and admission as a mishap and locks two slots for two months; `cannot` is not legal", () => {
     const game = worse();
     give(game, health.hospitalWorse);
     game.expectRejected({ type: "offer/choose", offer: mustOpen(game, WORSE).id, choice: "cannot" }, "not-legal");
@@ -305,7 +304,7 @@ describe("the worse turn", () => {
     expect(game.view().locks).toEqual([]);
   });
 
-  test("[R-HEALTH-003] given the worse turn and no money for it, when `cannot` is chosen, then two slots are locked for three months and standing falls 5; the hospital cannot be paid", () => {
+  test("[health:worse-illness-locks-slots] given the worse turn and no money for it, when `cannot` is chosen, then two slots are locked for three months and standing falls 5; the hospital cannot be paid", () => {
     const game = worse();
     emptyNaira(game);
     game.expectRejected({ type: "offer/choose", offer: mustOpen(game, WORSE).id, choice: "hospital" }, "cannot-afford");
@@ -316,7 +315,7 @@ describe("the worse turn", () => {
     expect(game.view().locks).toEqual([{ slots: 2, untilMonth: game.state.turn.month + 2, why: "illness" }]);
   });
 
-  test("[R-HEALTH-003] given the worse turn answered either way, when the next month is played, then wellbeing returns to 40", () => {
+  test("[health:worse-illness-locks-slots] given the worse turn answered either way, when the next month is played, then wellbeing returns to 40", () => {
     for (const choice of ["hospital", "cannot"]) {
       const game = worse();
       if (choice === "hospital") give(game, health.hospitalWorse);
@@ -332,7 +331,7 @@ describe("the worse turn", () => {
     }
   });
 
-  test("[R-HEALTH-003] given the worse turn left unanswered with the money for the hospital, when it lapses, then the family nurses you all the same: the long lock, standing -5 and wellbeing to 40", () => {
+  test("[health:worse-illness-locks-slots] given the worse turn left unanswered with the money for the hospital, when it lapses, then the family nurses you all the same: the long lock, standing -5 and wellbeing to 40", () => {
     const game = worse();
     give(game, health.hospitalWorse);
     const standing = quality(game, STANDING);
@@ -344,7 +343,7 @@ describe("the worse turn", () => {
     expect(game.view().locks).toEqual([{ slots: 2, untilMonth: game.state.turn.month + 2, why: "illness" }]);
   });
 
-  test("[R-HEALTH-003] given the worse turn left unanswered with no money, when it lapses, then `cannot` applies as its lapse choice", () => {
+  test("[health:worse-illness-locks-slots] given the worse turn left unanswered with no money, when it lapses, then `cannot` applies as its lapse choice", () => {
     const game = worse();
     emptyNaira(game);
     const lapsed = game.endTurn();
@@ -355,7 +354,7 @@ describe("the worse turn", () => {
 });
 
 describe("the gap and the cap", () => {
-  test("[R-HEALTH-005] given an illness closed by the chemist with no relapse, when months pass run down, then illness is not rolled again until the gap has passed since it could last have closed", () => {
+  test("[health:forced-months-spaced-apart] given an illness closed by the chemist with no relapse, when months pass run down, then illness is not rolled again until the gap has passed since it could last have closed", () => {
     const game = life(illSeed(health.relapseChemistBp, false));
     toIllness(game);
     const opened = game.state.turn.month;
@@ -371,7 +370,7 @@ describe("the gap and the cap", () => {
     expect(healthDraws(game)).toBe(3);
   });
 
-  test("[R-HEALTH-005] given the hospital chosen for an illness, when months pass run down, then no forced month comes for twelve: no illness roll and no burial, and both may come in the twelfth", () => {
+  test("[health:forced-months-spaced-apart] given the hospital chosen for an illness, when months pass run down, then no forced month comes for twelve: no illness roll and no burial, and both may come in the twelfth", () => {
     const game = life(illSeed(health.relapseChemistBp, true));
     toIllness(game);
     const chosen = game.state.turn.month;
@@ -390,7 +389,7 @@ describe("the gap and the cap", () => {
     mustOpen(game, BURIAL);
   });
 
-  test("[R-HEALTH-005] given a burial attended, when the months after it are run down, then illness waits for the forced-month cap, while the warning still comes first", () => {
+  test("[health:forced-months-spaced-apart] given a burial attended, when the months after it are run down, then illness waits for the forced-month cap, while the warning still comes first", () => {
     const game = life(seedWhere((seed) => hits(seed, 0, health.illnessBp)));
     applyEffects(game, [{ type: "offer/open", offer: BURIAL }]);
     const chosen = game.state.turn.month;
@@ -406,7 +405,7 @@ describe("the gap and the cap", () => {
     mustOpen(game, ILLNESS);
   });
 
-  test("[R-HEALTH-005] given every forced-month entry, when its choices are read, then each choice that locks a slot also fills the wait, and only those do", () => {
+  test("[health:forced-months-spaced-apart] given every forced-month entry, when its choices are read, then each choice that locks a slot also fills the wait, and only those do", () => {
     const forced = [ILLNESS, WORSE, BURIAL, COURT];
     const wait = content.quality[FORCED_WAIT]?.max;
     expect(wait).toBe(12);
@@ -421,7 +420,7 @@ describe("the gap and the cap", () => {
 });
 
 describe("forced months that say so a month ahead", () => {
-  test("[R-HEALTH-006] given the village burial at home, when `go` is taken, then it pays the trip and the next month is played with one slot fewer, and the slot is back after", () => {
+  test("[health:forced-months-warned-ahead] given the village burial at home, when `go` is taken, then it pays the trip and the next month is played with one slot fewer, and the slot is back after", () => {
     const game = life();
     applyEffects(game, [{ type: "offer/open", offer: BURIAL }]);
     const taken = choose(game, BURIAL, "go");
@@ -434,7 +433,7 @@ describe("forced months that say so a month ahead", () => {
     expect(game.view().freeSlots).toBe(slots);
   });
 
-  test("[R-HEALTH-006] given the village burial, when money is sent or nobody goes, then no slot is locked and standing falls 3 or 10", () => {
+  test("[health:forced-months-warned-ahead] given the village burial, when money is sent or nobody goes, then no slot is locked and standing falls 3 or 10", () => {
     for (const [choice, cost, loss] of [
       ["send-money", 100000 * 100, -3],
       ["absent", 0, -10],
@@ -449,14 +448,14 @@ describe("forced months that say so a month ahead", () => {
     }
   });
 
-  test("[R-HEALTH-006] given the village burial, when it is left unanswered, then it lapses into `absent`", () => {
+  test("[health:forced-months-warned-ahead] given the village burial, when it is left unanswered, then it lapses into `absent`", () => {
     const game = life();
     applyEffects(game, [{ type: "offer/open", offer: BURIAL }]);
     const lapsed = game.endTurn();
     expect(lapsed.events).toContainEqual(expect.objectContaining({ type: "offer/lapsed", entry: BURIAL, choice: "absent" }));
   });
 
-  test("[R-HEALTH-006] given standing under 20 or a life abroad, when the burial is opened, then it does not open", () => {
+  test("[health:forced-months-warned-ahead] given standing under 20 or a life abroad, when the burial is opened, then it does not open", () => {
     const low = life();
     add(low, STANDING, 19 - quality(low, STANDING));
     applyEffects(low, [{ type: "offer/open", offer: BURIAL }]);
@@ -467,7 +466,7 @@ describe("forced months that say so a month ahead", () => {
     expect(openOf(away, BURIAL)).toBeUndefined();
   });
 
-  test("[R-HEALTH-006] given a loan held abroad, when the court date opens and is attended, then one slot is locked for the next month; with no loan it does not open", () => {
+  test("[health:forced-months-warned-ahead] given a loan held abroad, when the court date opens and is attended, then one slot is locked for the next month; with no loan it does not open", () => {
     const game = life();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     applyEffects(game, [{ type: "offer/open", offer: COURT }]);
@@ -495,23 +494,23 @@ describe("forced months that say so a month ahead", () => {
     return game;
   }
 
-  test("[R-HEALTH-006] given a loan from home still paid on time and no car shortfall, when the court date is asked for abroad, then it does not open", () => {
+  test("[health:forced-months-warned-ahead] given a loan from home still paid on time and no car shortfall, when the court date is asked for abroad, then it does not open", () => {
     const game = loanAbroad(false);
     applyEffects(game, [{ type: "offer/open", offer: COURT }]);
     expect(openOf(game, COURT)).toBeUndefined();
   });
 
-  test("[R-HEALTH-006] given a quick loan from home in default, owed in naira, when the court date is asked for in the UK, then it does not open: a loan owed at home brings no court abroad", () => {
+  test("[health:forced-months-warned-ahead] given a quick loan from home in default, owed in naira, when the court date is asked for in the UK, then it does not open: a loan owed at home brings no court abroad", () => {
     const game = loanAbroad(true);
     applyEffects(game, [{ type: "offer/open", offer: COURT }]);
     expect(openOf(game, COURT)).toBeUndefined();
   });
 
-  test("[R-HEALTH-006] given the car shortfall owed in pounds and left to fall into default in the UK, when the court date is asked for, then it opens", () => {
+  test("[health:forced-months-warned-ahead] given the car shortfall owed in pounds and left to fall into default in the UK, when the court date is asked for, then it opens", () => {
     const game = life();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }, { type: "obligation/open", obligation: "obligation.car-shortfall", principal: 120000 }]);
     const shortfall = (): string | undefined => Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.car-shortfall")?.state;
-    // Opened by hand, the shortfall credits its principal (R-OBLIGATION-006); it is taken away so nothing pays it.
+    // Opened by hand, the shortfall credits its principal (obligation:loan-opening-credits-principal); it is taken away so nothing pays it.
     applyEffects(game, [{ type: "money/take", currency: "GBP", pocket: "bank", amount: game.state.wallet.pockets.GBP.bank, reason: "mishap" }]);
     for (let month = 0; month < 4 && shortfall() !== "defaulted"; month += 1) game.endTurn();
     expect(shortfall()).toBe("defaulted");
@@ -519,7 +518,7 @@ describe("forced months that say so a month ahead", () => {
     expect(openOf(game, COURT)).toBeDefined();
   });
 
-  test("[R-HEALTH-006] given each entry that says so a month ahead, when its `lockNext` is read, then a choice locks exactly that and every lock among its choices is that one", () => {
+  test("[health:forced-months-warned-ahead] given each entry that says so a month ahead, when its `lockNext` is read, then a choice locks exactly that and every lock among its choices is that one", () => {
     const ahead = Object.values(content.offer).filter((entry) => entry.lockNext !== undefined);
     expect(ahead.map((entry) => entry.id).sort()).toEqual([COURT, BURIAL]);
     for (const entry of ahead) {
@@ -531,7 +530,7 @@ describe("forced months that say so a month ahead", () => {
 });
 
 describe("the view", () => {
-  test("[R-HEALTH-007] given the warning, when the view is read, then it shows while it stands and goes when wellbeing is back over the line", () => {
+  test("[health:view-shows-health-warning] given the warning, when the view is read, then it shows while it stands and goes when wellbeing is back over the line", () => {
     const game = life();
     expect(game.view()).toMatchObject({ runDown: false });
     month(game);
@@ -544,7 +543,7 @@ describe("the view", () => {
     expect(game.view()).toMatchObject({ runDown: false });
   });
 
-  test("[R-HEALTH-007] given an illness, when the view is read before the choice, then the offer shows both prices, and after the hospital the lock shows with its reason and last month", () => {
+  test("[health:view-shows-health-warning] given an illness, when the view is read before the choice, then the offer shows both prices, and after the hospital the lock shows with its reason and last month", () => {
     const game = life(illSeed(health.relapseChemistBp, true));
     toIllness(game);
     const offer = mustOpen(game, ILLNESS);

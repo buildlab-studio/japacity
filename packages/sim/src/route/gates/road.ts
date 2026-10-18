@@ -1,4 +1,4 @@
-// The road: docs/rules/road.md R-ROAD-001 to 012, under the dangerous route's
+// The road: docs/rules/road.md, under the dangerous route's
 // rules in prose on the same page. The chain runs in `clocks`.
 //
 // The gate's state carries the step, the months at it and, before the chain
@@ -20,17 +20,17 @@ type RoadStepEffect = Extract<Effect, { type: "route/road-step" }>;
 const NIGHT: Id<"setpiece"> = "setpiece.road-night";
 const TRUTH: Id<"setpiece"> = "setpiece.road-truth";
 const RANSOM: Id<"offer"> = "offer.road-ransom-call";
-/** R-ROAD-007: the way out, open every month on the road. */
+/** road:exit-is-assisted-return: the way out, open every month on the road. */
 const EXIT_OFFER: Id<"offer"> = "offer.road-exit";
 const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
-/** R-ROAD-009: where the sea step ends, and the status it ends in. The route entry has no country or status (R-ROAD-001). */
+/** road:sea-arrival-in-italy: where the sea step ends, and the status it ends in. The route entry has no country or status (road:road-route-has-no-figure). */
 const FAR_SHORE: Id<"country"> = "country.italy";
-/** R-ROAD-006: the step whose `held` opens the agent's debt. */
+/** road:chain-steps-monthly: the step whose `held` opens the agent's debt. */
 const COMPOUND = "compound";
 
-/** The steps before the chain, in order (R-ROAD-003 to 005). */
+/** The steps before the chain, in order (road:taking-pitch-pays-deposit, road:road-night-allows-turn-back and road:road-truth-asks-more). */
 const BEFORE = ["night", "truth"] as const;
-/** Ended steps that carry the real-story card until the next month's clocks (R-ROAD-011). */
+/** Ended steps that carry the real-story card until the next month's clocks (road:real-story-card-after-chain). */
 const CARD_STEPS: readonly string[] = ["turned-back", "exit", "lost", "arrived"];
 /** Ended steps that settle quietly into `over` in the next month's clocks. */
 const SETTLING: readonly string[] = ["turned-back", "exit", "arrived", "fraud"];
@@ -71,13 +71,13 @@ function heldOf(read: ReadCtx, entry: RouteEntry): RouteState {
   return held;
 }
 
-/** R-ROAD-003: a real-ish connection, kept hidden on the route's secret. */
+/** road:taking-pitch-pays-deposit: a real-ish connection, kept hidden on the route's secret. */
 function realish(held: RouteState): boolean {
   // The route's only hidden field is `secret.sponsorFraud`, so the road keeps "the connection is real-ish" there.
   return held.secret.sponsorFraud === true;
 }
 
-/** The chain has begun and not ended: from the night meeting to the sea (R-ROAD-012 keeps the pitches away). */
+/** The chain has begun and not ended: from the night meeting to the sea (road:pitch-reaches-anyone-at-home keeps the pitches away). */
 function underway(entry: RouteEntry, held: RouteState): boolean {
   const step = roadOf(held).step;
   return step !== null && orderOf(entry).includes(step);
@@ -92,21 +92,21 @@ function monthsOnRoad(read: ReadCtx): number {
 // Changing the gate
 // ---------------------------------------------------------------------------
 
-/** R-ROAD-010: the route kind tells a road gate's notes in tone `bad`. */
+/** road:road-earns-nothing: the route kind tells a road gate's notes in tone `bad`. */
 function update(ctx: Ctx, entry: RouteEntry, gate: RoadState, note: string | null, secret?: RouteState["secret"]): BaseEvent[] {
   const event: RouteKindEvent =
     secret === undefined ? { type: "route/gate-updated", route: entry.id, gate, note } : { type: "route/gate-updated", route: entry.id, gate, note, secret };
   return emit(ctx, "route", [event]);
 }
 
-/** R-ROAD-005: the route's way from where it stands to `applying`, by the page's arrows. */
+/** road:road-truth-asks-more: the route's way from where it stands to `applying`, by the page's arrows. */
 const TO_APPLYING: Partial<Record<RouteState["state"], RouteState["state"][]>> = {
   unknown: ["heard", "known", "applying"],
   heard: ["known", "applying"],
   known: ["applying"],
 };
 
-/** R-ROAD-005: the route is `applying` while the chain runs. */
+/** road:road-truth-asks-more: the route is `applying` while the chain runs. */
 function setApplying(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const path = TO_APPLYING[heldOf(ctx, entry).state] ?? [];
   const moves = path.map((to): RouteKindEvent => ({ type: "route/moved", route: entry.id, to }));
@@ -124,7 +124,7 @@ function causeOf(entry: RouteEntry): Cause {
   return { source: entry.id, param: null, terms: {} };
 }
 
-/** R-ROAD-008: the ending. Final for the character; the authority may still grant turns that nothing uses. */
+/** road:lost-is-final: the ending. Final for the character; the authority may still grant turns that nothing uses. */
 function lose(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const months = monthsOnRoad(ctx);
   const events = [...update(ctx, entry, { gate: "road", step: "lost", monthsHere: months, debt: 0 }, "road-lost"), ...setKnown(ctx, entry)];
@@ -133,8 +133,8 @@ function lose(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 }
 
 /**
- * R-ROAD-007: the assisted return from any step after the truth, standing by
- * R-RETURN-002. The agent's debt is an obligation `where: any`, so it stays open
+ * road:exit-is-assisted-return: the assisted return from any step after the truth, standing by
+ * return:standing-by-return-shape. The agent's debt is an obligation `where: any`, so it stays open
  * in naira. At the truth itself the character has not left yet, so the return
  * finds them at home and does nothing.
  */
@@ -144,7 +144,7 @@ function exit(ctx: Ctx, entry: RouteEntry, note: string): BaseEvent[] {
   return [...update(ctx, entry, { gate: "road", step: "exit", monthsHere: months, debt: 0 }, note), ...setKnown(ctx, entry)];
 }
 
-/** R-ROAD-009: `on` from the last step. The debt stays open; cash work only comes with the status. */
+/** road:sea-arrival-in-italy: `on` from the last step. The debt stays open; cash work only comes with the status. */
 function arrive(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const months = monthsOnRoad(ctx);
   ctx.apply(
@@ -158,7 +158,7 @@ function arrive(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 }
 
 /**
- * R-ROAD-006: whether a step's time is up after `months` there. A step lasts a
+ * road:chain-steps-monthly: whether a step's time is up after `months` there. A step lasts a
  * whole number of months drawn evenly from its range: before the least it is
  * not up, at the most it is, and between them it is up with one chance in the
  * months left to the most, a draw on `road`. It is drawn month by month so
@@ -185,7 +185,7 @@ function enter(ctx: Ctx, entry: RouteEntry, index: number): BaseEvent[] {
 }
 
 /**
- * R-ROAD-006: a held month. Every `held` brings the ransom call to the family;
+ * road:chain-steps-monthly: a held month. Every `held` brings the ransom call to the family;
  * the compound's also opens the agent's debt for the call's sum, so the debt
  * is what the men say is owed whether or not the family pays, and an unpaid
  * call adds the sum again (`cannot` in content opens the same debt, which
@@ -202,7 +202,7 @@ function hold(ctx: Ctx, entry: RouteEntry, step: RoadStep, months: number): Base
 }
 
 /**
- * R-ROAD-006: the outcome draw on `road` from the step's row. A real-ish
+ * road:chain-steps-monthly: the outcome draw on `road` from the step's row. A real-ish
  * connection halves `held` (road.md, "Entries"). The half taken off
  * `held` goes to `on`, so the row still adds up to 10000.
  */
@@ -225,7 +225,7 @@ function heldLastMonth(read: ReadCtx): boolean {
   return read.state.offer.lastOpened[RANSOM] === read.state.turn.month - 1;
 }
 
-/** One month at a step of the chain (R-ROAD-006). */
+/** One month at a step of the chain (road:chain-steps-monthly). */
 function chainMonth(ctx: Ctx, entry: RouteEntry, held: RouteState, gate: RoadState, index: number): BaseEvent[] {
   const step = chainOf(entry)[index];
   if (step === undefined) throw new Error(`${entry.id} has no step ${String(gate.step)}.`);
@@ -249,7 +249,7 @@ function chainMonth(ctx: Ctx, entry: RouteEntry, held: RouteState, gate: RoadSta
   }
 }
 
-/** Opens a set piece of the chain unless one is open already; the gate tries again next month (R-ENGINE-011). */
+/** Opens a set piece of the chain unless one is open already; the gate tries again next month (engine:player-never-stuck). */
 function openScene(ctx: Ctx, entry: RouteEntry, setpiece: Id<"setpiece">): void {
   if (ctx.state.setpiece.open !== null) return;
   ctx.apply([{ type: "setpiece/open", setpiece, route: null }], causeOf(entry));
@@ -260,9 +260,9 @@ function openScene(ctx: Ctx, entry: RouteEntry, setpiece: Id<"setpiece">): void 
 // ---------------------------------------------------------------------------
 
 /**
- * R-ROAD-004 to 006 and 011, month by month: a scene not yet open opens, the
+ * road:road-night-allows-turn-back, road:road-truth-asks-more, road:chain-steps-monthly and road:real-story-card-after-chain, month by month: a scene not yet open opens, the
  * chain takes its month, and an ended chain settles. A fraud is told a month
- * after the deposit went (R-ROAD-003); the other ends keep the real-story card
+ * after the deposit went (road:taking-pitch-pays-deposit); the other ends keep the real-story card
  * for the month they happened in.
  */
 function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
@@ -274,7 +274,7 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
     openScene(ctx, entry, NIGHT);
     return [];
   }
-  // The truth comes a month after the bus leaves (R-ROAD-004: the months pass while you wait).
+  // The truth comes a month after the bus leaves (road:road-night-allows-turn-back: the months pass while you wait).
   if (step === "truth") {
     if (ctx.state.setpiece.open?.entry !== TRUTH) openScene(ctx, entry, TRUTH);
     return [];
@@ -283,7 +283,7 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const index = chainOf(entry).findIndex((candidate) => candidate.id === step);
   if (index < 0) throw new Error(`${entry.id} is at an unknown step ${step}.`);
   const events = chainMonth(ctx, entry, held, gate, index);
-  // R-ROAD-007: every month still on the road, the way out is on the table.
+  // road:exit-is-assisted-return: every month still on the road, the way out is on the table.
   if (ctx.state.place.where === "road" && ctx.content.offer[EXIT_OFFER] !== undefined) ctx.apply([{ type: "offer/open", offer: EXIT_OFFER }], causeOf(entry));
   return events;
 }
@@ -293,9 +293,9 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * R-ROAD-003: a pitch taken that is not a fraud. The offer kind's draw on
+ * road:taking-pitch-pays-deposit: a pitch taken that is not a fraud. The offer kind's draw on
  * `road` hands over the kind as the term `kind`; the deposit is the term
- * `deposit`. The `more` the truth asks for (R-ROAD-005) is the deposit
+ * `deposit`. The `more` the truth asks for (road:road-truth-asks-more) is the deposit
  * again, kept as the gate's `debt` until the truth: the page names no figure
  * for it, and a term on the pitch would show it in the offer's view.
  */
@@ -308,7 +308,7 @@ function night(ctx: Ctx, entry: RouteEntry, cause: Cause): BaseEvent[] {
 }
 
 /**
- * R-ROAD-005: paying or calling home sets the character on the road. Paying
+ * road:road-truth-asks-more: paying or calling home sets the character on the road. Paying
  * takes the money asked from cash. What cash cannot cover is not
  * waved through; it opens as the agent's debt, the money the men say you owe.
  * Calling home takes family means, one point for each ₦100,000; the stake and
@@ -325,14 +325,14 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
     if (paid > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: paid, reason: "fee-agent" });
     if (more > paid) effects.push({ type: "obligation/open", obligation: AGENT_DEBT, principal: more - paid });
   } else {
-    // R-ROAD-005: family means fall one point for each `meansStep` the family pays.
+    // road:road-truth-asks-more: family means fall one point for each `meansStep` the family pays.
     const fall = divFloor(more, ctx.content.tuning.road.meansStep);
     if (fall > 0) effects.push({ type: "quality/add", quality: QUALITY.familyMeans, amount: -fall });
   }
   effects.push(
     { type: "place/move", to: "road", country: null },
-    // R-ROAD-005: the home obligations are suspended; the family house takes them up again on return (R-PLACE-007).
-    // A rented room is let go with them (R-HOME-010): a return from the road comes home to the family house.
+    // road:road-truth-asks-more: the home obligations are suspended; the family house takes them up again on return (place:family-takes-you-back).
+    // A rented room is let go with them (home:compound-room-is-a-home): a return from the road comes home to the family house.
     { type: "obligation/close", obligationType: "upkeep" },
     { type: "obligation/close", obligationType: "support" },
     { type: "obligation/close", obligationType: "rent" },
@@ -346,7 +346,7 @@ function setOff(ctx: Ctx, entry: RouteEntry, gate: RoadState, how: "pay" | "call
 /**
  * `route/road-step`: the pitch, the night meeting and the truth move the chain
  * through this effect. A step that does not follow from where the chain is
- * does nothing (R-GATE-001).
+ * does nothing (route-gates:route-runs-its-gate-steps).
  */
 function roadStep(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "route/road-step") throw new Error(`route/road-step cannot carry out ${effect.type}.`);
@@ -357,19 +357,19 @@ function roadStep(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   switch (step) {
     case "night":
       return underway(entry, held) ? [] : night(ctx, entry, cause);
-    // R-ROAD-003: money gone, nothing follows; the line comes a month later.
+    // road:taking-pitch-pays-deposit: money gone, nothing follows; the line comes a month later.
     case "fraud":
       return underway(entry, held) ? [] : update(ctx, entry, { gate: "road", step: "fraud", monthsHere: 0, debt: 0 }, null);
-    // R-ROAD-004: `go`. The truth opens in next month's clocks.
+    // road:road-night-allows-turn-back: `go`. The truth opens in next month's clocks.
     case "truth":
       return gate.step === "night" ? update(ctx, entry, { ...gate, step: "truth" }, "road-go") : [];
-    // R-ROAD-004: `turn-back` costs the deposit already paid; the standing is the answer's own effect.
+    // road:road-night-allows-turn-back: `turn-back` costs the deposit already paid; the standing is the answer's own effect.
     case "turned-back":
       return gate.step === "night" ? update(ctx, entry, { gate: "road", step: "turned-back", monthsHere: 0, debt: 0 }, "road-turned-back") : [];
     case "pay":
     case "call-home":
       return gate.step === "truth" ? setOff(ctx, entry, gate, step) : [];
-    // R-ROAD-005 and 007: the way out, at the truth or on the road.
+    // road:road-truth-asks-more and road:exit-is-assisted-return: the way out, at the truth or on the road.
     case "exit":
       return underway(entry, held) && gate.step !== "night" ? exit(ctx, entry, "road-exit") : [];
     default:
@@ -382,7 +382,7 @@ function roadStep(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * R-ROAD-005 and 012: the road sets off from home. A formal flight taken
+ * road:road-truth-asks-more and road:pitch-reaches-anyone-at-home: the road sets off from home. A formal flight taken
  * after the pitch and before setting off ends the chain where it stands,
  * quietly, as a fraud does: the deposit is the only loss, and an answer to a
  * scene still open moves nothing.
@@ -396,7 +396,7 @@ export function endBeforeSettingOff(ctx: Ctx): BaseEvent[] {
   const step = roadOf(held).step;
   if (step === null || !(BEFORE as readonly string[]).includes(step)) return [];
   const events = update(ctx, entry, { gate: "road", step: OVER, monthsHere: 0, debt: 0 }, null);
-  // R-ROAD-004: a scene left open would block every turn abroad.
+  // road:road-night-allows-turn-back: a scene left open would block every turn abroad.
   ctx.apply([{ type: "setpiece/close", setpiece: NIGHT }, { type: "setpiece/close", setpiece: TRUTH }], causeOf(entry));
   return events;
 }
@@ -406,7 +406,7 @@ export function endBeforeSettingOff(ctx: Ctx): BaseEvent[] {
 // ---------------------------------------------------------------------------
 
 /**
- * R-ROAD-008 and 011: once the chain ends, the card is the real-story card, or
+ * road:lost-is-final and road:real-story-card-after-chain: once the chain ends, the card is the real-story card, or
  * on the ending the ending card, which carries it too. The card holds
  * for the month the chain ended in and settles at the next month's clocks; the
  * ending never settles. A fraud never began the chain and shows none. The
@@ -426,7 +426,7 @@ export function roadCard(read: ReadCtx): PlayerView["card"] {
       standing: read.state.quality[QUALITY.standing] ?? 0,
       topActivities: [],
       chapter: read.state.chapter.current,
-      // R-SHARE-002: the road's cards carry no name.
+      // share:no-card-for-harm: the road's cards carry no name.
       name: null,
     };
   }
@@ -437,21 +437,21 @@ export const roadGate: Gate = {
   gate: "road",
   steps: [...BEFORE, "desert", "compound", "coast", "sea"],
   initial: initialRoad,
-  // R-GATE-001: a step is reached while the chain is at it or past it and has not ended.
+  // route-gates:route-runs-its-gate-steps: a step is reached while the chain is at it or past it and has not ended.
   reached: (_read, entry, held, step) => {
     const order = orderOf(entry);
     const at = order.indexOf(roadOf(held).step ?? "");
     const want = order.indexOf(step);
     return at >= 0 && want >= 0 && at >= want;
   },
-  // R-ROAD-001: no application and no decision draw.
+  // road:road-route-has-no-figure: no application and no decision draw.
   mayApply: () => false,
   decision: () => ({ terms: NO_TERM, override: null, bans: false }),
   clocks,
   effects: { "route/road-step": roadStep },
   funds: () => null,
-  // R-ROAD-001 keeps the road out of the routes view, so this part is never shown; the chain is seen
-  // through `place.where`, the report lines and the card (road.md, under R-ROAD-001).
+  // road:road-route-has-no-figure keeps the road out of the routes view, so this part is never shown; the chain is seen
+  // through `place.where`, the report lines and the card (road.md, under road:road-route-has-no-figure).
   view: (_read, _entry, held) => {
     const gate = roadOf(held);
     return { gate: "road", step: gate.step, monthsHere: gate.monthsHere };

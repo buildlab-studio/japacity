@@ -1,5 +1,5 @@
 // The working copy of one step. Everything a step does happens here, and the
-// draft is dropped whole when a command is rejected (R-ENGINE-002): events,
+// draft is dropped whole when a command is rejected (engine:only-events-change-state): events,
 // lines, draws and instance numbers alike. The input state is never touched.
 import { checkWith, resolveAmount } from "./check";
 import type { EngineCtx, PrefixOf, Registry, SliceKey, TurnInProgress } from "./kind";
@@ -75,7 +75,7 @@ export function applyToDraft(draft: Draft, event: BaseEvent): void {
 /**
  * Apply what a kind's handler returned. Events that ctx.apply or ctx.emit
  * already applied are skipped. Any other event must be the kind's own: a kind
- * changes another kind only through an effect (R-ENGINE-013).
+ * changes another kind only through an effect (engine:kinds-own-their-state).
  */
 export function applyReturned(draft: Draft, owner: SliceKey, events: readonly BaseEvent[]): void {
   for (const event of events) {

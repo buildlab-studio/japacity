@@ -1,5 +1,5 @@
-// The waiting months build the profile toward a route: docs/rules/activity.md R-ACTIVITY-013 (the
-// developer's acts, the nurse's certification, a master's at home) and R-ACTIVITY-014 (side jobs pay by
+// The waiting months build the profile toward a route: activity:waiting-months-build-profile (the
+// developer's acts, the nurse's certification, a master's at home) and activity:side-jobs-pay-by-tier (side jobs pay by
 // level). Each test plays a real life from content and reads its figures from content.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -84,7 +84,7 @@ function holding(scenario: Id<"scenario">, side: Id<"activity">): Game {
 }
 
 describe("side jobs by level", () => {
-  test("[R-ACTIVITY-014] given weekend tutoring, when a month is paid at one point under its tier and then at the tier, then the entry's own pay comes first and the tier's pay once its tech is met", () => {
+  test("[activity:side-jobs-pay-by-tier] given weekend tutoring, when a month is paid at one point under its tier and then at the tier, then the entry's own pay comes first and the tier's pay once its tech is met", () => {
     const tiers = entryOf(TUTORING).tiers ?? [];
     const [tier] = tiers;
     if (tier === undefined) throw new Error("Tutoring has no tier.");
@@ -96,7 +96,7 @@ describe("side jobs by level", () => {
     expect(figure(tier.pay)).toBeGreaterThan(figure(entryOf(TUTORING).pay!));
   });
 
-  test("[R-ACTIVITY-014] given the night shift with two tiers, when both are met, then the highest tier pays, in its own currency to the bank", () => {
+  test("[activity:side-jobs-pay-by-tier] given the night shift with two tiers, when both are met, then the highest tier pays, in its own currency to the bank", () => {
     const tiers = entryOf(NIGHT_SUPPORT).tiers ?? [];
     expect(tiers.length).toBeGreaterThanOrEqual(2);
     const top = tiers.reduce((best, tier) => (figure(tier.pay) > figure(best.pay) ? tier : best));
@@ -106,7 +106,7 @@ describe("side jobs by level", () => {
     expect(paid).toEqual([{ type: "wallet/credited", currency: top.pay.currency, pocket: "bank", amount: figure(top.pay), reason: "salary" }]);
   });
 
-  test("[R-ACTIVITY-014] given ride driving held by a life under its network tier, when its network reaches the tier, then the month pays more", () => {
+  test("[activity:side-jobs-pay-by-tier] given ride driving held by a life under its network tier, when its network reaches the tier, then the month pays more", () => {
     const [tier] = entryOf(RIDE).tiers ?? [];
     if (tier === undefined) throw new Error("Ride driving has no tier.");
     expect(tier.min.quality).toBe(NETWORK);
@@ -121,7 +121,7 @@ describe("side jobs by level", () => {
 });
 
 describe("the developer's acts", () => {
-  test("[R-ACTIVITY-013] given a developer at tech 40, when open source is played two months running, then each month adds network and the second adds a portfolio piece; under tech 40 it is not legal", () => {
+  test("[activity:waiting-months-build-profile] given a developer at tech 40, when open source is played two months running, then each month adds network and the second adds a portfolio piece; under tech 40 it is not legal", () => {
     const game = start({ content, scenario: "scenario.zainab" });
     expect(entryOf(OPEN_SOURCE).counts).toContain(TALENT);
     const first = month(game, [slot(OPEN_SOURCE)]);
@@ -140,14 +140,14 @@ describe("the developer's acts", () => {
     expect(allowed(ada, OPEN_SOURCE)).toBe(true);
   });
 
-  test("[R-ACTIVITY-013] given tech 30, when tech posts ride with the month, then they fill no slot and add network and standing; a second in one month fails, and under tech 30 they are not offered", () => {
+  test("[activity:waiting-months-build-profile] given tech 30, when tech posts ride with the month, then they fill no slot and add network and standing; a second in one month fails, and under tech 30 they are not offered", () => {
     const game = start({ content, scenario: "scenario.ada" });
     expect(entryOf(POSTS).slot).toBe("none");
     const free = game.view().freeSlots;
     const played = game.endTurn([slot(POSTS), ...Array.from({ length: free }, () => slot(REST))]);
     expect(gained(played, NETWORK, POSTS)).toBe(1);
     expect(gained(played, STANDING, POSTS)).toBe(1);
-    // R-ACTIVITY-015: posting is an act done at once and runs once a month, so a second in the month is refused.
+    // activity:now-acts-and-month-acts: posting is an act done at once and runs once a month, so a second in the month is refused.
     const twice = game.accept({ type: "activity/now", activity: POSTS, param: null });
     expect(gained(twice, NETWORK, POSTS)).toBe(1);
     expect(game.expectRejected({ type: "activity/now", activity: POSTS, param: null }, "not-legal").code).toBe("not-legal");
@@ -160,7 +160,7 @@ describe("the developer's acts", () => {
     expect(allowed(tunde, POSTS)).toBe(true);
   });
 
-  test("[R-ACTIVITY-013] given portfolio 2 and network 40, when the talk is given, then its one question opens, portfolio, standing and network rise, and once answered it is never offered again", () => {
+  test("[activity:waiting-months-build-profile] given portfolio 2 and network 40, when the talk is given, then its one question opens, portfolio, standing and network rise, and once answered it is never offered again", () => {
     const game = start({ content, scenario: "scenario.zainab" });
     raiseTo(game, NETWORK, 39);
     expect(allowed(game, TALK)).toBe(false);
@@ -179,7 +179,7 @@ describe("the developer's acts", () => {
     game.expectRejected({ type: "turn/end", slots: [slot(TALK)] }, "not-legal");
   });
 
-  test("[R-ACTIVITY-013] given a job held five months, when being noticed is read, then it is not offered; at six months it is", () => {
+  test("[activity:waiting-months-build-profile] given a job held five months, when being noticed is read, then it is not offered; at six months it is", () => {
     const game = start({ content, scenario: "scenario.ada" });
     applyEffects(game, [{ type: "activity/start-job", job: "activity.job-customer-service" }]);
     for (let n = 0; n < 5; n += 1) month(game, []);
@@ -189,7 +189,7 @@ describe("the developer's acts", () => {
     expect(allowed(game, NOTICED)).toBe(true);
   });
 
-  test("[R-ACTIVITY-013] given a job held six months or more, when the draw lands, then the job's pay rises by the tuning's raise from the next month, standing rises, and the raise never comes twice", () => {
+  test("[activity:waiting-months-build-profile] given a job held six months or more, when the draw lands, then the job's pay rises by the tuning's raise from the next month, standing rises, and the raise never comes twice", () => {
     const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
@@ -203,7 +203,7 @@ describe("the developer's acts", () => {
     expect(credits(month(game, []), "salary").map((credit) => credit.amount)).toEqual([raised]);
   });
 
-  test("[R-ACTIVITY-013] given a job held six months or more, when the draw misses, then the pay stays and the month says nobody has said anything yet", () => {
+  test("[activity:waiting-months-build-profile] given a job held six months or more, when the draw misses, then the pay stays and the month says nobody has said anything yet", () => {
     const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, false) });
     const job = game.state.activity.job!;
     const missed = month(game, [slot(NOTICED)]);
@@ -212,7 +212,7 @@ describe("the developer's acts", () => {
     expect(credits(month(game, []), "salary").map((credit) => credit.amount)).toEqual([figure(entryOf(job).pay!)]);
   });
 
-  test("[R-ACTIVITY-013] given two picks of one of the waiting months' acts in a month, when the month is played, then the second fails as a slot and the act counts once", () => {
+  test("[activity:waiting-months-build-profile] given two picks of one of the waiting months' acts in a month, when the month is played, then the second fails as a slot and the act counts once", () => {
     const game = start({ content, scenario: "scenario.zainab" });
     const played = month(game, [slot(OPEN_SOURCE), slot(OPEN_SOURCE)]);
     expect(played.events).toContainEqual({ type: "activity/slot-failed", slot: 1, activity: OPEN_SOURCE, param: null, why: "requirements" });
@@ -228,7 +228,7 @@ describe("each act's outcome told the month it happens", () => {
     return result.lines.map((line) => line.key);
   }
 
-  test("[R-ACTIVITY-013] given a developer on open source, when three months are played, then the first is merged, the second adds a piece and the third is a quiet month of fixes; a month without it says neither", () => {
+  test("[activity:waiting-months-build-profile] given a developer on open source, when three months are played, then the first is merged, the second adds a piece and the third is a quiet month of fixes; a month without it says neither", () => {
     const game = start({ content, scenario: "scenario.zainab" });
     const pieces = qualityOf(game, PORTFOLIO);
     const first = month(game, [slot(OPEN_SOURCE)]);
@@ -246,7 +246,7 @@ describe("each act's outcome told the month it happens", () => {
     expect(keys(month(game, [])).filter((key) => key === MERGED || key === CONTRIBUTED)).toEqual([]);
   });
 
-  test("[R-ACTIVITY-013] given the raise lands, when the month is told, then its line carries what the pay goes up by a month and the pay after it", () => {
+  test("[activity:waiting-months-build-profile] given the raise lands, when the month is told, then its line carries what the pay goes up by a month and the pay after it", () => {
     const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
@@ -259,7 +259,7 @@ describe("each act's outcome told the month it happens", () => {
 });
 
 describe("the raise in the view", () => {
-  test("[R-ACTIVITY-013] given the raise lands, when the view is read, then the job carries its pay with the raise and the month it landed, the month of the report that told it", () => {
+  test("[activity:waiting-months-build-profile] given the raise lands, when the view is read, then the job carries its pay with the raise and the month it landed, the month of the report that told it", () => {
     const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
@@ -273,7 +273,7 @@ describe("the raise in the view", () => {
     expect(game.view().job.raise?.month).toBe(landed);
   });
 
-  test("[R-ACTIVITY-013] given the draw misses, or the raised job is left, when the view is read, then the job carries no raise", () => {
+  test("[activity:waiting-months-build-profile] given the draw misses, or the raised job is left, when the view is read, then the job carries no raise", () => {
     const missed = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, false) });
     month(missed, [slot(NOTICED)]);
     expect(missed.view().job.raise).toBeUndefined();
@@ -304,7 +304,7 @@ describe("the nurse's certification", () => {
     return { game, marked, paid };
   }
 
-  test("[R-ACTIVITY-013] given the nurse with her licence and care 50, when she sits the exam, then the fee is taken and three questions open in order at the clinic's set piece", () => {
+  test("[activity:waiting-months-build-profile] given the nurse with her licence and care 50, when she sits the exam, then the fee is taken and three questions open in order at the clinic's set piece", () => {
     const { game, paid } = sit([true, true, true]);
     const fee = figure(entryOf(CERTIFY).cost[0]!);
     expect(paid.events).toContainEqual(expect.objectContaining({ type: "wallet/debited", currency: "NGN", reason: "fee-test" }));
@@ -313,7 +313,7 @@ describe("the nurse's certification", () => {
     expect(entryOf(CERTIFY).counts).toContain(CARE_ROUTE);
   });
 
-  test("[R-ACTIVITY-013] given two of three right, when the last answer is given, then it is a pass: the certificate is asked for and care rises by the quiz's figure", () => {
+  test("[activity:waiting-months-build-profile] given two of three right, when the last answer is given, then it is a pass: the certificate is asked for and care rises by the quiz's figure", () => {
     const { game, marked } = sit([true, false, true]);
     expect(marked.events).toContainEqual(expect.objectContaining({ type: "activity/exam-marked", activity: CERTIFY, right: 2, asked: 3, passed: true }));
     expect(marked.lines.map((line) => line.key)).toContain("line.activity.exam-passed");
@@ -323,7 +323,7 @@ describe("the nurse's certification", () => {
     expect(allowed(game, CERTIFY)).toBe(false);
   });
 
-  test("[R-ACTIVITY-013] given one of three right, when the last answer is given, then it is not a pass: no certificate, no care, and the exam can be sat again", () => {
+  test("[activity:waiting-months-build-profile] given one of three right, when the last answer is given, then it is not a pass: no certificate, no care, and the exam can be sat again", () => {
     const { game, marked } = sit([true, false, false]);
     const before = qualityOf(game, CARE);
     expect(marked.events).toContainEqual(expect.objectContaining({ type: "activity/exam-marked", activity: CERTIFY, right: 1, asked: 3, passed: false }));
@@ -334,7 +334,7 @@ describe("the nurse's certification", () => {
     expect(allowed(game, CERTIFY)).toBe(true);
   });
 
-  test("[R-ACTIVITY-013] given the talk and the exam in one month, when the first opens its set piece, then the second fails with nothing paid", () => {
+  test("[activity:waiting-months-build-profile] given the talk and the exam in one month, when the first opens its set piece, then the second fails with nothing paid", () => {
     const game = start({ content, scenario: "scenario.ngozi" });
     raiseTo(game, PORTFOLIO, 2);
     raiseTo(game, NETWORK, 40);
@@ -353,7 +353,7 @@ function studentWithFees(): Game {
 }
 
 describe("a master's at home", () => {
-  test("[R-ACTIVITY-013] given a bachelor's, when a master's at home is played twelve months, then the fees open as twelve instalments in the first month, the level is a master's after the twelfth, Canada's score rises by the education row, and it is not offered again", () => {
+  test("[activity:waiting-months-build-profile] given a bachelor's, when a master's at home is played twelve months, then the fees open as twelve instalments in the first month, the level is a master's after the twelfth, Canada's score rises by the education row, and it is not offered again", () => {
     const game = start({ content, scenario: "scenario.ada" });
     const opening = entryOf(MASTERS).onMonth?.find((step) => step.at === 1)?.effects.find((effect) => effect.type === "obligation/open");
     if (opening?.type !== "obligation/open" || typeof opening.principal !== "number") throw new Error("The master's opens no fees.");
@@ -374,7 +374,7 @@ describe("a master's at home", () => {
     expect(entryOf(MASTERS).counts).toContain(CANADA_ROUTE);
   });
 
-  test("[R-ACTIVITY-013] given a master's at home three months in, when the character flies, then the course ends with a results line, its fees close, and nothing of it is charged after", () => {
+  test("[activity:waiting-months-build-profile] given a master's at home three months in, when the character flies, then the course ends with a results line, its fees close, and nothing of it is charged after", () => {
     const game = studentWithFees();
     const fees = entryOf(MASTERS).onMonth?.flatMap((step) => step.effects).find((effect) => effect.type === "obligation/open");
     if (fees?.type !== "obligation/open") throw new Error("The master's opens no fees.");
@@ -394,7 +394,7 @@ describe("a master's at home", () => {
     }
   });
 
-  test("[R-ACTIVITY-013] given no master's at home, or one already finished, when the character flies, then no course is said to end", () => {
+  test("[activity:waiting-months-build-profile] given no master's at home, or one already finished, when the character flies, then no course is said to end", () => {
     for (const months of [0, 12]) {
       const game = studentWithFees();
       for (let n = 0; n < months; n += 1) month(game, [slot(MASTERS)]);

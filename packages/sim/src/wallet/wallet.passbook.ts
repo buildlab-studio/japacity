@@ -26,11 +26,11 @@ import type {
 import { fundsCurrency, fundsRequired } from "../route/route.logic";
 import { CURRENCIES, officialRates } from "./wallet.rates";
 
-/** The street's savings circle (luck.md R-LUCK-009), the road the passbook names as the ajo. */
+/** The street's savings circle (luck:savings-circle-holds-pot), the road the passbook names as the ajo. */
 const AJO_OFFER: Id<"offer"> = "offer.join-ajo";
 /** The family's road: the meeting for the master's (offer.md, the pledges), else the family's loan asked for by anyone. */
 const FAMILY_ACTS: readonly Id<"activity">[] = ["activity.family-meeting", "activity.ask-family-loan"];
-/** A scholarship that lands as money for the way it names (luck.md R-LUCK-010). */
+/** A scholarship that lands as money for the way it names (luck:japa-luck-in-existing-systems). */
 const SCHOLARSHIP_OFFERS: readonly Id<"offer">[] = ["offer.scholarship-round"];
 /** How many closed months the pace reads. */
 const PACE_MONTHS = 3;
@@ -210,7 +210,7 @@ function ladderRoad(read: ReadCtx): RoadDraft | null {
   return { road: "ladder", via: rung.id, state: needs.length === 0 ? "open" : "shut", needs, offer: null, monthly: Math.max(0, pay(rung) - heldPay), lump: 0 };
 }
 
-/** A side job (R-ACTIVITY-010): the one held, else the best-paying the life can hunt now, else the one it is nearest to. */
+/** A side job (activity:side-job-holds-a-slot): the one held, else the best-paying the life can hunt now, else the one it is nearest to. */
 function sideRoad(read: ReadCtx): RoadDraft | null {
   const heldId = read.state.activity.side;
   const held = heldId === null ? undefined : read.content.activity[heldId];
@@ -232,7 +232,7 @@ function offerNeeds(read: ReadCtx, entry: OfferEntry): Requirement[] {
 }
 
 /**
- * The street's circle (R-LUCK-009): in it while its circle runs, open while the street's ask stands, else waiting on what it
+ * The street's circle (luck:savings-circle-holds-pot): in it while its circle runs, open while the street's ask stands, else waiting on what it
  * asks and on the street to ask. Its pot is what was paid in, so it moves no month of the pace: the win is the timing.
  */
 function ajoRoad(read: ReadCtx): RoadDraft | null {
@@ -307,7 +307,7 @@ function familyRoad(read: ReadCtx, route: Id<"route"> | null, funds: number): Ro
   return { road: "family", via: act.id, state: needs.length === 0 && asked !== undefined ? "open" : "shut", needs, offer: null, monthly: 0, lump: asked === undefined ? 0 : offerLump(read, asked.entry, null, route, funds) };
 }
 
-/** A scholarship for the plan's way (luck.md R-LUCK-010): open while its offer stands, else waiting on what it asks and on the round. */
+/** A scholarship for the plan's way (luck:japa-luck-in-existing-systems): open while its offer stands, else waiting on what it asks and on the round. */
 function scholarshipRoad(read: ReadCtx, route: Id<"route"> | null, funds: number): RoadDraft | null {
   if (route === null) return null;
   for (const id of SCHOLARSHIP_OFFERS) {

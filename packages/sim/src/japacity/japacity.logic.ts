@@ -1,6 +1,6 @@
 // Japacity: docs/rules/japacity.md. Derived, never stored: every figure here
 // is worked out from the state, the world and the content each time it is
-// asked for (R-JAPACITY-006), so it has no slice, no events and no lines.
+// asked for (japacity:figure-derived-each-time), so it has no slice, no events and no lines.
 import { check, worldVar } from "../engine/check";
 import { clamp, mulDiv } from "../engine/int";
 import type { ChecklistItemView, Id, ReadCtx, Requirement, RequirementResult, RouteEntry, RouteStateName } from "../engine/types";
@@ -12,13 +12,13 @@ import type { ChecklistItemView, Id, ReadCtx, Requirement, RequirementResult, Ro
  */
 export type Judge = (requirement: Requirement) => RequirementResult;
 
-/** States that have a figure at all: a checklist is shown from known on (R-ROUTE-004, R-JAPACITY-005). */
+/** States that have a figure at all: a checklist is shown from known on (route:looking-into-makes-known, japacity:heard-routes-have-no-figure). */
 const FIGURED: readonly RouteStateName[] = ["known", "applying", "refused"];
 
-/** States whose figure is whole: the route has worked (R-JAPACITY-002). */
+/** States whose figure is whole: the route has worked (japacity:granted-route-scores-full). */
 const DONE: readonly RouteStateName[] = ["granted", "departed"];
 
-/** States past the window: once applied, the world closing it no longer matters (R-JAPACITY-003). */
+/** States past the window: once applied, the world closing it no longer matters (japacity:best-open-route-is-japacity). */
 const SENT: readonly RouteStateName[] = ["applying", "granted", "departed"];
 
 /** A window var at this or more is not closed: 2 open, 1 narrowing, 0 closed (rate.md). */
@@ -38,7 +38,7 @@ function stateOf(read: ReadCtx, route: Id<"route">): RouteStateName {
 
 /**
  * What a slow item has earned while unmet: its weight times have over need,
- * rounded down (R-JAPACITY-001).
+ * rounded down (japacity:figure-sums-checklist-items).
  *
  * `have` is held between 0 and `need`, so an unmet item never earns more than
  * its weight or less than nothing, whatever a judge reports. An unmet item
@@ -75,12 +75,12 @@ export function checklistView(read: ReadCtx, route: Id<"route">, judge: Judge = 
 
 /**
  * One route's figure, 0 to 100, or null when it has none: 100 once granted or
- * departed (R-JAPACITY-002), the checklist's sum from known on
- * (R-JAPACITY-001), and none while unknown or only heard of (R-JAPACITY-005).
+ * departed (japacity:granted-route-scores-full), the checklist's sum from known on
+ * (japacity:figure-sums-checklist-items), and none while unknown or only heard of (japacity:heard-routes-have-no-figure).
  *
- * `refused`, the state a ban holds a route in (R-GATE-005),
+ * `refused`, the state a ban holds a route in (route-gates:deception-bans-country),
  * still has its checklist figure, so the route page can show what was built.
- * It never counts toward japacity (R-JAPACITY-003).
+ * It never counts toward japacity (japacity:best-open-route-is-japacity).
  */
 export function routePercent(read: ReadCtx, route: Id<"route">, judge: Judge = (requirement) => check(read, requirement)): number | null {
   entryOf(read, route);
@@ -93,24 +93,24 @@ export function routePercent(read: ReadCtx, route: Id<"route">, judge: Judge = (
 /** The checklist's earned weights, whatever the route's state, kept between 0 and 100. */
 export function checklistEarned(read: ReadCtx, route: Id<"route">, judge: Judge = (requirement) => check(read, requirement)): number {
   const sum = checklistView(read, route, judge).reduce((total, item) => total + item.earned, 0);
-  // R-JAPACITY-004: the content check holds the weights to 100, so this never cuts.
+  // japacity:figure-is-whole-percent: the content check holds the weights to 100, so this never cuts.
   return clamp(sum, 0, FULL);
 }
 
-/** True when the route's figure counts toward japacity (R-JAPACITY-003). */
+/** True when the route's figure counts toward japacity (japacity:best-open-route-is-japacity). */
 function counts(read: ReadCtx, entry: RouteEntry): boolean {
-  // R-ROAD-001: the road never counts, whatever state its route is in.
+  // road:road-route-has-no-figure: the road never counts, whatever state its route is in.
   if (entry.gate === "road") return false;
   const state = stateOf(read, entry.id);
   if (SENT.includes(state)) return true;
-  // A route with no window (the road, R-ROAD-001) never counts.
+  // A route with no window (the road, road:road-route-has-no-figure) never counts.
   if (entry.window === null) return false;
   return state === "known" && worldVar(read, entry.window) >= WINDOW_NOT_CLOSED;
 }
 
 /**
  * The character's japacity: the highest figure among the routes that count
- * (R-JAPACITY-003). Routes are walked in content order and only a higher
+ * (japacity:best-open-route-is-japacity). Routes are walked in content order and only a higher
  * figure replaces the best so far, so a tie goes to the route first in
  * content. Empty when no route counts.
  */

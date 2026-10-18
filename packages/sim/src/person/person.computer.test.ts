@@ -1,4 +1,4 @@
-// What a computer character may never do (docs/rules/person.md R-PEOPLE-057, R-PEOPLE-058): hold, take or give
+// What a computer character may never do (person:computers-never-handle-money, person:computers-never-free-text): hold, take or give
 // money, or say anything that is not a line or a word from content. Played on Tunde's real life and the real content.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -56,7 +56,7 @@ function moneyEffects(value: unknown, found: Record<string, unknown>[] = []): Re
 }
 
 describe("a computer character and money", () => {
-  test("[R-PEOPLE-057] given a life with computer siblings and computer partners, when every money effect is applied, then the player's wallet moves and no computer is credited or debited", () => {
+  test("[person:computers-never-handle-money] given a life with computer siblings and computer partners, when every money effect is applied, then the player's wallet moves and no computer is credited or debited", () => {
     const { game } = livedWithComputers(4);
     expect(Object.values(game.state.people.slots).some((slot) => slot.state === "computer")).toBe(true);
     expect(computerBonds(game).length).toBeGreaterThan(0);
@@ -78,7 +78,7 @@ describe("a computer character and money", () => {
     for (const bond of computerBonds(game)) expect(bond.facts?.funds ?? null).toBeNull();
   });
 
-  test("[R-PEOPLE-057] given every money effect in the content, when its fields are read, then it names a currency, a pocket, an amount and the player's own reason, and never a person, a bond or a slot as the other side", () => {
+  test("[person:computers-never-handle-money] given every money effect in the content, when its fields are read, then it names a currency, a pocket, an amount and the player's own reason, and never a person, a bond or a slot as the other side", () => {
     const found = moneyEffects(content);
     expect(found.length).toBeGreaterThan(50);
     const allowed = new Set(["type", "currency", "pocket", "amount", "reason", "flagged", "locked"]);
@@ -103,7 +103,7 @@ function wordKeys(name: string, value: string): string[] {
 }
 
 describe("what a computer character says", () => {
-  test("[R-PEOPLE-058] given months of meetings with computer partners, when every line about them is read, then its key has words and every word it carries is a key from content, never free text", () => {
+  test("[person:computers-never-free-text] given months of meetings with computer partners, when every line about them is read, then its key has words and every word it carries is a key from content, never free text", () => {
     const { game, lines } = livedWithComputers(16);
     const computers = new Set(PARTNERS.map((entry) => entry.id as string));
     const theirs = lines.filter((line) => typeof line.params.who === "string" && computers.has(line.params.who));
@@ -126,7 +126,7 @@ describe("what a computer character says", () => {
     expect(drawn.filter(({ moment }) => moment.spot !== null && text[`people.spot.${moment.spot}`] === undefined).map(({ moment }) => moment.spot)).toEqual([]);
   });
 
-  test("[R-PEOPLE-058] given every computer character, when its lists of words are read, then each spot, what and call has words in content", () => {
+  test("[person:computers-never-free-text] given every computer character, when its lists of words are read, then each spot, what and call has words in content", () => {
     const missing = Object.values(content.person).flatMap((entry) => [
       ...entry.spots.map((spot) => `people.spot.${spot}`),
       ...entry.whats.map((what) => `people.what.${what}`),

@@ -1,6 +1,6 @@
 // The stand-in world: engine.md section 7, rate.md, news.md and director.md. The
 // world at a tick depends only on the world seed, the tick and the content
-// (R-RATE-001, R-DIRECTOR-008). It is the online world's own step
+// (rate:world-follows-seed-and-tick, director:world-stepped-from-seed). It is the online world's own step
 // (`stepWorld`) looped from tick 0 with the scale at 1 and December read from
 // the tick, so offline and online share one director.
 import type { Content, ForeignCurrency, World } from "../engine/types";

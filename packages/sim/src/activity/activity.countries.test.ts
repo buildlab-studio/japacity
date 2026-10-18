@@ -1,6 +1,5 @@
-// Calgary, Dubai and Castel Volturno lived by hand with the real content: docs/rules/streets.md R-STREET-013 to
-// R-STREET-015 (design page 15 section 5), abroad-money.md R-ABROAD-003, home.md R-HOME-012 and
-// obligation.md R-OBLIGATION-014. Food is bought and cooked in each country's money as it is
+// Calgary, Dubai and Castel Volturno lived by hand with the real content: streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand (design page 15 section 5), abroad-money:arrival-opens-upkeep-and-room, home:living-by-hand and
+// obligation:cooking-and-fetching-water. Food is bought and cooked in each country's money as it is
 // eaten, the evenings are paid as they are had, and each upkeep is the prepaid phone alone.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -30,14 +29,14 @@ interface Act {
 
 /** The rules' lists, in their order, with their numbers and names. */
 const RULE: readonly Act[] = [
-  // R-STREET-013, Calgary.
+  // streets:calgary-life-by-hand, Calgary.
   { id: "activity.weekly-shop-ca", country: CANADA_COUNTRY, price: 9000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
   { id: "activity.buy-clothes-ca", country: CANADA_COUNTRY, price: 12000, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 4]], name: "Winter clothes" },
   { id: "activity.cook-own-ca", country: CANADA_COUNTRY, price: 800, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
   { id: "activity.coffee-ca", country: CANADA_COUNTRY, price: 300, reason: "enjoyment", halfDays: null, repeat: false, effects: [[WELLBEING, 2]], name: "A coffee" },
   { id: "activity.naija-shop-ca", country: CANADA_COUNTRY, price: 4000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 30], [WELLBEING, 8]], name: "The African store" },
   { id: "activity.barber-ca", country: CANADA_COUNTRY, price: 3000, reason: "enjoyment", halfDays: 1, repeat: false, effects: [[WELLBEING, 5], [STANDING, 1], [PREP, 2]], name: "A fresh cut" },
-  // R-STREET-014, Dubai.
+  // streets:dubai-life-by-hand, Dubai.
   { id: "activity.weekly-shop-uae", country: UAE, price: 15000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
   { id: "activity.cook-own-uae", country: UAE, price: 800, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
   { id: "activity.cafeteria-uae", country: UAE, price: 1200, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25], [WELLBEING, 3]], name: "The cafeteria" },
@@ -45,7 +44,7 @@ const RULE: readonly Act[] = [
   { id: "activity.barber-uae", country: UAE, price: 2500, reason: "enjoyment", halfDays: 1, repeat: false, effects: [[WELLBEING, 5], [STANDING, 1]], name: "A fresh cut" },
   { id: "activity.buy-clothes-uae", country: UAE, price: 8000, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 3]], name: "The tailor" },
   { id: "activity.laundry-uae", country: UAE, price: 2000, reason: "enjoyment", halfDays: 1, repeat: true, effects: [[WELLBEING, 2]], name: "The laundry" },
-  // R-STREET-015, Castel Volturno.
+  // streets:castel-volturno-by-hand, Castel Volturno.
   { id: "activity.weekly-shop-it", country: ITALY, price: 3500, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
   { id: "activity.cook-own-it", country: ITALY, price: 400, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
   { id: "activity.coffee-it", country: ITALY, price: 120, reason: "enjoyment", halfDays: null, repeat: false, effects: [[WELLBEING, 2]], name: "A coffee at the bar" },
@@ -79,7 +78,7 @@ function money(game: Game, country: Id<"country">, cash: number): void {
 }
 
 describe("the three countries lived by hand", () => {
-  test("[R-STREET-013] [R-STREET-014] [R-STREET-015] given each act the rules list, when its entry is read, then it is a now-act in its country with the rule's price in its money under its reason, its time, how often it runs and its lift", () => {
+  test("[streets:calgary-life-by-hand] [streets:dubai-life-by-hand] [streets:castel-volturno-by-hand] given each act the rules list, when its entry is read, then it is a now-act in its country with the rule's price in its money under its reason, its time, how often it runs and its lift", () => {
     for (const act of RULE) {
       const entry = content.activity[act.id];
       const when = act.halfDays === null ? { when: "now", purchase: true } : { when: "now", ...(act.repeat ? { repeat: true } : {}), halfDays: act.halfDays };
@@ -103,7 +102,7 @@ describe("the three countries lived by hand", () => {
     }
   });
 
-  test("[R-STREET-013] [R-STREET-014] [R-STREET-015] given a life in each country holding exactly each act's price, when each is done, then the price leaves the country's money under its reason and the body moves by its lift; a cent short and it is refused", () => {
+  test("[streets:calgary-life-by-hand] [streets:dubai-life-by-hand] [streets:castel-volturno-by-hand] given a life in each country holding exactly each act's price, when each is done, then the price leaves the country's money under its reason and the body moves by its lift; a cent short and it is refused", () => {
     for (const act of RULE) {
       const game = landed(act.country, act.price - 1);
       middling(game, [BELLY, WELLBEING, ENERGY, STANDING, PREP]);
@@ -121,7 +120,7 @@ describe("the three countries lived by hand", () => {
     }
   });
 
-  test("[R-STREET-013] [R-STREET-014] [R-STREET-015] given a life in each country, when a repeating act is done twice and a once-a-month act twice, then the first runs again and the second is refused; a coffee runs as often as money allows", () => {
+  test("[streets:calgary-life-by-hand] [streets:dubai-life-by-hand] [streets:castel-volturno-by-hand] given a life in each country, when a repeating act is done twice and a once-a-month act twice, then the first runs again and the second is refused; a coffee runs as often as money allows", () => {
     const again = RULE.map((act) => {
       const game = landed(act.country, act.price * 3);
       middling(game, [BELLY, WELLBEING, ENERGY, STANDING, PREP]);
@@ -133,7 +132,7 @@ describe("the three countries lived by hand", () => {
     expect(again).toEqual(RULE.map((act) => ({ id: act.id, again: act.repeat || act.halfDays === null })));
   });
 
-  test("[R-STREET-013] [R-STREET-014] [R-STREET-015] given a life at home and a life in another country, when any of the acts is asked for, then it is refused", () => {
+  test("[streets:calgary-life-by-hand] [streets:dubai-life-by-hand] [streets:castel-volturno-by-hand] given a life at home and a life in another country, when any of the acts is asked for, then it is refused", () => {
     const home = start({ content });
     for (const act of RULE) {
       expect({ id: act.id, ok: home.expectRejected({ type: "activity/now", activity: act.id, param: null }, "not-legal").ok }).toEqual({ id: act.id, ok: false });
@@ -142,7 +141,7 @@ describe("the three countries lived by hand", () => {
     }
   });
 
-  test("[R-STREET-013] [R-STREET-014] [R-STREET-015] given each act, when its words are read, then its name is the rule's and its blurb and the place's answer resolve with no dash", () => {
+  test("[streets:calgary-life-by-hand] [streets:dubai-life-by-hand] [streets:castel-volturno-by-hand] given each act, when its words are read, then its name is the rule's and its blurb and the place's answer resolve with no dash", () => {
     for (const act of RULE) {
       expect({ id: act.id, name: text[`${act.id}.name`] }).toEqual({ id: act.id, name: act.name });
       for (const key of [`${act.id}.blurb`, `line.activity.${act.id.slice("activity.".length)}.now`]) {
@@ -153,7 +152,7 @@ describe("the three countries lived by hand", () => {
 });
 
 describe("the church in Castel Volturno and the souq in Naif", () => {
-  test("[R-STREET-015] given a life in Castel Volturno, when the church's community is joined, then it is free, takes a morning, lifts the network and the mood by four each, and is once a month", () => {
+  test("[streets:castel-volturno-by-hand] given a life in Castel Volturno, when the church's community is joined, then it is free, takes a morning, lifts the network and the mood by four each, and is once a month", () => {
     expect(content.activity["activity.community-it"]).toMatchObject({ slot: "free", when: "now", halfDays: 1, where: "abroad", country: ITALY, cost: [] });
     const game = landed(ITALY, 0);
     middling(game, [NETWORK, WELLBEING]);
@@ -165,7 +164,7 @@ describe("the church in Castel Volturno and the souq in Naif", () => {
     expect(text["activity.community-it.name"]).toBe("The church");
   });
 
-  test("[R-STREET-014] given the souq, when its entry is read, then it keeps its price and lift and is paid as enjoyment", () => {
+  test("[streets:dubai-life-by-hand] given the souq, when its entry is read, then it keeps its price and lift and is paid as enjoyment", () => {
     expect(content.activity["activity.street-shopping-uae"]?.cost).toEqual([{ currency: "AED", amount: content.tuning.street.shoppingAed, reason: "enjoyment" }]);
     expect(content.activity["activity.street-shopping-uae"]?.effects).toEqual([{ type: "quality/add", quality: WELLBEING, amount: content.tuning.street.shoppingMood }]);
   });
@@ -178,7 +177,7 @@ const UPKEEPS = [
 ] as const;
 
 describe("the three upkeeps", () => {
-  test("[R-ABROAD-003] given a life landed in each country, when its upkeep is read, then it is the prepaid phone alone, C$30, AED 50 and €10 a month, named so", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given a life landed in each country, when its upkeep is read, then it is the prepaid phone alone, C$30, AED 50 and €10 a month, named so", () => {
     for (const upkeep of UPKEEPS) {
       expect(content.obligation[upkeep.id]).toMatchObject({ type: "upkeep", currency: upkeep.currency, amount: upkeep.amount });
       expect(text[`${upkeep.id}.name`]).toBe(upkeep.name);
@@ -191,7 +190,7 @@ describe("the three upkeeps", () => {
 });
 
 describe("the room abroad cooks in the country's money", () => {
-  test("[R-HOME-012] [R-OBLIGATION-014] given a life in each country, when the meal of the country is cooked, then it is paid in that money as food, nothing is relieved, and the naira meal is refused", () => {
+  test("[home:living-by-hand] [obligation:cooking-and-fetching-water] given a life in each country, when the meal of the country is cooked, then it is paid in that money as food, nothing is relieved, and the naira meal is refused", () => {
     for (const [country, meal] of [
       [CANADA_COUNTRY, "activity.cook-own-ca"],
       [UAE, "activity.cook-own-uae"],

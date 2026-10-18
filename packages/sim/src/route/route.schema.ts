@@ -29,7 +29,7 @@ export const RouteEntrySchema = z.strictObject({
   hearIf: z.array(RequirementSchema),
   hearBy: CountSchema.nullable(),
   window: idOf("var").nullable(),
-  // The road has no checklist (R-ROAD-001); every other route has at least one item.
+  // The road has no checklist (road:road-route-has-no-figure); every other route has at least one item.
   checklist: z.array(ChecklistItemSchema),
   schools: z.array(idOf("school")),
   interview: idOf("setpiece").nullable(),

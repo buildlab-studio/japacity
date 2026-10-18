@@ -1,6 +1,6 @@
 import type { Stream } from "./types";
 
-/** The engine's own event. It ends every accepted command and carries the four counters (R-ENGINE-013). */
+/** The engine's own event. It ends every accepted command and carries the four counters (engine:kinds-own-their-state). */
 export interface EngineStepped {
   type: "engine/stepped";
   v: number;

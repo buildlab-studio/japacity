@@ -5,7 +5,7 @@ import { livingCharge } from "./obligation.logic";
 import { start } from "../testing/play";
 
 describe("living by hand", () => {
-  test("[R-HOME-012] given the family house's upkeep, when the month turns at home, then nothing of the living is charged and a meal costs at the act", () => {
+  test("[home:living-by-hand] given the family house's upkeep, when the month turns at home, then nothing of the living is charged and a meal costs at the act", () => {
     expect(content.tuning.home.livingByHandBp).toBe(10000);
     const game = start({ content, scenario: "scenario.ada" });
     const read = { world: game.world(), content };
@@ -21,7 +21,7 @@ describe("living by hand", () => {
     expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(bank - price);
   });
 
-  test("[R-HOME-012] given upkeep abroad, when the charge is read, then it is whole", () => {
+  test("[home:living-by-hand] given upkeep abroad, when the charge is read, then it is whole", () => {
     const game = start({ content, scenario: "scenario.ada" });
     const read = { world: game.world(), content };
     expect(livingCharge(read, "obligation.upkeep-uk", 100_000)).toBe(100_000);

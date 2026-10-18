@@ -44,7 +44,7 @@ function adaKnown(used: Content = content): Game {
   return game;
 }
 
-/** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
+/** Never refused: the floor and the ceiling of route:visa-refusal-chance pinned together. */
 
 /** The first seed whose first Northgate answer is an offer for Ada's grade. */
 const OFFERED = (() => {
@@ -70,7 +70,7 @@ function readyAt(to: "applying" | "granted" | "departed"): Game {
   return game;
 }
 
-/** Every pound in the bank moved to cash, where it never counts as funds shown (R-ROUTE-010). */
+/** Every pound in the bank moved to cash, where it never counts as funds shown (route:funds-shown-exclude-cash). */
 function poundsToCash(game: Game): void {
   game.accept({ type: "wallet/move", currency: "GBP", amount: game.state.wallet.pockets.GBP.bank, to: "cash" });
 }
@@ -109,7 +109,7 @@ function withTwin(first: boolean): Content {
 }
 
 describe("a route's figure", () => {
-  test("[R-JAPACITY-001] given Ada with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
+  test("[japacity:figure-sums-checklist-items] given Ada with the route known, when the figure is worked out, then the met items earn their whole weight and every other item nothing", () => {
     const game = adaKnown();
     const read = readOf(game);
     // Her degree and her second upper are met; nothing else on the list is yet.
@@ -120,7 +120,7 @@ describe("a route's figure", () => {
     expect(items.find((item) => item.id === "passport")).toEqual({ id: "passport", weight: weight("passport"), met: false, have: null, need: null, earned: 0 });
   });
 
-  test("[R-JAPACITY-001] given Ada with the route known, when her passport and transcript are issued, then each adds its whole weight", () => {
+  test("[japacity:figure-sums-checklist-items] given Ada with the route known, when her passport and transcript are issued, then each adds its whole weight", () => {
     const game = adaKnown();
     carryOut(game, [{ type: "document/grant", document: "document.passport" }]);
     let read = readOf(game);
@@ -130,7 +130,7 @@ describe("a route's figure", () => {
     expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport") + weight("transcript"));
   });
 
-  test("[R-JAPACITY-001] given a slow item, when have moves from 0 to the need, then it earns weight times have over need rounded down, and its whole weight once met", () => {
+  test("[japacity:figure-sums-checklist-items] given a slow item, when have moves from 0 to the need, then it earns weight times have over need rounded down, and its whole weight once met", () => {
     const game = adaKnown(slowEnglish);
     const english = weight("english");
     const base = weight("degree") + weight("grade");
@@ -150,7 +150,7 @@ describe("a route's figure", () => {
     expect(earnedAt(100)).toBe(english);
   });
 
-  test("[R-JAPACITY-001] given a slow item part filled, when the checklist is shown, then it carries have and need and the share it earned", () => {
+  test("[japacity:figure-sums-checklist-items] given a slow item part filled, when the checklist is shown, then it carries have and need and the share it earned", () => {
     const game = adaKnown(slowEnglish);
     setQuality(game, "quality.english", 55);
     const read = readOf(game);
@@ -158,7 +158,7 @@ describe("a route's figure", () => {
     expect(item).toEqual({ id: "english", weight: 12, met: false, have: 55, need: 60, earned: 11 });
   });
 
-  test("[R-JAPACITY-002] given a route granted or departed, when the figure is worked out, then it is 100 whatever the checklist says", () => {
+  test("[japacity:granted-route-scores-full] given a route granted or departed, when the figure is worked out, then it is 100 whatever the checklist says", () => {
     for (const to of ["granted", "departed"] as const) {
       const game = readyLife(content, { seed: OFFERED, tuning: ALWAYS_GRANTED });
       toDecision(game);
@@ -172,7 +172,7 @@ describe("a route's figure", () => {
     }
   });
 
-  test("[R-JAPACITY-005] given a route only heard of, or unknown, when the figure is asked for, then there is none", () => {
+  test("[japacity:heard-routes-have-no-figure] given a route only heard of, or unknown, when the figure is asked for, then there is none", () => {
     const game = ada();
     expect(routePercent(readOf(game), UK_ROUTE)).toBeNull();
     toHeard(game);
@@ -183,7 +183,7 @@ describe("a route's figure", () => {
 });
 
 describe("the character's japacity", () => {
-  test("[R-JAPACITY-003] given a known route, when the window is open, narrowing or closed, then it counts at 2 and 1 and not at 0", () => {
+  test("[japacity:best-open-route-is-japacity] given a known route, when the window is open, narrowing or closed, then it counts at 2 and 1 and not at 0", () => {
     const game = adaKnown();
     const figure = weight("degree") + weight("grade");
     for (const window of [2, 1]) {
@@ -194,7 +194,7 @@ describe("the character's japacity", () => {
     expect(japacity(closed, judgeWith(closed))).toEqual({ percent: null, route: null });
   });
 
-  test("[R-JAPACITY-003] given a route applying, granted or departed, when the window is closed, then it still counts", () => {
+  test("[japacity:best-open-route-is-japacity] given a route applying, granted or departed, when the window is closed, then it still counts", () => {
     for (const to of ["applying", "granted", "departed"] as const) {
       const game = readyAt(to);
       expect(game.state.route[UK_ROUTE]?.state).toBe(to);
@@ -212,7 +212,7 @@ describe("the character's japacity", () => {
     expect(japacity(read, judgeWith(read)).percent).toBe(100 - weight("funds") - weight("held") + funds);
   });
 
-  test("[R-JAPACITY-003] given no route that counts, when japacity is asked for, then it is empty", () => {
+  test("[japacity:best-open-route-is-japacity] given no route that counts, when japacity is asked for, then it is empty", () => {
     const states: RouteStateName[] = ["unknown", "heard", "refused"];
     for (const to of states) {
       const game = ada();
@@ -228,7 +228,7 @@ describe("the character's japacity", () => {
     expect(japacity(readOf(ada()))).toEqual({ percent: null, route: null });
   });
 
-  test("[R-JAPACITY-003] given two routes, when one is higher, then japacity is the higher whatever the order", () => {
+  test("[japacity:best-open-route-is-japacity] given two routes, when one is higher, then japacity is the higher whatever the order", () => {
     for (const first of [true, false]) {
       const game = readyLife(withTwin(first), { seed: OFFERED, tuning: ALWAYS_GRANTED });
       bothHeard(game);
@@ -244,7 +244,7 @@ describe("the character's japacity", () => {
     }
   });
 
-  test("[R-JAPACITY-003] given two routes with the same figure, when japacity is asked for, then the route first in content order is named", () => {
+  test("[japacity:best-open-route-is-japacity] given two routes with the same figure, when japacity is asked for, then the route first in content order is named", () => {
     for (const first of [true, false]) {
       const game = ada(withTwin(first));
       bothHeard(game);
@@ -258,7 +258,7 @@ describe("the character's japacity", () => {
     }
   });
 
-  test("[R-JAPACITY-003] given the view, when a route is not yet known, then it shows no route yet", () => {
+  test("[japacity:best-open-route-is-japacity] given the view, when a route is not yet known, then it shows no route yet", () => {
     const view = ada().view();
     expect(view.japacity).toEqual({ percent: null, route: null });
     expect(start({ content: miniContent }).view().japacity).toEqual({ percent: null, route: null });
@@ -266,10 +266,10 @@ describe("the character's japacity", () => {
 });
 
 describe("whole numbers, derived each time", () => {
-  test("[R-JAPACITY-004] given every route in the content, when its weights are added, then they come to exactly 100", () => {
+  test("[japacity:figure-is-whole-percent] given every route in the content, when its weights are added, then they come to exactly 100", () => {
     for (const used of [content, miniContent]) {
       for (const entry of Object.values(used.route)) {
-        // The road has no checklist and no figure (R-ROAD-001).
+        // The road has no checklist and no figure (road:road-route-has-no-figure).
         if (entry.gate === "road") continue;
         expect(entry.checklist.reduce((sum, item) => sum + item.weight, 0)).toBe(100);
         expect(entry.checklist.every((item) => Number.isSafeInteger(item.weight) && item.weight >= 0)).toBe(true);
@@ -277,7 +277,7 @@ describe("whole numbers, derived each time", () => {
     }
   });
 
-  test("[R-JAPACITY-004] given a route whose weights do not add up to 100, when the content is checked, then it is refused", () => {
+  test("[japacity:figure-is-whole-percent] given a route whose weights do not add up to 100, when the content is checked, then it is refused", () => {
     const broken: Content = { ...content, route: { [UK_ROUTE]: { ...uk, checklist: uk.checklist.map((item) => (item.id === "degree" ? { ...item, weight: 7 } : item)) } } };
     expect(checkContent(broken).length).toBeGreaterThan(0);
     expect(checkContent(content)).toEqual([]);
@@ -298,7 +298,7 @@ describe("whole numbers, derived each time", () => {
     ],
     { numRuns: 40 },
   )(
-    "[R-JAPACITY-004] [R-JAPACITY-006] given any life, when japacity is worked out twice and from a copy, then it is the same whole number from 0 to 100 and reads only the state, the world and the content",
+    "[japacity:figure-is-whole-percent] [japacity:figure-derived-each-time] given any life, when japacity is worked out twice and from a copy, then it is the same whole number from 0 to 100 and reads only the state, the world and the content",
     (scenario, to, window, held, english, seed) => {
       const late = to === "applying" || to === "granted" || to === "departed";
       // The prologue life starts with every quality at its floor and its own steps to play; its figure is the prologue tests' business.
@@ -317,7 +317,7 @@ describe("whole numbers, derived each time", () => {
         const effects: Effect[] = held.map((document) => ({ type: "document/grant", document }));
         if (effects.length > 0) carryOut(game, effects);
         setQuality(game, "quality.english", english);
-        // A departed life takes no more commands (R-TURN-007), so it flies last.
+        // A departed life takes no more commands (turn:finish-ends-the-life), so it flies last.
         if (to === "departed") game.accept({ type: "route/depart", route: UK_ROUTE });
         expect(game.state.route[UK_ROUTE]?.state).toBe(to);
         return game;

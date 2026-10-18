@@ -1,4 +1,4 @@
-// Carrying a state to newer content: docs/rules/server.md R-SERVER-021 and 022, decision 0004.
+// Carrying a state to newer content: server:newer-content-upgrades-state and server:upgrade-state-is-pure, decision 0004.
 import { content as realContent } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -34,7 +34,7 @@ const MINI_RENAMES = { "scenario.worker": "scenario.labourer", "route.mini": "ro
 const miniTwo: Content = { ...(renamedDeep(miniContent, MINI_RENAMES) as Content), version: "mini.2", renames: MINI_RENAMES };
 
 describe("upgradeState", () => {
-  test("[R-SERVER-022] given a state under one content and a newer content that renames two ids, when upgraded, then every value and key holding an old id holds the new one, the seed is untouched and the newer version is recorded", () => {
+  test("[server:upgrade-state-is-pure] given a state under one content and a newer content that renames two ids, when upgraded, then every value and key holding an old id holds the new one, the seed is untouched and the newer version is recorded", () => {
     const game = start({ scenario: "scenario.worker", seed: "route.mini" });
     game.endTurn([{ activity: "activity.study", param: null }]);
     const before = game.state;
@@ -51,7 +51,7 @@ describe("upgradeState", () => {
     expect(checkInvariants(after, miniTwo)).toEqual([]);
   });
 
-  test("[R-SERVER-022] given a state of the first schema without the lottery slice, when upgraded, then the slice is built by its kind's initial and the schema is raised", () => {
+  test("[server:upgrade-state-is-pure] given a state of the first schema without the lottery slice, when upgraded, then the slice is built by its kind's initial and the schema is raised", () => {
     const game = start({ scenario: "scenario.plain" });
     game.endTurn();
     const older = olderState(game.state, {}, miniContent.version);
@@ -62,7 +62,7 @@ describe("upgradeState", () => {
     expect(after).toEqual(game.state);
   });
 
-  test("[R-SERVER-022] given a state of the third schema from before the market, without the things slice, when upgraded, then the slice is built empty by its kind's initial, the schema is raised to 4 and the invariants hold", () => {
+  test("[server:upgrade-state-is-pure] given a state of the third schema from before the market, without the things slice, when upgraded, then the slice is built empty by its kind's initial, the schema is raised to 4 and the invariants hold", () => {
     const game = start({ scenario: "scenario.plain" });
     game.endTurn();
     const older = { ...game.state, schema: 3 } as Partial<State>;
@@ -75,14 +75,14 @@ describe("upgradeState", () => {
     expect(checkInvariants(after, miniContent)).toEqual([]);
   });
 
-  test("[R-SERVER-022] [R-SERVER-024] given the same content version under a new overlay, when upgraded, then no id is renamed even if the content carries a table", () => {
+  test("[server:upgrade-state-is-pure] [server:overlay-change-opens-segment] given the same content version under a new overlay, when upgraded, then no id is renamed even if the content carries a table", () => {
     const game = start({ scenario: "scenario.worker" });
     game.endTurn();
     const overlaid: Content = { ...miniContent, overlay: "dials-1", renames: MINI_RENAMES };
     expect(upgradeState(game.state, miniContent, overlaid)).toEqual(game.state);
   });
 
-  test("[R-SERVER-022] given a state for content other than the one it is said to come from, when upgraded, then it throws", () => {
+  test("[server:upgrade-state-is-pure] given a state for content other than the one it is said to come from, when upgraded, then it throws", () => {
     const game = start({ scenario: "scenario.plain" });
     expect(() => upgradeState(game.state, miniTwo, miniTwo)).toThrow(/for content mini.1, not mini.2/);
   });
@@ -92,7 +92,7 @@ describe("upgradeState", () => {
   const previous: Content = { ...(renamedDeep(realContent, reversed(renames)) as Content), version: "0" };
 
   test.each(Object.entries(lifeSaves))(
-    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s under an older content with older ids and no lottery, when upgraded to the current content, then it is the life's own end state, the invariants hold and the content passes its check",
+    "[server:newer-content-upgrades-state] [server:upgrade-state-is-pure] given the end state of the golden life %s under an older content with older ids and no lottery, when upgraded to the current content, then it is the life's own end state, the invariants hold and the content passes its check",
     (_name, save) => {
       expect(checkContent(current)).toEqual([]);
       const { state } = replay(save, realContent, (tick) => standInWorld(save.worldSeed, tick, realContent));
@@ -118,7 +118,7 @@ describe("upgradeState", () => {
   const before: Content = { ...realContent, version: "0" };
 
   test.each(Object.entries(lifeSaves))(
-    "[R-SERVER-021] [R-SERVER-022] given the end state of the golden life %s in the schema 3 shape under an older content, when upgraded to the current content, then the month's spent half-days, the offers rolled and the body's qualities are filled as a new life starts them, everything else is kept, the schema is raised and the invariants hold",
+    "[server:newer-content-upgrades-state] [server:upgrade-state-is-pure] given the end state of the golden life %s in the schema 3 shape under an older content, when upgraded to the current content, then the month's spent half-days, the offers rolled and the body's qualities are filled as a new life starts them, everything else is kept, the schema is raised and the invariants hold",
     (_name, save) => {
       const { state } = replay(save, realContent, (tick) => standInWorld(save.worldSeed, tick, realContent));
       const older = schemaThree(state, before.version);
@@ -140,7 +140,7 @@ describe("upgradeState", () => {
     },
   );
 
-  test("[R-SERVER-022] given a state already of the current schema whose turn has spent half-days, when upgraded to a newer version, then nothing inside its slices is refilled", () => {
+  test("[server:upgrade-state-is-pure] given a state already of the current schema whose turn has spent half-days, when upgraded to a newer version, then nothing inside its slices is refilled", () => {
     const game = start({ scenario: "scenario.plain" });
     game.endTurn();
     const spent: State = { ...game.state, turn: { ...game.state.turn, spent: 3 }, offer: { ...game.state.offer, rolled: 2, rolledMonth: 1 } };

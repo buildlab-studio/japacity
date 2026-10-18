@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 
 import { characterRandom, createRandom, drawAt, hashString32, mix32, scaleDraw, streamBase } from "./random";
 
-describe("[R-ENGINE-005] random streams", () => {
-  test("[R-ENGINE-005] given fixed inputs, when hashed and mixed, then the outputs match the recorded table", () => {
+describe("[engine:randomness-from-named-streams] random streams", () => {
+  test("[engine:randomness-from-named-streams] given fixed inputs, when hashed and mixed, then the outputs match the recorded table", () => {
     // Recorded from this implementation. A change here changes every save.
     expect(hashString32("")).toBe(2166136261);
     expect(hashString32("a")).toBe(3826002220);
@@ -13,7 +13,7 @@ describe("[R-ENGINE-005] random streams", () => {
     expect(streamBase("seed-1", "job")).toBe(592005890);
   });
 
-  test("[R-ENGINE-005] given a seed and a stream, when the nth draw is asked for, then it matches the recorded table", () => {
+  test("[engine:randomness-from-named-streams] given a seed and a stream, when the nth draw is asked for, then it matches the recorded table", () => {
     const table: [n: number, job: number, visa: number, otherSeed: number][] = [
       [0, 1809801276, 4150217887, 2488316655],
       [1, 3504607873, 1545353090, 4065391588],
@@ -29,7 +29,7 @@ describe("[R-ENGINE-005] random streams", () => {
     }
   });
 
-  test("[R-ENGINE-005] given a draw position, when asked twice, then the answer is the same and depends on nothing else", () => {
+  test("[engine:randomness-from-named-streams] given a draw position, when asked twice, then the answer is the same and depends on nothing else", () => {
     const counts = {};
     const random = characterRandom("seed-1", counts);
     const first = [random.int("job", 1000), random.int("job", 1000), random.int("job", 1000)];
@@ -38,7 +38,7 @@ describe("[R-ENGINE-005] random streams", () => {
     expect(counts).toEqual({ job: 3 });
   });
 
-  test("[R-ENGINE-005] given draws on one stream, when another stream is read, then its draws are unchanged", () => {
+  test("[engine:randomness-from-named-streams] given draws on one stream, when another stream is read, then its draws are unchanged", () => {
     const quiet = characterRandom("seed-1", {});
     const expected = [quiet.int("visa", 100), quiet.int("visa", 100)];
 
@@ -48,7 +48,7 @@ describe("[R-ENGINE-005] random streams", () => {
     expect([noisy.int("visa", 100), noisy.int("visa", 100)]).toEqual(expected);
   });
 
-  test("[R-ENGINE-005] given the bound methods, when used, then they match the recorded values and count draws", () => {
+  test("[engine:randomness-from-named-streams] given the bound methods, when used, then they match the recorded values and count draws", () => {
     const counts: Record<string, number> = {};
     const random = createRandom("seed-1", counts);
     expect(random.int("job", 6)).toBe(2);
@@ -61,7 +61,7 @@ describe("[R-ENGINE-005] random streams", () => {
     expect(counts).toEqual({ job: 3, visa: 1, fraud: 3 });
   });
 
-  test("[R-ENGINE-005] given a chance of 0 or 10000, when drawn, then the stream still advances by one", () => {
+  test("[engine:randomness-from-named-streams] given a chance of 0 or 10000, when drawn, then the stream still advances by one", () => {
     const counts: Record<string, number> = {};
     const random = createRandom("s", counts);
     random.chance("fraud", 0);
@@ -69,7 +69,7 @@ describe("[R-ENGINE-005] random streams", () => {
     expect(counts).toEqual({ fraud: 2 });
   });
 
-  test("[R-ENGINE-005] given many draws, when scaled to a small range, then every value appears about equally often", () => {
+  test("[engine:randomness-from-named-streams] given many draws, when scaled to a small range, then every value appears about equally often", () => {
     const random = characterRandom("uniform", {});
     const buckets = new Array<number>(10).fill(0);
     const draws = 20000;
@@ -84,7 +84,7 @@ describe("[R-ENGINE-005] random streams", () => {
     }
   });
 
-  test("[R-ENGINE-005] given a bad position or range, when asked, then it throws", () => {
+  test("[engine:randomness-from-named-streams] given a bad position or range, when asked, then it throws", () => {
     expect(() => drawAt("s", "job", -1)).toThrow(/from 0/);
     expect(() => drawAt("s", "job", Number("1.5"))).toThrow(/from 0/);
     expect(() => scaleDraw(1, 0)).toThrow(/from 1/);

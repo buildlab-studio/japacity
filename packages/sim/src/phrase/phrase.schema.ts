@@ -3,7 +3,7 @@ import { z } from "zod";
 import { idOf, type Proof, type Same } from "../engine/language.schema";
 import type { PhraseEntry } from "../engine/types";
 
-/** A preset phrase: docs/rules/pair.md R-PAIR-011 to 014. */
+/** A preset phrase: pair:conversation-phrases-stored, pair:place-phrases-not-stored, pair:phrase-checks-before-send and pair:block-and-report-one-tap. */
 export const PhraseEntrySchema = z.strictObject({
   id: idOf("phrase"),
   fill: z.enum(["spot", "route", "news", "event", "thing"]).nullable(),

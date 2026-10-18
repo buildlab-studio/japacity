@@ -1,5 +1,5 @@
 // The official page, someone who went and the adviser: docs/rules/advice.md
-// R-ADVICE-001 to 004, played through the harness with the real content.
+// advice:four-ways-to-learn-route, advice:official-page-shows-checklist, advice:someone-who-went-answers-free and advice:licensed-adviser-is-truthful, played through the harness with the real content.
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -47,14 +47,14 @@ function withNews(network: number, news: World["news"]): Game {
 }
 
 describe("the official page", () => {
-  test("[R-ADVICE-001] [R-ADVICE-002] given a heard route, when the official page is read, then the route is known, one slot is used, nothing is paid, and the line names only the route and says it is the official page", () => {
+  test("[advice:four-ways-to-learn-route] [advice:official-page-shows-checklist] given a heard route, when the official page is read, then the route is known, one slot is used, nothing is paid, and the line names only the route and says it is the official page", () => {
     const game = heard();
     const cashBefore = game.state.wallet.pockets.NGN.cash;
     const result = game.endTurn([slot(LOOK_INTO, UK_ROUTE)]);
     expect(game.state.route[UK_ROUTE]?.state).toBe("known");
     const line = result.lines.find((candidate) => candidate.key === "line.route.looked-into");
     expect(line?.params).toEqual({ route: UK_ROUTE });
-    // R-ADVICE-002: no figure, percent or chance rides on the line.
+    // advice:official-page-shows-checklist: no figure, percent or chance rides on the line.
     expect(Object.values(line?.params ?? {}).every((value) => typeof value === "string")).toBe(true);
     expect(text["line.route.looked-into"]).toMatch(/official page/);
     expect(text["line.route.looked-into"]).toMatch(/nothing about your own chances/);
@@ -67,7 +67,7 @@ describe("the official page", () => {
 });
 
 describe("asking around at the park", () => {
-  test("[R-ADVICE-001] given the Gulf heard of, when the player asks around at the motor park, then the Gulf is known and the line says the drivers told it, never that a page was read", () => {
+  test("[advice:four-ways-to-learn-route] given the Gulf heard of, when the player asks around at the motor park, then the Gulf is known and the line says the drivers told it, never that a page was read", () => {
     const game = start({ content, scenario: "scenario.ada", seed: "seed-1" });
     applyEffects(game, [{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
     const result = game.endTurn([slot("activity.ask-around")]);
@@ -80,7 +80,7 @@ describe("asking around at the park", () => {
 });
 
 describe("someone who went", () => {
-  test("[R-ADVICE-003] given the network one under the bar and at the bar, when the friend is asked, then under it is not legal and at it the route is known through the friend", () => {
+  test("[advice:someone-who-went-answers-free] given the network one under the bar and at the bar, when the friend is asked, then under it is not legal and at it the route is known through the friend", () => {
     const under = heard(advice.networkToAsk - 1);
     under.expectRejected({ type: "turn/end", slots: [slot(FRIEND, UK_ROUTE)] }, "not-legal");
     const at = heard(advice.networkToAsk);
@@ -90,7 +90,7 @@ describe("someone who went", () => {
     expect(content.activity[FRIEND]).toMatchObject({ cost: [], param: "route", slot: "none" });
   });
 
-  test("[R-ADVICE-003] [R-TURN-006] given every free slot filled, when the friend is asked as well, then the turn is accepted, the friend fills no slot, and no slot rests", () => {
+  test("[advice:someone-who-went-answers-free] [turn:free-slots-per-month] given every free slot filled, when the friend is asked as well, then the turn is accepted, the friend fills no slot, and no slot rests", () => {
     const game = heard(advice.networkToAsk);
     const rest = slot("activity.rest");
     const free = game.view().freeSlots;
@@ -102,7 +102,7 @@ describe("someone who went", () => {
     expect(game.view().activities.some((option) => option.id === FRIEND)).toBe(true);
   });
 
-  test("[R-ADVICE-003] given no change to the route's rules, when the friend is asked, then they tell every item of the checklist as it stood when they left, and none is wrong", () => {
+  test("[advice:someone-who-went-answers-free] given no change to the route's rules, when the friend is asked, then they tell every item of the checklist as it stood when they left, and none is wrong", () => {
     const game = heard(advice.networkToAsk);
     const result = game.endTurn([slot(FRIEND, UK_ROUTE)]);
     const told = eventOf(result, "activity/word-of-mouth");
@@ -113,7 +113,7 @@ describe("someone who went", () => {
     expect(linesOf(result, "line.activity.went-out-of-date")).toEqual([]);
   });
 
-  test("[R-ADVICE-003] given the route's rules changed after the friend left, when they are asked, then one item is wrong, said like the others, and marked out of date only when the player meets it", () => {
+  test("[advice:someone-who-went-answers-free] given the route's rules changed after the friend left, when they are asked, then one item is wrong, said like the others, and marked out of date only when the player meets it", () => {
     const game = withNews(advice.networkToAsk, [{ id: UK_CHANGE.id, stage: "in-force", since: 1 }]);
     const read = { state: game.state, world: game.world(), content: game.content };
     expect(changedTick(read, UK_ROUTE)).toBe(LEFT_TICK + 1);
@@ -130,14 +130,14 @@ describe("someone who went", () => {
 });
 
 describe("the licensed adviser", () => {
-  test("[R-ADVICE-012] given every starting life, when its cash is read, then the adviser's fee is above it", () => {
+  test("[advice:free-ways-pointed-first] given every starting life, when its cash is read, then the adviser's fee is above it", () => {
     for (const scenario of Object.values(content.scenario)) {
       expect({ life: scenario.id, cash: scenario.pockets.NGN?.cash ?? 0 }).toEqual({ life: scenario.id, cash: expect.any(Number) as number });
       expect(scenario.pockets.NGN?.cash ?? 0).toBeLessThan(advice.adviserFee);
     }
   });
 
-  test("[R-ADVICE-004] given a heard route and the fee, when the adviser is seen, then the fee is paid by transfer under the adviser's reason, the route is known, and her lines say what is missing and at least how many months", () => {
+  test("[advice:licensed-adviser-is-truthful] given a heard route and the fee, when the adviser is seen, then the fee is paid by transfer under the adviser's reason, the route is known, and her lines say what is missing and at least how many months", () => {
     const game = heard();
     const read = { state: game.state, world: game.world(), content };
     const expected = adviserReading(read);
@@ -158,7 +158,7 @@ describe("the licensed adviser", () => {
     expect(text["line.activity.adviser-missing"]).toMatch(/at least \{months\} months/);
   });
 
-  test("[R-ADVICE-004] given a paper being made and a school answer due, when the adviser reads the file, then the months away are the longest wait among the missing items", () => {
+  test("[advice:licensed-adviser-is-truthful] given a paper being made and a school answer due, when the adviser reads the file, then the months away are the longest wait among the missing items", () => {
     const game = readyLife(content, { quiet: true, documents: [] });
     toHeard(game);
     applyEffects(game, [{ type: "document/request", document: "document.transcript" }]);
@@ -169,7 +169,7 @@ describe("the licensed adviser", () => {
     expect(uk.months).toBeGreaterThanOrEqual(due - game.state.turn.month);
   });
 
-  test("[R-ADVICE-004] given cash one naira short of the fee and the rest in the bank, when the adviser is seen, then cash goes first and the bank pays the rest (decision 0014); with the naira short in both, the slot fails and nothing is paid", () => {
+  test("[advice:licensed-adviser-is-truthful] given cash one naira short of the fee and the rest in the bank, when the adviser is seen, then cash goes first and the bank pays the rest (decision 0014); with the naira short in both, the slot fails and nothing is paid", () => {
     const game = readyLife(content, { quiet: true, pockets: { NGN: { bank: 5000000 * 100, cash: advice.adviserFee - 100 } } });
     toHeard(game);
     const result = game.endTurn([slot(ADVISER)]);
@@ -181,7 +181,7 @@ describe("the licensed adviser", () => {
     expect(game.state.route[UK_ROUTE]?.state).toBe("known");
     const poor = readyLife(content, { quiet: true, pockets: { NGN: { bank: 50, cash: advice.adviserFee - 100 } } });
     toHeard(poor);
-    // R-ACTIVITY-015: the adviser is seen at once, so with the naira short the visit is refused with
+    // activity:now-acts-and-month-acts: the adviser is seen at once, so with the naira short the visit is refused with
     // cannot-afford and nothing changes, where the slot failed.
     expect(poor.expectRejected({ type: "activity/now", activity: ADVISER, param: null }, "cannot-afford").code).toBe("cannot-afford");
     expect(poor.state.route[UK_ROUTE]?.state).toBe("heard");

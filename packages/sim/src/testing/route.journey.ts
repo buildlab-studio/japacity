@@ -97,7 +97,7 @@ function expectState(game: Game, want: RouteState["state"]): void {
   if (uk(game).state !== want) throw new Error(`The UK route is ${uk(game).state}, expected ${want}.`);
 }
 
-/** Months pass, every slot resting, until the route is heard of: by month 3 at the latest (R-ROUTE-003). */
+/** Months pass, every slot resting, until the route is heard of: by month 3 at the latest (route:friend-tells-by-month). */
 export function toHeard(game: Game): void {
   for (let month = 0; month < 5 && uk(game).state === "unknown"; month += 1) game.endTurn();
   expectState(game, "heard");
@@ -166,7 +166,7 @@ export function draw(seed: string, stream: Stream, n: number, range: number): nu
   return scaleDraw(drawAt(seed, stream, n), range);
 }
 
-/** Whether a seed's first school answer, from a school the life has not applied to before, is an offer for this grade (R-ROUTE-007). */
+/** Whether a seed's first school answer, from a school the life has not applied to before, is an offer for this grade (route:school-answers-by-grade). */
 export function offeredWith(seed: string, content: Content, school: Id<"school">, grade: number): boolean {
   const entry = content.school[school];
   if (entry === undefined) throw new Error(`The content has no ${school}.`);
@@ -183,7 +183,7 @@ export function seedWhere(ok: (seed: string) => boolean): string {
   throw new Error("No seed passes.");
 }
 
-/** Whether a seed's first school draw is an offer from Northgate for a grade of 4 (R-ROUTE-007). */
+/** Whether a seed's first school draw is an offer from Northgate for a grade of 4 (route:school-answers-by-grade). */
 export function northgateOffers(content: Content, seed: string): boolean {
   const entry = content.school[NORTHGATE];
   if (entry === undefined) throw new Error(`The content has no ${NORTHGATE}.`);
@@ -200,7 +200,7 @@ export function raiseSeed(content: Content, hit: boolean): string {
   throw new Error("No seed found.");
 }
 
-/** The questions a set piece asks, drawn on `visa` from position `from` out of `pool`, as R-SETPIECE-001 draws them. */
+/** The questions a set piece asks, drawn on `visa` from position `from` out of `pool`, as route:set-piece-draws-questions draws them. */
 export function drawnQuestions(seed: string, pool: readonly string[], ask: number, from = 0): string[] {
   const left = [...pool];
   const asked: string[] = [];

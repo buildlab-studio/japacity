@@ -1,5 +1,5 @@
-// The lotto kiosk and the bet slip: docs/rules/luck.md R-LUCK-005, 006 and 008.
-// R-ACTIVITY-015: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
+// The lotto kiosk and the bet slip: luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds and luck:big-wins-are-staged.
+// activity:now-acts-and-month-acts: a now-act (an application, a paper, a visit) is refused in a slot, so each probe sends one as
 // activity/now, and an application checked as applying is read in the month it is sent.
 import { content } from "@japacity/content";
 import { fc, test } from "@fast-check/vitest";
@@ -32,7 +32,7 @@ function ada(): Game {
 }
 
 describe("the lotto kiosk", () => {
-  test("[R-LUCK-005] [R-ENGINE-016] given the kiosk, when tickets are picked, then 1 to the cap are sold and 0, one over the cap or none are rejected with not-legal", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [engine:limits-tested-through-step] given the kiosk, when tickets are picked, then 1 to the cap are sold and 0, one over the cap or none are rejected with not-legal", () => {
     expect(ticketParams(luck)).toEqual(["1", "2", "3", "4", "5"]);
     expect(luck.maxTickets).toBe(5);
     const game = ada();
@@ -41,7 +41,7 @@ describe("the lotto kiosk", () => {
     game.endTurn([slot(LOTTO, String(luck.maxTickets))]);
   });
 
-  test("[R-LUCK-005] [R-ACTIVITY-002] given tickets bought this month, when the view is read, then it offers only the counts still under the month's ceiling, and none once it is reached, so it never offers a slip the kiosk refuses; the next month sells to the cap again", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [activity:illegal-slot-rejects-turn] given tickets bought this month, when the view is read, then it offers only the counts still under the month's ceiling, and none once it is reached, so it never offers a slip the kiosk refuses; the next month sells to the cap again", () => {
     const game = ada();
     game.accept({ type: "activity/now", activity: LOTTO, param: "3" });
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2"] });
@@ -52,7 +52,7 @@ describe("the lotto kiosk", () => {
     expect(game.view().activities.find((option) => option.id === LOTTO)).toMatchObject({ allowed: true, params: ["1", "2", "3", "4", "5"] });
   });
 
-  test("[R-LUCK-005] [R-WALLET-018] given tickets bought, when they are drawn, then each costs the ticket price from cash under social, each is one draw on `lotto`, and winnings go as a win that is never a lot to the pocket their size takes: cash at or under the line, the bank over it", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [wallet:money-lands-as-in-lagos] given tickets bought, when they are drawn, then each costs the ticket price from cash under social, each is one draw on `lotto`, and winnings go as a win that is never a lot to the pocket their size takes: cash at or under the line, the bank over it", () => {
     const game = ada();
     let won = 0;
     for (let month = 0; month < 20 && won === 0; month += 1) {
@@ -74,7 +74,7 @@ describe("the lotto kiosk", () => {
     expect(game.state.wallet.lots).toEqual([]);
   });
 
-  test("[R-LUCK-005] given naira only in the bank, when tickets are played, then the kiosk is paid from the bank: cash first, the bank for the rest (decision 0014)", () => {
+  test("[luck:kiosk-sells-lotto-tickets] given naira only in the bank, when tickets are played, then the kiosk is paid from the bank: cash first, the bank for the rest (decision 0014)", () => {
     const game = ada();
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
     const result = game.endTurn([slot(LOTTO, "1")]);
@@ -82,7 +82,7 @@ describe("the lotto kiosk", () => {
     expect(moneyOf(result, "social")).toMatchObject([{ pocket: "bank", amount: luck.ticket }]);
   });
 
-  test("[R-LUCK-005] given the kiosk's odds, when the expected return on a ticket is worked out from the numbers, then it is under half the stake", () => {
+  test("[luck:kiosk-sells-lotto-tickets] given the kiosk's odds, when the expected return on a ticket is worked out from the numbers, then it is under half the stake", () => {
     // Out of a million draws: the prizes paid, against the stake paid.
     const paid = prizeOdds(luck).reduce((sum, odds) => sum + odds.perMillion * odds.amount, 0);
     expect(paid * 2).toBeLessThan(luck.ticket * PER_MILLION);
@@ -90,7 +90,7 @@ describe("the lotto kiosk", () => {
     expect(mulDiv(paid, 1, PER_MILLION)).toBe(9500);
   });
 
-  test("[R-LUCK-005] [R-ENGINE-017] given the tuning's jackpot figure, when its odds are read, then it is 1 in 100,000 draws, and an overlay's figure is the one drawn", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [engine:numbers-read-from-content] given the tuning's jackpot figure, when its odds are read, then it is 1 in 100,000 draws, and an overlay's figure is the one drawn", () => {
     const jackpot = prizeOdds(luck).find((odds) => odds.prize === "jackpot")!;
     expect(jackpot.perMillion).toBe(luck.jackpotPerMillion);
     expect(jackpot.perMillion * 100000).toBe(PER_MILLION);
@@ -98,7 +98,7 @@ describe("the lotto kiosk", () => {
     expect(overlaid.perMillion).toBe(2 * luck.jackpotPerMillion);
   });
 
-  test.prop([fc.integer({ min: 0, max: PER_MILLION - 1 })])("[R-LUCK-005] given any draw out of a million, when its prize is read, then it is the band it falls in, and the bands do not overlap", (value) => {
+  test.prop([fc.integer({ min: 0, max: PER_MILLION - 1 })])("[luck:kiosk-sells-lotto-tickets] given any draw out of a million, when its prize is read, then it is the band it falls in, and the bands do not overlap", (value) => {
     const bands = prizeOdds(luck);
     const total = bands.reduce((sum, odds) => sum + odds.perMillion, 0);
     expect(total).toBeLessThan(PER_MILLION);
@@ -106,7 +106,7 @@ describe("the lotto kiosk", () => {
     expect(hit === null).toBe(value >= total);
   });
 
-  test("[R-LUCK-008] given a month at the kiosk, when its line is read, then a jackpot or a mid prize is staged and a small win or nothing is not", () => {
+  test("[luck:big-wins-are-staged] given a month at the kiosk, when its line is read, then a jackpot or a mid prize is staged and a small win or nothing is not", () => {
     const state = ada().state;
     const naira = (amount: number): MoneyParam => ({ currency: "NGN", amount });
     const lineOf = (prizes: Prize[], won: number): ReportLine[] =>
@@ -117,7 +117,7 @@ describe("the lotto kiosk", () => {
     expect(lineOf([], 0)[0]).toMatchObject({ key: "line.activity.lotto-lost" });
   });
 
-  test("[R-LUCK-005] [R-PLACE-003] given a life abroad, when the kiosk is asked for, then it is not legal there", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [place:entries-legal-by-where] given a life abroad, when the kiosk is asked for, then it is not legal there", () => {
     const game = ada();
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(game.expectRejected({ type: "activity/now", activity: LOTTO, param: "1" }, "not-legal").code).toBe("not-legal");
@@ -126,7 +126,7 @@ describe("the lotto kiosk", () => {
 });
 
 describe("the bet slip", () => {
-  test("[R-LUCK-006] [R-WALLET-018] given a bet slip, when it is played, then the stake leaves cash, the draw on `lotto` decides, a win pays the odds on the stake, a sum under the line, to cash as a win with wellbeing +2, and a loss costs wellbeing 2", () => {
+  test("[luck:bet-slip-stake-and-odds] [wallet:money-lands-as-in-lagos] given a bet slip, when it is played, then the stake leaves cash, the draw on `lotto` decides, a win pays the odds on the stake, a sum under the line, to cash as a win with wellbeing +2, and a loss costs wellbeing 2", () => {
     const game = ada();
     const outcomes = new Set<boolean>();
     for (let month = 0; month < 20 && outcomes.size < 2; month += 1) {
@@ -143,14 +143,14 @@ describe("the bet slip", () => {
     expect(outcomes.size).toBe(2);
   });
 
-  test("[R-LUCK-006] given the bet slip's odds, when the expected return is worked out from the numbers, then it is under the stake", () => {
+  test("[luck:bet-slip-stake-and-odds] given the bet slip's odds, when the expected return is worked out from the numbers, then it is under the stake", () => {
     expect(bp(bp(luck.stake, luck.betOddsBp), luck.betWinBp)).toBeLessThan(luck.stake);
     expect(bp(luck.stake, luck.betOddsBp)).toBe(380000);
   });
 });
 
 describe("the kiosk's monthly ceiling", () => {
-  test("[R-LUCK-005] [R-ACTIVITY-015] given five tickets bought this month over two visits, when a sixth is asked for, then the kiosk refuses it, and the next month sells again", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [activity:now-acts-and-month-acts] given five tickets bought this month over two visits, when a sixth is asked for, then the kiosk refuses it, and the next month sells again", () => {
     const game = start({ content });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: luck.ticket * 20, reason: "gift" }]);
     game.accept({ type: "activity/now", activity: LOTTO, param: "3" });
@@ -160,7 +160,7 @@ describe("the kiosk's monthly ceiling", () => {
     game.accept({ type: "activity/now", activity: LOTTO, param: "1" });
   });
 
-  test("[R-LUCK-005] given four tickets bought this month, when two more are asked for, then the kiosk refuses, and one more is sold", () => {
+  test("[luck:kiosk-sells-lotto-tickets] given four tickets bought this month, when two more are asked for, then the kiosk refuses, and one more is sold", () => {
     const game = start({ content });
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: luck.ticket * 20, reason: "gift" }]);
     game.accept({ type: "activity/now", activity: LOTTO, param: "4" });

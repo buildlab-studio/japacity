@@ -10,14 +10,14 @@ import { PHASES, prefixOf, readOf } from "./kind";
 import { isRejection, reject } from "./reject";
 import type { Command, CommandType, Content, Rejection, Sender, State, StepResult, World } from "./types";
 
-/** R-PEOPLE-044: the only commands the engine accepts from a stand-in. The kinds judge each as a player's, with the sender in hand. */
+/** person:stand-in-acts-narrowly: the only commands the engine accepts from a stand-in. The kinds judge each as a player's, with the sender in hand. */
 export const STAND_IN_COMMANDS = ["interview/answer", "people/answer"] as const satisfies readonly Command["type"][];
 
-/** Commands only the authority may send (R-SERVER-013): the turn grant, the draw's payout, the top-up (R-WALLET-020), and what the server knows of other lives, the interview and the hosting. */
+/** Commands only the authority may send (server:apologies-never-currency): the turn grant, the draw's payout, the top-up (wallet:top-ups-are-marked), and what the server knows of other lives, the interview and the hosting. */
 export const AUTHORITY_COMMANDS = [
   "turns/grant",
   "lottery/pay",
-  // R-WALLET-020: naira bought with real money, marked. No server route sends it.
+  // wallet:top-ups-are-marked: naira bought with real money, marked. No server route sends it.
   "wallet/top-up",
   "people/link",
   "people/facts",
@@ -79,11 +79,11 @@ function runCommand(draft: Draft, ctx: EngineCtx, command: Command): Rejection |
 }
 
 /**
- * `turn/end` (R-ENGINE-004). First every kind's `commands["turn/end"]` runs, in
+ * `turn/end` (engine:turn-phases-in-fixed-order). First every kind's `commands["turn/end"]` runs, in
  * registry order, as a validator: it returns a rejection, or [] to let the
  * turn go ahead. The turn kind checks the bank, an open set piece and the slot
- * count (R-TURN-003, R-SETPIECE-002, R-TURN-006). The activity kind checks
- * what fills each slot (R-ACTIVITY-002). A validator never changes anything.
+ * count (turn:month-turns-on-empty-bank, route:open-set-piece-holds-month, turn:free-slots-per-month). The activity kind checks
+ * what fills each slot (activity:illegal-slot-rejects-turn). A validator never changes anything.
  * Then the phases run in the order of engine.md section 4, each calling every
  * kind that registered it, in registry order. Each kind's events are applied
  * before the next kind is called, so every phase sees the state the one before
@@ -131,7 +131,7 @@ export function stepWith(
   if ((AUTHORITY_COMMANDS as readonly string[]).includes(command.type) && sender !== "authority") {
     return reject("not-yours", `Only the authority sends ${command.type}.`);
   }
-  // R-PEOPLE-044: a stand-in only answers, the interview's questions and a pending step of the joint; every other command is the player's alone.
+  // person:stand-in-acts-narrowly: a stand-in only answers, the interview's questions and a pending step of the joint; every other command is the player's alone.
   if (sender === "stand-in" && !(STAND_IN_COMMANDS as readonly string[]).includes(command.type)) {
     return reject("not-yours", `A stand-in may not send ${command.type}.`);
   }

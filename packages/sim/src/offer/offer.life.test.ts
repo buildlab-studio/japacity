@@ -1,7 +1,7 @@
 // Offers across the whole life: where an offer applies, the groups of life
 // abroad and of coming home, the family's asking abroad, the luck rules and
-// the slots an offer locks. docs/rules/offer.md, place.md R-PLACE-003,
-// return.md R-RETURN-003, abroad-money.md R-ABROAD-007, luck.md, health.md.
+// the slots an offer locks. docs/rules/offer.md, place:entries-legal-by-where,
+// return:returnee-offers-for-a-year, abroad-money:family-asks-more-abroad, luck.md, health.md.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -75,7 +75,7 @@ function emptyPockets(game: Game): void {
 // ---------------------------------------------------------------------------
 
 describe("the roll's groups", () => {
-  test("[R-OFFER-001] given the real offers, when the roll's order is read, then money, life and family come first, then life abroad and coming home, and the road last", () => {
+  test("[offer:come-up-rolls-in-order] given the real offers, when the roll's order is read, then money, life and family come first, then life abroad and coming home, and the road last", () => {
     const groups = rollOrder(content).map((entry) => entry.group);
     const order = groups.filter((group, index) => groups.indexOf(group) === index);
     expect(order).toEqual(["money", "life", "family", "abroad", "return", "road"]);
@@ -86,14 +86,14 @@ describe("the roll's groups", () => {
 describe("where an offer applies", () => {
   const both = variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN }, "offer.nepa-bill": { chanceBp: CERTAIN } });
 
-  test("[R-PLACE-003] given a home offer and an offer of any place both certain, when a month comes up at home, then both open", () => {
+  test("[place:entries-legal-by-where] given a home offer and an offer of any place both certain, when a month comes up at home, then both open", () => {
     const game = start({ scenario: ADA, content: both });
     // The family asks only of someone not broke.
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 100000000, reason: "gift" }]);
     expect(openedIn(game.endTurn()).map((item) => item.entry)).toEqual(["offer.fuel-scarcity", "offer.nepa-bill"]);
   });
 
-  test("[R-PLACE-003] given the same two abroad, when a month comes up, then only the one of any place opens, and an effect cannot open the home one there", () => {
+  test("[place:entries-legal-by-where] given the same two abroad, when a month comes up, then only the one of any place opens, and an effect cannot open the home one there", () => {
     const game = start({ scenario: ADA, content: both });
     flyToUk(game);
     expect(openedIn(game.endTurn()).map((item) => item.entry)).toEqual(["offer.nepa-bill"]);
@@ -101,7 +101,7 @@ describe("where an offer applies", () => {
     expect(openOffers(game)).not.toContain("offer.fuel-scarcity");
   });
 
-  test("[R-PLACE-003] given an offer of abroad that always holds, when a month comes up at home and then abroad, then it opens only abroad", () => {
+  test("[place:entries-legal-by-where] given an offer of abroad that always holds, when a month comes up at home and then abroad, then it opens only abroad", () => {
     const abroad = variant({ "offer.sponsor-licence-lost": { chanceBp: CERTAIN, when: [] } });
     const game = start({ scenario: ADA, content: abroad });
     expect(openedIn(game.endTurn())).toEqual([]);
@@ -111,13 +111,13 @@ describe("where an offer applies", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-ABROAD-007: the family asks more of a relative abroad
+// abroad-money:family-asks-more-abroad: the family asks more of a relative abroad
 // ---------------------------------------------------------------------------
 
 describe("the family's asking abroad", () => {
   const factor = content.tuning.remit.abroadBp;
 
-  test("[R-ABROAD-007] given the NEPA bill at home and then abroad, when each opens, then abroad it asks three times the home amount in its terms", () => {
+  test("[abroad-money:family-asks-more-abroad] given the NEPA bill at home and then abroad, when each opens, then abroad it asks three times the home amount in its terms", () => {
     expect(factor).toBe(30000);
     const home = start({ scenario: ADA, content });
     const atHome = openOne(home, "offer.nepa-bill");
@@ -129,7 +129,7 @@ describe("the family's asking abroad", () => {
     expect(abroad.terms.cost).toBe(7500000);
   });
 
-  test("[R-ABROAD-007] given a request with two amounts opened abroad, when each choice is paid, then each debit is the home amount times the factor, from the naira pockets", () => {
+  test("[abroad-money:family-asks-more-abroad] given a request with two amounts opened abroad, when each choice is paid, then each debit is the home amount times the factor, from the naira pockets", () => {
     const game = start({ scenario: ADA, content });
     flyToUk(game);
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 100000000, reason: "gift" }]);
@@ -141,7 +141,7 @@ describe("the family's asking abroad", () => {
     expect(debits.every((debit) => debit.currency === "NGN" && debit.reason === "family")).toBe(true);
   });
 
-  test("[R-ABROAD-007] given a request abroad asking more than the naira at home holds, when the view is read and the choice is sent, then it is not allowed and is refused with cannot-afford", () => {
+  test("[abroad-money:family-asks-more-abroad] given a request abroad asking more than the naira at home holds, when the view is read and the choice is sent, then it is not allowed and is refused with cannot-afford", () => {
     const game = start({ scenario: ADA, content });
     flyToUk(game);
     const bill = openOne(game, "offer.nepa-bill");
@@ -154,7 +154,7 @@ describe("the family's asking abroad", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-RETURN-003: the returnee offers
+// return:returnee-offers-for-a-year: the returnee offers
 // ---------------------------------------------------------------------------
 
 describe("coming home", () => {
@@ -167,7 +167,7 @@ describe("coming home", () => {
     return game;
   }
 
-  test("[R-RETURN-003] given a return, when months come up, then the question everyone asks comes up for twelve months and not in the thirteenth", () => {
+  test("[return:returnee-offers-for-a-year] given a return, when months come up, then the question everyone asks comes up for twelve months and not in the thirteenth", () => {
     const every = variant({ "offer.returnee-question": { chanceBp: CERTAIN, cooldown: 0 } });
     const game = returned(every);
     const back = game.state.place.returns[0]!;
@@ -181,13 +181,13 @@ describe("coming home", () => {
     expect(months).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
 
-  test("[R-RETURN-003] given no return on record, when months come up at home, then no returnee offer comes up", () => {
+  test("[return:returnee-offers-for-a-year] given no return on record, when months come up at home, then no returnee offer comes up", () => {
     const every = variant({ "offer.returnee-question": { chanceBp: CERTAIN, cooldown: 0 } });
     const game = start({ scenario: ADA, content: every });
     for (let turn = 0; turn < 3; turn += 1) expect(openedIn(restMonth(game))).toEqual([]);
   });
 
-  test("[R-RETURN-003] given the cousin's shop, which comes to returns by choice or with papers, when the last return was by choice it comes up; after a broke one it does not, though a return by choice is on the record", () => {
+  test("[return:returnee-offers-for-a-year] given the cousin's shop, which comes to returns by choice or with papers, when the last return was by choice it comes up; after a broke one it does not, though a return by choice is on the record", () => {
     const shop = variant({ "offer.returnee-business": { chanceBp: CERTAIN, cooldown: 0 } });
     const game = returned(shop);
     expect(openedIn(restMonth(game)).map((item) => item.entry)).toEqual(["offer.returnee-business"]);
@@ -201,7 +201,7 @@ describe("coming home", () => {
     for (let turn = 0; turn < 3; turn += 1) expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain("offer.returnee-business");
   });
 
-  test("[R-RETURN-003] given the real returnee offers, when their conditions are read, then each is of the group `return`, at home, and reads the shape of a return", () => {
+  test("[return:returnee-offers-for-a-year] given the real returnee offers, when their conditions are read, then each is of the group `return`, at home, and reads the shape of a return", () => {
     const returnee = Object.values(content.offer).filter((entry) => entry.group === "return");
     expect(returnee.map((entry) => entry.id).sort()).toEqual(["offer.returnee-business", "offer.returnee-hire", "offer.returnee-leave-again", "offer.returnee-question"]);
     for (const entry of returnee) {
@@ -219,14 +219,14 @@ describe("luck never reads money", () => {
   const base = content.offer["offer.relative-sends"]!;
   const money: Requirement = { type: "money/min", currency: "NGN", amount: 100 };
 
-  test("[R-LUCK-001] given luck offers reading money directly, inside not or inside any, when the content check reads them, then each is caught", () => {
+  test("[luck:luck-never-reads-money] given luck offers reading money directly, inside not or inside any, when the content check reads them, then each is caught", () => {
     expect(luckReadsMoney({ ...base, when: [money] })).toBe(true);
     expect(luckReadsMoney({ ...base, when: [{ type: "not", of: money }] })).toBe(true);
     expect(luckReadsMoney({ ...base, when: [{ type: "any", of: [{ type: "job/any" }, { type: "wallet/total", flow: "out", reason: "remit", currency: "GBP", amount: 1 }] }] })).toBe(true);
     expect(luckReadsMoney({ ...base, when: [{ type: "not", of: { type: "any", of: [{ type: "money/can-pay", currency: "GBP", amount: 1 }] } }] })).toBe(true);
   });
 
-  test("[R-LUCK-001] given an offer that is not luck reading money, or a luck offer reading qualities and routes, when they are read, then neither is caught; the real luck offers pass", () => {
+  test("[luck:luck-never-reads-money] given an offer that is not luck reading money, or a luck offer reading qualities and routes, when they are read, then neither is caught; the real luck offers pass", () => {
     expect(luckReadsMoney({ ...base, luck: false, when: [money] })).toBe(false);
     expect(luckReadsMoney({ ...base, when: [{ type: "quality/min", quality: STANDING, value: 10 }] })).toBe(false);
     const lucky = Object.values(content.offer).filter((entry) => entry.luck === true);
@@ -234,11 +234,11 @@ describe("luck never reads money", () => {
     expect(lucky.filter(luckReadsMoney)).toEqual([]);
   });
 
-  test("[R-LUCK-001] given a luck offer whose when reads money inside not, when the content is checked, then the check fails on that offer; the shipped content passes", () => {
+  test("[luck:luck-never-reads-money] given a luck offer whose when reads money inside not, when the content is checked, then the check fails on that offer; the shipped content passes", () => {
     const broke = JSON.parse(JSON.stringify(content)) as Content;
     broke.offer["offer.relative-sends"] = { ...base, when: [{ type: "not", of: money }] };
-    expect(checkContent(broke).filter((problem) => problem.includes("R-LUCK-001"))).toEqual([expect.stringContaining("offer.relative-sends")]);
-    expect(checkContent(content).filter((problem) => problem.includes("R-LUCK-001"))).toEqual([]);
+    expect(checkContent(broke).filter((problem) => problem.includes("luck:luck-never-reads-money"))).toEqual([expect.stringContaining("offer.relative-sends")]);
+    expect(checkContent(content).filter((problem) => problem.includes("luck:luck-never-reads-money"))).toEqual([]);
   });
 });
 
@@ -258,30 +258,30 @@ describe("no kicking while down", () => {
     return game;
   }
 
-  test("[R-LUCK-003] given wellbeing and standing at 30, when the chances are read, then a blow and a win roll at their own chance", () => {
+  test("[luck:no-kicking-while-down] given wellbeing and standing at 30, when the chances are read, then a blow and a win roll at their own chance", () => {
     const read = readOf(lifeAt(30, 30));
     expect([markedChanceBp(read, blow, chance), markedChanceBp(read, win, chance), markedChanceBp(read, plain, chance)]).toEqual([chance, chance, chance]);
   });
 
-  test("[R-LUCK-003] given wellbeing at 29, when the chances are read, then a blow rolls at half, rounded down, a win at double, and the rest as they are", () => {
+  test("[luck:no-kicking-while-down] given wellbeing at 29, when the chances are read, then a blow rolls at half, rounded down, a win at double, and the rest as they are", () => {
     const read = readOf(lifeAt(29, 30));
     expect([markedChanceBp(read, blow, chance), markedChanceBp(read, win, chance), markedChanceBp(read, plain, chance)]).toEqual([1500, 6002, chance]);
   });
 
-  test("[R-LUCK-003] given standing at 29, when the chances are read, then the same, and a doubled chance never passes certainty", () => {
+  test("[luck:no-kicking-while-down] given standing at 29, when the chances are read, then the same, and a doubled chance never passes certainty", () => {
     const read = readOf(lifeAt(30, 29));
     expect([markedChanceBp(read, blow, chance), markedChanceBp(read, win, chance)]).toEqual([1500, 6002]);
     expect(markedChanceBp(read, win, 6000)).toBe(CERTAIN);
   });
 
-  test("[R-LUCK-003] [R-ENGINE-017] given the down line moved to 40 in the tuning, when wellbeing is 35, then a blow rolls at half and a win at double", () => {
+  test("[luck:no-kicking-while-down] [engine:numbers-read-from-content] given the down line moved to 40 in the tuning, when wellbeing is 35, then a blow rolls at half and a win at double", () => {
     const game = lifeAt(35, 60);
     expect(markedChanceBp(readOf(game), blow, chance)).toBe(chance);
     const moved: ReadCtx = { ...readOf(game), content: { ...game.content, tuning: { ...game.content.tuning, luck: { ...luck, downUnder: 40 } } } };
     expect([markedChanceBp(moved, blow, chance), markedChanceBp(moved, win, chance)]).toEqual([1500, 6002]);
   });
 
-  test("[R-LUCK-003] given the real content, when the marks are read, then the blows of daily life are bad and none is both", () => {
+  test("[luck:no-kicking-while-down] given the real content, when the marks are read, then the blows of daily life are bad and none is both", () => {
     const bad = Object.values(content.offer).filter((entry) => entry.bad === true).map((entry) => entry.id);
     expect(bad).toEqual(expect.arrayContaining(["offer.laptop-fault", "offer.fuel-scarcity", "offer.sponsor-licence-lost"]));
     expect(Object.values(content.offer).filter((entry) => entry.bad === true && entry.luck === true)).toEqual([]);
@@ -292,7 +292,7 @@ describe("a dry spell ends", () => {
   // No luck offer rolls, and the whip-round, which is luck, has no `when` that holds.
   const dry = variant({ "offer.relative-sends": { when: [], chanceBp: 0 }, "offer.whip-round": { when: [{ type: "month/min", value: 1000 }] } });
 
-  test("[R-LUCK-004] given no luck offer opened, when months pass, then nothing is added up to the dry spell's months, then the step for each further month, up to the cap", () => {
+  test("[luck:dry-spell-raises-luck] given no luck offer opened, when months pass, then nothing is added up to the dry spell's months, then the step for each further month, up to the cap", () => {
     const game = start({ scenario: ADA, content: dry });
     const added: number[] = [];
     for (let turn = 0; turn < 20; turn += 1) {
@@ -308,7 +308,7 @@ describe("a dry spell ends", () => {
     expect(added[19]).toBe(luck.drySpellCapBp);
   });
 
-  test("[R-LUCK-004] given a dry spell, when a luck offer opens, then the count starts again; the spell adds to luck entries only and is never doubled", () => {
+  test("[luck:dry-spell-raises-luck] given a dry spell, when a luck offer opens, then the count starts again; the spell adds to luck entries only and is never doubled", () => {
     const game = start({ scenario: ADA, content: dry });
     for (let turn = 0; turn < luck.drySpellMonths + 3; turn += 1) restMonth(game);
     const read = readOf(game);
@@ -328,7 +328,7 @@ describe("a dry spell ends", () => {
 describe("the whip-round", () => {
   const WHIP: Id<"offer"> = "offer.whip-round";
 
-  test("[R-LUCK-002] given the numbers, when the rescue is set against the line it needs, then it pays less than the line times the ratio, so throwing money away to reach it loses", () => {
+  test("[luck:whip-round-once-per-life] given the numbers, when the rescue is set against the line it needs, then it pays less than the line times the ratio, so throwing money away to reach it loses", () => {
     expect(luck.rescue).toBeLessThan(bp(luck.rescueUnder, luck.rescueRatio));
     expect(content.offer[WHIP]).toMatchObject({ chanceBp: 0, maxTimes: 1, luck: true, where: "home" });
   });
@@ -344,7 +344,7 @@ describe("the whip-round", () => {
     return game;
   }
 
-  test("[R-LUCK-002] given Ada at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
+  test("[luck:whip-round-once-per-life] given Ada at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
     const game = brokeAt(10);
     expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
     expect(game.state.turn.month).toBe(11);
@@ -359,7 +359,7 @@ describe("the whip-round", () => {
     }
   });
 
-  test("[R-LUCK-002] [R-ENGINE-017] given the months before the rescue moved to 6 in the tuning, when month 6 ends with nothing held, then the whip-round opens", () => {
+  test("[luck:whip-round-once-per-life] [engine:numbers-read-from-content] given the months before the rescue moved to 6 in the tuning, when month 6 ends with nothing held, then the whip-round opens", () => {
     const overlaid = applyOverlay(content, { version: "test-rescue-months", tuning: { ...content.tuning, luck: { ...luck, rescueAfterMonths: 6 } } });
     const game = brokeAt(4, overlaid);
     expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
@@ -368,7 +368,7 @@ describe("the whip-round", () => {
     expect(openedIn(restMonth(game)).map((item) => item.entry)).toContain(WHIP);
   });
 
-  test("[R-LUCK-002] given holdings at the line, when the month comes up, then it does not open; one kobo under, it does", () => {
+  test("[luck:whip-round-once-per-life] given holdings at the line, when the month comes up, then it does not open; one kobo under, it does", () => {
     for (const [held, opens] of [
       [luck.rescueUnder, false],
       [luck.rescueUnder - 1, true],
@@ -385,14 +385,14 @@ describe("the whip-round", () => {
     }
   });
 
-  test("[R-LUCK-002] given Ada abroad with nothing, when month 12 ends, then the whip-round does not come: it is the rescue at home", () => {
+  test("[luck:whip-round-once-per-life] given Ada abroad with nothing, when month 12 ends, then the whip-round does not come: it is the rescue at home", () => {
     const game = brokeAt(11);
     flyToUk(game);
     emptyPockets(game);
     expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
   });
 
-  test("[R-LUCK-002] given a loan in default, when month 12 ends with nothing held, then the whip-round does not come", () => {
+  test("[luck:whip-round-once-per-life] given a loan in default, when month 12 ends with nothing held, then the whip-round does not come", () => {
     const game = brokeAt(9);
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.quick-loan", principal: 5000000 }]);
     emptyPockets(game);
@@ -405,7 +405,7 @@ describe("the whip-round", () => {
     expect(openOffers(game)).not.toContain(WHIP);
   });
 
-  test("[R-LUCK-002] [R-ENGINE-017] given the whip-round accepted, when it pays, then the tuning's rescue reaches the bank as a flagged gift, and an overlay's figure is the one paid", () => {
+  test("[luck:whip-round-once-per-life] [engine:numbers-read-from-content] given the whip-round accepted, when it pays, then the tuning's rescue reaches the bank as a flagged gift, and an overlay's figure is the one paid", () => {
     const overlaid = applyOverlay(content, { version: "test-rescue", tuning: { ...content.tuning, luck: { ...luck, rescue: 20000000 } } });
     const game = brokeAt(11, overlaid);
     restMonth(game);
@@ -420,7 +420,7 @@ describe("the whip-round", () => {
 describe("the telco promo", () => {
   const PROMO: Id<"offer"> = "offer.telco-promo";
 
-  test("[R-LUCK-007] given the promo as a fraud, when it is claimed, then the fee goes and nothing follows; honest, the fee goes and the promo is paid", () => {
+  test("[luck:telco-promo-may-be-fraud] given the promo as a fraud, when it is claimed, then the fee goes and nothing follows; honest, the fee goes and the promo is paid", () => {
     for (const fraud of [true, false]) {
       const game = start({ scenario: ADA, content: variant({ [PROMO]: { fraudBp: fraud ? CERTAIN : 0 } }, false) });
       const item = openOne(game, PROMO);
@@ -441,7 +441,7 @@ describe("the telco promo", () => {
 });
 
 describe("luck native to japa", () => {
-  test("[R-LUCK-010] given the real luck entries, when they are read, then each is luck with the page's chance, condition and payment", () => {
+  test("[luck:japa-luck-in-existing-systems] given the real luck entries, when they are read, then each is luck with the page's chance, condition and payment", () => {
     const relative = content.offer["offer.relative-sends"]!;
     expect(relative).toMatchObject({ luck: true, group: "life", chanceBp: 400, cooldown: 9 });
     expect(relative.choices[0]?.effects).toEqual([{ type: "money/add", currency: "USD", pocket: "bank", amount: 50000, reason: "gift", flagged: true }]);
@@ -455,7 +455,7 @@ describe("luck native to japa", () => {
     expect(scholarship.choices[0]?.effects).toEqual([{ type: "money/add", currency: "GBP", pocket: "bank", amount: 300000, reason: "gift" }]);
   });
 
-  test("[R-LUCK-010] given a route known, when the relative's gift is taken, then $500 reaches the dollar bank as a flagged gift", () => {
+  test("[luck:japa-luck-in-existing-systems] given a route known, when the relative's gift is taken, then $500 reaches the dollar bank as a flagged gift", () => {
     const game = start({ scenario: "scenario.tunde", content });
     const used = variant({ "offer.relative-sends": { when: [] } }, false);
     const lucky = start({ scenario: "scenario.tunde", content: used });
@@ -470,7 +470,7 @@ describe("luck native to japa", () => {
 });
 
 // ---------------------------------------------------------------------------
-// R-HEALTH-006: an offer whose choice locks next month's slots
+// health:forced-months-warned-ahead: an offer whose choice locks next month's slots
 // ---------------------------------------------------------------------------
 
 describe("an offer that locks a slot", () => {
@@ -482,7 +482,7 @@ describe("an offer that locks a slot", () => {
     return used;
   })();
 
-  test("[R-HEALTH-006] given a choice that carries a lock, when it is taken, then one slot is locked for the month that follows and freed after it", () => {
+  test("[health:forced-months-warned-ahead] given a choice that carries a lock, when it is taken, then one slot is locked for the month that follows and freed after it", () => {
     const game = start({ scenario: ADA, content: locking });
     const slots = game.view().freeSlots;
     const item = openOne(game, "offer.nepa-bill");
@@ -495,7 +495,7 @@ describe("an offer that locks a slot", () => {
     expect(game.view().freeSlots).toBe(slots);
   });
 
-  test("[R-HEALTH-006] given a locking offer left to lapse, when its month comes, then nothing is locked: only a choice taken locks", () => {
+  test("[health:forced-months-warned-ahead] given a locking offer left to lapse, when its month comes, then nothing is locked: only a choice taken locks", () => {
     const game = start({ scenario: ADA, content: locking });
     openOne(game, "offer.nepa-bill");
     const result = game.endTurn();
@@ -503,7 +503,7 @@ describe("an offer that locks a slot", () => {
     expect(result.events.filter((event) => event.type === "turn/locked")).toEqual([]);
   });
 
-  test("[R-HEALTH-006] given a choice with no lock among its effects, when it is taken, then nothing is locked, whatever the entry says a month ahead", () => {
+  test("[health:forced-months-warned-ahead] given a choice with no lock among its effects, when it is taken, then nothing is locked, whatever the entry says a month ahead", () => {
     const game = start({ scenario: ADA, content: locking });
     const item = openOne(game, "offer.nepa-bill");
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "leave" });
@@ -512,7 +512,7 @@ describe("an offer that locks a slot", () => {
 });
 
 describe("content that plays", () => {
-  test("[R-OBLIGATION-012] [R-LUCK-009] given the real content, when the group loan, the parents' debt, the guarantor and the savings circle are read, then each rolls at the chance its page or its entry gives", () => {
+  test("[obligation:three-roads-to-group-loan] [luck:savings-circle-holds-pot] given the real content, when the group loan, the parents' debt, the guarantor and the savings circle are read, then each rolls at the chance its page or its entry gives", () => {
     expect(content.offer["offer.group-loan"]?.chanceBp).toBe(300);
     expect(content.offer["offer.parents-group-debt"]?.chanceBp).toBe(100);
     expect(content.offer["offer.stand-guarantor"]?.chanceBp).toBe(100);
@@ -521,7 +521,7 @@ describe("content that plays", () => {
     expect(rolled).toEqual(expect.arrayContaining(["offer.group-loan", "offer.parents-group-debt", "offer.stand-guarantor", "offer.join-ajo"]));
   });
 
-  test("[R-LADDER-005] [R-DIRECTOR-001] given the sponsor's licence risk in the world at 0 and at 10000, when months pass abroad, then the licence is never lost at 0 and lost at once at 10000", () => {
+  test("[ladders:sponsor-job-ties-status] [director:world-variables-per-route] given the sponsor's licence risk in the world at 0 and at 10000, when months pass abroad, then the licence is never lost at 0 and lost at once at 10000", () => {
     const LOST: Id<"offer"> = "offer.sponsor-licence-lost";
     const onlyLoss = variant({ [LOST]: { when: [] } });
     for (const [risk, opens] of [

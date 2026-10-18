@@ -1,4 +1,4 @@
-// The things a life owns at home (home.md R-HOME-013; design page 12 sections 2 and 4). The market sells a thing
+// The things a life owns at home (home:things-a-life-owns; design page 12 sections 2 and 4). The market sells a thing
 // delivered at once; it stands in the home lived in when that home may hold it; while it stands it lifts acts the
 // simulation already has, lifts each month it is lived with, or lifts once when it lands; some cost to run a month;
 // selling it back or leaving Lagos brings in its resale figure.
@@ -89,7 +89,7 @@ function napGives(game: Game): number {
 }
 
 describe("the market's catalogue", () => {
-  test("[R-HOME-013] [R-HOME-001] given the content, when the market's things are read, then the catalogue is the listed one, each priced in whole kobo with a resale under its price and a running cost where real", () => {
+  test("[home:things-a-life-owns] [home:home-slice-fields] given the content, when the market's things are read, then the catalogue is the listed one, each priced in whole kobo with a resale under its price and a running cost where real", () => {
     expect(Object.keys(content.thing)).toEqual(CATALOGUE);
     for (const entry of Object.values(content.thing)) {
       expect(Number.isSafeInteger(entry.price)).toBe(true);
@@ -103,7 +103,7 @@ describe("the market's catalogue", () => {
     expect(running).toEqual(["thing.data", "thing.decoder", "thing.gas-cooker", "thing.fridge", "thing.generator", "thing.ac"]);
   });
 
-  test("[R-HOME-013] [R-HOME-001] [R-HOME-012] given each thing's changes to acts, when read against the acts, then every act exists, a time is never longer than the act's own and a price cut is a cut", () => {
+  test("[home:things-a-life-owns] [home:home-slice-fields] [home:living-by-hand] given each thing's changes to acts, when read against the acts, then every act exists, a time is never longer than the act's own and a price cut is a cut", () => {
     const problems: string[] = [];
     for (const entry of Object.values(content.thing)) {
       for (const mod of entry.acts) {
@@ -118,7 +118,7 @@ describe("the market's catalogue", () => {
     expect(problems).toEqual([]);
   });
 
-  test("[R-HOME-013] [R-HOME-001] given where each thing may stand, when the family house is read, then it holds only the small things, in your corner, and the car in its carport; the yard's solar and the generator only the compound", () => {
+  test("[home:things-a-life-owns] [home:home-slice-fields] given where each thing may stand, when the family house is read, then it holds only the small things, in your corner, and the car in its carport; the yard's solar and the generator only the compound", () => {
     const atFamily = Object.values(content.thing)
       .filter((entry) => entry.homes.includes(FAMILY))
       .map((entry) => entry.id);
@@ -130,7 +130,7 @@ describe("the market's catalogue", () => {
 });
 
 describe("buying and selling", () => {
-  test("[R-HOME-013] [R-HOME-006] given Ada at the family house, when she buys a fan, then its price goes out under goods at once, it is hers and the market says so", () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given Ada at the family house, when she buys a fan, then its price goes out under goods at once, it is hers and the market says so", () => {
     const game = ada();
     const before = naira(game);
     const result = buy(game, "thing.fan");
@@ -143,7 +143,7 @@ describe("buying and selling", () => {
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
-  test("[R-HOME-013] [R-HOME-006] given Ada at the family house, when she tries a TV, a fridge or a generator, then each is refused: the parlour is Mama's and Papa's, and the market says why", () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given Ada at the family house, when she tries a TV, a fridge or a generator, then each is refused: the parlour is Mama's and Papa's, and the market says why", () => {
     const game = ada();
     setPockets(game, { NGN: 5_000_000_00 });
     for (const thing of ["thing.tv", "thing.fridge", "thing.generator", "thing.solar"] as const) {
@@ -153,7 +153,7 @@ describe("buying and selling", () => {
     expect(game.state.things.owned).toEqual([]);
   });
 
-  test("[R-HOME-013] [R-HOME-006] given the market, when the price is not held, a thing is owned, a need is missing or the thing is unknown, then each refusal is its own and nothing moves", () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given the market, when the price is not held, a thing is owned, a need is missing or the thing is unknown, then each refusal is its own and nothing moves", () => {
     const game = inTheRoom(price("thing.decoder"));
     game.expectRejected({ type: "thing/buy", thing: "thing.decoder" }, "not-legal");
     expect(game.view().things.market.find((one) => one.thing === "thing.decoder")?.shut).toBe("needs");
@@ -169,7 +169,7 @@ describe("buying and selling", () => {
     game.expectRejected({ type: "thing/buy", thing: "constructor" as Id<"thing"> }, "unknown-id");
   });
 
-  test("[R-HOME-013] [R-HOME-006] given a thing owned, when it is sold back, then its resale share of what was paid comes in under sale and it is gone; one not owned is refused", () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given a thing owned, when it is sold back, then its resale share of what was paid comes in under sale and it is gone; one not owned is refused", () => {
     const game = ada();
     buy(game, "thing.speaker");
     const before = naira(game);
@@ -181,7 +181,7 @@ describe("buying and selling", () => {
     game.expectRejected({ type: "thing/sell", thing: "thing.speaker" }, "not-legal");
   });
 
-  test("[R-HOME-013] [R-HOME-006] given a mirror and a car bought, when they land, then each lifts standing once, as its entry says", () => {
+  test("[home:things-a-life-owns] [home:home-is-the-home-point] given a mirror and a car bought, when they land, then each lifts standing once, as its entry says", () => {
     const game = ada();
     setPockets(game, { NGN: price("thing.car") + price("thing.mirror") });
     setQuality(game, STANDING, 40);
@@ -192,7 +192,7 @@ describe("buying and selling", () => {
     expect(game.view().things.drive).toBe(true);
   });
 
-  test("[R-HOME-013] [R-PLACE-002] given things owned in Lagos, when the life flies out, then all are sold at once at their resale figures in one line, and nothing is owned abroad", () => {
+  test("[home:things-a-life-owns] [place:departure-moves-abroad] given things owned in Lagos, when the life flies out, then all are sold at once at their resale figures in one line, and nothing is owned abroad", () => {
     const game = ada();
     buy(game, "thing.fan");
     buy(game, "thing.radio");
@@ -209,14 +209,14 @@ describe("buying and selling", () => {
 });
 
 describe("what a thing does in life", () => {
-  test("[R-HOME-013] [R-HOME-012] [R-WORLD-005] given a fan at the family house, when Ada naps, then the nap gives its own energy and the fan's more", () => {
+  test("[home:things-a-life-owns] [home:living-by-hand] [world:things-are-tappable-models] given a fan at the family house, when Ada naps, then the nap gives its own energy and the fan's more", () => {
     const plain = ada();
     const withFan = ada();
     buy(withFan, "thing.fan");
     expect(napGives(withFan) - napGives(plain)).toBe(10);
   });
 
-  test("[R-HOME-013] [R-HOME-012] given a fan and a standing AC in the room, when Ada naps, then only the dearer cools: the AC's lift alone counts", () => {
+  test("[home:things-a-life-owns] [home:living-by-hand] given a fan and a standing AC in the room, when Ada naps, then only the dearer cools: the AC's lift alone counts", () => {
     const plain = inTheRoom(0);
     const game = inTheRoom(price("thing.fan") + price("thing.ac"));
     buy(game, "thing.fan");
@@ -224,7 +224,7 @@ describe("what a thing does in life", () => {
     expect(napGives(game) - napGives(plain)).toBe(20);
   });
 
-  test("[R-HOME-013] [R-HOME-012] [R-ACTIVITY-018] given a gas cooker in the room, when the pot of your own is cooked, then it spends a day, not the weekend, and the meal costs less; the view says the same", () => {
+  test("[home:things-a-life-owns] [home:living-by-hand] [activity:now-acts-spend-half-days] given a gas cooker in the room, when the pot of your own is cooked, then it spends a day, not the weekend, and the meal costs less; the view says the same", () => {
     const game = inTheRoom(price("thing.gas-cooker") + 50_000_00);
     const pot = game.view().activities.find((one) => one.id === "activity.cook-own-pot");
     expect(pot?.halfDays).toBeUndefined();
@@ -237,7 +237,7 @@ describe("what a thing does in life", () => {
     expect(game.state.turn.spent - days).toBe(2);
   });
 
-  test("[R-HOME-013] [R-HOME-012] given a data router, then a phone too, when the month closes, then the plan's month is taken under running, halved with the phone, and a course online costs less", () => {
+  test("[home:things-a-life-owns] [home:living-by-hand] given a data router, then a phone too, when the month closes, then the plan's month is taken under running, halved with the phone, and a course online costs less", () => {
     const game = ada();
     setPockets(game, { NGN: price("thing.data") + price("thing.phone") + 100_000_00 });
     buy(game, "thing.data");
@@ -252,7 +252,7 @@ describe("what a thing does in life", () => {
     expect(eventsOf(result, "things/ran")).toEqual([{ type: "things/ran", thing: "thing.data", amount: bp(content.thing["thing.data"]!.running, 5000) }]);
   });
 
-  test("[R-HOME-013] [R-HOME-012] given a generator in the room and no money for its fuel, when the month closes, then it stands idle, nothing is taken and its light gives nothing; with the fuel held it lifts the month", () => {
+  test("[home:things-a-life-owns] [home:living-by-hand] given a generator in the room and no money for its fuel, when the month closes, then it stands idle, nothing is taken and its light gives nothing; with the fuel held it lifts the month", () => {
     const fuel = content.thing["thing.generator"]!.running;
     const game = inTheRoom(price("thing.generator"));
     buy(game, "thing.generator");
@@ -266,7 +266,7 @@ describe("what a thing does in life", () => {
     expect(result.events.some((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === WELLBEING)).toBe(true);
   });
 
-  test("[R-HOME-013] [R-HOME-002] [R-HOME-012] given a TV and a laptop in the room, when Ada moves back to the family house, then the TV is kept but stored and does nothing, the laptop stands in her corner and still works", () => {
+  test("[home:things-a-life-owns] [home:move-home-once-a-month] [home:living-by-hand] given a TV and a laptop in the room, when Ada moves back to the family house, then the TV is kept but stored and does nothing, the laptop stands in her corner and still works", () => {
     const game = inTheRoom(price("thing.tv") + price("thing.laptop"));
     buy(game, "thing.tv");
     buy(game, "thing.laptop");
@@ -283,7 +283,7 @@ describe("what a thing does in life", () => {
     expect(quality(game, TECH)).toBe(53);
   });
 
-  test("[R-HOME-013] [R-HOME-001] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as if there were no market", () => {
+  test("[home:things-a-life-owns] [home:home-slice-fields] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as if there were no market", () => {
     const game = ada();
     const result = restMonth(game);
     expect(result.events.filter((event) => event.type.startsWith("things/"))).toEqual([]);
@@ -291,11 +291,11 @@ describe("what a thing does in life", () => {
   });
 });
 
-describe("the car on the map (R-PLACE-010 and R-WORLD-017)", () => {
+describe("the car on the map (place:rides-between-city-places and world:ride-sheet-shows-fares)", () => {
   const FROM: Id<"place"> = "place.ojuelegba";
   const TO: Id<"place"> = "place.yaba";
 
-  test("[R-HOME-013] [R-PLACE-010] given no car, when Drive is sent, then it is refused; with the car at the room's spot, the fuel is the fare, by distance, dearer than the danfo and cheaper than the okada", () => {
+  test("[home:things-a-life-owns] [place:rides-between-city-places] given no car, when Drive is sent, then it is refused; with the car at the room's spot, the fuel is the fare, by distance, dearer than the danfo and cheaper than the okada", () => {
     const game = inTheRoom(price("thing.car") + 50_000_00);
     game.expectRejected({ type: "place/ride", from: FROM, to: TO, way: "drive" }, "not-legal");
     buy(game, "thing.car");
@@ -310,7 +310,7 @@ describe("the car on the map (R-PLACE-010 and R-WORLD-017)", () => {
     expect(naira(game)).toBe(before - fare);
   });
 
-  test("[R-HOME-013] [R-PLACE-010] given a car bought at the room, when Ada moves to the hostel, which has no car spot, then the car is stored there and Drive is not offered", () => {
+  test("[home:things-a-life-owns] [place:rides-between-city-places] given a car bought at the room, when Ada moves to the hostel, which has no car spot, then the car is stored there and Drive is not offered", () => {
     const game = inTheRoom(price("thing.car") + content.tuning.home.hostelRentKobo);
     buy(game, "thing.car");
     restMonth(game);

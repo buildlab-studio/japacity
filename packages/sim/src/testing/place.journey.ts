@@ -10,7 +10,7 @@ import { offerChanceBp } from "../route/route.logic";
 import type { Game } from "./play";
 import { NORTHGATE, UK_ROUTE } from "./ids";
 
-/** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
+/** Never refused: the floor and the ceiling of route:visa-refusal-chance pinned together. */
 export const ALWAYS_GRANTED = { refusalMinBp: 0, refusalMaxBp: 0 };
 
 /** The first seed whose first Northgate answer is an offer for a second upper. */

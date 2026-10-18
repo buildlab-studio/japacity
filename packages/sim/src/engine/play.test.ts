@@ -34,13 +34,13 @@ describe("random play", () => {
   test.prop([fc.constantFrom(...scenarios), fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: STEPS, maxLength: STEPS })], {
     numRuns: 25,
   })(
-    "[R-ENGINE-011] [R-ENGINE-007] [R-ENGINE-010] given any legal command from the view, when played, then it is accepted, the invariants hold, the view hides nothing and the state survives JSON",
+    "[engine:player-never-stuck] [engine:view-holds-no-hidden-field] [engine:state-is-plain-data] given any legal command from the view, when played, then it is accepted, the invariants hold, the view hides nothing and the state survives JSON",
     (scenario, seed, picks) => {
       const game = start({ scenario, seed });
       for (const pick of picks) {
         const view = game.view();
         const legal = legalCommands(view);
-        // R-ENGINE-011: with a turn banked and no set piece open there is always a legal move.
+        // engine:player-never-stuck: with a turn banked and no set piece open there is always a legal move.
         if (view.turns.banked > 0 && view.setpiece === null) expect(legal.length).toBeGreaterThan(0);
         if (legal.length === 0) {
           game.grant(1);
@@ -58,7 +58,7 @@ describe("random play", () => {
 
   test.prop([fc.constantFrom(...scenarios), fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: 20, maxLength: 20 })], {
     numRuns: 15,
-  })("[R-ENGINE-001] [R-ENGINE-010] given a random life, when it is played twice and replayed from its save, then all three states are equal", (scenario, seed, picks) => {
+  })("[engine:same-inputs-same-result] [engine:state-is-plain-data] given a random life, when it is played twice and replayed from its save, then all three states are equal", (scenario, seed, picks) => {
     const a = playRandomly(scenario, seed, picks);
     const b = playRandomly(scenario, seed, picks);
     expect(stableJson(a.state)).toBe(stableJson(b.state));

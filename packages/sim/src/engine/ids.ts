@@ -23,7 +23,7 @@ export const SETPIECE = {
 } as const satisfies Record<string, Id<"setpiece">>;
 
 export const STATUS = {
-  /** R-ROAD-009: the status the road's far shore gives. */
+  /** road:sea-arrival-in-italy: the status the road's far shore gives. */
   euIrregular: "status.eu-irregular",
 } as const satisfies Record<string, Id<"status">>;
 

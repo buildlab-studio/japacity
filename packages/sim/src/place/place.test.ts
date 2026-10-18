@@ -15,7 +15,7 @@ import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
 import { CANADA_COUNTRY, DECEMBER_SETPIECE, SETTLED, STANDING, STUDENT, UK_COUNTRY, UK_ROUTE } from "../testing/ids";
 
-/** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010). */
+/** The four ways of Lagos as the view lists them with no car at home (place:rides-between-city-places). */
 function lagosWays(): unknown[] {
   const { fareKobo, farePerKmKobo, metresPerMinute } = content.tuning.city.ride;
   return (["danfo", "keke", "okada", "walk"] as const).map((way) => ({ way, currency: "NGN", fare: fareKobo[way], farePerKm: farePerKmKobo[way], step: 5000, lonMetresPerE3: 111, metresPerMinute: metresPerMinute[way], passed: false }));
@@ -27,7 +27,7 @@ function at(where: State["place"]["where"], country: Id<"country"> | null): Stat
 }
 
 describe("where an entry applies", () => {
-  test("[R-PLACE-003] given entries for home, abroad, one country and anywhere, when the character is at home, abroad in two countries and on the road, then each applies only where its page says", () => {
+  test("[place:entries-legal-by-where] given entries for home, abroad, one country and anywhere, when the character is at home, abroad in two countries and on the road, then each applies only where its page says", () => {
     const home = at("home", null);
     const uk = at("abroad", UK_COUNTRY);
     const canada = at("abroad", CANADA_COUNTRY);
@@ -44,7 +44,7 @@ describe("where an entry applies", () => {
     expect([home, uk, canada, road].map((state) => appliesHere(anywhere, state))).toEqual([true, true, true, true]);
   });
 
-  test("[R-PLACE-003] given the real content, when every activity, offer and obligation is read at home, then the abroad ones do not apply and the home ones do", () => {
+  test("[place:entries-legal-by-where] given the real content, when every activity, offer and obligation is read at home, then the abroad ones do not apply and the home ones do", () => {
     const home = at("home", null);
     const entries = [...Object.values(content.activity), ...Object.values(content.offer), ...Object.values(content.obligation)];
     for (const entry of entries) {
@@ -96,7 +96,7 @@ function openedThisMonth(game: Game): string[] {
 }
 
 describe("a new character", () => {
-  test("[R-PLACE-001] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
+  test("[place:new-character-at-home] given a new life, when it starts, then the character is at home with no country, no move and no return on record", () => {
     const game = start({ content });
     expect(game.state.place).toEqual({ where: "home", country: null, movedMonth: 0, returns: [], heldAbroad: null, decemberMonth: null });
     expect(game.view().place).toEqual({ where: "home", country: null, monthsHere: 0, returns: [], heldAbroad: null, fareHome: null, fareBp: 10000, wayHome: null, ways: lagosWays(), shuttles: [] });
@@ -104,11 +104,11 @@ describe("a new character", () => {
 });
 
 describe("leaving", () => {
-  test("[R-PLACE-002] [R-GATE-003] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
+  test("[place:departure-moves-abroad] [route-gates:departure-grants-status] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
     const closed: ObligationType[] = [];
     const game = flown(content, { kinds: recordingCloses(closed) });
     expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY, movedMonth: game.state.turn.month });
-    // R-PLACE-002: a room's rent at home is let go with them (R-HOME-010).
+    // place:departure-moves-abroad: a room's rent at home is let go with them (home:compound-room-is-a-home).
     expect(closed).toEqual(["upkeep", "support", "rent"]);
     const upkeep = content.obligation["obligation.upkeep-uk"]!.amount;
     const room = content.obligation["obligation.rent-room-uk"]!.amount;
@@ -116,12 +116,12 @@ describe("leaving", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-PLACE-002] given a life with family support, when it departs, then the support opens again abroad at the remit factor", () => {
+  test("[place:departure-moves-abroad] given a life with family support, when it departs, then the support opens again abroad at the remit factor", () => {
     const game = flown(content, { from: "scenario.zainab" });
     expect(openedThisMonth(game)).toContain(`obligation.home-support ${String(bp(60000 * 100, tuning.remit.abroadBp))}`);
   });
 
-  test("[R-PLACE-002] given a departure, when its lines are read, then the arrival asks for attention and names the country; a move to the place already held does nothing", () => {
+  test("[place:departure-moves-abroad] given a departure, when its lines are read, then the arrival asks for attention and names the country; a move to the place already held does nothing", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: { refusalMinBp: 0, refusalMaxBp: 0 } });
     toDecision(game);
     const result = game.accept({ type: "route/depart", route: UK_ROUTE });
@@ -132,7 +132,7 @@ describe("leaving", () => {
     expect(game.state.place.movedMonth).toBe(months);
   });
 
-  test("[R-PLACE-002] [R-CHAPTER-002] given the send-off chapter current, when the character flies and the month ends, then the life goes on and the chapter closes in that month's chapter phase", () => {
+  test("[place:departure-moves-abroad] [chapter:met-items-close-the-chapter] given the send-off chapter current, when the character flies and the month ends, then the life goes on and the chapter closes in that month's chapter phase", () => {
     const game = flown(content);
     // The ready life skips the first chapters' play, so the send-off is made current by hand.
     game.state = { ...game.state, chapter: { current: "chapter.send-off", done: ["chapter.find-your-feet", "chapter.build-the-file", "chapter.decision-day"] } };
@@ -145,7 +145,7 @@ describe("leaving", () => {
 });
 
 describe("coming home", () => {
-  test("[R-PLACE-010] given two places, when a way's fare is read, then it is the flag-down figure plus the figure a kilometre over the straight line, in fifties of naira, more for a farther place, nothing on foot, and the flag-down figure alone for a place with no position", () => {
+  test("[place:rides-between-city-places] given two places, when a way's fare is read, then it is the flag-down figure plus the figure a kilometre over the straight line, in fifties of naira, more for a farther place, nothing on foot, and the flag-down figure alone for a place with no position", () => {
     const { fareKobo, farePerKmKobo } = content.tuning.city.ride;
     const ojuelegba = content.place["place.ojuelegba"]!.position!;
     const bode = content.place["place.bode-thomas"]!.position!;
@@ -169,7 +169,7 @@ describe("coming home", () => {
     expect(rideFare(content, ojuelegba, bode, "okada")).toBeGreaterThan(rideFare(content, ojuelegba, bode, "keke"));
   });
 
-  test("[R-PLACE-010] given a character at home with the fare in cash, when a ride is sent, then the way's fare for the distance leaves cash as a fare and the ride is on record", () => {
+  test("[place:rides-between-city-places] given a character at home with the fare in cash, when a ride is sent, then the way's fare for the distance leaves cash as a fare and the ride is on record", () => {
     const game = start({ content });
     const fare = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "keke");
     const before = game.view().pockets.NGN.cash;
@@ -180,7 +180,7 @@ describe("coming home", () => {
     expect(game.view().place.where).toBe("home");
   });
 
-  test("[R-PLACE-010] given the fuel scarcity's ask opened this month, when a ride is sent, then every fare is the scarcity's share of its figure and the view says the month's factor; the month after, the fares stand as they were", () => {
+  test("[place:rides-between-city-places] given the fuel scarcity's ask opened this month, when a ride is sent, then every fare is the scarcity's share of its figure and the view says the month's factor; the month after, the fares stand as they were", () => {
     const game = start({ content });
     const month = game.state.turn.month;
     game.state = { ...game.state, offer: { ...game.state.offer, lastOpened: { ...game.state.offer.lastOpened, "offer.fuel-scarcity": month } } };
@@ -197,7 +197,7 @@ describe("coming home", () => {
     expect(game.view().place.fareBp).toBe(10000);
   });
 
-  test("[R-PLACE-010] given the fare short in cash, the same place twice, a place elsewhere, or a character abroad, when a ride is sent, then it is refused and nothing is paid", () => {
+  test("[place:rides-between-city-places] given the fare short in cash, the same place twice, a place elsewhere, or a character abroad, when a ride is sent, then it is refused and nothing is paid", () => {
     const game = start({ content });
     const cash = game.view().pockets.NGN.cash;
     game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.ojuelegba", way: "danfo" }, "not-legal");
@@ -213,7 +213,7 @@ describe("coming home", () => {
     abroad.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" }, "not-legal");
   });
 
-  test("[R-PLACE-010] given the fare over the cash but within the naira, when a ride is sent, then cash goes first and the bank pays the rest", () => {
+  test("[place:rides-between-city-places] given the fare over the cash but within the naira, when a ride is sent, then cash goes first and the bank pays the rest", () => {
     const game = start({ content });
     const fare = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "okada");
     const cash = game.view().pockets.NGN.cash;
@@ -230,18 +230,18 @@ describe("coming home", () => {
     expect(game.view().pockets.NGN.bank).toBe(bank - 1);
   });
 
-  test("[R-PLACE-010] given no naira at all, when the character goes on foot, then the ride is on record with no fare and nothing is debited", () => {
+  test("[place:rides-between-city-places] given no naira at all, when the character goes on foot, then the ride is on record with no fare and nothing is debited", () => {
     const ride = { ...content.tuning.city.ride, fareKobo: { ...content.tuning.city.ride.fareKobo, danfo: 1_000_000_000_000 } };
     const game = start({ content: { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride } } } });
     expect(content.tuning.city.ride.fareKobo.walk).toBe(0);
     game.expectRejected({ type: "place/ride", from: "place.ojuelegba", to: "place.bode-thomas", way: "danfo" }, "cannot-afford");
-    // Tejuosho is within walking distance of Ojuelegba; Bode Thomas Street is not (R-PLACE-010).
+    // Tejuosho is within walking distance of Ojuelegba; Bode Thomas Street is not (place:rides-between-city-places).
     const result = game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.tejuosho-market", way: "walk" });
     expect(result.events.filter((event) => event.type === "wallet/debited")).toEqual([]);
     expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
-  test("[R-PLACE-010] given a stop past walking distance, when a walk is sent, then it is refused as not legal, while a stop within it is walked and a ride there is taken", () => {
+  test("[place:rides-between-city-places] given a stop past walking distance, when a walk is sent, then it is refused as not legal, while a stop within it is walked and a ride there is taken", () => {
     const game = start({ content });
     const from = content.place["place.ojuelegba"]?.position;
     const near = content.place["place.tejuosho-market"]?.position;
@@ -255,7 +255,7 @@ describe("coming home", () => {
     expect(game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.tejuosho-market", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
-  test("[R-PLACE-010] given a life living in Makoko standing at Bode Thomas Street, past walking distance of home, when a walk home is sent, then it is accepted with no fare, while a walk to another stop that far is still refused", () => {
+  test("[place:rides-between-city-places] given a life living in Makoko standing at Bode Thomas Street, past walking distance of home, when a walk home is sent, then it is accepted with no fare, while a walk to another stop that far is still refused", () => {
     const game = start({ content, scenario: "scenario.ada" });
     game.accept({ type: "home/move", to: "place.makoko" });
     const from = content.place["place.bode-thomas"]?.position;
@@ -271,13 +271,13 @@ describe("coming home", () => {
     expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
-  test("[R-PLACE-004] given a character at home, when return/home is sent, then it is rejected", () => {
+  test("[place:return-home-paid-or-assisted] given a character at home, when return/home is sent, then it is rejected", () => {
     const game = readyLife(content);
     const rejected = game.expectRejected({ type: "return/home" }, "not-legal");
     expect(rejected.ok).toBe(false);
   });
 
-  test("[R-PLACE-004] given a student with nothing to pay the fare, when return/home is sent, then it is rejected; as an overstayer with nothing, it is accepted as an assisted return and no fare is paid", () => {
+  test("[place:return-home-paid-or-assisted] given a student with nothing to pay the fare, when return/home is sent, then it is rejected; as an overstayer with nothing, it is accepted as an assisted return and no fare is paid", () => {
     const game = flown(content);
     leave(game, 0, 0);
     game.expectRejected({ type: "return/home" }, "cannot-afford");
@@ -289,7 +289,7 @@ describe("coming home", () => {
     expect(game.state.status.current).toBeNull();
   });
 
-  test("[R-PLACE-004] [R-PLACE-005] given a student with money, when she comes home, then the fare is paid, every status closes and the return is recorded by choice", () => {
+  test("[place:return-home-paid-or-assisted] [place:return-shape-decided-at-once] given a student with money, when she comes home, then the fare is paid, every status closes and the return is recorded by choice", () => {
     const game = flown(content);
     leave(game, brokeLine, ukFare);
     const month = game.state.turn.month;
@@ -303,7 +303,7 @@ describe("coming home", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-PLACE-005] given a fare paid that leaves one kobo under the broke line, or exactly on it, when the character comes home, then the first is broke and the second by choice", () => {
+  test("[place:return-shape-decided-at-once] given a fare paid that leaves one kobo under the broke line, or exactly on it, when the character comes home, then the first is broke and the second by choice", () => {
     const under = flown(content);
     leave(under, brokeLine - 1, ukFare);
     expect(comeHome(under).shape).toBe("broke");
@@ -312,7 +312,7 @@ describe("coming home", () => {
     expect(comeHome(on).shape).toBe("by-choice");
   });
 
-  test("[R-PLACE-005] given a settled status at the moment of leaving, when the character comes home, then the return is with papers; a removal is removed whatever is held", () => {
+  test("[place:return-shape-decided-at-once] given a settled status at the moment of leaving, when the character comes home, then the return is with papers; a removal is removed whatever is held", () => {
     const papers = flown(content);
     applyEffects(papers, [{ type: "status/grant", status: SETTLED }]);
     leave(papers, brokeLine, ukFare);
@@ -322,7 +322,7 @@ describe("coming home", () => {
     expect(removed.state.place.returns.map((back) => back.shape)).toEqual(["removed"]);
   });
 
-  test("[R-PLACE-005] given each case, when the shape is judged, then the first match wins in the page's order", () => {
+  test("[place:return-shape-decided-at-once] given each case, when the shape is judged, then the first match wins in the page's order", () => {
     const game = flown(content);
     // As the fare has just been paid: what is left is one kobo under the line.
     leave(game, brokeLine - 1, 0);
@@ -336,7 +336,7 @@ describe("coming home", () => {
     expect(returnShape(removed, true)).toBe("removed");
   });
 
-  test("[R-PLACE-006] given the pound pockets, when the fare is paid, then it is taken cash first from pounds under the reason fare", () => {
+  test("[place:fare-home-in-local-currency] given the pound pockets, when the fare is paid, then it is taken cash first from pounds under the reason fare", () => {
     const game = flown(content);
     leave(game, brokeLine, 0);
     applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: ukFare, reason: "gift" }]);
@@ -347,13 +347,13 @@ describe("coming home", () => {
     expect(game.state.wallet.totals.out.fare).toEqual({ GBP: ukFare });
   });
 
-  test("[R-PLACE-006] given December in the world, when the fare is read, then it is the fare times the December factor", () => {
+  test("[place:fare-home-in-local-currency] given December in the world, when the fare is read, then it is the fare times the December factor", () => {
     const game = flown(content, { vars: () => ({ "var.season-december": 1 }) });
     expect(fareHome(readOf(game))).toEqual({ currency: "GBP", amount: mulDiv(ukFare, content.country[UK_COUNTRY]!.decemberFactorBp, 10000) });
     expect(fareHome(readOf(readyLife(content)))).toBeNull();
   });
 
-  test("[R-PLACE-006] given no pounds and naira in the bank, when the fare is paid, then naira buys it at the official rate plus the charge; with the naira leg turned off, it cannot be paid", () => {
+  test("[place:fare-home-in-local-currency] given no pounds and naira in the bank, when the fare is paid, then naira buys it at the official rate plus the charge; with the naira leg turned off, it cannot be paid", () => {
     const game = flown(content);
     leave(game, 1000000000, 0);
     comeHome(game);
@@ -365,7 +365,7 @@ describe("coming home", () => {
     refused.expectRejected({ type: "return/home" }, "cannot-afford");
   });
 
-  test("[R-PLACE-007] [R-RETURN-002] given each shape with no capital, when the character comes home, then standing moves by the page's figure for it", () => {
+  test("[place:family-takes-you-back] [return:standing-by-return-shape] given each shape with no capital, when the character comes home, then standing moves by the page's figure for it", () => {
     const shapes: [ReturnShape, (game: Game) => void][] = [
       ["by-choice", (game) => leave(game, brokeLine, ukFare)],
       ["broke", (game) => leave(game, brokeLine - 1, ukFare)],
@@ -391,7 +391,7 @@ describe("coming home", () => {
     expect(standing(removed) - before).toBe(tuning.return.standing.removed);
   });
 
-  test("[R-RETURN-002] given naira in the bank one short of a step above the broke line, one step, and far past the cap, when the character comes home by choice, then standing gains 0, 1 and the cap", () => {
+  test("[return:standing-by-return-shape] given naira in the bank one short of a step above the broke line, one step, and far past the cap, when the character comes home by choice, then standing gains 0, 1 and the cap", () => {
     for (const [bank, gain] of [
       [brokeLine + capitalPer - 1, 0],
       [brokeLine + capitalPer, 1],
@@ -403,14 +403,14 @@ describe("coming home", () => {
     }
   });
 
-  test.prop([fc.integer({ min: 0, max: 100000000000 })])("[R-RETURN-002] given any naira in the bank, when the capital bonus is worked out, then it is the whole steps above the broke line, never below 0 nor above the cap", (bank) => {
+  test.prop([fc.integer({ min: 0, max: 100000000000 })])("[return:standing-by-return-shape] given any naira in the bank, when the capital bonus is worked out, then it is the whole steps above the broke line, never below 0 nor above the cap", (bank) => {
     const game = start({ content });
     const read: ReadCtx = { ...readOf(game), state: { ...game.state, wallet: { ...game.state.wallet, pockets: { ...game.state.wallet.pockets, NGN: { bank, cash: 0, locked: 0 } } } } };
     const steps = bank <= brokeLine ? 0 : divFloor(bank - brokeLine, capitalPer);
     expect(capitalBonus(read)).toBe(Math.min(tuning.return.capitalCap, steps));
   });
 
-  test("[R-PLACE-007] [R-RETURN-006] given a return, when it is made, then everything abroad closes and the home upkeep and support reopen at the starting life's amounts", () => {
+  test("[place:family-takes-you-back] [return:return-reopens-home-charges] given a return, when it is made, then everything abroad closes and the home upkeep and support reopen at the starting life's amounts", () => {
     const closed: ObligationType[] = [];
     const game = flown(content, { from: "scenario.zainab", kinds: recordingCloses(closed) });
     closed.length = 0;
@@ -421,7 +421,7 @@ describe("coming home", () => {
 });
 
 describe("the sampler", () => {
-  test("[R-PLACE-004] given a student with the fare and an overstayer with nothing, when the legal commands are sampled, then return/home is offered to both and accepted", () => {
+  test("[place:return-home-paid-or-assisted] given a student with the fare and an overstayer with nothing, when the legal commands are sampled, then return/home is offered to both and accepted", () => {
     const student = flown(content);
     leave(student, 0, 155000);
     expect(legalCommands(student.view())).toContainEqual({ type: "return/home" });
@@ -436,7 +436,7 @@ describe("the sampler", () => {
 });
 
 describe("removal and the ban", () => {
-  test("[R-PLACE-008] given a removal from the UK, when the ban is read, then the UK's routes are banned for the removal months from that month and no other country is", () => {
+  test("[place:removal-bans-the-country] given a removal from the UK, when the ban is read, then the UK's routes are banned for the removal months from that month and no other country is", () => {
     const game = flown(content);
     expect(bannedUntil(readOf(game), UK_COUNTRY)).toBeNull();
     applyEffects(game, [{ type: "status/remove" }]);
@@ -455,7 +455,7 @@ describe("removal and the ban", () => {
   /** Enough care that the care route's talk reaches the character by its `hearBy`. */
   const CARE: Effect = { type: "quality/add", quality: "quality.care", amount: 60 };
 
-  test("[R-PLACE-008] [R-GATE-005] given a removal with a ban of 2 months and the care route's talk due, when months pass, then nothing about a UK route is heard in the ban's months and it is heard in the month the ban ends", () => {
+  test("[place:removal-bans-the-country] [route-gates:deception-bans-country] given a removal with a ban of 2 months and the care route's talk due, when months pass, then nothing about a UK route is heard in the ban's months and it is heard in the month the ban ends", () => {
     const game = flown(content, { change: shortBan });
     applyEffects(game, [CARE, { type: "status/remove" }]);
     const until = game.state.turn.month + SHORT_BAN;
@@ -472,7 +472,7 @@ describe("removal and the ban", () => {
     expect(game.state.route[CARE_ROUTE]?.state).toBe("heard");
   });
 
-  test("[R-PLACE-003] given the care route's talk due, when months pass to its `hearBy` on the road and at home, then nothing is heard on the road and the route is heard at home", () => {
+  test("[place:entries-legal-by-where] given the care route's talk due, when months pass to its `hearBy` on the road and at home, then nothing is heard on the road and the route is heard at home", () => {
     const months = content.route[CARE_ROUTE]!.hearBy!;
     const road = readyLife(content, { quiet: true });
     applyEffects(road, [CARE, { type: "place/move", to: "road", country: null }]);
@@ -488,7 +488,7 @@ describe("removal and the ban", () => {
 });
 
 describe("the view and the record", () => {
-  test("[R-PLACE-009] [R-RETURN-001] given two returns, when the view is read, then it shows where, the country, the months since the move and the record newest first", () => {
+  test("[place:view-shows-place-and-returns] [return:return-record-in-words] given two returns, when the view is read, then it shows where, the country, the months since the move and the record newest first", () => {
     const game = flown(content);
     playMonths(game, 2);
     expect(game.view().place).toMatchObject({ where: "abroad", country: UK_COUNTRY, monthsHere: 2, returns: [] });
@@ -509,14 +509,14 @@ describe("the view and the record", () => {
       fareBp: 10000,
       wayHome: null,
       ways: lagosWays(),
-      // R-PLACE-013 (decision 0017): no shuttle's stop at home.
+      // place:employer-shuttle-rides-free (decision 0017): no shuttle's stop at home.
       shuttles: [],
     });
   });
 
   const forecastBase = flown(content);
   test.prop([fc.integer({ min: 0, max: 4 * brokeLine }), fc.integer({ min: 0, max: 2 * ukFare }), fc.boolean()], { numRuns: 60 })(
-    "[R-PLACE-011] given any naira and pounds in the bank, with the visa held or lost, when the way home is read and then taken, then the view said the fare's source, the shape and the standing the return brings, and no way when it is refused",
+    "[place:view-carries-way-home] given any naira and pounds in the bank, with the visa held or lost, when the way home is read and then taken, then the view said the fare's source, the shape and the standing the return brings, and no way when it is refused",
     (nairaBank, poundBank, lost) => {
       const game = flown(content);
       game.state = forecastBase.state;
@@ -540,7 +540,7 @@ describe("the view and the record", () => {
     },
   );
 
-  test("[R-RETURN-007] given a return, when the routes are read, then the departed route and its record are as they were", () => {
+  test("[return:routes-run-again-from-home] given a return, when the routes are read, then the departed route and its record are as they were", () => {
     const game = flown(content);
     const before = game.state.route;
     comeHome(game);
@@ -549,7 +549,7 @@ describe("the view and the record", () => {
 });
 
 describe("the token kept abroad", () => {
-  test("[R-RETURN-004] given a return with papers, when it is recorded, then the settled status is kept as a token, and flying back to the UK uses it", () => {
+  test("[return:papers-return-keeps-status] given a return with papers, when it is recorded, then the settled status is kept as a token, and flying back to the UK uses it", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
     const held = game.state.status.current!;
@@ -569,7 +569,7 @@ describe("the token kept abroad", () => {
   const paidFor = (result: { events: { type: string }[] }, reason: string) =>
     result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === reason).map((event) => (event as unknown as { amount: number }).amount);
 
-  test("[R-RETURN-004] given a return with papers keeping the settled token, when route/depart names the UK route flown before, then the flight alone is paid and the character is in the UK on the settled status, the token used and the route as it was", () => {
+  test("[return:papers-return-keeps-status] given a return with papers keeping the settled token, when route/depart names the UK route flown before, then the flight alone is paid and the character is in the UK on the settled status, the token used and the route as it was", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
     comeHome(game);
@@ -586,7 +586,7 @@ describe("the token kept abroad", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-RETURN-004] [R-STATUS-007] given the settled token and the UK study route granted, when that route is flown, then the arrival keeps the settled status, the token used, and the route departs as any granted route does", () => {
+  test("[return:papers-return-keeps-status] [status:lawful-months-reach-settlement] given the settled token and the UK study route granted, when that route is flown, then the arrival keeps the settled status, the token used, and the route departs as any granted route does", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
@@ -601,7 +601,7 @@ describe("the token kept abroad", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
-  test("[R-PLACE-002] [R-ROUTE-020] given the UK study route granted and the character already abroad, when route/depart names it, then it is not legal: no flight leaves from abroad", () => {
+  test("[place:departure-moves-abroad] [route:departure-pays-flight] given the UK study route granted and the character already abroad, when route/depart names it, then it is not legal: no flight leaves from abroad", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
@@ -610,7 +610,7 @@ describe("the token kept abroad", () => {
     game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
-  test("[R-RETURN-004] [R-STATUS-007] given the settled status held five months and kept on a return with papers, when a route into the UK is flown, then the status carries on with its five months held and its lawful months, so the months to citizenship do not start again", () => {
+  test("[return:papers-return-keeps-status] [status:lawful-months-reach-settlement] given the settled status held five months and kept on a return with papers, when a route into the UK is flown, then the status carries on with its five months held and its lawful months, so the months to citizenship do not start again", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
     playMonths(game, 5);
@@ -623,7 +623,7 @@ describe("the token kept abroad", () => {
     expect(game.state.status.current).toMatchObject({ entry: SETTLED, monthsHeld: held?.monthsHeld, lawfulMonths: held?.lawfulMonths });
   });
 
-  test("[R-RETURN-004] [R-STATUS-007] given the settled status held three months and kept, and the UK study route granted, when that route is flown, then the status carries on with its three months held", () => {
+  test("[return:papers-return-keeps-status] [status:lawful-months-reach-settlement] given the settled status held three months and kept, and the UK study route granted, when that route is flown, then the status carries on with its three months held", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }, { type: "status/grant", status: SETTLED }]);
@@ -635,7 +635,7 @@ describe("the token kept abroad", () => {
     expect(game.state.status.current).toMatchObject({ entry: SETTLED, monthsHeld: 3 });
   });
 
-  test("[R-RETURN-004] given the settled token, when route/depart names a route into Canada, then it is not legal; after a return by choice with no token, the UK route flown before is not legal either", () => {
+  test("[return:papers-return-keeps-status] given the settled token, when route/depart names a route into Canada, then it is not legal; after a return by choice with no token, the UK route flown before is not legal either", () => {
     const settled = flown(content);
     applyEffects(settled, [{ type: "status/grant", status: SETTLED }]);
     comeHome(settled);
@@ -648,7 +648,7 @@ describe("the token kept abroad", () => {
     student.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
-  test("[R-RETURN-004] given a Canadian resident's token, when 23 and then 24 months pass at home, then it is kept and then lapses", () => {
+  test("[return:papers-return-keeps-status] given a Canadian resident's token, when 23 and then 24 months pass at home, then it is kept and then lapses", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: RESIDENT }]);
     leave(game, 1000000000, 0);
@@ -666,7 +666,7 @@ describe("the token kept abroad", () => {
 });
 
 describe("December abroad", () => {
-  test("[R-RETURN-005] given the December tick and a character abroad, when the month ends, then the December set piece opens with no route; at home, or out of December, it does not", () => {
+  test("[return:december-visit-set-piece] given the December tick and a character abroad, when the month ends, then the December set piece opens with no route; at home, or out of December, it does not", () => {
     const december = flown(content, { vars: () => ({ "var.season-december": 1 }) });
     december.endTurn();
     expect(december.state.setpiece.open).toMatchObject({ entry: DECEMBER_SETPIECE, route: null });
@@ -680,7 +680,7 @@ describe("December abroad", () => {
 });
 
 describe("requirements", () => {
-  test("[R-PLACE-009] given a character abroad two months and then home after a return, when place/is, place/returned and place/months-here are judged, then each reads the place as it is", () => {
+  test("[place:view-shows-place-and-returns] given a character abroad two months and then home after a return, when place/is, place/returned and place/months-here are judged, then each reads the place as it is", () => {
     const game = flown(content);
     const judge = (requirement: Parameters<typeof check>[1]) => check(readOf(game), requirement).met;
     expect(judge({ type: "place/is", where: "abroad" })).toBe(true);
@@ -699,7 +699,7 @@ describe("requirements", () => {
 });
 
 describe("the place kind's words", () => {
-  test("[R-ENGINE-014] given every line the place kind gives, when the words are looked up, then each has words naming only figures its line carries", () => {
+  test("[engine:content-checked-before-play] given every line the place kind gives, when the words are looked up, then each has words naming only figures its line carries", () => {
     const params: Record<string, string[]> = {
       "line.place.arrived": ["country"],
       "line.place.on-road": [],

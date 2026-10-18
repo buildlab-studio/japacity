@@ -8,13 +8,13 @@ import type { Content, ForeignCurrency, Id } from "../engine/types";
 import type { WorldStream } from "./schedule";
 import { FOREIGN } from "../wallet/wallet.rates";
 
-/** Dirhams for one dollar, in basis points of a dirham per cent: the peg of 3.6725 (R-ABROAD-001). */
+/** Dirhams for one dollar, in basis points of a dirham per cent: the peg of 3.6725 (abroad-money:foreign-currencies-join-wallet). */
 const PEG_PER_DOLLAR = 36725;
 
-/** The story whose coming into force floats the naira (R-RATE-004). */
+/** The story whose coming into force floats the naira (rate:float-jumps-official-rate). */
 export const FLOAT_STORY: Id<"news"> = "news.naira-float";
 
-/** How freely the banks have foreign currency. Its distance below 100 drives the premium (R-RATE-003). */
+/** How freely the banks have foreign currency. Its distance below 100 drives the premium (rate:street-premium-tracks-target). */
 export const SUPPLY: Id<"var"> = "var.fx-supply";
 const FULL_SUPPLY = 100;
 
@@ -64,18 +64,18 @@ export function stepRates(before: RateBook, draws: Partial<Record<WorldStream, n
   let premiumBp = Math.max(rate.premiumFloorBp, before.premiumBp + thirdTowardZero(target - before.premiumBp) + premiumNoise);
   for (const currency of FOREIGN) {
     if (floats) {
-      // R-RATE-004: the street rate stays where it was and the official rate jumps to meet it.
+      // rate:float-jumps-official-rate: the street rate stays where it was and the official rate jumps to meet it.
       // "Where it was" is the street rate of the tick before, so the street
       // rate skips that tick's drift and noise; the official rate is that over 1.03, rounded down.
       official[currency] = Math.max(1, mulDiv(street[currency], BP_WHOLE, BP_WHOLE + rate.floatPremiumBp));
     } else {
-      // Whole and above zero (R-RATE-005), whatever the factor.
+      // Whole and above zero (rate:street-never-below-official), whatever the factor.
       official[currency] = Math.max(1, mulDiv(official[currency], factor, BP_WHOLE));
       street[currency] = streetOf(official[currency], premiumBp);
     }
   }
   if (floats) premiumBp = rate.floatPremiumBp;
-  // R-ABROAD-001: the peg holds the dirham to the dollar after the tick's move; tick 0 keeps the start values (R-RATE-002).
+  // abroad-money:foreign-currencies-join-wallet: the peg holds the dirham to the dollar after the tick's move; tick 0 keeps the start values (rate:official-rates-drift-together).
   official.AED = Math.max(1, mulDiv(official.USD, BP_WHOLE, PEG_PER_DOLLAR));
   street.AED = floats ? Math.max(street.AED, official.AED) : streetOf(official.AED, premiumBp);
   return { official, street, premiumBp };

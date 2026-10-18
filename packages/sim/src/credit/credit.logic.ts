@@ -43,7 +43,7 @@ function fileCountry(read: ReadCtx): Id<"country"> | null {
 }
 
 /**
- * R-CREDIT-001: true from a second arrival in a country until its first month
+ * credit:file-starts-at-zero-abroad: true from a second arrival in a country until its first month
  * there begins, when the spend phase takes the penalty off the stored file.
  */
 function penaltyPending(read: ReadCtx, country: Id<"country">): boolean {
@@ -75,13 +75,13 @@ function creditMark(read: ReadCtx): number {
   return currentFile(read)?.mark ?? 0;
 }
 
-/** R-CREDIT-006: a judgment stands until the month it clears. */
+/** credit:judgment-blocks-credit: a judgment stands until the month it clears. */
 function judgmentStands(read: ReadCtx, file: CreditFile): boolean {
   return file.judgmentUntil !== null && read.state.turn.month < file.judgmentUntil;
 }
 
 /**
- * R-CREDIT-005: the monthly rate an entry offers this file. The first rung of
+ * credit:rate-follows-credit-ladder: the monthly rate an entry offers this file. The first rung of
  * `rateByCredit` whose `min` the mark reaches gives it; an entry with no ladder
  * has its own rate; null when the mark reaches no rung, so it is not offered.
  */
@@ -91,7 +91,7 @@ export function rateFor(read: ReadCtx, entry: ObligationEntry): number | null {
   return entry.rateByCredit.find((rung) => mark >= rung.min)?.rateBp ?? null;
 }
 
-/** R-CREDIT-004 with R-CREDIT-006. */
+/** credit:approval-reads-the-mark with credit:judgment-blocks-credit. */
 function judgeMin(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "credit/min") throw new Error(`credit/min cannot judge ${requirement.type}.`);
   const file = currentFile(read);
@@ -112,7 +112,7 @@ function stored(state: State, country: Id<"country">): CreditFile {
   return state.credit.byCountry[country] ?? EMPTY;
 }
 
-/** R-CREDIT-002: the mark moves by the amount asked and never leaves 0 to 100. */
+/** credit:payments-move-the-mark: the mark moves by the amount asked and never leaves 0 to 100. */
 function mark(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "credit/mark") throw new Error(`credit/mark cannot carry out ${effect.type}.`);
   const country = fileCountry(ctx);
@@ -122,7 +122,7 @@ function mark(ctx: Ctx, effect: Effect): BaseEvent[] {
   return record(ctx, [{ type: "credit/marked", country, asked: effect.amount, points, month: ctx.state.turn.month }]);
 }
 
-/** R-CREDIT-006: a judgment for the months the tuning gives, from this month. */
+/** credit:judgment-blocks-credit: a judgment for the months the tuning gives, from this month. */
 function judgment(ctx: Ctx, effect: Effect): BaseEvent[] {
   if (effect.type !== "credit/judgment") throw new Error(`credit/judgment cannot carry out ${effect.type}.`);
   const country = fileCountry(ctx);
@@ -130,7 +130,7 @@ function judgment(ctx: Ctx, effect: Effect): BaseEvent[] {
   return record(ctx, [{ type: "credit/judged", country, until: ctx.state.turn.month + ctx.content.tuning.credit.judgmentMonths }]);
 }
 
-/** R-CREDIT-001: the first month of a second stay takes the penalty off the kept file. */
+/** credit:file-starts-at-zero-abroad: the first month of a second stay takes the penalty off the kept file. */
 function spend(ctx: Ctx): BaseEvent[] {
   const { place, turn } = ctx.state;
   if (place.where !== "abroad" || place.country === null || turn.month !== place.movedMonth + 1) return [];
@@ -142,7 +142,7 @@ function spend(ctx: Ctx): BaseEvent[] {
 }
 
 /**
- * R-CREDIT-003. A clean year is counted from the later of the arrival
+ * credit:clean-mark-drifts-up. A clean year is counted from the later of the arrival
  * and the last miss, so a new file earns nothing but its payments in its first
  * year, which is the page's pace of 6 a month for rent and phone.
  */
@@ -222,7 +222,7 @@ function countryOwned(content: Content): Map<Id<"obligation">, Id<"country">> {
   return owned;
 }
 
-/** R-CREDIT-007: what each abroad entry that needs credit asks for, where the character is. */
+/** credit:view-shows-credit-file: what each abroad entry that needs credit asks for, where the character is. */
 function creditNeeds(read: ReadCtx): { id: Id<"obligation">; creditMin: number }[] {
   const owned = countryOwned(read.content);
   const here = read.state.place.country;
