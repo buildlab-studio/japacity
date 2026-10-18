@@ -2,7 +2,7 @@
 // R-SERVER-039). It keeps what it is given as Cloudflare does: a reply with
 // `set-cookie`, or one whose cache-control does not allow keeping it, is not
 // kept. It counts each ask, so a test can say how often the cache was used.
-import type { EdgeCache } from "./edge";
+import type { EdgeCache } from "./cache";
 
 interface Held {
   body: ArrayBuffer;

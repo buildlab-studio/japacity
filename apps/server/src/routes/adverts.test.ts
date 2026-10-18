@@ -17,8 +17,8 @@ import { tickPeriodMs, TICKS_CRON } from "../jobs/ticks";
 import { tickRow } from "../world/ticks";
 import { adminAdvertRoutes } from "./admin-adverts";
 import { ADVERT_KEPT_MS, advertRoutes, advertsOnByDefault } from "./adverts";
-import { edgeKey } from "./edge";
-import { fakeEdge } from "./edge.testing";
+import { edgeKey } from "./cache";
+import { fakeEdge } from "./cache.testing";
 
 const ADMIN = "account.owner";
 const EPOCH = productionConfig.clock.epoch;

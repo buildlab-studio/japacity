@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { describe, expect, test } from "vitest";
 
 import { harness, makeJar, SITE } from "../auth/testing";
-import { moderationAdminRoutes } from "../routes/moderation-admin";
+import { adminModerationRoutes } from "../routes/admin-moderation";
 import { authIdentities, emailIdentity, isBanned } from "./identities";
 import { memoryReportQueue } from "./reports";
 import { report } from "./testing";
@@ -17,7 +17,7 @@ describe("a ban through the sign-in library", () => {
     for (const row of h.tables.session) if (row["userId"] === admin.account) row["signedInWith"] = "passkey";
     const identities = authIdentities(h.auth);
     const queue = memoryReportQueue({ reports: [report("report.1", { subject: { account: player.account } })] });
-    const routes = new Hono().route("/", moderationAdminRoutes(h.deps, { reports: queue, identities }));
+    const routes = new Hono().route("/", adminModerationRoutes(h.deps, { reports: queue, identities }));
     expect(await identities.of(player.account)).toContain(emailIdentity("player@example.test"));
     expect(await identities.of("account.nobody")).toEqual([]);
     expect((await h.call("/api/account", { jar: player.jar })).status).toBe(200);

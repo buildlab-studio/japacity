@@ -64,7 +64,7 @@ export type AlarmsReply = { ok: true; alarms: Alarm[] } | AdminRefusal;
 export type RejectionsReply = { ok: true; counts: Record<string, number> } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/moderation-admin.ts (R-MODERATION-010 to 016)
+// apps/server/src/routes/admin-moderation.ts (R-MODERATION-010 to 016)
 // ---------------------------------------------------------------------------
 
 /** apps/server/src/moderation/reports.ts REPORT_REASONS: also the reasons an admin action is logged with. */

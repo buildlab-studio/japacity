@@ -13,8 +13,8 @@ import { closesTickOf } from "../draw/draw";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
 import type { ServerRejection } from "../types";
-import type { EdgeCache } from "./edge";
-import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdgeIfAny } from "./edge";
+import type { EdgeCache } from "./cache";
+import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdgeIfAny } from "./cache";
 
 /**
  * The draw page's data. Before the close: the fingerprint, the beacon round,

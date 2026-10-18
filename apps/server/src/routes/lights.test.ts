@@ -12,7 +12,7 @@ import { LIGHTS_COUNTERS, LIVES_PLAYING, lightsOf, livesPlaying, roundToTen } fr
 import { livesJob } from "../jobs/lives";
 import { memoryLimiters } from "../limits/memory";
 import type { ServerRejection } from "../types";
-import { fakeEdge } from "./edge.testing";
+import { fakeEdge } from "./cache.testing";
 import type { LightsReply } from "./lights";
 
 const { epoch } = productionConfig.clock;

@@ -6,13 +6,13 @@ import type { LotteryResult, PlayerView } from "@japacity/sim";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { abroadView, engineView, richAbroadView, richView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
-import { newsSource } from "../../shared/ui/NewsSource";
-import { formatMoney } from "../../shared/words/format";
-import { blurbOf, inMonths, monthsAgo, nameOf, say } from "../../shared/words/text";
-import { drawnWords, News } from "./apps/News";
-import { phoneWords } from "./phone.words";
+import { abroadView, engineView, richAbroadView, richView } from "../../../shared/testing/fixtures";
+import { renderWithView } from "../../../shared/testing/render";
+import { newsSource } from "../../../shared/ui/NewsSource";
+import { formatMoney } from "../../../shared/words/format";
+import { blurbOf, inMonths, monthsAgo, nameOf, say } from "../../../shared/words/text";
+import { drawnWords, News } from "./News";
+import { phoneWords } from "../phone.words";
 
 const RESULT: LotteryResult = {
   draw: 6,

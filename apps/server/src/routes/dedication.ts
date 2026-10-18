@@ -21,8 +21,8 @@ import { newId } from "../moderation/decide";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import type { ServerRejection } from "../types";
-import type { EdgeCache } from "./edge";
-import { edgeCache, edgeKey, forgetKept, JSON_TYPE, throughEdge } from "./edge";
+import type { EdgeCache } from "./cache";
+import { edgeCache, edgeKey, forgetKept, JSON_TYPE, throughEdge } from "./cache";
 
 export const DEDICATION_LIGHTS_PATH = "/api/dedication/lights";
 export const DEDICATION_LIGHT_PATH = "/api/dedication/light";

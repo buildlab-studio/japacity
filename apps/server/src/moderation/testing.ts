@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import { testDeps } from "../app.test";
 import { testConfig } from "../config";
 import { testSession, type ServerDeps } from "../deps";
-import { moderationAdminRoutes } from "../routes/moderation-admin";
+import { adminModerationRoutes } from "../routes/admin-moderation";
 import type { Identities } from "./identities";
 import { memoryReportQueue, type Hold, type Report } from "./reports";
 
@@ -72,7 +72,7 @@ export function moderationHarness(seed: { reports?: Report[]; holds?: Hold[]; me
   const deps = testDeps({ config, session: testSession(config), now: () => now });
   const queue = memoryReportQueue(seed);
   const identities = fakeIdentities(seed.identities);
-  const app = new Hono().route("/", moderationAdminRoutes(deps, { reports: queue, identities }));
+  const app = new Hono().route("/", adminModerationRoutes(deps, { reports: queue, identities }));
   return {
     deps,
     queue,

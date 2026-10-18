@@ -18,7 +18,7 @@ import { DEDICATION_LOG_REASON } from "../moderation/reports";
 import type { ServerRejection } from "../types";
 import { adminOnly, type AdminEnv } from "./admin";
 import { forgetSharedLights, type LightYears } from "./dedication";
-import { edgeCache, type EdgeCache } from "./edge";
+import { edgeCache, type EdgeCache } from "./cache";
 
 export const DEDICATION_PENDING_PATH = "/api/admin/dedication/pending";
 

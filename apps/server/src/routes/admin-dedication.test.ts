@@ -9,7 +9,7 @@ import { TEST_SIGNED_IN_WITH } from "../deps";
 import { LOG_REASONS, REPORT_REASONS } from "../moderation/reports";
 import { adminDedicationRoutes, DEDICATION_PENDING_PATH, type PendingLight } from "./admin-dedication";
 import { DEDICATION_LIGHTS_PATH, type DedicationReply } from "./dedication";
-import { fakeEdge } from "./edge.testing";
+import { fakeEdge } from "./cache.testing";
 
 const { epoch } = productionConfig.clock;
 const ADMIN = "account.admin";

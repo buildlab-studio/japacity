@@ -17,8 +17,8 @@ import type { AdvertsReply } from "../adverts/serve";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
-import type { EdgeCache } from "./edge";
-import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge, throughEdgeIfAny } from "./edge";
+import type { EdgeCache } from "./cache";
+import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge, throughEdgeIfAny } from "./cache";
 
 /** Whether the `adverts` switch is on. */
 export type AdvertsOn = () => Promise<boolean>;

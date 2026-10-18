@@ -50,7 +50,7 @@ async function bodyOf(request: { json: () => Promise<unknown> }): Promise<Record
   return typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
 }
 
-export function switchRoutes(deps: ServerDeps): Hono {
+export function adminSwitchRoutes(deps: ServerDeps): Hono {
   const app = new Hono();
   app.route("/", switchGates(deps));
 
