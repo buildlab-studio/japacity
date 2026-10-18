@@ -6,7 +6,7 @@
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
-import { openingPlace } from "../features/city/staging";
+import { openingPlace } from "../shared/scene/staging";
 
 import { deviceRandom, type RandomBelow } from "../shared/net/random";
 import { browserSocket, nudgeSocket, type NudgeSocket, type OpenSocket } from "../shared/net/socket";

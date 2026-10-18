@@ -3,7 +3,7 @@
 // the player set it down in buy mode, which is the room's own arrangement kept beside the save (shared/world/arranged).
 // What is owned is the simulation's; where it stands is the room's. Pure: the city reads it as it reads the plan's shows.
 import type { Thing } from "../../shared/world/contract";
-import { type OwnedSpot, type PlaceFile, type Spot, stageOf } from "./placeFile";
+import { type OwnedSpot, type PlaceFile, type Spot, stageOf } from "../../shared/scene/placeFile";
 
 /** The homes where the player arranges what is theirs: a home of their own, never the family house, a street or an office. */
 const ARRANGED_HOMES: ReadonlySet<string> = new Set(["place.compound-room", "place.hostel-room", "place.makoko", "place.the-room"]);

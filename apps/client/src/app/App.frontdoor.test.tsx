@@ -18,7 +18,7 @@ import { countInto } from "../shared/analytics/start";
 import { makeCounters } from "../shared/analytics/counters";
 import { say, words } from "../shared/words/text";
 import { ownFile } from "../features/city/City";
-import { ROSTER } from "../features/city/roster";
+import { ROSTER } from "../shared/scene/roster";
 import { ownLook } from "../features/map/Ride";
 import { ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY, opensChips, savingsOf } from "../shared/frontdoor/archetypes";
 import { formatMoney } from "../shared/words/format";

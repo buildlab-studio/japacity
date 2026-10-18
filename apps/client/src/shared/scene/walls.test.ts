@@ -5,7 +5,6 @@ import { fullSides, quarterOf, WALL_SIDES, wallNode, wallOf, wallPairs, type Wal
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Vector2, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
-import { quarterTurns, snapTilt, snapTurn, turnToward } from "./shot";
 import { showWalls, WALL_SLACK, wallsOf, wallsQuarter } from "./walls";
 
 /** Each side's outward way in the place's frame (x, z): the back at -z, the left at -x, the front at +z, the right at +x. */
@@ -124,28 +123,5 @@ describe("the walls' pairs", () => {
     expect(hits[0]).toBe("wall_back_full");
     showWalls(walls, 0);
     expect(ray.intersectObject(root, true)[0]?.object.name).toBe("wall_front_full");
-  });
-});
-
-describe("the turn's snap", () => {
-  test("[R-WORLD-009] given a wide home's turn released anywhere, when it comes to rest, then it is the nearest quarter and nowhere between; the button eases the short way to a kept quarter", () => {
-    expect(snapTurn(0)).toBe(0);
-    expect(snapTurn(44)).toBe(0);
-    expect(snapTurn(46)).toBe(90);
-    expect(snapTurn(-46)).toBe(-90);
-    expect(snapTurn(400)).toBe(360);
-    expect(quarterTurns(-90)).toBe(3);
-    expect(quarterTurns(450)).toBe(1);
-    // From a view at 270 (three quarters), the kept quarter 0 is a quarter on, not three back.
-    expect(turnToward(270, 0)).toBe(360);
-    expect(turnToward(0, 3)).toBe(-90);
-    expect(turnToward(90, 2)).toBe(180);
-  });
-
-  test("[R-WORLD-009] given the tilt released anywhere, when it comes to rest, then it is the normal view or the view from above, never between", () => {
-    expect(snapTilt(0.2)).toBe(0);
-    expect(snapTilt(0.49)).toBe(0);
-    expect(snapTilt(0.5)).toBe(1);
-    expect(snapTilt(0.9)).toBe(1);
   });
 });

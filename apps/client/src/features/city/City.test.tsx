@@ -12,8 +12,8 @@ import { assetUrl, PUBLISHED, type PublishManifest } from "../../shared/three/ma
 import { City } from "./City";
 import { cityWords } from "./city.words";
 import { CreditsList, CreditsRow, type CreditsFile } from "./Credits";
-import { localDate, poolOf, sampleCrowd } from "./crowd";
-import { filesOf, type PlaceFile } from "./placeFile";
+import { localDate, poolOf, sampleCrowd } from "../../shared/scene/crowd";
+import { filesOf, type PlaceFile } from "../../shared/scene/placeFile";
 
 const PUBLIC = join(import.meta.dirname, "..", "..", "..", "public");
 const manifest = JSON.parse(readFileSync(join(PUBLIC, "assets", "manifest.json"), "utf8")) as PublishManifest;

@@ -10,7 +10,7 @@ import villageRaw from "../../../../public/assets/places/computer-village/place.
 import { engineView } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
 import { withPlanned } from "../acts";
-import { type PlaceFile, stageOf } from "../placeFile";
+import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { anchorFan } from "./anchor";
 import { Fan } from "./Fan";
 import { type FanEntry, fanEntriesOf, fanModel } from "./fanActs";

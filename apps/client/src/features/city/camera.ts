@@ -3,7 +3,7 @@
 // than it is wide the camera stands to one side, so the character's back is not in the middle of
 // the street the player is looking at. The world's camera is the place's raised shot (shot.ts); this
 // one serves the city behind the panels and, in the world, only `tuning.city.roam` (world.md R-WORLD-009).
-import type { Walker } from "./walk";
+import type { Walker } from "../../shared/scene/walk";
 
 export type Point = [number, number, number];
 

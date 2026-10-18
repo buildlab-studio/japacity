@@ -84,7 +84,7 @@ async function stateOfAccount(deps: ServerDeps, account: string) {
   }
 }
 
-/** Where a life opens when no content place is its hub: the client's own fallbacks (`features/city/staging.ts`). */
+/** Where a life opens when no content place is its hub: the client's own fallbacks (`shared/scene/staging.ts`). */
 const NO_HUB: Record<Where, Id<"place">> = {
   home: "place.family-house",
   abroad: "place.the-room",

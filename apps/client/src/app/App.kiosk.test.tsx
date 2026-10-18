@@ -17,7 +17,7 @@ import { formatMoney } from "../shared/words/format";
 import { say } from "../shared/words/text";
 import { City } from "../features/city/City";
 import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "../features/city/kiosk";
-import { stageOf, type PlaceFile } from "../features/city/placeFile";
+import { stageOf, type PlaceFile } from "../shared/scene/placeFile";
 import { stagedNow, thingsNow, thingsOf } from "../features/city/things";
 import { KioskSheet } from "../features/lottery/KioskSheet";
 import { drawOf, onlineLife, tuning } from "../features/lottery/lottery.testing";

@@ -5,10 +5,10 @@ import type { PlaceEntry } from "@japacity/sim";
 
 import type { PlaceInput } from "../../../../../../tools/assets/place-check.types";
 import { type MotionUniforms, motionUniforms } from "../../../shared/three/clock";
-import { hash, poolOf, type Shown, sampleCrowd } from "../crowd";
-import { type CityTuning, type ModeSettings, modeSettings } from "../mode";
-import type { PlaceFile, Stage } from "../placeFile";
-import { type Point, walkableOf } from "../walk/map";
+import { hash, poolOf, type Shown, sampleCrowd } from "../../../shared/scene/crowd";
+import { type CityTuning, type ModeSettings, modeSettings } from "../../../shared/scene/mode";
+import type { PlaceFile, Stage } from "../../../shared/scene/placeFile";
+import { type Point, walkableOf } from "../../../shared/scene/walk/map";
 
 export type CheckInput = PlaceInput<PlaceFile, PlaceEntry, CityTuning>;
 

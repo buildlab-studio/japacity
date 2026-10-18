@@ -14,7 +14,7 @@ import { anchorFan } from "./fan/anchor";
 import { Fan } from "./fan/Fan";
 import { fanEntriesOf } from "./fan/fanActs";
 import { standingAsThemselves, THEIR_ROOM } from "./meetings";
-import { dressPlace, type PlaceFile, stageOf } from "./placeFile";
+import { dressPlace, type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 
 vi.mock("./CityScene", () => ({
   default: ({ file, people, things, onPick }: { file: PlaceFile; people: unknown[]; things?: Thing[]; onPick: (pick: { kind: "thing"; thing: Thing }) => void }) => (

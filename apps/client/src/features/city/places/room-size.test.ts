@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 import { ROOMS } from "../../../../../../assets-src/bld/room/rooms";
 import { checkLimits, type LimitedFile, walkableSize } from "../../../../../../tools/assets/world-check";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
-import { type PlaceFile, stageOf } from "../placeFile";
+import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { measured, rowOf, totalsOf } from "./place.testing";
 
 const room = roomRaw as unknown as PlaceFile;

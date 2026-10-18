@@ -7,7 +7,7 @@ import { meetingThings, partnerMeetings, text, type PartnerMeeting } from "@japa
 import type { Id, PlayerView } from "@japacity/sim";
 
 import type { Ask, Thing } from "../../shared/world/contract";
-import type { PlaceFile, Stage } from "./placeFile";
+import type { PlaceFile, Stage } from "../../shared/scene/placeFile";
 
 export const COURT = "people/court";
 export const DECEMBER: Id<"var"> = "var.season-december";

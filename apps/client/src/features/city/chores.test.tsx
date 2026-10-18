@@ -11,7 +11,7 @@ import { answersNow, nowActsIn } from "../../shared/words/acts";
 import { say } from "../../shared/words/text";
 import { actsOffered } from "./acts";
 import { doActLine, plainActLine, plannedMarks } from "./actLines";
-import { type PlaceFile, showPlanned, stageOf } from "./placeFile";
+import { type PlaceFile, showPlanned, stageOf } from "../../shared/scene/placeFile";
 import { thingsOf } from "./things";
 
 const COOK = "activity.cook-at-home";

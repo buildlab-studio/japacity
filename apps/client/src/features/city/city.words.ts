@@ -4,8 +4,8 @@
 import { text } from "@japacity/content";
 
 import { hasWords, nameOf, runningName, words } from "../../shared/words/text";
-import { hash } from "./crowd";
-import type { Role } from "./roster";
+import { hash } from "../../shared/scene/crowd";
+import type { Role } from "../../shared/scene/roster";
 
 export const cityText: Record<string, string> = {
   "city.menu": "City",

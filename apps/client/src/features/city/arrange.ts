@@ -4,7 +4,7 @@
 // to a thing. A spot that does not fit shakes the thing back. Pure: the scene asks it as the finger lifts.
 import { type Footprint, inPolygon, type PlacedBox, placeFootprint } from "@japacity/assets";
 
-import type { Spot, Stage } from "./placeFile";
+import type { Spot, Stage } from "../../shared/scene/placeFile";
 
 /** How far a thing keeps from the door's spot, a person's spot and the spot a thing is walked to, in metres. */
 const KEEP_CLEAR = 0.2;

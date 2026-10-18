@@ -9,10 +9,10 @@ import { expect, test } from "vitest";
 import budgets from "../../../../../../assets-src/budgets.json";
 import register from "../../../../../../assets-src/register.json";
 import { placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/assets-check";
-import { crowdSize } from "../crowd";
-import type { Spot } from "../placeFile";
-import { personOfLook } from "../roster";
-import { stagedAt } from "../staging";
+import { crowdSize } from "../../../shared/scene/crowd";
+import type { Spot } from "../../../shared/scene/placeFile";
+import { personOfLook } from "../../../shared/scene/roster";
+import { stagedAt } from "../../../shared/scene/staging";
 import { city, measuredFiles, staged } from "./place.testing";
 
 const PLACES = Object.values(content.place);

@@ -1,6 +1,6 @@
 // The limits of a place in the world-first design (docs/rules/world.md R-WORLD-011): a place is one
 // screen, its crowd small and its moving sheets few. The client applies the same numbers when it
-// builds a place (features/city/limits.ts), so a file that passes here draws as checked. Pure.
+// builds a place (shared/scene/limits.ts), so a file that passes here draws as checked. Pure.
 
 /** R-WORLD-011's numbers. */
 export const WORLD_LIMITS = {

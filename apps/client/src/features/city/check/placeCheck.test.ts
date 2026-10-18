@@ -4,8 +4,8 @@ import { describe, expect, test } from "vitest";
 import hubFile from "../../../../public/assets/places/ojuelegba/place.json";
 import makokoFile from "../../../../public/assets/places/makoko/place.json";
 import { advanceClock, type MotionUniforms } from "../../../shared/three/clock";
-import { crowdSize } from "../crowd";
-import type { PlaceFile } from "../placeFile";
+import { crowdSize } from "../../../shared/scene/crowd";
+import type { PlaceFile } from "../../../shared/scene/placeFile";
 import { CHECK_CLOCK, type CheckInput, runOf, startClock, tapsOf } from "./placeCheck";
 
 const hub = content.place["place.ojuelegba"];

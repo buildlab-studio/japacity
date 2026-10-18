@@ -10,7 +10,7 @@ import familyFile from "../../../public/assets/places/home-family-house/place.js
 import { richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { City, dressedBy, partyThrown } from "./City";
-import { dressPlace, type PlaceFile, stageOf } from "./placeFile";
+import { dressPlace, type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 
 const SEND_OFF = "offer.family-send-off";
 const taken = (choice: string): ReportLine => ({ key: "line.offer.taken", params: { offer: SEND_OFF, choice }, tone: "plain", attention: false, counts: [] });

@@ -5,7 +5,7 @@ import type { DayPart } from "@japacity/sim";
 
 import { MAX_ACTS } from "../../../../../tools/assets/world-check";
 import type { Act, Thing } from "../../shared/world/contract";
-import type { Stage } from "./placeFile";
+import type { Stage } from "../../shared/scene/placeFile";
 
 /** No thing offers more than two acts; a third goes on a sheet (the place check's number). */
 export { MAX_ACTS };

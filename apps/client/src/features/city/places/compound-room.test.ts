@@ -11,9 +11,9 @@ import raw from "../../../../public/assets/places/home-room-house/place.json";
 import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { aimRoom, shotOf } from "../shot";
-import { type PlaceFile, stageOf } from "../placeFile";
+import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
-import { byHandAt, homeStagesAt } from "../staging";
+import { byHandAt, homeStagesAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../things";
 
 const ID = "place.compound-room";

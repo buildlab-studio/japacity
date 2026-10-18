@@ -3,7 +3,7 @@
 // the scene feeds in the view and the screen's shape and reads back where to stand.
 import type { Shot } from "../../shared/world/contract";
 import type { Point } from "./camera";
-import type { Room, Stage } from "./placeFile";
+import type { Room, Stage } from "../../shared/scene/placeFile";
 import { thingSpot, thingsOf } from "./things";
 
 /** The lens, in degrees from the top of the screen to the bottom. */

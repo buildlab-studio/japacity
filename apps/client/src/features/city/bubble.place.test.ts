@@ -8,11 +8,12 @@ import { bubbleRect, bubbleSpot, LIFT_MAX, overlap, type Rect, TAIL, TAIL_MAX } 
 import { dotRect, HEAD_CHIN, HEAD_TOP, headRect, LABEL_Y, type LabelBox, layNames, MARK_HIT, NAME_LIFT_MAX } from "./labels";
 import { isPerson } from "./mark";
 import { sceneWords } from "./scene.words";
-import { stageOf } from "./placeFile";
-import { builtPlaces, cameraAt, projected } from "./scene.testing";
+import { stageOf } from "../../shared/scene/placeFile";
+import { builtPlaces } from "../../shared/scene/placeFile.testing";
+import { cameraAt, projected } from "./scene.testing";
 import { aimRoom, aimShot, shotOf } from "./shot";
 import { thingSpot, thingsOf } from "./things";
-import { standAt } from "./walk";
+import { standAt } from "../../shared/scene/walk";
 
 /** Pixel 7 as the catalog shoots it, and the band with its second row over the world. */
 const SIZE = { width: 412, height: 839 };

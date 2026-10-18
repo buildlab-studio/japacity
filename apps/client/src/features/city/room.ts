@@ -3,7 +3,7 @@
 // other with its own things and shot. Until every door names its interior, the room is cut from
 // the place's own file around the building; `roomOf` goes when every door names its room.
 import type { Thing } from "../../shared/world/contract";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { depthDistance } from "./shot";
 
 /** The model whose building the player steps into when the place names no room of its own. */

@@ -16,7 +16,7 @@ import tejuoshoRaw from "../../../../public/assets/places/tejuosho-front/place.j
 import visaRaw from "../../../../public/assets/places/visa-centre/place.json";
 import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
 import { lightKindOf } from "../daylight";
-import { type PlaceFile, stageOf } from "../placeFile";
+import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 
 const PLACES: [string, unknown][] = [
   ["yaba-hub", hubRaw],

@@ -13,7 +13,7 @@ import { fanEntriesOf, fanModel } from "./fan/fanActs";
 import { withMeetings } from "./meetings";
 import { sceneWords } from "./scene.words";
 import { isPerson, markNode, namedThings, showMark } from "./mark";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 
 const things = stageOf(parlourRaw as unknown as PlaceFile).things ?? [];
 

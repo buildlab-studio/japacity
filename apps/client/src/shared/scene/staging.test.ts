@@ -2,8 +2,7 @@ import { content } from "@japacity/content";
 import type { Id, PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { abroadView, engineView, richView } from "../../shared/testing/fixtures";
-import { heardHere, overheard, placeLines } from "./overheard";
+import { abroadView, engineView, richView } from "../testing/fixtures";
 import { byHandAt, enterable, offersHere, openingPlace, openScene, reportHere, roomSpot, servesHere, stagedAt } from "./staging";
 import { ARRIVED, standAt, stepWalk, WALK_SPEED, walkTo } from "./walk";
 
@@ -111,28 +110,6 @@ describe("staging", () => {
     const all = places.flatMap((place) => offersHere(view, place.id, places));
     expect(all.sort()).toEqual(view.offers.map((offer) => offer.entry).sort());
     for (const place of places) for (const entry of offersHere(view, place.id, places)) expect(typeof entry).toBe("string");
-  });
-});
-
-describe("talk overheard", () => {
-  test("[R-CITY-003] given routes unknown and news not delivered, when talk is overheard, then none of it names them", () => {
-    const view = engineView();
-    const unknown = view.routes.filter((route) => route.state === "unknown").map((route) => route.id);
-    expect(unknown.length).toBeGreaterThan(0);
-    const lines = heardHere(view, "place.ojuelegba");
-    expect(lines.filter((line) => unknown.includes(line.params.route as never))).toEqual([]);
-    expect(lines.filter((line) => line.key === "city.overheard.news")).toHaveLength(view.news.length);
-  });
-
-  test("[R-CITY-003] given a route heard and a story delivered, when talk is overheard over a day, then it may name them, and the place's own lines too", () => {
-    const view = abroadView();
-    const heard = view.routes.filter((route) => route.state !== "unknown").map((route) => route.id);
-    const lines = heardHere(view, "place.ojuelegba");
-    expect(lines.filter((line) => line.key === "city.overheard.route").map((line) => line.params.route)).toEqual(heard);
-    expect(lines.slice(0, placeLines("place.ojuelegba").length).every((line) => line.key.startsWith("place.ojuelegba.overheard."))).toBe(true);
-    const day = Array.from({ length: 40 }, (_, nth) => overheard(view, "place.ojuelegba", "2026-10-08", nth)?.key);
-    expect(new Set(day).size).toBeGreaterThan(1);
-    expect(overheard(view, "place.ojuelegba", "2026-10-08", 3)).toEqual(overheard(view, "place.ojuelegba", "2026-10-08", 3));
   });
 });
 

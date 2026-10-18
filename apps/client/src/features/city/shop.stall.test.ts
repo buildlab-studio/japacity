@@ -13,7 +13,7 @@ import { needsWords } from "../../shared/words/requirement";
 import { sixteenPath } from "../../shared/words/sixteen";
 import { blurbOf, say } from "../../shared/words/text";
 import { actsOffered } from "./acts";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "./things";
 
 const MARKET = "place.tejuosho-market";

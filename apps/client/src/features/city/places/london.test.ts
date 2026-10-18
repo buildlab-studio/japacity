@@ -18,10 +18,10 @@ import { abroadView, viewAfter, abroadGame } from "../../../shared/testing/fixtu
 import { inTurn, plainActLine } from "../actLines";
 import { cityWords } from "../city.words";
 import { heardHere } from "../overheard";
-import { stageOf, type PlaceFile } from "../placeFile";
+import { stageOf, type PlaceFile } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
 import { onShift, SHIFT_ACT, shiftMarks } from "../shift";
-import { stagedAt } from "../staging";
+import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow, thingSpot } from "../things";
 import { actEntries, frontageTests } from "./frontage.testing";
 import { staged } from "./place.testing";

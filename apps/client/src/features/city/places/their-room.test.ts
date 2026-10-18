@@ -17,14 +17,14 @@ import parlourRaw from "../../../../public/assets/places/home-family-house/place
 import placeFile from "../../../../public/assets/places/their-room/place.json";
 import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
 import { courted, linkedFriend, peopleGame, TOBI } from "../../../shared/testing/people";
-import { crowdSize } from "../crowd";
-import { crowdTuning } from "../limits";
+import { crowdSize } from "../../../shared/scene/crowd";
+import { crowdTuning } from "../../../shared/scene/limits";
 import { roomPartner, standingAsThemselves, withStanding } from "../meetings";
-import { dressPlace, type Dressing, filesOf, type PlaceFile, stageOf } from "../placeFile";
-import { personOfLook } from "../roster";
+import { dressPlace, type Dressing, filesOf, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
+import { personOfLook } from "../../../shared/scene/roster";
 import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow, thingsOf } from "../things";
-import { groundGeometry } from "../world";
+import { groundGeometry } from "../../../shared/scene/world";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
 

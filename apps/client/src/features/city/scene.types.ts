@@ -3,10 +3,10 @@
 import type { WorldClock } from "@japacity/sim";
 
 import type { Act, Picked as WorldPicked, Shot, Thing } from "../../shared/world/contract";
-import type { Shown } from "./crowd";
-import type { ModeSettings } from "./mode";
-import type { PlaceFile } from "./placeFile";
-import type { Walker } from "./walk";
+import type { Shown } from "../../shared/scene/crowd";
+import type { ModeSettings } from "../../shared/scene/mode";
+import type { PlaceFile } from "../../shared/scene/placeFile";
+import type { Walker } from "../../shared/scene/walk";
 
 /** What the screen makes of a tap: a person, a shopfront, a thing chosen, or what an act of a thing does. A tap on the player's own figure makes nothing (R-WORLD-005). */
 export type Picked =

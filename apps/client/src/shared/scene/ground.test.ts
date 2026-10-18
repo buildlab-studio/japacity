@@ -3,7 +3,7 @@ import type { Mesh, MeshLambertMaterial } from "three";
 
 import { checkFaces, FACE_GAP, stripTops } from "../../../../../tools/assets/faces-check";
 import { stageOf } from "./placeFile";
-import { builtPlaces } from "./scene.testing";
+import { builtPlaces } from "./placeFile.testing";
 import { groundGeometry, groundOf } from "./world";
 
 describe("faces at one height", () => {

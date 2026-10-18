@@ -7,11 +7,11 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import parlourFile from "../../../public/assets/places/home-family-house/place.json";
-import { type PlaceFile, stageOf } from "../../features/city/placeFile";
+import { type PlaceFile, stageOf } from "../scene/placeFile";
 import { cameraAt, projected } from "../../features/city/scene.testing";
 import { aimShot, roomShot, shotOf } from "../../features/city/shot";
 import { thingSpot, thingsOf } from "../../features/city/things";
-import { standAt } from "../../features/city/walk";
+import { standAt } from "../scene/walk";
 import { bubbleRect, bubbleSpot, Corner, CORNER_MAX, isLong, LIFT_MAX, linesNow, murmur, NEAR_SPEAKER, overlap, QUIET_MS, resetLines, speak, SPEECH_MS, SpeechBubble, TAIL, TAIL_MAX, tailPaths, TALK_EVERY_MS, JOIN_MS, tell, TOLD_MS, useStreetTalk, WORDS_MAX } from "./Lines";
 
 const MAMA = "You have eaten? Sit small.";

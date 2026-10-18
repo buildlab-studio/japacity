@@ -13,7 +13,7 @@ import ojuelegbaRaw from "../../../../public/assets/places/ojuelegba-front/place
 import tejuoshoRaw from "../../../../public/assets/places/tejuosho-front/place.json";
 import type { Act, Thing } from "../../../shared/world/contract";
 import { plainActLine } from "../actLines";
-import type { Stage } from "../placeFile";
+import type { Stage } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow } from "../things";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";

@@ -12,12 +12,12 @@ import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/
 import placeFile from "../../../../public/assets/places/inverter-room/place.json";
 import hubFile from "../../../../public/assets/places/yaba-hub/place.json";
 import { plainActLine } from "../actLines";
-import { crowdSize } from "../crowd";
-import { crowdTuning } from "../limits";
-import { personOfLook } from "../roster";
+import { crowdSize } from "../../../shared/scene/crowd";
+import { crowdTuning } from "../../../shared/scene/limits";
+import { personOfLook } from "../../../shared/scene/roster";
 import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow, thingsOf } from "../things";
-import { groundGeometry } from "../world";
+import { groundGeometry } from "../../../shared/scene/world";
 import { actEntries } from "./frontage.testing";
 import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
 

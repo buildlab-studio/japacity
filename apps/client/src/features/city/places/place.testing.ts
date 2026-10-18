@@ -9,8 +9,8 @@ import { expect } from "vitest";
 
 import budgets from "../../../../../../assets-src/budgets.json";
 import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/assets-check";
-import { crowdSize } from "../crowd";
-import { CAR_FILE, type PlaceFile, type Spot, type Stage } from "../placeFile";
+import { crowdSize } from "../../../shared/scene/crowd";
+import { CAR_FILE, type PlaceFile, type Spot, type Stage } from "../../../shared/scene/placeFile";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..", "..");
 const PUBLIC = join(ROOT, "apps", "client", "public", "assets");

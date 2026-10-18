@@ -6,7 +6,7 @@ import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { crowdSize, localDate, poolOf, sampleCrowd } from "./crowd";
 import { crowdTuning, limitMotion, sheetCost } from "./limits";
 import { dressPlace, type Motion, stageOf } from "./placeFile";
-import { builtPlaces } from "./scene.testing";
+import { builtPlaces } from "./placeFile.testing";
 
 const city = content.tuning.city;
 const SHEETS = new Set(["flag", "hang", "frond"]);

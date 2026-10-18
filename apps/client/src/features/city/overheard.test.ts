@@ -4,7 +4,7 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { abroadView, newGame } from "../../shared/testing/fixtures";
+import { abroadView, engineView, newGame } from "../../shared/testing/fixtures";
 import { cityText, heardWords } from "./city.words";
 import { heardHere, overheard, placeLines, speakerOf } from "./overheard";
 
@@ -123,5 +123,27 @@ describe("who says a line overheard", () => {
     expect(speakerOf({}, things, said)).toEqual({});
     // No Mama in the place: named, over the resident nearest.
     expect(speakerOf({ by: "place.family-house.overheard.2.by" }, [], said)).toEqual({ name: "Mama" });
+  });
+});
+
+describe("talk overheard", () => {
+  test("[R-CITY-003] given routes unknown and news not delivered, when talk is overheard, then none of it names them", () => {
+    const view = engineView();
+    const unknown = view.routes.filter((route) => route.state === "unknown").map((route) => route.id);
+    expect(unknown.length).toBeGreaterThan(0);
+    const lines = heardHere(view, "place.ojuelegba");
+    expect(lines.filter((line) => unknown.includes(line.params.route as never))).toEqual([]);
+    expect(lines.filter((line) => line.key === "city.overheard.news")).toHaveLength(view.news.length);
+  });
+
+  test("[R-CITY-003] given a route heard and a story delivered, when talk is overheard over a day, then it may name them, and the place's own lines too", () => {
+    const view = abroadView();
+    const heard = view.routes.filter((route) => route.state !== "unknown").map((route) => route.id);
+    const lines = heardHere(view, "place.ojuelegba");
+    expect(lines.filter((line) => line.key === "city.overheard.route").map((line) => line.params.route)).toEqual(heard);
+    expect(lines.slice(0, placeLines("place.ojuelegba").length).every((line) => line.key.startsWith("place.ojuelegba.overheard."))).toBe(true);
+    const day = Array.from({ length: 40 }, (_, nth) => overheard(view, "place.ojuelegba", "2026-10-08", nth)?.key);
+    expect(new Set(day).size).toBeGreaterThan(1);
+    expect(overheard(view, "place.ojuelegba", "2026-10-08", 3)).toEqual(overheard(view, "place.ojuelegba", "2026-10-08", 3));
   });
 });

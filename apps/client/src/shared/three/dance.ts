@@ -5,7 +5,7 @@
 import { poseRotations } from "@japacity/assets-src/people/poses";
 import type { Bone } from "three";
 
-import type { DanceName } from "../../features/city/placeFile";
+import type { DanceName } from "../scene/placeFile";
 import type { Figure } from "./people";
 
 /** Seconds a loop takes, as the prototype baked them. */

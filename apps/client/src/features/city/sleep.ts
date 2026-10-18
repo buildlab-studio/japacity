@@ -4,7 +4,7 @@ import type { DayPart, Id } from "@japacity/sim";
 
 import type { PlayerCommand } from "../../authority/store";
 import type { Act, Thing } from "../../shared/world/contract";
-import type { World } from "./world";
+import type { World } from "../../shared/scene/world";
 
 /** How long a sleep lasts before the month turns: long enough to choose to wake, short enough to wait out. */
 export const SLEEP_MS = 36_000;

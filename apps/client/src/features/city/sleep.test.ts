@@ -9,7 +9,7 @@ import makokoRaw from "../../../public/assets/places/makoko/place.json";
 import roomRaw from "../../../public/assets/places/the-room/place.json";
 import { say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { bedLie, NAP, othersSeen, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { thingsOf } from "./things";
 

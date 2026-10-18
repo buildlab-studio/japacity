@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { say } from "../../shared/words/text";
 
-import type { Role } from "./roster";
+import type { Role } from "../../shared/scene/roster";
 
 /** How long a pair of emotes stands before the next pair. */
 const EMOTE_MS = 6000;

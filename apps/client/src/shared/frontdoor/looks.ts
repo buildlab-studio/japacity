@@ -5,7 +5,7 @@
 import { nameMix, namePool, text } from "@japacity/content";
 import { drawName } from "@japacity/sim";
 
-import { ROSTER } from "../../features/city/roster";
+import { ROSTER } from "../scene/roster";
 
 export interface Look {
   /** The shipped person's name, `chr_ada`: what is kept beside the save. */

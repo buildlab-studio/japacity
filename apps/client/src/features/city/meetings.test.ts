@@ -17,10 +17,10 @@ import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared
 import { nameOf, say } from "../../shared/words/text";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { actsOffered } from "./acts";
-import { poolOf, sampleCrowd } from "./crowd";
-import { crowdTuning } from "./limits";
+import { poolOf, sampleCrowd } from "../../shared/scene/crowd";
+import { crowdTuning } from "../../shared/scene/limits";
 import { COURT, courtedTold, makeRoom, meetingThingsAt, roomFor, roomNear, roomOpen, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding, type TalkWords } from "./meetings";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { stagedNow, thingSpot, thingsNow, thingsOf } from "./things";
 
 const HUB = "place.yaba";

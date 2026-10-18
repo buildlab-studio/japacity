@@ -11,10 +11,10 @@ import budgets from "../../../../../assets-src/budgets.json";
 import { measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../tools/assets/assets-check";
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
 import { cameraAim } from "./camera";
-import { crowdSize } from "./crowd";
-import type { PlaceFile } from "./placeFile";
-import { personOf } from "./roster";
-import { groundGeometry } from "./world";
+import { crowdSize } from "../../shared/scene/crowd";
+import type { PlaceFile } from "../../shared/scene/placeFile";
+import { personOf } from "../../shared/scene/roster";
+import { groundGeometry } from "../../shared/scene/world";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..");
 const PUBLIC = join(ROOT, "apps", "client", "public", "assets");

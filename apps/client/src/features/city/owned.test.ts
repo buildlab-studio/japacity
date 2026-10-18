@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { arrangedIn, ARRANGED_KEY, forgetArranged, keepArranged, keepTurn, turnIn } from "../../shared/world/arranged";
 import { boxesOverlap, misfit, QUARTER, turned } from "./arrange";
 import { buyModeAt, liftable, ownedThingId, showOwned } from "./owned";
-import type { PlaceFile, Stage } from "./placeFile";
+import type { PlaceFile, Stage } from "../../shared/scene/placeFile";
 
 const SHELL = "places/x/bld_x.glb";
 const BED = "shared/prop/prop_bed.glb";

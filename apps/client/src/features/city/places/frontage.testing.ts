@@ -12,12 +12,12 @@ import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
 import { plainActLine } from "../actLines";
-import { crowdSize } from "../crowd";
-import { crowdTuning } from "../limits";
-import { personOfLook } from "../roster";
+import { crowdSize } from "../../../shared/scene/crowd";
+import { crowdTuning } from "../../../shared/scene/limits";
+import { personOfLook } from "../../../shared/scene/roster";
 import { sceneWords } from "../scene.words";
 import { thingSpot, withMoreAt } from "../things";
-import { groundGeometry } from "../world";
+import { groundGeometry } from "../../../shared/scene/world";
 import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
 
 /** The crowd a frontage shows in each mode: the entry's figures under the world's outdoor caps. */

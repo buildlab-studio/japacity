@@ -6,7 +6,7 @@ import type { PaletteName, WalkablePolygon } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import type { Id, PlaceEntry } from "@japacity/sim";
 
-import type { Shot, Thing } from "../../shared/world/contract";
+import type { Shot, Thing } from "../world/contract";
 import type { Shown } from "./crowd";
 import { personOf, type Role } from "./roster";
 

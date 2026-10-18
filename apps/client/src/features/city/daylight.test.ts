@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import { lightKindOf, LOOKS, lookAt, ownHeightOf, PLACE_LIGHT, pinnedClock, pinnedPart, placeLook, progressIn, ROOM_LIGHT, roomLook, skyLightOf, skyOf, sunAt, worldNow } from "./daylight";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 
 const SUN = stageOf(parlourRaw as unknown as PlaceFile).light.sun;
 const HOUR = 60;

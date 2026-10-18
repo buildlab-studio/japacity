@@ -19,14 +19,14 @@ import familyRaw from "../../../../public/assets/places/home-family-house/place.
 import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.json";
 import roomRaw from "../../../../public/assets/places/home-room-house/place.json";
 import abroadRaw from "../../../../public/assets/places/the-room/place.json";
-import { crowdSize } from "../crowd";
-import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../placeFile";
-import { personOfLook } from "../roster";
+import { crowdSize } from "../../../shared/scene/crowd";
+import { CAR_FILE, parkCar, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
+import { personOfLook } from "../../../shared/scene/roster";
 import { cameraAt, projected, SCREENS } from "../scene.testing";
 import { sceneWords } from "../scene.words";
 import { aimRoom, easeRoomView, easeZoom, EASE, FULL_TURN, homeTap, ROOM_ACROSS, ROOM_EASE, ROOM_SETTLE, roomAcross, roomAt, roomFirst, roomTarget, SETTLE, SHOT_FOV, shotOf, TOP_PITCH, type ViewEase } from "../shot";
 import { thingSpot } from "../things";
-import { groundGeometry } from "../world";
+import { groundGeometry } from "../../../shared/scene/world";
 import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./place.testing";
 import { stubReducedMotion } from "../../../shared/testing/motion";
 import { motionReduced } from "../../../shared/ui/motion";

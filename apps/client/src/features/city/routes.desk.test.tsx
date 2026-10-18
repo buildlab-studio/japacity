@@ -12,7 +12,7 @@ import { requirementSentence } from "../../shared/words/requirement";
 import { say } from "../../shared/words/text";
 import type { Act } from "../../shared/world/contract";
 import { actsOffered } from "./acts";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "./things";
 
 const YABA = "place.yaba";

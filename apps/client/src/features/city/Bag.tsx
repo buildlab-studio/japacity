@@ -10,7 +10,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
 import { CanvasTexture, Group, Matrix4, type Object3D, SRGBColorSpace, Sprite, SpriteMaterial } from "three";
 
-import type { Spot, Stage } from "./placeFile";
+import type { Spot, Stage } from "../../shared/scene/placeFile";
 
 /** The bag's model, the same file in the parlour and in the room abroad. */
 export const BAG_FILE = "shared/prop/prop_travel-bag.glb";

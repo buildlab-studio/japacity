@@ -13,7 +13,7 @@ import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { City } from "./City";
 import { goHomeAsk, goHomeOffered } from "./goHome";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { pressFanAct } from "./fan/fan.testing";
 
 

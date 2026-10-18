@@ -13,7 +13,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { BAG_EASE_SECONDS, BAG_EMPTY, BAG_FILE, BAG_FULL, BAG_HEIGHT, bagMatrix, bagPieces, bagScale, bagShare, bagSpot, easeBag, reportBag, tagWords } from "./Bag";
 import { City } from "./City";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import type { CityProbe } from "./scene.types";
 
 const ROOMS = [parlourRaw, roomRaw] as unknown as PlaceFile[];

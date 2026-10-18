@@ -15,10 +15,10 @@ import { advanceClock } from "../../../shared/three/clock";
 import { loadGrids } from "../../../shared/three/motion";
 import { poseFigure } from "../../../shared/three/people";
 import { cameraAim, FOV } from "../camera";
-import type { Stage } from "../placeFile";
-import { type Point, routeMap } from "../walk/map";
-import { findRoute } from "../walk/route";
-import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../world";
+import type { Stage } from "../../../shared/scene/placeFile";
+import { type Point, routeMap } from "../../../shared/scene/walk/map";
+import { findRoute } from "../../../shared/scene/walk/route";
+import { animateWorld, buildWorld, colourOf, skyColours, type World } from "../../../shared/scene/world";
 import { type CheckInput, type PlaceRun, runOf, startClock, tapsOf } from "./placeCheck";
 
 /** One frame of the city's clock at 30 frames a second. */

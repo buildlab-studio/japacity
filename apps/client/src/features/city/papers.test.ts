@@ -3,8 +3,8 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { stageOf } from "./placeFile";
-import { builtPlaces } from "./scene.testing";
+import { stageOf } from "../../shared/scene/placeFile";
+import { builtPlaces } from "../../shared/scene/placeFile.testing";
 import { sceneWords } from "./scene.words";
 import { thingsOf } from "./things";
 

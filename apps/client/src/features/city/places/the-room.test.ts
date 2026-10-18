@@ -11,9 +11,9 @@ import castel from "../../../../public/assets/places/castel-volturno/place.json"
 import deira from "../../../../public/assets/places/deira/place.json";
 import ryeLane from "../../../../public/assets/places/rye-lane/place.json";
 import { abroadView } from "../../../shared/testing/fixtures";
-import { type PlaceFile, stageOf } from "../placeFile";
+import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { sceneWords } from "../scene.words";
-import { stagedAt } from "../staging";
+import { stagedAt } from "../../../shared/scene/staging";
 import { stagedNow, thingsNow } from "../things";
 
 const stage = stageOf(raw as unknown as PlaceFile);

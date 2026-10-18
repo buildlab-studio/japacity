@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { ROSTER } from "../roster";
+import { ROSTER } from "../../../shared/scene/roster";
 import { sendOffWords } from "../sendOff.words";
 import { COUNTER, Counter, Departures, type Dress, GATE, Gate, HALL, LANDING, LANE_TOP, LandingBeat, Ride, RIDE } from "./beats";
 import { castFor, firstPings, landingOf, STOP_PEOPLE, stopLookFor } from "./plan";

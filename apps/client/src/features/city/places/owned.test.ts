@@ -14,7 +14,7 @@ import roomRaw from "../../../../public/assets/places/home-room-house/place.json
 import makokoRaw from "../../../../public/assets/places/makoko/place.json";
 import { misfit } from "../arrange";
 import { liftable, showOwned } from "../owned";
-import { parkCar, type PlaceFile, stageOf } from "../placeFile";
+import { parkCar, type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { measured, totalsOf } from "./place.testing";
 
 interface Home {

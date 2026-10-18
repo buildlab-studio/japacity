@@ -8,12 +8,12 @@ import type { PoseName } from "@japacity/assets-src/people/poses";
 import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, MeshLambertMaterial, type Object3D, Quaternion, type SkinnedMesh, Sphere, Vector3 } from "three";
 
 import { stripTops } from "../../../../../tools/assets/faces-check";
-import { instanceModel } from "../../shared/three/instance";
-import { ownIndicator, nameTag } from "../../shared/three/marks";
-import { danceFigure } from "../../shared/three/dance";
-import { poseFigure } from "../../shared/three/people";
-import { bunting, drops, flicker, frondGeometry, glow, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../../shared/three/motion";
-import { type Figure, figureOf } from "../../shared/three/people";
+import { instanceModel } from "../three/instance";
+import { ownIndicator, nameTag } from "../three/marks";
+import { danceFigure } from "../three/dance";
+import { poseFigure } from "../three/people";
+import { bunting, drops, flicker, frondGeometry, glow, instancedSheets, leaves, type MeshLevel, rideWater, sheet, sheetGeometry, smoke, stripedFlag, water } from "../three/motion";
+import { type Figure, figureOf } from "../three/people";
 import { crossAt } from "./cross";
 import { actPose, placeCrowd, type Shown, walkPose } from "./crowd";
 import type { ModeSettings } from "./mode";

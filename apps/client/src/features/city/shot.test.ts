@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
 
 import type { Shot } from "../../shared/world/contract";
-import { stageOf } from "./placeFile";
+import { stageOf } from "../../shared/scene/placeFile";
 import { roomOf, HOUSE } from "./room";
-import { builtPlaces, cameraAt, onScreen, projected, SCREENS } from "./scene.testing";
-import { aimShot, clampTurn, CLOSE_AHEAD, defaultShot, depthDistance, FIT_MARGIN, fitDistance, ROOM_PITCH, roomDistance, roomShot, shotOf, snapZoom, WHOLE, wholeDistance, widthEnds } from "./shot";
+import { builtPlaces } from "../../shared/scene/placeFile.testing";
+import { cameraAt, onScreen, projected, SCREENS } from "./scene.testing";
+import { aimShot, clampTurn, CLOSE_AHEAD, defaultShot, depthDistance, FIT_MARGIN, fitDistance, quarterTurns, ROOM_PITCH, roomDistance, roomShot, shotOf, snapTilt, snapTurn, snapZoom, turnToward, WHOLE, wholeDistance, widthEnds } from "./shot";
 import { thingSpot, thingsOf } from "./things";
 
 /** The pitch of a view above the ground, in degrees. */
@@ -150,5 +151,28 @@ describe("the eased-in room's distance", () => {
     const wide = roomDistance(corner, 1280 / 800);
     expect(wide).toBeGreaterThan(fitDistance(4.4, 1280 / 800));
     expect(wide).toBe(depthDistance(6.475 - 1.6, 42));
+  });
+});
+
+describe("the turn's snap", () => {
+  test("[R-WORLD-009] given a wide home's turn released anywhere, when it comes to rest, then it is the nearest quarter and nowhere between; the button eases the short way to a kept quarter", () => {
+    expect(snapTurn(0)).toBe(0);
+    expect(snapTurn(44)).toBe(0);
+    expect(snapTurn(46)).toBe(90);
+    expect(snapTurn(-46)).toBe(-90);
+    expect(snapTurn(400)).toBe(360);
+    expect(quarterTurns(-90)).toBe(3);
+    expect(quarterTurns(450)).toBe(1);
+    // From a view at 270 (three quarters), the kept quarter 0 is a quarter on, not three back.
+    expect(turnToward(270, 0)).toBe(360);
+    expect(turnToward(0, 3)).toBe(-90);
+    expect(turnToward(90, 2)).toBe(180);
+  });
+
+  test("[R-WORLD-009] given the tilt released anywhere, when it comes to rest, then it is the normal view or the view from above, never between", () => {
+    expect(snapTilt(0.2)).toBe(0);
+    expect(snapTilt(0.49)).toBe(0);
+    expect(snapTilt(0.5)).toBe(1);
+    expect(snapTilt(0.9)).toBe(1);
   });
 });

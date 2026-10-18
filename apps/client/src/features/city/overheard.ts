@@ -6,7 +6,7 @@ import { content, text } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
 import { hasWords } from "../../shared/words/text";
-import { hash } from "./crowd";
+import { hash } from "../../shared/scene/crowd";
 
 export interface Heard {
   /** A words key: the place's own line, or the city's line about a story or a route. */

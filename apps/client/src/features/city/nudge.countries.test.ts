@@ -10,7 +10,7 @@ import farm from "../../../public/assets/places/farm-it/place.json";
 import site from "../../../public/assets/places/site-uae/place.json";
 import { engineView } from "../../shared/testing/fixtures";
 import { stepWayOf } from "./nudge";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 
 const FILES: Readonly<Record<string, unknown>> = { "place.calgary-north-east": calgary, "place.castel-volturno": castel, "place.deira": deira, "place.farm-it": farm, "place.site-uae": site };
 

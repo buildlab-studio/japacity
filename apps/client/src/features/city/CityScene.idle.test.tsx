@@ -6,8 +6,8 @@ import { Children, isValidElement, type ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import CityScene from "./CityScene";
-import { modeSettings } from "./mode";
-import { OPEN_STAGE, type PlaceFile } from "./placeFile";
+import { modeSettings } from "../../shared/scene/mode";
+import { OPEN_STAGE, type PlaceFile } from "../../shared/scene/placeFile";
 import type { SceneProps } from "./scene.types";
 
 const invalidate = vi.fn();

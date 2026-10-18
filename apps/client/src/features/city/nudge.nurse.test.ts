@@ -12,7 +12,7 @@ import { hasWords, nameOf, say } from "../../shared/words/text";
 import { actsOffered } from "./acts";
 import { nudgeOf, stepThingHere, stepWayOf } from "./nudge";
 import { CARE, hearCare, hire, month, readCare, readyNurse, tileNurse, until } from "../../shared/testing/nurse";
-import { type PlaceFile, stageOf } from "./placeFile";
+import { type PlaceFile, stageOf } from "../../shared/scene/placeFile";
 import { sceneWords } from "./scene.words";
 import { stepOpen } from "./stepOpen";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "./things";

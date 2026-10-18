@@ -10,8 +10,8 @@ import hostelRaw from "../../../../public/assets/places/home-hostel-house/place.
 import makokoRaw from "../../../../public/assets/places/makoko/place.json";
 import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
-import { type PlaceFile, showPlanned, showsFor, type Stage, stageOf } from "../placeFile";
-import { lampsOf, motionOf } from "../world";
+import { type PlaceFile, showPlanned, showsFor, type Stage, stageOf } from "../../../shared/scene/placeFile";
+import { lampsOf, motionOf } from "../../../shared/scene/world";
 
 // The family house, whose parlour, table and lanterns are where these acts answer.
 const parlour = stageOf(parlourRaw as unknown as PlaceFile);
