@@ -8,8 +8,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { passCards } from "./support/live";
+import { previewDir } from "./support/preview";
 
-const PREVIEW = process.env.PREVIEW_DIR;
 /** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS, then index.css `.motion-screen`). */
 const FRAMES_MS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
 const AWAY_FRAMES_MS = [0, 40, 80, 120, 160, 200];
@@ -113,11 +113,11 @@ const middleY = (box: Box) => box.y + box.height / 2;
 
 /** Saves the frames under PREVIEW_DIR, one picture each and one strip of them all with the time under each. */
 async function frames(page: Page, name: string, times: readonly number[]): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
+  if (previewDir === null) return;
   const shots: string[] = [];
   for (const ms of times) {
     await sampleAt(page, ms);
-    const shot = await page.screenshot({ path: join(PREVIEW, `${name}-${String(ms).padStart(3, "0")}ms.png`) });
+    const shot = await page.screenshot({ path: join(previewDir, `${name}-${String(ms).padStart(3, "0")}ms.png`) });
     shots.push(shot.toString("base64"));
   }
   const strip = await page.context().newPage();
@@ -127,7 +127,7 @@ async function frames(page: Page, name: string, times: readonly number[]): Promi
       .map((shot, index) => `<figure style="margin:0;padding:4px;text-align:center"><img style="width:192px;display:block" src="data:image/png;base64,${shot}"><figcaption>${String(times[index])} ms</figcaption></figure>`)
       .join("")}</body>`,
   );
-  await strip.screenshot({ path: join(PREVIEW, `${name}-strip.png`), fullPage: true });
+  await strip.screenshot({ path: join(previewDir, `${name}-strip.png`), fullPage: true });
   await strip.close();
 }
 

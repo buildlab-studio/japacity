@@ -5,7 +5,6 @@
 // the admin approves it on the admin page, the second account then sees the name, and Put it out takes it away. Five
 // taps on Settings' version line open the page offline. Phone only: the design is drawn for a phone.
 import { start } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { type Browser, devices, expect, test, type Page } from "@playwright/test";
 
@@ -14,12 +13,12 @@ import { ADMIN_GETS } from "../src/features/admin/admin.testing";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords, startReadyLife } from "./support/door";
 import { LIVED, openApp, passCards, passHomeTeach, placeReady } from "./support/live";
+import { previewDir, shoot } from "./support/preview";
 
-const PREVIEW = process.env.PREVIEW_DIR;
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 /** The pictures are taken at the design's 390 by 844, three device pixels to each. */
-const SIZE = PREVIEW === undefined || PREVIEW === "" ? {} : { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 };
+const SIZE = previewDir === null ? {} : { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 };
 
 test.use({ ...SIZE, launchOptions: SOFTWARE_WEBGL });
 test.skip(({ isMobile }) => !isMobile, "The dedication is drawn for a phone.");
@@ -39,12 +38,6 @@ const mapIs = (page: Page, phase: "ready" | "open") =>
     const probe = (window as unknown as { __map?: CanoeProbe }).__map;
     return want === "ready" ? probe?.ready === true : probe?.phase === want;
   }, phase, { timeout: 30_000 });
-
-/** The pictures for the report, at 390 by 844 as the design's, named as the design's so the pairs can be compared. */
-async function shoot(page: Page, name: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
-  await page.screenshot({ path: join(PREVIEW, `${name}.png`), fullPage: false });
-}
 
 const dedicationPage = (page: Page) => page.getByRole("dialog", { name: "Dedication" });
 

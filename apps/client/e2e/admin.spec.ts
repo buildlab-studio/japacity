@@ -1,12 +1,8 @@
-import { join } from "node:path";
-
 import { expect, test, type Page, type Route } from "@playwright/test";
 
 // The admin routes are answered in the browser from the page's own fixtures: the dev server has no server behind it.
 import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.testing";
-
-/** Where the pictures go, when asked for. */
-const PREVIEW = process.env.PREVIEW_DIR;
+import { shootAtSize } from "./support/preview";
 
 const TABS = ["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"] as const;
 
@@ -54,12 +50,6 @@ async function expectNothingBroken(page: Page, when: string): Promise<void> {
   for (const [what, pattern] of BROKEN) expect(shown.match(pattern)?.[0], `${what} on screen ${when}`).toBeUndefined();
 }
 
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
-  const size = project.startsWith("Pixel") ? "phone" : "desktop";
-  await page.screenshot({ path: join(PREVIEW, `admin-${name}-${size}.png`), fullPage: true });
-}
-
 test("an admin at /admin sees every area of the page, each from the admin routes only", async ({ page }, info) => {
   const seen = await fakeServer(page, true);
   await page.goto("/admin");
@@ -85,7 +75,7 @@ test("an admin at /admin sees every area of the page, each from the admin routes
     await page.getByRole("tab", { name: tab }).click();
     await loaded[tab]();
     await expectNothingBroken(page, `on the ${tab} tab`);
-    await shoot(page, tab.toLowerCase(), info.project.name);
+    await shootAtSize(page, `admin-${tab.toLowerCase()}`, info.project.name, true);
   }
   for (const { path } of seen) expect(path === "/api/account" || path.startsWith("/api/admin/"), path).toBe(true);
 });

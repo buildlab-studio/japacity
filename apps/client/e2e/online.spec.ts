@@ -1,7 +1,6 @@
 import type { Command, World } from "@japacity/sim";
 import { standInWorld } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -12,22 +11,16 @@ import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
+import { shootAtSize } from "./support/preview";
 
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 test.use({ baseURL: ONLINE, launchOptions: SOFTWARE_WEBGL });
 
-const PREVIEW = process.env.PREVIEW_DIR;
 const CODE = "4f1e2d3c4b5a69788796a5b4";
 const PAIR = "pair-1";
 const THEM = "character-them";
-
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
-  const size = project.startsWith("Pixel") ? "phone" : "desktop";
-  await page.screenshot({ path: join(PREVIEW, `${name}-${size}.png`), fullPage: false });
-}
 
 type Answer = { status?: number; body: unknown; type?: string };
 /** An answer worked out from the request's body when it comes: a command played through the game. */
@@ -137,7 +130,7 @@ test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the ful
   await expect(page.getByRole("button", { name: "Check again" })).toBeDisabled();
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Play", exact: true })).toHaveCount(0);
-  await shoot(page, "full", info.project.name);
+  await shootAtSize(page, "full", info.project.name);
 });
 
 test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before sign-up, with its report control, then the age screen, the username with the guest line under it, and the ways back in", async ({ page }, info) => {
@@ -161,7 +154,7 @@ test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before
   await expect(page.locator('[data-moderation="invite-card"]').getByRole("button", { name: "Report" })).toBeVisible();
   await expect(page.getByRole("combobox", { name: "Day" })).toBeVisible();
   await expect(page.locator("[data-advert-slot]")).toHaveCount(0);
-  await shoot(page, "invite", info.project.name);
+  await shootAtSize(page, "invite", info.project.name);
 
   await page.getByRole("combobox", { name: "Day" }).selectOption("12");
   await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "March" });
@@ -173,10 +166,10 @@ test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before
   await expect(page.getByLabel("Username")).toBeVisible();
   await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
   await expect(page.getByText("Check passed")).toHaveCount(0);
-  await shoot(page, "invite-username", info.project.name);
+  await shootAtSize(page, "invite-username", info.project.name);
   await page.getByRole("button", { name: "I already have a life here" }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
-  await shoot(page, "invite-ways-in", info.project.name);
+  await shootAtSize(page, "invite-ways-in", info.project.name);
 });
 
 test("[R-MODERATION-003] a friend's conversation carries block and report, and a report offers a block ticked", async ({ page }, info) => {
@@ -208,13 +201,13 @@ test("[R-MODERATION-003] a friend's conversation carries block and report, and a
   await expect(thread.locator('[data-moderation="conversation"]').getByRole("button", { name: "Block" })).toBeVisible();
   await expect(chats.locator('[data-moderation="pair"]')).toBeVisible();
   await thread.evaluate((element) => element.scrollIntoView({ block: "center" }));
-  await shoot(page, "conversation", info.project.name);
+  await shootAtSize(page, "conversation", info.project.name);
 
   await thread.locator('[data-moderation="conversation"]').getByRole("button", { name: "Report" }).click();
   const sheet = page.getByRole("dialog");
   await expect(sheet.getByRole("checkbox", { name: "Block them too" })).toBeChecked();
   await expect(sheet.getByRole("button", { name: "Scam or asking for money" })).toBeVisible();
-  await shoot(page, "conversation-report", info.project.name);
+  await shootAtSize(page, "conversation-report", info.project.name);
 });
 
 test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the game's own label, and its card can be reported", async ({ page }, info) => {
@@ -244,13 +237,13 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
   await expect(tile).toBeVisible({ timeout: 20_000 });
   await expect(page.locator("[data-phone] [data-advert-slot]")).toHaveCount(1);
   await expect(tile.getByText("Advert")).toBeVisible();
-  await shoot(page, "phone-tile", info.project.name);
+  await shootAtSize(page, "phone-tile", info.project.name);
 
   await tile.getByRole("button").click();
   const card = page.getByRole("dialog");
   await expect(card).toContainText("Jollof and plantain on the island, open late.");
   await expect(card.locator('[data-moderation="advert"]').getByRole("button", { name: "Report" })).toBeVisible();
-  await shoot(page, "advert-card", info.project.name);
+  await shootAtSize(page, "advert-card", info.project.name);
 });
 
 /** Tunde, online, in a world whose Friday draw is on sale: draw 7, closing at tick 14, with nothing sold to him yet. */
@@ -330,12 +323,12 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     await expect(buy).toContainText(`₦${Math.round(price / 100).toLocaleString("en-US")}`);
     await expect(page.locator("[data-balance-before]")).toBeVisible();
     await expect(page.locator("[data-balance-after]")).toBeVisible();
-    await shoot(page, "kiosk-online", info.project.name);
+    await shootAtSize(page, "kiosk-online", info.project.name);
     // The odds fold behind their row (R-WORLD-006).
     await sheet.locator('[data-kiosk-fold="odds"] button').click();
     await expect(sheet.locator("[data-lottery-odds]")).toBeVisible();
     await sheet.locator('[data-kiosk-fold="odds"]').scrollIntoViewIfNeeded();
-    await shoot(page, "kiosk-online-odds", info.project.name);
+    await shootAtSize(page, "kiosk-online-odds", info.project.name);
 
     // One ticket bought from the kiosk: lottery/buy goes to the server, and the sheet says the ticket is held.
     await sheet.getByRole("button", { name: "One fewer ticket" }).click();
@@ -399,7 +392,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   // The mark's word (R-PEOPLE-009).
   await expect(chip.locator("[data-fan-title] [data-person-mark]")).toHaveText("Not a player");
   await page.waitForTimeout(400);
-  await shoot(page, "parlour-tobi", info.project.name);
+  await shootAtSize(page, "parlour-tobi", info.project.name);
 
   await chip.locator('[data-fan-act="talk"] button').click();
   const card = page.getByRole("dialog");
@@ -407,7 +400,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await expect(card).toContainText("After service, your mother brings him home for lunch.");
   // The sheet settles before the picture.
   await page.waitForTimeout(800);
-  await shoot(page, "talk-sheet", info.project.name);
+  await shootAtSize(page, "talk-sheet", info.project.name);
   await card.getByRole("button", { name: /Start seeing Tobi/ }).click();
   await expect.poll(() => sent.length).toBe(1);
   expect(sent[0]).toMatchObject({ command: { type: "people/court", with: TOBI } });
@@ -423,7 +416,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await expect(head.locator('[data-head-row="end"]')).toBeVisible();
   // The handset settles before the picture.
   await page.waitForTimeout(800);
-  await shoot(page, "thread-head", info.project.name);
+  await shootAtSize(page, "thread-head", info.project.name);
 
   // The thread's one way back, the app's Back, returns to the chats (R-WORLD-018).
   await page.locator("[data-phone-back]").click();
@@ -431,9 +424,9 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   const slots = page.locator("[data-people-slots]");
   await expect(slots.locator('[data-slot="partner"]')).toBeVisible();
   await expect(slots.locator('[data-slot="mother"]')).toBeVisible();
-  await shoot(page, "people-slots", info.project.name);
+  await shootAtSize(page, "people-slots", info.project.name);
   await page.getByRole("button", { name: "Ask a friend to be your partner" }).click();
   await expect(page.locator("[data-invite-card]")).toContainText("Japacity is a game");
   await page.locator('[data-slot="partner"]').evaluate((element) => element.scrollIntoView({ block: "start" }));
-  await shoot(page, "invite-card", info.project.name);
+  await shootAtSize(page, "invite-card", info.project.name);
 });

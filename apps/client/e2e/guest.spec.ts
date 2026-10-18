@@ -1,5 +1,4 @@
 import { start } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -7,19 +6,13 @@ import { expect, test, type Page } from "@playwright/test";
 // to 027), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
 import { content, uiOnlineText, uiText } from "../../../packages/content/src/index";
+import { shootPhone } from "./support/preview";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
 
-const PREVIEW = process.env.PREVIEW_DIR;
-
-/** R-ACCOUNT pictures are phone pictures, taken on the Pixel projects only. */
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "" || !project.startsWith("Pixel")) return;
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: join(PREVIEW, `${name}-phone.png`), fullPage: false });
-}
+/** R-ACCOUNT pictures are phone pictures, taken on the Pixel projects only, at 390 by 844. */
+const PICTURE = { width: 390, height: 844 };
 
 type Answer = { status?: number; body: unknown };
 
@@ -113,7 +106,7 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age
   const username = page.getByLabel("Username");
   await expect(username).not.toHaveValue("");
   await username.fill("ada_lagos");
-  await shoot(page, "username", info.project.name);
+  await shootPhone(page, "username-phone", info.project.name, PICTURE);
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect.poll(() => sent.includes("POST /api/character")).toBe(true);
   expect(bodies).toEqual([{ username: "ada_lagos" }]);
@@ -134,7 +127,7 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
   await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
   // Google's own button, in one of Google's texts (R-ACCOUNT-023).
   await expect(ask.getByRole("button", { name: "Continue with Google" })).toBeVisible();
-  await shoot(page, "first-chapter-ask", info.project.name);
+  await shootPhone(page, "first-chapter-ask-phone", info.project.name, PICTURE);
   await ask.getByRole("button", { name: "Not now" }).click();
   await expect(ask).toHaveCount(0);
 });
@@ -157,7 +150,7 @@ test.describe("inside a messaging app's browser", () => {
     await expect(sheet.getByText("Google sign-in does not work inside this app.", { exact: false })).toBeVisible();
     await expect(sheet.getByRole("link", { name: "Open in your browser" })).toHaveAttribute("href", /^intent:\/\//);
     await sheet.getByLabel("Email").fill("ada@example.com");
-    await shoot(page, "securing-sheet-in-app", info.project.name);
+    await shootPhone(page, "securing-sheet-in-app-phone", info.project.name, PICTURE);
   });
 });
 
@@ -205,7 +198,7 @@ test("[R-ACCOUNT-023] a guest that comes back from Google with the life kept see
   await expect(kept.getByText("Done. This life is yours on any phone now.")).toBeVisible();
   await expect(kept.getByRole("button", { name: "Continue with Google" })).toHaveCount(0);
   expect(new URL(page.url()).search).toBe("");
-  await shoot(page, "kept-with-google", info.project.name);
+  await shootPhone(page, "kept-with-google-phone", info.project.name, PICTURE);
   await kept.getByRole("button", { name: uiText["ui.report.close"] ?? "Close" }).click();
   await expect(page.locator("[data-way-toast]")).toHaveText("Kept with Google");
 });
@@ -227,12 +220,12 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-027] a kept life names its way in on Settings' 
   const row = page.locator("[data-account-row]");
   await expect(row).toContainText("@ada_lagos");
   await expect(row).toContainText("Kept with Google as ada@example.com");
-  await shoot(page, "settings-account-row", info.project.name);
+  await shootPhone(page, "settings-account-row-phone", info.project.name, PICTURE);
   await row.click();
   const sheet = page.getByRole("dialog", { name: uiOnlineText["ui.account.settings"] ?? "Account" });
   await expect(sheet.getByText("Kept with Google as ada@example.com")).toBeVisible();
   await expect(sheet.getByText("Passkey: none yet")).toBeVisible();
-  await shoot(page, "settings-account-sheet", info.project.name);
+  await shootPhone(page, "settings-account-sheet-phone", info.project.name, PICTURE);
   answers["GET /api/view"] = SIGNED_OUT;
   answers["GET /api/account"] = SIGNED_OUT;
   await sheet.getByRole("button", { name: "Sign out" }).click();

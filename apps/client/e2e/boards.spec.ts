@@ -1,5 +1,4 @@
 import { start } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -10,12 +9,12 @@ import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
+import { shoot } from "./support/preview";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-const PREVIEW = process.env.PREVIEW_DIR;
 const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
 // R-CITY-040: every board names each line by the account's username, friends too.
 const USERNAMES = ["zainab_b", "tunde_k", "ngozi_o", "ada_ikeja", "tunde_99", "zee_lagos", "ngozi_writes", "ada_o", "tk_surulere", "ngo_yaba"];
@@ -94,7 +93,7 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
       await expect(list.locator("[data-me] [data-board-name]")).toHaveText("ada_from_yaba");
       await expect(list.locator("[data-me]")).not.toContainText("Ada");
       await boards.scrollIntoViewIfNeeded();
-      if (PREVIEW !== undefined && PREVIEW !== "") await page.screenshot({ path: join(PREVIEW, `board-${when}-${who}-phone.png`) });
+      await shoot(page, `board-${when}-${who}-phone`);
     }
   }
 });
