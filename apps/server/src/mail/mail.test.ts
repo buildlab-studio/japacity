@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { text } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/testing";
+import { harness, makeJar } from "../auth/auth.testing";
 import { productionConfig } from "../config";
 import { type BindingMail, codeMail, LOCAL_SENDER, type MailBinding, mailFor, type MailFetch, NO_PROVIDER, noticeMail, NOT_LOCAL, plainHtml, REFUSED, REPLY_TO, SENDER } from "./mail";
 

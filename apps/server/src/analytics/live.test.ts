@@ -2,9 +2,9 @@ import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
-import { harness } from "../auth/testing";
+import { harness } from "../auth/auth.testing";
 import { testConfig } from "../config";
 import { testSession } from "../deps";
 import { dayName } from "./day";

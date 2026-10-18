@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { call, held, newLife, restMonth, send, testServer, view } from "../authority/testing";
+import { call, held, newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerConfig } from "../config";
 import type { Limiter } from "../deps";

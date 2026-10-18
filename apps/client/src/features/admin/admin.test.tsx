@@ -5,7 +5,7 @@ import { api, type Fetch } from "../../shared/net/http";
 import { formatMoney } from "../../shared/words/format";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { ADMIN_GETS, CAMPAIGNS, PENDING_LIGHTS, QUEUE, ROLLBACK, SWITCH_ROW, YESTERDAY } from "./admin.fixtures";
+import { ADMIN_GETS, CAMPAIGNS, PENDING_LIGHTS, QUEUE, ROLLBACK, SWITCH_ROW, YESTERDAY } from "./admin.testing";
 import { words } from "./admin.words";
 import { AdminPage, type AdminTab } from "./AdminPage";
 import { AdminRoute } from "./AdminRoute";

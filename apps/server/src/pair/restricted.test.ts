@@ -1,9 +1,9 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import type { TestServer } from "../authority/testing";
+import type { TestServer } from "../authority/authority.testing";
 import { call, cardOut, FRIEND, INVITER, linkedPair, pairServer, sayFrom, signUp } from "./pair.testing";
-import { newLife } from "../authority/testing";
+import { newLife } from "../authority/authority.testing";
 
 const ADMIN = "account.owner";
 

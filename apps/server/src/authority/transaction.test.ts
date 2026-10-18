@@ -12,8 +12,8 @@ import { memoryStores } from "../deps";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { ServerReply } from "../types";
-import type { TestServer } from "./testing";
-import { held, newLife, restMonth, send, testServer } from "./testing";
+import type { TestServer } from "./authority.testing";
+import { held, newLife, restMonth, send, testServer } from "./authority.testing";
 
 const { epoch, worldTickMs } = productionConfig.clock;
 /** Long enough for any command on PGlite, short of the test's own timeout, so a hang fails by name. */

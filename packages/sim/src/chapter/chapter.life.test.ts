@@ -4,7 +4,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import type { Id, PlayerView, ReadCtx, StepResult } from "../engine/types";
+import type { Id, PlayerView, StepResult } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { flownAda, LANDING, monthAbroad, playUntil, SECURE, SEND_OFF } from "../testing/goal.journey";
 import { lifeSaves } from "../goldens/lives.data";
@@ -12,19 +12,12 @@ import { roadCard } from "../route/gates/road";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { closed, readOf } from "../testing/read";
 import { sendOffCard, topActivities } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const STANDING: Id<"quality"> = "quality.standing";
 const cap = content.tuning.turn.cap;
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
-function closed(result: { events: { type: string }[] }): unknown[] {
-  return result.events.filter((event) => event.type === "chapter/closed");
-}
 
 type Accepted = Extract<StepResult, { ok: true }>;
 

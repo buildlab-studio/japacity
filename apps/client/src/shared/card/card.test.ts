@@ -5,7 +5,7 @@ import { recordedGame } from "../testing/fixtures";
 import { ART_IDS, artShapes } from "./art";
 import { encodeUnder, QUALITIES, underLimit } from "./encode";
 import { cardFace, cardLink, playedWords, standingWords, type ShareCard } from "./face";
-import { fakeCanvas } from "./fakeCanvas";
+import { fakeCanvas } from "./canvas.testing";
 import { cardSteps, previewSteps, wrap, type Measure, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
 import { canShareFiles, sendCard, shareData, type Device } from "./travel";

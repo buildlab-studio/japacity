@@ -6,7 +6,7 @@ import { setSwitch } from "../switches/switches";
 import { makeAuth, relyingPartyOf } from "./auth";
 import { EMAIL_DAY_WINDOW_MS, EMAIL_LIMIT_WINDOW_MS, pruneLimitRows } from "./hooks";
 import { memoryAuthAdapter } from "./memory";
-import { SITE, harness, makeJar } from "./testing";
+import { SITE, harness, makeJar } from "./auth.testing";
 
 afterEach(() => {
   vi.useRealTimers();

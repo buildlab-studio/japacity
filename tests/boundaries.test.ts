@@ -19,7 +19,7 @@ const allowedExceptions: readonly Exception[] = [];
 const root = fileURLToPath(new URL("..", import.meta.url));
 const SOURCE = /\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
 const SKIPPED = new Set(["node_modules", "dist", "build", "coverage", ".git", "docs", "prototypes"]);
-const SKIPPED_PATHS = new Set(["tools/lint-fixtures", "tools/__fixtures__"]);
+const SKIPPED_PATHS = new Set(["tools/__fixtures__"]);
 const TEST_LIBRARIES = ["vitest", "fast-check", "@fast-check/vitest"];
 const TEST_FILE = /\.test\.tsx?$/;
 
@@ -65,7 +65,7 @@ function packageName(specifier: string): string {
 // the simulation's types and the Postgres drivers; the migration tool, PGlite and
 // Vitest only in the files that serve the tests and the migrations.
 const DB_RUNTIME = ["@japacity/store", "@japacity/sim", "drizzle-orm", "pg"];
-const DB_TOOLING_FILES = new Set(["packages/db/drizzle.config.ts", "packages/db/drizzle.migrate.config.ts", "packages/db/src/pglite.ts", "packages/db/src/testing.ts"]);
+const DB_TOOLING_FILES = new Set(["packages/db/drizzle.config.ts", "packages/db/drizzle.migrate.config.ts", "packages/db/src/pglite.ts", "packages/db/src/pglite.testing.ts"]);
 const DB_TOOLING = ["drizzle-kit", "@electric-sql/pglite", ...TEST_LIBRARIES];
 
 /** The module specifiers a file imports or re-exports for their values, not only their types. */

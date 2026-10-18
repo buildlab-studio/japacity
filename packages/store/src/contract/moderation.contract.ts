@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { AppealStore, BannedIdentityStore, FeedbackRow, FeedbackStore, ModerationLogEntry, ModerationLogStore } from "../moderation.types";
-import { must } from "./fixtures";
+import { must } from "./contract.testing";
 
 function entry(id: string, over: Partial<ModerationLogEntry> = {}): ModerationLogEntry {
   return { id, admin: "account.admin", at: 5_000, item: "report.1", action: "warn", params: { account: "account.b" }, reason: "harassment", ...over };

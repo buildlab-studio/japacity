@@ -6,8 +6,8 @@ import { describe, expect, test } from "vitest";
 import placeFile from "../../../../public/assets/places/yaba-hub/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingsNow } from "../things";
-import { actEntries } from "./frontageTesting";
-import { staged } from "./placeTesting";
+import { actEntries } from "./frontage.testing";
+import { staged } from "./place.testing";
 
 const PREP = "activity.interview-prep";
 const { stage, entry } = staged(placeFile, "place.yaba");

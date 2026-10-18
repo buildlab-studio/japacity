@@ -6,8 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import { sendAuthority } from "../authority/command";
 import { load } from "../authority/load";
-import type { TestServer } from "../authority/testing";
-import { call, held, newLife, send, testServer } from "../authority/testing";
+import type { TestServer } from "../authority/authority.testing";
+import { call, held, newLife, send, testServer } from "../authority/authority.testing";
 import { productionConfig } from "../config";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";

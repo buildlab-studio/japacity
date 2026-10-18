@@ -10,6 +10,7 @@ import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { debits, restMonth } from "../testing/read";
 import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
 
@@ -83,10 +84,6 @@ function own(result: { events: BaseEvent[] }): ObligationEvent[] {
 
 function ofType<T extends ObligationEvent["type"]>(result: { events: BaseEvent[] }, type: T): Extract<ObligationEvent, { type: T }>[] {
   return own(result).filter((event): event is Extract<ObligationEvent, { type: T }> => event.type === type);
-}
-
-function debits(result: { events: BaseEvent[] }) {
-  return result.events.filter((event) => event.type === "wallet/debited");
 }
 
 function qualityChanges(result: { events: BaseEvent[] }, source: string) {
@@ -557,12 +554,6 @@ function choose(game: Game, offer: Id<"offer">, choice: string, amount?: number)
   return game.accept(amount === undefined ? { type: "offer/choose", offer: id, choice } : { type: "offer/choose", offer: id, choice, amount });
 }
 
-/** Ends a month, granting turns when the bank is empty. */
-function month(game: Game): Accepted {
-  if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
-  return game.endTurn();
-}
-
 function groupLoanOf(game: Game): ObligationState {
   const found = Object.values(game.state.obligation.items).find((owed) => owed.entry === GROUP_LOAN);
   if (found === undefined) throw new Error("No group loan is open.");
@@ -609,13 +600,13 @@ describe("the group loan", () => {
     expect([part, interest]).toEqual([1111112, 170000]);
     for (let paid = 1; paid < entry.term!; paid += 1) {
       setNaira(game, 100000000);
-      const result = month(game);
+      const result = restMonth(game);
       expect(ofType(result, "obligation/charged").filter((event) => event.id === loan.id)).toEqual([
         { type: "obligation/charged", id: loan.id, entry: GROUP_LOAN, total: part + interest, interest, principal: part },
       ]);
     }
     setNaira(game, 100000000);
-    const last = month(game);
+    const last = restMonth(game);
     expect(item(game, loan.id)).toBeUndefined();
     expect(ofType(last, "obligation/closed")).toEqual([{ type: "obligation/closed", id: loan.id, entry: GROUP_LOAN, why: "paid" }]);
     expect(credits(last)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: bp(HUNDRED_THOUSAND, GROUP.savingsBp), reason: "deposit-return" });
@@ -629,13 +620,13 @@ describe("the group loan", () => {
     const total = part + bp(HUNDRED_THOUSAND, 170);
     setNaira(game, 0);
 
-    const first = month(game);
+    const first = restMonth(game);
     expect(ofType(first, "obligation/covered")).toEqual([{ type: "obligation/covered", id: loan.id, entry: GROUP_LOAN, total, principal: part, missed: 1 }]);
     expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 1, outstanding: HUNDRED_THOUSAND - part + total, monthsLeft: 8 });
     expect(qualityChanges(first, GROUP_LOAN).map((event) => [event.quality, event.amount])).toEqual([[STANDING, -5]]);
     expect(first.lines.find((line) => line.key === "line.obligation.group-covered")).toMatchObject({ params: { obligation: GROUP_LOAN, amount: { currency: "NGN", amount: total } }, tone: "bad" });
 
-    const second = month(game);
+    const second = restMonth(game);
     expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 2 });
     expect(qualityChanges(second, GROUP_LOAN).map((event) => [event.quality, event.amount])).toEqual([
       [STANDING, -12],
@@ -644,7 +635,7 @@ describe("the group loan", () => {
     expect(second.lines.find((line) => line.key === "line.obligation.group-visit")).toMatchObject({ tone: "bad", attention: true });
 
     const credit = game.state.quality[CREDIT]!;
-    const third = month(game);
+    const third = restMonth(game);
     expect(item(game, loan.id)).toMatchObject({ state: "defaulted", missed: 3 });
     expect(qualityChanges(third, GROUP_LOAN).map((event) => [event.quality, event.amount])).toEqual([
       [STANDING, -15],
@@ -657,7 +648,7 @@ describe("the group loan", () => {
 
     // From then on the lender takes from the bank, as any defaulted loan (the upkeep, charged first, is paid in full here).
     setNaira(game, ADA_UPKEEP + 5000000);
-    const taken = month(game);
+    const taken = restMonth(game);
     expect(ofType(taken, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: GROUP_LOAN, amount: 5000000 }]);
     // The credit mark now keeps every group loan closed.
     expect(offerOf(game, "offer.group-loan")).toBeNull();
@@ -710,10 +701,10 @@ describe("how the group loan reaches you", () => {
     const guarantee = Object.values(game.state.obligation.items).find((owed) => owed.entry === GUARANTEE)!;
     const balance = guarantee.principal;
     expect(balance).toBeGreaterThanOrEqual(10000000);
-    month(game);
-    month(game);
+    restMonth(game);
+    restMonth(game);
     expect(Object.values(game.state.obligation.items).some((owed) => owed.entry === GROUP_LOAN)).toBe(false);
-    const called = month(game);
+    const called = restMonth(game);
     expect(groupLoanOf(game)).toMatchObject({ principal: balance, outstanding: balance, amount: 0 });
     expect(item(game, guarantee.id)).toBeUndefined();
     expect(credits(called).filter((event) => (event as unknown as { reason: string }).reason === "loan")).toEqual([]);
@@ -724,9 +715,9 @@ describe("how the group loan reaches you", () => {
     const never = { ...content, tuning: { ...content.tuning, groupLoan: { ...GROUP, vanishBp: 0 } } };
     const game = start({ scenario: TUNDE, content: never });
     choose(game, "offer.stand-guarantor", "accept");
-    month(game);
-    month(game);
-    const ended = month(game);
+    restMonth(game);
+    restMonth(game);
+    const ended = restMonth(game);
     expect(Object.values(game.state.obligation.items).some((owed) => owed.entry === GUARANTEE || owed.entry === GROUP_LOAN)).toBe(false);
     expect(ended.lines.find((line) => line.key === "line.obligation.ended")).toBeDefined();
     const refused = start({ scenario: TUNDE, content });
@@ -740,7 +731,7 @@ describe("the way out", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     setNaira(game, 0);
-    month(game);
+    restMonth(game);
     const owed = item(game, loan.id)!.outstanding;
     setNaira(game, owed);
     const paid = game.accept({ type: "obligation/pay", obligation: loan.id, amount: owed });
@@ -752,9 +743,9 @@ describe("the way out", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     setNaira(game, 0);
-    month(game);
-    month(game);
-    month(game);
+    restMonth(game);
+    restMonth(game);
+    restMonth(game);
     expect(item(game, loan.id)?.state).toBe("defaulted");
     const owed = item(game, loan.id)!.outstanding;
     setNaira(game, 0, owed);
@@ -801,7 +792,7 @@ describe("the savings circle", () => {
     const lucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) === 0);
     const { game, circle } = joined(lucky);
     setNaira(game, 100000000);
-    const first = month(game);
+    const first = restMonth(game);
     expect(ofType(first, "obligation/pot-paid")).toEqual([{ type: "obligation/pot-paid", id: circle.id, entry: AJO, amount: POT }]);
     expect(credits(first)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: POT, reason: "gift" });
     expect(first.lines.find((line) => line.key === "line.obligation.pot")).toMatchObject({ tone: "good", attention: true });
@@ -809,8 +800,8 @@ describe("the savings circle", () => {
     const unlucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) !== 0 && draw(seed, "lotto", 1, 9) === 0);
     const later = joined(unlucky);
     setNaira(later.game, 100000000);
-    expect(ofType(month(later.game), "obligation/pot-paid")).toEqual([]);
-    expect(ofType(month(later.game), "obligation/pot-paid")).toHaveLength(1);
+    expect(ofType(restMonth(later.game), "obligation/pot-paid")).toEqual([]);
+    expect(ofType(restMonth(later.game), "obligation/pot-paid")).toHaveLength(1);
   });
 
   test.prop([fc.string({ minLength: 1, maxLength: 8 })], { numRuns: 12 })(
@@ -821,7 +812,7 @@ describe("the savings circle", () => {
       let paidIn = 0;
       for (let count = 0; count < 10; count += 1) {
         setNaira(game, 100000000);
-        const result = month(game);
+        const result = restMonth(game);
         pots += ofType(result, "obligation/pot-paid").reduce((sum, event) => sum + event.amount, 0);
         paidIn += ofType(result, "obligation/charged").filter((event) => event.id === circle.id).reduce((sum, event) => sum + event.total, 0);
       }
@@ -838,9 +829,9 @@ describe("the savings circle", () => {
     const game = start({ scenario: ADA, content, seed: unlucky });
     const circle = open(game, AJO);
     setNaira(game, 100000000);
-    month(game);
+    restMonth(game);
     setNaira(game, 0);
-    const missed = month(game);
+    const missed = restMonth(game);
     expect(item(game, circle.id)).toBeUndefined();
     expect(ofType(missed, "obligation/closed")).toEqual([{ type: "obligation/closed", id: circle.id, entry: AJO, why: "dropped" }]);
     expect(qualityChanges(missed, AJO).map((event) => [event.quality, event.amount])).toEqual([[STANDING, -6]]);

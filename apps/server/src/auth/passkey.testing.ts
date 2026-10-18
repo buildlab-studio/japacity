@@ -4,8 +4,8 @@
 // https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 // https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion
 // https://www.w3.org/TR/webauthn-3/#sctn-none-attestation
-import { makeJar, SITE } from "./testing";
-import type { Harness, Jar } from "./testing";
+import { makeJar, SITE } from "./auth.testing";
+import type { Harness, Jar } from "./auth.testing";
 
 function base64url(bytes: Uint8Array): string {
   let binary = "";

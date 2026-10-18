@@ -2,8 +2,8 @@ import type { State } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { accountHash, deletionStatus } from "../account/deletion";
-import { harness, makeJar } from "../auth/testing";
-import type { Harness } from "../auth/testing";
+import { harness, makeJar } from "../auth/auth.testing";
+import type { Harness } from "../auth/auth.testing";
 import { runDeletions } from "./deletion";
 
 afterEach(() => {

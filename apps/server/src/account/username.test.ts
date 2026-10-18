@@ -1,7 +1,7 @@
 import { blockedWords, reservedNames } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/testing";
+import { harness, makeJar } from "../auth/auth.testing";
 import { productionConfig } from "../config";
 import { generatedUsername, nameProblem, renameFrom } from "./username";
 

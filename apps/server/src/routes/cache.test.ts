@@ -3,8 +3,8 @@
 import { int, time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { call, testServer } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { call, testServer } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import { productionConfig } from "../config";
 import type { Limiter } from "../deps";
 import { openLimiters } from "../deps";

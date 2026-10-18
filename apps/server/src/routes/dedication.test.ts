@@ -4,7 +4,7 @@ import { LIGHT_PROBLEMS, type LightProblem } from "@japacity/content";
 import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { signUp, type TestServer, testServer } from "../authority/testing";
+import { signUp, type TestServer, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import type { ServerRejection } from "../types";

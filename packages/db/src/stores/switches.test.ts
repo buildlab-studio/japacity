@@ -1,6 +1,6 @@
 import { suiteForSwitchStore } from "@japacity/store/contract";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgSwitchStore } from "./switches";
 
 const fresh = freshHandle();

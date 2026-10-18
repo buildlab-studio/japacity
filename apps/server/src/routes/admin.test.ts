@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { countRejection } from "../admin/rejections";
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
 import { TEST_SIGNED_IN_WITH, testSession } from "../deps";

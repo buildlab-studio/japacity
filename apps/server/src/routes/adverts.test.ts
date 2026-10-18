@@ -3,13 +3,13 @@ import type { Id } from "@japacity/sim";
 import { int, time } from "@japacity/sim";
 import { describe, expect, test, vi } from "vitest";
 
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { addAdvertCounters, ADVERT_COUNTERS } from "../adverts/counts";
 import { advertLinksJob, recheckWindow } from "../adverts/job";
 import type { Fetcher } from "../adverts/links";
 import type { AdvertsReply } from "../adverts/serve";
-import { base64, jpegOf, pngOf, webpOf } from "../adverts/testing";
+import { base64, jpegOf, pngOf, webpOf } from "../adverts/adverts.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { testSession } from "../deps";

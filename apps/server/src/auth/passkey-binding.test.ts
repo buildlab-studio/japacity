@@ -7,9 +7,9 @@ import { describe, expect, test } from "vitest";
 import { testConfig } from "../config";
 import { accountHash, ADMIN_PASSKEY_BIND_DETAIL, PASSKEY_ROWS } from "./hooks";
 import type { PasskeyNote } from "./hooks";
-import { softwarePasskey } from "./software-passkey";
-import { harness } from "./testing";
-import type { Harness } from "./testing";
+import { softwarePasskey } from "./passkey.testing";
+import { harness } from "./auth.testing";
+import type { Harness } from "./auth.testing";
 
 async function signedUp(h: Harness, email: string, admin: boolean) {
   const result = await h.signUp(email);

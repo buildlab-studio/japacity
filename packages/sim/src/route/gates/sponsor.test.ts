@@ -9,8 +9,10 @@ import type { Registry } from "../../engine/kind";
 import { stepWith } from "../../engine/step";
 import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, ScenarioEntry, Terms, Tuning } from "../../engine/types";
 import { registry } from "../../kinds";
+import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
-import { applyEffects, draw, READY, readyLife, slot, UK, UNIT, withEffects } from "../../testing/route.journey";
+import { judge, pounds, readOf, routeOf } from "../../testing/read";
+import { applyEffects, draw, linesOf, READY, readyLife, slot, UK, UNIT } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { findChanceBp, findSponsor, sponsorGate, sponsorJob } from "./sponsor";
@@ -28,7 +30,6 @@ const MAINTENANCE = content.var["var.uk-skilled-maintenance"]!.start;
 const CARE_FEE = content.var["var.uk-care-visa-fee"]!.start;
 
 /** The floor and the ceiling of R-ROUTE-016 pinned together: never refused, or always. */
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
 const ALWAYS_REFUSED: Partial<Tuning["route"]> = { refusalMinBp: 10000, refusalMaxBp: 10000 };
 
 /** Everything the care route asks for, in date: passport, licence, verification, English at band 4.0, TB. */
@@ -69,14 +70,6 @@ function worker(options: LifeOptions = {}): Game {
   return readyLife(content, { documents: SKILLED_PAPERS, quiet: true, change: working(null, { "activity.job-teacher": 24 }), ...options });
 }
 
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
 /**
  * Talk of the route reaches the character, then it is looked into. Looking
  * into a route needs the UK master's heard (the activity names it), which
@@ -108,24 +101,8 @@ function hideFraud(game: Game, route: Id<"route">): void {
   game.state = { ...game.state, route: { ...game.state.route, [route]: { ...routeOf(game, route), secret: { sponsorFraud: true } } } };
 }
 
-function pounds(game: Game): number {
-  const pocket = game.state.wallet.pockets.GBP;
-  return pocket.bank + pocket.cash;
-}
-
-function judge(game: Game, requirement: Requirement): boolean {
-  return check(readOf(game), requirement).met;
-}
-
 function checklistItem(game: Game, route: Id<"route">, item: string) {
   return game.view().routes.find((view) => view.id === route)!.checklist.find((entry) => entry.id === item)!;
-}
-
-/** The route's report lines from carrying out effects as an offer's take would. */
-function linesOf(game: Game, effects: Effect[], terms: Terms): ReportLine[] {
-  const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
-  if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
-  return result.lines.filter((line) => line.key.startsWith("line.route."));
 }
 
 /** Ngozi known on the care route with an honest sponsor at the bar, ready to apply. */

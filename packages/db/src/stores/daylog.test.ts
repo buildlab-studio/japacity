@@ -2,7 +2,7 @@ import type { State } from "@japacity/sim";
 import type { AccountRow, LogRow, NewCharacter } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgAccountStore } from "./account";
 import { pgDayLog } from "./daylog";
 import { pgPlayerStores } from "./player";

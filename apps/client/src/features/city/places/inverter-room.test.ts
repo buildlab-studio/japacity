@@ -18,8 +18,8 @@ import { personOfLook } from "../roster";
 import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow, thingsOf } from "../things";
 import { groundGeometry } from "../world";
-import { actEntries } from "./frontageTesting";
-import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./placeTesting";
+import { actEntries } from "./frontage.testing";
+import { allPalette, city, instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
 
 const ID = "place.yaba-hub";
 const { file, stage, entry } = staged(placeFile, ID);

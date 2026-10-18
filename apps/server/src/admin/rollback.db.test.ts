@@ -13,7 +13,7 @@ import { productionConfig } from "../config";
 import { rollbackCli } from "./cli";
 import type { Database, OpenDatabase } from "./database";
 import { databaseDeps, databaseFrom } from "./database";
-import { createLife, life, playRows } from "./fixtures";
+import { createLife, life, playRows } from "./admin.testing";
 import { storeSave } from "./memory";
 
 const ID = "character.tunde";

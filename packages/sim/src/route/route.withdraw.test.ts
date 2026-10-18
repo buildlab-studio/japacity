@@ -3,20 +3,16 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Id, RouteState, Tuning } from "../engine/types";
 import type { Game } from "../testing/play";
 import { answerInterview, applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "../testing/people.journey";
+import { ALWAYS_GRANTED } from "../testing/place.journey";
+import { routeOf } from "../testing/read";
 import { slot } from "../testing/route.journey";
 
 const used = content;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const PARTNER_FEE = content.var["var.uk-partner-fee"]!.start;
 const SETTLED = facts({ where: "abroad", country: "country.uk", status: "status.uk-settled", meetsFloor: { [UK_PARTNER]: true } });
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
-
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
 
 /** A UK partner application in, sent from a married life with a settled sponsor. */
 function partnerApplying(): Game {

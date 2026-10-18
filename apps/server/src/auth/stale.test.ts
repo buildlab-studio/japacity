@@ -7,10 +7,10 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { PASS_COOKIE } from "../account/age";
 import { DEVICE_COOKIE } from "../account/guest";
-import { softwarePasskey } from "./software-passkey";
+import { softwarePasskey } from "./passkey.testing";
 import { headersWithoutSession } from "./stale";
-import { harness } from "./testing";
-import type { Harness, Jar } from "./testing";
+import { harness } from "./auth.testing";
+import type { Harness, Jar } from "./auth.testing";
 
 afterEach(() => {
   vi.unstubAllGlobals();

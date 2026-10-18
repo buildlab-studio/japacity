@@ -3,7 +3,7 @@ import { pairId, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { characterOf } from "../authority/command";
-import { view } from "../authority/testing";
+import { view } from "../authority/authority.testing";
 import type { InviteAccepted, InviteMade, InviteShown, InvitesListed } from "./invite";
 import type { PairRejection } from "./codes";
 import { act, bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, playPrologue, recordOf, signUp, stateOf, tuned } from "./pair.testing";

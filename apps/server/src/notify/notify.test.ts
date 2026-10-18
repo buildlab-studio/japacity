@@ -3,10 +3,10 @@ import { newState, time } from "@japacity/sim";
 import type { PushSubscriptionJson } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness } from "../auth/testing";
+import { harness } from "../auth/auth.testing";
 import { sendAuthority } from "../authority/command";
-import type { TestServer } from "../authority/testing";
-import { newLife, restMonth, send, testServer, view } from "../authority/testing";
+import type { TestServer } from "../authority/authority.testing";
+import { newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
 import { productionConfig } from "../config";
 import { turnClock } from "../clock/view";
 import { runDeletions } from "../jobs/deletion";

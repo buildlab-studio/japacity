@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { expect, test, type Page, type Route } from "@playwright/test";
 
 // The admin routes are answered in the browser from the page's own fixtures: the dev server has no server behind it.
-import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.fixtures";
+import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.testing";
 
 /** Where the pictures go, when asked for. */
 const PREVIEW = process.env.PREVIEW_DIR;

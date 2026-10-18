@@ -5,7 +5,7 @@ import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } 
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/sound/fakeSound";
+import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/sound/sound.testing";
 import { installSoundWake, MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { soundText } from "../../shared/sound/sound.words";

@@ -9,7 +9,7 @@ import { defineConfig } from "vitest/config";
 // to the tools' own tests and must never run as tests themselves.
 const contentEntry = fileURLToPath(new URL("./packages/content/src/index.ts", import.meta.url));
 
-const fixtureFolders = ["tools/lint-fixtures/**", "tools/__fixtures__/**"];
+const fixtureFolders = ["tools/__fixtures__/**"];
 
 // The lock races need a real Postgres, so the db-race project is defined only
 // when it is asked for by name: `pnpm vitest run --project db-race`.

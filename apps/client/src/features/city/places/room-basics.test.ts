@@ -18,7 +18,7 @@ import { sceneWords } from "../scene.words";
 import { aimShot, shotOf, WHOLE } from "../shot";
 import { byHandAt } from "../staging";
 import { stagedNow, thingSpot, thingsNow } from "../things";
-import { instancesOf } from "./placeTesting";
+import { instancesOf } from "./place.testing";
 
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;

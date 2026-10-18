@@ -4,13 +4,15 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
-import type { Id, RouteState, Tuning } from "../../engine/types";
+import type { Id, RouteState } from "../../engine/types";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
-import { draw, READY_PAPERS, seedWhere, slot } from "../../testing/route.journey";
+import { draw, pastDecision, READY_PAPERS, seedWhere, slot } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
-import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "../../testing/people.journey";
+import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, scored, setFacts, setPeople, UK_PARTNER } from "../../testing/people.journey";
+import { ALWAYS_GRANTED } from "../../testing/place.journey";
+import { pounds, readOf, routeOf } from "../../testing/read";
 
 const ukPartner = content.route[UK_PARTNER]!;
 const caSpouse = content.route[CA_SPOUSE]!;
@@ -20,17 +22,6 @@ const FEE = content.var["var.uk-partner-fee"]!.start;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;
 const SETTLED = facts({ where: "abroad", country: "country.uk", status: "status.uk-settled", meetsFloor: { [UK_PARTNER]: true } });
 const CA_RESIDENT = facts({ where: "abroad", country: "country.canada", status: "status.ca-resident" });
-
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
-
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
-
-function pounds(game: Game): number {
-  const pocket = game.state.wallet.pockets.GBP;
-  return pocket.bank + pocket.cash;
-}
 
 /** Ada married to a sponsor whose facts are `sponsor`, the joint agreed with the sponsor leading on `route`. */
 function married(route: Id<"route">, sponsor = SETTLED, options: LifeOptions = {}): Game {
@@ -56,12 +47,6 @@ function applied(route: Id<"route"> = UK_PARTNER, sponsor = SETTLED, options: Li
   expect(game.state.interview.open?.route).toBe(route);
   answerInterview(game);
   return game;
-}
-
-/** Months pass until the application's decision month has come and gone. */
-function pastDecision(game: Game, route: Id<"route">): void {
-  const decision = routeOf(game, route).visa!.decisionMonth;
-  while (game.state.turn.month < decision) game.endTurn();
 }
 
 describe("R-PEOPLE-025: hearing of the partner route", () => {

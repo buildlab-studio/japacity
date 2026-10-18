@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/testing";
-import type { Harness, Jar } from "../auth/testing";
+import { harness, makeJar } from "../auth/auth.testing";
+import type { Harness, Jar } from "../auth/auth.testing";
 import type { AccountReply } from "./account";
 
 afterEach(() => {

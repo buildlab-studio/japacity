@@ -4,11 +4,12 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
-import type { Accepted, BaseEvent, Id, ReadCtx } from "../engine/types";
+import type { Id } from "../engine/types";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { moneyOf, readOf } from "../testing/read";
 import { freeSlots } from "../turn/turn.logic";
 import { sideJobHeld, SIDE_JOB_LOCK } from "./activity.logic";
 
@@ -17,22 +18,6 @@ const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
 const RIDE: Id<"activity"> = "activity.ride-driving";
 const HUNT: Id<"activity"> = "activity.job-hunt";
 const tuning = content.tuning;
-
-interface Money {
-  type: string;
-  currency: string;
-  pocket: string;
-  amount: number;
-  reason: string;
-}
-
-function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 function payOf(id: Id<"activity">): number {
   const amount = content.activity[id]?.pay?.amount;

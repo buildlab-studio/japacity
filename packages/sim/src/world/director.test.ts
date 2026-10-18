@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import type { Content, EraEntry, Id, NewsEntry, World } from "../engine/types";
 import { start } from "../testing/play";
+import { pooled, stageOf, starts } from "../testing/world";
 import type { DirectorTick } from "./director";
 import { directorTicks } from "./director";
 import { standInWorld, standInWorlds } from "./standIn";
@@ -14,17 +15,6 @@ const OTHER: Id<"era"> = "era.crash";
 const STUDY_WINDOW: Id<"var"> = "var.uk-study-window";
 const STUDY_SURGE: Id<"var"> = "var.uk-study-surge";
 const PANDEMIC: Id<"news"> = "news.pandemic-borders";
-
-/** A director story for a test pool. It fires on every roll it is allowed and stays in force for good unless told otherwise. */
-function pooled(id: Id<"news">, rules: Partial<NonNullable<NewsEntry["director"]>> = {}, standIn: Partial<NewsEntry["standIn"]> = {}): NewsEntry {
-  return {
-    id,
-    touches: [],
-    hear: [],
-    director: { group: "test", needs: [], cooldown: 0, once: false, shock: false, endedBy: null, adds: [], ...rules },
-    standIn: { chanceBp: 10000, announce: { between: [0, 0] }, rumourLead: 0, forceLag: 2, endsAfter: null, sets: [], revert: false, ...standIn },
-  };
-}
 
 /** An era for a test, with its story from the real content. */
 function era(id: Id<"era">, ticks: [number, number], after: Record<string, number>, weights: Record<string, number> = {}): EraEntry {
@@ -44,15 +34,6 @@ function withPool(news: NewsEntry[], change: { eras?: Content["era"]; director?:
     era: eras,
     tuning: { ...content.tuning, director: { ...director, ...change.director } },
   };
-}
-
-/** The ticks on which a story started a pass. */
-function starts(ticks: DirectorTick[], id: Id<"news">): number[] {
-  return ticks.filter((tick) => tick.started.includes(id)).map((tick) => tick.tick);
-}
-
-function stageOf(world: World | DirectorTick, id: Id<"news">) {
-  return world.news.find((story) => story.id === id) ?? null;
 }
 
 describe("determinism", () => {

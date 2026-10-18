@@ -27,7 +27,7 @@ import { sceneWords } from "../scene.words";
 import { aimRoom, easeRoomView, easeZoom, EASE, FULL_TURN, homeTap, ROOM_ACROSS, ROOM_EASE, ROOM_SETTLE, roomAcross, roomAt, roomFirst, roomTarget, SETTLE, SHOT_FOV, shotOf, TOP_PITCH, type ViewEase } from "../shot";
 import { thingSpot } from "../things";
 import { groundGeometry } from "../world";
-import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./placeTesting";
+import { allPalette, city, instancesOf, measured, rowOf, totalsOf } from "./place.testing";
 import { stubReducedMotion } from "../../../shared/testing/motion";
 import { motionReduced } from "../../../shared/ui/motion";
 

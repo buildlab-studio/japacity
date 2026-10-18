@@ -10,10 +10,10 @@ import type { PgliteConnection } from "@japacity/db/pglite";
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 
 import { drizzleAuthAdapter } from "./auth/drizzle";
-import { harness, makeJar, SECRET, SITE } from "./auth/testing";
-import type { Jar } from "./auth/testing";
+import { harness, makeJar, SECRET, SITE } from "./auth/auth.testing";
+import type { Jar } from "./auth/auth.testing";
 import { ADMIN_STATEMENT_MS, ADMIN_TIMEOUT_DETAIL } from "./admin/timeout";
-import { softwarePasskey } from "./auth/software-passkey";
+import { softwarePasskey } from "./auth/passkey.testing";
 import { productionConfig } from "./config";
 import type { ServerConfig } from "./config";
 import { memoryStores, openLimiters } from "./deps";

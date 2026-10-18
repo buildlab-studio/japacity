@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { fakeSound, type FakeSoundOptions } from "./fakeSound";
+import { fakeSound, type FakeSoundOptions } from "./sound.testing";
 import {
   beginScene,
   clearNotice,

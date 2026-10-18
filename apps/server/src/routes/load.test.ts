@@ -6,8 +6,8 @@ import { fileURLToPath } from "node:url";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { call, held, newLife, testServer } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { call, held, newLife, testServer } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerReply } from "../types";
 import { countingPlayerStore, emptyCounts, loadRoutes, warmCommand } from "./load";

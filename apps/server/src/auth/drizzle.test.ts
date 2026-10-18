@@ -7,7 +7,7 @@ import { memoryStores } from "../deps";
 import type { Stores } from "../deps";
 import type { ServerReply, ViewReply } from "../types";
 import { drizzleAuthAdapter } from "./drizzle";
-import { harness, makeJar } from "./testing";
+import { harness, makeJar } from "./auth.testing";
 
 let connection: PgliteConnection | null = null;
 

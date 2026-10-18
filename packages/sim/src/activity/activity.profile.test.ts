@@ -5,12 +5,13 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
-import type { Accepted, ActivityEntry, BaseEvent, Id, Money, ReadCtx, SlotPick } from "../engine/types";
+import type { Accepted, ActivityEntry, BaseEvent, Id, Money, SlotPick } from "../engine/types";
 import { pointsScore } from "../route/gates/points";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { readOf } from "../testing/read";
 
 const NIGHT: Id<"activity"> = "activity.night-support";
 const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
@@ -50,10 +51,6 @@ function entryOf(id: Id<"activity">): ActivityEntry {
 function figure(money: Money): number {
   if (typeof money.amount !== "number") throw new Error("A fixed figure was expected.");
   return money.amount;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function qualityOf(game: Game, quality: Id<"quality">): number {

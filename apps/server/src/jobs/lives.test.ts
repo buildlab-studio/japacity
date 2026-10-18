@@ -12,8 +12,8 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { utcDay } from "../admin/day";
 import { dayName } from "../analytics/day";
 import { memoryStores } from "../deps";
-import { newLife, restMonth, send, testServer, view } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import { countLives, LIVES_CRON, livesJob } from "./lives";
 
 const opened: PgliteConnection[] = [];

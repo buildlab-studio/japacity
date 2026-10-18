@@ -3,7 +3,7 @@
 import { describe, expect, test } from "vitest";
 
 import placeFile from "../../../../public/assets/places/bode-thomas/place.json";
-import { allPalette, copiesOf, highCrowd, instancesOf, lowCrowd, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
+import { allPalette, copiesOf, highCrowd, instancesOf, lowCrowd, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
 
 const { file, stage, entry } = staged(placeFile, "place.bode-thomas");
 // The two kerbs either side of the carriageway: the raised strips nearest the street's middle.

@@ -5,8 +5,10 @@ import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
 import { checkInvariants } from "../../engine/invariants";
-import type { ActivityEntry, Content, Id, ReadCtx, ReportLine, RouteEntry, RouteState, Tuning } from "../../engine/types";
+import type { ActivityEntry, Content, Id, RouteEntry, RouteState } from "../../engine/types";
+import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
+import { readOf, routeKeys } from "../../testing/read";
 import { UK, applyEffects, draw, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
@@ -24,8 +26,6 @@ const ENDORSEMENT = block.document;
 const startVar = (id: Id<"var">): number => content.var[id]!.start;
 /** The bars of R-ENDORSE-001, each exactly met. */
 const AT_BARS = { "quality.tech": 75, "quality.portfolio": 3, "quality.network": 50 };
-
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
 
 /** Content whose talent route has the endorsement block changed. */
 function withBlock(change: Partial<NonNullable<RouteEntry["endorsement"]>>): (used: Content) => Content {
@@ -51,10 +51,6 @@ function talentLife(options: LifeOptions = {}): Game {
   return readyLife(content, { quiet: true, ...options, vars, qualities: { ...AT_BARS, ...options.qualities } });
 }
 
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
 function talent(game: Game): RouteState {
   return game.state.route[TALENT]!;
 }
@@ -63,10 +59,6 @@ function refusedMonth(game: Game): number | null {
   const held = talent(game).gate;
   if (held?.gate !== "endorsement") throw new Error("The talent route holds no endorsement gate state.");
   return held.endorsementRefusedMonth;
-}
-
-function routeKeys(lines: ReportLine[]): string[] {
-  return lines.filter((line) => line.key.startsWith("line.route.")).map((line) => line.key);
 }
 
 /** The UK master's is heard of by month 3, which the look-into slot needs; then talk of the talent route at a meetup, and a look. */

@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { check } from "../../engine/check";
 import { divFloor } from "../../engine/int";
 import { checkInvariants } from "../../engine/invariants";
-import type { Content, Id, OfferEntry, OfferState, ReadCtx, Requirement, RequirementResult, RouteEntry, RouteGateState, TermSpec } from "../../engine/types";
+import type { Content, Id, OfferEntry, OfferState, Requirement, RequirementResult, RouteEntry, RouteGateState, TermSpec } from "../../engine/types";
 import { japacity } from "../../japacity/japacity.logic";
 import { abroad } from "../../testing/obligation.journey";
 import { pressureChanceBp } from "../../offer/offer.logic";
@@ -17,6 +17,7 @@ import { freeSlots } from "../../turn/turn.logic";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
 import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
+import { cash, quality, readOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
 
@@ -98,14 +99,6 @@ function gateOf(game: Game): Road {
   return gate;
 }
 
-function cash(game: Game): number {
-  return game.state.wallet.pockets.NGN.cash;
-}
-
-function quality(game: Game, id: Id<"quality">): number {
-  return game.state.quality[id] ?? 0;
-}
-
 function offerOf(game: Game, entry: Id<"offer">): OfferState | undefined {
   return Object.values(game.state.offer.items).find((item) => item.entry === entry);
 }
@@ -113,10 +106,6 @@ function offerOf(game: Game, entry: Id<"offer">): OfferState | undefined {
 function owed(game: Game, entry: Id<"obligation">): number | null {
   const item = Object.values(game.state.obligation.items).find((open) => open.entry === entry);
   return item === undefined ? null : item.outstanding;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function turn(game: Game) {

@@ -6,8 +6,10 @@ import { describe, expect } from "vitest";
 
 import { check } from "../../engine/check";
 import { checkInvariants } from "../../engine/invariants";
-import type { Content, Id, ReadCtx, ReportLine, RouteState, ScenarioEntry, State, Tuning } from "../../engine/types";
+import type { Content, Id, ReadCtx, RouteState, ScenarioEntry, State, Tuning } from "../../engine/types";
+import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
+import { readOf, routeKeys } from "../../testing/read";
 import { READY, READY_PAPERS, UNIT, applyEffects, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
@@ -34,7 +36,6 @@ const DECISION_MONTHS = startVar(block.decisionVar);
 /** Zainab's score on the page's worked example. */
 const ZAINAB_SCORE = 404;
 
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
 const ALWAYS_REFUSED: Partial<Tuning["route"]> = { refusalMinBp: 10000, refusalMaxBp: 10000 };
 
 /** The ready papers and a credential assessment, so a life reaches the pool in a few turns. */
@@ -53,10 +54,6 @@ function zainab(options: LifeOptions = {}): Game {
   return readyLife(content, { from: ZAINAB, quiet: true, documents: ECA_PAPERS, pockets: POCKETS, ...options });
 }
 
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
 function canada(game: Game): RouteState {
   return game.state.route[CANADA]!;
 }
@@ -65,10 +62,6 @@ function gate(game: Game): { poolMonth: number | null; invitedMonth: number | nu
   const held = canada(game).gate;
   if (held?.gate !== "points") throw new Error("The Canada route holds no points gate state.");
   return { poolMonth: held.poolMonth, invitedMonth: held.invitedMonth };
-}
-
-function routeKeys(lines: ReportLine[]): string[] {
-  return lines.filter((line) => line.key.startsWith("line.route.")).map((line) => line.key);
 }
 
 function stepMet(game: Game, step: string): boolean {

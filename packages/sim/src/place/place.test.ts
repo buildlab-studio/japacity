@@ -11,6 +11,7 @@ import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
+import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
 
 const UK: Id<"country"> = "country.uk";
@@ -64,10 +65,6 @@ const tuning = content.tuning;
 const brokeLine = tuning.place.brokeLine;
 const capitalPer = tuning.return.capitalPer;
 const ukFare = content.country[UK]!.fare;
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 function placeLines(lines: ReportLine[]): ReportLine[] {
   return lines.filter((line) => line.key.startsWith("line.place."));

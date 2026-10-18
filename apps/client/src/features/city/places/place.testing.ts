@@ -38,11 +38,15 @@ export async function measured(path: string): Promise<Measured> {
   return measureFile(PATHS, path);
 }
 
+/** Every file the place shows, its instances and its crowd's sample, each measured once, by path. */
+export async function measuredFiles(file: PlaceFile): Promise<Map<string, Measured>> {
+  const files = [...new Set([...file.instances.map((instance) => instance.file), ...file.people.sample])];
+  return new Map(await Promise.all(files.map(async (path) => [path, await measureFile(PATHS, path)] as const)));
+}
+
 /** The place counted as the build check counts it: the instances, the floor and the heaviest of the sample times each mode's crowd. */
 export async function totalsOf(file: PlaceFile): Promise<PlaceTotals> {
-  const files = [...new Set([...file.instances.map((instance) => instance.file), ...file.people.sample])];
-  const measured = new Map(await Promise.all(files.map(async (path) => [path, await measureFile(PATHS, path)] as const)));
-  const { totals, missing } = placeTotals(file as unknown as CheckedPlace, measured);
+  const { totals, missing } = placeTotals(file as unknown as CheckedPlace, await measuredFiles(file));
   expect(missing).toEqual([]);
   return totals;
 }

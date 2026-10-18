@@ -5,8 +5,8 @@ import { content } from "@japacity/content";
 import type { Command, Content, PairRecord, State } from "@japacity/sim";
 import { pairId } from "@japacity/sim";
 
-import type { TestServer } from "../authority/testing";
-import { call, held, newLife, send, signUp, testServer, view } from "../authority/testing";
+import type { TestServer } from "../authority/authority.testing";
+import { call, held, newLife, send, signUp, testServer, view } from "../authority/authority.testing";
 import { load } from "../authority/load";
 import { testConfig } from "../config";
 import type { ServerDeps } from "../deps";

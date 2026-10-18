@@ -15,6 +15,7 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { WalletEvent } from "../wallet/wallet.events";
 import { compoundMoveIn } from "../home/home.logic";
+import { eventsOf, naira, quality, restMonth } from "../testing/read";
 
 const FAMILY = "place.family-house";
 const COMPOUND = "place.compound-room";
@@ -52,11 +53,6 @@ function ada(): Game {
   return start({ content, scenario: "scenario.ada", seed: "seed-1" });
 }
 
-function naira(game: Game): number {
-  const { cash, bank } = game.state.wallet.pockets.NGN;
-  return cash + bank;
-}
-
 /** Leaves exactly this much naira, all in the bank. */
 function setNaira(game: Game, bank: number): void {
   const pocket = game.state.wallet.pockets.NGN;
@@ -65,10 +61,6 @@ function setNaira(game: Game, bank: number): void {
   if (pocket.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" });
   if (bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" });
   applyEffects(game, effects);
-}
-
-function quality(game: Game, id: Id<"quality">): number {
-  return game.state.quality[id] ?? 0;
 }
 
 function setQuality(game: Game, id: Id<"quality">, value: number): void {
@@ -90,15 +82,6 @@ function moved(result: { events: BaseEvent[] }): { type: string; reason: string;
   return result.events
     .filter((event): event is BaseEvent & Extract<WalletEvent, { type: "wallet/debited" | "wallet/credited" }> => event.type === "wallet/debited" || event.type === "wallet/credited")
     .map((event) => ({ type: event.type, reason: event.reason, amount: event.amount }));
-}
-
-function eventsOf(result: { events: BaseEvent[] }, type: string): (BaseEvent & Record<string, unknown>)[] {
-  return result.events.filter((event) => event.type === type) as (BaseEvent & Record<string, unknown>)[];
-}
-
-function month(game: Game): Accepted {
-  if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
-  return game.endTurn();
 }
 
 /** Ada moved into the room in a compound with `spare` naira left. */
@@ -273,11 +256,11 @@ describe("what a thing does in life", () => {
     const course = content.activity["activity.learn-tech"]!.cost[0]!.amount as number;
     expect(game.view().activities.find((one) => one.id === "activity.learn-tech")?.cost).toEqual([{ currency: "NGN", amount: bp(course, 6000) }]);
     expect(game.view().things.running).toBe(content.thing["thing.data"]!.running);
-    let result = month(game);
+    let result = restMonth(game);
     expect(eventsOf(result, "things/ran")).toEqual([{ type: "things/ran", thing: "thing.data", amount: content.thing["thing.data"]!.running }]);
     expect(moved(result).filter((one) => one.reason === "running")).toEqual([{ type: "wallet/debited", reason: "running", amount: content.thing["thing.data"]!.running }]);
     buy(game, "thing.phone");
-    result = month(game);
+    result = restMonth(game);
     expect(eventsOf(result, "things/ran")).toEqual([{ type: "things/ran", thing: "thing.data", amount: bp(content.thing["thing.data"]!.running, 5000) }]);
   });
 
@@ -286,11 +269,11 @@ describe("what a thing does in life", () => {
     const game = inTheRoom(price("thing.generator"));
     buy(game, "thing.generator");
     expect(naira(game)).toBe(0);
-    let result = month(game);
+    let result = restMonth(game);
     expect(eventsOf(result, "things/stood")).toEqual([{ type: "things/stood", thing: "thing.generator", amount: fuel }]);
     expect(moved(result).filter((one) => one.reason === "running")).toEqual([]);
     setNaira(game, fuel);
-    result = month(game);
+    result = restMonth(game);
     expect(eventsOf(result, "things/ran")).toEqual([{ type: "things/ran", thing: "thing.generator", amount: fuel }]);
     expect(result.events.some((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === WELLBEING)).toBe(true);
   });
@@ -299,7 +282,7 @@ describe("what a thing does in life", () => {
     const game = inTheRoom(price("thing.tv") + price("thing.laptop"));
     buy(game, "thing.tv");
     buy(game, "thing.laptop");
-    month(game);
+    restMonth(game);
     game.accept({ type: "home/move", to: FAMILY });
     const owned = game.view().things.owned;
     expect(owned.map((one) => [one.thing, one.stored])).toEqual([
@@ -314,7 +297,7 @@ describe("what a thing does in life", () => {
 
   test("[R-HOME-013] [R-HOME-001] given a life that owns nothing, when the month closes, then the things kind tells and moves nothing, so a life with no things plays as if there were no market", () => {
     const game = ada();
-    const result = month(game);
+    const result = restMonth(game);
     expect(result.events.filter((event) => event.type.startsWith("things/"))).toEqual([]);
     expect(game.view().things).toMatchObject({ owned: [], drive: false, running: 0 });
   });
@@ -342,7 +325,7 @@ describe("the car on the map (R-PLACE-010 and R-WORLD-017)", () => {
   test("[R-HOME-013] [R-PLACE-010] given a car bought at the room, when Ada moves to the hostel, which has no car spot, then the car is stored there and Drive is not offered", () => {
     const game = inTheRoom(price("thing.car") + content.tuning.home.hostelRentKobo);
     buy(game, "thing.car");
-    month(game);
+    restMonth(game);
     setNaira(game, content.tuning.home.hostelRentKobo + 10_000_00);
     game.accept({ type: "home/move", to: HOSTEL });
     expect(game.view().things.drive).toBe(false);

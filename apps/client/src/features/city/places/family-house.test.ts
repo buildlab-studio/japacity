@@ -19,8 +19,8 @@ import { sceneWords } from "../scene.words";
 import { offersHere } from "../staging";
 import { MAX_ACTS, stagedNow, thingsNow } from "../things";
 import { checkLimits } from "../../../../../../tools/assets/world-check";
-import { actEntries } from "./frontageTesting";
-import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
+import { actEntries } from "./frontage.testing";
+import { allPalette, city, instancesOf, measured, onGround, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
 
 const { file, stage, entry } = staged(placeFile, "place.family-house");
 const PARTY = "offer.send-off-party";

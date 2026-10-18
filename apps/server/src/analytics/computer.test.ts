@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
 import type { Live } from "../authority/load";
-import { held, newLife, restMonth, send, testServer, view, type TestServer } from "../authority/testing";
+import { held, newLife, restMonth, send, testServer, view, type TestServer } from "../authority/authority.testing";
 import { noteFigures } from "../boards/figures";
 import { lagosWeek } from "../boards/week";
 import { countDay } from "../jobs/counters";

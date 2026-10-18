@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import { pairIds, pairKey } from "../keys";
 import type { PairStore, PlayerStore, StoreResult, Writes } from "../types";
-import { logRow, must, newCharacter } from "./fixtures";
+import { logRow, must, newCharacter } from "./contract.testing";
 
 export interface PairStores {
   player: PlayerStore;

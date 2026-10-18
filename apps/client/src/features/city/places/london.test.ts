@@ -23,8 +23,8 @@ import { sceneWords } from "../scene.words";
 import { onShift, SHIFT_ACT, shiftMarks } from "../shift";
 import { stagedAt } from "../staging";
 import { stagedNow, thingsNow, thingSpot } from "../things";
-import { actEntries, frontageTests } from "./frontageTesting";
-import { staged } from "./placeTesting";
+import { actEntries, frontageTests } from "./frontage.testing";
+import { staged } from "./place.testing";
 import { addLateWords } from "../../../shared/words/late";
 import { londonWords } from "../../../shared/words/london.words";
 

@@ -4,10 +4,11 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry } from "../engine/types";
-import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, readOf, setPounds, settledAbroad, UK } from "../testing/obligation.journey";
+import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, setPounds, settledAbroad, UK } from "../testing/obligation.journey";
 import { playMonths } from "../testing/place.journey";
 import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
+import { readOf } from "../testing/read";
 import { creditKind, rateFor } from "./credit.logic";
 
 const CANADA: Id<"country"> = "country.canada";

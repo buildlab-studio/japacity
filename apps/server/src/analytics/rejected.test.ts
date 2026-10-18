@@ -2,7 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
-import { signUp, testServer } from "../authority/testing";
+import { signUp, testServer } from "../authority/authority.testing";
 import type { ServerCode } from "../types";
 import { dayName } from "./day";
 import { counterDef, keyAllowed } from "./list";

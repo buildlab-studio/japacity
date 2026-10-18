@@ -9,6 +9,7 @@ import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import { answerFirst, applyEffects, readyLife, toApplied, uk, UK, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
+import { quality } from "../testing/read";
 import { rollOrder } from "./offer.logic";
 
 const SEND_OFF: Id<"offer"> = "offer.family-send-off";
@@ -40,10 +41,6 @@ function granted(options: LifeOptions = {}): { game: Game; item: OfferState } {
   if (item === undefined) throw new Error("The send-off did not open the month of the grant.");
   middling(game);
   return { game, item };
-}
-
-function quality(game: Game, id: Id<"quality">): number {
-  return game.state.quality[id] ?? 0;
 }
 
 /** Qualities in the middle of their range, so no move is cut at an edge. */

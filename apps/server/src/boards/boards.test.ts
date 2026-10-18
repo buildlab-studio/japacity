@@ -4,7 +4,7 @@ import type { SwitchName } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import type { Live } from "../authority/load";
-import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "../authority/testing";
+import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { setSwitch } from "../switches/switches";
 import type { ServerRejection } from "../types";

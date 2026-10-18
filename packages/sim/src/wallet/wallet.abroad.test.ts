@@ -1,4 +1,4 @@
-// Money abroad and home again: docs/rules/abroad-money.md R-ABROAD-001, 006 and
+// MoneyEvent abroad and home again: docs/rules/abroad-money.md R-ABROAD-001, 006 and
 // 008, and wallet.md R-WALLET-011 for cash paid in over a month. Abroad is
 // reached by replaying the ada-careful golden, which ends on her departure.
 import { content } from "@japacity/content";
@@ -10,6 +10,7 @@ import { lifeSaves } from "../goldens/lives.data";
 import { applyEffects, draw } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { type MoneyEvent, moneyOf } from "../testing/read";
 import type { WalletEvent } from "./wallet.events";
 import { remitQuote, walletKind } from "./wallet.logic";
 
@@ -18,25 +19,13 @@ const FOREIGN: readonly ForeignCurrency[] = ["GBP", "USD", "CAD", "AED", "EUR"];
 /** $100, in cents. */
 const HUNDRED_DOLLARS = 10000;
 
-interface Money {
-  type: string;
-  currency: string;
-  pocket: string;
-  amount: number;
-  reason: string;
-}
-
-function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
-}
-
 /** The debits under a reason: what left a pocket. */
-function debitsOf(result: Accepted, reason: string): Money[] {
+function debitsOf(result: Accepted, reason: string): MoneyEvent[] {
   return moneyOf(result, reason).filter((event) => event.type === "wallet/debited");
 }
 
 /** The credits under a reason: what arrived. A remit leaves and arrives under the one reason. */
-function creditsOf(result: Accepted, reason: string): Money[] {
+function creditsOf(result: Accepted, reason: string): MoneyEvent[] {
   return moneyOf(result, reason).filter((event) => event.type === "wallet/credited");
 }
 

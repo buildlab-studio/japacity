@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
 import { step } from "../engine/step";
-import type { Currency, Effect, Id, ReadCtx, SetpieceAnswer, SetpieceEntry } from "../engine/types";
+import type { Currency, Effect, Id, SetpieceAnswer, SetpieceEntry } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
 import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
@@ -12,6 +12,7 @@ import { fundsRequired, offerChanceBp, unexplainedBp } from "../route/route.logi
 import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 import { flown } from "../testing/place.journey";
+import { readOf } from "../testing/read";
 
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
@@ -27,10 +28,6 @@ const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offer
 
 function life(options: LifeOptions = {}): Game {
   return readyLife(content, { seed: seedWhere(northgateOffers), ...options });
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 /** The score of an answer as the page's table gives it, for interview prep and the unexplained share. */

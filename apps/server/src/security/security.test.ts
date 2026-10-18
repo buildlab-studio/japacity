@@ -3,8 +3,8 @@
 // size, and the limits on the routes that had none.
 import { describe, expect, test } from "vitest";
 
-import { harness, makeJar, SITE } from "../auth/testing";
-import { call, held, newLife, restMonth, send, signUp, testServer } from "../authority/testing";
+import { harness, makeJar, SITE } from "../auth/auth.testing";
+import { call, held, newLife, restMonth, send, signUp, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";

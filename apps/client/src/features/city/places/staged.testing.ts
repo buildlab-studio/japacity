@@ -1,54 +1,28 @@
 // The checks every staged place passes, on the hub test's pattern (hub.test.ts): its file measured as
 // the build check measures it against the exterior row, its counts, its crowd's spots, its boards and
 // its staged entries. Each place's own test calls these and adds what that place must show.
-import { join } from "node:path";
-
 import { isPaletteName } from "@japacity/assets";
 import { content, text } from "@japacity/content";
-import type { Id, PlaceEntry } from "@japacity/sim";
+import type { Id } from "@japacity/sim";
 import { expect, test } from "vitest";
 
 import budgets from "../../../../../../assets-src/budgets.json";
 import register from "../../../../../../assets-src/register.json";
-import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/assets-check";
+import { placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/assets-check";
 import { crowdSize } from "../crowd";
-import type { PlaceFile, Spot, Stage } from "../placeFile";
+import type { Spot } from "../placeFile";
 import { personOfLook } from "../roster";
 import { stagedAt } from "../staging";
+import { city, measuredFiles, staged } from "./place.testing";
 
-const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..", "..");
-const PATHS = { root: ROOT, source: join(ROOT, "assets-src"), public: join(ROOT, "apps", "client", "public", "assets"), dist: "" };
 const PLACES = Object.values(content.place);
-const city = content.tuning.city;
-
-export interface Staged {
-  file: PlaceFile;
-  stage: Stage;
-  entry: PlaceEntry;
-  /** Every copy of a model whose file name ends with `name`. */
-  at: (name: string) => Spot[];
-}
-
-export function staged(raw: unknown, id: string): Staged {
-  const file = raw as PlaceFile;
-  const stage = file.stage;
-  if (stage === undefined) throw new Error(`${id} has no stage`);
-  const entry = content.place[id as Id<"place">];
-  if (entry === undefined) throw new Error(`${id} is missing from content`);
-  return { file, stage, entry, at: (name) => stage.models.filter((model) => model.file.endsWith(name)).flatMap((model) => model.at) };
-}
-
-export async function measured(file: PlaceFile): Promise<Map<string, Measured>> {
-  const files = [...new Set([...file.instances.map((instance) => instance.file), ...file.people.sample])];
-  return new Map(await Promise.all(files.map(async (path) => [path, await measureFile(PATHS, path)] as const)));
-}
 
 /** The tests every staged place shares; `raw` is the place's file as imported. */
-export function stagedPlaceTests(raw: unknown, id: string): void {
+export function stagedPlaceTests(raw: unknown, id: Id<"place">): void {
   const { file, stage, entry } = staged(raw, id);
 
   test(`[R-ASSET-007] given ${id}'s shipped files measured as the build check measures them, when its place is counted, then both modes fit the exterior row`, async () => {
-    const { totals, missing } = placeTotals(raw as CheckedPlace, await measured(file));
+    const { totals, missing } = placeTotals(raw as CheckedPlace, await measuredFiles(file));
     expect(missing).toEqual([]);
     for (const mode of ["low", "high"] as const) {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(budgets.place.exterior.drawCalls);
@@ -80,7 +54,7 @@ export function stagedPlaceTests(raw: unknown, id: string): void {
   });
 
   test(`[R-CITY-024] given ${id}'s buildings standing more than once, when their copies are lettered, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
-    const sizes = await measured(file);
+    const sizes = await measuredFiles(file);
     const keys: string[] = [];
     for (const model of stage.models.filter((candidate) => candidate.signs !== undefined)) {
       expect(model.signs).toHaveLength(model.at.length);

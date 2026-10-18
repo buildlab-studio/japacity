@@ -4,8 +4,8 @@ import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
 import { dayName } from "../analytics/day";
-import { newLife, restMonth, send, signUp, testServer, view } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { newLife, restMonth, send, signUp, testServer, view } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import { countDay } from "./counters";
 
 /** The day's log and the counts by region over the characters and accounts a test made, read from the memory stores. */

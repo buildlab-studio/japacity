@@ -6,28 +6,17 @@ import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
 import { bp, mulDiv } from "../engine/int";
-import type { Accepted, BaseEvent, Id, MoneyParam, ReportLine } from "../engine/types";
+import type { Id, MoneyParam, ReportLine } from "../engine/types";
 import { applyEffects, draw, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { moneyOf } from "../testing/read";
 import type { ActivityEvent, Prize } from "./activity.events";
 import { activityKind, PER_MILLION, prizeOdds, ticketParams } from "./activity.logic";
 
 const LOTTO: Id<"activity"> = "activity.play-lotto";
 const BET: Id<"activity"> = "activity.bet-slip";
 const luck = content.tuning.luck;
-
-interface Money {
-  type: string;
-  currency: string;
-  pocket: string;
-  amount: number;
-  reason: string;
-}
-
-function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
-}
 
 /** The prize a draw out of a million wins, worked out here from the odds as the page states them. */
 function expectedPrize(value: number): { prize: Prize; amount: number } | null {

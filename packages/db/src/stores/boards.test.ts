@@ -1,7 +1,7 @@
 import { must, newCharacter, suiteForBoardStore } from "@japacity/store/contract";
 import { expect, test } from "vitest";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgBoardStore } from "./boards";
 import { pgPlayerStores } from "./player";
 

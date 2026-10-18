@@ -4,11 +4,12 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Accepted, BaseEvent, Id } from "../engine/types";
+import type { Id } from "../engine/types";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import { applyEffects, readyLife, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { naira, salaries } from "../testing/read";
 
 const RACKS: Id<"activity"> = "activity.job-fish-racks";
 const HUNT: Id<"activity"> = "activity.job-hunt";
@@ -37,18 +38,6 @@ function sixteen(seed: string, answers: readonly string[]): Game {
 
 function hunted(game: Game): readonly string[] {
   return game.view().activities.find((option) => option.id === HUNT)?.params ?? [];
-}
-
-function naira(game: Game): number {
-  const pocket = game.state.wallet.pockets.NGN;
-  return pocket.bank + pocket.cash;
-}
-
-function salaries(result: Accepted): number[] {
-  return result.events
-    .filter((event): event is BaseEvent & { reason: string; amount: number; currency: string } => event.type === "wallet/credited" && (event as unknown as { reason: string }).reason === "salary")
-    .filter((event) => event.currency === "NGN")
-    .map((event) => event.amount);
 }
 
 /** A month's hunt for the racks and, when it lands, the job taken. True when the racks are the job held after. */

@@ -27,6 +27,7 @@ import {
 } from "./offer.agent";
 import type { OfferEvent } from "./offer.events";
 import { answerScore } from "../setpiece/setpiece.logic";
+import { cash, naira } from "../testing/read";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
 const OFFICE: Id<"offer"> = "offer.agent-office";
@@ -75,15 +76,6 @@ function agentOfKind(kind: AgentKind, network = advice.networkToAsk): { game: Ga
 
 function eventsOf<T extends OfferEvent["type"]>(result: Accepted, type: T): Extract<OfferEvent, { type: T }>[] {
   return result.events.filter((event: BaseEvent) => event.type === type) as unknown as Extract<OfferEvent, { type: T }>[];
-}
-
-function cash(game: Game): number {
-  return game.state.wallet.pockets.NGN.cash;
-}
-
-/** The naira held, cash and bank: an agent's fee is a street price taken by its size (wallet.md R-WALLET-018). */
-function naira(game: Game): number {
-  return game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
 }
 
 describe("who the agent is", () => {

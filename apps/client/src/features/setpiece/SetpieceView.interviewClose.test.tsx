@@ -8,7 +8,7 @@ import { act, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { useView } from "../../authority/GameProvider";
-import { fakeSound } from "../../shared/sound/fakeSound";
+import { fakeSound } from "../../shared/sound/sound.testing";
 import { installSoundWake, NOTICE_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { soundText } from "../../shared/sound/sound.words";

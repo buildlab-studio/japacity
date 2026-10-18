@@ -3,7 +3,7 @@ import type { Content, DirectorBook, Id } from "@japacity/sim";
 import { hashState, stepWorld } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { call, testServer } from "../authority/testing";
+import { call, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { jobCron, ticksJob, TICKS_CRON } from "../jobs/ticks";
 import type { WorldReply } from "../types";

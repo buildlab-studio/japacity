@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { held, view } from "../authority/testing";
+import { held, view } from "../authority/authority.testing";
 import { FRIEND, INVITER, must, pairServer, siblings, stateOf, tuned, twoSiblings } from "./pair.testing";
 
 const REQUEST = "offer.nepa-bill";

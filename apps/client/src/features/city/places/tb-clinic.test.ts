@@ -7,7 +7,7 @@ import raw from "../../../../public/assets/places/tb-clinic/place.json";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../things";
-import { onGround, staged } from "./placeTesting";
+import { onGround, staged } from "./place.testing";
 
 const { stage, entry } = staged(raw, "place.tb-clinic");
 const NURSE_JOB = "activity.job-nurse";

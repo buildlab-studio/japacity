@@ -10,7 +10,7 @@ import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import type { PresetReply, ServerReply, ViewReply } from "../types";
 import { playPreset } from "./command";
-import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "./testing";
+import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "./authority.testing";
 import { transact } from "./transaction";
 
 const { epoch } = productionConfig.clock;

@@ -3,7 +3,7 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { signUp, type TestServer, testServer } from "../authority/testing";
+import { signUp, type TestServer, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { TEST_SIGNED_IN_WITH } from "../deps";
 import { LOG_REASONS, REPORT_REASONS } from "../moderation/reports";

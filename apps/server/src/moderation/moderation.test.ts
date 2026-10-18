@@ -3,7 +3,7 @@ import { time } from "@japacity/sim";
 import type { ModerationLogEntry } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
 import { testSession } from "../deps";
@@ -12,7 +12,7 @@ import { identityHash, isBanned } from "./identities";
 import type { QueueView } from "./queue";
 import { readReport, REPORT_REASONS } from "./reports";
 import type { Standing } from "./standing";
-import { ADMIN, as, DAY, HOUR, message, moderationHarness, post, report, SECOND_ADMIN } from "./testing";
+import { ADMIN, as, DAY, HOUR, message, moderationHarness, post, report, SECOND_ADMIN } from "./moderation.testing";
 
 type Body = Record<string, unknown>;
 

@@ -9,6 +9,7 @@ import { finishPrologue, start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from "../testing/route.journey";
 import { carryOut, judgeWith, writeRoute } from "../testing/japacity.fixtures";
+import { ALWAYS_GRANTED } from "../testing/place.journey";
 import { checklistView, japacity, routePercent } from "./japacity.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -44,7 +45,6 @@ function adaKnown(used: Content = content): Game {
 }
 
 /** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
-const ALWAYS_GRANTED = { refusalMinBp: 0, refusalMaxBp: 0 };
 
 /** The first seed whose first Northgate answer is an offer for Ada's grade. */
 const OFFERED = (() => {

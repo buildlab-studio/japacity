@@ -9,6 +9,7 @@ import type { Accepted, Id } from "../engine/types";
 import type { Game } from "../testing/play";
 import { applyEffects } from "../testing/route.journey";
 import { start } from "../testing/play";
+import { naira } from "../testing/read";
 import type { WalletEvent } from "../wallet/wallet.events";
 
 const POT: Id<"activity"> = "activity.cook-at-home";
@@ -20,11 +21,6 @@ const BELLY: Id<"quality"> = "quality.belly";
 
 function quality(game: Game, id: Id<"quality">): number {
   return game.view().qualities.find((one) => one.id === id)?.value ?? 0;
-}
-
-function naira(game: Game): number {
-  const { cash, bank } = game.state.wallet.pockets.NGN;
-  return cash + bank;
 }
 
 /** What an act took, by reason. */

@@ -1,7 +1,7 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
 import { testSession } from "../deps";

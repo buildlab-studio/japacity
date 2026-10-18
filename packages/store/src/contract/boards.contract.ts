@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import type { BoardQuery, BoardStore, FigureWrite } from "../boards";
 import type { PlayerStore } from "../types";
-import { must, newCharacter } from "./fixtures";
+import { must, newCharacter } from "./contract.testing";
 
 /** A board store and the player store its rows belong to (a row names a character that exists). */
 export interface BoardStores {

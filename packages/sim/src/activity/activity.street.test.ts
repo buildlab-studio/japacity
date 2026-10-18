@@ -8,6 +8,7 @@ import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { QualityEvent } from "../quality/quality.events";
+import { debits } from "../testing/read";
 import type { ActivityEvent } from "./activity.events";
 import { hireChanceBp, paramsFor } from "./activity.logic";
 
@@ -65,11 +66,6 @@ function setNaira(game: Game, cash: number, bank: number): void {
     ...(bank > 0 ? [{ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" } as const] : []),
   ];
   applyEffects(game, effects);
-}
-
-/** Every debit in a result. */
-function debits(result: Accepted): BaseEvent[] {
-  return result.events.filter((event) => event.type === "wallet/debited");
 }
 
 /** A month with this slot beside the same month left to rest, in two copies of one life: what the slot alone moved shows as the difference. */

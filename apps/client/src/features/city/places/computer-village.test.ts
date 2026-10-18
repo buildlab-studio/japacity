@@ -9,8 +9,8 @@ import raw from "../../../../public/assets/places/computer-village/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
 import { thingSpot, vehicleOf } from "../things";
-import { frontageTests } from "./frontageTesting";
-import { copiesOf, staged, wordsOf } from "./placeTesting";
+import { frontageTests } from "./frontage.testing";
+import { copiesOf, staged, wordsOf } from "./place.testing";
 
 const ID = "place.computer-village";
 const { stage } = staged(raw, ID);

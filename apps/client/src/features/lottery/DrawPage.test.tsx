@@ -12,7 +12,7 @@ import { say } from "../../shared/words/text";
 import { checkDraw, serverDrawLoader, type DrawReply, type LoadDraw } from "./draw";
 import { DrawPage } from "./DrawPage";
 import { LotteryView } from "./LotteryView";
-import { drawnReply, drawOf, GENEROUS, onlineLife, tuning } from "./testing";
+import { drawnReply, drawOf, GENEROUS, onlineLife, tuning } from "./lottery.testing";
 
 function loader(reply: DrawReply | ServerRejection): LoadDraw & { asked: number[] } {
   const asked: number[] = [];

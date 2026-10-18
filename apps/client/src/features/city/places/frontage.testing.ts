@@ -18,7 +18,7 @@ import { personOfLook } from "../roster";
 import { sceneWords } from "../scene.words";
 import { thingSpot, withMoreAt } from "../things";
 import { groundGeometry } from "../world";
-import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./placeTesting";
+import { allPalette, city, instancesOf, measured, rowOf, signKeys, staged, totalsOf, wordsOf } from "./place.testing";
 
 /** The crowd a frontage shows in each mode: the entry's figures under the world's outdoor caps. */
 function cappedCrowd(id: Id<"place">, mode: "low" | "high"): number {

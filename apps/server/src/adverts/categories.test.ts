@@ -6,7 +6,7 @@ import { productionConfig } from "../config";
 import { campaignChecks, campaignRefusals, creativeFile } from "./campaign";
 import type { CampaignDraft } from "./campaign";
 import { BANNED, RESTRICTED, bannedHits } from "./categories";
-import { pngOf } from "./testing";
+import { pngOf } from "./adverts.testing";
 
 const DRAFT: CampaignDraft = { advertiser: "advertiser-1", slots: ["advert.road-billboard"], regions: ["GB"], starts: 0, ends: 1, category: "general", place: null };
 const CAMPAIGN: Campaign = { ...DRAFT, id: "campaign-1", slots: ["advert.road-billboard"], status: "pending" };

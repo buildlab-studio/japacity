@@ -14,7 +14,8 @@ import type { Game } from "../testing/play";
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
 import { start } from "../testing/play";
-import { abroad, eventsOf, owedOf, setPounds, UPKEEP } from "../testing/obligation.journey";
+import { abroad, owedOf, setPounds, UPKEEP } from "../testing/obligation.journey";
+import { eventsOf } from "../testing/read";
 
 // The meal bought and cooked, at home or abroad: a meal of your own; the family house's pot is free and tested in
 // home/pot.test.ts.

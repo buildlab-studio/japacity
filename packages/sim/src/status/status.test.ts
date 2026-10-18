@@ -12,6 +12,7 @@ import { flown, playMonths } from "../testing/place.journey";
 import { applyEffects } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
+import { readOf } from "../testing/read";
 import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
 
 const STUDENT: Id<"status"> = "status.uk-student";
@@ -25,10 +26,6 @@ const UK: Id<"country"> = "country.uk";
 const JOB: Id<"activity"> = "activity.job-junior-dev";
 
 const entryOf = (id: Id<"status">): StatusEntry => content.status[id]!;
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 function current(game: Game) {
   const held = game.state.status.current;

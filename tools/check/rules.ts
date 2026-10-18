@@ -19,7 +19,7 @@ const CITATION_TAG = new RegExp(String.raw`\[(${RULE_ID.source})\]`, "g");
 const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
 const SKIPPED_DIRECTORIES = new Set(["node_modules", "dist", "build", "coverage", ".git"]);
 // Folders whose test-like files are inputs to other tests, not real tests.
-export const DEFAULT_CITATION_EXCLUDES = ["tools/lint-fixtures", "tools/__fixtures__"];
+export const DEFAULT_CITATION_EXCLUDES = ["tools/__fixtures__"];
 
 // Calls that do not run their body do not count as testing a rule.
 const NON_RUNNING_MODIFIERS = new Set(["skip", "todo", "skipIf", "runIf"]);

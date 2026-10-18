@@ -8,7 +8,7 @@ import { productionConfig, testConfig } from "../config";
 import type { ServerReply } from "../types";
 import { readRequest, sendAuthority } from "./command";
 import { DIVERGED_NOTE } from "./commit";
-import { call, held, newLife, restMonth, send, testServer, view } from "./testing";
+import { call, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 import { transact } from "./transaction";
 
 const { epoch, worldTickMs } = productionConfig.clock;

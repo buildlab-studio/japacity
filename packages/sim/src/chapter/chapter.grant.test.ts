@@ -8,6 +8,7 @@ import { lifeSaves } from "../goldens/lives.data";
 import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
+import { closed } from "../testing/read";
 import { chapterCard, grantedRoute, leanRoute } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -37,10 +38,6 @@ function playTo(game: Game, commands: SavedCommand[], from: number, until: (game
     if (until(game)) return { result, next: index + 1 };
   }
   throw new Error("The recorded life never got there.");
-}
-
-function closed(result: { events: { type: string }[] }): unknown[] {
-  return result.events.filter((event) => event.type === "chapter/closed");
 }
 
 const routeIs = (route: Id<"route">, state: string) => (game: Game) => game.state.route[route]?.state === state;

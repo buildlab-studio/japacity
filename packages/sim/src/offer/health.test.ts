@@ -10,6 +10,7 @@ import type { Accepted, BaseEvent, Content, Effect, Id, OfferEntry, OfferView, S
 import { applyEffects, draw, seedWhere, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { keys, naira, quality } from "../testing/read";
 import { COURSE, COURSE_STEP } from "./health";
 
 const health = content.tuning.health;
@@ -46,10 +47,6 @@ function life(seed = "seed-1"): Game {
   return game;
 }
 
-function quality(game: Game, id: Id<"quality">): number {
-  return game.state.quality[id] ?? 0;
-}
-
 function add(game: Game, id: Id<"quality">, amount: number): void {
   applyEffects(game, [{ type: "quality/add", quality: id, amount }]);
 }
@@ -67,10 +64,6 @@ function month(game: Game, after = UNDER): Accepted {
   const result = game.endTurn();
   expect(quality(game, WELLBEING)).toBe(after);
   return result;
-}
-
-function keys(result: Accepted): string[] {
-  return result.lines.map((line) => line.key);
 }
 
 function openOf(game: Game, entry: Id<"offer">): OfferView | undefined {
@@ -104,10 +97,6 @@ function changed(result: Accepted, id: Id<"quality">): number[] {
   return result.events
     .filter((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === id)
     .map((event) => (event as unknown as { amount: number }).amount);
-}
-
-function naira(game: Game): number {
-  return game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
 }
 
 function give(game: Game, amount: number): void {

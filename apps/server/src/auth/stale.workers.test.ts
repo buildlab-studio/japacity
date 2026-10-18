@@ -7,10 +7,10 @@
 import { Hono } from "hono";
 import { describe, expect, test } from "vitest";
 
-import { softwarePasskey } from "./software-passkey";
+import { softwarePasskey } from "./passkey.testing";
 import { dropDeadSession } from "./stale";
-import { SITE, harness, makeJar } from "./testing";
-import type { Harness, Jar } from "./testing";
+import { SITE, harness, makeJar } from "./auth.testing";
+import type { Harness, Jar } from "./auth.testing";
 
 const SESSION = "__Secure-better-auth.session_token";
 

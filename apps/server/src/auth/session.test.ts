@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { sessionReader } from "./session";
-import { SITE, harness } from "./testing";
+import { SITE, harness } from "./auth.testing";
 
 describe("the session reader", () => {
   test("[R-ACCOUNT-005] [R-MODERATION-012] given a session from the test utilities' login, when a request carries it, then the reader gives its account and no passkey, since no passkey opened it; with none it gives null", async () => {

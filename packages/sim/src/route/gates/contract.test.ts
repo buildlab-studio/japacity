@@ -5,10 +5,11 @@ import { content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
 import { check } from "../../engine/check";
-import { stepWith } from "../../engine/step";
-import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, Terms, Tuning } from "../../engine/types";
+import type { Content, Ctx, Effect, Id, ReadCtx, Requirement, RouteState, Terms } from "../../engine/types";
+import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
-import { answerFirst, applyEffects, readyLife, slot, UK, withEffects } from "../../testing/route.journey";
+import { judge, readOf } from "../../testing/read";
+import { answerFirst, applyEffects, linesOf, readyLife, slot, UK } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { contractGate, contractJob } from "./contract";
@@ -22,8 +23,6 @@ const gulf = content.route[GULF]!;
 const numbers = content.tuning.route;
 const MAX_AGE = gulf.contract!.maxAgeMonths;
 
-const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
-
 /** An agent's terms as the offer draws them: ₦1,000,000, AED 1,800 a month in fils, a guard. */
 const GUARD: Terms = { fee: 100000000, salary: 180000, role: 1 };
 const CLEANER: Terms = { fee: 100000000, salary: 150000, role: 2 };
@@ -34,14 +33,6 @@ function life(options: LifeOptions = {}): Game {
 
 function routeOf(game: Game, route: Id<"route"> = GULF): RouteState {
   return game.state.route[route]!;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
-function judge(game: Game, requirement: Requirement): boolean {
-  return check(readOf(game), requirement).met;
 }
 
 /** The motor park makes the route heard (R-CONTRACT-001); looking into it needs the UK master's heard, by month 3. */
@@ -85,12 +76,6 @@ function hideFraud(game: Game): void {
 
 function asCtx(read: ReadCtx): Ctx {
   return { ...read, check: (requirement: Requirement) => check(read, requirement) } as unknown as Ctx;
-}
-
-function linesOf(game: Game, effects: Effect[], terms: Terms): ReportLine[] {
-  const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
-  if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
-  return result.lines.filter((line) => line.key.startsWith("line.route."));
 }
 
 /** How many months of age pass between a fresh life and the turn that applies, played as `ready` plays it. */

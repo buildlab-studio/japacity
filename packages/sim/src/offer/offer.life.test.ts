@@ -13,6 +13,7 @@ import { wealthInNaira } from "../place/place.logic";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { readOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
@@ -34,10 +35,6 @@ function variant(changes: Partial<Record<Id<"offer">, Partial<OfferEntry>>>, onl
     else if (onlyThese) entry.chanceBp = 0;
   }
   return copy;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function openedIn(result: { events: BaseEvent[] }): OfferState[] {
@@ -78,12 +75,6 @@ function emptyPockets(game: Game): void {
     if (pocket.cash > 0) effects.push({ type: "money/take", currency, pocket: "cash", amount: pocket.cash, reason: "mishap" });
   }
   if (effects.length > 0) applyEffects(game, effects);
-}
-
-/** Ends a turn, granting turns first when the bank is empty. */
-function month(game: Game) {
-  if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
-  return game.endTurn();
 }
 
 // ---------------------------------------------------------------------------
@@ -191,7 +182,7 @@ describe("coming home", () => {
     expect(content.tuning.return.offerMonths).toBe(12);
     const months: number[] = [];
     for (let turn = 0; turn < 14; turn += 1) {
-      const result = month(game);
+      const result = restMonth(game);
       if (openedIn(result).some((item) => item.entry === "offer.returnee-question")) months.push(game.state.turn.month - back.month);
     }
     expect(months).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
@@ -200,13 +191,13 @@ describe("coming home", () => {
   test("[R-RETURN-003] given no return on record, when months come up at home, then no returnee offer comes up", () => {
     const every = variant({ "offer.returnee-question": { chanceBp: CERTAIN, cooldown: 0 } });
     const game = start({ scenario: ADA, content: every });
-    for (let turn = 0; turn < 3; turn += 1) expect(openedIn(month(game))).toEqual([]);
+    for (let turn = 0; turn < 3; turn += 1) expect(openedIn(restMonth(game))).toEqual([]);
   });
 
   test("[R-RETURN-003] given the cousin's shop, which comes to returns by choice or with papers, when the last return was by choice it comes up; after a broke one it does not, though a return by choice is on the record", () => {
     const shop = variant({ "offer.returnee-business": { chanceBp: CERTAIN, cooldown: 0 } });
     const game = returned(shop);
-    expect(openedIn(month(game)).map((item) => item.entry)).toEqual(["offer.returnee-business"]);
+    expect(openedIn(restMonth(game)).map((item) => item.entry)).toEqual(["offer.returnee-business"]);
     // Off again, and home broke: the fare paid and nothing else left.
     flyToUk(game);
     emptyPockets(game);
@@ -214,7 +205,7 @@ describe("coming home", () => {
     game.accept({ type: "return/home" });
     expect(game.state.place.returns.map((back) => back.shape)).toEqual(["by-choice", "broke"]);
     for (const item of Object.values(game.state.offer.items)) game.accept({ type: "offer/choose", offer: item.id, choice: "decline" });
-    for (let turn = 0; turn < 3; turn += 1) expect(openedIn(month(game)).map((item) => item.entry)).not.toContain("offer.returnee-business");
+    for (let turn = 0; turn < 3; turn += 1) expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain("offer.returnee-business");
   });
 
   test("[R-RETURN-003] given the real returnee offers, when their conditions are read, then each is of the group `return`, at home, and reads the shape of a return", () => {
@@ -312,7 +303,7 @@ describe("a dry spell ends", () => {
     const game = start({ scenario: ADA, content: dry });
     const added: number[] = [];
     for (let turn = 0; turn < 20; turn += 1) {
-      month(game);
+      restMonth(game);
       added.push(drySpellBp(readOf(game)));
     }
     const months = luck.drySpellMonths;
@@ -326,7 +317,7 @@ describe("a dry spell ends", () => {
 
   test("[R-LUCK-004] given a dry spell, when a luck offer opens, then the count starts again; the spell adds to luck entries only and is never doubled", () => {
     const game = start({ scenario: ADA, content: dry });
-    for (let turn = 0; turn < luck.drySpellMonths + 3; turn += 1) month(game);
+    for (let turn = 0; turn < luck.drySpellMonths + 3; turn += 1) restMonth(game);
     const read = readOf(game);
     const added = drySpellBp(read);
     expect(added).toBe(3 * luck.drySpellBp);
@@ -354,7 +345,7 @@ describe("the whip-round", () => {
     const game = start({ scenario: ADA, content: used });
     emptyPockets(game);
     while (game.state.turn.month < months) {
-      month(game);
+      restMonth(game);
       emptyPockets(game);
     }
     return game;
@@ -362,26 +353,26 @@ describe("the whip-round", () => {
 
   test("[R-LUCK-002] given Ada at home with nothing, when month 11 ends it has not come; when month 12 ends it opens once, and never again", () => {
     const game = brokeAt(10);
-    expect(openedIn(month(game)).map((item) => item.entry)).not.toContain(WHIP);
+    expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
     expect(game.state.turn.month).toBe(11);
-    const result = month(game);
+    const result = restMonth(game);
     expect(openedIn(result).map((item) => item.entry)).toContain(WHIP);
     const item = Object.values(game.state.offer.items).find((held) => held.entry === WHIP)!;
     expect(item.terms).toEqual({ rescue: luck.rescue });
     game.accept({ type: "offer/choose", offer: item.id, choice: "decline" });
     for (let turn = 0; turn < 3; turn += 1) {
       emptyPockets(game);
-      expect(openedIn(month(game)).map((opened) => opened.entry)).not.toContain(WHIP);
+      expect(openedIn(restMonth(game)).map((opened) => opened.entry)).not.toContain(WHIP);
     }
   });
 
   test("[R-LUCK-002] [R-ENGINE-017] given the months before the rescue moved to 6 in the tuning, when month 6 ends with nothing held, then the whip-round opens", () => {
     const overlaid = applyOverlay(content, { version: "test-rescue-months", tuning: { ...content.tuning, luck: { ...luck, rescueAfterMonths: 6 } } });
     const game = brokeAt(4, overlaid);
-    expect(openedIn(month(game)).map((item) => item.entry)).not.toContain(WHIP);
+    expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
     expect(game.state.turn.month).toBe(5);
     emptyPockets(game);
-    expect(openedIn(month(game)).map((item) => item.entry)).toContain(WHIP);
+    expect(openedIn(restMonth(game)).map((item) => item.entry)).toContain(WHIP);
   });
 
   test("[R-LUCK-002] given holdings at the line, when the month comes up, then it does not open; one kobo under, it does", () => {
@@ -395,7 +386,7 @@ describe("the whip-round", () => {
         { type: "obligation/close", obligationType: "upkeep" },
         { type: "money/add", currency: "NGN", pocket: "cash", amount: held, reason: "gift" },
       ]);
-      const result = month(game);
+      const result = restMonth(game);
       expect(wealthInNaira(readOf(game))).toBe(held);
       expect(openedIn(result).map((item) => item.entry).includes(WHIP)).toBe(opens);
     }
@@ -405,7 +396,7 @@ describe("the whip-round", () => {
     const game = brokeAt(11);
     flyToUk(game);
     emptyPockets(game);
-    expect(openedIn(month(game)).map((item) => item.entry)).not.toContain(WHIP);
+    expect(openedIn(restMonth(game)).map((item) => item.entry)).not.toContain(WHIP);
   });
 
   test("[R-LUCK-002] given a loan in default, when month 12 ends with nothing held, then the whip-round does not come", () => {
@@ -413,7 +404,7 @@ describe("the whip-round", () => {
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.quick-loan", principal: 5000000 }]);
     emptyPockets(game);
     for (let turn = 0; turn < 3; turn += 1) {
-      month(game);
+      restMonth(game);
       emptyPockets(game);
     }
     expect(Object.values(game.state.obligation.items).some((item) => item.entry === "obligation.quick-loan" && item.state === "defaulted")).toBe(true);
@@ -424,7 +415,7 @@ describe("the whip-round", () => {
   test("[R-LUCK-002] [R-ENGINE-017] given the whip-round accepted, when it pays, then the tuning's rescue reaches the bank as a flagged gift, and an overlay's figure is the one paid", () => {
     const overlaid = applyOverlay(content, { version: "test-rescue", tuning: { ...content.tuning, luck: { ...luck, rescue: 20000000 } } });
     const game = brokeAt(11, overlaid);
-    month(game);
+    restMonth(game);
     const item = Object.values(game.state.offer.items).find((held) => held.entry === WHIP)!;
     expect(item.terms.rescue).toBe(20000000);
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "accept" });
@@ -554,7 +545,7 @@ describe("content that plays", () => {
       });
       flyToUk(game);
       const seen: Id<"offer">[] = [];
-      for (let turn = 0; turn < 6; turn += 1) seen.push(...openedIn(month(game)).map((item) => item.entry));
+      for (let turn = 0; turn < 6; turn += 1) seen.push(...openedIn(restMonth(game)).map((item) => item.entry));
       expect(seen.includes(LOST)).toBe(opens);
     }
   });
