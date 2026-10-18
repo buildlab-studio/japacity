@@ -285,7 +285,7 @@ function bigLines(lines: readonly ReportLine[]): ReportLine[] {
 }
 
 /** guide:early-win-in-three-turns: the view or the lines just shown hold the early win. */
-function wonEarly(view: PlayerView, lines: readonly ReportLine[], picks: readonly SlotPick[]): boolean {
+function wonEarly(view: PlayerView, lines: readonly ReportLine[], picks: readonly SlotPick[] | null): boolean {
   return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, picks) !== null;
 }
 
@@ -501,7 +501,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           const cards = withMoment(get().momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, get().monthLines);
           const refused = reply.refusal;
           set({
-            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, []),
+            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, null),
             view: reply.view,
             plan: fitPlan(get().plan, reply.view.freeSlots),
             lines: reply.lines,
@@ -755,7 +755,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             return;
           case "lines":
             // The authority's own lines (a draw paid while away): staged as the command's are, never as a report.
-            set({ moments: [...get().moments, ...bigLines(event.lines)], momentCards: withMoment(get().momentCards, event.lines, get().momentScreens > 0 ? get().view : null, null), earlyWin: get().earlyWin || earlyWinIn(event.lines, []) !== null });
+            set({ moments: [...get().moments, ...bigLines(event.lines)], momentCards: withMoment(get().momentCards, event.lines, get().momentScreens > 0 ? get().view : null, null), earlyWin: get().earlyWin || earlyWinIn(event.lines, null) !== null });
             return;
           default: {
             const never: never = event;
