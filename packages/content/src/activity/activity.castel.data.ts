@@ -1,7 +1,7 @@
-// Castel Volturno lived by hand: docs/rules/streets.md R-STREET-015 (design page 15 section 5). Each is a priced now-act
+// Castel Volturno lived by hand: streets:castel-volturno-by-hand (design page 15 section 5). Each is a priced now-act
 // in euros, paid as it is done, and the church's community is free; when each answers and the time it spends are in
 // activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts; place.data.ts
-// stages each at its Castel Volturno place. There is no pass here (R-PLACE-012): the bus is paid each time.
+// stages each at its Castel Volturno place. There is no pass here (place:country-pass-covers-ways): the bus is paid each time.
 import type { ActivityEntry, Effect, Id, Reason, Requirement } from "@japacity/sim";
 
 import { euros } from "../units";
@@ -31,7 +31,7 @@ function byHand(id: Id<"activity">, cents: number, reason: Extract<Reason, "food
 }
 
 export const castelActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // streets.md R-STREET-015. At the discount supermarket: the weekly shop.
+  // streets:castel-volturno-by-hand. At the discount supermarket: the weekly shop.
   "activity.weekly-shop-it": byHand("activity.weekly-shop-it", euros(35), "food", [lift("quality.belly", 40)]),
   // In the room in a shared flat: a meal of your own.
   "activity.cook-own-it": byHand("activity.cook-own-it", euros(4), "food", [lift("quality.belly", 25)]),

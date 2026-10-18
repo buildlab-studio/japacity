@@ -1,4 +1,4 @@
-// From docs/rules/person.md "Entries: activities and offers" (R-PEOPLE-014).
+// From docs/rules/person.md "Entries: activities and offers" (person:time-together-is-an-act).
 // Joined into the activity table in activity.data.ts.
 //
 // "In the same place" and "elsewhere" are written as requirements on

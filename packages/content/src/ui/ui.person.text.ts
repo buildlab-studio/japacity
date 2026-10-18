@@ -3,7 +3,7 @@
 export const uiPersonText: Record<string, string> = {
   "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a place. The game plays anyone a friend has not taken.",
 
-  // The slots (R-PEOPLE-007)
+  // The slots (person:family-and-partner-slots)
   "ui.people.slot.partner": "Partner",
   "ui.people.slot.sibling": "Sibling",
   "ui.people.slot.mother": "Mother",
@@ -17,7 +17,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.parent.name.father": "Your father",
   "ui.people.parent.blurb.mother": "At home, as she has always been. She calls when there is news.",
   "ui.people.parent.blurb.father": "At home, as he has always been. He calls when there is news.",
-  // The mark's word (R-PEOPLE-009, R-PEOPLE-054): what the player would say, not a system word.
+  // The mark's word (person:computer-candidates-labelled, person:computer-mark-is-quiet): what the player would say, not a system word.
   "ui.people.mark.computer": "Not a player",
   "ui.people.mark.player": "Player",
   "ui.people.mark.stand-in": "Stand-in",
@@ -36,17 +36,17 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.sibling.invite": "Ask a friend to be this sibling",
   "ui.people.partner.invite": "Ask a friend to be your partner",
 
-  // Candidates (R-PEOPLE-009, R-PEOPLE-054)
+  // Candidates (person:computer-candidates-labelled, person:computer-mark-is-quiet)
   "ui.people.court": "Start seeing {name}",
   "ui.people.chosen": "{name} is a computer character. They live in the game.",
-  // Met in a place (R-WORLD-020, R-PEOPLE-013): the talk sheet shut while the most bonds a life may court already court.
+  // Met in a place (world:nobody-picked-from-list, person:courting-opens-a-bond): the talk sheet shut while the most bonds a life may court already court.
   "ui.people.court.full": "You are seeing {count} people already.",
-  // R-PEOPLE-041: seeing someone new beside a partner is talked about; the card says what it costs before the tap.
+  // person:gossip-when-two-timing: seeing someone new beside a partner is talked about; the card says what it costs before the tap.
   "ui.people.court.partnered": "You are with {partner}. Seeing {name} too costs standing if it comes out, and {partner} may leave.",
-  // R-PEOPLE-013: their answer once courted, told in the corner in their own words.
+  // person:courting-opens-a-bond: their answer once courted, told in the corner in their own words.
   "ui.people.courted.said": "{name}: {line}",
 
-  // The invite card (R-PAIR-007, R-PAIR-008)
+  // The invite card (pair:invite-card-contents, pair:invite-link-single-use)
   "ui.people.invite.title": "Ask a friend",
   "ui.people.invite.intro": "Make a card for a friend who plays. It carries your character's name, never your own, and nothing else about you.",
   "ui.people.invite.fill": "Who you are looking for",
@@ -62,7 +62,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.invite.japacity": "Japacity {percent}",
   "ui.people.invite.japacity-none": "Japacity not counted yet",
 
-  // Bonds (R-PEOPLE-013 to 018, R-PEOPLE-051)
+  // Bonds (person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:view-shows-people)
   "ui.people.stage.connected": "Connected",
   "ui.people.stage.courting": "Seeing each other",
   "ui.people.stage.partner": "Together",
@@ -80,7 +80,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.cooldown": "You can ask again {when}.",
   "ui.people.time-with": "with {name}",
 
-  // What is known of the other side (R-PEOPLE-051): no funds unless consent, pay only as the floor met
+  // What is known of the other side (person:view-shows-people): no funds unless consent, pay only as the floor met
   "ui.people.facts": "What you know",
   "ui.people.facts.age": "{years} years old",
   "ui.people.facts.home": "At home in Nigeria",
@@ -98,7 +98,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.facts.funds": "Funds they let your application count: {amount}",
   "ui.people.facts.joint": "On {route}: {state}",
 
-  // Proposals and answers (R-PEOPLE-016, R-PEOPLE-021)
+  // Proposals and answers (person:proposing-a-step, person:joint-application-proposed)
   "ui.people.step.partner": "be together",
   "ui.people.step.marry": "get married",
   "ui.people.step.joint": "apply together",
@@ -125,7 +125,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.declined.cooldown": "They will not hear the same question for {months} months.",
   "ui.people.declined.cooldown.one": "They will not hear the same question until next month.",
 
-  // The joint (R-PEOPLE-021, R-PEOPLE-030, R-PEOPLE-004)
+  // The joint (person:joint-application-proposed, person:canada-spouse-points, person:money-counted-never-moved)
   "ui.people.joint": "Applying together",
   "ui.people.joint.on": "On {route}. {lead} leads.",
   "ui.people.joint.lead.me": "You",
@@ -139,11 +139,11 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.consent.stand-in.no": "No stand-in for me",
   "ui.people.consent.stand-in.help": "If you go quiet for two weeks, a stand-in may say yes to a step of this application for you. It never spends, sponsors or ends anything.",
 
-  // The sponsor's side (R-UNDERTAKING-001 to 004, R-UNDERTAKING-012)
+  // The sponsor's side (undertaking:agreeing-to-sponsor, undertaking:sponsor-settled-in-country, undertaking:sponsor-earnings-floor, undertaking:sponsored-arrivals-wait-to-sponsor, undertaking:view-lists-undertaking)
   "ui.people.sponsoring": "You agreed to sponsor them {when}. Their route: {route}.",
   "ui.people.bar": "You cannot sponsor a new partner {when}.",
 
-  // Ending it (R-PEOPLE-035 to 039)
+  // Ending it (person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains and person:ended-bond-record-kept)
   "ui.people.end": "End it",
   "ui.people.end.cost": "Ending it costs you standing at home and some of your wellbeing.",
   "ui.people.end.cost-wellbeing": "Ending it costs you some of your wellbeing.",
@@ -151,8 +151,8 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.end.absence": "A stand-in is answering for them. Ending it now costs nobody anything.",
   "ui.people.end.confirm": "End it for good",
   "ui.people.end.keep": "Keep it",
-  // A bond's head in its Chats thread (world.md R-WORLD-020, R-WORLD-006): one row each, the details behind a tap.
-  // A person's words, not the system's (R-TEXT-005, R-TEXT-007). {count} is in words.
+  // A bond's head in its Chats thread (world:nobody-picked-from-list, world:one-action-one-sheet): one row each, the details behind a tap.
+  // A person's words, not the system's (text:bands-not-figures, text:voice-by-surface). {count} is in words.
   "ui.people.head.ask": "Ask {name}",
   "ui.people.head.moments": "{count} times together",
   "ui.people.head.moments.one": "Once together",
@@ -166,24 +166,24 @@ export const uiPersonText: Record<string, string> = {
   "ui.people.head.end.standing": "Ending it will be talked about",
   "ui.people.head.end.wellbeing": "Ending it will hurt",
   "ui.people.head.end.nothing": "Nobody holds it against you",
-  // An ended bond's thread, for the month it stays (R-PEOPLE-042): what happened,
+  // An ended bond's thread, for the month it stays (person:computer-partner-drifts): what happened,
   // then the reason in their own words where they had one.
   "ui.people.head.ended.drift": "{name} stopped calling.",
   "ui.people.head.ended.them": "{name} ended it.",
   "ui.people.head.ended.me": "You ended it with {name}.",
   "ui.people.head.ended.other": "It is over with {name}.",
 
-  // Gossip and drift (R-PEOPLE-041, R-PEOPLE-042)
+  // Gossip and drift (person:gossip-when-two-timing, person:computer-partner-drifts)
   "ui.people.gossip": "You have a partner and you are seeing someone else. People talk: about {chance} a month. If your partner hears, you lose standing, and they may leave.",
   "ui.people.drift.near": "No time together for {months} months. After {patience} with nothing, {name} moves on.",
   "ui.people.drift.near.one": "No time together this past month. After {patience} with nothing, {name} moves on.",
   "ui.people.drift.rule": "{name} gives it {patience} months without time together. No longer.",
 
-  // The stand-in (R-PEOPLE-043, R-PEOPLE-044)
+  // The stand-in (person:stand-in-after-absence, person:stand-in-acts-narrowly)
   "ui.people.stand-in.warned": "Your partner has gone quiet for a week. If they stay quiet for two weeks, a stand-in answers for them.",
   "ui.people.stand-in.on": "Your partner has been away two weeks. A stand-in answers {piece} for them, and says yes only where they allowed it.",
 
-  // The conversation (R-PAIR-010, R-PAIR-011, R-PAIR-013)
+  // The conversation (pair:preset-phrases-only, pair:conversation-phrases-stored, pair:phrase-checks-before-send)
   "ui.talk.title": "Talk",
   "ui.talk.empty": "Nothing said yet.",
   "ui.talk.fill": "Fill in",
@@ -198,11 +198,11 @@ export const uiPersonText: Record<string, string> = {
   "ui.talk.failed.bad-fill": "Pick something to fill it in.",
   "ui.talk.failed.other": "That did not go through: {why}",
 
-  // The interview (R-INTERVIEW-004, 005, 011)
+  // The interview (interview:answers-taken-in-order, interview:one-question-at-a-time, interview:players-answer-at-own-pace)
   "ui.interview.for": "For {route}",
   "ui.interview.blocks": "Answer before the month can end. Your partner answers in another room.",
   "ui.interview.question": "Question {n} of {total}",
-  // R-INTERVIEW-004: in the world the last answer brings the officer's toast, plain English as a visa officer speaks.
+  // interview:answers-taken-in-order: in the world the last answer brings the officer's toast, plain English as a visa officer speaks.
   "ui.interview.in.who": "The officer",
   "ui.interview.in": "Your answers are in.",
   "ui.interview.waiting": "Your answers are in. Now the officer hears your partner. Back to your life.",
@@ -214,7 +214,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.interview.result.caught": "Caught",
   "ui.interview.matched": "Your answers agreed on {matched} of {asked}.",
 
-  // The undertaking (R-UNDERTAKING-006 to 012)
+  // The undertaking (undertaking:landing-opens-undertaking, undertaking:assistance-charged-to-sponsor, undertaking:missed-charges-lead-to-default, undertaking:undertaking-outlives-relationship, undertaking:social-assistance-offer, undertaking:uk-partner-has-no-undertaking and undertaking:view-lists-undertaking)
   "ui.undertaking.months-left": "{months} months left of the promise",
   "ui.undertaking.months-left.one": "1 month left of the promise",
   "ui.undertaking.months-left.zero": "The promise runs out once nothing is owed",
@@ -225,7 +225,7 @@ export const uiPersonText: Record<string, string> = {
   "ui.undertaking.nothing-owed": "Nothing owed now.",
   "ui.undertaking.assistance": "Any month your partner takes social assistance, {amount} is charged to you here. Ending the relationship does not end it.",
 
-  // The partner and dependant gates (route-gates.md, R-PEOPLE-022, R-PEOPLE-026)
+  // The partner and dependant gates (route-gates.md, person:dependant-gate-needs, person:partner-gate-needs)
   "ui.gate.partner.title": "Your sponsor",
   "ui.gate.dependant.title": "Going with your partner",
   "ui.gate.bond.none": "Nobody to apply with yet. This needs a partner and an agreement to apply together.",

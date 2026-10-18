@@ -1,4 +1,4 @@
-// The month's own words in the world (docs/rules/world.md R-WORLD-007, 008): the Calendar app and the results, in
+// The month's own words in the world (world:month-acts-carry-on, world:month-end-results-sheet): the Calendar app and the results, in
 // the voice of docs/rules/text.md.
 export const uiTurnText: Record<string, string> = {
   "turn.month.label": "Month {month}",
@@ -8,9 +8,9 @@ export const uiTurnText: Record<string, string> = {
   "turn.month.side": "Side job: {job}",
   "turn.month.hint": "Tap a thing in the world to start something. It carries on each month until you stop it.",
   "turn.month.end": "Next month",
-  // The Calendar app (R-WORLD-002, R-WORLD-007): the month on the phone, in order.
+  // The Calendar app (world:top-band-is-lively-pill, world:month-acts-carry-on): the month on the phone, in order.
   "turn.calendar.work": "Work",
-  // What carries on into next month until it is stopped, and a month held by a burial or a stay in hospital (R-WORLD-007).
+  // What carries on into next month until it is stopped, and a month held by a burial or a stay in hospital (world:month-acts-carry-on).
   "turn.calendar.carrying": "Carrying on",
   "turn.calendar.done": "Done this month",
   "turn.calendar.chores.cook": "Cooked: {amount} less this month",
@@ -18,15 +18,15 @@ export const uiTurnText: Record<string, string> = {
   "turn.calendar.chores.both": "Cooked and fetched water: {amount} less this month",
   "turn.calendar.chores.cooked": "Cooked for the week",
   "turn.calendar.chores.drum": "The drum is full",
-  // The month's bus pass (place.md R-PLACE-012): the bus asks nothing until the month ends.
+  // The month's bus pass (place:country-pass-covers-ways): the bus asks nothing until the month ends.
   "turn.calendar.pass": "Bus pass bought: the bus is free till the month ends",
-  // Calgary's transit pass and Dubai's zone pass (R-PLACE-012): each covers the bus and the train.
+  // Calgary's transit pass and Dubai's zone pass (place:country-pass-covers-ways): each covers the bus and the train.
   "turn.calendar.pass.country.canada": "Transit pass bought: the bus and the CTrain are free till the month ends",
   "turn.calendar.pass.country.uae": "Zone pass bought: the bus and the metro are free till the month ends",
   "turn.calendar.at": "At {place}",
-  // Where a dated ask is attended when no place of the city stages it (R-WORLD-002).
+  // Where a dated ask is attended when no place of the city stages it (world:top-band-is-lively-pill).
   "turn.calendar.where.offer.village-burial": "In the village",
-  // R-HOME-010: the room's year falls due at this month's end and is not held.
+  // home:compound-room-is-a-home: the room's year falls due at this month's end and is not held.
   "turn.month.rent-short": "Rent {amount} due this month. You hold {held}.",
 
   "turn.results.title": "The month is done",
@@ -38,7 +38,7 @@ export const uiTurnText: Record<string, string> = {
   "turn.results.draw": "Draw {draw}",
   "turn.results.draw-matched": "One of yours came in",
   // The month the Friday draw's result comes, a player who held tickets in it and won nothing is told so (lottery.md
-  // R-LOTTERY-016).
+  // lottery:draw-result-on-front-page).
   "turn.results.draw-missed": "Your tickets did not win.",
   "turn.results.draw-missed.one": "Your ticket did not win.",
   "turn.results.savings": "Saved for the move",

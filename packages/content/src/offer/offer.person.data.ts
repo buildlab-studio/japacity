@@ -1,4 +1,4 @@
-// From docs/rules/person.md "Entries: activities and offers" (R-PEOPLE-038, R-PEOPLE-050).
+// From docs/rules/person.md "Entries: activities and offers" (person:one-left-keeps-own-gains, person:papers-marriage-offer).
 // Joined into the offer table in offer.data.ts.
 //
 // Taking the papers offer carries a `people/moment` of kind
@@ -16,7 +16,7 @@ export const peopleOfferTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.people-recovery",
     group: "life",
     when: [],
-    // Opened only by R-PEOPLE-038.
+    // Opened only by person:one-left-keeps-own-gains.
     chanceBp: 0,
     cooldown: 0,
     maxTimes: null,

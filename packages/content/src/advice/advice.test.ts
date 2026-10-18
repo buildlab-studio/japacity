@@ -1,4 +1,4 @@
-// The agents' fees and tells in content: docs/rules/advice.md R-ADVICE-005, 006 and 013: a fee never
+// The agents' fees and tells in content: advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells and advice:chaser-runs-around-cheaper: a fee never
 // tells the kind, and "No passport needed" is a scammer's line.
 import type { Id, OfferEntry } from "@japacity/sim";
 import { checkContent } from "@japacity/sim";
@@ -39,7 +39,7 @@ function sharedBp(a: readonly [number, number], b: readonly [number, number]): n
 }
 
 describe("the agents' fees", () => {
-  test("[R-ADVICE-013] given every fee any kind can ask, in steps of ₦1,000, when the kinds that ask it are counted, then at least two kinds ask every one, so no fee tells the kind", () => {
+  test("[advice:chaser-runs-around-cheaper] given every fee any kind can ask, in steps of ₦1,000, when the kinds that ask it are counted, then at least two kinds ask every one, so no fee tells the kind", () => {
     const lonely: string[] = [];
     for (const kind of KINDS) {
       const [min, max] = feeRange(kind, advice);
@@ -48,7 +48,7 @@ describe("the agents' fees", () => {
     expect(lonely).toEqual([]);
   });
 
-  test("[R-ADVICE-013] given the chaser's, the fixer's and the scammer's ranges, when each two are laid over each other, then they share most of their span, and the chaser's stays the cheapest at both ends", () => {
+  test("[advice:chaser-runs-around-cheaper] given the chaser's, the fixer's and the scammer's ranges, when each two are laid over each other, then they share most of their span, and the chaser's stays the cheapest at both ends", () => {
     for (const a of ["chaser", "fixer", "scammer"] as const) {
       for (const b of ["chaser", "fixer", "scammer"] as const) expect(sharedBp(feeRange(a, advice), feeRange(b, advice))).toBeGreaterThan(5000);
     }
@@ -58,7 +58,7 @@ describe("the agents' fees", () => {
 });
 
 describe("the scammer's tells", () => {
-  test("[R-ADVICE-006] given the men at the stop, when a scammer's tells are read, then \"No passport needed, we will arrange everything\" is one of them, never a fixer's or a chaser's, and a look finds it", () => {
+  test("[advice:scams-show-their-tells] given the men at the stop, when a scammer's tells are read, then \"No passport needed, we will arrange everything\" is one of them, never a fixer's or a chaser's, and a look finds it", () => {
     const stop = content.offer[STOP]!;
     expect(carriedTells(stop, "scammer")).toContain("no-passport");
     expect(carriedTells(stop, "fixer")).not.toContain("no-passport");
@@ -66,7 +66,7 @@ describe("the scammer's tells", () => {
     expect(text[`${STOP}.sign.no-passport`]).toBe("He says: \"No passport needed, we will arrange everything.\"");
     expect(text["advice.tell.no-passport.name"]).toBe("he said no passport was needed");
     for (const entry of ["offer.agent-office", "offer.agent-chaser"]) expect(text[`${entry}.sign.no-passport`]).toBeDefined();
-    // The content check fails a tell no look finds (R-ADVICE-006).
-    expect(checkContent(content).filter((problem) => problem.includes("R-ADVICE"))).toEqual([]);
+    // The content check fails a tell no look finds (advice:scams-show-their-tells).
+    expect(checkContent(content).filter((problem) => problem.includes("advice:"))).toEqual([]);
   });
 });

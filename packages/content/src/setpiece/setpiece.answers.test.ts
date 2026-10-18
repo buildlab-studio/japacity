@@ -7,7 +7,7 @@ import { content, text } from "../index";
 const INTERVIEW = "setpiece.credibility-interview";
 
 describe("the interview's answers", () => {
-  test("[R-SETPIECE-005] given every answer the interview can show, follow-ups included, when its words are read, then each is the character speaking, never the narrator's you", () => {
+  test("[route:view-shows-progress-not-score] given every answer the interview can show, follow-ups included, when its words are read, then each is the character speaking, never the narrator's you", () => {
     const interview = content.setpiece[INTERVIEW];
     if (interview === undefined) throw new Error("No interview.");
     const answers = [...interview.questions, ...(interview.followUps ?? [])].flatMap((question) => question.answers.map((answer) => `${INTERVIEW}.a.${question.id}.${answer.id}`));

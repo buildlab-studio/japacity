@@ -22,7 +22,7 @@ function wellbeing(amount: number): Effect {
   return { type: "quality/add", quality: "quality.wellbeing", amount };
 }
 
-/** The settled and citizen statuses: R-RETURN-004's list of statuses kept on a return with papers. */
+/** The settled and citizen statuses: return:papers-return-keeps-status's list of statuses kept on a return with papers. */
 const SETTLED_STATUSES: Id<"status">[] = ["status.uk-settled", "status.uk-citizen", "status.ca-resident", "status.ca-citizen"];
 
 export const goalTable: Record<Id<"goal">, GoalEntry> = {
@@ -30,7 +30,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.first-car",
     where: "abroad",
     openIf: [{ type: "credit/min", value: 20 }],
-    // hasCar: the car obligation is open (R-CAR-002).
+    // hasCar: the car obligation is open (car:open-finance-gives-the-car).
     doneIf: [{ type: "obligation/has", obligationType: "car" }],
     reward: [standing(4), wellbeing(4)],
   },
@@ -38,7 +38,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.own-door",
     where: "abroad",
     openIf: [{ type: "place/months-here", where: "abroad", months: 6 }],
-    // R-GOAL-004: a flat in the character's own name, never a shared room.
+    // goal:goals-need-the-real-deed: a flat in the character's own name, never a shared room.
     doneIf: [
       {
         type: "any",
@@ -81,7 +81,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
   "goal.send-well": {
     id: "goal.send-well",
     where: "abroad",
-    // Remittances arrive in the naira bank under the reason `remit` (R-ABROAD-006), so the total is read there.
+    // Remittances arrive in the naira bank under the reason `remit` (abroad-money:remit-sends-money-home), so the total is read there.
     openIf: [{ type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 1 }],
     doneIf: [{ type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: naira(2000000) }],
     reward: [standing(6)],
@@ -90,7 +90,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.december",
     where: "abroad",
     openIf: [{ type: "place/months-here", where: "abroad", months: 12 }],
-    // R-GOAL-004: done only when the visit was taken, the going answer given in any country's scene.
+    // goal:goals-need-the-real-deed: done only when the visit was taken, the going answer given in any country's scene.
     doneIf: [
       {
         type: "any",

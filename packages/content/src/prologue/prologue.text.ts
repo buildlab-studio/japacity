@@ -2,7 +2,7 @@
 // `prologue.<step>.answer.<answer>`, `prologue.<step>.outcome.<outcome>`,
 // `prologue.<step>.answer.<answer>.hint` for the one line under an answer, and
 // `prologue.<step>.answer.<answer>.why` for why an answer is not open: the situation,
-// never the threshold (text.md R-TEXT-005). A card is at most ten words and an answer
+// never the threshold (text:bands-not-figures). A card is at most ten words and an answer
 // at most four.
 const words: Record<string, string> = {
   "prologue.draw.card": "Where you start: your family, your town, your siblings.",
@@ -104,7 +104,7 @@ const words: Record<string, string> = {
   "prologue.friend.answer.drivers.hint": "They talk of Dubai.",
   "prologue.friend.answer.tech.why": "you do not know enough tech to follow them.",
 
-  // The age cards (R-PROLOGUE-004, 009; decision 0023): one for each path after school, sent by the tile with the age
+  // The age cards (prologue:age-advances-with-steps, prologue:front-door-builds-a-person; decision 0023): one for each path after school, sent by the tile with the age
   // picked on the door; they show only in the full prologue. Their answers are the years, written below.
   // The years worked after the path's end are never a card; their words name them where they are told.
   "prologue.work.card": "You work until your story starts.",
@@ -150,9 +150,9 @@ const words: Record<string, string> = {
   "prologue.shop.answer.stay": "Stay and know everybody",
   "prologue.shop.answer.save": "Save every naira",
 
-  // The archetypes (R-PROLOGUE-010): the tile's name, what it was, what it opens with the age it starts at, in words a new player knows
-  // (the age its path reaches with no setback, the lowest its age card opens: R-PROLOGUE-004; the archetypes' test reads it); the naira its life holds at
-  // the close, in whole naira, the door's "what it leaves in the pocket" (R-PROLOGUE-013: the savings test keeps it within a
+  // The archetypes (prologue:archetype-presets-answers): the tile's name, what it was, what it opens with the age it starts at, in words a new player knows
+  // (the age its path reaches with no setback, the lowest its age card opens: prologue:age-advances-with-steps; the archetypes' test reads it); the naira its life holds at
+  // the close, in whole naira, the door's "what it leaves in the pocket" (prologue:front-door-three-screens: the savings test keeps it within a
   // quarter of its lives' median); the handover's line; and the life in a few words under the name on the door's card
   // (`life`).
   "prologue.archetype.developer.name": "The developer",
@@ -185,7 +185,7 @@ const words: Record<string, string> = {
   "prologue.archetype.shop-worker.opens": "Opens: a Gulf contract, the road through the desert to Europe. Starts at 21, or older",
   "prologue.archetype.shop-worker.savings": "500000",
   "prologue.archetype.shop-worker.life": "Minds the counter",
-  // R-PROLOGUE-012: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
+  // prologue:makoko-start-never-a-trap: the child of the water starts in a room in Makoko. Its nudges, for the first chapter's table:
   // `job` while it has no work, `heard` while no way out is heard of, `shop` once a shop's capital is in hand.
   "prologue.archetype.water.name": "The child of the water",
   "prologue.archetype.water.was": "Grew up in Makoko. A canoe to school, then the fish racks",
@@ -199,15 +199,15 @@ const words: Record<string, string> = {
   // and means, so a life that grew up in Makoko never opens in a small town.
   "prologue.archetype.water.begin.where": "You grow up on the lagoon, in a house on stilts in Makoko.",
   "prologue.archetype.water.begin.home": "A canoe takes you to school. The fish racks feed the house.",
-  // R-PROLOGUE-011: where a life cannot be started over (online, one life an account), the tiles say the draw may
+  // prologue:tile-path-open-from-start: where a life cannot be started over (online, one life an account), the tiles say the draw may
   // turn the years, and a handover whose life left its tile's path reads the life as lived on its page, never the tile.
   "prologue.archetype.once": "One life. The family you are born to may send the years another way.",
-  // The page's "So far" for a life that went another way than its tile (R-PROLOGUE-014): short, as the tile's `was` is.
+  // The page's "So far" for a life that went another way than its tile (prologue:printed-page-hands-over): short, as the tile's `was` is.
   "prologue.page.lived.degree": "School, then university",
   "prologue.page.lived.capital": "Six years under a master, a shop's capital",
   "prologue.page.lived.trade": "Work from school on",
 
-  // The front door's run (R-PROLOGUE-009): one question a screen, then the page printed and stamped.
+  // The front door's run (prologue:front-door-builds-a-person): one question a screen, then the page printed and stamped.
   "prologue.door.step": "{n}/{count}",
   "prologue.door.drag": "Drag to turn",
   "prologue.door.pick": "Pick",
@@ -217,7 +217,7 @@ const words: Record<string, string> = {
   "prologue.door.age.younger": "Younger",
   "prologue.door.age.older": "Older",
   "prologue.door.page.title": "Your page",
-  // The front door's typed name (R-PROLOGUE-009): what the box says, and why a name is refused.
+  // The front door's typed name (prologue:front-door-builds-a-person): what the box says, and why a name is refused.
   "prologue.door.name.title": "Your name",
   "prologue.door.name.hint": "Type it, or take one of these.",
   "prologue.door.name.suggested": "Names to take",
@@ -228,7 +228,7 @@ const words: Record<string, string> = {
   "prologue.door.name.reserved": "That name belongs to the game. Pick another.",
   "prologue.door.name.blocked": "Not that name. Pick another.",
 
-  // The data page (R-PROLOGUE-009): the travel data page the front door prints and the band opens. Its fields, its
+  // The data page (prologue:front-door-builds-a-person): the travel data page the front door prints and the band opens. Its fields, its
   // stamps for the steps taken toward leaving, and each way out in the few words a stamp holds.
   "prologue.page.head": "Travel data page",
   "prologue.page.name": "Name",
@@ -287,7 +287,7 @@ const words: Record<string, string> = {
   "prologue.line.moved.drift": "{quality} settles.",
 };
 
-/** The age cards and their years, 18 to 29 (R-PROLOGUE-004): the card's question, each year, and why a year is shut. */
+/** The age cards and their years, 18 to 29 (prologue:age-advances-with-steps): the card's question, each year, and why a year is shut. */
 const AGE_CARDS = ["age-degree", "age-trade", "age-shop"] as const;
 const START_YEARS = Array.from({ length: 12 }, (_, at) => 18 + at);
 

@@ -1,11 +1,11 @@
-// Each goal says its first thing to do (docs/rules/goal.md R-GOAL-003, "what you could do next"): a goal
+// Each goal says its first thing to do (goal:view-shows-goal-items, "what you could do next"): a goal
 // named alone, such as "A new goal: A clean file.", says nothing a player can act on.
 import { describe, expect, test } from "vitest";
 
 import { content, text } from "../index";
 
 describe("a goal's first thing to do", () => {
-  test("[R-GOAL-003] given every goal in content, when its words are read, then each has a first line that names something to do, short, with no dash", () => {
+  test("[goal:view-shows-goal-items] given every goal in content, when its words are read, then each has a first line that names something to do, short, with no dash", () => {
     const goals = Object.keys(content.goal);
     expect(goals.length).toBeGreaterThan(0);
     const first = (goal: string): string => text[`${goal}.first`] ?? "";

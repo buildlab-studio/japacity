@@ -1,4 +1,4 @@
-// The username's two lists (docs/rules/account.md R-ACCOUNT-024). The server
+// The username's two lists (account:username-and-unconfirmed-email). The server
 // folds a name before it compares (capitals, underscores, digits that stand
 // for letters, letters said twice), and the same folding is applied to these
 // words, so each is written once in plain letters. A name is refused when its

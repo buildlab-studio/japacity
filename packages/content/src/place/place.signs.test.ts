@@ -44,20 +44,20 @@ const REAL_NAMES = [
 const realName = new RegExp(`(?:^|[^A-Za-z0-9])(?:${REAL_NAMES.map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![A-Za-z0-9])`, "i");
 
 describe("the signs the models carry", () => {
-  test("[R-CITY-024] given every shipped model and place.json, when the sign keys they name are looked up, then each has words and belongs to a place", () => {
+  test("[city:place-words-are-text-keys] given every shipped model and place.json, when the sign keys they name are looked up, then each has words and belongs to a place", () => {
     expect(carried.size).toBeGreaterThanOrEqual(12);
     expect(named.filter(({ key }) => (text[key] ?? "").trim() === "").map(({ file, key }) => `${file} ${key}`)).toEqual([]);
     const places = new Set<string>(Object.keys(content.place));
     expect(named.filter(({ key }) => !places.has(key.replace(/\.sign\.[0-9]+$/, ""))).map(({ file, key }) => `${file} ${key}`)).toEqual([]);
   });
 
-  test("[R-ASSET-012] given every sign a model carries, when its words are split into lines, then there are at most two and each fits a board at phone size", () => {
+  test("[assets:sign-text-drawn-in-code] given every sign a model carries, when its words are split into lines, then there are at most two and each fits a board at phone size", () => {
     const boards = [...carried].map((key) => ({ key, lines: (text[key] ?? "").split("\n") }));
     expect(boards.filter(({ lines }) => lines.length > BOARD_LINES).map(({ key }) => key)).toEqual([]);
     expect(boards.filter(({ lines }) => lines.some((line) => line.trim() === "" || line.length > BOARD_LINE_LENGTH)).map(({ key }) => key)).toEqual([]);
   });
 
-  test("[R-ASSET-012] given a board's words at the edge, when the line rule is applied, then two lines of twenty pass and a third line or a twenty-first letter does not", () => {
+  test("[assets:sign-text-drawn-in-code] given a board's words at the edge, when the line rule is applied, then two lines of twenty pass and a third line or a twenty-first letter does not", () => {
     const fits = (words: string): boolean => {
       const lines = words.split("\n");
       return lines.length <= BOARD_LINES && lines.every((line) => line.trim() !== "" && line.length <= BOARD_LINE_LENGTH);
@@ -70,13 +70,13 @@ describe("the signs the models carry", () => {
 });
 
 describe("the words on signs and in the street", () => {
-  test("[R-CITY-024] given every sign and every line overheard, when the words are read, then none holds a dash or a figure of money", () => {
+  test("[city:place-words-are-text-keys] given every sign and every line overheard, when the words are read, then none holds a dash or a figure of money", () => {
     expect(signsAndTalk.length).toBeGreaterThan(200);
     expect(signsAndTalk.filter(([, words]) => DASHES.test(words)).map(([key]) => key)).toEqual([]);
     expect(signsAndTalk.filter(([, words]) => MONEY.test(words)).map(([key]) => key)).toEqual([]);
   });
 
-  test("[R-CITY-024] given words that break the rule, when they are tested, then a dash and a figure of money are caught and a hyphen in a name is not", () => {
+  test("[city:place-words-are-text-keys] given words that break the rule, when they are tested, then a dash and a figure of money are caught and a hyphen in a name is not", () => {
     expect(DASHES.test("Open \u2014 till late")).toBe(true);
     expect(DASHES.test("Open - till late")).toBe(true);
     expect(DASHES.test("DE-ROYAL\nBARBING SALON")).toBe(false);
@@ -84,14 +84,14 @@ describe("the words on signs and in the street", () => {
     expect(MONEY.test("Who get change for one thousand?")).toBe(false);
   });
 
-  test("[R-CITY-007] given every sign and every line overheard, when the words are read, then none names a business on the list of real ones", () => {
+  test("[city:made-up-names-checked] given every sign and every line overheard, when the words are read, then none names a business on the list of real ones", () => {
     expect(signsAndTalk.filter(([, words]) => realName.test(words)).map(([key, words]) => `${key}: ${words}`)).toEqual([]);
     expect(realName.test("SWIFTLINK PHONES")).toBe(true);
     expect(realName.test("FIRST CHOICE\nPHARMACY")).toBe(true);
     expect(realName.test("Milord")).toBe(false);
   });
 
-  test("[R-ASSET-010] given every sign a shipped model carries, when its words are read, then none names a real business, a real name on one is only a public place's or a market's from the register, and no place carries a sponsor's", () => {
+  test("[assets:no-real-brands-on-assets] given every sign a shipped model carries, when its words are read, then none names a real business, a real name on one is only a public place's or a market's from the register, and no place carries a sponsor's", () => {
     const onModels = [...carried].map((key) => ({ key, words: text[key] ?? "" }));
     expect(onModels.filter(({ words }) => realName.test(words)).map(({ key, words }) => `${key}: ${words}`)).toEqual([]);
     const realOnModels = onModels.flatMap(({ key }) => {

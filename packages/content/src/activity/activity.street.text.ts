@@ -1,4 +1,4 @@
-// Names and blurbs for streets.md's activities (R-STREET-001 to 004, 008).
+// Names and blurbs for streets.md's activities (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:stadium-morning-run).
 export const activityStreetText: Record<string, string> = {
   "activity.buy-phone.name": "Buy a phone",
   "activity.buy-phone.blurb": "A new phone from a stall in the village, paid by transfer at the counter. People can reach you again.",

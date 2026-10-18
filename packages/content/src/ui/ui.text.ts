@@ -7,7 +7,7 @@ export const uiText: Record<string, string> = {
   "ui.broken": "Something on this screen broke. Your life is kept; reload to carry on.",
   "ui.broken.reload": "Reload",
   "ui.broken.tell": "Tell us",
-  // Written into the feedback box by Tell us: the error's name and the build, never its message or stack (R-ANALYTICS-002).
+  // Written into the feedback box by Tell us: the error's name and the build, never its message or stack (analytics:client-sends-interface-counts).
   "ui.broken.feedback": "The screen broke ({error}, build {build}). What I was doing: ",
 
   // Tabs
@@ -17,7 +17,7 @@ export const uiText: Record<string, string> = {
   "ui.month.planning": "Month {month}",
   "ui.month.plan": "This month",
   "ui.month.slot-empty": "Nothing yet",
-  // The month's name and phase on the band, where the pages were (R-WORLD-002, R-TURN-010; decision 0011): month 0 of a
+  // The month's name and phase on the band, where the pages were (world:top-band-is-lively-pill, turn:month-lived-in-half-days; decision 0011): month 0 of a
   // life is the month of the year it began in; the phase says the month's free time in words, never a count.
   "ui.month.name.0": "January",
   "ui.month.name.1": "February",
@@ -31,7 +31,7 @@ export const uiText: Record<string, string> = {
   "ui.month.name.9": "October",
   "ui.month.name.10": "November",
   "ui.month.name.11": "December",
-  // The world's part of the day on the band (clock.md R-CLOCK-033), in words, never a time with digits.
+  // The world's part of the day on the band (clock:game-day-on-real-time), in words, never a time with digits.
   "ui.day.part.morning": "Morning",
   "ui.day.part.afternoon": "Afternoon",
   "ui.day.part.evening": "Evening",
@@ -47,7 +47,7 @@ export const uiText: Record<string, string> = {
   "ui.world.ask-away": "Someone is asking for you at {place}.",
   // Who waits, where content knows: the family house is Mama's.
   "ui.world.ask-away.place.family-house": "Mama is asking for you at home.",
-  // R-STREET-010: the parcel waits at the cargo office; the nudge names it from anywhere else in the city.
+  // streets:parcels-shipped-home: the parcel waits at the cargo office; the nudge names it from anywhere else in the city.
   "ui.world.ask-away.place.bode-thomas": "Your parcel is at the cargo office on Bode Thomas Street.",
   // A country as the plane's line names it (apps/client/src/features/city/City.tsx, the depart sheet).
   "ui.country.place.country.uk": "the UK",
@@ -77,7 +77,7 @@ export const uiText: Record<string, string> = {
   "ui.report.japacity-none": "Japacity: no route yet",
   "ui.line.school-offer-plain": "{school} offered you a place.",
   "ui.line.savings-before": "Your savings from before: {amount}.",
-  // A move to a home with rent, told once with the rent it paid (home.md R-HOME-002).
+  // A move to a home with rent, told once with the rent it paid (home:move-home-once-a-month).
   "ui.line.home-moved": "Home is {place} now: {amount} a month.",
   // The time played on a share card, in years and months (apps/client/src/shared/share/face.ts, playedWords).
   "ui.card.played.years": "{count} years",
@@ -87,7 +87,7 @@ export const uiText: Record<string, string> = {
   "ui.card.played.months.zero": "Under a month",
   "ui.card.played.years-months": "{years} and {months}",
   // The results' own telling of a story line (apps/client/src/features/turn/month.results.ts, toldOnResults): a bill
-  // not paid says its figure and what it cost; a hunt says its answer (R-WORLD-008).
+  // not paid says its figure and what it cost; a hunt says its answer (world:month-end-results-sheet).
   "ui.results.unpaid-part.standing-mood": "{obligation}: {paid} paid, {short} short. Your standing and your mood took a hit.",
   "ui.results.unpaid-part.standing": "{obligation}: {paid} paid, {short} short. Your standing took a hit.",
   "ui.results.unpaid-part.mood": "{obligation}: {paid} paid, {short} short. Your mood took a hit.",
@@ -143,7 +143,7 @@ export const uiText: Record<string, string> = {
   "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
   // Fuel scarcity's fares are not living costs.
   "ui.line.offer-paid.offer.fuel-scarcity": "Fuel scarcity: {amount} on fares.",
-  // The message that says you have won (luck.md R-LUCK-007): never "paid to the agent", since there was none.
+  // The message that says you have won (luck:telco-promo-may-be-fraud): never "paid to the agent", since there was none.
   // A fraud takes the fee and nothing follows; an honest one takes the fee and the prize comes.
   "ui.line.offer-paid.offer.telco-promo.fee-agent": "{amount} sent for a prize that never came.",
   "ui.line.offer-paid.offer.telco-promo.fee-agent.then-gift": "{amount} sent to claim the prize.",
@@ -247,7 +247,7 @@ export const uiText: Record<string, string> = {
   // A card's button says the act, never "Add to month"; the line under it says what it uses.
   "ui.activity.uses-free": "Uses this month's free time",
   "ui.activity.full": "Your free time is full this month",
-  // A thing started carries on each month until it is stopped (R-WORLD-007).
+  // A thing started carries on each month until it is stopped (world:month-acts-carry-on).
   "ui.activity.planned": "Ongoing",
   "ui.activity.cost": "Costs {amount}",
   "ui.activity.free": "No cost",
@@ -259,7 +259,7 @@ export const uiText: Record<string, string> = {
   "ui.activity.short": "Short by {short}: it costs {cost} and you have {have} in the bank and in cash.",
   "ui.activity.short-planned": "Short by {short}: it costs {cost}, and this month's plan already takes {planned} of the {have} you have.",
   "ui.activity.short-foreign": "Short by {short}: it costs {cost}, bought from naira at the bank rate, about {naira} with the bank's charge. You have {have} in the bank.",
-  // A shut button's one reason (R-WORLD-006).
+  // A shut button's one reason (world:one-action-one-sheet).
   "ui.needs.document": "Needs your {document} first",
   "ui.needs.band": "Needs band {band} in English first",
   "ui.needs.route": "Needs a route you have heard of",
@@ -274,7 +274,7 @@ export const uiText: Record<string, string> = {
   "ui.needs.planned": "Carries on each month until you stop it",
   // A shut card's button, when the card itself lists why.
   "ui.needs.not-yet": "Not yet",
-  // The one job an act starts, held already: the shop open (R-ACTIVITY-016).
+  // The one job an act starts, held already: the shop open (activity:trader-opens-own-shop).
   "ui.needs.running": "It is open already",
   "ui.needs.other": "Not yet: {what}",
   "ui.activity.later": "Later, abroad",
@@ -434,7 +434,7 @@ export const uiText: Record<string, string> = {
   "ui.setpiece.weak": "Weak answer",
   "ui.setpiece.blocks": "Finish this before the month can end.",
 
-  // The December visit (R-RETURN-005)
+  // The December visit (return:december-visit-set-piece)
   "ui.december.have": "In your pockets here: {amount}",
   "ui.december.free": "Free",
   "ui.december.short": "It needs {need} and you have {have} here.",
@@ -462,7 +462,7 @@ export const uiText: Record<string, string> = {
   "ui.news.source.official": "The official page",
   "ui.news.source.street": "The street",
 
-  // The prologue (prologue.md R-PROLOGUE-008)
+  // The prologue (prologue:view-shows-step-card)
   "ui.prologue.title": "How you got here",
   "ui.prologue.then": "What happened",
   "ui.prologue.so-far": "Your life so far",
@@ -478,7 +478,7 @@ export const uiText: Record<string, string> = {
   "ui.prologue.parents.not": "Your parents did not get far in school.",
   "ui.prologue.money": "Money of your own: {amount}",
   "ui.prologue.money.none": "No money of your own yet.",
-  // The handover's one button: Go, never a month number (world.md R-WORLD-002; prologue.md R-PROLOGUE-010).
+  // The handover's one button: Go, never a month number (world:top-band-is-lively-pill; prologue:archetype-presets-answers).
   "ui.prologue.start": "Go",
 
   // A new life
@@ -486,7 +486,7 @@ export const uiText: Record<string, string> = {
   "ui.life.start": "Live this life",
   "ui.life.notice.other-content": "Your saved life was made for an older version of the game, so it could not come along. A new life has started.",
   "ui.life.notice.unreadable": "Your saved life could not be read. A new life has started.",
-  // Ending this life from Settings (account.md R-ACCOUNT-030): one sheet, Cancel the easy way, the end held to confirm.
+  // Ending this life from Settings (account:start-a-new-life): one sheet, Cancel the easy way, the end held to confirm.
   "ui.life.end.heading": "This life",
   "ui.life.end": "Start a new life",
   "ui.life.end.hint": "This life ends for good.",
@@ -501,7 +501,7 @@ export const uiText: Record<string, string> = {
   "ui.life.end.failed": "The life did not end. Try again.",
   "ui.dismiss": "Close",
 
-  // The front door (prologue.md R-PROLOGUE-009, 013): three screens over the compound with everything chosen.
+  // The front door (prologue:front-door-builds-a-person, prologue:front-door-three-screens): three screens over the compound with everything chosen.
   "ui.door.look": "Your look",
   "ui.door.look.one": "Look {n}",
   "ui.door.reroll": "Another name",
@@ -543,7 +543,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.where.self-contain": "Yaba",
   "ui.door.home.costs.family-house": "Your share about {amount} a month, as you go · family around",
   "ui.door.home.costs.makoko": "{amount} now for the room · living as you go",
-  // The move-in with the agent's and the agreement's fees, as Bills says it (R-HOME-010).
+  // The move-in with the agent's and the agreement's fees, as Bills says it (home:compound-room-is-a-home).
   "ui.door.home.costs.compound-room": "{movein} to move in, then {rent} a year · living {amount} a month",
   "ui.door.home.costs.hostel-room": "Then {rent} a month · no year's rent",
   // Each home's line on the door, in the order offered.
@@ -560,7 +560,7 @@ export const uiText: Record<string, string> = {
   "ui.door.home.short": "short",
   "ui.door.home.needed": "needed",
   "ui.door.home.goal": "A goal",
-  // The goal the savings already cover: it stays on the row, locked, and says so (R-PROLOGUE-013).
+  // The goal the savings already cover: it stays on the row, locked, and says so (prologue:front-door-three-screens).
   "ui.door.home.reached": "reached",
   "ui.door.home.said.left": "About {amount} left after moving in",
   "ui.door.home.said.short": "{amount} short of moving in",
@@ -570,17 +570,17 @@ export const uiText: Record<string, string> = {
   "ui.door.ready.hint": "Skip the years before. Start at work.",
   "ui.door.ready.title": "A ready life",
   "ui.door.begin": "Begin",
-  // The door's own words (R-PROLOGUE-013).
+  // The door's own words (prologue:front-door-three-screens).
   "ui.door.caption": "{path} · {age}",
   "ui.door.body.f": "Woman",
   "ui.door.tile.savings": "Savings {amount}",
   "ui.door.edit.you": "Look and name",
   "ui.door.edit.life": "Path and age",
   "ui.page.field.family": "Family",
-  // Where the life is from, as a passport names a place of birth (R-PROLOGUE-009).
+  // Where the life is from, as a passport names a place of birth (prologue:front-door-builds-a-person).
   "ui.page.field.from": "From",
   "ui.hometown.unknown": "your hometown",
-  // The data page (R-PROLOGUE-009): its type line and its fields.
+  // The data page (prologue:front-door-builds-a-person): its type line and its fields.
   "ui.page.type-line": "Type P · JPC",
   "ui.page.field.nationality": "Nationality",
   "ui.page.nationality": "Nigerian",
@@ -589,14 +589,14 @@ export const uiText: Record<string, string> = {
   "ui.page.stamp.flight": "Flown out",
   "ui.page.stamp.landed": "Landed",
   "ui.page.stamp.secured": "Status secured",
-  // Begin starts the life; it stamps nothing (R-PROLOGUE-014).
+  // Begin starts the life; it stamps nothing (prologue:printed-page-hands-over).
   "ui.door.begin.then": "Your first month",
   "ui.page.stamps.none": "No stamps yet. The first is the visa.",
   "ui.page.stamps.some": "The visa's stamp, and one for each step after it.",
   "ui.page.family.unseen": "Drawn when you begin",
   "ui.page.japacity.line": "Japacity: how ready you are to leave Nigeria. 100 = you go.",
 
-  // The page as the handover (prologue.md R-PROLOGUE-014): the family drawn, the years before as chips, the money, the stamp.
+  // The page as the handover (prologue:printed-page-hands-over): the family drawn, the years before as chips, the money, the stamp.
   "ui.page.family": "Your family",
   "ui.page.family.drawing": "Drawing your family",
   // The card's title names where the family is from, its place of origin, never
@@ -619,7 +619,7 @@ export const uiText: Record<string, string> = {
   "ui.page.year.exam.passed": "Passed",
   "ui.page.year.exam.failed": "Not passed",
   "ui.page.year.retake": "A retake",
-  // The work a retake or a strike cost before the age picked (R-PROLOGUE-004, decision 0023), in whole years.
+  // The work a retake or a strike cost before the age picked (prologue:age-advances-with-steps, decision 0023), in whole years.
   "ui.page.year.lost": "{count} years of work lost",
   "ui.page.year.lost.one": "A year of work lost",
   "ui.page.year.lost.zero": "No work lost",
@@ -637,7 +637,7 @@ export const uiText: Record<string, string> = {
   "ui.page.year.settlement.fair": "Enough to start",
   "ui.page.year.settlement.cheated": "Little to show",
   "ui.page.year.shop": "Shop counter",
-  // The child of the water's own years (R-PROLOGUE-012): the canoe to school, then the racks.
+  // The child of the water's own years (prologue:makoko-start-never-a-trap): the canoe to school, then the racks.
   "ui.page.year.waec.water": "School by canoe",
   "ui.page.year.shop.water": "The fish racks",
   "ui.page.year.shop.years": "{count} years",
@@ -647,10 +647,10 @@ export const uiText: Record<string, string> = {
   "ui.page.home.makoko": "You start in a room on the water, Makoko",
   "ui.page.home.compound-room": "You start in your own room, Ojuelegba",
   "ui.page.home.hostel-room": "You start in a hostel room, Yaba",
-  // One line for every home: the family house charges living costs, the others rent (R-PROLOGUE-014).
+  // One line for every home: the family house charges living costs, the others rent (prologue:printed-page-hands-over).
   "ui.page.home.costs": "Next month: {amount}",
   "ui.page.home.costs.prepaid": "Rent in {count} months",
-  // R-HOME-012 (decision 0013): where nothing of the living is taken as the month turns, it is bought as you go.
+  // home:living-by-hand (decision 0013): where nothing of the living is taken as the month turns, it is bought as you go.
   "ui.page.home.by-hand": "Food, water and fares as you go",
   "ui.page.capital": "A shop's capital",
   "ui.page.lived.degree": "University, as it went",
@@ -658,9 +658,9 @@ export const uiText: Record<string, string> = {
   "ui.page.lived.trade": "Work from school",
   "ui.page.money": "Money",
   "ui.page.ready": "Japacity",
-  // R-TEXT-008: the tags under what was kept: a change, which counts for nothing, and the month's lotto.
+  // text:show-then-tell: the tags under what was kept: a change, which counts for nothing, and the month's lotto.
   "ui.results.tag.lotto": "Lotto: {amount}",
-  // R-TEXT-008: the adviser's reading on the results, its conditions as tags.
+  // text:show-then-tell: the adviser's reading on the results, its conditions as tags.
   "ui.results.reading": "Her reading: {route}",
   "ui.results.reading.fits": "Fits now",
   "ui.results.reading.missing": "{count} missing",
@@ -673,11 +673,11 @@ export const uiText: Record<string, string> = {
   "ui.page.tone.up": "Up",
   "ui.page.tone.down": "Down",
 
-  // A trade that heard of the Gulf looks it into at the motor park (chapter.md R-CHAPTER-009's reading; decision 0001).
+  // A trade that heard of the Gulf looks it into at the motor park (chapter:chapters-follow-lean-route's reading; decision 0001).
   "chapter.find-your-feet.item.known.nudge.motor-park": "Ask around at the motor park",
   "prologue.handover.step.known.motor-park": "Ask around at the motor park",
 
-  // The first-use labels (world.md R-WORLD-033): under each thumb until it is tapped once.
+  // The first-use labels (world:no-walkthrough-before-play): under each thumb until it is tapped once.
   "ui.first.phone": "Chats, bank, news",
   "ui.first.map": "Go places",
 
@@ -687,7 +687,7 @@ export const uiText: Record<string, string> = {
   "ui.req.age-min": "{years} years old or older",
   "ui.req.age-max": "{years} years old or younger",
   "ui.req.quality-min-label": "{quality}: {value} or better",
-  // A gate on a quality, said by the band it sits in, never its figure (R-TEXT-005).
+  // A gate on a quality, said by the band it sits in, never its figure (text:bands-not-figures).
   "ui.req.quality-min-band": "{quality}: {band}",
   "ui.req.quality-max-band": "Not past this: {band}",
   "ui.req.band.quality.english.0": "A little English",
@@ -819,7 +819,7 @@ export const uiText: Record<string, string> = {
   "ui.pocket.bank": "the bank",
   "ui.pocket.cash": "cash",
 
-  // Slots held this month (R-TURN-009) and the side job (R-ACTIVITY-010)
+  // Slots held this month (turn:slots-can-be-locked) and the side job (activity:side-job-holds-a-slot)
   "ui.locks.title": "Time already taken this month",
   "ui.locks.item": "Taken by {why}: {slots}, {left}",
   "ui.locks.side": "Taken by {why}: {slots}, every month you keep it",
@@ -844,7 +844,7 @@ export const uiText: Record<string, string> = {
   "ui.side.quit": "Quit the side job",
   "ui.side.quit-yes": "Yes, quit it",
 
-  // Where you are and the way home (R-PLACE-009, R-RETURN-001)
+  // Where you are and the way home (place:view-shows-place-and-returns, return:return-record-in-words)
   "ui.place.title": "Where you are",
   "ui.place.in": "In {country}",
   "ui.place.in.country.uk": "In the United Kingdom",
@@ -893,7 +893,7 @@ export const uiText: Record<string, string> = {
   "ui.family.why": "Requests from home are paid from this naira. Send money before they come.",
   "ui.family.support": "{name}: {amount} a month",
 
-  // Sending money home (R-ABROAD-006, 008)
+  // Sending money home (abroad-money:remit-sends-money-home, abroad-money:remit-quote-is-shared)
   "ui.remit.title": "Send money home",
   "ui.remit.nothing": "Nothing in a bank abroad to send.",
   "ui.remit.channel": "How to send it",
@@ -918,7 +918,7 @@ export const uiText: Record<string, string> = {
   "ui.remit.sent": "Money sent home",
   "ui.remit.sent-later": "Money sent, lands next month",
 
-  // Status abroad (R-STATUS-010, 006)
+  // Status abroad (status:view-shows-status, status:renewing-a-status)
   "ui.status.title": "Status",
   "ui.status.none": "You hold no status here.",
   "ui.status.work.any": "Any job",
@@ -945,7 +945,7 @@ export const uiText: Record<string, string> = {
   "ui.status.renew": "Renew",
   "ui.status.renew-yes": "Pay {total} and renew",
 
-  // The credit file (R-CREDIT-007)
+  // The credit file (credit:view-shows-credit-file)
   "ui.credit.title": "Credit file",
   "ui.credit.mark": "Credit file: {mark} of 100",
   "ui.credit.of": "of {max}",
@@ -1001,7 +1001,7 @@ export const uiText: Record<string, string> = {
   "ui.gate.role.guard": "security guard",
   "ui.gate.role.cleaner": "cleaner",
 
-  // The car (R-CAR-007)
+  // The car (car:view-shows-car-terms)
   "ui.car.paid": "Paid {paid} of {price}",
   "ui.car.third-mark": "A third",
   "ui.car.half-mark": "Half",
@@ -1036,11 +1036,11 @@ export const uiText: Record<string, string> = {
   "ui.road.wait": "Wait a month",
   "ui.road.ask": "Ask them to let you go",
 
-  // The news front page (R-DIRECTOR-002)
+  // The news front page (director:one-era-at-a-time)
   "ui.news.era": "The times",
   "ui.news.era-before": "Since before your story began.",
 
-  // Being run down (R-HEALTH-001, R-HEALTH-007)
+  // Being run down (health:low-wellbeing-warns-first, health:view-shows-health-warning)
   "ui.health.run-down": "You are run down",
   "ui.health.run-down-figure": "{quality} has been low two months running.",
   "ui.health.run-down-help": "Rest, or do something that lifts you. Stay under the line and illness comes.",

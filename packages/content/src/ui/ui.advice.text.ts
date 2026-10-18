@@ -1,4 +1,4 @@
-// The agent's sheet's own words (docs/rules/advice.md R-ADVICE-005, 006), in the voice of docs/rules/text.md. The
+// The agent's sheet's own words (advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells), in the voice of docs/rules/text.md. The
 // agent's line, his tells, his looks and his choices are in advice/advice.text.ts.
 export const uiAdviceText: Record<string, string> = {
   "advice.notice": "You notice",
@@ -11,7 +11,7 @@ export const uiAdviceText: Record<string, string> = {
   "advice.short": "His fee would take the last of your money.",
   "advice.promise.month": "The card says: {when}",
   "advice.gone": "He has gone.",
-  // R-TEXT-008: each tell as a few words beside its icon and the warning mark; the agent's own sentence stays in content.
+  // text:show-then-tell: each tell as a few words beside its icon and the warning mark; the agent's own sentence stays in content.
   "advice.tell.mark": "Warning sign",
   "advice.tell.cash-only.short": "Cash only",
   "advice.tell.guarantee.short": "Visa \"guaranteed\"",

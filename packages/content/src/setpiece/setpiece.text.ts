@@ -16,7 +16,7 @@ function shown(money: { currency: Currency; amount: number }): string {
 }
 
 /**
- * The December visit's words for each country (return.md R-RETURN-005). The
+ * The December visit's words for each country (return:december-visit-set-piece). The
  * questions are the page's; each answer names what it costs in the country's
  * currency, since that is what it takes.
  */
@@ -79,7 +79,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.living.figures": "A hall near the campus. The rent and the bus fare are in my budget.",
   "setpiece.credibility-interview.a.living.sort": "I will sort that out when I arrive.",
 
-  // R-SETPIECE-008: the follow-ups.
+  // route:answer-may-ask-follow-up: the follow-ups.
   "setpiece.credibility-interview.q.sponsor-who": "Who is the sponsor, and what do they do?",
   "setpiece.credibility-interview.a.sponsor-who.relative": "My uncle. He runs a building supplies business, and I have his letter and his statements.",
   "setpiece.credibility-interview.a.sponsor-who.friend": "A family friend. I am not sure what he does.",
@@ -92,7 +92,7 @@ export const setpieceText: Record<string, string> = {
   "setpiece.credibility-interview.a.gift-uncle.unknown": "I did not ask him.",
 
   // The officer's own lines, spoken and shown. Neutral, and never drawn
-  // from the score (R-SETPIECE-005).
+  // from the score (route:view-shows-progress-not-score).
   "setpiece.credibility-interview.officer.greet": "Good morning. I have a few questions about your application.",
   "setpiece.credibility-interview.officer.react-1": "I see.",
   "setpiece.credibility-interview.officer.react-2": "Right.",
@@ -104,7 +104,7 @@ export const setpieceText: Record<string, string> = {
   "line.setpiece.opened": "{setpiece}: {questions} questions to answer.",
   "line.setpiece.closed": "{setpiece} is over.",
   "line.setpiece.dropped": "{setpiece} is behind you. You left before it was settled.",
-  // R-LUCK-008: staged.
+  // luck:big-wins-are-staged: staged.
   "line.setpiece.december-go": "The ticket is booked. You are going home for December, and everybody already knows.",
   // road.md. The truth is said once, plainly.
 
@@ -123,7 +123,7 @@ export const setpieceText: Record<string, string> = {
 
   // return.md. Questions are the page's.
 
-  // activity.md R-ACTIVITY-013. The quiz's facts are the care guide's.
+  // activity:waiting-months-build-profile. The quiz's facts are the care guide's.
   "setpiece.nurse-exam.name": "The certification exam",
   "setpiece.nurse-exam.q.register": "A nurse trained in Nigeria wants to work in the UK. Who must register her first?",
   "setpiece.nurse-exam.a.register.nmc": "The Nursing and Midwifery Council",

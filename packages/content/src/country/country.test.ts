@@ -7,7 +7,7 @@ import { content } from "../index";
 const countries = Object.values(content.country);
 
 describe("countries", () => {
-  test("[R-ENGINE-014] given every country, when it is checked against its schema, then it parses and its key is its id", () => {
+  test("[engine:content-checked-before-play] given every country, when it is checked against its schema, then it parses and its key is its id", () => {
     expect(countries.map((country) => country.id)).toEqual(["country.uk", "country.canada", "country.uae", "country.italy"]);
     for (const [key, country] of Object.entries(content.country)) {
       expect(CountryEntrySchema.safeParse(country).error?.issues ?? []).toEqual([]);
@@ -15,7 +15,7 @@ describe("countries", () => {
     }
   });
 
-  test("[R-ENGINE-014] given every country, when the obligations it names are looked up, then each exists, applies abroad and charges in the country's currency", () => {
+  test("[engine:content-checked-before-play] given every country, when the obligations it names are looked up, then each exists, applies abroad and charges in the country's currency", () => {
     const problems = countries.flatMap((country) => {
       const named: [string, Id<"obligation"> | null][] = [
         ["upkeep", country.upkeep],
@@ -36,7 +36,7 @@ describe("countries", () => {
     expect(problems).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every country, when its upkeep, room and overstayer are read, then each has one and the obligations have the right types", () => {
+  test("[engine:content-checked-before-play] given every country, when its upkeep, room and overstayer are read, then each has one and the obligations have the right types", () => {
     for (const country of countries) {
       expect(country.upkeep).not.toBeNull();
       expect(country.rentRoom).not.toBeNull();
@@ -44,7 +44,7 @@ describe("countries", () => {
       expect(content.obligation[country.rentRoom!]?.type).toBe("rent");
       expect(country.rentFlat === null ? "rent" : content.obligation[country.rentFlat]?.type).toBe("rent");
       expect(country.phone === null ? "phone" : content.obligation[country.phone]?.type).toBe("phone");
-      // R-STATUS-005: the overstayer status of the country allows cash work only and does not expire.
+      // status:overstayer-risks-detection: the overstayer status of the country allows cash work only and does not expire.
       const overstayer = content.status[country.overstayer!];
       expect(overstayer?.country).toBe(country.id);
       expect(overstayer?.work).toBe("cash");
@@ -52,7 +52,7 @@ describe("countries", () => {
     }
   });
 
-  test("[R-ENGINE-014] given the countries, when figures from place.md and abroad-money.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the countries, when figures from place.md and abroad-money.md are read back, then each matches the page", () => {
     const uk = content.country["country.uk"];
     // place.md: £620 one way, a December factor of 2.5.
     expect(uk?.fare).toBe(62000);

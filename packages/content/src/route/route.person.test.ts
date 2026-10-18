@@ -6,7 +6,7 @@ const used = content;
 const PEOPLE_ROUTES = ["route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"] as const;
 
 describe("the people routes", () => {
-  test("[R-ENGINE-014] given the partner and dependant routes joined, when figures from person.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the partner and dependant routes joined, when figures from person.md are read back, then each matches the page", () => {
     expect(used.route["route.uk-partner"]).toMatchObject({
       gate: "partner",
       country: "country.uk",
@@ -44,7 +44,7 @@ describe("the people routes", () => {
     expect(content.var["var.uk-partner-income"]?.start).toBe(2900000);
   });
 
-  test("[R-ENGINE-014] given the people routes, when their checklists are read, then each comes to 100 with the page's weights and every item has words", () => {
+  test("[engine:content-checked-before-play] given the people routes, when their checklists are read, then each comes to 100 with the page's weights and every item has words", () => {
     const weights = Object.fromEntries(PEOPLE_ROUTES.map((id) => [id, Object.fromEntries(used.route[id]!.checklist.map((item) => [item.id, item.weight]))]));
     expect(weights).toEqual({
       "route.uk-partner": { married: 20, sponsor: 20, floor: 15, english: 10, passport: 5, tb: 5, applied: 25 },
@@ -56,7 +56,7 @@ describe("the people routes", () => {
     expect(missing).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given the people routes joined, when every route, status, activity and offer they bring is read, then each has a name, and each id they name exists", () => {
+  test("[engine:content-checked-before-play] given the people routes joined, when every route, status, activity and offer they bring is read, then each has a name, and each id they name exists", () => {
     const brought = ["activity.apply-uk-partner", "activity.apply-ca-spouse", "activity.apply-uk-dependant", "activity.apply-ca-accompany", "status.uk-partner", "status.uk-dependant", "offer.ca-assistance"] as const;
     const tables: Record<string, Record<string, unknown>> = { route: used.route, status: used.status, var: used.var, activity: used.activity, document: used.document, country: used.country, obligation: used.obligation, offer: used.offer };
     expect(brought.filter((id) => tables[id.split(".")[0]!]?.[id] === undefined)).toEqual([]);
@@ -69,7 +69,7 @@ describe("the people routes", () => {
 });
 
 describe("the undertaking, the assistance and the points with a spouse", () => {
-  test("[R-ENGINE-014] given the undertaking, the assistance offer and Canada's bar, when figures from undertaking.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the undertaking, the assistance offer and Canada's bar, when figures from undertaking.md are read back, then each matches the page", () => {
     expect(content.obligation["obligation.undertaking-ca"]).toMatchObject({ type: "undertaking", where: "any", currency: "CAD", rateBp: 0, term: 36, grace: 2, sink: "undertaking" });
     expect(content.obligation["obligation.undertaking-ca"]?.term).toBe(content.tuning.undertaking.months);
     expect(content.obligation["obligation.undertaking-ca"]?.onDefault).toContainEqual({ type: "credit/mark", amount: -content.tuning.credit.onDefault });
@@ -80,7 +80,7 @@ describe("the undertaking, the assistance and the points with a spouse", () => {
     expect(content.country["country.uk"]?.partnerBarMonths).toBe(0);
   });
 
-  test("[R-ENGINE-014] given the points table with a spouse, when figures from person.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the points table with a spouse, when figures from person.md are read back, then each matches the page", () => {
     const table = content.points["points.canada-spouse"]!;
     expect(table.age.map((row) => row.points)).toEqual([90, 95, 100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 45, 35, 25, 15, 5, 0]);
     expect(table.education.map((row) => row.points)).toEqual([28, 91, 112, 126, 140]);

@@ -3,16 +3,16 @@
 // activity.data.ts.
 //
 // Every activity here also requires `place/is` for its place and country.
-// R-PLACE-003 and R-LADDER-001 already make it illegal elsewhere through `where` and
+// place:entries-legal-by-where and ladders:activities-filtered-by-where already make it illegal elsewhere through `where` and
 // `country`; the requirement says so in the "why not" list as well.
 //
-// A job abroad holds its pay a year, not a month. R-ABROAD-002 pays "its
+// A job abroad holds its pay a year, not a month. abroad-money:salary-abroad-taxed-locally pays "its
 // salary over twelve" less tax on the yearly salary above the tax-free line, the
 // ladders table gives pay a year, and `carBonus` is a year too.
 //
 // A job reached through a sponsor or an agent (uk-care, uk-skilled, the
-// two Gulf jobs) pays the `salary` term recorded on the route (R-SPONSOR-007,
-// R-CONTRACT-004) and has no hiring chance: it is started by departure, never hunted.
+// two Gulf jobs) pays the `salary` term recorded on the route (route-gates:sponsored-status-on-departure,
+// route-gates:employer-flies-and-holds-passport) and has no hiring chance: it is started by departure, never hunted.
 import type { ActivityEntry, Cost, Effect, Id, Money, Requirement } from "@japacity/sim";
 
 import { obligationTable } from "../obligation/obligation.data";
@@ -27,7 +27,7 @@ const IN_UAE: Requirement = { type: "place/is", where: "abroad", country: "count
 const IN_ITALY: Requirement = { type: "place/is", where: "abroad", country: "country.italy" };
 const NO_PHONE_CONTRACT: Requirement = { type: "not", of: { type: "obligation/has", obligationType: "phone" } };
 
-/** R-ABROAD-003: the flat's deposit as the act charges it, read from the entry that pays it back, so the two are one figure. */
+/** abroad-money:arrival-opens-upkeep-and-room: the flat's deposit as the act charges it, read from the entry that pays it back, so the two are one figure. */
 function depositOf(flat: Id<"obligation">): Cost {
   const entry = obligationTable[flat];
   if (entry?.deposit === undefined) throw new Error(`${flat} takes no deposit.`);
@@ -90,10 +90,10 @@ function free(id: Id<"activity">, country: Id<"country"> | null, requires: Requi
 
 /** The sponsor's or the agent's salary, a year. */
 const SPONSOR_SALARY = { term: "salary" } as const;
-// R-CONTRACT-002 records the Gulf salary a month: times 12 makes it a year.
+// route-gates:gulf-agent-offer records the Gulf salary a month: times 12 makes it a year.
 const CONTRACT_SALARY = { term: "salary", bp: pct(1200) } as const;
 
-/** The jobs a student may hold (R-LADDER-006). Overtime is not for them. */
+/** The jobs a student may hold (ladders:student-holds-one-part-job). Overtime is not for them. */
 const PART_JOBS: Id<"activity">[] = ["activity.job-uk-retail-part"];
 
 export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWhen({
@@ -104,7 +104,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
       wellbeing(-4),
       gain("quality.care", 1),
     ]),
-    // £3,000 a year for the visiting round, while you have the car (R-LADDER-004).
+    // £3,000 a year for the visiting round, while you have the car (ladders:car-bonus-needs-car).
     carBonus: pounds(3000),
     sickLeave: true,
   },
@@ -333,7 +333,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
 
   // Free slots abroad
 
-  // The phone is in upkeep (the upkeep abroad is the phone alone, R-ABROAD-003).
+  // The phone is in upkeep (the upkeep abroad is the phone alone, abroad-money:arrival-opens-upkeep-and-room).
   "activity.call-home": free("activity.call-home", null, [ABROAD], {
     cost: [],
     effects: [gain("quality.standing", 3), wellbeing(2)],
@@ -343,14 +343,14 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     cost: [{ currency: "GBP", amount: pounds(10), reason: "social" }],
     effects: [gain("quality.network", 4), wellbeing(4)],
   }),
-  // streets.md R-STREET-005: shopping on the street, on Rye Lane and in Deira. Each is in this table, not
+  // streets:street-shopping-abroad: shopping on the street, on Rye Lane and in Deira. Each is in this table, not
   // the foreign pockets' one, so that one keeps the activities the wallet's pockets brought in.
   // London's stalls are enjoyment, as the street's spending is at home; nothing of it fills the belly.
   "activity.street-shopping-uk": free("activity.street-shopping-uk", "country.uk", [IN_UK], {
     cost: [{ currency: "GBP", amount: tuning.street.shoppingGbp, reason: "enjoyment" }],
     effects: [wellbeing(tuning.street.shoppingMood)],
   }),
-  // streets.md R-STREET-014: the souq stands in Naif and is enjoyment, as London's stalls are.
+  // streets:dubai-life-by-hand: the souq stands in Naif and is enjoyment, as London's stalls are.
   "activity.street-shopping-uae": free("activity.street-shopping-uae", "country.uae", [IN_UAE], {
     cost: [{ currency: "AED", amount: tuning.street.shoppingAed, reason: "enjoyment" }],
     effects: [wellbeing(tuning.street.shoppingMood)],
@@ -380,7 +380,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
       effects: [{ type: "document/request", document: "document.nmc-pin" }],
     },
   ),
-  // R-CAR-006: the lessons once (tuning.car.lessons), then the fee for each attempt
+  // car:licence-and-driving-test: the lessons once (tuning.car.lessons), then the fee for each attempt
   // (tuning.car.testFee), and the pass draw. The costs depend on earlier attempts
   // and the draw has no effect type, so both belong to the kind that runs the test;
   // the entry carries neither.
@@ -388,7 +388,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     cost: [],
     effects: [],
   }),
-  // R-CAR-001: credit 30, a licence in force, the deposit of 10% of £9,500.
+  // car:car-bought-on-finance: credit 30, a licence in force, the deposit of 10% of £9,500.
   "activity.buy-car-finance": free(
     "activity.buy-car-finance",
     "country.uk",
@@ -405,11 +405,11 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
     ],
     {
       cost: [{ currency: "GBP", amount: pounds(950), reason: "car-deposit" }],
-      // The price less the deposit. The rate is set from the credit ladder (R-CREDIT-005).
+      // The price less the deposit. The rate is set from the credit ladder (credit:rate-follows-credit-ladder).
       effects: [{ type: "obligation/open", obligation: "obligation.car", principal: pounds(8550) }],
     },
   ),
-  // R-ABROAD-003: credit 20 and one month's rent as the deposit, returned on leaving.
+  // abroad-money:arrival-opens-upkeep-and-room: credit 20 and one month's rent as the deposit, returned on leaving.
   // It closes the room and opens the flat, and is not offered while the flat is held.
   "activity.rent-flat-uk": free("activity.rent-flat-uk", "country.uk", [IN_UK, { type: "credit/min", value: 20 }, noFlat("obligation.rent-flat-uk")], {
     cost: [depositOf("obligation.rent-flat-uk")],
@@ -418,7 +418,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
       { type: "obligation/open", obligation: "obligation.rent-flat-uk" },
     ],
   }),
-  // R-ABROAD-004: credit 10. One contract at a time, though the page does not say so.
+  // abroad-money:phone-contract-builds-credit: credit 10. One contract at a time, though the page does not say so.
   "activity.phone-contract-uk": free(
     "activity.phone-contract-uk",
     "country.uk",
@@ -433,7 +433,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   ),
   // The interface's name for wallet/remit: it opens the remit sheet. Nothing happens in the slot itself.
   "activity.send-money": free("activity.send-money", null, [ABROAD], { cost: [], effects: [] }),
-  // R-RETURN-005: in the December tick, the fare both ways times the December factor:
+  // return:december-visit-set-piece: in the December tick, the fare both ways times the December factor:
   // £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8 (place.md).
   // An overstayer cannot fly out and back, so not on the overstayer status; and
   // none from Italy, where the only status is irregular. These slots open no set piece:
@@ -449,7 +449,7 @@ export const abroadActivityTable: Record<Id<"activity">, ActivityEntry> = withWh
   ),
 });
 
-/** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts, as the wallet keeps those pockets (R-ABROAD-001). */
+/** The free-slot activities priced in Canadian dollars or dirhams, joined in activity.data.ts, as the wallet keeps those pockets (abroad-money:foreign-currencies-join-wallet). */
 export const foreignPocketActivityTable: Record<Id<"activity">, ActivityEntry> = withWhen({
   "activity.community-ca": free("activity.community-ca", "country.canada", [IN_CANADA], {
     cost: [{ currency: "CAD", amount: cad(15), reason: "social" }],

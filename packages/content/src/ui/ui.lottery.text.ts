@@ -1,7 +1,7 @@
 // The Friday draw: the kiosk, the draw page and the front page's line (docs/rules/lottery.md), in the voice of
 // docs/rules/text.md.
 export const uiLotteryText: Record<string, string> = {
-  // The kiosk (R-LOTTERY-006, R-LOTTERY-023)
+  // The kiosk (lottery:view-shows-draw-state, lottery:screen-states-odds-plainly)
   "ui.lottery.title": "The Friday draw",
   "ui.lottery.draw": "Draw {draw}",
   "ui.lottery.price": "{price} a ticket, up to {max} tickets a draw.",
@@ -27,7 +27,7 @@ export const uiLotteryText: Record<string, string> = {
   "ui.lottery.from-bank": "Paid from your naira bank account, which holds {bank}.",
   "ui.lottery.short": "Your naira bank account holds {bank}, less than one ticket.",
   "ui.lottery.full": "You hold the most tickets a draw allows.",
-  // R-WALLET-020: a ticket is bought only with naira earned in the game, never with a top-up.
+  // wallet:top-ups-are-marked: a ticket is bought only with naira earned in the game, never with a top-up.
   "ui.lottery.earned-only": "Tickets come from money you earned.",
   "ui.lottery.closed-buy": "Sales for this draw are closed. Tickets for the next one go on sale with the result.",
   "ui.lottery.jackpot": "The jackpot",
@@ -52,7 +52,7 @@ export const uiLotteryText: Record<string, string> = {
   "ui.lottery.last-missed": "Nobody hit the jackpot of {jackpot}. It rolled over to {next}.",
   "ui.lottery.check": "Check draw {draw}",
 
-  // The street kiosk's sheet in the world (R-LOTTERY-001, R-WORLD-005, R-WORLD-006): one button that says the act,
+  // The street kiosk's sheet in the world (lottery:draw-runs-online-only, world:things-are-tappable-models, world:one-action-one-sheet): one button that says the act,
   // and the rest folded behind a tap on a row.
   "ui.lottery.kiosk.buy": "Buy {count} tickets",
   "ui.lottery.kiosk.buy.one": "Buy 1 ticket",
@@ -70,7 +70,7 @@ export const uiLotteryText: Record<string, string> = {
   "ui.lottery.tier-line.zero": "No ticket won this.",
   "ui.lottery.tier-tickets": "Tickets {numbers}",
 
-  // The draw page (R-LOTTERY-015)
+  // The draw page (lottery:result-published-in-tick-row)
   "ui.lottery.page.title": "Draw {draw}, checked on your phone",
   "ui.lottery.page.intro": "Everything here is public. Your phone works the result out again from it and compares.",
   "ui.lottery.page.loading": "Fetching the draw...",
@@ -101,7 +101,7 @@ export const uiLotteryText: Record<string, string> = {
   "ui.lottery.page.show-list": "Show the list",
   "ui.lottery.page.hide-list": "Hide the list",
 
-  // The front page (R-LOTTERY-016)
+  // The front page (lottery:draw-result-on-front-page)
   "ui.news.drawn": "Draw {draw} is in: the jackpot of {jackpot} was hit. Tickets that won a prize: {winners}.",
   "ui.news.drawn-rolled": "Draw {draw} is in: nobody hit the jackpot of {jackpot}, so it rolls over. Tickets that won a prize: {winners}.",
   "ui.news.drawn-none": "Draw {draw} is in: no ticket was sold, so nobody won.",

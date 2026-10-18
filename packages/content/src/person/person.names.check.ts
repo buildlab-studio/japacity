@@ -5,10 +5,10 @@
 import type { NamedPerson, NamePeople, PoolName } from "./person.names.data";
 import { peopleRegion, takingRoles } from "./person.names.data";
 
-/** R-PEOPLE-053: one to three words of letters, each starting with a capital. */
+/** person:computer-names-generated: one to three words of letters, each starting with a capital. */
 const NAME_SHAPE = /^[A-Z][a-z]+( [A-Z][a-z]+){0,2}$/;
 
-/** True when a name has the shape no player's handle can take (R-PEOPLE-053). */
+/** True when a name has the shape no player's handle can take (person:computer-names-generated). */
 export function nameShaped(name: string): boolean {
   return NAME_SHAPE.test(name);
 }

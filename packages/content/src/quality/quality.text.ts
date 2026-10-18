@@ -46,7 +46,7 @@ export const qualityText: Record<string, string> = {
   "line.quality.drift": "{quality} settles by {points}, to {value}.",
   "line.quality.run-down": "You are run down, and it has gone on for months. Rest, or you will fall ill.",
 
-  // A quality's move told as what a person would notice, never the quality's name or which way it went (R-TEXT-005).
+  // A quality's move told as what a person would notice, never the quality's name or which way it went (text:bands-not-figures).
   // First, an act's own line for all it moved; else each move by its quality.
   "line.quality.from.activity.meetup": "You know more people at the hub now.",
   "line.quality.from.activity.build-portfolio": "Late nights on the project.",
@@ -67,7 +67,7 @@ export const qualityText: Record<string, string> = {
   "line.quality.told.quality.wellbeing.gain": "It did you good.",
   "line.quality.told.quality.wellbeing.loss": "It took something out of you.",
   "line.quality.told.quality.wellbeing.worn": "Work took it out of you.",
-  // The month's own drift toward rest (R-QUALITY-004): from below, at rest, from above.
+  // The month's own drift toward rest (quality:wellbeing-drifts-to-baseline): from below, at rest, from above.
   "line.quality.told.quality.wellbeing.drift.below": "The tiredness eased a little.",
   "line.quality.told.quality.wellbeing.drift.rest": "You were yourself again.",
   "line.quality.told.quality.wellbeing.drift.above": "The good mood from last month passed.",

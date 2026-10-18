@@ -1,8 +1,8 @@
-// Dubai's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-014; design page 15): the names of the things and
+// Dubai's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:dubai-life-by-hand; design page 15): the names of the things and
 // acts of its places, the colleague's lines at the site, the talk overheard there and the ride's lines on the metro, the
 // city bus, the labour bus and the taxi. In the voice of docs/rules/text.md; content's text wins over these.
 // Fetched in a chunk of their own and added to the client's late words once the life is in the UAE
-// (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine.md R-ENGINE-020).
+// (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine:first-download-has-budget).
 export const uiDubaiText: Readonly<Record<string, string>> = {
   // Deira restaged (design page 15 section 3): the exchange house for money home, the African foods shop, the cafeteria.
   "city.thing.exchange-house": "Money exchange",
@@ -10,12 +10,12 @@ export const uiDubaiText: Readonly<Record<string, string>> = {
   "city.act.naija-shop": "A taste of home",
   "city.thing.cafeteria": "Cafeteria",
   "city.act.cafeteria": "Rice and curry",
-  // Naif (R-STREET-014): the tailor and the laundry on the souq's arcades.
+  // Naif (streets:dubai-life-by-hand): the tailor and the laundry on the souq's arcades.
   "city.thing.tailor": "Tailor",
   "city.act.tailor": "Get measured",
   "city.thing.laundry": "Laundry",
   "city.act.laundry": "Wash and iron",
-  // Union station: the Nol machine that sells the month's zone pass (place.md R-PLACE-012), the gates.
+  // Union station: the Nol machine that sells the month's zone pass (place:country-pass-covers-ways), the gates.
   "city.thing.nol-machine": "Nol machine",
   "city.act.transit-pass": "Zone pass",
   "city.thing.platform": "Gates",
@@ -23,7 +23,7 @@ export const uiDubaiText: Readonly<Record<string, string>> = {
   // rota board for overtime, the water cooler where a colleague says a line.
   "city.thing.guard-post": "Guard's post",
   "city.thing.cleaner-trolley": "Cleaner's trolley",
-  // The contract's other job, looked at: the hunt never asks for a Gulf job, so the thing keeps its look (R-WORLD-005).
+  // The contract's other job, looked at: the hunt never asks for a Gulf job, so the thing keeps its look (world:things-are-tappable-models).
   "city.act.look-post": "Look",
   "city.act.look-post.done": "A plastic chair, the gate's logbook, a fan that turns all day.",
   "city.act.look-trolley": "Look",
@@ -36,7 +36,7 @@ export const uiDubaiText: Readonly<Record<string, string>> = {
   "city.thing.on-shift": "On shift",
   "city.act.on-shift": "Your shift",
   "city.act.on-shift.done": "On the rota here. Your shifts run as the month goes.",
-  // The hypermarket on London's big shop (world.md R-WORLD-039): the trolley, the tills looked at.
+  // The hypermarket on London's big shop (world:ride-abroad-and-workplace): the trolley, the tills looked at.
   "city.act.weekly-shop": "The weekly shop",
   "city.thing.tills": "Tills",
   "city.act.look-tills": "Look",
@@ -44,18 +44,18 @@ export const uiDubaiText: Readonly<Record<string, string>> = {
   "city.thing.staff-notice": "Staff notice",
   "city.act.read-staff-notice": "Read",
   "city.act.read-staff-notice.done": "Prayer times, the rota, and a lost wallet found by the door.",
-  // The colleague at the water cooler (R-WORLD-039): a new line each time you talk, in turn.
+  // The colleague at the water cooler (world:ride-abroad-and-workplace): a new line each time you talk, in turn.
   "city.line.colleague.site-uae.1": "Drink water before you feel thirsty.",
   "city.line.colleague.site-uae.2": "Supervisor shouts, but he pays on time.",
   "city.line.colleague.site-uae.3": "Two more years, then my house in Ibadan.",
-  // Dubai's places (R-WORLD-039): Nigerian voices among the others, beside content's own lines.
+  // Dubai's places (world:ride-abroad-and-workplace): Nigerian voices among the others, beside content's own lines.
   "city.overheard.metro-station-uae.1": "The women's cabin is at the front.",
   "city.overheard.site-uae.1": "Helmet on. The safety officer is walking around.",
   "city.overheard.big-shop-uae.1": "Rice is on offer. The ten kilo bags.",
   "city.overheard.big-shop-uae.2": "Indian, Filipino, Nigerian, all in one queue.",
   "city.overheard.big-shop-uae.3": "Card or cash, sir?",
   "city.overheard.big-shop-uae.4": "Have you seen yam anywhere in this place?",
-  // Dubai's metro: the voice in the ceiling and the people in the car, as the doors close (R-WORLD-039).
+  // Dubai's metro: the voice in the ceiling and the people in the car, as the doors close (world:ride-abroad-and-workplace).
   "map.ride.line.dubai-metro.1": "Doors closing. Please stand clear.",
   "map.ride.line.dubai-metro.2": "Next station, Union. Change for the green line.",
   "map.ride.line.dubai-metro.3": "Gold class is the front car. Please move back.",
@@ -75,7 +75,7 @@ export const uiDubaiText: Readonly<Record<string, string>> = {
   "map.ride.along.road.1.dubai-bus": "Glass towers and sand lots slide past the window.",
   "map.ride.along.road.2.dubai-bus": "The air outside shimmers over the road.",
   "map.ride.along.road.3.dubai-bus": "A man sleeps on his bag, his helmet on his lap.",
-  // The labour bus to the site, the employer's, at the camp's gate before dawn (place.md R-PLACE-013).
+  // The labour bus to the site, the employer's, at the camp's gate before dawn (place:employer-shuttle-rides-free).
   "map.ride.line.labour-bus.1": "Sit down. The supervisor counts heads at the gate.",
   "map.ride.line.labour-bus.2": "Close the window. The AC is finally working.",
   "map.ride.line.labour-bus.3": "My brother, wake me when we reach site.",

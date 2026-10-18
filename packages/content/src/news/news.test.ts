@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { badNews } from "../comedy/comedy.check";
 import { content, text } from "../index";
 
-/** The five stories of news.md, the 25 of director.md's pool, the one-chance story of wallet.md R-WALLET-019 and one for each of the seven eras. */
+/** The five stories of news.md, the 25 of director.md's pool, the one-chance story of wallet:cash-pile-warning and one for each of the seven eras. */
 const STORY_COUNT = 5 + 25 + 1 + 7;
 
 /** Every variable a requirement reads, through `not` and `any`. */
@@ -51,14 +51,14 @@ const AFTER: [step: string, Id<"news">, before: Id<"news">][] = [
 ];
 
 describe("news timing", () => {
-  test("[R-NEWS-002] given every story in content, when its force lag is read, then it is at least 2 ticks", () => {
+  test("[news:force-waits-after-announcement] given every story in content, when its force lag is read, then it is at least 2 ticks", () => {
     const stories = Object.values(content.news);
     expect(stories).toHaveLength(STORY_COUNT);
     const tooQuick = stories.filter((entry) => entry.standIn.forceLag < 2).map((entry) => entry.id);
     expect(tooQuick).toEqual([]);
   });
 
-  test("[R-NEWS-002] given a story with a force lag of 1, when it is checked, then the content check rejects it", () => {
+  test("[news:force-waits-after-announcement] given a story with a force lag of 1, when it is checked, then the content check rejects it", () => {
     const entry = content.news["news.uk-unis-recruit"];
     expect(entry).toBeDefined();
     const quick = { ...entry, standIn: { ...entry?.standIn, forceLag: 1 } };
@@ -69,13 +69,13 @@ describe("news timing", () => {
 });
 
 describe("the policy cycle", () => {
-  test("[R-DIRECTOR-005] given every backlash story, when its needs are read, then it needs its route's surge over the page's threshold", () => {
+  test("[director:policy-cycle-surge-backlash] given every backlash story, when its needs are read, then it needs its route's surge over the page's threshold", () => {
     for (const [id, surge, threshold] of BACKLASH) {
       expect(story(id).director?.needs).toContainEqual({ type: "var/min", var: surge, value: threshold + 1 });
     }
   });
 
-  test("[R-DIRECTOR-005] given every restriction, closure and reopening, when its needs are read, then they read a variable the step before it changes", () => {
+  test("[director:policy-cycle-surge-backlash] given every restriction, closure and reopening, when its needs are read, then they read a variable the step before it changes", () => {
     const skipped = AFTER.filter(([, id, before]) => {
       const read = varsRead(story(id).director?.needs ?? []);
       return !varsChanged(story(before)).some((changed) => read.includes(changed));
@@ -83,7 +83,7 @@ describe("the policy cycle", () => {
     expect(skipped).toEqual([]);
   });
 
-  test("[R-DIRECTOR-005] given every reopening, when its needs are read, then it needs its window at 0, which the closure before it set", () => {
+  test("[director:policy-cycle-surge-backlash] given every reopening, when its needs are read, then it needs its window at 0, which the closure before it set", () => {
     const reopenings = AFTER.filter(([step]) => step === "reopening");
     expect(reopenings).toHaveLength(4);
     for (const [, id, before] of reopenings) {
@@ -94,7 +94,7 @@ describe("the policy cycle", () => {
     }
   });
 
-  test("[R-DIRECTOR-005] given the closure that needs the narrowing, when its needs are read, then it needs the window at exactly 1 and the hard-line era", () => {
+  test("[director:policy-cycle-surge-backlash] given the closure that needs the narrowing, when its needs are read, then it needs the window at exactly 1 and the hard-line era", () => {
     expect(story("news.uk-study-closes").director?.needs).toEqual([
       { type: "var/min", var: "var.uk-study-window", value: 1 },
       { type: "var/max", var: "var.uk-study-window", value: 1 },
@@ -102,7 +102,7 @@ describe("the policy cycle", () => {
     ]);
   });
 
-  test("[R-DIRECTOR-005] given a copy of a closure whose needs skip the restriction, when the cycle is checked, then it is found", () => {
+  test("[director:policy-cycle-surge-backlash] given a copy of a closure whose needs skip the restriction, when the cycle is checked, then it is found", () => {
     const closes = story("news.uk-study-closes");
     const skipping: NewsEntry = { ...closes, director: { ...closes.director!, needs: [{ type: "era/is", eras: ["era.hard-line"] }] } };
     const read = varsRead(skipping.director?.needs ?? []);
@@ -111,14 +111,14 @@ describe("the policy cycle", () => {
 });
 
 describe("the director's pool", () => {
-  test("[R-ENGINE-014] given every story, when its director fields are read, then each has a group, and a story fired once has no cooldown", () => {
+  test("[engine:content-checked-before-play] given every story, when its director fields are read, then each has a group, and a story fired once has no cooldown", () => {
     const stories = Object.values(content.news);
     expect(stories.filter((entry) => (entry.director?.group ?? "") === "").map((entry) => entry.id)).toEqual([]);
     const onceWithCooldown = stories.filter((entry) => entry.director?.once === true && entry.director.cooldown !== 0);
     expect(onceWithCooldown.map((entry) => entry.id)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every era, when its story is read, then the story exists, touches every route the player can see, and changes nothing", () => {
+  test("[engine:content-checked-before-play] given every era, when its story is read, then the story exists, touches every route the player can see, and changes nothing", () => {
     const visible = Object.values(content.route).filter((route) => route.gate !== "road").map((route) => route.id).sort();
     for (const era of Object.values(content.era)) {
       const entry = story(era.story);
@@ -128,7 +128,7 @@ describe("the director's pool", () => {
     }
   });
 
-  test("[R-ENGINE-014] given the pool's figures, when they are read back, then each matches director.md", () => {
+  test("[engine:content-checked-before-play] given the pool's figures, when they are read back, then each matches director.md", () => {
     expect(story("news.uk-care-sponsors-revoked").standIn.sets).toEqual([{ var: "var.uk-care-sponsor-risk", value: 1200 }]);
     expect(story("news.uk-skilled-bar-rises").standIn.sets).toEqual([{ var: "var.uk-skilled-salary", value: 4600000 }]);
     expect(story("news.uk-settle-ten-years").standIn.sets).toEqual([{ var: "var.uk-settle-months", value: 120 }]);
@@ -161,14 +161,14 @@ function toldStages(entry: NewsEntry): ("announced" | "in-force" | "ended")[] {
 
 describe("where a story comes from", () => {
   // Every piece of news names where it was heard, a small icon and a word, and a rumour is marked as a rumour, so it never reads like a changed rule.
-  test("[R-NEWS-004] given every story in content, when a stage past the rumour is shown, then it names where it is heard: the radio, the paper, the official page, the street or a person", () => {
+  test("[news:changed-stages-delivered-once] given every story in content, when a stage past the rumour is shown, then it names where it is heard: the radio, the paper, the official page, the street or a person", () => {
     const stories = Object.values(content.news);
     expect(stories).toHaveLength(STORY_COUNT);
     const missing = stories.flatMap((entry) => toldStages(entry).filter((stage) => sourceOf(entry, stage) === null).map((stage) => `${entry.id} ${stage}`));
     expect(missing).toEqual([]);
   });
 
-  test("[R-NEWS-004] given every story told by a person, when the words are read, then the person is named, and only a person's stage carries a name", () => {
+  test("[news:changed-stages-delivered-once] given every story told by a person, when the words are read, then the person is named, and only a person's stage carries a name", () => {
     const unnamed: string[] = [];
     const stray: string[] = [];
     for (const entry of Object.values(content.news)) {
@@ -183,13 +183,13 @@ describe("where a story comes from", () => {
     expect(stray).toEqual([]);
   });
 
-  test("[R-NEWS-001] [R-NEWS-004] given a story with a rumour lead, when its rumour is read, then the stage carries no source of its own: the screen marks it a rumour", () => {
+  test("[news:stages-move-forward-only] [news:changed-stages-delivered-once] given a story with a rumour lead, when its rumour is read, then the stage carries no source of its own: the screen marks it a rumour", () => {
     const withRumour = Object.values(content.news).filter((entry) => entry.standIn.rumourLead > 0);
     expect(withRumour.length).toBeGreaterThan(20);
     expect(withRumour.filter((entry) => entry.source !== undefined && "rumour" in entry.source).map((entry) => entry.id)).toEqual([]);
   });
 
-  test("[R-NEWS-004] given the stories a person tells, then at least one is, and a stage that names no source of its own takes the announcement's", () => {
+  test("[news:changed-stages-delivered-once] given the stories a person tells, then at least one is, and a stage that names no source of its own takes the announcement's", () => {
     const recruit = content.news["news.uk-unis-recruit"];
     expect(recruit?.source?.announced).toBeDefined();
     expect(Object.values(content.news).some((entry) => toldStages(entry).some((stage) => sourceOf(entry, stage) === "person"))).toBe(true);
@@ -199,11 +199,11 @@ describe("where a story comes from", () => {
   });
 });
 
-describe("the one-chance story (wallet.md R-WALLET-019)", () => {
+describe("the one-chance story (wallet:cash-pile-warning)", () => {
   const ONE_CHANCE: Id<"news"> = "news.warning-one-chance";
   const RECRUIT: Id<"news"> = "news.uk-unis-recruit";
 
-  test("[R-WALLET-019] given the one-chance story, when it is read, then it is home news of the calm era that opens every world, told once, moving no variable and hearing no route, and its words are bad news written straight", () => {
+  test("[wallet:cash-pile-warning] given the one-chance story, when it is read, then it is home news of the calm era that opens every world, told once, moving no variable and hearing no route, and its words are bad news written straight", () => {
     const entry = story(ONE_CHANCE);
     expect(entry.director).toMatchObject({ group: "home", needs: [{ type: "era/is", eras: ["era.calm"] }], once: true, shock: false, adds: [] });
     expect(entry.standIn).toMatchObject({ chanceBp: 10000, rumourLead: 0, sets: [], revert: false });
@@ -219,7 +219,7 @@ describe("the one-chance story (wallet.md R-WALLET-019)", () => {
     expect(text[`${ONE_CHANCE}.in-force.body`]).toMatch(/bank/);
   });
 
-  test("[R-WALLET-019] [R-DIRECTOR-003] given forty worlds, when their first months are walked, then each announces the one-chance story by its third tick, and never before the recruiting fair, which it never pushes back", () => {
+  test("[wallet:cash-pile-warning] [director:stories-start-by-roll] given forty worlds, when their first months are walked, then each announces the one-chance story by its third tick, and never before the recruiting fair, which it never pushes back", () => {
     // The pool is rolled in id order under a cap of new stories a tick: the fair comes first, so the story never takes its place.
     expect(ONE_CHANCE > RECRUIT).toBe(true);
     for (let seed = 0; seed < 40; seed += 1) {

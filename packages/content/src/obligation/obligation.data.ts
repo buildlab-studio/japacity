@@ -12,7 +12,7 @@ const MISSED_MONTH: Effect[] = [
   { type: "quality/add", quality: "quality.wellbeing", amount: -5 },
 ];
 
-/** The phone's pay as you go in one country, food and fares lived by hand (R-ABROAD-003). */
+/** The phone's pay as you go in one country, food and fares lived by hand (abroad-money:arrival-opens-upkeep-and-room). */
 function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {
     id,
@@ -31,10 +31,10 @@ function upkeepAbroad(id: Id<"obligation">, currency: Currency, amount: number):
 }
 
 /**
- * A shared room, no credit needed (R-ABROAD-003). It reports to the file: the
+ * A shared room, no credit needed (abroad-money:arrival-opens-upkeep-and-room). It reports to the file: the
  * first on-time rent is the first mark that closes chapter 5's `file` item.
  * A room has nowhere cheaper to evict to, so a default here does nothing
- * more than R-CREDIT-002's default figure.
+ * more than credit:payments-move-the-mark's default figure.
  */
 function rentRoom(id: Id<"obligation">, currency: Currency, amount: number): ObligationEntry {
   return {
@@ -55,7 +55,7 @@ function rentRoom(id: Id<"obligation">, currency: Currency, amount: number): Obl
   };
 }
 
-/** A flat in your own name: credit 20 and a deposit of one month to open, a third miss in a row evicts to a room (R-ABROAD-003). */
+/** A flat in your own name: credit 20 and a deposit of one month to open, a third miss in a row evicts to a room (abroad-money:arrival-opens-upkeep-and-room). */
 function rentFlat(id: Id<"obligation">, currency: Currency, amount: number, room: Id<"obligation">): ObligationEntry {
   return {
     ...rentRoom(id, currency, amount),
@@ -69,7 +69,7 @@ function rentFlat(id: Id<"obligation">, currency: Currency, amount: number, room
 }
 
 /**
- * A phone contract: credit 10 to open, the cheapest way to build the file (R-ABROAD-004).
+ * A phone contract: credit 10 to open, the cheapest way to build the file (abroad-money:phone-contract-builds-credit).
  * It has no fixed term and rolls on month by month. A default cuts the line; a
  * miss costs nothing beyond the credit file.
  */
@@ -111,7 +111,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     ],
     onDefault: [],
   },
-  // home.md: the room on the lagoon, in place of the family's upkeep while the character lives there (R-HOME-002).
+  // home.md: the room on the lagoon, in place of the family's upkeep while the character lives there (home:move-home-once-a-month).
   "obligation.upkeep-makoko": {
     id: "obligation.upkeep-makoko",
     type: "upkeep",
@@ -128,7 +128,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     ],
     onDefault: [],
   },
-  // home.md R-HOME-010: the room in a compound. Its upkeep is food, light and water on your own, in place of the
+  // home:compound-room-is-a-home: the room in a compound. Its upkeep is food, light and water on your own, in place of the
   // family's upkeep while the character lives there.
   "obligation.upkeep-compound": {
     id: "obligation.upkeep-compound",
@@ -143,10 +143,10 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onMiss: MISSED_MONTH,
     onDefault: [],
   },
-  // home.md R-HOME-010, R-HOME-011, obligation.md R-OBLIGATION-015: the year's rent, paid upfront on moving in, so the
+  // home:compound-room-is-a-home, home:rent-default-returns-to-family, obligation:prepaid-entries-skip-first-charge: the year's rent, paid upfront on moving in, so the
   // next year's falls due twelve months on. A missed year's rent is asked for each month; the third miss in a row is
   // the default: the landlord takes the room back, and the home kind sends the character back to the family house in
-  // the same month (R-HOME-011). The Lagos landlord keeps no credit file.
+  // the same month (home:rent-default-returns-to-family). The Lagos landlord keeps no credit file.
   "obligation.rent-compound": {
     id: "obligation.rent-compound",
     type: "rent",
@@ -165,7 +165,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   // A hostel room's rent (decision 0018): by the month, no year's lump, which is why it is the cheap way out of the
   // family house. Its first month is paid on the move; from then each month's end pays the month to come, as the room
   // in a compound's year is paid ahead. A missed month is asked for again; the third miss in a row closes it and the
-  // home kind sends the character back to the family house (R-HOME-011).
+  // home kind sends the character back to the family house (home:rent-default-returns-to-family).
   "obligation.upkeep-hostel": {
     id: "obligation.upkeep-hostel",
     type: "rent",
@@ -181,7 +181,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   },
   "obligation.home-support": {
     id: "obligation.home-support",
-    // Support for the family follows the character abroad (R-PLACE-002, R-ABROAD-007).
+    // Support for the family follows the character abroad (place:departure-moves-abroad, abroad-money:family-asks-more-abroad).
     where: "any",
     type: "support",
     currency: "NGN",
@@ -235,7 +235,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     term: null,
     sink: "held-funds-return",
     interestSink: "held-funds-interest",
-    // A missed month closes it at once (R-OBLIGATION-007).
+    // A missed month closes it at once (obligation:missed-interest-recalls-held-funds).
     grace: 0,
     onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -5 }],
     onDefault: [],
@@ -254,7 +254,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [],
   },
 
-  // obligation.md R-OBLIGATION-010 to 012: 15% over 9 months, fees and savings up front.
+  // obligation:group-loan-fees-up-front, obligation:group-covers-misses-at-cost and obligation:three-roads-to-group-loan: 15% over 9 months, fees and savings up front.
   "obligation.group-loan": {
     id: "obligation.group-loan",
     type: "group-loan",
@@ -266,7 +266,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     sink: "loan-repay",
     interestSink: "loan-interest",
     grace: 2,
-    // The first step of R-OBLIGATION-011's ladder; the second is the house visit.
+    // The first step of obligation:group-covers-misses-at-cost's ladder; the second is the house visit.
     onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -5 }],
     onDefault: [
       { type: "quality/add", quality: "quality.standing", amount: -15 },
@@ -278,7 +278,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
       { type: "quality/add", quality: "quality.portfolio", amount: -1 },
     ],
   },
-  // R-OBLIGATION-012: standing guarantor. Three months on, the relative may be gone and the balance is yours.
+  // obligation:three-roads-to-group-loan: standing guarantor. Three months on, the relative may be gone and the balance is yours.
   // The contract has no timer for this, so the guarantee is an undertaking of 3 months owing the balance.
   "obligation.guarantee": {
     id: "obligation.guarantee",
@@ -293,7 +293,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onMiss: [],
     onDefault: [{ type: "obligation/open", obligation: "obligation.group-loan", principal: { term: "outstanding" } }],
   },
-  // luck.md R-LUCK-009: ₦20,000 a month for 10 months, the pot drawn on `lotto`.
+  // luck:savings-circle-holds-pot: ₦20,000 a month for 10 months, the pot drawn on `lotto`.
   // The page names no sink for a share paid into the circle; `social` is the nearest.
   "obligation.ajo": {
     id: "obligation.ajo",
@@ -311,9 +311,9 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // Abroad: abroad-money.md "Entries".
 
-  // R-ABROAD-003: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
+  // abroad-money:arrival-opens-upkeep-and-room: in the UK food and fares are lived by hand, so the upkeep is the phone's pay as you go alone.
   "obligation.upkeep-uk": upkeepAbroad("obligation.upkeep-uk", "GBP", pounds(15)),
-  // R-ABROAD-003 (design page 15 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
+  // abroad-money:arrival-opens-upkeep-and-room (design page 15 section 5): in Canada, the UAE and Italy too the upkeep is the prepaid phone alone.
   "obligation.upkeep-ca": upkeepAbroad("obligation.upkeep-ca", "CAD", cad(30)),
   "obligation.upkeep-uae": upkeepAbroad("obligation.upkeep-uae", "AED", aed(50)),
   "obligation.upkeep-it": upkeepAbroad("obligation.upkeep-it", "EUR", euros(10)),
@@ -331,7 +331,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
   "obligation.phone-uk": phone("obligation.phone-uk", "GBP", pounds(25)),
   "obligation.phone-ca": phone("obligation.phone-ca", "CAD", cad(45)),
 
-  // R-ABROAD-005: the tuition less the deposit and discount is the principal, opened on
+  // abroad-money:tuition-paid-in-instalments: the tuition less the deposit and discount is the principal, opened on
   // arrival, paid in three parts in months 1, 4 and 7 of the course.
   "obligation.tuition": {
     id: "obligation.tuition",
@@ -346,11 +346,11 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     interestSink: "fee-school",
     grace: 1,
     onMiss: [],
-    // The student is withdrawn: the status lapses at once (R-STATUS-011).
+    // The student is withdrawn: the status lapses at once (status:course-passed-or-withdrawn).
     onDefault: [{ type: "status/lose" }],
   },
 
-  // activity.md R-ACTIVITY-013: a master's at home, ₦1,800,000 in twelve monthly instalments, the
+  // activity:waiting-months-build-profile: a master's at home, ₦1,800,000 in twelve monthly instalments, the
   // principal handed over by the activity's first month. The page gives no default, so the grace
   // is the whole term: fees fall behind and stay owed, and no school withdraws you from a course at home.
   "obligation.masters-at-home": {
@@ -394,21 +394,21 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
       shortfall: "obligation.car-shortfall",
     },
     amount: 0,
-    // The ladder sets the rate when the car is bought (R-CREDIT-005); the
+    // The ladder sets the rate when the car is bought (credit:rate-follows-credit-ladder); the
     // entry's own rate is the bottom rung, the one a file at exactly 30 gets.
     rateBp: 120,
     term: 36,
     sink: "car-payment",
     interestSink: "loan-interest",
-    // Two misses bring the notice; the third is when the car is taken (R-CAR-003).
+    // Two misses bring the notice; the third is when the car is taken (car:missed-payments-take-the-car).
     grace: 2,
-    // The cost of a miss is the credit file (R-CREDIT-002) and the notice line.
+    // The cost of a miss is the credit file (credit:payments-move-the-mark) and the notice line.
     onMiss: [],
     onDefault: [],
   },
 
-  // What is owed after a repossession: 12 months at 0%, opened with a judgment (R-CAR-003).
-  // It follows you home (R-RETURN-006), so it applies anywhere; it reports to
+  // What is owed after a repossession: 12 months at 0%, opened with a judgment (car:missed-payments-take-the-car).
+  // It follows you home (return:return-reopens-home-charges), so it applies anywhere; it reports to
   // the file and has the salary loan's grace of 1, the page giving neither.
   "obligation.car-shortfall": {
     id: "obligation.car-shortfall",
@@ -426,7 +426,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [],
   },
 
-  // R-RETURN-006: the car's shortfall on the way home, converted to naira at the official rate on the
+  // return:return-reopens-home-charges: the car's shortfall on the way home, converted to naira at the official rate on the
   // day of the return. The same terms as the shortfall abroad.
   "obligation.car-shortfall-home": {
     id: "obligation.car-shortfall-home",
@@ -444,7 +444,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     onDefault: [],
   },
 
-  // road.md R-ROAD-006 and 007: the ransom nobody paid. It follows the character home or on to Italy.
+  // road:chain-steps-monthly and road:exit-is-assisted-return: the ransom nobody paid. It follows the character home or on to Italy.
   // The page gives no schedule, rate or grace, so it charges nothing a month and never defaults;
   // it stays open as what is owed.
   "obligation.agent-debt": {
@@ -464,11 +464,11 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
 
   // docs/rules/undertaking.md "Entries": the sponsor's promise to Canada for a
   // partner, 36 months from the landing. Nothing is owed until the partner takes
-  // assistance; each new month of it costs var.ca-assistance (R-UNDERTAKING-007).
+  // assistance; each new month of it costs var.ca-assistance (undertaking:assistance-charged-to-sponsor).
   "obligation.undertaking-ca": {
     id: "obligation.undertaking-ca",
     type: "undertaking",
-    // It follows the sponsor wherever they live (R-UNDERTAKING-009).
+    // It follows the sponsor wherever they live (undertaking:undertaking-outlives-relationship).
     where: "any",
     currency: "CAD",
     // Read from var.ca-assistance for each new month; no fixed charge.
@@ -479,7 +479,7 @@ export const obligationTable: Record<Id<"obligation">, ObligationEntry> = {
     interestSink: "undertaking",
     grace: 2,
     onMiss: [{ type: "quality/add", quality: "quality.standing", amount: -3 }],
-    // R-UNDERTAKING-008: the credit file takes the default figure (R-CREDIT-002).
+    // undertaking:missed-charges-lead-to-default: the credit file takes the default figure (credit:payments-move-the-mark).
     onDefault: [
       { type: "quality/add", quality: "quality.standing", amount: -10 },
       { type: "credit/mark", amount: -tuning.credit.onDefault },

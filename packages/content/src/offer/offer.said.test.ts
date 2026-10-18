@@ -1,4 +1,4 @@
-// What came of an answer (docs/rules/world.md R-WORLD-008): the recruiter's
+// What came of an answer (world:month-end-results-sheet): the recruiter's
 // take-home task was taken, and the content added to the portfolio and the network with no line ever saying what
 // came of it. Every choice whose effects move a quality has its own words for the results, `<offer>.said.<choice>`,
 // as the acts tell what they came to, and the task has its own.
@@ -12,11 +12,11 @@ const MOVING = Object.values(content.offer).flatMap((offer) =>
 );
 
 describe("an answer that moves a quality says what came of it", () => {
-  test("[R-WORLD-008] given the offers on the real content, when the choices that move a quality are listed, then there are some", () => {
+  test("[world:month-end-results-sheet] given the offers on the real content, when the choices that move a quality are listed, then there are some", () => {
     expect(MOVING.length).toBeGreaterThan(0);
   });
 
-  test.each(MOVING)("[R-WORLD-008] given the choice %s, when its words are read, then content tells what came of it in one line with no figure to fill", (key) => {
+  test.each(MOVING)("[world:month-end-results-sheet] given the choice %s, when its words are read, then content tells what came of it in one line with no figure to fill", (key) => {
     const said = text[key];
     expect(said, `${key} has no words`).toBeDefined();
     expect(said!.trim().length).toBeGreaterThan(0);
@@ -24,7 +24,7 @@ describe("an answer that moves a quality says what came of it", () => {
     expect(said).not.toMatch(/\d/);
   });
 
-  test("[R-WORLD-008] given the recruiter's take-home task done, when its words are read, then they say what came of it, not the ask again", () => {
+  test("[world:month-end-results-sheet] given the recruiter's take-home task done, when its words are read, then they say what came of it, not the ask again", () => {
     const said = text["offer.recruiter-message.said.do-it"];
     expect(said).toBeDefined();
     expect(said).not.toBe(text["offer.recruiter-message.body"]);
@@ -33,7 +33,7 @@ describe("an answer that moves a quality says what came of it", () => {
 });
 
 describe("the family's light bill, wherever the character is", () => {
-  test("[R-ABROAD-007] given the NEPA bill, which comes abroad as at home, when its name and what came of each answer are read, then each says it is the bill at home, never a bill where the character lives", () => {
+  test("[abroad-money:family-asks-more-abroad] given the NEPA bill, which comes abroad as at home, when its name and what came of each answer are read, then each says it is the bill at home, never a bill where the character lives", () => {
     // In London "NEPA has brought the bill, next month" read as London's own bill.
     expect(content.offer["offer.nepa-bill"]?.where).toBe("any");
     for (const key of ["offer.nepa-bill.name", "offer.nepa-bill.said.pay", "offer.nepa-bill.said.leave"]) {

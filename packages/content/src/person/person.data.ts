@@ -4,7 +4,7 @@
 // The page gives no age gap for a partner, so each is drawn from two
 // years younger to three years older.
 // A partner abroad has been there from the first month
-// (`abroadFromMonth` 0), since it holds its status already (R-PEOPLE-021).
+// (`abroadFromMonth` 0), since it holds its status already (person:joint-application-proposed).
 // The page gives skills only for the nurse; the others carry working
 // values that suit their work.
 // There is no driver's job in the Gulf ladder, so the driver holds no job id.
@@ -22,7 +22,7 @@ function ageAtLeast(years: number): Requirement {
 const AT_HOME: Requirement = { type: "place/is", where: "home" };
 const PARTNER_GAP: [number, number] = [-24, 36];
 
-/** The spots people meet at (R-PEOPLE-014). */
+/** The spots people meet at (person:time-together-is-an-act). */
 export const peopleSpots: string[] = ["beach", "suya-spot", "church", "cinema", "mall", "friends-wedding", "campus", "bus-stop"];
 const WHATS = ["talked", "ate", "walked", "watched-film", "met-family", "argued-made-up", "prayed", "danced"];
 const CALLS = ["video-call", "voice-note", "long-call"];
@@ -148,7 +148,7 @@ export const personTable: Record<Id<"person">, PersonEntry> = {
     id: "person.papers-uk",
     role: "partner",
     weight: 1,
-    // R-PEOPLE-050: only through `offer.papers-marriage`, never offered as a candidate.
+    // person:papers-marriage-offer: only through `offer.papers-marriage`, never offered as a candidate.
     when: [],
     profile: {
       ageGapMonths: [60, 240],

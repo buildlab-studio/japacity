@@ -53,7 +53,7 @@ export const activityText: Record<string, string> = {
   "activity.get-transcript.blurb": "You go back to your university and push until they send it.",
   "activity.sit-english-test.name": "Sit the English test",
   "activity.sit-english-test.blurb": "You book a date and sit the test. Your band comes in.",
-  // R-WORLD-006: the chance of the band the route needs, said before the fee is paid ({chance} is likely, a fair chance or a long shot).
+  // world:one-action-one-sheet: the chance of the band the route needs, said before the fee is paid ({chance} is likely, a fair chance or a long shot).
   "activity.sit-english-test.chance": "Band {band} this sitting: {chance}.",
   "activity.sit-english-test.study-first": "Study first: a month of study lifts the chance.",
   // When one month of study cannot lift it, the card says how many.
@@ -140,31 +140,31 @@ export const activityText: Record<string, string> = {
   "line.activity.driving-passed": "You passed the driving test on attempt {attempt}. The licence came in the post.",
   "line.activity.driving-failed": "Attempt {attempt} at the driving test. The examiner said no.",
   "line.activity.lotto-won": "{tickets} tickets for {stake}, and one came in: {won}.",
-  // The draw's outcome said in words on the month's results (luck.md R-LUCK-005), never a bare tag.
+  // The draw's outcome said in words on the month's results (luck:kiosk-sells-lotto-tickets), never a bare tag.
   "line.activity.lotto-lost": "Your {tickets} tickets did not win.",
   "line.activity.bet-won": "The slip came in. {stake} on it paid {won}.",
   "line.activity.bet-lost": "The slip cut on the last match. The {stake} is gone.",
 
-  // person.md (R-PEOPLE-014).
+  // person.md (person:time-together-is-an-act).
   "activity.see-someone.name": "See someone",
   "activity.see-someone.blurb": "A month's evening out with the one you are seeing. It costs, and it counts.",
   "activity.call-someone.name": "Call someone",
   "activity.call-someone.blurb": "They are far away. A call costs nothing but the time.",
 
-  // streets.md (R-STREET-001 to 004, 008).
+  // streets.md (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:stadium-morning-run).
   ...activityStreetText,
   ...activityRoomText,
-  // streets.md R-STREET-011: the street's enjoyment and spending.
+  // streets:lagos-street-spending: the street's enjoyment and spending.
   ...activityEnjoyText,
-  // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
+  // place:country-pass-covers-ways and streets:london-life-by-hand: London lived by hand.
   ...activityLondonText,
-  // place.md R-PLACE-012 and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
+  // place:country-pass-covers-ways and streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand: Calgary, Dubai and Castel Volturno lived by hand.
   ...activityCalgaryText,
   ...activityDubaiText,
   ...activityCastelText,
   ...activityProfileText,
   ...activityShopText,
   ...activityWaterText,
-  // R-ACTIVITY-015: what the place says when a now-act is done there.
+  // activity:now-acts-and-month-acts: what the place says when a now-act is done there.
   ...activityNowText,
 };

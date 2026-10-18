@@ -30,7 +30,7 @@ const pending = Object.values(foreignPocketActivityTable);
 const all: ActivityEntry[] = [...abroad, ...pending];
 
 describe("activities abroad", () => {
-  test("[R-ABROAD-003] given every activity that opens an obligation with a deposit, when its cost is read, then it charges that deposit, in the entry's currency, with the reason rent", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given every activity that opens an obligation with a deposit, when its cost is read, then it charges that deposit, in the entry's currency, with the reason rent", () => {
     const opening = Object.values(content.activity).flatMap((activity) =>
       activity.effects.flatMap((effect) => (effect.type === "obligation/open" && content.obligation[effect.obligation]?.deposit !== undefined ? [{ activity, entry: content.obligation[effect.obligation]! }] : [])),
     );
@@ -40,7 +40,7 @@ describe("activities abroad", () => {
     }
   });
 
-  test("[R-ENGINE-014] given the activities abroad and the ones held for the foreign pockets, when checked against the schema, then each parses and its key is its id", () => {
+  test("[engine:content-checked-before-play] given the activities abroad and the ones held for the foreign pockets, when checked against the schema, then each parses and its key is its id", () => {
     expect(abroad.length).toBeGreaterThan(25);
     expect(pending.map((entry) => entry.id)).toEqual([
       "activity.community-ca",
@@ -56,17 +56,17 @@ describe("activities abroad", () => {
     }
   });
 
-  test("[R-ENGINE-014] [R-ABROAD-001] given the activities abroad, when the content is read, then every one is in it, the ones priced in the new pockets included", () => {
+  test("[engine:content-checked-before-play] [abroad-money:foreign-currencies-join-wallet] given the activities abroad, when the content is read, then every one is in it, the ones priced in the new pockets included", () => {
     expect(abroad.filter((entry) => content.activity[entry.id] !== entry).map((entry) => entry.id)).toEqual([]);
     expect(pending.filter((entry) => content.activity[entry.id] !== entry).map((entry) => entry.id)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given the activities held for the foreign pockets, when every id they name is looked up, then each exists", () => {
+  test("[engine:content-checked-before-play] given the activities held for the foreign pockets, when every id they name is looked up, then each exists", () => {
     const own = new Set(Object.keys(foreignPocketActivityTable));
     expect(dangling(foreignPocketActivityTable).filter((id) => !own.has(id))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every activity abroad, when its place is read, then it applies abroad and first requires being in its own country", () => {
+  test("[engine:content-checked-before-play] given every activity abroad, when its place is read, then it applies abroad and first requires being in its own country", () => {
     const wrong = all.filter((entry) => {
       const first: Requirement | undefined = entry.requires[0];
       const country = entry.country ?? undefined;
@@ -81,7 +81,7 @@ describe("activities abroad", () => {
     expect(wrong.map((entry) => entry.id)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every activity abroad, when its costs are read, then each is in its country's currency", () => {
+  test("[engine:content-checked-before-play] given every activity abroad, when its costs are read, then each is in its country's currency", () => {
     const wrong = all.flatMap((entry) => {
       if (entry.country === undefined || entry.country === null) return entry.cost.length === 0 ? [] : [`${entry.id} has a cost and no country`];
       const currency = content.country[entry.country]?.currency;
@@ -90,14 +90,14 @@ describe("activities abroad", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every job abroad, when its pay is read, then it is in its country's currency", () => {
+  test("[engine:content-checked-before-play] given every job abroad, when its pay is read, then it is in its country's currency", () => {
     const jobs = all.filter((entry) => entry.slot === "main");
     expect(jobs).toHaveLength(17);
     const wrong = jobs.filter((entry) => entry.pay?.currency !== content.country[entry.country!]?.currency);
     expect(wrong.map((entry) => entry.id)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every activity abroad, when its words are looked up, then it has a name and a blurb, and no two free-slot names or blurbs are the same", () => {
+  test("[engine:content-checked-before-play] given every activity abroad, when its words are looked up, then it has a name and a blurb, and no two free-slot names or blurbs are the same", () => {
     const missing = all.flatMap((entry) => [`${entry.id}.name`, `${entry.id}.blurb`]).filter((key) => (text[key] ?? "").trim() === "");
     expect(missing).toEqual([]);
     // Every free-slot activity can show in one list, so each must read differently.
@@ -108,7 +108,7 @@ describe("activities abroad", () => {
     }
   });
 
-  test("[R-ENGINE-014] given the activities abroad, when figures from ladders.md and car.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the activities abroad, when figures from ladders.md and car.md are read back, then each matches the page", () => {
     const activity = { ...content.activity, ...foreignPocketActivityTable };
     // Pay a year: the band 5 nurse £31,300, the warehouse £23,000, the student job £10,400, Canada's developer C$95,000, the farm €9,600.
     expect(activity["activity.job-uk-nurse"]?.pay).toEqual({ currency: "GBP", amount: 3130000 });
@@ -136,7 +136,7 @@ describe("activities abroad", () => {
     expect(activity["activity.job-nurse"]?.pay).toEqual({ currency: "NGN", amount: 18000000 });
   });
 
-  test("[R-ENGINE-014] given the December fares, when they are worked out from the countries, then each activity charges the fare both ways times the factor", () => {
+  test("[engine:content-checked-before-play] given the December fares, when they are worked out from the countries, then each activity charges the fare both ways times the factor", () => {
     const december = { "country.uk": "activity.december-home-uk", "country.canada": "activity.december-home-ca", "country.uae": "activity.december-home-uae" } as const;
     for (const [country, id] of Object.entries(december)) {
       const entry = content.country[country as keyof typeof december];

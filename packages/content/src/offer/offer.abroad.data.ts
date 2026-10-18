@@ -1,9 +1,9 @@
-// The offers of life abroad and of coming home: docs/rules/return.md R-RETURN-003
-// and ladders.md R-LADDER-005. Joined into the offer table in offer.data.ts.
+// The offers of life abroad and of coming home: return:returnee-offers-for-a-year
+// and ladders:sponsor-job-ties-status. Joined into the offer table in offer.data.ts.
 //
 // The pages name these offers and what each is about, but give no chance,
 // cooldown, terms or choices. Every number here is a working value for the sweep.
-// R-RETURN-003: the offer kind keeps the group `return` in the pool for
+// return:returnee-offers-for-a-year: the offer kind keeps the group `return` in the pool for
 // tuning.return.offerMonths after the last return, and judges each `when`
 // against that return alone, so `place/returned` reads the last return's shape.
 import type { Id, OfferEntry, Requirement, ReturnShape } from "@japacity/sim";
@@ -20,7 +20,7 @@ function returned(shapes: ReturnShape[]): Requirement[] {
   ];
 }
 
-/** R-STREET-006: a find on the street of one country; its one choice is to look. */
+/** streets:street-finds-abroad: a find on the street of one country; its one choice is to look. */
 function streetFind(id: Id<"offer">, country: Id<"country">): OfferEntry {
   return {
     id,
@@ -218,7 +218,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
 
   // The street abroad (group `life`)
 
-  // streets.md R-STREET-006: something interesting on the street, while the character is in that country.
+  // streets:street-finds-abroad: something interesting on the street, while the character is in that country.
   // The kind has no versions of an offer's body, so each country's find has one body.
   "offer.street-find-uk": streetFind("offer.street-find-uk", "country.uk"),
   "offer.street-find-uae": streetFind("offer.street-find-uae", "country.uae"),
@@ -228,14 +228,14 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
 
   // Abroad (group `abroad`)
 
-  // R-LADDER-005: the sponsor loses its licence and the job goes, which starts the clock.
+  // ladders:sponsor-job-ties-status: the sponsor loses its licence and the job goes, which starts the clock.
   // Its chance a month is the world's `var.uk-care-sponsor-risk` (director.md), which the offer kind adds to the
   // entry's own chance of 0; the director's sponsor story raises it while in force.
   "offer.sponsor-licence-lost": {
     id: "offer.sponsor-licence-lost",
     group: "abroad",
     where: "abroad",
-    // R-LUCK-003: a blow.
+    // luck:no-kicking-while-down: a blow.
     bad: true,
     when: [
       { type: "status/is", statuses: ["status.uk-sponsored"] },
@@ -262,7 +262,7 @@ const lifeAbroadOffers: Record<Id<"offer">, OfferEntry> = {
 };
 
 const assistanceOffers: Record<Id<"offer">, OfferEntry> = {
-  // docs/rules/undertaking.md R-UNDERTAKING-010: social assistance, the same for
+  // undertaking:social-assistance-offer: social assistance, the same for
   // every resident in Canada whose bank and cash together are under the line.
   // The amount is fixed by content (the start of var.ca-assistance), so no player
   // chooses what reaches a sponsor's bill. Group `abroad`, rolled every month it holds.
@@ -289,7 +289,7 @@ const assistanceOffers: Record<Id<"offer">, OfferEntry> = {
         pick: null,
         effects: [
           { type: "money/add", currency: "CAD", pocket: "bank", amount: { term: "amount" }, reason: "assistance" },
-          // Counted for a sponsor's undertaking only after arriving on the spouse route (R-UNDERTAKING-010).
+          // Counted for a sponsor's undertaking only after arriving on the spouse route (undertaking:social-assistance-offer).
           { type: "people/assistance-taken", route: "route.ca-spouse" },
           { type: "quality/add", quality: "quality.wellbeing", amount: 2 },
           { type: "quality/add", quality: "quality.standing", amount: -2 },

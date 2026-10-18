@@ -1,4 +1,4 @@
-// What each month-act says of itself as the month passes: docs/rules/world.md R-WORLD-030. Keyed
+// What each month-act says of itself as the month passes: world:month-passes-as-lived. Keyed
 // `activity.<id>.signal.<n>`, each with the week of the act it comes in (1 is the act's first week).
 // Lines are said every month the act is on, so none counts modules or names a first time. First
 // drafts in the voice of docs/rules/text.md.
@@ -22,10 +22,10 @@ export const activitySignals: Record<string, ActivitySignal> = {
   "activity.job-phone-sales.signal.1": { week: 1, words: "The stall: a customer bargained for an hour and bought the cheapest one." },
   "activity.job-nurse.signal.1": { week: 1, words: "The ward: your shift ran late. You came home at eleven." },
   "activity.job-nurse.signal.2": { week: 3, words: "The ward: two nights in a row. The matron says you are steady." },
-  // The trader's own shop (R-ACTIVITY-016).
+  // The trader's own shop (activity:trader-opens-own-shop).
   "activity.run-shop.signal.1": { week: 1, words: "The shop: the first week's takings in the tin. You restocked on Friday." },
   "activity.run-shop.signal.2": { week: 3, words: "The shop: a regular now. She sends her neighbour." },
-  // The fish racks at Makoko (R-ACTIVITY-017).
+  // The fish racks at Makoko (activity:fish-racks-at-makoko).
   "activity.job-fish-racks.signal.1": { week: 1, words: "The racks: the boats came in before light. Your eyes stung from the smoke till noon." },
 
   // Jobs abroad.

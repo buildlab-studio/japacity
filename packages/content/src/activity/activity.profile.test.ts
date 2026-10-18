@@ -1,5 +1,5 @@
-// The waiting months' acts and the side jobs' tiers read back against docs/rules/activity.md R-ACTIVITY-013
-// and R-ACTIVITY-014.
+// The waiting months' acts and the side jobs' tiers read back against activity:waiting-months-build-profile
+// and activity:side-jobs-pay-by-tier.
 import type { ActivityEntry, Effect, Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -18,7 +18,7 @@ function adds(effects: readonly Effect[], quality: string): number | undefined {
 }
 
 describe("the waiting months' acts", () => {
-  test("[R-ACTIVITY-013] given the developer's acts, when their entries are read, then each needs the page's figures, gives what the page gives and counts toward the talent route", () => {
+  test("[activity:waiting-months-build-profile] given the developer's acts, when their entries are read, then each needs the page's figures, gives what the page gives and counts toward the talent route", () => {
     const open = entryOf("activity.open-source");
     expect(open.requires).toEqual([{ type: "quality/min", quality: "quality.tech", value: 40 }]);
     expect(adds(open.effects, "quality.network")).toBe(2);
@@ -34,13 +34,13 @@ describe("the waiting months' acts", () => {
     for (const entry of [open, posts, talk]) expect(entry.counts).toContain("route.uk-talent");
   });
 
-  test("[R-ACTIVITY-013] given being noticed, when its entry and the tuning are read, then it needs a job held six months and the raise is 10% on a 30% draw", () => {
+  test("[activity:waiting-months-build-profile] given being noticed, when its entry and the tuning are read, then it needs a job held six months and the raise is 10% on a 30% draw", () => {
     expect(entryOf("activity.be-noticed").requires).toEqual([{ type: "job/any" }, { type: "activity/local-tenure", months: 6 }]);
     expect(adds(entryOf("activity.be-noticed").effects, "quality.standing")).toBe(2);
     expect(content.tuning.activity).toEqual({ raiseBp: pct(10), raiseChanceBp: pct(30) });
   });
 
-  test("[R-ACTIVITY-013] given the nurse's certification, when its entry, quiz and paper are read, then it costs ₦120,000, needs care 50 and the licence, asks three questions with one right answer each, passes at two, and gives the certificate in two months for good and care 10", () => {
+  test("[activity:waiting-months-build-profile] given the nurse's certification, when its entry, quiz and paper are read, then it costs ₦120,000, needs care 50 and the licence, asks three questions with one right answer each, passes at two, and gives the certificate in two months for good and care 10", () => {
     const certify = entryOf("activity.nurse-certification");
     expect(certify.cost).toEqual([{ currency: "NGN", amount: naira(120000), reason: "fee-test" }]);
     expect(certify.requires).toContainEqual({ type: "quality/min", quality: "quality.care", value: 50 });
@@ -58,7 +58,7 @@ describe("the waiting months' acts", () => {
     expect(certify.counts).toContain("route.uk-care");
   });
 
-  test("[R-ACTIVITY-013] given a master's at home, when its entry and fees are read, then a bachelor's starts it, the fees are ₦1,800,000 in twelve instalments, the twelfth month gives a master's and it counts toward Canada's points", () => {
+  test("[activity:waiting-months-build-profile] given a master's at home, when its entry and fees are read, then a bachelor's starts it, the fees are ₦1,800,000 in twelve instalments, the twelfth month gives a master's and it counts toward Canada's points", () => {
     const masters = entryOf("activity.masters-at-home");
     expect(masters.requires).toEqual([
       { type: "quality/min", quality: "quality.edu-level", value: 3 },
@@ -74,7 +74,7 @@ describe("the waiting months' acts", () => {
 });
 
 describe("side jobs by level", () => {
-  test("[R-ACTIVITY-014] given the three side jobs, when their tiers are read, then each has a tier on tech, English or network that pays more than its own pay, in its own currency", () => {
+  test("[activity:side-jobs-pay-by-tier] given the three side jobs, when their tiers are read, then each has a tier on tech, English or network that pays more than its own pay, in its own currency", () => {
     for (const id of ["activity.night-support", "activity.weekend-tutoring", "activity.ride-driving"]) {
       const entry = entryOf(id);
       expect(entry.slot).toBe("side");

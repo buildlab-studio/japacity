@@ -1,7 +1,7 @@
-// The send-off scene's own words (docs/rules/chapter.md R-CHAPTER-012, world.md R-WORLD-037), in the voice of
+// The send-off scene's own words (chapter:send-off-scene-in-beats, world:plane-cut-at-send-off), in the voice of
 // docs/rules/text.md. The talk is content's text: the airport's overheard lines, Papa's at the gate, each hub's first
 // line and the family's first messages. No figure is written here: the flight's amount comes from the tuning, and the
-// money on the band from the view. Read only by the send-off scene, so they ride its chunk (engine.md R-ENGINE-020).
+// money on the band from the view. Read only by the send-off scene, so they ride its chunk (engine:first-download-has-budget).
 export const uiSendOffText: Record<string, string> = {
   // Beat 1: Departures.
   "sendoff.band.departures": "Departures, Ikeja",
@@ -28,7 +28,7 @@ export const uiSendOffText: Record<string, string> = {
   "sendoff.band.gate": "Gate 12, Ikeja",
   "sendoff.gate.sign": "GATE 12 · {city}",
 
-  // Beat 4: the plane (R-WORLD-037). The city as the plane's sticker names it, by the hub place's city in content.
+  // Beat 4: the plane (world:plane-cut-at-send-off). The city as the plane's sticker names it, by the hub place's city in content.
   "sendoff.plane.line": "The plane lifts off. Lagos gets small.",
   "sendoff.plane.small": "One way from Lagos",
   "sendoff.plane.city.london": "London",

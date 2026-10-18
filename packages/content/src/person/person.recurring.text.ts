@@ -33,7 +33,7 @@ export const personRecurringText: Record<string, string> = {
   "recurring.agent.line.4": "Pay half now. The other half when you see your visa. I am a reasonable man.",
   "recurring.agent.line.5": "Don't mind the people talking. They did not use me, that is their problem.",
 
-  // advice.md R-ADVICE-010: the men at Ojuelegba's stop. Any of them may be a fixer, an overpromiser or a scammer.
+  // advice:advisers-are-invented-people: the men at Ojuelegba's stop. Any of them may be a fixer, an overpromiser or a scammer.
   "recurring.tout.name": "Efosa",
   "recurring.tout.blurb": "Stands by the bus stop at Ojuelegba with a folder under his arm. Says he can sort any paper.",
   "recurring.tout.line.1": "Embassy people? I know them. Not by name, but I know them.",
@@ -52,7 +52,7 @@ export const personRecurringText: Record<string, string> = {
   "recurring.middleman.line.2": "Plenty people here will promise you heaven. Me, I promise paper.",
   "recurring.middleman.line.3": "I have done this for many years. Ask around.",
 
-  // advice.md R-ADVICE-004 and 010: the licensed adviser at the hub's long desk.
+  // advice:licensed-adviser-is-truthful and advice:advisers-are-invented-people: the licensed adviser at the hub's long desk.
   "recurring.adviser.name": "Mrs Yagana",
   "recurring.adviser.blurb": "A licensed adviser at the long desk at the hub. Her licence is framed on the wall behind her.",
   "recurring.adviser.line.1": "I will tell you what you have, what you lack, and how long it takes. Not what you want to hear.",

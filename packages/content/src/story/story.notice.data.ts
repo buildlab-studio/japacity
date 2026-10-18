@@ -1,4 +1,4 @@
-// The phone's bill notices and the appointment's reminders (docs/rules/world.md R-WORLD-019).
+// The phone's bill notices and the appointment's reminders (world:phone-holds-what-phones-hold).
 // A notice is one line per open obligation, read from `view.obligations`: the words are
 // `obligation.notice.<type>` in obligation.text.ts, or the shared `obligation.notice.late` once a
 // charge was missed and `obligation.notice.defaulted` for a loan gone bad; each carries `obligation`

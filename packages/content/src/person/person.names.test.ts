@@ -22,21 +22,21 @@ function everyNamed(): NamedPerson[] {
 }
 
 describe("the name pool", () => {
-  test("[R-PEOPLE-053] given every generated name, when its shape is read, then it is one to three words of letters each starting with a capital, with no digit, underscore, dot or @", () => {
+  test("[person:computer-names-generated] given every generated name, when its shape is read, then it is one to three words of letters each starting with a capital, with no digit, underscore, dot or @", () => {
     const names = namePool.map((entry) => nameOf(entry.n));
     expect(names.filter((name) => !nameShaped(name))).toEqual([]);
     expect(["Tunde", "Ndagi Jiya", "Aunty Ladi Musa"].every(nameShaped)).toBe(true);
     expect(["tunde", "Tunde1", "tunde_x", "T.unde", "@tunde", "Aunty Ladi Musa Bello", ""].some(nameShaped)).toBe(false);
   });
 
-  test("[R-PEOPLE-053] given the pool and its words, when they are matched, then every entry has a name, every `person.name` key has an entry, and no name is given twice", () => {
+  test("[person:computer-names-generated] given the pool and its words, when they are matched, then every entry has a name, every `person.name` key has an entry, and no name is given twice", () => {
     const keys = Object.keys(textTables["personNames"] ?? {});
     expect(keys.sort()).toEqual(namePool.map((entry) => `person.name.${String(entry.n)}`).sort());
     const names = namePool.map((entry) => nameOf(entry.n));
     expect(names.filter((name, index) => names.indexOf(name) !== index)).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given the mix, when it is read, then it sums to 10000, names every people of the pool, puts the three largest first, and gives every other a real share", () => {
+  test("[person:computer-names-generated] given the mix, when it is read, then it sums to 10000, names every people of the pool, puts the three largest first, and gives every other a real share", () => {
     expect(Object.values(nameMix).reduce((sum, share) => sum + share, 0)).toBe(10000);
     expect(Object.keys(nameMix).sort()).toEqual([...PEOPLES].sort());
     const sorted = Object.entries(nameMix).sort((left, right) => right[1] - left[1]);
@@ -45,7 +45,7 @@ describe("the name pool", () => {
     expect(sorted.slice(3).filter(([, share]) => share < 300)).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given every people, when its names are counted, then it has at least three, and names for a woman and for a man", () => {
+  test("[person:computer-names-generated] given every people, when its names are counted, then it has at least three, and names for a woman and for a man", () => {
     const short = PEOPLES.filter((people) => {
       const names = namePool.filter((entry) => entry.people === people);
       const women = names.filter((entry) => entry.sex !== "m");
@@ -55,33 +55,33 @@ describe("the name pool", () => {
     expect(short).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given the pool, when names are read by faith and region, then Christian and Muslim names both appear in the north and in the south (names rule 4)", () => {
+  test("[person:computer-names-generated] given the pool, when names are read by faith and region, then Christian and Muslim names both appear in the north and in the south (names rule 4)", () => {
     expect(faithProblems(namePool)).toEqual([]);
     expect(faithProblems(namePool.filter((entry) => !(entry.faith === "muslim" && peopleRegion[entry.people] === "south")))).toEqual(["no muslim name in the south"]);
   });
 
-  test("[R-PEOPLE-053] given the starting lives, when their first names are looked up in the pool, then none is there, so no resident shares the character's name", () => {
+  test("[person:computer-names-generated] given the starting lives, when their first names are looked up in the pool, then none is there, so no resident shares the character's name", () => {
     const firsts = Object.keys(lifePeople).map((life) => text[`share.first-name.${life}`]);
     expect(firsts.filter((name) => name !== undefined && poolByName.has(name))).toEqual([]);
   });
 });
 
 describe("who is named in the game's words", () => {
-  test("[R-PEOPLE-053] given every named person, when their name is looked up, then it is in the pool under the same people, and every key said to carry it does", () => {
+  test("[person:computer-names-generated] given every named person, when their name is looked up, then it is in the pool under the same people, and every key said to carry it does", () => {
     const wrong = [...namedPeople, ...recurringPeople].filter((person) => poolByName.get(person.name)?.people !== person.people);
     expect(wrong.map((person) => person.name)).toEqual([]);
     const missing = everyNamed().flatMap((person) => person.keys.filter((key) => !new RegExp(`\\b${person.name}\\b`).test(text[key] ?? "")).map((key) => `${key} ${person.name}`));
     expect(missing).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given every computer partner named by a given name, when that name is read, then it is a name from the pool", () => {
+  test("[person:computer-names-generated] given every computer partner named by a given name, when that name is read, then it is a name from the pool", () => {
     // A stranger the character has never met goes by what they are ("The citizen"), not by a name.
     const partners = Object.values(content.person).filter((person) => person.role === "partner" && !/^(The|Your) /.test(text[`${person.id}.name`] ?? ""));
     expect(partners.length).toBeGreaterThan(0);
     expect(partners.filter((person) => !poolByName.has(text[`${person.id}.name`] ?? "")).map((person) => person.id)).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given the game's words outside the places and the guides, when they are searched for a name from the pool or a life, then each use belongs to a named person listed for that key", () => {
+  test("[person:computer-names-generated] given the game's words outside the places and the guides, when they are searched for a name from the pool or a life, then each use belongs to a named person listed for that key", () => {
     const listed = new Set(everyNamed().flatMap((person) => person.keys.map((key) => `${key} ${person.name}`)));
     const scanned = Object.fromEntries(
       Object.entries(textTables)
@@ -92,18 +92,18 @@ describe("who is named in the game's words", () => {
     expect(namesUsed(scanned, names).filter((use) => !listed.has(use))).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] [R-TEXT-003] given the family names, when each is looked up, then it is a pool name from the life's own people", () => {
+  test("[person:computer-names-generated] [text:family-group-feed] given the family names, when each is looked up, then it is a pool name from the life's own people", () => {
     const wrong = Object.entries(familyNames).flatMap(([life, names]) =>
       Object.values(names ?? {}).filter((name) => poolByName.get(name)?.people !== lifePeople[life as keyof typeof lifePeople]?.people).map((name) => `${life} ${name}`),
     );
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given everyone the words name, when they are counted by people, then they come from enough peoples and the two largest do not take over (names rule 2)", () => {
+  test("[person:computer-names-generated] given everyone the words name, when they are counted by people, then they come from enough peoples and the two largest do not take over (names rule 2)", () => {
     expect(namedMixProblems(everyNamed(), namedMix)).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given the named people drifted back to two peoples, when they are counted, then the check fails", () => {
+  test("[person:computer-names-generated] given the named people drifted back to two peoples, when they are counted, then the check fails", () => {
     const drifted = everyNamed().map((person, index): NamedPerson => ({ ...person, people: index % 2 === 0 ? "igbo" : "yoruba" }));
     expect(namedMixProblems(drifted, namedMix)).toHaveLength(2);
     // At the edges: the two largest at exactly the share allowed pass and one more fails; one people short of the floor fails.
@@ -119,14 +119,14 @@ describe("who is named in the game's words", () => {
     expect(namedMixProblems(spread(2, 2, 6, others.slice(0, namedMix.minPeoples - 3)), namedMix)).toEqual([`the named people come from ${String(namedMix.minPeoples - 1)} peoples, fewer than ${String(namedMix.minPeoples)}`]);
   });
 
-  test("[R-PEOPLE-053] given the starting lives, when their peoples are read, then they cover the three largest peoples and at least one other (names rule 3)", () => {
+  test("[person:computer-names-generated] given the starting lives, when their peoples are read, then they cover the three largest peoples and at least one other (names rule 3)", () => {
     const peoples = new Set(Object.values(lifePeople).map((life) => life.people));
     expect([...peoples].filter((people) => ["yoruba", "igbo", "hausa-fulani"].includes(people)).sort()).toEqual(["hausa-fulani", "igbo", "yoruba"]);
     expect(peoples.size).toBeGreaterThanOrEqual(4);
     expect(Object.keys(lifePeople).sort()).toEqual(Object.keys(content.scenario).filter((id) => id !== "scenario.prologue").sort());
   });
 
-  test("[R-PEOPLE-053] [R-PEOPLE-062] given who holds which role, when they are read by people, then no people holds two roles that take money and no role is held only by one people (names rule 5)", () => {
+  test("[person:computer-names-generated] [person:names-predict-nothing] given who holds which role, when they are read by people, then no people holds two roles that take money and no role is held only by one people (names rule 5)", () => {
     expect(roleProblems(everyNamed())).toEqual([]);
     const agents = everyNamed().map((person) => (person.role === "agent" ? { ...person, people: "igbo" as const } : person));
     expect(roleProblems(agents)).toEqual(["igbo holds Kunle (agent) and Ameh (agent)", "every agent is igbo"]);
@@ -136,11 +136,11 @@ describe("who is named in the game's words", () => {
 });
 
 describe("cultural institutions", () => {
-  test("[R-PEOPLE-053] [R-PEOPLE-063] given every word in the game, when an institution is named, then no crime or fraud is named beside it (names rule 7)", () => {
+  test("[person:computer-names-generated] [person:no-institution-tied-to-crime] given every word in the game, when an institution is named, then no crime or fraud is named beside it (names rule 7)", () => {
     expect(institutionProblems(text)).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] [R-PEOPLE-063] given words that put a masquerade, a palace or a church beside a crime, when they are checked, then each is found", () => {
+  test("[person:computer-names-generated] [person:no-institution-tied-to-crime] given words that put a masquerade, a palace or a church beside a crime, when they are checked, then each is found", () => {
     const made = {
       "a.masquerade": "Men dressed as a masquerade robbed the bus.",
       "a.palace": "The palace covered for the fraud.",

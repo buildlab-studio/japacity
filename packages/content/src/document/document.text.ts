@@ -22,7 +22,7 @@ export const documentText: Record<string, string> = {
   "document.eca.blurb": "A report that says what your degree is worth in Canada.",
   "document.endorsement.name": "Talent endorsement",
   "document.endorsement.blurb": "A letter from the endorsing body saying your work leads the field. It lasts three months.",
-  // A paper judged when it is issued (R-ENDORSE-002): its wait says who answers and when, never that it will be ready.
+  // A paper judged when it is issued (route-gates:endorsement-decided-by-draw): its wait says who answers and when, never that it will be ready.
   "document.endorsement.requested": "The endorsing body answers {month}.",
   "document.medical.name": "Work medical",
   "document.medical.blurb": "The medical the Gulf employer asks for: blood tests, a chest X-ray and a stamp.",
@@ -33,14 +33,14 @@ export const documentText: Record<string, string> = {
   "line.document.already-pending": "Your {document} was already being made. It should be ready {month}. The new request changed nothing.",
   "line.document.issued": "Your {document} is ready.",
   "line.document.issued-band": "Your {document} is out. Band {band}.",
-  // R-WORLD-008: a band under the one the route needs ({needed}) says so, and what next.
+  // world:month-end-results-sheet: a band under the one the route needs ({needed}) says so, and what next.
   "line.document.issued-band-short": "Band {band}. The route needs {needed}: study and sit again.",
   "line.document.issued-band-met": "Your {document} is out. Band {band}. That meets the route's {needed}.",
   "line.document.expired": "Your {document} has run out.",
   "line.document.voided": "Your {document} is no longer valid.",
 
-  // The phone's reminders (world.md R-WORLD-019, story/story.notice.data.ts). {month} is the month
-  // the paper is due, told as months away (world.md R-WORLD-002).
+  // The phone's reminders (world:phone-holds-what-phones-hold, story/story.notice.data.ts). {month} is the month
+  // the paper is due, told as months away (world:top-band-is-lively-pill).
   "document.english-test.reminder.book": "English test: book it. Take your passport from the box first.",
   "document.english-test.reminder.due": "English test: your result comes {month}.",
   "document.tb-certificate.reminder.book": "TB test: take your passport to the clinic.",
@@ -52,7 +52,7 @@ export const documentText: Record<string, string> = {
   // A paper the plan needs, running out before the application is sent.
   "document.reminder.runs-out": "Your {document} runs out {when}.",
 
-  // The morning (clock.md R-CLOCK-032): a result real life makes you wait for is sealed until seven the next morning in
+  // The morning (clock:envelopes-show-real-waits): a result real life makes you wait for is sealed until seven the next morning in
   // Lagos. While it is sealed, the places that would name it say when it comes; the short words fit the nudge and Japa.
   "ui.wait.morning": "Comes in the morning",
   "ui.wait.morning.short": "In the morning",

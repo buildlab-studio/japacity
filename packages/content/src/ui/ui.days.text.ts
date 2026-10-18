@@ -1,4 +1,4 @@
-// The words of the month that tells of itself (docs/rules/world.md R-WORLD-030): the phone's notifications and the
+// The words of the month that tells of itself (world:month-passes-as-lived): the phone's notifications and the
 // Month sheet's stretched line, in the voice of docs/rules/text.md.
 export const uiDaysText: Record<string, string> = {
   // The phone's wallpaper, at home: the month's acts telling of themselves.

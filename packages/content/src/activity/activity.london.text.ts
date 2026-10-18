@@ -1,4 +1,4 @@
-// Names and blurbs for London lived by hand (docs/rules/place.md R-PLACE-012, streets.md R-STREET-012). The place's
+// Names and blurbs for London lived by hand (place:country-pass-covers-ways, streets:london-life-by-hand). The place's
 // answer to each is in activity.now.text.ts with the other now-lines.
 export const activityLondonText: Record<string, string> = {
   "activity.bus-pass-uk.name": "The bus pass",

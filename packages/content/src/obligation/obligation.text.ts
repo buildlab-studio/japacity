@@ -72,7 +72,7 @@ export const obligationText: Record<string, string> = {
   "line.obligation.undertaking-seized": "Canada took {amount} from your account toward your undertaking.",
   "line.obligation.debt-grown": "The {amount} nobody paid was added to what they say you owe.",
 
-  // The phone's bill notices (world.md R-WORLD-019, story/story.notice.data.ts): one line per open
+  // The phone's bill notices (world:phone-holds-what-phones-hold, story/story.notice.data.ts): one line per open
   // bill, by type, with the entry as {obligation} and this month's charge as {amount}.
   "obligation.notice.upkeep": "{obligation}: {amount} goes out at the end of the month.",
   "obligation.notice.support": "Money for home: {amount} is due this month.",

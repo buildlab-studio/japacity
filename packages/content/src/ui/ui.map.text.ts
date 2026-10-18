@@ -1,4 +1,4 @@
-// The map's own words (docs/rules/world.md R-WORLD-015 to 017), in the voice of docs/rules/text.md.
+// The map's own words (world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares), in the voice of docs/rules/text.md.
 export const uiMapText: Record<string, string> = {
   "map.close": "Close the map",
   "map.loading": "Getting the map ready",
@@ -26,12 +26,12 @@ export const uiMapText: Record<string, string> = {
   "map.drive-home": "Drive home",
   "map.walk-home": "Walk home",
   "map.way.minutes": "{minutes} min",
-  // London's ways (R-PLACE-010, R-WORLD-039): the bus at one flat fare, the train by distance.
+  // London's ways (place:rides-between-city-places, world:ride-abroad-and-workplace): the bus at one flat fare, the train by distance.
   "map.way.bus": "Bus",
   "map.way.train": "Train",
-  // The bus in a month the pass is bought (R-PLACE-012): the fare pill says it asks nothing, and why.
+  // The bus in a month the pass is bought (place:country-pass-covers-ways): the fare pill says it asks nothing, and why.
   "map.way.passed": "{amount}, bus pass",
-  // The other countries' ways and pills (R-PLACE-012, R-PLACE-013, R-WORLD-039): the taxi, the train by its
+  // The other countries' ways and pills (place:country-pass-covers-ways, place:employer-shuttle-rides-free, world:ride-abroad-and-workplace): the taxi, the train by its
   // country's name, the pass that covers the bus and the train, and the employer's shuttle that asks nothing.
   "map.way.taxi": "Taxi",
   "map.way.train.country.canada": "CTrain",
@@ -55,11 +55,11 @@ export const uiMapText: Record<string, string> = {
   "map.not-now": "Not now",
   "map.ride.to": "{way} to {place}",
   "map.ride.skip": "Skip",
-  // Turn back: you get down at the next stop and walk back; the fare is not returned (R-WORLD-017).
+  // Turn back: you get down at the next stop and walk back; the fare is not returned (world:ride-sheet-shows-fares).
   "map.ride.turn-back": "Turn back",
   // Where you are as the ride goes, in the card: pulling out, the road, the stop.
   "map.ride.along.start": "Pulling out of {from}.",
-  // On foot nothing pulls out: the walk sets off (R-WORLD-017).
+  // On foot nothing pulls out: the walk sets off (world:ride-sheet-shows-fares).
   "map.ride.along.start.walk": "Setting off from {from} on foot.",
   "map.ride.along.road.1": "The traffic moves, for once.",
   "map.ride.along.road.2": "A hold-up at the junction, horns going.",
@@ -71,7 +71,7 @@ export const uiMapText: Record<string, string> = {
   "map.ride.along.road.3.drive": "You cut through a side street.",
   "map.ride.along.near": "Your stop: {to}",
 
-  // The pre-roll's one line (R-WORLD-017): the okada's rider, the keke's driver, the danfo's
+  // The pre-roll's one line (world:ride-sheet-shows-fares): the okada's rider, the keke's driver, the danfo's
   // conductor, each in his own voice. The ride's seed picks one of six.
   "map.ride.line.okada.1": "Where you dey go? Climb, make we move.",
   "map.ride.line.okada.2": "Hold me well o. Pothole full this road.",
@@ -124,7 +124,7 @@ export const uiMapText: Record<string, string> = {
   "map.water.atlantic": "The Atlantic",
   "map.bridge.third-mainland": "Third Mainland Bridge",
 
-  // The neighbourhoods' cards, each name folded into its card's top edge (R-WORLD-015, the folding map).
+  // The neighbourhoods' cards, each name folded into its card's top edge (world:map-is-painted-lagos, the folding map).
   "map.card.ikeja": "Ikeja",
   "map.card.yaba": "Yaba",
   "map.card.ojuelegba": "Ojuelegba",

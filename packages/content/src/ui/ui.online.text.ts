@@ -1,7 +1,7 @@
 // Playing online: the server's own refusals, the clock, the age screen, signing in and the account settings, in the
 // voice of docs/rules/text.md.
 export const uiOnlineText: Record<string, string> = {
-  // The server's refusals (R-SERVER-025, R-ACCOUNT-011, R-ACCOUNT-015)
+  // The server's refusals (server:per-account-rate-limits, account:sign-up-open-everywhere, account:one-character-per-account)
   "reject.rate-limited": "Too much at once. Try again now.",
   "reject.signed-out": "You are signed out. Sign in to carry on.",
   "reject.diverged": "Your life needs checking on our side. Try again in a while.",
@@ -28,7 +28,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.online.wait": "Too much at once. Try again in {seconds} seconds.",
   "ui.online.wait.one": "Too much at once. Try again in a second.",
 
-  // R-ENGINE-015: a request with no answer the game can read, by its kind; the card over the screen says it, never the browser's own words
+  // engine:browser-authority-for-dev-only: a request with no answer the game can read, by its kind; the card over the screen says it, never the browser's own words
   "ui.loading.slow": "Still opening...",
   "ui.trouble.network": "The server did not answer.",
   "ui.trouble.wall": "Your session ended: open the game again.",
@@ -45,7 +45,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.failed.why.server": "something broke on our side",
   "ui.failed.detail": "Nothing you did caused this. Open the game again.",
 
-  // The start screen online (R-ACCOUNT-029): a hook, the whole game in three steps, then Play
+  // The start screen online (account:start-screen-over-live-city): a hook, the whole game in three steps, then Play
   "ui.account.start.play": "Play",
   "ui.account.start.play.then": "Free · no sign-up",
   "ui.account.start.returning": "I already have a life here",
@@ -53,7 +53,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.start.step.hustle": "Hustle",
   "ui.account.start.step.papers": "Papers",
   "ui.account.start.step.fly": "Fly",
-  // The start screen's hook (R-TEXT-006, R-ACCOUNT-031): one of three lines, two rows each, picked once per visit.
+  // The start screen's hook (text:hook-not-explanation, account:two-lights-and-wink-lines): one of three lines, two rows each, picked once per visit.
   // The second answers the first for those who stay.
   "ui.wink.start.1.a": "Last one out,",
   "ui.wink.start.1.b": "off the light.",
@@ -61,14 +61,14 @@ export const uiOnlineText: Record<string, string> = {
   "ui.wink.start.2.b": "Keep the light on.",
   "ui.wink.start.3.a": "Japa is not by force.",
   "ui.wink.start.3.b": "How ready are you?",
-  // The two lights over the start screen (R-ACCOUNT-031): a picture of everyone, never a task.
+  // The two lights over the start screen (account:two-lights-and-wink-lines): a picture of everyone, never a task.
   "ui.lights.home": "Home",
   "ui.lights.abroad": "Abroad",
   "ui.lights.everyone": "Everyone playing, now",
   "ui.lights.said": "{home} lives at home, {abroad} abroad",
   "ui.lights.unsaid": "The two lights, home and abroad",
-  // The dedication page (R-ACCOUNT-032), reached from the lantern canoe on the map (R-WORLD-036) and Settings' five taps,
-  // and naming a light of the player's own (R-ACCOUNT-033). The dedication's lines and the nickname under the big light are
+  // The dedication page (account:dedication-page-and-its-doors), reached from the lantern canoe on the map (world:lantern-canoe-on-map) and Settings' five taps,
+  // and naming a light of the player's own (account:name-a-light-for-yours). The dedication's lines and the nickname under the big light are
   // content's (about.data.ts), never here.
   "ui.dedication.canoe": "A canoe with a lantern",
   "ui.dedication.page": "Dedication",
@@ -97,7 +97,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.dedication.problem.name-empty": "A name first.",
   "ui.account.back": "Back",
 
-  // The age screen (R-ACCOUNT-012)
+  // The age screen (account:age-screen-refuses-minors)
   "ui.account.age.title": "When were you born?",
   "ui.account.age.intro": "Japacity asks everyone this before anything else.",
   "ui.account.age.label": "Date of birth",
@@ -121,7 +121,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.age.refused": "You cannot play Japacity.",
   "ui.account.age.bad-date": "That date does not look right. Check it and try again.",
 
-  // The invite link's page (R-PAIR-007, R-PAIR-008)
+  // The invite link's page (pair:invite-card-contents, pair:invite-link-single-use)
   "ui.invite.title": "A friend sent you a card",
   "ui.invite.someone": "Someone",
   "ui.invite.days": "A card's link works once, for {days} days.",
@@ -134,11 +134,11 @@ export const uiOnlineText: Record<string, string> = {
   "ui.invite.play": "Play",
   "ui.invite.offline": "Invite cards work only when the game is online.",
 
-  // The full screen while sign-ups are switched off (R-SERVER-032)
+  // The full screen while sign-ups are switched off (server:signups-off-shows-full)
   "server.full": "Japacity is full right now. Try again shortly.",
   "ui.full.check": "Check again",
 
-  // Signing in (R-ACCOUNT-001, R-ACCOUNT-002, R-ACCOUNT-013)
+  // Signing in (account:sign-in-without-secret, account:email-code-is-short-lived, account:bot-check-on-guest-creation)
   "ui.account.google": "Continue with Google",
   "ui.account.passkey": "Use a passkey",
   "ui.account.email.label": "Email",
@@ -163,7 +163,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.fail.passkey-first": "Sign in with your passkey first, then add the new one here.",
   "ui.account.fail.not-linked": "The life on that Google address was kept with a code by email. Send a code to that address to sign in.",
 
-  // Back to a kept life, from the start screen (R-ACCOUNT-029, R-ACCOUNT-023)
+  // Back to a kept life, from the start screen (account:start-screen-over-live-city, account:guest-secures-the-life)
   "ui.account.returning.title": "Sign back in",
   "ui.account.returning.intro": "Use the way you signed in before.",
   "ui.account.in-app": "Google sign-in does not open inside this app. Use a code by email, or open Japacity in your browser.",
@@ -173,7 +173,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.notice.deleted": "Your account is deleted. Everything it held goes within 30 days.",
   "ui.account.notice.signed-out": "You have signed out.",
 
-  // The username and the guest start (R-ACCOUNT-021, R-ACCOUNT-024)
+  // The username and the guest start (account:guest-and-secured-states, account:username-and-unconfirmed-email)
   "ui.account.name.intro": "Other players see it. It is not your character's name, and you can change it once for free.",
   "ui.account.name.label": "Username",
   "ui.account.name.go": "Start my life",
@@ -195,7 +195,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.fail.taken": "That sign-in already has a life. This one stays as it is, on this phone.",
   "ui.account.fail.guest-only": "Keep this life with Google or your email first. Then you can add a passkey.",
 
-  // Keeping a guest life (R-ACCOUNT-021, R-ACCOUNT-023, R-ACCOUNT-027)
+  // Keeping a guest life (account:guest-and-secured-states, account:guest-secures-the-life, account:guest-reminded-to-secure)
   "ui.secure.title": "Keep this life",
   "ui.secure.why": "Right now this life lives only on this phone. Add Google or your email and you can come back to it on any phone.",
   "ui.secure.ask.first-chapter": "You finished your first brief. Right now this life lives only on this phone. Keep it, so you can come back to it anywhere.",
@@ -222,16 +222,16 @@ export const uiOnlineText: Record<string, string> = {
   "ui.legal.terms": "Terms of play",
   "ui.legal.privacy": "Privacy notice",
 
-  // The usage counts setting (R-ANALYTICS-006)
+  // The usage counts setting (analytics:player-can-stop-usage-counts)
   "ui.account.usage": "Send usage counts",
   "ui.account.usage.help": "Counts of which screens open and how fast the game loads, never what you type or who you are. Off stops them.",
   "ui.account.usage.failed": "That did not save. Try again in a moment.",
 
-  // The settings (R-ACCOUNT-003, R-ACCOUNT-016)
+  // The settings (account:passkey-needs-signed-in-session, account:player-deletes-account)
   "ui.account.settings": "Account",
   "ui.account.passkey.add": "Add a passkey",
   "ui.account.passkey.added": "Passkey added. Use it next time you sign in.",
-  // The account's row at the top of Settings and the rows on its sheet (R-ACCOUNT-024, R-ACCOUNT-027).
+  // The account's row at the top of Settings and the rows on its sheet (account:username-and-unconfirmed-email, account:guest-reminded-to-secure).
   "ui.account.person.label": "Name",
   "ui.account.ways.google": "Kept with Google as {email}",
   "ui.account.ways.email": "Kept with your email as {email}",
@@ -240,7 +240,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.passkeys": "{count} passkeys",
   "ui.account.passkeys.one": "1 passkey",
   "ui.account.passkeys.zero": "Passkey: none yet",
-  // A short toast over the world once a life is kept or signed back in to, naming the way (R-ACCOUNT-023).
+  // A short toast over the world once a life is kept or signed back in to, naming the way (account:guest-secures-the-life).
   "ui.account.toast.kept.google": "Kept with Google",
   "ui.account.toast.kept.email": "Kept with your email",
   "ui.account.toast.in.google": "Signed in with Google",
@@ -256,7 +256,7 @@ export const uiOnlineText: Record<string, string> = {
   "ui.account.delete.code.go": "Delete with this code",
   "ui.account.delete.google": "Sign in again with Google, then come back here within 10 minutes.",
 
-  // The bank-full notice (R-CLOCK-031)
+  // The bank-full notice (clock:full-bank-push-notification)
   "ui.notify.ask.title": "Know when your months are full",
   "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
   "ui.notify.ask.yes": "Tell me",

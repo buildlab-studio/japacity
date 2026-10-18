@@ -1,6 +1,6 @@
 // The share cards' words and the official accounts page: docs/rules/share.md.
 // `share.<kind>.art` and `share.chapter.<slug>.art` name a composition the card
-// renderer draws in code from the palette (R-SHARE-007); none is an image file.
+// renderer draws in code from the palette (share:card-art-shows-no-face); none is an image file.
 export const shareText: Record<string, string> = {
   "share.disclaimer": "Japacity is a game.",
   "share.sender": "Japacity",
@@ -17,7 +17,7 @@ export const shareText: Record<string, string> = {
   "share.chapter.find-your-feet.art": "art.lagos-dusk",
   "share.chapter.build-the-file.art": "art.paper-desk",
   "share.chapter.decision-day.art": "art.waiting-bench",
-  // R-CHAPTER-009: a variant keeps its base's composition.
+  // chapter:chapters-follow-lean-route: a variant keeps its base's composition.
   "share.chapter.build-the-file-care.art": "art.paper-desk",
   "share.chapter.build-the-file-talent.art": "art.paper-desk",
   "share.chapter.build-the-file-points.art": "art.paper-desk",
@@ -94,7 +94,7 @@ export const shareText: Record<string, string> = {
   "share.type.long-way-round.name": "The Long Way Round",
   "share.type.long-way-round.line": "It took longer than planned. I went anyway.",
 
-  // The send-off's ticket stub (R-SHARE-001, R-SHARE-004): place names and words only, in the game's drawn hand.
+  // The send-off's ticket stub (share:cards-due-at-set-moments, share:card-contents): place names and words only, in the game's drawn hand.
   "share.stub.kicker": "The send-off",
   "share.stub.from": "From",
   "share.stub.to": "To",
@@ -103,7 +103,7 @@ export const shareText: Record<string, string> = {
   "share.stub.home": "Lagos",
   "share.stub.badge": "Japa type",
   "share.stub.ready": "Your ticket stub is ready",
-  // Where the counter put you at the send-off (share.md R-SHARE-015), in words under the place flown to: never a seat's number.
+  // Where the counter put you at the send-off (share:send-off-card-kept), in words under the place flown to: never a seat's number.
   "share.stub.seat.window": "By the window",
   "share.stub.seat.aisle": "On the aisle",
   "share.stub.pick.card": "The card",

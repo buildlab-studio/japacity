@@ -43,7 +43,7 @@ function stagesOf(story: NewsEntry): NewsStage[] {
   const stages: NewsStage[] = [];
   if (story.standIn.rumourLead > 0) stages.push("rumour");
   stages.push("announced", "in-force");
-  // An era's story ends with its era (R-DIRECTOR-002).
+  // An era's story ends with its era (director:one-era-at-a-time).
   if (story.standIn.endsAfter !== null || story.standIn.revert || story.director?.group === "front-page") stages.push("ended");
   return stages;
 }
@@ -54,7 +54,7 @@ function missingWords(keys: string[]): string[] {
 }
 
 describe("words for every entry", () => {
-  test("[R-ENGINE-014] given every entry of every kind, when its name is looked up, then there are words for it", () => {
+  test("[engine:content-checked-before-play] given every entry of every kind, when its name is looked up, then there are words for it", () => {
     const ids = [
       ...Object.keys(content.quality),
       ...Object.keys(content.activity),
@@ -75,7 +75,7 @@ describe("words for every entry", () => {
     expect(missingWords(ids.map((id) => `${id}.name`))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every offer, when its words are looked up, then it has a title, a body, every choice and every sign", () => {
+  test("[engine:content-checked-before-play] given every offer, when its words are looked up, then it has a title, a body, every choice and every sign", () => {
     const keys = Object.values(content.offer).flatMap((offer) => [
       `${offer.id}.title`,
       `${offer.id}.body`,
@@ -85,7 +85,7 @@ describe("words for every entry", () => {
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] [R-PROLOGUE-002] given every offer, when its words name a figure in braces, then the offer carries that term, or it is where the life is from, which the screen fills", () => {
+  test("[engine:content-checked-before-play] [prologue:family-draw-on-first-answer] given every offer, when its words name a figure in braces, then the offer carries that term, or it is where the life is from, which the screen fills", () => {
     const uncarried: string[] = [];
     let named = 0;
     for (const offer of Object.values(content.offer)) {
@@ -102,7 +102,7 @@ describe("words for every entry", () => {
     expect(uncarried).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every story, when its words are looked up, then each stage it passes through has a head and a body", () => {
+  test("[engine:content-checked-before-play] given every story, when its words are looked up, then each stage it passes through has a head and a body", () => {
     const keys = Object.values(content.news).flatMap((story) =>
       stagesOf(story).flatMap((stage) => [`${story.id}.${stage}.head`, `${story.id}.${stage}.body`]),
     );
@@ -110,12 +110,12 @@ describe("words for every entry", () => {
     // stages and its seven eras 21 (announced, in force, ended): 114 rows of a head and a body.
     // Plus the ended stage of the refusals story and the Canadian draw, which end since the tuning pass, and the
     // rumour of the UAE lifting, whose talk runs while the ban's 18 ticks run out: 236. Plus the one-chance story's
-    // announced and in-force stages (wallet.md R-WALLET-019): 240.
+    // announced and in-force stages (wallet:cash-pile-warning): 240.
     expect(keys).toHaveLength(240);
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every story, when its words are listed, then none is for a stage it never reaches", () => {
+  test("[engine:content-checked-before-play] given every story, when its words are listed, then none is for a stage it never reaches", () => {
     const stages: NewsStage[] = ["rumour", "announced", "in-force", "ended"];
     const stray = Object.values(content.news).flatMap((story) => {
       const reached = stagesOf(story);
@@ -127,7 +127,7 @@ describe("words for every entry", () => {
     expect(stray).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every set piece, when its words are looked up, then every question and every answer has words", () => {
+  test("[engine:content-checked-before-play] given every set piece, when its words are looked up, then every question and every answer has words", () => {
     const keys = Object.values(content.setpiece).flatMap((setpiece) =>
       setpiece.questions.flatMap((question) => [
         `${setpiece.id}.q.${question.id}`,
@@ -137,7 +137,7 @@ describe("words for every entry", () => {
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every chapter, when its words are looked up, then it has a title, an opening, a close and every item", () => {
+  test("[engine:content-checked-before-play] given every chapter, when its words are looked up, then it has a title, an opening, a close and every item", () => {
     const keys = Object.values(content.chapter).flatMap((chapter) => [
       `${chapter.id}.title`,
       `${chapter.id}.open`,
@@ -147,23 +147,23 @@ describe("words for every entry", () => {
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every route, when its words are looked up, then every checklist item has words", () => {
+  test("[engine:content-checked-before-play] given every route, when its words are looked up, then every checklist item has words", () => {
     const keys = Object.values(content.route).flatMap((route) =>
       route.checklist.map((item) => `${route.id}.item.${item.id}`),
     );
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every rejection code in the contract, when its line is looked up, then there are words for it", () => {
+  test("[engine:content-checked-before-play] given every rejection code in the contract, when its line is looked up, then there are words for it", () => {
     expect(missingWords(REJECTION_CODES.map((code) => `reject.${code}`))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every era and every route, when their blurbs are looked up, then there are words for each", () => {
+  test("[engine:content-checked-before-play] given every era and every route, when their blurbs are looked up, then there are words for each", () => {
     const keys = [...Object.keys(content.era), ...Object.keys(content.route)].map((id) => `${id}.blurb`);
     expect(missingWords(keys)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given the road, when the real-story card and the exit are looked up, then their words are there and the credits are separate keys", () => {
+  test("[engine:content-checked-before-play] given the road, when the real-story card and the exit are looked up, then their words are there and the credits are separate keys", () => {
     expect(missingWords(["road.real-story.title", "road.real-story.line", "road.exit.title", "road.exit.body"])).toEqual([]);
     const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit."));
     expect(credits.length).toBeGreaterThanOrEqual(2);
@@ -172,25 +172,25 @@ describe("words for every entry", () => {
 });
 
 describe("the words files together", () => {
-  test("[R-ENGINE-014] given every words file, when they are merged, then no key is lost to another file", () => {
+  test("[engine:content-checked-before-play] given every words file, when they are merged, then no key is lost to another file", () => {
     const total = Object.values(textTables).reduce((sum, table) => sum + Object.keys(table).length, 0);
     expect(Object.keys(text)).toHaveLength(total);
   });
 
-  test("[R-ENGINE-014] given two words files that share a key, when they are merged, then the merge throws", () => {
+  test("[engine:content-checked-before-play] given two words files that share a key, when they are merged, then the merge throws", () => {
     expect(() => mergeText({ one: { "offer.roof.name": "The roof" }, two: { "offer.roof.name": "Roof" } })).toThrow(
       "offer.roof.name",
     );
   });
 
-  test("[R-ENGINE-014] given every words file and the content, when they are searched, then no em-dash or en-dash appears", () => {
+  test("[engine:content-checked-before-play] given every words file and the content, when they are searched, then no em-dash or en-dash appears", () => {
     const words = Object.entries(text).filter(([, line]) => line.includes(EM_DASH) || line.includes(EN_DASH));
     expect(words).toEqual([]);
     const data = JSON.stringify(content);
     expect(data.includes(EM_DASH) || data.includes(EN_DASH)).toBe(false);
   });
 
-  test("[R-ENGINE-014] given every source file of the content package, when it is searched, then no em-dash or en-dash appears", () => {
+  test("[engine:content-checked-before-play] given every source file of the content package, when it is searched, then no em-dash or en-dash appears", () => {
     const files = Object.keys(sources);
     expect(files.length).toBeGreaterThan(25);
     const dashed = files.filter((file) => {
@@ -202,23 +202,23 @@ describe("the words files together", () => {
 });
 
 describe("words that say what happened", () => {
-  test("[R-SETPIECE-002] given a set piece open, when the turn is refused, then the words name no one scene: the December visit and the road are set pieces too", () => {
+  test("[route:open-set-piece-holds-month] given a set piece open, when the turn is refused, then the words name no one scene: the December visit and the road are set pieces too", () => {
     expect(text["reject.setpiece-open"]).toBeTruthy();
     expect(text["reject.setpiece-open"]?.toLowerCase()).not.toMatch(/interview/);
   });
 
-  test("[R-CHAPTER-002] [R-OFFER-005] given a chapter opened, an offer taken and an offer lapsed, when their lines are read, then each names the chapter or the offer it is about", () => {
+  test("[chapter:met-items-close-the-chapter] [offer:lapsed-offer-removed] given a chapter opened, an offer taken and an offer lapsed, when their lines are read, then each names the chapter or the offer it is about", () => {
     expect(text["line.chapter.opened"]).toContain("{chapter}");
     expect(text["line.offer.lapsed"]).toContain("{offer}");
     expect(text["line.offer.taken"]).toContain("{offer}");
     expect(text["line.offer.taken"]).not.toMatch(/^Decided/);
   });
 
-  test("[R-ROAD-002] given the man at the park, when his pitch is read, then it does not say the character asked: it comes up to anyone at home", () => {
+  test("[road:pitch-rises-with-pressure] given the man at the park, when his pitch is read, then it does not say the character asked: it comes up to anyone at home", () => {
     expect(text["offer.road-park.body"]?.toLowerCase()).not.toMatch(/heard you asking/);
   });
 
-  test("[R-ABROAD-003] given the upkeep line, when it is read abroad beside the rent, then it does not call itself rent", () => {
+  test("[abroad-money:arrival-opens-upkeep-and-room] given the upkeep line, when it is read abroad beside the rent, then it does not call itself rent", () => {
     expect(text["line.wallet.upkeep"]?.toLowerCase()).not.toMatch(/rent/);
   });
 });

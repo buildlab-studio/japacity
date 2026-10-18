@@ -67,7 +67,7 @@ function flatten(requirements: Requirement[]): Requirement[] {
 const goals = Object.values(content.goal);
 
 describe("life goals", () => {
-  test("[R-ENGINE-014] given every goal, when it is checked against its schema, then it parses and its key is its id", () => {
+  test("[engine:content-checked-before-play] given every goal, when it is checked against its schema, then it parses and its key is its id", () => {
     expect(goals).toHaveLength(10);
     for (const [key, goal] of Object.entries(content.goal)) {
       expect(GoalEntrySchema.safeParse(goal).error?.issues ?? []).toEqual([]);
@@ -75,7 +75,7 @@ describe("life goals", () => {
     }
   });
 
-  test("[R-ENGINE-014] given every goal, when its requirements are read, then each is of a type the contract has and the lists are not empty", () => {
+  test("[engine:content-checked-before-play] given every goal, when its requirements are read, then each is of a type the contract has and the lists are not empty", () => {
     const known: readonly string[] = REQUIREMENT_TYPES;
     const unknown = goals.flatMap((goal) =>
       flatten([...goal.openIf, ...goal.doneIf])
@@ -86,20 +86,20 @@ describe("life goals", () => {
     expect(goals.filter((goal) => goal.openIf.length === 0 || goal.doneIf.length === 0).map((goal) => goal.id)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given a goal with a requirement type the contract does not have, when it is read, then the type is found", () => {
+  test("[engine:content-checked-before-play] given a goal with a requirement type the contract does not have, when it is read, then the type is found", () => {
     const made = { type: "goal/sent-home", amount: 1 } as unknown as Requirement;
     const known: readonly string[] = REQUIREMENT_TYPES;
     expect(flatten([{ type: "any", of: [made] }]).filter((requirement) => !known.includes(requirement.type))).toEqual([made]);
   });
 
-  test("[R-ENGINE-014] given every goal, when its reward is read, then it only moves standing and wellbeing, as goal.md says", () => {
+  test("[engine:content-checked-before-play] given every goal, when its reward is read, then it only moves standing and wellbeing, as goal.md says", () => {
     const others = goals.flatMap((goal) =>
       goal.reward.filter((effect) => effect.type !== "quality/add" || !["quality.standing", "quality.wellbeing"].includes(effect.quality)),
     );
     expect(others).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given the goals, when figures from goal.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the goals, when figures from goal.md are read back, then each matches the page", () => {
     expect(content.goal["goal.first-car"]).toMatchObject({ where: "abroad", openIf: [{ type: "credit/min", value: 20 }] });
     expect(content.goal["goal.clean-file"]?.doneIf).toEqual([{ type: "credit/min", value: 60 }]);
     expect(content.goal["goal.settled"]?.reward).toEqual([
@@ -111,7 +111,7 @@ describe("life goals", () => {
     expect(content.goal["goal.home-with-capital"]?.where).toBe("any");
   });
 
-  test("[R-ENGINE-014] given every goal, when its words are looked up, then it has a name and a blurb", () => {
+  test("[engine:content-checked-before-play] given every goal, when its words are looked up, then it has a name and a blurb", () => {
     const missing = goals.flatMap((goal) => [`${goal.id}.name`, `${goal.id}.blurb`]).filter((key) => (text[key] ?? "").trim() === "");
     expect(missing).toEqual([]);
   });

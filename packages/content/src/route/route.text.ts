@@ -16,7 +16,7 @@ export const routeText: Record<string, string> = {
   "route.uk-masters.item.applied": "Visa application sent",
 
   // Report lines.
-  // A route heard of, said by where the word came from and never as what the player heard (R-TEXT-007). The interface picks `line.route.heard.<via>` by the line's `via`;
+  // A route heard of, said by where the word came from and never as what the player heard (text:voice-by-surface). The interface picks `line.route.heard.<via>` by the line's `via`;
   // the bare line is for a source it has no words for.
   "line.route.heard": "Word came round of {route}.",
   "line.route.heard.meetup": "At the meetup: {route}.",
@@ -45,19 +45,19 @@ export const routeText: Record<string, string> = {
   "line.route.departed-job-ended": "The job at home ended with the flight: {job}.",
   // The sponsor and contract gates (route-gates.md).
   "line.route.sponsor-recorded": "A sponsor for {route} sent you a certificate of sponsorship.",
-  // A search for a sponsor that found nobody this month (R-SPONSOR-001).
+  // A search for a sponsor that found nobody this month (route-gates:sponsor-offers-come-up).
   "line.route.sponsor-missed": "No trust answered this month. The search goes on.",
   "line.route.sponsor-missed-employer": "No employer answered this month. The search goes on.",
   "line.route.sponsor-under-bar":
     "A sponsor for {route} sent you a certificate, but the salary is under the bar. It cannot be used for the visa.",
   "line.route.agent-recorded": "The agent took your money and your details for {route}. He said the contract would follow.",
-  // The points gate (route-gates.md R-POINTS-002, 003, 005).
+  // The points gate (route-gates:entering-the-pool, route-gates:pool-draws-invite, route-gates:profile-lapses-and-score-ages).
   "line.route.pool-entered": "Your profile for {route} went into the pool. Each draw, the cut-off moves.",
   "line.route.invited": "You were invited to apply for {route}. The fee goes with the application.",
   "line.route.invite-unpaid": "You were invited to apply for {route}, but the fee could not be paid. The invitation holds one more month.",
   "line.route.invite-lapsed": "The invitation for {route} has lapsed. The fee was never paid. Your profile stays in the pool.",
   "line.route.profile-lapsed": "Your profile for {route} has run out without an invitation. You can enter the pool again.",
-  // The endorsement gate (R-ENDORSE-002).
+  // The endorsement gate (route-gates:endorsement-decided-by-draw).
   "line.route.endorsement-refused": "The endorsing body did not back you for {route}. The letter was withdrawn. Build the work up, then ask again.",
   "route.uk-care.name": "Care work in the UK",
   "route.uk-care.blurb":
@@ -137,7 +137,7 @@ export const routeText: Record<string, string> = {
   "route.gulf-contract.item.police": "Police certificate held",
   "route.gulf-contract.item.applied": "Papers sent to the employer",
 
-  // The plan the chapters follow and the switch between ways (chapter.md R-CHAPTER-009).
+  // The plan the chapters follow and the switch between ways (chapter:chapters-follow-lean-route).
   // Each way's name inside a sentence ("Instead of care work"), and the file its chapters build.
   "route.uk-care.short": "care work",
   "route.uk-masters.short": "the master's",
@@ -166,7 +166,7 @@ export const routeText: Record<string, string> = {
   "route.road.name": "The road",
   "route.road.blurb": "A way north that the man at the park does not describe.",
 
-  // The chain's report lines (R-ROAD-003 to 010). Plain, and they never say how.
+  // The chain's report lines (road:taking-pitch-pays-deposit, road:road-night-allows-turn-back, road:road-truth-asks-more, road:chain-steps-monthly, road:exit-is-assisted-return, road:lost-is-final, road:sea-arrival-in-italy and road:road-earns-nothing). Plain, and they never say how.
   "line.route.road-fraud": "The man who took your deposit has stopped answering. Nobody at the park has seen him.",
   "line.route.road-go": "You got on the bus before light. Nobody at home knew yet.",
   "line.route.road-turned-back": "You went home before the bus left. The deposit stayed with the man.",
@@ -180,12 +180,12 @@ export const routeText: Record<string, string> = {
   "line.route.road-lost": "Your family stopped hearing from you. Nobody could tell them what happened.",
   "line.route.road-arrived": "You reached the other shore alive. You have no papers, a debt, and only cash work.",
 
-  // The way out, shown on every card of the chain (R-ROAD-007). No phone numbers: they change.
+  // The way out, shown on every card of the chain (road:exit-is-assisted-return). No phone numbers: they change.
   "road.exit.title": "You can stop",
   "road.exit.body":
     "The anti-trafficking agency takes calls about this, and the migration agency flies people home from the coast for free. Saying you want to go home is enough.",
 
-  // The real-story card (R-ROAD-011). Credits only: nothing from the journalism is reproduced.
+  // The real-story card (road:real-story-card-after-chain). Credits only: nothing from the journalism is reproduced.
   "road.real-story.title": "This happened to real people",
   "road.real-story.line":
     "The road in this game follows reporting on the journey north through the desert and across the sea. Read their work.",
@@ -237,8 +237,8 @@ export const routeText: Record<string, string> = {
   "activity.apply-ca-accompany.blurb": "You go on your spouse's application with your own papers and fee.",
   "line.route.withdrawn": "Your application for {route} was withdrawn. The fee was not returned.",
 
-  // The visa appointment and its reminders (world.md R-WORLD-019, story/story.notice.data.ts).
-  // {month} is the decision month, told as months away (world.md R-WORLD-002).
+  // The visa appointment and its reminders (world:phone-holds-what-phones-hold, story/story.notice.data.ts).
+  // {month} is the decision month, told as months away (world:top-band-is-lively-pill).
   "route.uk-masters.reminder.appointment": "Visa appointment: take the file from under the bed, then go.",
   "route.uk-masters.reminder.interview": "Your interview is now. The officer will see you.",
   "route.uk-masters.reminder.decision": "Visa decision expected {month}.",

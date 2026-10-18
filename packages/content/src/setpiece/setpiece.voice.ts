@@ -28,7 +28,7 @@ export const setpieceVoice: Record<string, VoiceClip> = {
   "setpiece.credibility-interview.officer.close": { clip: "officer/close", ms: 2731 },
 };
 
-/** The reactions, one drawn at random after each answer, never from what it scored (R-SETPIECE-005). */
+/** The reactions, one drawn at random after each answer, never from what it scored (route:view-shows-progress-not-score). */
 export const OFFICER_REACTIONS: readonly string[] = [
   "setpiece.credibility-interview.officer.react-1",
   "setpiece.credibility-interview.officer.react-2",

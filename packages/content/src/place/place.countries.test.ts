@@ -1,6 +1,6 @@
 // The places of Calgary, Dubai and Castel Volturno (docs/rules/city.md "Entries: abroad"; design page 15 section 3):
 // each with its position, scope, kind of name, scene folder, shuttle and what it stages; every job and test of every
-// country staged at a place of that country, with no country-less workplace or test centre (R-CITY-010); the room
+// country staged at a place of that country, with no country-less workplace or test centre (city:places-stage-their-acts); the room
 // named per country and its spot on each country's map.
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -51,7 +51,7 @@ const ROWS: readonly Row[] = [
 ];
 
 describe("the places of Calgary, Dubai and Castel Volturno", () => {
-  test("[R-CITY-004] [R-CITY-008] [R-PLACE-013] given the page's rows, when the table is read, then each is in its country with its kind of name, position, scope, scene folder, hub, shuttle and stages; a made-up place stands at a spot of its own", () => {
+  test("[city:place-entry-fields] [city:positions-rough-on-purpose] [place:employer-shuttle-rides-free] given the page's rows, when the table is read, then each is in its country with its kind of name, position, scope, scene folder, hub, shuttle and stages; a made-up place stands at a spot of its own", () => {
     for (const row of ROWS) {
       expect({ id: row.id, entry: content.place[row.id] }).toMatchObject({
         id: row.id,
@@ -64,7 +64,7 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
     expect(content.place["place.metro-station-uae"]?.data).toEqual({ source: "osm", licence: "ODbL-1.0", checked: "2026-10-16" });
   });
 
-  test("[R-CITY-010] given the country-less test centre and workplace, when the table is read, then both are gone with their words, and the room stages only the country-less acts and the four meals", () => {
+  test("[city:places-stage-their-acts] given the country-less test centre and workplace, when the table is read, then both are gone with their words, and the room stages only the country-less acts and the four meals", () => {
     expect(content.place["place.test-centre-abroad"]).toBeUndefined();
     expect(content.place["place.workplace-abroad"]).toBeUndefined();
     expect(Object.keys(text).filter((key) => key.startsWith("place.test-centre-abroad.") || key.startsWith("place.workplace-abroad."))).toEqual([]);
@@ -82,7 +82,7 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
     ]);
   });
 
-  test("[R-CITY-010] given every country, when its jobs and its tests are looked for, then each is staged at one place of that country, none left to a place that serves every country", () => {
+  test("[city:places-stage-their-acts] given every country, when its jobs and its tests are looked for, then each is staged at one place of that country, none left to a place that serves every country", () => {
     const countries = Object.keys(content.country) as Id<"country">[];
     expect(countries.sort()).toEqual(["country.canada", "country.italy", "country.uae", "country.uk"]);
     const jobs = Object.values(content.activity).filter((entry) => entry.where === "abroad" && entry.slot === "main");
@@ -101,7 +101,7 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
     expect(places.filter((place) => place.where === "abroad" && place.country === null).map((place) => place.id)).toEqual(["place.the-room"]);
   });
 
-  test("[R-STREET-006] given the four finds on the street, when the places are read, then each is staged once, at its country's hub, and each has its words", () => {
+  test("[streets:street-finds-abroad] given the four finds on the street, when the places are read, then each is staged once, at its country's hub, and each has its words", () => {
     for (const [find, hub] of [
       ["offer.street-find-uk", "place.peckham"],
       ["offer.street-find-ca", "place.calgary-north-east"],
@@ -119,7 +119,7 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
 });
 
 describe("the room abroad in each country", () => {
-  test("[R-WORLD-038] given each country, when the room's name is read through roomName, then it is the country's own, and the plain name with no country", () => {
+  test("[world:painted-maps-abroad] given each country, when the room's name is read through roomName, then it is the country's own, and the plain name with no country", () => {
     expect(roomName("country.uk")).toBe("the shared room in Peckham");
     expect(roomName(CANADA)).toBe("the basement room in north-east Calgary");
     expect(roomName(UAE)).toBe("the bed space at the camp");
@@ -129,7 +129,7 @@ describe("the room abroad in each country", () => {
     expect(roomNameKey("country.nowhere")).toBe("place.the-room.name");
   });
 
-  test("[R-WORLD-038] given each country, when its home spot is read, then the room stands at the page's made-up spot on the country's map", () => {
+  test("[world:painted-maps-abroad] given each country, when its home spot is read, then the room stands at the page's made-up spot on the country's map", () => {
     expect(Object.fromEntries(Object.values(content.country).map((country) => [country.id, country.homeSpot]))).toEqual({
       "country.uk": { latE3: 51471, lonE3: -73 },
       "country.canada": { latE3: 51088, lonE3: -113955 },

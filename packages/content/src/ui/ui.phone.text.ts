@@ -1,4 +1,4 @@
-// The phone's own words (docs/rules/world.md R-WORLD-018, 019), in the voice of docs/rules/text.md.
+// The phone's own words (world:phone-rises-over-scene, world:phone-holds-what-phones-hold), in the voice of docs/rules/text.md.
 export const uiPhoneText: Record<string, string> = {
   "phone.title": "Phone",
   "phone.apps": "Apps",
@@ -78,14 +78,14 @@ export const uiPhoneText: Record<string, string> = {
   // The two rates, said where a change between naira and a foreign money is chosen: the bank's in whole naira, the FX man's to the kobo.
   "phone.bank.rate.bank": "At the bank, {one} is {rate}.",
   "phone.bank.rate.aboki": "With the FX man, {one} is {rate}.",
-  // A change the bank makes later, while it is on its way (months away, never a month number: R-WORLD-002).
+  // A change the bank makes later, while it is on its way (months away, never a month number: world:top-band-is-lively-pill).
   "phone.bank.queued.item": "{paid} into {to}, ready {when}",
-  // The credit file abroad (credit.md R-CREDIT-006, R-CREDIT-007), the month it clears said as months away.
+  // The credit file abroad (credit:judgment-blocks-credit, credit:view-shows-credit-file), the month it clears said as months away.
   "phone.bank.credit.judgment": "A court judgment is on the file. It clears {when}; until then nothing that needs more than {cap} can be had.",
   // The morning: the first result leads; any others stand under this.
   "phone.morning.also": "Also this morning",
 
-  // The People row (world.md R-WORLD-020): the slots of this life, never a list of strangers.
+  // The People row (world:nobody-picked-from-list): the slots of this life, never a list of strangers.
   "phone.chats.slots": "People",
   "phone.chats.slots.line": "Partner, brothers and sisters, parents",
   "phone.chats.family.none": "The group is quiet.",
@@ -96,7 +96,7 @@ export const uiPhoneText: Record<string, string> = {
   "phone.chats.pick": "Pick what to say",
   "phone.chats.computer": "Your talk with {name} happens when you meet. Their news reaches you here.",
 
-  // The way files' dates, as months ago or away, never a month's number (R-WORLD-002).
+  // The way files' dates, as months ago or away, never a month's number (world:top-band-is-lively-pill).
   "phone.japa.invited": "Invited to apply {when}.",
   "phone.japa.pool": "In the pool since {since}. The profile ends {ends}.",
   "phone.japa.endorsement.refused": "Endorsement refused {when}.",
@@ -125,7 +125,7 @@ export const uiPhoneText: Record<string, string> = {
   "phone.japa.paper-ready": "{paper} ready",
   "phone.japa.reminders": "Coming up",
 
-  // The Papers app (R-WORLD-019): every paper with its state and the act that moves it.
+  // The Papers app (world:phone-holds-what-phones-hold): every paper with its state and the act that moves it.
   "phone.papers.title": "The box under the bed",
   "phone.papers.hint": "Calls and messages go from here. A visit opens the map.",
   "phone.papers.none": "No papers yet. A way out says which ones you need.",
@@ -138,7 +138,7 @@ export const uiPhoneText: Record<string, string> = {
   "phone.papers.at": "At {place}",
   "phone.papers.back": "Papers",
   "phone.papers.return": "{when}, home from {country}, {shape}",
-  // A paper landing or moving, as the phone tells it (R-WORLD-030), with a paper's own words where it has them.
+  // A paper landing or moving, as the phone tells it (world:month-passes-as-lived), with a paper's own words where it has them.
   "phone.papers.notices": "Papers",
   "phone.papers.notice.issued": "Your {paper} is ready.",
   "phone.papers.notice.issued.document.passport": "Your passport is ready to collect.",
@@ -154,7 +154,7 @@ export const uiPhoneText: Record<string, string> = {
 
   "phone.bills.title": "What you owe",
   "phone.jobs.held": "Your job",
-  // The raise from being noticed, and when it landed: "Raised last month" (R-ACTIVITY-013).
+  // The raise from being noticed, and when it landed: "Raised last month" (activity:waiting-months-build-profile).
   "phone.jobs.raised": "Raised {when}",
   "phone.jobs.raised.unknown": "With a raise",
   "phone.jobs.side": "Side job",
@@ -192,10 +192,10 @@ export const uiPhoneText: Record<string, string> = {
   "phone.context.bank.stamp": "Next stamp {amount}",
   "phone.context.bank.target": "Next: {amount}, all in",
   "phone.context.bank.ready": "All in",
-  // Offline the street kiosk sells the tickets and runs the draw (R-WORLD-018): the app tells where, never a bare line.
+  // Offline the street kiosk sells the tickets and runs the draw (world:phone-rises-over-scene): the app tells where, never a bare line.
   "phone.lotto.kiosk": "Tickets are sold at the kiosk on {street}.",
   "phone.lotto.none-month": "No ticket this month.",
-  // R-LUCK-005: what this month's tickets cost, said once.
+  // luck:kiosk-sells-lotto-tickets: what this month's tickets cost, said once.
   "phone.lotto.month": "{count} tickets this month",
   "phone.lotto.month.one": "1 ticket this month",
   "phone.lotto.month-cost": "{amount} spent",
@@ -217,11 +217,11 @@ export const uiPhoneText: Record<string, string> = {
   "phone.bills.undertaking.line": "Pay off what is owed, all of it.",
   "phone.bills.undertaking.button": "Pay it off",
   "phone.bills.paid": "Paid",
-  // The car on finance (R-CAR-007): the rate as the money it costs a month, never a percentage.
+  // The car on finance (car:view-shows-car-terms): the rate as the money it costs a month, never a percentage.
   "phone.bills.car.interest": "Interest: {amount} a month",
 
   "phone.news.month": "{when}",
-  // The era on News (R-DIRECTOR-002): when it began and when it is due to end, as months ago and from now.
+  // The era on News (director:one-era-at-a-time): when it began and when it is due to end, as months ago and from now.
   "phone.news.era.since": "Begun {when}.",
   "phone.news.era.until": "Due to end {when}.",
 
@@ -244,7 +244,7 @@ export const uiPhoneText: Record<string, string> = {
   // Jobs, for an application out.
   "phone.jobs.applied": "Applied: {job}. They answer at the month's end.",
   "phone.jobs.applied-at": "Applied: {job} at {place}. They answer at the month's end.",
-  // The Bank abroad when the month's dues pass the country's money held (docs/rules/world.md R-WORLD-019): the gap,
+  // The Bank abroad when the month's dues pass the country's money held (world:phone-holds-what-phones-hold): the gap,
   // then the way, change money into the country's own.
   "phone.bank.dues": "Due this month: {due}. You hold {held}.",
   "phone.bank.dues.way": "{from} to {to}",

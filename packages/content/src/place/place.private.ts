@@ -1,4 +1,4 @@
-// The places that are someone's home (city.md R-CITY-015): no other player is sampled or shown in them. The server's
+// The places that are someone's home (city:players-fill-the-crowd): no other player is sampled or shown in them. The server's
 // presence fetch and the client's crowd both read this one list. Only types are imported, so the place check's page
 // loads it by its own path (`@japacity/content/private-places`) without the rest of content.
 import type { HomePlace, Id } from "@japacity/sim";

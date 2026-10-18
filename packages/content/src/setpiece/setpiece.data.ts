@@ -10,7 +10,7 @@ import { NURSE_EXAM, TALK } from "../activity/activity.profile.data";
 const UK: Id<"route"> = "route.uk-masters";
 
 /**
- * A quiz question (R-ACTIVITY-013): the right answer scores 1 and the rest 0. On the last question
+ * A quiz question (activity:waiting-months-build-profile): the right answer scores 1 and the rest 0. On the last question
  * every answer marks the paper (`activity/exam`), so the pass is judged the moment it is answered.
  */
 function examQuestion(id: string, answers: string[], right: string, last: boolean): SetpieceQuestion {
@@ -19,7 +19,7 @@ function examQuestion(id: string, answers: string[], right: string, last: boolea
 }
 
 // ---------------------------------------------------------------------------
-// The December visit: return.md R-RETURN-005
+// The December visit: return:december-visit-set-piece
 // ---------------------------------------------------------------------------
 
 /** The countries the December visit is flown from, with the suffix their questions carry. */
@@ -66,7 +66,7 @@ function countryOf(id: Id<"country">) {
   return entry;
 }
 
-/** R-RETURN-005 and R-PLACE-006: the fare both ways, each way times the December factor, in the country's currency. */
+/** return:december-visit-set-piece and place:fare-home-in-local-currency: the fare both ways, each way times the December factor, in the country's currency. */
 export function decemberFare(id: Id<"country">): { currency: Currency; amount: number } {
   const entry = countryOf(id);
   return { currency: entry.currency, amount: 2 * int.bp(entry.fare, entry.decemberFactorBp) };
@@ -94,9 +94,9 @@ function answer(id: string, effects: Effect[]): SetpieceAnswer {
 }
 
 /**
- * R-SETPIECE-003: an answer that pays is given only while the money is there.
+ * route:set-piece-answers-in-order: an answer that pays is given only while the money is there.
  * route.md says `money/can-pay`, which for a foreign
- * currency also counts the naira bank (R-WALLET-009), while `money/take` from
+ * currency also counts the naira bank (wallet:foreign-fee-payment-order), while `money/take` from
  * `any` takes only that currency's cash and bank. Judged with `money/can-pay`,
  * an answer could pass with the money in naira and then take nothing, so it is
  * judged with `money/min` on the pockets the debit takes from, as the offer
@@ -110,8 +110,8 @@ function paying(id: string, price: { currency: Currency; amount: number }, effec
  * One country's December: first whether to go, then the party, the gifts and
  * the look, each answer paying in the country's currency (reason `social` for
  * the party and the look, `family` for the gifts) and moving the qualities the
- * page gives. Staying home closes the scene (R-SETPIECE-004), and every answer
- * that pays needs the money for it (R-SETPIECE-003).
+ * page gives. Staying home closes the scene (route:answers-score-and-close), and every answer
+ * that pays needs the money for it (route:set-piece-answers-in-order).
  */
 function decemberQuestions({ country, suffix }: { country: Id<"country">; suffix: string }, index: number): SetpieceQuestion[] {
   const here: Requirement[] =
@@ -214,7 +214,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         ],
       },
       {
-        // R-ADVICE-008: the officer has checked the papers; a transcript that is not genuine is asked about, and no answer saves it.
+        // advice:agent-loss-is-the-fee: the officer has checked the papers; a transcript that is not genuine is asked about, and no answer saves it.
         id: "papers",
         when: [
           { type: "document/held", document: "document.transcript" },
@@ -241,7 +241,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         ],
       },
     ],
-    // R-SETPIECE-008: asked only after the answer that names one, never drawn.
+    // route:answer-may-ask-follow-up: asked only after the answer that names one, never drawn.
     followUps: [
       {
         id: "sponsor-who",
@@ -283,7 +283,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
     ],
   },
 
-  // road.md R-ROAD-004 and 005. Scores mean nothing here: the road kind reads the answer chosen.
+  // road:road-night-allows-turn-back and road:road-truth-asks-more. Scores mean nothing here: the road kind reads the answer chosen.
   // Every set piece in the chain keeps an exit.
 
   "setpiece.road-night": {
@@ -295,7 +295,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
         when: [],
         answers: [
           { id: "go", score: 0, when: [], thenScore: null, effects: [{ type: "route/road-step", step: "truth" }] },
-          // R-ROAD-004: turning back costs the deposit, already paid, and standing 2.
+          // road:road-night-allows-turn-back: turning back costs the deposit, already paid, and standing 2.
           {
             id: "turn-back",
             score: 0,
@@ -317,7 +317,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
       {
         id: "truth",
         when: [],
-        // R-ROAD-005. The road's step takes the money asked from cash, or the family means for it.
+        // road:road-truth-asks-more. The road's step takes the money asked from cash, or the family means for it.
         answers: [
           { id: "pay", score: 0, when: [], thenScore: null, effects: [{ type: "route/road-step", step: "pay" }] },
           {
@@ -347,18 +347,18 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
     ],
   },
 
-  // return.md R-RETURN-005, "The December set piece". The questions are made for each country by
+  // return:december-visit-set-piece, "The December set piece". The questions are made for each country by
   // `decemberQuestions` above, each asked only in its own country, so every amount is in that
   // country's currency.
   "setpiece.december": {
     id: "setpiece.december",
-    // The four of the country the character is in, the going question first (R-SETPIECE-001).
+    // The four of the country the character is in, the going question first (route:set-piece-draws-questions).
     ask: 4,
     order: "fixed",
     questions: DECEMBER_COUNTRIES.flatMap(decemberQuestions),
   },
 
-  // activity.md R-ACTIVITY-013: the nurse's certification, sat as three questions from the care route's
+  // activity:waiting-months-build-profile: the nurse's certification, sat as three questions from the care route's
   // own facts (the care guide), in the order written. A right answer scores 1; the last question's answers
   // mark the paper, and two right is a pass.
   [NURSE_EXAM]: {
@@ -371,7 +371,7 @@ export const setpieceTable: Record<Id<"setpiece">, SetpieceEntry> = {
       examQuestion("sponsorship", ["nurse", "nobody", "employer"], "employer", true),
     ],
   },
-  // R-ACTIVITY-013: the talk is one question, how it opens; the activity carries what the talk gives. The answer marks
+  // activity:waiting-months-build-profile: the talk is one question, how it opens; the activity carries what the talk gives. The answer marks
   // how it went: the code run live or the bug's story holds the room, the slides read out do
   // not. Opened with no route, so nothing is scored on the state; the act reads these scores, as the exam does.
   [TALK]: {

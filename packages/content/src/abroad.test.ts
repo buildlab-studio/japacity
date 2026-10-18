@@ -9,7 +9,7 @@ function missingWords(keys: string[]): string[] {
 }
 
 describe("words for life abroad", () => {
-  test("[R-ENGINE-014] given every country, status, goal and the new entries of the older kinds, when their words are looked up, then each has a name", () => {
+  test("[engine:content-checked-before-play] given every country, status, goal and the new entries of the older kinds, when their words are looked up, then each has a name", () => {
     const ids = [
       ...Object.keys(content.country),
       ...Object.keys(content.status),
@@ -26,20 +26,20 @@ describe("words for life abroad", () => {
     expect(missingWords(ids.map((id) => `${id}.name`))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every status, when its blurb is looked up, then there is one line saying what it lets you do", () => {
+  test("[engine:content-checked-before-play] given every status, when its blurb is looked up, then there is one line saying what it lets you do", () => {
     const keys = Object.keys(content.status).map((id) => `${id}.blurb`);
     expect(missingWords(keys)).toEqual([]);
     expect(keys.filter((key) => (text[key] ?? "").includes("\n"))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given the words files of life abroad, when their keys are read, then none is a report line, which the kinds add", () => {
+  test("[engine:content-checked-before-play] given the words files of life abroad, when their keys are read, then none is a report line, which the kinds add", () => {
     const files = ["activityAbroad", "country", "status", "goal", "offerAbroad"];
     const lines = files.flatMap((file) => Object.keys(textTables[file] ?? {}).filter((key) => key.startsWith("line.")));
     expect(files.filter((file) => textTables[file] === undefined)).toEqual([]);
     expect(lines).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every offer abroad or on the way home, when its group is read, then it is one of the two and it has words for every choice and sign", () => {
+  test("[engine:content-checked-before-play] given every offer abroad or on the way home, when its group is read, then it is one of the two and it has words for every choice and sign", () => {
     const offers = Object.values(content.offer).filter((offer) => offer.group === "return" || offer.group === "abroad");
     expect(offers.map((offer) => offer.id)).toEqual([
       "offer.returnee-question",
@@ -47,7 +47,7 @@ describe("words for life abroad", () => {
       "offer.returnee-hire",
       "offer.returnee-leave-again",
       "offer.sponsor-licence-lost",
-      // undertaking.md R-UNDERTAKING-010: social assistance in Canada.
+      // undertaking:social-assistance-offer: social assistance in Canada.
       "offer.ca-assistance",
       "offer.court-date",
     ]);
@@ -59,13 +59,13 @@ describe("words for life abroad", () => {
       ...offer.signs.map((sign) => `${offer.id}.sign.${sign.key}`),
     ]);
     expect(missingWords(keys)).toEqual([]);
-    // The returnee offers come up at home, the sponsor's at work abroad (R-PLACE-003), assistance in Canada (R-UNDERTAKING-010), and the court date abroad (R-HEALTH-006).
+    // The returnee offers come up at home, the sponsor's at work abroad (place:entries-legal-by-where), assistance in Canada (undertaking:social-assistance-offer), and the court date abroad (health:forced-months-warned-ahead).
     expect(offers.map((offer) => offer.where)).toEqual(["home", "home", "home", "home", "abroad", "abroad", "abroad"]);
   });
 });
 
 describe("chapters 5 and 6", () => {
-  test("[R-ENGINE-014] given the chapters, when they are put in order, then Landing and Secure follow the send-off with the page's items", () => {
+  test("[engine:content-checked-before-play] given the chapters, when they are put in order, then Landing and Secure follow the send-off with the page's items", () => {
     const ordered = Object.values(content.chapter).sort((a, b) => a.order - b.order);
     expect(ordered.map((chapter) => chapter.id).slice(-3)).toEqual(["chapter.send-off", "chapter.landing", "chapter.secure"]);
     expect(content.chapter["chapter.landing"]?.items.map((item) => item.id)).toEqual(["room", "job", "status", "request", "file"]);
@@ -76,7 +76,7 @@ describe("chapters 5 and 6", () => {
     expect(secure[0]?.requirement.type).toBe("any");
   });
 
-  test("[R-ENGINE-014] given chapters 5 and 6, when their words are read, then the opening and closing lines are the page's", () => {
+  test("[engine:content-checked-before-play] given chapters 5 and 6, when their words are read, then the opening and closing lines are the page's", () => {
     expect(text["chapter.landing.open"]).toBe("Cold. A room with a lock. A number that is not yours yet.");
     expect(text["chapter.landing.close"]).toBe("You have a key, a payslip and a name on a bill. Nobody here knows your father.");
     expect(text["chapter.secure.open"]).toBe("The clocks are long now. Keep the rules, keep the job, keep sending.");

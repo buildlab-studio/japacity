@@ -42,7 +42,7 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
       { band: 80, points: 34 },
     ],
     // Low band is 60 or 65; high band is 70 or more. Work counts from 12 months; long work is 36 or more.
-    // R-PEOPLE-031: a sibling in Canada, 18 or over, a citizen or resident.
+    // person:canada-sibling-bonus: a sibling in Canada, 18 or over, a citizen or resident.
     siblingBonus: 15,
     transfer: {
       educationLowBand: 13,
@@ -56,12 +56,12 @@ export const pointsTable: Record<Id<"points">, PointsEntry> = {
       longMonths: 36,
       cap: 100,
     },
-    // The care cut-off is read at care 60 or more (R-POINTS-003).
+    // The care cut-off is read at care 60 or more (route-gates:pool-draws-invite).
     careMin: 60,
   },
 
   // docs/rules/person.md, "Entry: points.canada-spouse": the lead's columns with
-  // a spouse, then the spouse's own factors, capped at 40 (R-PEOPLE-030). The
+  // a spouse, then the spouse's own factors, capped at 40 (person:canada-spouse-points). The
   // transferability part, the sibling bonus and the care figure are unchanged.
   "points.canada-spouse": {
     id: "points.canada-spouse",

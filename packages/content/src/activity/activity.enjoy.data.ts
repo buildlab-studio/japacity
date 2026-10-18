@@ -1,6 +1,6 @@
-// The street's enjoyment and spending: docs/rules/streets.md R-STREET-011 (decision 0012). Each is a priced now-act
+// The street's enjoyment and spending: streets:lagos-street-spending (decision 0012). Each is a priced now-act
 // paid from the naira as it is done, under the money reason `enjoyment`; a repeat runs as often as the month's time
-// allows (R-ACTIVITY-019), the barber and the clothes once a month. Joined into the activity table in
+// allows (activity:acts-may-repeat-in-month), the barber and the clothes once a month. Joined into the activity table in
 // activity.data.ts; place.data.ts stages each at its street.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
@@ -47,7 +47,7 @@ export const enjoyActivityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  // A sachet of cold water: a purchase, so it runs as often as money allows and spends no time (R-ACTIVITY-015, 018).
+  // A sachet of cold water: a purchase, so it runs as often as money allows and spends no time (activity:now-acts-and-month-acts, activity:now-acts-spend-half-days).
   "activity.pure-water": {
     id: "activity.pure-water",
     slot: "none",

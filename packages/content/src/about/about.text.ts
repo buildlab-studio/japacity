@@ -1,4 +1,4 @@
-// The version line at the foot of the phone's Settings (docs/rules/city.md R-CITY-021). The
+// The version line at the foot of the phone's Settings (city:credits-screen-attributions). The
 // line its five taps show is in about.data.ts.
 export const aboutText: Record<string, string> = {
   "phone.settings.version": "Version",

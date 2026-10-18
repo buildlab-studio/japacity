@@ -38,8 +38,8 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     rentFlat: "obligation.rent-flat-ca",
     phone: "obligation.phone-ca",
     overstayer: "status.ca-overstayer",
-    // No Canadian gate refuses for deception (R-GATE-005 names the sponsor and contract gates only), so the
-    // deception ban here is the one a caught interview brings (R-INTERVIEW-010): five years after misrepresentation (IRPA s. 40); R-UNDERTAKING-004: five years after arriving through a partner (IRPR s. 130(3)).
+    // No Canadian gate refuses for deception (route-gates:deception-bans-country names the sponsor and contract gates only), so the
+    // deception ban here is the one a caught interview brings (interview:caught-sponsor-carries-bar): five years after misrepresentation (IRPA s. 40); undertaking:sponsored-arrivals-wait-to-sponsor: five years after arriving through a partner (IRPR s. 130(3)).
     deceptionBanMonths: 60,
     partnerBarMonths: 60,
     // The room abroad's made-up spot on the painted map, in the north-east (design page 15 section 3).
@@ -59,7 +59,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     rentFlat: null,
     phone: null,
     overstayer: "status.uae-irregular",
-    // R-CONTRACT-003: R-GATE-005 does not apply to a fraud agent; nothing was forged in your name.
+    // route-gates:gulf-application-needs: route-gates:deception-bans-country does not apply to a fraud agent; nothing was forged in your name.
     deceptionBanMonths: 0,
     partnerBarMonths: 0,
     // The room abroad's made-up spot on the painted map, the camp, east of the city (design page 15 section 3).
@@ -71,7 +71,7 @@ export const countryTable: Record<Id<"country">, CountryEntry> = {
     fare: euros(480),
     // 2.0
     decemberFactorBp: 20000,
-    // Italy's only job is cash work, and cash work is untaxed (R-LADDER-003),
+    // Italy's only job is cash work, and cash work is untaxed (ladders:cash-jobs-paid-in-hand),
     // so the page gives Italy no tax line and none is entered.
     taxFreeLine: 0,
     taxBp: 0,

@@ -1,8 +1,8 @@
-// Real names shown as neutral scenery on a place's signs: docs/rules/city.md R-CITY-022
-// and R-CITY-041. One entry per real name, so removing one
+// Real names shown as neutral scenery on a place's signs: city:sponsor-shows-name-only
+// and city:invented-names-for-risky-businesses. One entry per real name, so removing one
 // on request is one change: set its `realName` to null and the sign shows its plain words.
 
-/** What a real name stands for. Only `public`, `market`, `mall` and `food` may carry one (R-CITY-041). */
+/** What a real name stands for. Only `public`, `market`, `mall` and `food` may carry one (city:invented-names-for-risky-businesses). */
 export type RealNameTrade = "public" | "market" | "mall" | "food" | "bank" | "lender" | "agent" | "employer" | "sponsor" | "school" | "airline";
 
 export interface RealNameEntry {
@@ -22,7 +22,7 @@ export interface RealNameEntry {
 const READ_ON = "2026-10-09";
 
 export const realNames: Record<string, RealNameEntry> = {
-  // The market's own public name (R-CITY-005), on the third block's last board.
+  // The market's own public name (city:four-kinds-of-name), on the third block's last board.
   "place.tejuosho-market.sign.12": {
     sign: "place.tejuosho-market.sign.12",
     trade: "public",

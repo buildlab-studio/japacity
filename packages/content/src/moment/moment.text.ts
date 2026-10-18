@@ -1,13 +1,13 @@
 // The screenshot moments' words: docs/rules/moment.md. One card for each big outcome: a kicker, a title, one line in
-// the game's voice, the figure's caption, and the sign-off. A loss is said straight (text.md R-TEXT-002); a win may
-// carry a wink. No word here reads as a bank alert, a receipt, a transfer or a government letter (R-MOMENT-004).
+// the game's voice, the figure's caption, and the sign-off. A loss is said straight (text:bad-news-never-joked); a win may
+// carry a wink. No word here reads as a bank alert, a receipt, a transfer or a government letter (moment:card-never-looks-official).
 export const momentText: Record<string, string> = {
-  // The sign-off in the card's corner, beside the game's small mark (R-MOMENT-002).
+  // The sign-off in the card's corner, beside the game's small mark (moment:moment-card-contents).
   "moment.address": "japacity.app",
   "moment.mark": "Japacity",
   "moment.close": "Close",
 
-  // The visa granted (route.md R-ROUTE-017): the line by the route, the figure the months it took.
+  // The visa granted (route:grant-moves-to-granted): the line by the route, the figure the months it took.
   "moment.granted.kicker": "Visa granted",
   "moment.granted.line": "The visa came through. Read it again. It still says yes.",
   "moment.granted.line.route.uk-masters": "The family group heard before you finished reading the email.",
@@ -23,9 +23,9 @@ export const momentText: Record<string, string> = {
   "moment.granted.caption": "months of hustle to get here",
   "moment.granted.caption.one": "month of hustle to get here",
 
-  // The visa refused (route.md R-ROUTE-018, 019): straight, by the first reason the letter gives.
+  // The visa refused (route:refusal-refunds-and-resets, route:refusal-reasons-recorded): straight, by the first reason the letter gives.
   "moment.refused.kicker": "Visa refused",
-  // The endorsing body said no before any visa was asked for (R-ENDORSE-002): its own kicker.
+  // The endorsing body said no before any visa was asked for (route-gates:endorsement-decided-by-draw): its own kicker.
   "moment.refused.kicker.endorsement": "Endorsement refused",
   "moment.refused.line.funds": "Your statement showed the money. It did not show where it came from.",
   "moment.refused.line.interview": "Ten minutes at the window decided it. Your answers did not hold together.",
@@ -39,16 +39,16 @@ export const momentText: Record<string, string> = {
   "moment.refused.line.lead": "Your partner's visa was refused, and yours went with it.",
   "moment.refused.caption": "months in. Not finished.",
   "moment.refused.caption.one": "month in. Not finished.",
-  // The funds reason's figure: the share of the funds they could not trace (R-ROUTE-013).
+  // The funds reason's figure: the share of the funds they could not trace (route:unexplained-share-of-funds).
   "moment.refused.caption.funds": "of your funds they could not trace",
   "moment.refused.again": "Refusal {count} on this route",
 
-  // The agent who was a scam (advice.md R-ADVICE-005, 009): straight, the fee gone.
+  // The agent who was a scam (advice:agent-kind-drawn-on-offer, advice:bad-news-told-straight): straight, the fee gone.
   "moment.agent.kicker": "The agent is gone",
   "moment.agent.line": "He was a scam. The papers he promised were never coming.",
   "moment.agent.caption": "paid to him, and gone",
 
-  // The deposit a road pitch took for nothing (road.md R-ROAD-003, the fraud): straight, as the agent's,
+  // The deposit a road pitch took for nothing (road:taking-pitch-pays-deposit, the fraud): straight, as the agent's,
   // the pitch's own name in the title, the line by the pitch, the deposit gone as the figure.
   "moment.deposit.kicker": "The deposit is gone",
   "moment.deposit.line": "Three weeks to Europe, he said. His number is switched off now.",
@@ -57,7 +57,7 @@ export const momentText: Record<string, string> = {
   "moment.deposit.line.offer.road-radio": "The advert still plays on the radio. The number in it rings out.",
   "moment.deposit.caption": "paid to hold a place, and gone",
 
-  // The one chance on the bus home (activity.md R-ACTIVITY-011): straight.
+  // The one chance on the bus home (activity:one-chance-bus-robbery): straight.
   "moment.robbed.kicker": "One chance",
   "moment.robbed.title": "The bus home",
   "moment.robbed.line": "The men already inside were not passengers. They took the cash on you and the phone in your hand.",
@@ -65,7 +65,7 @@ export const momentText: Record<string, string> = {
   "moment.robbed.caption.phone": "for a new phone",
   "moment.robbed.phone": "New phone {phone}",
 
-  // A big win on the draw (luck.md R-LUCK-008, lottery.md): a jackpot or a mid prize.
+  // A big win on the draw (luck:big-wins-are-staged, lottery.md): a jackpot or a mid prize.
   "moment.won.kicker": "Lotto win",
   "moment.won.title.letter": "The Friday draw",
   "moment.won.title.kiosk": "The kiosk",
@@ -74,7 +74,7 @@ export const momentText: Record<string, string> = {
   "moment.won.tickets": "{tickets} tickets for {stake}",
   "moment.won.tickets.one": "1 ticket for {stake}",
 
-  // Landing abroad (route.md R-ROUTE-020): the line by the country, the figure the months from Lagos.
+  // Landing abroad (route:departure-pays-flight): the line by the country, the figure the months from Lagos.
   "moment.landed.kicker": "Landed",
   "moment.landed.line": "Everything costs more than you planned. You are here anyway.",
   "moment.landed.line.country.uk": "The cold met you on the airbridge. Nobody at home warned you properly.",

@@ -9,7 +9,7 @@ import { offerStreetText } from "./offer.street.text";
 export const offerText: Record<string, string> = {
   // Family requests
 
-  // The family's light bill at home, wherever the character is: abroad the same ask comes (R-ABROAD-007), and "the bill"
+  // The family's light bill at home, wherever the character is: abroad the same ask comes (abroad-money:family-asks-more-abroad), and "the bill"
   // alone read as London's.
   "offer.nepa-bill.name": "NEPA has brought the bill at home",
   "offer.nepa-bill.title": "NEPA bill again",
@@ -89,7 +89,7 @@ export const offerText: Record<string, string> = {
   "offer.send-off-party.choice.message": "Send him a message",
   "offer.send-off-party.said.go": "You went to the send-off. Small chops, loud music, and a few people who know the way out.",
 
-  // chapter.md R-CHAPTER-008. `.said.<choice>` is what the results say once the choice is taken, or lapsed into.
+  // chapter:family-marks-the-grant. `.said.<choice>` is what the results say once the choice is taken, or lapsed into.
   "offer.family-send-off.name": "Your send-off at home",
   "offer.family-send-off.title": "You're really going",
   "offer.family-send-off.body":
@@ -390,7 +390,7 @@ export const offerText: Record<string, string> = {
   "offer.scholarship-round.body": "“A late scholarship round picked your file: £3,000 off what you need to show.”",
   "offer.scholarship-round.choice.accept": "Accept the scholarship",
 
-  // person.md (R-PEOPLE-038, R-PEOPLE-050).
+  // person.md (person:one-left-keeps-own-gains, person:papers-marriage-offer).
   "offer.people-recovery.name": "Sunday rice",
   "offer.people-recovery.title": "Come for rice",
   "offer.people-recovery.body": "“Come for Sunday rice, you don't have to talk about it.”",

@@ -1,4 +1,4 @@
-// The December visit's entry against return.md R-RETURN-005 and place.md R-PLACE-006.
+// The December visit's entry against return:december-visit-set-piece and place:fare-home-in-local-currency.
 import type { Effect, SetpieceQuestion } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -17,7 +17,7 @@ function effectsOf(questionId: string, answer: string): Effect[] {
 }
 
 describe("the December visit", () => {
-  test("[R-RETURN-005] given each country, when the go question is read, then going takes the fare both ways times the December factor in the country's currency, and staying, listed first, takes nothing", () => {
+  test("[return:december-visit-set-piece] given each country, when the go question is read, then going takes the fare both ways times the December factor in the country's currency, and staying, listed first, takes nothing", () => {
     // £620 x 2 x 2.5, C$1,350 x 2 x 2.2, AED 1,900 x 2 x 1.8, €480 x 2 x 2.0.
     const fares = { uk: ["GBP", 310000], ca: ["CAD", 594000], uae: ["AED", 684000], it: ["EUR", 192000] } as const;
     for (const [suffix, [currency, amount]] of Object.entries(fares)) {
@@ -27,7 +27,7 @@ describe("the December visit", () => {
     }
   });
 
-  test("[R-RETURN-005] given the spending questions, when their answers are read, then each moves the page's qualities, the costly ones pay in the country's currency, and the free one comes first", () => {
+  test("[return:december-visit-set-piece] given the spending questions, when their answers are read, then each moves the page's qualities, the costly ones pay in the country's currency, and the free one comes first", () => {
     expect(effectsOf("party-uk", "big")).toEqual([
       { type: "money/take", currency: "GBP", pocket: "transfer", amount: 22700, reason: "social" },
       { type: "quality/add", quality: "quality.standing", amount: 6 },
@@ -45,7 +45,7 @@ describe("the December visit", () => {
     }
   });
 
-  test("[R-RETURN-005] given the entry, when its questions are counted, then each country has its four and every one is asked, and every question and answer has words", () => {
+  test("[return:december-visit-set-piece] given the entry, when its questions are counted, then each country has its four and every one is asked, and every question and answer has words", () => {
     expect(december.questions).toHaveLength(16);
     expect(december.ask).toBe(4);
     const missing = december.questions.flatMap((item) => [`setpiece.december.q.${item.id}`, ...item.answers.map((answer) => `setpiece.december.a.${item.id}.${answer.id}`)]).filter((key) => (text[key] ?? "") === "");
@@ -54,7 +54,7 @@ describe("the December visit", () => {
     expect(text["setpiece.december.a.party-uk.big"]).toBe("Go big: £227");
   });
 
-  test("[R-SETPIECE-001] [R-SETPIECE-004] given the entry, when its order and its going questions are read, then it is asked in the order written, each country's going question comes first, and staying closes the scene", () => {
+  test("[route:set-piece-draws-questions] [route:answers-score-and-close] given the entry, when its order and its going questions are read, then it is asked in the order written, each country's going question comes first, and staying closes the scene", () => {
     expect(december.order).toBe("fixed");
     for (const suffix of ["uk", "ca", "uae", "it"]) {
       const own = december.questions.filter((item) => item.id.endsWith(`-${suffix}`)).map((item) => item.id);
@@ -64,7 +64,7 @@ describe("the December visit", () => {
     expect(december.questions.flatMap((item) => item.answers).filter((answer) => answer.closes === true)).toHaveLength(4);
   });
 
-  test("[R-SETPIECE-003] given every answer, when its requirements are read, then each that pays requires that much in the currency it takes, each that pays nothing requires nothing, and every question has one", () => {
+  test("[route:set-piece-answers-in-order] given every answer, when its requirements are read, then each that pays requires that much in the currency it takes, each that pays nothing requires nothing, and every question has one", () => {
     for (const item of december.questions) {
       for (const answer of item.answers) {
         const takes = answer.effects.filter((effect) => effect.type === "money/take");
@@ -75,7 +75,7 @@ describe("the December visit", () => {
     expect(question("go-uk").answers.find((answer) => answer.id === "go")?.requires).toEqual([{ type: "money/min", currency: "GBP", amount: 310000 }]);
   });
 
-  test("[R-LUCK-008] given the staged December line, when its words are looked up, then they are there", () => {
+  test("[luck:big-wins-are-staged] given the staged December line, when its words are looked up, then they are there", () => {
     expect(text["line.setpiece.december-go"] ?? "").not.toBe("");
   });
 });

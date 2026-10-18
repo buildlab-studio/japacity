@@ -1,4 +1,4 @@
-// The emails the server sends (account.md R-ACCOUNT-002, R-ACCOUNT-003, R-ACCOUNT-014).
+// The emails the server sends (account:email-code-is-short-lived, account:passkey-needs-signed-in-session, account:sign-in-routes-rate-limited).
 // {code} is the sign-in code, {minutes} how long it works, {date} when a passkey was added.
 export const accountText: Record<string, string> = {
   "mail.code.subject": "Your Japacity code",

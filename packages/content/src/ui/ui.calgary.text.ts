@@ -1,8 +1,8 @@
-// Calgary's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-013; design page 15): the names of the things
+// Calgary's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:calgary-life-by-hand; design page 15): the names of the things
 // and acts of its places, the colleagues' lines, the talk overheard there and the ride's lines on the bus, the CTrain and
 // the taxi. In the voice of docs/rules/text.md; content's text wins over these. Fetched in a chunk of their
 // own and added to the client's late words once the life is in Canada (apps/client/src/shared/words/late.ts), so a first
-// visit at home carries none of them (engine.md R-ENGINE-020).
+// visit at home carries none of them (engine:first-download-has-budget).
 export const uiCalgaryText: Readonly<Record<string, string>> = {
   // The strip mall (design page 15 section 3): the coffee shop, the African store with its transfer counter, the barber.
   "city.thing.coffee-shop": "Coffee shop",
@@ -10,7 +10,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.thing.african-store": "African store",
   "city.act.naija-shop": "A taste of home",
   "city.thing.transfer-counter": "Money transfer",
-  // The CTrain station: the machine that sells the month's transit pass (place.md R-PLACE-012), the platform.
+  // The CTrain station: the machine that sells the month's transit pass (place:country-pass-covers-ways), the platform.
   "city.thing.ticket-machine": "Ticket machine",
   "city.act.transit-pass": "Transit pass",
   "city.thing.platform": "Platform",
@@ -24,7 +24,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.act.look-shelves": "Look",
   "city.act.look-shelves.done": "Job guides, English readers, and one shelf of Nigerian novels.",
   "city.thing.reading-table": "Reading table",
-  // The superstore on London's big shop (world.md R-WORLD-039): the cart, the winter clothes, the tills looked at.
+  // The superstore on London's big shop (world:ride-abroad-and-workplace): the cart, the winter clothes, the tills looked at.
   "city.act.weekly-shop": "The weekly shop",
   "city.thing.clothes-aisle": "Winter clothes",
   "city.thing.tills": "Tills",
@@ -56,7 +56,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.thing.on-shift": "On shift",
   "city.act.on-shift": "Your shift",
   "city.act.on-shift.done": "On the rota here. Your shifts run as the month goes.",
-  // The colleague at the shelter, the tea point or the kitchen (R-WORLD-039): a new line each time you talk, in turn.
+  // The colleague at the shelter, the tea point or the kitchen (world:ride-abroad-and-workplace): a new line each time you talk, in turn.
   "city.line.colleague.warehouse-ca.1": "Wear two socks. The dock door stays open.",
   "city.line.colleague.warehouse-ca.2": "Christmas overtime pays for the flight home.",
   "city.line.colleague.warehouse-ca.3": "My supervisor is from Enugu. Small world.",
@@ -66,7 +66,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.line.colleague.office-ca.1": "They say sorry even when you bump them.",
   "city.line.colleague.office-ca.2": "Canadian experience. You will hear it every week.",
   "city.line.colleague.office-ca.3": "Friday, suya at the strip mall. Come.",
-  // Calgary's places (R-WORLD-039): Nigerian voices among the others, beside content's own lines.
+  // Calgary's places (world:ride-abroad-and-workplace): Nigerian voices among the others, beside content's own lines.
   "city.overheard.calgary-north-east.1": "The store got palm oil. Go before Sunday.",
   "city.overheard.ctrain-station-ca.1": "Next train in four minutes. Bundle up.",
   "city.overheard.big-shop-ca.1": "Price match? Bring the flyer, ma'am.",
@@ -93,7 +93,7 @@ export const uiCalgaryText: Readonly<Record<string, string>> = {
   "city.overheard.church-ca.2": "The newcomers' group meets after service.",
   "city.overheard.church-ca.3": "Who has a car going north-east?",
   "city.overheard.church-ca.4": "Pray for work, then send your resume.",
-  // Calgary's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (R-WORLD-039).
+  // Calgary's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (world:ride-abroad-and-workplace).
   "map.ride.line.calgary-bus.1": "Tap your card on the reader. Morning.",
   "map.ride.line.calgary-bus.2": "Move to the back, please. Mind the boots.",
   "map.ride.line.calgary-bus.3": "Shut the door, abeg. That cold is not small.",

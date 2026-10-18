@@ -1,4 +1,4 @@
-// The japa type's words and the ticket stub's (decision 0024; docs/rules/share.md R-SHARE-004 to 006):
+// The japa type's words and the ticket stub's (decision 0024; share:card-contents, share:card-carries-no-money and share:card-never-looks-official):
 // six labels, each with one line in a person's voice, and the stub's four field names. None carries a
 // figure, a currency, an airline's or an airport's word, or anything a bank or a government would print.
 import { describe, expect, test } from "vitest";
@@ -15,7 +15,7 @@ function stubWords(): string[] {
 }
 
 describe("the japa type's words", () => {
-  test("[R-SHARE-004] given the six types of decision 0024, when their words are looked up, then each has a name and one line", () => {
+  test("[share:card-contents] given the six types of decision 0024, when their words are looked up, then each has a name and one line", () => {
     expect([...japaTypes]).toEqual(["careful-saver", "hustler", "night-reader", "family-anchor", "gambler", "long-way-round"]);
     expect(japaTypes.map((type) => text[`share.type.${type}.name`])).toEqual(["The Careful Saver", "The Hustler", "The Night Reader", "The Family Anchor", "The Gambler", "The Long Way Round"]);
     for (const type of japaTypes) {
@@ -26,7 +26,7 @@ describe("the japa type's words", () => {
     }
   });
 
-  test("[R-SHARE-005] [R-SHARE-006] given the types' words and the stub's, when searched, then none carries a figure, a sum, an official word or a ticket's machinery", () => {
+  test("[share:card-carries-no-money] [share:card-never-looks-official] given the types' words and the stub's, when searched, then none carries a figure, a sum, an official word or a ticket's machinery", () => {
     const all = [...japaTypes.flatMap((type) => [text[`share.type.${type}.name`] ?? "", text[`share.type.${type}.line`] ?? ""]), ...stubWords()];
     for (const words of all) {
       expect(words).not.toMatch(MONEY);
@@ -35,7 +35,7 @@ describe("the japa type's words", () => {
     }
   });
 
-  test("[R-SHARE-004] given the stub, when its words are looked up, then it names FROM, TO, MONTHS and JAPACITY, and home is Lagos", () => {
+  test("[share:card-contents] given the stub, when its words are looked up, then it names FROM, TO, MONTHS and JAPACITY, and home is Lagos", () => {
     expect(FIELDS.map((field) => text[`share.stub.${field}`])).toEqual(["From", "To", "Months", "Japacity"]);
     expect(text["share.stub.home"]).toBe("Lagos");
     for (const words of stubWords()) expect(words.trim()).not.toBe("");

@@ -1,7 +1,7 @@
 // Titles, opening and closing lines are from docs/rules/chapter.md. The page's
 // double quotes mark the lines and are not part of the words. Each
 // item's `.nudge` is the nudge line that points at the thing
-// in the world that moves it (world.md R-WORLD-003, story/story.data.ts): one
+// in the world that moves it (world:nudge-says-one-thing, story/story.data.ts): one
 // sentence of at most eight words. A `.nudge.here` reads in the step's own place,
 // where naming the place again would be odd.
 export const chapterText: Record<string, string> = {
@@ -34,7 +34,7 @@ export const chapterText: Record<string, string> = {
   "chapter.find-your-feet.item.heard.nudge.motor-park": "Ask around at the motor park",
   "chapter.find-your-feet.item.heard.planned.ask-around": "Park visit planned. Live the month.",
   "chapter.find-your-feet.item.heard.planned": "Meetup planned. Live the month.",
-  // A step the naira held cannot pay names the gap, never the act (R-WORLD-003).
+  // A step the naira held cannot pay names the gap, never the act (world:nudge-says-one-thing).
   "chapter.find-your-feet.item.heard.short": "Find {amount} more for the meetup",
   "chapter.find-your-feet.item.heard.saving": "Payday first, then the meetup",
   "chapter.find-your-feet.item.known": "Look into it",
@@ -108,7 +108,7 @@ export const chapterText: Record<string, string> = {
   "chapter.decision-day.item.granted": "Get the visa",
   "chapter.decision-day.item.granted.nudge": "Back to your life: the embassy emails",
 
-  // R-CHAPTER-009: the file and decision day for each way out of the player's own effort. Each
+  // chapter:chapters-follow-lean-route: the file and decision day for each way out of the player's own effort. Each
   // item says what it takes in a person's words, and each `.nudge` is at most eight words.
   "chapter.build-the-file-care.name": "Build the file",
   "chapter.build-the-file-care.title": "Build the file",
@@ -167,7 +167,7 @@ export const chapterText: Record<string, string> = {
   // The news has closed the way.
   "chapter.build-the-file-talent.item.endorsement.closed": "The talent route is closed for now",
   "chapter.build-the-file-talent.item.endorsement.started": "The endorsing body answers {when}",
-  // After a refusal, while its months run (R-ENDORSE-002).
+  // After a refusal, while its months run (route-gates:endorsement-decided-by-draw).
   "chapter.build-the-file-talent.item.endorsement.wait": "Ask for the endorsement again {when}",
   "chapter.build-the-file-talent.item.endorsement.planned": "Endorsement planned. Live the month.",
   "chapter.build-the-file-talent.item.applied": "Send the talent visa application",
@@ -306,9 +306,9 @@ export const chapterText: Record<string, string> = {
   // first, and the next chapter's opening words with the second.
   "line.chapter.closed": "Done: {chapter}.",
   "line.chapter.opened": "Next: {chapter}.",
-  // A grant withdrawn before the flight reopens the chapters it closed (R-CHAPTER-003).
+  // A grant withdrawn before the flight reopens the chapters it closed (chapter:done-chapter-stays-done).
   "line.chapter.reopened": "The visa is gone. Back to {chapter}.",
-  // The goals' lines live here: the long game takes the chapters' place once they are over (R-CHAPTER-007),
+  // The goals' lines live here: the long game takes the chapters' place once they are over (chapter:long-game-after-last-chapter),
   // and the words files of life abroad hold no report lines.
   "line.goal.opened": "A new goal: {goal}.",
   "line.goal.done": "Goal reached: {goal}.",

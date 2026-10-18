@@ -1,5 +1,5 @@
 // Reads a rule page's Sources list and Numbers table (docs/rules/<page>.md) for the game's numbers
-// pages and the documentation site's sources page (R-GUIDE-006, R-GUIDE-007). Plain text in, plain
+// pages and the documentation site's sources page (guide:numbers-pages-cite-sources, guide:one-sources-page). Plain text in, plain
 // data out; the caller reads the files. Kept in content so the client and the site may both use it.
 
 export interface RuleSource {

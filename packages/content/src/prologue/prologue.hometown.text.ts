@@ -1,4 +1,4 @@
-// The hometowns' names (prologue.hometown.data.ts; prologue.md R-PROLOGUE-002). A line names the
+// The hometowns' names (prologue.hometown.data.ts; prologue:family-draw-on-first-answer). A line names the
 // life's own with `{hometown}`, which the screen fills, so one line serves every hometown.
 export const hometownText: Record<string, string> = {
   "hometown.ibadan.name": "Ibadan",

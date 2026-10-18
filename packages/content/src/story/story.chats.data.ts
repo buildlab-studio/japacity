@@ -1,10 +1,10 @@
-// The phone's Chats (docs/rules/world.md R-WORLD-019): the family group, the partner and a friend.
+// The phone's Chats (world:phone-holds-what-phones-hold): the family group, the partner and a friend.
 // The family thread is the family feed (family/family.data.ts, one post a month, chosen as the news
 // kind chooses it) plus the lines below, which the story needs at each chapter: Mama on the bills,
 // the sibling on the kiosk, Papa on the papers. A line shows when its chapter is current (or it names
 // none) and every signal holds in the view, so it appears only when its event is there. The partner's
 // lines are a computer partner's; a real partner talks through the pair's own conversation
-// (pair.md R-PAIR-011). Every reply is a preset phrase (pair.md R-PAIR-010).
+// (pair:conversation-phrases-stored). Every reply is a preset phrase (pair:preset-phrases-only).
 // The words are `<id>.text` in story.text.ts; the sender's name is `chats.from.<sender>`.
 import type { Content, Id } from "@japacity/sim";
 
@@ -92,11 +92,11 @@ export const chatLines: ChatLine[] = [
   family("chats.dad.file", "dad", DECISION, [{ on: "activity", activity: "activity.apply-for-visa" }], [YES, THANKS]),
   family("chats.mum.waiting", "mum", DECISION, [{ on: "visa", route: UK }], [{ phrase: "phrase.thanks" }]),
   family("chats.sibling.granted", "sibling", null, [{ on: "line", key: "line.route.granted" }], [{ phrase: "phrase.good-news", fill: "visa-came" }]),
-  // Bad news is written straight (text.md R-TEXT-002).
+  // Bad news is written straight (text:bad-news-never-joked).
   family("chats.mum.refused", "mum", null, [{ on: "line", key: "line.route.refused" }], [THANKS]),
   friend("chats.friend.funds", DECISION, [{ on: "offer", offer: "offer.held-funds-agent" }], [THANKS]),
 
-  // The file and decision day of each other way out (chapter.md R-CHAPTER-009).
+  // The file and decision day of each other way out (chapter:chapters-follow-lean-route).
   family("chats.dad.verification", "dad", "chapter.build-the-file-care", [{ on: "activity", activity: "activity.request-verification" }], [YES, THANKS]),
   family("chats.dad.endorsement", "dad", "chapter.build-the-file-talent", [{ on: "activity", activity: "activity.apply-endorsement" }], [YES, THANKS]),
   family("chats.mum.eca", "mum", "chapter.build-the-file-points", [{ on: "document", document: "document.eca", state: "pending" }], [THANKS]),
@@ -129,7 +129,7 @@ export const chatLines: ChatLine[] = [
   partner("chats.partner.abroad", LANDING, [TOGETHER], [{ phrase: "phrase.december" }, { phrase: "phrase.miss-you" }]),
 ];
 
-/** The chat lines due now, in the table's order (R-WORLD-019). */
+/** The chat lines due now, in the table's order (world:phone-holds-what-phones-hold). */
 export function chatsDue(view: StoryView, content: Content): ChatLine[] {
   return chatLines.filter((line) => (line.chapter === null || line.chapter === view.chapter.current) && signalsHold(line.when, view, content));
 }

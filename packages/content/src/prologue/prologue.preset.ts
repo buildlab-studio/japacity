@@ -1,4 +1,4 @@
-// The archetypes' presets of the prologue's answers (prologue.md R-PROLOGUE-010; server.md R-SERVER-046): for each
+// The archetypes' presets of the prologue's answers (prologue:archetype-presets-answers; server:server-plays-prologue-preset): for each
 // tile, the answers to send at each step in order of preference, held here so the client offline and the server online
 // play one source. Never read by the simulation. Every step has its answer: the preset's first that is allowed, and where
 // a draw has shut them all, the open answer that suits the tile (`presetAnswer`), so no card shows for a new life. The
@@ -11,7 +11,7 @@ import { prologueTable } from "./prologue.data";
 
 const AGE = "quality.age-months";
 const YEAR = 12;
-/** The age cards (R-PROLOGUE-004, decision 0023): the steps whose answers are all years, one for each path after school. */
+/** The age cards (prologue:age-advances-with-steps, decision 0023): the steps whose answers are all years, one for each path after school. */
 export const AGE_CARDS: readonly string[] = Object.values(prologueTable)
   .filter((step) => step.answers.length > 0 && step.answers.every((answer) => startYearOf(answer.id) !== null))
   .map((step) => step.id);
@@ -21,10 +21,10 @@ function cardYears(card: string): string[] {
   return [...(prologueTable[card]?.answers ?? [])].sort((a, b) => (startYearOf(a.id) ?? 0) - (startYearOf(b.id) ?? 0)).map((answer) => answer.id);
 }
 
-/** The oldest year an age card offers: no step on the door goes past it (R-PROLOGUE-009). */
+/** The oldest year an age card offers: no step on the door goes past it (prologue:front-door-builds-a-person). */
 const OLDEST = Math.max(...AGE_CARDS.flatMap((card) => cardYears(card).map((id) => startYearOf(id) ?? 0)));
 
-/** How many years older than its own a tile's age steps on the door (R-PROLOGUE-009: a few years). */
+/** How many years older than its own a tile's age steps on the door (prologue:front-door-builds-a-person: a few years). */
 export const PRESET_STEPS_OLDER = 3;
 
 export type PresetId = "developer" | "nurse" | "accountant" | "writer" | "trader" | "shop-worker" | "water";
@@ -42,7 +42,7 @@ export interface Preset {
 /**
  * Steps every life passes the same way, never a card of its own: the opening draw, the university (federal is
  * open to everyone), the strike's drag, the results and the settlement; and the steps the short door passes
- * without a card (R-PROLOGUE-010): the exam studied for, a retake taken again, a strike waited
+ * without a card (prologue:archetype-presets-answers): the exam studied for, a retake taken again, a strike waited
  * out, and the family house to sleep in.
  */
 export const PRESET_THROUGH: PresetAnswers = {
@@ -51,7 +51,7 @@ export const PRESET_THROUGH: PresetAnswers = {
   "strike-drag": ["back"],
   graduation: ["results-nurse", "results"],
   settlement: ["settle"],
-  // The age cards: the youngest year open, the age the path reaches, unless the front door set one (`agedAnswers`, R-PROLOGUE-009).
+  // The age cards: the youngest year open, the age the path reaches, unless the front door set one (`agedAnswers`, prologue:front-door-builds-a-person).
   ...Object.fromEntries(AGE_CARDS.map((card) => [card, cardYears(card)])),
   exam: ["study"],
   retake: ["again"],
@@ -99,7 +99,7 @@ export const PRESETS: readonly Preset[] = [
     leaning: { friend: "drivers" },
   },
   {
-    // The child of the water (R-PROLOGUE-012): school by canoe, then the counter and the racks, no master and no
+    // The child of the water (prologue:makoko-start-never-a-trap): school by canoe, then the counter and the racks, no master and no
     // settlement, and a room on the lagoon at the start, with the family house still there to go back to.
     id: "water",
     answers: { ...PRESET_THROUGH, subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"], home: ["makoko"] },
@@ -118,21 +118,21 @@ export function suitingFirst<A extends { id: string }>(preset: Pick<Preset, "ans
   return [...answers].sort((a, b) => Number(b.id === first) - Number(a.id === first));
 }
 
-/** The preset's own answer at this card while one of them is allowed, else null: a draw has shut them (R-PROLOGUE-010). */
+/** The preset's own answer at this card while one of them is allowed, else null: a draw has shut them (prologue:archetype-presets-answers). */
 export function presetOwnAnswer(answers: PresetAnswers, step: string, open: readonly { id: string; allowed: boolean }[]): string | null {
   const wanted = answers[step] ?? [];
   return wanted.find((id) => open.some((answer) => answer.id === id && answer.allowed)) ?? null;
 }
 
 /**
- * The answer a new life sends at this card (R-PROLOGUE-010): the preset's, else the open answer
+ * The answer a new life sends at this card (prologue:archetype-presets-answers): the preset's, else the open answer
  * that suits the tile, else the first open one. Null only when every answer is shut.
  */
 export function answerOf(preset: Pick<Preset, "answers" | "leaning">, step: string, open: readonly { id: string; allowed: boolean }[]): string | null {
   return presetOwnAnswer(preset.answers, step, open) ?? suitingFirst(preset, step, open).find((answer) => answer.allowed)?.id ?? null;
 }
 
-/** The outcome of a draw that is no setback (R-PROLOGUE-004): the first that leads neither to a retake nor to a strike. */
+/** The outcome of a draw that is no setback (prologue:age-advances-with-steps): the first that leads neither to a retake nor to a strike. */
 function plainOutcome(step: PrologueStep, answer: PrologueStep["answers"][number]): string | null {
   const outcomes = answer.draw ?? [];
   const plain = outcomes.find((outcome) => !["retake", "strike-drag"].includes(outcome.next ?? ""));
@@ -140,7 +140,7 @@ function plainOutcome(step: PrologueStep, answer: PrologueStep["answers"][number
 }
 
 /**
- * The year a tile's life starts at with no step on the door (R-PROLOGUE-004, decision 0023): its cards answered as the
+ * The year a tile's life starts at with no step on the door (prologue:age-advances-with-steps, decision 0023): its cards answered as the
  * tile answers them, each draw with no setback, up to its age card, and the youngest year that card opens there: the age
  * its path reaches with no setback, the age the tile says.
  */
@@ -165,7 +165,7 @@ export function lowestYear(answers: PresetAnswers): number {
 }
 
 /**
- * The answers with the age the front door set (R-PROLOGUE-009, decision 0023): `years` older than the year the path
+ * The answers with the age the front door set (prologue:front-door-builds-a-person, decision 0023): `years` older than the year the path
  * reaches, sent as that year on whichever age card the life comes to; a year shut there gives way to the nearest open
  * one above, then below.
  */
@@ -181,7 +181,7 @@ export function agedAnswers(answers: PresetAnswers, years: number): PresetAnswer
 }
 
 /**
- * The homes the door can start a life in (R-PROLOGUE-013): the home step's answers, the four homes of R-HOME-001, in the
+ * The homes the door can start a life in (prologue:front-door-three-screens): the home step's answers, the four homes of home:home-slice-fields, in the
  * order the door offers them (decision 0018): your own room first, the hostel second, the family house last, as the
  * one more reason to leave; Makoko for the child of the water alone.
  */
@@ -194,24 +194,24 @@ export function presetHome(answers: PresetAnswers): Home {
   return HOMES.find((home) => home === own) ?? "family-house";
 }
 
-/** The homes the door offers a tile (R-PROLOGUE-013): the compound room, the hostel room and the family house to every tile, Makoko to the child of the water alone. */
+/** The homes the door offers a tile (prologue:front-door-three-screens): the compound room, the hostel room and the family house to every tile, Makoko to the child of the water alone. */
 export function presetHomes(answers: PresetAnswers): Home[] {
   return HOMES.filter((home) => home !== "makoko" || presetHome(answers) === "makoko");
 }
 
-/** The answers with the home picked on the door as the home step's (R-PROLOGUE-010, 013); a home the door has not is ignored. */
+/** The answers with the home picked on the door as the home step's (prologue:archetype-presets-answers, prologue:front-door-three-screens); a home the door has not is ignored. */
 export function homedAnswers(answers: PresetAnswers, home: string | null | undefined): PresetAnswers {
   const picked = HOMES.find((one) => one === home);
   return picked === undefined ? answers : { ...answers, home: [picked] };
 }
 
-/** The steps older than its own a tile's age may be set on the door (R-PROLOGUE-009), its own first: up to three, never past the oldest start. */
+/** The steps older than its own a tile's age may be set on the door (prologue:front-door-builds-a-person), its own first: up to three, never past the oldest start. */
 export function presetAges(answers: PresetAnswers): number[] {
   const most = Math.max(0, Math.min(PRESET_STEPS_OLDER, OLDEST - lowestYear(answers)));
   return Array.from({ length: most + 1 }, (_, at) => at);
 }
 
-/** True when the door offers this tile, this age step and this home (server.md R-SERVER-046: anything else is refused). */
+/** True when the door offers this tile, this age step and this home (server:server-plays-prologue-preset: anything else is refused). */
 export function presetOffered(archetype: string, age: number, home: string): boolean {
   const preset = presetOf(archetype);
   if (preset === null) return false;
@@ -219,7 +219,7 @@ export function presetOffered(archetype: string, age: number, home: string): boo
 }
 
 /**
- * The answer a new life sends at `step` (prologue.md R-PROLOGUE-010, server.md R-SERVER-046): the tile's preset with the
+ * The answer a new life sends at `step` (prologue:archetype-presets-answers, server:server-plays-prologue-preset): the tile's preset with the
  * door's age step (`age`, years older than the tile's own) and home, the preset's answer where it is allowed, else the
  * open answer that suits the tile. Null for an id no tile has, or when every answer at the step is shut. The one
  * function the client plays offline and the server plays online.

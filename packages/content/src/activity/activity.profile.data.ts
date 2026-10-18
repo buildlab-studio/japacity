@@ -1,4 +1,4 @@
-// The waiting months' acts (docs/rules/activity.md R-ACTIVITY-013): each moves a figure a route's gate
+// The waiting months' acts (activity:waiting-months-build-profile): each moves a figure a route's gate
 // reads, and each card names the route it counts toward. The developer's open source, tech posts, the
 // talk and being noticed at work; the nurse's certification, sat as a quiz at the clinic; a master's at
 // home for Canada's points. Joined into the activity table in activity.data.ts; place.data.ts stages each.

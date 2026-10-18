@@ -117,7 +117,7 @@ export { HOMETOWN_FILL, hometownByHome, hometownCities, hometownRegion, hometown
 export { AGE_CARDS, agedAnswers, answerOf, homedAnswers, HOMES, lowestYear, PRESET_STEPS_OLDER, PRESET_THROUGH, presetAges, presetAnswer, presetHome, presetHomes, presetOf, presetOffered, presetOwnAnswer, PRESETS, suitingFirst } from "./prologue/prologue.preset";
 export type { Home, Preset, PresetAnswers, PresetId } from "./prologue/prologue.preset";
 export type { FamilyPost, FamilyPostKind, FamilySender } from "./family/family.data";
-/** The story tied to the world (world.md R-WORLD-003, R-WORLD-019, R-WORLD-020). */
+/** The story tied to the world (world:nudge-says-one-thing, world:phone-holds-what-phones-hold, world:nobody-picked-from-list). */
 export { NUDGE_WORDS, storyStep, storySteps, storyThings } from "./story/story.data";
 export type { StoryAct, StoryApp, StoryStep } from "./story/story.data";
 export { signalHolds, signalsHold } from "./story/story.signal";
@@ -137,14 +137,14 @@ export type { PlainOnly } from "./comedy/comedy";
 export type { JapaType, OfficialAccount, OfficialPlatform, ShareKind } from "./share/share.data";
 
 /**
- * The older content versions the server still bundles (docs/rules/server.md R-SERVER-023), each exactly as it shipped,
+ * The older content versions the server still bundles (server:older-contents-bundled), each exactly as it shipped,
  * so a life whose last segment names one replays under it and is upgraded on its first load. Version 1 is the first,
  * so there is none.
  */
 export const olderContents: readonly Content[] = [];
 
 export const content: Content = {
-  // Raised by one with any change to the content or the simulation, then sealed in seal.json (server.md R-SERVER-048).
+  // Raised by one with any change to the content or the simulation, then sealed in seal.json (server:content-version-sealed).
   version: "1",
   quality: qualityTable,
   // advice.md: the friend, the adviser and the agents.
@@ -303,10 +303,10 @@ export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guid
 export { GUIDE_SECTIONS } from "./guide/guide.data";
 export { sourcesList, type ListedSource, type RulePageSources, type SourcesList } from "./guide/guide.sources";
 export { inline, isoDay, readRulePage, type Inline, type RulePage, type RuleSource } from "./guide/guide.rules";
-/** R-ADVERT-001, R-ADVERT-002: the slots check, which the engine's content check does not reach. */
+/** advert:adverts-only-in-slots, advert:slots-capped-per-place: the slots check, which the engine's content check does not reach. */
 export { advertChecks } from "./advert/advert.check";
 export { realNameChecks } from "./place/place.check";
-/** R-WORLD-030: the lines each month-act says of itself as the month passes, with the week each comes in. */
+/** world:month-passes-as-lived: the lines each month-act says of itself as the month passes, with the week each comes in. */
 export { activitySignals, type ActivitySignal } from "./activity/activity.signals.text";
 /** The officer's spoken lines and their clips. */
 export { OFFICER_REACTIONS, setpieceVoice, type VoiceClip } from "./setpiece/setpiece.voice";

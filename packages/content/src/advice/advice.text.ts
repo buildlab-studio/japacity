@@ -1,6 +1,6 @@
 // The words of docs/rules/advice.md: the friend, the adviser, the agents and
 // what they leave behind, and the report lines of the four ways. Bad news is
-// told straight (R-ADVICE-009). The names of the people are listed against
+// told straight (advice:bad-news-told-straight). The names of the people are listed against
 // these keys in person.recurring.data.ts.
 import { routeText } from "../route/route.text";
 
@@ -12,13 +12,13 @@ const itemNames: Record<string, string> = Object.fromEntries(
 );
 
 export const adviceText: Record<string, string> = {
-  // The friend (R-ADVICE-003).
+  // The friend (advice:someone-who-went-answers-free).
   "activity.ask-someone-who-went.name": "Ask someone who went",
   "activity.ask-someone-who-went.blurb": "They tell you what the route asked when they left. Things may have changed since.",
-  // The adviser (R-ADVICE-004).
+  // The adviser (advice:licensed-adviser-is-truthful).
   "activity.see-adviser.name": "See the licensed adviser",
   "activity.see-adviser.blurb": "She reads your whole file and tells you the truth about every route you know of. It costs money.",
-  // The two ways to an agent (R-ADVICE-005, 010).
+  // The two ways to an agent (advice:agent-kind-drawn-on-offer, advice:advisers-are-invented-people).
   "activity.see-agent-stop.name": "Talk to the agents at the stop",
   "activity.see-agent-stop.blurb": "Men at the bus stop say they can sort your papers fast. Some can.",
   "activity.see-agent-office.name": "Go up to the travel desk",
@@ -47,7 +47,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-stop.sign.look-office": "You asked where his office is.",
   "offer.agent-stop.sign.look-licence": "You asked for his licence number.",
   "offer.agent-stop.sign.look-name": "You checked his name with someone you know.",
-  // What he says he does (R-ADVICE-013).
+  // What he says he does (advice:chaser-runs-around-cheaper).
   "offer.agent-stop.pitch.insider": "He says he knows someone inside the office.",
   "offer.agent-stop.pitch.chaser": "He says he will chase it for you: the calls, the queues, the follow-up.",
 
@@ -74,7 +74,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-office.sign.look-name": "You checked his name with someone you know.",
   "offer.agent-office.pitch.insider": "He knows someone inside the office.",
 
-  // The chaser a friend puts you onto, about the paper of yours being made (R-ADVICE-013).
+  // The chaser a friend puts you onto, about the paper of yours being made (advice:chaser-runs-around-cheaper).
   "offer.agent-chaser.name": "A chaser your friend knows",
   "offer.agent-chaser.title": "Terna's contact",
   "offer.agent-chaser.body": "Terna sends her number: “She follows up papers for people, and her fee is {fee}.”",
@@ -97,7 +97,7 @@ export const adviceText: Record<string, string> = {
   "offer.agent-chaser.sign.look-licence": "She gives a business registration number.",
   "offer.agent-chaser.sign.look-name": "You checked her name with someone you know.",
 
-  // What an agent would bring forward, and where from (R-ADVICE-013).
+  // What an agent would bring forward, and where from (advice:chaser-runs-around-cheaper).
   "advice.moves": "Your {document}, from {desk}: {count} months sooner.",
   "advice.moves.one": "Your {document}, from {desk}: a month sooner.",
   "advice.moves.none": "No paper of yours is being made yet, so there is nothing to bring forward.",
@@ -107,13 +107,13 @@ export const adviceText: Record<string, string> = {
   "advice.desk.document.tb-certificate": "the clinic",
   "advice.desk.document.passport": "the passport office",
 
-  // What an overpromiser leaves behind (R-ADVICE-005).
+  // What an overpromiser leaves behind (advice:agent-kind-drawn-on-offer).
   "offer.agent-promise.name": "The agent's promise",
   "offer.agent-promise.title": "Trust me",
   "offer.agent-promise.body": "“It will all be sorted by the month I told you, just wait.”",
   "offer.agent-promise.choice.wait": "Take his word",
 
-  // What a scammer sells after the fee (R-ADVICE-008).
+  // What a scammer sells after the fee (advice:agent-loss-is-the-fee).
   "offer.agent-papers.name": "Papers made to order",
   "offer.agent-papers.title": "Papers, made fast",
   "offer.agent-papers.body": "“The real papers are slow, so I can make them for {fee} more,” but a route that checks will refuse them, and the mark stays on your record.",
@@ -132,7 +132,7 @@ export const adviceText: Record<string, string> = {
   "advice.tell.pay-today.name": "he said pay today or lose it",
   "advice.tell.price-low.name": "his price was far below the official fees",
 
-  // The four ways in the report (R-ADVICE-001).
+  // The four ways in the report (advice:four-ways-to-learn-route).
   "line.route.looked-into-told": "Someone who went told you about {route}. Now you know what it takes, as far as they know.",
   "line.route.looked-into-advised": "The adviser went through {route} with you, item by item.",
   "line.route.looked-into-agent": "The agent told you what {route} takes. Only the official page is sure.",
@@ -145,7 +145,7 @@ export const adviceText: Record<string, string> = {
   "line.activity.adviser-missing": "Her reading: {route} does not fit yet. {count} things are missing, at least {months} months away.",
   "line.activity.adviser-item": "Missing: {item}.",
 
-  // The agents in the report (R-ADVICE-005, 006, 009).
+  // The agents in the report (advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells, advice:bad-news-told-straight).
   "line.offer.look-office-nothing": "You asked about the office. The answer held up.",
   "line.offer.look-office-found": "You asked about the office: {tell}.",
   "line.offer.look-licence-nothing": "You asked for the licence number. He gave one, and it checked out.",
@@ -160,7 +160,7 @@ export const adviceText: Record<string, string> = {
   "line.offer.agent-scam-tell": "You had seen it: {tell}.",
   "line.offer.agent-promise-broken": "The month he promised came. Nothing moved. {agent} does not pick up.",
 
-  // The genuine mark and the fixer's work (R-ADVICE-005, 008).
+  // The genuine mark and the fixer's work (advice:agent-kind-drawn-on-offer, advice:agent-loss-is-the-fee).
   "line.document.faked": "You have the papers: {document}. They are not real, and a route that checks will know.",
   "line.document.hastened": "Your {document} is now due {month}.",
 

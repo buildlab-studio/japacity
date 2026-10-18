@@ -1,4 +1,4 @@
-// The follow-up questions (route.md R-SETPIECE-008) as content: each named by one answer, each
+// The follow-up questions (route:answer-may-ask-follow-up) as content: each named by one answer, each
 // leading to no other, each with its words.
 import { describe, expect, test } from "vitest";
 
@@ -12,14 +12,14 @@ function followUpNamedBy(question: string, answer: string): string | undefined {
 }
 
 describe("the follow-up questions", () => {
-  test("[R-SETPIECE-008] given the credibility interview, when a sponsor or the agent is the answer, then who the sponsor is and what the agent said follow, in content's words", () => {
+  test("[route:answer-may-ask-follow-up] given the credibility interview, when a sponsor or the agent is the answer, then who the sponsor is and what the agent said follow, in content's words", () => {
     expect(followUpNamedBy("who-pays", "sponsor")).toBe("sponsor-who");
     expect(followUpNamedBy("why-uk", "agent")).toBe("agent-said");
     expect(text[`${INTERVIEW}.q.sponsor-who`]).toBe("Who is the sponsor, and what do they do?");
     expect(text[`${INTERVIEW}.q.agent-said`]).toBe("What did the agent tell you about the course?");
   });
 
-  test("[R-SETPIECE-008] given every set piece, when its answers name follow-ups, then each names one of its own entry's follow-ups, a follow-up's answers name none, and every follow-up is named", () => {
+  test("[route:answer-may-ask-follow-up] given every set piece, when its answers name follow-ups, then each names one of its own entry's follow-ups, a follow-up's answers name none, and every follow-up is named", () => {
     for (const entry of Object.values(content.setpiece)) {
       const followUps = entry.followUps ?? [];
       const ids = new Set(followUps.map((question) => question.id));
@@ -32,7 +32,7 @@ describe("the follow-up questions", () => {
     }
   });
 
-  test("[R-SETPIECE-008] given the credibility interview's follow-ups, when they are read, then there are two or three, each has two or three answers, and none is the first answer to its question", () => {
+  test("[route:answer-may-ask-follow-up] given the credibility interview's follow-ups, when they are read, then there are two or three, each has two or three answers, and none is the first answer to its question", () => {
     const followUps = interview.followUps ?? [];
     expect(followUps.length).toBeGreaterThanOrEqual(2);
     expect(followUps.length).toBeLessThanOrEqual(3);
@@ -44,7 +44,7 @@ describe("the follow-up questions", () => {
     for (const question of interview.questions) expect(question.answers[0]?.followUp).toBeUndefined();
   });
 
-  test("[R-ENGINE-014] [R-SETPIECE-008] given every follow-up, when its words are looked up, then the question and every answer have words", () => {
+  test("[engine:content-checked-before-play] [route:answer-may-ask-follow-up] given every follow-up, when its words are looked up, then the question and every answer have words", () => {
     for (const entry of Object.values(content.setpiece)) {
       for (const question of entry.followUps ?? []) {
         expect(text[`${entry.id}.q.${question.id}`]).toBeTruthy();

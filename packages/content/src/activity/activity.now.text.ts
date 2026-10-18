@@ -1,11 +1,11 @@
-// What the place says when a now-act is done there (docs/rules/activity.md R-ACTIVITY-015), in the
+// What the place says when a now-act is done there (activity:now-acts-and-month-acts), in the
 // voice of whoever is there. Plain. {param} is the job or
 // the route picked, {month} the month a paper is due, which the screen says as months away.
 export const activityNowText: Record<string, string> = {
   // The act itself among the month's lines, as "This month: ..." tells a slot.
   "line.activity.played-now": "Done this month: {activity}.",
   "line.activity.play-lotto.now": "Ticket bought. The draw is on the radio, Friday.",
-  // luck.md R-LUCK-005: the kiosk says the month's ceiling in its own voice once the buyer reaches it.
+  // luck:kiosk-sells-lotto-tickets: the kiosk says the month's ceiling in its own voice once the buyer reaches it.
   "line.activity.play-lotto.cap": "The kiosk man says: that is five this month, my friend. Keep the rest for transport.",
   "line.activity.bet-slip.now": "Slip stamped. The matches play at the weekend.",
   "line.activity.ask-around.now": "The driver says: Dubai, if you have the papers.",
@@ -92,7 +92,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.job-hunt.now": "The manager takes your CV: {param}. They will call by the end of the month.",
   // The clinic has no manager with a CV: its own line.
   "line.activity.job-hunt.now.job-nurse": "The matron takes your papers. She will say by the end of the month.",
-  // Cooking and the water answer now (obligation.md R-OBLIGATION-014). The scene shows them, so the place
+  // Cooking and the water answer now (obligation:cooking-and-fetching-water). The scene shows them, so the place
   // never says these; they stand among the month's lines.
   "line.activity.cook-at-home.now": "Rice and stew from the pot. Mama says eat well, there is more.",
   "line.activity.cook-jollof.now": "Mama: God bless you. The whole house will eat well this week.",
@@ -108,7 +108,7 @@ export const activityNowText: Record<string, string> = {
   "line.activity.build-portfolio.now": "A piece is up. It has a bug you are proud of.",
   "line.activity.fetch-water.now": "The jerrycans are in. The drum is full.",
   "line.activity.fill-drum.now": "Bucket by bucket from the yard's tap. The drum is full.",
-  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0012): the place answers in its own voice.
+  // The street's enjoyment and spending (streets:lagos-street-spending, decision 0012): the place answers in its own voice.
   "line.activity.buy-suya.now": "The suya man knows your order. Extra pepper, no argument.",
   "line.activity.mallam-tea.now": "He remembers your father's name. You remember his tea.",
   "line.activity.pure-water.now": "Cold, in this sun. A human right with a price.",

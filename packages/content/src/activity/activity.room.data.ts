@@ -1,4 +1,4 @@
-// The room's basics: docs/rules/obligation.md R-OBLIGATION-014 and world.md R-WORLD-029. Joined into
+// The room's basics: obligation:cooking-and-fetching-water and world:room-seen-down-its-length. Joined into
 // the activity table in activity.data.ts; place.data.ts stages each in the room.
 import type { ActivityEntry, Id, Requirement } from "@japacity/sim";
 
@@ -8,7 +8,7 @@ import { tuning } from "../tuning/tuning.data";
 const { room } = tuning;
 
 /**
- * Living where the drum is filled free from a tap: the room in a compound (home.md R-HOME-010), its upkeep open, or a
+ * Living where the drum is filled free from a tap: the room in a compound (home:compound-room-is-a-home), its upkeep open, or a
  * hostel room (decision 0018), its rent open.
  */
 const COMPOUND: Requirement = {
@@ -37,7 +37,7 @@ const POT: ActivityEntry["effects"] = [
 // own buys its meals and its pot at the price they cost. The simulation charges an act what its entry says, wherever
 // it is done; which corner offers which act is the place file's.
 export const roomActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // Food from Mama's pot at the family house, as often as you are hungry (R-ACTIVITY-019; decision 0012): the house's.
+  // Food from Mama's pot at the family house, as often as you are hungry (activity:acts-may-repeat-in-month; decision 0012): the house's.
   "activity.cook-at-home": {
     id: "activity.cook-at-home",
     slot: "none",
@@ -70,8 +70,8 @@ export const roomActivityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [],
   },
   // A meal of your own, bought and cooked now, in a room of your own at home (decision 0013: living by hand). It is naira,
-  // so the room abroad cooks in the country's money instead (home.md R-HOME-012; in the UK
-  // activity.cook-own-uk, streets.md R-STREET-012).
+  // so the room abroad cooks in the country's money instead (home:living-by-hand; in the UK
+  // activity.cook-own-uk, streets:london-life-by-hand).
   "activity.cook-own": {
     id: "activity.cook-own",
     slot: "none",
@@ -199,7 +199,7 @@ export const roomActivityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  // The compound's drum, filled from the yard's tap or well: the water costs nothing there, so it takes nothing off (R-OBLIGATION-014).
+  // The compound's drum, filled from the yard's tap or well: the water costs nothing there, so it takes nothing off (obligation:cooking-and-fetching-water).
   "activity.fill-drum": {
     id: "activity.fill-drum",
     slot: "none",

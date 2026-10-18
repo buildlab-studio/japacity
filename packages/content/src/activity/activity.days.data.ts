@@ -1,4 +1,4 @@
-// The month's free time each now-act spends, in half-days (docs/rules/activity.md R-ACTIVITY-018; decision
+// The month's free time each now-act spends, in half-days (activity:now-acts-spend-half-days; decision
 // 0011), said on the screen in a person's words: 1 a morning, 2 a day, 4 a weekend, 10 a week. A purchase
 // spends none; a month-act fills the month as a commitment and spends none here.
 export const NOW_HALF_DAYS: Record<string, number> = {
@@ -16,7 +16,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.build-portfolio": 4,
   "activity.fetch-water": 2,
   "activity.fill-drum": 1,
-  // The street's enjoyment and spending (streets.md R-STREET-011): the water is a purchase and spends none.
+  // The street's enjoyment and spending (streets:lagos-street-spending): the water is a purchase and spends none.
   "activity.buy-suya": 1,
   "activity.mallam-tea": 1,
   "activity.pure-water": 0,
@@ -25,7 +25,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.beer-joint": 1,
   "activity.night-out": 2,
   "activity.buy-clothes": 2,
-  // London lived by hand (place.md R-PLACE-012, streets.md R-STREET-012): the pass is a tap at the machine and takes no time.
+  // London lived by hand (place:country-pass-covers-ways, streets:london-life-by-hand): the pass is a tap at the machine and takes no time.
   "activity.bus-pass-uk": 0,
   // A morning each, the clothes a day.
   "activity.weekly-shop-uk": 1,
@@ -35,7 +35,7 @@ export const NOW_HALF_DAYS: Record<string, number> = {
   "activity.pub-pint": 1,
   "activity.barber-uk": 1,
   "activity.buy-clothes-uk": 2,
-  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012, streets.md R-STREET-013 to 015):
+  // Calgary, Dubai and Castel Volturno lived by hand (place:country-pass-covers-ways, streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand):
   // each pass a tap at the machine and no time, a coffee no time (a purchase), a morning each, the clothes a day.
   "activity.transit-pass-ca": 0,
   "activity.weekly-shop-ca": 1,

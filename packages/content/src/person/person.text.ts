@@ -85,7 +85,7 @@ export const personText: Record<string, string> = {
   "line.people.left": "{who} ended it with you.",
   "line.people.drifted": "You stopped making time. {who} moved on.",
   "line.people.ended-absence": "It is over with {who}. They had gone quiet.",
-  // R-ACCOUNT-030: the other player started a new life; nothing is owed and the moments stay (decision 0020).
+  // account:start-a-new-life: the other player started a new life; nothing is owed and the moments stay (decision 0020).
   "line.people.ended-restart": "{who} has started a new life. What you shared stays in your story.",
   "line.people.ended-block": "It is over with {who}.",
   "line.people.gossip": "Somebody told your partner you have been seeing someone. Nobody said who.",
@@ -96,7 +96,7 @@ export const personText: Record<string, string> = {
   "line.people.request-shared": "The family asked your sibling too: {offer}.",
   "line.people.handled": "Your sibling sorted it before you could. The family remembers.",
 
-  // Where each partner is met and their home (world.md R-WORLD-020, person.meet.data.ts). The
+  // Where each partner is met and their home (world:nobody-picked-from-list, person.meet.data.ts). The
   // meeting line is what you see and hear when you first tap them.
   "person.tobi-bank.met": "After service, your mother brings him home for lunch. \"You sit by the choir every week, abi? I have seen you.\"",
   "person.tobi-bank.home": "A flat off Bode Thomas, two floors up",
@@ -111,9 +111,9 @@ export const personText: Record<string, string> = {
   "person.chidi-dubai.met": "At the house in December, a friend of the family back from Dubai with gifts for everybody. \"Take. It is perfume. Everybody gets perfume.\"",
   "person.chidi-dubai.home": "His uncle's house in Lagos, for December",
 
-  // Once courted (person.md R-PEOPLE-013): their answer, in the voice of their
+  // Once courted (person:courting-opens-a-bond): their answer, in the voice of their
   // meeting line, told in the corner and the first message of their thread in Chats. Once the bond ends without the
-  // player ending it (R-PEOPLE-042 drift, R-PEOPLE-041 a partner who heard), the reason in their own words, told in the
+  // player ending it (person:computer-partner-drifts drift, person:gossip-when-two-timing a partner who heard), the reason in their own words, told in the
   // head of the thread for the month it stays.
   "person.tobi-bank.courted": "\"Next Sunday, then. I will keep you a seat by the choir.\"",
   "person.tobi-bank.drifted": "\"I kept your seat every Sunday. You never came, so I stopped keeping it.\"",

@@ -6,11 +6,11 @@ import { content, text } from "../index";
 
 const FIRST = "draw";
 const START_AGE = content.tuning.prologue.startAgeMonths;
-// Every path ends inside the span the age cards offer, 18 to 29 (R-PROLOGUE-004): the years worked after it are the
+// Every path ends inside the span the age cards offer, 18 to 29 (prologue:age-advances-with-steps): the years worked after it are the
 // prologue kind's, up to the year picked, and are not walked here.
 const YOUNGEST = 18 * 12;
 const OLDEST = 29 * 12 + 11;
-/** The years worked after the path's end: where a path's months stop being the path's (R-PROLOGUE-004). */
+/** The years worked after the path's end: where a path's months stop being the path's (prologue:age-advances-with-steps). */
 const WORK = "work";
 
 /**
@@ -47,7 +47,7 @@ interface Walk {
 
 /**
  * Walks every path from the first step: every allowed answer, every draw outcome.
- * A step's months are added when it is answered (R-PROLOGUE-004). Where a path
+ * A step's months are added when it is answered (prologue:age-advances-with-steps). Where a path
  * ends depends only on the step and the age, so each pair is walked once. Throws
  * on a path longer than any prologue could be, so a loop with no way out is found.
  * With `stop`, a path ends where it reaches that step.
@@ -85,7 +85,7 @@ function walk(steps: Record<string, PrologueStep>, stop: string | null = null): 
 }
 
 describe("the prologue's steps", () => {
-  test("[R-PROLOGUE-004] given every path through the prologue, when the months are added to the years worked, then each path ends inside 18 to 29", () => {
+  test("[prologue:age-advances-with-steps] given every path through the prologue, when the months are added to the years worked, then each path ends inside 18 to 29", () => {
     const { endings } = walk(content.prologue, WORK);
     expect(endings.length).toBeGreaterThan(5);
     const outside = endings.filter((ending) => ending.age < YOUNGEST || ending.age > OLDEST);
@@ -96,7 +96,7 @@ describe("the prologue's steps", () => {
     expect(Math.min(...ages)).toBe(259);
   });
 
-  test("[R-PROLOGUE-004] given the degree path with no strike and no retake, when the months are added, then it ends at 277", () => {
+  test("[prologue:age-advances-with-steps] given the degree path with no strike and no retake, when the months are added, then it ends at 277", () => {
     // 192 + 12 + 6 + 3 + 12 + 0 + 12 + 12 + 12 + 3 + 12 + 1 + 0.
     const plain = { ...content.prologue };
     const only = (step: string, answer: string, outcome?: string) => {
@@ -110,25 +110,25 @@ describe("the prologue's steps", () => {
     only("after-school", "jamb");
     only("exam", "study", "pass");
     only("strike", "wait", "no-strike");
-    // The age the path reaches, picked on its card: no year is worked after it (R-PROLOGUE-004).
+    // The age the path reaches, picked on its card: no year is worked after it (prologue:age-advances-with-steps).
     only("age-degree", "start-23");
     expect(walk(plain, WORK).endings.map((ending) => ending.age)).toEqual([277]);
     expect(walk(plain).endings.map((ending) => ending.age)).toEqual([277 + (content.prologue[WORK]?.months ?? 0)]);
   });
 
-  test("[R-PROLOGUE-004] given a copy of the prologue whose retake can be taken forever, when walked, then the loop is found", () => {
+  test("[prologue:age-advances-with-steps] given a copy of the prologue whose retake can be taken forever, when walked, then the loop is found", () => {
     const retake = content.prologue["retake"]!;
     const forever = { ...content.prologue, retake: { ...retake, answers: retake.answers.map((answer) => ({ ...answer, requires: [] })) } };
     expect(() => walk(forever)).toThrow(/loops/);
   });
 
-  test("[R-PROLOGUE-004] given a copy of the prologue with a step five years too long, when walked, then a path past 29 is found", () => {
+  test("[prologue:age-advances-with-steps] given a copy of the prologue with a step five years too long, when walked, then a path past 29 is found", () => {
     const service = content.prologue["service"]!;
     const late = { ...content.prologue, service: { ...service, months: service.months + 60 } };
     expect(walk(late, WORK).endings.some((ending) => ending.age > OLDEST)).toBe(true);
   });
 
-  test("[R-ENGINE-014] given every step, when it is checked, then it parses, its key is its id, every next names a step and every draw adds up to 10000", () => {
+  test("[engine:content-checked-before-play] given every step, when it is checked, then it parses, its key is its id, every next names a step and every draw adds up to 10000", () => {
     const ids = Object.keys(content.prologue);
     expect(ids).toContain(FIRST);
     const problems = Object.entries(content.prologue).flatMap(([key, step]) => {
@@ -149,7 +149,7 @@ describe("the prologue's steps", () => {
     expect([...reached].sort()).toEqual([...ids].sort());
   });
 
-  test("[R-ENGINE-014] given every step, when its words are looked up, then its card, every answer and every outcome have words", () => {
+  test("[engine:content-checked-before-play] given every step, when its words are looked up, then its card, every answer and every outcome have words", () => {
     const keys = Object.values(content.prologue).flatMap((step) => [
       `prologue.${step.id}.card`,
       ...step.answers.map((answer) => `prologue.${step.id}.answer.${answer.id}`),
@@ -158,7 +158,7 @@ describe("the prologue's steps", () => {
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given the prologue's figures, when they are read back, then each matches prologue.md", () => {
+  test("[engine:content-checked-before-play] given the prologue's figures, when they are read back, then each matches prologue.md", () => {
     const steps = content.prologue;
     const months = Object.fromEntries(Object.values(steps).map((step) => [step.id, step.months]));
     expect(months).toMatchObject({ subjects: 12, "after-school": 6, exam: 3, retake: 12, course: 12, strike: 12, "strike-drag": 8 });
@@ -180,7 +180,7 @@ describe("the prologue's steps", () => {
     ]);
     const effects = (step: string, answer: string) => steps[step]?.answers.find((found) => found.id === answer)?.effects ?? [];
     // Kobo: the service year's ₦500,000, the private session's ₦2,500,000, the generous settlement's ₦6,000,000.
-    // Earnings that size land in the bank (wallet.md R-WALLET-018).
+    // Earnings that size land in the bank (wallet:money-lands-as-in-lagos).
     expect(effects("service", "serve")).toContainEqual({ type: "money/add", currency: "NGN", pocket: "bank", amount: 50000000, reason: "gig" });
     expect(effects("university", "private")).toContainEqual({
       type: "money/add",
@@ -192,8 +192,8 @@ describe("the prologue's steps", () => {
     });
     expect(draw("settlement", "settle")?.[0]?.effects).toContainEqual({ type: "money/add", currency: "NGN", pocket: "bank", amount: 600000000, reason: "gig" });
     expect(effects("home", "family-house")).toContainEqual({ type: "obligation/open", obligation: "obligation.upkeep", amount: 9500000 });
-    // The home step offers only the homes play backs (R-HOME-001): the family house, the room in a compound, the hostel
-    // room and Makoko, chosen on the door (R-PROLOGUE-013).
+    // The home step offers only the homes play backs (home:home-slice-fields): the family house, the room in a compound, the hostel
+    // room and Makoko, chosen on the door (prologue:front-door-three-screens).
     expect(content.prologue["home"]?.answers.map((answer) => answer.id)).toEqual(["family-house", "compound-room", "hostel-room", "makoko"]);
     expect(effects("friend", "drivers")).toEqual([{ type: "route/hear", route: "route.gulf-contract", via: "friend" }]);
     expect(content.tuning.prologue.startAgeMonths).toBe(192);
@@ -238,7 +238,7 @@ function wellbeingAtClose(steps: Record<string, PrologueStep>): { low: number; h
 describe("the life from sixteen starts in fair health", () => {
   const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true).map((scenario) => scenario.qualities[WELLBEING] ?? 0);
 
-  test("[R-PROLOGUE-002] given the draw card that begins the prologue, when it is answered, then wellbeing starts inside the band the fixed lives start in, not at its minimum", () => {
+  test("[prologue:family-draw-on-first-answer] given the draw card that begins the prologue, when it is answered, then wellbeing starts inside the band the fixed lives start in, not at its minimum", () => {
     const begin = content.prologue[FIRST]?.answers.find((answer) => answer.id === "begin");
     const start = wellbeingAdded(begin?.effects ?? []);
     expect(fixed.length).toBeGreaterThan(0);
@@ -246,7 +246,7 @@ describe("the life from sixteen starts in fair health", () => {
     expect(start).toBeLessThanOrEqual(Math.max(...fixed));
   });
 
-  test("[R-PROLOGUE-006] given every path through the prologue, when its wellbeing is added up from the draw card, then every life closes above the run-down line and no higher than the scale allows", () => {
+  test("[prologue:closing-opens-home-charges] given every path through the prologue, when its wellbeing is added up from the draw card, then every life closes above the run-down line and no higher than the scale allows", () => {
     // The years worked and the home come after the path and move no wellbeing, so the walk ends at the work.
     const after = [WORK, "home"].flatMap((id) => (content.prologue[id]?.answers ?? []).flatMap((answer) => answer.effects));
     expect(wellbeingAdded(after)).toBe(0);
@@ -254,7 +254,7 @@ describe("the life from sixteen starts in fair health", () => {
     const { low, high } = wellbeingAtClose(content.prologue);
     expect(low).toBeGreaterThanOrEqual(content.tuning.health.runDownBelow);
     expect(high).toBeLessThanOrEqual(content.quality[WELLBEING]?.max ?? 0);
-  // The age cards' years multiply the paths walked (R-PROLOGUE-004); under a full parallel run the walk needs more than the default five seconds.
+  // The age cards' years multiply the paths walked (prologue:age-advances-with-steps); under a full parallel run the walk needs more than the default five seconds.
   }, 30_000);
 });
 
@@ -262,7 +262,7 @@ describe("opening words that fit the life", () => {
   const OPEN = "chapter.find-your-feet.open";
   const SERVICE = /service/i;
 
-  test("[R-WORLD-001] given each fixed life and both paths of the life from sixteen, when the first chapter's opening is looked up, then each has its own line, and only a life fresh from its service year says service is over", () => {
+  test("[world:world-fills-the-screen] given each fixed life and both paths of the life from sixteen, when the first chapter's opening is looked up, then each has its own line, and only a life fresh from its service year says service is over", () => {
     const fixed = Object.values(content.scenario).filter((scenario) => scenario.prologue !== true);
     const keys = [...fixed.map((scenario) => `${OPEN}.${scenario.id.slice("scenario.".length)}`), `${OPEN}.prologue.degree`, `${OPEN}.prologue.trade`];
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
@@ -273,21 +273,21 @@ describe("opening words that fit the life", () => {
     expect((text[OPEN] ?? "").trim()).not.toBe("");
   });
 
-  test("[R-PROLOGUE-006] given the last card every path reaches, the trade and the shop counter included, when its question is read, then it does not say service is over", () => {
+  test("[prologue:closing-opens-home-charges] given the last card every path reaches, the trade and the shop counter included, when its question is read, then it does not say service is over", () => {
     expect(text["prologue.home.card"]).toBeDefined();
     expect(text["prologue.home.card"]).not.toMatch(SERVICE);
   });
 });
 
 describe("lines that fit the life from sixteen", () => {
-  test("[R-TEXT-005] given an exam failed, when its outcome shows above the retake card, then the cut-off is told once, not by both", () => {
+  test("[text:bands-not-figures] given an exam failed, when its outcome shows above the retake card, then the cut-off is told once, not by both", () => {
     const fails = (content.prologue.exam?.answers ?? []).flatMap((answer) => (answer.draw ?? []).filter((outcome) => outcome.next === "retake"));
     expect(fails.length).toBeGreaterThan(1);
     const told = fails.map((outcome) => `${text[`prologue.exam.outcome.${outcome.id}`] ?? ""} ${text["prologue.retake.card"] ?? ""}`);
     expect(told.filter((words) => words.match(/cut-off/g)?.length !== 1)).toEqual([]);
   });
 
-  test("[R-TEXT-005] given the friend the send-off card names, when it is read, then it says who he is, and the send-off is not his own, which comes later in the game", () => {
+  test("[text:bands-not-figures] given the friend the send-off card names, when it is read, then it says who he is, and the send-off is not his own, which comes later in the game", () => {
     const card = text["prologue.friend.card"] ?? "";
     expect(card).toMatch(/Terna, your friend from school,/);
     expect(card).not.toMatch(/Terna's send-off/);
@@ -301,7 +301,7 @@ describe("the nurse's course makes a nurse", () => {
   const careAdded = (step: string, answer: string): number =>
     (content.prologue[step]?.answers.find((found) => found.id === answer)?.effects ?? []).reduce((sum, effect) => sum + (effect.type === "quality/add" && effect.quality === "quality.care" ? effect.amount : 0), 0);
 
-  test("[R-PROLOGUE-010] given the nursing course and the graduation as a nurse, when their care is added, then it reaches the staff nurse's bar, and the graduation grants the licence", () => {
+  test("[prologue:archetype-presets-answers] given the nursing course and the graduation as a nurse, when their care is added, then it reaches the staff nurse's bar, and the graduation grants the licence", () => {
     const bar = content.activity["activity.job-nurse"]?.requires.find((requirement) => requirement.type === "quality/min" && requirement.quality === "quality.care");
     expect(bar?.type === "quality/min" ? bar.value : null).toBe(60);
     expect(careAdded("course", "nursing") + careAdded("graduation", "results-nurse")).toBe(60);
@@ -310,7 +310,7 @@ describe("the nurse's course makes a nurse", () => {
 });
 
 describe("the send-off's crowds", () => {
-  test("[R-PROLOGUE-011] given the friend's card, then a life with care behind it may follow the nurses and hears of care work, and a life without cannot", () => {
+  test("[prologue:tile-path-open-from-start] given the friend's card, then a life with care behind it may follow the nurses and hears of care work, and a life without cannot", () => {
     const card = content.prologue.friend;
     const care = card?.answers.find((answer) => answer.id === "care");
     expect(care?.effects).toEqual([{ type: "route/hear", route: "route.uk-care", via: "friend" }]);
@@ -320,8 +320,8 @@ describe("the send-off's crowds", () => {
   });
 });
 
-describe("a room on the water (R-PROLOGUE-012)", () => {
-  test("[R-PROLOGUE-012] given the home card, then it offers Makoko's room to every life: its answer opens Makoko's rent at the home page's charge and moves the life there, and says what it costs as the other homes do", () => {
+describe("a room on the water (prologue:makoko-start-never-a-trap)", () => {
+  test("[prologue:makoko-start-never-a-trap] given the home card, then it offers Makoko's room to every life: its answer opens Makoko's rent at the home page's charge and moves the life there, and says what it costs as the other homes do", () => {
     const makoko = content.prologue.home?.answers.find((answer) => answer.id === "makoko");
     expect(makoko?.requires).toEqual([]);
     expect(makoko?.next).toBeNull();
@@ -334,7 +334,7 @@ describe("a room on the water (R-PROLOGUE-012)", () => {
       expect(text[key]).not.toMatch(/[\u2013\u2014]/);
     }
     expect(text["prologue.home.answer.makoko.hint"]).toContain("{amount}");
-    // Where the life starts is said on the page in the client's words (R-PROLOGUE-014), so content keeps no handover line for a home.
+    // Where the life starts is said on the page in the client's words (prologue:printed-page-hands-over), so content keeps no handover line for a home.
     expect(Object.keys(text).filter((key) => key.startsWith("prologue.handover.home."))).toEqual([]);
   });
 });

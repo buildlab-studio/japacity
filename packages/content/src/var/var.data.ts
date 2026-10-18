@@ -75,7 +75,7 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.uk-talent-endorse-fee": { id: "var.uk-talent-endorse-fee", start: 56100 },
   "var.uk-talent-visa-fee": { id: "var.uk-talent-visa-fee", start: 20500 },
 
-  // director.md: surges, 0 to 100. They rise while a window is open (R-DIRECTOR-005).
+  // director.md: surges, 0 to 100. They rise while a window is open (director:policy-cycle-surge-backlash).
 
   "var.uk-study-surge": { id: "var.uk-study-surge", start: 20 },
   "var.uk-care-surge": { id: "var.uk-care-surge", start: 0 },
@@ -92,7 +92,7 @@ export const varTable: Record<Id<"var">, VarEntry> = {
 
   // director.md: home and the world.
 
-  // Basis points added to every upkeep and support charge at home (R-DIRECTOR-006).
+  // Basis points added to every upkeep and support charge at home (director:december-and-inflation).
   "var.inflation": { id: "var.inflation", start: 0 },
   // A chance a month, in basis points, that a care job tied to its sponsor ends.
   "var.uk-care-sponsor-risk": { id: "var.uk-care-sponsor-risk", start: 300 },
@@ -115,7 +115,7 @@ export const varTable: Record<Id<"var">, VarEntry> = {
   "var.ca-accompany-fee": { id: "var.ca-accompany-fee", start: 160000 },
   "var.ca-family-window": { id: "var.ca-family-window", start: 2 },
   "var.ca-assistance": { id: "var.ca-assistance", start: 73300 },
-  // director.md R-DIRECTOR-001 and 005: every window has its surge; the family routes' start at 0.
+  // director:world-variables-per-route and director:policy-cycle-surge-backlash: every window has its surge; the family routes' start at 0.
   "var.uk-family-surge": { id: "var.uk-family-surge", start: 0 },
   "var.ca-family-surge": { id: "var.ca-family-surge", start: 0 },
 };

@@ -1,5 +1,5 @@
-// The life of the streets abroad in content (docs/rules/streets.md R-STREET-005 to 007, world.md
-// R-WORLD-026): the shopping on Rye Lane and at Deira, the find at Peckham and Deira, their numbers from `tuning.street`,
+// The life of the streets abroad in content (streets:street-shopping-abroad, streets:street-finds-abroad and streets:peckham-talks-like-lagos, world.md
+// world:street-talk-budget): the shopping on Rye Lane and at Deira, the find at Peckham and Deira, their numbers from `tuning.street`,
 // where they are staged, and the street talk in Nigerian voices.
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { ActivityEntrySchema, OfferEntrySchema } from "@japacity/sim/schemas";
@@ -28,7 +28,7 @@ function overheard(place: string): string[] {
 const SHOPPING = [
   // The UK's stalls stand on Rye Lane and are paid as enjoyment.
   { id: "activity.street-shopping-uk" as Id<"activity">, country: "country.uk", currency: "GBP", amount: street.shoppingGbp, reason: "enjoyment", place: "place.rye-lane" },
-  // R-STREET-014: the souq stands in Naif and is paid as enjoyment.
+  // streets:dubai-life-by-hand: the souq stands in Naif and is paid as enjoyment.
   { id: "activity.street-shopping-uae" as Id<"activity">, country: "country.uae", currency: "AED", amount: street.shoppingAed, reason: "enjoyment", place: "place.naif" },
 ] as const;
 
@@ -38,7 +38,7 @@ const FINDS = [
 ] as const;
 
 describe("shopping on the street abroad", () => {
-  test("[R-STREET-005] given the two street shoppings, when their entries are read, then each is a free slot abroad in its own country, costs the street's price in that currency as enjoyment and lifts the mood by the street's figure", () => {
+  test("[streets:street-shopping-abroad] given the two street shoppings, when their entries are read, then each is a free slot abroad in its own country, costs the street's price in that currency as enjoyment and lifts the mood by the street's figure", () => {
     expect(street).toMatchObject({ shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5 });
     for (const want of SHOPPING) {
       const entry = content.activity[want.id];
@@ -51,7 +51,7 @@ describe("shopping on the street abroad", () => {
     }
   });
 
-  test("[R-STREET-005] [R-CITY-010] given the two street shoppings, when the places are read, then each is staged once, on Rye Lane and in Naif, and each has a name and a blurb with no dash", () => {
+  test("[streets:street-shopping-abroad] [city:places-stage-their-acts] given the two street shoppings, when the places are read, then each is staged once, on Rye Lane and in Naif, and each has a name and a blurb with no dash", () => {
     for (const want of SHOPPING) {
       expect(stagedAt(want.id)).toEqual([want.place]);
       const keys = [`${want.id}.name`, `${want.id}.blurb`];
@@ -61,7 +61,7 @@ describe("shopping on the street abroad", () => {
 });
 
 describe("something interesting on the street", () => {
-  test("[R-STREET-006] given the two finds, when their entries are read, then each is a life offer abroad in its own country at the street's chance, cooldown 2, no blow and no fraud, with one choice to look that lifts the mood by the street's figure", () => {
+  test("[streets:street-finds-abroad] given the two finds, when their entries are read, then each is a life offer abroad in its own country at the street's chance, cooldown 2, no blow and no fraud, with one choice to look that lifts the mood by the street's figure", () => {
     expect(street).toMatchObject({ findBp: 1500, findMood: 4 });
     for (const want of FINDS) {
       const entry = content.offer[want.id];
@@ -77,7 +77,7 @@ describe("something interesting on the street", () => {
     }
   });
 
-  test("[R-STREET-006] [R-CITY-010] given the two finds, when the places and the words are read, then each is staged once, at Peckham and at Deira, and has its name, title, body and choice with no dash", () => {
+  test("[streets:street-finds-abroad] [city:places-stage-their-acts] given the two finds, when the places and the words are read, then each is staged once, at Peckham and at Deira, and has its name, title, body and choice with no dash", () => {
     for (const want of FINDS) {
       expect(stagedAt(want.id)).toEqual([want.place]);
       const keys = [`${want.id}.name`, `${want.id}.title`, `${want.id}.body`, `${want.id}.choice.look`];
@@ -87,14 +87,14 @@ describe("something interesting on the street", () => {
 });
 
 describe("the street talk abroad", () => {
-  test("[R-STREET-007] [R-WORLD-026] given Peckham's talk overheard, when it is read, then at least six lines speak in a Nigerian voice, none with a dash", () => {
+  test("[streets:peckham-talks-like-lagos] [world:street-talk-budget] given Peckham's talk overheard, when it is read, then at least six lines speak in a Nigerian voice, none with a dash", () => {
     const lines = overheard("place.peckham");
     expect(lines.filter((line) => line.trim() === "")).toEqual([]);
     expect(lines.filter((line) => DASHES.test(line))).toEqual([]);
     expect(lines.filter((line) => VOICE.test(line)).length).toBeGreaterThanOrEqual(6);
   });
 
-  test("[R-STREET-007] [R-WORLD-026] given Deira's talk overheard, when it is read, then at least four lines speak in a Nigerian voice, none with a dash", () => {
+  test("[streets:peckham-talks-like-lagos] [world:street-talk-budget] given Deira's talk overheard, when it is read, then at least four lines speak in a Nigerian voice, none with a dash", () => {
     const lines = overheard("place.deira");
     expect(lines.filter((line) => line.trim() === "")).toEqual([]);
     expect(lines.filter((line) => DASHES.test(line))).toEqual([]);

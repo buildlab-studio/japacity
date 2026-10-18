@@ -1,7 +1,7 @@
-// When each act answers (docs/rules/activity.md R-ACTIVITY-015).
+// When each act answers (activity:now-acts-and-month-acts).
 // A now-act is anything quick, a purchase or a conversation, sent at once by `activity/now`; every
 // other entry, each job and side job among them, fills the month as a slot pick. A purchase runs as
-// often as money allows, an act marked repeat as often as the month's free time allows (R-ACTIVITY-019),
+// often as money allows, an act marked repeat as often as the month's free time allows (activity:acts-may-repeat-in-month),
 // and any other now-act once a month.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
@@ -74,7 +74,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.find-sponsor": "once",
   // The job hunt: applied now, the employer answering with the month.
   "activity.job-hunt": "once",
-  // The room and the family, as often as the month's time allows (R-ACTIVITY-019, decision 0012): meals, water, a nap, a bath, the TV,
+  // The room and the family, as often as the month's time allows (activity:acts-may-repeat-in-month, decision 0012): meals, water, a nap, a bath, the TV,
   // gist with Mama and her shop, and the study that answers at once.
   "activity.cook-at-home": "repeat",
   "activity.cook-jollof": "repeat",
@@ -90,7 +90,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.study-english": "repeat",
   "activity.learn-tech": "repeat",
   "activity.build-portfolio": "repeat",
-  // The street's enjoyment and spending (streets.md R-STREET-011, decision 0012): the barber and the clothes once a
+  // The street's enjoyment and spending (streets:lagos-street-spending, decision 0012): the barber and the clothes once a
   // month, the water a purchase, the rest as often as the month's time allows.
   "activity.buy-suya": "repeat",
   "activity.mallam-tea": "repeat",
@@ -100,7 +100,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.beer-joint": "repeat",
   "activity.night-out": "repeat",
   "activity.buy-clothes": "once",
-  // London lived by hand (place.md R-PLACE-012, streets.md R-STREET-012): the bus pass once a month at the machine.
+  // London lived by hand (place:country-pass-covers-ways, streets:london-life-by-hand): the bus pass once a month at the machine.
   "activity.bus-pass-uk": "once",
   // The food and the evenings as often as the month's time allows, the barber and the clothes once a month.
   "activity.weekly-shop-uk": "repeat",
@@ -110,7 +110,7 @@ const NOW_ACTS: Record<string, Now> = {
   "activity.pub-pint": "repeat",
   "activity.barber-uk": "once",
   "activity.buy-clothes-uk": "once",
-  // Calgary, Dubai and Castel Volturno lived by hand (place.md R-PLACE-012, streets.md R-STREET-013 to 015):
+  // Calgary, Dubai and Castel Volturno lived by hand (place:country-pass-covers-ways, streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand):
   // each pass once a month at its machine, the coffees a purchase, the food and the evenings as often as the month's
   // time allows, the barbers and the clothes once a month, the church's community once as the other countries' are.
   "activity.transit-pass-ca": "once",
@@ -139,7 +139,7 @@ const NOW_ACTS: Record<string, Now> = {
 };
 
 /**
- * Every entry with its `when`, and a purchase marked (R-ACTIVITY-015). An entry that already says when it answers is
+ * Every entry with its `when`, and a purchase marked (activity:now-acts-and-month-acts). An entry that already says when it answers is
  * kept as the same object, so a table sorted where it is written stays itself in content.
  */
 export function withWhen(table: Record<Id<"activity">, ActivityEntry>): Record<Id<"activity">, ActivityEntry> {
@@ -150,7 +150,7 @@ export function withWhen(table: Record<Id<"activity">, ActivityEntry>): Record<I
       continue;
     }
     const now = NOW_ACTS[id];
-    // A purchase spends no time; any other now-act spends its half-days from the table, a morning without one (R-ACTIVITY-018).
+    // A purchase spends no time; any other now-act spends its half-days from the table, a morning without one (activity:now-acts-spend-half-days).
     sorted[id] =
       now === undefined
         ? { ...entry, when: "month" }

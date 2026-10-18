@@ -1,4 +1,4 @@
-// Public places named after a person (city.md R-CITY-006): the place keeps its public name, and the person is never in the
+// Public places named after a person (city:namesakes-never-shown): the place keeps its public name, and the person is never in the
 // game. Every text the game shows is walked: the person's name appears only as the place, with its road word, after a word
 // of where ("on", "off", "at"), or alone as the place's short name.
 import { describe, expect, test } from "vitest";
@@ -32,21 +32,21 @@ function personUses(words: string, person: string): number[] {
 }
 
 describe("a public place named after a person", () => {
-  test("[R-CITY-006] given each place named after a person, when its entry is read, then it is public and keeps the real name the sign carries", () => {
+  test("[city:namesakes-never-shown] given each place named after a person, when its entry is read, then it is public and keeps the real name the sign carries", () => {
     for (const { place, person } of NAMED_AFTER) {
       const entry = Object.values(content.place).find((one) => one.id === place);
       expect({ place, kind: entry?.nameKind, keeps: entry?.realName?.includes(person), shown: text[`${place}.name`] }).toEqual({ place, kind: "public", keeps: true, shown: entry?.realName });
     }
   });
 
-  test("[R-CITY-006] given every text in the game, when it names the person a place is named after, then it names the place, never the person", () => {
+  test("[city:namesakes-never-shown] given every text in the game, when it names the person a place is named after, then it names the place, never the person", () => {
     const misuses = Object.entries(text).flatMap(([key, words]) =>
       NAMED_AFTER.filter(({ person }) => personUses(words, person).length > 0).map(({ person }) => `${key}: ${person} in "${words}"`),
     );
     expect(misuses).toEqual([]);
   });
 
-  test("[R-CITY-006] given the check, when a text speaks of the person, then it is caught", () => {
+  test("[city:namesakes-never-shown] given the check, when a text speaks of the person, then it is caught", () => {
     expect(personUses("Murtala Muhammed led the country in 1975.", "Murtala Muhammed")).toHaveLength(1);
     expect(personUses("As Herbert Macaulay said, the city is ours.", "Herbert Macaulay")).toHaveLength(1);
     expect(personUses("A flat off Bode Thomas, two floors up", "Bode Thomas")).toEqual([]);

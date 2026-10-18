@@ -1,6 +1,6 @@
-// Each painted city's own words (decision 0026; docs/rules/world.md R-WORLD-038, R-WORLD-039): its districts, its
+// Each painted city's own words (decision 0026; world:painted-maps-abroad, world:ride-abroad-and-workplace): its districts, its
 // cards, its water and any inset, in the voice of docs/rules/text.md. Read only by the painted maps abroad, so they ride
-// their chunk and never a first visit (engine.md R-ENGINE-020).
+// their chunk and never a first visit (engine:first-download-has-budget).
 
 /** London's own words: its districts, its cards, its river and Heathrow's inset. */
 export const uiLondonMapText: Record<string, string> = {

@@ -1,5 +1,5 @@
 // The game's own words around an advert. The advertiser's words are never here:
-// they come from the server after review (R-ADVERT-010).
+// they come from the server after review (advert:named-person-approves-creatives).
 export const advertText: Record<string, string> = {
   "advert.label": "Advert",
   "advert.empty": "This board is empty.",

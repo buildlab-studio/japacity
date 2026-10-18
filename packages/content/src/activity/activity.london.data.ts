@@ -1,4 +1,4 @@
-// London lived by hand: docs/rules/place.md R-PLACE-012 (the bus pass) and streets.md R-STREET-012 (design page 14
+// London lived by hand: place:country-pass-covers-ways (the bus pass) and streets:london-life-by-hand (design page 14
 // section 6, decision 0017). Each is a priced now-act in pounds, paid as it is done; when each answers and the time it
 // spends are in activity.when.data.ts and activity.days.data.ts. Joined into the activity table in activity.data.ts;
 // place.data.ts stages each at its London place.
@@ -10,7 +10,7 @@ import { pounds } from "../units";
 const UK: Id<"country"> = "country.uk";
 const IN_UK: Requirement = { type: "place/is", where: "abroad", country: UK };
 
-/** R-PLACE-012: the bus pass's figure, from the UK's rides in the tuning. */
+/** place:country-pass-covers-ways: the bus pass's figure, from the UK's rides in the tuning. */
 function busPass(): number {
   const pass = tuning.city.ride.abroad[UK]?.pass;
   if (pass === undefined || pass === null) throw new Error("The UK's rides carry no bus pass.");
@@ -21,7 +21,7 @@ function lift(quality: Id<"quality">, amount: number): Effect {
   return { type: "quality/add", quality, amount };
 }
 
-/** R-STREET-012: a priced now-act in the UK, its price in pounds under its money reason. */
+/** streets:london-life-by-hand: a priced now-act in the UK, its price in pounds under its money reason. */
 function byHand(id: Id<"activity">, price: number, reason: Extract<Reason, "food" | "enjoyment">, effects: Effect[]): ActivityEntry {
   return {
     id,
@@ -39,7 +39,7 @@ function byHand(id: Id<"activity">, price: number, reason: Extract<Reason, "food
 }
 
 export const londonActivityTable: Record<Id<"activity">, ActivityEntry> = {
-  // R-PLACE-012: a month of buses for one tap at the station's machine; the train is still per trip.
+  // place:country-pass-covers-ways: a month of buses for one tap at the station's machine; the train is still per trip.
   "activity.bus-pass-uk": {
     id: "activity.bus-pass-uk",
     slot: "none",
@@ -54,7 +54,7 @@ export const londonActivityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [],
   },
 
-  // streets.md R-STREET-012. At the big shop: the weekly shop fills the belly as a pot does.
+  // streets:london-life-by-hand. At the big shop: the weekly shop fills the belly as a pot does.
   "activity.weekly-shop-uk": byHand("activity.weekly-shop-uk", 45, "food", [lift("quality.belly", 40)]),
   // In the room in the UK: a meal of your own, cooked in the shared kitchen, as a meal fills it at home.
   "activity.cook-own-uk": byHand("activity.cook-own-uk", 6, "food", [lift("quality.belly", 25)]),

@@ -1,5 +1,5 @@
 // docs/rules/home.md: the two asks of living in Makoko. Neither is rolled: the eviction opens the
-// first (R-HOME-003) and the end of a stay the second (R-HOME-004).
+// first (home:makoko-eviction-draw) and the end of a stay the second (home:taken-in-after-eviction).
 import type { Id, OfferEntry } from "@japacity/sim";
 
 import { tuning } from "../tuning/tuning.data";

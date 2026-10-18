@@ -14,7 +14,7 @@ export const guideText: Record<string, string> = {
   "guide.page.all-guides": "All guides",
   "guide.page.made": "How this game was made",
   "guide.page.game-note": "Japacity is a game. It is built on real rules, simplified.",
-  // The one notice on names, shown on the about page and in the terms (city.md R-CITY-041).
+  // The one notice on names, shown on the about page and in the terms (city:invented-names-for-risky-businesses).
   "guide.page.about.names":
     "Real places are named so the game looks like the cities it is set in. Naming a place is not an endorsement, either way. The banks, lenders, agents, employers, schools and airlines in the game are invented, and its institutions and events are invented or simplified.",
   "guide.page.index.title": "Guides: the real rules behind Japacity",
@@ -25,7 +25,7 @@ export const guideText: Record<string, string> = {
   "guide.page.menu": "Guides",
   "guide.page.route-link": "What the route really needs",
 
-  // The numbers pages (R-GUIDE-006).
+  // The numbers pages (guide:numbers-pages-cite-sources).
   "guide.page.numbers.title": "Where the numbers come from: {page}",
   "guide.page.numbers.intro": "Each number the game uses for this part, its source and its date. A number marked as an estimate has no source: it was set to make the game play well.",
   "guide.page.numbers.working": "Estimate",
@@ -33,7 +33,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.estimate": "estimate",
   "guide.page.numbers.estimates": "estimates",
 
-  // The numbers pages by the part of the game they cover, never by the rule page's own title (R-GUIDE-006).
+  // The numbers pages by the part of the game they cover, never by the rule page's own title (guide:numbers-pages-cite-sources).
   "guide.page.numbers.name.abroad-money": "Money abroad",
   "guide.page.numbers.name.account": "Accounts and signing in",
   "guide.page.numbers.name.activity": "Jobs and things to do",
@@ -79,7 +79,7 @@ export const guideText: Record<string, string> = {
   "guide.page.numbers.name.wallet": "Money",
   "guide.page.numbers.name.home": "Where you live",
 
-  // How this game was made (R-GUIDE-011).
+  // How this game was made (guide:generated-media-named-plainly).
   "guide.page.made.title": "How this game was made",
   "guide.page.made.intro": "This page says plainly where generated media is used in the game, kind by kind.",
   "guide.page.made.statement": "What is generated",

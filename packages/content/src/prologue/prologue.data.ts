@@ -1,5 +1,5 @@
 // From docs/rules/prologue.md, "The steps" and "The apprenticeship branch". A
-// step's months are added to age when it is answered (R-PROLOGUE-004).
+// step's months are added to age when it is answered (prologue:age-advances-with-steps).
 //
 // The first step is `draw`, the opening card that shows step 0's draw;
 // its one answer begins the prologue.
@@ -15,7 +15,7 @@ import { qualityTable } from "../quality/quality.data";
 import { tuning } from "../tuning/tuning.data";
 import { naira } from "../units";
 
-/** R-HOME-010: what the room in a compound takes at once, the year's rent and the agent's and the agreement's fees on it. */
+/** home:compound-room-is-a-home: what the room in a compound takes at once, the year's rent and the agent's and the agreement's fees on it. */
 const COMPOUND_MOVE_IN = tuning.home.compound.rentYear + int.bp(tuning.home.compound.rentYear, tuning.home.compound.feesBp);
 
 type Answer = PrologueStep["answers"][number];
@@ -25,7 +25,7 @@ function add(quality: Id<"quality">, amount: number): Effect {
   return { type: "quality/add", quality, amount };
 }
 
-/** Earned money (R-PROLOGUE-003), to the pocket its size takes (R-WALLET-018): years of earnings land in the bank. */
+/** Earned money (prologue:steps-offer-legal-answers), to the pocket its size takes (wallet:money-lands-as-in-lagos): years of earnings land in the bank. */
 function earned(amount: number): Effect {
   return { type: "money/add", currency: "NGN", pocket: pocketFor(amount, tuning.wallet), amount, reason: "gig" };
 }
@@ -55,11 +55,11 @@ const WELLBEING = "quality.wellbeing";
 const EDU_LEVEL = "quality.edu-level";
 const AGE = "quality.age-months";
 
-/** The span a start may be in, in whole years (R-PROLOGUE-004): the age cards offer each year of it. */
+/** The span a start may be in, in whole years (prologue:age-advances-with-steps): the age cards offer each year of it. */
 const YOUNGEST_YEARS = 18;
 const OLDEST_YEARS = 29;
 /**
- * What a month of work after the path's end saves (R-PROLOGUE-004, decision 0023): the older start's ₦120,000 a year
+ * What a month of work after the path's end saves (prologue:age-advances-with-steps, decision 0023): the older start's ₦120,000 a year
  * as a month's share, so the years worked and the saving are one count and nothing is paid twice.
  */
 const WORKED_MONTHLY = 10000;
@@ -71,7 +71,7 @@ const FIRST_RETAKE_ONLY: Requirement = { type: "quality/max", quality: "quality.
 const SHOP_WORK: Effect[] = [add(EDU_LEVEL, 1), earned(naira(300000))];
 
 /**
- * R-PROLOGUE-001 starts every quality at its minimum, and nothing on the page lifts wellbeing from 0, so
+ * prologue:prologue-life-starts-empty starts every quality at its minimum, and nothing on the page lifts wellbeing from 0, so
  * a life would open run down and fall ill by its third month. The draw card's answer gives the sixteen-year-old the
  * wellbeing the fixed lives start with (50 to 70); the answers after it move it by -22 to +15, so every path closes
  * above the run-down line.
@@ -253,7 +253,7 @@ const steps: Record<string, PrologueStep> = {
   // No choice: one answer is allowed. The grade (2 plus grade base, +1 at 4000, -1 at 2000 after `expo`, kept
   // between 2 and 5) is the prologue kind's: an answer has no field for it. Care 30 or more is a nurse.
   // Graduating as a nurse adds care 30 with the licence, so the course and the licence leave her at care 60,
-  // the staff nurse's bar (prologue.md R-PROLOGUE-010).
+  // the staff nurse's bar (prologue:archetype-presets-answers).
   graduation: {
     id: "graduation",
     months: 3,
@@ -292,7 +292,7 @@ const steps: Record<string, PrologueStep> = {
       answer("tech", [{ type: "route/hear", route: "route.uk-talent", via: "friend" }], {
         requires: [{ type: "quality/min", quality: TECH, value: 40 }],
       }),
-      // The nurses' crowd: a life with care behind it hears of care work abroad at its own send-off, so its chapters lean that way (R-PROLOGUE-011).
+      // The nurses' crowd: a life with care behind it hears of care work abroad at its own send-off, so its chapters lean that way (prologue:tile-path-open-from-start).
       answer("care", [{ type: "route/hear", route: "route.uk-care", via: "friend" }], {
         requires: [{ type: "quality/min", quality: CARE, value: 30 }],
       }),
@@ -302,7 +302,7 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // The years worked after the path's end, up to the age picked (R-PROLOGUE-004, decision 0023). Never a card: the
+  // The years worked after the path's end, up to the age picked (prologue:age-advances-with-steps, decision 0023). Never a card: the
   // send-off leads here and the prologue kind gives one answer for each year worked, the answers in order and the last
   // for every year after, each a year of the month's saving; the second year brings the passport held. Then home.
   work: {
@@ -316,8 +316,8 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // Closes the prologue: the upkeep opens at the amount chosen (R-PROLOGUE-006), the room in a compound's year
-  // (R-PROLOGUE-013, home.md R-HOME-010), or Makoko's rent (R-PROLOGUE-012).
+  // Closes the prologue: the upkeep opens at the amount chosen (prologue:closing-opens-home-charges), the room in a compound's year
+  // (prologue:front-door-three-screens, home:compound-room-is-a-home), or Makoko's rent (prologue:makoko-start-never-a-trap).
   home: {
     id: "home",
     months: 0,
@@ -327,7 +327,7 @@ const steps: Record<string, PrologueStep> = {
         { type: "obligation/open", obligation: "obligation.upkeep", amount: naira(95000) },
         add(STANDING, 3),
       ]),
-      // A room of one's own: the year's rent and the fees taken at once, the year paid (R-OBLIGATION-015), the room's
+      // A room of one's own: the year's rent and the fees taken at once, the year paid (obligation:prepaid-entries-skip-first-charge), the room's
       // own upkeep in place of the family's, and the move. Held first: the rent, the fees and a month of living there.
       answer(
         "compound-room",
@@ -345,7 +345,7 @@ const steps: Record<string, PrologueStep> = {
         { type: "obligation/open", obligation: "obligation.upkeep-hostel", amount: tuning.home.hostelRentKobo },
         { type: "home/move", place: "place.hostel-room" },
       ]),
-      // A room on the water (R-PROLOGUE-012, home.md): the rent opens first so the card says it as the other homes
+      // A room on the water (prologue:makoko-start-never-a-trap, home.md): the rent opens first so the card says it as the other homes
       // do, and the move takes the room at that charge. The family house stays there to go back to.
       answer("makoko", [
         { type: "obligation/open", obligation: "obligation.upkeep-makoko", amount: tuning.home.makokoUpkeep },
@@ -402,7 +402,7 @@ const steps: Record<string, PrologueStep> = {
   },
 };
 
-/** The months a path takes along these steps, each step's own (R-PROLOGUE-004). */
+/** The months a path takes along these steps, each step's own (prologue:age-advances-with-steps). */
 function monthsOf(path: readonly string[]): number {
   return path.reduce((sum, id) => {
     const step = steps[id];
@@ -412,7 +412,7 @@ function monthsOf(path: readonly string[]): number {
 }
 
 /**
- * The age card of one path (R-PROLOGUE-004, decision 0023): its answers set the age the life starts at, a year each from
+ * The age card of one path (prologue:age-advances-with-steps, decision 0023): its answers set the age the life starts at, a year each from
  * 18 to 29, and one is open only when the path's end with no setback falls in that year or before, `path` being the
  * steps of its longest way from here to the send-off. The prologue kind keeps the year picked: a strike or a retake
  * that would leave no year of work is not drawn, and the years left are worked before home. Youngest first, so a life
@@ -440,7 +440,7 @@ export const prologueTable: Record<string, PrologueStep> = {
 };
 
 /**
- * R-PROLOGUE-001: the life the prologue builds from. Every quality at its
+ * prologue:prologue-life-starts-empty: the life the prologue builds from. Every quality at its
  * minimum but age, at sixteen; no money, job, documents or obligations.
  * Joined to the scenario table in index.ts.
  */
@@ -448,13 +448,13 @@ export const prologueScenario: ScenarioEntry = {
   id: "scenario.prologue",
   prologue: true,
   qualities: {
-    // Every quality at its floor, except the body, which starts where its entry says (R-QUALITY-007).
+    // Every quality at its floor, except the body, which starts where its entry says (quality:body-belly-and-energy).
     ...Object.fromEntries(Object.values(qualityTable).map((entry) => [entry.id, entry.start ?? entry.min])),
     "quality.age-months": tuning.prologue.startAgeMonths,
   },
   job: null,
   tenure: {},
-  // The prologue draws the siblings (R-PROLOGUE-002); nothing starts with any.
+  // The prologue draws the siblings (prologue:family-draw-on-first-answer); nothing starts with any.
   siblings: 0,
   pockets: {},
   documents: [],

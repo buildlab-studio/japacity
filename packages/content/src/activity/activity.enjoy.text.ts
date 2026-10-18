@@ -1,4 +1,4 @@
-// Names and blurbs for the street's enjoyment and spending (docs/rules/streets.md R-STREET-011, decision 0012).
+// Names and blurbs for the street's enjoyment and spending (streets:lagos-street-spending, decision 0012).
 // The place's answer to each is in activity.now.text.ts with the other now-lines.
 export const activityEnjoyText: Record<string, string> = {
   "activity.buy-suya.name": "A wrap of suya",

@@ -5,7 +5,7 @@
 // chosen apart from the name, and no people holds two roles that take money.
 import type { NamedPerson } from "./person.names.data";
 
-/** advice.md R-ADVICE-010: the agents at the stop (`tout`, `runner`, `middleman`), the desk upstairs (`agent`) and the adviser. */
+/** advice:advisers-are-invented-people: the agents at the stop (`tout`, `runner`, `middleman`), the desk upstairs (`agent`) and the adviser. */
 export type RecurringRole = "fx" | "landlord" | "auntie" | "agent" | "tout" | "runner" | "middleman" | "adviser";
 
 export interface RecurringPerson extends NamedPerson {

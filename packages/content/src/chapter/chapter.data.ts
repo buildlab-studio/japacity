@@ -14,7 +14,7 @@ const DECISION: Id<"chapter"> = "chapter.decision-day";
 const OWN_ROUTES: Id<"route">[] = ["route.uk-masters", "route.uk-care", "route.uk-talent", "route.uk-skilled", "route.canada-points", "route.gulf-contract"];
 /**
  * The routes a visa is granted and flown on: every route with a country, a partner's and a dependant's among them,
- * never the road. The send-off reads a flight on any of them (R-CHAPTER-002).
+ * never the road. The send-off reads a flight on any of them (chapter:met-items-close-the-chapter).
  */
 const FLOWN_ROUTES: Id<"route">[] = [...OWN_ROUTES, "route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"];
 
@@ -35,7 +35,7 @@ function granted(route: Id<"route">): Requirement {
 }
 
 /**
- * R-CHAPTER-009: a base chapter's variant for one way out. Its order sits after its base's and before the
+ * chapter:chapters-follow-lean-route: a base chapter's variant for one way out. Its order sits after its base's and before the
  * next base's, so the orders stay one apiece; the engine follows the bases' order and only ever puts a
  * variant in its base's turn.
  */
@@ -82,21 +82,21 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
       { id: "applied", requirement: { type: "route/state", route: UK, in: ["applying", "granted", "departed"] } },
       { id: "granted", requirement: { type: "route/state", route: UK, in: ["granted", "departed"] } },
     ],
-    // A grant is decision day whether or not the held funds lasted (R-CHAPTER-002).
+    // A grant is decision day whether or not the held funds lasted (chapter:met-items-close-the-chapter).
     closesOn: "granted",
   },
 
-  // R-CHAPTER-009: the file and decision day for each way out of the player's own effort. The orders
+  // chapter:chapters-follow-lean-route: the file and decision day for each way out of the player's own effort. The orders
   // between the bases keep one order to a chapter; the engine reads the base's.
   "chapter.build-the-file-care": variant(FILE, CARE, 3, [
-    // Twenty-four months as a nurse: the home council's rule before it verifies (R-SPONSOR-005).
+    // Twenty-four months as a nurse: the home council's rule before it verifies (route-gates:care-route-needs-verification).
     { id: "tenure", requirement: { type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 } },
     { id: "verification", requirement: held("document.nmcn-verification") },
     { id: "sponsor", requirement: gateStep(CARE, "sponsor") },
     { id: "applied", requirement: applied(CARE) },
   ]),
   "chapter.build-the-file-talent": variant(FILE, TALENT, 4, [
-    // The endorsement's bar for the portfolio (R-ENDORSE-001).
+    // The endorsement's bar for the portfolio (route-gates:applying-for-endorsement).
     { id: "portfolio", requirement: { type: "quality/min", quality: "quality.portfolio", value: 3 } },
     // The endorsement gate's only step is its cooldown, so the item reads the endorsement held, as the route's checklist does.
     { id: "endorsement", requirement: held("document.endorsement") },
@@ -104,7 +104,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   ]),
   "chapter.build-the-file-points": variant(FILE, POINTS, 5, [
     { id: "eca", requirement: held("document.eca") },
-    // Band 6.0, CLB 7 (R-POINTS-002), held as the band times ten.
+    // Band 6.0, CLB 7 (route-gates:entering-the-pool), held as the band times ten.
     { id: "english", requirement: held("document.english-test", 60) },
     { id: "pool", requirement: gateStep(POINTS, "pool") },
     { id: "invited", requirement: gateStep(POINTS, "invited") },
@@ -167,7 +167,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.send-off": {
     id: "chapter.send-off",
     order: 12,
-    // The flight on any route with a country closes the send-off, a partner's or a dependant's too (R-CHAPTER-002).
+    // The flight on any route with a country closes the send-off, a partner's or a dependant's too (chapter:met-items-close-the-chapter).
     items: [{ id: "departed", requirement: { type: "any", of: FLOWN_ROUTES.map((route) => ({ type: "route/state" as const, route, in: ["departed"] })) } }],
   },
   "chapter.landing": {
@@ -221,7 +221,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
   "chapter.secure": {
     id: "chapter.secure",
     order: 14,
-    // One item that is an `any`, so one path closes the chapter (R-CHAPTER-007).
+    // One item that is an `any`, so one path closes the chapter (chapter:long-game-after-last-chapter).
     items: [
       {
         id: "secure",
@@ -234,7 +234,7 @@ export const chapterTable: Record<Id<"chapter">, ChapterEntry> = {
             // after Landing, which is met abroad, so the return is one made from there.
             { type: "place/returned", shapes: ["with-papers", "by-choice"] },
             // `second`: a second route granted. A route flown is `departed`, and no route is applied
-            // for abroad (R-PLACE-003), so a route `granted` now was granted after a return.
+            // for abroad (place:entries-legal-by-where), so a route `granted` now was granted after a return.
             ...SECOND_ROUTES.map((route): Requirement => ({ type: "route/state", route, in: ["granted"] })),
           ],
         },

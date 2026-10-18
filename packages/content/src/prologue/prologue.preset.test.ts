@@ -1,4 +1,4 @@
-// The archetypes' presets in content (prologue.md R-PROLOGUE-010, server.md R-SERVER-046): the one answer function the
+// The archetypes' presets in content (prologue:archetype-presets-answers, server:server-plays-prologue-preset): the one answer function the
 // client plays offline and the server plays online. Its edges: the preset's answer allowed, shut (the open answer that
 // suits the tile), a step the preset does not name, every answer shut, an unknown tile; the door's age step and home.
 import { startYearOf } from "@japacity/sim";
@@ -16,14 +16,14 @@ function ageAnswers(card: string): { id: string; allowed: boolean }[] {
 }
 
 describe("the preset's answer", () => {
-  test("[R-PROLOGUE-010] [R-SERVER-046] given the tile's preset answer allowed, when the answer is asked, then it is the preset's, whatever its place on the card", () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given the tile's preset answer allowed, when the answer is asked, then it is the preset's, whatever its place on the card", () => {
     expect(presetAnswer("developer", 0, "family-house", "subjects", open("arts", "commercial", "science"))).toBe("science");
     expect(presetAnswer("nurse", 0, "family-house", "course", open("computer-science", "nursing"))).toBe("nursing");
     // The second of the preset's answers goes when only it is open.
     expect(presetAnswer("developer", 0, "family-house", "friend", [...shut("tech"), ...open("canada", "uk")])).toBe("uk");
   });
 
-  test("[R-PROLOGUE-010] [R-SERVER-046] given every preset answer shut by a draw, when the answer is asked, then the open answer that suits the tile goes, else the first open one", () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given every preset answer shut by a draw, when the answer is asked, then the open answer that suits the tile goes, else the first open one", () => {
     // The developer leans to tech at the send-off; with tech and uk shut the first open one goes.
     expect(presetAnswer("developer", 0, "family-house", "friend", [...shut("tech", "uk"), ...open("canada", "care")])).toBe("canada");
     // The accountant's preset is canada alone, and its leaning the same: shut, the first open answer goes.
@@ -32,18 +32,18 @@ describe("the preset's answer", () => {
     expect(presetAnswer("trader", 0, "family-house", "friend", [...open("uk"), ...open("drivers")])).toBe("drivers");
   });
 
-  test("[R-PROLOGUE-010] [R-SERVER-046] given a step the preset does not name, when the answer is asked, then the first open answer goes", () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given a step the preset does not name, when the answer is asked, then the first open answer goes", () => {
     expect(presetOf("shop-worker")?.answers["course"]).toBeUndefined();
     expect(presetAnswer("shop-worker", 0, "family-house", "course", [...shut("computer-science"), ...open("nursing", "accounting")])).toBe("nursing");
   });
 
-  test("[R-PROLOGUE-010] [R-SERVER-046] given every answer shut, or a tile no one has, when the answer is asked, then there is none", () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given every answer shut, or a tile no one has, when the answer is asked, then there is none", () => {
     expect(presetAnswer("developer", 0, "family-house", "friend", shut("tech", "uk", "canada"))).toBeNull();
     expect(presetAnswer("pilot", 0, "family-house", "subjects", open("science"))).toBeNull();
     expect(presetAnswer("", 0, "family-house", "draw", open("begin"))).toBeNull();
   });
 
-  test("[R-PROLOGUE-010] [R-SERVER-046] given the home picked on the door, when the home step is asked, then that home goes; a home the door has not leaves the tile's own", () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given the home picked on the door, when the home step is asked, then that home goes; a home the door has not leaves the tile's own", () => {
     const homes = open("family-house", "compound-room", "hostel-room", "makoko");
     expect(presetAnswer("developer", 0, "hostel-room", "home", homes)).toBe("hostel-room");
     expect(presetAnswer("developer", 0, "compound-room", "home", homes)).toBe("compound-room");
@@ -54,7 +54,7 @@ describe("the preset's answer", () => {
     expect(presetAnswer("developer", 0, "compound-room", "home", [...shut("compound-room"), ...open("hostel-room", "family-house")])).toBe("hostel-room");
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-010] [R-SERVER-046] given the door's age step, when an age card is asked, then the tile's own year goes at 0 and each step one year older; a year shut gives way to the nearest open above, then below", () => {
+  test("[prologue:front-door-builds-a-person] [prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given the door's age step, when an age card is asked, then the tile's own year goes at 0 and each step one year older; a year shut gives way to the nearest open above, then below", () => {
     for (const preset of PRESETS) {
       const own = lowestYear(preset.answers);
       for (const card of AGE_CARDS) {
@@ -74,7 +74,7 @@ describe("the preset's answer", () => {
 });
 
 describe("what the door offers", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] [R-SERVER-046] given each tile, then its age steps run from 0 to at most three and never past the oldest start, and its homes are the three rooms, Makoko for the child of the water alone", () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] [server:server-plays-prologue-preset] given each tile, then its age steps run from 0 to at most three and never past the oldest start, and its homes are the three rooms, Makoko for the child of the water alone", () => {
     const oldest = Math.max(...AGE_CARDS.flatMap((card) => ageAnswers(card).map((answer) => startYearOf(answer.id) ?? 0)));
     for (const preset of PRESETS) {
       const ages = presetAges(preset.answers);
@@ -84,7 +84,7 @@ describe("what the door offers", () => {
     }
   });
 
-  test("[R-SERVER-046] given a tile, an age step and a home, when they are checked, then only what the door offers passes, at each edge", () => {
+  test("[server:server-plays-prologue-preset] given a tile, an age step and a home, when they are checked, then only what the door offers passes, at each edge", () => {
     const most = presetAges(presetOf("developer")?.answers ?? {}).at(-1) ?? 0;
     expect(presetOffered("developer", 0, "family-house")).toBe(true);
     expect(presetOffered("developer", most, "hostel-room")).toBe(true);
@@ -96,7 +96,7 @@ describe("what the door offers", () => {
     expect(presetOffered("pilot", 0, "family-house")).toBe(false);
   });
 
-  test("[R-PROLOGUE-010] given every preset, then each step and answer it names, and each leaning, is on the prologue's own step", () => {
+  test("[prologue:archetype-presets-answers] given every preset, then each step and answer it names, and each leaning, is on the prologue's own step", () => {
     expect(PRESETS.map((preset) => preset.id)).toEqual(["developer", "nurse", "accountant", "writer", "trader", "shop-worker", "water"]);
     for (const preset of PRESETS) {
       for (const [step, answers] of Object.entries(preset.answers)) {

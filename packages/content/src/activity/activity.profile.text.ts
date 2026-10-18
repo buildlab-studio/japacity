@@ -1,4 +1,4 @@
-// The waiting months' acts (activity.md R-ACTIVITY-013): names, blurbs and the lines the raise and the
+// The waiting months' acts (activity:waiting-months-build-profile): names, blurbs and the lines the raise and the
 // quiz are told with.
 export const activityProfileText: Record<string, string> = {
   "activity.open-source.name": "Work on open source",
@@ -14,7 +14,7 @@ export const activityProfileText: Record<string, string> = {
   "activity.masters-at-home.name": "A master's at home",
   "activity.masters-at-home.blurb": "Evenings and weekends at a university here for twelve months, the fees paid month by month. A master's adds to Canada's points.",
 
-  // R-ACTIVITY-013: the draw at work, the quiz marked the moment it is answered, and what the acts built.
+  // activity:waiting-months-build-profile: the draw at work, the quiz marked the moment it is answered, and what the acts built.
   "line.activity.raised": "Your manager noticed: {rise} more a month from next month.",
   "line.activity.not-noticed": "{job}: you stayed late again. Nobody has said anything yet.",
   "line.activity.exam-passed": "The exam: {right} of {asked} right. You passed.",
@@ -27,6 +27,6 @@ export const activityProfileText: Record<string, string> = {
   // How the talk went, from its answer, and what it counted for.
   "line.activity.exam-passed.activity.conference-talk": "The talk went well: three people asked for your handle. It counts toward the endorsement's letters.",
   "line.activity.exam-failed.activity.conference-talk": "The talk fell flat. It still counts toward the endorsement's letters.",
-  // A course at home cut short by the flight (R-ACTIVITY-013).
+  // A course at home cut short by the flight (activity:waiting-months-build-profile).
   "line.activity.course-ended": "Your course ends with the flight: {activity}. Nothing more is charged for it.",
 };

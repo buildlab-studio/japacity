@@ -1,4 +1,4 @@
-// The boards and their two pickers (docs/rules/city.md R-CITY-039, R-CITY-040), in the voice of docs/rules/text.md.
+// The boards and their two pickers (city:boards-switch-when-and-who, city:board-line-and-ranking), in the voice of docs/rules/text.md.
 export const uiBoardsText: Record<string, string> = {
   "ui.boards.title": "Boards",
   "ui.boards.when": "When",
@@ -18,7 +18,7 @@ export const uiBoardsText: Record<string, string> = {
   "ui.boards.empty": "Nobody is on this board yet.",
   "ui.boards.empty.friends": "None of your friends has a route yet.",
   "ui.boards.you": "You",
-  // R-CITY-040: a line whose account is not there (a deletion under way) has no username to show.
+  // city:board-line-and-ranking: a line whose account is not there (a deletion under way) has no username to show.
   "ui.boards.someone": "A player",
   "ui.boards.your-place": "Your place",
   "ui.boards.no-route": "You are not on this board yet: you have no route yet.",

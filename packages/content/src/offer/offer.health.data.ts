@@ -1,4 +1,4 @@
-// Illness and the forced months: docs/rules/health.md R-HEALTH-002, 003, 005 and 006.
+// Illness and the forced months: health:illness-rolls-when-run-down, health:worse-illness-locks-slots, health:forced-months-spaced-apart and health:forced-months-warned-ahead.
 // Joined into the offer table in offer.data.ts.
 //
 // The illness and its worse turn are never rolled here (chance 0): the offer kind's health
@@ -8,7 +8,7 @@
 // Each choice that takes a slot carries its own `turn/lock`. The burial's `lockNext`
 // names the same lock, but only `go` takes it: `send-money` and `absent` lock nothing, so a lock
 // on every choice would be wrong. The same choices fill `quality.forced-wait`, which is how the
-// cap of one forced month in twelve is counted (R-HEALTH-005).
+// cap of one forced month in twelve is counted (health:forced-months-spaced-apart).
 import type { Effect, Id, OfferEntry, Requirement } from "@japacity/sim";
 
 import { qualityTable } from "../quality/quality.data";
@@ -23,7 +23,7 @@ const FORCED_WAIT: Id<"quality"> = "quality.forced-wait";
 /** Fills the wait before another forced month to its top: twelve months. */
 const FORCED: Effect = { type: "quality/add", quality: FORCED_WAIT, amount: qualityTable[FORCED_WAIT]?.max ?? 0 };
 
-/** No forced month in the last twelve (R-HEALTH-005). */
+/** No forced month in the last twelve (health:forced-months-spaced-apart). */
 const NO_FORCED_MONTH: Requirement = { type: "quality/max", quality: FORCED_WAIT, value: 0 };
 
 function lock(slots: number, months: number, why: string): Extract<Effect, { type: "turn/lock" }> {
@@ -35,7 +35,7 @@ const BURIAL_LOCK = lock(1, 1, "burial");
 const COURT_LOCK = lock(1, 1, "court");
 
 export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
-  // R-HEALTH-002. It lapses after one month into `ignore`.
+  // health:illness-rolls-when-run-down. It lapses after one month into `ignore`.
   "offer.illness": {
     id: "offer.illness",
     group: "life",
@@ -85,7 +85,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "ignore",
   },
 
-  // R-HEALTH-003. Opened only by the relapse. `wellbeing` is where wellbeing returns once it is over.
+  // health:worse-illness-locks-slots. Opened only by the relapse. `wellbeing` is where wellbeing returns once it is over.
   // Unanswered, it lapses into `cannot`; when the hospital could have been paid, the health
   // roll still applies `cannot` at the next come-up, since the family nursed you all the same.
   "offer.illness-worse": {
@@ -125,7 +125,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "cannot",
   },
 
-  // R-HEALTH-006: family, at home, standing 20 or more. It says so a month ahead: `go` takes a slot next month.
+  // health:forced-months-warned-ahead: family, at home, standing 20 or more. It says so a month ahead: `go` takes a slot next month.
   "offer.village-burial": {
     id: "offer.village-burial",
     group: "family",
@@ -170,7 +170,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "absent",
   },
 
-  // R-HEALTH-006: abroad, a court date over what is still owed. A day lost: one slot next month.
+  // health:forced-months-warned-ahead: abroad, a court date over what is still owed. A day lost: one slot next month.
   // The car shortfall comes with a judgment whether or not it is paid; any other loan only once it is in default and owed
   // in the country's own money, as the entries table's "defaulted loan abroad": a naira loan from home brings no court here.
   "offer.court-date": {

@@ -1,5 +1,5 @@
 // The city's own words, in the voice of docs/rules/text.md. Place names, blurbs, signs and talk overheard are in
-// place/place.text.ts (city.md R-CITY-024).
+// place/place.text.ts (city:place-words-are-text-keys).
 export const uiCityText: Record<string, string> = {
   "city.menu": "City",
   "city.look": "Look around",
@@ -18,13 +18,13 @@ export const uiCityText: Record<string, string> = {
   "city.map.lagos": "Lagos",
   "city.map.no-visa": "No visa yet",
   "city.map.not-open": "Not in this life yet",
-  // The band says what a home is, in few words (R-WORLD-002).
+  // The band says what a home is, in few words (world:top-band-is-lively-pill).
   "city.home.compound-room": "Your room, Ojuelegba",
   "city.home.hostel-room": "Your hostel room, Yaba",
   "city.home.family-house": "The family house",
   "city.home.makoko": "The room on the water",
   "city.home.the-room": "The shared room, {area}",
-  // The room per country on the band (world.md R-WORLD-038): content's full names, said short.
+  // The room per country on the band (world:painted-maps-abroad): content's full names, said short.
   "city.home.the-room.country.canada": "The basement, Calgary",
   "city.home.the-room.country.uae": "The bed space, Dubai",
   "city.home.the-room.country.italy": "The shared flat, Castel",
@@ -32,7 +32,7 @@ export const uiCityText: Record<string, string> = {
   "city.zoom.closer": "Closer",
   "city.zoom.whole": "Whole place",
   "city.thing.lotto": "Lotto",
-  // The trader's own stall at the market (R-ACTIVITY-016).
+  // The trader's own stall at the market (activity:trader-opens-own-shop).
   "city.thing.own-stall": "Your stall",
   "city.act.open-shop": "Open the shop",
   "city.thing.bets": "Bets",
@@ -40,7 +40,7 @@ export const uiCityText: Record<string, string> = {
   "city.thing.keke": "Keke",
   "city.thing.okada": "Okada",
   "city.thing.out": "Out",
-  // The thirteen world-first places' things and acts (docs/rules/world.md R-WORLD-005), in the voice of text.md.
+  // The thirteen world-first places' things and acts (world:things-are-tappable-models), in the voice of text.md.
   "city.thing.sofa": "Sofa",
   "city.thing.mama": "Mama",
   "city.thing.papa": "Papa",
@@ -80,27 +80,27 @@ export const uiCityText: Record<string, string> = {
   "city.thing.cooking": "Cooking corner",
   "city.thing.drum": "Water drum",
   "city.thing.bag": "Bag",
-  // The room in a compound (home.md R-HOME-010), in its own voice: a mattress on the floor, a gas stove.
+  // The room in a compound (home:compound-room-is-a-home), in its own voice: a mattress on the floor, a gas stove.
   "city.thing.mattress": "Mattress",
   "city.thing.stove": "Stove",
   "city.act.sit": "Sit",
-  // The light bill paid at home: Mama's words over her head, then the next compound in the corner (R-WORLD-005, R-WORLD-026).
+  // The light bill paid at home: Mama's words over her head, then the next compound in the corner (world:things-are-tappable-models, world:street-talk-budget).
   "city.say.light-back": "God bless you. Light is back.",
   "city.heard.up-nepa": "The next compound shouts “UP NEPA”.",
   "city.told.light-paid": "Light bill paid",
-  // The parcel collected at the cargo office, told in the corner (R-WORLD-005).
+  // The parcel collected at the cargo office, told in the corner (world:things-are-tappable-models).
   "city.told.parcel": "The parcel is yours.",
-  // Lying down is done at once, seen on the bed or the couch; an empty slot of the month already rests (R-TURN-006).
+  // Lying down is done at once, seen on the bed or the couch; an empty slot of the month already rests (turn:free-slots-per-month).
   "city.act.lie": "Lie down",
-  // A meal is cooked now, as often as you are hungry (R-ACTIVITY-019): Indomie and egg, or jollof for the house, on one sheet.
+  // A meal is cooked now, as often as you are hungry (activity:acts-may-repeat-in-month): Indomie and egg, or jollof for the house, on one sheet.
   "city.act.cook": "Cook",
   "city.act.fetch-water": "Fetch water",
-  // The drum's one sheet: the water and the bucket bath (R-WORLD-005, a third act goes on a sheet).
+  // The drum's one sheet: the water and the bucket bath (world:things-are-tappable-models, a third act goes on a sheet).
   "city.act.drum": "Water and a bath",
   "city.act.pack": "Pack and go",
   // The bag in the room abroad: the way home by choice, with its card (return.md).
   "city.act.go-home": "Go home",
-  // R-WORLD-019: the box opens the phone's Papers app, where every paper is told.
+  // world:phone-holds-what-phones-hold: the box opens the phone's Papers app, where every paper is told.
   "city.act.papers": "Look in the box",
   "city.act.go-in": "Go in",
   "city.act.go-out": "Go out",
@@ -117,7 +117,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.brother-fees": "School fees",
   "city.act.send-off": "The send-off",
   "city.act.pledge": "The pledge",
-  // chapter.md R-CHAPTER-008: home's send-off, on the veranda the month of the grant.
+  // chapter:family-marks-the-grant: home's send-off, on the veranda the month of the grant.
   "city.act.send-off-home": "Your send-off",
   "city.act.play-lotto": "Play",
   "city.act.bet-slip": "Bet",
@@ -126,7 +126,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.ask-around": "Ask around",
   "city.act.mum-shop": "Help Mama",
   "city.act.greet-mum": "Greet Mama",
-  // A person's words over their head (`.says`), and what follows told in the corner (`.done`; R-WORLD-005).
+  // A person's words over their head (`.says`), and what follows told in the corner (`.done`; world:things-are-tappable-models).
   "city.act.greet-mum.says": "You have eaten? Sit small.",
   "city.act.greet-mum.done": "Mama presses a bag of oranges on you.",
   "city.act.apply-visa": "Apply",
@@ -155,7 +155,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.rent": "Rent",
   "city.act.send-off-chapter": "Leaving",
   "city.act.december-home": "Come home",
-  // Computer Village, Peckham and Deira rebuilt as frontages (docs/rules/world.md R-WORLD-005).
+  // Computer Village, Peckham and Deira rebuilt as frontages (world:things-are-tappable-models).
   "city.thing.repair-bench": "Repair bench",
   "city.thing.phone-stall": "Phones",
   "city.thing.accessories": "Accessories",
@@ -179,7 +179,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.look-gold.done": "Bangles in every window. Nobody is in a hurry.",
   "city.act.look-spices": "Look",
   "city.act.look-spices.done": "Dried lemons, cardamom, and a pepper that smells like home.",
-  // The hidden places' life (docs/rules/streets.md R-STREET-001 to 004, 008).
+  // The hidden places' life (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:stadium-morning-run).
   "city.act.buy-phone": "Buy a phone",
   "city.act.apprentice": "Learn repairs",
   "city.act.phone-sales": "Sell phones",
@@ -201,15 +201,15 @@ export const uiCityText: Record<string, string> = {
   "city.thing.notices": "Notices",
   "city.act.read-notices": "Read",
   "city.act.read-notices.done": "Desks by the day, light and data included. In red marker: no sleeping on the benches.",
-  // A computer partner met in a place (world.md R-WORLD-020): the name is theirs once someone stands there; their one act.
+  // A computer partner met in a place (world:nobody-picked-from-list): the name is theirs once someone stands there; their one act.
   "city.thing.someone": "Someone",
   "city.act.talk-to": "Talk",
-  // Their room (place.their-room, R-WORLD-020, person.md R-PEOPLE-014): time together on the chair under the window.
+  // Their room (place.their-room, world:nobody-picked-from-list, person:time-together-is-an-act): time together on the chair under the window.
   "city.act.spend-time": "Spend time",
-  // The streets abroad (docs/rules/streets.md R-STREET-005, 006): shopping at the grocer and the spice stall, and a find while one is open.
+  // The streets abroad (streets:street-shopping-abroad, streets:street-finds-abroad): shopping at the grocer and the spice stall, and a find while one is open.
   "city.act.shop": "Shop",
   "city.act.street-find": "See what's on",
-  // Work abroad (world.md R-WORLD-005): the jobs notice and the agency in Peckham, the typing centre and the site bus in Deira, and money home from the room.
+  // Work abroad (world:things-are-tappable-models): the jobs notice and the agency in Peckham, the typing centre and the site bus in Deira, and money home from the room.
   "city.thing.jobs-notice": "Jobs notice",
   "city.thing.agency": "Job agency",
   "city.thing.typing-centre": "Typing centre",
@@ -228,7 +228,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.look-site-bus": "Look",
   "city.act.look-site-bus.done": "The bus to the site leaves before six.",
   "city.act.send-money": "Send money home",
-  // The street's things of decision 0012 (streets.md R-STREET-011): each sheet's entries take their names from content.
+  // The street's things of decision 0012 (streets:lagos-street-spending): each sheet's entries take their names from content.
   "city.thing.suya": "Suya spot",
   "city.act.suya": "Suya",
   "city.thing.tea": "The mallam's bench",
@@ -240,7 +240,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.joint": "A cold one",
   "city.thing.clothes": "Clothes stall",
   "city.act.clothes": "Clothes",
-  // A thing shut by the hour (clock.md R-CLOCK-033): its chip says when it opens, its line in the corner why it is shut.
+  // A thing shut by the hour (clock:game-day-on-real-time): its chip says when it opens, its line in the corner why it is shut.
   "city.act.opens-evening": "Opens in the evening",
   "city.act.opens-night": "Opens at night",
   "city.act.match.shut": "Shut till evening. The screen is dark.",
@@ -255,7 +255,7 @@ export const uiCityText: Record<string, string> = {
   "city.ride.keke": "Take the keke",
   "city.ride.okada": "Take the okada",
   "city.ride.none": "Nowhere else to go yet.",
-  // Turn back on a ride (R-WORLD-017): told in the corner once the character has walked back.
+  // Turn back on a ride (world:ride-sheet-shows-fares): told in the corner once the character has walked back.
   "city.ride.turned-back": "Turned back at the next stop",
 
   "city.graphics": "Graphics",
@@ -278,7 +278,7 @@ export const uiCityText: Record<string, string> = {
 
   "city.overheard.news": "Did you hear? {head}",
   "city.overheard.route": "My cousin's friend went by {route}. It is not easy, they say.",
-  // The room abroad's own talk (R-WORLD-026): the landlord, the radiator, a neighbour through the wall.
+  // The room abroad's own talk (world:street-talk-budget): the landlord, the radiator, a neighbour through the wall.
   "city.overheard.room.1": "The landlord said Thursday for the boiler. Which Thursday, he did not say.",
   "city.overheard.room.2": "Bleed the radiator, my sister. Na air dey inside, no be heat.",
   "city.overheard.room.3": "Mummy, I don eat. I dey fine. Yes, I wear my jacket.",
@@ -299,7 +299,7 @@ export const uiCityText: Record<string, string> = {
   "city.credits.generated": "Generated media",
   "city.credits.loading": "Reading the credits...",
   "city.credits.hint": "Map data, art from others, fonts and the game's licences",
-  // The game's own licences (guide.md R-GUIDE-010); the full list is the repository's LICENSES.md.
+  // The game's own licences (guide:credits-state-licences); the full list is the repository's LICENSES.md.
   "city.credits.licences": "Licences",
   "city.credits.licences.line": "Code: MIT. Docs: CC BY 4.0. Game content and art: CC BY-SA 4.0. The name Japacity and its logo are reserved.",
   "city.credits.licences.full": "The full list: every package the game ships, with its licence.",

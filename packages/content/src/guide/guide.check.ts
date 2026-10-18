@@ -1,5 +1,5 @@
 // The guides' content checks (docs/rules/guide.md, Contract) and the staleness rule
-// (R-GUIDE-004). Today's date is always passed in: nothing here reads a clock.
+// (guide:guides-show-checked-date). Today's date is always passed in: nothing here reads a clock.
 import type { Content, KindName } from "@japacity/sim";
 import type { Proof, Same } from "@japacity/sim/schemas";
 
@@ -84,7 +84,7 @@ export function addMonths(day: Day, months: number): Day {
 }
 
 /**
- * R-GUIDE-004: the guides not checked for `tuning.guide.staleMonths` months on `today`, by id.
+ * guide:guides-show-checked-date: the guides not checked for `tuning.guide.staleMonths` months on `today`, by id.
  * A guide checked exactly that many months ago is still fresh; one day more and it is listed.
  */
 export function staleGuides(content: Content, today: string): string[] {
@@ -99,7 +99,7 @@ export function staleGuides(content: Content, today: string): string[] {
     .sort();
 }
 
-/** R-GUIDE-002: the guide that explains a route, or null. */
+/** guide:every-route-has-a-guide: the guide that explains a route, or null. */
 export function guideForRoute(content: Content, route: string): string | null {
   return Object.values(content.guide).find((guide) => (guide.routes as string[]).includes(route))?.id ?? null;
 }
@@ -115,23 +115,23 @@ export function guideChecks(content: Content, text: Record<string, string>): str
   const guides = Object.values(content.guide);
   for (const route of Object.keys(content.route)) {
     const covering = guides.filter((guide) => (guide.routes as string[]).includes(route));
-    if (covering.length !== 1) problems.push(`${route}: has ${String(covering.length)} guides, not one (R-GUIDE-002).`);
+    if (covering.length !== 1) problems.push(`${route}: has ${String(covering.length)} guides, not one (guide:every-route-has-a-guide).`);
   }
   for (const guide of guides) {
-    if (guide.sources.length === 0) problems.push(`${guide.id}: has no source (R-GUIDE-001).`);
+    if (guide.sources.length === 0) problems.push(`${guide.id}: has no source (guide:guide-entry-fields).`);
     const checked = parseDay(guide.checkedOn);
-    if (checked === null) problems.push(`${guide.id}: checkedOn ${guide.checkedOn} is not a date (R-GUIDE-001).`);
+    if (checked === null) problems.push(`${guide.id}: checkedOn ${guide.checkedOn} is not a date (guide:guide-entry-fields).`);
     for (const source of guide.sources) {
       const read = parseDay(source.readOn);
-      if (read === null) problems.push(`${guide.id}: ${source.url} has no date read (R-GUIDE-001).`);
-      else if (checked !== null && ordinal(read) > ordinal(checked)) problems.push(`${guide.id}: ${source.url} was read after the guide was checked (R-GUIDE-001).`);
-      if (!source.url.startsWith("https://")) problems.push(`${guide.id}: ${source.url} is not an https link (R-GUIDE-001).`);
+      if (read === null) problems.push(`${guide.id}: ${source.url} has no date read (guide:guide-entry-fields).`);
+      else if (checked !== null && ordinal(read) > ordinal(checked)) problems.push(`${guide.id}: ${source.url} was read after the guide was checked (guide:guide-entry-fields).`);
+      if (!source.url.startsWith("https://")) problems.push(`${guide.id}: ${source.url} is not an https link (guide:guide-entry-fields).`);
     }
     for (const route of guide.routes) {
       if (content.route[route] === undefined) problems.push(`${guide.id}: names ${route}, which does not exist.`);
     }
     if (guide.routes.length > 0 && GUIDE_SECTIONS.some((section) => !guide.sections.includes(section))) {
-      problems.push(`${guide.id}: a route's guide needs the parts ${GUIDE_SECTIONS.join(", ")} (R-GUIDE-002).`);
+      problems.push(`${guide.id}: a route's guide needs the parts ${GUIDE_SECTIONS.join(", ")} (guide:every-route-has-a-guide).`);
     }
     for (const kind of guide.kinds) {
       if (!KINDS.has(kind)) problems.push(`${guide.id}: ${kind} is not a kind.`);

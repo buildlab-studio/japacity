@@ -1,4 +1,4 @@
-// The clinic as one workplace (world.md R-WORLD-002, R-WORLD-015): the nurse from sixteen
+// The clinic as one workplace (world:top-band-is-lively-pill, world:map-is-painted-lagos): the nurse from sixteen
 // works where the visa's TB test is taken, so its name, its line and its talk hold both sides, never the test alone.
 import { describe, expect, test } from "vitest";
 
@@ -13,13 +13,13 @@ function overheard(place: string): string[] {
 }
 
 describe("the clinic", () => {
-  test("[R-WORLD-002] [R-WORLD-015] given the clinic that stages both the TB test and the staff nurse's job, when its name and line are read, then the name is the clinic alone and the line holds the test and the ward", () => {
+  test("[world:top-band-is-lively-pill] [world:map-is-painted-lagos] given the clinic that stages both the TB test and the staff nurse's job, when its name and line are read, then the name is the clinic alone and the line holds the test and the ward", () => {
     expect(content.place[CLINIC]?.stages).toEqual(expect.arrayContaining(["activity.tb-test", "activity.job-nurse"]));
     expect(text[`${CLINIC}.name`]).toBe("the clinic");
     expect(text[`${CLINIC}.blurb`]).toBe("The TB test on one side, the ward on the other.");
   });
 
-  test("[R-WORLD-002] [R-WORLD-015] given the clinic, when its talk is read, then the ward's is heard beside the test's", () => {
+  test("[world:top-band-is-lively-pill] [world:map-is-painted-lagos] given the clinic, when its talk is read, then the ward's is heard beside the test's", () => {
     const lines = overheard(CLINIC);
     expect(lines).toContain("Breathe in and hold. Thank you.");
     expect(lines).toContain("Ward three is short tonight.");

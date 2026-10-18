@@ -1,5 +1,5 @@
 // The name pool (names rules 1, 2, 4 and 5; docs/rules/person.md
-// R-PEOPLE-053): one pool grouped by people, the mix it is drawn with, and every
+// person:computer-names-generated): one pool grouped by people, the mix it is drawn with, and every
 // named person the game's own words carry, so a check can hold the mix.
 // The given names are text keys `person.name.<n>` in person.names.text.ts.
 import type { Id } from "@japacity/sim";
@@ -193,7 +193,7 @@ export const namePool: PoolName[] = [
 /** What a named person is in the story. A name never predicts it (names rule 5). */
 /**
  * `tout`, `runner`, `middleman`: the agents at Ojuelegba's stop; `adviser`: the licensed adviser
- * (advice.md R-ADVICE-010); `chaser`: the chasers a friend puts the player onto (R-ADVICE-013).
+ * (advice:advisers-are-invented-people); `chaser`: the chasers a friend puts the player onto (advice:chaser-runs-around-cheaper).
  */
 export type NamedRole = "life" | "partner" | "agent" | "friend" | "fx" | "landlord" | "auntie" | "relative" | "tout" | "runner" | "middleman" | "adviser" | "chaser";
 
@@ -230,7 +230,7 @@ export const namedPeople: NamedPerson[] = [
   { name: "Ejiro", people: "urhobo-isoko", role: "partner", keys: ["person.funmi-uk.name"] },
   { name: "Uduak", people: "efik-ibibio", role: "partner", keys: ["person.ifeoma-ca.name"] },
   { name: "Tonye", people: "ijaw", role: "partner", keys: ["person.chidi-dubai.name"] },
-  // advice.md R-ADVICE-013: the chaser a friend puts the player onto.
+  // advice:chaser-runs-around-cheaper: the chaser a friend puts the player onto.
   { name: "Hadiza", people: "hausa-fulani", role: "chaser", keys: ["offer.agent-chaser.who.1.name"] },
   // The person News names as the source of a story she tells.
   { name: "Tolu", people: "yoruba", role: "friend", keys: ["news.uk-unis-recruit.in-force.source", "chapter.landing.brief.giver", "chapter.secure.brief.giver"] },

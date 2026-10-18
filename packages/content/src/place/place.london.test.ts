@@ -1,6 +1,6 @@
 // The places of London (docs/rules/city.md "Entries: abroad", the London rows; design page 14 section 4):
 // each with its position, scope, kind of name, scene folder and what it stages, the UK's jobs at their own workplaces,
-// and every staged id staged once for each country (R-CITY-010).
+// and every staged id staged once for each country (city:places-stage-their-acts).
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -45,7 +45,7 @@ const UK_JOBS = Object.values(content.activity)
   .map((entry) => entry.id);
 
 describe("the places of London", () => {
-  test("[R-CITY-004] [R-CITY-008] given the page's London rows, when the table is read, then each is in London in the UK with its kind of name, position, scope, scene folder and stages; a made-up place stands at a spot of its own", () => {
+  test("[city:place-entry-fields] [city:positions-rough-on-purpose] given the page's London rows, when the table is read, then each is in London in the UK with its kind of name, position, scope, scene folder and stages; a made-up place stands at a spot of its own", () => {
     for (const row of LONDON) {
       const entry = content.place[row.id];
       expect({ id: row.id, entry }).toMatchObject({
@@ -57,7 +57,7 @@ describe("the places of London", () => {
     expect(made).toEqual(made.map(({ id }) => ({ id, data: { source: "own", licence: null, checked: "2026-10-16" }, realName: null })));
   });
 
-  test("[R-CITY-010] given the room abroad, when its stages are read, then it cooks in each country's money and keeps the country-less acts, the hunt, the community and money home being at each country's own places", () => {
+  test("[city:places-stage-their-acts] given the room abroad, when its stages are read, then it cooks in each country's money and keeps the country-less acts, the hunt, the community and money home being at each country's own places", () => {
     // City.md's room row: the room keeps rest, the call home, the flats,
     // the phone contracts and the four meals.
     const room = content.place["place.the-room"];
@@ -66,7 +66,7 @@ describe("the places of London", () => {
     expect(content.activity["activity.cook-own-uk"]?.country).toBe("country.uk");
   });
 
-  test("[R-CITY-010] given every job in the UK, when the places are read, then each is staged at one London place, and there is no workplace abroad", () => {
+  test("[city:places-stage-their-acts] given every job in the UK, when the places are read, then each is staged at one London place, and there is no workplace abroad", () => {
     expect(UK_JOBS.length).toBeGreaterThan(8);
     for (const job of UK_JOBS) {
       const at = places.filter((place) => place.country === "country.uk" && (place.stages as readonly string[]).includes(job)).map((place) => place.id);
@@ -76,7 +76,7 @@ describe("the places of London", () => {
     expect(content.place["place.workplace-abroad"]).toBeUndefined();
   });
 
-  test("[R-CITY-010] given every place, when the staged ids are counted for each where and country, then none is staged twice but overtime, the rota board's act at every workplace", () => {
+  test("[city:places-stage-their-acts] given every place, when the staged ids are counted for each where and country, then none is staged twice but overtime, the rota board's act at every workplace", () => {
     const seen = new Map<string, Id<"place">>();
     const twice: string[] = [];
     for (const place of places) {
@@ -90,7 +90,7 @@ describe("the places of London", () => {
     expect(twice).toEqual([]);
   });
 
-  test("[R-CITY-007] [R-CITY-024] given London's businesses, when their names and signs are read, then each is shown by description, its made-up name stands on its first sign, and that name's check is recorded", () => {
+  test("[city:made-up-names-checked] [city:place-words-are-text-keys] given London's businesses, when their names and signs are read, then each is shown by description, its made-up name stands on its first sign, and that name's check is recorded", () => {
     const checked = new Set(names.map((row) => row.nameCheck.name));
     for (const row of LONDON.filter((one) => one.nameKind === "business")) {
       expect(text[`${row.id}.name`]).toMatch(/^the /);
@@ -101,7 +101,7 @@ describe("the places of London", () => {
     for (const row of LONDON) expect({ id: row.id, blurb: (text[`${row.id}.blurb`] ?? "").trim() !== "", dashed: /[\u2013\u2014]/u.test(text[`${row.id}.blurb`] ?? "") }).toEqual({ id: row.id, blurb: true, dashed: false });
   });
 
-  test("[R-CITY-007] [R-CITY-024] given Rye Lane's terrace, when its boards are read, then the chicken shop, the Nigerian shop, the barber, the clothes shop, the transfer shop and the pub each have a short board of two lines at most, a made-up name over its trade, the name's check recorded", () => {
+  test("[city:made-up-names-checked] [city:place-words-are-text-keys] given Rye Lane's terrace, when its boards are read, then the chicken shop, the Nigerian shop, the barber, the clothes shop, the transfer shop and the pub each have a short board of two lines at most, a made-up name over its trade, the name's check recorded", () => {
     const checked = new Set(names.map((row) => row.nameCheck.name));
     for (const board of ["chicken", "naija", "barber", "clothes", "transfer", "pub"]) {
       const lines = (text[`place.rye-lane.sign.${board}`] ?? "").split("\n");

@@ -1,8 +1,8 @@
-// Castel Volturno's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-015; design page 15): the names of the
+// Castel Volturno's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:castel-volturno-by-hand; design page 15): the names of the
 // things and acts of its places, the colleague's lines at the fields, the talk overheard there and the ride's lines on the
 // coast road's bus and the gangmaster's van. In the voice of docs/rules/text.md; content's text wins over
 // these. Fetched in a chunk of their own and added to the client's late words once the life is in Italy
-// (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine.md R-ENGINE-020).
+// (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine:first-download-has-budget).
 export const uiCastelText: Readonly<Record<string, string>> = {
   // The roundabout at the town's hub (design page 15 section 3): where the vans come at dawn, the bar, the African shop,
   // the call shop for money home.
@@ -28,7 +28,7 @@ export const uiCastelText: Readonly<Record<string, string>> = {
   "city.thing.on-shift": "On shift",
   "city.act.on-shift": "Your shift",
   "city.act.on-shift.done": "On the list here. Your days run as the month goes.",
-  // The discount supermarket and the church on London's scenes (world.md R-WORLD-039).
+  // The discount supermarket and the church on London's scenes (world:ride-abroad-and-workplace).
   "city.act.weekly-shop": "The weekly shop",
   "city.thing.tills": "Tills",
   "city.act.look-tills": "Look",
@@ -40,11 +40,11 @@ export const uiCastelText: Readonly<Record<string, string>> = {
   "city.thing.hall": "Church hall",
   "city.act.look-hall": "Look",
   "city.act.look-hall.done": "Plastic chairs, a big pot of rice, and somebody's baby asleep on the table.",
-  // The colleague at the water tap (R-WORLD-039): a new line each time you talk, in turn.
+  // The colleague at the water tap (world:ride-abroad-and-workplace): a new line each time you talk, in turn.
   "city.line.colleague.farm-it.1": "Fill fast. He pays by the crate.",
   "city.line.colleague.farm-it.2": "Last week he paid nobody. We came back.",
   "city.line.colleague.farm-it.3": "Bring gloves tomorrow. The stems cut.",
-  // Castel Volturno's places (R-WORLD-039): Nigerian voices among the others, beside content's own lines.
+  // Castel Volturno's places (world:ride-abroad-and-workplace): Nigerian voices among the others, beside content's own lines.
   "city.overheard.castel-volturno.1": "One coffee, quick. The van is coming.",
   "city.overheard.via-domitiana.1": "No work today. Go home and rest.",
   "city.overheard.farm-it.1": "The tomatoes are heavy this year.",
@@ -56,7 +56,7 @@ export const uiCastelText: Readonly<Record<string, string>> = {
   "city.overheard.church-it.2": "After service, we share food in the hall.",
   "city.overheard.church-it.3": "Pray for your papers, my sister.",
   "city.overheard.church-it.4": "Choir practice is on Thursday night.",
-  // The coast road's bus: the driver and a fellow passenger, as you board (R-WORLD-039).
+  // The coast road's bus: the driver and a fellow passenger, as you board (world:ride-abroad-and-workplace).
   "map.ride.line.italy-bus.1": "Ticket? Stamp it in the machine.",
   "map.ride.line.italy-bus.2": "Buongiorno. Sit anywhere, the bus is empty.",
   "map.ride.line.italy-bus.3": "Stamp the ticket. Controllers come sometimes.",
@@ -66,7 +66,7 @@ export const uiCastelText: Readonly<Record<string, string>> = {
   "map.ride.along.road.1.italy-bus": "Pines and shuttered villas run along the coast road.",
   "map.ride.along.road.2.italy-bus": "The sea shows grey between the buildings, then hides.",
   "map.ride.along.road.3.italy-bus": "Men wait at every lay-by, watching for vans.",
-  // The gangmaster's van to the fields, at the roundabout before sunrise (place.md R-PLACE-013).
+  // The gangmaster's van to the fields, at the roundabout before sunrise (place:employer-shuttle-rides-free).
   "map.ride.line.van.1": "Get in. Quick quick, no talking.",
   "map.ride.line.van.2": "Sit on the bench. Hold the side.",
   "map.ride.line.van.3": "Ten of us today. He said eight.",

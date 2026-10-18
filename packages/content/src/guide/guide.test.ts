@@ -27,10 +27,10 @@ function guideWords(): string[] {
 }
 
 describe("the guides", () => {
-  test("[R-GUIDE-001] given the guides, when they are checked, then each has a title, sections with words, dated sources and a checked date", () => {
+  test("[guide:guide-entry-fields] given the guides, when they are checked, then each has a title, sections with words, dated sources and a checked date", () => {
     expect(Object.keys(content.guide).sort()).toEqual([
       "guide.agents",
-      // The two family guides cover the people routes (R-GUIDE-002), added when those routes went live.
+      // The two family guides cover the people routes (guide:every-route-has-a-guide), added when those routes went live.
       "guide.ca-family",
       "guide.canada-points",
       "guide.global-talent",
@@ -48,32 +48,32 @@ describe("the guides", () => {
     expect(guideChecks(content, text)).toEqual([]);
   });
 
-  test("[R-GUIDE-001] given a guide with no source, when the guides are checked, then it is named", () => {
-    expect(guideChecks(withGuide({ ...masters, sources: [] }), text)).toEqual(["guide.uk-masters: has no source (R-GUIDE-001)."]);
+  test("[guide:guide-entry-fields] given a guide with no source, when the guides are checked, then it is named", () => {
+    expect(guideChecks(withGuide({ ...masters, sources: [] }), text)).toEqual(["guide.uk-masters: has no source (guide:guide-entry-fields)."]);
   });
 
-  test("[R-GUIDE-001] given a source with a date that is not on the calendar, when the guides are checked, then it is named", () => {
+  test("[guide:guide-entry-fields] given a source with a date that is not on the calendar, when the guides are checked, then it is named", () => {
     const [first] = masters.sources;
     const bad = withGuide({ ...masters, sources: [{ ...first!, readOn: "2026-02-30" }] });
-    expect(guideChecks(bad, text)).toEqual([`guide.uk-masters: ${first!.url} has no date read (R-GUIDE-001).`]);
+    expect(guideChecks(bad, text)).toEqual([`guide.uk-masters: ${first!.url} has no date read (guide:guide-entry-fields).`]);
   });
 
-  test("[R-GUIDE-001] given a source read after the guide was checked, when the guides are checked, then it is named", () => {
+  test("[guide:guide-entry-fields] given a source read after the guide was checked, when the guides are checked, then it is named", () => {
     const [first] = masters.sources;
     const bad = withGuide({ ...masters, checkedOn: "2026-10-06", sources: [{ ...first!, readOn: "2026-10-07" }] });
-    expect(guideChecks(bad, text)).toEqual([`guide.uk-masters: ${first!.url} was read after the guide was checked (R-GUIDE-001).`]);
+    expect(guideChecks(bad, text)).toEqual([`guide.uk-masters: ${first!.url} was read after the guide was checked (guide:guide-entry-fields).`]);
   });
 
-  test("[R-GUIDE-001] given a guide whose section has no words, when the guides are checked, then the key is named", () => {
+  test("[guide:guide-entry-fields] given a guide whose section has no words, when the guides are checked, then the key is named", () => {
     const bad = withGuide({ ...masters, sections: [...masters.sections, "extra"] });
     expect(guideChecks(bad, text)).toEqual(["guide.uk-masters: guide.uk-masters.section.extra has no words."]);
   });
 
-  test("[R-GUIDE-001] given a guide that names something not a kind, when the guides are checked, then it is named", () => {
+  test("[guide:guide-entry-fields] given a guide that names something not a kind, when the guides are checked, then it is named", () => {
     expect(guideChecks(withGuide({ ...masters, kinds: ["route", "rate"] }), text)).toEqual(["guide.uk-masters: rate is not a kind."]);
   });
 
-  test("[R-GUIDE-001] given every guide title, when it is read, then it says what people search for, not the game's own words", () => {
+  test("[guide:guide-entry-fields] given every guide title, when it is read, then it says what people search for, not the game's own words", () => {
     const titles = Object.keys(content.guide).map((id) => text[`${id}.title`] ?? "");
     expect(titles.filter((title) => /japacity/i.test(title) && !/game/i.test(title))).toEqual([]);
     expect(text["guide.uk-masters.title"]).toMatch(/UK student visa/);
@@ -81,7 +81,7 @@ describe("the guides", () => {
 });
 
 describe("a guide for every route", () => {
-  test("[R-GUIDE-002] given every route, when its guide is looked up, then exactly one guide covers it with the three parts", () => {
+  test("[guide:every-route-has-a-guide] given every route, when its guide is looked up, then exactly one guide covers it with the three parts", () => {
     for (const route of Object.keys(content.route)) {
       const covering = Object.values(content.guide).filter((guide) => (guide.routes as string[]).includes(route));
       expect({ route, guides: covering.length }).toEqual({ route, guides: 1 });
@@ -89,28 +89,28 @@ describe("a guide for every route", () => {
     }
   });
 
-  test("[R-GUIDE-002] given a route with no guide, when the guides are checked, then the route is named", () => {
-    expect(guideChecks(without(MASTERS), text)).toEqual(["route.uk-masters: has 0 guides, not one (R-GUIDE-002)."]);
+  test("[guide:every-route-has-a-guide] given a route with no guide, when the guides are checked, then the route is named", () => {
+    expect(guideChecks(without(MASTERS), text)).toEqual(["route.uk-masters: has 0 guides, not one (guide:every-route-has-a-guide)."]);
   });
 
-  test("[R-GUIDE-002] given a route's guide missing a part, when the guides are checked, then it is named", () => {
+  test("[guide:every-route-has-a-guide] given a route's guide missing a part, when the guides are checked, then it is named", () => {
     const bad = withGuide({ ...masters, sections: ["real", "next"] });
-    expect(guideChecks(bad, text)).toEqual(["guide.uk-masters: a route's guide needs the parts real, game, next (R-GUIDE-002)."]);
+    expect(guideChecks(bad, text)).toEqual(["guide.uk-masters: a route's guide needs the parts real, game, next (guide:every-route-has-a-guide)."]);
   });
 
-  test("[R-GUIDE-002] given a second guide on the same route, when the guides are checked, then the route is named", () => {
+  test("[guide:every-route-has-a-guide] given a second guide on the same route, when the guides are checked, then the route is named", () => {
     const twin = { ...masters, id: "guide.uk-masters-again" as Id<"guide"> };
     const problems = guideChecks({ ...content, guide: { ...content.guide, [twin.id]: twin } }, { ...text, ...Object.fromEntries(guideKeys(twin.id, twin.sections).map((key) => [key, "Words."])) });
-    expect(problems).toEqual(["route.uk-masters: has 2 guides, not one (R-GUIDE-002)."]);
+    expect(problems).toEqual(["route.uk-masters: has 2 guides, not one (guide:every-route-has-a-guide)."]);
   });
 });
 
 describe("what a guide never says", () => {
-  test("[R-GUIDE-003] given the opening every guide shows, when it is read, then it is the page's words with the date", () => {
+  test("[guide:guides-never-advise] given the opening every guide shows, when it is read, then it is the page's words with the date", () => {
     expect(text["guide.page.opening"]).toBe("General information, checked on {date}. Not immigration, legal or financial advice.");
   });
 
-  test("[R-GUIDE-003] given every guide's words, when they are read, then none says who qualifies, recommends anyone or carries an advert", () => {
+  test("[guide:guides-never-advise] given every guide's words, when they are read, then none says who qualifies, recommends anyone or carries an advert", () => {
     const words = guideWords();
     expect(words.length).toBeGreaterThan(30);
     const banned = [/you (?:will )?qualify/i, /you are eligible/i, /recommend/i, /we suggest/i, /contact (?:us|our)/i, /our partner/i, /sponsored by/i, /advert/i, /discount code/i];
@@ -123,33 +123,33 @@ describe("staleness", () => {
   const checkedOn = "2026-04-08";
   const one = withGuide({ ...masters, checkedOn, sources: masters.sources.map((source) => ({ ...source, readOn: checkedOn })) });
 
-  test("[R-GUIDE-004] given a guide checked exactly staleMonths ago, when the stale guides are listed, then it is not among them", () => {
+  test("[guide:guides-show-checked-date] given a guide checked exactly staleMonths ago, when the stale guides are listed, then it is not among them", () => {
     expect(months).toBe(6);
     const edge = addMonths(parseDay(checkedOn)!, months);
     expect(edge).toEqual({ year: 2026, month: 10, day: 8 });
     expect(staleGuides(one, "2026-10-08")).not.toContain(MASTERS);
   });
 
-  test("[R-GUIDE-004] given a guide checked staleMonths and one day ago, when the stale guides are listed, then it is listed", () => {
+  test("[guide:guides-show-checked-date] given a guide checked staleMonths and one day ago, when the stale guides are listed, then it is listed", () => {
     expect(staleGuides(one, "2026-10-09")).toContain(MASTERS);
   });
 
-  test("[R-GUIDE-004] given a guide checked on the last day of a long month, when months are added, then the day is held to the short month's end", () => {
+  test("[guide:guides-show-checked-date] given a guide checked on the last day of a long month, when months are added, then the day is held to the short month's end", () => {
     const august = withGuide({ ...masters, checkedOn: "2026-08-31", sources: masters.sources.map((source) => ({ ...source, readOn: "2026-08-31" })) });
     expect(staleGuides(august, "2027-02-28")).not.toContain(MASTERS);
     expect(staleGuides(august, "2027-03-01")).toContain(MASTERS);
   });
 
-  test("[R-GUIDE-004] given the guides, when they are listed on the day they were checked, then none is stale", () => {
+  test("[guide:guides-show-checked-date] given the guides, when they are listed on the day they were checked, then none is stale", () => {
     expect(staleGuides(content, "2026-10-08")).toEqual([]);
   });
 
-  test("[R-GUIDE-004] given today that is not a date, when the stale guides are listed, then it throws", () => {
+  test("[guide:guides-show-checked-date] given today that is not a date, when the stale guides are listed, then it throws", () => {
     expect(() => staleGuides(content, "8 Oct 2026")).toThrow("YYYY-MM-DD");
   });
 
   test.prop([fc.date({ min: new Date("2020-01-01T00:00:00Z"), max: new Date("2035-12-31T00:00:00Z"), noInvalidDate: true }), fc.integer({ min: 0, max: 800 })])(
-    "[R-GUIDE-004] given any checked date and any later day, when the stale guides are listed, then once listed a guide stays listed",
+    "[guide:guides-show-checked-date] given any checked date and any later day, when the stale guides are listed, then once listed a guide stays listed",
     (checked, later) => {
       const day = checked.toISOString().slice(0, 10);
       const guide = withGuide({ ...masters, checkedOn: day, sources: masters.sources.map((source) => ({ ...source, readOn: day })) });
@@ -162,7 +162,7 @@ describe("staleness", () => {
 });
 
 describe("the notice on names", () => {
-  test("[R-CITY-041] given the about page and the terms, when their one notice on names is read, then it says names are for realism, nothing is endorsed, and institutions and events are invented or simplified", () => {
+  test("[city:invented-names-for-risky-businesses] given the about page and the terms, when their one notice on names is read, then it says names are for realism, nothing is endorsed, and institutions and events are invented or simplified", () => {
     const notice = text["guide.page.about.names"] ?? "";
     expect(notice).toMatch(/real places are named/i);
     expect(notice).toMatch(/not an endorsement/i);

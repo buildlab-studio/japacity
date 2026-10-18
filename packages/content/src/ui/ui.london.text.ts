@@ -1,10 +1,10 @@
-// London's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-012): the names of the things and acts of its
+// London's words (world:painted-maps-abroad, world:ride-abroad-and-workplace; streets:london-life-by-hand): the names of the things and acts of its
 // places, the colleagues' lines, the talk overheard there and the ride's lines on the bus and the train. In
 // the voice of docs/rules/text.md; content's text wins over these. Fetched in a chunk of their own and added to the
 // client's late words once the life is in the UK (apps/client/src/shared/words/late.ts), so a first visit at home
-// carries none of them (engine.md R-ENGINE-020).
+// carries none of them (engine:first-download-has-budget).
 export const uiLondonText: Readonly<Record<string, string>> = {
-  // London on the Lagos mold (world.md R-WORLD-039, streets.md R-STREET-012, place.md R-PLACE-012): Rye Lane's shops, the
+  // London on the Lagos mold (world:ride-abroad-and-workplace, streets:london-life-by-hand, place:country-pass-covers-ways): Rye Lane's shops, the
   // station, and the workplaces with a door, each with its things; a job held shows On shift on its thing.
   "city.thing.chicken-shop": "Chicken shop",
   "city.thing.kitchen-door": "Kitchen door",
@@ -50,7 +50,7 @@ export const uiLondonText: Readonly<Record<string, string>> = {
   "city.thing.on-shift": "On shift",
   "city.act.on-shift": "Your shift",
   "city.act.on-shift.done": "On the rota here. Your shifts run as the month goes.",
-  // The colleague at the tea point, the kitchen or the shelter (R-WORLD-039): a new line each time you talk, in turn.
+  // The colleague at the tea point, the kitchen or the shelter (world:ride-abroad-and-workplace): a new line each time you talk, in turn.
   "city.line.colleague.care-home-uk.1": "Room nine asks for you by name now.",
   "city.line.colleague.care-home-uk.2": "Take your break. Nobody go give you am.",
   "city.line.colleague.care-home-uk.3": "Night shift again? Bring a flask, my sister.",
@@ -63,7 +63,7 @@ export const uiLondonText: Readonly<Record<string, string>> = {
   "city.line.colleague.warehouse-uk.1": "Lift with your legs, not your back.",
   "city.line.colleague.warehouse-uk.2": "Peak season soon. Take overtime, but sleep o.",
   "city.line.colleague.warehouse-uk.3": "My cousin started here. Now he drives forklift.",
-  // London's places (R-WORLD-039): Nigerian voices among the others, as the street sounds.
+  // London's places (world:ride-abroad-and-workplace): Nigerian voices among the others, as the street sounds.
   "city.overheard.rye-lane.1": "Four pounds for one yam? Aunty, abeg.",
   "city.overheard.rye-lane.2": "Mind the bike lane, love.",
   "city.overheard.peckham-rye-station.1": "This Overground no dey wait for anybody o.",
@@ -82,21 +82,21 @@ export const uiLondonText: Readonly<Record<string, string>> = {
   "city.overheard.church-uk.2": "Any rice left in the hall?",
   "city.overheard.test-centre-uk.1": "Bring your passport, not a copy.",
   "city.overheard.test-centre-uk.2": "Results come by email. Stop refreshing it.",
-  // London's own road, seen from the top deck and from the carriage (R-WORLD-039).
+  // London's own road, seen from the top deck and from the carriage (world:ride-abroad-and-workplace).
   "map.ride.along.road.1.bus": "The bus crawls past the chicken shops and the phone repairs.",
   "map.ride.along.road.2.bus": "Downstairs, a woman is on speaker phone in Yoruba.",
   "map.ride.along.road.3.bus": "The driver waits at the stop for a man running with shopping.",
   "map.ride.along.road.1.train": "Back gardens and brick walls slide past the window.",
   "map.ride.along.road.2.train": "Everybody is looking at their phone. Nobody talks.",
   "map.ride.along.road.3.train": "The train rattles over a bridge and the city opens out.",
-  // London's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (R-WORLD-039).
+  // London's bus: the driver, a fellow passenger and the voice in the ceiling, as you board (world:ride-abroad-and-workplace).
   "map.ride.line.bus.1": "Tap your card. Upstairs, the front seat is free.",
   "map.ride.line.bus.2": "Move down inside, please. There is space upstairs.",
   "map.ride.line.bus.3": "Hold on. The bus is about to move.",
   "map.ride.line.bus.4": "My sister, sit here. This one dey go your side.",
   "map.ride.line.bus.5": "Please do not stand on the stairs while the bus is moving.",
   "map.ride.line.bus.6": "No eating upstairs o. The driver go talk.",
-  // London's train: the platform's voice and the people on it, as the doors close (R-WORLD-039).
+  // London's train: the platform's voice and the people on it, as the doors close (world:ride-abroad-and-workplace).
   "map.ride.line.train.1": "Mind the gap between the train and the platform.",
   "map.ride.line.train.2": "Stand clear of the closing doors, please.",
   "map.ride.line.train.3": "Two minutes late again. At least it came.",

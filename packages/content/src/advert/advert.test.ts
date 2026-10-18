@@ -20,7 +20,7 @@ function slot(id: string, place: string, surface: AdvertSlotEntry["surface"] = "
 const KIB = 1024;
 
 describe("the advert slots", () => {
-  test("[R-ADVERT-001] given the page's entries, when the table is read, then each slot has its surface, place, size and byte limit", () => {
+  test("[advert:adverts-only-in-slots] given the page's entries, when the table is read, then each slot has its surface, place, size and byte limit", () => {
     expect(Object.values(content.advert).map(({ id, surface, width, height, maxBytes }) => [id, surface, width, height, maxBytes])).toEqual([
       ["advert.road-billboard", "billboard", 1024, 512, 200 * KIB],
       ["advert.park-billboard", "billboard", 1024, 512, 200 * KIB],
@@ -33,44 +33,44 @@ describe("the advert slots", () => {
     expect(content.place["place.airport-lagos"]?.where).toBe("home");
   });
 
-  test("[R-ADVERT-001] given the content, when the advert check runs, then it finds nothing, and every word the slots show exists", () => {
+  test("[advert:adverts-only-in-slots] given the content, when the advert check runs, then it finds nothing, and every word the slots show exists", () => {
     expect(advertChecks(content)).toEqual([]);
     for (const key of ["advert.label", "advert.empty", "advert.card.note", "advert.card.leaving.title", "advert.card.leaving.body"]) expect(text[key]?.trim()).toBeTruthy();
   });
 
-  test("[R-ADVERT-001] given a slot at a place that does not exist, or filed under another id, when the check runs, then it says so", () => {
-    expect(advertChecks(withSlots([slot("advert.nowhere", "place.nowhere")]))).toEqual(["advert.nowhere: stands at place.nowhere, which is not a place (R-ADVERT-001)."]);
+  test("[advert:adverts-only-in-slots] given a slot at a place that does not exist, or filed under another id, when the check runs, then it says so", () => {
+    expect(advertChecks(withSlots([slot("advert.nowhere", "place.nowhere")]))).toEqual(["advert.nowhere: stands at place.nowhere, which is not a place (advert:adverts-only-in-slots)."]);
     const misfiled = { ...content, advert: { "advert.one": slot("advert.two", "place.yaba") } } as Content;
-    expect(advertChecks(misfiled)).toEqual(["advert: the entry under advert.one has the id advert.two (R-ADVERT-001)."]);
+    expect(advertChecks(misfiled)).toEqual(["advert: the entry under advert.one has the id advert.two (advert:adverts-only-in-slots)."]);
   });
 
-  test("[R-ADVERT-002] given a place with exactly the most slots allowed, when one more is added, then the check fails that place", () => {
+  test("[advert:slots-capped-per-place] given a place with exactly the most slots allowed, when one more is added, then the check fails that place", () => {
     const most = content.tuning.advert.maxSlotsPerPlace;
     const slots = Array.from({ length: most }, (_, index) => slot(`advert.yaba-${String(index)}`, "place.yaba"));
     expect(advertChecks(withSlots(slots))).toEqual([]);
-    expect(advertChecks(withSlots([...slots, slot("advert.yaba-more", "place.yaba")]))).toEqual([`place.yaba: has ${String(most + 1)} advert slots, over ${String(most)} (R-ADVERT-002).`]);
+    expect(advertChecks(withSlots([...slots, slot("advert.yaba-more", "place.yaba")]))).toEqual([`place.yaba: has ${String(most + 1)} advert slots, over ${String(most)} (advert:slots-capped-per-place).`]);
   });
 
-  test("[R-ADVERT-002] given the phone's grid with the most sponsored tiles allowed, when one more is added, then the check fails the phone", () => {
+  test("[advert:slots-capped-per-place] given the phone's grid with the most sponsored tiles allowed, when one more is added, then the check fails the phone", () => {
     const most = content.tuning.advert.maxPhoneTiles;
     const tiles = Array.from({ length: most }, (_, index) => slot(`advert.tile-${String(index)}`, PHONE, "phone-tile"));
     expect(advertChecks(withSlots(tiles))).toEqual([]);
-    expect(advertChecks(withSlots([...tiles, slot("advert.tile-more", PHONE, "phone-tile")]))).toEqual([`phone: has ${String(most + 1)} sponsored tiles, over ${String(most)} (R-ADVERT-002).`]);
+    expect(advertChecks(withSlots([...tiles, slot("advert.tile-more", PHONE, "phone-tile")]))).toEqual([`phone: has ${String(most + 1)} sponsored tiles, over ${String(most)} (advert:slots-capped-per-place).`]);
     expect(advertChecks(withSlots([slot("advert.tile-at-yaba", "place.yaba", "phone-tile")]))).toHaveLength(1);
   });
 
-  test("[R-ADVERT-002] given a slot at a stylised place, on the road, or at an institution, when the check runs, then each is refused", () => {
-    expect(advertChecks(withSlots([slot("advert.park", "place.motor-park")]))).toEqual(["advert.park: stands at the stylised place place.motor-park (R-CITY-023)."]);
+  test("[advert:slots-capped-per-place] given a slot at a stylised place, on the road, or at an institution, when the check runs, then each is refused", () => {
+    expect(advertChecks(withSlots([slot("advert.park", "place.motor-park")]))).toEqual(["advert.park: stands at the stylised place place.motor-park (city:road-places-are-stylised)."]);
     expect(advertChecks(withSlots([slot("advert.night", "place.road-night")]))).toEqual([
-      "advert.night: stands on the road at place.road-night (R-CITY-023).",
-      "advert.night: stands at the stylised place place.road-night (R-CITY-023).",
+      "advert.night: stands on the road at place.road-night (city:road-places-are-stylised).",
+      "advert.night: stands at the stylised place place.road-night (city:road-places-are-stylised).",
     ]);
-    expect(advertChecks(withSlots([slot("advert.visa", "place.visa-centre")]))).toEqual(["advert.visa: stands at the institution place.visa-centre (R-ADVERT-019)."]);
+    expect(advertChecks(withSlots([slot("advert.visa", "place.visa-centre")]))).toEqual(["advert.visa: stands at the institution place.visa-centre (advert:institutions-never-take-real-names)."]);
   });
 });
 
 describe("where adverts never go", () => {
-  test("[R-ADVERT-009] given the slots, when their surfaces are read, then each is a billboard, a poster, a phone tile or a shopfront, and none is on the radio", () => {
+  test("[advert:no-radio-adverts] given the slots, when their surfaces are read, then each is a billboard, a poster, a phone tile or a shopfront, and none is on the radio", () => {
     const surfaces = new Set(Object.values(content.advert).map((entry) => entry.surface));
     expect([...surfaces].sort()).toEqual(["billboard", "phone-tile", "poster", "shopfront"]);
     expect(Object.keys(content.advert).filter((id) => /radio|news/.test(id))).toEqual([]);

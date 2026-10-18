@@ -1,8 +1,8 @@
 // The trader's own shop: a life from sixteen that served its master and holds the
 // settlement opens a shop of her own. The act is offered only to a life with no degree and a shop's capital in
-// hand; the shop it opens is a main job no hunt lists, since it has no hiring chance (R-ACTIVITY-005). Joined
+// hand; the shop it opens is a main job no hunt lists, since it has no hiring chance (activity:job-hunt-lands-offer). Joined
 // into the activity table in activity.data.ts.
-// No rule id names the shop; its tests cite R-ACTIVITY-001 (a job held and paid) and R-PROLOGUE-011.
+// No rule id names the shop; its tests cite activity:one-job-paid-monthly (a job held and paid) and prologue:tile-path-open-from-start.
 import type { ActivityEntry, Id } from "@japacity/sim";
 
 import { naira } from "../units";

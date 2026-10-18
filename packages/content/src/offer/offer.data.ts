@@ -28,7 +28,7 @@ const NOT_BROKE: Requirement = { type: "money/min", currency: "NGN", amount: nai
 const CREDIT_CLEAN: Requirement = { type: "quality/max", quality: "quality.credit-mark", value: 0 };
 const SIX_MONTHS_IN_ANY_JOB: Requirement = { type: "activity/tenure", activities: [], months: 6 };
 
-/** A sponsor or agent comes up while its route is known and its window is not closed (R-SPONSOR-001, R-CONTRACT-002). */
+/** A sponsor or agent comes up while its route is known and its window is not closed (route-gates:sponsor-offers-come-up, route-gates:gulf-agent-offer). */
 function sponsorWhen(route: Id<"route">, window: Id<"var">): Requirement[] {
   return [
     { type: "place/is", where: "home" },
@@ -40,7 +40,7 @@ function sponsorWhen(route: Id<"route">, window: Id<"var">): Requirement[] {
 const DECLINE: OfferChoice = { id: "decline", requires: [], pick: null, effects: [], fraudEffects: null };
 
 /**
- * Taking a sponsor records it (R-SPONSOR-002). A real sponsor costs nothing; a fraud takes its fee from cash.
+ * Taking a sponsor records it (route-gates:taking-sponsor-records-it). A real sponsor costs nothing; a fraud takes its fee from cash.
  * `salary: 0` means the route kind reads the offer's `salary` term from the cause, because the
  * effect's salary is a fixed number and the salary is a draw.
  */
@@ -60,13 +60,13 @@ function takeSponsor(route: Id<"route">, employer: string): OfferChoice {
 
 // road.md
 
-/** How the pitch's chance moves with the character's situation (R-ROAD-002). */
+/** How the pitch's chance moves with the character's situation (road:pitch-rises-with-pressure). */
 const ROAD_PRESSURE = { refusalBp: 200, defaultBp: 300, lowStandingBp: 200, perYearOver30Bp: 100, strongRouteBp: 400 };
 
-/** What a pitch really is (R-ROAD-003). They add up to 10000. */
+/** What a pitch really is (road:taking-pitch-pays-deposit). They add up to 10000. */
 const ROAD_KINDS = { fraud: 3000, realish: 1000, road: 6000 };
 
-/** Every character at home, while no chain is under way (R-ROAD-012). */
+/** Every character at home, while no chain is under way (road:pitch-reaches-anyone-at-home). */
 const ROAD_WHEN: Requirement[] = [
   { type: "place/is", where: "home" },
   { type: "route/state", route: "route.road", in: ["unknown", "heard", "known"] },
@@ -76,11 +76,11 @@ const ROAD_WHEN: Requirement[] = [
 /**
  * Taking the pitch pays the deposit from cash. The offer's own fraud draw is the `fraud` kind, so
  * `fraudBp` is the fraud share and a fraud's money is simply gone; the offer kind splits the rest into real-ish
- * and road on taking (R-ROAD-003). Both of those open the night meeting through the road's step.
+ * and road on taking (road:taking-pitch-pays-deposit). Both of those open the night meeting through the road's step.
  */
 const ROAD_TAKE: OfferChoice = {
   id: "take",
-  // R-ROAD-012: the road sets off from home. A pitch left open through a flight cannot be taken abroad.
+  // road:pitch-reaches-anyone-at-home: the road sets off from home. A pitch left open through a flight cannot be taken abroad.
   requires: [{ type: "place/is", where: "home" }],
   pick: null,
   effects: [
@@ -101,7 +101,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.nepa-bill": {
     id: "offer.nepa-bill",
     group: "family",
-    // R-ABROAD-007: the same requests reach a character abroad. What they ask is in the terms, which the
+    // abroad-money:family-asks-more-abroad: the same requests reach a character abroad. What they ask is in the terms, which the
     // offer kind scales by the abroad factor when a request opens abroad, so the view shows what is asked.
     where: "any",
     when: [NOT_BROKE],
@@ -423,15 +423,15 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: "message",
   },
-  // chapter.md R-CHAPTER-008: the month the visa is granted, home marks it. Certain while the route is
-  // granted, once. Group `money`, though it is no money offer: R-OFFER-001 rolls money first and
+  // chapter:family-marks-the-grant: the month the visa is granted, home marks it. Certain while the route is
+  // granted, once. Group `money`, though it is no money offer: offer:come-up-rolls-in-order rolls money first and
   // by id, so this one is rolled first of all; in `life` the grant month's loan offers would take both of
   // the month's places first (ada-careful) and it would never open before the flight. Not `family` either: it is
-  // the character's own send-off, so no sibling shares it (R-PEOPLE-034). The party is spent as any party is.
+  // the character's own send-off, so no sibling shares it (person:family-requests-shared). The party is spent as any party is.
   "offer.family-send-off": {
     id: "offer.family-send-off",
     group: "money",
-    // R-CHAPTER-008: answered at the house; the plane closes it unanswered (R-OFFER-005).
+    // chapter:family-marks-the-grant: answered at the house; the plane closes it unanswered (offer:lapsed-offer-removed).
     where: "home",
     when: [{ type: "route/state", route: UK, in: ["granted"] }],
     chanceBp: pct(100),
@@ -471,7 +471,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   "offer.laptop-fault": {
     id: "offer.laptop-fault",
     group: "life",
-    // R-LUCK-003. The blows of daily life are the ones marked; the page names none.
+    // luck:no-kicking-while-down. The blows of daily life are the ones marked; the page names none.
     bad: true,
     when: [{ type: "quality/min", quality: "quality.tech", value: 25 }],
     chanceBp: pct(3),
@@ -583,7 +583,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "take",
         requires: [],
         pick: { minTerm: "min", maxTerm: "max" },
-        // Opening the loan credits the money (R-OBLIGATION-006).
+        // Opening the loan credits the money (obligation:loan-opening-credits-principal).
         effects: [{ type: "obligation/open", obligation: "obligation.salary-loan", principal: { term: "amount" } }],
         fraudEffects: null,
       },
@@ -691,7 +691,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     ],
     onExpire: null,
   },
-  // The group loan and the savings circle: obligation.md R-OBLIGATION-012, luck.md R-LUCK-009.
+  // The group loan and the savings circle: obligation:three-roads-to-group-loan, luck:savings-circle-holds-pot.
 
   "offer.group-loan": {
     id: "offer.group-loan",
@@ -716,7 +716,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "take",
         requires: [],
         pick: { minTerm: "min", maxTerm: "max" },
-        // The fee and the savings come off the credit as it opens (R-OBLIGATION-010).
+        // The fee and the savings come off the credit as it opens (obligation:group-loan-fees-up-front).
         effects: [{ type: "obligation/open", obligation: "obligation.group-loan", principal: { term: "amount" } }],
         fraudEffects: null,
       },
@@ -835,7 +835,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         requires: [],
         pick: null,
         // The deed of sale says where the money came from: a traced source, never a lot the visa officer asks about
-        // (R-WALLET-011).
+        // (wallet:large-deposits-record-lots).
         effects: [
           { type: "money/add", currency: "NGN", pocket: "bank", amount: { term: "price" }, reason: "sale" },
           { type: "quality/add", quality: "quality.land", amount: -1 },
@@ -881,7 +881,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         fraudEffects: null,
       },
     ],
-    // Both family pledges lapse into nothing (R-OFFER-005).
+    // Both family pledges lapse into nothing (offer:lapsed-offer-removed).
     onExpire: null,
   },
   "offer.family-pledge-small": {
@@ -956,16 +956,16 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   },
   "offer.job": {
     id: "offer.job",
-    // A hunt lands at home and abroad (R-LADDER-001).
+    // A hunt lands at home and abroad (ladders:activities-filtered-by-where).
     where: "any",
-    // Group `job` (offer.md). It is never rolled, so R-OFFER-001's order is unchanged.
+    // Group `job` (offer.md). It is never rolled, so offer:come-up-rolls-in-order's order is unchanged.
     group: "job",
     when: [],
     chanceBp: 0,
     cooldown: 0,
     maxTimes: null,
     expiresAfter: 2,
-    // The term `job` arrives with the effect that opens it (R-OFFER-007).
+    // The term `job` arrives with the effect that opens it (offer:effect-opens-named-offer).
     terms: {},
     fraudBp: 0,
     signs: [],
@@ -981,11 +981,11 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
   ...luckOfferTable,
   // person.md: the recovery after being left, and the papers marriage.
   ...peopleOfferTable,
-  // streets.md: the price of sleeping under the bridge (R-STREET-004).
+  // streets.md: the price of sleeping under the bridge (streets:sleeping-under-the-bridge).
   ...streetOfferTable,
   ...homeOfferTable,
   ...parcelOfferTable,
-  // route-gates.md, "Entries: sponsor offers". Group `money`, as the Gulf agent is, so R-OFFER-001 rolls them.
+  // route-gates.md, "Entries: sponsor offers". Group `money`, as the Gulf agent is, so offer:come-up-rolls-in-order rolls them.
 
   "offer.sponsor-care-home": {
     id: "offer.sponsor-care-home",
@@ -1126,11 +1126,11 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     choices: [
       {
         id: "take",
-        // He takes the passport with the fee (R-ADVICE-006): with none held there is nothing to hand him yet, and the
+        // He takes the passport with the fee (advice:scams-show-their-tells): with none held there is nothing to hand him yet, and the
         // contract step stays unticked until there is.
         requires: [{ type: "document/held", document: "document.passport" }],
         pick: null,
-        // The fee is paid either way (R-CONTRACT-002); only the record knows the difference.
+        // The fee is paid either way (route-gates:gulf-agent-offer); only the record knows the difference.
         effects: [
           { type: "money/take", currency: "NGN", pocket: "any", amount: { term: "fee" }, reason: "fee-agent" },
           { type: "route/record-sponsor", route: "route.gulf-contract", employer: "gulf-agent", salary: 0, fraud: false },
@@ -1145,7 +1145,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "walk-away",
   },
 
-  // road.md, "Entries". Every pitch has the same kinds and the same pressure (R-ROAD-002 and 003).
+  // road.md, "Entries". Every pitch has the same kinds and the same pressure (road:pitch-rises-with-pressure and road:taking-pitch-pays-deposit).
 
   "offer.road-radio": {
     id: "offer.road-radio",
@@ -1218,7 +1218,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.road-ransom-call",
     group: "road",
     where: "any",
-    // Opened only by the compound's `held` outcome (R-ROAD-006).
+    // Opened only by the compound's `held` outcome (road:chain-steps-monthly).
     when: [{ type: "place/is", where: "road" }],
     chanceBp: 0,
     cooldown: 0,
@@ -1233,7 +1233,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "pay",
         requires: [],
         pick: null,
-        // The family pays. Family means fall 12, the middle sum (₦1,250,000) over ₦100,000 as R-ROAD-005
+        // The family pays. Family means fall 12, the middle sum (₦1,250,000) over ₦100,000 as road:road-truth-asks-more
         // reads it for calling home; standing falls 5 as it does there. An amount on a quality cannot follow the term.
         effects: [
           { type: "quality/add", quality: "quality.family-means", amount: -12 },
@@ -1245,7 +1245,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
         id: "cannot",
         requires: [],
         pick: null,
-        // R-ROAD-006: the sum is added to the agent's debt the compound opened (or opens it, after any other step's call).
+        // road:chain-steps-monthly: the sum is added to the agent's debt the compound opened (or opens it, after any other step's call).
         effects: [
           { type: "obligation/open", obligation: "obligation.agent-debt", principal: { term: "sum" } },
           { type: "quality/add", quality: "quality.wellbeing", amount: -10 },
@@ -1259,7 +1259,7 @@ export const offerTable: Record<Id<"offer">, OfferEntry> = {
     id: "offer.road-exit",
     group: "road",
     where: "any",
-    // Opened by the chain each month on the road (R-ROAD-007): the exit the cards promise.
+    // Opened by the chain each month on the road (road:exit-is-assisted-return): the exit the cards promise.
     when: [{ type: "place/is", where: "road" }],
     chanceBp: 0,
     cooldown: 0,

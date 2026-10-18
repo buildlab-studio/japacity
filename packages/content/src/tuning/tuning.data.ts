@@ -12,23 +12,23 @@ export const tuning: Tuning = {
     start: 24,
     freeSlots: 2,
     freeSlotsNoJob: 3,
-    // R-TURN-009
+    // turn:slots-can-be-locked
     maxLocked: 2,
-    // R-TURN-010 (decision 0011): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
+    // turn:month-lived-in-half-days (decision 0011): a life with no job lives the whole month by hand; a job takes its days and leaves ten.
     halfDays: { noJob: 60, withJob: 20 },
-    // R-OFFER-008: an ask may land as the day is lived, at a third and two thirds of the month's free time.
+    // offer:day-arrivals-roll-offers: an ask may land as the day is lived, at a third and two thirds of the month's free time.
     arrivalsBp: [3333, 6667],
-    // R-ACTIVITY-019: a weekly thing kept as a commitment is three of it a month.
+    // activity:acts-may-repeat-in-month: a weekly thing kept as a commitment is three of it a month.
     repeatPerSlot: 3,
-    // R-QUALITY-007 (decision 0011): each half-day lived takes a little off the belly and the energy; the month's rest brings
+    // quality:body-belly-and-energy (decision 0011): each half-day lived takes a little off the belly and the energy; the month's rest brings
     // each back toward 60; a month that ends hungry or spent takes it out of wellbeing.
-    // R-ACTIVITY-020: under `spentBelow` energy, an act that takes effort waits for sleep.
+    // activity:spent-body-refuses-acts: under `spentBelow` energy, an act that takes effort waits for sleep.
     body: { bellyPerHalfDay: 2, energyPerHalfDay: 1, restTo: 60, restBy: 25, lowBelow: 30, hungryWellbeing: 6, spentWellbeing: 4, spentBelow: 10 },
   },
 
   // quality.md, and activity.md for the hiring figures.
   quality: {
-    // What an empty slot gives: the same figure as activity.rest (R-TURN-006).
+    // What an empty slot gives: the same figure as activity.rest (turn:free-slots-per-month).
     wellbeingRest: 12,
     wellbeingDriftTo: 60,
     wellbeingDrift: 2,
@@ -36,9 +36,9 @@ export const tuning: Tuning = {
     networkHireBp: 20,
     hireMaxBp: pct(95),
     skillSoftAt: 70,
-    // Half a gain is kept at or above the soft cap, rounding up (R-QUALITY-005).
+    // Half a gain is kept at or above the soft cap, rounding up (quality:high-skills-gain-slower).
     skillSoftBp: pct(50),
-    // activity.md R-ACTIVITY-010: a side job halves every skill gain.
+    // activity:side-job-holds-a-slot: a side job halves every skill gain.
     sideJobSkillBp: pct(50),
   },
 
@@ -54,7 +54,7 @@ export const tuning: Tuning = {
     flagDepositAbove: naira(500000),
     // Decision 0014: a day's small work is paid in hand; past a few thousand naira people ask for a transfer.
     cashUpTo: naira(10000),
-    // R-WALLET-019: cash on you past this is cash a one-chance bus can take.
+    // wallet:cash-pile-warning: cash on you past this is cash a one-chance bus can take.
     cashWarnAt: naira(100000),
     // The passbook's stamps: a million, two and a half, five, then the road's own figure.
     stamps: [naira(1000000), naira(2500000), naira(5000000)],
@@ -63,7 +63,7 @@ export const tuning: Tuning = {
   // rate.md
   rate: {
     // Kobo for one pound (₦1,758.00) and one dollar (₦1,331.50); the Canadian dollar and the
-    // euro from the cross rates of 7 Oct 2026; the dirham on the dollar's peg (abroad-money.md R-ABROAD-001).
+    // euro from the cross rates of 7 Oct 2026; the dirham on the dollar's peg (abroad-money:foreign-currencies-join-wallet).
     start: { GBP: 175800, USD: 133150, CAD: 97000, AED: 36255, EUR: 155800 },
     // 0.4%
     driftBp: 40,
@@ -121,16 +121,16 @@ export const tuning: Tuning = {
 
   // place.md
   place: { brokeLine: naira(500000), fareFromNaira: true },
-  // streets.md: the hidden places' life (R-STREET-001 to 008).
+  // streets.md: the hidden places' life (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:street-shopping-abroad, streets:street-finds-abroad, streets:peckham-talks-like-lagos and streets:stadium-morning-run).
   street: { phonePrice: naira(45000), phoneMood: 6, phoneNetwork: 3, salesPay: naira(70000), salesHireBp: 6000, apprenticeTech: 4, apprenticeUntil: 60, theftBp: 2000, theftNaira: naira(5000), mosquitoBp: 3500, harassBp: 3000, harassMood: 8, shoppingGbp: 2000, shoppingAed: 8000, shoppingMood: 5, findBp: 1500, findMood: 4, runMood: 8 },
   // Things shipped home and collected at the cargo office on Bode Thomas Street (offer.parcel.data.ts).
   // The handling is the clerk's charge; a laptop lifts the mood, clothes stand you up a little at an interview.
   parcel: { handling: naira(1500), laptopMood: 8, clothesPrep: 10 },
-  // status.md R-STATUS-011: months a student status must be held for the course to count as passed.
+  // status:course-passed-or-withdrawn: months a student status must be held for the course to count as passed.
   status: { courseMonths: 12 },
 
   // credit.md
-  // credit.md R-CREDIT-003: a clean year before the file drifts.
+  // credit:clean-mark-drifts-up: a clean year before the file drifts.
   credit: { onTime: 3, onMiss: 12, onDefault: 30, drift: 1, driftTo: 40, judgmentMonths: 72, judgmentCap: 20, returnPenalty: 20, cleanMonths: 12 },
 
   // car.md
@@ -152,7 +152,7 @@ export const tuning: Tuning = {
   director: { surgePerTick: 3, closedTicks: 8, maxNewPerTick: 2, shockGapTicks: 6, onlineTickScale: 2 },
 
   // road.md
-  // road.md R-ROAD-002: the pressure lines; the figures each adds are on the pitch entries.
+  // road:pitch-rises-with-pressure: the pressure lines; the figures each adds are on the pitch entries.
   road: { enabled: true, meansStep: naira(100000), pressureStandingUnder: 30, pressureAgeOver: 30, pressureStrongRoute: 60 },
 
   // ladders.md
@@ -164,7 +164,7 @@ export const tuning: Tuning = {
     siblings: [1, 6],
     familyMeans: [10, 80],
     cityBp: pct(55),
-    // prologue.md R-PROLOGUE-002 and 003.
+    // prologue:family-draw-on-first-answer and prologue:steps-offer-legal-answers.
     parentsEducatedBp: 2000,
     parentsEducatedPerPoint: 60,
     network: { city: 15, town: 5, educated: 10 },
@@ -172,16 +172,16 @@ export const tuning: Tuning = {
     waecStrain: { under: 30, standing: -2 },
     grade: { base: 2, upBp: 4000, downBp: 2000, min: 2, max: 5 },
     privateSession: naira(2500000),
-    // R-HOME-009: what a life from sixteen sends home each month once abroad, before the remit share; the fixed lives send ₦25,000 to ₦60,000.
+    // home:starting-charges-from-one-function: what a life from sixteen sends home each month once abroad, before the remit share; the fixed lives send ₦25,000 to ₦60,000.
     homeSupport: naira(40000),
-    // R-PROLOGUE-002: where the family drawn is from, read from the draw, never drawn on its own.
+    // prologue:family-draw-on-first-answer: where the family drawn is from, read from the draw, never drawn on its own.
     hometowns: { city: hometownCities, town: hometownTowns, byHome: hometownByHome },
   },
 
   // luck.md. The jackpot, 1 in 100,000, is under one basis point, so its figure is draws out of a
   // million; the mid prize, 1 in 2,000, and the small one are basis points.
-  // advice.md: the four ways and the agents (R-ADVICE-003 to 013). Fees in kobo; a kind's fee is drawn from its range, and the ranges overlap so the fee never tells the kind.
-  // R-ADVICE-013: the chaser's share comes out of the fixer's; he is slower (one month to the fixer's two) and cheaper.
+  // advice.md: the four ways and the agents. Fees in kobo; a kind's fee is drawn from its range, and the ranges overlap so the fee never tells the kind.
+  // advice:chaser-runs-around-cheaper: the chaser's share comes out of the fixer's; he is slower (one month to the fixer's two) and cheaper.
   advice: { networkToAsk: 40, adviserFee: naira(80000), agentKindsBp: { fixer: 3000, chaser: 2000, overpromiser: 3000, scammer: 2000 }, fees: { fixer: [naira(10000), naira(30000)], overpromiser: [naira(8000), naira(25000)], scammer: [naira(8000), naira(30000)] }, chaserFee: [naira(8000), naira(25000)], fixerMonths: 2, chaserMonths: 1, fakePapersFee: naira(20000), scamTells: 2, overpromiseTells: 1, floorNaira: naira(2000) },
   luck: {
     downUnder: 30,
@@ -220,19 +220,19 @@ export const tuning: Tuning = {
     gapMonths: 10,
   },
 
-  // chapter.md R-CHAPTER-006: the send-off card names the three lines played most.
-  // R-CHAPTER-008: what the send-off party at the house costs.
+  // chapter:send-off-card-on-close: the send-off card names the three lines played most.
+  // chapter:family-marks-the-grant: what the send-off party at the house costs.
   chapter: { cardLines: 3, sendOffNaira: naira(150000) },
 
   // obligation.md, the group loan
   groupLoan: { feeBp: 1500, savingsBp: 1000, vanishBp: pct(25), visit: { standing: -12, wellbeing: -5 } },
-  // obligation.md R-OBLIGATION-014: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting figures.
-  // activity.md R-ACTIVITY-013: being noticed raises the job's pay 10%, once, on a 30% draw.
+  // obligation:cooking-and-fetching-water: cooking takes 15% off the upkeep's next charge and fetching water 4%, starting figures.
+  // activity:waiting-months-build-profile: being noticed raises the job's pay 10%, once, on a 30% draw.
   activity: { raiseBp: pct(10), raiseChanceBp: pct(30) },
   room: { cookedBp: pct(15), waterBp: pct(4) },
 
   // lottery.md Numbers, the Friday draw at fixed odds: 1 in 10 wins ₦500, 1 in 2,000 wins ₦50,000, 1 in 5,000 the jackpot from ₦200,000, growing by 10% of the sales of a week nobody hits it.
-  // The jackpot cap of ₦380,000 keeps a ticket's return under its price (R-LOTTERY-022): about ₦151 at the cap.
+  // The jackpot cap of ₦380,000 keeps a ticket's return under its price (lottery:expected-return-below-price): about ₦151 at the cap.
   lottery: {
     ticket: naira(200),
     maxTickets: 5,
@@ -256,15 +256,15 @@ export const tuning: Tuning = {
 
   // city.md "Numbers": the crowd bands and the graphics switches. Working values.
   city: { crowdLow: 8, crowdHigh: 16, fridayBp: 4000, saturdayBp: 5000, raiseAfterMs: 10000, raiseFrameMs: 20, dropAfterMs: 5000, dropFrameMs: 33, maxPixelRatio: 2, desktopMinWidth: 1024, walkMmPerS: 1400, stopShortMm: 300,
-    // world.md: nothing roams and there is no fly-over (R-WORLD-010, 015); the rides' fares in kobo and pace, and how far a walk goes (R-WORLD-017, R-PLACE-010: beyond it a fare is the only way).
+    // world.md: nothing roams and there is no fly-over (world:nothing-roams, world:map-is-painted-lagos); the rides' fares in kobo and pace, and how far a walk goes (world:ride-sheet-shows-fares, place:rides-between-city-places: beyond it a fare is the only way).
     roam: false, flyover: false,
     ride: { fareKobo: { danfo: 20000, keke: 30000, okada: 50000, walk: 0 }, farePerKmKobo: { danfo: 5000, keke: 10000, okada: 15000, walk: 0 }, metresPerMinute: { danfo: 250, keke: 300, okada: 450, walk: 80 }, waitMinutes: 6, scarcityBp: 20000, walkMetres: 2000,
-      // R-PLACE-010: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
+      // place:rides-between-city-places: the metres a thousandth of a degree of longitude is worth, 111 times the cosine
       // of the latitude, rounded: Lagos 111 here, and each country's below; latitude is 111 everywhere.
       lonMetresPerE3: 111,
-      // place.md R-PLACE-010 and R-PLACE-012 (decision 0017, design page 14 section 5): each
+      // place:rides-between-city-places and place:country-pass-covers-ways (decision 0017, design page 14 section 5): each
       // country's ways in its smallest unit, the step a fare is rounded up to, the month's pass and the ways it covers
-      // (R-PLACE-012, decision 0017), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
+      // (place:country-pass-covers-ways, decision 0017), and the pace on foot. London's are 2025 fares, rounded: the hopper bus
       // fare, an off-peak train single by distance, a monthly bus and tram pass. Calgary, Dubai and Castel Volturno's are
       // design page 15 section 4's 2025 figures, rounded: Calgary's one flat fare on the bus and the CTrain and the month's
       // transit pass on both; Dubai's zone fare read as distance on the bus and the metro, the Nol zone pass on both, and a
@@ -296,7 +296,7 @@ export const tuning: Tuning = {
   interview: { ask: 5, decoys: 3, passBp: 7000, failBp: 4000, caughtBelowBp: 2000, thinMoments: 8, thinMonths: 6, doubtBp: 3000, standInRecallBp: 8000, caughtStanding: 15 },
   undertaking: { months: 36, assistanceUnder: 100000 },
   // home.md Numbers: a room on the lagoon in Makoko, and the months it is cleared; a room in a compound, its year's
-  // rent paid upfront with the agent's and the agreement's fees (R-HOME-010); the self-contain the door shows as a goal.
+  // rent paid upfront with the agent's and the agreement's fees (home:compound-room-is-a-home); the self-contain the door shows as a goal.
   // The compound's rent, its upkeep and the self-contain's rent are working figures.
   home: {
     makokoUpkeep: naira(25000),
@@ -310,10 +310,10 @@ export const tuning: Tuning = {
     // A hostel room of your own, rented by the month (decision 0018): about half the room in a compound's month of
     // rent (350,000 naira a year, about 29,200 a month); a working figure.
     hostelRentKobo: naira(15000),
-    // R-HOME-012 (decision 0013): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
+    // home:living-by-hand (decision 0013): at home the whole of living is lived by hand, meals, water, fares and data as acts; nothing of it is charged as the month turns.
     livingByHandBp: pct(100),
   },
-  // The market: the car's fuel as its fare, by distance as the rides are (R-PLACE-010): 300 naira to
+  // The market: the car's fuel as its fare, by distance as the rides are (place:rides-between-city-places): 300 naira to
   // start and park, 100 a kilometre (petrol at about 1,000 naira a litre, a used car at about 10 km a litre), so a
   // drive is dearer than the danfo and cheaper than the okada or a ride app; at the pace of the city's traffic.
   thing: { drive: { fareKobo: naira(300), farePerKmKobo: naira(100), metresPerMinute: 400 } },

@@ -85,7 +85,7 @@ function termsReadIn(value: unknown, found: string[] = []): string[] {
 /** Terms an offer's choices read that the offer never has in hand. */
 function undefinedTerms(offer: OfferEntry): string[] {
   const defined = new Set(Object.keys(offer.terms));
-  // offer.job learns which job it is for from the effect that opens it (R-OFFER-007).
+  // offer.job learns which job it is for from the effect that opens it (offer:effect-opens-named-offer).
   if (offer.id === "offer.job") defined.add("job");
   const missing: string[] = [];
   for (const choice of offer.choices) {
@@ -107,13 +107,13 @@ function undefinedTerms(offer: OfferEntry): string[] {
 const northgate = content.school["school.northgate"];
 
 describe("the content check", () => {
-  test("[R-ENGINE-014] given the whole content, when it is checked against the content schema, then it parses", () => {
+  test("[engine:content-checked-before-play] given the whole content, when it is checked against the content schema, then it parses", () => {
     const result = ContentSchema.safeParse(content);
     expect(result.error?.issues ?? []).toEqual([]);
     expect(result.success).toBe(true);
   });
 
-  test("[R-ENGINE-014] given every table, when its keys are compared with its entries' ids, then they are equal", () => {
+  test("[engine:content-checked-before-play] given every table, when its keys are compared with its entries' ids, then they are equal", () => {
     const tables = Object.entries(tablesOf(content));
     expect(tables.filter(([, table]) => Object.keys(table).length === 0)).toEqual([]);
     const mismatched = tables.flatMap(([kind, table]) =>
@@ -124,7 +124,7 @@ describe("the content check", () => {
     expect(mismatched).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given a copy of an entry with an id of the wrong shape, when it is checked, then it is rejected", () => {
+  test("[engine:content-checked-before-play] given a copy of an entry with an id of the wrong shape, when it is checked, then it is rejected", () => {
     expect(northgate).toBeDefined();
     const bad = { ...content, school: { ...content.school, "school.North Gate": { ...northgate, id: "school.North Gate" } } };
     expect(ContentSchema.safeParse(bad).success).toBe(false);
@@ -132,18 +132,18 @@ describe("the content check", () => {
     expect(ContentSchema.safeParse(wrongKind).success).toBe(false);
   });
 
-  test("[R-ENGINE-014] given a copy of an entry with an amount that is not whole, when it is checked, then it is rejected", () => {
+  test("[engine:content-checked-before-play] given a copy of an entry with an amount that is not whole, when it is checked, then it is rejected", () => {
     const half = 1 / 2;
     const bad = { ...content, school: { ...content.school, "school.northgate": { ...northgate, tuition: 1700000 + half } } };
     expect(ContentSchema.safeParse(bad).success).toBe(false);
   });
 
-  test("[R-ENGINE-014] given a copy of an entry with a key the schema does not know, when it is checked, then it is rejected", () => {
+  test("[engine:content-checked-before-play] given a copy of an entry with a key the schema does not know, when it is checked, then it is rejected", () => {
     const bad = { ...content, school: { ...content.school, "school.northgate": { ...northgate, campus: "Seaside" } } };
     expect(ContentSchema.safeParse(bad).success).toBe(false);
   });
 
-  test("[R-ENGINE-014] given the whole content, when every number in it is read, then each is a whole number", () => {
+  test("[engine:content-checked-before-play] given the whole content, when every number in it is read, then each is a whole number", () => {
     const numbers = numbersIn(content);
     expect(numbers.length).toBeGreaterThan(100);
     expect(numbers.filter((found) => !Number.isInteger(found.value))).toEqual([]);
@@ -151,13 +151,13 @@ describe("the content check", () => {
 });
 
 describe("references", () => {
-  test("[R-ENGINE-014] given the whole content, when every id it mentions is looked up, then each names an entry that exists", () => {
+  test("[engine:content-checked-before-play] given the whole content, when every id it mentions is looked up, then each names an entry that exists", () => {
     const references = stringsIn(content).filter((text) => REFERENCE.test(text));
     expect(references.length).toBeGreaterThan(100);
     expect(danglingReferences(content)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given a copy of content naming a route that does not exist, when references are looked up, then it is found", () => {
+  test("[engine:content-checked-before-play] given a copy of content naming a route that does not exist, when references are looked up, then it is found", () => {
     const meetup = content.activity["activity.meetup"];
     expect(meetup).toBeDefined();
     const bad: Content = {
@@ -167,26 +167,26 @@ describe("references", () => {
     expect(danglingReferences(bad)).toEqual(["route.ca-masters"]);
   });
 
-  test("[R-ENGINE-014] given every offer, when the terms its choices read are listed, then each is defined, picked or handed over", () => {
+  test("[engine:content-checked-before-play] given every offer, when the terms its choices read are listed, then each is defined, picked or handed over", () => {
     const missing = Object.values(content.offer).flatMap(undefinedTerms);
     expect(missing).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given an offer whose choice reads a term it never has, when terms are checked, then it is found", () => {
+  test("[engine:content-checked-before-play] given an offer whose choice reads a term it never has, when terms are checked, then it is found", () => {
     const landBuyer = content.offer["offer.land-buyer"];
     expect(landBuyer).toBeDefined();
     const bad: OfferEntry = { ...landBuyer!, terms: {} };
     expect(undefinedTerms(bad)).toEqual(["offer.land-buyer sell reads price"]);
   });
 
-  test("[R-ENGINE-014] given every offer, when its lapse choice is read, then it is null or one of its choices", () => {
+  test("[engine:content-checked-before-play] given every offer, when its lapse choice is read, then it is null or one of its choices", () => {
     const unknown = Object.values(content.offer).filter(
       (offer) => offer.onExpire !== null && !offer.choices.some((choice) => choice.id === offer.onExpire),
     );
     expect(unknown).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every entry with a list of ids inside it, when those ids are read, then none repeats", () => {
+  test("[engine:content-checked-before-play] given every entry with a list of ids inside it, when those ids are read, then none repeats", () => {
     const repeats = (ids: (string | number)[]) => new Set(ids).size !== ids.length;
     const repeated = [
       ...Object.values(content.offer).flatMap((offer) => [
@@ -202,12 +202,12 @@ describe("references", () => {
       ...(repeats(Object.values(content.chapter).map((chapter) => chapter.order)) ? ["chapter orders"] : []),
     ];
     expect(repeated).toEqual([]);
-    // A set piece cannot ask more questions than it has (R-SETPIECE-001 draws without repeats).
+    // A set piece cannot ask more questions than it has (route:set-piece-draws-questions draws without repeats).
     const overAsked = Object.values(content.setpiece).filter((setpiece) => setpiece.ask > setpiece.questions.length);
     expect(overAsked).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every scenario, when its qualities are read, then every quality is present and within its range", () => {
+  test("[engine:content-checked-before-play] given every scenario, when its qualities are read, then every quality is present and within its range", () => {
     const qualities = Object.values(content.quality);
     const problems = Object.values(content.scenario).flatMap((scenario) => {
       const extra = Object.keys(scenario.qualities).filter((id) => !(id in content.quality));
@@ -224,7 +224,7 @@ describe("references", () => {
 });
 
 describe("spot checks against the rule pages", () => {
-  test("[R-ENGINE-014] given the content, when figures from the rule pages are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the content, when figures from the rule pages are read back, then each matches the page", () => {
     // route.md: Northgate tuition £17,000, Kingsmere band 7.0.
     expect(northgate?.tuition).toBe(1700000);
     expect(content.school["school.kingsmere"]?.minBand).toBe(70);
@@ -233,7 +233,7 @@ describe("spot checks against the rule pages", () => {
     expect(content.activity["activity.sit-english-test"]?.cost).toEqual([
       { currency: "NGN", amount: 28550000, reason: "fee-test" },
     ]);
-    // R-ROUTE-012: the visa fee and surcharge are read from the world.
+    // route:visa-application-needs: the visa fee and surcharge are read from the world.
     expect(content.activity["activity.apply-for-visa"]?.cost).toEqual([
       { currency: "GBP", amount: { var: "var.uk-visa-fee" }, reason: "fee-visa" },
       { currency: "GBP", amount: { var: "var.uk-surcharge" }, reason: "fee-surcharge" },
@@ -262,7 +262,7 @@ describe("spot checks against the rule pages", () => {
     expect(content.tuning.wallet.flagDepositAbove).toBe(50000000);
   });
 
-  test("[R-ENGINE-014] given the content, when an empty slot's rest is compared with the rest activity, then they give the same", () => {
+  test("[engine:content-checked-before-play] given the content, when an empty slot's rest is compared with the rest activity, then they give the same", () => {
     expect(content.activity["activity.rest"]?.effects).toEqual([
       { type: "quality/add", quality: "quality.wellbeing", amount: content.tuning.quality.wellbeingRest },
     ]);

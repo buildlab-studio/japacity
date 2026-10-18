@@ -1,4 +1,4 @@
-// The checks on the story's tables (docs/rules/world.md R-WORLD-003, R-WORLD-019, R-WORLD-020).
+// The checks on the story's tables (world:nudge-says-one-thing, world:phone-holds-what-phones-hold, world:nobody-picked-from-list).
 // Each returns a list of problems, empty when the content holds; the tests run them on the real
 // tables and on copies made to fail.
 import type { Content, Id } from "@japacity/sim";
@@ -17,7 +17,7 @@ export function wordCount(words: string): number {
   return words.trim() === "" ? 0 : words.trim().split(/\s+/).length;
 }
 
-/** R-WORLD-003: one sentence of at most eight words, never two lines, no dash. */
+/** world:nudge-says-one-thing: one sentence of at most eight words, never two lines, no dash. */
 export function nudgeProblems(key: string, words: string | undefined): string[] {
   if (words === undefined || words.trim() === "") return [`${key} has no words`];
   const problems: string[] = [];
@@ -33,7 +33,7 @@ function entryExists(id: string, content: Content): boolean {
   return id in content.activity || id in content.offer || id in content.setpiece;
 }
 
-/** R-WORLD-003: one row for every chapter item and none for an item that is not there; ids exist; nudges hold. */
+/** world:nudge-says-one-thing: one row for every chapter item and none for an item that is not there; ids exist; nudges hold. */
 export function stepProblems(
   steps: readonly StoryStep[],
   things: Readonly<Record<string, { outside: string[]; inside: string[] }>>,
@@ -63,7 +63,7 @@ export function stepProblems(
   return problems;
 }
 
-/** R-WORLD-019: every signal names something that exists, and a report line is a line with words. */
+/** world:phone-holds-what-phones-hold: every signal names something that exists, and a report line is a line with words. */
 export function signalProblems(signal: StorySignal, content: Content, text: Readonly<Record<string, string>>): string[] {
   switch (signal.on) {
     case "chapter":
@@ -93,7 +93,7 @@ export function signalProblems(signal: StorySignal, content: Content, text: Read
   }
 }
 
-/** R-WORLD-019: words, a sender of the thread, real events, and preset replies only (pair.md R-PAIR-010). */
+/** world:phone-holds-what-phones-hold: words, a sender of the thread, real events, and preset replies only (pair:preset-phrases-only). */
 export function chatProblems(lines: readonly ChatLine[], content: Content, text: Readonly<Record<string, string>>): string[] {
   const problems: string[] = [];
   const ids = lines.map((line) => line.id);

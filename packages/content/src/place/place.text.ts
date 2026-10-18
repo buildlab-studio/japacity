@@ -12,8 +12,8 @@ export const placeText: Record<string, string> = {
   "line.place.returned-removed": "You were sent home from {country}. There is no way back in for years.",
   "line.place.token-used": "You flew back on {status}. No new visa, only the ticket.",
   "line.place.token-lapsed": "{months} months away and {status} has lapsed. You would have to start again.",
-  // The places' names, blurbs, signs and talk overheard: docs/rules/city.md R-CITY-024. A line one person
-  // plainly says carries who says it beside it, `<line>.by`, as the bubble names them (world.md R-WORLD-026).
+  // The places' names, blurbs, signs and talk overheard: city:place-words-are-text-keys. A line one person
+  // plainly says carries who says it beside it, `<line>.by`, as the bubble names them (world:street-talk-budget).
 
   // Lagos: public places. A public place's name is its real name, as on the sign.
   "place.ojuelegba.name": "Ojuelegba",
@@ -41,7 +41,7 @@ export const placeText: Record<string, string> = {
   // Name check, 2026-10-08: working name "Swiftlink Phones". Web: "Swiftlink" phones Lagos; "Swiftlink" company Nigeria; "Full Bar Phones" Nigeria; "Full Bar" phones shop Lagos. Nigeria CAC public search (search.cac.gov.ng): not reached, the request was refused from this machine. Replaced: a logistics company named Swiftlink trades in Lagos, and two Lagos telecom firms are named Swift; "Full Bar Phones": none found.
   "place.ojuelegba.sign.11": "FULL BAR PHONES",
   "place.ojuelegba.sign.12": "RECHARGE\nCARDS",
-  // The second copy of the shop row (R-CITY-024): notices, not business names, so no name check is owed (R-CITY-007).
+  // The second copy of the shop row (city:place-words-are-text-keys): notices, not business names, so no name check is owed (city:made-up-names-checked).
   "place.ojuelegba.sign.13": "NO PARKING\nTOWING",
   "place.ojuelegba.sign.14": "SPACE TO LET\nASK INSIDE",
   "place.ojuelegba.sign.15": "COLD DRINKS\nPURE WATER",
@@ -59,7 +59,7 @@ export const placeText: Record<string, string> = {
   "place.national-stadium.overheard.3": "My father watched matches here. Now look at the stands.",
   "place.national-stadium.overheard.4": "Cold water, cold one. Buy cold water.",
   "place.national-stadium.overheard.4.by": "Water seller",
-  // The kiosk at the gate (streets.md R-STREET-008).
+  // The kiosk at the gate (streets:stadium-morning-run).
   "place.national-stadium.sign.1": "COLD WATER\nAND MINERALS",
   "place.national-stadium.sign.2": "GATE B\nNO PARKING",
   "place.bode-thomas.name": "Bode Thomas Street",
@@ -70,7 +70,7 @@ export const placeText: Record<string, string> = {
   // Name check, 2026-10-08: "Late Equaliser", recorded in place.names.json. Passed, in place of a working name too close to a betting firm.
   "place.bode-thomas.sign.2": "Late Equaliser\nSports Betting",
   "place.bode-thomas.sign.3": "PHARMACY\nOPEN TILL LATE",
-  // Signs 4 to 21 name a trade, not a business, so no name check is owed (R-CITY-007).
+  // Signs 4 to 21 name a trade, not a business, so no name check is owed (city:made-up-names-checked).
   "place.bode-thomas.sign.4": "PHOTOCOPY\nLAMINATION",
   "place.bode-thomas.sign.5": "TODAY'S GAMES\nPLAY HERE",
   "place.bode-thomas.sign.6": "BUKKA\nRICE AND STEW",
@@ -112,7 +112,7 @@ export const placeText: Record<string, string> = {
   "place.costain.overheard.3": "Shift small, make three of us fit sit.",
   "place.tejuosho-market.name": "Tejuosho Market",
   "place.tejuosho-market.blurb": "A market in a block of shops and stalls. Cloth, shoes, provisions, and a woman at every corner who knows the price of everything.",
-  // The boards of the market's three blocks (R-CITY-024), four a copy: what is sold, never a business name, so no name check is owed (R-CITY-007).
+  // The boards of the market's three blocks (city:place-words-are-text-keys), four a copy: what is sold, never a business name, so no name check is owed (city:made-up-names-checked).
   "place.tejuosho-market.sign.1": "LACE AND GEORGE\nWHOLESALE",
   "place.tejuosho-market.sign.2": "SHOES AND BAGS\nBEST QUALITY",
   "place.tejuosho-market.sign.3": "ANKARA\nRETAIL AND BULK",
@@ -197,7 +197,7 @@ export const placeText: Record<string, string> = {
   "place.ojota.overheard.3": "Buy water before you enter. The road is long.",
   "place.computer-village.name": "Computer Village",
   "place.computer-village.blurb": "Phone and laptop sellers and repairers, street after street. Ask for a part and three people go to find it.",
-  // The boards of the street's four buildings (R-CITY-024): what is sold and fixed, loud, never a business name or a brand, so no name check is owed (R-CITY-007).
+  // The boards of the street's four buildings (city:place-words-are-text-keys): what is sold and fixed, loud, never a business name or a brand, so no name check is owed (city:made-up-names-checked).
   "place.computer-village.sign.1": "PHONES & LAPTOPS\nSALES AND REPAIRS",
   "place.computer-village.sign.2": "SCREEN CHANGE\nWHILE YOU WAIT",
   "place.computer-village.sign.3": "UK USED LAPTOPS\nBEST PRICE",
@@ -272,7 +272,7 @@ export const placeText: Record<string, string> = {
   "place.third-mainland-bridge.overheard.2": "We go reach office late. This bridge no dey move.",
   "place.third-mainland-bridge.overheard.3": "Keep your phone inside. No put am for window.",
   "place.third-mainland-bridge.overheard.4": "The fish from this side of the lagoon na the sweetest.",
-  // The kiosk under the span (streets.md R-STREET-004).
+  // The kiosk under the span (streets:sleeping-under-the-bridge).
   "place.third-mainland-bridge.sign.1": "PURE WATER\nSOLD HERE",
   "place.third-mainland-bridge.sign.2": "RECHARGE CARD\nAVAILABLE",
   "place.carter-bridge.name": "Carter Bridge",
@@ -406,10 +406,10 @@ export const placeText: Record<string, string> = {
   "place.airport-lagos.overheard.3": "Is that the whole family? They all came to see you off.",
   "place.airport-lagos.overheard.4": "Hold the passport in your hand, not in the bag.",
   "place.airport-lagos.overheard.5": "Mummy, stop crying. I will call you as I land.",
-  // Papa's at the gate of the send-off scene (chapter.md R-CHAPTER-012 beat 3), in his voice: few words, plain English.
+  // Papa's at the gate of the send-off scene (chapter:send-off-scene-in-beats beat 3), in his voice: few words, plain English.
   "place.airport-lagos.overheard.6": "Greet them for us. Go well.",
   "place.airport-lagos.overheard.6.by": "Papa",
-  // The departures front's boards, four a copy (R-CITY-024): the airport's public name as on its sign (R-CITY-005, 006), and notices, so no name check is owed (R-CITY-007).
+  // The departures front's boards, four a copy (city:place-words-are-text-keys): the airport's public name as on its sign (city:four-kinds-of-name, city:namesakes-never-shown), and notices, so no name check is owed (city:made-up-names-checked).
   "place.airport-lagos.sign.1": "MURTALA MUHAMMED\nINTL AIRPORT",
   "place.airport-lagos.sign.2": "DEPARTURES\nDROP OFF ONLY",
   "place.airport-lagos.sign.3": "DOOR 1\nCHECK IN",
@@ -449,14 +449,14 @@ export const placeText: Record<string, string> = {
   "place.makoko.sign.2": "CHURCH\nSUNDAY SERVICE 8AM",
   "place.makoko.sign.3": "SMOKED FISH\nSOLD HERE",
   "place.makoko.sign.4": "PHONE CHARGING\nHERE",
-  // The things on the walk and what they do (world.md R-WORLD-005); the room's acts are the parlour's.
+  // The things on the walk and what they do (world:things-are-tappable-models); the room's acts are the parlour's.
   "place.makoko.thing.room": "The room",
   "place.makoko.thing.canoe": "Canoe",
   "place.makoko.act.canoe": "Go by canoe",
   "place.makoko.thing.racks": "Fish racks",
   "place.makoko.act.racks": "Look",
   "place.makoko.act.racks.done": "Fish laid in rows over the fire. It sells by the basin.",
-  // R-ACTIVITY-017: the racks are work at hand for the child of the water.
+  // activity:fish-racks-at-makoko: the racks are work at hand for the child of the water.
   "place.makoko.act.racks-work": "Work the racks",
   "place.makoko.thing.school": "School",
   "place.makoko.act.school": "Listen",
@@ -527,7 +527,7 @@ export const placeText: Record<string, string> = {
   "place.family-house.overheard.2.by": "Mama",
   "place.family-house.overheard.3": "Mama kept food in the pot. Warm it.",
   "place.family-house.overheard.3.by": "Your sister",
-  // home.md R-HOME-010: the room in a compound in Ojuelegba. The neighbours' talk through the wall.
+  // home:compound-room-is-a-home: the room in a compound in Ojuelegba. The neighbours' talk through the wall.
   "place.compound-room.name": "your room in Ojuelegba",
   "place.compound-room.blurb": "One room in a compound of ten. One tap in the yard for everybody, and the buses all night.",
   "place.compound-room.overheard.1": "Whose turn to sweep the compound this week?",
@@ -568,7 +568,7 @@ export const placeText: Record<string, string> = {
   "place.heathrow.overheard.3": "The train into town is that way. Follow the signs.",
   "place.peckham.name": "Peckham",
   "place.peckham.blurb": "Called Little Lagos. Nigerian families have lived here since the 1970s, and you can buy egusi on the high street.",
-  // The boards Peckham's models carry: the terraces 1 to 24, copy by copy; the railway bridge 30 to 34. Each names a trade, or the station by its public name, not a business, so no name check is owed (R-CITY-007).
+  // The boards Peckham's models carry: the terraces 1 to 24, copy by copy; the railway bridge 30 to 34. Each names a trade, or the station by its public name, not a business, so no name check is owed (city:made-up-names-checked).
   "place.peckham.sign.1": "CHICKEN & CHIPS\nOPEN TILL LATE",
   "place.peckham.sign.2": "NIGERIAN RESTAURANT\nJOLLOF, SUYA, EGUSI",
   "place.peckham.sign.3": "AFRO-CARIBBEAN\nFOODS",
@@ -601,7 +601,7 @@ export const placeText: Record<string, string> = {
   "place.peckham.overheard.1": "You just land? Welcome. It gets colder.",
   "place.peckham.overheard.2": "The bus is every eight minutes. Do not run.",
   "place.peckham.overheard.3": "My shift starts at six. I go see you Sunday.",
-  // R-STREET-007: Peckham talks the way Lagos talks. The grocer, a mother, the barber, a student and two passers-by.
+  // streets:peckham-talks-like-lagos: Peckham talks the way Lagos talks. The grocer, a mother, the barber, a student and two passers-by.
   "place.peckham.overheard.4": "Fresh ugu came this morning. Who wants? Before e finish.",
   "place.peckham.overheard.4.by": "Grocer",
   "place.peckham.overheard.5": "Tobi, come here jare. Hold my hand until we cross.",
@@ -614,7 +614,7 @@ export const placeText: Record<string, string> = {
   "place.rye-lane.sign.1": "African and Caribbean foods",
   "place.rye-lane.sign.2": "Money transfer to Nigeria",
   "place.rye-lane.sign.3": "Hair and braids",
-  // The terrace's boards, a name line and a trade line each. Made-up names checked under R-CITY-007 and
+  // The terrace's boards, a name line and a trade line each. Made-up names checked under city:made-up-names-checked and
   // recorded in place.names.json; the client swaps them into Rye Lane's stage file.
   "place.rye-lane.sign.chicken": "Peppercrest\nChicken and chips",
   "place.rye-lane.sign.naija": "Ogbono House\nNigerian foods",
@@ -627,7 +627,7 @@ export const placeText: Record<string, string> = {
   "place.rye-lane.overheard.3": "Braids take six hours. Bring a book.",
   "place.peckham-rye-station.name": "Peckham Rye",
   "place.peckham-rye-station.blurb": "The station. Couriers outside, phones out for the next drop.",
-  // The boards on the railway bridge's arches and the platform sign (R-CITY-024): trades and the station's own name, no business named.
+  // The boards on the railway bridge's arches and the platform sign (city:place-words-are-text-keys): trades and the station's own name, no business named.
   "place.peckham-rye-station.sign.1": "PECKHAM RYE\nSTATION",
   "place.peckham-rye-station.sign.2": "ARCH MARKET\nYAM, PLANTAIN",
   "place.peckham-rye-station.sign.3": "TYRES FITTED",
@@ -638,7 +638,7 @@ export const placeText: Record<string, string> = {
   "place.peckham-rye-station.overheard.2": "My next drop is in Brixton. Twenty minutes.",
   "place.peckham-rye-station.overheard.3": "The train is cancelled. Of course it is.",
   // London on the Lagos mold (city.md "Entries: abroad"). Businesses by made-up name on their signs, checked
-  // under R-CITY-007 and recorded in place.names.json; the ward, the church and the test centre by plain description.
+  // under city:made-up-names-checked and recorded in place.names.json; the ward, the church and the test centre by plain description.
   "place.big-shop-uk.name": "the big shop",
   "place.big-shop-uk.blurb": "A supermarket on the high street: trolleys by the door, long aisles, and a part-time job at the tills.",
   "place.big-shop-uk.sign.1": "Fairbasket",
@@ -694,7 +694,7 @@ export const placeText: Record<string, string> = {
   "place.calgary-north-east.overheard.1": "Buy proper boots before November.",
   "place.calgary-north-east.overheard.2": "The bus is late again. It is minus twenty.",
   "place.calgary-north-east.overheard.3": "Our church has a group for new people. Come on Sunday.",
-  // The strip mall's boards: what each unit sells, no name of a business (R-CITY-007).
+  // The strip mall's boards: what each unit sells, no name of a business (city:made-up-names-checked).
   "place.calgary-north-east.sign.coffee": "COFFEE\nAND DONUTS",
   "place.calgary-north-east.sign.naija": "AFRICAN STORE\nFOODS, TRANSFERS",
   "place.calgary-north-east.sign.barber": "BARBER",
@@ -725,7 +725,7 @@ export const placeText: Record<string, string> = {
   "place.dubai-airport.overheard.3": "Your sponsor's driver is waiting at the gate.",
   "place.deira.name": "Deira",
   "place.deira.blurb": "The older commercial district by the creek, where traders and workers from everywhere are seen.",
-  // The boards Deira's blocks carry, copy by copy, 1 to 21. Each names a trade or a public souk, not a business, so no name check is owed (R-CITY-007).
+  // The boards Deira's blocks carry, copy by copy, 1 to 21. Each names a trade or a public souk, not a business, so no name check is owed (city:made-up-names-checked).
   "place.deira.sign.1": "MONEY EXCHANGE",
   // Signs 2 and 6 carry the names of the gold and spice souks, from the register of real names (place.real.ts).
   "place.deira.sign.3": "GOLD JEWELLERY\nBANGLES, CHAINS",
@@ -749,7 +749,7 @@ export const placeText: Record<string, string> = {
   "place.deira.overheard.1": "The shop needs a guard for nights. Ask him.",
   "place.deira.overheard.2": "Send the goods by cargo. It is cheaper than the bag.",
   "place.deira.overheard.3": "Inside the bus is cold, outside is forty-five.",
-  // R-STREET-007 and R-WORLD-026: the Nigerians of Deira.
+  // streets:peckham-talks-like-lagos and world:street-talk-budget: the Nigerians of Deira.
   "place.deira.overheard.4": "My guy, the exchange at that corner gives better rate. Come.",
   "place.deira.overheard.5": "Friday is my only day off. After Jumat, we go to the beach.",
   "place.deira.overheard.6": "Aunty, how much for the lace? Last price, abeg.",
@@ -771,7 +771,7 @@ export const placeText: Record<string, string> = {
   "place.naif.blurb": "The souq streets of Deira. Bags, phones and perfume, and men carrying boxes on their heads.",
   "place.naif.sign.1": "Wholesale bags and shoes",
   "place.naif.sign.2": "Mobile phones and accessories",
-  // Naif's boards on Deira's arcades: what each shop sells, no name of a business (R-CITY-007).
+  // Naif's boards on Deira's arcades: what each shop sells, no name of a business (city:made-up-names-checked).
   "place.naif.sign.3": "TAILOR\nSUITS, KAFTANS",
   "place.naif.sign.4": "GOLD SOUQ",
   "place.naif.sign.5": "PERFUMES\nOUD",
@@ -789,7 +789,7 @@ export const placeText: Record<string, string> = {
   "place.castel-volturno.overheard.1": "Tomorrow they need people for the fields. Be at the road by five.",
   "place.castel-volturno.overheard.2": "The church van goes to Naples on Saturday.",
   "place.castel-volturno.overheard.3": "Learn small Italian. It helps.",
-  // The roundabout's boards: what each shop sells and where the road goes, no name of a business (R-CITY-007).
+  // The roundabout's boards: what each shop sells and where the road goes, no name of a business (city:made-up-names-checked).
   "place.castel-volturno.sign.bar": "BAR\nCAFFÈ",
   "place.castel-volturno.sign.african-shop": "AFRICAN FOODS",
   "place.castel-volturno.sign.call-shop": "PHONE CENTER\nMONEY TO NIGERIA",
@@ -821,7 +821,7 @@ export const placeText: Record<string, string> = {
   "place.their-room.name": "their room",
   "place.their-room.blurb": "Somebody else's room, as they keep it. You are a guest here.",
   "place.the-room.name": "the room",
-  // The room abroad named for the country it is in (city.md "Entries: abroad", world.md R-WORLD-038), read
+  // The room abroad named for the country it is in (city.md "Entries: abroad", world:painted-maps-abroad), read
   // through `roomName`; the plain name stays for a room with no country.
   "place.the-room.name.uk": "the shared room in Peckham",
   "place.the-room.name.canada": "the basement room in north-east Calgary",
@@ -831,7 +831,7 @@ export const placeText: Record<string, string> = {
   "place.the-room.overheard.1": "Who used my pot in the shared kitchen? Wash it.",
   "place.the-room.overheard.2": "Quiet, I have the early shift.",
   "place.the-room.overheard.3": "Rent is due on Friday. Have you got your share?",
-  // The signs that carry a real name (R-CITY-022), each from its one entry in the register.
+  // The signs that carry a real name (city:sponsor-shows-name-only), each from its one entry in the register.
   ...realNameSigns(realNames),
 
   // The band's short names: where the place's own name does not fit beside the character's.

@@ -1,5 +1,5 @@
-// The generated names (docs/rules/person.md R-PEOPLE-053), shared with the
-// residents of city.md R-CITY-033: given names only, no one in particular.
+// The generated names (person:computer-names-generated), shared with the
+// residents of city:residents-carry-no-tag: given names only, no one in particular.
 // Grouped by people as person.names.data.ts gives them.
 export const personNamesText: Record<string, string> = {
   // yoruba

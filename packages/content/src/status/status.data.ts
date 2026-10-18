@@ -2,7 +2,7 @@
 //
 // Conventions the page leaves open:
 // - `detectBp` is only read on an overstayer
-//   (R-STATUS-005). Every status of a country carries the country's
+//   (status:overstayer-risks-detection). Every status of a country carries the country's
 //   figures, as the student status does, so a status that lapses keeps the same
 //   numbers it had.
 // - A settled or citizen status is never removed, so the page leaves its
@@ -59,7 +59,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     months: 16,
     work: "part",
     next: "status.uk-graduate",
-    // R-STATUS-011: the course is passed after 12 months held with the tuition never in
+    // status:course-passed-or-withdrawn: the course is passed after 12 months held with the tuition never in
     // default. A default lapses the status at once (obligation.tuition), and the status
     // runs 16 months, so a student still holding it at expiry has passed. What is left
     // to check is that the graduate route is open.
@@ -81,7 +81,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     work: "one-employer",
     // 60 days.
     clockMonths: 2,
-    // docs/rules/person.md R-PEOPLE-020: a partner may join a holder of one of these jobs.
+    // person:statuses-name-dependants: a partner may join a holder of one of these jobs.
     dependants: ["activity.job-uk-skilled", "activity.job-uk-senior-dev", "activity.job-uk-graduate", "activity.job-uk-nurse"],
     tiedTo: null,
     renewMonths: 24,
@@ -99,7 +99,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     id: "status.uk-talent",
     months: 60,
     work: "any",
-    // R-PEOPLE-020.
+    // person:statuses-name-dependants.
     dependants: "any",
     countsToSettlement: true,
     settleMonthsVar: "var.uk-talent-settle-months",
@@ -145,7 +145,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     months: null,
     work: "any",
     countsToSettlement: true,
-    // R-STATUS-007 names var.ca-settle-months as Canada's settlement months, and
+    // status:lawful-months-reach-settlement names var.ca-settle-months as Canada's settlement months, and
     // the page's next step from residence is citizenship, so the settlement step of the
     // contract carries Canadian citizenship and its fee. The citizen step stays empty.
     settleMonthsVar: "var.ca-settle-months",
@@ -177,9 +177,9 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
     id: "status.gulf-worker",
     months: 24,
     work: "one-employer",
-    // Leaving the employer lapses it at once, to uae-irregular (R-STATUS-009).
+    // Leaving the employer lapses it at once, to uae-irregular (status:gulf-status-holds-passport).
     lapsesAtOnce: true,
-    // R-STATUS-006: the employer renews, and pays, at this chance in the contract's last month.
+    // status:renewing-a-status: the employer renews, and pays, at this chance in the contract's last month.
     renewMonths: 24,
     renewBp: 6000,
     holdsPassport: true,
@@ -203,7 +203,7 @@ const wholeLifeStatuses: Record<Id<"status">, StatusEntry> = {
   },
 };
 
-// docs/rules/person.md "Entries: routes and statuses", R-PEOPLE-024, 028, 029.
+// docs/rules/person.md "Entries: routes and statuses", person:dependant-status-ends-with-lead, person:partner-status-renews, person:tied-status-clock-on-breakup.
 const peopleStatuses: Record<Id<"status">, StatusEntry> = {
   "status.uk-partner": {
     ...BASE,
@@ -226,7 +226,7 @@ const peopleStatuses: Record<Id<"status">, StatusEntry> = {
     ...BASE,
     ...UK,
     id: "status.uk-dependant",
-    // The lead's months left at the grant (R-PEOPLE-024).
+    // The lead's months left at the grant (person:dependant-status-ends-with-lead).
     months: "lead",
     work: "any",
     tiedTo: "partner",

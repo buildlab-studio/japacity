@@ -42,7 +42,7 @@ export const walletText: Record<string, string> = {
   "line.wallet.convert-paid": "Changed at the bank: {amount}.",
   "line.wallet.moved": "Moved {amount} to {pocket}.",
   "line.wallet.queued": "The bank has your {paid}. Your foreign currency is due {readyMonth}.",
-  // R-WALLET-019: someone who cares, in their own words, with no figure.
+  // wallet:cash-pile-warning: someone who cares, in their own words, with no figure.
   // The passbook's stamps, told as people tell them.
   "line.passbook.stamped": "{amount} held for the road. Mama heard, and so did the whole street.",
   "line.passbook.ready": "{amount} held: everything {route} costs, flight and all. The money is ready.",
@@ -67,14 +67,14 @@ export const walletText: Record<string, string> = {
   "line.wallet.wedding": "Your share of the wedding: {amount}.",
   "line.wallet.undertaking": "The undertaking you signed took {amount}.",
   "line.wallet.assistance": "Social assistance came in: {amount}.",
-  // R-WALLET-020: naira bought with real money; it buys anything but a ticket.
+  // wallet:top-ups-are-marked: naira bought with real money; it buys anything but a ticket.
   "line.wallet.top-up": "Topped up: {amount}.",
   "line.wallet.remit-app": "You sent {sent} home by app. {naira} reached your naira account.",
   "line.wallet.remit-bank": "You sent {sent} home through the bank. About {naira} reaches your naira account {readyMonth}.",
   "line.wallet.remit-informal": "You handed {sent} to the man who sends money home. {naira} reached your people in cash.",
   "line.wallet.remit-lost": "You handed {sent} to the man who sends money home. It never arrived, and his number is off.",
 
-  // R-WORLD-008: each change of money in the month, said under Kept
+  // world:month-end-results-sheet: each change of money in the month, said under Kept
   // with both sides as they were, since a change counts for nothing in the kept figure (decision 0024).
   "ui.results.changed-into": "Changed {paid} into {got}",
 

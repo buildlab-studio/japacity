@@ -1,4 +1,4 @@
-// Enjoyment and spending on the street: docs/rules/streets.md R-STREET-011 (decision 0012). Each act is a priced
+// Enjoyment and spending on the street: streets:lagos-street-spending (decision 0012). Each act is a priced
 // now-act paid under the money reason `enjoyment`, with its time, how often it runs and its small lift, staged at
 // one street.
 import type { Effect, Id } from "@japacity/sim";
@@ -37,7 +37,7 @@ function short(id: Id<"activity">): string {
 }
 
 describe("enjoyment and spending on the street", () => {
-  test("[R-STREET-011] given each act the rule lists, when its entry is read from content, then it is a now-act at home with the rule's price in naira under enjoyment, its time, how often it runs and its lift", () => {
+  test("[streets:lagos-street-spending] given each act the rule lists, when its entry is read from content, then it is a now-act at home with the rule's price in naira under enjoyment, its time, how often it runs and its lift", () => {
     for (const rule of RULE) {
       const entry = content.activity[rule.id];
       const effects: Effect[] = rule.effects.map(([quality, amount]) => ({ type: "quality/add", quality: quality as Id<"quality">, amount }));
@@ -63,14 +63,14 @@ describe("enjoyment and spending on the street", () => {
     }
   });
 
-  test("[R-STREET-011] given each act, when the places are read, then its own street stages it and no other place does", () => {
+  test("[streets:lagos-street-spending] given each act, when the places are read, then its own street stages it and no other place does", () => {
     for (const rule of RULE) {
       const staging = Object.values(content.place).filter((place) => (place.stages as readonly string[]).includes(rule.id)).map((place) => place.id);
       expect({ id: rule.id, staging }).toEqual({ id: rule.id, staging: [rule.place] });
     }
   });
 
-  test("[R-STREET-011] given each act, when its words are read, then its name, blurb and the place's answer resolve, with no en or em dash", () => {
+  test("[streets:lagos-street-spending] given each act, when its words are read, then its name, blurb and the place's answer resolve, with no en or em dash", () => {
     for (const rule of RULE) {
       for (const key of [`${rule.id}.name`, `${rule.id}.blurb`, `line.activity.${short(rule.id)}.now`]) {
         const words = text[key] ?? "";
@@ -80,7 +80,7 @@ describe("enjoyment and spending on the street", () => {
     }
   });
 
-  test("[R-STREET-011] given the street's eight acts, when their names are read, then each is the rule's thing in the street's words", () => {
+  test("[streets:lagos-street-spending] given the street's eight acts, when their names are read, then each is the rule's thing in the street's words", () => {
     expect(RULE.map((rule) => text[`${rule.id}.name`])).toEqual([
       "A wrap of suya",
       "Tea with the mallam",

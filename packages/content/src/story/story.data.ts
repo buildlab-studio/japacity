@@ -1,9 +1,9 @@
-// The story tied to the world (docs/rules/world.md R-WORLD-003, R-WORLD-019): for every chapter item,
+// The story tied to the world (world:nudge-says-one-thing, world:phone-holds-what-phones-hold): for every chapter item,
 // the place where it happens, the thing there whose act moves it, and the nudge words that point at it.
 // The nudge words are `chapter.<chapter>.item.<item>.nudge` in chapter.text.ts.
 import type { Command, Id } from "@japacity/sim";
 
-/** A phone app, by its id on the phone (R-WORLD-018). */
+/** A phone app, by its id on the phone (world:phone-rises-over-scene). */
 export type StoryApp = "bank" | "chats" | "japa" | "papers" | "jobs" | "lotto" | "bills" | "news";
 
 /**
@@ -23,9 +23,9 @@ export interface StoryStep {
   /** The phone app that carries the same step, or null. A step with no thing always has one. */
   app: StoryApp | null;
   act: StoryAct;
-  /** The character takes the file from the box under the bed before the ride (R-WORLD-019). */
+  /** The character takes the file from the box under the bed before the ride (world:phone-holds-what-phones-hold). */
   fromBox: boolean;
-  /** The nudge words key (R-WORLD-003). */
+  /** The nudge words key (world:nudge-says-one-thing). */
   nudge: string;
 }
 
@@ -49,7 +49,7 @@ export const storyThings: Record<string, { outside: string[]; inside: string[] }
   "place.bode-thomas": { outside: ["lotto-kiosk", "betting-shop", "danfo", "keke", "okada"], inside: [] },
   "place.tejuosho-market": { outside: ["mum-stall", "danfo"], inside: [] },
   "place.ojuelegba": { outside: ["hub-front", "stop", "motor-park"], inside: [] },
-  // Not among the thirteen places; the church is where some people are met (R-WORLD-020).
+  // Not among the thirteen places; the church is where some people are met (world:nobody-picked-from-list).
   "place.church": { outside: ["pews", "door"], inside: [] },
 };
 
@@ -80,7 +80,7 @@ export const storySteps: StoryStep[] = [
   step(FEET, "job", { place: HUB, thing: "long-desk", app: "jobs", act: { entry: "activity.job-hunt" } }),
   step(FEET, "pay", { place: HUB, thing: "long-desk", app: "jobs", act: { wait: true } }),
   // Nothing at home makes a route heard on a tap (the send-off party opens by chance and
-  // R-ROUTE-003 hears by month 3 on its own), so the step points at the meetup, which can.
+  // route:friend-tells-by-month hears by month 3 on its own), so the step points at the meetup, which can.
   step(FEET, "heard", { place: HUB, thing: "meetup-corner", app: null, act: { entry: "activity.meetup" } }),
   step(FEET, "known", { place: HUB, thing: "long-desk", app: "japa", act: { entry: "activity.look-into-route" } }),
 
@@ -98,7 +98,7 @@ export const storySteps: StoryStep[] = [
   step(DECISION, "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-for-visa" }, fromBox: true }),
   step(DECISION, "granted", { place: VISA, thing: "desk", app: "japa", act: { wait: true } }),
 
-  // The file and decision day of each other way out (chapter.md R-CHAPTER-009). The file stays in
+  // The file and decision day of each other way out (chapter:chapters-follow-lean-route). The file stays in
   // the box for these rows (the four rows that take it to a desk are the master's); each row names where the
   // step is taken: the clinic's desk, the hub's desk, the visa centre, the agent's office.
   step("chapter.build-the-file-care", "tenure", { place: CLINIC, thing: "nurse-desk", app: "japa", act: { wait: true } }),
@@ -124,7 +124,7 @@ export const storySteps: StoryStep[] = [
   step("chapter.decision-day-talent", "applied", { place: VISA, thing: "desk", app: null, act: { entry: "activity.apply-uk-talent" } }),
   step("chapter.decision-day-talent", "granted", { place: VISA, thing: "desk", app: "japa", act: { wait: true } }),
   step("chapter.decision-day-points", "police", { place: VISA, thing: "desk", app: null, act: { entry: "activity.get-police-certificate" } }),
-  // The invitation sends the application and takes the fee (R-POINTS-003): nothing is tapped.
+  // The invitation sends the application and takes the fee (route-gates:pool-draws-invite): nothing is tapped.
   step("chapter.decision-day-points", "applied", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
   step("chapter.decision-day-points", "granted", { place: HUB, thing: null, app: "japa", act: { wait: true } }),
   step("chapter.decision-day-gulf", "police", { place: VISA, thing: "desk", app: null, act: { entry: "activity.get-police-certificate" } }),
@@ -145,7 +145,7 @@ export const storySteps: StoryStep[] = [
   step(SECURE, "secure", { place: ROOM, thing: "window", app: "japa", act: { wait: true } }),
 ];
 
-/** The longest a nudge may be (R-WORLD-003). */
+/** The longest a nudge may be (world:nudge-says-one-thing). */
 export const NUDGE_WORDS = 8;
 
 /** The row for a chapter's item, or null. */

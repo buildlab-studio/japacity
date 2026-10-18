@@ -37,7 +37,7 @@ function endMonth(life: Life, slots: Extract<Command, { type: "turn/end" }>["slo
   return { state: result.state, tick: life.tick + 1 };
 }
 
-/** An act done at once, in the month in hand (R-ACTIVITY-015). */
+/** An act done at once, in the month in hand (activity:now-acts-and-month-acts). */
 function actNow(life: Life, activity: Id<"activity">): Life {
   const result = step(life.state, { type: "activity/now", activity, param: null, basedOn: life.state.v }, standInWorld(WORLD, life.tick, content), content);
   if (!result.ok) throw new Error(`the act was refused: ${result.code} ${result.detail}`);
@@ -47,13 +47,13 @@ function actNow(life: Life, activity: Id<"activity">): Life {
 const nameOf = (n: number) => text[`person.name.${String(n)}`] ?? "";
 
 describe("the step table", () => {
-  test("[R-WORLD-003] given every chapter in content, when the step table is read, then each item has one row with a place that exists, a thing that place has (or a phone app), and an entry that exists", () => {
+  test("[world:nudge-says-one-thing] given every chapter in content, when the step table is read, then each item has one row with a place that exists, a thing that place has (or a phone app), and an entry that exists", () => {
     expect(stepProblems(storySteps, storyThings, content, text)).toEqual([]);
     const items = Object.values(content.chapter).flatMap((chapter) => chapter.items.map((item) => `${chapter.id} ${item.id}`));
     expect(storySteps.map((row) => `${row.chapter} ${row.item}`).sort()).toEqual(items.sort());
   });
 
-  test("[R-WORLD-003] given a copy of the table with a row missing, a place that is not there, a thing the place lacks and an entry that is not there, when it is checked, then each is found", () => {
+  test("[world:nudge-says-one-thing] given a copy of the table with a row missing, a place that is not there, a thing the place lacks and an entry that is not there, when it is checked, then each is found", () => {
     const [first, second, third, ...rest] = storySteps;
     const broken = [{ ...second!, place: "place.nowhere" as Id<"place"> }, { ...third!, thing: "jacuzzi" }, { ...rest[0]!, act: { entry: "activity.nothing" } }, ...rest.slice(1)];
     const problems = stepProblems(broken, storyThings, content, text);
@@ -63,7 +63,7 @@ describe("the step table", () => {
     expect(problems.some((problem) => problem.includes("activity.nothing"))).toBe(true);
   });
 
-  test("[R-WORLD-003] given every row, when its nudge words are read, then they are one sentence of at most eight words on one line, under the chapter item's own key", () => {
+  test("[world:nudge-says-one-thing] given every row, when its nudge words are read, then they are one sentence of at most eight words on one line, under the chapter item's own key", () => {
     for (const row of storySteps) {
       expect(row.nudge).toBe(`${row.chapter}.item.${row.item}.nudge`);
       expect(nudgeProblems(row.nudge, text[row.nudge])).toEqual([]);
@@ -72,7 +72,7 @@ describe("the step table", () => {
     expect(text["chapter.find-your-feet.item.job.nudge"]).toBe("Ask at the hub in Yaba");
   });
 
-  test("[R-WORLD-003] given nudges at the edge, when they are counted, then eight words pass, nine fail, and two sentences or two lines fail", () => {
+  test("[world:nudge-says-one-thing] given nudges at the edge, when they are counted, then eight words pass, nine fail, and two sentences or two lines fail", () => {
     expect(nudgeProblems("k", "one two three four five six seven eight")).toEqual([]);
     expect(nudgeProblems("k", "one two three four five six seven eight nine")).toEqual(["k has 9 words"]);
     expect(nudgeProblems("k", "Go home. Sleep")).toEqual(["k is more than one sentence"]);
@@ -81,7 +81,7 @@ describe("the step table", () => {
     expect(nudgeProblems("k", undefined)).toEqual(["k has no words"]);
   });
 
-  test("[R-WORLD-003] given a new life, when the first chapter's next step is looked up, then its row points at a thing in a built place and its nudge has words", () => {
+  test("[world:nudge-says-one-thing] given a new life, when the first chapter's next step is looked up, then its row points at a thing in a built place and its nudge has words", () => {
     const view = viewOf(begin(ADA));
     const next = view.chapter.items.find((item) => !item.met);
     expect(view.chapter.current).toBe("chapter.find-your-feet");
@@ -91,7 +91,7 @@ describe("the step table", () => {
     expect((text[row!.nudge] ?? "").trim()).not.toBe("");
   });
 
-  test("[R-WORLD-019] given the steps that take the file to a desk, when they are read, then each is at a place away from home and the papers box is a thing in the house", () => {
+  test("[world:phone-holds-what-phones-hold] given the steps that take the file to a desk, when they are read, then each is at a place away from home and the papers box is a thing in the house", () => {
     const fromBox = storySteps.filter((row) => row.fromBox);
     expect(fromBox.map((row) => row.item).sort()).toEqual(["applied", "departed", "english", "tb"]);
     expect(fromBox.every((row) => row.place !== "place.family-house")).toBe(true);
@@ -100,18 +100,18 @@ describe("the step table", () => {
 });
 
 describe("Chats", () => {
-  test("[R-WORLD-019] given every chat line, when it is checked, then it has words, a sender of its thread, events that exist, and preset replies only", () => {
+  test("[world:phone-holds-what-phones-hold] given every chat line, when it is checked, then it has words, a sender of its thread, events that exist, and preset replies only", () => {
     expect(chatProblems(chatLines, content, text)).toEqual([]);
     expect(chatLines.length).toBeGreaterThanOrEqual(20);
   });
 
-  test("[R-WORLD-019] given every chat line keyed to a report line, when the line is read, then it is a real line with words", () => {
+  test("[world:phone-holds-what-phones-hold] given every chat line keyed to a report line, when the line is read, then it is a real line with words", () => {
     const keyed = chatLines.flatMap((line) => line.when.filter((signal) => signal.on === "line").map((signal) => signal.key));
     expect(keyed.length).toBeGreaterThanOrEqual(10);
     expect(keyed.filter((key) => !key.startsWith("line.") || text[key] === undefined)).toEqual([]);
   });
 
-  test("[R-WORLD-019] given a copy of the lines with a made-up event, a reply that is not a phrase, a place-only phrase and a fill outside its list, when it is checked, then each is found", () => {
+  test("[world:phone-holds-what-phones-hold] given a copy of the lines with a made-up event, a reply that is not a phrase, a place-only phrase and a fill outside its list, when it is checked, then each is found", () => {
     const [line] = chatLines;
     const broken = [
       { ...line!, when: [{ on: "line" as const, key: "line.nothing.happened" }] },
@@ -128,7 +128,7 @@ describe("Chats", () => {
     expect(problems).toContain("phrase.looking-at, whose fill-in is the sender's own");
   });
 
-  test("[R-WORLD-019] given the story's chapters, when the family thread is read, then Mama speaks on the bills, Papa on the papers and the sibling on the kiosk", () => {
+  test("[world:phone-holds-what-phones-hold] given the story's chapters, when the family thread is read, then Mama speaks on the bills, Papa on the papers and the sibling on the kiosk", () => {
     const family = chatLines.filter((line) => line.thread === "family");
     expect(family.some((line) => line.from === "mum" && line.when.some((signal) => signal.on === "offer" && signal.offer === "offer.nepa-bill"))).toBe(true);
     expect(family.some((line) => line.from === "dad" && line.when.some((signal) => signal.on === "activity" && signal.activity === "activity.get-passport"))).toBe(true);
@@ -137,7 +137,7 @@ describe("Chats", () => {
     expect([...chapters].sort()).toEqual(Object.keys(content.chapter).sort());
   });
 
-  test("[R-WORLD-019] given a chat line keyed to bad news, when its words are read, then they are plain: no line of it takes a joke version and none shouts", () => {
+  test("[world:phone-holds-what-phones-hold] given a chat line keyed to bad news, when its words are read, then they are plain: no line of it takes a joke version and none shouts", () => {
     const keyedToBad = chatLines.filter((line) => line.when.some((signal) => signal.on === "line" && badNews(signal.key, text[signal.key] ?? "")));
     expect(keyedToBad.map((line) => line.id)).toContain("chats.mum.refused");
     for (const line of keyedToBad) {
@@ -146,7 +146,7 @@ describe("Chats", () => {
     }
   });
 
-  test("[R-WORLD-019] given a new life with no partner, when the chats due are read from its view, then no partner line shows and every line due names the current chapter or none", () => {
+  test("[world:phone-holds-what-phones-hold] given a new life with no partner, when the chats due are read from its view, then no partner line shows and every line due names the current chapter or none", () => {
     const view = viewOf(begin(ADA));
     const due = chatsDue(view, content);
     expect(due.filter((line) => line.thread === "partner")).toEqual([]);
@@ -155,10 +155,10 @@ describe("Chats", () => {
     expect(due.map((line) => line.id)).toContain("chats.mum.find-work");
   });
 
-  test("[R-WORLD-019] given a life that starts the passport, when the month ends, then the reminder of the passport's month shows, and Papa's line on the passport that has come waits until it comes", () => {
+  test("[world:phone-holds-what-phones-hold] given a life that starts the passport, when the month ends, then the reminder of the passport's month shows, and Papa's line on the passport that has come waits until it comes", () => {
     const life = begin(ADA);
     expect(remindersDue(viewOf(life), content).some((reminder) => reminder.key === "document.passport.reminder.due")).toBe(false);
-    // R-ACTIVITY-015: the passport is asked for at once, then the month ends.
+    // activity:now-acts-and-month-acts: the passport is asked for at once, then the month ends.
     const after = endMonth(actNow(life, "activity.get-passport"), []);
     const view = viewOf(after);
     const paper = view.documents.find((held) => held.id === "document.passport");
@@ -167,8 +167,8 @@ describe("Chats", () => {
     expect(chatsDue(view, content).some((line) => line.id === "chats.dad.passport-box")).toBe(false);
   });
 
-  test("[R-WORLD-019] given a passport on the way, when the month it is issued ends, then Papa's line on keeping it in the box shows that month only", () => {
-    // R-ACTIVITY-015: the passport is asked for at once, then the month ends.
+  test("[world:phone-holds-what-phones-hold] given a passport on the way, when the month it is issued ends, then Papa's line on keeping it in the box shows that month only", () => {
+    // activity:now-acts-and-month-acts: the passport is asked for at once, then the month ends.
     let life = endMonth(actNow(begin(ADA), "activity.get-passport"), []);
     const shown: boolean[] = [];
     for (let month = 0; month < 4 && viewOf(life).documents.find((held) => held.id === "document.passport")?.state !== "held"; month += 1) {
@@ -182,7 +182,7 @@ describe("Chats", () => {
     expect(chatsDue(viewOf(life), content).some((line) => line.id === "chats.dad.passport-box")).toBe(false);
   });
 
-  test("[R-WORLD-019] given a life with siblings and the prologue's life with none yet, when the sibling's lines are read, then they can show only where a sibling fills a slot", () => {
+  test("[world:phone-holds-what-phones-hold] given a life with siblings and the prologue's life with none yet, when the sibling's lines are read, then they can show only where a sibling fills a slot", () => {
     const withSiblings = viewOf(begin(ADA));
     const prologue = viewOf(begin("scenario.prologue"));
     expect(Object.keys(withSiblings.people.slots).some((slot) => slot.startsWith("sibling-"))).toBe(true);
@@ -190,7 +190,7 @@ describe("Chats", () => {
     expect(chatLines.filter((line) => line.from === "sibling").every((line) => line.when.some((signal) => signal.on === "sibling"))).toBe(true);
   });
 
-  test("[R-WORLD-019] given each fixed life's sibling, when the name is looked up, then it is a pool name from the life's own people and not the life's own name", () => {
+  test("[world:phone-holds-what-phones-hold] given each fixed life's sibling, when the name is looked up, then it is a pool name from the life's own people and not the life's own name", () => {
     for (const [life, name] of Object.entries(siblingNames)) {
       const entry = namePool.find((pooled) => nameOf(pooled.n) === name);
       expect(entry?.people).toBe(lifePeople[life as Id<"scenario">]?.people);
@@ -202,7 +202,7 @@ describe("Chats", () => {
 });
 
 describe("bill notices and reminders", () => {
-  test("[R-WORLD-019] given every obligation type and every type in content, when its notice is looked up, then it has words carrying the bill's amount", () => {
+  test("[world:phone-holds-what-phones-hold] given every obligation type and every type in content, when its notice is looked up, then it has words carrying the bill's amount", () => {
     const inContent = new Set(Object.values(content.obligation).map((entry) => entry.type));
     expect([...inContent].filter((type) => !(OBLIGATION_TYPES as readonly string[]).includes(type))).toEqual([]);
     for (const type of OBLIGATION_TYPES) expect(text[`obligation.notice.${type}`]).toContain("{amount}");
@@ -212,13 +212,13 @@ describe("bill notices and reminders", () => {
     }
   });
 
-  test("[R-WORLD-019] given an obligation due, missed and gone bad, when its notice key is read, then it is the type's notice, the late one and the defaulted one", () => {
+  test("[world:phone-holds-what-phones-hold] given an obligation due, missed and gone bad, when its notice key is read, then it is the type's notice, the late one and the defaulted one", () => {
     expect(noticeKey("rent", "active", 0)).toBe("obligation.notice.rent");
     expect(noticeKey("rent", "grace", 1)).toBe("obligation.notice.late");
     expect(noticeKey("loan", "defaulted", 2)).toBe("obligation.notice.defaulted");
   });
 
-  test("[R-WORLD-019] given a new life with its upkeep open, when the notices are read from its view, then each open bill with a charge gives one notice with its entry and its amount as money", () => {
+  test("[world:phone-holds-what-phones-hold] given a new life with its upkeep open, when the notices are read from its view, then each open bill with a charge gives one notice with its entry and its amount as money", () => {
     const view = viewOf(begin(ADA));
     const notices = noticesDue(view, content);
     const charged = view.obligations.filter((open) => open.due > 0);
@@ -231,7 +231,7 @@ describe("bill notices and reminders", () => {
     }
   });
 
-  test("[R-WORLD-019] given every reminder, when it is checked, then its words exist, its events exist, and a reminder that carries a month says {month}", () => {
+  test("[world:phone-holds-what-phones-hold] given every reminder, when it is checked, then its words exist, its events exist, and a reminder that carries a month says {month}", () => {
     for (const reminder of reminders) {
       const words = text[reminder.key];
       expect(words).toBeDefined();

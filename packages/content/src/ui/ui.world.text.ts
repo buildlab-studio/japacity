@@ -10,15 +10,15 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.close": "Close",
   "ui.world.left": "{amount} left",
   "ui.world.left-due": "{left} left, {due} due at the month's end",
-  // A priced act's button and the balance under it (R-WORLD-006): the act and its price, the balance before struck and after.
+  // A priced act's button and the balance under it (world:one-action-one-sheet): the act and its price, the balance before struck and after.
   "ui.act.priced": "{act} · {price}",
   "ui.act.balance": "{before} now, {after} after",
   "ui.world.due": "{due} due at the month's end",
-  // The body on the band, only when it complains (R-QUALITY-007): a word, never a number.
+  // The body on the band, only when it complains (quality:body-belly-and-energy): a word, never a number.
   "ui.body.hungry": "Hungry",
   "ui.body.tired": "Tired",
   "ui.body.both": "Hungry, tired",
-  // What an act does, in words, beside the time it takes (R-WORLD-006; R-QUALITY-007: the body in words only).
+  // What an act does, in words, beside the time it takes (world:one-action-one-sheet; quality:body-belly-and-energy: the body in words only).
   "ui.world.does": "Does",
   "ui.act.does.fills": "fills you",
   "ui.act.does.rests": "rests you",
@@ -35,12 +35,12 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.show-more": "Show more",
   "ui.world.show-less": "Show less",
   "ui.world.coming": "{what}, {when}",
-  // The whole list from the chip (R-WORLD-002): soonest first, each as months away.
+  // The whole list from the chip (world:top-band-is-lively-pill): soonest first, each as months away.
   "ui.world.coming-up": "Coming up",
   "ui.world.coming.birthday": "Birthday, {age}",
   "ui.world.coming.age-limit": "The age limit for {route}",
   "ui.world.coming.rent": "The room's rent, {amount}",
-  // R-TEXT-008: the box says the months once; the note beside the thing is two or three words.
+  // text:show-then-tell: the box says the months once; the note beside the thing is two or three words.
   "ui.world.coming.months": "months",
   "ui.world.coming.months.one": "month",
   "ui.world.coming.now": "Now",
@@ -54,10 +54,10 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.ask-back": "Back",
 
   "ui.world.planned": "{what}: planned.",
-  // R-ACTIVITY-015: the button that closes the place's answer to an act done at once.
+  // activity:now-acts-and-month-acts: the button that closes the place's answer to an act done at once.
   "ui.world.done": "Done",
   "ui.world.counts-at-end": "Counts when the month ends",
-  // R-ACTIVITY-018: the time an act done at once takes, in a person's words, never a number of days.
+  // activity:now-acts-spend-half-days: the time an act done at once takes, in a person's words, never a number of days.
   "ui.world.takes": "Takes",
   "ui.world.time.morning": "A morning",
   "ui.world.time.day": "A day",
@@ -67,11 +67,11 @@ export const uiWorldText: Record<string, string> = {
   "ui.world.depart-line": "The visa is in your passport. Board, and the next place is {country}.",
   "ui.world.deposit-line": "{school} holds your place on {route} once the deposit is paid. It goes from the naira in the bank.",
   "ui.world.full": "Free time all used: stop one in the Calendar",
-  // A thing started carries on each month until it is stopped (R-WORLD-005, R-WORLD-007): its chip says so, with a stop.
+  // A thing started carries on each month until it is stopped (world:things-are-tappable-models, world:month-acts-carry-on): its chip says so, with a stop.
   "ui.world.thing.planned": "Ongoing",
   "ui.world.stop": "Stop",
   "ui.world.stop-act": "Stop {what}",
-  // The bag's Go home in the room abroad (return.md R-RETURN-002, R-RETURN-006; place.md R-PLACE-011): the shape the return
+  // The bag's Go home in the room abroad (return:standing-by-return-shape, return:return-reopens-home-charges; place:view-carries-way-home): the shape the return
   // would take today in one line, what ends and what waits as chips, the fare on the one button.
   "ui.world.go-home": "Go home",
   "ui.world.go-home.title.assisted": "Assisted return",
@@ -102,31 +102,31 @@ export const uiWorldText: Record<string, string> = {
   "ui.nudge.broke.racks": "No fare: work the racks",
   "ui.nudge.broke.job": "No fare: find work nearby",
   "ui.nudge.broke.wait": "No fare: end the month",
-  // The care file counts the certificate (R-SPONSOR-005): named while she can pay it, else the gap.
+  // The care file counts the certificate (route-gates:care-route-needs-verification): named while she can pay it, else the gap.
   "ui.nudge.meanwhile.nurse-certification": "Sit the nursing certification at the clinic",
   "ui.nudge.meanwhile.nurse-certification.short": "Find {amount} more for the certification",
   "ui.nudge.meanwhile.nurse-certification.saving": "Payday first, then the certification",
   "ui.nudge.meanwhile.open-source": "Share your code at the hub",
   "ui.nudge.meanwhile.tech-posts": "Post what you know, at the laptops",
   "ui.nudge.meanwhile.be-noticed": "Get noticed: ask at the jobs board",
-  // R-ACTIVITY-015: an act done at once whose answer comes with the month.
+  // activity:now-acts-and-month-acts: an act done at once whose answer comes with the month.
   "ui.nudge.done-now": "Done. The answer is due this month.",
   "ui.nudge.hunt-planned": "Applied for better pay. Live the month.",
   // A chapter with every item met closes when the page turns.
   "ui.nudge.chapter-done": "That brief is done. Live the month.",
-  // A set piece staged elsewhere waits there; the player goes to it (R-WORLD-006).
+  // A set piece staged elsewhere waits there; the player goes to it (world:one-action-one-sheet).
   "ui.nudge.setpiece-away": "{what} is at {place}.",
   "ui.nudge.end": "Live the month, or sleep",
-  // The world's night (clock.md R-CLOCK-033; decision 0011): the bed's Sleep turns the month.
+  // The world's night (clock:game-day-on-real-time; decision 0011): the bed's Sleep turns the month.
   "ui.nudge.night": "Night. Go to bed",
-  // R-ACTIVITY-020: where an act's button was, once the body is spent.
+  // activity:spent-body-refuses-acts: where an act's button was, once the body is spent.
   "ui.act.spent": "You are spent. Sleep.",
-  // The first night of a life, told once on a small card before the first sleep (R-WORLD-025).
+  // The first night of a life, told once on a small card before the first sleep (world:sleep-ends-the-month).
   "ui.night.first": "Each night you sleep is a month of your life.",
   "ui.night.first.ok": "Sleep",
   "ui.night.first.title": "A night, a month",
   "ui.night.first.later": "Not yet",
-  // The bed's timed sleep (R-WORLD-025): the chip under the band, the button that wakes, and the corner's
+  // The bed's timed sleep (world:sleep-ends-the-month): the chip under the band, the button that wakes, and the corner's
   // words when a sleep is cut short (the night still to be had after dark; by day, only that you are up).
   "ui.sleep.chip": "Asleep · tap to wake",
   "ui.sleep.wake": "Wake up",

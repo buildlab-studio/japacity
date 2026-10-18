@@ -1,4 +1,4 @@
-// From docs/rules/activity.md, "Jobs" and "Free-slot activities", and R-ROUTE-012 for the visa.
+// From docs/rules/activity.md, "Jobs" and "Free-slot activities", and route:visa-application-needs for the visa.
 // The activities abroad are in activity.abroad.data.ts and joined in at the end.
 // The gate activities are from docs/rules/route-gates.md and road.md.
 import type { ActivityEntry, Cost, Id, Requirement } from "@japacity/sim";
@@ -86,7 +86,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-bank-officer": {
     id: "activity.job-bank-officer",
     slot: "main",
-    // R-HEALTH-004: the bank pays through a sick month.
+    // health:sick-pay-unless-sick-leave: the bank pays through a sick month.
     sickLeave: true,
     requires: [
       { type: "quality/min", quality: "quality.edu-level", value: 3 },
@@ -105,7 +105,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.job-bank-senior": {
     id: "activity.job-bank-senior",
     slot: "main",
-    // R-HEALTH-004: the bank pays through a sick month.
+    // health:sick-pay-unless-sick-leave: the bank pays through a sick month.
     sickLeave: true,
     requires: [{ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }],
     param: null,
@@ -162,7 +162,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
 
   // Ngozi's job (route-gates.md, the last table): a staff nurse at ₦180,000 a month.
   // A nurse starts at care 60, so that is what it needs, and its month is a care job's:
-  // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue.md R-PROLOGUE-010).
+  // wellbeing -4, care +1. The nurse from sixteen hunts it at the clinic (prologue:archetype-presets-answers).
   // Its hiring chance is 50%, between the teacher's 70% and the junior developer's 35%:
   // the wards are short of nurses.
   "activity.job-nurse": {
@@ -192,11 +192,11 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [],
     pay: null,
     hireBp: null,
-    // The same figure as tuning.quality.wellbeingRest, which an empty slot uses (R-TURN-006).
+    // The same figure as tuning.quality.wellbeingRest, which an empty slot uses (turn:free-slots-per-month).
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: 12 }],
     counts: [],
   },
-  // Gist with Mama: talking takes no time, as often as you like (R-ACTIVITY-019).
+  // Gist with Mama: talking takes no time, as often as you like (activity:acts-may-repeat-in-month).
   "activity.family-time": {
     id: "activity.family-time",
     slot: "free",
@@ -227,7 +227,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "activity/hunt" }],
     counts: [],
   },
-  // A day of study, paid and answered at once; three in a month give what the month's slot gave (R-ACTIVITY-019).
+  // A day of study, paid and answered at once; three in a month give what the month's slot gave (activity:acts-may-repeat-in-month).
   "activity.study-english": {
     id: "activity.study-english",
     slot: "free",
@@ -262,7 +262,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     ],
     counts: [],
   },
-  // A piece for the portfolio: a weekend at the laptop, up at once (R-ACTIVITY-019).
+  // A piece for the portfolio: a weekend at the laptop, up at once (activity:acts-may-repeat-in-month).
   "activity.build-portfolio": {
     id: "activity.build-portfolio",
     slot: "free",
@@ -309,7 +309,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "route/hear", route: UK, chanceBp: pct(40), via: "meetup" },
       // route-gates.md: the talent route is heard of at a meetup, 20%.
       { type: "route/hear", route: TALENT, chanceBp: pct(20), via: "meetup" },
-      // guide.md R-GUIDE-016: a life with care 30 (the care route's own bar to hear) hears of care work at the meetup.
+      // guide:first-meetup-hears-fitting-route: a life with care 30 (the care route's own bar to hear) hears of care work at the meetup.
       // No chance is given for it, so none is drawn and the offer stream keeps its walk.
       { type: "route/hear", route: CARE, via: "meetup" },
     ],
@@ -318,7 +318,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.look-into-route": {
     id: "activity.look-into-route",
     slot: "free",
-    // The param offers every route heard of (R-ROUTE-004), so no one route is named here.
+    // The param offers every route heard of (route:looking-into-makes-known), so no one route is named here.
     requires: [],
     param: "route",
     cost: [],
@@ -438,7 +438,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     effects: [{ type: "document/request", document: "document.tb-certificate" }],
     counts: [UK],
   },
-  // R-DOCUMENT-007: the police certificate, asked at the visa centre's notice, since no police station is built.
+  // document:police-certificate-for-routes: the police certificate, asked at the visa centre's notice, since no police station is built.
   "activity.get-police-certificate": {
     id: "activity.get-police-certificate",
     slot: "free",
@@ -464,7 +464,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   "activity.apply-for-visa": {
     id: "activity.apply-for-visa",
     slot: "free",
-    // R-ROUTE-012, item by item.
+    // route:visa-application-needs, item by item.
     requires: [
       { type: "route/state", route: UK, in: ["known"] },
       { type: "var/min", var: WINDOW, value: 1 },
@@ -486,7 +486,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [UK],
   },
 
-  // Side jobs (R-ACTIVITY-010): hunted like a job, held beside it, one free slot locked while kept.
+  // Side jobs (activity:side-job-holds-a-slot): hunted like a job, held beside it, one free slot locked while kept.
   // The contract's pay names no pocket; naira pay goes to cash and dollar pay to the bank.
 
   "activity.night-support": {
@@ -499,7 +499,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "USD", amount: dollars(350) },
-    // R-ACTIVITY-014: a stronger tech hand takes the harder tickets. Working values.
+    // activity:side-jobs-pay-by-tier: a stronger tech hand takes the harder tickets. Working values.
     tiers: [
       { min: { quality: "quality.tech", value: 60 }, pay: { currency: "USD", amount: dollars(450) } },
       { min: { quality: "quality.tech", value: 80 }, pay: { currency: "USD", amount: dollars(600) } },
@@ -515,7 +515,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(60000) },
-    // R-ACTIVITY-014, the page's own example: coding lessons pay more than exam lessons.
+    // activity:side-jobs-pay-by-tier, the page's own example: coding lessons pay more than exam lessons.
     tiers: [{ min: { quality: "quality.tech", value: 50 }, pay: { currency: "NGN", amount: naira(90000) } }],
     hireBp: pct(50),
     effects: [{ type: "quality/add", quality: "quality.wellbeing", amount: -4 }],
@@ -528,7 +528,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     param: null,
     cost: [],
     pay: { currency: "NGN", amount: naira(120000) },
-    // R-ACTIVITY-014: regular riders and an office account come through people. Working values.
+    // activity:side-jobs-pay-by-tier: regular riders and an office account come through people. Working values.
     tiers: [
       { min: { quality: "quality.network", value: 70 }, pay: { currency: "NGN", amount: naira(150000) } },
       { min: { quality: "quality.network", value: 85 }, pay: { currency: "NGN", amount: naira(180000) } },
@@ -538,7 +538,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [],
   },
 
-  // The counter-moves to the one chance (R-ACTIVITY-011).
+  // The counter-moves to the one chance (activity:one-chance-bus-robbery).
 
   "activity.safe-ride": {
     id: "activity.safe-ride",
@@ -566,13 +566,13 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     counts: [],
   },
 
-  // The kiosk (R-LUCK-005, 006). The tickets, the stake and the draws are tuning, so the
+  // The kiosk (luck:kiosk-sells-lotto-tickets, luck:bet-slip-stake-and-odds). The tickets, the stake and the draws are tuning, so the
   // activity kind prices and draws them; the entries carry no cost and no effect.
 
   "activity.play-lotto": {
     id: "activity.play-lotto",
     slot: "free",
-    // R-LOTTERY-001: the kiosk closes while the world runs the Friday draw.
+    // lottery:draw-runs-online-only: the kiosk closes while the world runs the Friday draw.
     requires: [{ type: "world/lottery", online: false }],
     param: null,
     cost: [],
@@ -594,29 +594,29 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
   },
 
   ...abroadActivityTable,
-  // The wallet keeps Canadian dollar and dirham pockets (R-ABROAD-001).
+  // The wallet keeps Canadian dollar and dirham pockets (abroad-money:foreign-currencies-join-wallet).
   ...foreignPocketActivityTable,
-  // person.md: time with someone (R-PEOPLE-014).
+  // person.md: time with someone (person:time-together-is-an-act).
   ...peopleActivityTable,
-  // streets.md: Computer Village, the bridge and the stadium (R-STREET-001 to 004, 008).
+  // streets.md: Computer Village, the bridge and the stadium (streets:buy-phone-at-computer-village, streets:phone-sales-job, streets:apprentice-learns-repair, streets:sleeping-under-the-bridge, streets:stadium-morning-run).
   ...streetActivityTable,
-  // obligation.md R-OBLIGATION-014: the room's basics, cooking and water.
+  // obligation:cooking-and-fetching-water: the room's basics, cooking and water.
   ...roomActivityTable,
-  // streets.md R-STREET-011: the street's enjoyment and spending (decision 0012).
+  // streets:lagos-street-spending: the street's enjoyment and spending (decision 0012).
   ...enjoyActivityTable,
-  // place.md R-PLACE-012 and streets.md R-STREET-012: London lived by hand.
+  // place:country-pass-covers-ways and streets:london-life-by-hand: London lived by hand.
   ...londonActivityTable,
-  // place.md R-PLACE-012 and streets.md R-STREET-013 to R-STREET-015: Calgary, Dubai and Castel Volturno lived by hand.
+  // place:country-pass-covers-ways and streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand: Calgary, Dubai and Castel Volturno lived by hand.
   ...calgaryActivityTable,
   ...dubaiActivityTable,
   ...castelActivityTable,
-  // activity.md R-ACTIVITY-013: the waiting months' acts.
+  // activity:waiting-months-build-profile: the waiting months' acts.
   ...profileActivityTable,
   // The trader's own shop.
   ...shopActivityTable,
-  // The fish racks at Makoko (R-ACTIVITY-017).
+  // The fish racks at Makoko (activity:fish-racks-at-makoko).
   ...waterActivityTable,
-  // person.md: applying on the partner and dependant gates (R-PEOPLE-022, 026).
+  // person.md: applying on the partner and dependant gates (person:dependant-gate-needs, person:partner-gate-needs).
   ...peopleApplyActivities,
   // route-gates.md: the sponsor gate.
 
@@ -625,13 +625,13 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     slot: "free",
     where: "home",
     // A requirement cannot read the param, so this needs either sponsor route known. The route
-    // picked must also have its window open, which the route kind checks (R-SPONSOR-001).
+    // picked must also have its window open, which the route kind checks (route-gates:sponsor-offers-come-up).
     requires: [{ type: "any", of: [known(CARE), known(SKILLED)] }],
     param: "known-route",
     cost: [],
     pay: null,
     hireBp: null,
-    // No effect in the contract rolls a sponsor offer, so the route kind runs R-SPONSOR-001 for the
+    // No effect in the contract rolls a sponsor offer, so the route kind runs route-gates:sponsor-offers-come-up for the
     // route picked, with the route's `sponsor.findBp`. Nothing is listed here.
     effects: [],
     counts: [CARE, SKILLED],
@@ -640,7 +640,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.request-verification",
     slot: "free",
     where: "home",
-    // 24 months in a nursing job, the council's rule since 1 Mar 2024 (R-SPONSOR-005).
+    // 24 months in a nursing job, the council's rule since 1 Mar 2024 (route-gates:care-route-needs-verification).
     requires: [
       { type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 },
       held("document.nursing-licence"),
@@ -658,7 +658,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     slot: "free",
     where: "home",
     // Only a nurse renews. Care 40 is well under what every nurse holds (the prologue's leave with 60);
-    // a renewal already being made blocks another (R-DOCUMENT-004 keeps the held one in force meanwhile).
+    // a renewal already being made blocks another (document:one-pending-copy keeps the held one in force meanwhile).
     requires: [
       { type: "quality/min", quality: "quality.care", value: 40 },
       { type: "not", of: { type: "document/pending", document: "document.nursing-licence" } },
@@ -674,7 +674,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.apply-uk-care",
     slot: "free",
     where: "home",
-    // R-SPONSOR-003 and 005. Each gate route has its own apply activity, as apply-for-visa is the study route's.
+    // route-gates:sponsor-application-needs and route-gates:care-route-needs-verification. Each gate route has its own apply activity, as apply-for-visa is the study route's.
     requires: [
       known(CARE),
       windowOpen("var.uk-care-window"),
@@ -698,7 +698,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.apply-uk-skilled",
     slot: "free",
     where: "home",
-    // R-SPONSOR-003 and 006.
+    // route-gates:sponsor-application-needs and route-gates:skilled-route-needs-degree.
     requires: [
       known(SKILLED),
       windowOpen("var.uk-skilled-window"),
@@ -749,7 +749,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.enter-pool",
     slot: "free",
     where: "home",
-    // R-POINTS-002. Band 6.0 is CLB 7; `route/funds` asks for the funds.
+    // route-gates:entering-the-pool. Band 6.0 is CLB 7; `route/funds` asks for the funds.
     requires: [
       known(CANADA),
       windowOpen("var.ca-window"),
@@ -773,7 +773,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.apply-endorsement",
     slot: "free",
     where: "home",
-    // R-ENDORSE-001. The six months after a refusal are the route's `endorsement.cooldown`.
+    // route-gates:applying-for-endorsement. The six months after a refusal are the route's `endorsement.cooldown`.
     requires: [
       known(TALENT),
       windowOpen("var.uk-talent-window"),
@@ -781,7 +781,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.network", value: 50 },
       { type: "document/absent", document: "document.endorsement" },
-      // R-ENDORSE-002: six months after a refused endorsement.
+      // route-gates:endorsement-decided-by-draw: six months after a refused endorsement.
       { type: "route/gate-step", route: TALENT, step: "cooled" },
     ],
     param: null,
@@ -795,7 +795,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.apply-uk-talent",
     slot: "free",
     where: "home",
-    // R-ENDORSE-003.
+    // route-gates:talent-visa-needs-endorsement.
     requires: [
       known(TALENT),
       windowOpen("var.uk-talent-window"),
@@ -830,9 +830,9 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     cost: [],
     pay: null,
     hireBp: null,
-    // The motor park hears of the Gulf (R-CONTRACT-001) and the pitch finds the curious (R-ROAD-002). A life that heard of the
+    // The motor park hears of the Gulf (route-gates:gulf-route-heard-at-park) and the pitch finds the curious (road:pitch-rises-with-pressure). A life that heard of the
     // Gulf already (the drivers at the send-off) looks it into here first: the look-into moves only a route heard, so its place
-    // before the hearing is the condition (decision 0001; R-CHAPTER-009's reading).
+    // before the hearing is the condition (decision 0001; chapter:chapters-follow-lean-route's reading).
     effects: [
       { type: "route/look-into", route: GULF },
       { type: "route/hear", route: GULF, via: "motor-park" },
@@ -860,7 +860,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
     id: "activity.apply-gulf-contract",
     slot: "free",
     where: "home",
-    // R-CONTRACT-003: secondary school or better and under 45 years. No fee: the employer pays.
+    // route-gates:gulf-application-needs: secondary school or better and under 45 years. No fee: the employer pays.
     requires: [
       known(GULF),
       windowOpen("var.uae-window"),

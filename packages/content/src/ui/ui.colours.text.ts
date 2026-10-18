@@ -1,4 +1,4 @@
-// The words of "Make it yours" on the door's first screen (prologue.md R-PROLOGUE-015): the rows, the way back to
+// The words of "Make it yours" on the door's first screen (prologue:player-colours-on-looks): the rows, the way back to
 // the look as made, a name for each swatch, and the fabrics.
 export const uiColoursText: Record<string, string> = {
   "ui.door.yours": "Make it yours",

@@ -35,7 +35,7 @@ function step(route: Id<"route">, name: string): Requirement {
 const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
   "route.uk-masters": {
     id: UK,
-    // docs/rules/route-gates.md R-GATE-001 and 003.
+    // route-gates:route-runs-its-gate-steps and route-gates:departure-grants-status.
     gate: "study",
     dependants: null,
     country: "country.uk",
@@ -99,12 +99,12 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     flightPaidByEmployer: false,
     hearIf: [{ type: "quality/min", quality: "quality.care", value: 30 }],
     hearBy: 4,
-    // Starts at 0: closed to applicants abroad until the director opens it (R-SPONSOR-005).
+    // Starts at 0: closed to applicants abroad until the director opens it (route-gates:care-route-needs-verification).
     window: "var.uk-care-window",
     checklist: [
       item("licence", 10, held("document.nursing-licence")),
       item("verification", 14, held("document.nmcn-verification")),
-      // The clinic's certification (R-SPONSOR-005): the checklist's smallest weight,
+      // The clinic's certification (route-gates:care-route-needs-verification): the checklist's smallest weight,
       // taken out of the application's as the police paper's was.
       item("certificate", 5, held("document.nurse-certificate")),
       item("passport", 6, held("document.passport")),
@@ -112,7 +112,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       item("english", 10, held("document.english-test", 40)),
       item("sponsor", 25, step(CARE, "sponsor")),
       item("tb", 5, held("document.tb-certificate")),
-      // R-DOCUMENT-007: the police certificate; its weight comes out of the application's.
+      // document:police-certificate-for-routes: the police certificate; its weight comes out of the application's.
       item("police", 5, held("document.police-certificate")),
       item("salary", 10, step(CARE, "salary")),
       item("applied", 10, applied(CARE)),
@@ -135,13 +135,13 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
   "route.uk-skilled": {
     id: SKILLED,
     gate: "sponsor",
-    // R-PEOPLE-019.
+    // person:routes-name-dependant-routes.
     dependants: "route.uk-dependant",
     country: "country.uk",
     status: "status.uk-sponsored",
     refusalBaseBp: 500,
     flightPaidByEmployer: false,
-    // A bachelor's and 24 months across every job (R-SPONSOR-006).
+    // A bachelor's and 24 months across every job (route-gates:skilled-route-needs-degree).
     hearIf: [DEGREE, { type: "activity/tenure", activities: [], months: 24 }],
     hearBy: 6,
     window: "var.uk-skilled-window",
@@ -153,7 +153,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       item("salary", 10, step(SKILLED, "salary")),
       { id: "funds", weight: 10, requirement: { type: "route/funds", route: SKILLED, heldMonths: 0 }, partial: true },
       item("tb", 6, held("document.tb-certificate")),
-      // R-DOCUMENT-007: the police certificate; its weight comes out of the application's.
+      // document:police-certificate-for-routes: the police certificate; its weight comes out of the application's.
       item("police", 5, held("document.police-certificate")),
       item("applied", 15, applied(SKILLED)),
     ],
@@ -168,7 +168,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       // The degree is a quality, so no document is named.
       documents: [],
       strictnessVar: "var.uk-skilled-strictness",
-      // Three years of status (R-SPONSOR-003).
+      // Three years of status (route-gates:sponsor-application-needs).
       surchargeYears: 3,
       job: "activity.job-uk-skilled",
     },
@@ -195,7 +195,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       { id: "funds", weight: 20, requirement: { type: "route/funds", route: CANADA, heldMonths: 0 }, partial: true },
       item("pool", 15, step(CANADA, "pool")),
       item("invited", 20, step(CANADA, "invited")),
-      // R-DOCUMENT-007: the police certificate; its weight comes out of the application's.
+      // document:police-certificate-for-routes: the police certificate; its weight comes out of the application's.
       item("police", 5, held("document.police-certificate")),
       item("applied", 10, applied(CANADA)),
     ],
@@ -209,7 +209,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       careCutoffVar: "var.ca-care-cutoff",
       feeVar: "var.ca-apply-fee",
       decisionVar: "var.ca-decision-months",
-      // A profile lasts 12 months (R-POINTS-002 and 005).
+      // A profile lasts 12 months (route-gates:entering-the-pool and route-gates:profile-lapses-and-score-ages).
       profileMonths: 12,
     },
   },
@@ -232,7 +232,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     hearBy: null,
     window: "var.uk-talent-window",
     checklist: [
-      // The figures R-ENDORSE-001 asks for.
+      // The figures route-gates:applying-for-endorsement asks for.
       item("tech", 15, { type: "quality/min", quality: "quality.tech", value: 75 }),
       item("portfolio", 20, { type: "quality/min", quality: "quality.portfolio", value: 3 }),
       item("network", 10, { type: "quality/min", quality: "quality.network", value: 50 }),
@@ -249,10 +249,10 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       perPortfolioBp: 700,
       perNetworkBp: 10,
       capBp: 8500,
-      // Months apply-endorsement is not legal after a refused endorsement (R-ENDORSE-002).
+      // Months apply-endorsement is not legal after a refused endorsement (route-gates:endorsement-decided-by-draw).
       cooldown: 6,
       feeVar: "var.uk-talent-endorse-fee",
-      // Five years of status (R-ENDORSE-003).
+      // Five years of status (route-gates:talent-visa-needs-endorsement).
       surchargeYears: 5,
     },
   },
@@ -266,7 +266,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     country: "country.uae",
     status: "status.gulf-worker",
     refusalBaseBp: 1000,
-    // The employer pays the flight (R-CONTRACT-004).
+    // The employer pays the flight (route-gates:employer-flies-and-holds-passport).
     flightPaidByEmployer: true,
     // Secondary school.
     hearIf: [{ type: "quality/min", quality: "quality.edu-level", value: 1 }],
@@ -277,17 +277,17 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       item("passport", 20, held("document.passport")),
       item("medical", 15, held("document.medical")),
       item("agent", 35, step(GULF, "sponsor")),
-      // R-DOCUMENT-007: the police certificate; its weight comes out of the application's.
+      // document:police-certificate-for-routes: the police certificate; its weight comes out of the application's.
       item("police", 5, held("document.police-certificate")),
       item("applied", 25, applied(GULF)),
     ],
     schools: [],
     interview: null,
-    // Under 45 years (R-CONTRACT-003).
+    // Under 45 years (route-gates:gulf-application-needs).
     contract: { medical: "document.medical", maxAgeMonths: 540 },
   },
 
-  // road.md. No checklist, no window, no figure, never in the routes view (R-ROAD-001).
+  // road.md. No checklist, no window, no figure, never in the routes view (road:road-route-has-no-figure).
 
   "route.road": {
     id: "route.road",
@@ -298,7 +298,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
     // The road has no decision draw, so no refusal base.
     refusalBaseBp: 0,
     flightPaidByEmployer: false,
-    // Nothing on the profile locks the pitches (R-ROAD-012).
+    // Nothing on the profile locks the pitches (road:pitch-reaches-anyone-at-home).
     hearIf: [],
     hearBy: null,
     window: null,
@@ -318,7 +318,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
   },
 };
 
-// docs/rules/person.md "Entries: routes and statuses", R-PEOPLE-019, 022 to 028,
+// docs/rules/person.md "Entries: routes and statuses", person:routes-name-dependant-routes, person:dependant-gate-needs, person:dependant-application-decided, person:dependant-status-ends-with-lead, person:partner-routes-heard-via-bond, person:partner-gate-needs, person:partner-application-decided and person:partner-status-renews,
 // and undertaking.md for the floor.
 
 const UK_PARTNER: Id<"route"> = "route.uk-partner";
@@ -326,7 +326,7 @@ const CA_SPOUSE: Id<"route"> = "route.ca-spouse";
 const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
 const CA_ACCOMPANY: Id<"route"> = "route.ca-accompany";
 
-/** R-PEOPLE-025: a partner abroad in the country with a status that may sponsor. */
+/** person:partner-routes-heard-via-bond: a partner abroad in the country with a status that may sponsor. */
 function partnerAbroad(country: Id<"country">, statuses: Id<"status">[]): Requirement {
   return { type: "people/bond", role: "partner", stages: ["partner", "married"], where: "abroad", country, statuses };
 }
@@ -344,7 +344,7 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
     refusalBaseBp: 500,
     flightPaidByEmployer: false,
     hearIf: [partnerAbroad("country.uk", UK_SPONSORS)],
-    // Heard the month the partner's facts show it (R-PEOPLE-025).
+    // Heard the month the partner's facts show it (person:partner-routes-heard-via-bond).
     hearBy: 0,
     window: "var.uk-family-window",
     checklist: [
@@ -365,7 +365,7 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
       feeVar: "var.uk-partner-fee",
       surchargeYears: 3,
       decisionMonths: 3,
-      // Married, or two years together (R-PEOPLE-026).
+      // Married, or two years together (person:partner-gate-needs).
       livingTogetherMonths: 24,
       floorVar: "var.uk-partner-income",
     },
@@ -408,7 +408,7 @@ const peopleRoutes: Record<Id<"route">, RouteEntry> = {
     status: "status.uk-dependant",
     refusalBaseBp: 300,
     flightPaidByEmployer: false,
-    // Known at once when the joint is agreed (R-PEOPLE-021), never heard of alone.
+    // Known at once when the joint is agreed (person:joint-application-proposed), never heard of alone.
     hearIf: [],
     hearBy: null,
     window: null,
@@ -485,7 +485,7 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(UK_PARTNER, "married"),
       step(UK_PARTNER, "sponsor"),
       step(UK_PARTNER, "floor"),
-      // R-PEOPLE-026, R-PLACE-008: no removal's ban on the country, judged before the fee and the surcharge are taken.
+      // person:partner-gate-needs, place:removal-bans-the-country: no removal's ban on the country, judged before the fee and the surcharge are taken.
       { type: "not", of: { type: "place/banned", country: "country.uk" } },
       held("document.english-test", 30),
       held("document.tb-certificate"),
@@ -511,7 +511,7 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(UK_DEPENDANT, "lead"),
       held("document.passport"),
       held("document.tb-certificate"),
-      // The maintenance at one month end, or nothing required once the lead has a year in the UK (R-PEOPLE-022).
+      // The maintenance at one month end, or nothing required once the lead has a year in the UK (person:dependant-gate-needs).
       { type: "route/funds", route: UK_DEPENDANT, heldMonths: 1 },
     ],
     [],

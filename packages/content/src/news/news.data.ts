@@ -21,7 +21,7 @@ const CANADA: Id<"route"> = "route.canada-points";
 const TALENT: Id<"route"> = "route.uk-talent";
 const GULF: Id<"route"> = "route.gulf-contract";
 
-/** Every route a player can see. The road never appears in the routes view (R-ROAD-001). */
+/** Every route a player can see. The road never appears in the routes view (road:road-route-has-no-figure). */
 const EVERY_ROUTE: Id<"route">[] = [UK, CARE, SKILLED, CANADA, TALENT, GULF, "route.uk-partner", "route.ca-spouse", "route.uk-dependant", "route.ca-accompany"];
 
 const WINDOWS: Id<"var">[] = [
@@ -106,8 +106,8 @@ function pool(story: PoolStory): NewsEntry {
 }
 
 /**
- * An era's own story, announced on the tick the era begins (R-DIRECTOR-002). It touches
- * every route (R-DIRECTOR-009). Its chance is 0 because the director announces
+ * An era's own story, announced on the tick the era begins (director:one-era-at-a-time). It touches
+ * every route (director:story-touches-and-hearing). Its chance is 0 because the director announces
  * it with the era, never by a roll; it ends with the era, which no field holds.
  */
 function eraStory(id: Id<"news">): NewsEntry {
@@ -127,7 +127,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
   "news.uk-unis-recruit": {
     id: "news.uk-unis-recruit",
     touches: [UK],
-    // Hearing it tells you of the UK master's route (R-NEWS-006).
+    // Hearing it tells you of the UK master's route (news:announcement-makes-routes-heard).
     hear: [UK],
     director: { group: "openings", needs: [], cooldown: 0, once: true, shock: false, endedBy: null, adds: [] },
     standIn: {
@@ -168,7 +168,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     id: "news.uk-refusals-up",
     touches: [UK],
     hear: [],
-    // The study route's backlash: the surge over 40 (R-DIRECTOR-005). Each pass tightens
+    // The study route's backlash: the surge over 40 (director:policy-cycle-surge-backlash). Each pass tightens
     // strictness by 10 and spends 30 of the surge (refusals rise, applications fall), so the ban's
     // +15 is kept and the restriction needs two backlashes from the start value; a pass is news for
     // six ticks and may repeat after 18, and no more once strictness is past 80: the rules are as
@@ -245,7 +245,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
       adds: [],
     },
     standIn: {
-      // It happens whenever the scarcity reaches in force (R-NEWS-003).
+      // It happens whenever the scarcity reaches in force (news:story-fate-drawn-from-seed).
       chanceBp: pct(100),
       announce: { after: "news.dollar-scarcity", stage: "in-force", lag: [3, 6] },
       rumourLead: 1,
@@ -281,7 +281,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     group: "closures",
     // The restriction: the refusals story in force is strictness at its 70. The surge must still be over
     // 40, so a reopened route runs the cycle again before it narrows again. The window must be open, so a
-    // closed or narrowing route is never narrowed again (R-DIRECTOR-005: no step is skipped).
+    // closed or narrowing route is never narrowed again (director:policy-cycle-surge-backlash: no step is skipped).
     needs: [atLeast("var.uk-study-strictness", 70), over("var.uk-study-surge", 50), atLeast("var.uk-study-window", 2)],
     chanceBp: 500,
     rumourLead: 1,
@@ -315,7 +315,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     touches: [UK],
     hear: [UK],
     group: "openings",
-    // A shortage: the window at 0, for `tuning.director.closedTicks` (R-DIRECTOR-005).
+    // A shortage: the window at 0, for `tuning.director.closedTicks` (director:policy-cycle-surge-backlash).
     needs: [atMost("var.uk-study-window", 0)],
     chanceBp: 1500,
     rumourLead: 0,
@@ -435,7 +435,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     chanceBp: 200,
     rumourLead: 1,
     forceLag: 2,
-    // The body stays closed until the reappointment, which waits the closed ticks (R-DIRECTOR-005).
+    // The body stays closed until the reappointment, which waits the closed ticks (director:policy-cycle-surge-backlash).
     endsAfter: null,
     sets: [{ var: "var.uk-talent-window", value: 0 }],
     revert: true,
@@ -583,9 +583,9 @@ const stories: Record<Id<"news">, NewsEntry> = {
     endsAfter: null,
     adds: [{ var: "var.inflation", value: -800 }],
   }),
-  // wallet.md R-WALLET-019: the world warns before the one-chance bus bites (R-ACTIVITY-011). The opening era is
+  // wallet:cash-pile-warning: the world warns before the one-chance bus bites (activity:one-chance-bus-robbery). The opening era is
   // calm, so the story is told in a life's first months at home; it moves no variable and is told once. The pool
-  // is rolled in id order under a cap of new stories a tick (R-DIRECTOR-003), and its id sorts after the UK
+  // is rolled in id order under a cap of new stories a tick (director:stories-start-by-roll), and its id sorts after the UK
   // stories that are certain on the first tick, so it never moves the recruiting fair a month later.
   "news.warning-one-chance": pool({
     id: "news.warning-one-chance",
@@ -645,7 +645,7 @@ const stories: Record<Id<"news">, NewsEntry> = {
     once: true,
   }),
 
-  // One story for each era (R-DIRECTOR-002).
+  // One story for each era (director:one-era-at-a-time).
 
   "news.era-calm": eraStory("news.era-calm"),
   "news.era-open-door": eraStory("news.era-open-door"),

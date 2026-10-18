@@ -1,13 +1,13 @@
-// A dedication light's name and years (docs/rules/account.md R-ACCOUNT-033): a name of at most four words and forty
+// A dedication light's name and years (account:name-a-light-for-yours): a name of at most four words and forty
 // characters, and the years if wanted, each from 1900 to the current year, the last never before the first, either
 // alone. One pure function holds the limits, shared by the client, which checks as the player types, and the server
-// (server.md R-SERVER-045), which refuses with the same problem whatever reaches it. No clock is read here: the
+// (server:dedication-routes), which refuses with the same problem whatever reaches it. No clock is read here: the
 // current year is handed in.
 
-/** R-ACCOUNT-033: the most words and characters a light's name may have. */
+/** account:name-a-light-for-yours: the most words and characters a light's name may have. */
 export const LIGHT_NAME_WORDS = 4;
 export const LIGHT_NAME_CHARACTERS = 40;
-/** R-ACCOUNT-033: the earliest year a light may carry; the latest is the current year. */
+/** account:name-a-light-for-yours: the earliest year a light may carry; the latest is the current year. */
 export const LIGHT_FIRST_YEAR = 1900;
 
 /** A light as it is kept: the name with its spaces tidied, and the years or null. */
@@ -57,7 +57,7 @@ function yearOf(typed: string, thisYear: number): number | null | "bad" {
   return year >= LIGHT_FIRST_YEAR && year <= thisYear ? year : "bad";
 }
 
-/** R-ACCOUNT-033: the limits, each at its edge. `thisYear` is the current year where the check runs. */
+/** account:name-a-light-for-yours: the limits, each at its edge. `thisYear` is the current year where the check runs. */
 export function checkLight(asked: LightAsked, thisYear: number): LightChecked {
   const problems: LightProblem[] = [];
   const name = tidy(asked.name);
@@ -76,7 +76,7 @@ export function checkLight(asked: LightAsked, thisYear: number): LightChecked {
 }
 
 /**
- * R-SERVER-045: a light as a request sends it, `{ name, from?, to? }`, through the same check. A year is a whole number
+ * server:dedication-routes: a light as a request sends it, `{ name, from?, to? }`, through the same check. A year is a whole number
  * or absent (null counts as absent); anything else is that year's problem, and a name that is not text is an empty one.
  */
 export function checkSentLight(sent: unknown, thisYear: number): LightChecked {

@@ -1,4 +1,4 @@
-// The jobs' words the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006), in the voice of
+// The jobs' words the list, the hunt's card and the offer share (world:one-action-one-sheet), in the voice of
 // docs/rules/text.md.
 export const uiJobsText: Record<string, string> = {
   "jobs.pick": "Which job",

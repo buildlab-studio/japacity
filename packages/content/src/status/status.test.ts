@@ -37,8 +37,8 @@ function loopFrom(table: Record<Id<"status">, StatusEntry>, start: Id<"status">)
 }
 
 describe("statuses", () => {
-  test("[R-ENGINE-014] given every status, when it is checked against its schema, then it parses and its key is its id", () => {
-    // status.md's thirteen, and person.md's partner and dependant visas (R-PEOPLE-024, 028).
+  test("[engine:content-checked-before-play] given every status, when it is checked against its schema, then it parses and its key is its id", () => {
+    // status.md's thirteen, and person.md's partner and dependant visas (person:dependant-status-ends-with-lead, person:partner-status-renews).
     expect(statuses).toHaveLength(15);
     for (const [key, status] of Object.entries(content.status)) {
       expect(StatusEntrySchema.safeParse(status).error?.issues ?? []).toEqual([]);
@@ -46,7 +46,7 @@ describe("statuses", () => {
     }
   });
 
-  test("[R-ENGINE-014] given every status, when its country and the statuses it leads to are looked up, then each exists and stays in the same country", () => {
+  test("[engine:content-checked-before-play] given every status, when its country and the statuses it leads to are looked up, then each exists and stays in the same country", () => {
     const problems = statuses.flatMap((status) => {
       if (content.country[status.country] === undefined) return [`${status.id} names ${status.country}, which does not exist`];
       return linksOf(status).flatMap(([field, id]) => {
@@ -58,19 +58,19 @@ describe("statuses", () => {
     expect(problems).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every status, when next, settled and citizen are followed, then the chain ends and never comes back", () => {
+  test("[engine:content-checked-before-play] given every status, when next, settled and citizen are followed, then the chain ends and never comes back", () => {
     const loops = statuses.map((status) => loopFrom(content.status, status.id)).filter((loop) => loop !== null);
     expect(loops).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given a copy of the statuses where citizenship leads back to settlement, when the chain is followed, then the loop is found", () => {
+  test("[engine:content-checked-before-play] given a copy of the statuses where citizenship leads back to settlement, when the chain is followed, then the loop is found", () => {
     const citizen = content.status["status.uk-citizen"]!;
     const looped = { ...content.status, "status.uk-citizen": { ...citizen, next: "status.uk-settled" as const } };
     expect(loopFrom(looped, "status.uk-settled")).toEqual(["status.uk-settled", "status.uk-citizen", "status.uk-settled"]);
   });
 
-  test("[R-ENGINE-014] given every status, when the variables it reads are looked up, then each exists", () => {
-    // person.md R-PEOPLE-024: `lead` is the lead's months left, not a variable.
+  test("[engine:content-checked-before-play] given every status, when the variables it reads are looked up, then each exists", () => {
+    // person:dependant-status-ends-with-lead: `lead` is the lead's months left, not a variable.
     const vars = statuses.flatMap((status) =>
       [status.renewFeeVar, status.surchargeYearVar, status.settleMonthsVar, status.settleFeeVar, status.citizenFeeVar, typeof status.months === "string" && status.months !== "lead" ? status.months : null].filter(
         (id): id is Id<"var"> => id !== null,
@@ -80,9 +80,9 @@ describe("statuses", () => {
     expect(vars.filter((id) => content.var[id] === undefined)).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given every status that counts to settlement, when its settlement step is read, then it names the months, the fee and the status it leads to", () => {
+  test("[engine:content-checked-before-play] given every status that counts to settlement, when its settlement step is read, then it names the months, the fee and the status it leads to", () => {
     const counting = statuses.filter((status) => status.countsToSettlement);
-    // person.md "Entries: routes and statuses": the partner and dependant visas count to settlement too (R-PEOPLE-028).
+    // person.md "Entries: routes and statuses": the partner and dependant visas count to settlement too (person:partner-status-renews).
     expect(counting.map((status) => status.id)).toEqual(["status.uk-sponsored", "status.uk-talent", "status.ca-resident", "status.uk-partner", "status.uk-dependant"]);
     for (const status of counting) {
       expect(status.settleMonthsVar).not.toBeNull();
@@ -91,7 +91,7 @@ describe("statuses", () => {
     }
   });
 
-  test("[R-ENGINE-014] given the statuses, when figures from status.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given the statuses, when figures from status.md are read back, then each matches the page", () => {
     const sponsored = content.status["status.uk-sponsored"];
     // 36 months, one employer, a 60-day clock, renewed for 24 months.
     expect(sponsored).toMatchObject({ months: 36, work: "one-employer", clockMonths: 2, renewMonths: 24, settled: "status.uk-settled" });

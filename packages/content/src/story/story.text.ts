@@ -1,6 +1,6 @@
 // The words of the phone's Chats (story.chats.data.ts). People talk the way they talk on their
 // phones; the narrator stays out. Bad news is written straight
-// (text.md R-TEXT-002).
+// (text:bad-news-never-joked).
 export const storyText: Record<string, string> = {
   "chats.app.name": "Chats",
   "chats.thread.family": "Family",
@@ -51,7 +51,7 @@ export const storyText: Record<string, string> = {
   "chats.mum.rent.text": "How much is the rent there? Do not let anybody cheat you because you are new.",
   "chats.sibling.first-pay.text": "First salary over there. Remember your people o.",
   "chats.friend.landed.text": "You have landed. Send pictures of everything. Even the bus stop.",
-  // The same line for the staple the life rides on landing (chapter.md R-CHAPTER-012 (k)): the buses of London and
+  // The same line for the staple the life rides on landing (chapter:send-off-scene-in-beats (k)): the buses of London and
   // Castel Volturno keep the line above, Dubai's taxi and Calgary's truck end on their own.
   "chats.friend.landed.text.taxi": "You have landed. Send pictures of everything. Even the taxi.",
   "chats.friend.landed.text.pickup": "You have landed. Send pictures of everything. Even the truck.",

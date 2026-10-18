@@ -1,5 +1,5 @@
 // What the phone can read from the view to decide that a chat line, a notice or a reminder is due
-// (docs/rules/world.md R-WORLD-019). Each signal names one thing the view already shows, so a line
+// (world:phone-holds-what-phones-hold). Each signal names one thing the view already shows, so a line
 // appears only when its event is in the view.
 import type { BondStage, Content, Id, ObligationType, PlayerView } from "@japacity/sim";
 

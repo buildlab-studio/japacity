@@ -2,7 +2,7 @@
 // docs/research or a rule page's Sources, with the date it was read there.
 import type { GuideEntry, Id } from "@japacity/sim";
 
-/** The three parts of every guide (R-GUIDE-002): the real rules, what the game changes, and what to read next. */
+/** The three parts of every guide (guide:every-route-has-a-guide): the real rules, what the game changes, and what to read next. */
 export const GUIDE_SECTIONS = ["real", "game", "next"];
 
 const RESEARCH = "2026-10-07";

@@ -4,7 +4,7 @@ import type { Proof, Same } from "@japacity/sim/schemas";
 
 export type ShareKind = NonNullable<PlayerView["card"]>["kind"];
 
-/** Every moment a card is made for, in the order the page lists them (R-SHARE-001), then the ending. */
+/** Every moment a card is made for, in the order the page lists them (share:cards-due-at-set-moments), then the ending. */
 export const shareKinds = ["chapter", "granted", "send-off", "first-pay-abroad", "secured", "december", "draw-win", "real-story", "lost"] as const;
 
 /** Fails to compile if the view gains or loses a card kind without this list following. */
@@ -15,7 +15,7 @@ export const shareChapters: readonly Id<"chapter">[] = [
   "chapter.find-your-feet",
   "chapter.build-the-file",
   "chapter.decision-day",
-  // R-CHAPTER-009: the variants of the file and decision day, in content's order.
+  // chapter:chapters-follow-lean-route: the variants of the file and decision day, in content's order.
   "chapter.build-the-file-care",
   "chapter.build-the-file-talent",
   "chapter.build-the-file-points",
@@ -41,7 +41,7 @@ export type JapaType = (typeof japaTypes)[number];
 export type OfficialPlatform = "web" | "email" | "whatsapp" | "instagram" | "tiktok" | "x" | "youtube" | "facebook" | "repository";
 
 /**
- * One row per account in the page's entries table (R-SHARE-012). An address
+ * One row per account in the page's entries table (share:official-accounts-page). An address
  * is filled once the game holds it; the page lists only those.
  */
 export interface OfficialAccount {

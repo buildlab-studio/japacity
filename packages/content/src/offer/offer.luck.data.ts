@@ -1,7 +1,7 @@
-// The luck offers of docs/rules/luck.md: the whip-round (R-LUCK-002), the telco
-// promo (R-LUCK-007) and the luck native to japa (R-LUCK-010). Joined into the
+// The luck offers of docs/rules/luck.md: the whip-round (luck:whip-round-once-per-life), the telco
+// promo (luck:telco-promo-may-be-fraud) and the luck native to japa (luck:japa-luck-in-existing-systems). Joined into the
 // offer table in offer.data.ts. A luck offer's `when` never reads money
-// (R-LUCK-001); the whip-round's money rule is the offer kind's, in the open.
+// (luck:luck-never-reads-money); the whip-round's money rule is the offer kind's, in the open.
 import type { Id, OfferEntry, Requirement } from "@japacity/sim";
 
 import { tuning } from "../tuning/tuning.data";
@@ -20,7 +20,7 @@ export const ANY_ROUTE_KNOWN: Requirement = {
 
 // A win left unanswered lapses into nothing. Luck has to be picked up.
 export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
-  // R-LUCK-002. Never rolled: the offer kind opens it once a life when its rule holds. The term
+  // luck:whip-round-once-per-life. Never rolled: the offer kind opens it once a life when its rule holds. The term
   // `rescue` is the tuning's, and the kind hands over the live tuning's figure when it opens, so an
   // overlay moves it.
   "offer.whip-round": {
@@ -56,7 +56,7 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: null,
   },
 
-  // R-LUCK-007. The term `promo` is the tuning's, handed over live by the offer kind as for the whip-round.
+  // luck:telco-promo-may-be-fraud. The term `promo` is the tuning's, handed over live by the offer kind as for the whip-round.
   // A cooldown of 6, as the other life offers have; the page gives none.
   "offer.telco-promo": {
     id: "offer.telco-promo",
@@ -90,7 +90,7 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: "ignore",
   },
 
-  // R-LUCK-010: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged. The risk has a way
+  // luck:japa-luck-in-existing-systems: a relative abroad sends $500 to the dollar bank pocket, a gift, flagged. The risk has a way
   // round, said before it is taken: asked for through her bank with a note, the gift is documented and not
   // flagged. It arrives in the month it is taken: no effect credits money a month on.
   "offer.relative-sends": {
@@ -126,9 +126,9 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: null,
   },
 
-  // R-LUCK-010: a thirteenth month from the job, in the December tick. One month's pay is
+  // luck:japa-luck-in-existing-systems: a thirteenth month from the job, in the December tick. One month's pay is
   // the pay term at its figure of one, valued in naira at the official rate as every pay term is
-  // (R-OFFER-002), and paid to the naira bank.
+  // (offer:opening-fixes-terms-and-fraud), and paid to the naira bank.
   "offer.december-bonus": {
     id: "offer.december-bonus",
     group: "life",
@@ -153,7 +153,7 @@ export const luckOfferTable: Record<Id<"offer">, OfferEntry> = {
     onExpire: null,
   },
 
-  // R-LUCK-010: a school offer held on the UK master's, in the route's window. The page gives
+  // luck:japa-luck-in-existing-systems: a school offer held on the UK master's, in the route's window. The page gives
   // £3,000 to the pound bank pocket, a gift, not flagged, since a scholarship letter explains it.
   // Once a life: the page gives no limit.
   "offer.scholarship-round": {

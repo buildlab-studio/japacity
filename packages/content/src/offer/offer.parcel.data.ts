@@ -1,4 +1,4 @@
-// Things shipped home: docs/rules/streets.md R-STREET-010, opened by offer.parcel.ts in the simulation.
+// Things shipped home: streets:parcels-shipped-home, opened by offer.parcel.ts in the simulation.
 // Joined into the offer table in offer.data.ts; its words are in offer.parcel.text.ts. The aunty is the
 // one of `offer.relative-sends`, on the same condition. The things live here, as the parcel's choices,
 // since each is a set of effects the game already has.
@@ -42,7 +42,7 @@ export const parcelOfferTable: Record<Id<"offer">, OfferEntry> = {
   [PARCEL]: {
     id: PARCEL,
     group: "life",
-    // Collected in Lagos: a flight closes it unanswered (R-OFFER-005).
+    // Collected in Lagos: a flight closes it unanswered (offer:lapsed-offer-removed).
     where: "home",
     when: [{ type: "any", of: [SIBLING_ABROAD, ANY_ROUTE_KNOWN] }],
     // Never rolled: the offer kind opens it on a birthday month.

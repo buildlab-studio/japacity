@@ -1,4 +1,4 @@
-// Where a life is from (prologue.md R-PROLOGUE-002): Lagos is the city the game is played in, but most lives come to
+// Where a life is from (prologue:family-draw-on-first-answer): Lagos is the city the game is played in, but most lives come to
 // it from somewhere else. The family drawn in the city is from one of the cities, the family drawn in a town from one of the towns, spread across the six zones and
 // across the north and the south as the names are (person.names.data.ts). Real towns are named as where people are
 // from, never as a place the game shows. The words are `hometown.<slug>.name` in prologue.hometown.text.ts.
@@ -58,7 +58,7 @@ export const hometownTowns: string[] = [
   "hometown.keffi",
 ];
 
-/** A life born in Lagos: the child of the water, whose home answer is Makoko (R-PROLOGUE-012). */
+/** A life born in Lagos: the child of the water, whose home answer is Makoko (prologue:makoko-start-never-a-trap). */
 export const hometownByHome: Record<string, string> = { makoko: "hometown.lagos" };
 
 /** Where each of the hometowns sits, for the spread: the north (north-central, north-west, north-east) or the south. */

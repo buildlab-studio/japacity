@@ -5,7 +5,7 @@ import { content, text } from "../index";
 import { ngoziScenario } from "./scenario.data";
 
 describe("Ngozi", () => {
-  test("[R-ENGINE-014] given Ngozi, when she is checked against the scenario schema, then she parses and holds every quality within its range", () => {
+  test("[engine:content-checked-before-play] given Ngozi, when she is checked against the scenario schema, then she parses and holds every quality within its range", () => {
     expect(ScenarioEntrySchema.safeParse(ngoziScenario).error?.issues ?? []).toEqual([]);
     const out = Object.values(content.quality).filter((quality) => {
       const value = ngoziScenario.qualities[quality.id];
@@ -15,7 +15,7 @@ describe("Ngozi", () => {
     expect(Object.keys(ngoziScenario.qualities).filter((id) => !(id in content.quality))).toEqual([]);
   });
 
-  test("[R-ENGINE-014] given Ngozi, when the ids she names are looked up, then each exists and she is in the table", () => {
+  test("[engine:content-checked-before-play] given Ngozi, when the ids she names are looked up, then each exists and she is in the table", () => {
     const named = [
       ...(ngoziScenario.job === null ? [] : [ngoziScenario.job]),
       ...Object.keys(ngoziScenario.tenure),
@@ -30,7 +30,7 @@ describe("Ngozi", () => {
     expect(content.scenario["scenario.ngozi"]).toBe(ngoziScenario);
   });
 
-  test("[R-ENGINE-014] given Ngozi, when figures from route-gates.md are read back, then each matches the page", () => {
+  test("[engine:content-checked-before-play] given Ngozi, when figures from route-gates.md are read back, then each matches the page", () => {
     expect(ngoziScenario.qualities).toMatchObject({
       "quality.age-months": 324,
       "quality.edu-grade": 4,
@@ -55,7 +55,7 @@ describe("Ngozi", () => {
     ]);
   });
 
-  test("[R-ENGINE-014] given the lives, when who can drive is read, then Tunde and Ngozi can and the others cannot (car.md)", () => {
+  test("[engine:content-checked-before-play] given the lives, when who can drive is read, then Tunde and Ngozi can and the others cannot (car.md)", () => {
     const drivers = Object.values(content.scenario).filter((life) => life.qualities["quality.driving"] === 1);
     expect(drivers.map((life) => life.id)).toEqual(["scenario.tunde", "scenario.ngozi"]);
     expect((text["scenario.ngozi.name"] ?? "").trim()).not.toBe("");

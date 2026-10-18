@@ -1,4 +1,4 @@
-// Names and blurbs for Castel Volturno lived by hand (docs/rules/streets.md R-STREET-015). The place's answer to each is
+// Names and blurbs for Castel Volturno lived by hand (streets:castel-volturno-by-hand). The place's answer to each is
 // in activity.now.text.ts with the other now-lines. Plain.
 export const activityCastelText: Record<string, string> = {
   "activity.weekly-shop-it.name": "The weekly shop",
