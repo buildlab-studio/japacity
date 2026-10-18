@@ -1,0 +1,182 @@
+{
+  "asset": "bld_room_church",
+  "file": "public/assets/places/church-uk/bld_room_church.glb",
+  "fileSha256": "0d6cc25f41b1859645967aa893cb0978a1ca6b32c415e4032b1984353646234f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/room/church/renders/front.png",
+      "sha256": "e8c6cc0821158b81b33e8afcdc24170e693d23de53dfb44f9922a89b4bb7b253",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.10000038146972656,
+          2.039999957084656,
+          86.43303237535693
+        ],
+        "target": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/room/church/renders/back.png",
+      "sha256": "e36b898a8a71bec72d161e8d3b4b465fe9a2fa4216f4bbd344bc2058618f9856",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -86.66303239443042
+        ],
+        "target": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/room/church/renders/left.png",
+      "sha256": "e6a73c70bcf5d1f42fcc341b537ef7512665cff4aa701d257f1347fa1c9b3bc6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -86.6480327663634,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "target": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/room/church/renders/right.png",
+      "sha256": "50d539c1528ca3ec099a41355c24e8d13fade7c37a55c9861ebc7711cc8f32a9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          86.44803200342395,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "target": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/room/church/renders/threeQuarter.png",
+      "sha256": "66d3a14c38a1e6ee5755ee5d99c7449fe8ca36157cfe888b3b89cf0138a0b590",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.008278944607397,
+          20.091334437021757,
+          21.993279316540384
+        ],
+        "target": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/room/church/renders/plan.png",
+      "sha256": "dc5d327329ab46fc194d2b7f168cc5413f795f9eacf1675c932587eab4fc586b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.10000038146972656,
+          88.58803234197833,
+          -0.11500000953674316
+        ],
+        "target": [
+          -0.10000038146972656,
+          2.039999957084656,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/room/church/renders/phone.png",
+      "sha256": "62808f70c025dbff7c1d2fc5fda5a80a3985b3363b3e641a229431ae6b82e146",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.10000038146972656,
+          1.6,
+          16.499948021366333
+        ],
+        "target": [
+          -0.10000038146972656,
+          1.836004969842827,
+          4.499948021366332
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -3,11 +3,11 @@
 import { join } from "node:path";
 
 import { isPaletteName } from "@japacity/assets";
-import { FLYOVER } from "@japacity/assets-src/bld/flyover-span/build";
+import { FLYOVER } from "@japacity/models/buildings/flyover-span/build";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import budgets from "../../../../../../assets-src/budgets.json";
+import budgets from "../../../../../../models/budgets.json";
 import { measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/assets-check";
 import hubFile from "../../../../public/assets/places/ojuelegba/place.json";
 import { cameraAim } from "./camera";
@@ -29,7 +29,7 @@ const at = (name: string): [number, number, number][] => stage.models.find((mode
 describe("the hub's budget", () => {
   test("[assets:assets-and-places-within-budget] given the hub's shipped files measured as the build check measures them, when its place is counted, then the low mode fits the first-load row and the high mode the exterior row", async () => {
     const files = [...new Set([...file.instances.map((instance) => instance.file), ...file.people.sample])];
-    const measured = new Map(await Promise.all(files.map(async (path) => [path, await measureFile({ root: ROOT, source: join(ROOT, "assets-src"), public: PUBLIC, dist: "" }, path)] as const)));
+    const measured = new Map(await Promise.all(files.map(async (path) => [path, await measureFile({ root: ROOT, source: join(ROOT, "models"), public: PUBLIC, dist: "" }, path)] as const)));
     const { totals, missing } = placeTotals(hubFile as unknown as CheckedPlace, measured);
     expect(missing).toEqual([]);
     expect(totals.low.drawCalls).toBeLessThanOrEqual(budgets.place.firstLoad.drawCalls);

@@ -31,7 +31,7 @@ export async function openStage(): Promise<Stage> {
   return {
     server,
     browser,
-    open: async (viewport, path = "/assets-src/stage/stage.html", ready = "window.stageReady === true") => {
+    open: async (viewport, path = "/models/stage/stage.html", ready = "window.stageReady === true") => {
       const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, deviceScaleFactor: viewport.deviceScaleFactor });
       const page = await context.newPage();
       page.on("pageerror", (error) => {

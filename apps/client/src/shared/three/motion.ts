@@ -4,7 +4,7 @@
 // and wind (clock.ts). The dial is mesh fineness: `fine` sheets and water in the high mode, `coarse`
 // in the low mode; the motion itself is the same in both. The sheets and the water tile are the
 // shipped grids of each level (assets:sheets-ship-two-mesh-levels) once loaded, and built here until then.
-import { gridFile, type GridPiece, WATER_TILE } from "@japacity/assets-src/prop/motion/grids";
+import { gridFile, type GridPiece, WATER_TILE } from "@japacity/models/props/motion/grids";
 import {
   AdditiveBlending,
   BufferAttribute,
@@ -423,7 +423,7 @@ function instanced(geometry: BufferGeometry, material: Material, count: number, 
   return mesh;
 }
 
-/** The blended puff of assets-src/prop/smoke, its vertices shared so the normals run smooth across it. */
+/** The blended puff of models/props/smoke, its vertices shared so the normals run smooth across it. */
 export function puffGeometry(): BufferGeometry {
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute([...PUFF_POSITIONS], 3));

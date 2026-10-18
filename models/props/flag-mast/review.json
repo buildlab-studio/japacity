@@ -1,0 +1,42 @@
+{
+  "piece": "shared/prop/prop_flag-mast.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/props/flag-mast/renders/back.png",
+    "models/props/flag-mast/renders/front.png",
+    "models/props/flag-mast/renders/left.png",
+    "models/props/flag-mast/renders/phone.png",
+    "models/props/flag-mast/renders/right.png",
+    "models/props/flag-mast/renders/threeQuarter.png",
+    "models/props/flag-mast/renders/manifest.json",
+    "models/register.json, the row for shared/prop/prop_flag-mast.glb"
+  ],
+  "scores": {
+    "phone": 3,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 3,
+    "variety": 3,
+    "budget": 4
+  },
+  "total": 23,
+  "mean": 3.29,
+  "accepted": false,
+  "failing": [
+    "phone",
+    "mean"
+  ],
+  "reasons": {
+    "phone": "A tall pale pole on a plain plinth; without its flag (a separate moving sheet) named a flagpole on a second look.",
+    "silhouette": "All four outlines the same pole.",
+    "proportion": "Height and plinth agree with the person.",
+    "palette": "Cream pole on sand: flat.",
+    "wear": "A cleat on the pole; generic.",
+    "variety": "Near a copy of prop_flagpole.",
+    "budget": "Read from the register row: triangles 100 of 800 (12%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 2,328 of 25,000 (9%). Inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

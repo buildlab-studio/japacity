@@ -28,7 +28,7 @@ export interface OutlineView {
 }
 
 export function readSettings(): OutlineSettings {
-  return readJson<OutlineSettings>(join(REPO_ROOT, "assets-src", "review.config.json"));
+  return readJson<OutlineSettings>(join(REPO_ROOT, "models", "review.config.json"));
 }
 
 /** The view's picture coordinates from the model's bounds: front [x, y], side [-z, y], plan [x, -z]. */

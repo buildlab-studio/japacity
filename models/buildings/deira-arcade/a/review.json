@@ -1,0 +1,40 @@
+{
+  "piece": "places/deira/bld_deira-arcade_a.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/buildings/deira-arcade/a/renders/back.png",
+    "models/buildings/deira-arcade/a/renders/front.png",
+    "models/buildings/deira-arcade/a/renders/left.png",
+    "models/buildings/deira-arcade/a/renders/phone.png",
+    "models/buildings/deira-arcade/a/renders/plan.png",
+    "models/buildings/deira-arcade/a/renders/right.png",
+    "models/buildings/deira-arcade/a/renders/threeQuarter.png",
+    "models/buildings/deira-arcade/a/renders/manifest.json",
+    "models/register.json, the row for places/deira/bld_deira-arcade_a.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 3,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 25,
+  "mean": 3.57,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "GOLD AND DIAMONDS and GOLD JEWELLERS BANGLES boards over lattice shopfronts under the arcade: a souk arcade in one look.",
+    "silhouette": "The front (arcade, AC units in the windows, four boards) and the side's arcade notch say a Deira block; the back is a blank wall with no window at all: two of four.",
+    "proportion": "Arcade height, windows with AC units and the person agree.",
+    "palette": "Sand-coloured wall on a sand ground under a sand sky: palette only, flat. The boards and teal curtains carry it.",
+    "wear": "AC units in the windows, curtains, water tanks on the roof; the back is a clean box.",
+    "variety": "Plainly its own: the first Gulf building.",
+    "budget": "Read from the register row: triangles 696 of 1,500 (46%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 8,088 of 40,000 (20%). Inside every figure, over 80% on at least one."
+  },
+  "notes": " A kit piece: no outline is scored."
+}

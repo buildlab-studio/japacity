@@ -7,7 +7,7 @@ export interface Mask {
   data: Uint8Array;
 }
 
-/** The numbers on assets.md's page (Numbers), held in assets-src/review.config.json. */
+/** The numbers on assets.md's page (Numbers), held in models/review.config.json. */
 export interface OutlineSettings {
   outlineMin: number;
   dimTolerancePct: number;

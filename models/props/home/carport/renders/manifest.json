@@ -1,0 +1,33 @@
+{
+  "asset": "prop_carport",
+  "file": "public/assets/shared/prop/prop_carport.glb",
+  "fileSha256": "30bae8f529a1142dc82462fdeed1711865164f1186e6993805abc0fd03f960df",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/home/carport/renders/tile.png",
+      "sha256": "407e924cab59c87bd4d64c32f2f667ee6d35d81d96627a0dad926142825bd1da",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          7.726692790802635,
+          7.1695793036301385,
+          7.967038077170347
+        ],
+        "target": [
+          0.03976662443114232,
+          0.8932303709439431,
+          0.2801119107988535
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

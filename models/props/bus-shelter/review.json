@@ -1,0 +1,39 @@
+{
+  "piece": "shared/prop/prop_bus-shelter.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/props/bus-shelter/renders/back.png",
+    "models/props/bus-shelter/renders/front.png",
+    "models/props/bus-shelter/renders/left.png",
+    "models/props/bus-shelter/renders/phone.png",
+    "models/props/bus-shelter/renders/right.png",
+    "models/props/bus-shelter/renders/threeQuarter.png",
+    "models/props/bus-shelter/renders/manifest.json",
+    "models/register.json, the row for shared/prop/prop_bus-shelter.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 3,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 27,
+  "mean": 3.86,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A glazed bus shelter with its bench and stop flag in one look.",
+    "silhouette": "Front, back and both ends say a bus shelter: roof on posts, panels, the stop pole.",
+    "proportion": "Roof height, bench and pole agree with the person.",
+    "palette": "Dark glass panels under a grey roof, the yellow advert panel, the red flag.",
+    "wear": "A timetable case, the advert panel, the flag; no litter, scratches or stickers.",
+    "variety": "Its own, the same family.",
+    "budget": "Read from the register row: triangles 248 of 800 (31%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 3,260 of 25,000 (13%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "The stop flag is a red square with a pale bar. It is not the London roundel, but a person's last check should confirm it does not read as one (assets:no-real-brands-on-assets)."
+}

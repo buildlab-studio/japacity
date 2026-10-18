@@ -58,4 +58,4 @@ regexes = ['''^\s*(-\s+)?uses:\s+[\w.-]+/[\w./-]+@[0-9a-f]{40}\b''']
 # The asset manifest maps each shipped file to its content hash; a long hex hash is not a token.
 [[allowlists]]
 description = "Content hashes in the asset manifest"
-paths = ['''^assets-src/manifest\.json$''']
+paths = ['''^models/manifest\.json$''']

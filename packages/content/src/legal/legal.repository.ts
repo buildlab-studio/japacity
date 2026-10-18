@@ -12,4 +12,4 @@ export const LICENCES_URL = `${REPOSITORY_URL}/blob/main/LICENSES.md`;
 export const LICENCES_PATH = "/licenses.txt";
 
 /** The assets register: every asset, whether it was generated, with which tool, and who approved it (guide:generated-media-named-plainly). */
-export const REGISTER_URL = `${REPOSITORY_URL}/blob/main/assets-src/register.json`;
+export const REGISTER_URL = `${REPOSITORY_URL}/blob/main/models/register.json`;

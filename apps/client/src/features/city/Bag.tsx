@@ -14,7 +14,7 @@ import type { Spot, Stage } from "../../shared/scene/placeFile";
 
 /** The bag's model, the same file in the parlour and in the room abroad. */
 export const BAG_FILE = "shared/prop/prop_travel-bag.glb";
-/** The height of the bag's body as built (assets-src/places/room-basics/build.ts). */
+/** The height of the bag's body as built (models/places/room-basics/build.ts). */
 export const BAG_HEIGHT = 0.5;
 /** The top of the zip along it, where what is packed sits. */
 const BAG_TOP = 0.518;

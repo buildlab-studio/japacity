@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { BRIDGE, girderDepth } from "@japacity/assets-src/lm/third-mainland-span/build";
+import { BRIDGE, girderDepth } from "@japacity/models/landmarks/third-mainland-span/build";
 
 import raw from "../../../../public/assets/places/third-mainland-bridge/place.json";
 import { stagedAt } from "../../../shared/scene/staging";

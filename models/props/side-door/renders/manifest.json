@@ -1,0 +1,181 @@
+{
+  "asset": "prop_side-door",
+  "file": "public/assets/places/rye-lane/prop_side-door.glb",
+  "fileSha256": "226b29b1cfafc82585f789f93558f2a60b266d607de43236c4e2de857b55e15f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/side-door/renders/front.png",
+      "sha256": "e885b898360b56f306e673c6c5a8f50c58938089ed5c42fa490b44925136ed61",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.32999998331069946,
+          1.774999976605177,
+          26.853141370588048
+        ],
+        "target": [
+          0.32999998331069946,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "width": 5.111999930047989,
+        "height": 3.833999947535992
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/side-door/renders/back.png",
+      "sha256": "f60d4395cfeeddb0988d157a027899440bf3eef951e877f9002a27c6633a1fa9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.32999998331069946,
+          1.774999976605177,
+          -26.21314134764026
+        ],
+        "target": [
+          0.32999998331069946,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "width": 5.111999930047989,
+        "height": 3.833999947535992
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/side-door/renders/left.png",
+      "sha256": "8b9144f9b60fb74492f424708a29d933683a9e714c9c87e6c2d86ea3f8301e6b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -26.203141375803455,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "target": [
+          0.32999998331069946,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "width": 5.111999930047989,
+        "height": 3.833999947535992
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/side-door/renders/right.png",
+      "sha256": "c8cd5a52e87c6544818afbb1a4542eb2fec7317ba8d4188caa41494a5975f24f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          26.863141342424854,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "target": [
+          0.32999998331069946,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "width": 5.111999930047989,
+        "height": 3.833999947535992
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/side-door/renders/threeQuarter.png",
+      "sha256": "fedf174b32be5ef4028548dbe32a507da4064c1f198f7e2d34fbf2fabbe874ca",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.10503202419889,
+          5.673797311810725,
+          5.095032052362085
+        ],
+        "target": [
+          0.32999998331069946,
+          1.774999976605177,
+          0.3200000114738941
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/side-door/renders/phone.png",
+      "sha256": "8f7f3cdd120f1830fa2a5838f22e4d144fa60afa61d0b7393158c9c070f96c4a",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.32999998331069946,
+          1.6,
+          12.71999390229853
+        ],
+        "target": [
+          0.32999998331069946,
+          1.5974999781399966,
+          0.7199939022985291
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/side-door/renders/tile.png",
+      "sha256": "4834390ee6277940428a8efe135b861190e59a31c809a3020138f38952826e8b",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.148492788624351,
+          5.605022811998251,
+          4.916104977158543
+        ],
+        "target": [
+          0.44531841825990326,
+          1.7648970190887692,
+          0.21293060679409528
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

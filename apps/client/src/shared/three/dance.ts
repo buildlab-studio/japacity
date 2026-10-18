@@ -1,7 +1,7 @@
 // The party room's two dance loops, written in code by bone name (city:party-room-sets-the-bar): a two-step with a shoulder
 // bounce, and the low legwork shuffle. Each is a pose of the loop's share, read off the one shared
 // clock in the scene's one frame loop; no dancer keeps a clock or a loop of its own.
-import { poseRotations } from "@japacity/assets-src/people/poses";
+import { poseRotations } from "@japacity/models/people/poses";
 import type { Bone } from "three";
 
 import type { DanceName } from "../scene/placeFile";

@@ -93,7 +93,7 @@ export default defineConfig({
         test: {
           name: "assets",
           environment: "node",
-          include: ["packages/assets/src/**/*.test.ts", "assets-src/**/*.test.ts"],
+          include: ["packages/assets/src/**/*.test.ts", "models/**/*.test.ts"],
           exclude: ["**/node_modules/**"],
         },
       },

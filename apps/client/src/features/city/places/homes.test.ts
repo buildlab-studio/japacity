@@ -9,9 +9,9 @@ import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { KNEE, kneeHigh, type WallSpec } from "../../../../../../assets-src/bld/home/build";
-import { HOMES3 } from "../../../../../../assets-src/bld/home/homes3";
-import budgets from "../../../../../../assets-src/budgets.json";
+import { KNEE, kneeHigh, type WallSpec } from "../../../../../../models/buildings/home/build";
+import { HOMES3 } from "../../../../../../models/buildings/home/homes3";
+import budgets from "../../../../../../models/budgets.json";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, checkThings, type LimitedFile } from "../../../../../../tools/assets/world-check";

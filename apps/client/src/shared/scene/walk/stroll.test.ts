@@ -11,7 +11,7 @@ import { groundAt, HARD, routeMap } from "./map";
 import { advanceStrolls, FIRST_MAX, IDLE_MIN, type Strolls, strollsOf, turnToward } from "./stroll";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..", "..");
-const PATHS = { root: ROOT, source: join(ROOT, "assets-src"), public: join(ROOT, "apps", "client", "public", "assets"), dist: "" };
+const PATHS = { root: ROOT, source: join(ROOT, "models"), public: join(ROOT, "apps", "client", "public", "assets"), dist: "" };
 const hub = (hubFile as unknown as PlaceFile).stage as Stage;
 const footprints = new Map<string, Footprint>();
 for (const model of hub.models) {

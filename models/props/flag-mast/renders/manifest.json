@@ -1,0 +1,181 @@
+{
+  "asset": "prop_flag-mast",
+  "file": "public/assets/shared/prop/prop_flag-mast.glb",
+  "fileSha256": "42fbebfb08412f72079267360cfa202001f48466438be04be928c46fa6c34159",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/flag-mast/renders/front.png",
+      "sha256": "e20cc3e3af86497a1726fcff93d114b2b9f1607f52cef805e11798abdeffc740",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          3.5,
+          39.42666733595059
+        ],
+        "target": [
+          0,
+          3.5,
+          0
+        ],
+        "width": 10.08,
+        "height": 7.5600000000000005
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/flag-mast/renders/back.png",
+      "sha256": "072d9b7dab2ad2a2ea326666975e246f1d9653507ffb814b7afc6fc312f7a512",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          3.5,
+          -39.42666733595059
+        ],
+        "target": [
+          0,
+          3.5,
+          0
+        ],
+        "width": 10.08,
+        "height": 7.5600000000000005
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/flag-mast/renders/left.png",
+      "sha256": "d3bb586d8cb246e6b9d28c193433799a3982300cbb776e577f6cdf323bf4731c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -39.42666733595059,
+          3.5,
+          0
+        ],
+        "target": [
+          0,
+          3.5,
+          0
+        ],
+        "width": 10.08,
+        "height": 7.5600000000000005
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/flag-mast/renders/right.png",
+      "sha256": "46f2c92af6fc0862aeef3a919500fecc88ccf99e1788a5866b335a3dfb6fa56a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          39.42666733595059,
+          3.5,
+          0
+        ],
+        "target": [
+          0,
+          3.5,
+          0
+        ],
+        "width": 10.08,
+        "height": 7.5600000000000005
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/flag-mast/renders/threeQuarter.png",
+      "sha256": "731c2cc7fb11e0ec500e662d4aecc76003b5ad0a29648e68244f06ec28708d75",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          8.498885743105427,
+          10.439311150940977,
+          8.49888574310543
+        ],
+        "target": [
+          0,
+          3.5,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/flag-mast/renders/phone.png",
+      "sha256": "59bf93c7e3be1bfec5b948665f2a43dd5eb19ce8985145a90056b85430b0e2b3",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.800042725913267
+        ],
+        "target": [
+          0,
+          3.15,
+          0.8000427259132664
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/flag-mast/renders/tile.png",
+      "sha256": "e61b6d756e2e1487905fa7e7dd42abb81290e1fe1c98584398f2ce7b59809222",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          8.335769648795852,
+          10.349902737594558,
+          8.335769648795853
+        ],
+        "target": [
+          -0.013403399651071879,
+          3.5328314899637245,
+          -0.013403399651071882
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

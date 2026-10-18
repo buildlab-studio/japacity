@@ -1,0 +1,206 @@
+{
+  "asset": "bld_strip-mall",
+  "file": "public/assets/places/calgary-north-east/bld_strip-mall.glb",
+  "fileSha256": "d75a2c2cbf2cd2a2b9af3a8e87aba58dc6e5e960c3a94d70ca805aae217970ef",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/strip-mall/renders/front.png",
+      "sha256": "4ce210d31b7e418790df0d8ec7e68cce6e0ac2632c22bfc843b1cc4206cff954",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.005000114440917969,
+          2.849999856948852,
+          120.56287276599402
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "width": 26.254799423217776,
+        "height": 19.691099567413332
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/strip-mall/renders/back.png",
+      "sha256": "c0832752d9a3d75d1874d3f976b52b18155ecb8d557930bbdda1e7b9c4278678",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.005000114440917969,
+          2.849999856948852,
+          -118.7928727850675
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "width": 26.254799423217776,
+        "height": 19.691099567413332
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/strip-mall/renders/left.png",
+      "sha256": "a57c9969788c7bc6d0ae4a9dcd7e575757a00f6a528fa845de7bfeb6ec9b193a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -119.68287288997168,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "width": 12.236000915309875,
+        "height": 9.177000686482407
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/strip-mall/renders/right.png",
+      "sha256": "984a6ebbff2638eab34d258e5431eb4f7be6f779dd58aee19c043a720ba4beb4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          119.67287266108984,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "width": 12.236000915309875,
+        "height": 9.177000686482407
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/strip-mall/renders/threeQuarter.png",
+      "sha256": "c6f048e40c363b40d7e8ed9d75e181e90505cff4b0482b4d99d1482901faedb8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          31.671699751849857,
+          28.713916992849025,
+          32.56169985675404
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/strip-mall/renders/plan.png",
+      "sha256": "a4a094a91bcf526fb1e6e4403b4e9bb74f829524bf629c75d1fa46797d5b4696",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.005000114440917969,
+          122.52787263247961,
+          0.8849999904632568
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.849999856948852,
+          0.8849999904632568
+        ],
+        "width": 26.254799423217776,
+        "height": 19.691099567413332
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/strip-mall/renders/phone.png",
+      "sha256": "63b90b76a5464ae0750979f6d5458d80fbf414a064680cbaf170a711dff1e756",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.005000114440917969,
+          1.6,
+          18.549815229032642
+        ],
+        "target": [
+          -0.005000114440917969,
+          2.5650250756424424,
+          6.549815229032643
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/strip-mall/renders/tile.png",
+      "sha256": "664063c74257f65563cc2af7ce37ae37b63ed59c542026bdff818fbd7dd5a275",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          32.216479370860725,
+          26.305650629170163,
+          31.59675381670227
+        ],
+        "target": [
+          1.434719881925426,
+          1.172449251514905,
+          0.8149943277669676
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

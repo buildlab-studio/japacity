@@ -1,0 +1,206 @@
+{
+  "asset": "bld_stilt-house",
+  "file": "public/assets/places/third-mainland-bridge/bld_stilt-house.glb",
+  "fileSha256": "28f97d5b4cbbaea112561c79e189d250d1d3d1b14b685e1e1cc83ca88ffc8123",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/stilt-house/renders/front.png",
+      "sha256": "c187998de87d5d11b087b90b48a88de046551cb7b23b4b0d21169d0c77c0cfd1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.499999988079071,
+          48.970229445604346
+        ],
+        "target": [
+          0,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "width": 7.199954203236225,
+        "height": 5.399965652427169
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/stilt-house/renders/back.png",
+      "sha256": "c90fb61a311ab4817f548edeb218d73d05430c8bf7ac4d1fe15e1916a28f1811",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.499999988079071,
+          -49.11522942653086
+        ],
+        "target": [
+          0,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "width": 7.199954203236225,
+        "height": 5.399965652427169
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/stilt-house/renders/left.png",
+      "sha256": "a4c7efe38370f54a9ef6a0d28c7000dd4ff6f88027cd582c5da68a9b2caea410",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -49.0427294360676,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "target": [
+          0,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "width": 7.199954203236225,
+        "height": 5.399965652427169
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/stilt-house/renders/right.png",
+      "sha256": "8f6173778091639b2f2f4f1c387ece2e99f611787ee8497abdcd825d3ae8c14f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          49.0427294360676,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "target": [
+          0,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "width": 7.199954203236225,
+        "height": 5.399965652427169
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/stilt-house/renders/threeQuarter.png",
+      "sha256": "2341ffc8fd870aa997a0c0daee8b9f7f9f837dd55c3895cfda1d532d4d614ba8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.276156174529934,
+          11.706942950589827,
+          11.203656184066679
+        ],
+        "target": [
+          0,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/stilt-house/renders/plan.png",
+      "sha256": "0c4c3f8bd66a0a5b875d2e65a59af34cc2e12e07adb391f4face9ac3d15aa505",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          51.54272942414667,
+          -0.07249999046325684
+        ],
+        "target": [
+          0,
+          2.499999988079071,
+          -0.07249999046325684
+        ],
+        "width": 8.57519989013672,
+        "height": 6.43139991760254
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/stilt-house/renders/phone.png",
+      "sha256": "765900e320934301e65ddcbf77bb7e30b54414963de9322423ef16717d323041",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          14.90499997138977
+        ],
+        "target": [
+          0,
+          2.2499856885113205,
+          2.9049999713897705
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/stilt-house/renders/tile.png",
+      "sha256": "73ec164733ddd5bd102f6a5906fcff440130a0f8e0e93332d05eb87349bd357c",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          10.341220490493113,
+          10.018595082728408,
+          9.87203054296239
+        ],
+        "target": [
+          0.4319736609631441,
+          1.9277289268482811,
+          -0.03721628656757962
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

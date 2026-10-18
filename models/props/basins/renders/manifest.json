@@ -1,0 +1,181 @@
+{
+  "asset": "prop_basins",
+  "file": "public/assets/places/tejuosho-market/prop_basins.glb",
+  "fileSha256": "f13477330ce4b8f96c107522e67cfb52517076939a4c7379307e22bf9ef39974",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/basins/renders/front.png",
+      "sha256": "3c046633b4d9e8072c2085c0d87daaff6bdc7ef7e3d7a6e62ceab8136e3df40e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.23679549992084503,
+          19.35720765084797
+        ],
+        "target": [
+          0,
+          0.23679549992084503,
+          0
+        ],
+        "width": 1.9699200010299684,
+        "height": 1.4774400007724764
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/basins/renders/back.png",
+      "sha256": "0ca7e9d6a1dcc762509421a9cd4bc07fd6f76a0487ab9db324b5639925643278",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.23679549992084503,
+          -19.35720765084797
+        ],
+        "target": [
+          0,
+          0.23679549992084503,
+          0
+        ],
+        "width": 1.9699200010299684,
+        "height": 1.4774400007724764
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/basins/renders/left.png",
+      "sha256": "1fa76da2cf6e79f88a797e96cadf9e525ca29b153447be58e1483ebd6c7f89ec",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -19.35720765084797,
+          0.23679549992084503,
+          0
+        ],
+        "target": [
+          0,
+          0.23679549992084503,
+          0
+        ],
+        "width": 1.4969035342156802,
+        "height": 1.1226776506617602
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/basins/renders/right.png",
+      "sha256": "f3ea8397dffae1dc62a5e89f8a479d33b628d57ace0f11e9dd04bc178bf5b394",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          19.35720765084797,
+          0.23679549992084503,
+          0
+        ],
+        "target": [
+          0,
+          0.23679549992084503,
+          0
+        ],
+        "width": 1.4969035342156802,
+        "height": 1.1226776506617602
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/basins/renders/threeQuarter.png",
+      "sha256": "2cbbf8cd214158b553c3f3d9c2c6adab88244761804da824203afe4eec0d2c25",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.7025091829516166,
+          2.443385007726622,
+          2.702509182951617
+        ],
+        "target": [
+          0,
+          0.23679549992084503,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/basins/renders/phone.png",
+      "sha256": "f3b7986e0682add501a9f66f37d4ecf3eb14ba6a4b2a310422248fe3e1f31eca",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.693010895470222
+        ],
+        "target": [
+          0,
+          1.5,
+          0.6930108954702222
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/basins/renders/tile.png",
+      "sha256": "2694e25df2b73baa78fd214499acc2a92f2876ae7db097d6dd3ad69b824cdc2e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.2929780500628376,
+          1.8377460189482295,
+          2.123265594505308
+        ],
+        "target": [
+          0.14669769896716023,
+          0.08531545056624945,
+          -0.023014756590369743
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

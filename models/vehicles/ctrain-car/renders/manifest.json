@@ -1,0 +1,181 @@
+{
+  "asset": "veh_ctrain-car",
+  "file": "public/assets/shared/veh/veh_ctrain-car.glb",
+  "fileSha256": "1bd9d6de47316095d70f00168bd85847ced7bd33d854f6ffb78ff941f27c9d0a",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/vehicles/ctrain-car/renders/front.png",
+      "sha256": "ef98e1bd5346ce3cec2b3e8dee258c40d55bedc13b78abe7b47ad7674ea46af0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.447499990463257,
+          111.29139167560452
+        ],
+        "target": [
+          0,
+          2.447499990463257,
+          0
+        ],
+        "width": 7.049122566439451,
+        "height": 5.286841924829588
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/vehicles/ctrain-car/renders/back.png",
+      "sha256": "da3bbe1c180d75f839092ddc26ed27eacc907dc5bd99f1df4118860aaa876c44",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.447499990463257,
+          -111.29139167560452
+        ],
+        "target": [
+          0,
+          2.447499990463257,
+          0
+        ],
+        "width": 7.049122566439451,
+        "height": 5.286841924829588
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/vehicles/ctrain-car/renders/left.png",
+      "sha256": "0566c09b3ae945ca517c7014162c3db6b2be4564f138c3f9232295b42dd0769b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -111.29139167560452,
+          2.447499990463257,
+          0
+        ],
+        "target": [
+          0,
+          2.447499990463257,
+          0
+        ],
+        "width": 26.67600082397461,
+        "height": 20.00700061798096
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/vehicles/ctrain-car/renders/right.png",
+      "sha256": "129e399d61ff9f0b525266e10e03f1f0953438e1d8af46e47d316dd8e73c6f14",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          111.29139167560452,
+          2.447499990463257,
+          0
+        ],
+        "target": [
+          0,
+          2.447499990463257,
+          0
+        ],
+        "width": 26.67600082397461,
+        "height": 20.00700061798096
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/vehicles/ctrain-car/renders/threeQuarter.png",
+      "sha256": "17a43cab4c4d17219544d5f8380e2fc871731f6710073729a6f67e4b75be4947",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          29.254551824813156,
+          26.333741531996164,
+          29.25455182481316
+        ],
+        "target": [
+          0,
+          2.447499990463257,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/vehicles/ctrain-car/renders/phone.png",
+      "sha256": "436722e6cdb0840e2bc6c9ae1b3d36d5011f4342a45a4ef3260eb1f6b5fa0f72",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          24.350000381469727
+        ],
+        "target": [
+          0,
+          2.2028508020123283,
+          12.350000381469727
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/vehicles/ctrain-car/renders/tile.png",
+      "sha256": "38ee9faf6025c120693797361d03bc06b5fc5e65178d8505055878bef882032d",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.523123746395136,
+          19.914566170341303,
+          24.859552546527738
+        ],
+        "target": [
+          -0.5935547939667168,
+          1.0398771797305144,
+          1.7428740061658763
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

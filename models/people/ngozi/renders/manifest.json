@@ -1,0 +1,229 @@
+{
+  "asset": "chr_ngozi",
+  "file": "public/assets/shared/chr/chr_ngozi.glb",
+  "fileSha256": "fa7e33782149e40d9deb695895394da04f0fbca393489d23e461f2f271a63719",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/ngozi/renders/front.png",
+      "sha256": "21352aff0492678a5881dacce1c729f353ebaf7bb1c1f4fbb7e57264a1416d51",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          17.781897568346675
+        ],
+        "target": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "width": 2.626508043284629,
+        "height": 1.969881032463472
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/ngozi/renders/back.png",
+      "sha256": "37129897ff63cda7a1ba6a5e6aa383b1c4b59807b327a0ec6fd2d4f5fea0cb3a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          -17.832286157848056
+        ],
+        "target": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "width": 2.626508043284629,
+        "height": 1.969881032463472
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/ngozi/renders/left.png",
+      "sha256": "9ce2412c2ffd44381ad7a9f7361be34ff86e2eff352c2c0f268320b4f178e787",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.80584878159936,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "target": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "width": 2.626508043284629,
+        "height": 1.969881032463472
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/ngozi/renders/right.png",
+      "sha256": "4e1c2e17e1cac41af73879d093122792d313f68b8acd26114f1a17353b0b5c5f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.808334944595373,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "target": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "width": 2.626508043284629,
+        "height": 1.969881032463472
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/ngozi/renders/threeQuarter.png",
+      "sha256": "73762836cc1454121de0f0d7f1b108263e7b02714418d4657becf85fe946ef9a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.2560543713014845,
+          2.7530276556605573,
+          2.229616995052787
+        ],
+        "target": [
+          0.0012430814980076699,
+          0.9119819468987823,
+          -0.02519429475069046
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/ngozi/renders/phone.png",
+      "sha256": "edf5d16b38b87c714689d99942165354d5c50bf61fddd25ed1c8ec99526c2599",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.0012430814980076699,
+          1.6,
+          12.1977148321031
+        ],
+        "target": [
+          0.0012430814980076699,
+          1.5,
+          0.19771483210310106
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/ngozi/renders/face.png",
+      "sha256": "b7dd5d7a56aa15e4b476d7d67cb33b102cf0116aa1473a3bb53f179a5a226e6a",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.79436915926062,
+          1.6415675144778459,
+          1.675670067847834
+        ],
+        "target": [
+          0.0012430814980076699,
+          1.5686089577199396,
+          -0.02519429475069046
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/ngozi/renders/figure.png",
+      "sha256": "a25108fb1049946f31157b89ac44600eee61f9516d63e5ffffd094fc9784259f",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.020696582253517,
+          1.128777828806941,
+          4.26500258916165
+        ],
+        "target": [
+          0.020144920292480883,
+          0.9092474714020968,
+          -0.02519429475069046
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/ngozi/renders/cheer.png",
+      "sha256": "8480614cf44f767b273a1d6ac9e8d5376d1a224802d0839b168b1d012ea3bed1",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.162351634698652,
+          1.1995592128056558,
+          4.492773128376979
+        ],
+        "target": [
+          0.0465914593584682,
+          0.967386459506165,
+          -0.04448920977856201
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

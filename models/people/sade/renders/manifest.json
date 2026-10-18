@@ -1,0 +1,229 @@
+{
+  "asset": "chr_sade",
+  "file": "public/assets/shared/chr/chr_sade.glb",
+  "fileSha256": "68da56ef0f95966c4944ea32ecc2ebe89384f14e6a5995eb0b6023bf3ba9a4e1",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/sade/renders/front.png",
+      "sha256": "4f82f820970af437188ccafe554f807bbabafc43e8a1a21a3f08f7d3850c2fd9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8543958730233551,
+          17.28210617214674
+        ],
+        "target": [
+          0,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "width": 2.4606601505233985,
+        "height": 1.845495112892549
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/sade/renders/back.png",
+      "sha256": "43c4f8ff3ea82d1a618ae0d6495ce163c018675776328e63a8130c25d1da1dc6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8543958730233551,
+          -17.215390723051968
+        ],
+        "target": [
+          0,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "width": 2.4606601505233985,
+        "height": 1.845495112892549
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/sade/renders/left.png",
+      "sha256": "1c77ceeb2a5cfb0a4af7043e6ffced8d3935e3f12d5917a50cd860f230b01393",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.248748447599354,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "target": [
+          0,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "width": 2.4606601505233985,
+        "height": 1.845495112892549
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/sade/renders/right.png",
+      "sha256": "5d9563e1010d279a1c64a8d62c0317765a5b4b8a2c50bc84463a385829a60104",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.248748447599354,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "target": [
+          0,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "width": 2.4606601505233985,
+        "height": 1.845495112892549
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/sade/renders/threeQuarter.png",
+      "sha256": "f1359af94e8c942c580ac35a81766702d0e29efc3ea9a7b1a9c7e789c049cd3d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.0935529033352434,
+          2.5637746605878955,
+          2.12691062788263
+        ],
+        "target": [
+          0,
+          0.8543958730233551,
+          0.03335772454738617
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/sade/renders/phone.png",
+      "sha256": "990b7617f5db70d60f10f09f86e141fa1250c3eb32e6bcdeca25b6b216734a33",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.197707745784657
+        ],
+        "target": [
+          0,
+          1.5,
+          0.197707745784657
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/sade/renders/face.png",
+      "sha256": "dde2f6ff7907be0196b5420dc8e4d56f0e94bcba04e41b395198faa960149e2b",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7430450246977943,
+          1.5379125815020769,
+          1.626822922262002
+        ],
+        "target": [
+          0,
+          1.4695609106542047,
+          0.03335772454738617
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/sade/renders/figure.png",
+      "sha256": "0d5d4c8a66c550edd5c3b36889163cb0f55ea3708b7b903a8c8592c1b9e8ac73",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8919343971416278,
+          1.0569828494395925,
+          4.053021510457714
+        ],
+        "target": [
+          0.017534390563327118,
+          0.8512957326368118,
+          0.03335772454738617
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/sade/renders/cheer.png",
+      "sha256": "cbcdbd8ee1c9541156824685a50bf478f5a565996de6c071c93deb2ff6b1a21b",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.0233433574386974,
+          1.1471622314340637,
+          4.347481439730183
+        ],
+        "target": [
+          0,
+          0.9251308293677842,
+          0.008407607135851328
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

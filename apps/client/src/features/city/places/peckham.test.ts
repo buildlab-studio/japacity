@@ -81,7 +81,7 @@ describe("Peckham", () => {
     const lettered = stage.models.find((model) => model.file.endsWith("bld_rye-lane-terrace_a.glb"));
     if (grocer === undefined || terrace === undefined || lettered === undefined) throw new Error("No grocer or terrace");
     expect(wordsOf(lettered.signs?.[0]?.[2] ?? "")).toContain("AFRO-CARIBBEAN");
-    // The grocer's board is the row's third, five metres right of its middle (bld/rye-lane-terrace).
+    // The grocer's board is the row's third, five metres right of its middle (buildings/rye-lane-terrace).
     expect(Math.abs(grocer[0] - (terrace[0] + 5))).toBeLessThan(1);
   });
 

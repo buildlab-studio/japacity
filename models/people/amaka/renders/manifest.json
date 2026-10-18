@@ -1,0 +1,229 @@
+{
+  "asset": "chr_amaka",
+  "file": "public/assets/shared/chr/chr_amaka.glb",
+  "fileSha256": "54d8ae6ed06c37becea8776174f79d8864fb61582a01d8579aee7ca4d582221c",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/amaka/renders/front.png",
+      "sha256": "69cfbf846bdbacb22be643abb8f6024795db30d531c863f2506eef18922a4083",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          18.2361537387482
+        ],
+        "target": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "width": 2.7707056598617776,
+        "height": 2.0780292448963333
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/amaka/renders/back.png",
+      "sha256": "1b627e8eb37b9728b0ff471910d9d2bce87c7b727f7de214b4cc675619ff1317",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          -18.190826865088113
+        ],
+        "target": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "width": 2.7707056598617776,
+        "height": 2.0780292448963333
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/amaka/renders/left.png",
+      "sha256": "2ef73d1e3fefe23f336ac83e6a8108c1b11b7b21471a7cb667bf1b5e35a8c0d2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -18.221946082442933,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "target": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "width": 2.7707056598617776,
+        "height": 2.0780292448963333
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/amaka/renders/right.png",
+      "sha256": "c06876c32d59e9114a4f2e680b81aa82e4727d3b9041b4d6d47ad3b4dddb0437",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          18.20503452139338,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "target": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "width": 2.7707056598617776,
+        "height": 2.0780292448963333
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/amaka/renders/threeQuarter.png",
+      "sha256": "4e3996b47a6b4f41578487606ceda018924f0e9587425c15d03935fa73d9d053",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.3637297894947498,
+          2.898931971012879,
+          2.3948490068495696
+        ],
+        "target": [
+          -0.008455780524775608,
+          0.9620505637658477,
+          0.022663436830043793
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/amaka/renders/phone.png",
+      "sha256": "23fe706959663cf40ae96ad5eed1cf76d91f3f58cccd5efb9bb8bb8cb174b5d2",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.008455780524775608,
+          1.6,
+          12.197709837832516
+        ],
+        "target": [
+          -0.008455780524775608,
+          1.5,
+          0.19770983783251656
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/amaka/renders/face.png",
+      "sha256": "1d7e7ff37d273f479789fdd92e0d2c0c5f11872df13922cb1e8d6fc119865416",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.8282136209870103,
+          1.7316910248385637,
+          1.816906758550659
+        ],
+        "target": [
+          -0.008455780524775608,
+          1.6547269787312922,
+          0.022663436830043793
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/amaka/renders/figure.png",
+      "sha256": "027acf25638f78a7b78ef29a03eadb09d5c200203a6701521f5fb509f06e306b",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.132629145360313,
+          1.1907091322912702,
+          4.54711219001113
+        ],
+        "target": [
+          0.022844042822137506,
+          0.9591920530704277,
+          0.022663436830043793
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/amaka/renders/cheer.png",
+      "sha256": "390896e15ae2a9dc5762e9e8f375bc380e60813820c1fda98a150c34ff958e10",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.07677026304254,
+          1.1774533477182278,
+          4.44872573906362
+        ],
+        "target": [
+          0,
+          0.9495591489517876,
+          -0.004922462339563338
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

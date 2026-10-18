@@ -19,7 +19,7 @@ flowchart BT
   db["packages/db<br/>Postgres stores"]
   assets["packages/assets<br/>palette, signs, types"]
   brand["packages/brand<br/>colours and wordmark"]
-  assetsSrc["assets-src<br/>model sources"]
+  assetsSrc["models<br/>model sources"]
   client["apps/client<br/>the web client"]
   server["apps/server<br/>the authority online"]
   teaser["apps/teaser<br/>the teaser film"]
@@ -60,7 +60,7 @@ An arrow points from a package to one it imports. The arrows are the `@japacity/
 | `packages/db/` | `@japacity/db` | The Postgres versions of the same stores (Drizzle and `pg`), and the migrations |
 | `packages/assets/` | `@japacity/assets` | The palette, the signs and the types the asset pipeline and the client share |
 | `packages/brand/` | `@japacity/brand` | The game's role colours, tints, face and wordmark letters as data, for the teaser, which draws outside the client |
-| `assets-src/` | `@japacity/assets-src` | The city's model sources: builders, specs, reviews. Never shipped as such |
+| `models/` | `@japacity/models` | The city's model sources: builders, specs, reviews. Never shipped as such |
 | `apps/client/` | `@japacity/client` | The web client: Vite, React, zustand, three.js through React Three Fiber |
 | `apps/server/` | `@japacity/server` | The online authority: one Cloudflare Worker with Hono, Better Auth, the command log and the place rooms |
 | `apps/teaser/` | `@japacity/teaser` | The teaser film, made with Remotion from the brand package |

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_fridge",
+  "file": "public/assets/shared/prop/prop_fridge.glb",
+  "fileSha256": "ca8f716b9e8b7ce2ab79f771286a83fd625b65c315f34c33807100d9d3ead35c",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/home/fridge/renders/front.png",
+      "sha256": "558263fd388d033e9f435f4d0510ee83dcc7a50d5d02467715d4a8f4cf8db33a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6249999998137354,
+          16.039907403648513
+        ],
+        "target": [
+          0,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "width": 1.800000000536442,
+        "height": 1.3500000004023316
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/home/fridge/renders/back.png",
+      "sha256": "6ea8ffe765ab2cc4906dc2995931acf4fad42fb54b5dc6d6f7042b0435c0f917",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6249999998137354,
+          -15.999907411993163
+        ],
+        "target": [
+          0,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "width": 1.800000000536442,
+        "height": 1.3500000004023316
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/home/fridge/renders/left.png",
+      "sha256": "0efe05a76c1ace38d493e611b512b0c28b50a08a9e5063c65a975faeda83e4f3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -16.01990740782084,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "target": [
+          0,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "width": 1.800000000536442,
+        "height": 1.3500000004023316
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/home/fridge/renders/right.png",
+      "sha256": "5e92d93b7cb779de90439c7f730840cdf40683dabf6e1f9f85c0b025b081a6f1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          16.01990740782084,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "target": [
+          0,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "width": 1.800000000536442,
+        "height": 1.3500000004023316
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/home/fridge/renders/threeQuarter.png",
+      "sha256": "fc3787cfd318069957a4ae2d343672e118026aab923209fe4c6b5e70b720fb93",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.7386442256285677,
+          2.044597065489195,
+          1.7586442214562428
+        ],
+        "target": [
+          0,
+          0.6249999998137354,
+          0.019999995827674866
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/home/fridge/renders/phone.png",
+      "sha256": "720e7b6acbefe4b527a8edc30ab261e6425258e28ed74539f6f50e6b447833b0",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.329991755922501
+        ],
+        "target": [
+          0,
+          1.5,
+          0.32999175592250113
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/home/fridge/renders/tile.png",
+      "sha256": "7554839a42f81b262411b3c32e1f1dd03ea162efeab29c929e06c6c3971086c7",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.763091030732772,
+          2.0718382307391927,
+          1.763896246743647
+        ],
+        "target": [
+          0.004968874349684872,
+          0.636337501199121,
+          0.005774090360559345
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

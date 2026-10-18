@@ -1,0 +1,181 @@
+{
+  "asset": "prop_foam-mattress",
+  "file": "public/assets/shared/prop/prop_foam-mattress.glb",
+  "fileSha256": "2146e755ed9ea44932689b21aec994117fd56e32262e2b8acf135eff98c25901",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/home/foam-mattress/renders/front.png",
+      "sha256": "7b609939b41dd5dc92cb9f32934f03343abdfabf1474c7ebd19b5ce2f3d6191a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.34999998748302463,
+          20.279065933253797
+        ],
+        "target": [
+          0,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "width": 1.4255723297931047,
+        "height": 1.0691792473448285
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/home/foam-mattress/renders/back.png",
+      "sha256": "1cb127d921d98f76336be2dc8d0f3e18e80d48acfd0380551b0a8619efe00ecf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.34999998748302463,
+          -20.339065995242628
+        ],
+        "target": [
+          0,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "width": 1.4255723297931047,
+        "height": 1.0691792473448285
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/home/foam-mattress/renders/left.png",
+      "sha256": "4eb7101d2beb59382c8f9b334044cb49e42dc08717b61706aef69ed6767f829e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -20.309065964248212,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "target": [
+          0,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "width": 2.2680000257492066,
+        "height": 1.701000019311905
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/home/foam-mattress/renders/right.png",
+      "sha256": "b9f625e044c48f70d83bcac4f91c8bdedd31183185291bc3dbb61cc294ce941d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          20.309065964248212,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "target": [
+          0,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "width": 2.2680000257492066,
+        "height": 1.701000019311905
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/home/foam-mattress/renders/threeQuarter.png",
+      "sha256": "c53793cc8efcebc3b8c91bd0aff47d1770ba238e62830fab763fbbd14a86fbb5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.9774208797760284,
+          2.7810539558029737,
+          2.9474208487816136
+        ],
+        "target": [
+          0,
+          0.34999998748302463,
+          -0.030000030994415283
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/home/foam-mattress/renders/phone.png",
+      "sha256": "cb3bb80ba1511a2f2e02fed180fc01a3eeeb87b864837f6cf86641294a8f9b87",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.019999980926514
+        ],
+        "target": [
+          0,
+          1.5,
+          1.0199999809265137
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/home/foam-mattress/renders/tile.png",
+      "sha256": "eb73bbda282274ec40b7e19c00f3137c49a58d4f365310b5b3c27cfbf33b454e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.984829178794211,
+          2.643174738813479,
+          2.9887485291587406
+        ],
+        "target": [
+          0.03134902271478425,
+          0.23166828953674093,
+          0.0352683730793135
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

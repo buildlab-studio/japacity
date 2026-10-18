@@ -7,7 +7,7 @@ import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { expect } from "vitest";
 
-import budgets from "../../../../../../assets-src/budgets.json";
+import budgets from "../../../../../../models/budgets.json";
 import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/assets-check";
 import { crowdSize } from "../../../shared/scene/crowd";
 import { CAR_FILE, type PlaceFile, type Spot, type Stage } from "../../../shared/scene/placeFile";
@@ -31,7 +31,7 @@ export function staged(raw: unknown, id: Id<"place">): Staged {
   return { file, stage, entry };
 }
 
-const PATHS = { root: ROOT, source: join(ROOT, "assets-src"), public: PUBLIC, dist: "" };
+const PATHS = { root: ROOT, source: join(ROOT, "models"), public: PUBLIC, dist: "" };
 
 /** One shipped file measured as the build check measures it. */
 export async function measured(path: string): Promise<Measured> {

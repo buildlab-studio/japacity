@@ -16,7 +16,7 @@ import { isMain, readJson, REPO_ROOT } from "../repo";
 const PORT = Number(process.env.PREVIEWS_PORT ?? "5871");
 const BASE = `http://localhost:${String(PORT)}`;
 const SHARE = join(REPO_ROOT, "apps/client/public/share");
-const REGISTER = join(REPO_ROOT, "assets-src/register.json");
+const REGISTER = join(REPO_ROOT, "models/register.json");
 const DANFO = join(REPO_ROOT, "apps/client/node_modules/@fontsource/danfo/files/danfo-latin-400-normal.woff2");
 
 /** The words a preview carries, all from content: nothing about any player. */
@@ -113,7 +113,7 @@ async function main(): Promise<void> {
     const register = readJson<{ rows: RegisterRow[] }>(REGISTER);
     for (const row of register.rows) row.bytes = sizes.get(row.file) ?? row.bytes;
     writeFileSync(REGISTER, `${JSON.stringify(register, null, 2)}\n`);
-    console.log("assets-src/register.json: the previews' bytes written. Run pnpm check:assets.");
+    console.log("models/register.json: the previews' bytes written. Run pnpm check:assets.");
   } finally {
     await browser.close();
     stop();

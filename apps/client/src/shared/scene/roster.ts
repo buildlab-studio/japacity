@@ -2,7 +2,7 @@
 // who wears the Friday jalamia or the Saturday occasion dress (city:dress-mix-by-place), and the part
 // each plays when a card is opened on them. One row per shipped `chr_` file; the body tests
 // (`chr_body_*`, `chr_control`) are not people of the city.
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { PoseName } from "@japacity/models/people/poses";
 
 export type Dress = "traditional" | "modern";
 /** A special dress: the Friday jalamia and cap, or aso ebi, gele and agbada on a Saturday. */

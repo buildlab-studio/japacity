@@ -2,8 +2,8 @@
 // glass front, the flag on its mast and the send-off's goodbye round a loaded trolley.
 import { describe, expect, test } from "vitest";
 
-import { FLAGPOLE } from "@japacity/assets-src/prop/flagpole/build";
-import { TERMINAL } from "@japacity/assets-src/bld/terminal-front/build";
+import { FLAGPOLE } from "@japacity/models/props/flagpole/build";
+import { TERMINAL } from "@japacity/models/buildings/terminal-front/build";
 
 import raw from "../../../../public/assets/places/airport-lagos/place.json";
 import { copiesOf, staged } from "./place.testing";

@@ -1,0 +1,206 @@
+{
+  "asset": "bld_bode-thomas-betting",
+  "file": "public/assets/places/bode-thomas/bld_bode-thomas-betting.glb",
+  "fileSha256": "0c57d5bfc5e4dcca64f4ddfa1cb877a92d083e28abb43b317b3c3a85699ed76e",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/bode-thomas-betting/renders/front.png",
+      "sha256": "83061f4727bb146063a84caf20d7231d37242e14a21334c33ab822b28619a8aa",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.377500057220459,
+          4.499999988079071,
+          87.38921601343014
+        ],
+        "target": [
+          0.377500057220459,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "width": 14.639400329589847,
+        "height": 10.979550247192385
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/bode-thomas-betting/renders/back.png",
+      "sha256": "51dec14c4fc3e87fc3bf30fce99176e3028f29444cdade294238cf8fddf5f345",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.377500057220459,
+          4.499999988079071,
+          -85.58421570825436
+        ],
+        "target": [
+          0.377500057220459,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "width": 14.639400329589847,
+        "height": 10.979550247192385
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/bode-thomas-betting/renders/left.png",
+      "sha256": "9aa9b09adb48959ab04b24368ff87ed0cdf979a5c18fe3e9968510176d36bbc9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -86.1092158036218,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "target": [
+          0.377500057220459,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "width": 12.959981834185069,
+        "height": 9.719986375638802
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/bode-thomas-betting/renders/right.png",
+      "sha256": "4e92444bda6697464593a6446baa57773ef2cfd40ad5f502bd4e1b2766d5a0ac",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          86.86421591806271,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "target": [
+          0.377500057220459,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "width": 12.959981834185069,
+        "height": 9.719986375638802
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/bode-thomas-betting/renders/threeQuarter.png",
+      "sha256": "73bd3709a6797050a9ca9a96d0ea1cf81f974861280a9f53f64fd37e896d3b22",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.46807020386085,
+          22.536874983555045,
+          22.993070299228286
+        ],
+        "target": [
+          0.377500057220459,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/bode-thomas-betting/renders/plan.png",
+      "sha256": "611c22e4927517696df3fb3d3135944f6c60b638b25475ea52555dfe79db5af3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.377500057220459,
+          90.98671584892132,
+          0.9025001525878906
+        ],
+        "target": [
+          0.377500057220459,
+          4.499999988079071,
+          0.9025001525878906
+        ],
+        "width": 14.639400329589847,
+        "height": 10.979550247192385
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/bode-thomas-betting/renders/phone.png",
+      "sha256": "6684f24fd7c8f5caacebfaacbf24f7924f06d139d65c649080c941830c9c857a",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.377500057220459,
+          1.6,
+          17.924969670857465
+        ],
+        "target": [
+          0.377500057220459,
+          4.049994323182834,
+          5.9249696708574655
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/bode-thomas-betting/renders/tile.png",
+      "sha256": "ad287cf9c33b25f99aa8f0c9579db33dd178036959cd522df3ce9be2a0782c76",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          18.507243041600265,
+          17.518215346968905,
+          18.738732739500904
+        ],
+        "target": [
+          1.0340040784975753,
+          3.2513754758624343,
+          1.2654937763982075
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

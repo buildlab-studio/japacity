@@ -7,8 +7,8 @@ import { content } from "@japacity/content";
 import { type PlayerView, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import type { WallSpec } from "../../../../../../assets-src/bld/home/build";
-import { HOMES3 } from "../../../../../../assets-src/bld/home/homes3";
+import type { WallSpec } from "../../../../../../models/buildings/home/build";
+import { HOMES3 } from "../../../../../../models/buildings/home/homes3";
 import frontFile from "../../../../public/assets/places/family-house-compound/place.json";
 import placeFile from "../../../../public/assets/places/home-family-house/place.json";
 import { engineView, richView } from "../../../shared/testing/fixtures";

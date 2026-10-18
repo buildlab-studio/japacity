@@ -4,7 +4,7 @@
 import { footprintOf, isPaletteName, type PaletteName, paletteCss, quarterOf } from "@japacity/assets";
 import { attachSigns, findSignAnchors, type SignText } from "@japacity/assets/load";
 import type { SignAnchor } from "@japacity/assets";
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { PoseName } from "@japacity/models/people/poses";
 import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, MeshLambertMaterial, type Object3D, Quaternion, type SkinnedMesh, Sphere, Vector3 } from "three";
 
 import { stripTops } from "../../../../../tools/assets/faces-check";

@@ -9,7 +9,7 @@
 // own. Painting runs once a pick, never a frame.
 import { linearToSrgb, nearestPaletteName, type PaletteName, paletteRgb, srgbToLinear } from "@japacity/assets";
 import { drawPattern, type PatternSpec } from "@japacity/assets/pattern";
-import { ALL_PEOPLE } from "@japacity/assets-src/people/people.data";
+import { ALL_PEOPLE } from "@japacity/models/people/people.data";
 import {
   BufferAttribute,
   BufferGeometry,

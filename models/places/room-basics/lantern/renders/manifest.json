@@ -1,0 +1,33 @@
+{
+  "asset": "prop_lantern",
+  "file": "public/assets/shared/prop/prop_lantern.glb",
+  "fileSha256": "e0771b90c22289d5472916b17a95340afc4569041fec97d808d6c6c6a8200e1b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/places/room-basics/lantern/renders/tile.png",
+      "sha256": "7530b0e48e43dae2566b48b22a8a545e8dc0c657def885d688be6f178bef02e1",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.0475374175679846,
+          1.1915137184638673,
+          1.0475374175679848
+        ],
+        "target": [
+          0.012797663340899443,
+          0.3466522469874567,
+          0.012797663340899514
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -107,7 +107,7 @@ export interface PlaceReview {
   notes: string;
 }
 
-/** What a review file under assets-src holds: one asset's sheet, its rounds, or a place's sheet. */
+/** What a review file under models holds: one asset's sheet, its rounds, or a place's sheet. */
 export type ReviewSheet = Review | Review[] | PlaceReview;
 
 /** A reference outline traced as data, in metres (assets:no-reference-photos-kept, assets:landmarks-match-reference-outlines, assets:plan-outline-from-map-data). */

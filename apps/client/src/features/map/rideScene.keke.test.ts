@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { anglesOf, buildRide, RIDE_MS } from "./rideScene";
 
-/** The keke's open sides as its model has them (assets-src/veh/vehicles.ts, turned to face +z): the side at x 0.61 between the pillars at z -1.3 and 0.08, over the sill at 0.77 and under the canopy at 1.705. */
+/** The keke's open sides as its model has them (models/vehicles/vehicles.ts, turned to face +z): the side at x 0.61 between the pillars at z -1.3 and 0.08, over the sill at 0.77 and under the canopy at 1.705. */
 const SIDE_X = 0.61;
 const PILLARS_Z = [-1.3, 0.08] as const;
 const SILL_Y = 0.77;

@@ -1,0 +1,206 @@
+{
+  "asset": "bld_domitiana-block",
+  "file": "public/assets/places/via-domitiana/bld_domitiana-block.glb",
+  "fileSha256": "481d564d4d8553e3703a5c60c2c23da747aaf29dcf8dfd2bd03e91e63cd8fdd4",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/places/via-domitiana/block/renders/front.png",
+      "sha256": "2130d6cdc5f8218a8adcaf1555928234acd9191cd2b9cef214068f7d4012b13e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.3539552658796308,
+          70.72579894466116
+        ],
+        "target": [
+          0,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "width": 12.484800453186036,
+        "height": 9.363600339889528
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/places/via-domitiana/block/renders/back.png",
+      "sha256": "1098e3178e53c269892a8f1b60a364e607495eb0cbaff0162387266ff9930931",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.3539552658796308,
+          -69.51345048351004
+        ],
+        "target": [
+          0,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "width": 12.484800453186036,
+        "height": 9.363600339889528
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/places/via-domitiana/block/renders/left.png",
+      "sha256": "285142847e2ca834f0c3d9f965e3bcd47832a5e51afd309f2ce2b83a90ac5ac0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -70.1196247140856,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "target": [
+          0,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "width": 9.04230733222483,
+        "height": 6.7817304991686225
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/places/via-domitiana/block/renders/right.png",
+      "sha256": "a4993b26716bf7e3d6c0976b8b0aa0f856433477eff8d662eda92f84ee746727",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          70.1196247140856,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "target": [
+          0,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "width": 9.04230733222483,
+        "height": 6.7817304991686225
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/places/via-domitiana/block/renders/threeQuarter.png",
+      "sha256": "d96b0c00a54ee714aaac343f8c5d4dcfe0465b9d231e4fb153a430b2a3118369",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          17.363496026584123,
+          16.531190404537725,
+          17.969670257159688
+        ],
+        "target": [
+          0,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/places/via-domitiana/block/renders/plan.png",
+      "sha256": "f7603014a6211e24b73ef950c41e61c771052c629e5c8da4fdf74af6ea01b621",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          72.47357997996524,
+          0.6061742305755615
+        ],
+        "target": [
+          0,
+          2.3539552658796308,
+          0.6061742305755615
+        ],
+        "width": 12.484800453186036,
+        "height": 9.363600339889528
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/places/via-domitiana/block/renders/phone.png",
+      "sha256": "390c7b816d9485bae8f8d7390119f0ae87f9059ff596bb0f2332030c173b284d",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          16.792427625124095
+        ],
+        "target": [
+          0,
+          2.118616062498953,
+          4.792427625124094
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/places/via-domitiana/block/renders/tile.png",
+      "sha256": "43d503a5fa554e90c7d670f49082a4e4a801748c09a34a7e476b87a96a761966",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          17.77639953420897,
+          15.873104496623473,
+          17.776460520358565
+        ],
+        "target": [
+          0.5320151787292151,
+          1.793123630170683,
+          0.5320761648788062
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

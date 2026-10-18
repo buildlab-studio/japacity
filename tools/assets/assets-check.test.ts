@@ -37,7 +37,7 @@ import { checkPalette } from "./palette-check";
 import type { Register } from "./register";
 import { readJson, REPO_ROOT } from "../repo";
 
-const budgets = readJson<Budgets>(join(REPO_ROOT, "assets-src", "budgets.json"));
+const budgets = readJson<Budgets>(join(REPO_ROOT, "models", "budgets.json"));
 const config = { outlineMin: 85, dimTolerancePct: 5, minEach: 3, minPhone: 4, minMean: 3.5 };
 
 const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, size: [1, 6, 1], extras: {}, ...over });
@@ -208,10 +208,10 @@ describe("mesh levels", () => {
 describe("pictures", () => {
   test("[assets:no-reference-photos-kept] given images under the asset folders, when they are checked, then only those the tools wrote, with their hash, pass", () => {
     const bytes = Uint8Array.from([1, 2, 3]);
-    const manifest = { note: "", renders: { "assets-src/x/renders/front.png": sha256(bytes) }, patterns: {} };
-    expect(checkImages([{ path: "assets-src/x/renders/front.png", bytes }], manifest)).toEqual([]);
-    expect(checkImages([{ path: "assets-src/x/reference.jpg", bytes }, { path: "assets-src/x/renders/front.png", bytes }], manifest)[0]).toMatch(/no tool wrote/);
-    expect(checkImages([{ path: "assets-src/x/renders/front.png", bytes: Uint8Array.from([9]) }], manifest)[0]).toMatch(/differs/);
+    const manifest = { note: "", renders: { "models/x/renders/front.png": sha256(bytes) }, patterns: {} };
+    expect(checkImages([{ path: "models/x/renders/front.png", bytes }], manifest)).toEqual([]);
+    expect(checkImages([{ path: "models/x/reference.jpg", bytes }, { path: "models/x/renders/front.png", bytes }], manifest)[0]).toMatch(/no tool wrote/);
+    expect(checkImages([{ path: "models/x/renders/front.png", bytes: Uint8Array.from([9]) }], manifest)[0]).toMatch(/differs/);
   });
 });
 

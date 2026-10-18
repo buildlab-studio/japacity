@@ -1,7 +1,7 @@
 // Who stands in a place today (city:crowd-sample-capped, city:players-fill-the-crowd, city:dress-mix-by-place and city:sample-seeded-by-date). Pure: a hash of the place's id, the real
 // date and the slot picks each person, so the same place on the same day shows the same people and a
 // screenshot taken twice is the same. Never `Math.random`, never a stream of the simulation.
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { PoseName } from "@japacity/models/people/poses";
 import { PRIVATE_PLACES } from "@japacity/content/private-places";
 import type { PlaceEntry } from "@japacity/sim";
 

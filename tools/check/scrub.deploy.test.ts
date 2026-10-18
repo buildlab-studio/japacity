@@ -87,7 +87,7 @@ describe("the scrub check's deployment values", () => {
   });
 
   test("given a binary file, when it is checked, then it is passed over", () => {
-    expect(findDeploymentValues("assets-src/model.glb", `\u0000${example("an email address")}`)).toEqual([]);
+    expect(findDeploymentValues("models/model.glb", `\u0000${example("an email address")}`)).toEqual([]);
   });
 
   test("given a repository with planted values, an ignored .env.local holding real ones and examples holding placeholders, when the tree is scrubbed, then only the planted lines fail", () => {

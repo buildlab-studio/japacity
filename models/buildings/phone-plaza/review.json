@@ -1,0 +1,43 @@
+{
+  "piece": "places/computer-village/bld_phone-plaza.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/buildings/phone-plaza/renders/back.png",
+    "models/buildings/phone-plaza/renders/front.png",
+    "models/buildings/phone-plaza/renders/left.png",
+    "models/buildings/phone-plaza/renders/phone.png",
+    "models/buildings/phone-plaza/renders/plan.png",
+    "models/buildings/phone-plaza/renders/right.png",
+    "models/buildings/phone-plaza/renders/threeQuarter.png",
+    "models/buildings/phone-plaza/renders/manifest.json",
+    "models/register.json, the row for places/computer-village/bld_phone-plaza.glb"
+  ],
+  "scores": {
+    "phone": 3,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 4,
+    "variety": 3,
+    "budget": 4
+  },
+  "total": 24,
+  "mean": 3.43,
+  "accepted": false,
+  "failing": [
+    "phone",
+    "mean"
+  ],
+  "reasons": {
+    "phone": "The two balcony slabs fill the top half of the shot; below, a blank board with a phone outline and a dark shop with goods. Named a building with a phone shop on a second look; the boards are blank in every render.",
+    "silhouette": "The front says shops under flats; the back is a dark wall with three barred windows, one side shows the stair, the other is blank with two balcony ends: two of four.",
+    "proportion": "Storeys, balconies, the side stair and the person agree.",
+    "palette": "Palette only, but the grey-mint wall and the brown balcony slabs are close in value and the back and sides are a flat dark grey-green: flat against the street.",
+    "wear": "Tanks, AC units, a generator, wires, crates and goods at the doors, burglar bars at the back.",
+    "variety": "Near a copy of bld_market-block (same layout, stair, tanks and generator) and the same wall colour as bld_bode-thomas-betting.",
+    "budget": "Read from the register row: triangles 1,244 of 1,500 (82%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 13,432 of 40,000 (33%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "Boards blank in the renders; the place shots show words on the Computer Village boards, which the piece's own renders should too. A kit piece: no outline is scored."
+}

@@ -31,7 +31,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:no-real-brands-on-assets** No asset shows a real business name, logo, livery or trade mark: not on a sign, a vehicle, a uniform, a bag or a bottle. Names on assets follow city:four-kinds-of-name: a public place's real name, an institution's plain description, a business's made-up name checked under city:made-up-names-checked, or a sponsor's name only where a place's `sponsor` allows it. A vehicle or a sign that copies a real company's colour scheme so it can be recognised counts as its logo.
 
-**assets:no-reference-photos-kept** No reference photo is ever in the repository. A photo is looked at in a browser, never saved, and only an outline traced from it may be kept, as data: a polygon in metres in `outline.json`, with the URL looked at, the date, the view, and the known dimension that fixes its scale. The build check fails on any image file under `assets-src/` or `public/assets/` that is not listed in the shooter's manifest of renders or the pattern builder's manifest, each with its hash.
+**assets:no-reference-photos-kept** No reference photo is ever in the repository. A photo is looked at in a browser, never saved, and only an outline traced from it may be kept, as data: a polygon in metres in `outline.json`, with the URL looked at, the date, the view, and the known dimension that fixes its scale. The build check fails on any image file under `models/` or `public/assets/` that is not listed in the shooter's manifest of renders or the pattern builder's manifest, each with its hash.
 
 **assets:sign-text-drawn-in-code** Text on a sign is drawn in code, at run time, onto a canvas texture, from the place's text keys (`city.md`, city:place-words-are-text-keys), so the spelling is exactly the text table's. A sign texture is at most 512 by 128 pixels and a power of two on each side. Lettering is a font listed in the register with its licence. No sign is ever an image file.
 
@@ -67,7 +67,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 ## Rules: soft shapes and moving parts
 
-**assets:organic-shapes-baked-at-build** A soft organic shape (the afro, locs, the gele and faces) is made by blending simple shapes into one surface, turning that surface into triangles and thinning them, all when the model is built. The shipped file holds only the finished triangles, inside the asset's budget, and the part is named as a smooth-shaded round part (assets:flat-and-smooth-shading). Nothing is blended or thinned on the phone, and no surface is drawn from blended shapes at run time. The thinned mesh keeps at most `THIN_MAX_PCT` (50%) of the raw triangles, a constant of the puff's test (`assets-src/prop/smoke/puff.test.ts`).
+**assets:organic-shapes-baked-at-build** A soft organic shape (the afro, locs, the gele and faces) is made by blending simple shapes into one surface, turning that surface into triangles and thinning them, all when the model is built. The shipped file holds only the finished triangles, inside the asset's budget, and the part is named as a smooth-shaded round part (assets:flat-and-smooth-shading). Nothing is blended or thinned on the phone, and no surface is drawn from blended shapes at run time. The thinned mesh keeps at most `THIN_MAX_PCT` (50%) of the raw triangles, a constant of the puff's test (`models/props/smoke/puff.test.ts`).
 
 **assets:rework-never-scores-lower** A reworked piece is scored by the same kind of reviewer as assets:blind-reviewer-scores-views against its old version: the old and new renders side by side on the review sheet. It replaces the old one only when it passes assets:acceptance-score-thresholds and scores no lower than the old on any criterion. Both sets of pictures stay out of the repository, in a folder `.gitignore` covers (`test-results/`, for one). A lower budget score counts only when a figure leaves its budget; a piece that spends more of its allowance and stays inside it is not worse for that.
 
@@ -172,7 +172,7 @@ A shipped body is a `chr_`, and a name has at most one variant part (assets:ship
 
 ## The register
 
-One row per shipped file, in `assets-src/register.json` (`../decisions/0009-models-are-code.md`).
+One row per shipped file, in `models/register.json` (`../decisions/0009-models-are-code.md`).
 
 | Column | Holds |
 |---|---|
@@ -239,14 +239,14 @@ Acceptance is assets:acceptance-score-thresholds. A landmark adds the outline sc
 
 | Setting | Value | Source | Held in |
 |---|---|---|---|
-| Lowest outline score, every view | 85 | Working value. One code-built project accepts at 90 on every component; 85 leaves room for outlines traced by hand from photos taken in perspective | `assets-src/review.config.json` `outlineMin` |
+| Lowest outline score, every view | 85 | Working value. One code-built project accepts at 90 on every component; 85 leaves room for outlines traced by hand from photos taken in perspective | `models/review.config.json` `outlineMin` |
 | Dimension tolerance | 5% | Working value | `dimTolerancePct` |
 | Outline frame | 512 px on the longer side, 5% margin, 3% shift search | Working value | `outlineFramePx`, `outlineMarginPct`, `outlineShiftPct` |
 | Thin outline growth | 2% of the frame, below 10% fill | So bridges and masts are scorable | `thinFillPct`, `thinGrowPct` |
 | Acceptance | No criterion under 3, phone size 4, mean 3.5 | Working value: the experiments' people were accepted at 3 to 4 | `minEach`, `minPhone`, `minMean` |
 | Phone shot | 360 by 640 CSS px, device scale 2, 12 m | The experiments' phone shot | `phoneShot` |
-| Per-asset and per-place budgets | The tables above | `../design/06` section 6, and working values | `assets-src/budgets.json` |
-| Thinned soft shape, most of the raw triangles kept | 50% | Working value. The blended afro of the curves experiment of 8 Oct 2026 went from 1,420 triangles raw to 636 thinned, 45% | `THIN_MAX_PCT` in `assets-src/prop/smoke/puff.test.ts` |
+| Per-asset and per-place budgets | The tables above | `../design/06` section 6, and working values | `models/budgets.json` |
+| Thinned soft shape, most of the raw triangles kept | 50% | Working value. The blended afro of the curves experiment of 8 Oct 2026 went from 1,420 triangles raw to 636 thinned, 45% | `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts` |
 | A pot spun from a curve | 336 triangles | The same experiment; for comparison with the `prop_` budget | the reason for assets:organic-shapes-baked-at-build |
 | A ball, flat or smooth | 168 triangles either way | The same experiment: smooth shading costs no triangles | the reason for assets:flat-and-smooth-shading |
 
@@ -281,4 +281,4 @@ These rules put nothing in the simulation's `types.ts`. One small package of typ
 6. `Outline`: `{ view: "front" | "side" | "plan"; polygon: Array<[number, number]>; source: string; read: string; scaleFrom: string }`, metres.
 7. Node extras the loader and the check read: `smooth: true` on a round part (assets:flat-and-smooth-shading), `pinned: "top" | "bottom" | "left" | "right"` on a moving sheet (assets:one-shared-motion-material).
 8. `Review` also carries `against?: { file: string; scores: Review["scores"] }` for a rework scored against its old version (assets:rework-never-scores-lower).
-9. The thinning limit is `THIN_MAX_PCT` in `assets-src/prop/smoke/puff.test.ts`; the build tool that blends and thins lives in `assets-src/`, never in the client bundle.
+9. The thinning limit is `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts`; the build tool that blends and thins lives in `models/`, never in the client bundle.

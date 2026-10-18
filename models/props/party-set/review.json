@@ -1,0 +1,40 @@
+{
+  "piece": "places/family-house/prop_party-set.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/props/party-set/renders/back.png",
+    "models/props/party-set/renders/front.png",
+    "models/props/party-set/renders/left.png",
+    "models/props/party-set/renders/phone.png",
+    "models/props/party-set/renders/plan.png",
+    "models/props/party-set/renders/right.png",
+    "models/props/party-set/renders/threeQuarter.png",
+    "models/props/party-set/renders/manifest.json",
+    "models/register.json, the row for places/family-house/prop_party-set.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 3,
+    "budget": 4
+  },
+  "total": 26,
+  "mean": 3.71,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "SAFE JOURNEY on its banner between two poles with balloons, a speaker on its stand: a send-off in one look.",
+    "silhouette": "Front and back show the banner frame with speakers and tables; the sides are a pole and a speaker: two of four.",
+    "proportion": "Banner at about 2.6 m, speakers, tables and the person agree.",
+    "palette": "Wine banner and letters, black speakers, gold and teal: reads.",
+    "wear": "Speakers on stands, the DJ table, the small chops table with trays, a cooler, crates.",
+    "variety": "The balloon clusters are faceted lumps, round parts hard-edged against assets:flat-and-smooth-shading: a small break in style.",
+    "budget": "Read from the register row: triangles 562 of 800 (70%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 5,096 of 25,000 (20%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "The banner's words come from a text key, as city:place-words-are-text-keys asks."
+}

@@ -4,7 +4,7 @@
 // WebGL runs on the software renderer, so frame times here compare runs, not phones.
 import { expect, test } from "@playwright/test";
 
-import budgets from "../../../assets-src/budgets.json" with { type: "json" };
+import budgets from "../../../models/budgets.json" with { type: "json" };
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { LIVED, openApp, passCards, passHomeTeach, placeReady, rideTo } from "./support/live";

@@ -1,7 +1,7 @@
 // Your colours on the game's own looks (prologue:player-colours-on-looks): the parts are found through the skeleton of the
 // shipped model and its vertices painted with palette colours on a copy the figure wears, once a pick.
 import { type PaletteName, paletteRgb, srgbToLinear } from "@japacity/assets";
-import { ALL_PEOPLE } from "@japacity/assets-src/people/people.data";
+import { ALL_PEOPLE } from "@japacity/models/people/people.data";
 import { drawPattern } from "@japacity/assets/pattern";
 import { Bone, BufferAttribute, BufferGeometry, DataTexture, Group, type Mesh, MeshStandardMaterial, type Object3D, Skeleton, SkinnedMesh } from "three";
 import { describe, expect, test } from "vitest";

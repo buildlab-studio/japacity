@@ -1,0 +1,42 @@
+{
+  "piece": "places/computer-village/bld_laptop-house.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/buildings/laptop-house/renders/back.png",
+    "models/buildings/laptop-house/renders/front.png",
+    "models/buildings/laptop-house/renders/left.png",
+    "models/buildings/laptop-house/renders/phone.png",
+    "models/buildings/laptop-house/renders/plan.png",
+    "models/buildings/laptop-house/renders/right.png",
+    "models/buildings/laptop-house/renders/threeQuarter.png",
+    "models/buildings/laptop-house/renders/manifest.json",
+    "models/register.json, the row for places/computer-village/bld_laptop-house.glb"
+  ],
+  "scores": {
+    "phone": 3,
+    "silhouette": 4,
+    "proportion": 3,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 26,
+  "mean": 3.71,
+  "accepted": false,
+  "failing": [
+    "phone"
+  ],
+  "reasons": {
+    "phone": "A red hip roof over a mint upper floor and three dark shops with blank green and orange boards; the stair's stringer crosses the green board. A house with shops on a second look; nothing says laptops.",
+    "silhouette": "The hip roof, the tank on its tall stand and the side stair make front, back and both sides a two-storey house with shops below: three of four.",
+    "proportion": "The external stair runs diagonally across the front, through two shop openings and their boards, so a person going up would cross the shop doors: one placement visibly wrong. Storeys, windows and the person agree otherwise.",
+    "palette": "The roof red and the mint wall read against sand and sky; the worn band is the darker mint.",
+    "wear": "Tank on a steel stand, a dish, an AC unit, wires, a generator, goods on the counters.",
+    "variety": "Same kit family, and its own: the only hip-roofed shop house of the new set.",
+    "budget": "Read from the register row: triangles 928 of 1,500 (61%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 9,984 of 40,000 (24%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "Move the stair to the side or behind the bays; letter the boards in the renders. A kit piece: no outline is scored."
+}

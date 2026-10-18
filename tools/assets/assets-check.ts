@@ -89,7 +89,7 @@ export interface Paths {
 }
 
 export function defaultPaths(root: string): Paths {
-  return { root, source: join(root, "assets-src"), public: join(root, "apps", "client", "public", "assets"), dist: join(root, "apps", "client", "dist") };
+  return { root, source: join(root, "models"), public: join(root, "apps", "client", "public", "assets"), dist: join(root, "apps", "client", "dist") };
 }
 
 /** Where the publish step puts each model's tile render, by the model's name (design page 09, the pictures). */
@@ -263,17 +263,17 @@ export function checkPaletteResults(shipped: readonly Measured[]): string[] {
   return shipped.flatMap((file) => file.palette.slice(0, 3).map((problem) => `assets:colours-from-named-palette: ${file.file}: ${problem}`));
 }
 
-/** 6. No image under assets-src or public/assets that the shooter or the pattern builder did not write (assets:no-reference-photos-kept). */
+/** 6. No image under models or public/assets that the shooter or the pattern builder did not write (assets:no-reference-photos-kept). */
 export function checkImages(images: readonly { path: string; bytes: Uint8Array }[], manifest: Manifest): string[] {
   const problems: string[] = [];
   const known = { ...manifest.renders, ...manifest.patterns };
   for (const image of images) {
     const hash = known[image.path];
     if (hash === undefined) problems.push(`assets:no-reference-photos-kept: ${image.path} is an image no tool wrote; reference photos never enter the repository`);
-    else if (hash !== sha256(image.bytes)) problems.push(`assets:no-reference-photos-kept: ${image.path} differs from the hash in assets-src/manifest.json`);
+    else if (hash !== sha256(image.bytes)) problems.push(`assets:no-reference-photos-kept: ${image.path} differs from the hash in models/manifest.json`);
   }
   const present = new Set(images.map((image) => image.path));
-  for (const path of Object.keys(known)) if (!present.has(path)) problems.push(`assets:no-reference-photos-kept: assets-src/manifest.json lists ${path}, which is not there`);
+  for (const path of Object.keys(known)) if (!present.has(path)) problems.push(`assets:no-reference-photos-kept: models/manifest.json lists ${path}, which is not there`);
   return problems;
 }
 
@@ -511,7 +511,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   ];
 
   const images = [
-    ...filesUnder(paths.source).filter((file) => IMAGE.test(file)).map((file) => ({ path: `assets-src/${file}`, bytes: readFileSync(join(paths.source, file)) })),
+    ...filesUnder(paths.source).filter((file) => IMAGE.test(file)).map((file) => ({ path: `models/${file}`, bytes: readFileSync(join(paths.source, file)) })),
     ...files.filter((file) => IMAGE.test(file)).map((file) => ({ path: `apps/client/public/assets/${file}`, bytes: readFileSync(join(paths.public, file)) })),
   ];
   problems.push(...checkImages(images, manifest));

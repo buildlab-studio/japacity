@@ -1,0 +1,181 @@
+{
+  "asset": "prop_trolley-bay",
+  "file": "public/assets/places/big-shop-uk/prop_trolley-bay.glb",
+  "fileSha256": "014aeaef53e743c1f7ce817dd9637b8214980751f7ec162a443162ab23b9999f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/trolley-bay/renders/front.png",
+      "sha256": "a7d94971de6e966be82d6a1f92fdc881d7875d37978e413d658016e0c4e1b9f4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2849999666213989,
+          0.519999981597066,
+          23.31918975382057
+        ],
+        "target": [
+          0.2849999666213989,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "width": 2.991599979400635,
+        "height": 2.2436999845504766
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/trolley-bay/renders/back.png",
+      "sha256": "95782fa69e11e7de95b8dbc9d92672f7baed1221b7a316b799de879a23cc9fa6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.2849999666213989,
+          0.519999981597066,
+          -23.219189729978712
+        ],
+        "target": [
+          0.2849999666213989,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "width": 2.991599979400635,
+        "height": 2.2436999845504766
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/trolley-bay/renders/left.png",
+      "sha256": "ce181cb63766511f326d5cf2e8ac688e49527333b5872093be91d8910e666178",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -22.984189775278242,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "target": [
+          0.2849999666213989,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "width": 1.620012513641312,
+        "height": 1.215009385230984
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/trolley-bay/renders/right.png",
+      "sha256": "0b34bfca627b1dc0f951bd117657e179b15590ac1bcb1ed0438716b9be8c7b6b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          23.55418970852104,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "target": [
+          0.2849999666213989,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "width": 1.620012513641312,
+        "height": 1.215009385230984
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/trolley-bay/renders/threeQuarter.png",
+      "sha256": "0ab36a18cd0856b51537337cdd43d9909f1c6efd32dd2b0be84923c49f748c56",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.1173512904227305,
+          3.649101734394698,
+          3.882351335722261
+        ],
+        "target": [
+          0.2849999666213989,
+          0.519999981597066,
+          0.050000011920928955
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/trolley-bay/renders/phone.png",
+      "sha256": "e7b688120496aab362f6128648aa17157a321c58e212ba7c31de1fe563c81bea",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.2849999666213989,
+          1.6,
+          12.800005805273388
+        ],
+        "target": [
+          0.2849999666213989,
+          1.5,
+          0.8000058052733882
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/trolley-bay/renders/tile.png",
+      "sha256": "3551c921328ab01dba8e2ffddfea54ef66a0d5a5d57fc12a012ab656a7ba049e",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.192802619226205,
+          2.6542199248897522,
+          2.8038536654631643
+        ],
+        "target": [
+          0.416212771928723,
+          0.38714380793272174,
+          0.027263818165682085
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

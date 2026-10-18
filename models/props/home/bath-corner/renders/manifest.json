@@ -1,0 +1,33 @@
+{
+  "asset": "prop_bath-corner",
+  "file": "public/assets/shared/prop/prop_bath-corner.glb",
+  "fileSha256": "092546ea1ebc54a83bacf81912d19db4b6a3b0cebdaa8543693dc6fcd91705e6",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/home/bath-corner/renders/tile.png",
+      "sha256": "b389d50ce489bb97cf5e8a5f16e2c10be4fac0fdf08306bfcf1389c73c54f1f5",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.102809045264028,
+          3.3558535600604973,
+          3.093990395863412
+        ],
+        "target": [
+          0.034715398969229865,
+          0.8507655878947149,
+          0.02589674956861397
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

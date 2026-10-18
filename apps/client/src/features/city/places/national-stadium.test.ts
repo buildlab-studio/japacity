@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { STADIUM } from "@japacity/assets-src/lm/national-stadium/build";
+import { STADIUM } from "@japacity/models/landmarks/national-stadium/build";
 
 import raw from "../../../../public/assets/places/national-stadium/place.json";
 import { stagedAt } from "../../../shared/scene/staging";

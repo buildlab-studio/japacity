@@ -1,0 +1,33 @@
+{
+  "asset": "prop_clothes-line",
+  "file": "public/assets/shared/prop/prop_clothes-line.glb",
+  "fileSha256": "8af82c83a576e86faa5a43b86cb5bb9a8ec3939be765b2413e8b8cff312f88bb",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/home/clothes-line/renders/tile.png",
+      "sha256": "21b4114387838b53c083e8b61deffdd7ddf783be3a43b9c64b268a6412a232f2",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.7095026018587216,
+          3.7013520998101948,
+          3.3505891561129473
+        ],
+        "target": [
+          0.2271967583068136,
+          0.858061284805421,
+          -0.13171668743896114
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

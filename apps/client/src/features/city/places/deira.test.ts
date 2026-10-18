@@ -78,7 +78,7 @@ describe("Deira", () => {
     const [arcade] = copiesOf(stage, "bld_deira-arcade_b.glb");
     const [table] = copiesOf(stage, "prop_dining-table.glb");
     if (lettered === undefined || arcade === undefined || table === undefined) throw new Error("No cafe");
-    // The cafeteria's board is the arcade's first, four metres left of its middle (bld/deira-arcade/b).
+    // The cafeteria's board is the arcade's first, four metres left of its middle (buildings/deira-arcade/b).
     expect(wordsOf(lettered.signs?.[0]?.[0] ?? "")).toContain("CAFETERIA");
     expect(Math.abs(table[0] - (arcade[0] - 4))).toBeLessThan(1);
   });

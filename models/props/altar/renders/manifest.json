@@ -1,0 +1,181 @@
+{
+  "asset": "prop_altar",
+  "file": "public/assets/places/church-uk/prop_altar.glb",
+  "fileSha256": "b31eb0fc31d62ce4caff335ccf7bd387154dbebd6a97e4c07ea4a54ff10e5414",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/altar/renders/front.png",
+      "sha256": "35c4459cdb9b1c554d5a56b99dcec641e314b0be9af4a044de59692d15eac143",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6750000111758707,
+          32.50764870886491
+        ],
+        "target": [
+          0,
+          0.6750000111758707,
+          0
+        ],
+        "width": 5.4,
+        "height": 4.050000000000001
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/altar/renders/back.png",
+      "sha256": "21a2ce2c516c9bf74b98be53c0302465c5e3285d23d85f4b2de9e80a947263ea",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6750000111758707,
+          -32.50764870886491
+        ],
+        "target": [
+          0,
+          0.6750000111758707,
+          0
+        ],
+        "width": 5.4,
+        "height": 4.050000000000001
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/altar/renders/left.png",
+      "sha256": "a4d9c41721e966c88911b30a50d3aacdf82ec362844b1c3b47e1027b18d805a6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -32.50764870886491,
+          0.6750000111758707,
+          0
+        ],
+        "target": [
+          0,
+          0.6750000111758707,
+          0
+        ],
+        "width": 2.3759208960234384,
+        "height": 1.7819406720175788
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/altar/renders/right.png",
+      "sha256": "b6ae511fcc228578584ba6b99f9372f2334243203be8277b88afc33c26d57e34",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          32.50764870886491,
+          0.6750000111758707,
+          0
+        ],
+        "target": [
+          0,
+          0.6750000111758707,
+          0
+        ],
+        "width": 2.3759208960234384,
+        "height": 1.7819406720175788
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/altar/renders/threeQuarter.png",
+      "sha256": "d75c4b9bda194fece58bd487557980fcdebd6b670170b55a1c54e5260a716361",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.5005640135435305,
+          5.982688302335979,
+          6.500564013543531
+        ],
+        "target": [
+          0,
+          0.6750000111758707,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/altar/renders/phone.png",
+      "sha256": "fc891373bbee0c9440e44617f95fa6b6742bbd358932317d774b705c4ad46745",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.09996337778863
+        ],
+        "target": [
+          0,
+          1.5,
+          1.0999633777886288
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/altar/renders/tile.png",
+      "sha256": "6a605a726cf6556d6eb78f293dee0ce5e74b370c9c35643ebbea422edc9d6d56",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.371075586681183,
+          5.146298022150927,
+          6.065154694891761
+        ],
+        "target": [
+          0.3384394042400513,
+          0.2206712052068533,
+          0.03251851245062759
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

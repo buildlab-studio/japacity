@@ -1,0 +1,181 @@
+{
+  "asset": "veh_taxi",
+  "file": "public/assets/places/airport-lagos/veh_taxi.glb",
+  "fileSha256": "e30f2a8c3fd15400143f055fcbd2a8022e8cbc4e5737928cf6f905edb4b3cc3f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/vehicles/taxi/renders/front.png",
+      "sha256": "7882a53084d3384dfeb9c48b2049207feff452ebb76a17586e6d26ca782a88b5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.7799947757431829,
+          31.40356272669685
+        ],
+        "target": [
+          0,
+          0.7799947757431829,
+          0
+        ],
+        "width": 2.246356864210691,
+        "height": 1.6847676481580183
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/vehicles/taxi/renders/back.png",
+      "sha256": "56e5f1fbceb935cf826cf6951ae5e1bc9d754c71af45c3e8f0ee5cf0b90d68d2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.7799947757431829,
+          -31.40356272669685
+        ],
+        "target": [
+          0,
+          0.7799947757431829,
+          0
+        ],
+        "width": 2.246356864210691,
+        "height": 1.6847676481580183
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/vehicles/taxi/renders/left.png",
+      "sha256": "d2ba2ff8b67be54790c11f3b190686bd25157c291bec25841ebc595b866c4cbf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -31.40356272669685,
+          0.7799947757431829,
+          0
+        ],
+        "target": [
+          0,
+          0.7799947757431829,
+          0
+        ],
+        "width": 5.097599773406983,
+        "height": 3.8231998300552372
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/vehicles/taxi/renders/right.png",
+      "sha256": "b4a7f89bf5e0bbd30e585793bc3ca48f1d2a80120252b11203feebe8dcc36de5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          31.40356272669685,
+          0.7799947757431829,
+          0
+        ],
+        "target": [
+          0,
+          0.7799947757431829,
+          0
+        ],
+        "width": 5.097599773406983,
+        "height": 3.8231998300552372
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/vehicles/taxi/renders/threeQuarter.png",
+      "sha256": "2d1ddb11793aa39a613770433c168f743e78bc3c7f852fce029b20fd0120bca0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.181686564531598,
+          5.827320720050094,
+          6.1816865645316
+        ],
+        "target": [
+          0,
+          0.7799947757431829,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/vehicles/taxi/renders/phone.png",
+      "sha256": "29b9e19b0d24413e1569bb94f108bbc53100c2105b4b82fb2d1b2ab17415a158",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          14.359999895095825
+        ],
+        "target": [
+          0,
+          1.5,
+          2.359999895095825
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/vehicles/taxi/renders/tile.png",
+      "sha256": "1f8b7718d9b6c47783ff952a0dcf2c8d168293973a58d0e471f4e7e434938be0",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.406415779335326,
+          4.896894960880815,
+          5.724999795375832
+        ],
+        "target": [
+          -0.028403158125957867,
+          0.4593838804824208,
+          0.2901808579145474
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

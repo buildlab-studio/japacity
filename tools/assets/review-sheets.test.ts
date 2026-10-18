@@ -1,4 +1,4 @@
-// Every review sheet under assets-src, imported so the compiler holds each to its type in
+// Every review sheet under models, imported so the compiler holds each to its type in
 // packages/assets (assets:blind-reviewer-scores-views, assets:rework-never-scores-lower): one asset's sheet, its rounds, or a place's sheet.
 // A new sheet is added here; the test below fails while one on disk is missing.
 import { join } from "node:path";
@@ -6,112 +6,112 @@ import { join } from "node:path";
 import type { PlaceReview, Review, ReviewSheet } from "@japacity/assets";
 import { describe, expect, test } from "vitest";
 
-import bodeThomasBettingSheet from "../../assets-src/bld/bode-thomas-betting/review.json";
-import deiraArcadeASheet from "../../assets-src/bld/deira-arcade/a/review.json";
-import deiraArcadeBSheet from "../../assets-src/bld/deira-arcade/b/review.json";
-import deiraArcadeCSheet from "../../assets-src/bld/deira-arcade/c/review.json";
-import familyHouseSheet from "../../assets-src/bld/family-house/review.json";
-import flyoverSpanSheet from "../../assets-src/bld/flyover-span/review.json";
-import laptopHouseSheet from "../../assets-src/bld/laptop-house/review.json";
-import marketBlockSheet from "../../assets-src/bld/market-block/review.json";
-import phonePlazaSheet from "../../assets-src/bld/phone-plaza/review.json";
-import plazaSheet from "../../assets-src/bld/plaza/review.json";
-import railwayBridgeSheet from "../../assets-src/bld/railway-bridge/review.json";
-import ryeLaneTerraceASheet from "../../assets-src/bld/rye-lane-terrace/a/review.json";
-import ryeLaneTerraceBSheet from "../../assets-src/bld/rye-lane-terrace/b/review.json";
-import shopRowSheet from "../../assets-src/bld/shop-row/review.json";
-import stiltHouseSheet from "../../assets-src/bld/stilt-house/review.json";
-import terminalFrontSheet from "../../assets-src/bld/terminal-front/review.json";
-import nationalStadiumSheet from "../../assets-src/lm/national-stadium/review.json";
-import thirdMainlandSpanSheet from "../../assets-src/lm/third-mainland-span/review.json";
-import adaSheet from "../../assets-src/people/ada/review.json";
-import amakaSheet from "../../assets-src/people/amaka/review.json";
-import bayoSheet from "../../assets-src/people/bayo/review.json";
-import bisiSheet from "../../assets-src/people/bisi/review.json";
-import bodyBustySheet from "../../assets-src/people/body_busty/review.json";
-import bodyPlusSetSheet from "../../assets-src/people/body_plus-set/review.json";
-import bodyPlusShortBustySheet from "../../assets-src/people/body_plus-short-busty/review.json";
-import bodyPlusSheet from "../../assets-src/people/body_plus/review.json";
-import bodyRegularSheet from "../../assets-src/people/body_regular/review.json";
-import bodySlimShortSheet from "../../assets-src/people/body_slim-short/review.json";
-import bodyTallEightSheet from "../../assets-src/people/body_tall-eight/review.json";
-import chiefSheet from "../../assets-src/people/chief/review.json";
-import controlSheet from "../../assets-src/people/control/review.json";
-import corperSheet from "../../assets-src/people/corper/review.json";
-import dayoSheet from "../../assets-src/people/dayo/review.json";
-import emekaSheet from "../../assets-src/people/emeka/review.json";
-import femiSheet from "../../assets-src/people/femi/review.json";
-import hawkerASheet from "../../assets-src/people/hawker_a/review.json";
-import hawkerBSheet from "../../assets-src/people/hawker_b/review.json";
-import hawkerCSheet from "../../assets-src/people/hawker_c/review.json";
-import iyaSheet from "../../assets-src/people/iya/review.json";
-import kemiSheet from "../../assets-src/people/kemi/review.json";
-import kunleSheet from "../../assets-src/people/kunle/review.json";
-import musaSheet from "../../assets-src/people/musa/review.json";
-import ngoziSheet from "../../assets-src/people/ngozi/review.json";
-import nonsoSheet from "../../assets-src/people/nonso/review.json";
-import obiSheet from "../../assets-src/people/obi/review.json";
-import riderSheet from "../../assets-src/people/rider/review.json";
-import sadeSheet from "../../assets-src/people/sade/review.json";
-import segunSheet from "../../assets-src/people/segun/review.json";
-import tobiSheet from "../../assets-src/people/tobi/review.json";
-import tolaniSheet from "../../assets-src/people/tolani/review.json";
-import tundeSheet from "../../assets-src/people/tunde/review.json";
-import zainabSheet from "../../assets-src/people/zainab/review.json";
-import airportLagosPlaceSheet from "../../assets-src/places/airport-lagos/review.json";
-import bodeThomasPlaceSheet from "../../assets-src/places/bode-thomas/review.json";
-import computerVillagePlaceSheet from "../../assets-src/places/computer-village/review.json";
-import deiraPlaceSheet from "../../assets-src/places/deira/review.json";
-import familyHousePlaceSheet from "../../assets-src/places/family-house/review.json";
-import nationalStadiumPlaceSheet from "../../assets-src/places/national-stadium/review.json";
-import ojuelegbaReviewHubSheet from "../../assets-src/places/ojuelegba/review-hub.json";
-import ojuelegbaReviewShellSheet from "../../assets-src/places/ojuelegba/review-shell.json";
-import partyRoomSheet from "../../assets-src/places/party-room/review.json";
-import peckhamPlaceSheet from "../../assets-src/places/peckham/review.json";
-import tejuoshoMarketPlaceSheet from "../../assets-src/places/tejuosho-market/review.json";
-import thirdMainlandBridgePlaceSheet from "../../assets-src/places/third-mainland-bridge/review.json";
-import balesSheet from "../../assets-src/prop/bales/review.json";
-import basinsSheet from "../../assets-src/prop/basins/review.json";
-import busShelterSheet from "../../assets-src/prop/bus-shelter/review.json";
-import canoeSheet from "../../assets-src/prop/canoe/review.json";
-import cookingFireSheet from "../../assets-src/prop/cooking-fire/review.json";
-import flagMastSheet from "../../assets-src/prop/flag-mast/review.json";
-import flagpoleSheet from "../../assets-src/prop/flagpole/review.json";
-import marketStallSheet from "../../assets-src/prop/market-stall/review.json";
-import parlourSetSheet from "../../assets-src/prop/parlour-set/review.json";
-import partySetSheet from "../../assets-src/prop/party-set/review.json";
-import plasticChairSheet from "../../assets-src/prop/plastic-chair/review.json";
-import repairTableSheet from "../../assets-src/prop/repair-table/review.json";
-import trolleySheet from "../../assets-src/prop/trolley/review.json";
-import shareSheet from "../../assets-src/share/review.json";
-import containerPhonesSheet from "../../assets-src/shop/container-phones/review.json";
-import lottoKioskSheet from "../../assets-src/shop/lotto-kiosk/review.json";
-import provisionsSheet from "../../assets-src/shop/provisions/review.json";
-import abraSheet from "../../assets-src/veh/abra/review.json";
-import labourBusSheet from "../../assets-src/veh/labour-bus/review.json";
-import taxiSheet from "../../assets-src/veh/taxi/review.json";
+import bodeThomasBettingSheet from "../../models/buildings/bode-thomas-betting/review.json";
+import deiraArcadeASheet from "../../models/buildings/deira-arcade/a/review.json";
+import deiraArcadeBSheet from "../../models/buildings/deira-arcade/b/review.json";
+import deiraArcadeCSheet from "../../models/buildings/deira-arcade/c/review.json";
+import familyHouseSheet from "../../models/buildings/family-house/review.json";
+import flyoverSpanSheet from "../../models/buildings/flyover-span/review.json";
+import laptopHouseSheet from "../../models/buildings/laptop-house/review.json";
+import marketBlockSheet from "../../models/buildings/market-block/review.json";
+import phonePlazaSheet from "../../models/buildings/phone-plaza/review.json";
+import plazaSheet from "../../models/buildings/plaza/review.json";
+import railwayBridgeSheet from "../../models/buildings/railway-bridge/review.json";
+import ryeLaneTerraceASheet from "../../models/buildings/rye-lane-terrace/a/review.json";
+import ryeLaneTerraceBSheet from "../../models/buildings/rye-lane-terrace/b/review.json";
+import shopRowSheet from "../../models/buildings/shop-row/review.json";
+import stiltHouseSheet from "../../models/buildings/stilt-house/review.json";
+import terminalFrontSheet from "../../models/buildings/terminal-front/review.json";
+import nationalStadiumSheet from "../../models/landmarks/national-stadium/review.json";
+import thirdMainlandSpanSheet from "../../models/landmarks/third-mainland-span/review.json";
+import adaSheet from "../../models/people/ada/review.json";
+import amakaSheet from "../../models/people/amaka/review.json";
+import bayoSheet from "../../models/people/bayo/review.json";
+import bisiSheet from "../../models/people/bisi/review.json";
+import bodyBustySheet from "../../models/people/body_busty/review.json";
+import bodyPlusSetSheet from "../../models/people/body_plus-set/review.json";
+import bodyPlusShortBustySheet from "../../models/people/body_plus-short-busty/review.json";
+import bodyPlusSheet from "../../models/people/body_plus/review.json";
+import bodyRegularSheet from "../../models/people/body_regular/review.json";
+import bodySlimShortSheet from "../../models/people/body_slim-short/review.json";
+import bodyTallEightSheet from "../../models/people/body_tall-eight/review.json";
+import chiefSheet from "../../models/people/chief/review.json";
+import controlSheet from "../../models/people/control/review.json";
+import corperSheet from "../../models/people/corper/review.json";
+import dayoSheet from "../../models/people/dayo/review.json";
+import emekaSheet from "../../models/people/emeka/review.json";
+import femiSheet from "../../models/people/femi/review.json";
+import hawkerASheet from "../../models/people/hawker_a/review.json";
+import hawkerBSheet from "../../models/people/hawker_b/review.json";
+import hawkerCSheet from "../../models/people/hawker_c/review.json";
+import iyaSheet from "../../models/people/iya/review.json";
+import kemiSheet from "../../models/people/kemi/review.json";
+import kunleSheet from "../../models/people/kunle/review.json";
+import musaSheet from "../../models/people/musa/review.json";
+import ngoziSheet from "../../models/people/ngozi/review.json";
+import nonsoSheet from "../../models/people/nonso/review.json";
+import obiSheet from "../../models/people/obi/review.json";
+import riderSheet from "../../models/people/rider/review.json";
+import sadeSheet from "../../models/people/sade/review.json";
+import segunSheet from "../../models/people/segun/review.json";
+import tobiSheet from "../../models/people/tobi/review.json";
+import tolaniSheet from "../../models/people/tolani/review.json";
+import tundeSheet from "../../models/people/tunde/review.json";
+import zainabSheet from "../../models/people/zainab/review.json";
+import airportLagosPlaceSheet from "../../models/places/airport-lagos/review.json";
+import bodeThomasPlaceSheet from "../../models/places/bode-thomas/review.json";
+import computerVillagePlaceSheet from "../../models/places/computer-village/review.json";
+import deiraPlaceSheet from "../../models/places/deira/review.json";
+import familyHousePlaceSheet from "../../models/places/family-house/review.json";
+import nationalStadiumPlaceSheet from "../../models/places/national-stadium/review.json";
+import ojuelegbaReviewHubSheet from "../../models/places/ojuelegba/review-hub.json";
+import ojuelegbaReviewShellSheet from "../../models/places/ojuelegba/review-shell.json";
+import partyRoomSheet from "../../models/places/party-room/review.json";
+import peckhamPlaceSheet from "../../models/places/peckham/review.json";
+import tejuoshoMarketPlaceSheet from "../../models/places/tejuosho-market/review.json";
+import thirdMainlandBridgePlaceSheet from "../../models/places/third-mainland-bridge/review.json";
+import balesSheet from "../../models/props/bales/review.json";
+import basinsSheet from "../../models/props/basins/review.json";
+import busShelterSheet from "../../models/props/bus-shelter/review.json";
+import canoeSheet from "../../models/props/canoe/review.json";
+import cookingFireSheet from "../../models/props/cooking-fire/review.json";
+import flagMastSheet from "../../models/props/flag-mast/review.json";
+import flagpoleSheet from "../../models/props/flagpole/review.json";
+import marketStallSheet from "../../models/props/market-stall/review.json";
+import parlourSetSheet from "../../models/props/parlour-set/review.json";
+import partySetSheet from "../../models/props/party-set/review.json";
+import plasticChairSheet from "../../models/props/plastic-chair/review.json";
+import repairTableSheet from "../../models/props/repair-table/review.json";
+import trolleySheet from "../../models/props/trolley/review.json";
+import shareSheet from "../../models/share/review.json";
+import containerPhonesSheet from "../../models/shopfronts/container-phones/review.json";
+import lottoKioskSheet from "../../models/shopfronts/lotto-kiosk/review.json";
+import provisionsSheet from "../../models/shopfronts/provisions/review.json";
+import abraSheet from "../../models/vehicles/abra/review.json";
+import labourBusSheet from "../../models/vehicles/labour-bus/review.json";
+import taxiSheet from "../../models/vehicles/taxi/review.json";
 
 import { filesUnder, REPO_ROOT } from "../repo";
 
 const SHEETS: Record<string, ReviewSheet> = {
-  "bld/bode-thomas-betting/review.json": bodeThomasBettingSheet satisfies Review,
-  "bld/deira-arcade/a/review.json": deiraArcadeASheet satisfies Review,
-  "bld/deira-arcade/b/review.json": deiraArcadeBSheet satisfies Review,
-  "bld/deira-arcade/c/review.json": deiraArcadeCSheet satisfies Review,
-  "bld/family-house/review.json": familyHouseSheet satisfies Review,
-  "bld/flyover-span/review.json": flyoverSpanSheet satisfies Review,
-  "bld/laptop-house/review.json": laptopHouseSheet satisfies Review,
-  "bld/market-block/review.json": marketBlockSheet satisfies Review,
-  "bld/phone-plaza/review.json": phonePlazaSheet satisfies Review,
-  "bld/plaza/review.json": plazaSheet satisfies Review,
-  "bld/railway-bridge/review.json": railwayBridgeSheet satisfies Review,
-  "bld/rye-lane-terrace/a/review.json": ryeLaneTerraceASheet satisfies Review,
-  "bld/rye-lane-terrace/b/review.json": ryeLaneTerraceBSheet satisfies Review,
-  "bld/shop-row/review.json": shopRowSheet satisfies Review,
-  "bld/stilt-house/review.json": stiltHouseSheet satisfies Review,
-  "bld/terminal-front/review.json": terminalFrontSheet satisfies Review,
-  "lm/national-stadium/review.json": nationalStadiumSheet satisfies Review,
-  "lm/third-mainland-span/review.json": thirdMainlandSpanSheet satisfies Review,
+  "buildings/bode-thomas-betting/review.json": bodeThomasBettingSheet satisfies Review,
+  "buildings/deira-arcade/a/review.json": deiraArcadeASheet satisfies Review,
+  "buildings/deira-arcade/b/review.json": deiraArcadeBSheet satisfies Review,
+  "buildings/deira-arcade/c/review.json": deiraArcadeCSheet satisfies Review,
+  "buildings/family-house/review.json": familyHouseSheet satisfies Review,
+  "buildings/flyover-span/review.json": flyoverSpanSheet satisfies Review,
+  "buildings/laptop-house/review.json": laptopHouseSheet satisfies Review,
+  "buildings/market-block/review.json": marketBlockSheet satisfies Review,
+  "buildings/phone-plaza/review.json": phonePlazaSheet satisfies Review,
+  "buildings/plaza/review.json": plazaSheet satisfies Review,
+  "buildings/railway-bridge/review.json": railwayBridgeSheet satisfies Review,
+  "buildings/rye-lane-terrace/a/review.json": ryeLaneTerraceASheet satisfies Review,
+  "buildings/rye-lane-terrace/b/review.json": ryeLaneTerraceBSheet satisfies Review,
+  "buildings/shop-row/review.json": shopRowSheet satisfies Review,
+  "buildings/stilt-house/review.json": stiltHouseSheet satisfies Review,
+  "buildings/terminal-front/review.json": terminalFrontSheet satisfies Review,
+  "landmarks/national-stadium/review.json": nationalStadiumSheet satisfies Review,
+  "landmarks/third-mainland-span/review.json": thirdMainlandSpanSheet satisfies Review,
   "people/ada/review.json": adaSheet satisfies Review,
   "people/amaka/review.json": amakaSheet satisfies Review,
   "people/bayo/review.json": bayoSheet satisfies Review,
@@ -158,32 +158,32 @@ const SHEETS: Record<string, ReviewSheet> = {
   "places/peckham/review.json": peckhamPlaceSheet satisfies PlaceReview,
   "places/tejuosho-market/review.json": tejuoshoMarketPlaceSheet satisfies PlaceReview,
   "places/third-mainland-bridge/review.json": thirdMainlandBridgePlaceSheet satisfies PlaceReview,
-  "prop/bales/review.json": balesSheet satisfies Review,
-  "prop/basins/review.json": basinsSheet satisfies Review,
-  "prop/bus-shelter/review.json": busShelterSheet satisfies Review,
-  "prop/canoe/review.json": canoeSheet satisfies Review,
-  "prop/cooking-fire/review.json": cookingFireSheet satisfies Review,
-  "prop/flag-mast/review.json": flagMastSheet satisfies Review,
-  "prop/flagpole/review.json": flagpoleSheet satisfies Review,
-  "prop/market-stall/review.json": marketStallSheet satisfies Review,
-  "prop/parlour-set/review.json": parlourSetSheet satisfies Review,
-  "prop/party-set/review.json": partySetSheet satisfies Review,
-  "prop/plastic-chair/review.json": plasticChairSheet satisfies Review,
-  "prop/repair-table/review.json": repairTableSheet satisfies Review,
-  "prop/trolley/review.json": trolleySheet satisfies Review,
+  "props/bales/review.json": balesSheet satisfies Review,
+  "props/basins/review.json": basinsSheet satisfies Review,
+  "props/bus-shelter/review.json": busShelterSheet satisfies Review,
+  "props/canoe/review.json": canoeSheet satisfies Review,
+  "props/cooking-fire/review.json": cookingFireSheet satisfies Review,
+  "props/flag-mast/review.json": flagMastSheet satisfies Review,
+  "props/flagpole/review.json": flagpoleSheet satisfies Review,
+  "props/market-stall/review.json": marketStallSheet satisfies Review,
+  "props/parlour-set/review.json": parlourSetSheet satisfies Review,
+  "props/party-set/review.json": partySetSheet satisfies Review,
+  "props/plastic-chair/review.json": plasticChairSheet satisfies Review,
+  "props/repair-table/review.json": repairTableSheet satisfies Review,
+  "props/trolley/review.json": trolleySheet satisfies Review,
   "share/review.json": shareSheet satisfies Review,
-  "shop/container-phones/review.json": containerPhonesSheet satisfies Review,
-  "shop/lotto-kiosk/review.json": lottoKioskSheet satisfies Review,
-  "shop/provisions/review.json": provisionsSheet satisfies Review,
-  "veh/abra/review.json": abraSheet satisfies Review,
-  "veh/labour-bus/review.json": labourBusSheet satisfies Review,
-  "veh/taxi/review.json": taxiSheet satisfies Review,
+  "shopfronts/container-phones/review.json": containerPhonesSheet satisfies Review,
+  "shopfronts/lotto-kiosk/review.json": lottoKioskSheet satisfies Review,
+  "shopfronts/provisions/review.json": provisionsSheet satisfies Review,
+  "vehicles/abra/review.json": abraSheet satisfies Review,
+  "vehicles/labour-bus/review.json": labourBusSheet satisfies Review,
+  "vehicles/taxi/review.json": taxiSheet satisfies Review,
 };
 
-const SOURCE = join(REPO_ROOT, "assets-src");
+const SOURCE = join(REPO_ROOT, "models");
 
 describe("review sheets", () => {
-  test("[assets:blind-reviewer-scores-views] given every review sheet under assets-src, when the sheets are listed, then each is imported here and so checked against its type", () => {
+  test("[assets:blind-reviewer-scores-views] given every review sheet under models, when the sheets are listed, then each is imported here and so checked against its type", () => {
     const onDisk = filesUnder(SOURCE).filter((path) => /(^|\/)review(-[a-z0-9-]+)?\.json$/.test(path));
     expect(onDisk.length).toBeGreaterThan(40);
     expect(Object.keys(SHEETS).sort()).toEqual(onDisk);

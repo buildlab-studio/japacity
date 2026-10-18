@@ -1,0 +1,181 @@
+{
+  "asset": "prop_fish-racks",
+  "file": "public/assets/places/makoko/prop_fish-racks.glb",
+  "fileSha256": "4374823002cd501b6ae299102ce4c11b4967e95034046611a9c24da2e19b489f",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/fish-racks/renders/front.png",
+      "sha256": "fae7eb579e5a584db4417161bcf59a4bd532bdc9c6f661369a9c0f3855827c7c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.1049999000318347,
+          29.26831355776618
+        ],
+        "target": [
+          0,
+          1.1049999000318347,
+          0
+        ],
+        "width": 3.6720001029968263,
+        "height": 2.75400007724762
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/fish-racks/renders/back.png",
+      "sha256": "73992219c501eb0f59b6600d1e3a9e35c4945fb331620d64f31edaf291ccd18a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.1049999000318347,
+          -29.26831355776618
+        ],
+        "target": [
+          0,
+          1.1049999000318347,
+          0
+        ],
+        "width": 3.6720001029968263,
+        "height": 2.75400007724762
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/fish-racks/renders/left.png",
+      "sha256": "61b3ab4830ea53c9f82b0c2dc3e8e324755f06ec301c6c25bcdef1359502a3a8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -29.26831355776618,
+          1.1049999000318347,
+          0
+        ],
+        "target": [
+          0,
+          1.1049999000318347,
+          0
+        ],
+        "width": 3.1824673276458793,
+        "height": 2.3868504957344094
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/fish-racks/renders/right.png",
+      "sha256": "c557f57ebb00cc874dfafd6fcf9008f28dd40ebdcb5bda6ac90ad8de7d06e082",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          29.26831355776618,
+          1.1049999000318347,
+          0
+        ],
+        "target": [
+          0,
+          1.1049999000318347,
+          0
+        ],
+        "width": 3.1824673276458793,
+        "height": 2.3868504957344094
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/fish-racks/renders/threeQuarter.png",
+      "sha256": "0ea99181ac78c7c315afe9e2170e64fb6446ac3c0675dd5dacf7e2d591deda5d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.564992920204703,
+          5.648797592265975,
+          5.564992920204704
+        ],
+        "target": [
+          0,
+          1.1049999000318347,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/fish-racks/renders/phone.png",
+      "sha256": "cf20e7da5af77c30c6ab6c540f4165c7ef753bd9f5180ceb83e4356d3243400d",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.299993932761952
+        ],
+        "target": [
+          0,
+          1.5,
+          1.2999939327619516
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/fish-racks/renders/tile.png",
+      "sha256": "91e4d97246eb542bae9dd0e53aeff314acc764da24bec329e5b6ef59f221b480",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.169572246314894,
+          4.721142568942503,
+          5.178462053151542
+        ],
+        "target": [
+          0.1818463370228225,
+          0.6486814174008934,
+          0.19073614385946905
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_hospital-bed",
+  "file": "public/assets/places/ward-uk/prop_hospital-bed.glb",
+  "fileSha256": "639ca094cdcf65091358f3bb36d595390ea6954575b05b25ebc7fc80df10ce51",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/hospital-bed/renders/front.png",
+      "sha256": "7a72cc4da7395c90fcea878384e95ed3b2601082557fc31a1df71ad32b8a35a8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.025000035762786865,
+          1.1575000256299974,
+          26.416824699108947
+        ],
+        "target": [
+          0.025000035762786865,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "width": 3.3336095472432388,
+        "height": 2.500207160432429
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/hospital-bed/renders/back.png",
+      "sha256": "1505bcb144b6e8e0f86c82d1f2695158c0bdd1c9e9c2269ddd73b80e362292dd",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.025000035762786865,
+          1.1575000256299974,
+          -26.565514326756347
+        ],
+        "target": [
+          0.025000035762786865,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "width": 3.3336095472432388,
+        "height": 2.500207160432429
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/hospital-bed/renders/left.png",
+      "sha256": "7e9c29b0f2f54e5a6f4486a3c842550df713748e1a4ac7f1af6ab7f6b446f4e1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -26.46616947716986,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "target": [
+          0.025000035762786865,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "width": 3.3336095472432388,
+        "height": 2.500207160432429
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/hospital-bed/renders/right.png",
+      "sha256": "6dcfa61dc42b4ab12168424d13d4fc8ad26dbfb7025c0f38208d3cc2406cb796",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          26.516169548695434,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "target": [
+          0.025000035762786865,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "width": 3.3336095472432388,
+        "height": 2.500207160432429
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/hospital-bed/renders/threeQuarter.png",
+      "sha256": "948c40b43c0cc3f1947856492f137329898ea3f9aa4c343fc9297d9f6da1a0c1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.787909945352472,
+          5.04639968207676,
+          4.688565095765986
+        ],
+        "target": [
+          0.025000035762786865,
+          1.1575000256299974,
+          -0.07434481382369995
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/hospital-bed/renders/phone.png",
+      "sha256": "842f55d716c6907d6ca3b74cc1282c6fade0ad8f11b5da4fdd76680109c58ca9",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.025000035762786865,
+          1.6,
+          13.25
+        ],
+        "target": [
+          0.025000035762786865,
+          1.5,
+          1.25
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/hospital-bed/renders/tile.png",
+      "sha256": "c23fdecf045893f7510882cc4f628280478c5fe7a5e8bb7ffc1b7d2e6d64e995",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.804367120646239,
+          4.36716212787006,
+          4.05630238907007
+        ],
+        "target": [
+          -0.1446425369248346,
+          1.142809244412708,
+          0.10729273149899538
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

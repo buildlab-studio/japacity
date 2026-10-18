@@ -1,0 +1,181 @@
+{
+  "asset": "veh_okada",
+  "file": "public/assets/shared/veh/veh_okada.glb",
+  "fileSha256": "f2faf996b211dac0fedc48a654377e13a7310d5377c5d837152b3924de2adfdd",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/vehicles/okada/renders/front.png",
+      "sha256": "ab001123de41f9c5deac137d6e1c6ded8b0ea28c98386c3516deffad9f4f1fc9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5609999895095825,
+          19.83880580164612
+        ],
+        "target": [
+          0,
+          0.5609999895095825,
+          0
+        ],
+        "width": 1.6156907659978794,
+        "height": 1.2117680744984096
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/vehicles/okada/renders/back.png",
+      "sha256": "593aaa899fb95141908f00b46e5bfb510ce02f477383010a298197506239145b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5609999895095825,
+          -19.83880580164612
+        ],
+        "target": [
+          0,
+          0.5609999895095825,
+          0
+        ],
+        "width": 1.6156907659978794,
+        "height": 1.2117680744984096
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/vehicles/okada/renders/left.png",
+      "sha256": "6bbbf6e1ac5d1ead9f495770487d201143fc5a37dc5e9844521f14b01afe80ce",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -19.83880580164612,
+          0.5609999895095825,
+          0
+        ],
+        "target": [
+          0,
+          0.5609999895095825,
+          0
+        ],
+        "width": 2.2247999382019046,
+        "height": 1.6685999536514284
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/vehicles/okada/renders/right.png",
+      "sha256": "85601d85c300a59135eb7a8750382bb50e1aad29febb20691b537e216034567a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          19.83880580164612,
+          0.5609999895095825,
+          0
+        ],
+        "target": [
+          0,
+          0.5609999895095825,
+          0
+        ],
+        "width": 2.2247999382019046,
+        "height": 1.6685999536514284
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/vehicles/okada/renders/threeQuarter.png",
+      "sha256": "335092bec9ba19df06fa432c16107b83bdb32b04cb6ddfe600df683ffa88752b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.8416023262897974,
+          2.8811585732814744,
+          2.841602326289798
+        ],
+        "target": [
+          0,
+          0.5609999895095825,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/vehicles/okada/renders/phone.png",
+      "sha256": "b25e92cf7614aae4a3c8481bbe5504292670e0735d17cc750a6b86fad6716dbf",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.02999997138977
+        ],
+        "target": [
+          0,
+          1.5,
+          1.0299999713897705
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/vehicles/okada/renders/tile.png",
+      "sha256": "c7f2daf411ce80ae1d6bca4448dfb0c230304c1c7ae408085313566b245c4c89",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8968094155780633,
+          2.0143740496519107,
+          2.022923591275371
+        ],
+        "target": [
+          -0.01809356858519612,
+          0.45086231027430984,
+          0.10802060711211085
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

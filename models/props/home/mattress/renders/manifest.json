@@ -1,0 +1,33 @@
+{
+  "asset": "prop_mattress",
+  "file": "public/assets/shared/prop/prop_mattress.glb",
+  "fileSha256": "d14c6f0efb5ba6d0ac3fe8f3a33d428c0207bcb58fdafa3ca51d82be3de08892",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/home/mattress/renders/tile.png",
+      "sha256": "6897013c983519a4cfa75352359a4713b2997adc12f96f36a3eb2ab4757a4d53",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.014656970119752,
+          2.387102219694393,
+          2.9099888555243085
+        ],
+        "target": [
+          0.1511225764956772,
+          0.04903617793138693,
+          0.046454461900233446
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

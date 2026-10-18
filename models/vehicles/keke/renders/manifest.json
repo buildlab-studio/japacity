@@ -1,0 +1,181 @@
+{
+  "asset": "veh_keke",
+  "file": "public/assets/shared/veh/veh_keke.glb",
+  "fileSha256": "a9424a0d78647ba4363098d4379d857c36899f0946d65424492dfb357fa07978",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/vehicles/keke/renders/front.png",
+      "sha256": "fea6bc2fff6720529da9486f2dc460e22c3939c9393572836047f1619eb066ef",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8887500166893005,
+          24.337644570341975
+        ],
+        "target": [
+          0,
+          0.8887500166893005,
+          0
+        ],
+        "width": 2.5596306177937276,
+        "height": 1.9197229633452957
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/vehicles/keke/renders/back.png",
+      "sha256": "5425efacd9e557756df37a03d08d9fc937ecb3f8046a97c4ec3b21828108eb47",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8887500166893005,
+          -24.337644570341975
+        ],
+        "target": [
+          0,
+          0.8887500166893005,
+          0
+        ],
+        "width": 2.5596306177937276,
+        "height": 1.9197229633452957
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/vehicles/keke/renders/left.png",
+      "sha256": "e025ffe87c3a0059d201a4af6fbaed665e7f8568387e5e9b6e9e57ac4b4f69ea",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -24.337644570341975,
+          0.8887500166893005,
+          0
+        ],
+        "target": [
+          0,
+          0.8887500166893005,
+          0
+        ],
+        "width": 3.0131999588012697,
+        "height": 2.2598999691009523
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/vehicles/keke/renders/right.png",
+      "sha256": "6893e785bb39111cfc2366d269ff004733ea38f97b4f32856a383e1177befd41",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          24.337644570341975,
+          0.8887500166893005,
+          0
+        ],
+        "target": [
+          0,
+          0.8887500166893005,
+          0
+        ],
+        "width": 3.0131999588012697,
+        "height": 2.2598999691009523
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/vehicles/keke/renders/threeQuarter.png",
+      "sha256": "423e84fc442c04a36799a8b6bfc5fae27e04a023514079b779e5872bd0d8c79b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.14093793352274,
+          4.269811681244541,
+          4.140937933522741
+        ],
+        "target": [
+          0,
+          0.8887500166893005,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/vehicles/keke/renders/phone.png",
+      "sha256": "073b323389a3a93f4590e6b420e538bf02815a7c4de729d4d30fcc689d4edcb7",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.394999980926514
+        ],
+        "target": [
+          0,
+          1.5,
+          1.3949999809265137
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/vehicles/keke/renders/tile.png",
+      "sha256": "75f0fae59798f45c1f440f1891d50ed9dd971f0c74d9fc05f136f3d159a23384",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.4891720910307322,
+          3.779503523127104,
+          3.4897177693542223
+        ],
+        "target": [
+          -0.013020489480364007,
+          0.9199752553893444,
+          -0.012474811156873997
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

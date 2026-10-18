@@ -3,7 +3,7 @@
 // crowd stands, the light, and what moves. A place with no file, or no `stage`, is drawn as open
 // ground with its crowd, so every place can be entered, built or not.
 import type { PaletteName, WalkablePolygon } from "@japacity/assets";
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { PoseName } from "@japacity/models/people/poses";
 import type { Id, PlaceEntry } from "@japacity/sim";
 
 import type { Shot, Thing } from "../world/contract";

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_canoe-school",
+  "file": "public/assets/places/makoko/prop_canoe-school.glb",
+  "fileSha256": "20bc0a60a666cf9ede752c6571c48afd5f24a78b886bf6e10ad091a5ca846351",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/canoe-load/school/renders/front.png",
+      "sha256": "f9e66f8328596f531a954fd88f993cb2f6a1ab6343f4c263fbf64c833729078b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5131250619888306,
+          36.327714685710745
+        ],
+        "target": [
+          0,
+          0.5131250619888306,
+          0
+        ],
+        "width": 1.477732618839903,
+        "height": 1.1082994641299273
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/canoe-load/school/renders/back.png",
+      "sha256": "b6632c68ac1d87ed68555be17dbe9c883bb5e6beac3acce25629dabce568e307",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5131250619888306,
+          -36.327714685710745
+        ],
+        "target": [
+          0,
+          0.5131250619888306,
+          0
+        ],
+        "width": 1.477732618839903,
+        "height": 1.1082994641299273
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/canoe-load/school/renders/left.png",
+      "sha256": "cecc1aaf02d5fa85a7713e54d53baacb0866514d915c426bf9b8f6bbb293b99d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -36.327714685710745,
+          0.5131250619888306,
+          0
+        ],
+        "target": [
+          0,
+          0.5131250619888306,
+          0
+        ],
+        "width": 6.912000102996828,
+        "height": 5.184000077247621
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/canoe-load/school/renders/right.png",
+      "sha256": "8d01b5ad19c65c6a93656f9c97bacca9bbaa65dfdfc53db7be758ea41e8e3ad0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          36.327714685710745,
+          0.5131250619888306,
+          0
+        ],
+        "target": [
+          0,
+          0.5131250619888306,
+          0
+        ],
+        "width": 6.912000102996828,
+        "height": 5.184000077247621
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/canoe-load/school/renders/threeQuarter.png",
+      "sha256": "b6b84dddabaca7fc51dafedff463dff6b443c0f9337da60d1d8d01991e763ccc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          7.6038593306001445,
+          6.721650207279236,
+          7.603859330600146
+        ],
+        "target": [
+          0,
+          0.5131250619888306,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/canoe-load/school/renders/phone.png",
+      "sha256": "1df03b895ef836eb5fd87746e2fb5bd346a72b1bdaba157c40eb84e16db5571c",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          15.200000047683716
+        ],
+        "target": [
+          0,
+          1.5,
+          3.200000047683716
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/canoe-load/school/renders/tile.png",
+      "sha256": "a9230dc93dd0a80e73cbde4944137408236f1bb3f75f7935b5653e68c80c7178",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.468707625277641,
+          4.716791189868461,
+          6.047707238128734
+        ],
+        "target": [
+          -0.13705258129052866,
+          0.1397071477048477,
+          0.4419470315605632
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

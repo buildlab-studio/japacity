@@ -1,0 +1,181 @@
+{
+  "asset": "prop_mat",
+  "file": "public/assets/shared/prop/prop_mat.glb",
+  "fileSha256": "e3706ec4f105b6cd267afa1fed28faf5bf1cf78c718a8bfa3ea60878ae308780",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/street/mat/renders/front.png",
+      "sha256": "52eb35d6dce56253049dbbe0cfdda928145d9b39c25fc8aa2bf88418bbf56664",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.0974999963864684,
+          17.587336165690648
+        ],
+        "target": [
+          0,
+          0.0974999963864684,
+          0
+        ],
+        "width": 1.728000025749207,
+        "height": 1.2960000193119052
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/street/mat/renders/back.png",
+      "sha256": "c9a97ae8ab02783d68bfb7830530cfb1a5573eae9632294559f8bfb301a7e7be",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.0974999963864684,
+          -17.587336165690648
+        ],
+        "target": [
+          0,
+          0.0974999963864684,
+          0
+        ],
+        "width": 1.728000025749207,
+        "height": 1.2960000193119052
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/street/mat/renders/left.png",
+      "sha256": "8c1f92074d2190c745949cdc2e09c4450f09fa3c6729d3c38c2211cd691aebb9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.587336165690648,
+          0.0974999963864684,
+          0
+        ],
+        "target": [
+          0,
+          0.0974999963864684,
+          0
+        ],
+        "width": 1.079980240098819,
+        "height": 0.8099851800741142
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/street/mat/renders/right.png",
+      "sha256": "ee4e464cedb9bd72d166e716466833d7c13042a05844955f16a34e685efb4149",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.587336165690648,
+          0.0974999963864684,
+          0
+        ],
+        "target": [
+          0,
+          0.0974999963864684,
+          0
+        ],
+        "width": 1.079980240098819,
+        "height": 0.8099851800741142
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/street/mat/renders/threeQuarter.png",
+      "sha256": "1f0783611d47fb7b9b49b9bc2819554c0f2b88f3b61f175fc99cf95386a12142",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.191342377665594,
+          1.8867235553924597,
+          2.1913423776655945
+        ],
+        "target": [
+          0,
+          0.0974999963864684,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/street/mat/renders/phone.png",
+      "sha256": "ff5fbfd899f4c80dccd49109721ebd471beca759b8dfb35be2a803e72dd382ef",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.499990851897602
+        ],
+        "target": [
+          0,
+          1.5,
+          0.4999908518976014
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/street/mat/renders/tile.png",
+      "sha256": "080f27885ef67dc139a379b24b8cb77bbb2f545d8eaf4f375c4000ff79a77c2c",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.302911570196576,
+          1.760178559493949,
+          2.237351389654826
+        ],
+        "target": [
+          0.09122369951764465,
+          -0.04565702499472127,
+          0.025663518975894067
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

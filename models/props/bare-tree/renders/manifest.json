@@ -1,0 +1,181 @@
+{
+  "asset": "prop_bare-tree",
+  "file": "public/assets/places/calgary-north-east/prop_bare-tree.glb",
+  "fileSha256": "0f3db8eb51f3d80cf1a077ec340272cae9c30e62cdb850241414bcf25ead7488",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/bare-tree/renders/front.png",
+      "sha256": "2e92970bae0e60146e813be5be8603dcae048e362a4eaa7e4a1fafabae17859a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.25204998254776,
+          3.057635307982564,
+          42.07158778073693
+        ],
+        "target": [
+          0.25204998254776,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "width": 8.805989683127402,
+        "height": 6.604492262345552
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/bare-tree/renders/back.png",
+      "sha256": "17c431e21ad528fc9baf041f2bbc970d108341dbcc0ab2a1f16bfb4572605c7b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.25204998254776,
+          3.057635307982564,
+          -41.406974056982044
+        ],
+        "target": [
+          0.25204998254776,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "width": 8.805989683127402,
+        "height": 6.604492262345552
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/bare-tree/renders/left.png",
+      "sha256": "fc4cdab1e25fad312ae36c7544d509116efc2a8892ad2f2028c10fe248c9224a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -41.487230936311725,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "target": [
+          0.25204998254776,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "width": 8.805989683127402,
+        "height": 6.604492262345552
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/bare-tree/renders/right.png",
+      "sha256": "972c080370d92580da9269c5a7294991f835bbaea09fa168801a07059a473436",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          41.991330901407245,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "target": [
+          0.25204998254776,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "width": 8.805989683127402,
+        "height": 6.604492262345552
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/bare-tree/renders/threeQuarter.png",
+      "sha256": "4da230bf6f23f0db938e9e2de66de9d03082581d51959db94360d04c7c5f2420",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          9.418855010725753,
+          10.542300271520983,
+          9.499111890055437
+        ],
+        "target": [
+          0.25204998254776,
+          3.057635307982564,
+          0.3323068618774414
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/bare-tree/renders/phone.png",
+      "sha256": "c66d451c9df5242aca7c32602e943149a08501fd0b8a2ddbb8cd8e560a3c033f",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.25204998254776,
+          1.6,
+          14.119372316679241
+        ],
+        "target": [
+          0.25204998254776,
+          2.7518717759773135,
+          2.1193723166792418
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/bare-tree/renders/tile.png",
+      "sha256": "83fbfacc7e6badaba9debc0f19ebf44f13a58b90d732c10144a02f95c25e6811",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.892088141734597,
+          9.129499182157563,
+          7.181352930134276
+        ],
+        "target": [
+          -0.025439478477703392,
+          3.481361531781111,
+          0.26382530992197495
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -7,9 +7,9 @@ import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { roomBunk, ROOM_HOUSE } from "@japacity/assets-src/bld/makoko-house/build";
-import { RACKS } from "@japacity/assets-src/prop/fish-racks/build";
-import { WALKWAY } from "@japacity/assets-src/prop/plank-walkway/build";
+import { roomBunk, ROOM_HOUSE } from "@japacity/models/buildings/makoko-house/build";
+import { RACKS } from "@japacity/models/props/fish-racks/build";
+import { WALKWAY } from "@japacity/models/props/plank-walkway/build";
 
 import manifest from "../../../../public/assets/manifest.json";
 import raw from "../../../../public/assets/places/makoko/place.json";

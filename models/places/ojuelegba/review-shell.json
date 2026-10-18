@@ -1,0 +1,66 @@
+{
+  "piece": "place.ojuelegba, the city shell at the hub",
+  "against": null,
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "seen": [
+    "the low mode's phone shot",
+    "the high mode's phone shot",
+    "the low mode's desktop shot",
+    "the high mode's desktop shot",
+    "the plan shot",
+    "the resident card on the phone",
+    "models/buildings/shop-row/renders",
+    "models/shopfronts/provisions/renders"
+  ],
+  "low": {
+    "scores": {
+      "phone": 2,
+      "silhouette": 2,
+      "proportion": 4,
+      "palette": 3,
+      "wear": 3,
+      "variety": 3,
+      "budget": 5
+    },
+    "total": 22,
+    "mean": 3.14,
+    "accepted": false,
+    "failing": ["phone", "silhouette", "mean"],
+    "reasons": {
+      "phone": "Reads as a Lagos shop street, not as Ojuelegba: no danfo, no bridge, no bus stop in the shot; a quarter of the frame is empty sky, a sixth is flat laterite, and the player's back sits in the middle.",
+      "silhouette": "The plan shows two copies of one shop row along one straight road on a flat laterite field; nothing in the outline says junction, bridge or loading point.",
+      "proportion": "People, shop bays, fascias and awnings agree; the road and pavement read at a believable width.",
+      "palette": "Palette colours, but the near fog is the sky's colour, so the shop row's roof and the far building melt into the sky; the road, pavement and verge are three dull browns.",
+      "wear": "Goods on shelves, a stall under an umbrella, a tank, a generator, bunting and washing; generic and the same in every bay, with no drain, posters, rubbish or traffic clutter.",
+      "variety": "Plainly the examples' family, because it is the example shop row itself, placed twice with the same signs on both copies.",
+      "budget": "Reported 29 draw calls and 16,764 triangles on the phone (31 on desktop), under 80% of the first-load row (60 and 60,000) and the exterior row (80 and 80,000). The check's own figure, read with the high sample (assets:assets-and-places-within-budget), is the high mode's."
+    }
+  },
+  "high": {
+    "scores": {
+      "phone": 2,
+      "silhouette": 2,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 3,
+      "variety": 3,
+      "budget": 0
+    },
+    "total": 18,
+    "mean": 2.57,
+    "accepted": false,
+    "failing": ["phone", "silhouette", "budget", "mean"],
+    "reasons": {
+      "phone": "The same framing as low; shadows and colour help, one more person shows, and still nothing names Ojuelegba.",
+      "silhouette": "As low: two identical shop rows on one straight road.",
+      "proportion": "As low; shadows sit people on the ground.",
+      "palette": "Fuller colour and the far haze keep the shop row apart from the sky; awnings and signs read against the walls. The roof slab is still near the sky's tone.",
+      "wear": "As low; the smoke puffs are grey faceted lumps that read as floating stones, and the palm never reads as a palm in any still.",
+      "variety": "As low.",
+      "budget": "Reported 65 draw calls on the phone and 67 on desktop with the shadow pass, 47,670 triangles. The hub is the first-load place, whose row allows 60 draw calls: over, so 0. On the exterior row (80) it would be 4 (81% and 84%). Which row the hub's high mode answers to is an open question."
+    }
+  },
+  "crowd": "Does not read as a Lagos junction. About eight people in view in both modes (the high mode's extra eight are out of shot), standing evenly spaced in a line along the pavement, all on one side of the road and nobody on it: no queue at a loading point, no conductor, no hawker with a tray among vehicles, no knot round the stall. The band says Packed over a street that looks quiet. Dress mix: about three of eight in traditional cloth against the place's 6,000 bp roadside mix; two men in the same green T-shirt and jeans in one view; a woman in a crop top and denim shorts at a bus stop. The resident card works and no one carries a tag but the player's own diamond.",
+  "notes": "A place has no orthographic views, so silhouette is read from the plan view and the street outline, and phone from the two phone shots. The high mode's index line says 16 people; city:residents-fill-to-target gives min(crowd.target, crowdHigh) = min(12, 16) = 12 for this place, a point to check. Budget figures are the ones in the shots' index, not measured by the reviewer."
+}

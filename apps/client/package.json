@@ -17,7 +17,7 @@
     "@fontsource/rubik": "^5.3.0",
     "@japacity/api": "workspace:*",
     "@japacity/assets": "workspace:*",
-    "@japacity/assets-src": "workspace:*",
+    "@japacity/models": "workspace:*",
     "@japacity/content": "workspace:*",
     "@japacity/sim": "workspace:*",
     "@react-three/fiber": "9.8.1",

@@ -1,0 +1,181 @@
+{
+  "asset": "veh_train-carriage",
+  "file": "public/assets/shared/veh/veh_train-carriage.glb",
+  "fileSha256": "6cc920f5e0cdb67ad2e3112a09bd7e6e1ec8e7b0033836a23b948241c7170002",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/vehicles/train-carriage/renders/front.png",
+      "sha256": "78af07bb5d9158cb53b0c862a737a9014ac63cf9768940a00896c5517d7b0c8d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.649999976158142,
+          91.31821901566249
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 4.751966051518522,
+        "height": 3.563974538638892
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/vehicles/train-carriage/renders/back.png",
+      "sha256": "186dd8ea708671afb4ca7bc1b67e4512be1e8426bd4586a76334e93b2c34ea76",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.649999976158142,
+          -91.31821901566249
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 4.751966051518522,
+        "height": 3.563974538638892
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/vehicles/train-carriage/renders/left.png",
+      "sha256": "6fc3f8466d1a5a50d4e24e5393d1fd694e75ecfbfdd19f386816fbd429e402b5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -91.31821901566249,
+          1.649999976158142,
+          0
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 21.443399505615236,
+        "height": 16.082549629211428
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/vehicles/train-carriage/renders/right.png",
+      "sha256": "47f151a0f1453842cd2089e17ab69c183f0bdf62f58f60a1e33b755e04ba12f9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          91.31821901566249,
+          1.649999976158142,
+          0
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "width": 21.443399505615236,
+        "height": 16.082549629211428
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/vehicles/train-carriage/renders/threeQuarter.png",
+      "sha256": "32523b548f71582e68de859bad72b6d56c385ed744b3b41a74a15dfe79717ee8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          23.4859844764889,
+          20.826226000932976,
+          23.485984476488905
+        ],
+        "target": [
+          0,
+          1.649999976158142,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/vehicles/train-carriage/renders/phone.png",
+      "sha256": "294507fddf4d88066668bbf03e95e77eff41e9e868dbe99d4fd02ccfa96365fe",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          21.927499771118164
+        ],
+        "target": [
+          0,
+          1.5,
+          9.927499771118164
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/vehicles/train-carriage/renders/tile.png",
+      "sha256": "1a938f81d04198d2f5884cdcd6aa214212fbd9f09fe5d6ce1aaf4c89fd8ff95d",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          19.084314769640592,
+          17.16722684809317,
+          20.790550341871633
+        ],
+        "target": [
+          -0.6199206545820364,
+          1.0787859944204152,
+          1.0863149176490028
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

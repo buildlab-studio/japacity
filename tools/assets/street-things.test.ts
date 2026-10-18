@@ -1,7 +1,7 @@
 // The street's things of decision 0012 (streets:lagos-street-spending): the suya grill, the barber's kiosk,
 // the viewing centre and the joint's chairs, each a model the player taps, built in Node and measured as the
 // export measures it, inside its prefix's budget, palette only, standing on y = 0 with its footprint.
-import budgets from "../../assets-src/budgets.json";
+import budgets from "../../models/budgets.json";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG } from "./catalog";

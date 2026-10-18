@@ -1,0 +1,41 @@
+{
+  "piece": "places/deira/veh_abra.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/vehicles/abra/renders/back.png",
+    "models/vehicles/abra/renders/front.png",
+    "models/vehicles/abra/renders/left.png",
+    "models/vehicles/abra/renders/phone.png",
+    "models/vehicles/abra/renders/right.png",
+    "models/vehicles/abra/renders/threeQuarter.png",
+    "models/vehicles/abra/renders/manifest.json",
+    "models/register.json, the row for places/deira/veh_abra.glb"
+  ],
+  "scores": {
+    "phone": 3,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 27,
+  "mean": 3.86,
+  "accepted": false,
+  "failing": [
+    "phone"
+  ],
+  "reasons": {
+    "phone": "The phone shot meets the abra bow on: a wooden hull under a green-edged canopy on posts, named a boat on a second look. A brown triangle shows below the hull, as if the keel pokes through the stage's water.",
+    "silhouette": "The sides say a long canopied water taxi with tyre fenders; front and back a hull under a canopy.",
+    "proportion": "Canopy height, bench and fenders agree with the person.",
+    "palette": "Wood browns, the teal-green canopy edge, black tyres; reads on the lagoon colour.",
+    "wear": "Tyre fenders along the side, the engine box, the long bench.",
+    "variety": "Its own vehicle, the same family.",
+    "budget": "Read from the register row: triangles 484 of 3,000 (16%), draw calls 2 of 2 (100%), materials 1 of 2 (50%), bytes 5,216 of 100,000 (5%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "Turn it side on for the phone shot."
+}

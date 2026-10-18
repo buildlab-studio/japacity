@@ -1,0 +1,40 @@
+{
+  "piece": "places/third-mainland-bridge/bld_stilt-house.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/buildings/stilt-house/renders/back.png",
+    "models/buildings/stilt-house/renders/front.png",
+    "models/buildings/stilt-house/renders/left.png",
+    "models/buildings/stilt-house/renders/phone.png",
+    "models/buildings/stilt-house/renders/plan.png",
+    "models/buildings/stilt-house/renders/right.png",
+    "models/buildings/stilt-house/renders/threeQuarter.png",
+    "models/buildings/stilt-house/renders/manifest.json",
+    "models/register.json, the row for places/third-mainland-bridge/bld_stilt-house.glb"
+  ],
+  "scores": {
+    "phone": 4,
+    "silhouette": 5,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 29,
+  "mean": 4.14,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A plank house on stilts with its ladder and veranda in one look; the person stands among the stilts, which shows the floor at about 2 m.",
+    "silhouette": "Every outline says a house on stilts: the stilts and ladder front and back, the gable and veranda on the sides.",
+    "proportion": "Floor height, door, ladder rungs and veranda rail agree with the person.",
+    "palette": "Plank shades of wood and dark wood, a zinc roof patched with rust and blue; reads against water and sand.",
+    "wear": "Patched roof, mismatched planks, jerrycans on the veranda, black-tarred stilt feet. No washing in the piece itself (the place adds it).",
+    "variety": "Its own building, and plainly the same flat, palette-coloured family.",
+    "budget": "Read from the register row: triangles 742 of 1,500 (49%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 6,816 of 40,000 (17%). Inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

@@ -1,0 +1,181 @@
+{
+  "asset": "prop_course-desk",
+  "file": "public/assets/places/library-ca/prop_course-desk.glb",
+  "fileSha256": "f7cd1dac5f8e0bbc79d688bc548a6d353982b7974a5ffe83c585c02117f7ae58",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/course-desk/renders/front.png",
+      "sha256": "7a3f526ffb80fd2d6ee604ab98010e6d4585d86d1ba328005ccd97a77104df72",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.4749999940395355,
+          0.9499999856948853,
+          24.499822174944107
+        ],
+        "target": [
+          0.4749999940395355,
+          0.9499999856948853,
+          0
+        ],
+        "width": 2.754000012874604,
+        "height": 2.065500009655953
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/course-desk/renders/back.png",
+      "sha256": "62c318858f1635f3a67b1cbea6d513315dc1f91f1c5b5a8efed0ff07cd523033",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.4749999940395355,
+          0.9499999856948853,
+          -24.499822174944107
+        ],
+        "target": [
+          0.4749999940395355,
+          0.9499999856948853,
+          0
+        ],
+        "width": 2.754000012874604,
+        "height": 2.065500009655953
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/course-desk/renders/left.png",
+      "sha256": "6c51d5cf73f6adcee014a1ea7a1278eceb77c9374703ad61588632bc8de42e73",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -24.02482218090457,
+          0.9499999856948853,
+          0
+        ],
+        "target": [
+          0.4749999940395355,
+          0.9499999856948853,
+          0
+        ],
+        "width": 2.736041762111614,
+        "height": 2.0520313215837107
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/course-desk/renders/right.png",
+      "sha256": "fb0db74efdce3657b5bdc24554bec4bbf7ca9b0fca8e36e17726520cebfce0d0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          24.974822168983643,
+          0.9499999856948853,
+          0
+        ],
+        "target": [
+          0.4749999940395355,
+          0.9499999856948853,
+          0
+        ],
+        "width": 2.736041762111614,
+        "height": 2.0520313215837107
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/course-desk/renders/threeQuarter.png",
+      "sha256": "d3a07d007ac6f694aabb2ac65ef5d65801008d2c25ff68f46b8a5ff5cf73a3a0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          4.6627773781826365,
+          4.369305901534183,
+          4.187777384143101
+        ],
+        "target": [
+          0.4749999940395355,
+          0.9499999856948853,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/course-desk/renders/phone.png",
+      "sha256": "bd6385f3ccb9ea474f45ee4820f65984c5e18b06fd2e109e4e836a39bf6290cc",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.4749999940395355,
+          1.6,
+          12.870013279618824
+        ],
+        "target": [
+          0.4749999940395355,
+          1.5,
+          0.8700132796188247
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/course-desk/renders/tile.png",
+      "sha256": "b59731bccf6203ed96d11d8d87ebafefb077dcafde1aed9c6bc484c95089035a",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.366664266193572,
+          2.954908883035637,
+          2.8711274675802976
+        ],
+        "target": [
+          0.5917418913868341,
+          0.6891942516660897,
+          0.09620509277355882
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

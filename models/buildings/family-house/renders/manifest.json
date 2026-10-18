@@ -1,0 +1,206 @@
+{
+  "asset": "bld_family-house",
+  "file": "public/assets/places/family-house/bld_family-house.glb",
+  "fileSha256": "7fc123c62945a4115fac72ef4b49a65f48b38c34aefbd56a33ed253f03e389cf",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/family-house/renders/front.png",
+      "sha256": "3acd3859017342480ab2ed8ca8d535f445108d52cd5935376d817c83d1072d35",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.7175945997238156,
+          150.88058282558526
+        ],
+        "target": [
+          0,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "width": 16.470500790956354,
+        "height": 12.352875593217266
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/family-house/renders/back.png",
+      "sha256": "732e1fc96d1e39d7a0d998b3ffc9351413595a20da159b031191189c80380ac2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2.7175945997238156,
+          -150.855583207055
+        ],
+        "target": [
+          0,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "width": 16.470500790956354,
+        "height": 12.352875593217266
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/family-house/renders/left.png",
+      "sha256": "0a4bd5abc1ba37d0bb0f310d9d4fbef51cfb4594ce15a2161d24fedfbf25711c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -150.86808301632013,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "target": [
+          0,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "width": 33.7769995880127,
+        "height": 25.332749691009525
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/family-house/renders/right.png",
+      "sha256": "47eae01da4d15efb8db2860f73c40b85c937a7aabc94a71b4edee287770e7bd8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          150.86808301632013,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "target": [
+          0,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "width": 33.7769995880127,
+        "height": 25.332749691009525
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/family-house/renders/threeQuarter.png",
+      "sha256": "1e7416fee474797ed9f2aceed80e1191cc4cb36ecf2fc1b29e6e74a8776cb55d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          40.684924620850545,
+          35.936696447950546,
+          40.69742443011569
+        ],
+        "target": [
+          0,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/family-house/renders/plan.png",
+      "sha256": "797a35971919a5bb33e02e643fb568b008a472c07d7baca42386a03c0f2977b0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          153.58567761604394,
+          0.012499809265136719
+        ],
+        "target": [
+          0,
+          2.7175945997238156,
+          0.012499809265136719
+        ],
+        "width": 45.0359994506836,
+        "height": 33.7769995880127
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/family-house/renders/phone.png",
+      "sha256": "f10882ad0974b7b915e545c4cbb4af8c8846d52dbe5ae182d893e9c6aa896cf0",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          27.649999618530273
+        ],
+        "target": [
+          0,
+          2.445629185539113,
+          15.649999618530273
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/family-house/renders/tile.png",
+      "sha256": "93b34fb6cd6db0a7328e29b898c074547ff8dc3f4e9a4854fdab4f26447c6580",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          39.9201524253332,
+          32.32400377707609,
+          41.66821911337053
+        ],
+        "target": [
+          0.2641260767229623,
+          -0.05500614974398485,
+          2.012192764760284
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "asset": "prop_sheet-hang_fine",
+  "file": "public/assets/shared/prop/prop_sheet-hang_fine.glb",
+  "fileSha256": "60824ea7d00a3241c5adb8fa8f184ac4c82d4c553dd054b35252402ab33e3a1b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/motion/sheet-hang/fine/renders/front.png",
+      "sha256": "4ba26cf49275b9219a6f8e9c8a888f9892ae5fba22fdc56937516d7babbe5a8c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5,
+          15.65685424949238
+        ],
+        "target": [
+          0,
+          0.5,
+          0
+        ],
+        "width": 1.44,
+        "height": 1.08
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/motion/sheet-hang/fine/renders/back.png",
+      "sha256": "a7813f00dbc12654bbe05ef3fa09d544fc39d560d728a01de94f2d559fe8e84d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.5,
+          -15.65685424949238
+        ],
+        "target": [
+          0,
+          0.5,
+          0
+        ],
+        "width": 1.44,
+        "height": 1.08
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/motion/sheet-hang/fine/renders/left.png",
+      "sha256": "a7813f00dbc12654bbe05ef3fa09d544fc39d560d728a01de94f2d559fe8e84d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -15.65685424949238,
+          0.5,
+          0
+        ],
+        "target": [
+          0,
+          0.5,
+          0
+        ],
+        "width": 1.44,
+        "height": 1.08
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/motion/sheet-hang/fine/renders/right.png",
+      "sha256": "a7813f00dbc12654bbe05ef3fa09d544fc39d560d728a01de94f2d559fe8e84d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          15.65685424949238,
+          0.5,
+          0
+        ],
+        "target": [
+          0,
+          0.5,
+          0
+        ],
+        "width": 1.44,
+        "height": 1.08
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/motion/sheet-hang/fine/renders/threeQuarter.png",
+      "sha256": "5bc269e85b1e3f1859b67652880567f68226aca92bc5d5be0a7721fd2f70e0c5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.6337887462064207,
+          1.8339829252357387,
+          1.633788746206421
+        ],
+        "target": [
+          0,
+          0.5,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/motion/sheet-hang/fine/renders/phone.png",
+      "sha256": "26f5dd8973d6c10f9e9e03fcb59887bada891530878858bcad7d0de00448f8a1",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12
+        ],
+        "target": [
+          0,
+          1.5,
+          0
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

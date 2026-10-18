@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { girderDepth, BRIDGE } from "@japacity/assets-src/lm/third-mainland-span/build";
+import { girderDepth, BRIDGE } from "@japacity/models/landmarks/third-mainland-span/build";
 import { describe, expect, test } from "vitest";
 
 import { bakeGroup } from "./bake";
@@ -84,7 +84,7 @@ describe("the long landmark", () => {
     expect(girderDepth(1)).toBeCloseTo(6.5, 6);
     expect(girderDepth(-1)).toBeCloseTo(6.5, 6);
     expect(girderDepth(0.5) - girderDepth(0)).toBeLessThan(0.2);
-    const outline = readJson<{ views: { view: string; modelRange?: number[] }[] }>(join(SOURCE, "lm", "third-mainland-span", "outline.json"));
+    const outline = readJson<{ views: { view: string; modelRange?: number[] }[] }>(join(SOURCE, "landmarks", "third-mainland-span", "outline.json"));
     const elevation = outline.views.find((v) => v.view === "front");
     expect((elevation?.modelRange?.[1] ?? 0) - (elevation?.modelRange?.[0] ?? 0)).toBe(3 * BRIDGE.bay);
     expect(outline.views.map((v) => v.view)).toContain("plan");

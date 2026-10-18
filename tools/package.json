@@ -12,7 +12,7 @@
     "@gltf-transform/extensions": "4.5.1",
     "@gltf-transform/functions": "4.5.1",
     "@japacity/assets": "workspace:*",
-    "@japacity/assets-src": "workspace:*",
+    "@japacity/models": "workspace:*",
     "@japacity/content": "workspace:*",
     "@japacity/sim": "workspace:*",
     "eslint": "^10.12.0",

@@ -30,7 +30,7 @@ export interface VehicleSpec {
   land: RideLand;
 }
 
-// The seats as the models' builds export them (assets-src/veh/<vehicle>/build.ts): CALGARY_BUS_SEAT, CTRAIN_SEAT,
+// The seats as the models' builds export them (models/vehicles/<vehicle>/build.ts): CALGARY_BUS_SEAT, CTRAIN_SEAT,
 // METRO_SEAT, LABOUR_BUS_SEAT, TAXI_SEAT, ITALY_BUS_SEAT and VAN_SEAT. A test holds them equal.
 const CALGARY_BUS_SEAT: RideSeat = { eye: [-0.86, 1.6, -2.61], window: [-6, 1.2, 0.49], ahead: [-0.4, 1.4, 11.99] };
 const CTRAIN_SEAT: RideSeat = { eye: [-1.04, 2.2, -7.72], window: [-8, 1.9, -4.5], ahead: [-0.6, 2, 6] };

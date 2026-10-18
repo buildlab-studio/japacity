@@ -32,7 +32,7 @@ Models are written as code, built and compressed in Node, shot headless in the P
 
 ```
 packages/assets/                     the palette (assets:colours-from-named-palette), the kit of parts, the pattern code, the loader
-assets-src/                          never shipped
+models/                          never shipped
   <category>/<name>/                 build.ts or spec.json, outline.json, review.json, renders/
   people/                            bodies, clothes, hair, poses
   stage/                             the shooting page: lights, sky, ground, the phone street

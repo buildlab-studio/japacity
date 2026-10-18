@@ -1,0 +1,33 @@
+{
+  "asset": "prop_wardrobe",
+  "file": "public/assets/shared/prop/prop_wardrobe.glb",
+  "fileSha256": "be79c6770d15d1d03aa7385a524f81bb574e04c2006f21f87d5c4a2f0bb8b905",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/home/wardrobe/renders/tile.png",
+      "sha256": "4eeb903efc676e70a7a76502861ca55e09597c2ab711f6064f68f48b56ad7239",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.140633977999876,
+          3.7037943298289093,
+          3.107789749809321
+        ],
+        "target": [
+          0.02047530892057232,
+          1.1561954445736542,
+          -0.012368919269982919
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

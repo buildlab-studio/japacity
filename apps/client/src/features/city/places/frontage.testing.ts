@@ -7,7 +7,7 @@ import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { expect, test } from "vitest";
 
-import budgets from "../../../../../../assets-src/budgets.json";
+import budgets from "../../../../../../models/budgets.json";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";

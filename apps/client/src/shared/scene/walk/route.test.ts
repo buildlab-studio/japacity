@@ -13,7 +13,7 @@ import { CELL, CLEARANCE, FREE, groundAt, HARD, type Point, routeMap } from "./m
 import { findRoute } from "./route";
 
 const ROOT = join(import.meta.dirname, "..", "..", "..", "..", "..", "..");
-const PATHS = { root: ROOT, source: join(ROOT, "assets-src"), public: join(ROOT, "apps", "client", "public", "assets"), dist: "" };
+const PATHS = { root: ROOT, source: join(ROOT, "models"), public: join(ROOT, "apps", "client", "public", "assets"), dist: "" };
 const hub = (hubFile as unknown as PlaceFile).stage as Stage;
 
 /** Every footprint a stage's models carry, read from the shipped files as the city reads them. */

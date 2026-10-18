@@ -10,7 +10,7 @@ import { content, partnerMeetings } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import budgets from "../../../../../../assets-src/budgets.json";
+import budgets from "../../../../../../models/budgets.json";
 import { checkWalkable, placedBoxes, standingProblem } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";
 import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";

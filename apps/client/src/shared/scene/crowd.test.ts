@@ -202,7 +202,7 @@ describe("the same people on the same day", () => {
 
 describe("the roster", () => {
   test("[city:dress-mix-by-place] given every person the crowd may show, when the roster is read against the people's data, then each is shipped and a man or a woman as built", async () => {
-    const { ALL_PEOPLE } = await import("@japacity/assets-src/people/people.data");
+    const { ALL_PEOPLE } = await import("@japacity/models/people/people.data");
     const wrong = ROSTER.filter((person) => !ALL_PEOPLE.some((built) => `shared/chr/${built.name}.glb` === person.file && built.body.startsWith(person.sex)));
     expect(wrong.map((person) => person.file)).toEqual([]);
     expect(pool.length).toBe(hubFile.people.sample.length);
@@ -398,7 +398,7 @@ describe("one sample, many outfits", () => {
   });
 
   test("[city:dress-mix-by-place] given every person the crowd may show, when their clothes are read from the people's data, then no two wear the same outfit", async () => {
-    const { ALL_PEOPLE } = await import("@japacity/assets-src/people/people.data");
+    const { ALL_PEOPLE } = await import("@japacity/models/people/people.data");
     const outfit = (file: string): string => {
       const built = ALL_PEOPLE.find((spec) => `shared/chr/${spec.name}.glb` === file);
       return JSON.stringify([built?.top, built?.bottom, built?.over, built?.patterns, built?.head, built?.headFab]);

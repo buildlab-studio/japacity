@@ -1,0 +1,230 @@
+{
+  "asset": "lm_third-mainland-span",
+  "file": "public/assets/places/third-mainland-bridge/lm_third-mainland-span.glb",
+  "fileSha256": "c8fb17e12fe90ffe1ba6f9244f8a162c026a44000205736213dbd628a5fe2579",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/landmarks/third-mainland-span/renders/front.png",
+      "sha256": "42f5ee1d1de2873aba199d6d8ad04aa5854072b21759c652db1b6664ae869312",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          9.899999642372132,
+          2371.025470684339
+        ],
+        "target": [
+          0,
+          9.899999642372132,
+          0
+        ],
+        "width": 636.12,
+        "height": 477.09000000000003
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/landmarks/third-mainland-span/renders/back.png",
+      "sha256": "2a7f803742cb4a6178e82456e5a02f8d5934785a4db77e947ab87dbf13566a00",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          9.899999642372132,
+          -2371.025470684339
+        ],
+        "target": [
+          0,
+          9.899999642372132,
+          0
+        ],
+        "width": 636.12,
+        "height": 477.09000000000003
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/landmarks/third-mainland-span/renders/left.png",
+      "sha256": "754e95f08f962dc8faff681ec933c52532bd11992fb6498b726857cd5de381de",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -2371.025470684339,
+          9.899999642372132,
+          0
+        ],
+        "target": [
+          0,
+          9.899999642372132,
+          0
+        ],
+        "width": 35.64306527909177,
+        "height": 26.73229895931883
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/landmarks/third-mainland-span/renders/right.png",
+      "sha256": "b50497939b5ca0dcdf8b88da2a6e968486c628416aaca3203484c64b52808723",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          2371.025470684339,
+          9.899999642372132,
+          0
+        ],
+        "target": [
+          0,
+          9.899999642372132,
+          0
+        ],
+        "width": 35.64306527909177,
+        "height": 26.73229895931883
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/landmarks/third-mainland-span/renders/threeQuarter.png",
+      "sha256": "fa446b8598284b645049233a655dfda6284b30167784efffa5c0dcfde251588e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          681.9014019774218,
+          566.6701628867598,
+          681.9014019774219
+        ],
+        "target": [
+          0,
+          9.899999642372132,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/landmarks/third-mainland-span/renders/plan.png",
+      "sha256": "c2702ad850ad15f9959ce6577b787be10983769c0d914524560a451487fef0f0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          2380.925470326711,
+          0
+        ],
+        "target": [
+          0,
+          9.899999642372132,
+          0
+        ],
+        "width": 636.12,
+        "height": 477.09000000000003
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/landmarks/third-mainland-span/renders/phone.png",
+      "sha256": "aedf5e095d9a9a9545b3c5693637aa428860f8ba65ac6666045d230b42b73519",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          28.501419110690634
+        ],
+        "target": [
+          0,
+          4.5,
+          16.501419110690634
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phoneFar",
+      "file": "models/landmarks/third-mainland-span/renders/phoneFar.png",
+      "sha256": "262ff9926f1792934579ad2e1d882fac0cbe1bad22269972f383d49c7c23c5d2",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          40,
+          2,
+          260
+        ],
+        "target": [
+          -90,
+          6,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/landmarks/third-mainland-span/renders/tile.png",
+      "sha256": "4ca0f3529534dbc69ba2ff53ac892c73593e42f67af5048a50619c3b0eeac4b5",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          570.3128735780429,
+          418.862294024244,
+          510.03629859185304
+        ],
+        "target": [
+          39.96331585514819,
+          -14.166306553031143,
+          -20.313259131041658
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

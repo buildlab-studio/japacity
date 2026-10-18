@@ -7,7 +7,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
-import budgets from "../../../assets-src/budgets.json" with { type: "json" };
+import budgets from "../../../models/budgets.json" with { type: "json" };
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { startReadyLife } from "./support/door";
 import { doAct, passCards } from "./support/live";

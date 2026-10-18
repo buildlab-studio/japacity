@@ -1,0 +1,181 @@
+{
+  "asset": "prop_glass-office",
+  "file": "public/assets/places/office-uk/prop_glass-office.glb",
+  "fileSha256": "8abf1e6bcc5a5144d8b16dbe7820e5bac9b6107788573ae3481f28a427f10cba",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/glass-office/renders/front.png",
+      "sha256": "d1156725f10a9dda1d01dc6b6c01ac2acdab196939984d0abb92741a0717db64",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2000000238418576,
+          29.375484139767845
+        ],
+        "target": [
+          0,
+          1.2000000238418576,
+          0
+        ],
+        "width": 3.5207999897003175,
+        "height": 2.6405999922752383
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/glass-office/renders/back.png",
+      "sha256": "75df79afbb0d0279f20358ca23b7447f532b627f098191b46aa747ffa67202f7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2000000238418576,
+          -29.375484139767845
+        ],
+        "target": [
+          0,
+          1.2000000238418576,
+          0
+        ],
+        "width": 3.5207999897003175,
+        "height": 2.6405999922752383
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/glass-office/renders/left.png",
+      "sha256": "e952538c80f0b21a7b7858efde6d8bec876a0f2814eccab76e9dd44e1e6954ef",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -29.375484139767845,
+          1.2000000238418576,
+          0
+        ],
+        "target": [
+          0,
+          1.2000000238418576,
+          0
+        ],
+        "width": 3.4560079002875144,
+        "height": 2.592005925215636
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/glass-office/renders/right.png",
+      "sha256": "4e12ad537d5298d837196eef80c6bb50347acd21e8579223b2074ba7f56bda7b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          29.375484139767845,
+          1.2000000238418576,
+          0
+        ],
+        "target": [
+          0,
+          1.2000000238418576,
+          0
+        ],
+        "width": 3.4560079002875144,
+        "height": 2.592005925215636
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/glass-office/renders/threeQuarter.png",
+      "sha256": "a2dd17cbe0caaef78a14711c90560189a0b43df6497ae0614c518ecf1dea0873",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.595945474942069,
+          5.769070371190036,
+          5.59594547494207
+        ],
+        "target": [
+          0,
+          1.2000000238418576,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/glass-office/renders/phone.png",
+      "sha256": "c2437870c333caa2ef737e903839b45470f6fcd7ebc7eaf772687a34ca939048",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.329986873150206
+        ],
+        "target": [
+          0,
+          1.5,
+          1.3299868731502065
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/glass-office/renders/tile.png",
+      "sha256": "5d93c188af18d9aef5ed6c8e9ada4b1fd0f5c0226d152e0fdb54e8cf7f76e62f",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.580127189839618,
+          5.401047366173801,
+          5.514565488725159
+        ],
+        "target": [
+          0.13331463862924825,
+          0.9537435411563103,
+          0.06775293751478881
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

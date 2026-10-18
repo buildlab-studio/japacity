@@ -8,7 +8,7 @@ import { defaultPaths } from "./assets-check";
 import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, describeMeasure, inputOf, type Measure, median, type PlaceMeasure, ROUTE_TAPS, routeCost, stagedPlaces, summarise } from "./place-check";
 import { readJson, REPO_ROOT } from "../repo";
 
-const budgets = readJson<Budgets>(join(REPO_ROOT, "assets-src", "budgets.json"));
+const budgets = readJson<Budgets>(join(REPO_ROOT, "models", "budgets.json"));
 const still: Measure = { drawCalls: 40, triangles: 40000, scriptUs: 10, frameMs: 30 };
 const measureOf = (moving: Partial<Measure>, mode: "low" | "high" = "high"): PlaceMeasure => ({ place: "place.x", mode, still, moving: { ...still, ...moving } });
 

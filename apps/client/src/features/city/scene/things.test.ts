@@ -167,7 +167,7 @@ describe("a seat", () => {
 
 describe("lying on a thing", () => {
   // The bed's mattress is 0.40 to 0.60 m with the wrapper over its foot to 0.64 and the pillow to 0.72; the couch's
-  // cushions are at 0.48 (assets-src/prop/furniture.ts). A fixed 0.5 would put the figure inside the mattress.
+  // cushions are at 0.48 (models/props/furniture.ts). A fixed 0.5 would put the figure inside the mattress.
   test("[world:things-are-tappable-models] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
     const lain = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose === "lie").map((act) => ({ folder, thing, act }))));
     const beds = lain.filter(({ thing }) => thing.file.endsWith("prop_bed.glb"));
@@ -181,7 +181,7 @@ describe("lying on a thing", () => {
       expect({ folder, onMattress: top >= 0.6 && top < 0.72, headToPillow: headToPillow(folder, thing, act) }).toEqual({ folder, onMattress: true, headToPillow: true });
     }
     // The family house's mattress on the floor (its sheet at 0.19 m, its pillow to 0.29) and the hostel's lower bunk (its
-    // mattress at 0.48 m, its pillow to 0.56; assets-src/prop/home/build.ts): each lain on, under the pillow's top, head to it.
+    // mattress at 0.48 m, its pillow to 0.56; models/props/home/build.ts): each lain on, under the pillow's top, head to it.
     for (const [file, low, high] of [["prop_mattress.glb", 0.16, 0.29], ["prop_bunk-bed.glb", 0.48, 0.56]] as const) {
       const found = lain.filter(({ thing }) => thing.file.endsWith(file));
       expect({ file, found: found.length > 0 }).toEqual({ file, found: true });

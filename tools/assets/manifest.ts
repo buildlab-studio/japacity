@@ -1,5 +1,5 @@
 // The manifest of every image the tools wrote (assets:no-reference-photos-kept): renders from the shooter and patterns
-// from the pattern builder, each with its hash. Any other image under assets-src or public/assets
+// from the pattern builder, each with its hash. Any other image under models or public/assets
 // fails the check, which is how a reference photo is kept out of the repository.
 import { createHash } from "node:crypto";
 import { existsSync, writeFileSync } from "node:fs";
@@ -41,7 +41,7 @@ export function hashInName(published: string): string | null {
 export function readManifest(path = MANIFEST_PATH): Manifest {
   if (!existsSync(path)) {
     return {
-      note: "Every image under assets-src and apps/client/public/assets, with its SHA-256: renders written by tools/assets/shoot.ts and patterns written by the pattern builder (assets:no-reference-photos-kept). No other image may be there.",
+      note: "Every image under models and apps/client/public/assets, with its SHA-256: renders written by tools/assets/shoot.ts and patterns written by the pattern builder (assets:no-reference-photos-kept). No other image may be there.",
       renders: {},
       patterns: {},
     };

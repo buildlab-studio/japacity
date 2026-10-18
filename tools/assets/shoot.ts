@@ -7,12 +7,12 @@
 // the interface cuts as a sticker (design page 09). A look the front door offers also gets its
 // portraits on the same clear ground: the face (128 square at scale 2), and the whole figure with
 // a hand on the hip and cheering (200 by 400 at scale 2), each from the game's own poses. Writes the pictures and a render manifest
-// beside them in the asset's renders folder, and their hashes into assets-src/manifest.json.
+// beside them in the asset's renders folder, and their hashes into models/manifest.json.
 // `--view` shoots only the views named, keeping the others' records.
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
-import { type PoseName, poseRotations } from "@japacity/assets-src/people/poses";
+import { type PoseName, poseRotations } from "@japacity/models/people/poses";
 import type { Page } from "@playwright/test";
 
 import { type CatalogEntry, findEntries, PUBLIC, type ViewName } from "./catalog";
@@ -134,7 +134,7 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
     file: `public/assets/${entry.file}`,
     fileSha256: sha256(glb),
     renderer: "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
-    stage: "assets-src/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+    stage: "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
     renders: mergeRecords(entry.views, kept, records),
   };
   writeFileSync(manifestPath, `${JSON.stringify(renderManifest, null, 2)}\n`);
