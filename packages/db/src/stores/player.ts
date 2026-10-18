@@ -1,4 +1,4 @@
-import { compareIds, pairIds, pairKey } from "@japacity/store";
+import { compareIds, pairIds, pairKey, refuse } from "@japacity/store";
 import type {
   CharacterRow,
   CharacterWrite,
@@ -21,7 +21,6 @@ import type { Handle, Queries } from "../handle";
 import { oneConnection } from "../handle";
 import { characters, commandLog, pairs, segments, snapshots } from "../schema";
 import { pgAuditStore } from "./audit";
-import { refuse } from "./result";
 import { pgWorldStore } from "./world";
 
 type SegmentSelect = typeof segments.$inferSelect;

@@ -1,9 +1,10 @@
 import type { DedicationLight, DedicationStore } from "@japacity/store";
+import { refuse } from "@japacity/store";
 import { asc, desc, eq, isNull, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { dedicationLights } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toLight(row: typeof dedicationLights.$inferSelect): DedicationLight {
   return { account: row.accountId, id: row.id, name: row.name, from: row.fromYear, to: row.toYear, litAt: row.litAt, approvedAt: row.approvedAt, approvedBy: row.approvedBy };

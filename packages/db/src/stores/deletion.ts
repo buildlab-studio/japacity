@@ -1,9 +1,10 @@
 import type { DeletionRow, DeletionStore } from "@japacity/store";
+import { refuse } from "@japacity/store";
 import { and, asc, eq, isNull, lte, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { deletions } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toDeletion(row: typeof deletions.$inferSelect): DeletionRow {
   return { account: row.account, accountHash: row.accountHash, requestedAt: row.requestedAt, dueAt: row.dueAt, completedAt: row.completedAt };

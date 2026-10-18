@@ -1,5 +1,6 @@
 import type { DeletionRow, DeletionStore } from "../types";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** R-ACCOUNT-017, R-ACCOUNT-018: an array of requests in the order they came. */
 export function memoryDeletionStore(): DeletionStore {

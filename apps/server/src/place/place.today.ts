@@ -1,6 +1,7 @@
 // R-CITY-036, R-CLOCK-025: the day's seen list, the one thing a room keeps in
 // its storage. Names and looks only. Plain functions, so the router and the
 // Node tests import them without the Workers runtime.
+import { xorshift32 } from "@japacity/store";
 import { int, time } from "@japacity/sim";
 
 /** Who was seen today: never an account id, never a position. */
@@ -58,23 +59,10 @@ export function parseTodayList(value: unknown): TodayList | undefined {
   return { day: held.day, seen };
 }
 
-/** A small integer generator (xorshift32), so a draw is a pure function of its seed. */
-function generator(seed: number): () => number {
-  let state = seed >>> 0 || 0x9e3779b9;
-  return () => {
-    state ^= state << 13;
-    state >>>= 0;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    state >>>= 0;
-    return state;
-  };
-}
-
 /** R-CLOCK-028: at most `n` of the day's list, none of them here now, drawn afresh by the seed. */
 export function drawToday(seen: readonly Seen[], here: readonly Seen[], n: number, seed: number): Seen[] {
   const pool = seen.filter((each) => !here.some((member) => same(member, each))).map((each) => ({ name: each.name, look: each.look }));
-  const next = generator(seed);
+  const next = xorshift32(seed);
   for (let index = pool.length - 1; index > 0; index--) {
     const other = next() % (index + 1);
     const held = pool[index];

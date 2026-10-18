@@ -1,5 +1,6 @@
 import type { BlockRow, HoldRow, ModerationStore, ReportRow } from "../pair.types";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** R-PAIR-015, R-PAIR-016, R-MODERATION-001 to 009: blocks, reports and their holds in arrays. */
 export function memoryModerationStore(): ModerationStore {

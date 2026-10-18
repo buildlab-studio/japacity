@@ -1,6 +1,7 @@
 import { sameDraw } from "../draw";
 import type { DrawRow, TicketRow, WorldStore, WorldTickRow } from "../types";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** R-CLOCK-010, R-CLOCK-013, R-LOTTERY-005 to 015: ticks, draws and tickets in maps. */
 export function memoryWorldStore(): WorldStore {

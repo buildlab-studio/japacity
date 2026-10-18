@@ -1,5 +1,6 @@
 import type { AccountRow, AccountStore } from "../types";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** R-ACCOUNT-024: usernames are compared whatever the capitals. */
 function fold(username: string): string {

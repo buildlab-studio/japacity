@@ -1,9 +1,10 @@
 import type { AccountRow, AccountStore } from "@japacity/store";
+import { refuse } from "@japacity/store";
 import { and, asc, eq, inArray, lt, ne, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { accounts } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 export function toAccount(row: typeof accounts.$inferSelect): AccountRow {
   return {

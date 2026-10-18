@@ -1,9 +1,10 @@
 import type { AppealRow, AppealStore, BannedIdentityStore, FeedbackRow, FeedbackStore, ModerationLogEntry, ModerationLogStore } from "@japacity/store";
+import { refuse } from "@japacity/store";
 import { and, asc, desc, eq, lt, sql } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { appeals, bannedIdentities, feedback, feedbackSends, moderationLog } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toEntry(row: typeof moderationLog.$inferSelect): ModerationLogEntry {
   const entry: ModerationLogEntry = { id: row.id, admin: row.admin, at: row.at, item: row.item, action: row.action, params: row.params, reason: row.reason };

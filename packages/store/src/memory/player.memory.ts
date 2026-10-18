@@ -15,7 +15,9 @@ import type {
   TxStores,
   Work,
 } from "../types";
-import { accept, copy, makeLock, refuse } from "./copy.memory";
+import { makeLock } from "../lock";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** Everything stored for one character. */
 interface Stored {

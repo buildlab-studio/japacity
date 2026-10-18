@@ -1,9 +1,10 @@
 import type { BlockRow, HoldRow, ModerationStore, ReportRow } from "@japacity/store";
+import { refuse } from "@japacity/store";
 import { and, asc, eq, gt, gte, inArray, or } from "drizzle-orm";
 
 import type { Handle } from "../handle";
 import { blocks, holds, reports } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 function toReport(row: typeof reports.$inferSelect): ReportRow {
   const { id, reporter, subject, reason, cites, pair, unverified, at, status, outcome, decidedAt } = row;

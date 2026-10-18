@@ -1,13 +1,10 @@
 import type { InviteRow, InviteStore, RewardRow } from "../pair.types";
-import { compareIds } from "../keys";
-import { accept, copy, refuse } from "./copy.memory";
+import { distinctPairKeys } from "../keys";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 function namesCharacter(row: InviteRow, character: string): boolean {
   return row.from === character || row.by === character;
-}
-
-function distinctKeys(rows: readonly InviteRow[]): string[] {
-  return [...new Set(rows.flatMap((row) => (row.pair === null ? [] : [row.pair])))].sort(compareIds);
 }
 
 /** R-PAIR-007 to 009: links in the order they were made, and the rewards given. */
@@ -38,8 +35,8 @@ export function memoryInviteStore(): InviteStore {
       Object.assign(row, { used: false, by: null, pair: null, usedAt: null, before: [] });
       return Promise.resolve(accept(row));
     },
-    pairsOf: (character) => Promise.resolve(distinctKeys(invites.filter((row) => row.used && namesCharacter(row, character)))),
-    pairs: () => Promise.resolve(distinctKeys(invites.filter((row) => row.used))),
+    pairsOf: (character) => Promise.resolve(distinctPairKeys(invites.filter((row) => row.used && namesCharacter(row, character)))),
+    pairs: () => Promise.resolve(distinctPairKeys(invites.filter((row) => row.used))),
     linkedBy: (friend) => Promise.resolve(copy(invites.filter((row) => row.used && row.by === friend).sort((x, y) => (x.usedAt ?? 0) - (y.usedAt ?? 0)))),
     rewards: (from) => Promise.resolve(copy(rewards.filter((row) => row.from === from))),
     reward: (row) => {

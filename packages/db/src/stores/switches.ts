@@ -1,11 +1,11 @@
 import type { DialChange, SettingChange, SwitchRow, SwitchStore } from "@japacity/store";
-import { DEFAULT_SWITCH_ROW, isDialValue } from "@japacity/store";
+import { DEFAULT_SWITCH_ROW, isDialValue, refuse } from "@japacity/store";
 import { asc, eq, sql } from "drizzle-orm";
 import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 
 import type { Handle, Queries } from "../handle";
 import { switchLog, switches } from "../schema";
-import { accept, refuse } from "./result";
+import { accept } from "./result";
 
 const ONE = 1;
 

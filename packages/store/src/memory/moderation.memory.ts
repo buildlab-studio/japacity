@@ -1,5 +1,6 @@
 import type { AppealRow, AppealStore, BannedIdentityStore, FeedbackRow, FeedbackStore, ModerationLogEntry, ModerationLogStore } from "../moderation.types";
-import { accept, copy, refuse } from "./copy.memory";
+import { refuse } from "../result";
+import { accept, copy } from "./copy.memory";
 
 /** R-MODERATION-015: an array that only grows. */
 export function memoryModerationLogStore(): ModerationLogStore {

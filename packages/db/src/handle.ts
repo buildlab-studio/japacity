@@ -1,5 +1,6 @@
 // How the stores reach the database. Both drivers give the same query builder,
 // so a store is written once against `Queries`.
+import { makeLock } from "@japacity/store";
 import { sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 
@@ -12,19 +13,6 @@ export interface Handle {
   read: <T>(run: (db: Queries) => Promise<T>) => Promise<T>;
   /** One transaction: committed when `run` resolves, rolled back and rethrown when it throws. */
   transaction: <T>(run: (tx: Queries) => Promise<T>) => Promise<T>;
-}
-
-/**
- * One async lock: each call waits for the one before to settle, and a failed
- * call releases it too.
- */
-function makeLock(): <T>(run: () => Promise<T>) => Promise<T> {
-  let last: Promise<unknown> = Promise.resolve();
-  return <T>(run: () => Promise<T>): Promise<T> => {
-    const next = last.then(run);
-    last = next.catch(() => undefined);
-    return next;
-  };
 }
 
 /**
