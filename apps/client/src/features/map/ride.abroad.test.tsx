@@ -19,10 +19,10 @@ import { alongOf, LINES, lineOf, vehicleFile } from "./Ride";
 import { fareTile, WAY_MODEL } from "./RideSheet";
 import { anglesOf, buildRide, LONDON_SEAT, PRE_MS, RIDE_MS } from "./rideScene";
 import { addLateWords } from "../../shared/words/late";
-import { londonWords } from "../../shared/words/tables/london.words";
+import { londonText } from "../../shared/words/tables/london.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
-addLateWords(londonWords);
+addLateWords(londonText);
 
 const UK: CountryChoice = { id: "country.uk", name: "United Kingdom", locked: null };
 const PECKHAM = "place.peckham";

@@ -2,7 +2,7 @@
 // and acts of its places, the colleagues' lines, the talk overheard there and the ride's lines on the bus, the CTrain and
 // the taxi. In the voice of docs/rules/text.md; content's table wins over these. Kept in a chunk of their own
 // and added once the life is in Canada (late.ts), so a first visit at home carries none of them (engine.md R-ENGINE-020).
-export const calgaryWords: Readonly<Record<string, string>> = {
+export const calgaryText: Readonly<Record<string, string>> = {
   // The strip mall (design page 15 section 3): the coffee shop, the African store with its transfer counter, the barber.
   "city.thing.coffee-shop": "Coffee shop",
   "city.act.coffee": "A coffee",

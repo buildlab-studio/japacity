@@ -8,10 +8,10 @@ const loading = new Map<string, Promise<void>>();
 
 /** Each country's table, fetched by a dynamic import so it rides a chunk of its own. */
 const TABLES: Readonly<Record<string, () => Promise<Readonly<Record<string, string>>>>> = {
-  "country.uk": () => import("../../shared/words/tables/london.words").then((table) => table.londonWords),
-  "country.canada": () => import("../../shared/words/tables/calgary.words").then((table) => table.calgaryWords),
-  "country.uae": () => import("../../shared/words/tables/dubai.words").then((table) => table.dubaiWords),
-  "country.italy": () => import("../../shared/words/tables/castel.words").then((table) => table.castelWords),
+  "country.uk": () => import("../../shared/words/tables/london.words").then((table) => table.londonText),
+  "country.canada": () => import("../../shared/words/tables/calgary.words").then((table) => table.calgaryText),
+  "country.uae": () => import("../../shared/words/tables/dubai.words").then((table) => table.dubaiText),
+  "country.italy": () => import("../../shared/words/tables/castel.words").then((table) => table.castelText),
 };
 
 /** Whether a country abroad has words of its own to fetch. */

@@ -2,7 +2,7 @@
 // places, the colleagues' lines, the talk overheard there and the ride's lines on the bus and the train. In
 // the voice of docs/rules/text.md; content's table wins over these. Kept in a chunk of their own and added once the life
 // is in the UK (late.ts), so a first visit at home carries none of them (engine.md R-ENGINE-020).
-export const londonWords: Readonly<Record<string, string>> = {
+export const londonText: Readonly<Record<string, string>> = {
   // London on the Lagos mold (world.md R-WORLD-039, streets.md R-STREET-012, place.md R-PLACE-012): Rye Lane's shops, the
   // station, and the workplaces with a door, each with its things; a job held shows On shift on its thing.
   "city.thing.chicken-shop": "Chicken shop",

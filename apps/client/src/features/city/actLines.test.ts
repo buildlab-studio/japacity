@@ -11,10 +11,10 @@ import { builtPlaces } from "./scene.testing";
 import { sceneWords } from "./scene.words";
 import { thingsOf } from "./things";
 import { addLateWords } from "../../shared/words/late";
-import { londonWords } from "../../shared/words/tables/london.words";
+import { londonText } from "../../shared/words/tables/london.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
-addLateWords(londonWords);
+addLateWords(londonText);
 
 /** Every thing's acts in every built place, with the place's folder. */
 const ACTS = builtPlaces().flatMap(({ folder, file }) => thingsOf(stageOf(file)).flatMap((thing) => thing.acts.map((act) => ({ folder, thing, act }))));

@@ -2,11 +2,11 @@
 // tab names, headings, and the sentences that explain a requirement. First
 // drafts in the voice of docs/rules/text.md. Every key here is a candidate to
 // move into content, where it can be rewritten. Numbers go in braces.
-import { boardsWords } from "./boards.words";
+import { boardsText } from "./boards.words";
 import { coloursText } from "./colours.words";
 import { daysText } from "../../days/days.words";
 import { livelyText } from "./lively.words";
-import { lotteryWords } from "./lottery.words";
+import { lotteryUiText } from "./lottery.words";
 import { onlineText } from "./online.words";
 import { peopleText } from "./people.words";
 import { profileText } from "./profile.words";
@@ -14,8 +14,8 @@ import { worldText } from "./world.words";
 
 export const uiText: Record<string, string> = {
   ...onlineText,
-  ...lotteryWords,
-  ...boardsWords,
+  ...lotteryUiText,
+  ...boardsText,
   ...peopleText,
   ...worldText,
   ...livelyText,

@@ -10,10 +10,10 @@ import { cityText } from "../../features/city/city.words";
 import { sceneText } from "../../features/city/scene.words";
 import { mapText } from "../../features/map/map.words";
 import { calgaryMapText, castelMapText, dubaiMapText, londonMapText } from "../../features/map/paper/paper.words";
-import { londonWords } from "./tables/london.words";
-import { calgaryWords } from "./tables/calgary.words";
-import { castelWords } from "./tables/castel.words";
-import { dubaiWords } from "./tables/dubai.words";
+import { londonText } from "./tables/london.words";
+import { calgaryText } from "./tables/calgary.words";
+import { castelText } from "./tables/castel.words";
+import { dubaiText } from "./tables/dubai.words";
 import { phoneText } from "../../features/phone/phone.words";
 import { roomText } from "../../features/setpiece/room.words";
 import { turnText } from "../../features/turn/turn.words";
@@ -31,14 +31,14 @@ const clientTables: Record<string, Record<string, string>> = {
   scene: sceneText,
   map: mapText,
   london: londonMapText,
-  londonPlaces: { ...londonWords },
+  londonPlaces: { ...londonText },
   // Calgary's, Dubai's and Castel Volturno's papers and places, each a chunk of its own in the game.
   calgary: calgaryMapText,
   dubai: dubaiMapText,
   castel: castelMapText,
-  calgaryPlaces: { ...calgaryWords },
-  dubaiPlaces: { ...dubaiWords },
-  castelPlaces: { ...castelWords },
+  calgaryPlaces: { ...calgaryText },
+  dubaiPlaces: { ...dubaiText },
+  castelPlaces: { ...castelText },
   phone: phoneText,
   room: roomText,
   turn: turnText,
