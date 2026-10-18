@@ -103,7 +103,7 @@ describe("[wallet:passbook-against-plan-cost] the money held for the road and th
     expect(passbook(game).target?.route).toBe(CARE_ROUTE);
   });
 
-  test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given the nurse whose plan is care work, when the passbook is read, then the target is every paper she still needs, the visa's fee and the flight, all in naira", () => {
+  test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given the nurse whose plan is health care, when the passbook is read, then the target is every paper she still needs, the visa's fee and the flight, all in naira", () => {
     const game = planOn(nurse(), CARE_ROUTE);
     const view = game.view();
     const target = passbook(game).target!;
@@ -307,7 +307,7 @@ describe("[wallet:roads-to-the-target] the roads to it", () => {
     expect(road(game, "family")).toMatchObject({ via: "activity.ask-family-loan", state: "shut", needs: [{ type: "quality/max", quality: "quality.family-stake", value: 0 }] });
   });
 
-  test("[wallet:roads-to-the-target] [luck:japa-luck-in-existing-systems] given the master's as the plan, when the roads are read, then the family's road is the family meeting and the scholarship round is a road; for care work there is no scholarship", () => {
+  test("[wallet:roads-to-the-target] [luck:japa-luck-in-existing-systems] given the master's as the plan, when the roads are read, then the family's road is the family meeting and the scholarship round is a road; for health care there is no scholarship", () => {
     const ada = replay("ada-careful", 160);
     expect(road(ada, "family")?.via).toBe("activity.family-meeting");
     expect(road(ada, "scholarship")?.via).toBe("offer.scholarship-round");

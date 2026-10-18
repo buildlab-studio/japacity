@@ -34,7 +34,7 @@ The ready lives are kept in content as fixed scenarios with people's names, but 
 | The nurse | 27 | A staff nurse thirty months in, with a licence and a passport | ₦650,000 in the bank, ₦30,000 cash | Upkeep ₦120,000, ₦40,000 sent home |
 | The teacher | 26 | A maths teacher four years in, who codes after marking | ₦350,000 in the bank | Upkeep ₦80,000, ₦25,000 sent home |
 
-Each tests something different. The graduate has everything still to build and the family can carry part of the weight. The banker has money and a job on day one and a harder file. The developer is closest to the pay that makes the funds easy and furthest from any help. The nurse is the life the care route is built for.
+Each tests something different. The graduate has everything still to build and the family can carry part of the weight. The banker has money and a job on day one and a harder file. The developer is closest to the pay that makes the funds easy and furthest from any help. The nurse is the life the health care route is built for.
 
 ::: details Where a ready life is not offered
 "Start from a ready life" shows only where a life may be started over, which is the local authority on the device. Online the server holds the life and the client cannot start one over by itself, so the entry is not shown there.

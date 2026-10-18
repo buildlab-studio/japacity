@@ -249,7 +249,7 @@ const words: Record<string, string> = {
   "prologue.page.close": "Close",
   "prologue.page.stamp.granted": "Visa granted",
   "prologue.page.way.route.uk-masters": "a UK master's",
-  "prologue.page.way.route.uk-care": "care work",
+  "prologue.page.way.route.uk-care": "health care",
   "prologue.page.way.route.uk-skilled": "skilled work",
   "prologue.page.way.route.canada-points": "Canada's points",
   "prologue.page.way.route.uk-talent": "the talent visa",

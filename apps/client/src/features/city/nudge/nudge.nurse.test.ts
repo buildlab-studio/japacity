@@ -44,7 +44,7 @@ function opensAt(view: PlayerView, here: string): ReturnType<typeof stepOpen> | 
   return stepOpen(way, stepThingHere(way, here, things), view.activities.filter((option) => option.allowed).map((option) => option.id), here);
 }
 
-/** The ready nurse in her care file: care work heard of at the meetup and its page read, the first chapter closed. */
+/** The ready nurse in her care file: health care heard of at the meetup and its page read, the first chapter closed. */
 function readyInTheFile(open = false): Game {
   const game = readyNurse("ready-nurse", open);
   hearCare(game);
@@ -107,7 +107,7 @@ describe("the nurse's way never opens a shut place", () => {
     }
   });
 
-  test("[world:map-is-painted-lagos] given the ready nurse before she hears of care work, when the stops are read, then the clinic is not yet; once care work is her plan it is open", () => {
+  test("[world:map-is-painted-lagos] given the ready nurse before she hears of health care, when the stops are read, then the clinic is not yet; once health care is her plan it is open", () => {
     const game = readyNurse();
     expect(reached(game.view(), CLINIC)).toBe(false);
     hearCare(game);
@@ -203,24 +203,24 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     expect(stepWayOf(view)?.app).toBe("papers");
   });
 
-  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given the tile's nurse at work who has heard of care work, when the page is next, then the nudge names the page in Japa in under eight words and its tap opens Japa, where the care page is one tap away", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given the tile's nurse at work who has heard of health care, when the page is next, then the nudge names the page in Japa in under eight words and its tap opens Japa, where the care page is one tap away", () => {
     const game = tileNurse("nurse-page");
     hire(game);
     const view = until(game, (now) => now.chapter.items.find((item) => item.id === "pay")?.met === true, 3);
     expect(view.chapter.items.find((item) => item.id === "known")?.met).toBe(false);
     const nudge = nudgeOf(view);
-    expect(nudge).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "care work" }, about: "step" });
+    expect(nudge).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "health care" }, about: "step" });
     // A step's `.needs` words open Japa on a tap (City.tsx's `nudgeNeeds`), never the map.
     expect(nudge.key.endsWith(".needs")).toBe(true);
     const said = say(nudge.key, nudge.params);
-    expect(said).toBe("Read about care work in Japa");
+    expect(said).toBe("Read about health care in Japa");
     expect(said.split(/\s+/).length).toBeLessThan(NUDGE_WORDS);
-    // Japa offers the page of the plan's way: care work is the plan and the page offers it.
+    // Japa offers the page of the plan's way: health care is the plan and the page offers it.
     expect(view.plan.route).toBe(CARE);
     expect(view.activities.find((option) => option.id === "activity.look-into-route")?.params).toContain(CARE);
   });
 
-  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given the tile's nurse at the known step, when the step's way is read, then it is the hub's desk opening the official page on care work, not the life's own way to its first job with no act", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given the tile's nurse at the known step, when the step's way is read, then it is the hub's desk opening the official page on health care, not the life's own way to its first job with no act", () => {
     const game = tileNurse("nurse-known-way");
     hire(game);
     const view = until(game, (now) => now.chapter.items.find((item) => item.id === "pay")?.met === true, 3);
@@ -277,7 +277,7 @@ describe("the nurse's waiting months and her licence", () => {
   });
 
   test("[world:nudge-says-one-thing] [document:one-pending-copy] [world:phone-holds-what-phones-hold] given the tile's nurse whose licence runs out in the care file, when the nudge is read, then it names the renewal on her phone, its tap opens the renewal's card in Papers, and once renewed the licence is held and the nudge moves on", () => {
-    // Care work stays shut to applicants from abroad: no sponsor answers and the file waits.
+    // Health care stays shut to applicants from abroad: no sponsor answers and the file waits.
     const game = tileNurse("nurse-licence");
     hire(game);
     readCare(game);

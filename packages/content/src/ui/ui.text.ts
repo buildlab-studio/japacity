@@ -417,7 +417,7 @@ export const uiText: Record<string, string> = {
   "ui.offer.amount": "How much",
   "ui.offer.bounds": "From {min} up to {max}",
   "ui.offer.job": "{job}, paying {amount} a month",
-  "ui.offer.job-ends": "Taking it ends your months as a nurse. The care route needs twenty-four of them.",
+  "ui.offer.job-ends": "Taking it ends your months as a nurse. The health care route needs twenty-four of them.",
   "ui.offer.choice-cost": "{choice}: {amount}",
   "ui.offer.outcome": "What changed",
   "ui.offer.outcome-none": "Done. Nothing else moved.",

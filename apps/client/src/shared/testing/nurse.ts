@@ -25,7 +25,7 @@ const OPEN = 2;
 let walked: World[] = [];
 
 /**
- * The stand-in world, with UK care work open to applicants from abroad from the first month when `open`: the window
+ * The stand-in world, with UK health care open to applicants from abroad from the first month when `open`: the window
  * the director opens some time in a life (route-gates:care-route-needs-verification), opened here so a test reaches the sponsor in its own months.
  */
 function worldAt(open: boolean): ((tick: number) => World) | undefined {
@@ -43,7 +43,7 @@ function begin(scenario: Id<"scenario">, seed: string, open: boolean): Game {
   return start({ scenario, seed, content, worldSeed: WORLD_SEED, ...(at === undefined ? {} : { worldAt: at }) });
 }
 
-/** The tile's nurse, handed over: its preset answers while allowed, else the answer that suits it. `open`: care work open from abroad. */
+/** The tile's nurse, handed over: its preset answers while allowed, else the answer that suits it. `open`: health care open from abroad. */
 export function tileNurse(seed: string, open = false): Game {
   const archetype = archetypeOf("nurse");
   if (archetype === null) throw new Error("No nurse tile.");
@@ -57,15 +57,15 @@ export function tileNurse(seed: string, open = false): Game {
   return game;
 }
 
-/** The ready nurse: thirty months on the ward, the licence and the passport held. `open`: care work open from abroad. */
+/** The ready nurse: thirty months on the ward, the licence and the passport held. `open`: health care open from abroad. */
 export function readyNurse(seed = "ready-nurse", open = false): Game {
   return begin("scenario.ngozi", seed, open);
 }
 
-/** Care work heard of at the meetup: the ready nurse's first step. */
+/** Health care heard of at the meetup: the ready nurse's first step. */
 export function hearCare(game: Game, most = 6): void {
   for (let guard = 0; guard < most && (game.state.route[CARE]?.state ?? "unknown") === "unknown"; guard += 1) month(game, [{ activity: "activity.meetup", param: null }]);
-  if ((game.state.route[CARE]?.state ?? "unknown") === "unknown") throw new Error("Care work was never heard of.");
+  if ((game.state.route[CARE]?.state ?? "unknown") === "unknown") throw new Error("Health care was never heard of.");
 }
 
 /** Answers whatever waits: a set piece's first allowed answer, a job or a sponsor taken, every other ask the quiet way. */
@@ -112,9 +112,9 @@ export function hire(game: Game, months = 8): void {
   if (game.state.activity.job !== NURSE_JOB) throw new Error("The clinic never took her.");
 }
 
-/** Care work heard of (the send-off's nurses, or the meetup) and its page read. */
+/** Health care heard of (the send-off's nurses, or the meetup) and its page read. */
 export function readCare(game: Game): void {
-  if ((game.state.route[CARE]?.state ?? "unknown") === "unknown") throw new Error("Care work is not heard of.");
+  if ((game.state.route[CARE]?.state ?? "unknown") === "unknown") throw new Error("Health care is not heard of.");
   game.accept({ type: "activity/now", activity: PAGE, param: CARE });
 }
 

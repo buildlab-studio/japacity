@@ -36,7 +36,7 @@ describe("what each act counts toward", () => {
   test("[activity:waiting-months-build-profile] given the master's and the developer's acts, when their lines are read, then the master's counts toward Canada's points and open source toward the talent route", () => {
     expect(countsWords("activity.masters-at-home")).toBe("Counts toward: Canada's points");
     expect(countsWords("activity.open-source")).toBe("Counts toward: the talent route");
-    expect(countsWords("activity.nurse-certification")).toBe("Counts toward: care work in the UK");
+    expect(countsWords("activity.nurse-certification")).toBe("Counts toward: health care in the UK");
     expect(countsWords("activity.be-noticed")).toBe("Counts toward: the study visa and Canada's points");
   });
 

@@ -46,7 +46,7 @@ flowchart LR
 
 1. **Get a job.** At the hub, the jobs board lists every job the life may hunt, with its pay and its chance in words, from "Likely" to "A long shot", and the jobs not open yet below. Looking for a job is answered now: the application goes in at once and the employer answers with the month's end, as a job offer that waits on the asks sheet.
 2. **Work one month in it.** Accept the offer, then live a month in the job and sleep. The first salary leads the month's results as payday.
-3. **Hear of a way out.** The first meetup of a life hears for sure of the way that fits it: care work for a nurse, tech work for a developer, else the master's. The first time a trade asks around at the motor park, it hears of the Gulf for sure.
+3. **Hear of a way out.** The first meetup of a life hears for sure of the way that fits it: health care for a nurse, tech work for a developer, else the master's. The first time a trade asks around at the motor park, it hears of the Gulf for sure.
 4. **Look into it.** Read the way's official page, ask someone who went, see an adviser or an agent. Any of them moves the way from heard to known.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">

@@ -36,7 +36,7 @@ flowchart TD
   H -->|"no"| M["the UK master's"]
 ```
 
-A tie in the same month is broken in content's order: care, talent, points, the Gulf, then the master's. The lean is read again each time a chapter closes (`leanRoute` in `packages/sim/src/chapter/chapter.logic.ts`).
+A tie in the same month is broken in content's order: health care, talent, points, the Gulf, then the master's. The lean is read again each time a chapter closes (`leanRoute` in `packages/sim/src/chapter/chapter.logic.ts`).
 
 The grant decides before all of this (chapter:chapters-follow-lean-route): once any route but the road is granted or flown (a partner's and a dependant's too), the chapters and the plan follow it, a grant finishes the chapters up to decision day, and the flight's turn closes them through the send-off (chapter:met-items-close-the-chapter).
 
@@ -50,7 +50,7 @@ The player can choose: `chapter/lean` makes a heard-of way the plan, while the c
 flowchart TD
   F["Build the file"] --> L{"the lean"}
   L -->|"the UK master's, the base"| MA["passport held<br/>transcript held<br/>English at band 6.0 or better<br/>an offer from a school"]
-  L -->|"UK care work"| CA["24 months as a nurse<br/>the nursing council's verification<br/>a sponsor found<br/>the visa applied for"]
+  L -->|"UK health care"| CA["24 months as a nurse<br/>the nursing council's verification<br/>a sponsor found<br/>the visa applied for"]
   L -->|"UK talent"| TA["a portfolio of 3 or more<br/>the endorsement held<br/>the visa applied for"]
   L -->|"Canada's points"| PO["the credential assessment<br/>English at band 6.0 or better<br/>in the pool<br/>invited to apply"]
   L -->|"the Gulf contract"| GU["passport held<br/>the medical held<br/>an agent with a contract<br/>the contract made"]

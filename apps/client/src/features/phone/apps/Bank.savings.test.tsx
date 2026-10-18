@@ -85,7 +85,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(savingsOf(view)).toEqual({ shown: funds?.have, required: funds?.need, currency: "GBP" });
   });
 
-  test("[world:phone-holds-what-phones-hold] given a nurse whose plan is care work, when the Bank opens, then the figure is the care visa's fee, in pounds", () => {
+  test("[world:phone-holds-what-phones-hold] given a nurse whose plan is health care, when the Bank opens, then the figure is the care visa's fee, in pounds", () => {
     const view = planOn(newGame("scenario.ngozi"), "route.uk-care").view();
     expect(savingsOf(view)).toMatchObject({ currency: "GBP", required: content.var["var.uk-care-visa-fee"]!.start });
   });

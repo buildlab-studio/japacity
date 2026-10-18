@@ -7,7 +7,7 @@ export const uiProfileText: Record<string, string> = {
   "ui.counts.and": "and",
   "ui.counts.route.route.uk-masters": "the study visa",
   "ui.counts.route.route.uk-talent": "the talent route",
-  "ui.counts.route.route.uk-care": "care work in the UK",
+  "ui.counts.route.route.uk-care": "health care in the UK",
   "ui.counts.route.route.uk-skilled": "the skilled worker visa",
   "ui.counts.route.route.canada-points": "Canada's points",
   "ui.counts.route.route.gulf-contract": "the Gulf contract",

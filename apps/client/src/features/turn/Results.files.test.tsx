@@ -104,7 +104,7 @@ describe("how the talk went", () => {
 });
 
 describe("a paper running out before the application", () => {
-  test("[document:one-pending-copy] [world:month-end-results-sheet] given the ready nurse with care work her plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
+  test("[document:one-pending-copy] [world:month-end-results-sheet] given the ready nurse with health care her plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
     const game = newGame("scenario.ngozi");
     const store = await storeOf(game);
     for (let months = 0; months < 6 && (game.state.route[CARE]?.state ?? "unknown") === "unknown"; months += 1) {

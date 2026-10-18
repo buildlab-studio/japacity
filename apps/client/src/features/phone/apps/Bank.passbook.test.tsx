@@ -22,7 +22,7 @@ import { passbookCount, shortNaira } from "./passbook.words";
 
 const CARE = "route.uk-care" as const;
 
-/** Ngozi with care work as her plan, looked into, a month lived so the pace shows. */
+/** Ngozi with health care as her plan, looked into, a month lived so the pace shows. */
 function nurse(months = 1) {
   const game = newGame("scenario.ngozi");
   const bars = (content.route[CARE]?.hearIf ?? []).flatMap((requirement): Effect[] => (requirement.type === "quality/min" ? [{ type: "quality/add", quality: requirement.quality, amount: requirement.value }] : []));

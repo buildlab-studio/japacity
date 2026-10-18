@@ -39,7 +39,7 @@ describe("the page's stamps", () => {
 
   test("[prologue:front-door-builds-a-person] given the visa granted, then its stamp is the first, with the way under it", () => {
     expect(stampsOf(life((view) => routeIn(view, UK_CARE, "granted")))).toEqual([visa]);
-    expect(visa.under).toBe("care work");
+    expect(visa.under).toBe("health care");
   });
 
   test("[prologue:front-door-builds-a-person] given the flight out, the landing and a status secured, then each stamps beneath the visa's, in the order a life takes them", () => {

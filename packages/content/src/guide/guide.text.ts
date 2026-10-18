@@ -102,7 +102,7 @@ export const guideText: Record<string, string> = {
   "guide.uk-care.section.real":
     "Since 22 July 2025 the care worker route has been closed to new applicants from abroad. Nurses can still come on the health and care visa with a sponsor: an employer that holds a licence and gives a certificate of sponsorship.\n\nA nurse trained outside the UK must be registered with the Nursing and Midwifery Council (NMC), which has its own costs. Since March 2024 Nigeria's nursing council asks for two years of work after licensing before it verifies a nurse for work abroad.\n\nThe employer pays for the certificate. Reporters and prosecutors have found people selling certificates, some for jobs that did not exist.",
   "guide.uk-care.section.game":
-    "In the game the care route starts closed and can open again with the news. A sponsor is an offer that may be real or a fraud, with signs you can read. The fees and salary lines are the real ones at the dates given, and the game keeps them fixed. The nursing council's verification comes in six to twelve months, drawn each time; the real time varies.",
+    "In the game the health care route starts closed and can open again with the news. A sponsor is an offer that may be real or a fraud, with signs you can read. The fees and salary lines are the real ones at the dates given, and the game keeps them fixed. The nursing council's verification comes in six to twelve months, drawn each time; the real time varies.",
   "guide.uk-care.section.next": "Read the NMC page on costs for nurses trained outside the UK, and the reporting on certificate fraud. A sponsor's licence can be checked on the UK government's public register of licensed sponsors.",
 
   // guide.uk-skilled

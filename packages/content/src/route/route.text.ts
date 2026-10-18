@@ -59,7 +59,7 @@ export const routeText: Record<string, string> = {
   "line.route.profile-lapsed": "Your profile for {route} has run out without an invitation. You can enter the pool again.",
   // The endorsement gate (route-gates:endorsement-decided-by-draw).
   "line.route.endorsement-refused": "The endorsing body did not back you for {route}. The letter was withdrawn. Build the work up, then ask again.",
-  "route.uk-care.name": "Care work in the UK",
+  "route.uk-care.name": "Health care in the UK",
   "route.uk-care.blurb":
     "A health and care visa with a sponsor's certificate. For nurses and carers, if the door is open to people applying from home.",
   "route.uk-care.item.licence": "Nursing licence held",
@@ -138,13 +138,13 @@ export const routeText: Record<string, string> = {
   "route.gulf-contract.item.applied": "Papers sent to the employer",
 
   // The plan the chapters follow and the switch between ways (chapter:chapters-follow-lean-route).
-  // Each way's name inside a sentence ("Instead of care work"), and the file its chapters build.
-  "route.uk-care.short": "care work",
+  // Each way's name inside a sentence ("Instead of health care"), and the file its chapters build.
+  "route.uk-care.short": "health care",
   "route.uk-masters.short": "the master's",
   "route.uk-talent.short": "the talent visa",
   "route.canada-points.short": "the points",
   "route.gulf-contract.short": "the Gulf",
-  "route.uk-care.file": "The care file",
+  "route.uk-care.file": "The health care file",
   "route.uk-masters.file": "The master's file",
   "route.uk-talent.file": "The talent file",
   "route.canada-points.file": "The points file",

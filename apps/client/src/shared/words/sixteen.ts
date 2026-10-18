@@ -135,7 +135,7 @@ export function openingKey(view: Life & Pick<PlayerView, "chapter">, has: (key: 
 
 /**
  * The way out a life's own profile fits, once heard of: a trade's is the Gulf (the motor park), and a degree's is the
- * first of the first meetup's fits whose bar it clears (guide:first-meetup-hears-fitting-route: care work for a nurse, the talent visa for a developer).
+ * first of the first meetup's fits whose bar it clears (guide:first-meetup-hears-fitting-route: health care for a nurse, the talent visa for a developer).
  * Null for a life whose way is the master's, the chapters' default, or whose own way is not yet heard of.
  */
 export function ownRouteOf(view: Life & Held): Id<"route"> | null {
@@ -161,7 +161,7 @@ export function wardMonths(view: Pick<PlayerView, "chapter"> & Partial<Pick<Play
 
 /**
  * The stops a life reaches before its chapter opens them: the nurse's clinic, where her job is,
- * and for any life whose plan is care work, or whose chapter is the care file's, the clinic where the council, the
+ * and for any life whose plan is health care, or whose chapter is the care file's, the clinic where the council, the
  * certification and the TB test are.
  */
 export function earlyStops(life: Life & Held & Partial<Pick<PlayerView, "plan" | "chapter">>): string[] {

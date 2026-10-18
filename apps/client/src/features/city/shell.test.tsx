@@ -430,7 +430,7 @@ describe("the archetypes' own ways", () => {
     expect(nudgeOf(done)).toEqual({ key: "ui.nudge.chapter-done", about: "end" });
   });
 
-  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given a nurse from sixteen in her job who has heard of care work and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given a nurse from sixteen in her job who has heard of health care and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {
     const nurse = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [], closes: false, next: null },
@@ -443,8 +443,8 @@ describe("the archetypes' own ways", () => {
       ],
     };
     // The page is read in Japa, one tap away, never a ride to the hub: `.needs` words open Japa.
-    expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "care work" }, about: "step" });
-    expect(say("chapter.find-your-feet.item.known.own.needs", { route: "care work" })).toBe("Read about care work in Japa");
+    expect(nudgeOf(nurse)).toEqual({ key: "chapter.find-your-feet.item.known.own.needs", params: { route: "health care" }, about: "step" });
+    expect(say("chapter.find-your-feet.item.known.own.needs", { route: "health care" })).toBe("Read about health care in Japa");
     expect(stepWayOf(nurse)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route", param: "route.uk-care" });
     // A graduate with no way of her own keeps the table's words, and her way still opens the page, with no route chosen, so its picker offers the routes heard.
     const graduate = { ...nurse, qualities: base.qualities.map((quality) => (quality.id === "quality.edu-level" ? { ...quality, value: 3 } : quality)), documents: [] };

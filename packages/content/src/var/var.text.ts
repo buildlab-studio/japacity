@@ -20,7 +20,7 @@ export const varText: Record<string, string> = {
   "var.ca-settle-months.name": "Months in Canada before citizenship",
   "var.ca-citizen-fee.name": "Canadian citizenship fee",
 
-  "var.uk-care-window.name": "UK care work window",
+  "var.uk-care-window.name": "UK health care visa window",
   "var.uk-skilled-window.name": "UK skilled work window",
   "var.uk-talent-window.name": "UK talent window",
   "var.ca-window.name": "Canada window",
@@ -43,7 +43,7 @@ export const varText: Record<string, string> = {
   "var.uk-talent-visa-fee.name": "Talent visa fee",
 
   "var.uk-study-surge.name": "Rush to UK study",
-  "var.uk-care-surge.name": "Rush to UK care work",
+  "var.uk-care-surge.name": "Rush to UK health care visas visas",
   "var.uk-skilled-surge.name": "Rush to UK skilled work",
   "var.uk-talent-surge.name": "Rush to the UK talent visa",
   "var.ca-surge.name": "Rush to Canada",

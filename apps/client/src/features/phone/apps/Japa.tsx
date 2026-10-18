@@ -323,7 +323,7 @@ function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) 
   );
 }
 
-/** "Your plan: Care work in the UK", the route's name its own element, with the file its chapters build beneath. */
+/** "Your plan: Health care in the UK", the route's name its own element, with the file its chapters build beneath. */
 function PlanHead({ route }: { route: Id<"route"> }) {
   const [before = "", after = ""] = say("phone.japa.plan", { route: "\u0000" }).split("\u0000");
   return (

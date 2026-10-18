@@ -72,7 +72,7 @@ describe("the nurse's months in Japa", () => {
 });
 
 describe("the nurse's way out and figure", () => {
-  test("[world:phone-holds-what-phones-hold] [chapter:chapters-follow-lean-route] [share:card-contents] given the tile's nurse whose care page is read while care work is shut to applicants from abroad, when Japa and the chapter's card show, then both name care work and its figure", async () => {
+  test("[world:phone-holds-what-phones-hold] [chapter:chapters-follow-lean-route] [share:card-contents] given the tile's nurse whose care page is read while health care is shut to applicants from abroad, when Japa and the chapter's card show, then both name health care and its figure", async () => {
     const game = tileNurse("nurse-page");
     hire(game);
     readCare(game);
@@ -84,7 +84,7 @@ describe("the nurse's way out and figure", () => {
     expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe(String(care?.percent));
     expect(document.querySelector("[data-japa-gloss]")).not.toBeNull();
     const face = cardFace(view.card!, view.scenario);
-    expect(face.route).toBe("Care work in the UK");
+    expect(face.route).toBe("Health care in the UK");
     expect(face.percent).toBe(care?.percent);
   });
 });

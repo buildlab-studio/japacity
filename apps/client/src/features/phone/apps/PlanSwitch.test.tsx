@@ -19,7 +19,7 @@ const UK: Id<"route"> = "route.uk-masters";
 const CARE: Id<"route"> = "route.uk-care";
 const LOOK = "activity.look-into-route";
 
-/** The nurse who has heard of the master's and of care work, and has read the care page. */
+/** The nurse who has heard of the master's and of health care, and has read the care page. */
 function nurseOnCare(): Game {
   const game = newGame("scenario.ngozi");
   for (let month = 0; month < 8 && game.state.route[CARE]?.state === "unknown"; month += 1) game.endTurn();
@@ -48,7 +48,7 @@ function percentOf(game: Game, route: Id<"route">): number {
 }
 
 describe("the switch on another way's page", () => {
-  test("[chapter:chapters-follow-lean-route] given the nurse on care, when the master's page is read, then the switch says the fall in japacity against care work, with Keep mine and Make this the plan", async () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse on care, when the master's page is read, then the switch says the fall in japacity against health care, with Keep mine and Make this the plan", async () => {
     const game = nurseOnCare();
     const change = percentOf(game, UK) - percentOf(game, CARE);
     expect(change).toBeLessThan(0);
@@ -56,7 +56,7 @@ describe("the switch on another way's page", () => {
     await showPage(game, UK);
     const block = document.querySelector("[data-plan-switch]");
     expect(block?.getAttribute("data-plan-switch")).toBe(UK);
-    expect(block?.textContent).toContain(say("route.plan.instead", { plan: "care work", change: `-${String(-change)}` }));
+    expect(block?.textContent).toContain(say("route.plan.instead", { plan: "health care", change: `-${String(-change)}` }));
     expect(block?.querySelector("[data-plan-keep]")?.textContent).toBe("Keep mine");
     expect(block?.querySelector("[data-plan-make]")?.textContent).toBe("Make this the plan");
   });
@@ -103,13 +103,13 @@ describe("the switch on another way's page", () => {
     const view = game.view();
     const same = { ...view, plan: { ...view.plan, ways: view.plan.ways.map((way) => ({ ...way, percent: 30 })) } };
     expect(switchOf(same, UK)).toEqual({ plan: CARE, change: 0 });
-    expect(say("route.plan.same", { plan: "care work" })).toBe("Instead of care work: the same japacity");
+    expect(say("route.plan.same", { plan: "health care" })).toBe("Instead of health care: the same japacity");
   });
 
   test("[chapter:chapters-follow-lean-route] given the switch's words and each way's short name, when they are read, then a person says them: no exclamation mark, no dash", () => {
     const keys = Object.keys(text).filter((key) => key.startsWith("route.plan.") || key.endsWith(".short") || /^route\.[\w-]+\.file$/.test(key));
     expect(keys.length).toBeGreaterThanOrEqual(15);
     for (const key of keys) expect(text[key]).not.toMatch(/[!\u2013\u2014]/);
-    expect([UK, CARE, "route.uk-talent", "route.canada-points", "route.gulf-contract"].map((id) => text[`${id}.short`])).toEqual(["the master's", "care work", "the talent visa", "the points", "the Gulf"]);
+    expect([UK, CARE, "route.uk-talent", "route.canada-points", "route.gulf-contract"].map((id) => text[`${id}.short`])).toEqual(["the master's", "health care", "the talent visa", "the points", "the Gulf"]);
   });
 });

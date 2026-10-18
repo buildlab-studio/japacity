@@ -461,7 +461,7 @@ describe("route-gates:care-route-needs-verification: the care route's papers and
     expect(text[`${CARE_ROUTE}.item.certificate.way`]).toContain("clinic");
   });
 
-  test("[route-gates:care-route-needs-verification] [japacity:figure-sums-checklist-items] given Ngozi with care work known and the same papers but for the clinic's certificate, when the figures are read, then the certified nurse's is higher by the item's weight", () => {
+  test("[route-gates:care-route-needs-verification] [japacity:figure-sums-checklist-items] given Ngozi with health care known and the same papers but for the clinic's certificate, when the figures are read, then the certified nurse's is higher by the item's weight", () => {
     const certified = ngozi({ documents: [...CARE_PAPERS, { document: "document.nurse-certificate", monthsLeft: null, value: null }] });
     const plain = ngozi();
     toKnown(certified, CARE_ROUTE);

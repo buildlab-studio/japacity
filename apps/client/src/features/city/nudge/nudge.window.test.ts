@@ -20,7 +20,7 @@ const ENGLISH = "activity.sit-english-test";
 const NUDGE_WORDS = 8;
 const MONTH_END = { go: null, at: [] };
 
-/** The ready nurse at her care file's sponsor step: care work heard of and read, the council asked and answered. */
+/** The ready nurse at her care file's sponsor step: health care heard of and read, the council asked and answered. */
 function atTheSponsor(open = false): PlayerView {
   const game = readyNurse("sponsor-window", open);
   hearCare(game);
@@ -45,7 +45,7 @@ function standing(view: PlayerView, unmet: readonly string[], acts: Record<strin
 describe("the sponsor step while the care window is shut", () => {
   const view = atTheSponsor();
 
-  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the ready nurse at the sponsor step with care work shut to applicants abroad, when the nudge is read, then it says sponsors are closed and to keep the file ready, in one sentence of at most eight words, never to find a sponsor", () => {
+  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the ready nurse at the sponsor step with health care shut to applicants abroad, when the nudge is read, then it says sponsors are closed and to keep the file ready, in one sentence of at most eight words, never to find a sponsor", () => {
     expect(view.routes.find((route) => route.id === CARE)?.window).toBe("closed");
     expect(view.chapter.items.find((item) => !item.met)?.id).toBe("sponsor");
     const nudge = nudgeOf(view);
@@ -87,7 +87,7 @@ describe("the sponsor step while the care window is shut", () => {
 });
 
 describe("the ready nurse's months at the shut sponsor step", () => {
-  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the ready nurse at the sponsor step with care work shut, when twelve more months are played, then no month's nudge says to find a sponsor", () => {
+  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the ready nurse at the sponsor step with health care shut, when twelve more months are played, then no month's nudge says to find a sponsor", () => {
     const game = readyNurse("sponsor-window");
     hearCare(game);
     readCare(game);

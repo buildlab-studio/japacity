@@ -25,7 +25,7 @@ function untilHeard(game: Game, route: Id<"route">, most = 8): void {
   expect(game.state.route[route]?.state).toBe("heard");
 }
 
-/** The nurse who has heard of the master's and of care work, and has read the care page. */
+/** The nurse who has heard of the master's and of health care, and has read the care page. */
 function nurseOnCare(): Game {
   const game = life("scenario.ngozi");
   untilHeard(game, CARE_ROUTE);
@@ -76,7 +76,7 @@ describe("the plan in the view", () => {
     expect(game.view().plan.ways).toEqual([]);
   });
 
-  test("[chapter:chapters-follow-lean-route] given the nurse who heard of care and the master's, when she reads the care page, then the view's plan is care work", () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse who heard of care and the master's, when she reads the care page, then the view's plan is health care", () => {
     const game = nurseOnCare();
     expect(game.view().plan.route).toBe(CARE_ROUTE);
   });

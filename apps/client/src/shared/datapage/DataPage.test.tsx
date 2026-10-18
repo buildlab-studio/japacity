@@ -74,11 +74,11 @@ describe("the data page", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given the visa's stamp, then it is round and red with the way under it; a step after it is a small box", () => {
-    render(<DataPage page={{ ...PAGE, stamps: [{ words: say("prologue.page.stamp.granted"), under: "care work" }, { words: say("ui.page.stamp.flight") }] }} />);
+    render(<DataPage page={{ ...PAGE, stamps: [{ words: say("prologue.page.stamp.granted"), under: "health care" }, { words: say("ui.page.stamp.flight") }] }} />);
     const round = document.querySelector<HTMLElement>("[data-stamp-visa] [data-stamp-round]")!;
     expect(round.className.split(" ")).toContain(ROUND);
     expect(round.style.color).toBe("rgb(179, 48, 42)");
-    expect(round.textContent).toBe(`${say("prologue.page.stamp.granted")}care work`);
+    expect(round.textContent).toBe(`${say("prologue.page.stamp.granted")}health care`);
     expect(PAGE_COLOURS.red).toBe("#b3302a");
     const after = [...document.querySelectorAll<HTMLElement>("[data-stamps] [data-stamp]")];
     expect(after.map((one) => one.textContent)).toEqual([say("ui.page.stamp.flight")]);

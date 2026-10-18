@@ -25,7 +25,7 @@ describe("one band for the route", () => {
     expect(routeBand(CARE)).toBe(40);
   });
 
-  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is care work, when the centre's sheet and her result are read, then both say the care route's band, never the master's 6.0", () => {
+  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is health care, when the centre's sheet and her result are read, then both say the care route's band, never the master's 6.0", () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     const view = game.view();

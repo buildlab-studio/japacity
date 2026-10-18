@@ -977,7 +977,7 @@ function lines(event: RouteKindEvent, _state: State, content: Content): ReportLi
     case "route/withdrawn":
       return [line("withdrawn", { route: event.route }, "bad", true)];
     case "route/sponsor-missed":
-      // Care work's sponsors are trusts and care homes; the skilled route's are employers.
+      // Health care's sponsors are trusts and care homes; the skilled route's are employers.
       return [line(event.route === CARE_ROUTE ? "sponsor-missed" : "sponsor-missed-employer", { route: event.route }, "plain")];
     default: {
       const never: never = event;

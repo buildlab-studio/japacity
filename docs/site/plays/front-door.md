@@ -41,7 +41,7 @@ An archetype is a preset of answers to the years from sixteen. The presets live 
 | Tile | The years before | Ways out it opens |
 |---|---|---|
 | The developer | Science, then computer science | UK talent, UK skilled, the UK master's |
-| The nurse | Science, then nursing school | UK care, the Gulf contract, Canada's points |
+| The nurse | Science, then nursing school | UK health care, the Gulf contract, Canada's points |
 | The accountant | Commercial, then accounting | Canada's points, UK skilled, the UK master's |
 | The writer | Arts, then mass communication | The UK master's, Canada's points |
 | The trader | Six years under a spare parts master | The Gulf contract, the road through the desert |

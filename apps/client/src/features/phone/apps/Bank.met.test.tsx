@@ -13,7 +13,7 @@ import { say } from "../../../shared/words/text";
 
 const CARE = "route.uk-care" as const;
 
-/** Ngozi with care work as her plan: heard of with what its hearing asks, looked into, leant on. */
+/** Ngozi with health care as her plan: heard of with what its hearing asks, looked into, leant on. */
 function carePlan() {
   const game = newGame("scenario.ngozi");
   const bars = (content.route[CARE]?.hearIf ?? []).flatMap((requirement): Effect[] => (requirement.type === "quality/min" ? [{ type: "quality/add", quality: requirement.quality, amount: requirement.value }] : []));
@@ -24,7 +24,7 @@ function carePlan() {
 }
 
 describe("Saved for the move, once it is met", () => {
-  test("[world:phone-holds-what-phones-hold] given a nurse whose plan is care work holding more than its fees, when the Bank opens, then it says the figure is met and is the move's fees, never only the two figures", async () => {
+  test("[world:phone-holds-what-phones-hold] given a nurse whose plan is health care holding more than its fees, when the Bank opens, then it says the figure is met and is the move's fees, never only the two figures", async () => {
     const game = carePlan();
     const required = savingsOf(game.view())!.required;
     const view = viewAfter(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: required * 2, reason: "gift" }]);

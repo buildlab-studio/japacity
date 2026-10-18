@@ -159,7 +159,7 @@ const GRADE = "quality.edu-grade";
 const GRADE_BAR = barOf((content.route["route.uk-masters"]?.checklist ?? []).map((item) => item.requirement), GRADE);
 
 describe("every tile's promise is kept by the life it starts", () => {
-  test("[prologue:archetype-presets-answers] [guide:first-meetup-hears-fitting-route] given the nurse over many seeds on her own path, when she hands over, then care is at the staff nurse's bar with the licence held, the job is staged at the clinic and the hunt can ask for it there, and her first step is that job at the clinic; her first meetup tells of care work", () => {
+  test("[prologue:archetype-presets-answers] [guide:first-meetup-hears-fitting-route] given the nurse over many seeds on her own path, when she hands over, then care is at the staff nurse's bar with the licence held, the job is staged at the clinic and the hunt can ask for it there, and her first step is that job at the clinic; her first meetup tells of health care", () => {
     const nurse = archetypeOf("nurse")!;
     const bar = barOf(content.activity[NURSE_JOB]?.requires ?? [], "quality.care");
     expect(content.place[CLINIC]?.stages).toContain(NURSE_JOB);
@@ -257,7 +257,7 @@ describe("the tiles' words", { timeout: 20_000 }, () => {
     }
   });
 
-  test("[prologue:archetype-presets-answers] given every archetype, then its tile's line of what it opens names every country its routes lead to, and the nurse's says health care, never care work", () => {
+  test("[prologue:archetype-presets-answers] given every archetype, then its tile's line of what it opens names every country its routes lead to, and the nurse's says health care, never health care", () => {
     const named: Readonly<Record<string, RegExp>> = { "country.uk": /\bUK\b/, "country.canada": /\bCanada/, "country.uae": /\bGulf\b/ };
     for (const archetype of ARCHETYPES) {
       const opens = say(`prologue.archetype.${archetype.id}.opens`);
@@ -326,7 +326,7 @@ describe("the handover reads the life as lived", () => {
 });
 
 describe("the nurse's send-off", () => {
-  test("[prologue:tile-path-open-from-start] given the nurse's tile, then her send-off leaning is the nurses' crowd, so care work is heard before any page is read", () => {
+  test("[prologue:tile-path-open-from-start] given the nurse's tile, then her send-off leaning is the nurses' crowd, so health care is heard before any page is read", () => {
     expect(ARCHETYPES.find((tile) => tile.id === "nurse")?.leaning).toEqual({ friend: "care" });
   });
 });

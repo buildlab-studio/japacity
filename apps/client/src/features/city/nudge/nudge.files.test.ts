@@ -27,7 +27,7 @@ function wordCount(said: string): number {
   return said.split(/\s+/).filter(Boolean).length;
 }
 
-/** The ready nurse in her care file: care work heard of at the meetup and its page read, the first chapter closed. */
+/** The ready nurse in her care file: health care heard of at the meetup and its page read, the first chapter closed. */
 function readyInTheFile(): Game {
   const game = readyNurse("nudge-files");
   hearCare(game);
@@ -219,7 +219,7 @@ describe("the meetup is one tap", () => {
     const way = stepWayOf(view)!;
     expect(way).toMatchObject({ go: "place.yaba", opens: "activity.meetup" });
     expect(stepOpen(way, "meetup", view.activities.filter((option) => option.allowed).map((option) => option.id), "place.yaba")).toEqual({ kind: "act", activity: "activity.meetup" });
-    // Followed, care work is heard of that month (guide:first-meetup-hears-fitting-route).
+    // Followed, health care is heard of that month (guide:first-meetup-hears-fitting-route).
     const game = readyNurse("meetup-one-tap");
     month(game, [slot("activity.meetup")]);
     expect(game.view().routes.find((route) => route.id === "route.uk-care")?.state).not.toBe("unknown");

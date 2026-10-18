@@ -155,7 +155,7 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   // A life's own way to its first steps, where its archetype has one the table does not name.
   // While a life in Makoko's room has no job, the racks beside it come first (activity:fish-racks-at-makoko).
   if (racksAtHand(view)) return RACKS_WAY;
-  // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (chapter:chapters-follow-lean-route).
+  // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to health care and not to the master's she read of first (chapter:chapters-follow-lean-route).
   // It comes before the life's own way to its first steps: that way names the hub's desk with no act, so a tap on the
   // nudge would offer the desk's chips (the course, the adviser's fee) in place of the free page.
   const route = ownRoute(view);
@@ -386,7 +386,7 @@ const MEANWHILE: readonly { act: string; fits: (view: MeanwhileView) => boolean 
   { act: CERTIFICATION, fits: (view) => qualityIn(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
   { act: "open-source", fits: (view) => qualityIn(view, "quality.tech") >= 40 },
   { act: "tech-posts", fits: (view) => qualityIn(view, "quality.tech") >= 30 },
-  // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
+  // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never health care, and her
   // ward is the clinic, never the hub's board. The act stays on the hub's board alone (city:places-stage-their-acts).
   { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 && view.job?.id !== NURSE_JOB },
 ];

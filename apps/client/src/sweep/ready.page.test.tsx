@@ -1,5 +1,5 @@
 // The page's READY is Japa's figure (world:phone-holds-what-phones-hold): the nurse's page and Japa
-// say one figure, never READY 0% beside "How ready you are to go 40%". Care work counts no japacity figure from
+// say one figure, never READY 0% beside "How ready you are to go 40%". Health care counts no japacity figure from
 // Nigeria, so Japa reads the plan's own, and the page reads the same. Played on the real engine.
 import { describe, expect, test } from "vitest";
 
@@ -13,7 +13,7 @@ import { pageOf } from "../shared/datapage/PageSheet";
 const CARE = "route.uk-care";
 
 describe("one figure for how ready", () => {
-  test("[world:phone-holds-what-phones-hold] given the ready nurse whose plan is care work, its page read, with no japacity figure, when the page and Japa are read, then the page's READY is the figure Japa shows, not 0%", async () => {
+  test("[world:phone-holds-what-phones-hold] given the ready nurse whose plan is health care, its page read, with no japacity figure, when the page and Japa are read, then the page's READY is the figure Japa shows, not 0%", async () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });

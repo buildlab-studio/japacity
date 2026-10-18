@@ -80,7 +80,7 @@ export const activityText: Record<string, string> = {
   "activity.request-verification.blurb": "You pay the nursing council to confirm your licence. The council writes to the board abroad.",
   "activity.renew-licence.name": "Renew your nursing licence",
   "activity.renew-licence.blurb": "You pay the council and show your hours before the licence runs out.",
-  "activity.apply-uk-care.name": "Apply for the care visa",
+  "activity.apply-uk-care.name": "Apply for the health care visa",
   "activity.apply-uk-care.blurb": "You send the sponsor's certificate, your papers and the fee.",
   "activity.apply-uk-skilled.name": "Apply for the skilled worker visa",
   "activity.apply-uk-skilled.blurb": "You send the sponsor's certificate, your statements, the fee and three years of surcharge.",

@@ -292,7 +292,7 @@ const steps: Record<string, PrologueStep> = {
       answer("tech", [{ type: "route/hear", route: "route.uk-talent", via: "friend" }], {
         requires: [{ type: "quality/min", quality: TECH, value: 40 }],
       }),
-      // The nurses' crowd: a life with care behind it hears of care work abroad at its own send-off, so its chapters lean that way (prologue:tile-path-open-from-start).
+      // The nurses' crowd: a life with care behind it hears of health care abroad at its own send-off, so its chapters lean that way (prologue:tile-path-open-from-start).
       answer("care", [{ type: "route/hear", route: "route.uk-care", via: "friend" }], {
         requires: [{ type: "quality/min", quality: CARE, value: 30 }],
       }),

@@ -71,7 +71,7 @@ For each step the answer is the first of the archetype's answers that is allowed
 | Archetype | Routes its tile names |
 |---|---|
 | `developer` | UK talent, UK skilled work, the UK master's |
-| `nurse` | UK care work, the Gulf contract, Canada's points |
+| `nurse` | UK health care, the Gulf contract, Canada's points |
 | `accountant` | Canada's points, UK skilled work, the UK master's |
 | `writer` | The UK master's, Canada's points |
 | `trader` | The Gulf contract, the road |

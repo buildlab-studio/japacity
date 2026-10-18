@@ -310,7 +310,7 @@ describe("the nurse's course makes a nurse", () => {
 });
 
 describe("the send-off's crowds", () => {
-  test("[prologue:tile-path-open-from-start] given the friend's card, then a life with care behind it may follow the nurses and hears of care work, and a life without cannot", () => {
+  test("[prologue:tile-path-open-from-start] given the friend's card, then a life with care behind it may follow the nurses and hears of health care, and a life without cannot", () => {
     const card = content.prologue.friend;
     const care = card?.answers.find((answer) => answer.id === "care");
     expect(care?.effects).toEqual([{ type: "route/hear", route: "route.uk-care", via: "friend" }]);

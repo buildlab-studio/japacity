@@ -127,8 +127,8 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-care.item.sponsor.planned": "Sponsor search planned. Live the month.",
   // While the care window is shut no sponsor takes a nurse from abroad: the step says so.
   "chapter.build-the-file-care.item.sponsor.shut": "Care sponsors are closed: keep the file ready",
-  "chapter.build-the-file-care.item.applied": "Send the care visa application",
-  "chapter.build-the-file-care.item.applied.nudge": "Send the care visa application",
+  "chapter.build-the-file-care.item.applied": "Send the health care visa application",
+  "chapter.build-the-file-care.item.applied.nudge": "Send the health care visa application",
   "chapter.build-the-file-care.item.applied.planned": "Application planned. Live the month.",
   // The months on the ward counted, when nothing else of hers is to do.
   "chapter.build-the-file-care.item.tenure.count": "Keep nursing: {done} of {need} months done",
@@ -143,8 +143,8 @@ export const chapterText: Record<string, string> = {
   "chapter.build-the-file-care.item.licence.saving": "Payday first, then the licence",
   "chapter.build-the-file-care.item.salary": "A sponsor who pays the bar",
   "chapter.build-the-file-care.item.salary.nudge": "Find a sponsor who pays the bar",
-  "chapter.build-the-file-care.item.window": "The UK opens care visas",
-  "chapter.build-the-file-care.item.window.nudge": "Care visas are shut: watch the news",
+  "chapter.build-the-file-care.item.window": "The UK opens health care visas",
+  "chapter.build-the-file-care.item.window.nudge": "Health care visas shut: watch the news",
 
   "chapter.build-the-file-talent.name": "Build the file",
   "chapter.build-the-file-talent.title": "Build the file",
@@ -242,8 +242,8 @@ export const chapterText: Record<string, string> = {
   "chapter.decision-day-care.item.police.planned": "Police paper planned. Live the month.",
   "chapter.decision-day-care.item.police.short": "Find {amount} more for the police paper",
   "chapter.decision-day-care.item.police.saving": "Payday first, then the police paper",
-  "chapter.decision-day-care.item.applied": "Send the care visa application",
-  "chapter.decision-day-care.item.applied.nudge": "Send the care visa application",
+  "chapter.decision-day-care.item.applied": "Send the health care visa application",
+  "chapter.decision-day-care.item.applied.nudge": "Send the health care visa application",
   "chapter.decision-day-care.item.granted": "Get the visa",
   "chapter.decision-day-care.item.granted.nudge": "Back to your life: the UK writes.",
 

@@ -129,7 +129,7 @@ describe("a grant on a route with a file of its own", () => {
     game.state = { ...game.state, route: { ...game.state.route, [CARE_ROUTE]: { ...game.state.route[CARE_ROUTE]!, state: "granted" } } };
   }
 
-  test("[chapter:chapters-follow-lean-route] given a life leaning to the master's at decision day, when care work is granted, then the view's items are care's decision day, and the month's end closes care's decision day in its place", () => {
+  test("[chapter:chapters-follow-lean-route] given a life leaning to the master's at decision day, when health care is granted, then the view's items are care's decision day, and the month's end closes care's decision day in its place", () => {
     const game = atDecision();
     expect(leanRoute(game.state.route, content)).toBe(UK_ROUTE);
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(["deposit", "held", "tb", "applied", "granted"]);
@@ -144,7 +144,7 @@ describe("a grant on a route with a file of its own", () => {
     expect(game.state.chapter.done).not.toContain(DECISION);
   });
 
-  test("[chapter:chapters-follow-lean-route] given a life in the master's file, when care work is granted, then the file closes as care's and care's decision day follows, whatever the lean was", () => {
+  test("[chapter:chapters-follow-lean-route] given a life in the master's file, when health care is granted, then the file closes as care's and care's decision day follows, whatever the lean was", () => {
     const game = start({ scenario: "scenario.tunde", content });
     for (let month = 0; month < 8 && game.state.route[UK_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
     game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);

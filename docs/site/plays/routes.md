@@ -1,6 +1,6 @@
 # Routes and japacity
 
-A route is a way out of the country: a master's in the UK, care work, the talent visa, skilled work, permanent residence in Canada, a contract in the Gulf, the partner routes, and the road. Nobody picks one at the start. You hear of a route, look into it, and find out how much of it your life already meets. Japacity is that figure: how ready you are to go, from 0 to 100, the best of the routes you know. This page follows a route from hearing of it to the day the visa is decided.
+A route is a way out of the country: a master's in the UK, health care, the talent visa, skilled work, permanent residence in Canada, a contract in the Gulf, the partner routes, and the road. Nobody picks one at the start. You hear of a route, look into it, and find out how much of it your life already meets. Japacity is that figure: how ready you are to go, from 0 to 100, the best of the routes you know. This page follows a route from hearing of it to the day the visa is decided.
 
 <div style="display:flex;gap:12px;flex-wrap:wrap">
 <img src="/pictures/dev-22-month-4-official-page.webp" alt="Read the official page at the hub: the route's full list of what it asks, read to the end, and Done" width="260">
@@ -54,7 +54,7 @@ Each route's checklist adds up to 100. A met item earns its whole weight. The fu
 | TB certificate, application sent | 4, 7 |
 
 ::: info The plan
-The chapters follow one way out, the plan. By default it is the first way of your own effort you looked into, else the first you heard of, else the master's. Japa names it ("Your plan: care work"). Opening another way's page says what switching would do to japacity, with "Keep mine" and "Make this the plan". Once a visa is granted, the grant decides: the plan and the chapters follow the way granted, whatever the plan was, and the flight on it brings the send-off.
+The chapters follow one way out, the plan. By default it is the first way of your own effort you looked into, else the first you heard of, else the master's. Japa names it ("Your plan: health care"). Opening another way's page says what switching would do to japacity, with "Keep mine" and "Make this the plan". Once a visa is granted, the grant decides: the plan and the chapters follow the way granted, whatever the plan was, and the flight on it brings the send-off.
 :::
 
 <img src="/pictures/routes-switch-plan.webp" alt="Another way's page in Japa: permanent residence in Canada at 65%, and what making it the plan would do, with Keep mine and Make this the plan" width="260">

@@ -83,7 +83,7 @@ The chapter follows the way out the life leans to. Other ways have their own fil
 | The way | Its file asks for |
 |---|---|
 | A master's in the UK | Passport, transcript, English band 6.0, a school's offer |
-| Care work in the UK | 24 months on the ward, the council's verification, a sponsor, the application |
+| Health care in the UK | 24 months on the ward, the council's verification, a sponsor, the application |
 | The UK talent visa | The portfolio, the endorsement, the application |
 | Permanent residence in Canada | The degree assessment, English at band 6.0, the pool, the invitation |
 | A contract in the Gulf | The passport first, the medical, the agent, the contract |
@@ -95,7 +95,7 @@ flowchart LR
   C3 --> C4["The send-off"]
   C4 --> C5["Landing"]
   C5 --> C6["Secure"]
-  C2 -.->|"the lean route picks the variant"| V["Care, talent, points or Gulf file"]
+  C2 -.->|"the lean route picks the variant"| V["Health care, talent, points or Gulf file"]
 ```
 
 ::: details Exceptions

@@ -28,13 +28,13 @@ function nurseOnCare(): Game {
 }
 
 describe("the plan in Japa's head", () => {
-  test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given the nurse who heard of care and the master's, when she has read the care page, then Japa's head says her plan is care work with the care file beneath", async () => {
+  test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given the nurse who heard of care and the master's, when she has read the care page, then Japa's head says her plan is health care with the care file beneath", async () => {
     const game = nurseOnCare();
     await renderWithView(<Japa />, game.view());
     const head = document.querySelector<HTMLElement>("[data-japa-head]");
     expect(head?.querySelector("[data-japa-plan]")?.textContent).toBe(say("phone.japa.plan", { route: nameOf(CARE) }));
     expect(head?.querySelector("[data-japa-route]")?.textContent).toBe(nameOf(CARE));
-    expect(head?.querySelector("[data-japa-file]")?.textContent).toBe("The care file");
+    expect(head?.querySelector("[data-japa-file]")?.textContent).toBe("The health care file");
   });
 
   test("[chapter:chapters-follow-lean-route] [world:phone-holds-what-phones-hold] given a life that has heard of no way out, when Japa shows, then its head says there is no plan yet and names no file", async () => {
@@ -81,7 +81,7 @@ describe("the other ways in Japa", () => {
     fireEvent.click(document.querySelector<HTMLElement>("[data-route-back]")!);
     expect(document.querySelector("[data-japa-route]")?.textContent).toBe(nameOf(UK));
     expect(document.querySelector("[data-japa-file]")?.textContent).toBe("The master's file");
-    // Care work is now another way, and the master's is not.
+    // Health care is now another way, and the master's is not.
     const others = [...document.querySelectorAll("[data-other-way]")].map((row) => row.getAttribute("data-other-way"));
     expect(others).toContain(CARE);
     expect(others).not.toContain(UK);

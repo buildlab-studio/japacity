@@ -93,12 +93,12 @@ export const newsText: Record<string, string> = {
   "news.uk-study-reopens.in-force.head": "The UK student route is open",
   "news.uk-study-reopens.in-force.body": "Applications are accepted. The rush has not started yet.",
 
-  "news.uk-care-opens.name": "UK opens care work to people applying from abroad",
+  "news.uk-care-opens.name": "UK opens health care visas to people applying from abroad",
   "news.uk-care-opens.rumour.head": "\"They need carers again\"",
   "news.uk-care-opens.rumour.body": "A nurse in your church says homes in England are short of staff and asking for people from here.",
-  "news.uk-care-opens.announced.head": "UK opens care work to people applying from abroad",
+  "news.uk-care-opens.announced.head": "UK opens health care visas to people applying from abroad",
   "news.uk-care-opens.announced.body": "Care homes may sponsor carers and nurses from outside the country again from next month.",
-  "news.uk-care-opens.in-force.head": "The care route is open",
+  "news.uk-care-opens.in-force.head": "The health care route is open",
   "news.uk-care-opens.in-force.body": "Sponsors are recruiting. So are the people who sell fake certificates.",
 
   "news.uk-care-dependants.name": "UK to stop care workers bringing dependants",
@@ -119,12 +119,12 @@ export const newsText: Record<string, string> = {
   "news.uk-care-sponsors-revoked.ended.head": "The sponsor checks slow down",
   "news.uk-care-sponsors-revoked.ended.body": "Fewer licences are being taken away this month.",
 
-  "news.uk-care-closes.name": "UK to close care work to people applying from abroad",
+  "news.uk-care-closes.name": "UK to close health care visas to people applying from abroad",
   "news.uk-care-closes.rumour.head": "\"Care is closing\"",
   "news.uk-care-closes.rumour.body": "An agent tells everyone with a certificate in hand to submit this week.",
-  "news.uk-care-closes.announced.head": "UK to close care work to people applying from abroad",
-  "news.uk-care-closes.announced.body": "From next month, only people already in the country may switch into care work.",
-  "news.uk-care-closes.in-force.head": "The care route is closed to new applicants abroad",
+  "news.uk-care-closes.announced.head": "UK to close health care visas to people applying from abroad",
+  "news.uk-care-closes.announced.body": "From next month, only people already in the country may switch to a health care visa.",
+  "news.uk-care-closes.in-force.head": "The health care route is closed to new applicants abroad",
   "news.uk-care-closes.in-force.body": "Applications already sent are still decided.",
 
   "news.uk-skilled-bar-rises.name": "UK raises the skilled worker salary bar",
