@@ -1,6 +1,7 @@
 import type { State } from "@japacity/sim";
 import type { AccountRow, LogRow, NewCharacter } from "@japacity/store";
 import type { Sender } from "@japacity/sim";
+import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { freshHandle } from "../pglite.testing";
@@ -9,8 +10,7 @@ import { pgDayLog } from "./daylog";
 import { pgPlayerStores } from "./player";
 
 const fresh = freshHandle();
-const DAY = 86_400_000;
-const START = 20_370 * DAY;
+const START = 20_370 * time.DAY_MS;
 
 function character(id: string, account: string): NewCharacter {
   return { id, account, refilledAt: 0, content: "content-1", start: { scenario: "scenario.ada", seed: id, worldSeed: "world" }, state: { v: 0 } as unknown as State };
@@ -34,17 +34,17 @@ describe("the counts by region in Postgres", () => {
     const append = (id: string, rows: LogRow[]) => player.transact([id], () => ({ writes: { characters: [{ id, append: rows }] }, result: null }));
     await append("char-a", [logAt("char-a", 1, START), logAt("char-a", 2, START + 10), logAt("char-a", 3, START + 20)]);
     await append("char-b", [logAt("char-b", 1, START - 1), logAt("char-b", 2, START + 5, "stand-in"), logAt("char-b", 3, START + 6, "authority")]);
-    await append("char-c", [logAt("char-c", 1, START + DAY - 1)]);
-    await append("char-d", [logAt("char-d", 1, START + 1), logAt("char-d", 2, START + DAY)]);
+    await append("char-c", [logAt("char-c", 1, START + time.DAY_MS - 1)]);
+    await append("char-d", [logAt("char-d", 1, START + 1), logAt("char-d", 2, START + time.DAY_MS)]);
 
-    const found = await pgDayLog(handle).players(START, START + DAY);
+    const found = await pgDayLog(handle).players(START, START + time.DAY_MS);
     expect(found).toEqual([
       { region: "GB", count: 1 },
       { region: "NG", count: 1 },
       { region: "XX", count: 1 },
     ]);
     expect(JSON.stringify(found)).not.toContain("account.");
-    expect(await pgDayLog(handle).players(START + DAY, START + 2 * DAY)).toEqual([{ region: "XX", count: 1 }]);
+    expect(await pgDayLog(handle).players(START + time.DAY_MS, START + 2 * time.DAY_MS)).toEqual([{ region: "XX", count: 1 }]);
   });
 
   test("[R-ANALYTICS-008] given accounts made either side of a moment, when the accounts are read, then those made before it are counted by region", async () => {

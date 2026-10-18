@@ -1,5 +1,6 @@
 import type { State } from "@japacity/sim";
 import type { AccountRow, LogRow, NewCharacter } from "@japacity/store";
+import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { freshHandle } from "../pglite.testing";
@@ -8,8 +9,7 @@ import { pgDayLog } from "./daylog";
 import { pgPlayerStores } from "./player";
 
 const fresh = freshHandle();
-const DAY = 86_400_000;
-const START = 20_370 * DAY;
+const START = 20_370 * time.DAY_MS;
 
 function character(id: string): NewCharacter {
   return { id, account: `account.${id}`, refilledAt: 0, content: "content-1", start: { scenario: "scenario.ada", seed: id, worldSeed: "world" }, state: { v: 0 } as unknown as State };
@@ -30,17 +30,17 @@ describe("the day's log in Postgres", () => {
     for (const id of ["char-b", "char-a", "char-c"]) await player.create(character(id));
     const append = (id: string, rows: LogRow[]) => player.transact([id], () => ({ writes: { characters: [{ id, append: rows }] }, result: null }));
     await append("char-a", [logAt("char-a", 1, START - 1), logAt("char-a", 2, START)]);
-    await append("char-b", [logAt("char-b", 1, START + DAY - 1), logAt("char-b", 2, START + DAY - 1)]);
-    await append("char-c", [logAt("char-c", 1, START + DAY)]);
+    await append("char-b", [logAt("char-b", 1, START + time.DAY_MS - 1), logAt("char-b", 2, START + time.DAY_MS - 1)]);
+    await append("char-c", [logAt("char-c", 1, START + time.DAY_MS)]);
 
-    expect(await pgDayLog(handle).active(START, START + DAY)).toEqual(["char-a", "char-b"]);
+    expect(await pgDayLog(handle).active(START, START + time.DAY_MS)).toEqual(["char-a", "char-b"]);
   });
 
   test("[R-ANALYTICS-008] given accounts made either side of a day's bounds, when the day is read, then only those made inside it are listed", async () => {
     const handle = await fresh();
     const accounts = pgAccountStore(handle);
-    for (const [id, at] of [["account.z", START], ["account.a", START + DAY - 1], ["account.before", START - 1], ["account.after", START + DAY]] as const) await accounts.create(account(id, at));
+    for (const [id, at] of [["account.z", START], ["account.a", START + time.DAY_MS - 1], ["account.before", START - 1], ["account.after", START + time.DAY_MS]] as const) await accounts.create(account(id, at));
 
-    expect((await pgDayLog(handle).created(START, START + DAY)).map((row) => row.id)).toEqual(["account.a", "account.z"]);
+    expect((await pgDayLog(handle).created(START, START + time.DAY_MS)).map((row) => row.id)).toEqual(["account.a", "account.z"]);
   });
 });

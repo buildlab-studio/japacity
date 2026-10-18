@@ -1,4 +1,5 @@
 import type { Content, GuideEntry, Id } from "@japacity/sim";
+import { time } from "@japacity/sim";
 import { ContentSchema } from "@japacity/sim/schemas";
 import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
@@ -152,7 +153,7 @@ describe("staleness", () => {
     (checked, later) => {
       const day = checked.toISOString().slice(0, 10);
       const guide = withGuide({ ...masters, checkedOn: day, sources: masters.sources.map((source) => ({ ...source, readOn: day })) });
-      const at = (offset: number) => new Date(checked.getTime() + offset * 86_400_000).toISOString().slice(0, 10);
+      const at = (offset: number) => new Date(checked.getTime() + offset * time.DAY_MS).toISOString().slice(0, 10);
       const stale = staleGuides(guide, at(later)).includes(MASTERS);
       const staleNext = staleGuides(guide, at(later + 1)).includes(MASTERS);
       expect(!stale || staleNext).toBe(true);

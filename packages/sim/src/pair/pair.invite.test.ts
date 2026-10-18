@@ -7,8 +7,8 @@ import { japacity } from "../japacity/japacity.logic";
 import { start } from "../testing/play";
 import { INVITE_FILLS, inviteCard, inviteExpires, mayOpenInvite, mayPair, rewardFor, useInvite } from "./pair.invite";
 import type { Milestone } from "./pair.invite";
+import { DAY_MS } from "../engine/time";
 
-const DAY = 86_400_000;
 const pair = content.tuning.pair;
 
 /**
@@ -60,11 +60,11 @@ describe("the invite card", () => {
 });
 
 describe("the invite link", () => {
-  const made = 1_000 * DAY;
+  const made = 1_000 * DAY_MS;
   const expires = inviteExpires(made, pair);
 
   test("[R-PAIR-008] given a link made now, when used a moment before its days run out and at the moment they do, then only the first works", () => {
-    expect(expires).toBe(made + pair.inviteDays * DAY);
+    expect(expires).toBe(made + pair.inviteDays * DAY_MS);
     expect(useInvite({ slot: "partner", expires, used: false }, "partner", expires - 1)).toEqual({ ok: true });
     expect(useInvite({ slot: "partner", expires, used: false }, "partner", expires)).toEqual({ ok: false, failed: "expired" });
   });
