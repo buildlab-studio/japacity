@@ -56,7 +56,7 @@ export function shippedBuild(): BuildEnvironmentOptions {
         codeSplitting: {
           groups: [
             { name: "three", test: /[\\/]node_modules[\\/]three[\\/]build[\\/]/, priority: 2 },
-            { name: "load", test: /[\\/]node_modules[\\/]three[\\/]examples[\\/]jsm[\\/]|[\\/]packages[\\/]assets[\\/]src[\\/]load\.ts$|[\\/]src[\\/]shared[\\/]three[\\/]load\.ts$/, priority: 1 },
+            { name: "load", test: /[\\/]node_modules[\\/]three[\\/]examples[\\/]jsm[\\/]|[\\/]packages[\\/]model-kit[\\/]src[\\/]load\.ts$|[\\/]src[\\/]shared[\\/]three[\\/]load\.ts$/, priority: 1 },
           ],
         },
       },
