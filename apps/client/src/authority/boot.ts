@@ -1,6 +1,8 @@
 // Starts the game in the tab: the server when the build names one, or the
 // local authority on the right clock; and the store the screens read. A lost
 // local save is said out loud on the life chooser.
+import type { AccountReply } from "@japacity/api";
+
 import { setUsageCounts, startCounting } from "../shared/analytics/start";
 import { readAccount } from "../shared/net/account";
 import { betterAuthApi } from "../shared/net/auth";
@@ -11,6 +13,17 @@ import { goOnline } from "./online";
 import { remoteAuthority } from "./remote";
 import { createGameStore, type GameStore } from "./store";
 import { MORNING_KEY } from "../shared/kept/storage";
+
+/** The account's row as the server answered it when the game started online; null before, and with the local authority. */
+let accountRead: Promise<AccountReply> | null = null;
+
+/**
+ * server:unknown-address-becomes-root, moderation:admin-view-for-admin-list: the one account read the game makes as it starts,
+ * so the address is judged on it with no request of its own.
+ */
+export function accountAtBoot(): Promise<AccountReply> | null {
+  return accountRead;
+}
 
 export function bootGame(options: Partial<LocalAuthorityOptions> = {}): GameStore {
   const mode = authorityMode();
@@ -86,7 +99,8 @@ function bootRemote(baseUrl: string): GameStore {
   goOnline({ store, remote });
   startCounting({ baseUrl });
   // analytics:player-can-stop-usage-counts: an account that turned the counters off stays off from the first screen.
-  void readAccount(remote.api).then((reply) => {
+  accountRead = readAccount(remote.api);
+  void accountRead.then((reply) => {
     if (reply.ok && reply.account.sendUsageCounts === false) setUsageCounts(false);
   });
   return store;

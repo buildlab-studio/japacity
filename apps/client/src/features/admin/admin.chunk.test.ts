@@ -17,10 +17,13 @@ describe("the admin chunk", () => {
     expect(adminAsked("/invite/admin")).toBe(false);
   });
 
-  test("[moderation:admin-view-for-admin-list] given the game's shell, then it loads the admin route lazily and imports nothing else of the admin page", () => {
+  test("[moderation:admin-view-for-admin-list] given the game's shell, then it loads the admin route lazily and imports nothing else of the admin page but its address", () => {
     const app = readFileSync(join(import.meta.dirname, "..", "..", "app", "App.tsx"), "utf8");
     expect(app).toContain('lazy(() => import("../features/admin/AdminRoute")');
     const adminImports = [...app.matchAll(/^import [^;]* from "(\.\.\/features\/admin\/[^"]+)";/gm)].map((found) => found[1]);
-    expect(adminImports).toEqual(["../features/admin/adminPath"]);
+    expect(adminImports).toEqual([]);
+    const address = readFileSync(join(import.meta.dirname, "..", "..", "app", "address.ts"), "utf8");
+    const addressImports = [...address.matchAll(/^import [^;]* from "(\.\.\/features\/admin\/[^"]+)";/gm)].map((found) => found[1]);
+    expect(addressImports).toEqual(["../features/admin/adminPath"]);
   });
 });

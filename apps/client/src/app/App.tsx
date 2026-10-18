@@ -4,7 +4,9 @@
 // keep their own screens. The admin page is its own chunk, fetched only at /admin (moderation:admin-view-for-admin-list).
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
-import { bootGame } from "../authority/boot";
+import type { AccountReply } from "@japacity/api";
+
+import { accountAtBoot, bootGame } from "../authority/boot";
 import { CountedBoundary } from "../shared/analytics/CountedBoundary";
 import { SoundNotice } from "../shared/sound/SoundNotice";
 import { Rejection } from "../shared/ui/Rejection";
@@ -22,7 +24,6 @@ import { canDraw } from "../shared/frontdoor/Gate";
 import { AgentSheets } from "../features/advice/AgentSheet";
 import { inviteCodeOf, InvitePage } from "../features/account/InvitePage";
 import { GuestReminder, SecureAsk } from "../features/account/Secure";
-import { adminAsked } from "../features/admin/adminPath";
 import { OFFER_PLACES } from "../features/city/nudge/nudge";
 import { PARCEL } from "../shared/world/parcel.ask";
 import { ParcelWaybill } from "../shared/world/Waybill";
@@ -43,6 +44,8 @@ import { NotifyAsk } from "../features/notify/NotifyAsk";
 import { NotifySetting } from "../features/notify/NotifySetting";
 import { OfferView } from "../features/offer/OfferView";
 import { usePairApi } from "../features/person/pairApi";
+import { api } from "../shared/net/http";
+import { addressOf, listedAsAdmin, showRoot, type Address } from "./address";
 import { BondHead, PeopleSlots } from "../features/person/PeopleOnPhone";
 import { iconFor } from "../features/phone/PhoneIcon";
 import { PhoneApps, usePhoneWaiting } from "../features/phone/PhoneApps";
@@ -82,13 +85,44 @@ function StartCityBehind() {
   );
 }
 
-/** moderation:admin-view-for-admin-list: the admin page, its own chunk, fetched only at /admin, so a player never downloads it. */
+/** moderation:admin-view-for-admin-list: the admin page, its own chunk, fetched only at /admin and only for an account the server names as listed. */
 const AdminRoute = lazy(() => import("../features/admin/AdminRoute").then((admin) => ({ default: admin.AdminRoute })));
 
-/** Anywhere but /admin the game as it is; at /admin the admin chunk is fetched, and it shows the game to anyone off the admin list. */
-function AdminGate({ children }: { children: ReactNode }) {
-  const [asked] = useState(() => typeof location !== "undefined" && adminAsked(location.pathname));
-  if (!asked) return <>{children}</>;
+/**
+ * The account read an address is judged on: online, the one the game makes as it starts, so judging asks nothing more.
+ * With the local authority (development only) there is none, and /admin reads the dev server's account route.
+ */
+export function accountForAddress(address: Address): Promise<AccountReply | null> {
+  const booted = accountAtBoot();
+  if (booted !== null) return booted;
+  if (address !== "admin") return Promise.resolve(null);
+  return api({ baseUrl: "" })
+    .get<AccountReply>("/api/account")
+    .catch(() => null);
+}
+
+/**
+ * server:unknown-address-becomes-root, moderation:admin-view-for-admin-list: the game at every address. Once the game's account
+ * read has settled, an address the game does not know becomes `/`; /admin stays, and fetches the admin chunk, only for an account
+ * the server names as listed. To anyone else /admin is any unknown address: the same game, the same requests, the same `/`.
+ */
+export function AddressGate({ children, path, read = accountForAddress }: { children: ReactNode; path?: string; read?: (address: Address) => Promise<AccountReply | null> }) {
+  const [address] = useState<Address>(() => addressOf(path ?? (typeof location === "undefined" ? "/" : location.pathname)));
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => {
+    if (address === "root" || address === "invite") return undefined;
+    let live = true;
+    const judge = (reply: AccountReply | null) => {
+      if (!live) return;
+      if (address === "admin" && listedAsAdmin(reply)) setAdmin(true);
+      else showRoot();
+    };
+    read(address).then(judge, () => judge(null));
+    return () => {
+      live = false;
+    };
+  }, [address, read]);
+  if (!admin) return <>{children}</>;
   return (
     <Suspense fallback={<Splash />}>
       <AdminRoute>{children}</AdminRoute>
@@ -288,9 +322,9 @@ export function App({ store: given, path }: { store?: GameStore; path?: string }
   return (
     <CountedBoundary>
       <SoundNotice />
-      <AdminGate>
+      <AddressGate {...(path === undefined ? {} : { path })}>
         <GameProvider store={store}>{invite === null ? <Shell /> : <InvitePage code={invite} onDone={leaveInvite} />}</GameProvider>
-      </AdminGate>
+      </AddressGate>
     </CountedBoundary>
   );
 }

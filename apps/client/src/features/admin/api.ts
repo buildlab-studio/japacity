@@ -31,12 +31,21 @@ import type {
 
 import { authorityMode } from "../../shared/net/authorityMode";
 import { api, type Api } from "../../shared/net/http";
+import { passkeyStepUp, type StepUp } from "./stepUp";
 
 export type Outcome = "approve" | "refuse";
 
+/**
+ * moderation:admin-view-for-admin-list: where the account stands at /admin. `admin`: the page opens. `needs-passkey`: listed, and
+ * the session has not shown a passkey recently. `add-passkey`: the same, with no passkey held. `not-admin`: anyone else, or no answer.
+ */
+export type AdminStanding = "admin" | "needs-passkey" | "add-passkey" | "not-admin";
+
 export interface AdminApi {
-  /** True only when `GET /api/account` answers and names the account as an admin. */
-  isAdmin: () => Promise<boolean>;
+  /** From `GET /api/account`. */
+  standing: () => Promise<AdminStanding>;
+  /** moderation:admin-view-for-admin-list: the passkey shown from this browser, which steps the session up. */
+  stepUp: () => Promise<StepUp>;
   report: (day: number | null) => Promise<LedgerReportReply>;
   alarms: () => Promise<AlarmsReply>;
   rejections: () => Promise<RejectionsReply>;
@@ -83,13 +92,18 @@ function query(pairs: Record<string, string | undefined>): string {
   return text === "" ? "" : `?${text}`;
 }
 
-export function adminApi(server: Api, baseUrl: string): AdminApi {
+/** `stepUp`: the passkey's own call, the auth library's in the page; a test hands in its own. */
+export function adminApi(server: Api, baseUrl: string, stepUp: () => Promise<StepUp> = passkeyStepUp(baseUrl)): AdminApi {
   const base = baseUrl.replace(/\/+$/, "");
   return {
-    isAdmin: async () => {
+    standing: async () => {
       const reply = await settle(server.get<AccountReply>("/api/account"));
-      return reply.ok && "account" in reply && reply.account.admin === true;
+      if (!reply.ok || !("account" in reply)) return "not-admin";
+      if (reply.account.admin) return "admin";
+      if (reply.account.adminNeedsPasskey !== true) return "not-admin";
+      return reply.account.ways.passkeys > 0 ? "needs-passkey" : "add-passkey";
     },
+    stepUp,
     report: (day) => settle(server.get(`/api/admin/report${query({ day: day === null ? undefined : String(day) })}`)),
     alarms: () => settle(server.get("/api/admin/alarms")),
     rejections: () => settle(server.get("/api/admin/rejections")),

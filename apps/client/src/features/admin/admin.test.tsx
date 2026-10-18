@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { api, type Fetch } from "../../shared/net/http";
@@ -10,6 +10,7 @@ import { words } from "./admin.words";
 import { AdminPage, type AdminTab } from "./AdminPage";
 import { AdminRoute } from "./AdminRoute";
 import { adminApi, type AdminApi } from "./api";
+import type { StepUp } from "./stepUp";
 
 interface Call {
   method: string;
@@ -22,8 +23,8 @@ type Handler = (call: Call) => unknown;
 
 const BASE = "http://admin.test";
 
-/** The server's admin routes, answered from the fixtures; `over` answers a route its own way, undefined for a 404. */
-function fakeServer(over: Record<string, Handler> = {}): { calls: Call[]; admin: AdminApi } {
+/** The server's admin routes, answered from the fixtures; `over` answers a route its own way, undefined for a 404. `stepUp` stands for the passkey. */
+function fakeServer(over: Record<string, Handler> = {}, stepUp: () => Promise<StepUp> = () => Promise.resolve({ ok: false, why: "failed" })): { calls: Call[]; admin: AdminApi } {
   const calls: Call[] = [];
   const fetch: Fetch = (input, init) => {
     const url = new URL(input);
@@ -34,7 +35,7 @@ function fakeServer(over: Record<string, Handler> = {}): { calls: Call[]; admin:
     const answer = handler === undefined ? (method === "GET" ? ADMIN_GETS[url.pathname] : undefined) : handler(call);
     return Promise.resolve(answer === undefined ? new Response("404 Not Found", { status: 404 }) : Response.json(answer));
   };
-  return { calls, admin: adminApi(api({ baseUrl: BASE, fetch }), BASE) };
+  return { calls, admin: adminApi(api({ baseUrl: BASE, fetch }), BASE, stepUp) };
 }
 
 /** moderation:admin-view-for-admin-list: the page reads and acts only through the admin routes and the account's own row. */
@@ -93,6 +94,7 @@ describe("where the admin page mounts", () => {
     await waitFor(() => expect(server.calls.map((call) => call.path)).toEqual(["/api/account"]));
     expect(screen.getByText("the game")).toBeTruthy();
     expect(screen.queryByRole("heading", { name: words("admin.title") })).toBeNull();
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
   });
 
   test("[moderation:admin-view-for-admin-list] given /admin and no session or no server behind the page, when the app opens, then the ordinary app shows", async () => {
@@ -110,18 +112,90 @@ describe("where the admin page mounts", () => {
       unmount();
     }
   });
+});
 
-  test("[moderation:admin-view-for-admin-list] given any other address, when the app opens, then the account is not even asked", async () => {
-    window.history.replaceState({}, "", "/");
-    const server = fakeServer();
-    render(
-      <AdminRoute api={server.admin}>
-        <p>the game</p>
-      </AdminRoute>,
-    );
-    await Promise.resolve();
+/** The account's row as the server gives it to a listed admin, whose session has shown a passkey recently or not. */
+const OWNER = (ADMIN_GETS["/api/account"] as { account: object }).account;
+function accountReply(admin: boolean, passkeys = 1) {
+  return { ok: true, account: { ...OWNER, admin, adminNeedsPasskey: !admin, ways: { google: null, email: "owner@example.com", passkeys } } };
+}
+
+function mountAt(server: { admin: AdminApi }) {
+  window.history.replaceState({}, "", "/admin");
+  render(
+    <AdminRoute api={server.admin}>
+      <p>the game</p>
+    </AdminRoute>,
+  );
+}
+
+describe("the admin's passkey, asked in place", () => {
+  test("[moderation:admin-view-for-admin-list] given a listed admin whose session has not shown a passkey, when /admin opens, then the game shows under a sheet asking for the passkey, and once it is shown the admin page opens", async () => {
+    let held = false;
+    const server = fakeServer({ "GET /api/account": () => accountReply(held) }, () => {
+      held = true;
+      return Promise.resolve({ ok: true });
+    });
+    mountAt(server);
+    const sheet = await screen.findByRole("dialog");
+    expect(within(sheet).getByText(words("admin.passkey.ask"))).toBeTruthy();
     expect(screen.getByText("the game")).toBeTruthy();
-    expect(server.calls).toEqual([]);
+    expect(screen.queryByRole("tablist")).toBeNull();
+    fireEvent.click(within(sheet).getByRole("button", { name: words("admin.passkey.use") }));
+    expect(await screen.findByRole("heading", { name: words("admin.title"), level: 1 })).toBeTruthy();
+    expect(window.location.pathname).toBe("/admin");
+  });
+
+  test("[moderation:admin-view-for-admin-list] given the passkey sheet, when the passkey shown is another account's, verifies no one, fails, or the prompt is closed, then the sheet says so plainly (a closed prompt says nothing) and stays", async () => {
+    const cases: [StepUp, string | null][] = [
+      [{ ok: false, why: "other-account" }, words("admin.passkey.other")],
+      [{ ok: true }, words("admin.passkey.unverified")],
+      [{ ok: false, why: "failed" }, words("admin.passkey.failed")],
+      [{ ok: false, why: "unreachable" }, words("admin.passkey.unreachable")],
+      [{ ok: false, why: "cancelled" }, null],
+    ];
+    for (const [result, said] of cases) {
+      const server = fakeServer({ "GET /api/account": () => accountReply(false) }, () => Promise.resolve(result));
+      mountAt(server);
+      const sheet = await screen.findByRole("dialog");
+      fireEvent.click(within(sheet).getByRole("button", { name: words("admin.passkey.use") }));
+      await waitFor(() => expect(within(sheet).getByRole("button", { name: words("admin.passkey.use") }).hasAttribute("disabled")).toBe(false));
+      expect(within(sheet).queryByRole("alert")?.textContent ?? null).toBe(said);
+      expect(screen.queryByRole("tablist")).toBeNull();
+      cleanup();
+    }
+  });
+
+  test("[moderation:admin-view-for-admin-list] [server:unknown-address-becomes-root] given the passkey sheet, when the admin goes back to the game, then the sheet closes and the address is /", async () => {
+    const server = fakeServer({ "GET /api/account": () => accountReply(false) });
+    mountAt(server);
+    const sheet = await screen.findByRole("dialog");
+    fireEvent.click(within(sheet).getByRole("button", { name: words("admin.back") }));
+    await waitFor(() => expect(window.location.pathname).toBe("/"));
+    expect(screen.getByText("the game")).toBeTruthy();
+  });
+
+  test("[moderation:admin-view-for-admin-list] given a listed admin with no passkey yet, when /admin opens, then the sheet says to add one in Settings and offers no passkey to use", async () => {
+    const server = fakeServer({ "GET /api/account": () => accountReply(false, 0) });
+    mountAt(server);
+    const sheet = await screen.findByRole("dialog");
+    expect(within(sheet).getByText(words("admin.passkey.none"))).toBeTruthy();
+    expect(within(sheet).queryByRole("button", { name: words("admin.passkey.use") })).toBeNull();
+  });
+
+  test("[moderation:admin-view-for-admin-list] given the admin page open, when an admin route is refused because the passkey's window closed, then the page gives way to the sheet, which asks for the passkey again", async () => {
+    let held = true;
+    const server = fakeServer({
+      "GET /api/account": () => accountReply(held),
+      "GET /api/admin/report": () => {
+        held = false;
+        return { ok: false, code: "not-legal", detail: "The admin view needs your passkey again." };
+      },
+    });
+    mountAt(server);
+    const sheet = await screen.findByRole("dialog");
+    expect(within(sheet).getByText(words("admin.passkey.again"))).toBeTruthy();
+    expect(screen.queryByRole("tablist")).toBeNull();
   });
 });
 
