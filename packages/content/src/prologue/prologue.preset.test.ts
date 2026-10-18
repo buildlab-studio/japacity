@@ -1,10 +1,11 @@
 // The archetypes' presets in content (prologue.md R-PROLOGUE-010, server.md R-SERVER-046): the one answer function the
 // client plays offline and the server plays online. Its edges: the preset's answer allowed, shut (the open answer that
 // suits the tile), a step the preset does not name, every answer shut, an unknown tile; the door's age step and home.
+import { startYearOf } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { content } from "../index";
-import { AGE_CARDS, lowestYear, PRESET_STEPS_OLDER, presetAges, presetAnswer, presetHomes, presetOf, presetOffered, PRESETS, startYearOf } from "./prologue.preset";
+import { AGE_CARDS, lowestYear, PRESET_STEPS_OLDER, presetAges, presetAnswer, presetHomes, presetOf, presetOffered, PRESETS } from "./prologue.preset";
 
 const open = (...ids: string[]) => ids.map((id) => ({ id, allowed: true }));
 const shut = (...ids: string[]) => ids.map((id) => ({ id, allowed: false }));

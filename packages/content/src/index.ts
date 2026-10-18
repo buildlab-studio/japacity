@@ -92,7 +92,7 @@ export { recurringPeople } from "./person/person.recurring.data";
 export type { RecurringPerson, RecurringRole } from "./person/person.recurring.data";
 export { familyFeed, familyNames, familyPosts, travelKnown } from "./family/family.data";
 export { HOMETOWN_FILL, hometownByHome, hometownCities, hometownRegion, hometownTowns } from "./prologue/prologue.hometown.data";
-export { AGE_CARDS, agedAnswers, answerOf, homedAnswers, HOMES, lowestYear, PRESET_STEPS_OLDER, PRESET_THROUGH, presetAges, presetAnswer, presetHome, presetHomes, presetOf, presetOffered, presetOwnAnswer, PRESETS, startYearOf, suitingFirst } from "./prologue/prologue.preset";
+export { AGE_CARDS, agedAnswers, answerOf, homedAnswers, HOMES, lowestYear, PRESET_STEPS_OLDER, PRESET_THROUGH, presetAges, presetAnswer, presetHome, presetHomes, presetOf, presetOffered, presetOwnAnswer, PRESETS, suitingFirst } from "./prologue/prologue.preset";
 export type { Home, Preset, PresetAnswers, PresetId } from "./prologue/prologue.preset";
 export type { FamilyPost, FamilyPostKind, FamilySender } from "./family/family.data";
 /** The story tied to the world (world.md R-WORLD-003, R-WORLD-019, R-WORLD-020). */

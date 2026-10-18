@@ -33,6 +33,7 @@ export { ledgerReport } from "./wallet/wallet.report";
 export { pocketFor } from "./wallet/wallet.logic";
 export { CURRENCIES, isCurrency, placeCurrency, spendable } from "./wallet/wallet.rates";
 export { qualityIn } from "./quality/quality.logic";
+export { startYearOf } from "./prologue/prologue.logic";
 export { rideFare, metresApart, PASS_ACT } from "./place/place.logic";
 export type { RideFare } from "./place/place.logic";
 export * as time from "./engine/time";
