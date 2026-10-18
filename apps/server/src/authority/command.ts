@@ -15,7 +15,7 @@ import type { Answer } from "./answer";
 import { refusal } from "./answer";
 import { afterCommit, queueDiverged } from "./commit";
 import type { Live } from "./load";
-import type { Act, TxOptions, TxResult } from "./transaction";
+import type { Act, TxResult } from "./transaction";
 import { transact } from "./transaction";
 
 const ENCODER = new TextEncoder();
@@ -241,13 +241,6 @@ export async function sendAuthority(deps: ServerDeps, character: string, command
     return result.ok ? { ok: true, value: result.lines } : result;
   });
   if (outcome.kind === "done") await afterCommit(deps, outcome.lives, "authority");
-  if (outcome.kind === "diverged") await queueDiverged(deps, outcome.diverged);
-  return outcome;
-}
-
-/** server:newer-content-upgrades-state, server:older-contents-bundled: loads a character and writes its upgrade to the current content, stepping nothing. For the sweep. */
-export async function upgradeCharacter(deps: ServerDeps, character: string, options: TxOptions = { grant: false }): Promise<TxResult<null>> {
-  const outcome = await transact(deps, [character], () => ({ ok: true, value: null }), options);
   if (outcome.kind === "diverged") await queueDiverged(deps, outcome.diverged);
   return outcome;
 }

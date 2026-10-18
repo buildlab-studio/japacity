@@ -49,7 +49,7 @@ export type Loaded = { ok: true; live: Live } | { ok: false; diverged: Diverged 
 /** server:older-contents-bundled: the bundled content a segment names, by version and overlay. */
 export function contentNamed(contents: Contents, version: string, overlay: string | undefined): Content {
   const found = namedContent(contents, version, overlay);
-  // A segment under a content the server no longer bundles cannot be replayed; server:older-contents-bundled's sweep is meant to leave none.
+  // A segment under a content the server no longer bundles cannot be replayed (server:older-contents-bundled).
   if (found === null) throw new Error(`The server bundles no content ${version} under overlay ${overlay ?? "none"}.`);
   return found;
 }

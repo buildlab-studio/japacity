@@ -29,7 +29,7 @@ export interface Turn {
 export type Act<T> = (lives: Live[], turn: Turn) => { ok: true; value: T } | Rejection;
 
 export interface TxOptions {
-  /** clock:turns-earned-from-refill-time: off only for a sweep that carries characters to the current content and steps nothing. */
+  /** clock:turns-earned-from-refill-time: off only where a test stores a recorded life as it was played, with no turn granted. */
   grant?: boolean;
 }
 

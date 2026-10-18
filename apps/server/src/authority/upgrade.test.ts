@@ -5,7 +5,6 @@ import { lifeSaves } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
-import { upgradeCharacter } from "./command";
 import { apply, contentNamed } from "./load";
 import { contentsFor, withContentBefore } from "./overlay";
 import type { TestServer } from "./authority.testing";
@@ -126,21 +125,6 @@ describe("old saves", () => {
     const reply = await send(server, "acc-1", restMonth({ v: 5 }));
     expect(reply.body).toMatchObject({ ok: false, code: "stale" });
     expect((await held(server, id)).segments).toHaveLength(1);
-  });
-
-  test("[server:older-contents-bundled] given a character still on an older content, when the sweep upgrades it, then a new segment is written and no turn is granted", async () => {
-    const server = testServer();
-    server.deps.contents = { current: previous, previous: null };
-    const id = await newLife(server, "acc-1");
-    await send(server, "acc-1", restMonth({ v: 0 }));
-    server.deps.contents = { current: content, previous };
-    server.wait(10 * productionConfig.clock.turnRefillMs);
-    const outcome = await upgradeCharacter(server.deps, id);
-    expect(outcome.kind).toBe("done");
-    const stored = await held(server, id);
-    expect(stored.segments.map((segment) => segment.content)).toEqual([previous.version, content.version]);
-    expect(stored.tail).toEqual([]);
-    expect(stored.snapshot.state.turn.banked).toBe(content.tuning.turn.cap - 1);
   });
 
   test("[server:newer-content-upgrades-state] [server:upgrade-state-is-pure] [server:older-contents-bundled] given a character stored under an older content by the code before schema 4 (no spent half-days, no offers rolled, no body), when its view is fetched under the current one, then the new segment's base has them filled as a new life starts them, at schema 4, and the invariants hold", async () => {
