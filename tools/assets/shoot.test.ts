@@ -4,7 +4,8 @@ import { join } from "node:path";
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, ROOT, SOURCE } from "./catalog";
+import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, SOURCE } from "./catalog";
+import { REPO_ROOT } from "../repo";
 import { listFiles, sourceFiles } from "./assets-check";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
@@ -28,7 +29,7 @@ describe("the fixed views", () => {
   });
 
   test("[R-ASSET-020] given the shooter, when it launches a browser, then it uses Playwright's own Chromium with no hard-coded path, on the software renderer", () => {
-    const sources = readdirSync(join(ROOT, "tools", "assets")).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts")).map((f) => readFileSync(join(ROOT, "tools", "assets", f), "utf8"));
+    const sources = readdirSync(join(REPO_ROOT, "tools", "assets")).filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts")).map((f) => readFileSync(join(REPO_ROOT, "tools", "assets", f), "utf8"));
     expect(sources.join("\n")).not.toMatch(/executablePath\s*:/);
     expect(sources.join("\n")).toMatch(/--use-angle=swiftshader/);
   });
@@ -76,7 +77,7 @@ describe("the tile view", () => {
     const shown = ["bld_room_parlour", "bld_room_compound", "prop_sheet-flag_coarse", "prop_sheet-pennant_fine", "prop_water_coarse", "prop_water_fine", "prop_pole", "prop_drum-water", "prop_plank-walkway", "chr_tunde"];
     for (const name of shown) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: false });
     expect(CATALOG.filter((entry) => entry.name.startsWith("bld_room_") || entry.name.startsWith("prop_sheet-") || entry.name.startsWith("prop_water_")).filter((entry) => entry.views.includes("tile")).map((entry) => entry.name)).toEqual([]);
-    expect(untiled.filter((entry) => entry.views.includes("tile") || existsSync(join(ROOT, entry.source, "renders", "tile.png"))).map((entry) => entry.name)).toEqual([]);
+    expect(untiled.filter((entry) => entry.views.includes("tile") || existsSync(join(REPO_ROOT, entry.source, "renders", "tile.png"))).map((entry) => entry.name)).toEqual([]);
     for (const name of ["prop_cooking-corner", "prop_bed", "veh_danfo", "lm_national-stadium", "bld_family-house", "shop_provisions"]) expect({ name, tiled: isTiled(name) }).toEqual({ name, tiled: true });
   });
 
@@ -115,7 +116,7 @@ describe("the tile view", () => {
   });
 
   test.each(tiled.map((entry) => ({ name: entry.name, source: entry.source })))("[R-ASSET-011] given $name's tile, when it is read, then it is 512 pixels square, clear at its corners and the asset fills it", ({ source }) => {
-    const image = decodePng(readFileSync(join(ROOT, source, "renders", "tile.png")));
+    const image = decodePng(readFileSync(join(REPO_ROOT, source, "renders", "tile.png")));
     expect([image.width, image.height]).toEqual([512, 512]);
     const alphaAt = (x: number, y: number): number => image.pixels[(y * image.width + x) * 4 + 3] ?? 255;
     expect([alphaAt(0, 0), alphaAt(511, 0), alphaAt(0, 511), alphaAt(511, 511)]).toEqual([0, 0, 0, 0]);
@@ -140,7 +141,7 @@ describe("the tile view", () => {
 
 describe("the door's portraits", () => {
   const portrayed = CATALOG.filter((entry) => PORTRAITS.some((view) => entry.views.includes(view)));
-  const read = (source: string, view: string) => decodePng(readFileSync(join(ROOT, source, "renders", `${view}.png`)));
+  const read = (source: string, view: string) => decodePng(readFileSync(join(REPO_ROOT, source, "renders", `${view}.png`)));
 
   test("[R-ASSET-020] [R-PROLOGUE-009] given the people, when their views are listed, then each look the door offers, and only those, gets its face, its whole figure and its cheer, and none of them the tile", () => {
     expect(portrayed.map((entry) => entry.name).sort()).toEqual(CATALOG.filter((entry) => isPortrayed(entry.name)).map((entry) => entry.name).sort());

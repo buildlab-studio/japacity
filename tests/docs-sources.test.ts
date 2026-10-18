@@ -2,15 +2,14 @@
 // builds at every build of the site, read here exactly as the page reads it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
 import loader, { loadSources } from "../docs/site/plays/sources.data";
 import { content, readRulePage, sourcesList, text } from "../packages/content/src/index";
+import { REPO_ROOT } from "../tools/repo";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
-const rulesDir = join(root, "docs", "rules");
+const rulesDir = join(REPO_ROOT, "docs", "rules");
 const list = loader.load();
 
 describe("the sources page of the documentation site", () => {
@@ -57,8 +56,8 @@ describe("the sources page of the documentation site", () => {
   });
 
   test("[R-GUIDE-007] given the documentation site, then the page reads the list from its loader and the sidebar of how it plays reaches it", () => {
-    const page = readFileSync(join(root, "docs", "site", "plays", "sources.md"), "utf8");
+    const page = readFileSync(join(REPO_ROOT, "docs", "site", "plays", "sources.md"), "utf8");
     expect(page).toContain('import { data } from "./sources.data";');
-    expect(readFileSync(join(root, "docs", "site", ".vitepress", "config.ts"), "utf8")).toContain('{ text: "Every source", link: "/plays/sources" }');
+    expect(readFileSync(join(REPO_ROOT, "docs", "site", ".vitepress", "config.ts"), "utf8")).toContain('{ text: "Every source", link: "/plays/sources" }');
   });
 });

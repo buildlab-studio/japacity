@@ -6,9 +6,9 @@ import { join, relative } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { defaultPaths, mapSources } from "./assets-check";
+import { REPO_ROOT } from "../repo";
 
-const ROOT = join(import.meta.dirname, "..", "..");
-const paths = defaultPaths(ROOT);
+const paths = defaultPaths(REPO_ROOT);
 
 /** Every source file under `dir`, tests left out. */
 function sourcesUnder(dir: string): string[] {
@@ -22,9 +22,9 @@ const POSITION = /\b(latE3|lonE3)\b/;
 
 describe("positions are not geometry", () => {
   test("[R-CITY-009] given every builder of the kit and the asset tools, when their code is read, then none reads a place's latitude or longitude", () => {
-    const builders = [...sourcesUnder(join(ROOT, "assets-src")), ...sourcesUnder(join(ROOT, "packages", "assets", "src")), ...sourcesUnder(join(ROOT, "tools", "assets"))];
+    const builders = [...sourcesUnder(join(REPO_ROOT, "assets-src")), ...sourcesUnder(join(REPO_ROOT, "packages", "assets", "src")), ...sourcesUnder(join(REPO_ROOT, "tools", "assets"))];
     expect(builders.length).toBeGreaterThan(20);
-    expect(builders.filter((file) => POSITION.test(readFileSync(file, "utf8"))).map((file) => relative(ROOT, file))).toEqual([]);
+    expect(builders.filter((file) => POSITION.test(readFileSync(file, "utf8"))).map((file) => relative(REPO_ROOT, file))).toEqual([]);
   });
 
   test("[R-CITY-009] given every outline taken from OpenStreetMap, when the shipped credits are read, then each outline's map source is credited there", () => {

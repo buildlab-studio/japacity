@@ -8,8 +8,7 @@ import { CATALOG, isTiled } from "./catalog";
 import { defaultPaths, listFiles } from "./assets-check";
 import { readManifest, sha256 } from "./manifest";
 import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
-
-const ROOT = join(import.meta.dirname, "..", "..");
+import { REPO_ROOT } from "../repo";
 
 describe("published names", () => {
   test("[R-CITY-018] given a shipped path and its hash, when it is named for publishing, then the hash sits before the extension and can be read back", () => {
@@ -92,7 +91,7 @@ describe("the door's portraits", () => {
 });
 
 describe("the committed publish", () => {
-  const folder = defaultPaths(ROOT).public;
+  const folder = defaultPaths(REPO_ROOT).public;
   const manifest = JSON.parse(readFileSync(join(folder, MANIFEST_FILE), "utf8")) as PublishManifest;
 
   test("[R-CITY-018] given the manifest the loader reads, when each name is checked, then it carries the hash of that file's contents", () => {
@@ -117,7 +116,7 @@ describe("the committed publish", () => {
     const wrong = tiled.filter((entry) => {
       const published = manifest.files[`${TILES}/${entry.name}.png`];
       if (published === undefined) return true;
-      const render = readFileSync(join(ROOT, entry.source, "renders", "tile.png"));
+      const render = readFileSync(join(REPO_ROOT, entry.source, "renders", "tile.png"));
       return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${entry.name}.png`] !== sha256(render);
     });
     expect(wrong.map((entry) => entry.name)).toEqual([]);
@@ -127,7 +126,7 @@ describe("the committed publish", () => {
     const unpublished = portraits.filter((picture) => {
       const published = manifest.files[`${TILES}/${tileName(picture)}.png`];
       if (published === undefined) return true;
-      const render = readFileSync(join(ROOT, picture.source, "renders", `${picture.view ?? "tile"}.png`));
+      const render = readFileSync(join(REPO_ROOT, picture.source, "renders", `${picture.view ?? "tile"}.png`));
       return sha256(readFileSync(join(folder, published))) !== sha256(render) || images[`apps/client/public/assets/${TILES}/${tileName(picture)}.png`] !== sha256(render);
     });
     expect(unpublished.map(tileName)).toEqual([]);

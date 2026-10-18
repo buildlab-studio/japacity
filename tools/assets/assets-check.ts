@@ -15,6 +15,7 @@ import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
 import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
+import { REPO_ROOT } from "../repo";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -582,8 +583,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
 }
 
 async function main(): Promise<void> {
-  const root = join(import.meta.dirname, "..", "..");
-  const paths = defaultPaths(root);
+  const paths = defaultPaths(REPO_ROOT);
   const { problems, notes } = await runChecks(paths, placeMapData());
   // 11. Every staged place drawn still and moving on the cheap phone profile (city.md R-CITY-027, R-CITY-038).
   const rendered = await renderPlaces(paths, readJson<Budgets>(join(paths.source, "budgets.json")));

@@ -1,12 +1,11 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
 import { cronUrl, hyperdriveEnv, localStack, parseDotEnv, WORKER_KEYS, workerEnvFile, wranglerArgs } from "./env";
+import { REPO_ROOT } from "../repo";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const EXAMPLE = parseDotEnv(readFileSync(`${ROOT}/.env.example`, "utf8"));
+const EXAMPLE = parseDotEnv(readFileSync(`${REPO_ROOT}/.env.example`, "utf8"));
 
 describe("the local stack's settings", () => {
   test("[R-SERVER-038] given the committed .env.example, when it is read, then the game is https on localhost:8787, the database and Mailpit are on this machine, the mail goes to Mailpit, and the bot check uses the always-pass test keys", () => {
@@ -54,14 +53,14 @@ describe("the local stack's settings", () => {
   });
 
   test("[R-SERVER-038] given the deployed config, when it is read, then no local value is in it: no local connection string and no localhost", () => {
-    const config = readFileSync(`${ROOT}/apps/server/wrangler.jsonc`, "utf8");
+    const config = readFileSync(`${REPO_ROOT}/apps/server/wrangler.jsonc`, "utf8");
     expect(config).not.toContain("localConnectionString");
     expect(config).not.toContain("localhost");
     expect(config).not.toContain("127.0.0.1");
   });
 
   test("[R-SERVER-038] given the Worker's name in wrangler.jsonc, when the local cron is sent, then it is the name the local explorer dispatches to", () => {
-    const config = readFileSync(`${ROOT}/apps/server/wrangler.jsonc`, "utf8");
+    const config = readFileSync(`${REPO_ROOT}/apps/server/wrangler.jsonc`, "utf8");
     expect(config).toContain('"name": "japacity-server"');
   });
 });

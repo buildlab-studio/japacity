@@ -13,9 +13,9 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { buildEnv } from "../tools/check/size";
 import { shippedPackages } from "../tools/notices";
+import { REPO_ROOT } from "../tools/repo";
 
-const ROOT = join(import.meta.dirname, "..");
-const CLIENT = join(ROOT, "apps/client");
+const CLIENT = join(REPO_ROOT, "apps/client");
 
 /** The console calls a build for players keeps: the boundary's report and the libraries' faults, and the build's line. */
 const KEPT_CONSOLE = new Set(["error", "info"]);
@@ -54,7 +54,7 @@ function build(name: string, mode: "production" | "development"): Built {
   const out = join(work, name);
   const report = join(work, `${name}.json`);
   const env = mode === "production" ? buildEnv(report) : { ...buildEnv(report), NODE_ENV: "development" };
-  const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: ROOT, encoding: "utf8", env });
+  const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: REPO_ROOT, encoding: "utf8", env });
   if (built.status !== 0) throw new Error(`The client did not build in ${mode} mode: ${built.stderr}`);
   const { chunks } = JSON.parse(readFileSync(report, "utf8")) as { chunks: { file: string }[] };
   return { out, files: walk(out), chunks: chunks.map((chunk) => chunk.file) };

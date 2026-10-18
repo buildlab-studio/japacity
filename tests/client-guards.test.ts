@@ -6,7 +6,7 @@ import { join, relative } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-const ROOT = join(import.meta.dirname, "..");
+import { REPO_ROOT } from "../tools/repo";
 
 /** The ways a script can turn a string into markup. */
 const RAW_HTML = /\bdangerouslySetInnerHTML\b|\.innerHTML\b|\.outerHTML\s*=|\binsertAdjacentHTML\b|\bdocument\.write(?:ln)?\s*\(|\bcreateContextualFragment\b|\bsrcdoc\b/;
@@ -15,9 +15,9 @@ const SOURCE = /\.(?:ts|tsx|js|jsx|mjs|html)$/;
 const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx)$/;
 
 function filesUnder(folder: string): string[] {
-  return readdirSync(join(ROOT, folder), { recursive: true, withFileTypes: true })
+  return readdirSync(join(REPO_ROOT, folder), { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile())
-    .map((entry) => relative(ROOT, join(entry.parentPath, entry.name)));
+    .map((entry) => relative(REPO_ROOT, join(entry.parentPath, entry.name)));
 }
 
 /** Every line of the shipped sources under `folders` that sets raw HTML, as `path:line`. */
@@ -26,7 +26,7 @@ function rawHtmlLines(folders: readonly string[]): string[] {
     filesUnder(folder)
       .filter((path) => SOURCE.test(path) && !TEST_FILE.test(path))
       .flatMap((path) =>
-        readFileSync(join(ROOT, path), "utf8")
+        readFileSync(join(REPO_ROOT, path), "utf8")
           .split("\n")
           .flatMap((line, index) => (RAW_HTML.test(line) ? [`${path}:${String(index + 1)}`] : [])),
       ),

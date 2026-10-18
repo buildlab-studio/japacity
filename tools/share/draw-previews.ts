@@ -7,17 +7,18 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 
 import { content, shareKinds, text, type ShareKind } from "@japacity/content";
 import { chromium, type Page } from "@playwright/test";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
+import { REPO_ROOT } from "../repo";
+
 const PORT = Number(process.env.PREVIEWS_PORT ?? "5871");
 const BASE = `http://localhost:${String(PORT)}`;
-const SHARE = join(ROOT, "apps/client/public/share");
-const REGISTER = join(ROOT, "assets-src/register.json");
-const DANFO = join(ROOT, "apps/client/node_modules/@fontsource/danfo/files/danfo-latin-400-normal.woff2");
+const SHARE = join(REPO_ROOT, "apps/client/public/share");
+const REGISTER = join(REPO_ROOT, "assets-src/register.json");
+const DANFO = join(REPO_ROOT, "apps/client/node_modules/@fontsource/danfo/files/danfo-latin-400-normal.woff2");
 
 /** The words a preview carries, all from content: nothing about any player. */
 export function previewFace(kind: ShareKind): Record<string, string> {
@@ -48,7 +49,7 @@ async function answers(url: string): Promise<boolean> {
 /** The client's dev server on its own port, so the card code runs as the game runs it. */
 async function devServer(): Promise<() => void> {
   if (await answers(BASE)) throw new Error(`Something already answers at ${BASE}. Set PREVIEWS_PORT to a free port.`);
-  const child: ChildProcess = spawn("pnpm", ["--filter", "@japacity/client", "exec", "vite", "--port", String(PORT), "--strictPort"], { cwd: ROOT, detached: true, stdio: "ignore" });
+  const child: ChildProcess = spawn("pnpm", ["--filter", "@japacity/client", "exec", "vite", "--port", String(PORT), "--strictPort"], { cwd: REPO_ROOT, detached: true, stdio: "ignore" });
   const stop = () => {
     if (child.pid === undefined || child.exitCode !== null) return;
     try {

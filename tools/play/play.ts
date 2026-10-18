@@ -8,15 +8,14 @@ import { type ChildProcess, spawn } from "node:child_process";
 import { appendFileSync, createWriteStream, mkdirSync, writeFileSync } from "node:fs";
 import { request } from "node:https";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { text } from "@japacity/content";
 import { type Browser, chromium, type Locator, type Page } from "@playwright/test";
 
 import { accessHeaders, withAccess } from "../local/access";
 import { doorButton, livesFrom, localCertificate, parseOptions, type PlayOptions, shotName, USAGE } from "./options";
+import { REPO_ROOT } from "../repo";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 /** A mid-range phone, the size the game is built for and the browser tests use. */
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 /** WebGL on the software renderer, so the place draws on a machine with no graphics card. */
@@ -815,7 +814,7 @@ async function server(options: PlayOptions, say: (message: string) => void): Pro
   say(`starting the dev server at ${base} (its output goes to dev-server.log)`);
   const output = createWriteStream(join(options.out, "dev-server.log"));
   const child: ChildProcess = spawn("pnpm", ["--filter", "@japacity/client", "exec", "vite", "--port", String(options.port), "--strictPort"], {
-    cwd: ROOT,
+    cwd: REPO_ROOT,
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],
   });
@@ -906,7 +905,7 @@ async function play(options: PlayOptions, button: string): Promise<number> {
 }
 
 async function main(): Promise<void> {
-  const parsed = parseOptions(process.argv.slice(2), process.cwd(), ROOT);
+  const parsed = parseOptions(process.argv.slice(2), process.cwd(), REPO_ROOT);
   if (!parsed.ok) {
     if (parsed.help) {
       console.log(USAGE);

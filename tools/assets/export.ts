@@ -5,7 +5,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 
-import { type CatalogEntry, findEntries, PUBLIC, ROOT } from "./catalog";
+import { type CatalogEntry, findEntries, PUBLIC } from "./catalog";
+import { REPO_ROOT } from "../repo";
 import { measure, readGlb, toDocument, writeGlb } from "./glb";
 import { checkPalette } from "./palette-check";
 import { readRegister, rowFor, writeRegister } from "./register";
@@ -29,7 +30,7 @@ export async function exportEntry(entry: CatalogEntry, today: string): Promise<{
   writeRegister(register);
   console.log(
     `${entry.name}: ${String(figures.triangles)} triangles, ${String(figures.drawCalls)} draw calls, ${String(figures.materials)} materials, ${String(figures.bytes)} bytes, ` +
-      `height ${figures.maxY.toFixed(2)} m, lowest ${figures.minY.toFixed(3)} m -> ${relative(ROOT, path)}${problems.length > 0 ? ` PALETTE: ${problems.slice(0, 3).join("; ")}` : ""}`,
+      `height ${figures.maxY.toFixed(2)} m, lowest ${figures.minY.toFixed(3)} m -> ${relative(REPO_ROOT, path)}${problems.length > 0 ? ` PALETTE: ${problems.slice(0, 3).join("; ")}` : ""}`,
   );
   return { bytes, problems };
 }

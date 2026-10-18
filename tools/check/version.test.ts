@@ -1,8 +1,10 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
+import { REPO_ROOT } from "../repo";
 import { checkSeal, fingerprint, played, printed, resealed, SEAL_FILE, type Seal, simSources, type SourceFile, stableJson } from "./version";
 
 const STEP: SourceFile = {
@@ -21,7 +23,7 @@ const sealed = now(DATA, [STEP, KIND]);
 
 describe("the content version's seal", () => {
   test("[R-SERVER-048] given the committed seal, when it is read, then it names the content's version and a sha-256 fingerprint", () => {
-    const seal = JSON.parse(readFileSync(new URL(`../../${SEAL_FILE}`, import.meta.url), "utf8")) as Seal;
+    const seal = JSON.parse(readFileSync(join(REPO_ROOT, SEAL_FILE), "utf8")) as Seal;
     expect(seal.version).toBe(content.version);
     expect(seal.fingerprint).toMatch(/^[0-9a-f]{64}$/);
   });

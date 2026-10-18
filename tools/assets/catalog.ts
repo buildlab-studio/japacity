@@ -79,10 +79,10 @@ import * as north from "@japacity/assets-src/prop/north/build";
 import { Group } from "three";
 
 import { type BakedModel, bakeGroup, linearColour } from "./bake";
+import { REPO_ROOT } from "../repo";
 
-export const ROOT = join(import.meta.dirname, "..", "..");
-export const SOURCE = join(ROOT, "assets-src");
-export const PUBLIC = join(ROOT, "apps", "client", "public", "assets");
+export const SOURCE = join(REPO_ROOT, "assets-src");
+export const PUBLIC = join(REPO_ROOT, "apps", "client", "public", "assets");
 
 /** The way every dish in the hub faces, in the frame of its unturned buildings (R-ASSET-019). */
 const HUB_DISH_YAW = DEFAULT_DISH_YAW;
@@ -176,7 +176,7 @@ function buildingEntry(slug: string, place: string, author = EXAMPLE_MAKERS): Ca
     example: author === EXAMPLE_MAKERS,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () => {
-      const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(ROOT, source, "spec.json"));
+      const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(REPO_ROOT, source, "spec.json"));
       return staticModel(`bld_${slug}`, buildBuilding(spec, { ...options, dishYaw: HUB_DISH_YAW }));
     },
   };

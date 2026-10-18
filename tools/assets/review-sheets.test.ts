@@ -92,6 +92,7 @@ import labourBusSheet from "../../assets-src/veh/labour-bus/review.json";
 import taxiSheet from "../../assets-src/veh/taxi/review.json";
 
 import { listFiles } from "./assets-check";
+import { REPO_ROOT } from "../repo";
 
 const SHEETS: Record<string, ReviewSheet> = {
   "bld/bode-thomas-betting/review.json": bodeThomasBettingSheet satisfies Review,
@@ -180,7 +181,7 @@ const SHEETS: Record<string, ReviewSheet> = {
   "veh/taxi/review.json": taxiSheet satisfies Review,
 };
 
-const SOURCE = join(import.meta.dirname, "..", "..", "assets-src");
+const SOURCE = join(REPO_ROOT, "assets-src");
 
 describe("review sheets", () => {
   test("[R-ASSET-021] given every review sheet under assets-src, when the sheets are listed, then each is imported here and so checked against its type", () => {

@@ -9,13 +9,13 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { join, sep } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 
 import ts from "typescript";
 
 import { content } from "../../packages/content/src/index";
+import { REPO_ROOT } from "../repo";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
 /** Folders of the simulation's source that only tests and tools read. */
@@ -70,7 +70,7 @@ export function played(path: string): boolean {
 }
 
 /** Every file the simulation plays, read from `dir`, in path order. */
-export function simSources(dir: string = join(ROOT, SIM_SOURCE)): SourceFile[] {
+export function simSources(dir: string = join(REPO_ROOT, SIM_SOURCE)): SourceFile[] {
   const files = readdirSync(dir, { recursive: true, encoding: "utf8" })
     .map((path) => path.split(sep).join("/"))
     .filter(played)
@@ -131,7 +131,7 @@ export function resealed(now: Sealed, seal: Sealed | null): { ok: true; seal: Se
 
 function readSeal(): Seal | null {
   try {
-    return JSON.parse(readFileSync(join(ROOT, SEAL_FILE), "utf8")) as Seal;
+    return JSON.parse(readFileSync(join(REPO_ROOT, SEAL_FILE), "utf8")) as Seal;
   } catch {
     return null;
   }
@@ -147,7 +147,7 @@ function main(): void {
       console.log(result.problem);
       process.exit(1);
     }
-    writeFileSync(join(ROOT, SEAL_FILE), `${JSON.stringify(result.seal, null, 2)}\n`);
+    writeFileSync(join(REPO_ROOT, SEAL_FILE), `${JSON.stringify(result.seal, null, 2)}\n`);
     console.log(`Sealed content version "${now.version}": ${now.fingerprint}.`);
     return;
   }

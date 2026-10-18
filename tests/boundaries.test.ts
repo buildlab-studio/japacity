@@ -1,8 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, posix, relative, sep } from "node:path";
-import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { describe, expect, test } from "vitest";
+
+import { REPO_ROOT } from "../tools/repo";
 
 // Import boundaries from docs/design/04-structure-and-conventions.md section 9.
 
@@ -16,7 +17,6 @@ interface Exception {
 // code to where both sides may import it instead. A stale entry fails too.
 const allowedExceptions: readonly Exception[] = [];
 
-const root = fileURLToPath(new URL("..", import.meta.url));
 const SOURCE = /\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
 const SKIPPED = new Set(["node_modules", "dist", "build", "coverage", ".git", "docs"]);
 const SKIPPED_PATHS = new Set(["tools/__fixtures__"]);
@@ -28,7 +28,7 @@ const toPosix = (path: string) => path.split(sep).join("/");
 function sourceFiles(directory: string, found: string[] = []): string[] {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
-    const rel = toPosix(relative(root, path));
+    const rel = toPosix(relative(REPO_ROOT, path));
     if (entry.isDirectory()) {
       if (!SKIPPED.has(entry.name) && !SKIPPED_PATHS.has(rel)) sourceFiles(path, found);
     } else if (entry.isFile() && SOURCE.test(entry.name)) {
@@ -42,7 +42,7 @@ function sourceFiles(directory: string, found: string[] = []): string[] {
 function workspacePackages(): Map<string, string> {
   const packages = new Map<string, string>();
   for (const parent of ["packages", "apps"]) {
-    const base = join(root, parent);
+    const base = join(REPO_ROOT, parent);
     if (!existsSync(base)) continue;
     for (const entry of readdirSync(base, { withFileTypes: true })) {
       const manifest = join(base, entry.name, "package.json");
@@ -99,7 +99,7 @@ const CLIENT_BELOW_FEATURES = ["apps/client/src/shared", "apps/client/src/author
 function violations(files: readonly string[], packages: ReadonlyMap<string, string>): Exception[] {
   const found: Exception[] = [];
   for (const file of files) {
-    const text = readFileSync(join(root, file), "utf8");
+    const text = readFileSync(join(REPO_ROOT, file), "utf8");
     const imports = ts.preProcessFile(text, true, true).importedFiles.map((entry) => entry.fileName);
     const testLibraries = TEST_FILE.test(file) ? TEST_LIBRARIES : [];
 
@@ -184,7 +184,7 @@ function violations(files: readonly string[], packages: ReadonlyMap<string, stri
 }
 
 describe("import boundaries", () => {
-  const files = sourceFiles(root);
+  const files = sourceFiles(REPO_ROOT);
   const found = violations(files, workspacePackages());
   const matches = (a: Exception, b: Exception) => a.file === b.file && a.specifier === b.specifier;
 

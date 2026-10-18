@@ -11,6 +11,7 @@ import { join, relative } from "node:path";
 import { CATALOG, type CatalogEntry, PORTRAITS, type ViewName } from "./catalog";
 import { defaultPaths, isPublishedCopy, listFiles, TILES } from "./assets-check";
 import { hashedName, readManifest, sha256, writeManifest } from "./manifest";
+import { REPO_ROOT } from "../repo";
 
 export { HASH_DIGITS, hashedName, hashInName } from "./manifest";
 export { TILES } from "./assets-check";
@@ -91,11 +92,10 @@ export function copyTiles(entries: readonly TilePicture[], root: string, folder:
 }
 
 function main(): void {
-  const root = join(import.meta.dirname, "..", "..");
-  const folder = defaultPaths(root).public;
-  const tiles = copyTiles(tilePictures(CATALOG), root, folder);
+  const folder = defaultPaths(REPO_ROOT).public;
+  const tiles = copyTiles(tilePictures(CATALOG), REPO_ROOT, folder);
   const images = readManifest();
-  const prefix = `${relative(root, folder)}/${TILES}/`;
+  const prefix = `${relative(REPO_ROOT, folder)}/${TILES}/`;
   images.renders = { ...Object.fromEntries(Object.entries(images.renders).filter(([path]) => !path.startsWith(prefix))), ...tiles };
   writeManifest(images);
   const manifest = publish(folder);

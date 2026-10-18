@@ -4,8 +4,10 @@
 // Usage: pnpm check:rules [--write-pending]
 import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import ts from "typescript";
+
+import { REPO_ROOT } from "../repo";
 
 export const RULE_ID = /R-[A-Z][A-Z0-9]*-\d{3}/;
 
@@ -232,8 +234,7 @@ function isMain(): boolean {
 }
 
 if (isMain()) {
-  const root = fileURLToPath(new URL("../..", import.meta.url));
-  const { code, output } = run(root, { writePending: process.argv.includes("--write-pending") });
+  const { code, output } = run(REPO_ROOT, { writePending: process.argv.includes("--write-pending") });
   for (const line of output) console.log(line);
   process.exitCode = code;
 }

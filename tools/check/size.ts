@@ -11,8 +11,10 @@ import { spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
+
+import { REPO_ROOT } from "../repo";
 
 export const BUDGET_FILE = "tools/check/size-budget.json";
 
@@ -147,8 +149,7 @@ export function buildEnv(report: string): NodeJS.ProcessEnv {
 }
 
 function main(): void {
-  const root = fileURLToPath(new URL("../..", import.meta.url));
-  const budgets = JSON.parse(readFileSync(join(root, BUDGET_FILE), "utf8")) as BudgetFile;
+  const budgets = JSON.parse(readFileSync(join(REPO_ROOT, BUDGET_FILE), "utf8")) as BudgetFile;
   const problems = budgetFileProblems(budgets);
   const work = mkdtempSync(join(tmpdir(), "japacity-size-"));
   try {
@@ -156,7 +157,7 @@ function main(): void {
     const report = join(work, "chunks.json");
     const started = Date.now();
     const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", "production", "--outDir", outDir, "--emptyOutDir", "--logLevel", "warn"], {
-      cwd: root,
+      cwd: REPO_ROOT,
       env: buildEnv(report),
       stdio: "inherit",
     });

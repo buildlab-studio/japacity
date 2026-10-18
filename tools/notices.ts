@@ -5,6 +5,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { REPO_ROOT } from "./repo";
+
 export interface ShippedPackage {
   name: string;
   version: string;
@@ -44,9 +46,8 @@ export function noticesFile(packages: readonly ShippedPackage[]): string {
   ].join("\n");
 }
 
-export const ROOT = join(import.meta.dirname, "..");
-export const CLIENT_ROOT = join(ROOT, "apps", "client");
-export const NOTICES_PATH = join(ROOT, "NOTICES.md");
+export const CLIENT_ROOT = join(REPO_ROOT, "apps", "client");
+export const NOTICES_PATH = join(REPO_ROOT, "NOTICES.md");
 
 function main(): void {
   const packages = shippedPackages(CLIENT_ROOT);

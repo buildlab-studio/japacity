@@ -14,6 +14,7 @@ import type { Page } from "@playwright/test";
 import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./assets-check";
 import type { CheckMode as Mode, FrameRecord, PlaceInput, RouteRecord } from "./place-check.types";
 import { PHONE_SHOT } from "./shoot";
+import { REPO_ROOT } from "../repo";
 import { openStage, signText } from "./stage-browser";
 
 export const CHEAP_PHONE = { ...PHONE_SHOT, slowdown: 6 } as const;
@@ -206,7 +207,7 @@ async function main(): Promise<void> {
   const at = args.indexOf("--shots");
   const folder = at >= 0 ? args[at + 1] : undefined;
   const only = args.filter((arg, index) => at < 0 || (index !== at && index !== at + 1));
-  const paths = defaultPaths(join(import.meta.dirname, "..", ".."));
+  const paths = defaultPaths(REPO_ROOT);
   const budgets = JSON.parse(readFileSync(join(paths.source, "budgets.json"), "utf8")) as Budgets;
   const shoot =
     folder === undefined

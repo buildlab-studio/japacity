@@ -7,12 +7,11 @@ import { type ChildProcess, spawn } from "node:child_process";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { request } from "node:https";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { cronUrl, hyperdriveEnv, LOCAL_DIST, type LocalStack, readLocalStack, workerEnvFile, wranglerArgs } from "./env";
 import { composeUp, migrate } from "./stack";
+import { REPO_ROOT } from "../repo";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 /** R-CLOCK-012: the deployments tick every five minutes; wrangler dev runs no cron by itself. */
 const TICK_CRON = "*/5 * * * *";
 const TICK_MS = 5 * 60 * 1000;
@@ -58,20 +57,20 @@ async function main(): Promise<void> {
   const compose = !process.argv.includes("--no-compose");
   let stack: LocalStack;
   try {
-    stack = readLocalStack(ROOT);
+    stack = readLocalStack(REPO_ROOT);
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(2);
   }
-  if (compose && !composeUp(ROOT)) process.exit(1);
-  if (!migrate(ROOT, stack)) process.exit(1);
+  if (compose && !composeUp(REPO_ROOT)) process.exit(1);
+  if (!migrate(REPO_ROOT, stack)) process.exit(1);
 
-  const dist = join(ROOT, LOCAL_DIST);
-  const localDir = join(ROOT, "apps/server/.wrangler/local");
+  const dist = join(REPO_ROOT, LOCAL_DIST);
+  const localDir = join(REPO_ROOT, "apps/server/.wrangler/local");
   mkdirSync(localDir, { recursive: true });
   rmSync(join(dist, "index.html"), { force: true });
   const vite = spawn("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--watch", "--outDir", dist, "--emptyOutDir"], {
-    cwd: ROOT,
+    cwd: REPO_ROOT,
     stdio: "inherit",
     env: { ...process.env, ...stack.client },
   });
@@ -81,7 +80,7 @@ async function main(): Promise<void> {
   const envFile = join(localDir, "worker.env");
   writeFileSync(envFile, workerEnvFile(stack), { mode: 0o600 });
   const wrangler = spawn("pnpm", ["--filter", "@japacity/server", "exec", "wrangler", ...wranglerArgs(stack, envFile, dist)], {
-    cwd: ROOT,
+    cwd: REPO_ROOT,
     stdio: "inherit",
     env: { ...process.env, ...hyperdriveEnv(stack) },
   });

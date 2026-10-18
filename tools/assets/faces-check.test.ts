@@ -6,10 +6,10 @@ import { describe, expect, test } from "vitest";
 import type { BakedModel } from "./bake";
 import { checkFaces, FACE_GAP, type FacedStage, floorFaces, type ModelFace, STRIP_STEP, stripTops } from "./faces-check";
 import { readGlb, toDocument, writeGlb } from "./glb";
+import { REPO_ROOT } from "../repo";
 
-const ROOT = join(import.meta.dirname, "..", "..");
 /** The stripes: a slab laid on the ground, its top a few millimetres over it. */
-const planted = JSON.parse(readFileSync(join(ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as { place: string; stage: FacedStage };
+const planted = JSON.parse(readFileSync(join(REPO_ROOT, "tools", "__fixtures__", "stripes", "place.json"), "utf8")) as { place: string; stage: FacedStage };
 const SLAB = "places/stripes/prop_slab.glb";
 
 /** A slab of 4 by 3 metres standing on y = 0, `top` metres thick: its top looks up, its underside down. */
