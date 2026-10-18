@@ -8,10 +8,12 @@ import frontRaw from "../../../../public/assets/places/tejuosho-front/place.json
 import raw from "../../../../public/assets/places/tejuosho-market/place.json";
 import type { Act } from "../../../shared/world/contract";
 import { sceneWords } from "../scene.words";
-import { nearest, staged, stagedPlaceTests } from "./staged.testing";
+import { copiesOf, staged } from "./place.testing";
+import { nearest, stagedPlaceTests } from "./staged.testing";
 
 const ID = "place.tejuosho-market";
-const { stage, at } = staged(raw, ID);
+const { stage } = staged(raw, ID);
+const at = (name: string) => copiesOf(stage, name);
 
 describe("Tejuosho Market", () => {
   stagedPlaceTests(raw, ID);

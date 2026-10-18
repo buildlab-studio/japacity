@@ -6,10 +6,12 @@ import { FLAGPOLE } from "@japacity/assets-src/prop/flagpole/build";
 import { TERMINAL } from "@japacity/assets-src/bld/terminal-front/build";
 
 import raw from "../../../../public/assets/places/airport-lagos/place.json";
-import { nearest, staged, stagedPlaceTests } from "./staged.testing";
+import { copiesOf, staged } from "./place.testing";
+import { nearest, stagedPlaceTests } from "./staged.testing";
 
 const ID = "place.airport-lagos";
-const { stage, at, entry } = staged(raw, ID);
+const { stage, entry } = staged(raw, ID);
+const at = (name: string) => copiesOf(stage, name);
 
 describe("the airport", () => {
   stagedPlaceTests(raw, ID);
