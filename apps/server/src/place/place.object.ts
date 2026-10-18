@@ -9,6 +9,7 @@
 // https://developers.cloudflare.com/durable-objects/best-practices/websockets/ (pings do not end hibernation)
 // https://developers.cloudflare.com/durable-objects/api/alarms/ (one alarm per object)
 // https://developers.cloudflare.com/durable-objects/api/storage-api/ (get, put and delete survive eviction)
+import { PING, PONG } from "@japacity/api";
 import { DurableObject } from "cloudflare:workers";
 import { memoryPresenceStore } from "@japacity/store";
 import type { Nudge, PresenceMember, PresenceStore } from "@japacity/store";
@@ -23,8 +24,6 @@ import {
   nudgeText,
   parseAttachment,
   parseLimits,
-  PING,
-  PONG,
   STATUS_FULL,
   STATUS_TOO_LARGE,
   tagsFor,

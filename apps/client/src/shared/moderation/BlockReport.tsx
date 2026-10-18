@@ -3,10 +3,10 @@
 // that shows one (R-MODERATION-003). One tap blocks. Two report: one opens the
 // reasons, one picks a reason and sends, with a block ticked beside it. The
 // control sends what the surface knows as the cites; no typed text.
+import { type BlockRequest, REPORT_REASONS, type ReportCite, type ReportReason } from "@japacity/api";
 import { Ban, Flag } from "lucide-react";
 import { useState } from "react";
 
-import { REPORT_REASONS, type BlockRequest, type ReportCite, type ReportReason } from "../net/contract";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
 import type { ReportRequest } from "./api";

@@ -1,12 +1,12 @@
 // R-ENGINE-015: the online authority's failures, as the store keeps them for the card: what went wrong by its kind,
 // what it was for, and Retry sending the same again.
+import type { ServerRejection } from "@japacity/api";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { Command, PlayerView, Reply } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import type { ServerRejection } from "../shared/net/contract";
 import { requestFailure } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
 import { say } from "../shared/words/text";

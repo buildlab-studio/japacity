@@ -8,12 +8,12 @@
 // Needs no session and reads nothing about the player. Nothing is served while
 // the `adverts` switch is off (R-SERVER-031): the switch is read before the
 // cache. No route here accepts anything from an advertiser (R-ADVERT-013).
+import type { AdvertsReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
 import { advertRegion, statusAt } from "../adverts/campaign";
 import { emptyReply, hourOf, servedAt } from "../adverts/serve";
-import type { AdvertsReply } from "../adverts/serve";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";

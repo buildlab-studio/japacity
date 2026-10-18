@@ -1,7 +1,7 @@
+import { PING } from "@japacity/api";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { fakeSockets } from "../testing/socket";
-import { PING } from "./contract";
 import { nudgeSocket, reconnectWait, SOCKET_NUMBERS } from "./socket";
 
 const none = () => 0;

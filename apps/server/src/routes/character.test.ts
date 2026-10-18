@@ -1,11 +1,11 @@
 // `POST /api/character/end` (account.md R-ACCOUNT-030): the life ends for good, a real
 // partner or sibling joined to it is told, and the account stays to start another.
+import type { ViewReply } from "@japacity/api";
 import { describe, expect, test } from "vitest";
 
 import { harness } from "../auth/auth.testing";
 import { call, held, newLife, view } from "../authority/authority.testing";
 import { cardOut, FRIEND, INVITER, lastBondIn, linkedPair, pairServer, sayFrom, signUp, stateOf } from "../pair/pair.testing";
-import type { ViewReply } from "../types";
 
 const STANDING = "quality.standing";
 

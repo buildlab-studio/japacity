@@ -1,6 +1,7 @@
 // The broken screen (analytics.md R-ANALYTICS-002): what broke goes to the console with the
 // build, the catch counts once as client/error render, and the screen offers Reload and Tell us, which opens the
 // feedback box with the error's name and the build written in and nothing else of the error.
+import type { CounterRow } from "@japacity/api";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -10,7 +11,7 @@ import { STAMP_META } from "../stamp/stamp";
 import { fakeModeration } from "../testing/moderation";
 import { say } from "../words/text";
 import { CountedBoundary, nameOf } from "./CountedBoundary";
-import { makeCounters, type CounterRow } from "./counters";
+import { makeCounters } from "./counters";
 import { countInto } from "./start";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";

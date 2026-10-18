@@ -1,12 +1,12 @@
 // R-MODERATION-020: the feedback a player sends, kept with the build, the
 // screen, the graphics mode, the day and the region and nothing else, and
 // dropped after `config.feedback.keepDays`.
+import type { ServerCode } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import type { FeedbackRow } from "@japacity/store";
 
 import { sha256Hex } from "../auth/hooks";
 import type { ServerDeps } from "../deps";
-import type { ServerCode } from "../types";
 import { newId } from "./decide";
 
 const LABEL = /^[\w.:-]{1,64}$/;

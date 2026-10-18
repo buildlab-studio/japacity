@@ -2,6 +2,7 @@
 // section 2): the two pickers as segmented pills, each line a card with a face sticker, the name and the figure as a
 // chip, this week's rise in green, the player's own line ringed; no look travels on a board, so another player's face
 // is picked from the name the line shows, and the player's own is the look they built at the door.
+import type { BoardRow } from "@japacity/api";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -11,7 +12,7 @@ import { LOOKS } from "../../shared/frontdoor/looks";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
 import { BOARD_FACES, boardFace, KEPT_PERSON, keptLook } from "./BoardList";
-import { boardsApiFor, BoardsApiProvider, type BoardRow } from "./boards";
+import { boardsApiFor, BoardsApiProvider } from "./boards";
 import { BoardsView } from "./BoardsView";
 
 afterEach(() => window.localStorage.clear());

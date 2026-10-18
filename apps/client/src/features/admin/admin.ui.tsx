@@ -1,10 +1,10 @@
 // The admin page's parts: plain tables, labelled fields, a reply shown as it
 // came, and an action that is confirmed before it is sent.
+import type { AdminRefusal } from "@japacity/api";
 import { useCallback, useEffect, useId, useState, type ComponentProps, type ReactNode } from "react";
 
 import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
-import type { AdminRefusal } from "./admin.contract";
 import { words } from "./admin.words";
 
 export type Reply = { ok: true } | AdminRefusal;

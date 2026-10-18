@@ -1,6 +1,7 @@
 // The prologue's preset played by the server in one request (server.md R-SERVER-046, decision 0008; R-SERVER-002,
 // R-SERVER-025): Begin sends the tile, the age step and the home, and the server steps `prologue/choose` with content's
 // answer at each card in one transaction, a log row a step, until the prologue closes.
+import type { PresetReply, ServerReply, ViewReply } from "@japacity/api";
 import { presetAnswer } from "@japacity/content";
 import { hashState } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
@@ -8,7 +9,6 @@ import { describe, expect, test } from "vitest";
 
 import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
-import type { PresetReply, ServerReply, ViewReply } from "../types";
 import { playPreset } from "./command";
 import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "./authority.testing";
 import { transact } from "./transaction";

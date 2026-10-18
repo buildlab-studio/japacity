@@ -1,3 +1,4 @@
+import type { ServedAdvert } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { screen, waitFor } from "@testing-library/react";
@@ -9,7 +10,6 @@ import { engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { BASE, fakeServer, type FakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
-import type { ServedAdvert } from "./adverts";
 import { AdvertsProvider, PhoneTile, PlaceAdverts, slotsAt } from "./placed";
 
 const SERVED: ServedAdvert = {

@@ -2,11 +2,11 @@
 // the command's kind does not know is never read by the simulation. So a body that also carries a state, a wallet,
 // a result or events is not refused: what it carries is ignored, and the stored state is the one the plain command
 // makes.
+import type { ServerReply } from "@japacity/api";
 import type { Command } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { call, held, newLife, restMonth, testServer } from "../authority/authority.testing";
-import type { ServerReply } from "../types";
 
 function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
   if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);

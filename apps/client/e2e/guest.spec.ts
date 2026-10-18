@@ -5,8 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 // The guest start and keeping a guest life (docs/rules/account.md R-ACCOUNT-021
 // to 027), played against a faked server as online.spec.ts does: every /api
-// route is answered here, in the shapes apps/client/src/shared/net/contract.ts
-// copies from the server.
+// route is answered here, in the shapes of @japacity/api.
 import { content } from "../../../packages/content/src/index";
 import { onlineText } from "../src/shared/words/online";
 import { uiText } from "../src/shared/words/ui";

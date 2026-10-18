@@ -1,6 +1,7 @@
 // The Worker's own guards: the headers on every
 // reply, writes only from the game's page, bodies and commands of a bounded
 // size, and the limits on the routes that had none.
+import type { ServerRejection } from "@japacity/api";
 import { describe, expect, test } from "vitest";
 
 import { harness, makeJar, SITE } from "../auth/auth.testing";
@@ -10,7 +11,6 @@ import type { ServerConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import type { Rooms } from "../place/place.rooms";
 import { placeSocketRoutes } from "../routes/place";
-import type { ServerRejection } from "../types";
 import { TOO_LARGE_DETAIL } from "./body";
 import { DEFAULT_CACHE, SECURITY_HEADERS } from "./headers";
 import { OTHER_SITE_DETAIL, fromElsewhere } from "./origin";

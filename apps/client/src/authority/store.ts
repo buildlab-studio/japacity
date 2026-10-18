@@ -1,6 +1,7 @@
 // The game store: the current view, the month being planned, and the last
 // thing the authority said. Screens read from here and send through here, so
 // none of them ever holds a state, a seed or a version number of its own.
+import type { ClockView, PresenceReply, PresetReply, PresetRequest, PresetStep, ServerCode, ServerRejection, WorldReply } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Command, Envelope, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
@@ -9,7 +10,6 @@ import { earlyWinIn } from "../features/guides/earlyWin";
 import { momentLine } from "../shared/moment/moment";
 import { carriedPlan } from "../features/turn/carried";
 import type { AccountApi } from "../shared/net/auth";
-import type { ClockView, PresenceReply, PresetReply, PresetRequest, PresetStep, ServerCode, ServerRejection, WorldReply } from "../shared/net/contract";
 import { failureOf, type FailureKind, isReloading, isReported } from "../shared/net/http";
 import { plannable } from "../shared/words/acts";
 import { isSaid, tidyLines } from "../shared/words/lines";
@@ -268,7 +268,6 @@ function withMoment(cards: readonly MomentShot[], lines: readonly ReportLine[], 
 }
 
 const CHAPTER_CLOSED = "line.chapter.closed";
-
 
 /**
  * R-MOMENT-006: a chapter's close is told once. When a moment card was queued for a

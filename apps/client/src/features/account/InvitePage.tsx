@@ -5,6 +5,7 @@
 // the slot it was made for. A partner link
 // needs a grown-up life, the friend's own or a new one; a sibling link always
 // starts a new life (R-PEOPLE-011). No advert shows here (R-ADVERT-003).
+import type { AcceptReply, AcceptRequest, InviteShown, InviteShownReply, ServerRejection } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { createContext, createElement, use, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -14,7 +15,6 @@ import { authorityMode } from "../../authority/mode";
 import { rejectionWords } from "../../authority/store";
 import { FROM_SIXTEEN } from "../../shared/frontdoor/archetypes";
 import { BlockReport } from "../../shared/moderation/BlockReport";
-import type { AcceptReply, AcceptRequest, InviteShown, InviteShownReply, ServerRejection } from "../../shared/net/contract";
 import { api, type Api } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { Wordmark } from "../../shared/ui/Wordmark";

@@ -1,4 +1,5 @@
 /// <reference types="@cloudflare/vitest-plugin/types" />
+import type { PresenceReply, ServerRejection } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import { connect, pgStores } from "@japacity/db";
 import type { Connection, Queries } from "@japacity/db";
@@ -15,7 +16,6 @@ import { freshRooms, listenTo, until } from "./place/place.testing";
 import { roomCounts } from "./place/place.rooms";
 import { isolateFor, openRequest, placeOfIn, profileOfIn } from "./production";
 import { placeSocketRoutes } from "./routes/place";
-import type { PresenceReply, ServerRejection } from "./types";
 
 /** A connection that is never asked anything: these tests build the stores and close them. */
 function idle(closed: string[]): (url: string) => Promise<Connection> {

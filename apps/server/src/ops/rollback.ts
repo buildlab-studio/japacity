@@ -1,29 +1,15 @@
 // The rollback tool (R-SERVER-008 to 010): one character at a time, always.
 // The check reads only; the correction runs under that character's lock and
 // touches no other row. Nothing here takes or walks a list of characters.
+import type { LoadFailure, RollbackCheck, RollbackReport } from "@japacity/api";
 import type { State } from "@japacity/sim";
 import type { Held, LogRow, Writes } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import type { Diff, Dropped, LoadFailure, Loaded } from "./replay";
+import type { Loaded } from "./replay";
 import { replaySegments, worldsFor } from "./replay";
 
 type AdminDeps = Pick<ServerDeps, "contents" | "stores" | "now">;
-
-/** What the check found for one character. */
-interface RollbackReport {
-  character: string;
-  /** The stored version when the check ran. */
-  v: number;
-  /** Commands replayed, across every segment. */
-  replayed: number;
-  /** R-SERVER-008: the first logged version whose hash differs, or null when none does. */
-  firstDiff: Diff | null;
-  /** R-SERVER-009: commands the log says were accepted that are now rejected. */
-  dropped: Dropped[];
-}
-
-export type RollbackCheck = { ok: true; report: RollbackReport } | LoadFailure;
 
 export type RollbackApply =
   | { ok: true; corrected: false; report: RollbackReport }

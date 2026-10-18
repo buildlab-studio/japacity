@@ -1,12 +1,13 @@
 // The front door's screens as the funnel counts them (analytics.md R-ANALYTICS-002, R-ANALYTICS-008):
 // the first door, the second and the page, each once each time it opens, as `screen/opened` rows.
+import type { CounterRow } from "@japacity/api";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";
 import { createGameStore } from "../../authority/store";
-import { type CounterRow, makeCounters } from "../../shared/analytics/counters";
+import { makeCounters } from "../../shared/analytics/counters";
 import { countInto } from "../../shared/analytics/start";
 import { DOOR_STAGES } from "../../shared/datapage/door";
 import { say } from "../../shared/words/text";

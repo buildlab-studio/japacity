@@ -1,10 +1,10 @@
 // The hour's slots for the player's region, fetched again when the hour ends.
 // Nothing is fetched while the view says no advert may show (R-ADVERT-003).
+import type { AdvertsReply } from "@japacity/api";
 import { useEffect, useState } from "react";
 
 import type { Api } from "../../shared/net/http";
 import { fetchAdverts } from "./adverts";
-import type { AdvertsReply } from "./adverts";
 
 /** Null `api` or `region`: nothing to fetch yet, or no server at all. */
 export function useAdverts(api: Api | null, region: string | null, shown: boolean, now: () => number = () => Date.now()): AdvertsReply | null {

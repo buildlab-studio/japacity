@@ -1,12 +1,11 @@
+import { REPORT_REASONS, type ServerRejection } from "@japacity/api";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import type { ServerRejection } from "../net/contract";
-import { REPORT_REASONS } from "../net/contract";
 import { fakeModeration } from "../testing/moderation";
 import "../testing/render";
 import type { ModerationApi } from "./api";
-import { BlockReport, type BlockReportProps } from "./BlockReport";
+import { BlockReport, reportBody, type BlockReportProps } from "./BlockReport";
 import { ModerationProvider } from "./ModerationProvider";
 import { reasonWords, words } from "./moderation.words";
 
@@ -103,5 +102,15 @@ describe("the block and report control", () => {
   test("given no server, when the control would show, then there is nothing to block and nothing shows", () => {
     const { container } = control(null);
     expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("the report route's cite form", () => {
+  test("[R-MODERATION-004] given a card or a phrase heard in a place, when it is reported, then the body names no subject for the server to find; an advert names its campaign", () => {
+    expect(reportBody({ name: "Tunde" }, { card: "4f1e2d3c" }, "scam", false)).toEqual({ reason: "scam", cites: { card: "4f1e2d3c" } });
+    const heard = { place: "place.ojuelegba", phrase: "phrase.hello", at: 5 };
+    expect(reportBody({ name: "Someone" }, heard, "harassment", false)).toEqual({ reason: "harassment", cites: heard });
+    const slot = { campaign: "campaign-1", slot: "advert.billboard" };
+    expect(reportBody({ campaign: "campaign-1", name: "Mama Put" }, slot, "advert", false)).toEqual({ subject: { campaign: "campaign-1" }, reason: "advert", cites: slot });
   });
 });

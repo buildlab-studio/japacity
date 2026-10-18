@@ -1,7 +1,8 @@
 // Invite links (pair.md R-PAIR-007, R-PAIR-008, R-PAIR-018; people.md
 // R-PEOPLE-010, R-PEOPLE-011): a single-use code for the slot a card names,
 // the card read by anyone with the link, and the accept that makes the record.
-import type { Id, InviteCard, PairRecord, PairView, ReadCtx, State } from "@japacity/sim";
+import type { InviteAccepted, InviteMade, InviteShown } from "@japacity/api";
+import type { Id, InviteCard, PairRecord, ReadCtx, State } from "@japacity/sim";
 import { factsOf, inviteCard, inviteExpires, mayOpenInvite, mayPair, newRecord, pairId, pairView, useInvite } from "@japacity/sim";
 import type { InviteMilestone, InviteRow } from "@japacity/store";
 
@@ -29,32 +30,6 @@ function unusable(failed: "used" | "expired" | "wrong-slot", detail: string): { 
 const ADULT_MONTHS = 216;
 const AGE: Id<"quality"> = "quality.age-months";
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
-
-/** `POST /api/invite`: the link made for a card. */
-export interface InviteMade {
-  ok: true;
-  code: string;
-  slot: string;
-  expires: number;
-  card: InviteCard;
-}
-
-/** `GET /api/invite/:code`: what the link shows, before sign-up. */
-export interface InviteShown {
-  ok: true;
-  slot: string;
-  looking: "partner" | "sibling";
-  expires: number;
-  card: InviteCard;
-}
-
-/** `POST /api/invite/:code/accept`: the pair made, as the friend sees it. */
-export interface InviteAccepted {
-  ok: true;
-  pair: string;
-  character: string;
-  view: PairView | null;
-}
 
 function hex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");

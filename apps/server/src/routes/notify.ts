@@ -2,6 +2,7 @@
 // setting, and the devices that agreed. `GET /api/notify/key` gives the
 // deployment's public key and is mounted with the keys in index.ts.
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
+import type { ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 
 import type { ServerDeps } from "../deps";
@@ -10,7 +11,6 @@ import { limit, sessionOf } from "../limits/limit";
 import { readDevice, readEndpoint } from "../notify/device";
 import { stopNotices } from "../notify/notice";
 import type { PushKeys } from "../notify/webpush";
-import type { ServerRejection } from "../types";
 
 /** `GET /api/notify` and every change: the setting, and the days before a dismissed ask comes again. */
 export type NotifyReply = { ok: true; on: boolean; reaskDays: number } | ServerRejection;

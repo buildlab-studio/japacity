@@ -1,9 +1,9 @@
 // Acts that answer in the place (docs/rules/activity.md R-ACTIVITY-015): an entry says when it answers. A now-act's
 // card sends it at once and the place answers in a person's voice; a month-act fills a slot of the month.
+import type { ServerRejection } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id, Reply, ReportLine, SlotPick } from "@japacity/sim";
 
-import type { ServerRejection } from "../net/contract";
 import { hasWords, nameOf, say, words } from "./text";
 
 const NOW_LINE = /^line\.activity\.[a-z0-9-]+\.now$/;

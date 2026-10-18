@@ -1,5 +1,6 @@
 // The moderation tests' harness: the routes over memory stores, a report
 // store stand-in with reports and holds, and stand-in identities.
+import type { Hold } from "@japacity/api";
 import type { ConversationRow } from "@japacity/sim";
 import { Hono } from "hono";
 
@@ -8,7 +9,7 @@ import { testConfig } from "../config";
 import { testSession, type ServerDeps } from "../deps";
 import { adminModerationRoutes } from "../routes/admin/moderation";
 import type { Identities } from "./identities";
-import { memoryReportQueue, type Hold, type Report } from "./reports";
+import { memoryReportQueue, type Report } from "./reports";
 
 export const ADMIN = "account.admin";
 export const SECOND_ADMIN = "account.admin-2";

@@ -2,6 +2,7 @@
 // player or something the game did not write carries the block and report
 // control (R-MODERATION-003). No advert slot shows on a card, a guide, the
 // report or block screens, or the sign-up and age screens (R-ADVERT-003).
+import type { ServedAdvert } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { ConversationRow, PlayerView } from "@japacity/sim";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -13,7 +14,6 @@ import { GameProvider } from "../authority/GameProvider";
 import { createGameStore, type GameStore } from "../authority/store";
 import { pickBirth } from "../features/account/age.testing";
 import { InvitePage, InviteServerProvider } from "../features/account/InvitePage";
-import type { ServedAdvert } from "../features/adverts/adverts";
 import { AdvertsProvider, PhoneTile } from "../features/adverts/placed";
 import { GuidesMenu } from "../features/guides/GuidesMenu";
 import { pairApiFor, PairApiProvider, usePairApi } from "../features/people/pairApi";

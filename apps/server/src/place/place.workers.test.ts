@@ -1,4 +1,5 @@
 /// <reference types="@cloudflare/vitest-plugin/types" />
+import { PING, PONG } from "@japacity/api";
 import { evictDurableObject, runDurableObjectAlarm, runInDurableObject } from "cloudflare:test";
 import { describe, expect, test } from "vitest";
 
@@ -7,7 +8,7 @@ import type { Place } from "./place.object";
 import { acceptedEnd, placePresenceStore } from "./place.presence";
 import { lookAround, openSocket, roomCounts, roomLook, roomStub } from "./place.rooms";
 import type { Rooms } from "./place.rooms";
-import { ATTACHMENT_HEADER, attachmentBytes, CLOSE_POLICY, LIMITS_HEADER, NUDGE_EVERY_MS, PING, PONG, STATUS_FULL, STATUS_TOO_LARGE } from "./place.socket";
+import { ATTACHMENT_HEADER, attachmentBytes, CLOSE_POLICY, LIMITS_HEADER, NUDGE_EVERY_MS, STATUS_FULL, STATUS_TOO_LARGE } from "./place.socket";
 import type { Attachment } from "./place.socket";
 import { freshRooms, listenTo, member, openMember, settle, until } from "./place.testing";
 import type { ClientEnd } from "./place.testing";

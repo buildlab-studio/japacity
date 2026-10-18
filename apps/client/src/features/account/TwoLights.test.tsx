@@ -1,11 +1,12 @@
 // The lines with a wink and the two lights over the start screen (docs/rules/account.md R-ACCOUNT-031).
+import type { LightsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { cityPeople, HOME_FLOOR_BP, type LightsReply, sharesOf, useLights } from "./lights";
+import { cityPeople, HOME_FLOOR_BP, sharesOf, useLights } from "./lights";
 import { TwoLights } from "./TwoLights";
 import { forgetWinks, WINK_LINES, winkAlone, winkFor } from "../../shared/frontdoor/wink";
 import { StartScreen } from "./StartScreen";

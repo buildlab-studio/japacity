@@ -2,6 +2,7 @@
 // in for `pg` behind a client that counts its connections: R-SERVER-002's
 // client opened on first use, and R-SERVER-043's answer when the database
 // does not take the connection.
+import type { ServerReply, ViewReply } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import { connectOnFirstUse, pgStores } from "@japacity/db";
 import type { Connection, PgClient } from "@japacity/db";
@@ -22,7 +23,6 @@ import type { Place } from "./place/place.object";
 import { isolateFor } from "./production";
 import type { Isolate } from "./production";
 import { answered } from "./security/fail";
-import type { ServerReply, ViewReply } from "./types";
 import { gameReply } from "./worker";
 
 let connection: PgliteConnection | null = null;

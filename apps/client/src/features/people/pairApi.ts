@@ -3,11 +3,11 @@
 // shared moderation control. Only online: the local authority has no second
 // player, so offline the screens get null and hide what needs the server
 // (R-PAIR-014 "wired to the server routes when online and hidden offline").
+import type { ConversationReply, InviteReply, PairReply, SayReply } from "@japacity/api";
 import type { Id } from "@japacity/sim";
 import { createContext, createElement, use, useMemo, type ReactNode } from "react";
 
 import { authorityMode } from "../../authority/mode";
-import type { ConversationReply, InviteReply, PairReply, SayReply } from "../../shared/net/contract";
 import { api, type Api, type Fetch } from "../../shared/net/http";
 
 export interface PairApi {

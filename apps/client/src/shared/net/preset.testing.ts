@@ -1,11 +1,10 @@
 // The server's preset route as a test's faked server plays it (server.md R-SERVER-046): `prologue/choose` at each card
 // with content's `presetAnswer`, through the real game, until the prologue closes, a card has no open answer, or an answer
 // is refused. The real route is tested in apps/server; this holds a faked server to its reply.
+import type { ClockView, PresetReply, PresetRequest, PresetStep } from "@japacity/api";
 import { presetAnswer } from "@japacity/content";
 import type { Command, ReportLine } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
-
-import type { ClockView, PresetReply, PresetRequest, PresetStep } from "./contract";
 
 /** The most steps one request plays (apps/server/src/config.ts `limits.presetSteps`). */
 const PRESET_STEPS = 20;

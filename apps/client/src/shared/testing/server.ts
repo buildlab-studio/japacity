@@ -1,6 +1,6 @@
 // A stand-in for the server's HTTP side: answers queued per route, and every
 // request kept so a test can say what was sent. The real server is tested in
-// apps/server; this holds the client to the contract in shared/net/contract.ts.
+// apps/server; this holds the client to the contract in @japacity/api.
 import type { Fetch } from "../net/http";
 
 interface Sent {

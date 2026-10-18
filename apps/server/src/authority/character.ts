@@ -2,13 +2,13 @@
 // account.md R-ACCOUNT-015): a 128-bit seed made once, the state at version
 // 0, the account pointed at it. The reply is the first view. And the end of
 // one (R-ACCOUNT-030), so the account may start another.
+import type { ViewReply } from "@japacity/api";
 import type { Id, Save } from "@japacity/sim";
 import { int, newState, viewFor } from "@japacity/sim";
 
 import { clockView, tickAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { leavePairs } from "../pair/leave";
-import type { ViewReply } from "../types";
 import { tickRow } from "../world/ticks";
 import type { Answer } from "./answer";
 import { refusal } from "./answer";

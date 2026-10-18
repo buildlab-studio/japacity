@@ -1,3 +1,4 @@
+import type { AccountView } from "@japacity/api";
 import type { Id, PlayerView } from "@japacity/sim";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -5,7 +6,6 @@ import { describe, expect, test } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
-import type { AccountView } from "../../shared/net/contract";
 import { heardBody } from "../../shared/net/guest";
 import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";

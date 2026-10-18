@@ -3,13 +3,14 @@
 // the store's flag is up, and then show as they always did. The card's tile
 // has no place in the world (App.tsx keeps it hidden), so the tile's own test
 // renders the held card as the shell mounts it.
+import type { CounterRow } from "@japacity/api";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
 import { createGameStore, type GameStore } from "../authority/store";
-import { makeCounters, type CounterRow } from "../shared/analytics/counters";
+import { makeCounters } from "../shared/analytics/counters";
 import { countInto } from "../shared/analytics/start";
 import { CardView } from "../features/card/ShareCard";
 import { HeldShareCard } from "../features/notify/HeldShareCard";

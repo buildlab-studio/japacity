@@ -2,6 +2,7 @@
 // the game's own "Advert" label, or the slot's own empty board. Tapping opens
 // the game's advert card; the link opens only after the leaving notice, and
 // only when the player chooses it. Nothing here touches the game's state.
+import type { ServedAdvert } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +13,7 @@ import { Button } from "../../shared/ui/Button";
 import { Sheet } from "../../shared/ui/Sheet";
 import { say } from "../../shared/words/text";
 import { ADVERT_COUNTERS, advertsShown, countImpression } from "./adverts";
-import type { CountAdvert, ServedAdvert } from "./adverts";
+import type { CountAdvert } from "./adverts";
 
 export interface AdvertSlotProps {
   slot: Id<"advert">;

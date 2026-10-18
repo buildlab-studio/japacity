@@ -1,9 +1,9 @@
+import type { ServerCode } from "@japacity/api";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../ops/day";
 import { signUp, testServer } from "../authority/authority.testing";
-import type { ServerCode } from "../types";
 import { dayName } from "./day";
 import { counterDef, keyAllowed } from "./list";
 import { countRejected } from "./rejected";

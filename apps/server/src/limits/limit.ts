@@ -1,10 +1,10 @@
 // The rate limits over the routes (docs/rules/server.md R-SERVER-025, 026,
 // 028). A request over a limit is answered 429 before its route runs, so
 // nothing is stepped and nothing is logged.
+import type { ServerRejection } from "@japacity/api";
 import type { Context, MiddlewareHandler } from "hono";
 
 import type { Limiter, ServerDeps } from "../deps";
-import type { ServerRejection } from "../types";
 
 /** The signed-in account, read once by the limit and kept for the route. */
 export interface SessionEnv {

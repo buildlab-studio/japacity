@@ -1,6 +1,22 @@
 // The admin routes' answers for the page's tests and its browser pictures, in
 // the server's shapes. Made-up accounts and businesses only.
-import type { AlarmsReply, CampaignsReply, DashboardReply, FeedbackReply, LogReply, PendingLightsReply, QueueReply, RejectionsReply, ReportReply, RollbackCheck, StatsPeriod, StatsReply, Switches, SwitchesReply, SwitchLogReply } from "./admin.contract";
+import type {
+  AlarmsReply,
+  CampaignsReply,
+  DashboardReply,
+  FeedbackReply,
+  LedgerReportReply,
+  LogReply,
+  PendingLightsReply,
+  QueueReply,
+  RejectionsReply,
+  RollbackCheck,
+  StatsPeriod,
+  StatsReply,
+  Switches,
+  SwitchesReply,
+  SwitchLogReply,
+} from "@japacity/api";
 
 const NOW = Date.parse("2026-10-08T12:00:00Z");
 const HOUR = 3_600_000;
@@ -8,7 +24,7 @@ const DAY = 86_400_000;
 /** 7 October 2026 as whole UTC days since 1970. */
 export const YESTERDAY = 20_733;
 
-const REPORT: ReportReply = {
+const REPORT: LedgerReportReply = {
   ok: true,
   report: {
     day: YESTERDAY,
@@ -35,7 +51,7 @@ export const ROLLBACK: RollbackCheck = {
     v: 96,
     replayed: 96,
     firstDiff: { v: 88, stored: "a91f03c2", replayed: "5be0d417" },
-    dropped: [{ v: 88, type: "lottery/buy", code: "short", detail: "Not enough money for 3 tickets." }],
+    dropped: [{ v: 88, type: "lottery/buy", code: "cannot-afford", detail: "Not enough money for 3 tickets." }],
   },
 };
 

@@ -10,6 +10,7 @@
 // at once when a light is lit, put out, approved or refused, so every account sees a new light straight away. A reply
 // with `mine` differs for each account, so nothing here is kept by the browser. The counts route of R-ACCOUNT-031 is
 // `/api/lights` and is not this one.
+import type { LightYears, ServerRejection } from "@japacity/api";
 import { checkSentLight, type LightProblem } from "@japacity/content";
 import { int, time } from "@japacity/sim";
 import type { DedicationLight } from "@japacity/store";
@@ -20,7 +21,6 @@ import type { ServerDeps } from "../deps";
 import { newId } from "../moderation/decide";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
-import type { ServerRejection } from "../types";
 import type { EdgeCache } from "./cache";
 import { edgeCache, edgeKey, forgetKept, JSON_TYPE, throughEdge } from "./cache";
 
@@ -32,12 +32,6 @@ export const DEDICATION_MOST = 240;
 
 /** R-SERVER-045: how long the server's cache keeps the shared part. */
 export const DEDICATION_KEPT_MS = 5 * time.MINUTE_MS;
-
-/** A light's years as the routes send them: either may be null. */
-export interface LightYears {
-  from: number | null;
-  to: number | null;
-}
 
 /** R-SERVER-045: a light as everyone sees it: the name and years only once approved. */
 export interface SharedLight {

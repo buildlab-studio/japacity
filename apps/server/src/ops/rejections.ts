@@ -1,6 +1,6 @@
 // R-SERVER-005: rejections counted by code for the admin page only. The counts
 // live in the isolate's memory and start again at zero when it restarts.
-import type { ServerCode } from "../types";
+import type { ServerCode } from "@japacity/api";
 
 const counts = new Map<ServerCode, number>();
 

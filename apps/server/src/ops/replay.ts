@@ -1,36 +1,15 @@
 // Replay for the admin tools: a character's stored rows stepped again against
 // the stored world rows (R-CLOCK-017) under the content each segment names.
 // Everything here reads; nothing writes.
-import type { Command, Content, RejectionCode, State, World } from "@japacity/sim";
+import type { Diff, Dropped, LoadFailure } from "@japacity/api";
+import type { Command, Content, State, World } from "@japacity/sim";
 import { hashState, newState, step, upgradeState } from "@japacity/sim";
 import type { Held, LogRow, SegmentRow } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import { namedContent } from "../switches/dials";
 
-/** Why a replay could not run at all. */
-export interface LoadFailure {
-  ok: false;
-  code: "missing" | "no-world" | "no-content";
-  detail: string;
-}
-
 export type Loaded<T> = { ok: true; value: T } | LoadFailure;
-
-/** R-SERVER-008: the first logged version whose stored hash differs from the replay's. `replayed` is null when the command is now rejected. */
-export interface Diff {
-  v: number;
-  stored: string;
-  replayed: string | null;
-}
-
-/** R-SERVER-009: a command the log says was accepted that the replay now rejects. */
-export interface Dropped {
-  v: number;
-  type: Command["type"];
-  code: RejectionCode;
-  detail: string;
-}
 
 export interface Replayed {
   state: State;

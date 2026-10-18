@@ -1,6 +1,7 @@
 // The seams between the pieces: the screens, the share button, the asks and
 // the usage setting feeding the interface counters, and the city's graphics
 // mode reaching the feedback form.
+import type { CounterRow } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -12,7 +13,7 @@ import { ShareButton } from "../features/card/ShareCard";
 import { countAsk } from "../features/notify/ask";
 import { UsageCounts } from "../features/account/Settings";
 import { countInto, countSound } from "../shared/analytics/start";
-import { makeCounters, type CounterRow } from "../shared/analytics/counters";
+import { makeCounters } from "../shared/analytics/counters";
 import { City } from "../features/city/City";
 import { cityWords } from "../features/city/city.words";
 import { phoneWords } from "../features/phone/phone.words";

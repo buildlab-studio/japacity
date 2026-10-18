@@ -1,6 +1,7 @@
 // A server for tests: in-memory stores, a clock a test moves, open limits and
 // the test session, with helpers to sign in, make a character and send
 // requests through the app as a client would. Never imported by the Worker.
+import type { ServerReply, ViewReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Id } from "@japacity/sim";
 import type { Held } from "@japacity/store";
@@ -10,7 +11,6 @@ import { makeApp } from "../app";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { memoryStores, openLimiters, testSession } from "../deps";
-import type { ServerReply, ViewReply } from "../types";
 
 export interface TestServer {
   deps: ServerDeps;

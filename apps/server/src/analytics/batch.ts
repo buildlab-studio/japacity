@@ -1,23 +1,12 @@
 // R-ANALYTICS-003, R-ANALYTICS-004, R-ANALYTICS-007: a batch as it arrives.
 // Only `name`, `key` and `count` of each row are read; every other field,
 // in the rows or around them, is never looked at again.
+import type { CounterRow } from "@japacity/api";
 import { FUNNEL_STEPS } from "@japacity/content";
 import type { Content } from "@japacity/sim";
 
 import { counterDef, keyAllowed } from "./list";
 import type { DropReason } from "./list";
-
-/** R-ANALYTICS-003: one row of a batch. */
-export interface CounterRow {
-  name: string;
-  key: string;
-  count: number;
-}
-
-/** R-ANALYTICS-003: the body of `POST /api/counters`. */
-export interface CounterBatch {
-  rows: CounterRow[];
-}
 
 export interface Checked {
   rows: CounterRow[];

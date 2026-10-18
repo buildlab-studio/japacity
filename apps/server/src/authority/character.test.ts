@@ -1,10 +1,10 @@
+import type { ViewReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Overlay } from "@japacity/sim";
 import { applyOverlay, newState, nextGameMorning, worldClockAt, viewFor } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
-import type { ViewReply } from "../types";
 import { contentsFor } from "./overlay";
 import { call, held, signUp, testServer } from "./authority.testing";
 

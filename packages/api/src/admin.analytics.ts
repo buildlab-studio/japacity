@@ -1,14 +1,56 @@
-// R-ANALYTICS-012: the frozen shape of `GET /api/admin/stats`.
-// Every figure is a count or a sum from the analytics store or a live count of
-// the command log; a count under `minShown` is only ever "fewer than" it
-// (R-ANALYTICS-010), region by region and for the whole game. The divisions
-// are made here for the page's convenience and are never stored. The admin
-// page keeps a copy (apps/client/src/features/admin/admin.contract.ts) and a
-// test holds both to these keys (stats.test.ts).
+// The admin routes of the dashboard and the Numbers tab (R-ANALYTICS-009 to
+// 013). A figure under `minShown` is never shown as itself (R-ANALYTICS-010).
+import type { AdminRefusal } from "./admin";
 
-import type { Shown } from "./dashboard";
+/** A count, or the floor it is under when it is under `minShown`. */
+export type Shown = number | { fewerThan: number };
 
-export type { Shown };
+export interface ShownTotal {
+  day: string;
+  region: string;
+  name: string;
+  key: string;
+  count: Shown;
+}
+
+/** One day across every region. */
+export interface DailyRow {
+  day: string;
+  players: Shown;
+  newPlayers: Shown;
+  turnsEnded: Shown;
+}
+
+/** R-ANALYTICS-011: the first session's measures for the accounts created in one week, Monday first. */
+export interface WeekRow {
+  week: string;
+  newPlayers: Shown;
+  d1: Shown;
+  d7: Shown;
+  /** Basis points of the week's new players, null while either figure is hidden. */
+  d1Bp: number | null;
+  d7Bp: number | null;
+  earlyWin: Record<string, Shown>;
+}
+
+/** R-ANALYTICS-009: `GET /api/admin/analytics`, the day asked and the 30 before it. */
+export interface Dashboard {
+  day: string;
+  from: string;
+  minShown: number;
+  reference: { d1Bp: number; d7Bp: number };
+  /** R-ANALYTICS-011, R-GUIDE-015: an ask made before the early win, which the page shows in red. */
+  askBeforeEarlyWin: boolean;
+  daily: DailyRow[];
+  weeks: WeekRow[];
+  counters: ShownTotal[];
+}
+
+export type DashboardReply = { ok: true; dashboard: Dashboard } | AdminRefusal;
+
+// R-ANALYTICS-012: the frozen shape of `GET /api/admin/stats`. Every figure is a count or a sum from the analytics
+// store or a live count of the command log, region by region and for the whole game. The divisions are made by the
+// server for the page's convenience and are never stored.
 
 /** A count for the whole game and for each region, each hidden on its own when small. */
 export interface Regional {
@@ -124,7 +166,4 @@ export interface Stats {
 }
 
 /** R-ANALYTICS-012: the reply. */
-export type StatsReply = { ok: true; stats: Stats };
-
-/** The top-level keys, in the order R-ANALYTICS-012 gives them. */
-export const STATS_KEYS = ["now", "today", "last7", "last30", "totals", "funnel", "retention", "sessions", "shares", "adverts", "economy"] as const;
+export type StatsReply = { ok: true; stats: Stats } | AdminRefusal;

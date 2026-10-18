@@ -1,3 +1,4 @@
+import type { ServedAdvert } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 import { act, cleanup, fireEvent, screen, within } from "@testing-library/react";
@@ -7,7 +8,7 @@ import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { ADVERT_COUNTERS, advertsShown, forgetImpressions } from "./adverts";
-import type { CountAdvert, ServedAdvert } from "./adverts";
+import type { CountAdvert } from "./adverts";
 import { AdvertSlot } from "./AdvertSlot";
 
 const SLOTS = Object.keys(content.advert) as Id<"advert">[];

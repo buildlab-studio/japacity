@@ -7,6 +7,7 @@
 // GET  /api/admin/switches/log   every change, oldest first
 // POST /api/admin/switches       { name, on, reason }
 // POST /api/admin/dials          { dial, place?, value, reason }; value null unsets
+import { SWITCH_NAMES } from "@japacity/api";
 import type { DialChange, SwitchName } from "@japacity/store";
 import { isDialValue } from "@japacity/store";
 import { Hono } from "hono";
@@ -16,7 +17,7 @@ import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 import { placeTargetFits } from "../../switches/dials";
 import { switchGates } from "../../switches/gate";
-import { SWITCH_NAMES, readSwitches, setDial, setSwitch } from "../../switches/switches";
+import { readSwitches, setDial, setSwitch } from "../../switches/switches";
 
 /** The longest reason kept in the log. */
 const REASON_MAX = 500;

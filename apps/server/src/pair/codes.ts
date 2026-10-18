@@ -1,10 +1,10 @@
 // The people routes' refusals beside the server's own (pair.md R-PAIR-008,
 // R-PAIR-013, R-MODERATION-001). Anything that turns on the other side is
 // `not-possible` and nothing more.
+import type { ServerCode } from "@japacity/api";
 import type { SayRefusal } from "@japacity/sim";
 
 import type { Answer, Status } from "../authority/answer";
-import type { ServerCode } from "../types";
 
 /** The say check's refusals are all in ServerCode; the union keeps the two from drifting apart. */
 export type PairCode = ServerCode | SayRefusal;

@@ -3,6 +3,7 @@
 // Cache API beside the Worker) by its tick until the next tick (server.md
 // R-SERVER-039), so the database is read for it once per tick per location,
 // and public to the browser for as long. Needs no session. Never the book, never a later tick.
+import type { WorldReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
@@ -10,7 +11,6 @@ import { tickAt, tickStartsAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
-import type { WorldReply } from "../types";
 import { tickRow } from "../world/ticks";
 import type { EdgeCache, Made } from "./cache";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./cache";

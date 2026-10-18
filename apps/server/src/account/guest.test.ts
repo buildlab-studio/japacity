@@ -1,10 +1,10 @@
+import type { ServerReply, ViewReply } from "@japacity/api";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar } from "../auth/auth.testing";
 import type { Harness, Jar } from "../auth/auth.testing";
 import { testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
-import type { ServerReply, ViewReply } from "../types";
 import { PASS_COOKIE, PASS_PREFIX } from "./age";
 import { BOARDS_DETAIL, DEVICE_COOKIE, SECURED_PATHS } from "./guest";
 import { METHOD_TAKEN } from "./link";

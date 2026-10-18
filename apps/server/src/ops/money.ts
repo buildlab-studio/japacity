@@ -2,13 +2,13 @@
 // (R-SERVER-012, R-LOTTERY-014). A character's mark holds its totals with the
 // transfers left out, as `ledgerReport` gives them; the day's totals are the
 // differences between marks.
+import type { Alarm } from "@japacity/api";
 import type { Content, State, WalletSlice } from "@japacity/sim";
 import { int, prizesOwed, ledgerReport } from "@japacity/sim";
 import type { ByReason, LogRow, SegmentRow } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import { activeOn, noteActive } from "./active";
-import type { Alarm } from "./alarm";
 import { dayStart } from "./day";
 import { contentNamed, stateNow } from "./replay";
 

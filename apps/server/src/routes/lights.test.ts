@@ -2,6 +2,7 @@
 // stored totals, public, rounded, kept in the server's cache by the hour. Home
 // and abroad are the lives being played as the nightly count last found them,
 // and before its first run the lives started and the departures.
+import type { LightsReply, ServerRejection } from "@japacity/api";
 import { newState, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -11,9 +12,7 @@ import { productionConfig, testConfig } from "../config";
 import { LIGHTS_COUNTERS, LIVES_PLAYING, lightsOf, livesPlaying, roundToTen } from "../analytics/lights";
 import { livesJob } from "../jobs/lives";
 import { memoryLimiters } from "../limits/memory";
-import type { ServerRejection } from "../types";
 import { fakeEdge } from "./cache.testing";
-import type { LightsReply } from "./lights";
 
 const { epoch } = productionConfig.clock;
 

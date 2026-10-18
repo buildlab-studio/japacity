@@ -1,3 +1,4 @@
+import type { ServerReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command } from "@japacity/sim";
 import { hashState, viewFor } from "@japacity/sim";
@@ -5,7 +6,6 @@ import type { Nudge } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import { productionConfig, testConfig } from "../config";
-import type { ServerReply } from "../types";
 import { readRequest, sendAuthority } from "./command";
 import { DIVERGED_NOTE } from "./commit";
 import { call, held, newLife, restMonth, send, testServer, view } from "./authority.testing";

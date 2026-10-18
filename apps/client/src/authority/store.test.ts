@@ -1,8 +1,8 @@
+import type { ServerRejection } from "@japacity/api";
 import type { PlayerView, Reply } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import type { ServerRejection } from "../shared/net/contract";
 import { reportedError } from "../shared/net/http";
 import { engineView } from "../shared/testing/fixtures";
 import { BASE, deferred, fakeServer } from "../shared/testing/server";

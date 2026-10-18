@@ -6,8 +6,8 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 // The client built against a server is played here against a faked one: every
-// /api route is answered by the page's own route handler, in the shapes
-// apps/client/src/shared/net/contract.ts copies from the server.
+// /api route is answered by the page's own route handler, in the shapes of
+// @japacity/api.
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";

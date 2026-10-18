@@ -2,6 +2,7 @@
 // Only a session whose account is in `config.admin.accounts` may read it; to
 // anyone else, signed in or not, every route here does not exist. An admin
 // whose session was not opened with a passkey is refused (R-MODERATION-012).
+import type { ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 import type { MiddlewareHandler } from "hono";
 
@@ -10,7 +11,6 @@ import { utcDay } from "../../ops/day";
 import { rejectionCounts } from "../../ops/rejections";
 import { rollbackCheck } from "../../ops/rollback";
 import type { ServerDeps } from "../../deps";
-import type { ServerRejection } from "../../types";
 
 const WHOLE = /^\d{1,9}$/;
 

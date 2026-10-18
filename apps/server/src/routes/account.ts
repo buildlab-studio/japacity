@@ -6,6 +6,7 @@
 // every route they guard (account/guest.ts).
 // https://better-auth.com/docs/concepts/users-accounts#delete-user
 // https://better-auth.com/docs/plugins/anonymous
+import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem, NameReply } from "@japacity/api";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
@@ -20,7 +21,6 @@ import type { AccountRejection } from "../account/reply";
 import { GUEST_NAME_HEADER } from "../account/signup";
 import { checkTurnstile } from "../account/turnstile";
 import { nameProblem, renameFrom } from "../account/username";
-import type { NameProblem } from "../account/username";
 import type { Accounts, Auth } from "../auth/auth";
 import { headersWithoutSession } from "../auth/stale";
 import type { ServerDeps } from "../deps";
@@ -28,54 +28,6 @@ import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
-
-/** The account as its owner sees it: no age date (R-ACCOUNT-020), no email (the auth library's session holds that). */
-export interface AccountView {
-  id: string;
-  country: string;
-  age: { passed: boolean; method: "declared" | "verified" };
-  createdAt: number;
-  character: string | null;
-  /** R-ANALYTICS-006: the "Send usage counts" setting. */
-  sendUsageCounts: boolean;
-  /** R-MODERATION-012: the account is on `config.admin.accounts` and this session was opened with a passkey, so the client mounts the admin page. */
-  admin: boolean;
-  /** R-ACCOUNT-021: a guest's life lives only in this browser until it is secured. */
-  state: "guest" | "secured";
-  /** R-ACCOUNT-024. */
-  username: string;
-  /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
-  renameFrom: number;
-  /**
-   * R-ACCOUNT-027, R-ACCOUNT-020: the ways back in, read from the auth library's rows and never written
-   * here. `google`: the address Google gave where Google is linked; `email`: the address a code goes to; `passkeys`: how
-   * many are held. A guest has none. No token, no Google subject.
-   */
-  ways: { google: string | null; email: string | null; passkeys: number };
-}
-
-export type AccountReply = { ok: true; account: AccountView } | AccountRejection;
-
-/** The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (R-ACCOUNT-013). */
-export interface GuestRequest {
-  username: string;
-}
-
-/** The body of `PUT /api/account/username`. */
-export interface UsernameRequest {
-  username: string;
-}
-
-/** A refused username says why, so the screen can say it plainly. */
-export type NameReply = { ok: true; account: AccountView } | (AccountRejection & { name?: NameProblem });
-
-/** The body of `DELETE /api/account`; `code` is an email code sent with type `sign-in`, needed once the session is not fresh. */
-export interface DeleteRequest {
-  code?: string;
-}
-
-/** `dueAt`: the removal of R-ACCOUNT-017 happens by then. */
-export type DeleteReply = { ok: true; dueAt: number } | AccountRejection;
 
 /** How long the device cookie of R-ACCOUNT-025 is kept: the longest a browser keeps one. */
 const DEVICE_COOKIE_S = 400 * 86_400;

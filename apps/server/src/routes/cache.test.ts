@@ -1,5 +1,6 @@
 // The public replies in the server's cache (docs/rules/server.md R-SERVER-039,
 // clock.md R-CLOCK-019), with a stand-in for `caches.default`.
+import type { DrawReply, WorldReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
@@ -8,10 +9,8 @@ import type { TestServer } from "../authority/authority.testing";
 import { productionConfig } from "../config";
 import type { Limiter } from "../deps";
 import { openLimiters } from "../deps";
-import type { WorldReply } from "../types";
 import { catchUp } from "../world/ticks";
 import { drawRoute } from "./draw";
-import type { DrawReply } from "./draw";
 import { edgeKey, throughEdge } from "./cache";
 import { brokenEdge, fakeEdge } from "./cache.testing";
 import type { FakeEdge } from "./cache.testing";

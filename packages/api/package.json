@@ -1,0 +1,18 @@
+{
+  "name": "@japacity/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "The HTTP and socket contract between the client and the server: each route's request and reply, and the socket's messages.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@japacity/sim": "workspace:*",
+    "@japacity/store": "workspace:*"
+  }
+}

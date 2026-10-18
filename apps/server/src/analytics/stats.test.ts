@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { dayName, dayNumber } from "./day";
 import { buildStats, statsFrom } from "./stats";
 import type { StatsInput } from "./stats";
-import { STATS_KEYS } from "./stats.contract";
+import { STATS_KEYS } from "./stats";
 
 const { minShown } = content.tuning.analytics;
 const TODAY = dayNumber("2026-10-21") ?? 0;

@@ -2,8 +2,9 @@
 // logged, so the nightly job cannot read it; the refusal counter in count.ts
 // calls this beside `countRejection` (ops/rejections.ts) once a counted route
 // has answered with a refusal.
+import type { ServerCode } from "@japacity/api";
+
 import type { ServerDeps } from "../deps";
-import type { ServerCode } from "../types";
 import { utcDay } from "../ops/day";
 import { dayName } from "./day";
 import { NO_REGION } from "./list";

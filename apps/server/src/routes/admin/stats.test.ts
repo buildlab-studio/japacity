@@ -1,3 +1,4 @@
+import type { StatsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { NumbersLog } from "@japacity/store";
 import { describe, expect, test } from "vitest";
@@ -8,8 +9,7 @@ import { makeApp } from "../../app";
 import { testConfig } from "../../config";
 import { testSession } from "../../deps";
 import { dayName } from "../../analytics/day";
-import type { StatsReply } from "../../analytics/stats.contract";
-import { STATS_KEYS } from "../../analytics/stats.contract";
+import { STATS_KEYS } from "../../analytics/stats";
 import { adminStatsRoutes } from "./stats";
 
 const ADMIN = "account.owner";
@@ -56,7 +56,7 @@ describe("GET /api/admin/stats", () => {
 
     const reply = await served.request("/api/admin/stats", as(ADMIN));
     expect(reply.status).toBe(200);
-    const body = await reply.json<StatsReply>();
+    const body = await reply.json<Extract<StatsReply, { ok: true }>>();
     expect(body.ok).toBe(true);
     expect(Object.keys(body.stats)).toEqual([...STATS_KEYS]);
     expect(body.stats.now.online).toEqual({ all: minShown + 6, regions: { GH: { fewerThan: minShown }, NG: minShown + 4 } });

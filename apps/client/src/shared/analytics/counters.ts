@@ -2,20 +2,9 @@
 // in memory only and sent as batches of `{ name, key, count }`: nothing is
 // written to the device, and only names and keys on the fixed list are ever
 // counted, so no typed text can reach a batch.
+import type { CounterRow } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { CounterDef, Tuning } from "@japacity/sim";
-
-/** Copied from apps/server/src/analytics/batch.ts: one row of a batch. */
-export interface CounterRow {
-  name: string;
-  key: string;
-  count: number;
-}
-
-/** Copied from apps/server/src/analytics/batch.ts: the body of `POST /api/counters`. */
-export interface CounterBatch {
-  rows: CounterRow[];
-}
 
 export type AskKind = "sign-in" | "notify";
 export type AskOutcome = "shown" | "accepted";

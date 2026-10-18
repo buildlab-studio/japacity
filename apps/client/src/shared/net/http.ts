@@ -1,7 +1,8 @@
 // The one way the client talks HTTP to the server: JSON in, JSON out, the
 // session cookie sent along, a clock on every request and every answer sorted
 // into its class (R-ENGINE-015). `fetch` is passed in so tests answer for the server.
-import type { ServerRejection } from "./contract";
+import type { ServerRejection } from "@japacity/api";
+
 import { heardBody } from "./guest";
 import { pageWall, type WallGuard } from "./wall";
 

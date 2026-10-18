@@ -1,5 +1,5 @@
 // The account routes' refusals.
-import type { ServerCode } from "../types";
+import type { ServerCode } from "@japacity/api";
 
 export interface AccountRejection {
   ok: false;

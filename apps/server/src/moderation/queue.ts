@@ -1,11 +1,12 @@
 // R-MODERATION-010, R-MODERATION-011, R-MODERATION-013: the one queue and
 // what the admin view shows for each item in it.
+import type { AccountSummary, HeldMessage, QueueItem, QueueView, ReportReason } from "@japacity/api";
 import { text } from "@japacity/content";
 import { time } from "@japacity/sim";
-import type { AppealRow, ModerationLogEntry } from "@japacity/store";
+import type { AppealRow } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import type { Hold, Report, ReportQueueStore, ReportReason, ReportSubject, ReportCite } from "./reports";
+import type { Report, ReportQueueStore } from "./reports";
 
 /** R-MODERATION-010: lower goes first. Appeals carry no reason and sit with the rest. */
 const WEIGHT: Record<ReportReason, number> = {
@@ -23,61 +24,6 @@ const WEIGHT: Record<ReportReason, number> = {
 };
 
 const APPEAL_WEIGHT = 2;
-
-/** A held message as the admin reads it: the phrase's own words and when it was sent. */
-interface HeldMessage {
-  id: string;
-  sender: string;
-  phrase: string;
-  words: string;
-  fill: string | null;
-  sentAt: number;
-}
-
-/** R-MODERATION-013: one account as the admin view shows it. Never an email, a seed or a character's state. */
-export interface AccountSummary {
-  account: string;
-  region: string | null;
-  /** Milliseconds since the account was made; null once it is gone. */
-  accountAge: number | null;
-  made: { id: string; reason: ReportReason; at: number; status: Report["status"]; outcome?: Report["outcome"] }[];
-  received: { id: string; reason: ReportReason; at: number; status: Report["status"]; outcome?: Report["outcome"] }[];
-  actions: ModerationLogEntry[];
-}
-
-export type QueueItem =
-  | {
-      kind: "report";
-      id: string;
-      reason: ReportReason;
-      at: number;
-      age: number;
-      subject: ReportSubject;
-      cites: ReportCite;
-      unverified: boolean;
-      hold: Hold | null;
-      messages: HeldMessage[];
-      reporter: AccountSummary;
-      reported: AccountSummary | null;
-    }
-  | {
-      kind: "appeal";
-      id: string;
-      at: number;
-      age: number;
-      entry: ModerationLogEntry | null;
-      appellant: AccountSummary;
-      /** R-MODERATION-016: the admin who acted, who should not decide it while another can. */
-      actedBy: string | null;
-    };
-
-export interface QueueView {
-  items: QueueItem[];
-  /** R-MODERATION-011: the oldest open item's age in milliseconds, 0 for an empty queue. */
-  oldest: number;
-  target: number;
-  overdue: number;
-}
 
 function brief(report: Report) {
   const { id, reason, at, status, outcome } = report;

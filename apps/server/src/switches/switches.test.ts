@@ -1,3 +1,4 @@
+import { type ServerRejection, type ServerReply, SWITCH_NAMES } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Overlay } from "@japacity/sim";
 import { applyOverlay, AUTHORITY_COMMANDS } from "@japacity/sim";
@@ -13,11 +14,10 @@ import type { Beacon } from "../draw/beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../draw/beacon";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
-import type { ServerRejection, ServerReply } from "../types";
 import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget } from "./dials";
 import { rollbackCheck } from "../ops/rollback";
 import { GATED_COMMANDS } from "./gate";
-import { SWITCH_NAMES, readSwitches } from "./switches";
+import { readSwitches } from "./switches";
 
 const ADMIN = "account.owner";
 const { cacheMs, retryMs } = productionConfig.switches;

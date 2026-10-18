@@ -1,10 +1,10 @@
 // The four off switches and the dials of the private settings (R-SERVER-030,
 // R-SERVER-031): each change carries a reason and is logged with who made it.
+import { type DialChange, type Dials, type SettingChange, SWITCH_NAMES, type SwitchName } from "@japacity/api";
 import { content } from "@japacity/content";
 import { useState } from "react";
 
 import { Tag } from "../../shared/ui/Panel";
-import { SWITCH_NAMES, type DialChange, type Dials, type SettingChange, type SwitchName } from "./admin.contract";
 import { utcTime } from "./admin.format";
 import { words, type AdminKey } from "./admin.words";
 import type { AdminApi } from "./api";

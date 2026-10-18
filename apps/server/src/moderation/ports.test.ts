@@ -1,7 +1,7 @@
+import type { QueueView } from "@japacity/api";
 import { describe, expect, test } from "vitest";
 
 import { call, FRIEND, INVITER, linkedPair, pairServer, recordOf, sayFrom } from "../pair/pair.testing";
-import type { QueueView } from "./queue";
 
 const ADMIN = "account.owner";
 
