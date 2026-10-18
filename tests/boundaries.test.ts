@@ -18,7 +18,7 @@ const allowedExceptions: readonly Exception[] = [];
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const SOURCE = /\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
-const SKIPPED = new Set(["node_modules", "dist", "build", "coverage", ".git", "docs", "prototypes"]);
+const SKIPPED = new Set(["node_modules", "dist", "build", "coverage", ".git", "docs"]);
 const SKIPPED_PATHS = new Set(["tools/__fixtures__"]);
 const TEST_LIBRARIES = ["vitest", "fast-check", "@fast-check/vitest"];
 const TEST_FILE = /\.test\.tsx?$/;
