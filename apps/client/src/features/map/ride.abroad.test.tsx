@@ -2,6 +2,7 @@
 // ride sheet in London reads the view's ways and prices them with the simulation's own fare, the bus asks nothing in a
 // month the pass is bought and says so, and the ride plays in London's red bus and its train.
 import { content } from "@japacity/content";
+import { uiLondonText } from "@japacity/content/ui/london";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { Vector3 } from "three";
@@ -19,10 +20,9 @@ import { alongOf, LINES, lineOf, vehicleFile } from "./Ride";
 import { fareTile, WAY_MODEL } from "./RideSheet";
 import { anglesOf, buildRide, LONDON_SEAT, PRE_MS, RIDE_MS } from "./rideScene";
 import { addLateWords } from "../../shared/words/late";
-import { londonText } from "../../shared/words/tables/london.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
-addLateWords(londonText);
+addLateWords(uiLondonText);
 
 const UK: CountryChoice = { id: "country.uk", name: "United Kingdom", locked: null };
 const PECKHAM = "place.peckham";

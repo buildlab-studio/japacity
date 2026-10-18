@@ -1,33 +1,36 @@
 // The voice: who speaks on each surface, and no machine tells anywhere. Every words table is walked:
-// content's and the client's. Until the voice has its own rule id these cite R-TEXT-005, the rule that the screen
+// content's text and the tables that ride a chunk of their own. Until the voice has its own rule id these cite R-TEXT-005, the rule that the screen
 // says what a person would; R-TEXT-002 where bad news is told straight; R-TEXT-004 where officialdom is deadpan.
 import { text, textTables } from "@japacity/content";
+import { uiCalgaryText } from "@japacity/content/ui/calgary";
+import { uiCastelText } from "@japacity/content/ui/castel";
+import { uiDubaiText } from "@japacity/content/ui/dubai";
+import { uiLondonText } from "@japacity/content/ui/london";
+import { uiSendOffText } from "@japacity/content/ui/send-off";
+import { uiCalgaryMapText, uiCastelMapText, uiDubaiMapText, uiLondonMapText } from "@japacity/content/ui/paper";
 import { describe, expect, test } from "vitest";
 
-import { calgaryMapText, castelMapText, dubaiMapText, londonMapText } from "../features/map/paper/paper.words";
-import { londonText } from "../shared/words/tables/london.words";
-import { calgaryText } from "../shared/words/tables/calgary.words";
-import { castelText } from "../shared/words/tables/castel.words";
-import { dubaiText } from "../shared/words/tables/dubai.words";
-// The content check on institutions beside wrongdoing (person.md R-PEOPLE-063), run here over the client's tables too.
+// The content check on institutions beside wrongdoing (person.md R-PEOPLE-063), run here over the tables that ride a chunk of their own too.
 import { institutionProblems } from "../../../../packages/content/src/person/person.names.check";
 
-const clientTables: Record<string, Record<string, string>> = {
-  london: londonMapText,
-  londonPlaces: { ...londonText },
+/** The tables that ride a chunk of their own, outside content's text: each country's papers and places, and the send-off. */
+const chunkTables: Record<string, Record<string, string>> = {
+  london: uiLondonMapText,
+  londonPlaces: { ...uiLondonText },
   // Calgary's, Dubai's and Castel Volturno's papers and places, each a chunk of its own in the game.
-  calgary: calgaryMapText,
-  dubai: dubaiMapText,
-  castel: castelMapText,
-  calgaryPlaces: { ...calgaryText },
-  dubaiPlaces: { ...dubaiText },
-  castelPlaces: { ...castelText },
+  calgary: uiCalgaryMapText,
+  dubai: uiDubaiMapText,
+  castel: uiCastelMapText,
+  calgaryPlaces: { ...uiCalgaryText },
+  dubaiPlaces: { ...uiDubaiText },
+  castelPlaces: { ...uiCastelText },
+  sendOff: uiSendOffText,
 };
 
 /** Every line a player can read, with the table it is in. */
 const every: { table: string; key: string; line: string }[] = [
   ...Object.entries(textTables).flatMap(([table, lines]) => Object.entries(lines).map(([key, line]) => ({ table: `content.${table}`, key, line }))),
-  ...Object.entries(clientTables).flatMap(([table, lines]) => Object.entries(lines).map(([key, line]) => ({ table, key, line }))),
+  ...Object.entries(chunkTables).flatMap(([table, lines]) => Object.entries(lines).map(([key, line]) => ({ table, key, line }))),
 ];
 
 const found = (pattern: RegExp, keep: (key: string) => boolean = () => true) =>
@@ -44,7 +47,7 @@ const isNews = (key: string) => key.startsWith("news.") && /\.(head|body)$/.test
 const isNudge = (key: string) => key.startsWith("ui.nudge.") || /^chapter\..+\.item\.[^.]+\.(nudge(\..+)?|started|planned(\..+)?|saving|short|blocked)$/.test(key) || /^goal\..+\.first$/.test(key);
 
 describe("the voice: no machine tells anywhere", () => {
-  test("[R-TEXT-007] [R-TEXT-005] given the walk, then it reads content's words and every table of the client's", () => {
+  test("[R-TEXT-007] [R-TEXT-005] given the walk, then it reads content's words and every table that rides a chunk of its own", () => {
     expect(every.length).toBeGreaterThan(5000);
     expect(every.filter(({ table }) => table.startsWith("content.")).length).toBe(Object.keys(text).length);
     expect(Object.keys(textTables)).toEqual(expect.arrayContaining(["ui", "uiCity", "uiMap", "uiPhone", "uiTurn"]));

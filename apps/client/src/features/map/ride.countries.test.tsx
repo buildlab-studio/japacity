@@ -3,6 +3,9 @@
 // the view, the pass's pill names the country's pass on every way it covers, the shuttle's pill says the employer's bus
 // asks nothing, and the ride plays inside the country's own vehicle from the seat the models give, in the right-hand lane.
 import { content } from "@japacity/content";
+import { uiCalgaryText } from "@japacity/content/ui/calgary";
+import { uiCastelText } from "@japacity/content/ui/castel";
+import { uiDubaiText } from "@japacity/content/ui/dubai";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { Vector3 } from "three";
@@ -17,9 +20,6 @@ import { TAXI_SEAT } from "../../../../../assets-src/veh/taxi/build";
 import { VAN_SEAT } from "../../../../../assets-src/veh/van/build";
 import { landedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { calgaryText } from "../../shared/words/tables/calgary.words";
-import { castelText } from "../../shared/words/tables/castel.words";
-import { dubaiText } from "../../shared/words/tables/dubai.words";
 import { formatMoney } from "../../shared/words/format";
 import { addLateWords } from "../../shared/words/late";
 import { nameOf } from "../../shared/words/text";
@@ -33,7 +33,7 @@ import { anglesOf, buildRide } from "./rideScene";
 import { type AbroadVehicle, SEATS, VEHICLES, vehicleFor, wayModelFor } from "./rideVehicles";
 
 // Each country's words ride their own chunk in the game (shared/words/late.ts); the tests add them as the city does.
-for (const table of [calgaryText, dubaiText, castelText]) addLateWords(table);
+for (const table of [uiCalgaryText, uiDubaiText, uiCastelText]) addLateWords(table);
 
 /** A words key left unsaid, or an en or em dash (docs/rules/text.md), built from their codes so no dash stands in this file. */
 const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);

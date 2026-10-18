@@ -1,11 +1,15 @@
 // The words of the month (world.md R-WORLD-027): the bank behind the months is never named, and no button adds an act to
-// the month. Every word table the player reads is walked: content's text and each table of the client's own words.
+// the month. Every word table the player reads is walked: content's text, every table in content's ui folder (those that
+// ride a chunk of their own among them) and any table left in the client's own source.
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-
-/** The client's source, tests left out, as raw text: its word tables are the `"key": "words"` rows. */
-const sources = import.meta.glob<string>(["../../**/*.ts", "../../**/*.tsx", "!../../**/*.test.ts", "!../../**/*.test.tsx"], { query: "?raw", import: "default", eager: true });
+/** The client's source, tests left out, and content's ui tables, as raw text: their word tables are the `"key": "words"` rows. */
+const sources = import.meta.glob<string>(["../../**/*.ts", "../../**/*.tsx", "!../../**/*.test.ts", "!../../**/*.test.tsx", "../../../../../packages/content/src/ui/*.text.ts"], {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
 
 const ROW = /^\s*"([\w.{}-]+)":\s*"((?:[^"\\]|\\.)*)",?\s*$/gm;
 
@@ -28,6 +32,7 @@ describe("the words of the month", () => {
   test("[R-WORLD-027] given every word table the player reads, when its words are read, then none says turn or banked, and no button says Add to month", () => {
     const words = allWords();
     expect(words.length).toBeGreaterThan(1000);
+    expect(words.some(({ file }) => file.endsWith("ui.london.text.ts"))).toBe(true);
     const said = words.filter(({ words: one }) => FORBIDDEN.some((pattern) => pattern.test(one))).map(({ key, words: one, file }) => `${file} ${key}: ${one}`);
     expect(said).toEqual([]);
   });

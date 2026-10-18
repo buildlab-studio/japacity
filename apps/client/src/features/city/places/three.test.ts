@@ -6,6 +6,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
+import { uiCalgaryText } from "@japacity/content/ui/calgary";
+import { uiCastelText } from "@japacity/content/ui/castel";
+import { uiDubaiText } from "@japacity/content/ui/dubai";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -27,9 +30,6 @@ import officeCa from "../../../../public/assets/places/office-ca/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
 import warehouseCa from "../../../../public/assets/places/warehouse-ca/place.json";
 import { landedGame, viewAfter } from "../../../shared/testing/fixtures";
-import { calgaryText } from "../../../shared/words/tables/calgary.words";
-import { castelText } from "../../../shared/words/tables/castel.words";
-import { dubaiText } from "../../../shared/words/tables/dubai.words";
 import { addLateWords } from "../../../shared/words/late";
 import type { Thing } from "../../../shared/world/contract";
 import { isLong } from "../../../shared/world/Lines";
@@ -54,7 +54,7 @@ function placeJson(id: Id<"place">): unknown {
 const domitiana = placeJson("place.via-domitiana");
 
 // Each country's words ride their own chunk in the game (shared/words/late.ts); the tests add them as the city does.
-for (const table of [calgaryText, dubaiText, castelText]) addLateWords(table);
+for (const table of [uiCalgaryText, uiDubaiText, uiCastelText]) addLateWords(table);
 
 const PLACES = Object.values(content.place);
 const CANADA = { where: "abroad", country: "country.canada" } as const;

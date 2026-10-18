@@ -2,11 +2,11 @@
 // the cafeteria's arcades across the road with the cafe's table under the colonnade, and on the near
 // pavement the spice stall, a taxi and the corner where the community meets. It is the hub in Dubai.
 import { content } from "@japacity/content";
+import { uiDubaiText } from "@japacity/content/ui/dubai";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/deira/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
-import { dubaiText } from "../../../shared/words/tables/dubai.words";
 import { addLateWords } from "../../../shared/words/late";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";
@@ -17,7 +17,7 @@ import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 
 // Dubai's words ride their own chunk in the game (shared/words/late.ts); a test of Dubai adds them as the city does.
-addLateWords(dubaiText);
+addLateWords(uiDubaiText);
 
 const ID = "place.deira";
 const { file, stage, entry } = staged(raw, ID);

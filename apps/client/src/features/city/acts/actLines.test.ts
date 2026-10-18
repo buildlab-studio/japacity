@@ -1,6 +1,7 @@
 // What an act says once it lands, in every built place (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008): a
 // person at the thing speaks over their head in their own voice; a thing tells one short line
 // in the corner, about the world and never the player's own act; an act the scene shows says nothing at all.
+import { uiLondonText } from "@japacity/content/ui/london";
 import { describe, expect, test } from "vitest";
 
 import { words } from "../../../shared/words/text";
@@ -11,10 +12,9 @@ import { builtPlaces } from "../../../shared/scene/placeFile.testing";
 import { sceneWords } from "../scene.words";
 import { thingsOf } from "../scene/things";
 import { addLateWords } from "../../../shared/words/late";
-import { londonText } from "../../../shared/words/tables/london.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
-addLateWords(londonText);
+addLateWords(uiLondonText);
 
 /** Every thing's acts in every built place, with the place's folder. */
 const ACTS = builtPlaces().flatMap(({ folder, file }) => thingsOf(stageOf(file)).flatMap((thing) => thing.acts.map((act) => ({ folder, thing, act }))));

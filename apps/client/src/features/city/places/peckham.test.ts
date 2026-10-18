@@ -5,6 +5,7 @@
 // R-STREET-005): the stalls are on Rye Lane and each job is at its own workplace's door, so the notice and the agency
 // start the hunt and the grocer is looked at.
 import { content } from "@japacity/content";
+import { uiLondonText } from "@japacity/content/ui/london";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/peckham/place.json";
@@ -19,10 +20,9 @@ import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 import { addLateWords } from "../../../shared/words/late";
-import { londonText } from "../../../shared/words/tables/london.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
-addLateWords(londonText);
+addLateWords(uiLondonText);
 
 const ID = "place.peckham";
 const { file, stage, entry } = staged(raw, ID);

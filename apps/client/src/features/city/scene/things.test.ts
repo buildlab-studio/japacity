@@ -1,3 +1,7 @@
+import { uiCalgaryText } from "@japacity/content/ui/calgary";
+import { uiCastelText } from "@japacity/content/ui/castel";
+import { uiDubaiText } from "@japacity/content/ui/dubai";
+import { uiLondonText } from "@japacity/content/ui/london";
 import { describe, expect, test } from "vitest";
 
 import bodeThomas from "../../../../public/assets/places/bode-thomas/place.json";
@@ -9,15 +13,11 @@ import { sceneWords } from "../scene.words";
 import { plainActLine } from "../acts/actLines";
 import { MAX_ACTS, stagedNow, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
 import { addLateWords } from "../../../shared/words/late";
-import { londonText } from "../../../shared/words/tables/london.words";
-import { calgaryText } from "../../../shared/words/tables/calgary.words";
-import { dubaiText } from "../../../shared/words/tables/dubai.words";
-import { castelText } from "../../../shared/words/tables/castel.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
-addLateWords(londonText);
+addLateWords(uiLondonText);
 // So do Calgary's, Dubai's and Castel Volturno's, each added once the life is in that country.
-for (const table of [calgaryText, dubaiText, castelText]) addLateWords(table);
+for (const table of [uiCalgaryText, uiDubaiText, uiCastelText]) addLateWords(table);
 
 const street = (bodeThomas as unknown as PlaceFile).stage;
 if (street === undefined) throw new Error("Bode Thomas has no stage");

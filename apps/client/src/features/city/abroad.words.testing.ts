@@ -5,6 +5,9 @@ import { join } from "node:path";
 /** The client's source folder. */
 export const SRC = join(import.meta.dirname, "..", "..");
 
+/** Content's entry, which a first visit loads: it never names a country's table. */
+export const CONTENT_INDEX = join(SRC, "..", "..", "..", "packages", "content", "src", "index.ts");
+
 /** Every module under a folder, the tests left out. */
 export function sources(folder: string): string[] {
   return readdirSync(folder).flatMap((name) => {

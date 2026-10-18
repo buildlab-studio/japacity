@@ -6,6 +6,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
+import { uiCalgaryMapText, uiCastelMapText, uiDubaiMapText } from "@japacity/content/ui/paper";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -21,7 +22,7 @@ import type { PaperCity } from "./city";
 import { onCard } from "./districts";
 import { drawingOf } from "./draw";
 import { DUBAI, DUBAI_FIT, DUBAI_HOME_SPOT, DUBAI_PAPER } from "./dubai";
-import { calgaryMapText, calgaryMapWords, castelMapText, castelMapWords, dubaiMapText, dubaiMapWords } from "./paper.words";
+import { calgaryMapWords, castelMapWords, dubaiMapWords } from "./paper.words";
 import type { Fit, Position } from "./fit";
 import { inside } from "./scatter";
 import { placeStops } from "./stops";
@@ -67,7 +68,7 @@ const COUNTRIES: readonly Country[] = [
     home: CALGARY_HOME_SPOT,
     lonMetres: 71,
     words: calgaryMapWords,
-    text: calgaryMapText,
+    text: uiCalgaryMapText,
     cards: ["airport", "north-east", "downtown"],
     cardWords: ["The airport", "The north-east", "Downtown"],
     homeCard: "north-east",
@@ -93,7 +94,7 @@ const COUNTRIES: readonly Country[] = [
     home: DUBAI_HOME_SPOT,
     lonMetres: 100,
     words: dubaiMapWords,
-    text: dubaiMapText,
+    text: uiDubaiMapText,
     cards: ["deira", "airport", "camp", "site"],
     cardWords: ["Deira", "The airport", "The camp", "The site"],
     homeCard: "camp",
@@ -116,7 +117,7 @@ const COUNTRIES: readonly Country[] = [
     home: CASTEL_HOME_SPOT,
     lonMetres: 84,
     words: castelMapWords,
-    text: castelMapText,
+    text: uiCastelMapText,
     cards: ["town", "fields", "domitiana"],
     cardWords: ["The town", "The fields", "The Domitiana"],
     homeCard: "domitiana",

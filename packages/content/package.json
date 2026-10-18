@@ -6,7 +6,13 @@
   "license": "MIT",
   "exports": {
     ".": "./src/index.ts",
-    "./private-places": "./src/place/place.private.ts"
+    "./private-places": "./src/place/place.private.ts",
+    "./ui/london": "./src/ui/ui.london.text.ts",
+    "./ui/calgary": "./src/ui/ui.calgary.text.ts",
+    "./ui/dubai": "./src/ui/ui.dubai.text.ts",
+    "./ui/castel": "./src/ui/ui.castel.text.ts",
+    "./ui/paper": "./src/ui/ui.paper.text.ts",
+    "./ui/send-off": "./src/ui/ui.sendOff.text.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json"

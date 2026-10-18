@@ -4,6 +4,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
+import { uiLondonMapText } from "@japacity/content/ui/paper";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -19,7 +20,7 @@ import { fromPaper, PAPER, toPaper } from "./fit";
 import { LANTERN_CANOE } from "./geometry";
 import { LAGOS } from "./lagos";
 import { HEATHROW, INSET, LONDON, LONDON_FIT, LONDON_HOME_SPOT, LONDON_PAPER } from "./london";
-import { londonMapText, londonMapWords } from "./paper.words";
+import { londonMapWords } from "./paper.words";
 import { inside } from "./scatter";
 import { placeStops } from "./stops";
 import { stripFrame } from "./Strip";
@@ -80,7 +81,7 @@ describe("London's fit and districts", () => {
     expect(keys.map((key) => londonMapWords(key))).toEqual(["Peckham", "Camberwell", "Nunhead", "Old Kent Road", "Elephant and Castle", "London Bridge", "The City", "The Thames"]);
     for (const key of ["map.inset.heathrow", "map.inset.west"]) expect(londonMapWords(key)).not.toBe(key);
     // London's words never shadow the map's own: each key is London's alone.
-    for (const key of Object.keys(londonMapText)) expect(londonMapWords(key)).toBe(londonMapText[key]);
+    for (const key of Object.keys(uiLondonMapText)) expect(londonMapWords(key)).toBe(uiLondonMapText[key]);
     // The river runs across the top with the City across it: the north bank's land stands above the south's.
     const north = LONDON.draw.land.north ?? [];
     expect(inside(north, LONDON.toPaper({ latE3: 51515, lonE3: -90 }))).toBe(true);

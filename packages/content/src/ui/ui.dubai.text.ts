@@ -1,9 +1,9 @@
 // Dubai's words (world.md R-WORLD-038, R-WORLD-039; streets.md R-STREET-014; design page 15): the names of the things and
 // acts of its places, the colleague's lines at the site, the talk overheard there and the ride's lines on the metro, the
-// city bus, the labour bus and the taxi. In the voice of docs/rules/text.md; content's table wins over these.
-// Kept in a chunk of their own and added once the life is in the UAE (late.ts), so a first visit at home carries none of
-// them (engine.md R-ENGINE-020).
-export const dubaiText: Readonly<Record<string, string>> = {
+// city bus, the labour bus and the taxi. In the voice of docs/rules/text.md; content's text wins over these.
+// Fetched in a chunk of their own and added to the client's late words once the life is in the UAE
+// (apps/client/src/shared/words/late.ts), so a first visit at home carries none of them (engine.md R-ENGINE-020).
+export const uiDubaiText: Readonly<Record<string, string>> = {
   // Deira restaged (design page 15 section 3): the exchange house for money home, the African foods shop, the cafeteria.
   "city.thing.exchange-house": "Money exchange",
   "city.thing.african-foods": "African foods",
