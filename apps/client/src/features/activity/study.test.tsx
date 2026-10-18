@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { newGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
-import { englishOf, ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
+import { englishOf, ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/englishTest";
 import { ActivityPicker } from "./ActivityView";
 import { studyMonths, studyWords } from "./study";
 

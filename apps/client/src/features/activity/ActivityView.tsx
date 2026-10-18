@@ -18,7 +18,7 @@ import { afterPaying, plannedCosts, shortfall, type AfterPaying, type Money } fr
 import { formatBand, formatMoney } from "../../shared/words/format";
 import { lockWords, SIDE_JOB_LOCK } from "../../shared/words/locks";
 import { alreadyDone, needsWords, requirementSentence, saysWhyOnCard } from "../../shared/words/requirement";
-import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/test";
+import { ENGLISH_TEST, STUDY_ENGLISH, testChance } from "../../shared/words/englishTest";
 import { studyWords } from "./study";
 import { PressButton } from "../../shared/ui/lively/PressButton";
 import { Tile } from "../../shared/tiles/Tile";

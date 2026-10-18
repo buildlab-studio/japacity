@@ -8,7 +8,7 @@ import { newGame, recordedGame, viewAfter } from "../testing/fixtures";
 import { formatBand } from "./format";
 import { jobsWords } from "./jobs";
 import { tidyLines } from "./lines";
-import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND_MET, ISSUED_BAND_SHORT, possibleBands, testChance } from "./test";
+import { bandChanceBp, bandNeeded, bandResultLine, englishOf, ISSUED_BAND_MET, ISSUED_BAND_SHORT, possibleBands, testChance } from "./englishTest";
 import { words } from "./text";
 
 const PAPER = "document.english-test";

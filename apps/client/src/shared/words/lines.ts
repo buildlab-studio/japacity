@@ -5,7 +5,7 @@
 import { content, text } from "@japacity/content";
 import type { MoneyParam, ReportLine } from "@japacity/sim";
 
-import { bandResultLine } from "./test";
+import { bandResultLine } from "./englishTest";
 import { hasWords, moneyParam } from "./text";
 
 const WALLET = "line.wallet.";

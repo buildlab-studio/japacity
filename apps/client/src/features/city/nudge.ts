@@ -12,7 +12,7 @@ import { asksAttention, tidyLines } from "../../shared/words/lines";
 import { nextStepOf, ownRouteOf, ownWayOf, RACKS, RACKS_STEP, racksAtHand, wardMonths } from "../../shared/words/sixteen";
 import { routeKeptBy } from "../../shared/words/keepJob";
 import { sealedTillMorning } from "../../shared/words/morning";
-import { testChance } from "../../shared/words/test";
+import { testChance } from "../../shared/words/englishTest";
 import { hasWords, inMonths, nameOf, say } from "../../shared/words/text";
 import type { Nudge } from "../../shared/world/contract";
 

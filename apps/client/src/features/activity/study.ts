@@ -6,7 +6,7 @@ import { int } from "@japacity/sim";
 
 import { countWords } from "../../shared/words/count";
 import { chanceBand, jobsWords } from "../../shared/words/jobs";
-import { bandChanceBp, bandNeeded, type BandView, englishOf, STUDY_ENGLISH, testChance } from "../../shared/words/test";
+import { bandChanceBp, bandNeeded, type BandView, englishOf, STUDY_ENGLISH, testChance } from "../../shared/words/englishTest";
 
 const ENGLISH = "quality.english";
 const BP_WHOLE = 10_000;

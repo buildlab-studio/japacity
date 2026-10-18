@@ -5,7 +5,7 @@ import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { newGame } from "../../shared/testing/fixtures";
-import { earnedNaira, earnedShort, kioskCapReached } from "../../shared/words/lotto";
+import { earnedNaira, earnedShort, kioskCapReached } from "../../shared/words/lottoLines";
 import { say } from "../../shared/words/text";
 import { KIOSK_CAP, kioskAnswer } from "./acts";
 

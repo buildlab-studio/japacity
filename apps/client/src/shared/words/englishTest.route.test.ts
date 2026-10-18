@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { newGame, viewAfter } from "../testing/fixtures";
 import { formatBand } from "./format";
 import { tidyLines } from "./lines";
-import { bandNeeded, routeBand, testChance } from "./test";
+import { bandNeeded, routeBand, testChance } from "./englishTest";
 import { words } from "./text";
 import { toldOnResults } from "./told";
 
