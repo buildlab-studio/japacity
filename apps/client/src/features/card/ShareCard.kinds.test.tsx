@@ -43,7 +43,7 @@ describe("a card for every moment", () => {
   test("[R-SHARE-001] [R-SHARE-015] given each kind of card the view carries, when it is due, then it opens with the kind's title and a tile names it, the send-off from its tile", async () => {
     for (const kind of shareKinds) {
       const { store } = await renderWithView(<CardView />, adaWith(kind));
-      // R-SHARE-015: the send-off opens from its tile (that it never opens on its own is SendOffKeepsake.test.tsx's).
+      // R-SHARE-015: the send-off opens from its tile (that it never opens on its own is ShareCard.keepsake.test.tsx's).
       if (kind === "send-off") fireEvent.click(screen.getByRole("button", { name: say("ui.card.open") }));
       const sheet = await screen.findByRole("dialog");
       const face = sheet.querySelector(`[data-share-card='${kind}']`) as HTMLElement;
