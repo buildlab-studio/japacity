@@ -1,10 +1,10 @@
-// The switch row and the dials of the private settings (server.md R-SERVER-030,
-// R-SERVER-031): one row the server reads on each request, cached, so a change
+// The switch row and the dials of the private settings (server:private-settings-and-dials,
+// server:four-off-switches): one row the server reads on each request, cached, so a change
 // takes effect without a deploy, and an append-only log of every change.
 import type { StoreResult } from "./types";
 
 /**
- * R-SERVER-031: the four off switches, each on by default; city.md R-CITY-039:
+ * server:four-off-switches: the four off switches, each on by default; city:boards-switch-when-and-who:
  * one switch for each board, the four on and the joined-week board off.
  */
 export interface Switches {
@@ -22,9 +22,9 @@ export interface Switches {
 export type SwitchName = keyof Switches;
 
 /**
- * R-SERVER-030: the dials. A dial left unset (absent or null) falls back to
- * the content's number: the place entry's `crowd.target` (R-CITY-032),
- * `tuning.people.computerAfterMonths` (R-PEOPLE-060). The lottery's runs on `tuning.lottery.odds` (R-LOTTERY-021).
+ * server:private-settings-and-dials: the dials. A dial left unset (absent or null) falls back to
+ * the content's number: the place entry's `crowd.target` (city:residents-fill-to-target),
+ * `tuning.people.computerAfterMonths` (person:computer-partner-offer-dial). The lottery's runs on `tuning.lottery.odds` (lottery:odds-fixed-at-draw-open).
  */
 export interface Dials {
   /** By place id. */
@@ -46,7 +46,7 @@ export interface RetiredDialChange {
 /** What one logged change did. */
 export type SettingChange = { switch: SwitchName; on: boolean } | DialChange | RetiredDialChange;
 
-/** R-SERVER-031: who changed what, when and why. `n` rises with every change. */
+/** server:four-off-switches: who changed what, when and why. `n` rises with every change. */
 export interface SwitchLogRow {
   n: number;
   at: number;
@@ -60,7 +60,7 @@ export interface SwitchRow {
   dials: Dials;
 }
 
-/** R-SERVER-030, R-SERVER-031: the row as an empty store reads it. */
+/** server:private-settings-and-dials, server:four-off-switches: the row as an empty store reads it. */
 export const DEFAULT_SWITCH_ROW: SwitchRow = {
   switches: {
     signups: true,
@@ -77,7 +77,7 @@ export const DEFAULT_SWITCH_ROW: SwitchRow = {
 };
 
 /**
- * R-SERVER-030, R-SERVER-031. Every write is logged with the row change in one
+ * server:private-settings-and-dials, server:four-off-switches. Every write is logged with the row change in one
  * step; the log has no update and no delete. `at` is passed in: no store reads a clock.
  */
 export interface SwitchStore {

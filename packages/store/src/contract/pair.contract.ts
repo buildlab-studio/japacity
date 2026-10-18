@@ -24,7 +24,7 @@ async function withThree(make: () => Promise<PairStores>): Promise<PairStores> {
 /** The contract every PairStore keeps, beside the PlayerStore whose transactions write it. */
 export function suiteForPairStore(make: () => Promise<PairStores>): void {
   describe("PairStore contract", () => {
-    test("[R-PAIR-001] given two character ids in either order, when the pair key is made, then it is the two sorted and joined by a tilde", () => {
+    test("[pair:one-record-per-two] given two character ids in either order, when the pair key is made, then it is the two sorted and joined by a tilde", () => {
       expect(pairKey("char-b", "char-a")).toBe(KEY);
       expect(pairKey("char-a", "char-b")).toBe(KEY);
       expect(pairKey("char-a", "char-Z")).toBe("char-Z~char-a");
@@ -34,7 +34,7 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect(() => pairKey("char-a", "char-a")).toThrow();
     });
 
-    test("[R-PAIR-004] given a transaction holding both characters, when it puts a new record, then the record reads back at version 1 and the next transaction is given it", async () => {
+    test("[pair:only-server-writes-record] given a transaction holding both characters, when it puts a new record, then the record reads back at version 1 and the next transaction is given it", async () => {
       const stores = await withThree(make);
 
       must(await write(stores, ["char-b", "char-a"], { pairs: [{ key: KEY, expectedV: 0, record: { stage: "connected" } }] }));
@@ -45,7 +45,7 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect(given).toEqual([{ key: KEY, a: "char-a", b: "char-b", v: 1, record: { stage: "connected" } }]);
     });
 
-    test("[R-PAIR-001] given a stored record, when a put comes at an old version or makes it again, then it is refused as stale and the record is kept", async () => {
+    test("[pair:one-record-per-two] given a stored record, when a put comes at an old version or makes it again, then it is refused as stale and the record is kept", async () => {
       const stores = await withThree(make);
       must(await write(stores, ["char-a", "char-b"], { pairs: [{ key: KEY, expectedV: 0, record: { stage: "connected" } }] }));
       must(await write(stores, ["char-a", "char-b"], { pairs: [{ key: KEY, expectedV: 1, record: { stage: "courting" } }] }));
@@ -58,7 +58,7 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect(await stores.pair.get(KEY)).toMatchObject({ v: 2, record: { stage: "courting" } });
     });
 
-    test("[R-PAIR-004] given a transaction holding only one of the two, when it puts their record, then it is refused with not-held and nothing in it is written", async () => {
+    test("[pair:only-server-writes-record] given a transaction holding only one of the two, when it puts their record, then it is refused with not-held and nothing in it is written", async () => {
       const stores = await withThree(make);
 
       const result = await write(stores, ["char-a", "char-c"], {
@@ -71,7 +71,7 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect((await stores.player.load("char-a"))?.character.v).toBe(0);
     });
 
-    test("[R-PAIR-001] given a key that is not two sorted ids, when it is put, then it is refused and nothing is written", async () => {
+    test("[pair:one-record-per-two] given a key that is not two sorted ids, when it is put, then it is refused and nothing is written", async () => {
       const stores = await withThree(make);
 
       const reversed = await write(stores, ["char-a", "char-b"], { pairs: [{ key: "char-b~char-a", expectedV: 0, record: {} }] });
@@ -88,7 +88,7 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect(await stores.pair.get("char-b~char-a")).toBeNull();
     });
 
-    test("[R-ACCOUNT-017] given records of three characters, when one character is removed, then its records go and the others stay", async () => {
+    test("[account:deleted-data-removed-within-month] given records of three characters, when one character is removed, then its records go and the others stay", async () => {
       const stores = await withThree(make);
       must(
         await write(stores, ["char-a", "char-b", "char-c"], {
@@ -107,7 +107,7 @@ export function suiteForPairStore(make: () => Promise<PairStores>): void {
       expect(await stores.pair.get("char-b~char-c")).toMatchObject({ v: 1, record: { n: 3 } });
     });
 
-    test("[R-MODERATION-008] given a record a report holds and one it does not, when one of their characters is removed, then the held record stays unchanged and the other goes", async () => {
+    test("[moderation:reports-hold-cited-records] given a record a report holds and one it does not, when one of their characters is removed, then the held record stays unchanged and the other goes", async () => {
       const stores = await withThree(make);
       must(
         await write(stores, ["char-a", "char-b", "char-c"], {

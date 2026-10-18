@@ -3,7 +3,7 @@ import type { DrawRow, TicketRow, WorldStore, WorldTickRow } from "../types";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
-/** R-CLOCK-010, R-CLOCK-013, R-LOTTERY-005 to 015: ticks, draws and tickets in maps. */
+/** clock:world-is-stored-history, clock:request-fills-missing-ticks, lottery:tickets-numbered-by-commit, lottery:view-shows-draw-state, lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:seed-from-secret-and-beacon, lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:winners-paid-by-authority, lottery:money-report-checks-draws and lottery:result-published-in-tick-row: ticks, draws and tickets in maps. */
 export function memoryWorldStore(): WorldStore {
   const ticks = new Map<number, WorldTickRow>();
   const draws = new Map<number, DrawRow>();

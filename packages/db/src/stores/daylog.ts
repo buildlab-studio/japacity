@@ -6,7 +6,7 @@ import { accounts, characters, commandLog } from "../schema";
 import { toAccount } from "./account";
 
 /**
- * R-ANALYTICS-007: a region is the finest place kept; an account with no
+ * analytics:store-holds-nothing-personal: a region is the finest place kept; an account with no
  * country, or gone, counts under the unknown one (`XX`, as the server names it).
  * Written as a literal so the grouping is the same expression as the column.
  */
@@ -17,7 +17,7 @@ const byRegion = (rows: readonly RegionCount[]) => [...rows].sort((left, right) 
 
 const byCodeUnit = (left: string, right: string) => (left < right ? -1 : left > right ? 1 : 0);
 
-/** R-ANALYTICS-008: the day's characters and new accounts, read from the game's tables by an ordinary query; R-ANALYTICS-012 and 013: the counts by region. */
+/** analytics:nightly-game-counters: the day's characters and new accounts, read from the game's tables by an ordinary query; analytics:admin-stats-for-admins-only and analytics:session-split-by-command-gaps: the counts by region. */
 export function pgDayLog(handle: Handle): DayLog & NumbersLog {
   return {
     active: (start, end) =>
@@ -40,7 +40,7 @@ export function pgDayLog(handle: Handle): DayLog & NumbersLog {
           .sort((left, right) => byCodeUnit(left.id, right.id));
       }),
 
-    // R-ANALYTICS-013: one query over the log by its time, joined to the account for its region only.
+    // analytics:session-split-by-command-gaps: one query over the log by its time, joined to the account for its region only.
     players: (start, end) =>
       handle.read(async (db) => {
         const found = await db

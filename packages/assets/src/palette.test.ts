@@ -10,18 +10,18 @@ const labPal = JSON.parse(readFileSync(new URL("./__fixtures__/lab-palette.json"
 const lab = new Map(Object.entries(labPal).map(([name, hex]) => [name, parseInt(hex.slice(1), 16)]));
 
 describe("the palette", () => {
-  test("[R-ASSET-001] given the palette file, when it is read, then every colour is a named entry of the page's palette and no entry is missing", () => {
+  test("[assets:colours-from-named-palette] given the palette file, when it is read, then every colour is a named entry of the page's palette and no entry is missing", () => {
     expect(onPage.size).toBeGreaterThan(50);
     expect(new Map(paletteNames.map((name) => [name, palette[name] as number]))).toEqual(onPage);
   });
 
-  test("[R-ASSET-002] given the design's PAL, when the palette is read, then every lab entry is kept with its name and value, and the four scene colours are named", () => {
+  test("[assets:starting-palette-frozen] given the design's PAL, when the palette is read, then every lab entry is kept with its name and value, and the four scene colours are named", () => {
     expect(lab.size).toBe(37);
     for (const [name, value] of lab) expect(palette[name as keyof typeof palette]).toBe(value);
     expect([palette.sand, palette.asphalt, palette.marking, palette.sky]).toEqual([0xd9b27c, 0x4a4a4f, 0xe9e3d2, 0xf3d9a4]);
   });
 
-  test("[R-ASSET-001] given a palette colour, when it goes to linear light and back to 8 bits, then it is the same entry within 1 on each channel", () => {
+  test("[assets:colours-from-named-palette] given a palette colour, when it goes to linear light and back to 8 bits, then it is the same entry within 1 on each channel", () => {
     for (const name of paletteNames) {
       const rgb = paletteRgb(name);
       const back = rgb.map((c) => Math.round(linearToSrgb(srgbToLinear(c / 255)) * 255)) as [number, number, number];
@@ -29,7 +29,7 @@ describe("the palette", () => {
     }
   });
 
-  test("[R-ASSET-001] given a colour 2 off a palette entry on one channel, when it is checked, then it is not a palette colour", () => {
+  test("[assets:colours-from-named-palette] given a colour 2 off a palette entry on one channel, when it is checked, then it is not a palette colour", () => {
     const [r, g, b] = paletteRgb("danfoYellow");
     expect(nearestPaletteName([r, g, b])).toBe("danfoYellow");
     expect(nearestPaletteName([r, g - 1, b])).toBe("danfoYellow");

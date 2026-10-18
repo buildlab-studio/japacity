@@ -5,7 +5,7 @@ import { and, eq } from "drizzle-orm";
 import type { Handle } from "../handle";
 import { pushSubscriptions } from "../schema";
 
-/** R-CLOCK-031, R-ACCOUNT-017: one row per endpoint; a second subscribe of an endpoint replaces its row. */
+/** clock:full-bank-push-notification, account:deleted-data-removed-within-month: one row per endpoint; a second subscribe of an endpoint replaces its row. */
 export function pgPushStore(handle: Handle): PushStore {
   return {
     subscribe: (account, subscription) =>

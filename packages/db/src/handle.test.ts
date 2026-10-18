@@ -1,4 +1,4 @@
-// R-SERVER-012: the admin's reads run with a statement timeout, set with SET LOCAL inside a
+// server:ledger-alarm-lists-suspects: the admin's reads run with a statement timeout, set with SET LOCAL inside a
 // transaction of their own, so it ends with that transaction and never stays on the connection. PGlite keeps the
 // setting but does not stop a statement by it; race/timeout.race.test.ts shows the stop on a real Postgres.
 import { sql } from "drizzle-orm";
@@ -26,14 +26,14 @@ async function timeoutIn(handle: Handle, kind: "read" | "transaction"): Promise<
 }
 
 describe("a bounded handle", () => {
-  test("[R-SERVER-012] given a bounded handle, when it reads or runs a transaction, then the statement timeout is set inside, and outside it is back as it was", async () => {
+  test("[server:ledger-alarm-lists-suspects] given a bounded handle, when it reads or runs a transaction, then the statement timeout is set inside, and outside it is back as it was", async () => {
     const bounded = boundedHandle(pglite.handle, 5000);
     expect(await timeoutIn(bounded, "read")).toBe("5s");
     expect(await timeoutIn(bounded, "transaction")).toBe("5s");
     expect(await timeoutIn(pglite.handle, "read")).toBe("0");
   });
 
-  test("[R-SERVER-012] given a timeout that is not a whole number of milliseconds above 0, then no bounded handle is made", () => {
+  test("[server:ledger-alarm-lists-suspects] given a timeout that is not a whole number of milliseconds above 0, then no bounded handle is made", () => {
     for (const ms of [0, -1, 2.5, Number.NaN]) expect(() => boundedHandle(pglite.handle, ms)).toThrow(/whole number of milliseconds/);
   });
 });

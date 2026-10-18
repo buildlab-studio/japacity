@@ -1,4 +1,4 @@
-// The admin routes of the switches and the dials (R-SERVER-030, 031). The row
+// The admin routes of the switches and the dials (server:private-settings-and-dials, server:four-off-switches). The row
 // and its log are the store's, named here for the client.
 import type { DialChange, Dials, MAX_DIAL as STORE_MAX_DIAL, SettingChange, SwitchLogRow, SwitchName, Switches } from "@japacity/store";
 
@@ -12,7 +12,7 @@ export const SWITCH_NAMES: readonly SwitchName[] = [
   "lottery",
   "adverts",
   "partnerPlay",
-  // city.md R-CITY-039: one switch for each board.
+  // city:boards-switch-when-and-who: one switch for each board.
   "boards.this-week.everyone",
   "boards.this-week.friends",
   "boards.all-time.everyone",

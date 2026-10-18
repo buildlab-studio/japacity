@@ -3,7 +3,7 @@ import { sharedOrder } from "../dedication";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
-/** R-SERVER-045: one light per account, kept in a map. */
+/** server:dedication-routes: one light per account, kept in a map. */
 export function memoryDedicationStore(): DedicationStore {
   const lights = new Map<string, DedicationLight>();
   return {

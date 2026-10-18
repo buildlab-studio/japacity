@@ -1,7 +1,7 @@
 // The few shapes every builder is made of: boxes, cylinders, quads, extrusions and
-// hand-made solids, each in one palette colour (R-ASSET-001). Every shape sits on
+// hand-made solids, each in one palette colour (assets:colours-from-named-palette). Every shape sits on
 // its base at the y it is given, so builders stack parts by height. Flat shading
-// everywhere (R-ASSET-005); the export bakes all of them into one mesh.
+// everywhere (assets:flat-and-smooth-shading); the export bakes all of them into one mesh.
 import {
   BoxGeometry,
   BufferGeometry,

@@ -27,7 +27,7 @@ async function addTo(db: Queries, rows: readonly CounterTotal[]): Promise<void> 
     });
 }
 
-/** R-ANALYTICS-005, R-ANALYTICS-008: totals in the analytics schema, and the runs that added them. */
+/** analytics:rows-stored-as-day-totals, analytics:nightly-game-counters: totals in the analytics schema, and the runs that added them. */
 export function pgCounterStore(handle: Handle): CounterStore {
   return {
     add: (rows) => handle.transaction((tx) => addTo(tx, rows)),

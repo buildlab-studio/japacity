@@ -29,7 +29,7 @@ interface Stored {
 
 const byV = (x: { v: number }, y: { v: number }) => x.v - y.v;
 
-/** R-SERVER-004: the latest snapshot of the segment in force, and the rows after it. */
+/** server:snapshots-bound-replay: the latest snapshot of the segment in force, and the rows after it. */
 function held(stored: Stored): Held {
   const snapshot = stored.snapshots
     .filter((each) => each.segment === stored.row.segment)
@@ -117,10 +117,10 @@ function applyPair(pairs: Map<string, PairRow>, heldIds: ReadonlySet<string>, wr
 }
 
 /**
- * R-SERVER-002, R-SERVER-007, R-PAIR-004: characters and pair records in maps
+ * server:one-command-one-transaction, server:paired-rows-locked-in-order, pair:only-server-writes-record: characters and pair records in maps
  * behind one async lock. A transaction stages its writes on copies and swaps
  * them in only when every write is accepted. `stores` are the ones the work is
- * given (R-SERVER-002): the memory stores beside this one, which
+ * given (server:one-command-one-transaction): the memory stores beside this one, which
  * take no lock this store holds and roll nothing back, unlike Postgres.
  */
 export function memoryPlayerStores(stores: TxStores): { player: PlayerStore; pair: PairStore } {

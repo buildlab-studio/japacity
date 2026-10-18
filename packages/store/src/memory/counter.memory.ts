@@ -11,7 +11,7 @@ function order(left: CounterTotal, right: CounterTotal): number {
   return 0;
 }
 
-/** R-ANALYTICS-005: totals by day, region, name and key. */
+/** analytics:rows-stored-as-day-totals: totals by day, region, name and key. */
 export function memoryCounterStore(): CounterStore {
   const totals = new Map<string, CounterTotal>();
   const runs = new Set<string>();

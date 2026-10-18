@@ -1,4 +1,4 @@
-// The kit of parts (R-ASSET-016), ported from the asset experiments and extended with the
+// The kit of parts (assets:buildings-assembled-from-kit), ported from the asset experiments and extended with the
 // parts the six examples need. Sizes come from the part table on
 // docs/rules/assets.md; KIT_SIZES holds them so the tests can check every part.
 // Parts fixed to a wall are drawn in the wall's own frame: the face is z = 0 and
@@ -45,7 +45,7 @@ export function onWall(g: Object3D, x: number, y: number, z: number, ry = 0): Gr
   return frame;
 }
 
-/** The worn shade of a wall colour (R-ASSET-017): wear is a darker named colour, never a texture. */
+/** The worn shade of a wall colour (assets:buildings-carry-wear-and-clutter): wear is a darker named colour, never a texture. */
 const WORN: Partial<Record<PaletteName, PaletteName>> = {
   wallCream: "wallCreamWorn",
   wallPeach: "wallPeachWorn",
@@ -90,7 +90,7 @@ export function louvreWindow(w: Object3D, x: number, floorY: number): void {
   windowSill(w, x, y, size + 0.2);
 }
 
-/** A door leaf in its frame: 0.9 by 2.1, or 1.2 by 2.1 for a double door (R-ASSET-004). */
+/** A door leaf in its frame: 0.9 by 2.1, or 1.2 by 2.1 for a double door (assets:people-and-door-sizes). */
 export function door(w: Object3D, x: number, floorY: number, double = false, colour: PaletteName = "darkWood"): void {
   const width = double ? KIT_SIZES.door.doubleWidth : KIT_SIZES.door.width;
   const { height } = KIT_SIZES.door;
@@ -125,7 +125,7 @@ export function shopOpening(w: Object3D, x: number, floorY: number, width: numbe
 }
 
 // ---------------------------------------------------------------------------
-// Signs. The board is in the body; the face is an anchor the client draws (R-ASSET-012).
+// Signs. The board is in the body; the face is an anchor the client draws (assets:sign-text-drawn-in-code).
 // ---------------------------------------------------------------------------
 
 /** A signboard on a wall frame: the board in the body, its face recorded on `root` with its text key. */
@@ -330,7 +330,7 @@ export function fenceWall(w: Object3D, x0: number, x1: number, y: number, colour
 /**
  * An open drain along the street edge of a frontage, from x0 to x1 at z: a channel 0.45 wide between
  * two kerbs, with concrete slabs over it where people cross. The channel floor stays at ground level
- * (R-ASSET-003 keeps every model above y = 0); the street around it is lower in a place.
+ * (assets:metre-units-and-origin keeps every model above y = 0); the street around it is lower in a place.
  */
 export function drain(g: Object3D, x0: number, x1: number, z: number, top: number, slabsAt: readonly number[]): void {
   const length = x1 - x0;
@@ -407,7 +407,7 @@ export function dishDirection(yaw: number): Vec3 {
 }
 
 /**
- * A satellite dish 0.85 across on a short mast at (x, y, z), facing the place's one satellite (R-ASSET-019).
+ * A satellite dish 0.85 across on a short mast at (x, y, z), facing the place's one satellite (assets:dishes-face-one-satellite).
  * `yaw` is in the model's frame; the place turns it so every dish faces the same way.
  */
 export function dish(root: Object3D, g: Object3D, x: number, y: number, z: number, yaw: number): void {

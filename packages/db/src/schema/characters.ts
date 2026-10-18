@@ -1,4 +1,4 @@
-// R-SERVER-002 to 004, R-SERVER-020, R-PAIR-001: a character's row, its save
+// server:one-command-one-transaction, server:log-rows-hash-state, server:snapshots-bound-replay, server:save-is-list-of-segments, pair:one-record-per-two: a character's row, its save
 // segments, snapshots and command log, and the records shared by two characters.
 // Ids are ordered in JavaScript by UTF-16 code unit (compareIds), never by a
 // collation, so no id column needs COLLATE "C".
@@ -7,7 +7,7 @@ import type { PairRecord, SegmentStart } from "@japacity/store";
 import { sql } from "drizzle-orm";
 import { bigint, index, integer, jsonb, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
-/** R-SERVER-002: the row every command locks. */
+/** server:one-command-one-transaction: the row every command locks. */
 export const characters = pgTable(
   "characters",
   {
@@ -16,7 +16,7 @@ export const characters = pgTable(
     v: integer("v").notNull(),
     refilledAt: bigint("refilled_at", { mode: "number" }).notNull(),
     segment: integer("segment").notNull(),
-    /** R-CLOCK-031. */
+    /** clock:full-bank-push-notification. */
     fullAt: bigint("full_at", { mode: "number" }),
     fullNotifiedAt: bigint("full_notified_at", { mode: "number" }),
   },
@@ -26,7 +26,7 @@ export const characters = pgTable(
   ],
 );
 
-/** R-SERVER-020: a segment begins after version `from_v`. */
+/** server:save-is-list-of-segments: a segment begins after version `from_v`. */
 export const segments = pgTable(
   "segments",
   {
@@ -42,7 +42,7 @@ export const segments = pgTable(
   (table) => [primaryKey({ columns: [table.character, table.segment] })],
 );
 
-/** R-SERVER-004: the full state at version `v` of one segment, never rewritten. */
+/** server:snapshots-bound-replay: the full state at version `v` of one segment, never rewritten. */
 export const snapshots = pgTable(
   "snapshots",
   {
@@ -59,7 +59,7 @@ export const snapshots = pgTable(
 );
 
 /**
- * R-SERVER-003: one row per accepted command, never rewritten. A plain table
+ * server:log-rows-hash-state: one row per accepted command, never rewritten. A plain table
  * keyed on (character, v), not split by month, since a partitioned table must
  * carry the month in its primary key.
  */
@@ -76,11 +76,11 @@ export const commandLog = pgTable(
     hash: text("hash").notNull(),
     at: bigint("at", { mode: "number" }).notNull(),
   },
-  // R-ANALYTICS-013: online now, every five minutes, and the nightly counts read the log by its time.
+  // analytics:session-split-by-command-gaps: online now, every five minutes, and the nightly counts read the log by its time.
   (table) => [primaryKey({ columns: [table.character, table.v] }), index("command_log_at_idx").on(table.at)],
 );
 
-/** R-PAIR-001: one row per pair; `key` is the two ids sorted, `a` the lower. */
+/** pair:one-record-per-two: one row per pair; `key` is the two ids sorted, `a` the lower. */
 export const pairs = pgTable(
   "pairs",
   {

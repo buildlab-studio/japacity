@@ -2,7 +2,7 @@ import { compareIds } from "../keys";
 import type { PushStore, PushSubscriptionJson } from "../types";
 import { copy } from "./copy.memory";
 
-/** R-CLOCK-031: one entry per endpoint, naming the account that holds it. */
+/** clock:full-bank-push-notification: one entry per endpoint, naming the account that holds it. */
 export function memoryPushStore(): PushStore {
   const rows = new Map<string, { account: string; subscription: PushSubscriptionJson }>();
 

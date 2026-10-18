@@ -30,12 +30,12 @@ function uniqueViolation(error: unknown): boolean {
   return cause !== undefined && cause !== error && uniqueViolation(cause);
 }
 
-/** R-ACCOUNT-024: the clause that finds a username whatever the capitals; the unique index is on the same expression. */
+/** account:username-and-unconfirmed-email: the clause that finds a username whatever the capitals; the unique index is on the same expression. */
 function sameName(username: string) {
   return sql`lower(${accounts.username}) = lower(${username})`;
 }
 
-/** R-ACCOUNT-015, R-ACCOUNT-017, R-ACCOUNT-020: one row per account. */
+/** account:one-character-per-account, account:deleted-data-removed-within-month, account:only-needed-data-kept: one row per account. */
 export function pgAccountStore(handle: Handle): AccountStore {
   return {
     get: (id) =>

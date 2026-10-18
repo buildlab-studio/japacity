@@ -31,7 +31,7 @@ function difference(image: ReturnType<typeof drawPattern>, a: number, b: number,
 }
 
 describe("fabric patterns", () => {
-  test.each(SPECS)("[R-ASSET-013] given a $kind pattern of seed $seed, when it is drawn, then every pixel is an opaque palette colour", (spec) => {
+  test.each(SPECS)("[assets:fabric-pattern-from-seed] given a $kind pattern of seed $seed, when it is drawn, then every pixel is an opaque palette colour", (spec) => {
     const image = drawPattern(spec);
     expect(image.width).toBeLessThanOrEqual(256);
     for (let i = 0; i < image.pixels.length; i += 4) {
@@ -41,13 +41,13 @@ describe("fabric patterns", () => {
     }
   });
 
-  test.each(SPECS)("[R-ASSET-013] given a $kind pattern of seed $seed, when it is drawn twice, then the pixels are the same", (spec) => {
+  test.each(SPECS)("[assets:fabric-pattern-from-seed] given a $kind pattern of seed $seed, when it is drawn twice, then the pixels are the same", (spec) => {
     expect(drawPattern(spec).pixels).toEqual(drawPattern(spec).pixels);
   });
 
   // A pattern that tiles changes no more across its wrap than across any line inside it. A shape cut at
   // the edge and not drawn again on the far side would make the wrap the most broken line in the image.
-  test.each(SPECS)("[R-ASSET-013] given a $kind pattern of seed $seed, when it is tiled, then the seam is no worse than any line inside it", (spec) => {
+  test.each(SPECS)("[assets:fabric-pattern-from-seed] given a $kind pattern of seed $seed, when it is tiled, then the seam is no worse than any line inside it", (spec) => {
     const image = drawPattern(spec);
     const last = image.width - 1;
     for (const columns of [true, false]) {

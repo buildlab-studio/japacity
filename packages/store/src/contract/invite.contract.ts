@@ -11,7 +11,7 @@ function link(code: string, from = "character-a", madeAt = time.DAY_MS): NewInvi
 /** The contract every InviteStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
   describe("InviteStore contract", () => {
-    test("[R-PAIR-008] given a link, when it is stored and read back, then it is unused with every field as made", async () => {
+    test("[pair:invite-link-single-use] given a link, when it is stored and read back, then it is unused with every field as made", async () => {
       const store = await make();
       must(await store.create(link("code-1")));
 
@@ -20,7 +20,7 @@ export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
       expect(await store.create(link("code-1"))).toMatchObject({ ok: false, code: "exists" });
     });
 
-    test("[R-PAIR-008] given a link, when it is used twice, then the second is refused as closed and the first use stands", async () => {
+    test("[pair:invite-link-single-use] given a link, when it is used twice, then the second is refused as closed and the first use stands", async () => {
       const store = await make();
       must(await store.create(link("code-1")));
 
@@ -33,7 +33,7 @@ export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
       expect(await store.use("code-9", { by: "character-b", pair: "x~y", at: time.DAY_MS, before: [] })).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-PAIR-008] given a used link released, when it is used again, then the new use is accepted", async () => {
+    test("[pair:invite-link-single-use] given a used link released, when it is used again, then the new use is accepted", async () => {
       const store = await make();
       must(await store.create(link("code-1")));
       must(await store.use("code-1", { by: "character-b", pair: "character-a~character-b", at: 2 * time.DAY_MS, before: [] }));
@@ -45,7 +45,7 @@ export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
       must(await store.use("code-1", { by: "character-c", pair: "character-a~character-c", at: 3 * time.DAY_MS, before: [] }));
     });
 
-    test("[R-PAIR-008] given links made, used and expired, when the open ones are listed, then only the unused ones still in date come back, oldest first, up to a millisecond before expiry", async () => {
+    test("[pair:invite-link-single-use] given links made, used and expired, when the open ones are listed, then only the unused ones still in date come back, oldest first, up to a millisecond before expiry", async () => {
       const store = await make();
       must(await store.create(link("late", "character-a", 3 * time.DAY_MS)));
       must(await store.create(link("early", "character-a", time.DAY_MS)));
@@ -58,7 +58,7 @@ export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
       expect((await store.open("character-a", expiry)).map((row) => row.code)).toEqual(["late"]);
     });
 
-    test("[R-PAIR-001] given links used between characters, when the pairs are listed, then each key comes once, in key order, for either side", async () => {
+    test("[pair:one-record-per-two] given links used between characters, when the pairs are listed, then each key comes once, in key order, for either side", async () => {
       const store = await make();
       for (const code of ["one", "two", "three"]) must(await store.create(link(code, code === "three" ? "character-c" : "character-a")));
       must(await store.use("one", { by: "character-b", pair: "character-a~character-b", at: time.DAY_MS, before: [] }));
@@ -71,7 +71,7 @@ export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
       expect((await store.linkedBy("character-b")).map((row) => row.code)).toEqual(["one", "two"]);
     });
 
-    test("[R-PAIR-009] given a reward, when the same friend's milestone is given again, then it is refused and the first stays", async () => {
+    test("[pair:invite-rewards-never-cash] given a reward, when the same friend's milestone is given again, then it is refused and the first stays", async () => {
       const store = await make();
       const reward = { from: "character-a", friend: "character-b", reached: "prologue" as const, frame: "card.frame.prologue", line: "line.pair.reward.prologue", at: time.DAY_MS };
       must(await store.reward(reward));
@@ -81,7 +81,7 @@ export function suiteForInviteStore(make: () => Promise<InviteStore>): void {
       expect((await store.rewards("character-a")).map((row) => [row.reached, row.at])).toEqual([["prologue", time.DAY_MS], ["departed", time.DAY_MS]]);
     });
 
-    test("[R-ACCOUNT-017] given a character's links, uses and rewards, when it is removed, then none that name it is left and the others stay", async () => {
+    test("[account:deleted-data-removed-within-month] given a character's links, uses and rewards, when it is removed, then none that name it is left and the others stay", async () => {
       const store = await make();
       must(await store.create(link("mine", "character-a")));
       must(await store.create(link("theirs", "character-c")));

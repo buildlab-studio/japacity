@@ -8,7 +8,7 @@ function names(conversation: string, character: string): boolean {
   return conversation.split("~").includes(character);
 }
 
-/** R-PAIR-011: every stored phrase, in one array. */
+/** pair:conversation-phrases-stored: every stored phrase, in one array. */
 export function memoryConversationStore(): ConversationStore {
   let rows: ConversationRow[] = [];
   const of = (conversation: string) => rows.filter((row) => row.conversation === conversation).sort(byTime);

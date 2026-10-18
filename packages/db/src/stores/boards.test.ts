@@ -12,7 +12,7 @@ suiteForBoardStore(async () => {
   return { boards: pgBoardStore(handle), player: pgPlayerStores(handle).player };
 });
 
-test("[R-ACCOUNT-017] given a character on a board, when the character is removed, then its board row goes with it", async () => {
+test("[account:deleted-data-removed-within-month] given a character on a board, when the character is removed, then its board row goes with it", async () => {
   const handle = await fresh();
   const boards = pgBoardStore(handle);
   const { player } = pgPlayerStores(handle);

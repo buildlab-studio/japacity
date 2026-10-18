@@ -1,4 +1,4 @@
-// R-ADVERT-020: advertisers, campaigns, creatives by version with their image,
+// advert:advertiser-records-stored: advertisers, campaigns, creatives by version with their image,
 // reviews in insert order, and daily counts. No column names a player.
 import type { Id } from "@japacity/sim";
 import type { AdvertCount, Campaign, CreativeFile, CreativeStatus, NamedPlace } from "@japacity/store";

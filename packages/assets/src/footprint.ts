@@ -1,4 +1,4 @@
-// Footprints and walkable ground (R-ASSET-030). A model records the ground it blocks as boxes in its
+// Footprints and walkable ground (assets:models-record-their-footprint). A model records the ground it blocks as boxes in its
 // own frame, in its root's extras; a place records the ground people may walk on as polygons in its
 // stage. The build check and the client's route map read both through these few plain functions.
 import { Box3, type Mesh, type Object3D, Vector3 } from "three";

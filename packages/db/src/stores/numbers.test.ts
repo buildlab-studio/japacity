@@ -25,7 +25,7 @@ function account(id: string, country: string, createdAt: number): AccountRow {
 }
 
 describe("the counts by region in Postgres", () => {
-  test("[R-ANALYTICS-013] [R-ANALYTICS-007] given player commands, a stand-in's and the authority's either side of a window, when the players are read, then each account is counted once in its region, the unknown one for a country left empty, and no id comes back", async () => {
+  test("[analytics:session-split-by-command-gaps] [analytics:store-holds-nothing-personal] given player commands, a stand-in's and the authority's either side of a window, when the players are read, then each account is counted once in its region, the unknown one for a country left empty, and no id comes back", async () => {
     const handle = await fresh();
     const { player } = pgPlayerStores(handle);
     const accounts = pgAccountStore(handle);
@@ -47,7 +47,7 @@ describe("the counts by region in Postgres", () => {
     expect(await pgDayLog(handle).players(START + DAY, START + 2 * DAY)).toEqual([{ region: "XX", count: 1 }]);
   });
 
-  test("[R-ANALYTICS-008] given accounts made either side of a moment, when the accounts are read, then those made before it are counted by region", async () => {
+  test("[analytics:nightly-game-counters] given accounts made either side of a moment, when the accounts are read, then those made before it are counted by region", async () => {
     const handle = await fresh();
     const accounts = pgAccountStore(handle);
     for (const [id, country, at] of [["account.a", "NG", START - 5], ["account.b", "NG", START - 1], ["account.c", "GB", START - 1], ["account.d", "NG", START], ["account.e", "", 0]] as const) await accounts.create(account(id, country, at));

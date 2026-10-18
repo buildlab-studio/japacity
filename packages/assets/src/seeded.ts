@@ -1,7 +1,7 @@
 // The one seeded generator the assets draw with, free of three so the patterns' light entry can read it.
 
 /**
- * A seeded generator in [0, 1): the same seed gives the same building (R-ASSET-018) and the same motif (R-ASSET-013)
+ * A seeded generator in [0, 1): the same seed gives the same building (assets:neighbours-never-identical) and the same motif (assets:fabric-pattern-from-seed)
  * every time. It is the design's, kept so a seed draws what it drew there.
  */
 export function seeded(seed: number): () => number {

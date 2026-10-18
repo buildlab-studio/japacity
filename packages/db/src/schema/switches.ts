@@ -1,6 +1,6 @@
-// R-SERVER-030, R-SERVER-031: the switch row, one row only (`id` is always 1),
+// server:private-settings-and-dials, server:four-off-switches: the switch row, one row only (`id` is always 1),
 // and the log of every change to it, append-only, `n` rising. The board
-// switches (city.md R-CITY-039) keep the switch names as their keys.
+// switches (city:boards-switch-when-and-who) keep the switch names as their keys.
 import type { SettingChange } from "@japacity/store";
 import { sql } from "drizzle-orm";
 import { bigint, boolean, check, integer, jsonb, pgTable, smallint, text } from "drizzle-orm/pg-core";

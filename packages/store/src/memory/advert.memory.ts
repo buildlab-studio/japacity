@@ -14,7 +14,7 @@ function byCount(a: AdvertCount, b: AdvertCount): number {
   return a.day - b.day || a.slot.localeCompare(b.slot) || a.region.localeCompare(b.region);
 }
 
-/** R-ADVERT-020: adverts in maps; reviews in an array that only grows. */
+/** advert:advertiser-records-stored: adverts in maps; reviews in an array that only grows. */
 export function memoryAdvertStore(): AdvertStore {
   const advertisers = new Map<string, Advertiser>();
   const campaigns = new Map<string, Campaign>();

@@ -1,7 +1,7 @@
-// An ordinary building is data (R-ASSET-016): a BuildingSpec given to the kit. The same
+// An ordinary building is data (assets:buildings-assembled-from-kit): a BuildingSpec given to the kit. The same
 // spec builds the same building every time, because every choice the spec leaves open
-// is drawn from its clutter seed (R-ASSET-017, R-ASSET-018). Signs are anchors with
-// text keys, never letters in the mesh (R-ASSET-012), so the body bakes to one material.
+// is drawn from its clutter seed (assets:buildings-carry-wear-and-clutter, assets:neighbours-never-identical). Signs are anchors with
+// text keys, never letters in the mesh (assets:sign-text-drawn-in-code), so the body bakes to one material.
 import { Group } from "three";
 
 import { type FootprintBox, lowBox, setFootprint } from "../footprint";
@@ -41,7 +41,7 @@ import {
 } from "./parts";
 import { box, pick, quad, seeded } from "./shapes";
 
-/** The yaw every dish faces in a model's own frame when the place does not say (R-ASSET-019). */
+/** The yaw every dish faces in a model's own frame when the place does not say (assets:dishes-face-one-satellite). */
 export const DEFAULT_DISH_YAW = 0.6;
 
 export interface BuildingOptions {
@@ -51,7 +51,7 @@ export interface BuildingOptions {
   signStyles?: SignStyle[];
 }
 
-/** The clutter a building carries, recorded on the model for the tests and the reviewer (R-ASSET-017). */
+/** The clutter a building carries, recorded on the model for the tests and the reviewer (assets:buildings-carry-wear-and-clutter). */
 export type ClutterItem = "tank" | "dish" | "generator" | "bars" | "stains" | "notice" | "wires";
 
 /** The step a building stands on. A four-storey building stands on the ground, so its parapet stays inside 13 m. */
@@ -91,7 +91,7 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
   const shops = spec.signs.length;
   const items = new Set<ClutterItem>();
   const front = d / 2;
-  // The ground the building blocks (R-ASSET-030), kept as each part is placed: the awnings, the
+  // The ground the building blocks (assets:models-record-their-footprint), kept as each part is placed: the awnings, the
   // balconies and the step out front are left out, as people walk under the first and on the last.
   const blocks: FootprintBox[] = [{ x: 0, z: 0, width: w, depth: d }];
   const block = (x: number, z: number, width: number, depth: number): void => {
@@ -166,7 +166,7 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     if (k === 0 && windows.length > 1) louvreWindow(back, windows[0] ?? 0, y);
   });
 
-  // A dish on the wall that faces the satellite most nearly, high up near a corner (R-ASSET-019).
+  // A dish on the wall that faces the satellite most nearly, high up near a corner (assets:dishes-face-one-satellite).
   const wallDish = (): void => {
     const walls = [
       { ry: 0, x: 0, z: front, along: w },
@@ -264,7 +264,7 @@ export function buildBuilding(spec: BuildingSpec, options: BuildingOptions = {})
     items.add("generator");
   }
 
-  // Wear (R-ASSET-017): a worn band on the lower walls, damp under the roof edge, streaks under the windows.
+  // Wear (assets:buildings-carry-wear-and-clutter): a worn band on the lower walls, damp under the roof edge, streaks under the windows.
   const band = 0.35 + 0.25 * spec.wear;
   for (const wf of [face, back]) stain(wf, 0, PLINTH, w, band, worn);
   for (const [sx, ry] of [[-w / 2, -Math.PI / 2], [w / 2, Math.PI / 2]] as const) stain(onWall(root, sx, 0, 0, ry), 0, PLINTH, d, band, worn);

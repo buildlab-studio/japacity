@@ -1,4 +1,4 @@
-// The lottery's public draw page (lottery.md R-LOTTERY-007, 008, 015).
+// The lottery's public draw page (lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:result-published-in-tick-row).
 import type { LotteryOdds, LotteryResult } from "@japacity/sim";
 
 /**
@@ -12,7 +12,7 @@ export interface DrawReply {
   closesAt: number;
   fingerprint: string;
   beaconRound: number;
-  /** R-LOTTERY-021, R-LOTTERY-012: the odds and the jackpot fixed when the draw opened. */
+  /** lottery:odds-fixed-at-draw-open, lottery:jackpot-rolls-over: the odds and the jackpot fixed when the draw opened. */
   odds: LotteryOdds;
   jackpot: number;
   list: string[] | null;

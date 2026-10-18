@@ -1,12 +1,12 @@
-// The boards' figures (city.md R-CITY-039, R-CITY-040): one row per character
+// The boards' figures (city:boards-switch-when-and-who, city:board-line-and-ranking): one row per character
 // with its japacity figure now and the figure it held when the Lagos week
 // began, so a board is one ordered read and never a load of every life.
 // Weeks are whole Lagos weeks counted by the caller; no store reads a clock.
 
-/** R-CITY-039: the when picker. */
+/** city:boards-switch-when-and-who: the when picker. */
 export type BoardWhen = "this-week" | "all-time";
 
-/** R-CITY-039: the who picker. */
+/** city:boards-switch-when-and-who: the who picker. */
 export type BoardWho = "everyone" | "friends";
 
 /** One character's figures as stored. */
@@ -15,19 +15,19 @@ export interface FigureRow {
   account: string;
   /** The scenario the life began in: its first name is the content's `share.first-name.<scenario>`. */
   scenario: string;
-  /** When the account was made: the tie-break of R-CITY-040 ("the earlier account"). */
+  /** When the account was made: the tie-break of city:board-line-and-ranking ("the earlier account"). */
   joinedAt: number;
   /** The Lagos week the account was made in, for the joined-week board. */
   joinedWeek: number;
-  /** R-ACCOUNT-022: false while the account is a guest, which is on no board. */
+  /** account:social-needs-secured-account: false while the account is a guest, which is on no board. */
   listed: boolean;
   /** The character's version the figure was worked out at; an older write never replaces a newer one. */
   v: number;
-  /** R-JAPACITY-003: the japacity figure, null for "no route yet". */
+  /** japacity:best-open-route-is-japacity: the japacity figure, null for "no route yet". */
   figure: number | null;
   /** The Lagos week `weekStart` belongs to. */
   week: number;
-  /** R-CITY-039: the figure when `week` began, null when there was none. */
+  /** city:boards-switch-when-and-who: the figure when `week` began, null when there was none. */
   weekStart: number | null;
 }
 
@@ -69,7 +69,7 @@ export interface RankedRow {
 }
 
 /**
- * R-CITY-039, R-CITY-040. A board holds only listed rows with a figure,
+ * city:boards-switch-when-and-who, city:board-line-and-ranking. A board holds only listed rows with a figure,
  * ranked by score, then by the earlier account, then by character id.
  */
 export interface BoardStore {
@@ -80,9 +80,9 @@ export interface BoardStore {
    * it held before (a new row: `before`).
    */
   setFigure: (write: FigureWrite) => Promise<boolean>;
-  /** R-CITY-039: saves each row's figure as the start of `week` where its week is behind. Idempotent; answers how many rows moved. */
+  /** city:boards-switch-when-and-who: saves each row's figure as the start of `week` where its week is behind. Idempotent; answers how many rows moved. */
   turnWeek: (week: number) => Promise<number>;
-  /** R-ACCOUNT-022: lists or unlists every row of an account. */
+  /** account:social-needs-secured-account: lists or unlists every row of an account. */
   setListed: (account: string, listed: boolean) => Promise<void>;
   /** Null for a character with no row. */
   get: (character: string) => Promise<FigureRow | null>;
@@ -90,11 +90,11 @@ export interface BoardStore {
   top: (query: BoardQuery, limit: number) => Promise<RankedRow[]>;
   /** The character's own line on the board, or null when it is not on it. */
   lineOf: (query: BoardQuery, character: string) => Promise<RankedRow | null>;
-  /** R-ACCOUNT-017: the character's row goes. */
+  /** account:deleted-data-removed-within-month: the character's row goes. */
   remove: (character: string) => Promise<void>;
 }
 
-/** R-CITY-039: a row's rise this week; a row whose week is behind has not risen yet, and no figure counts as 0. */
+/** city:boards-switch-when-and-who: a row's rise this week; a row whose week is behind has not risen yet, and no figure counts as 0. */
 export function riseOf(row: Pick<FigureRow, "figure" | "week" | "weekStart">, week: number): number {
   const now = row.figure ?? 0;
   const start = row.week >= week ? (row.weekStart ?? 0) : now;
@@ -102,7 +102,7 @@ export function riseOf(row: Pick<FigureRow, "figure" | "week" | "weekStart">, we
 }
 
 /**
- * R-CITY-040: the row's score on a board, or null when the row is not on it.
+ * city:board-line-and-ranking: the row's score on a board, or null when the row is not on it.
  * A character with no route yet is on no board (the screen says so on
  * its own line), and a figure that fell this week ranks as a rise below 0.
  */

@@ -1,4 +1,4 @@
-// R-SERVER-044: one migration file, 0000_japacity, holds what three files built (a clean set of two and
+// server:migration-before-deploy: one migration file, 0000_japacity, holds what three files built (a clean set of two and
 // 0002_dedication-lights), the hand-written function and trigger at its end. This proves the one file builds the very structure the three built: one fresh PGlite migrated with the
 // three, another with the one, and a walk of each catalog compared.
 //
@@ -128,7 +128,7 @@ async function walk(client: PGlite): Promise<Catalog> {
 }
 
 describe("the squashed clean set", () => {
-  test("[R-SERVER-044] given the three migrations kept as a fixture, when they are read, then they are the three as they stood before the squash, unedited", () => {
+  test("[server:migration-before-deploy] given the three migrations kept as a fixture, when they are read, then they are the three as they stood before the squash, unedited", () => {
     expect(journalOf(BEFORE).entries.map((entry) => entry.tag)).toEqual(OLD_TAGS);
     expect(readdirSync(BEFORE).filter((name) => name.endsWith(".sql")).sort()).toEqual(OLD_TAGS.map((tag) => `${tag}.sql`));
     const hash = createHash("sha256");
@@ -136,7 +136,7 @@ describe("the squashed clean set", () => {
     expect(hash.digest("hex")).toBe(OLD_SQL_SHA256);
   });
 
-  test("[R-SERVER-044] given the committed migrations, when their journal is read, then they start again at 0000 with the clean set's one file", () => {
+  test("[server:migration-before-deploy] given the committed migrations, when their journal is read, then they start again at 0000 with the clean set's one file", () => {
     const entries = journalOf(CLEAN).entries;
     expect(entries.slice(0, CLEAN_TAGS.length).map((entry) => [entry.idx, entry.tag])).toEqual(CLEAN_TAGS.map((tag, idx) => [idx, tag]));
     // Drizzle's migrator applies an entry only when it is newer than the last one a database holds, so every later
@@ -145,7 +145,7 @@ describe("the squashed clean set", () => {
     expect(whens).toEqual([...new Set(whens)].sort((a, b) => a - b));
   });
 
-  test("[R-SERVER-044] given one database migrated with the three and one with the clean set, when both catalogs are walked, then every schema, table, column, constraint, index, sequence, function and trigger is the same", { timeout: 60000 }, async () => {
+  test("[server:migration-before-deploy] given one database migrated with the three and one with the clean set, when both catalogs are walked, then every schema, table, column, constraint, index, sequence, function and trigger is the same", { timeout: 60000 }, async () => {
     const before = await migrated(BEFORE);
     const after = await migrated(cleanSetOnly());
     try {

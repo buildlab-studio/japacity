@@ -3,7 +3,7 @@
 // the response. `connectOnFirstUse` is what a request uses: its client
 // connects only when a store or the auth library first sends a statement, so a
 // request that reads nothing from the database opens nothing
-// (docs/rules/server.md R-SERVER-002).
+// (server:one-command-one-transaction).
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Client } from "pg";
 import type { QueryConfig, QueryResult } from "pg";
@@ -36,7 +36,7 @@ export interface PgClient {
   end: () => Promise<void>;
 }
 
-/** The database did not take the connection: the request can be answered "try again" (docs/rules/server.md R-SERVER-043). */
+/** The database did not take the connection: the request can be answered "try again" (server:no-platform-error-page). */
 export class DatabaseUnavailable extends Error {
   override name = "DatabaseUnavailable";
 }

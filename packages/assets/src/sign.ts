@@ -1,4 +1,4 @@
-// Signs as data (R-ASSET-012). A builder never bakes letters into a mesh: it leaves a
+// Signs as data (assets:sign-text-drawn-in-code). A builder never bakes letters into a mesh: it leaves a
 // board in the body and an anchor that names a text key, and the client draws the text
 // at run time onto one canvas, so the spelling is exactly the text table's.
 import type { Object3D } from "three";
@@ -30,7 +30,7 @@ export interface SignAnchor {
   rect?: [number, number, number, number];
 }
 
-/** The largest sign canvas (R-ASSET-012): 512 by 128 pixels, a power of two on each side. */
+/** The largest sign canvas (assets:sign-text-drawn-in-code): 512 by 128 pixels, a power of two on each side. */
 export const SIGN_ATLAS: readonly [number, number] = [512, 128];
 
 /** Capital letters on a signboard are at least this tall, in metres (the kit's signboard rule). */

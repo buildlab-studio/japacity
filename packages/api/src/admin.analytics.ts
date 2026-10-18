@@ -1,5 +1,4 @@
-// The admin routes of the dashboard and the Numbers tab (R-ANALYTICS-009 to
-// 013). A figure under `minShown` is never shown as itself (R-ANALYTICS-010).
+// The admin routes of the dashboard and the Numbers tab (analytics:dashboard-shows-fixed-list, analytics:small-counts-shown-as-fewer, analytics:day-one-and-seven-return, analytics:admin-stats-for-admins-only and analytics:session-split-by-command-gaps). A figure under `minShown` is never shown as itself (analytics:small-counts-shown-as-fewer).
 import type { AdminRefusal } from "./admin";
 
 /** A count, or the floor it is under when it is under `minShown`. */
@@ -21,7 +20,7 @@ export interface DailyRow {
   turnsEnded: Shown;
 }
 
-/** R-ANALYTICS-011: the first session's measures for the accounts created in one week, Monday first. */
+/** analytics:day-one-and-seven-return: the first session's measures for the accounts created in one week, Monday first. */
 export interface WeekRow {
   week: string;
   newPlayers: Shown;
@@ -33,13 +32,13 @@ export interface WeekRow {
   earlyWin: Record<string, Shown>;
 }
 
-/** R-ANALYTICS-009: `GET /api/admin/analytics`, the day asked and the 30 before it. */
+/** analytics:dashboard-shows-fixed-list: `GET /api/admin/analytics`, the day asked and the 30 before it. */
 export interface Dashboard {
   day: string;
   from: string;
   minShown: number;
   reference: { d1Bp: number; d7Bp: number };
-  /** R-ANALYTICS-011, R-GUIDE-015: an ask made before the early win, which the page shows in red. */
+  /** analytics:day-one-and-seven-return, guide:nothing-asked-before-early-win: an ask made before the early win, which the page shows in red. */
   askBeforeEarlyWin: boolean;
   daily: DailyRow[];
   weeks: WeekRow[];
@@ -48,7 +47,7 @@ export interface Dashboard {
 
 export type DashboardReply = { ok: true; dashboard: Dashboard } | AdminRefusal;
 
-// R-ANALYTICS-012: the frozen shape of `GET /api/admin/stats`. Every figure is a count or a sum from the analytics
+// analytics:admin-stats-for-admins-only: the frozen shape of `GET /api/admin/stats`. Every figure is a count or a sum from the analytics
 // store or a live count of the command log, region by region and for the whole game. The divisions are made by the
 // server for the page's convenience and are never stored.
 
@@ -90,7 +89,7 @@ export interface StatsPeriod {
   feedbackSent: Shown;
   reportsOpen: Shown;
   topUps: Shown;
-  /** The top-ups' sum in kobo, null while their count is hidden (R-ANALYTICS-007: never one player's money). */
+  /** The top-ups' sum in kobo, null while their count is hidden (analytics:store-holds-nothing-personal: never one player's money). */
   topUpKobo: number | null;
   rates: PeriodRates;
 }
@@ -108,7 +107,7 @@ export interface Returned {
   bp: number | null;
 }
 
-/** R-ANALYTICS-008: one sign-up week, Monday first. */
+/** analytics:nightly-game-counters: one sign-up week, Monday first. */
 export interface RetentionWeek {
   week: string;
   newPlayers: Shown;
@@ -137,7 +136,7 @@ export interface Stats {
     /** Milliseconds since 1970 when the figures were read. */
     at: number;
     online: Regional;
-    /** The highest five-minute sample today, the whole game's and each region's (R-ANALYTICS-013). */
+    /** The highest five-minute sample today, the whole game's and each region's (analytics:session-split-by-command-gaps). */
     peakToday: Regional;
   };
   today: StatsPeriod;
@@ -165,5 +164,5 @@ export interface Stats {
   economy: { day: string; cells: EconomyCell[] };
 }
 
-/** R-ANALYTICS-012: the reply. */
+/** analytics:admin-stats-for-admins-only: the reply. */
 export type StatsReply = { ok: true; stats: Stats } | AdminRefusal;

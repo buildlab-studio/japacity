@@ -1,5 +1,5 @@
-// The admin routes' money and rollback replies (R-SERVER-005, 008, 011, 012).
-// Every admin route answers the admin accounts of R-MODERATION-012 only.
+// The admin routes' money and rollback replies (server:rejections-write-nothing, server:rollback-check-finds-divergence, server:daily-money-report, server:ledger-alarm-lists-suspects).
+// Every admin route answers the admin accounts of moderation:admin-view-for-admin-list only.
 import type { Command, Currency, Reason, RejectionCode } from "@japacity/sim";
 import type { ByReason, DayRow } from "@japacity/store";
 
@@ -15,16 +15,16 @@ export interface AdminRefusal {
 }
 
 export type Alarm =
-  /** R-SERVER-012: `ledgerReport` named the character as suspect. */
+  /** server:ledger-alarm-lists-suspects: `ledgerReport` named the character as suspect. */
   | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
   /**
-   * R-LOTTERY-014: `win` paid for the draw other than its result gives (`win`),
+   * lottery:money-report-checks-draws: `win` paid for the draw other than its result gives (`win`),
    * any `pot-top-up` paid for it (`top-up`, which decision 0016 does not pay), or
    * `ticket` taken for it other than its sales (`ticket`); `limit` is the
    * figure it should have been.
    */
   | { kind: "draw"; day: number; draw: number; check: "win" | "top-up" | "ticket"; total: number; limit: number }
-  /** R-SERVER-003: a load found the replay's hash differs from the stored one; the character waits for the rollback tool. */
+  /** server:log-rows-hash-state: a load found the replay's hash differs from the stored one; the character waits for the rollback tool. */
   | { kind: "diverged"; day: number; character: string; v: number };
 
 /** Why a replay could not run at all. */
@@ -34,14 +34,14 @@ export interface LoadFailure {
   detail: string;
 }
 
-/** R-SERVER-008: the first logged version whose stored hash differs from the replay's. `replayed` is null when the command is now rejected. */
+/** server:rollback-check-finds-divergence: the first logged version whose stored hash differs from the replay's. `replayed` is null when the command is now rejected. */
 export interface Diff {
   v: number;
   stored: string;
   replayed: string | null;
 }
 
-/** R-SERVER-009: a command the log says was accepted that the replay now rejects. */
+/** server:rollback-apply-one-account: a command the log says was accepted that the replay now rejects. */
 export interface Dropped {
   v: number;
   type: Command["type"];
@@ -56,9 +56,9 @@ export interface RollbackReport {
   v: number;
   /** Commands replayed, across every segment. */
   replayed: number;
-  /** R-SERVER-008: the first logged version whose hash differs, or null when none does. */
+  /** server:rollback-check-finds-divergence: the first logged version whose hash differs, or null when none does. */
   firstDiff: Diff | null;
-  /** R-SERVER-009: commands the log says were accepted that are now rejected. */
+  /** server:rollback-apply-one-account: commands the log says were accepted that are now rejected. */
   dropped: Dropped[];
 }
 

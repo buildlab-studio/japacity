@@ -14,7 +14,7 @@ async function appendTo(store: PlayerStore, id: string, from: number, to: number
   must(await write(store, [id], { characters: [{ id, append: logRows(id, from, to), ...extra }] }));
 }
 
-/** Plays a character up to version `to`, writing a snapshot at each multiple of SNAPSHOT_EVERY as R-SERVER-004 asks of the server. */
+/** Plays a character up to version `to`, writing a snapshot at each multiple of SNAPSHOT_EVERY as server:snapshots-bound-replay asks of the server. */
 async function playTo(store: PlayerStore, id: string, to: number) {
   for (let v = 1; v <= to; v++) {
     const snapshots = v % SNAPSHOT_EVERY === 0 ? [snapshot(id, v)] : [];
@@ -30,7 +30,7 @@ async function yieldTurns(turns: number): Promise<void> {
 /** The contract every PlayerStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
   describe("PlayerStore contract", () => {
-    test("[R-SERVER-004] given a new character, when it is created and loaded, then it is at version 0 in segment 0 with its snapshot at 0 and no tail", async () => {
+    test("[server:snapshots-bound-replay] given a new character, when it is created and loaded, then it is at version 0 in segment 0 with its snapshot at 0 and no tail", async () => {
       const store = await make();
       const made = must(await store.create(newCharacter("char-a")));
       const loaded = await store.load("char-a");
@@ -51,7 +51,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.load("char-unknown")).toBeNull();
     });
 
-    test("[R-SERVER-004] given a character made under an overlay, when it is loaded, then its segment and snapshot name the overlay", async () => {
+    test("[server:snapshots-bound-replay] given a character made under an overlay, when it is loaded, then its segment and snapshot name the overlay", async () => {
       const store = await make();
       must(await store.create({ ...newCharacter("char-a"), overlay: "overlay-3" }));
       const loaded = await store.load("char-a");
@@ -60,7 +60,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(loaded?.snapshot.overlay).toBe("overlay-3");
     });
 
-    test("[R-SERVER-002] given a stored id, when it is created again, then it is refused with exists and the first is kept", async () => {
+    test("[server:one-command-one-transaction] given a stored id, when it is created again, then it is refused with exists and the first is kept", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 2);
@@ -73,7 +73,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(loaded?.character.v).toBe(2);
     });
 
-    test("[R-SERVER-002] given a character at version 3, when a transaction appends version 4, then the version rises by one and the row reads back exactly", async () => {
+    test("[server:one-command-one-transaction] given a character at version 3, when a transaction appends version 4, then the version rises by one and the row reads back exactly", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 3);
@@ -94,7 +94,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       });
     });
 
-    test("[R-SERVER-002] given a character at version 3, when a transaction appends at version 3, then it is refused as stale and nothing is written", async () => {
+    test("[server:one-command-one-transaction] given a character at version 3, when a transaction appends at version 3, then it is refused as stale and nothing is written", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 3);
@@ -108,7 +108,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.load("char-a")).toEqual(before);
     });
 
-    test("[R-SERVER-002] given two characters in one transaction, when one write is stale, then neither character is written", async () => {
+    test("[server:one-command-one-transaction] given two characters in one transaction, when one write is stale, then neither character is written", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       must(await store.create(newCharacter("char-b")));
@@ -128,7 +128,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.load("char-b")).toEqual(beforeB);
     });
 
-    test("[R-SERVER-002] given a character at version 1, when a write skips to version 3, then it is refused and nothing is written", async () => {
+    test("[server:one-command-one-transaction] given a character at version 1, when a write skips to version 3, then it is refused and nothing is written", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 1);
@@ -141,7 +141,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-a"))?.character.v).toBe(1);
     });
 
-    test("[R-SERVER-003] given logged rows, when more are appended and an old version is offered again, then the earlier rows are never rewritten", async () => {
+    test("[server:log-rows-hash-state] given logged rows, when more are appended and an old version is offered again, then the earlier rows are never rewritten", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 3);
@@ -158,7 +158,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.log("char-unknown", 0)).toEqual([]);
     });
 
-    test("[R-SERVER-004] given a snapshot at each multiple of 20, when the character is loaded at every version up to 45, then the tail is the rows after the latest snapshot and never 20 long", async () => {
+    test("[server:snapshots-bound-replay] given a snapshot at each multiple of 20, when the character is loaded at every version up to 45, then the tail is the rows after the latest snapshot and never 20 long", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
 
@@ -178,7 +178,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(loaded?.tail).toEqual(logRows("char-a", 41, 45));
     });
 
-    test("[R-SERVER-004] given a snapshot at a version already stored, when it is written again, then it is refused and the first is kept", async () => {
+    test("[server:snapshots-bound-replay] given a snapshot at a version already stored, when it is written again, then it is refused and the first is kept", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await playTo(store, "char-a", 20);
@@ -193,7 +193,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-a"))?.snapshot).toEqual(snapshot("char-a", 20));
     });
 
-    test("[R-SERVER-007] given two characters, when one transaction asks for them in either order, then the work sees them in ascending id order and the result is the same", async () => {
+    test("[server:paired-rows-locked-in-order] given two characters, when one transaction asks for them in either order, then the work sees them in ascending id order and the result is the same", async () => {
       const results: (Held | null)[][] = [];
       for (const ids of [["char-a", "char-b"], ["char-b", "char-a"]]) {
         const store = await make();
@@ -225,7 +225,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(results[0]?.map((held) => held?.character.v)).toEqual([1, 3]);
     });
 
-    test("[R-SERVER-007] given ids that differ in case, when they are locked, then ascending order is by code unit and not by a locale's collation", async () => {
+    test("[server:paired-rows-locked-in-order] given ids that differ in case, when they are locked, then ascending order is by code unit and not by a locale's collation", async () => {
       const store = await make();
       for (const id of ["char-a", "char-Z", "char-10", "char-9"]) must(await store.create(newCharacter(id)));
 
@@ -239,7 +239,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(seen).toEqual(["char-10", "char-9", "char-Z", "char-a"]);
     });
 
-    test("[R-SERVER-007] given two transactions on one character at once, when both append at the version they read, then they run one after the other and both are kept", async () => {
+    test("[server:paired-rows-locked-in-order] given two transactions on one character at once, when both append at the version they read, then they run one after the other and both are kept", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
 
@@ -257,7 +257,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(loaded?.tail).toEqual(logRows("char-a", 1, 2));
     });
 
-    test("[R-SERVER-007] given an id that is not stored, when a transaction names it, then it is refused with missing and the work never runs", async () => {
+    test("[server:paired-rows-locked-in-order] given an id that is not stored, when a transaction names it, then it is refused with missing and the work never runs", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
 
@@ -271,7 +271,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(runs).toBe(0);
     });
 
-    test("[R-SERVER-007] given a transaction holding one character, when it writes another, then it is refused with not-held and nothing is written", async () => {
+    test("[server:paired-rows-locked-in-order] given a transaction holding one character, when it writes another, then it is refused with not-held and nothing is written", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       must(await store.create(newCharacter("char-b")));
@@ -288,7 +288,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-b"))?.character.v).toBe(0);
     });
 
-    test("[R-SERVER-002] given work that throws, when the transaction runs, then the error reaches the caller, nothing is written and the next transaction still runs", async () => {
+    test("[server:one-command-one-transaction] given work that throws, when the transaction runs, then the error reaches the caller, nothing is written and the next transaction still runs", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
 
@@ -302,7 +302,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-a"))?.character.v).toBe(1);
     });
 
-    test("[R-SERVER-002] given a character with a logged command, when the work reads and writes through the stores it is given, then every call settles inside the transaction and the work's own write is kept", async () => {
+    test("[server:one-command-one-transaction] given a character with a logged command, when the work reads and writes through the stores it is given, then every call settles inside the transaction and the work's own write is kept", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 1);
@@ -334,7 +334,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-a"))?.character.v).toBe(2);
     });
 
-    test("[R-CLOCK-004] given a character, when a transaction moves refilledAt with no command, then it reads back and the version stays", async () => {
+    test("[clock:turns-earned-from-refill-time] given a character, when a transaction moves refilledAt with no command, then it reads back and the version stays", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
 
@@ -345,7 +345,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(loaded?.character.v).toBe(0);
     });
 
-    test("[R-CLOCK-031] given a character at version 2, when fullAt is set at version 2 and then at version 1, then the first is kept and the older one is refused", async () => {
+    test("[clock:full-bank-push-notification] given a character at version 2, when fullAt is set at version 2 and then at version 1, then the first is kept and the older one is refused", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 2);
@@ -357,7 +357,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-a"))?.character).toMatchObject({ v: 2, fullAt: 50_000, fullNotifiedAt: null });
     });
 
-    test("[R-CLOCK-031] given fills at 50000 and 60000, when filled is read at 49999, 50000 and 60000, then each row shows from its own fullAt, in id order", async () => {
+    test("[clock:full-bank-push-notification] given fills at 50000 and 60000, when filled is read at 49999, 50000 and 60000, then each row shows from its own fullAt, in id order", async () => {
       const store = await make();
       for (const id of ["char-b", "char-a", "char-c"]) must(await store.create(newCharacter(id)));
       await store.setFullAt("char-b", 0, 50_000);
@@ -369,7 +369,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.filled(60_000)).map((row) => row.id)).toEqual(["char-a", "char-b"]);
     });
 
-    test("[R-CLOCK-031] given a fill, when its notice is claimed twice, then only the first claim holds and the row leaves filled", async () => {
+    test("[clock:full-bank-push-notification] given a fill, when its notice is claimed twice, then only the first claim holds and the row leaves filled", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await store.setFullAt("char-a", 0, 50_000);
@@ -381,7 +381,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.filled(80_000)).toEqual([]);
     });
 
-    test("[R-CLOCK-031] given a claimed fill, when fullAt moves and the bank fills again, then the claim is cleared and the new fill can be claimed once", async () => {
+    test("[clock:full-bank-push-notification] given a claimed fill, when fullAt moves and the bank fills again, then the claim is cleared and the new fill can be claimed once", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await store.setFullAt("char-a", 0, 50_000);
@@ -397,7 +397,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.claimFull("char-a", 90_000, 95_000)).toBe(true);
     });
 
-    test("[R-ACCOUNT-031] given five characters made out of order, when they are read a page of two at a time, then every row comes once, in ascending id order, and the page after the last is empty", async () => {
+    test("[account:two-lights-and-wink-lines] given five characters made out of order, when they are read a page of two at a time, then every row comes once, in ascending id order, and the page after the last is empty", async () => {
       const store = await make();
       for (const id of ["char-d", "char-b", "char-E", "char-a", "char-c"]) must(await store.create(newCharacter(id)));
       await appendTo(store, "char-b", 1, 2);
@@ -412,7 +412,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.page(null, 0)).toEqual([]);
     });
 
-    test("[R-ACCOUNT-031] given a removed character, when the characters are paged, then it is not among them", async () => {
+    test("[account:two-lights-and-wink-lines] given a removed character, when the characters are paged, then it is not among them", async () => {
       const store = await make();
       for (const id of ["char-a", "char-b"]) must(await store.create(newCharacter(id)));
       await store.remove("char-a");
@@ -420,7 +420,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.page(null, 10)).map((row) => row.id)).toEqual(["char-b"]);
     });
 
-    test("[R-SERVER-021] given a character at version 3, when a transaction opens segment 1 with its base snapshot and then appends, then the load starts from the new base", async () => {
+    test("[server:newer-content-upgrades-state] given a character at version 3, when a transaction opens segment 1 with its base snapshot and then appends, then the load starts from the new base", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 3);
@@ -449,7 +449,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(loaded?.tail).toEqual([logRow("char-a", 4)]);
     });
 
-    test("[R-SERVER-021] given a new segment, when it comes without its base snapshot or out of turn, then it is refused and nothing is written", async () => {
+    test("[server:newer-content-upgrades-state] given a new segment, when it comes without its base snapshot or out of turn, then it is refused and nothing is written", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 3);
@@ -470,7 +470,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.load("char-a")).toEqual(before);
     });
 
-    test("[R-SERVER-009] given a segment corrected by the rollback tool, when it is retired as the next one opens, then its rows leave the store and the version moves on", async () => {
+    test("[server:rollback-apply-one-account] given a segment corrected by the rollback tool, when it is retired as the next one opens, then its rows leave the store and the version moves on", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 2);
@@ -512,7 +512,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.log("char-a", 0)).toEqual([...logRows("char-a", 1, 2), logRow("char-a", 7)]);
     });
 
-    test("[R-SERVER-009] given the segment in force, when a write tries to retire it, then it is refused and nothing is written", async () => {
+    test("[server:rollback-apply-one-account] given the segment in force, when a write tries to retire it, then it is refused and nothing is written", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       await appendTo(store, "char-a", 1, 2);
@@ -526,7 +526,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect(await store.load("char-a")).toEqual(before);
     });
 
-    test("[R-ACCOUNT-017] given two characters, when one is removed, then no row names it and the other is untouched", async () => {
+    test("[account:deleted-data-removed-within-month] given two characters, when one is removed, then no row names it and the other is untouched", async () => {
       const store = await make();
       must(await store.create(newCharacter("char-a")));
       must(await store.create(newCharacter("char-b")));
@@ -544,7 +544,7 @@ export function suiteForPlayerStore(make: () => Promise<PlayerStore>): void {
       expect((await store.load("char-a"))?.character.v).toBe(0);
     });
 
-    test("[R-SERVER-002] given a loaded character, when the caller changes what it was given, then the stored rows do not change", async () => {
+    test("[server:one-command-one-transaction] given a loaded character, when the caller changes what it was given, then the stored rows do not change", async () => {
       const store = await make();
       const input = newCharacter("char-a");
       must(await store.create(input));

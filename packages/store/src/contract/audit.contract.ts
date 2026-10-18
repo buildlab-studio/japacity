@@ -18,7 +18,7 @@ function entry(character: string, note: string): AuditEntry {
 /** The contract every AuditStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForAuditStore(make: () => Promise<AuditStore>): void {
   describe("AuditStore contract", () => {
-    test("[R-SERVER-009] given retired rows, when the character's audit is listed, then the entries come back exactly in the order they were retired", async () => {
+    test("[server:rollback-apply-one-account] given retired rows, when the character's audit is listed, then the entries come back exactly in the order they were retired", async () => {
       const store = await make();
 
       const first = await store.retire(entry("char-a", "first"));
@@ -35,7 +35,7 @@ export function suiteForAuditStore(make: () => Promise<AuditStore>): void {
       expect(await store.list("char-c")).toEqual([]);
     });
 
-    test("[R-SERVER-009] given a retired entry, when the caller changes what it sent or what it read, then the stored entry does not change", async () => {
+    test("[server:rollback-apply-one-account] given a retired entry, when the caller changes what it sent or what it read, then the stored entry does not change", async () => {
       const store = await make();
       const sent = entry("char-a", "first");
       const stored = await store.retire(sent);

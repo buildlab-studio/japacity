@@ -1,4 +1,4 @@
-// A street of ordinary buildings from one layout seed (R-ASSET-018): the same seed lays the same
+// A street of ordinary buildings from one layout seed (assets:neighbours-never-identical): the same seed lays the same
 // street every time, and no two neighbours share footprint, storeys, roof and wall colour together.
 import type { PaletteName } from "../palette";
 import type { BuildingSpec } from "../types";

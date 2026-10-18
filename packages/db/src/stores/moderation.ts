@@ -11,7 +11,7 @@ function toEntry(row: typeof moderationLog.$inferSelect): ModerationLogEntry {
   return row.note === null ? entry : { ...entry, note: row.note };
 }
 
-/** R-MODERATION-015: insert only. The migration's trigger refuses an update or a delete of any row. */
+/** moderation:admin-actions-logged-append-only: insert only. The migration's trigger refuses an update or a delete of any row. */
 export function pgModerationLogStore(handle: Handle): ModerationLogStore {
   return {
     append: (entry) =>
@@ -48,7 +48,7 @@ export function pgModerationLogStore(handle: Handle): ModerationLogStore {
   };
 }
 
-/** R-MODERATION-018. */
+/** moderation:ban-survives-as-hash. */
 export function pgBannedIdentityStore(handle: Handle): BannedIdentityStore {
   return {
     add: (hashes, at) =>
@@ -76,7 +76,7 @@ function toAppeal(row: typeof appeals.$inferSelect): AppealRow {
   return appeal;
 }
 
-/** R-MODERATION-016: one appeal per log entry. */
+/** moderation:actioned-player-told-and-appeals: one appeal per log entry. */
 export function pgAppealStore(handle: Handle): AppealStore {
   return {
     file: ({ id, account, entry, at }) =>
@@ -119,7 +119,7 @@ function toFeedback(row: typeof feedback.$inferSelect): FeedbackRow {
   return { id: row.id, text: row.text, build: row.build, screen: row.screen, mode: row.mode, day: row.day, region: row.region };
 }
 
-/** R-MODERATION-020. */
+/** moderation:feedback-box-in-settings. */
 export function pgFeedbackStore(handle: Handle): FeedbackStore {
   return {
     take: (sender, day, perDay) =>

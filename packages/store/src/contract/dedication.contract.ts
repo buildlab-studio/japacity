@@ -19,7 +19,7 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
   }
 
   describe("DedicationStore contract", () => {
-    test("[R-SERVER-045] given an empty store, then there are no lights, no account has one and none awaits a look", async () => {
+    test("[server:dedication-routes] given an empty store, then there are no lights, no account has one and none awaits a look", async () => {
       const store = await stores("account.a");
       expect(await store.shared(240)).toEqual({ count: 0, lights: [] });
       expect(await store.mine("account.a")).toBeNull();
@@ -27,7 +27,7 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
       expect(await store.putOut("account.a")).toBe(false);
     });
 
-    test("[R-SERVER-045] [R-ACCOUNT-033] given a light lit, then it is kept with the account in full, unapproved", async () => {
+    test("[server:dedication-routes] [account:name-a-light-for-yours] given a light lit, then it is kept with the account in full, unapproved", async () => {
       const store = await stores("account.a");
       const light = await store.light({ account: "account.a", id: "light.1", name: "Mama Nkechi", from: 1951, to: 2024, litAt: 1_000 });
       const kept = { account: "account.a", id: "light.1", name: "Mama Nkechi", from: 1951, to: 2024, litAt: 1_000, approvedAt: null, approvedBy: null };
@@ -36,7 +36,7 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
       expect(await store.shared(240)).toEqual({ count: 1, lights: [kept] });
     });
 
-    test("[R-SERVER-045] [R-ACCOUNT-033] given an approved light, when the account lights again, then the new light stands in its place, one per account, and its approval is cleared", async () => {
+    test("[server:dedication-routes] [account:name-a-light-for-yours] given an approved light, when the account lights again, then the new light stands in its place, one per account, and its approval is cleared", async () => {
       const store = await stores("account.a");
       await store.light(lit("account.a", "light.1", 1_000, "Mama Nkechi"));
       await store.approve("account.a", "account.admin", 2_000);
@@ -47,7 +47,7 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
       expect((await store.pending()).map((light) => light.id)).toEqual(["light.2"]);
     });
 
-    test("[R-SERVER-045] [R-MODERATION-021] given lights, then the approved come first, newest lit first, then the rest newest lit first, and the count is every light whatever is listed", async () => {
+    test("[server:dedication-routes] [moderation:dedication-lights-await-approval] given lights, then the approved come first, newest lit first, then the rest newest lit first, and the count is every light whatever is listed", async () => {
       const store = await stores("account.a", "account.b", "account.c", "account.d", "account.e");
       await store.light(lit("account.a", "light.a", 1_000));
       await store.light(lit("account.b", "light.b", 2_000));
@@ -62,7 +62,7 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
       expect(capped.lights.map((light) => light.id)).toEqual(["light.c", "light.a", "light.d"]);
     });
 
-    test("[R-MODERATION-021] given lights, then those awaiting a look are listed oldest lit first; approved, a light leaves the list with its admin and time", async () => {
+    test("[moderation:dedication-lights-await-approval] given lights, then those awaiting a look are listed oldest lit first; approved, a light leaves the list with its admin and time", async () => {
       const store = await stores("account.a", "account.b", "account.c");
       await store.light(lit("account.b", "light.b", 2_000));
       await store.light(lit("account.a", "light.a", 1_000));
@@ -74,13 +74,13 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
       expect(await store.mine("account.b")).toMatchObject({ approvedAt: 5_000, approvedBy: "account.admin" });
     });
 
-    test("[R-MODERATION-021] given no light, when it is approved, then it is refused missing and nothing is written", async () => {
+    test("[moderation:dedication-lights-await-approval] given no light, when it is approved, then it is refused missing and nothing is written", async () => {
       const store = await stores("account.a");
       expect(await store.approve("account.a", "account.admin", 5_000)).toMatchObject({ ok: false, code: "missing" });
       expect(await store.shared(240)).toEqual({ count: 0, lights: [] });
     });
 
-    test("[R-SERVER-045] [R-ACCOUNT-033] given a light, when it is put out, then it is gone from the account, the list and the count, and others stay", async () => {
+    test("[server:dedication-routes] [account:name-a-light-for-yours] given a light, when it is put out, then it is gone from the account, the list and the count, and others stay", async () => {
       const store = await stores("account.a", "account.b");
       await store.light(lit("account.a", "light.a", 1_000));
       await store.light(lit("account.b", "light.b", 2_000));
@@ -90,7 +90,7 @@ export function suiteForDedicationStore(make: () => Promise<DedicationStores>): 
       expect(await store.putOut("account.a")).toBe(false);
     });
 
-    test("[R-SERVER-045] given most of zero, then the count stands and no light is listed", async () => {
+    test("[server:dedication-routes] given most of zero, then the count stands and no light is listed", async () => {
       const store = await stores("account.a");
       await store.light(lit("account.a", "light.a", 1_000));
       expect(await store.shared(0)).toEqual({ count: 1, lights: [] });

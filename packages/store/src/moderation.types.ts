@@ -3,7 +3,7 @@
 // players' feedback. Reports, holds and blocks are the pair side's store.
 import type { StoreResult } from "./types";
 
-/** R-MODERATION-014: the only actions an admin may take. */
+/** moderation:fixed-admin-actions: the only actions an admin may take. */
 export type AdminAction =
   | "dismiss"
   | "warn"
@@ -14,7 +14,7 @@ export type AdminAction =
   | "pull-advert"
   | "approve-advert"
   | "refuse-advert"
-  /** R-MODERATION-021: a dedication light's name approved, or the light refused and put out. */
+  /** moderation:dedication-lights-await-approval: a dedication light's name approved, or the light refused and put out. */
   | "approve-light"
   | "refuse-light"
   | "refer"
@@ -23,7 +23,7 @@ export type AdminAction =
 /** An action's parameters: `account` names whom it was taken on, `days` how long a mute or suspension lasts, `body` who a matter was referred to. */
 export type LogParams = Record<string, string | number>;
 
-/** R-MODERATION-015: one admin action as written. */
+/** moderation:admin-actions-logged-append-only: one admin action as written. */
 export interface ModerationLogEntry {
   id: string;
   admin: string;
@@ -36,7 +36,7 @@ export interface ModerationLogEntry {
   note?: string;
 }
 
-/** R-MODERATION-015: insert only. There is no method that changes or removes an entry. */
+/** moderation:admin-actions-logged-append-only: insert only. There is no method that changes or removes an entry. */
 export interface ModerationLogStore {
   /** Refused with `exists` for a known id. */
   append: (entry: ModerationLogEntry) => Promise<StoreResult<ModerationLogEntry>>;
@@ -45,7 +45,7 @@ export interface ModerationLogStore {
   list: (filter: { item?: string; account?: string }) => Promise<ModerationLogEntry[]>;
 }
 
-/** R-MODERATION-018: a salted hash of a sign-in identity, kept after the account is gone. */
+/** moderation:ban-survives-as-hash: a salted hash of a sign-in identity, kept after the account is gone. */
 export interface BannedIdentity {
   hash: string;
   at: number;
@@ -57,7 +57,7 @@ export interface BannedIdentityStore {
   has: (hash: string) => Promise<boolean>;
 }
 
-/** R-MODERATION-016: an appeal against one logged action, decided once. */
+/** moderation:actioned-player-told-and-appeals: an appeal against one logged action, decided once. */
 export interface AppealRow {
   id: string;
   account: string;
@@ -82,7 +82,7 @@ export interface AppealStore {
   decide: (id: string, decision: { outcome: "upheld" | "overturned"; by: string; at: number }) => Promise<StoreResult<AppealRow>>;
 }
 
-/** R-MODERATION-020: the one typed text the game takes. No account, session or character. */
+/** moderation:feedback-box-in-settings: the one typed text the game takes. No account, session or character. */
 export interface FeedbackRow {
   id: string;
   text: string;
@@ -96,7 +96,7 @@ export interface FeedbackRow {
 
 export interface FeedbackStore {
   /**
-   * R-MODERATION-020: takes one of the sender's `perDay` sends on the day, and
+   * moderation:feedback-box-in-settings: takes one of the sender's `perDay` sends on the day, and
    * answers false, counting nothing, when none is left. `sender` is a one-way
    * key kept apart from the rows, so no row can be traced to it.
    */

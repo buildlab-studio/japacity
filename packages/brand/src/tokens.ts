@@ -1,4 +1,4 @@
-// The game's role colours as apps/client/src/index.css sets them (R-WORLD-021), for a picture drawn outside the client:
+// The game's role colours as apps/client/src/index.css sets them (world:colours-are-role-tokens), for a picture drawn outside the client:
 // the teaser wears the same two paints.
 export const DAY = {
   sky: "#eaf3fb",

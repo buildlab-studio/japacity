@@ -10,7 +10,7 @@ function block(group: Group, width: number, height: number, depth: number, x: nu
 }
 
 describe("footprints", () => {
-  test("[R-ASSET-030] given a footprint of boxes or none, when it is read, then boxes with a size and none pass, and an empty list, a box of no size or anything else fails", () => {
+  test("[assets:models-record-their-footprint] given a footprint of boxes or none, when it is read, then boxes with a size and none pass, and an empty list, a box of no size or anything else fails", () => {
     expect(isFootprint("none")).toBe(true);
     expect(isFootprint([{ x: 0, z: 0, width: 1, depth: 2 }])).toBe(true);
     expect(isFootprint([{ x: 0, z: 0, width: 1, depth: 2, turn: 0.5 }])).toBe(true);
@@ -21,7 +21,7 @@ describe("footprints", () => {
     expect(isFootprint("all")).toBe(false);
   });
 
-  test("[R-ASSET-030] given a builder's group, when its footprint is set, then the loader's copy finds it on the root under the scene", () => {
+  test("[assets:models-record-their-footprint] given a builder's group, when its footprint is set, then the loader's copy finds it on the root under the scene", () => {
     const root = setFootprint(new Group(), [{ x: 1, z: 2, width: 3, depth: 4 }]);
     const scene = new Group();
     scene.add(root);
@@ -29,14 +29,14 @@ describe("footprints", () => {
     expect(footprintOf(new Group())).toBeNull();
   });
 
-  test("[R-ASSET-030] given a prop with a table under head height and an umbrella over it, when its low box is taken, then the umbrella is left out", () => {
+  test("[assets:models-record-their-footprint] given a prop with a table under head height and an umbrella over it, when its low box is taken, then the umbrella is left out", () => {
     const stall = new Group();
     block(stall, 2, 0.8, 1, 0, 0, 0);
     block(stall, 3, 0.1, 3, 0, 2.2, 0);
     expect(lowBox(stall)).toEqual({ x: 0, z: 0, width: 2, depth: 1 });
   });
 
-  test("[R-ASSET-030] given a box placed with a quarter turn, when points are tested, then it blocks across the turned sides, and grown it blocks a band round them", () => {
+  test("[assets:models-record-their-footprint] given a box placed with a quarter turn, when points are tested, then it blocks across the turned sides, and grown it blocks a band round them", () => {
     const [box] = placeFootprint([{ x: 1, z: 0, width: 4, depth: 1 }], [10, 10, Math.PI / 2]);
     if (box === undefined) throw new Error("no box");
     // A quarter turn about +Y takes the model's +x to the place's -z.
@@ -54,7 +54,7 @@ describe("footprints", () => {
     expect(placeFootprint("none", [0, 0, 0])).toEqual([]);
   });
 
-  test("[R-ASSET-030] given walkable polygons, when points are tested, then inside one is walkable, outside all is not, and a polygon needs three corners", () => {
+  test("[assets:models-record-their-footprint] given walkable polygons, when points are tested, then inside one is walkable, outside all is not, and a polygon needs three corners", () => {
     const square: [number, number][] = [[0, 0], [4, 0], [4, 4], [0, 4]];
     const notch: [number, number][] = [[10, 0], [14, 0], [14, 4], [12, 2], [10, 4]];
     expect(inPolygon(square, 2, 2)).toBe(true);

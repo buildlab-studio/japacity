@@ -23,7 +23,7 @@ export interface Handle {
  * Postgres's own (`SELECT ... FOR UPDATE`). A call made through the same
  * handle inside one of its own transactions would wait for ever, so the work
  * of a transaction reaches the database only through that transaction's
- * client (docs/rules/server.md R-SERVER-002).
+ * client (server:one-command-one-transaction).
  */
 export function oneConnection(db: Queries): Handle {
   const locked = makeLock();
@@ -38,7 +38,7 @@ export const STATEMENT_TIMED_OUT = "57014";
 
 /**
  * Every call through `handle`, a read included, as its own transaction that begins with
- * `SET LOCAL statement_timeout`, so no statement in it runs longer than `ms` (docs/rules/server.md R-SERVER-012,
+ * `SET LOCAL statement_timeout`, so no statement in it runs longer than `ms` (server:ledger-alarm-lists-suspects,
  * the admin's reads). `SET LOCAL` lasts until that transaction's commit or rollback and no
  * longer. Through Hyperdrive, which pools in transaction mode, that is the safe form: a transaction keeps one
  * connection of the pool to its end, and a connection goes back to the pool reset, so the setting can never stay

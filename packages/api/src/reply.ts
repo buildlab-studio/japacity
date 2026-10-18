@@ -3,7 +3,7 @@
 // docs/rules/clock.md).
 import type { RejectionCode, Reply, WorldClock } from "@japacity/sim";
 
-/** R-SERVER-025, R-ACCOUNT-015: the server's own refusals beside the simulation's. */
+/** server:per-account-rate-limits, account:one-character-per-account: the server's own refusals beside the simulation's. */
 export type ServerCode =
   | RejectionCode
   | "rate-limited"
@@ -11,7 +11,7 @@ export type ServerCode =
   | "diverged"
   | "one-character"
   | "no-character"
-  /** R-SERVER-031: the feature's switch is off. */
+  /** server:four-off-switches: the feature's switch is off. */
   | "switched-off"
   /** account.md: the age screen and the bot check. */
   | "under-age"
@@ -19,7 +19,7 @@ export type ServerCode =
   | "bot-check"
   | "not-fresh"
   | "bad-code"
-  // The people routes' refusals (pair.md R-PAIR-008, 013; moderation.md R-MODERATION-001).
+  // The people routes' refusals (pair:invite-link-single-use, pair:phrase-checks-before-send; moderation:block-refuses-both-ways).
   | "not-possible"
   | "blocked"
   | "too-many"
@@ -31,14 +31,14 @@ export type ServerCode =
   | "wrong-slot"
   | "not-adult"
   | "moved-on"
-  /** R-ACCOUNT-022: only a secured account may do this; the detail names the way to secure. */
+  /** account:social-needs-secured-account: only a secured account may do this; the detail names the way to secure. */
   | "guest-only"
-  /** R-SERVER-045: a dedication light the shared check refuses; the reply carries its problems. */
+  /** server:dedication-routes: a dedication light the shared check refuses; the reply carries its problems. */
   | "bad-light";
 
 /**
- * A refusal from any player route. `retryAfter` is in seconds: with `rate-limited` (R-SERVER-025), and with
- * `switched-off`, whose 503 also sets it (R-SERVER-032).
+ * A refusal from any player route. `retryAfter` is in seconds: with `rate-limited` (server:per-account-rate-limits), and with
+ * `switched-off`, whose 503 also sets it (server:signups-off-shows-full).
  */
 export interface ServerRejection {
   ok: false;
@@ -47,15 +47,15 @@ export interface ServerRejection {
   retryAfter?: number;
 }
 
-/** R-CLOCK-003: milliseconds since the epoch of 1970, all set by the server. */
+/** clock:reply-carries-the-clock: milliseconds since the epoch of 1970, all set by the server. */
 export interface ClockView {
   tick: number;
   nextTickAt: number;
   /** Null while the bank is full. */
   nextTurnAt: number | null;
-  /** R-CLOCK-032: when the next sealed result opens: the world's next morning (decision 0011). */
+  /** clock:envelopes-show-real-waits: when the next sealed result opens: the world's next morning (decision 0011). */
   morningAt: number;
-  /** R-CLOCK-033: the world's own clock, the same for everyone. */
+  /** clock:game-day-on-real-time: the world's own clock, the same for everyone. */
   world: WorldClock;
 }
 

@@ -7,7 +7,7 @@ const TOTALS = { in: { salary: { NGN: 9_000_000 } }, out: { upkeep: { NGN: 4_000
 /** The contract every LedgerStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
   describe("LedgerStore contract", () => {
-    test("[R-SERVER-011] given no mark, then the mark is null; given a mark set, then it reads back exactly", async () => {
+    test("[server:daily-money-report] given no mark, then the mark is null; given a mark set, then it reads back exactly", async () => {
       const store = await make();
       expect(await store.mark("char-a")).toBeNull();
 
@@ -17,7 +17,7 @@ export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
       expect(await store.mark("char-b")).toBeNull();
     });
 
-    test("[R-SERVER-011] given a mark, when a new one is set, then it replaces the old and is never added to it", async () => {
+    test("[server:daily-money-report] given a mark, when a new one is set, then it replaces the old and is never added to it", async () => {
       const store = await make();
       await store.setMark("char-a", TOTALS, 20_369);
 
@@ -27,7 +27,7 @@ export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
       expect(await store.mark("char-a")).toEqual({ character: "char-a", day: 20_370, totals: later });
     });
 
-    test("[R-SERVER-011] given amounts added to one day in several parts, when the day is read, then each reason and currency holds the sum", async () => {
+    test("[server:daily-money-report] given amounts added to one day in several parts, when the day is read, then each reason and currency holds the sum", async () => {
       const store = await make();
 
       await store.addDay(20_369, { salary: { NGN: 100 }, gig: { NGN: 5 } }, { upkeep: { NGN: 40 } });
@@ -42,7 +42,7 @@ export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
       expect(await store.day(20_370)).toEqual({ day: 20_370, created: { salary: { NGN: 1 } }, destroyed: {} });
     });
 
-    test("[R-SERVER-011] given amounts added at once, when the day is read, then none is lost", async () => {
+    test("[server:daily-money-report] given amounts added at once, when the day is read, then none is lost", async () => {
       const store = await make();
 
       await Promise.all([1, 2, 3, 4, 5].map((n) => store.addDay(20_369, { salary: { NGN: n } }, { upkeep: { NGN: 10 * n } })));
@@ -50,13 +50,13 @@ export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
       expect(await store.day(20_369)).toEqual({ day: 20_369, created: { salary: { NGN: 15 } }, destroyed: { upkeep: { NGN: 150 } } });
     });
 
-    test("[R-SERVER-011] given a day with nothing added, when it is read, then its totals are empty", async () => {
+    test("[server:daily-money-report] given a day with nothing added, when it is read, then its totals are empty", async () => {
       const store = await make();
 
       expect(await store.day(20_000)).toEqual({ day: 20_000, created: {}, destroyed: {} });
     });
 
-    test("[R-SERVER-011] given a transaction that adds to a day and moves a mark, when it resolves, then both are kept, and its own reads saw its writes before", async () => {
+    test("[server:daily-money-report] given a transaction that adds to a day and moves a mark, when it resolves, then both are kept, and its own reads saw its writes before", async () => {
       const store = await make();
       await store.addDay(20_369, { salary: { NGN: 100 } }, {});
 
@@ -72,7 +72,7 @@ export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
       expect(await store.mark("char-a")).toEqual({ character: "char-a", day: 20_370, totals: TOTALS });
     });
 
-    test("[R-SERVER-011] given a transaction whose second write fails after its first, when it is run, then the failure is thrown and nothing it wrote is kept", async () => {
+    test("[server:daily-money-report] given a transaction whose second write fails after its first, when it is run, then the failure is thrown and nothing it wrote is kept", async () => {
       const store = await make();
       await store.setMark("char-a", TOTALS, 20_369);
 
@@ -88,7 +88,7 @@ export function suiteForLedgerStore(make: () => Promise<LedgerStore>): void {
       expect(await store.mark("char-a")).toEqual({ character: "char-a", day: 20_369, totals: TOTALS });
     });
 
-    test("[R-ACCOUNT-017] given a mark, when it is dropped, then it is gone and the day totals stay", async () => {
+    test("[account:deleted-data-removed-within-month] given a mark, when it is dropped, then it is gone and the day totals stay", async () => {
       const store = await make();
       await store.setMark("char-a", TOTALS, 20_369);
       await store.addDay(20_369, { salary: { NGN: 100 } }, {});

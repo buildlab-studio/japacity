@@ -17,7 +17,7 @@ async function loadShipped(file: string): Promise<Object3D> {
 }
 
 describe("loading a model", () => {
-  test("[R-ASSET-005] given a model whose materials lost flat shading in compression, when the loader prepares it, then every material is flat shaded", () => {
+  test("[assets:flat-and-smooth-shading] given a model whose materials lost flat shading in compression, when the loader prepares it, then every material is flat shaded", () => {
     const root = new Group();
     const a = new MeshStandardMaterial({ flatShading: false });
     const b = new MeshStandardMaterial({ flatShading: false });
@@ -30,7 +30,7 @@ describe("loading a model", () => {
     expect(b.flatShading).toBe(true);
   });
 
-  test("[R-ASSET-005] given nodes whose extras name round parts, when the loader prepares them, then those are smooth and every other mesh flat", () => {
+  test("[assets:flat-and-smooth-shading] given nodes whose extras name round parts, when the loader prepares them, then those are smooth and every other mesh flat", () => {
     const root = new Group();
     const shared = new MeshStandardMaterial({ flatShading: false });
     const hard = new Mesh(new BoxGeometry(), shared);
@@ -52,7 +52,7 @@ describe("loading a model", () => {
     expect(flatOf(listedWithoutNormals)).toBe(true);
   });
 
-  test("[R-ASSET-005] given a baked person, when the loader prepares it, then the head is smooth and the torso flat", async () => {
+  test("[assets:flat-and-smooth-shading] given a baked person, when the loader prepares it, then the head is smooth and the torso flat", async () => {
     const root = await loadShipped("shared/chr/chr_tunde.glb");
     prepareModel(root);
     const meshes: Mesh[] = [];
@@ -99,7 +99,7 @@ describe("loading a model", () => {
     expect(torsoFlat).toBe(torso);
   });
 
-  test("[R-ASSET-012] given a model whose node extras carry sign anchors, when the loader looks for them, then it finds the text keys, not words", () => {
+  test("[assets:sign-text-drawn-in-code] given a model whose node extras carry sign anchors, when the loader looks for them, then it finds the text keys, not words", () => {
     const root = new Group();
     const node = new Group();
     node.userData = { signs: [{ key: "place.ojuelegba.sign.1", centre: [0, 3, 2], width: 3, height: 0.7, ry: 0, style: { board: "blue", ink: "white" } }] };

@@ -21,7 +21,7 @@ function withDial(row: SwitchRow, change: DialChange): SwitchRow {
   return { switches: row.switches, dials };
 }
 
-/** R-SERVER-030, R-SERVER-031: one row and a log that only grows. */
+/** server:private-settings-and-dials, server:four-off-switches: one row and a log that only grows. */
 export function memorySwitchStore(): SwitchStore {
   let row: SwitchRow = copy(DEFAULT_SWITCH_ROW);
   const log: SwitchLogRow[] = [];

@@ -4,7 +4,7 @@ import { and, asc, desc, eq, inArray, isNotNull, lt, sql, type SQL } from "drizz
 import type { Handle } from "../handle";
 import { boardFigures } from "../schema";
 
-/** R-CITY-040: the figure on all time, its rise since the week began on this week (a week behind has risen by nothing). */
+/** city:board-line-and-ranking: the figure on all time, its rise since the week began on this week (a week behind has risen by nothing). */
 function scoreSql(query: BoardQuery): SQL<number> {
   if (query.when === "all-time") return sql<number>`${boardFigures.figure}`;
   return sql<number>`coalesce(${boardFigures.figure}, 0) - case when ${boardFigures.week} >= ${query.week} then coalesce(${boardFigures.weekStart}, 0) else coalesce(${boardFigures.figure}, 0) end`;
@@ -32,7 +32,7 @@ function lineColumns(query: BoardQuery) {
   };
 }
 
-/** R-CITY-039, R-CITY-040: one row per character, ranked in the query. */
+/** city:boards-switch-when-and-who, city:board-line-and-ranking: one row per character, ranked in the query. */
 export function pgBoardStore(handle: Handle): BoardStore {
   return {
     setFigure: ({ before, ...write }) =>

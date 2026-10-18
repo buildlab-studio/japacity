@@ -10,7 +10,7 @@ function toRow(row: typeof conversationRows.$inferSelect): ConversationRow {
   return { id: row.id, conversation: row.conversation, sender: row.sender, phrase: row.phrase as ConversationRow["phrase"], fill: row.fill, sentAt: row.sentAt, readAt: row.readAt };
 }
 
-/** R-PAIR-011: the stored phrases; order is worked out in JavaScript so no collation decides it. */
+/** pair:conversation-phrases-stored: the stored phrases; order is worked out in JavaScript so no collation decides it. */
 export function pgConversationStore(handle: Handle): ConversationStore {
   return {
     add: (row) =>

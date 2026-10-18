@@ -7,7 +7,7 @@ function namesCharacter(row: InviteRow, character: string): boolean {
   return row.from === character || row.by === character;
 }
 
-/** R-PAIR-007 to 009: links in the order they were made, and the rewards given. */
+/** pair:invite-card-contents, pair:invite-link-single-use and pair:invite-rewards-never-cash: links in the order they were made, and the rewards given. */
 export function memoryInviteStore(): InviteStore {
   let invites: InviteRow[] = [];
   let rewards: RewardRow[] = [];

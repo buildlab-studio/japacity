@@ -38,7 +38,7 @@ async function lockDraw(tx: Queries, draw: number): Promise<DrawRow | null> {
 }
 
 /**
- * R-CLOCK-010, R-CLOCK-013, R-LOTTERY-005 to 015: ticks are inserted once and
+ * clock:world-is-stored-history, clock:request-fills-missing-ticks, lottery:tickets-numbered-by-commit, lottery:view-shows-draw-state, lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:seed-from-secret-and-beacon, lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:winners-paid-by-authority, lottery:money-report-checks-draws and lottery:result-published-in-tick-row: ticks are inserted once and
  * never updated; tickets are numbered and the draw closed under the draw's row lock.
  */
 export function pgWorldStore(handle: Handle): WorldStore {

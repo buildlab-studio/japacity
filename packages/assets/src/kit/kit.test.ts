@@ -22,12 +22,12 @@ const triangles = (g: Group): number => meshes(g).reduce((sum, m) => sum + (m.ge
 const positions = (g: Group): number[] => meshes(g).flatMap((m) => [...m.geometry.getAttribute("position").array, ...m.matrixWorld.elements]);
 
 describe("the kit's sizes", () => {
-  test("[R-ASSET-004] given the kit, when its doors and windows are read, then a door is 2.1 by 0.9, a double door 2.1 by 1.2, a window 1.2 square with its sill at 0.9", () => {
+  test("[assets:people-and-door-sizes] given the kit, when its doors and windows are read, then a door is 2.1 by 0.9, a double door 2.1 by 1.2, a window 1.2 square with its sill at 0.9", () => {
     expect(KIT_SIZES.door).toEqual({ width: 0.9, doubleWidth: 1.2, height: 2.1 });
     expect(KIT_SIZES.window).toEqual({ size: 1.2, sill: 0.9 });
   });
 
-  test("[R-ASSET-016] given the kit, when its part sizes are read, then each is the part table's", () => {
+  test("[assets:buildings-assembled-from-kit] given the kit, when its part sizes are read, then each is the part table's", () => {
     expect([KIT_SIZES.wall, KIT_SIZES.storey, KIT_SIZES.slab]).toEqual([0.23, 3.0, 0.15]);
     expect(KIT_SIZES.parapet).toEqual({ height: 1.0, thickness: 0.15, coping: 0.05 });
     expect([KIT_SIZES.roof.pitchMinDeg, KIT_SIZES.roof.pitchMaxDeg, KIT_SIZES.roof.eaves]).toEqual([20, 30, 0.6]);
@@ -47,12 +47,12 @@ describe("the kit's sizes", () => {
     expect(KIT_SIZES.pole).toEqual({ height: 9, spanMin: 30, spanMax: 40 });
   });
 
-  test("[R-ASSET-016] given a flight of 12 risers and one of 13, when they are built, then 12 is a flight and 13 needs a landing", () => {
+  test("[assets:buildings-assembled-from-kit] given a flight of 12 risers and one of 13, when they are built, then 12 is a flight and 13 needs a landing", () => {
     expect(() => stairFlight(new Group(), 0, 0, 0, 12, 0.17, 1.1, 0, "concrete")).not.toThrow();
     expect(() => stairFlight(new Group(), 0, 0, 0, 13, 0.17, 1.1, 0, "concrete")).toThrow(/more than a flight/);
   });
 
-  test("[R-ASSET-016] given shop bays of 3.0 and 4.0 m and of 2.9 m, when the building is built, then 3.0 to 4.0 are allowed and 2.9 is refused", () => {
+  test("[assets:buildings-assembled-from-kit] given shop bays of 3.0 and 4.0 m and of 2.9 m, when the building is built, then 3.0 to 4.0 are allowed and 2.9 is refused", () => {
     expect(() => buildBuilding({ ...plaza, footprint: [12, 8] })).not.toThrow();
     expect(() => buildBuilding({ ...plaza, footprint: [16, 8] })).not.toThrow();
     expect(() => buildBuilding({ ...plaza, footprint: [11.6, 8] })).toThrow(/outside 3.0 to 4.0/);
@@ -60,7 +60,7 @@ describe("the kit's sizes", () => {
 });
 
 describe("a building is data", () => {
-  test("[R-ASSET-003] given a building, when it is built, then its lowest point is y = 0 within 0.01 m, its footprint is centred on the origin and its signs face +z", () => {
+  test("[assets:metre-units-and-origin] given a building, when it is built, then its lowest point is y = 0 within 0.01 m, its footprint is centred on the origin and its signs face +z", () => {
     const g = buildBuilding(plaza);
     const box = new Box3().setFromObject(g);
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);
@@ -73,17 +73,17 @@ describe("a building is data", () => {
     }
   });
 
-  test("[R-ASSET-014] given a spec read back from JSON, when it is built, then the building is the same: a building is numbers given to the kit, not new code", () => {
+  test("[assets:variants-are-numbers-not-code] given a spec read back from JSON, when it is built, then the building is the same: a building is numbers given to the kit, not new code", () => {
     const again = JSON.parse(JSON.stringify(plaza)) as BuildingSpec;
     expect(positions(buildBuilding(again))).toEqual(positions(buildBuilding(plaza)));
   });
 
-  test("[R-ASSET-016] given storeys of 3.0 m over a 3.6 m shop floor on a 0.3 m step, when it is built, then the body rises to 9.9 m and the parapet to 10.9 m", () => {
+  test("[assets:buildings-assembled-from-kit] given storeys of 3.0 m over a 3.6 m shop floor on a 0.3 m step, when it is built, then the body rises to 9.9 m and the parapet to 10.9 m", () => {
     const g = buildBuilding(plaza);
     expect(g.userData.top).toBeCloseTo(10.9, 6);
   });
 
-  test("[R-ASSET-016] given a building with shops, when it is built, then each sign is a text key on an anchor and its board is 0.6 to 0.9 high", () => {
+  test("[assets:buildings-assembled-from-kit] given a building with shops, when it is built, then each sign is a text key on an anchor and its board is 0.6 to 0.9 high", () => {
     const signs = buildBuilding(plaza).userData.signs as { key: string; height: number }[];
     expect(signs.map((s) => s.key)).toEqual(plaza.signs);
     for (const sign of signs) {
@@ -94,14 +94,14 @@ describe("a building is data", () => {
 });
 
 describe("wear and clutter", () => {
-  test("[R-ASSET-017] given sixty buildings of a street, when they are built, then each carries at least two of tank, dish, generator, bars, stains, notice and wires", () => {
+  test("[assets:buildings-carry-wear-and-clutter] given sixty buildings of a street, when they are built, then each carries at least two of tank, dish, generator, bars, stains, notice and wires", () => {
     for (const spec of street) {
       const clutter = buildBuilding(spec).userData.clutter as string[];
       expect(clutter.length).toBeGreaterThanOrEqual(2);
     }
   });
 
-  test("[R-ASSET-017] given a painted wall, when it wears, then the wear is its darker named shade, and any other wall wears to worn concrete", () => {
+  test("[assets:buildings-carry-wear-and-clutter] given a painted wall, when it wears, then the wear is its darker named shade, and any other wall wears to worn concrete", () => {
     expect(wornShade("wallCream")).toBe("wallCreamWorn");
     expect(wornShade("wallPeach")).toBe("wallPeachWorn");
     expect(wornShade("wallMint")).toBe("wallMintWorn");
@@ -113,20 +113,20 @@ describe("wear and clutter", () => {
 });
 
 describe("a street", () => {
-  test("[R-ASSET-018] given a layout seed, when the street is laid twice, then it is the same street, built the same way", () => {
+  test("[assets:neighbours-never-identical] given a layout seed, when the street is laid twice, then it is the same street, built the same way", () => {
     expect(layoutStreet(2026, 60)).toEqual(street);
     const first = street[0];
     if (first === undefined) throw new Error("no building");
     expect(positions(buildBuilding(first))).toEqual(positions(buildBuilding(first)));
   });
 
-  test("[R-ASSET-018] given a street of sixty, when it is laid, then no two neighbours share footprint, storeys, roof and wall colour together", () => {
+  test("[assets:neighbours-never-identical] given a street of sixty, when it is laid, then no two neighbours share footprint, storeys, roof and wall colour together", () => {
     const pairs = street.slice(1).map((next, i) => sameLook(street[i] ?? next, next));
     expect(pairs).toHaveLength(59);
     expect(pairs.filter(Boolean)).toEqual([]);
   });
 
-  test("[R-ASSET-019] given every building of a street built with the place's dish direction, when their dishes are read, then they all face the same way", () => {
+  test("[assets:dishes-face-one-satellite] given every building of a street built with the place's dish direction, when their dishes are read, then they all face the same way", () => {
     const yaw = 1.1;
     const want = dishDirection(yaw);
     for (const spec of street.slice(0, 20)) {
@@ -136,7 +136,7 @@ describe("a street", () => {
     }
   });
 
-  test("[R-ASSET-007] given sixty buildings of a street, when they are built, then each stays inside 1,500 triangles and 13 m", () => {
+  test("[assets:assets-and-places-within-budget] given sixty buildings of a street, when they are built, then each stays inside 1,500 triangles and 13 m", () => {
     for (const spec of street) {
       const g = buildBuilding(spec);
       expect(triangles(g)).toBeLessThanOrEqual(1500);

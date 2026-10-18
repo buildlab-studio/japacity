@@ -1,4 +1,4 @@
-// The one palette (docs/rules/assets.md, "The palette"): the starting colours (R-ASSET-002) and the street and building additions.
+// The one palette (docs/rules/assets.md, "The palette"): the starting colours (assets:starting-palette-frozen) and the street and building additions.
 // Every builder and the palette check import it from here. Values are 8-bit sRGB, as written on the page.
 export const palette = {
   // Vehicles and props (the starting palette)

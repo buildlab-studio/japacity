@@ -2,7 +2,7 @@ import type { AppealRow, AppealStore, BannedIdentityStore, FeedbackRow, Feedback
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
-/** R-MODERATION-015: an array that only grows. */
+/** moderation:admin-actions-logged-append-only: an array that only grows. */
 export function memoryModerationLogStore(): ModerationLogStore {
   const rows: ModerationLogEntry[] = [];
 
@@ -18,7 +18,7 @@ export function memoryModerationLogStore(): ModerationLogStore {
   };
 }
 
-/** R-MODERATION-018. */
+/** moderation:ban-survives-as-hash. */
 export function memoryBannedIdentityStore(): BannedIdentityStore {
   const held = new Map<string, number>();
 
@@ -31,7 +31,7 @@ export function memoryBannedIdentityStore(): BannedIdentityStore {
   };
 }
 
-/** R-MODERATION-016. */
+/** moderation:actioned-player-told-and-appeals. */
 export function memoryAppealStore(): AppealStore {
   const rows: AppealRow[] = [];
 
@@ -55,7 +55,7 @@ export function memoryAppealStore(): AppealStore {
   };
 }
 
-/** R-MODERATION-020: the rows in the order they came, and the send counts by sender and day. */
+/** moderation:feedback-box-in-settings: the rows in the order they came, and the send counts by sender and day. */
 export function memoryFeedbackStore(): FeedbackStore {
   const rows: FeedbackRow[] = [];
   const sends = new Map<string, { day: string; count: number }>();

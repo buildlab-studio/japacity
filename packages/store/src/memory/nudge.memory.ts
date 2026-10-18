@@ -1,6 +1,6 @@
 import type { NudgeBus, NudgeHandler } from "../types";
 
-/** R-CLOCK-020, R-CLOCK-022: a list of handlers per account. */
+/** clock:socket-only-nudges, clock:nudges-are-best-effort: a list of handlers per account. */
 export function memoryNudgeBus(): NudgeBus {
   const handlers = new Map<string, NudgeHandler[]>();
 

@@ -1,4 +1,4 @@
-// The bank-full notice's routes (clock.md R-CLOCK-031): the setting, the
+// The bank-full notice's routes (clock:full-bank-push-notification): the setting, the
 // devices that agreed, and the deployment's public key.
 import type { PushSubscriptionJson } from "@japacity/store";
 

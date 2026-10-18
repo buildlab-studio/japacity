@@ -18,13 +18,13 @@ const NAMES: SwitchName[] = [
 /** The contract every SwitchStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
   describe("SwitchStore contract", () => {
-    test("[R-SERVER-031] given an empty store, when it is read, then every switch is on, no dial is set and the log is empty", async () => {
+    test("[server:four-off-switches] given an empty store, when it is read, then every switch is on, no dial is set and the log is empty", async () => {
       const store = await make();
       expect(await store.read()).toEqual(DEFAULT_SWITCH_ROW);
       expect(await store.log()).toEqual([]);
     });
 
-    test.each(NAMES)("[R-SERVER-031] given the %s switch turned off and on again, when the row is read after each, then only that switch moved", async (name) => {
+    test.each(NAMES)("[server:four-off-switches] given the %s switch turned off and on again, when the row is read after each, then only that switch moved", async (name) => {
       const store = await make();
 
       const off = await store.set(name, false, "account.owner", "busy", 1_000);
@@ -35,7 +35,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       expect(await store.read()).toEqual(DEFAULT_SWITCH_ROW);
     });
 
-    test("[R-CITY-039] given an empty store, when it is read, then the four boards are on and the joined-week board is off; when that one is turned on and off, then only it moved", async () => {
+    test("[city:boards-switch-when-and-who] given an empty store, when it is read, then the four boards are on and the joined-week board is off; when that one is turned on and off, then only it moved", async () => {
       const store = await make();
       const { switches } = await store.read();
       expect([switches["boards.this-week.everyone"], switches["boards.this-week.friends"], switches["boards.all-time.everyone"], switches["boards.all-time.friends"]]).toEqual([true, true, true, true]);
@@ -52,7 +52,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       ]);
     });
 
-    test("[R-SERVER-030] given each dial set, when the row is read, then it holds them; when one is unset, then it is absent again and the others stay", async () => {
+    test("[server:private-settings-and-dials] given each dial set, when the row is read, then it holds them; when one is unset, then it is absent again and the others stay", async () => {
       const store = await make();
       await store.setDial({ dial: "placeTarget", place: "place.ojuelegba", value: 40 }, "account.owner", "crowd tuning", 1);
       await store.setDial({ dial: "placeTarget", place: "place.yaba", value: 0 }, "account.owner", "crowd tuning", 2);
@@ -68,7 +68,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       expect((await store.read()).dials).toEqual({ placeTargets: { "place.yaba": 0 }, computerAfterMonths: null });
     });
 
-    test("[R-SERVER-030] given a dial value below 0, above the largest or not whole, when it is set, then it is refused with bad-write, the row keeps its value and nothing is logged", async () => {
+    test("[server:private-settings-and-dials] given a dial value below 0, above the largest or not whole, when it is set, then it is refused with bad-write, the row keeps its value and nothing is logged", async () => {
       const store = await make();
       await store.setDial({ dial: "computerAfterMonths", value: 2 }, "account.owner", "crowd tuning", 1);
       const before = await store.read();
@@ -86,7 +86,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       expect(await store.setDial({ dial: "computerAfterMonths", value: 0 }, "account.owner", "edge", 5)).toMatchObject({ ok: true });
     });
 
-    test("[R-SERVER-031] given switches and dials changed, when the log is read, then it holds every change with who, when and why, in order, the repeats included", async () => {
+    test("[server:four-off-switches] given switches and dials changed, when the log is read, then it holds every change with who, when and why, in order, the repeats included", async () => {
       const store = await make();
       await store.set("lottery", false, "account.owner", "draw fault", 10);
       await store.set("lottery", false, "account.second", "still off", 20);
@@ -105,7 +105,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       expect(new Set(numbers).size).toBe(numbers.length);
     });
 
-    test("[R-SERVER-031] given a row read, when the caller changes what it holds, then the stored row does not change", async () => {
+    test("[server:four-off-switches] given a row read, when the caller changes what it holds, then the stored row does not change", async () => {
       const store = await make();
       const read = await store.read();
       read.switches.signups = false;

@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { packSigns, SIGN_ATLAS } from "./sign";
 
 describe("sign faces", () => {
-  test("[R-ASSET-012] given the sign atlas, when its size is read, then it is at most 512 by 128 and a power of two on each side", () => {
+  test("[assets:sign-text-drawn-in-code] given the sign atlas, when its size is read, then it is at most 512 by 128 and a power of two on each side", () => {
     const [w, h] = SIGN_ATLAS;
     expect(w).toBeLessThanOrEqual(512);
     expect(h).toBeLessThanOrEqual(128);
@@ -11,7 +11,7 @@ describe("sign faces", () => {
     expect(Math.log2(h) % 1).toBe(0);
   });
 
-  test("[R-ASSET-012] given several boards, when they are packed, then every face fits the atlas, none overlap, and every face keeps its shape at one scale", () => {
+  test("[assets:sign-text-drawn-in-code] given several boards, when they are packed, then every face fits the atlas, none overlap, and every face keeps its shape at one scale", () => {
     const faces = [
       { width: 3.8, height: 0.62 },
       { width: 1.2, height: 0.42 },
@@ -33,7 +33,7 @@ describe("sign faces", () => {
     });
   });
 
-  test("[R-ASSET-012] given one shop's board, when it is packed, then it takes the atlas's full width, as large as it can be", () => {
+  test("[assets:sign-text-drawn-in-code] given one shop's board, when it is packed, then it takes the atlas's full width, as large as it can be", () => {
     const [[, , w, h] = [0, 0, 0, 0]] = packSigns([{ width: 4, height: 1 }]);
     expect(w).toBeGreaterThanOrEqual(511);
     expect(h).toBeLessThanOrEqual(128);

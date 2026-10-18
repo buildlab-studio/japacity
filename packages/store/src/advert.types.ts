@@ -1,14 +1,14 @@
 // Adverts on the server (docs/rules/advert.md, Contract): advertisers,
 // campaigns, creatives with their reviews, and the daily counts. Nothing here
-// names a player (R-ADVERT-020).
+// names a player (advert:advertiser-records-stored).
 import type { Id } from "@japacity/sim";
 
 import type { StoreResult } from "./types";
 
-/** An advert region (advert.md R-ADVERT-008): a country's code, or `default`. */
+/** An advert region (advert:campaign-chosen-without-player-data): a country's code, or `default`. */
 export type RegionCode = string;
 
-/** R-ADVERT-020: the advertiser as a business, with one contact. */
+/** advert:advertiser-records-stored: the advertiser as a business, with one contact. */
 export interface Advertiser {
   id: string;
   businessName: string;
@@ -20,7 +20,7 @@ export interface Advertiser {
 /** `live` and `ended` are read from the dates at a moment; the stored status is never moved by the clock. */
 export type CampaignStatus = "pending" | "approved" | "live" | "paused" | "ended" | "refused";
 
-/** R-ADVERT-017: the real name and sign a campaign puts on a private place. */
+/** advert:real-name-only-by-agreement: the real name and sign a campaign puts on a private place. */
 export interface NamedPlace {
   place: Id<"place">;
   name: string;
@@ -36,12 +36,12 @@ export interface Campaign {
   starts: number;
   ends: number;
   status: CampaignStatus;
-  // The page's Campaign has no category or named place; R-ADVERT-015 to 017 need both on record.
+  // The page's Campaign has no category or named place; advert:banned-categories-refused, advert:restricted-categories-need-conditions and advert:real-name-only-by-agreement need both on record.
   category: string;
   place: NamedPlace | null;
 }
 
-/** R-ADVERT-004: what the image is, measured from its bytes, never taken from the sender. */
+/** advert:one-labelled-still-image: what the image is, measured from its bytes, never taken from the sender. */
 export interface CreativeFile {
   format: "png" | "jpeg" | "webp";
   width: number;
@@ -49,10 +49,10 @@ export interface CreativeFile {
   bytes: number;
 }
 
-/** `pending` waits for review; a pulled advert goes back to `pending` (R-ADVERT-014). */
+/** `pending` waits for review; a pulled advert goes back to `pending` (advert:reported-advert-pulled-at-once). */
 export type CreativeStatus = "pending" | "approved" | "refused";
 
-/** One version of a creative. A change is a new version with the same id (R-ADVERT-011). */
+/** One version of a creative. A change is a new version with the same id (advert:changes-return-to-review). */
 export interface Creative {
   id: string;
   campaign: string;
@@ -63,7 +63,7 @@ export interface Creative {
   status: CreativeStatus;
 }
 
-/** R-ADVERT-010: who looked, when, what they checked and under which banned list. */
+/** advert:named-person-approves-creatives: who looked, when, what they checked and under which banned list. */
 export interface AdvertReview {
   creative: string;
   version: number;
@@ -75,7 +75,7 @@ export interface AdvertReview {
   note: string;
 }
 
-/** R-ADVERT-020: a whole UTC day's counts for one slot, campaign and region. `day` is days since 1970. */
+/** advert:advertiser-records-stored: a whole UTC day's counts for one slot, campaign and region. `day` is days since 1970. */
 export interface AdvertCount {
   day: number;
   slot: Id<"advert">;

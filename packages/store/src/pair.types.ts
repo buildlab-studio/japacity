@@ -1,5 +1,5 @@
-// The stores of the server's pair side (pair.md R-PAIR-007 to 016,
-// moderation.md R-MODERATION-001 to 009): invite links and their rewards,
+// The stores of the server's pair side (pair:invite-card-contents, pair:invite-link-single-use, pair:invite-rewards-never-cash, pair:preset-phrases-only, pair:conversation-phrases-stored, pair:place-phrases-not-stored, pair:phrase-checks-before-send, pair:block-and-report-one-tap, pair:block-ends-every-bond and pair:report-holds-conversation,
+// moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation): invite links and their rewards,
 // the conversations in preset phrases, and blocks, reports and holds. Times
 // are milliseconds since 1970, passed in by the caller.
 import type { ConversationRow } from "@japacity/sim";
@@ -9,13 +9,13 @@ import type { StoreResult } from "./types";
 export type { ConversationRow };
 
 // ---------------------------------------------------------------------------
-// Invites (R-PAIR-007 to 009)
+// Invites (pair:invite-card-contents, pair:invite-link-single-use and pair:invite-rewards-never-cash)
 // ---------------------------------------------------------------------------
 
-/** How far an invited friend's character has come (R-PAIR-009). */
+/** How far an invited friend's character has come (pair:invite-rewards-never-cash). */
 export type InviteMilestone = "prologue" | "chapter-two" | "departed";
 
-/** R-PAIR-008: a link as made, before anyone opens it. */
+/** pair:invite-link-single-use: a link as made, before anyone opens it. */
 export interface NewInvite {
   code: string;
   /** The inviter's character. */
@@ -25,13 +25,13 @@ export interface NewInvite {
   slot: string;
   looking: "partner" | "sibling";
   fill: string | null;
-  /** The card as it was when the link was made (R-PAIR-007): text keys and ids only. */
+  /** The card as it was when the link was made (pair:invite-card-contents): text keys and ids only. */
   card: unknown;
   madeAt: number;
   expires: number;
 }
 
-/** R-PAIR-008: once used, the friend's character, the pair key it made and the milestones the friend had reached already. */
+/** pair:invite-link-single-use: once used, the friend's character, the pair key it made and the milestones the friend had reached already. */
 export interface InviteRow extends NewInvite {
   used: boolean;
   by: string | null;
@@ -40,7 +40,7 @@ export interface InviteRow extends NewInvite {
   before: InviteMilestone[];
 }
 
-/** R-PAIR-009: a card frame and a line given to the inviter, once per friend and milestone. */
+/** pair:invite-rewards-never-cash: a card frame and a line given to the inviter, once per friend and milestone. */
 export interface RewardRow {
   from: string;
   friend: string;
@@ -51,8 +51,8 @@ export interface RewardRow {
 }
 
 /**
- * R-PAIR-007 to 009. Every pair record is made by a used invite while the
- * matchmaker is shut (R-PAIR-017), so the used invites are also the index of
+ * pair:invite-card-contents, pair:invite-link-single-use and pair:invite-rewards-never-cash. Every pair record is made by a used invite while the
+ * matchmaker is shut (pair:no-records-between-strangers), so the used invites are also the index of
  * which pairs a character is in.
  */
 export interface InviteStore {
@@ -61,7 +61,7 @@ export interface InviteStore {
   get: (code: string) => Promise<InviteRow | null>;
   /** The character's links neither used nor expired at `now`, oldest first. */
   open: (from: string, now: number) => Promise<InviteRow[]>;
-  /** R-PAIR-008: single use. Refused with `missing` for an unknown code and `closed` once used. */
+  /** pair:invite-link-single-use: single use. Refused with `missing` for an unknown code and `closed` once used. */
   use: (code: string, use: { by: string; pair: string; at: number; before: InviteMilestone[] }) => Promise<StoreResult<InviteRow>>;
   /** Gives back a claim whose link then failed, so the link stays usable. Refused with `missing` when the code is not used. */
   release: (code: string) => Promise<StoreResult<InviteRow>>;
@@ -75,15 +75,15 @@ export interface InviteStore {
   rewards: (from: string) => Promise<RewardRow[]>;
   /** Refused with `exists` when the inviter has had this friend's milestone already. */
   reward: (row: RewardRow) => Promise<StoreResult<RewardRow>>;
-  /** R-ACCOUNT-017: the character's links, the links it used, and the rewards that name it. */
+  /** account:deleted-data-removed-within-month: the character's links, the links it used, and the rewards that name it. */
   remove: (character: string) => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
-// Conversations (R-PAIR-011)
+// Conversations (pair:conversation-phrases-stored)
 // ---------------------------------------------------------------------------
 
-/** R-PAIR-011: rows ordered by `sentAt`, then by id. */
+/** pair:conversation-phrases-stored: rows ordered by `sentAt`, then by id. */
 export interface ConversationStore {
   /** Refused with `exists` for a known message id. */
   add: (row: ConversationRow) => Promise<StoreResult<ConversationRow>>;
@@ -95,25 +95,25 @@ export interface ConversationStore {
   sentSince: (conversation: string, sender: string, since: number) => Promise<number[]>;
   /** The rows by id, for a report's cites. */
   byIds: (ids: readonly string[]) => Promise<ConversationRow[]>;
-  /** R-ACCOUNT-017, R-MODERATION-008: removes every row of the conversations whose id names the character, except the ids in `keep`; answers how many went. */
+  /** account:deleted-data-removed-within-month, moderation:reports-hold-cited-records: removes every row of the conversations whose id names the character, except the ids in `keep`; answers how many went. */
   removeFor: (character: string, keep: readonly string[]) => Promise<number>;
 }
 
 // ---------------------------------------------------------------------------
-// Blocks, reports and holds (R-PAIR-015, 016, R-MODERATION-001 to 009)
+// Blocks, reports and holds (pair:block-ends-every-bond, pair:report-holds-conversation, moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation)
 // ---------------------------------------------------------------------------
 
-/** R-MODERATION-001: one account blocking another. */
+/** moderation:block-refuses-both-ways: one account blocking another. */
 export interface BlockRow {
   from: string;
   to: string;
   at: number;
 }
 
-/** R-MODERATION-004. */
+/** moderation:report-carries-subject-and-reason. */
 export type ReportReason = "scam" | "harassment" | "impersonation" | "underage" | "sexual" | "hate" | "self-harm" | "illegal" | "cheating" | "advert" | "other";
 
-/** R-MODERATION-004: what a report cites. */
+/** moderation:report-carries-subject-and-reason: what a report cites. */
 export type ReportCite =
   | { messages: string[] }
   | { place: string; phrase: string; at: number }
@@ -121,7 +121,7 @@ export type ReportCite =
   | { pair: string }
   | { campaign: string; slot: string };
 
-/** R-PAIR-016, R-MODERATION-004, R-MODERATION-007. `pair` is the record the report holds, when one is cited or the messages are in one. */
+/** pair:report-holds-conversation, moderation:report-carries-subject-and-reason, moderation:reporter-told-outcome-only. `pair` is the record the report holds, when one is cited or the messages are in one. */
 export interface ReportRow {
   id: string;
   reporter: string;
@@ -136,7 +136,7 @@ export interface ReportRow {
   decidedAt: number | null;
 }
 
-/** R-MODERATION-008: what a report keeps unchanged, until it is decided or `until`. */
+/** moderation:reports-hold-cited-records: what a report keeps unchanged, until it is decided or `until`. */
 export interface HoldRow {
   report: string;
   messages: string[];
@@ -149,29 +149,29 @@ export type NewReport = Omit<ReportRow, "status" | "outcome" | "decidedAt">;
 
 /** The pair side stores; the moderation queue and admin view read and close through `list`, `close` and `lift`. */
 export interface ModerationStore {
-  /** R-MODERATION-001: a block already held keeps its first time. */
+  /** moderation:block-refuses-both-ways: a block already held keeps its first time. */
   block: (row: BlockRow) => Promise<BlockRow>;
-  /** R-MODERATION-002: false when there was no block to lift. */
+  /** moderation:block-ends-pair-records: false when there was no block to lift. */
   unblock: (from: string, to: string) => Promise<boolean>;
-  /** R-MODERATION-001: true when either account blocks the other. */
+  /** moderation:block-refuses-both-ways: true when either account blocks the other. */
   blocked: (x: string, y: string) => Promise<boolean>;
   /** The blocks the account has made, oldest first. */
   blocksBy: (account: string) => Promise<BlockRow[]>;
-  /** R-PAIR-016, R-MODERATION-008: the report and its hold, together. Refused with `exists` for a known id. */
+  /** pair:report-holds-conversation, moderation:reports-hold-cited-records: the report and its hold, together. Refused with `exists` for a known id. */
   report: (report: NewReport, hold: Omit<HoldRow, "report" | "lifted">) => Promise<StoreResult<ReportRow>>;
   get: (id: string) => Promise<ReportRow | null>;
-  /** R-MODERATION-010: the reports with this status, oldest first. */
+  /** moderation:one-queue-by-reason-weight: the reports with this status, oldest first. */
   list: (status: "open" | "decided") => Promise<ReportRow[]>;
-  /** R-MODERATION-006: how many reports the account has filed at or after `since`. */
+  /** moderation:report-offers-block: how many reports the account has filed at or after `since`. */
   filedSince: (reporter: string, since: number) => Promise<number>;
-  /** R-MODERATION-009: the open reports on the pair record, oldest first. */
+  /** moderation:open-report-pauses-conversation: the open reports on the pair record, oldest first. */
   openOn: (pair: string) => Promise<ReportRow[]>;
-  /** R-MODERATION-007, R-MODERATION-008: decides the report and lifts its hold. Refused with `missing` for an unknown id and `closed` once decided. */
+  /** moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records: decides the report and lifts its hold. Refused with `missing` for an unknown id and `closed` once decided. */
   close: (id: string, outcome: "acted" | "no-action", at: number) => Promise<StoreResult<ReportRow>>;
-  /** R-MODERATION-008: lifts the report's hold without deciding it. Refused with `missing` when the report has no hold. */
+  /** moderation:reports-hold-cited-records: lifts the report's hold without deciding it. Refused with `missing` when the report has no hold. */
   lift: (report: string) => Promise<StoreResult<HoldRow>>;
-  /** R-MODERATION-008: the holds not lifted and running past `now`. */
+  /** moderation:reports-hold-cited-records: the holds not lifted and running past `now`. */
   holds: (now: number) => Promise<HoldRow[]>;
-  /** R-ACCOUNT-017: the account's blocks either way and the reports it filed, keeping every report whose hold still runs at `now`. */
+  /** account:deleted-data-removed-within-month: the account's blocks either way and the reports it filed, keeping every report whose hold still runs at `now`. */
   remove: (account: string, now: number) => Promise<void>;
 }

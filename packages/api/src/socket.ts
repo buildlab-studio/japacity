@@ -1,15 +1,15 @@
-// The nudge socket's messages (R-CLOCK-020 to 024): the server sends a nudge
+// The nudge socket's messages (clock:socket-only-nudges, clock:nudge-triggers-ordinary-fetch, clock:nudges-are-best-effort, clock:sockets-reconnect-with-backoff and clock:client-sends-only-pings): the server sends a nudge
 // as JSON text, the client sends nothing but a ping, and the place object
 // answers the ping by itself. Both sides read a nudge with `readNudge`.
 import type { Nudge } from "@japacity/store";
 
 export type { Nudge };
 
-/** R-CLOCK-024: the client's ping and the automatic reply. */
+/** clock:client-sends-only-pings: the client's ping and the automatic reply. */
 export const PING = "ping";
 export const PONG = "pong";
 
-/** R-CLOCK-020: reads a socket's text back into a nudge, or null for anything else, a nudge with any other key too. */
+/** clock:socket-only-nudges: reads a socket's text back into a nudge, or null for anything else, a nudge with any other key too. */
 export function readNudge(text: unknown): Nudge | null {
   if (typeof text !== "string") return null;
   let value: unknown;

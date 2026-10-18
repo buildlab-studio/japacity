@@ -1,4 +1,4 @@
-// The admin's statement timeout on a real Postgres, which PGlite does not enforce (R-SERVER-012). Run
+// The admin's statement timeout on a real Postgres, which PGlite does not enforce (server:ledger-alarm-lists-suspects). Run
 // with `DATABASE_URL=postgres://... pnpm vitest run --project db-race` against a database kept for
 // these tests; nothing here writes.
 import { sql } from "drizzle-orm";
@@ -28,7 +28,7 @@ function codesOf(error: unknown): unknown[] {
 }
 
 describe("a bounded handle on Postgres", () => {
-  test("[R-SERVER-012] given a statement longer than the timeout, when it runs through a bounded handle, then Postgres stops it with query_canceled, and the next read on the same connection has no timeout", async () => {
+  test("[server:ledger-alarm-lists-suspects] given a statement longer than the timeout, when it runs through a bounded handle, then Postgres stops it with query_canceled, and the next read on the same connection has no timeout", async () => {
     const bounded = boundedHandle(connection.handle, 50);
     const started = Date.now();
     const error: unknown = await bounded.read((db) => db.execute(sql`select pg_sleep(2)`)).catch((caught: unknown) => caught);

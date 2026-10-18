@@ -61,7 +61,7 @@ async function write(tx: Queries, insert: Values, update: Update, logged: { at: 
   return toRow(row);
 }
 
-/** R-SERVER-030, R-SERVER-031: one row with `id` 1, made by the first write; the log is insert only. */
+/** server:private-settings-and-dials, server:four-off-switches: one row with `id` 1, made by the first write; the log is insert only. */
 export function pgSwitchStore(handle: Handle): SwitchStore {
   return {
     read: () =>

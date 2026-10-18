@@ -1,4 +1,4 @@
-// What the client does to a model after loading it (R-ASSET-005, R-ASSET-012). Flat shading does
+// What the client does to a model after loading it (assets:flat-and-smooth-shading, assets:sign-text-drawn-in-code). Flat shading does
 // not survive compression (the design's known fault), so it is set here on every material, except where
 // a node's extras name round parts to show smooth. Sign text is drawn here, at run time, from the
 // place's text keys, onto one canvas per model.
@@ -16,7 +16,7 @@ import {
 import { paletteCss } from "./palette";
 import { packSigns, SIGN_ATLAS, type SignAnchor, type SignStyle } from "./sign";
 
-/** The font every sign is lettered in: listed in the register with its licence (R-ASSET-012). */
+/** The font every sign is lettered in: listed in the register with its licence (assets:sign-text-drawn-in-code). */
 export const SIGN_FONT = "Danfo";
 
 function materialsOf(object: Object3D): Material[] {

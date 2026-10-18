@@ -18,7 +18,7 @@ const DRAW = { draw: 4, secret: "11".repeat(32), fingerprint: "22".repeat(32), b
 /** The contract every WorldStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
   describe("WorldStore contract", () => {
-    test("[R-CLOCK-010] given stored ticks, when one is read, then it comes back exactly, and a tick not stored is null", async () => {
+    test("[clock:world-is-stored-history] given stored ticks, when one is read, then it comes back exactly, and a tick not stored is null", async () => {
       const store = await make();
       expect(await store.insertTick(tickRow(0))).toBe(true);
       expect(await store.insertTick(tickRow(1))).toBe(true);
@@ -28,7 +28,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.tick(2)).toBeNull();
     });
 
-    test("[R-CLOCK-013] given a stored tick, when a second row for the same tick is inserted, then it is ignored and the first is kept", async () => {
+    test("[clock:request-fills-missing-ticks] given a stored tick, when a second row for the same tick is inserted, then it is ignored and the first is kept", async () => {
       const store = await make();
       expect(await store.insertTick(tickRow(5, 1))).toBe(true);
 
@@ -37,7 +37,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.tick(5)).toEqual(tickRow(5, 1));
     });
 
-    test("[R-CLOCK-013] given two writers making the same tick at once, when both insert, then exactly one row is stored", async () => {
+    test("[clock:request-fills-missing-ticks] given two writers making the same tick at once, when both insert, then exactly one row is stored", async () => {
       const store = await make();
 
       const inserted = await Promise.all([store.insertTick(tickRow(3, 1)), store.insertTick(tickRow(3, 2))]);
@@ -47,7 +47,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.tick(3)).toEqual(kept);
     });
 
-    test("[R-CLOCK-012] given no ticks, then latest is null; given ticks stored out of order, then latest is the highest", async () => {
+    test("[clock:cron-stores-missing-ticks] given no ticks, then latest is null; given ticks stored out of order, then latest is the highest", async () => {
       const store = await make();
       expect(await store.latest()).toBeNull();
 
@@ -56,7 +56,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.latest()).toEqual(tickRow(2));
     });
 
-    test("[R-LOTTERY-007] given a draw put once, when it is read, then it is open with no result, and the same commitments again change nothing", async () => {
+    test("[lottery:fingerprint-commits-secret] given a draw put once, when it is read, then it is open with no result, and the same commitments again change nothing", async () => {
       const store = await make();
 
       const stored = must(await store.putDraw(DRAW));
@@ -68,7 +68,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.draw(5)).toBeNull();
     });
 
-    test("[R-LOTTERY-007] given a stored draw, when it is put with another secret, fingerprint, round, odds or jackpot, then it is refused and the first is kept", async () => {
+    test("[lottery:fingerprint-commits-secret] given a stored draw, when it is put with another secret, fingerprint, round, odds or jackpot, then it is refused and the first is kept", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
 
@@ -85,7 +85,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.draw(4)).toEqual({ ...DRAW, closedAt: null, list: null, listHash: null, result: null });
     });
 
-    test("[R-LOTTERY-005] given purchases from two characters, when tickets are added, then they are numbered from 0 in the order they were committed", async () => {
+    test("[lottery:tickets-numbered-by-commit] given purchases from two characters, when tickets are added, then they are numbered from 0 in the order they were committed", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
 
@@ -104,7 +104,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.tickets(5)).toEqual([]);
     });
 
-    test("[R-LOTTERY-005] given purchases at once, when they are added, then no number is given twice and none is skipped", async () => {
+    test("[lottery:tickets-numbered-by-commit] given purchases at once, when they are added, then no number is given twice and none is skipped", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
 
@@ -113,7 +113,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(given.flatMap(must).sort((x, y) => x - y)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
     });
 
-    test("[R-LOTTERY-005] given a draw not stored or a count under 1, when tickets are added, then it is refused and nothing is added", async () => {
+    test("[lottery:tickets-numbered-by-commit] given a draw not stored or a count under 1, when tickets are added, then it is refused and nothing is added", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
 
@@ -123,7 +123,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.tickets(4)).toEqual([]);
     });
 
-    test("[R-LOTTERY-008] given a frozen draw, when tickets are added or it is frozen again, then the list and its close do not change", async () => {
+    test("[lottery:ticket-list-frozen-anonymously] given a frozen draw, when tickets are added or it is frozen again, then the list and its close do not change", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
       must(await store.addTickets(4, "char-a", 2));
@@ -143,13 +143,13 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.freeze(9, 70_000)).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-LOTTERY-021] given a draw put, when it is read, then it carries no house top-up, as decision 0016 has none", async () => {
+    test("[lottery:odds-fixed-at-draw-open] given a draw put, when it is read, then it carries no house top-up, as decision 0016 has none", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
       expect(Object.keys((await store.draw(4)) ?? {})).not.toContain("topUpTickets");
     });
 
-    test("[R-LOTTERY-021] [R-LOTTERY-012] given draws put with their odds and jackpot, when they are read, then each keeps the odds and jackpot it opened with, a forced win included", async () => {
+    test("[lottery:odds-fixed-at-draw-open] [lottery:jackpot-rolls-over] given draws put with their odds and jackpot, when they are read, then each keeps the odds and jackpot it opened with, a forced win included", async () => {
       const store = await make();
       const later = { ...DRAW_ODDS, smallPerMillion: 90_000, forcedWinWeeks: 6 };
       must(await store.putDraw(DRAW));
@@ -159,7 +159,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.draw(5)).toMatchObject({ odds: later, jackpot: 20_002_500 });
     });
 
-    test("[R-LOTTERY-008] given a draw, when its list is set before the freeze, after it, the same again and another, then only the first after the freeze is kept", async () => {
+    test("[lottery:ticket-list-frozen-anonymously] given a draw, when its list is set before the freeze, after it, the same again and another, then only the first after the freeze is kept", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
       const list = ["0011223344556677", "8899aabbccddeeff"];
@@ -178,7 +178,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(await store.setList(9, list, "aa".repeat(32))).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-LOTTERY-008] given an empty draw, when its empty list is set after the freeze, then it is kept as an empty list", async () => {
+    test("[lottery:ticket-list-frozen-anonymously] given an empty draw, when its empty list is set after the freeze, then it is kept as an empty list", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
       must(await store.freeze(4, 70_000));
@@ -186,7 +186,7 @@ export function suiteForWorldStore(make: () => Promise<WorldStore>): void {
       expect(must(await store.setList(4, [], "cc".repeat(32)))).toMatchObject({ list: [], listHash: "cc".repeat(32) });
     });
 
-    test("[R-LOTTERY-015] given a draw, when its result is set before the freeze, after it, and again, then only the first after the freeze is kept", async () => {
+    test("[lottery:result-published-in-tick-row] given a draw, when its result is set before the freeze, after it, and again, then only the first after the freeze is kept", async () => {
       const store = await make();
       must(await store.putDraw(DRAW));
 

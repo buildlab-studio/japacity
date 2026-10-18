@@ -1,4 +1,4 @@
-// R-PAIR-001: one record for any two characters. Ids compare by UTF-16 code
+// pair:one-record-per-two: one record for any two characters. Ids compare by UTF-16 code
 // unit, the same order the transaction locks in, never by a locale's collation.
 import type { ConversationRow } from "./pair.types";
 
@@ -28,7 +28,7 @@ export function distinctPairKeys(rows: readonly { pair: string | null }[]): stri
   return [...new Set(rows.flatMap((row) => (row.pair === null ? [] : [row.pair])))].sort(compareIds);
 }
 
-/** R-PAIR-011: the order a conversation is read in: by time, then by id in UTF-16 code unit order. */
+/** pair:conversation-phrases-stored: the order a conversation is read in: by time, then by id in UTF-16 code unit order. */
 export function byTime(x: ConversationRow, y: ConversationRow): number {
   if (x.sentAt !== y.sentAt) return x.sentAt - y.sentAt;
   return compareIds(x.id, y.id);

@@ -2,7 +2,7 @@ import type { BlockRow, HoldRow, ModerationStore, ReportRow } from "../pair.type
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
-/** R-PAIR-015, R-PAIR-016, R-MODERATION-001 to 009: blocks, reports and their holds in arrays. */
+/** pair:block-ends-every-bond, pair:report-holds-conversation, moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation: blocks, reports and their holds in arrays. */
 export function memoryModerationStore(): ModerationStore {
   let blocks: BlockRow[] = [];
   let reports: ReportRow[] = [];

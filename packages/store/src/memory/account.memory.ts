@@ -2,12 +2,12 @@ import type { AccountRow, AccountStore } from "../types";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
-/** R-ACCOUNT-024: usernames are compared whatever the capitals. */
+/** account:username-and-unconfirmed-email: usernames are compared whatever the capitals. */
 function fold(username: string): string {
   return username.toLowerCase();
 }
 
-/** R-ACCOUNT-015, R-ACCOUNT-017, R-ACCOUNT-024: a map by account id. */
+/** account:one-character-per-account, account:deleted-data-removed-within-month, account:username-and-unconfirmed-email: a map by account id. */
 export function memoryAccountStore(): AccountStore {
   const rows = new Map<string, AccountRow>();
 

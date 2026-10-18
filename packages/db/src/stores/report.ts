@@ -19,7 +19,7 @@ function toBlock(row: typeof blocks.$inferSelect): BlockRow {
   return { from: row.from, to: row.to, at: row.at };
 }
 
-/** R-PAIR-015, R-PAIR-016, R-MODERATION-001 to 009: blocks, and each report written with its hold. */
+/** pair:block-ends-every-bond, pair:report-holds-conversation, moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation: blocks, and each report written with its hold. */
 export function pgModerationStore(handle: Handle): ModerationStore {
   return {
     block: (row) =>

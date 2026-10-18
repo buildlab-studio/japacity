@@ -11,7 +11,7 @@ function deletion(account: string, dueAt = 31 * time.DAY_MS) {
 /** The contract every DeletionStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForDeletionStore(make: () => Promise<DeletionStore>): void {
   describe("DeletionStore contract", () => {
-    test("[R-ACCOUNT-017] given a request due on day 31, when deletions due are listed, then it is not listed a moment before and is listed from that moment on", async () => {
+    test("[account:deleted-data-removed-within-month] given a request due on day 31, when deletions due are listed, then it is not listed a moment before and is listed from that moment on", async () => {
       const store = await make();
       must(await store.request(deletion("account-1")));
 
@@ -22,7 +22,7 @@ export function suiteForDeletionStore(make: () => Promise<DeletionStore>): void 
       expect(await store.due(40 * time.DAY_MS)).toHaveLength(1);
     });
 
-    test("[R-ACCOUNT-017] given a pending request, when it is requested again, then it is listed once and keeps its first day", async () => {
+    test("[account:deleted-data-removed-within-month] given a pending request, when it is requested again, then it is listed once and keeps its first day", async () => {
       const store = await make();
       must(await store.request(deletion("account-1")));
 
@@ -32,7 +32,7 @@ export function suiteForDeletionStore(make: () => Promise<DeletionStore>): void 
       expect(await store.due(60 * time.DAY_MS)).toHaveLength(1);
     });
 
-    test("[R-ACCOUNT-017] given requests due on different days, when they are listed, then the earliest comes first", async () => {
+    test("[account:deleted-data-removed-within-month] given requests due on different days, when they are listed, then the earliest comes first", async () => {
       const store = await make();
       must(await store.request(deletion("account-late", 33 * time.DAY_MS)));
       must(await store.request(deletion("account-early", 31 * time.DAY_MS)));
@@ -43,7 +43,7 @@ export function suiteForDeletionStore(make: () => Promise<DeletionStore>): void 
       expect(due.map((row) => row.account)).toEqual(["account-early", "account-middle", "account-late"]);
     });
 
-    test("[R-ACCOUNT-018] given a due deletion, when it is completed, then it is gone from the list and only its hash and dates are kept", async () => {
+    test("[account:deletion-keeps-anonymous-totals] given a due deletion, when it is completed, then it is gone from the list and only its hash and dates are kept", async () => {
       const store = await make();
       must(await store.request(deletion("account-1")));
 

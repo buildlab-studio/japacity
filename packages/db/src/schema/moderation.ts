@@ -55,7 +55,7 @@ export const feedback = pgTable(
   (table) => [uniqueIndex("feedback_id_idx").on(table.id), index("feedback_day_idx").on(table.day)],
 );
 
-/** R-MODERATION-020: how many a sender has sent on a day, kept apart from the rows. */
+/** moderation:feedback-box-in-settings: how many a sender has sent on a day, kept apart from the rows. */
 export const feedbackSends = pgTable(
   "feedback_sends",
   {

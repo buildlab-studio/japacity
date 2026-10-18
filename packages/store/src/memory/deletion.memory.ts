@@ -2,7 +2,7 @@ import type { DeletionRow, DeletionStore } from "../types";
 import { refuse } from "../result";
 import { accept, copy } from "./copy.memory";
 
-/** R-ACCOUNT-017, R-ACCOUNT-018: an array of requests in the order they came. */
+/** account:deleted-data-removed-within-month, account:deletion-keeps-anonymous-totals: an array of requests in the order they came. */
 export function memoryDeletionStore(): DeletionStore {
   const rows: DeletionRow[] = [];
   const pending = (account: string) => rows.find((row) => row.account === account && row.completedAt === null);

@@ -1,13 +1,13 @@
-// The interface counters a client sends (analytics.md R-ANALYTICS-003).
+// The interface counters a client sends (analytics:client-batches-counters).
 
-/** R-ANALYTICS-003: one row of a batch. */
+/** analytics:client-batches-counters: one row of a batch. */
 export interface CounterRow {
   name: string;
   key: string;
   count: number;
 }
 
-/** R-ANALYTICS-003: the body of `POST /api/counters`. */
+/** analytics:client-batches-counters: the body of `POST /api/counters`. */
 export interface CounterBatch {
   rows: CounterRow[];
 }

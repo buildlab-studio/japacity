@@ -71,6 +71,6 @@ export interface SayRequest {
 }
 
 export type PairReply = PairRead | ServerRejection;
-/** A refused phrase names only the check that failed, as its code (R-PAIR-013). */
+/** A refused phrase names only the check that failed, as its code (pair:phrase-checks-before-send). */
 export type SayReply = Said | ServerRejection;
 export type ConversationReply = ConversationRead | ServerRejection;

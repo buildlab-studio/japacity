@@ -1,7 +1,7 @@
 import type { AuditRow, AuditStore } from "../types";
 import { copy } from "./copy.memory";
 
-/** R-SERVER-009: an array that only grows. */
+/** server:rollback-apply-one-account: an array that only grows. */
 export function memoryAuditStore(): AuditStore {
   const rows: AuditRow[] = [];
 

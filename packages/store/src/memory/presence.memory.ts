@@ -2,7 +2,7 @@ import type { PresenceMember, PresenceStore } from "../types";
 import { xorshift32 } from "../generator";
 import { copy } from "./copy.memory";
 
-/** R-CLOCK-025 to 028: members by place, then by socket, in the order they joined. */
+/** clock:presence-held-in-memory, clock:attachments-rebuild-presence, clock:moving-switches-place-socket and clock:presence-is-a-sample: members by place, then by socket, in the order they joined. */
 export function memoryPresenceStore(): PresenceStore {
   const places = new Map<string, Map<string, PresenceMember>>();
 

@@ -1,4 +1,4 @@
-// R-SERVER-011: each character's wallet totals at its last mark, and the money
+// server:daily-money-report: each character's wallet totals at its last mark, and the money
 // made and destroyed on each UTC day, one row per side, reason and currency so
 // that concurrent additions are a single upsert each.
 import type { WalletSlice } from "@japacity/sim";

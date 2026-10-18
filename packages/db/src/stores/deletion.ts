@@ -12,7 +12,7 @@ function toDeletion(row: typeof deletions.$inferSelect): DeletionRow {
 
 const pending = (account: string) => and(eq(deletions.account, account), isNull(deletions.completedAt));
 
-/** R-ACCOUNT-017, R-ACCOUNT-018: requests in the order they came, at most one pending per account. */
+/** account:deleted-data-removed-within-month, account:deletion-keeps-anonymous-totals: requests in the order they came, at most one pending per account. */
 export function pgDeletionStore(handle: Handle): DeletionStore {
   return {
     request: (request) =>

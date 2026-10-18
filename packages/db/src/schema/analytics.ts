@@ -1,4 +1,4 @@
-// R-ANALYTICS-005: the analytics totals in a schema of their own, so the
+// analytics:rows-stored-as-day-totals: the analytics totals in a schema of their own, so the
 // deployment can give it a role the game's routes do not hold. One row per
 // day, region, name and key, so concurrent additions are a single upsert each.
 import { bigint, pgSchema, primaryKey, text } from "drizzle-orm/pg-core";
@@ -17,7 +17,7 @@ export const counterTotals = analytics.table(
   (table) => [primaryKey({ columns: [table.day, table.region, table.name, table.key] })],
 );
 
-/** R-ANALYTICS-008: the runs that have added their totals, so a run adds once. */
+/** analytics:nightly-game-counters: the runs that have added their totals, so a run adds once. */
 export const counterRuns = analytics.table("counter_runs", {
   run: text("run").primaryKey(),
 });

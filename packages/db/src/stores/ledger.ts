@@ -63,8 +63,8 @@ function ledgerRows(handle: Handle): LedgerRows {
 }
 
 /**
- * R-SERVER-011: marks by character, and day totals one row per side, reason and currency. A transaction's work
- * is handed the rows on the transaction's own client, with a lock of their own (R-SERVER-002, decision 0006):
+ * server:daily-money-report: marks by character, and day totals one row per side, reason and currency. A transaction's work
+ * is handed the rows on the transaction's own client, with a lock of their own (server:one-command-one-transaction, decision 0006):
  * the handle's lock is held for the whole transaction and is never taken again inside it.
  */
 export function pgLedgerStore(handle: Handle): LedgerStore {

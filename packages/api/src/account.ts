@@ -1,12 +1,12 @@
-// The age screen and the account (account.md R-ACCOUNT-011 to 016, 021 to 027;
-// analytics.md R-ANALYTICS-006).
+// The age screen and the account (account:sign-up-open-everywhere, account:age-screen-refuses-minors, account:bot-check-on-guest-creation, account:sign-in-routes-rate-limited, account:one-character-per-account, account:player-deletes-account, account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email, account:guest-floods-are-capped, account:idle-guests-cleaned-by-hand and account:guest-reminded-to-secure;
+// analytics:player-can-stop-usage-counts).
 import type { ServerRejection } from "./reply";
 
-/** R-ACCOUNT-024: a username's length, shortest and longest. */
+/** account:username-and-unconfirmed-email: a username's length, shortest and longest. */
 export const USERNAME_SHORTEST = 3;
 export const USERNAME_LONGEST = 20;
 
-/** R-ACCOUNT-024: letters, digits and underscore. The reserved and blocked lists stay the server's. */
+/** account:username-and-unconfirmed-email: letters, digits and underscore. The reserved and blocked lists stay the server's. */
 export const USERNAME = new RegExp(`^[A-Za-z0-9_]{${String(USERNAME_SHORTEST)},${String(USERNAME_LONGEST)}}$`);
 
 /** The body of `POST /api/age`. */
@@ -17,30 +17,30 @@ export interface AgeRequest {
 /** A pass, or `under-age`, `bad-date`, and `switched-off` while sign-ups are off. */
 export type AgeReply = { ok: true } | ServerRejection;
 
-/** `GET /api/age`: whether this browser was refused at the age screen and must not be asked again (R-ACCOUNT-012). */
+/** `GET /api/age`: whether this browser was refused at the age screen and must not be asked again (account:age-screen-refuses-minors). */
 export interface AgeStatus {
   refused: boolean;
 }
 
-/** `GET /api/account`: the account as its owner sees it. No age date (R-ACCOUNT-020), no email (the auth library's session holds that). */
+/** `GET /api/account`: the account as its owner sees it. No age date (account:only-needed-data-kept), no email (the auth library's session holds that). */
 export interface AccountView {
   id: string;
   country: string;
   age: { passed: boolean; method: "declared" | "verified" };
   createdAt: number;
   character: string | null;
-  /** R-ANALYTICS-006: the "Send usage counts" setting. */
+  /** analytics:player-can-stop-usage-counts: the "Send usage counts" setting. */
   sendUsageCounts: boolean;
-  /** R-MODERATION-012: the account is on `config.admin.accounts` and this session was opened with a passkey, so the client mounts the admin page. */
+  /** moderation:admin-view-for-admin-list: the account is on `config.admin.accounts` and this session was opened with a passkey, so the client mounts the admin page. */
   admin: boolean;
-  /** R-ACCOUNT-021: a guest's life lives only in this browser until it is secured. */
+  /** account:guest-and-secured-states: a guest's life lives only in this browser until it is secured. */
   state: "guest" | "secured";
-  /** R-ACCOUNT-024. */
+  /** account:username-and-unconfirmed-email. */
   username: string;
-  /** R-ACCOUNT-024: from when the username may change; 0 while the free change is unused. */
+  /** account:username-and-unconfirmed-email: from when the username may change; 0 while the free change is unused. */
   renameFrom: number;
   /**
-   * R-ACCOUNT-027, R-ACCOUNT-020: the ways back in, read from the auth library's rows and never written
+   * account:guest-reminded-to-secure, account:only-needed-data-kept: the ways back in, read from the auth library's rows and never written
    * here. `google`: the address Google gave where Google is linked; `email`: the address a code goes to; `passkeys`: how
    * many are held. A guest has none. No token, no Google subject.
    */
@@ -50,12 +50,12 @@ export interface AccountView {
 /** `GET /api/account` and `PUT /api/account` answer the row. */
 export type AccountReply = { ok: true; account: AccountView } | ServerRejection;
 
-/** The body of `PUT /api/account` (R-ANALYTICS-006). */
+/** The body of `PUT /api/account` (analytics:player-can-stop-usage-counts). */
 export interface AccountChange {
   sendUsageCounts: boolean;
 }
 
-/** The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (R-ACCOUNT-013). */
+/** The body of `POST /api/guest`; the Turnstile token goes in the `x-captcha-response` header (account:bot-check-on-guest-creation). */
 export interface GuestRequest {
   username: string;
 }
@@ -65,7 +65,7 @@ export interface UsernameRequest {
   username: string;
 }
 
-/** R-ACCOUNT-024: why a username was refused; `taken` and `wait` come from the store and the clock. */
+/** account:username-and-unconfirmed-email: why a username was refused; `taken` and `wait` come from the store and the clock. */
 export type NameProblem = "format" | "reserved" | "blocked" | "taken" | "wait";
 
 /** `POST /api/guest` and `PUT /api/account/username`: a refused username says why, so the screen can say it plainly. */
@@ -76,5 +76,5 @@ export interface DeleteRequest {
   code?: string;
 }
 
-/** `DELETE /api/account` (R-ACCOUNT-016): the removal of R-ACCOUNT-017 happens by `dueAt`. Its refusals are `not-fresh`, `bad-code` and `signed-out`. */
+/** `DELETE /api/account` (account:player-deletes-account): the removal of account:deleted-data-removed-within-month happens by `dueAt`. Its refusals are `not-fresh`, `bad-code` and `signed-out`. */
 export type DeleteReply = { ok: true; dueAt: number } | ServerRejection;

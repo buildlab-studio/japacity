@@ -13,7 +13,7 @@ const hold = { messages: ["m-1"], pair: "character-a~character-b", until: 91 * t
 /** The contract every ModerationStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForModerationStore(make: () => Promise<ModerationStore>): void {
   describe("ModerationStore contract", () => {
-    test("[R-MODERATION-001] given a block one way, when either direction is asked, then both read as blocked, and a second block keeps the first time", async () => {
+    test("[moderation:block-refuses-both-ways] given a block one way, when either direction is asked, then both read as blocked, and a second block keeps the first time", async () => {
       const store = await make();
       await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });
       const again = await store.block({ from: "account-a", to: "account-b", at: 2 * time.DAY_MS });
@@ -26,7 +26,7 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.blocksBy("account-b")).toEqual([]);
     });
 
-    test("[R-MODERATION-002] given a block, when it is lifted, then neither direction is blocked and a second lift finds nothing", async () => {
+    test("[moderation:block-ends-pair-records] given a block, when it is lifted, then neither direction is blocked and a second lift finds nothing", async () => {
       const store = await make();
       await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });
 
@@ -35,7 +35,7 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.unblock("account-a", "account-b")).toBe(false);
     });
 
-    test("[R-PAIR-016] [R-MODERATION-008] given a report, when it is filed, then it is open with its hold until the hold runs out", async () => {
+    test("[pair:report-holds-conversation] [moderation:reports-hold-cited-records] given a report, when it is filed, then it is open with its hold until the hold runs out", async () => {
       const store = await make();
       const filed = must(await store.report(report("report-1"), hold));
 
@@ -46,7 +46,7 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect((await store.openOn("character-a~character-b")).map((row) => row.id)).toEqual(["report-1"]);
     });
 
-    test("[R-MODERATION-007] [R-MODERATION-008] given an open report, when it is closed, then it is decided with its outcome, its hold lifts, and a second close is refused", async () => {
+    test("[moderation:reporter-told-outcome-only] [moderation:reports-hold-cited-records] given an open report, when it is closed, then it is decided with its outcome, its hold lifts, and a second close is refused", async () => {
       const store = await make();
       must(await store.report(report("report-1"), hold));
 
@@ -59,7 +59,7 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.close("report-9", "no-action", 3 * time.DAY_MS)).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-MODERATION-008] given an open report, when its hold is lifted, then the report stays open and holds nothing", async () => {
+    test("[moderation:reports-hold-cited-records] given an open report, when its hold is lifted, then the report stays open and holds nothing", async () => {
       const store = await make();
       must(await store.report(report("report-1"), hold));
 
@@ -69,7 +69,7 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.lift("report-9")).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-MODERATION-006] [R-MODERATION-010] given reports on several days, when they are counted and listed, then the count starts at the given time and the list is oldest first", async () => {
+    test("[moderation:report-offers-block] [moderation:one-queue-by-reason-weight] given reports on several days, when they are counted and listed, then the count starts at the given time and the list is oldest first", async () => {
       const store = await make();
       must(await store.report(report("late", "account-a", 3 * time.DAY_MS), hold));
       must(await store.report(report("early", "account-a", time.DAY_MS), hold));
@@ -81,7 +81,7 @@ export function suiteForModerationStore(make: () => Promise<ModerationStore>): v
       expect(await store.list("decided")).toEqual([]);
     });
 
-    test("[R-ACCOUNT-017] [R-MODERATION-008] given an account's blocks and reports, when it is removed, then its blocks go both ways and only its reports with a running hold stay", async () => {
+    test("[account:deleted-data-removed-within-month] [moderation:reports-hold-cited-records] given an account's blocks and reports, when it is removed, then its blocks go both ways and only its reports with a running hold stay", async () => {
       const store = await make();
       await store.block({ from: "account-a", to: "account-b", at: time.DAY_MS });
       await store.block({ from: "account-c", to: "account-a", at: time.DAY_MS });

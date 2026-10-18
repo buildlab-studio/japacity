@@ -1,4 +1,4 @@
-// server.md R-SERVER-045, account.md R-ACCOUNT-033, moderation.md R-MODERATION-021: one dedication light per account,
+// server:dedication-routes, account:name-a-light-for-yours, moderation:dedication-lights-await-approval: one dedication light per account,
 // gone with the account. `id` is opaque and never the account's id; `approved_at` stays null until an admin approves
 // the name, and a light lit again clears it.
 import { sql } from "drizzle-orm";

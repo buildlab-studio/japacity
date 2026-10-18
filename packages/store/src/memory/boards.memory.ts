@@ -3,7 +3,7 @@ import { scoreOf } from "../boards";
 import { compareIds } from "../keys";
 import { copy } from "./copy.memory";
 
-/** R-CITY-040: higher score first, then the earlier account, then the lower id. */
+/** city:board-line-and-ranking: higher score first, then the earlier account, then the lower id. */
 function ahead(x: { score: number; joinedAt: number; character: string }, y: { score: number; joinedAt: number; character: string }): number {
   if (x.score !== y.score) return y.score - x.score;
   if (x.joinedAt !== y.joinedAt) return x.joinedAt - y.joinedAt;
@@ -20,7 +20,7 @@ function ranked(rows: Iterable<FigureRow>, query: BoardQuery): RankedRow[] {
   return lines.sort(ahead).map((line, at) => ({ rank: at + 1, ...line }));
 }
 
-/** R-CITY-039, R-CITY-040: a map by character, ranked on each read. */
+/** city:boards-switch-when-and-who, city:board-line-and-ranking: a map by character, ranked on each read. */
 export function memoryBoardStore(): BoardStore {
   const rows = new Map<string, FigureRow>();
 

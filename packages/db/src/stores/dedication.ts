@@ -13,7 +13,7 @@ function toLight(row: typeof dedicationLights.$inferSelect): DedicationLight {
 /** Ids compared byte by byte, as the memory store compares them. */
 const byId = sql`${dedicationLights.id} collate "C"`;
 
-/** R-SERVER-045: one row per account, gone with the account by its foreign key. */
+/** server:dedication-routes: one row per account, gone with the account by its foreign key. */
 export function pgDedicationStore(handle: Handle): DedicationStore {
   return {
     light: (light) =>

@@ -1,11 +1,11 @@
-// pair.md R-PAIR-007 to 011, R-PAIR-015, R-PAIR-016; moderation.md
-// R-MODERATION-001 to 009: invite links and their rewards, the stored
+// pair:invite-card-contents, pair:invite-link-single-use, pair:invite-rewards-never-cash, pair:preset-phrases-only, pair:conversation-phrases-stored, pair:block-ends-every-bond, pair:report-holds-conversation; moderation.md
+// moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation: invite links and their rewards, the stored
 // phrases, and blocks, reports and holds. Ids are ordered in JavaScript by
 // UTF-16 code unit where order matters, never by a collation.
 import type { InviteMilestone, ReportCite, ReportReason, ReportRow } from "@japacity/store";
 import { bigint, boolean, index, jsonb, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
-/** R-PAIR-008: one row per link; `pair` and `by` are set once it is used. */
+/** pair:invite-link-single-use: one row per link; `pair` and `by` are set once it is used. */
 export const invites = pgTable(
   "invites",
   {
@@ -27,7 +27,7 @@ export const invites = pgTable(
   (table) => [index("invites_from_idx").on(table.from), index("invites_by_idx").on(table.by), index("invites_pair_idx").on(table.pair)],
 );
 
-/** R-PAIR-009: once per inviter, friend and milestone; `n` keeps the order given. */
+/** pair:invite-rewards-never-cash: once per inviter, friend and milestone; `n` keeps the order given. */
 export const inviteRewards = pgTable(
   "invite_rewards",
   {
@@ -42,7 +42,7 @@ export const inviteRewards = pgTable(
   (table) => [primaryKey({ columns: [table.from, table.friend, table.reached] }), index("invite_rewards_friend_idx").on(table.friend)],
 );
 
-/** R-PAIR-011: one stored phrase; the conversation is the pair key. */
+/** pair:conversation-phrases-stored: one stored phrase; the conversation is the pair key. */
 export const conversationRows = pgTable(
   "conversation_rows",
   {
@@ -57,7 +57,7 @@ export const conversationRows = pgTable(
   (table) => [index("conversation_rows_conversation_idx").on(table.conversation, table.sentAt)],
 );
 
-/** R-MODERATION-001: one account blocking another. */
+/** moderation:block-refuses-both-ways: one account blocking another. */
 export const blocks = pgTable(
   "blocks",
   {
@@ -68,7 +68,7 @@ export const blocks = pgTable(
   (table) => [primaryKey({ columns: [table.from, table.to] }), index("blocks_to_idx").on(table.to)],
 );
 
-/** R-PAIR-016, R-MODERATION-004, R-MODERATION-007. */
+/** pair:report-holds-conversation, moderation:report-carries-subject-and-reason, moderation:reporter-told-outcome-only. */
 export const reports = pgTable(
   "reports",
   {
@@ -87,7 +87,7 @@ export const reports = pgTable(
   (table) => [index("reports_reporter_idx").on(table.reporter, table.at), index("reports_pair_idx").on(table.pair), index("reports_status_idx").on(table.status, table.at)],
 );
 
-/** R-MODERATION-008: what a report keeps unchanged. */
+/** moderation:reports-hold-cited-records: what a report keeps unchanged. */
 export const holds = pgTable("holds", {
   report: text("report")
     .primaryKey()

@@ -15,7 +15,7 @@ const SEEDS = [0, 1, 7, 12_345, 2_147_483_647];
 /** The contract every PresenceStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void {
   describe("PresenceStore contract", () => {
-    test("[R-CLOCK-026] given a member who joined, when the place is sampled, then the member is shown exactly as joined", async () => {
+    test("[clock:attachments-rebuild-presence] given a member who joined, when the place is sampled, then the member is shown exactly as joined", async () => {
       const store = await make();
       await store.join("place.market", "socket-1", member("account-1"));
 
@@ -23,7 +23,7 @@ export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void 
       expect(await store.sample("place.other", 20, null, 0)).toEqual([]);
     });
 
-    test("[R-CLOCK-027] given a member who joined, when the socket leaves, then the member is gone from the place at once", async () => {
+    test("[clock:moving-switches-place-socket] given a member who joined, when the socket leaves, then the member is gone from the place at once", async () => {
       const store = await make();
       await store.join("place.market", "socket-1", member("account-1"));
       await store.join("place.market", "socket-2", member("account-2"));
@@ -34,7 +34,7 @@ export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void 
       expect(await store.sample("place.market", 20, null, 0)).toEqual([member("account-2")]);
     });
 
-    test("[R-CLOCK-027] given a member who moved, when both places are sampled, then the member is only in the new one", async () => {
+    test("[clock:moving-switches-place-socket] given a member who moved, when both places are sampled, then the member is only in the new one", async () => {
       const store = await make();
       await store.join("place.market", "socket-1", member("account-1"));
 
@@ -45,7 +45,7 @@ export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void 
       expect(await store.sample("place.church", 20, null, 0)).toEqual([member("account-1", "place.church")]);
     });
 
-    test("[R-CLOCK-028] given 12 members, when samples of every size from 0 to 13 are drawn, then none is longer than asked, none repeats a member and none shows the asker", async () => {
+    test("[clock:presence-is-a-sample] given 12 members, when samples of every size from 0 to 13 are drawn, then none is longer than asked, none repeats a member and none shows the asker", async () => {
       const store = await make();
       await fill(store, 12);
 
@@ -61,7 +61,7 @@ export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void 
       }
     });
 
-    test("[R-CLOCK-028] given one account on two sockets, when the place is sampled, then it is shown once, and still once after one socket leaves", async () => {
+    test("[clock:presence-is-a-sample] given one account on two sockets, when the place is sampled, then it is shown once, and still once after one socket leaves", async () => {
       const store = await make();
       await store.join("place.market", "socket-a", member("account-1"));
       await store.join("place.market", "socket-b", member("account-1"));
@@ -75,7 +75,7 @@ export function suiteForPresenceStore(make: () => Promise<PresenceStore>): void 
       expect(one.map((shown) => shown.account).sort()).toEqual(["account-1", "account-2"]);
     });
 
-    test("[R-CLOCK-028] given more members than the sample, when it is drawn with different seeds, then the samples are not all the same", async () => {
+    test("[clock:presence-is-a-sample] given more members than the sample, when it is drawn with different seeds, then the samples are not all the same", async () => {
       const store = await make();
       await fill(store, 30);
 

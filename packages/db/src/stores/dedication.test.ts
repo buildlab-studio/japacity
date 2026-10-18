@@ -31,7 +31,7 @@ async function stores() {
 
 suiteForDedicationStore(stores);
 
-test("[R-SERVER-045] [R-ACCOUNT-033] given an account with a light, when the account is deleted, then its light goes with it by the foreign key", async () => {
+test("[server:dedication-routes] [account:name-a-light-for-yours] given an account with a light, when the account is deleted, then its light goes with it by the foreign key", async () => {
   const { dedication, account, accounts } = await stores();
   await account("account.a");
   await account("account.b");
@@ -42,7 +42,7 @@ test("[R-SERVER-045] [R-ACCOUNT-033] given an account with a light, when the acc
   expect(await dedication.shared(240)).toMatchObject({ count: 1, lights: [{ id: "light.b" }] });
 });
 
-test("[R-SERVER-045] given a light for an account that does not exist, then the database refuses it", async () => {
+test("[server:dedication-routes] given a light for an account that does not exist, then the database refuses it", async () => {
   const { dedication } = await stores();
   await expect(dedication.light({ account: "account.none", id: "light.x", name: "Nobody", from: null, to: null, litAt: 1_000 })).rejects.toThrow();
 });

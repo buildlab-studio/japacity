@@ -15,7 +15,7 @@ function toReward(row: typeof inviteRewards.$inferSelect): RewardRow {
   return { from: row.from, friend: row.friend, reached: row.reached, frame: row.frame, line: row.line, at: row.at };
 }
 
-/** R-PAIR-007 to 009: the links, their single use under the row's own update, and the rewards. */
+/** pair:invite-card-contents, pair:invite-link-single-use and pair:invite-rewards-never-cash: the links, their single use under the row's own update, and the rewards. */
 export function pgInviteStore(handle: Handle): InviteStore {
   return {
     create: (invite) =>

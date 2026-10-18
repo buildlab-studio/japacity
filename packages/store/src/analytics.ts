@@ -1,9 +1,9 @@
 // The analytics store (docs/rules/analytics.md): totals by day, region, name
 // and key, and nothing else. A row never names an account, a session or a
-// character (R-ANALYTICS-005, R-ANALYTICS-007).
+// character (analytics:rows-stored-as-day-totals, analytics:store-holds-nothing-personal).
 import type { AccountRow } from "./types";
 
-/** R-ANALYTICS-005: one stored total. `day` is the UTC date as `YYYY-MM-DD`; `region` the account's country code. */
+/** analytics:rows-stored-as-day-totals: one stored total. `day` is the UTC date as `YYYY-MM-DD`; `region` the account's country code. */
 export interface CounterTotal {
   day: string;
   region: string;
@@ -12,12 +12,12 @@ export interface CounterTotal {
   count: number;
 }
 
-/** R-ANALYTICS-005: only totals. Each method adds to or reads them; nothing removes one. */
+/** analytics:rows-stored-as-day-totals: only totals. Each method adds to or reads them; nothing removes one. */
 export interface CounterStore {
   /** Adds each row's count to the stored total for its day, region, name and key. */
   add: (rows: readonly CounterTotal[]) => Promise<void>;
   /**
-   * R-ANALYTICS-008: adds the rows once for the named run, such as the nightly
+   * analytics:nightly-game-counters: adds the rows once for the named run, such as the nightly
    * job for one day. True when added; false, adding nothing, when the run had already added.
    */
   addOnce: (run: string, rows: readonly CounterTotal[]) => Promise<boolean>;
@@ -26,7 +26,7 @@ export interface CounterStore {
 }
 
 /**
- * R-ANALYTICS-008: what the nightly job needs from the game's own tables,
+ * analytics:nightly-game-counters: what the nightly job needs from the game's own tables,
  * read only. The characters and accounts it names are read through the
  * player and account stores.
  */
@@ -37,14 +37,14 @@ export interface DayLog {
   created: (start: number, end: number) => Promise<AccountRow[]>;
 }
 
-/** R-ANALYTICS-008, R-ANALYTICS-013: a number of accounts in one region. `region` is the account's country, `XX` when it has none or is gone. */
+/** analytics:nightly-game-counters, analytics:session-split-by-command-gaps: a number of accounts in one region. `region` is the account's country, `XX` when it has none or is gone. */
 export interface RegionCount {
   region: string;
   count: number;
 }
 
 /**
- * R-ANALYTICS-008, R-ANALYTICS-012, R-ANALYTICS-013: counts the
+ * analytics:nightly-game-counters, analytics:admin-stats-for-admins-only, analytics:session-split-by-command-gaps: counts the
  * nightly job and the admin's live figures read from the game's own tables,
  * read only. Each answers counts by region and never an account.
  */

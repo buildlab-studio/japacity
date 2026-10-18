@@ -24,7 +24,7 @@ function account(id: string, createdAt: number): AccountRow {
 }
 
 describe("the day's log in Postgres", () => {
-  test("[R-ANALYTICS-008] given log rows either side of a day's bounds, when the day is read, then only characters with a row inside it are named, once each", async () => {
+  test("[analytics:nightly-game-counters] given log rows either side of a day's bounds, when the day is read, then only characters with a row inside it are named, once each", async () => {
     const handle = await fresh();
     const { player } = pgPlayerStores(handle);
     for (const id of ["char-b", "char-a", "char-c"]) await player.create(character(id));
@@ -36,7 +36,7 @@ describe("the day's log in Postgres", () => {
     expect(await pgDayLog(handle).active(START, START + DAY)).toEqual(["char-a", "char-b"]);
   });
 
-  test("[R-ANALYTICS-008] given accounts made either side of a day's bounds, when the day is read, then only those made inside it are listed", async () => {
+  test("[analytics:nightly-game-counters] given accounts made either side of a day's bounds, when the day is read, then only those made inside it are listed", async () => {
     const handle = await fresh();
     const accounts = pgAccountStore(handle);
     for (const [id, at] of [["account.z", START], ["account.a", START + DAY - 1], ["account.before", START - 1], ["account.after", START + DAY]] as const) await accounts.create(account(id, at));

@@ -8,7 +8,7 @@ function toAudit(row: typeof audit.$inferSelect): AuditRow {
   return { character: row.character, why: row.why, at: row.at, note: row.note, segments: row.segments, log: row.log, snapshots: row.snapshots, n: row.n };
 }
 
-/** R-SERVER-009: insert only; `n` comes from an identity column and rises with every entry. */
+/** server:rollback-apply-one-account: insert only; `n` comes from an identity column and rises with every entry. */
 export function pgAuditStore(handle: Handle): AuditStore {
   return {
     retire: (entry) =>

@@ -27,7 +27,7 @@ import {
   memoryWorldStore,
 } from ".";
 
-/** R-SERVER-002: the stores a transaction's work is given, fresh beside each player store. */
+/** server:one-command-one-transaction: the stores a transaction's work is given, fresh beside each player store. */
 const besides = () => ({ world: memoryWorldStore(), audit: memoryAuditStore() });
 
 suiteForPlayerStore(() => Promise.resolve(memoryPlayerStores(besides()).player));

@@ -1,5 +1,5 @@
 // The admin routes of the moderation queue, the log, the dedication lights and
-// the feedback (R-MODERATION-010 to 016, R-MODERATION-020, R-MODERATION-021).
+// the feedback (moderation:one-queue-by-reason-weight, moderation:reports-decided-within-target, moderation:admin-view-for-admin-list, moderation:queue-item-shows-context, moderation:fixed-admin-actions, moderation:admin-actions-logged-append-only, moderation:actioned-player-told-and-appeals, moderation:feedback-box-in-settings, moderation:dedication-lights-await-approval).
 import type { AdminAction, AppealRow, FeedbackRow, ModerationLogEntry, ReportReason } from "@japacity/store";
 
 import type { AdminRefusal, RollbackCheck } from "./admin";
@@ -8,7 +8,7 @@ import type { ReportCite, ReportSubject } from "./moderation";
 
 export type { AdminAction, AppealRow, FeedbackRow, ModerationLogEntry };
 
-/** R-MODERATION-014: the actions a report can be closed with. The advert actions are the advert queue's; `rollback` opens the tool and leaves the report open. */
+/** moderation:fixed-admin-actions: the actions a report can be closed with. The advert actions are the advert queue's; `rollback` opens the tool and leaves the report open. */
 export const REPORT_ACTIONS = ["dismiss", "warn", "mute", "suspend", "ban", "reset-name", "refer", "rollback"] as const satisfies readonly AdminAction[];
 
 export type ReportAction = (typeof REPORT_ACTIONS)[number];
@@ -16,7 +16,7 @@ export type ReportAction = (typeof REPORT_ACTIONS)[number];
 /** The longest a mute or a suspension runs, in days. */
 export const ACTION_MAX_DAYS = 3650;
 
-/** R-MODERATION-008: what a report keeps unchanged until it is decided or `until`. */
+/** moderation:reports-hold-cited-records: what a report keeps unchanged until it is decided or `until`. */
 export interface Hold {
   report: string;
   messages: string[];
@@ -43,7 +43,7 @@ export interface ReportBrief {
   outcome?: "acted" | "no-action";
 }
 
-/** R-MODERATION-013: one account as the admin view shows it. Never an email, a seed or a character's state. */
+/** moderation:queue-item-shows-context: one account as the admin view shows it. Never an email, a seed or a character's state. */
 export interface AccountSummary {
   account: string;
   region: string | null;
@@ -76,13 +76,13 @@ export type QueueItem =
       age: number;
       entry: ModerationLogEntry | null;
       appellant: AccountSummary;
-      /** R-MODERATION-016: the admin who acted, who should not decide it while another can. */
+      /** moderation:actioned-player-told-and-appeals: the admin who acted, who should not decide it while another can. */
       actedBy: string | null;
     };
 
 export interface QueueView {
   items: QueueItem[];
-  /** R-MODERATION-011: the oldest open item's age in milliseconds, 0 for an empty queue. */
+  /** moderation:reports-decided-within-target: the oldest open item's age in milliseconds, 0 for an empty queue. */
   oldest: number;
   target: number;
   overdue: number;
@@ -108,7 +108,7 @@ export type QueueReply = { ok: true; queue: QueueView } | AdminRefusal;
 export type DecidedReply = { ok: true; entry: ModerationLogEntry; appeal?: AppealRow; rollback?: RollbackCheck } | AdminRefusal;
 export type LogReply = { ok: true; entries: ModerationLogEntry[] } | AdminRefusal;
 
-/** R-MODERATION-021: a dedication light whose name awaits a look, as `GET /api/admin/dedication/pending` lists it. */
+/** moderation:dedication-lights-await-approval: a dedication light whose name awaits a look, as `GET /api/admin/dedication/pending` lists it. */
 export interface PendingLight {
   account: string;
   id: string;

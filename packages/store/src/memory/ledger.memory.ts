@@ -19,13 +19,13 @@ function addToDay(days: Map<number, DayRow>, day: number, created: ByReason, des
   days.set(day, row);
 }
 
-/** R-SERVER-011: marks by character and totals by day. */
+/** server:daily-money-report: marks by character and totals by day. */
 export function memoryLedgerStore(): LedgerStore {
   const marks = new Map<string, LedgerMark>();
   const days = new Map<number, DayRow>();
 
   /**
-   * R-SERVER-011: a transaction's writes wait in its own journal, read through by its own reads,
+   * server:daily-money-report: a transaction's writes wait in its own journal, read through by its own reads,
    * and reach the store only when the work has resolved; a work that throws leaves the store as it found it.
    */
   async function transaction<T>(work: (ledger: LedgerRows) => Promise<T>): Promise<T> {

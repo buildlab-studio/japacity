@@ -58,13 +58,13 @@ const characterColumns = {
   fullNotifiedAt: characters.fullNotifiedAt,
 };
 
-/** R-SERVER-007: one row, locked for the rest of the transaction; null for an unknown id. */
+/** server:paired-rows-locked-in-order: one row, locked for the rest of the transaction; null for an unknown id. */
 async function lockRow(tx: Queries, id: string, strength: "update" | "share"): Promise<CharacterRow | null> {
   const [row] = await tx.select(characterColumns).from(characters).where(eq(characters.id, id)).for(strength);
   return row ?? null;
 }
 
-/** R-SERVER-004: the latest snapshot of the segment in force, and the rows after it. */
+/** server:snapshots-bound-replay: the latest snapshot of the segment in force, and the rows after it. */
 async function readHeld(tx: Queries, row: CharacterRow): Promise<Held> {
   const stored = await tx.select().from(segments).where(eq(segments.character, row.id)).orderBy(asc(segments.segment));
   const [latest] = await tx
@@ -203,7 +203,7 @@ async function applyPlan(tx: Queries, plan: Plan): Promise<void> {
 }
 
 /**
- * R-SERVER-002: the stores a transaction's work is given, on
+ * server:one-command-one-transaction: the stores a transaction's work is given, on
  * the transaction's own client. Their lock is a new one for this transaction
  * alone: the handle's lock is held for the whole transaction and is never
  * taken again inside it. A store's own transaction becomes a savepoint.
@@ -214,7 +214,7 @@ function storesOn(tx: Queries): TxStores {
 }
 
 /**
- * R-SERVER-002, R-SERVER-007, R-PAIR-004: characters and pair records in
+ * server:one-command-one-transaction, server:paired-rows-locked-in-order, pair:only-server-writes-record: characters and pair records in
  * Postgres. `transact` locks the rows with `SELECT ... FOR UPDATE` one at a
  * time in ascending code-unit order, checks every write before it writes any,
  * and so commits all of them or none. A refused write rolls back what the
@@ -321,7 +321,7 @@ export function pgPlayerStores(handle: Handle): { player: PlayerStore; pair: Pai
     remove: (id) =>
       handle.transaction(async (tx) => {
         await lockRow(tx, id, "update");
-        // R-MODERATION-008: a record a report holds stays until the hold ends.
+        // moderation:reports-hold-cited-records: a record a report holds stays until the hold ends.
         await tx.delete(pairs).where(and(or(eq(pairs.a, id), eq(pairs.b, id)), sql`coalesce(${pairs.record} ->> 'held', 'false') <> 'true'`));
         await tx.delete(commandLog).where(eq(commandLog.character, id));
         await tx.delete(snapshots).where(eq(snapshots.character, id));

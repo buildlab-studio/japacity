@@ -1,4 +1,4 @@
-// R-SERVER-009, R-SERVER-021: rows taken out of play, append-only, `n` rising.
+// server:rollback-apply-one-account, server:newer-content-upgrades-state: rows taken out of play, append-only, `n` rising.
 import type { AuditEntry, LogRow, SegmentRow, SnapshotRow } from "@japacity/store";
 import { bigint, index, jsonb, pgTable, text } from "drizzle-orm/pg-core";
 

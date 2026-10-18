@@ -1,7 +1,7 @@
-// The adverts a player sees (advert.md R-ADVERT-004, 005, 008).
+// The adverts a player sees (advert:one-labelled-still-image, advert:tap-opens-advert-card, advert:campaign-chosen-without-player-data).
 import type { Id } from "@japacity/sim";
 
-/** What the client needs to draw one slot and its card (R-ADVERT-004, R-ADVERT-005). */
+/** What the client needs to draw one slot and its card (advert:one-labelled-still-image, advert:tap-opens-advert-card). */
 export interface ServedAdvert {
   campaign: string;
   creative: string;

@@ -1,6 +1,6 @@
-// R-ACCOUNT-012, R-ACCOUNT-015, R-ACCOUNT-017, R-ACCOUNT-018, R-ACCOUNT-020: the
+// account:age-screen-refuses-minors, account:one-character-per-account, account:deleted-data-removed-within-month, account:deletion-keeps-anonymous-totals, account:only-needed-data-kept: the
 // game's own account row beside the auth library's tables, deletions, and the
-// devices that take the bank-full notice (R-CLOCK-031).
+// devices that take the bank-full notice (clock:full-bank-push-notification).
 import { sql } from "drizzle-orm";
 import { bigint, boolean, index, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 
@@ -14,28 +14,28 @@ export const accounts = pgTable(
     ageMethod: text("age_method").$type<"declared" | "verified">().notNull(),
     createdAt: bigint("created_at", { mode: "number" }).notNull(),
     character: text("character"),
-    /** R-CLOCK-031. */
+    /** clock:full-bank-push-notification. */
     notifyBankFull: boolean("notify_bank_full").notNull().default(false),
-    /** R-ANALYTICS-006. */
+    /** analytics:player-can-stop-usage-counts. */
     sendUsageCounts: boolean("send_usage_counts").notNull().default(true),
-    /** R-ACCOUNT-021. The accounts made before the guest start were all secured. */
+    /** account:guest-and-secured-states. The accounts made before the guest start were all secured. */
     state: text("state").$type<"guest" | "secured">().notNull().default("secured"),
-    /** R-ACCOUNT-024. The accounts made before it get a generated one. */
+    /** account:username-and-unconfirmed-email. The accounts made before it get a generated one. */
     username: text("username")
       .notNull()
       .default(sql`('player_' || substr(md5(random()::text), 1, 12))`),
     usernameChangedAt: bigint("username_changed_at", { mode: "number" }),
-    /** R-ACCOUNT-026. */
+    /** account:idle-guests-cleaned-by-hand. */
     lastPlayedAt: bigint("last_played_at", { mode: "number" }).notNull().default(0),
   },
   (table) => [
-    // R-ACCOUNT-024: unique whatever the capitals.
+    // account:username-and-unconfirmed-email: unique whatever the capitals.
     uniqueIndex("accounts_username_idx").on(sql`lower(${table.username})`),
     index("accounts_idle_guests_idx").on(table.lastPlayedAt).where(sql`${table.state} = 'guest'`),
   ],
 );
 
-/** R-CLOCK-031, R-ACCOUNT-020: one row per device that agreed, kept only while the account's setting is on. */
+/** clock:full-bank-push-notification, account:only-needed-data-kept: one row per device that agreed, kept only while the account's setting is on. */
 export const pushSubscriptions = pgTable(
   "push_subscriptions",
   {

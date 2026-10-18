@@ -14,7 +14,7 @@ suiteForPlayerStore(async () => {
 });
 
 describe("the Postgres transaction's own stores", () => {
-  test("[R-SERVER-002] [R-SERVER-005] given work that buys tickets and writes an audit entry through its stores, when its character write is refused, then the tickets and the entry roll back with it", async () => {
+  test("[server:one-command-one-transaction] [server:rejections-write-nothing] given work that buys tickets and writes an audit entry through its stores, when its character write is refused, then the tickets and the entry roll back with it", async () => {
     const handle = await fresh();
     const { player } = pgPlayerStores(handle);
     const world = pgWorldStore(handle);

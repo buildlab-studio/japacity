@@ -56,7 +56,7 @@ async function seeded(make: () => Promise<AdvertStore>): Promise<AdvertStore> {
 /** The contract every AdvertStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForAdvertStore(make: () => Promise<AdvertStore>): void {
   describe("AdvertStore contract", () => {
-    test("[R-ADVERT-020] given an advertiser and a campaign, when they are read back, then they are as stored, and a second with the same id or an unknown advertiser is refused", async () => {
+    test("[advert:advertiser-records-stored] given an advertiser and a campaign, when they are read back, then they are as stored, and a second with the same id or an unknown advertiser is refused", async () => {
       const store = await seeded(make);
       expect(await store.advertiser(ADVERTISER.id)).toEqual(ADVERTISER);
       expect(await store.advertiser("nobody")).toBeNull();
@@ -69,14 +69,14 @@ export function suiteForAdvertStore(make: () => Promise<AdvertStore>): void {
       expect((await store.campaigns()).map((row) => row.id)).toEqual(["campaign-0", "campaign-1"]);
     });
 
-    test("[R-ADVERT-020] given a campaign, when its status is set, then it reads back so, and an unknown campaign is refused", async () => {
+    test("[advert:advertiser-records-stored] given a campaign, when its status is set, then it reads back so, and an unknown campaign is refused", async () => {
       const store = await seeded(make);
       expect(await store.setCampaignStatus("campaign-1", "paused")).toEqual({ ok: true, value: campaign("campaign-1", { status: "paused" }) });
       expect((await store.campaign("campaign-1"))?.status).toBe("paused");
       expect(await store.setCampaignStatus("campaign-9", "paused")).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-ADVERT-011] given a creative, when a change is stored, then it is the next version beside the first, each with its own image, and no version is skipped or stored twice", async () => {
+    test("[advert:changes-return-to-review] given a creative, when a change is stored, then it is the next version beside the first, each with its own image, and no version is skipped or stored twice", async () => {
       const store = await seeded(make);
       expect(await store.addCreative(creative("creative-1", 1), new Uint8Array([1, 2, 3]))).toEqual({ ok: true, value: creative("creative-1", 1) });
       expect(await store.addCreative(creative("creative-1", 3), new Uint8Array([9]))).toMatchObject({ ok: false, code: "stale" });
@@ -93,14 +93,14 @@ export function suiteForAdvertStore(make: () => Promise<AdvertStore>): void {
       expect(await store.creative("creative-1", 2)).toEqual(creative("creative-1", 2, { text: "Changed." }));
     });
 
-    test("[R-ADVERT-011] given a creative of one campaign, when another campaign stores the same id, then it is refused", async () => {
+    test("[advert:changes-return-to-review] given a creative of one campaign, when another campaign stores the same id, then it is refused", async () => {
       const store = await seeded(make);
       await store.addCampaign(campaign("campaign-2"));
       await store.addCreative(creative("creative-1", 1), new Uint8Array([1]));
       expect(await store.addCreative(creative("creative-1", 2, { campaign: "campaign-2" }), new Uint8Array([1]))).toMatchObject({ ok: false, code: "conflict" });
     });
 
-    test("[R-ADVERT-010] given a version, when its status is set, then only that version changes, and an unknown version is refused", async () => {
+    test("[advert:named-person-approves-creatives] given a version, when its status is set, then only that version changes, and an unknown version is refused", async () => {
       const store = await seeded(make);
       await store.addCreative(creative("creative-1", 1), new Uint8Array([1]));
       await store.addCreative(creative("creative-1", 2), new Uint8Array([2]));
@@ -109,7 +109,7 @@ export function suiteForAdvertStore(make: () => Promise<AdvertStore>): void {
       expect(await store.setCreativeStatus("creative-1", 7, "approved")).toMatchObject({ ok: false, code: "missing" });
     });
 
-    test("[R-ADVERT-010] given reviews, when they are listed, then they come back in the order they were added, whole, and a caller's change to one does not reach the store", async () => {
+    test("[advert:named-person-approves-creatives] given reviews, when they are listed, then they come back in the order they were added, whole, and a caller's change to one does not reach the store", async () => {
       const store = await seeded(make);
       const first = review(1, "refused");
       await store.addReview(first);
@@ -122,7 +122,7 @@ export function suiteForAdvertStore(make: () => Promise<AdvertStore>): void {
       expect(await store.reviews("creative-1")).toEqual([review(1, "refused"), review(2, "approved")]);
     });
 
-    test("[R-ADVERT-020] given counts for the same day, slot, campaign and region, when they are added, then they sum into one row, and other keys stay apart", async () => {
+    test("[advert:advertiser-records-stored] given counts for the same day, slot, campaign and region, when they are added, then they sum into one row, and other keys stay apart", async () => {
       const store = await seeded(make);
       await store.addCounts([count(20_000, "advert.road-billboard", 3, 1), count(20_000, "advert.phone-tile", 2, 0)]);
       await store.addCounts([count(20_000, "advert.road-billboard", 4, 2), count(20_001, "advert.road-billboard", 1, 0), count(20_000, "advert.road-billboard", 1, 0, "GB")]);

@@ -1,5 +1,4 @@
-// What a draw fixes when it opens (docs/rules/lottery.md R-LOTTERY-007, 012,
-// 021), compared the same way by every store's `putDraw`.
+// What a draw fixes when it opens (lottery:fingerprint-commits-secret, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open), compared the same way by every store's `putDraw`.
 import type { NewDraw } from "./types";
 
 /** True when two puts of a draw fix the same commitments, odds and jackpot. */

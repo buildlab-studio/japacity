@@ -1,5 +1,5 @@
-// R-CITY-039, R-CITY-040: one row of board figures per character, gone with
-// the character (R-ACCOUNT-017). `week_start` is the figure when `week` began.
+// city:boards-switch-when-and-who, city:board-line-and-ranking: one row of board figures per character, gone with
+// the character (account:deleted-data-removed-within-month). `week_start` is the figure when `week` began.
 import { sql } from "drizzle-orm";
 import { bigint, boolean, index, integer, pgTable, text } from "drizzle-orm/pg-core";
 

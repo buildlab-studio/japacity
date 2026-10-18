@@ -1,10 +1,10 @@
-// R-CLOCK-010, R-LOTTERY-005 to 008, R-LOTTERY-015: the world's stored ticks and
+// clock:world-is-stored-history, lottery:tickets-numbered-by-commit, lottery:view-shows-draw-state, lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:result-published-in-tick-row: the world's stored ticks and
 // the lottery's draws. Neither a tick nor a ticket is ever rewritten.
 import type { LotteryOdds, LotteryResult, World } from "@japacity/sim";
 import type { DirectorBookRow } from "@japacity/store";
 import { bigint, integer, jsonb, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
-/** R-CLOCK-010, R-CLOCK-013: the first row for a tick is kept. */
+/** clock:world-is-stored-history, clock:request-fills-missing-ticks: the first row for a tick is kept. */
 export const worldTicks = pgTable("world_ticks", {
   tick: integer("tick").primaryKey(),
   world: jsonb("world").$type<World>().notNull(),
@@ -13,7 +13,7 @@ export const worldTicks = pgTable("world_ticks", {
   hash: text("hash").notNull(),
 });
 
-/** R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021: the commitments, odds and jackpot fixed when a draw opens; `closed_at`, the list and `result` are set once each. */
+/** lottery:fingerprint-commits-secret, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open: the commitments, odds and jackpot fixed when a draw opens; `closed_at`, the list and `result` are set once each. */
 export const draws = pgTable("draws", {
   draw: integer("draw").primaryKey(),
   secret: text("secret").notNull(),
@@ -27,7 +27,7 @@ export const draws = pgTable("draws", {
   result: jsonb("result").$type<LotteryResult>(),
 });
 
-/** R-LOTTERY-005: tickets numbered from 0 under the draw's row lock. */
+/** lottery:tickets-numbered-by-commit: tickets numbered from 0 under the draw's row lock. */
 export const drawTickets = pgTable(
   "draw_tickets",
   {

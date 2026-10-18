@@ -1,4 +1,4 @@
-// R-SERVER-002: a request's client connects on the
+// server:one-command-one-transaction: a request's client connects on the
 // first statement sent through it, once, and is ended only if it was opened.
 import { sql } from "drizzle-orm";
 import type { QueryResult } from "pg";
@@ -31,14 +31,14 @@ function counted(refuse = false) {
 }
 
 describe("a request's connection", () => {
-  test("[R-SERVER-002] given a connection that is never asked anything, when it is closed, then no client was made, connected or ended", async () => {
+  test("[server:one-command-one-transaction] given a connection that is never asked anything, when it is closed, then no client was made, connected or ended", async () => {
     const { asked, make } = counted();
     const connection = connectOnFirstUse("postgres://game", make);
     await connection.close();
     expect(asked).toEqual({ made: 0, connects: 0, statements: [], ends: 0 });
   });
 
-  test("[R-SERVER-002] given two reads and a transaction, when they are sent, then one client is made and connected before the first, every statement goes through it, and close ends it once", async () => {
+  test("[server:one-command-one-transaction] given two reads and a transaction, when they are sent, then one client is made and connected before the first, every statement goes through it, and close ends it once", async () => {
     const { asked, make } = counted();
     const connection = connectOnFirstUse("postgres://game", make);
     await connection.handle.read((db) => db.execute(sql`select 1`));
@@ -51,7 +51,7 @@ describe("a request's connection", () => {
     expect(asked.ends).toBe(1);
   });
 
-  test("[R-SERVER-002] [R-SERVER-043] given a database that refuses the connection, when two statements are sent, then each fails with DatabaseUnavailable from the one attempt, and close ends nothing", async () => {
+  test("[server:one-command-one-transaction] [server:no-platform-error-page] given a database that refuses the connection, when two statements are sent, then each fails with DatabaseUnavailable from the one attempt, and close ends nothing", async () => {
     const { asked, make } = counted(true);
     const connection = connectOnFirstUse("postgres://game", make);
     const first = await connection.handle.read((db) => db.execute(sql`select 1`)).catch((error: unknown) => error);

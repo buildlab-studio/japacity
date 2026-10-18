@@ -41,7 +41,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
   }
 
   describe("BoardStore contract", () => {
-    test("[R-CITY-039] given no row, when a commit writes a figure, then the row holds it and its week starts at the figure before", async () => {
+    test("[city:boards-switch-when-and-who] given no row, when a commit writes a figure, then the row holds it and its week starts at the figure before", async () => {
       const boards = await stores("c1");
       expect(await boards.setFigure(write("c1", { before: 20, figure: 35 }))).toBe(true);
       expect(await boards.get("c1")).toEqual({
@@ -60,7 +60,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.get("nobody")).toBeNull();
     });
 
-    test("[R-CITY-039] given a row from last week, when a commit this week writes, then the week starts at the figure the row held and the rise counts from it", async () => {
+    test("[city:boards-switch-when-and-who] given a row from last week, when a commit this week writes, then the week starts at the figure the row held and the rise counts from it", async () => {
       const boards = await stores("c1");
       await boards.setFigure(write("c1", { week: WEEK - 1, before: 0, figure: 40 }));
       await boards.setFigure(write("c1", { v: 2, before: 40, figure: 55 }));
@@ -71,7 +71,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.get("c1")).toMatchObject({ figure: 60, week: WEEK, weekStart: 40 });
     });
 
-    test("[R-CITY-039] given a row from last week, when the week has turned and nothing was written, then its rise is 0 before the job and after it", async () => {
+    test("[city:boards-switch-when-and-who] given a row from last week, when the week has turned and nothing was written, then its rise is 0 before the job and after it", async () => {
       const boards = await stores("c1");
       await boards.setFigure(write("c1", { week: WEEK - 1, before: 10, figure: 40 }));
       expect((await boards.top(thisWeek, 10))[0]?.score).toBe(0);
@@ -82,7 +82,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect((await boards.top(thisWeek, 10))[0]?.score).toBe(0);
     });
 
-    test("[R-CITY-039] given the week turned once, when the job runs again for the same week or an earlier one, then nothing moves", async () => {
+    test("[city:boards-switch-when-and-who] given the week turned once, when the job runs again for the same week or an earlier one, then nothing moves", async () => {
       const boards = await stores("c1", "c2");
       await boards.setFigure(write("c1", { week: WEEK - 1, figure: 40 }));
       await boards.setFigure(write("c2", { week: WEEK, before: 5, figure: 50 }));
@@ -92,7 +92,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.get("c2")).toMatchObject({ week: WEEK, weekStart: 5 });
     });
 
-    test("[R-CITY-039] given a stored version, when a write comes at it or under it, then nothing changes; one above it is kept", async () => {
+    test("[city:boards-switch-when-and-who] given a stored version, when a write comes at it or under it, then nothing changes; one above it is kept", async () => {
       const boards = await stores("c1");
       await boards.setFigure(write("c1", { v: 5, figure: 30 }));
       expect(await boards.setFigure(write("c1", { v: 5, figure: 90 }))).toBe(false);
@@ -102,7 +102,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect((await boards.get("c1"))?.figure).toBe(31);
     });
 
-    test("[R-CITY-040] given equal figures, when the board is ranked, then the earlier account comes first, then the lower id", async () => {
+    test("[city:board-line-and-ranking] given equal figures, when the board is ranked, then the earlier account comes first, then the lower id", async () => {
       const boards = await stores("c1", "c2", "c3", "c4");
       await boards.setFigure(write("c3", { figure: 70, joinedAt: 500 }));
       await boards.setFigure(write("c2", { figure: 70, joinedAt: 500 }));
@@ -116,7 +116,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       ]);
     });
 
-    test("[R-CITY-040] given more rows than the limit, when the top is read, then exactly the limit comes back and a line below it is still found with its rank", async () => {
+    test("[city:board-line-and-ranking] given more rows than the limit, when the top is read, then exactly the limit comes back and a line below it is still found with its rank", async () => {
       const boards = await stores("c1", "c2", "c3");
       await boards.setFigure(write("c1", { figure: 90 }));
       await boards.setFigure(write("c2", { figure: 60 }));
@@ -129,7 +129,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.lineOf(allTime, "nobody")).toBeNull();
     });
 
-    test("[R-CITY-039] given a player high on all time and a new player who rose more this week, when this week is ranked, then the new player is first", async () => {
+    test("[city:boards-switch-when-and-who] given a player high on all time and a new player who rose more this week, when this week is ranked, then the new player is first", async () => {
       const boards = await stores("old", "new");
       await boards.setFigure(write("old", { joinedAt: 1, before: 80, figure: 85 }));
       await boards.setFigure(write("new", { joinedAt: 9_000, before: 0, figure: 30 }));
@@ -140,7 +140,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       ]);
     });
 
-    test("[R-CITY-039] given a figure that fell this week, when this week is ranked, then its rise is below 0 and it ranks under a rise of 0", async () => {
+    test("[city:boards-switch-when-and-who] given a figure that fell this week, when this week is ranked, then its rise is below 0 and it ranks under a rise of 0", async () => {
       const boards = await stores("fell", "still");
       await boards.setFigure(write("fell", { before: 60, figure: 0 }));
       await boards.setFigure(write("still", { before: 10, figure: 10 }));
@@ -150,7 +150,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       ]);
     });
 
-    test("[R-ACCOUNT-022] given a guest's row, when any board is read, then it is not on it until the account is listed", async () => {
+    test("[account:social-needs-secured-account] given a guest's row, when any board is read, then it is not on it until the account is listed", async () => {
       const boards = await stores("guest", "secured");
       await boards.setFigure(write("guest", { account: "account.guest", listed: false, figure: 99 }));
       await boards.setFigure(write("secured", { figure: 10 }));
@@ -163,7 +163,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.lineOf(allTime, "guest")).toBeNull();
     });
 
-    test("[R-CITY-040] given a character with no route yet, when a board is read, then it is not on it", async () => {
+    test("[city:board-line-and-ranking] given a character with no route yet, when a board is read, then it is not on it", async () => {
       const boards = await stores("none", "some");
       await boards.setFigure(write("none", { before: 40, figure: null }));
       await boards.setFigure(write("some", { figure: 0 }));
@@ -171,7 +171,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect((await boards.top(thisWeek, 10)).map((line) => line.character)).toEqual(["some"]);
     });
 
-    test("[R-CITY-040] given a list of friends, when the board is asked among them, then only they are ranked, from 1", async () => {
+    test("[city:board-line-and-ranking] given a list of friends, when the board is asked among them, then only they are ranked, from 1", async () => {
       const boards = await stores("me", "friend", "stranger");
       await boards.setFigure(write("stranger", { figure: 99 }));
       await boards.setFigure(write("friend", { figure: 50 }));
@@ -186,7 +186,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect(await boards.top({ ...allTime, among: [] }, 10)).toEqual([]);
     });
 
-    test("[R-CITY-039] given accounts made in different weeks, when the joined-week board is asked, then only that week's accounts are ranked", async () => {
+    test("[city:boards-switch-when-and-who] given accounts made in different weeks, when the joined-week board is asked, then only that week's accounts are ranked", async () => {
       const boards = await stores("early", "same", "me");
       await boards.setFigure(write("early", { joinedWeek: WEEK - 1, figure: 90 }));
       await boards.setFigure(write("same", { figure: 20 }));
@@ -195,7 +195,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       expect((await boards.top(cohort, 10)).map((line) => line.character)).toEqual(["me", "same"]);
     });
 
-    test("[R-ACCOUNT-017] given a row, when it is removed, then it is on no board and reads as none", async () => {
+    test("[account:deleted-data-removed-within-month] given a row, when it is removed, then it is on no board and reads as none", async () => {
       const boards = await stores("c1");
       await boards.setFigure(write("c1", { figure: 10 }));
       await boards.remove("c1");
@@ -204,7 +204,7 @@ export function suiteForBoardStore(make: () => Promise<BoardStores>): void {
       await boards.remove("c1");
     });
 
-    test("[R-CITY-040] given a row read, when the caller changes it, then the stored row does not change", async () => {
+    test("[city:board-line-and-ranking] given a row read, when the caller changes it, then the stored row does not change", async () => {
       const boards = await stores("c1");
       await boards.setFigure(write("c1", { figure: 10 }));
       const read = await boards.get("c1");

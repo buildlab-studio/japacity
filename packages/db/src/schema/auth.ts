@@ -18,7 +18,7 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
-  /** R-ACCOUNT-021: the anonymous plugin's field; true until the guest is secured. */
+  /** account:guest-and-secured-states: the anonymous plugin's field; true until the guest is secured. */
   isAnonymous: boolean("is_anonymous").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
@@ -42,7 +42,7 @@ export const session = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    // apps/server/src/auth/auth.ts session.additionalFields: how the session was opened (R-MODERATION-012).
+    // apps/server/src/auth/auth.ts session.additionalFields: how the session was opened (moderation:admin-view-for-admin-list).
     signedInWith: text("signed_in_with"),
   },
   (table) => [index("session_userId_idx").on(table.userId)],

@@ -41,7 +41,7 @@ const CREATIVE_COLUMNS = {
   status: creatives.status,
 };
 
-/** R-ADVERT-020: one row per advertiser, campaign and creative version; reviews insert only; counts one upsert per key. */
+/** advert:advertiser-records-stored: one row per advertiser, campaign and creative version; reviews insert only; counts one upsert per key. */
 export function pgAdvertStore(handle: Handle): AdvertStore {
   return {
     addAdvertiser: (row) =>

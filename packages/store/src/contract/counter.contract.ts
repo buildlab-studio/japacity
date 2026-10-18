@@ -7,7 +7,7 @@ const row = (over: Partial<CounterTotal> = {}): CounterTotal => ({ day: "2026-10
 /** The contract every CounterStore keeps. `make` returns an empty store each time it is called. */
 export function suiteForCounterStore(make: () => Promise<CounterStore>): void {
   describe("CounterStore contract", () => {
-    test("[R-ANALYTICS-005] given rows added in several calls, when the days are read, then each day, region, name and key holds the sum and nothing else is kept", async () => {
+    test("[analytics:rows-stored-as-day-totals] given rows added in several calls, when the days are read, then each day, region, name and key holds the sum and nothing else is kept", async () => {
       const store = await make();
       await store.add([row({ count: 3 }), row({ region: "GB", count: 2 })]);
       await store.add([row({ count: 4 }), row({ key: "route", count: 1 }), row({ day: "2026-10-11", count: 9 })]);
@@ -17,7 +17,7 @@ export function suiteForCounterStore(make: () => Promise<CounterStore>): void {
       expect(await store.days("2026-10-12", "2026-10-20")).toEqual([]);
     });
 
-    test("[R-ANALYTICS-008] given a run already added, when it is added again, then nothing is added the second time", async () => {
+    test("[analytics:nightly-game-counters] given a run already added, when it is added again, then nothing is added the second time", async () => {
       const store = await make();
       expect(await store.addOnce("nightly:2026-10-10", [row({ name: "players/active", key: "NG", count: 5 })])).toBe(true);
       expect(await store.addOnce("nightly:2026-10-10", [row({ name: "players/active", key: "NG", count: 5 })])).toBe(false);
@@ -26,7 +26,7 @@ export function suiteForCounterStore(make: () => Promise<CounterStore>): void {
       expect(await store.days("2026-10-10", "2026-10-10")).toEqual([row({ name: "players/active", key: "NG", count: 6 })]);
     });
 
-    test("[R-ANALYTICS-005] given a stored total, when the caller changes what it read, then the store is unchanged", async () => {
+    test("[analytics:rows-stored-as-day-totals] given a stored total, when the caller changes what it read, then the store is unchanged", async () => {
       const store = await make();
       await store.add([row({ count: 2 })]);
       const [read] = await store.days("2026-10-10", "2026-10-10");

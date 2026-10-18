@@ -100,7 +100,7 @@ const appendToEach: Work<string[]> = (rows) => ({
 });
 
 describe("PlayerStore locks between two connections", () => {
-  test("[R-SERVER-002] given two connections sending a command based on version 0 to one character, when the first holds the row, then the second waits and is refused as stale", async () => {
+  test("[server:one-command-one-transaction] given two connections sending a command based on version 0 to one character, when the first holds the row, then the second waits and is refused as stale", async () => {
     const first = await storeOnItsOwn();
     const second = await storeOnItsOwn();
     must(await first.create(newCharacter("char-a")));
@@ -127,7 +127,7 @@ describe("PlayerStore locks between two connections", () => {
     expect(await first.log("char-a", 0)).toEqual([logRow("char-a", 1)]);
   });
 
-  test("[R-SERVER-007] given a transaction asking for two ids high id first, when the higher row is held elsewhere, then it already holds the lower row while it waits", async () => {
+  test("[server:paired-rows-locked-in-order] given a transaction asking for two ids high id first, when the higher row is held elsewhere, then it already holds the lower row while it waits", async () => {
     const first = await storeOnItsOwn();
     const second = await storeOnItsOwn();
     must(await first.create(newCharacter("char-a")));
@@ -151,7 +151,7 @@ describe("PlayerStore locks between two connections", () => {
     expect(must(await secondDone)).toEqual(["char-a", "char-b"]);
   });
 
-  test("[R-SERVER-007] given two connections locking the same two ids in opposite orders, when they run at once many times, then every transaction completes without a deadlock", async () => {
+  test("[server:paired-rows-locked-in-order] given two connections locking the same two ids in opposite orders, when they run at once many times, then every transaction completes without a deadlock", async () => {
     const first = await storeOnItsOwn();
     const second = await storeOnItsOwn();
     must(await first.create(newCharacter("char-a")));
@@ -169,7 +169,7 @@ describe("PlayerStore locks between two connections", () => {
 });
 
 describe("PairStore writes between two connections", () => {
-  test("[R-PAIR-001] given two connections making the same pair record at version 0, when both commit, then one is kept and the other is refused as stale", async () => {
+  test("[pair:one-record-per-two] given two connections making the same pair record at version 0, when both commit, then one is kept and the other is refused as stale", async () => {
     const { player: first, pair } = await storesOnTheirOwn();
     const second = await storeOnItsOwn();
     must(await first.create(newCharacter("char-a")));

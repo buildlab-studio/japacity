@@ -5,13 +5,13 @@ import type { Command, Id, PlayerView, PrologueSlice, Rejection, ReportLine, Wor
 
 import type { ClockView, ServerRejection } from "./reply";
 
-/** R-SERVER-001: `POST /api/command`. The client sends the command and the version it saw, never a tick, a state or a world. */
+/** server:commands-only-through-route: `POST /api/command`. The client sends the command and the version it saw, never a tick, a state or a world. */
 export interface CommandRequest {
   command: Command;
   basedOn: number;
 }
 
-/** R-SERVER-046: `POST /api/prologue/preset`. The archetype's id, the age step and the home chosen at the door, and the version seen. */
+/** server:server-plays-prologue-preset: `POST /api/prologue/preset`. The archetype's id, the age step and the home chosen at the door, and the version seen. */
 export interface PresetRequest {
   archetype: string;
   age: number;
@@ -19,7 +19,7 @@ export interface PresetRequest {
   basedOn: number;
 }
 
-/** R-SERVER-046, R-PROLOGUE-014: one step the preset played: its answer, the draw once made, and the outcome its draw gave. */
+/** server:server-plays-prologue-preset, prologue:printed-page-hands-over: one step the preset played: its answer, the draw once made, and the outcome its draw gave. */
 export interface PresetStep {
   step: string;
   answer: string;
@@ -28,23 +28,23 @@ export interface PresetStep {
 }
 
 /**
- * R-SERVER-046: the view after the last step, its lines, the clock, the count stepped and the trail; `refusal` when an
+ * server:server-plays-prologue-preset: the view after the last step, its lines, the clock, the count stepped and the trail; `refusal` when an
  * answer was refused after some steps stood. Refused at the first step, nothing is written and the reply is the
  * rejection with the clock, as a command's.
  */
 export type PresetReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView; stepped: number; trail: PresetStep[]; refusal?: Rejection } | (Rejection & { clock: ClockView }) | ServerRejection;
 
-/** `GET /api/view`, with `?since=<version>` for the authority's lines after it: the view, the lines since the client's last fetch are not kept (R-SERVER-019), and the clock. */
+/** `GET /api/view`, with `?since=<version>` for the authority's lines after it: the view, the lines since the client's last fetch are not kept (server:client-never-predicts), and the clock. */
 export type ViewReply = { ok: true; view: PlayerView; lines: ReportLine[]; clock: ClockView } | ServerRejection;
 
-/** R-CLOCK-018, R-CLOCK-019: `GET /api/world`, the same for everyone, kept in the server's cache by its tick until the next tick (R-SERVER-039). Needs no session. */
+/** clock:client-gets-current-world-only, clock:world-fetch-is-jittered: `GET /api/world`, the same for everyone, kept in the server's cache by its tick until the next tick (server:public-replies-cached). Needs no session. */
 export interface WorldReply {
   tick: number;
   world: World;
   nextTickAt: number;
 }
 
-/** `POST /api/character`: a new character for the account (R-ACCOUNT-015, R-SERVER-016). */
+/** `POST /api/character`: a new character for the account (account:one-character-per-account, server:hidden-values-made-once). */
 export interface NewCharacterRequest {
   scenario: Id<"scenario">;
 }
@@ -52,7 +52,7 @@ export interface NewCharacterRequest {
 /** `POST /api/character` answers as `GET /api/view`. */
 export type NewCharacterReply = ViewReply;
 
-/** `GET /api/place/:place`: the presence sample (R-CLOCK-028) and some seen there today (R-CITY-036). The socket is upgraded from `GET /api/place/:place/socket` (R-CLOCK-020, R-CLOCK-027, R-CLOCK-030). */
+/** `GET /api/place/:place`: the presence sample (clock:presence-is-a-sample) and some seen there today (city:players-shown-present-not-tracked). The socket is upgraded from `GET /api/place/:place/socket` (clock:socket-only-nudges, clock:moving-switches-place-socket, clock:presence-is-not-contact). */
 export interface PresenceReply {
   place: string;
   others: { name: string; look: string }[];

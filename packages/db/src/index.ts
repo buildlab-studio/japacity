@@ -89,7 +89,7 @@ export interface PgStores {
   appeals: AppealStore;
   feedback: FeedbackStore;
   boards: BoardStore;
-  /** server.md R-SERVER-045. */
+  /** server:dedication-routes. */
   dedication: DedicationStore;
 }
 
