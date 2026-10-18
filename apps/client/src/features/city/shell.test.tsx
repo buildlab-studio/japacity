@@ -225,7 +225,7 @@ describe("the nudge", () => {
     expect(nudgeOf(rich).key).toBe("ui.nudge.setpiece");
     expect(nudgeOf({ ...rich, setpiece: null, interview: null }).key).toBe("ui.nudge.offer");
     expect(quiet.chapter.current).not.toBeNull();
-    // The story's words for the step exist in content now, so the nudge takes them (world:nudge-says-one-thing).
+    // The story has words for the step in content, so the nudge takes them (world:nudge-says-one-thing).
     expect(nudgeOf(quiet).key).toBe(`${String(quiet.chapter.current)}.item.${String(step)}.nudge`);
     const noStep = { ...quiet, chapter: { ...quiet.chapter, current: null } };
     expect(nudgeOf({ ...noStep, report: rich.report }).key).toBe("ui.nudge.report");

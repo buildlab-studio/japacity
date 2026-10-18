@@ -137,7 +137,7 @@ const STEP_WAYS: Record<string, StepWay> = {
       "place.farm-it:table",
     ],
   },
-  // Money home from the country's counter (the room's phone only calls home now, city:places-stage-their-acts): Rye Lane's transfer shop,
+  // Money home from the country's counter (the room's phone only calls home, city:places-stage-their-acts): Rye Lane's transfer shop,
   // the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop.
   "chapter.landing.request": { go: "place.rye-lane", at: ["place.rye-lane:transfer", "place.calgary-north-east:transfer", "place.deira:exchange", "place.castel-volturno:call-shop"] },
   "chapter.landing.file": MONTH_END,
@@ -156,8 +156,8 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   // While a life in Makoko's room has no job, the racks beside it come first (activity:fish-racks-at-makoko).
   if (racksAtHand(view)) return RACKS_WAY;
   // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (chapter:chapters-follow-lean-route).
-  // It comes before the life's own way to its first steps: that way names the hub's desk with no act, and a tap on the
-  // nudge then offered the desk's chips (the course, the adviser's fee) in place of the free page.
+  // It comes before the life's own way to its first steps: that way names the hub's desk with no act, so a tap on the
+  // nudge would offer the desk's chips (the course, the adviser's fee) in place of the free page.
   const route = ownRoute(view);
   // With no own route heard yet, the page still opens: its picker offers the routes heard (the developer's master's, Canada).
   if (view.chapter.current === FIRST_CHAPTER && step === "known") return { ...HUB_DESK, opens: OFFICIAL_PAGE, ...(route === null ? {} : { param: route }) };
@@ -376,7 +376,7 @@ const CERTIFICATION = "nurse-certification";
 
 /**
  * The waiting months' acts by profile (activity:waiting-months-build-profile): the act a life with nothing else to do is pointed at, where it is
- * offered and not yet planned. The nurse's certification is one again: the care file counts the certificate (route-gates:care-route-needs-verification
+ * offered and not yet planned. The nurse's certification is one: the care file counts the certificate (route-gates:care-route-needs-verification
  *), so the waiting months name it while she can pay it, and its gap while she cannot (world:nudge-says-one-thing).
  */
 /** What a waiting-month act reads of the view. */

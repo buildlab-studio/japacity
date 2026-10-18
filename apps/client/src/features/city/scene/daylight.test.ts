@@ -21,7 +21,7 @@ const warmth = (hex: number): number => {
 const flatAngle = ([x, , z]: readonly number[]): number => Math.atan2(z ?? 0, x ?? 0);
 
 describe("the sky and the sun by the world's clock", () => {
-  test("[clock:game-day-on-real-time] given the afternoon's start, when the place is lit, then it is lit as it always was: its own sun where the file puts it, a white light, its own sky", () => {
+  test("[clock:game-day-on-real-time] given the afternoon's start, when the place is lit, then it is lit as its file says: its own sun where the file puts it, a white light, its own sky", () => {
     const look = lookAt("afternoon", 12 * HOUR, SUN);
     const at = sunAt(SUN, look);
     at.forEach((value, index) => expect(value).toBeCloseTo(SUN[index] ?? 0, 6));

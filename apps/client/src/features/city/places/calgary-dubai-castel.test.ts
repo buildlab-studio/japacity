@@ -1,6 +1,6 @@
-// Calgary, Dubai and Castel Volturno on the mold (docs/design/15-the-three-countries-on-the-mold.md; world:ride-abroad-and-workplace
-//, streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand, place:country-pass-covers-ways): each country's frontages with
-// their things, its workplaces with a door, the interiors it shares with London under its own entry and its own stage
+// Calgary, Dubai and Castel Volturno on the mold (docs/design/15-the-three-countries-on-the-mold.md; world:ride-abroad-and-workplace,
+// streets:calgary-life-by-hand, streets:dubai-life-by-hand, streets:castel-volturno-by-hand and place:country-pass-covers-ways): each
+// country's frontages with their things, its workplaces with a door, the interiors it shares with London under its own entry and its own stage
 // file, its colleagues' lines in turn and the talk overheard in every place.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -244,7 +244,7 @@ describe("the interiors with a door", () => {
     expect(stageFilePath(of("place.big-shop-ca"), shipped)).toBe("places/big-shop-ca/place.json");
     expect(stageFilePath(of("place.big-shop-uk"), shipped)).toBe("places/big-shop-uk/place.json");
     expect(stageFilePath(of("place.big-shop-uae"), shipped)).toBe("places/big-shop-uk/place.json");
-    // A place at home whose folder of the same name is an old file keeps its assets folder's (city:places-load-on-entry).
+    // A place at home reads its assets folder's file even where a folder of its own name holds one (city:places-load-on-entry).
     expect(stageFilePath(of("place.ojuelegba"), shipped)).toBe(`places/${of("place.ojuelegba").assets}/place.json`);
     // The shared interiors stand London's models: the same files, the same spots.
     expect(stageOf(bigShopCa as unknown as PlaceFile).models.map((model) => model.file)).toEqual(stageOf(bigShopUk as unknown as PlaceFile).models.map((model) => model.file));
@@ -292,7 +292,7 @@ describe("a job held at its door abroad", () => {
 });
 
 describe("talk overheard in the three countries", () => {
-  test("[world:ride-abroad-and-workplace] [city:overheard-talk-from-view] given each new place of Calgary, Dubai and Castel Volturno, when its talk is read, then there are at least four lines of its own, each in words, none Lagos rumour, and the city's own float whole", () => {
+  test("[world:ride-abroad-and-workplace] [city:overheard-talk-from-view] given the places listed for Calgary, Dubai and Castel Volturno, when its talk is read, then there are at least four lines of its own, each in words, none Lagos rumour, and the city's own float whole", () => {
     const view = viewAfter(landedGame("country.canada"), []);
     const ids: Id<"place">[] = [
       "place.calgary-north-east",

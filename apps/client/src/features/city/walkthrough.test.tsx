@@ -1,6 +1,6 @@
 // The first-use labels (world:no-walkthrough-before-play): nothing lectures before play. On a device that has not
 // played, the Map and Phone thumbs carry their word until each is tapped once; the device keeps it under the
-// walkthrough's old key, and a device that saw the walkthrough, or a life with a month behind it, shows none.
+// `japacity.walkthrough` key, and a device whose key holds the played mark, or a life with a month behind it, shows none.
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 

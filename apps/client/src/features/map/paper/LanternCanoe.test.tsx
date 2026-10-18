@@ -123,7 +123,7 @@ describe("where the open map opens", () => {
         expect([size.width, card, off || whole]).toEqual([size.width, card, true]);
       }
     }
-    // From Bode Thomas by day on a phone, where it opened half off at the top right, it now opens whole.
+    // From Bode Thomas by day on a phone, the card that brings it nearest the top right, it opens whole.
     const size = { width: 412, height: 839 };
     const [x, y] = onScreen(openingView("bode", false, size), size, LANTERN_CANOE.at);
     expect(x + CANOE_HIT / 2).toBeLessThanOrEqual(size.width);

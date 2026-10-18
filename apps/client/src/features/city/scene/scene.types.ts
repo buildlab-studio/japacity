@@ -32,7 +32,7 @@ export interface SceneProps {
   /** The player's own character's file. */
   own: string;
   settings: ModeSettings;
-  /** The city is in front of the panels and takes taps; behind them it only idles. */
+  /** The city is on screen and takes taps; under the map or another screen it only idles. */
   looking: boolean;
   /** Sign words by text key (city:place-words-are-text-keys). */
   text: (key: string) => string | undefined;

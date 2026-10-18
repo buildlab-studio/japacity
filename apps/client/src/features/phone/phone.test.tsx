@@ -356,7 +356,7 @@ describe("settings", () => {
     expect(document.documentElement.dataset.ui).toBeUndefined();
   });
 
-  test("[world:interface-sounds-made-live] given Settings, when the sound is turned off and on, then the existing mute follows", async () => {
+  test("[world:interface-sounds-made-live] given Settings, when the sound is turned off and on, then the game's mute follows", async () => {
     await openPhone(engineView());
     openApp("settings");
     fireEvent.click(screen.getByRole("radio", { name: "Off" }));

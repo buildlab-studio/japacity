@@ -59,7 +59,7 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
 
 export function YouScreen({ look, style, name, typed, problem, tried, onName, onReroll, onLook, onStyle, onEnter }: YouProps) {
   const [yours, setYours] = useState(false);
-  // "Make it yours" reads what the look is made of once it is opened, now that no turntable stands on the door.
+  // "Make it yours" reads what the look is made of once it is opened: nothing else on the door loads the model.
   useEffect(() => {
     if (!yours || ownOf(look) !== null || !canDraw()) return;
     let alive = true;

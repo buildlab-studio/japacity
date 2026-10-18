@@ -177,7 +177,7 @@ describe("the nurse's way never opens a shut place", () => {
     expect(seen[firstPaper]).toMatch(/^chapter\.build-the-file\.item\.passport/);
   });
 
-  test("[world:nudge-says-one-thing] given the care file's new words, when each is said, then it is one sentence in under eight words", () => {
+  test("[world:nudge-says-one-thing] given the care file's words, when each is said, then it is one sentence in under eight words", () => {
     const keys = ["item.tenure.count", "item.licence.nudge", "item.licence.started", "item.salary.nudge", "item.window.nudge"].map((key) => `${FILE}.${key}`);
     for (const key of keys) {
       expect(hasWords(key)).toBe(true);

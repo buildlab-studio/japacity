@@ -1,4 +1,4 @@
-// Settings (world:phone-rises-over-scene, world:interface-sounds-made-live): the sound (the existing mute: muted fetches nothing), the city's
+// Settings (world:phone-rises-over-scene, world:interface-sounds-made-live): the sound (the game's one mute: muted, nothing is fetched), the city's
 // graphics choice, and
 // the account, which the shell hands in so this folder never imports the account feature. Last,
 // "Start a new life" (account:start-a-new-life): one sheet that names the character and their age,

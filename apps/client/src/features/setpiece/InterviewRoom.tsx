@@ -1,5 +1,4 @@
-// The visa interview, spoken (docs/design/06-audio.md, section
-// 7). The tap that enters the room is also the tap the browser needs before it plays sound. The
+// The visa interview, spoken (docs/design/06-audio.md, section 7). The tap that enters the room is also the tap the browser needs before it plays sound. The
 // officer's lines are heard and shown at once; the answers come when the line ends, when its
 // length and a margin have passed, or on a tap, whichever is first, so the scene never waits on
 // sound. The player's character never speaks: a voice would never match the one they made.
@@ -25,7 +24,7 @@ type Setpiece = NonNullable<PlayerView["setpiece"]>;
 /** About how long a line with no clip takes to say, for its voice-like sound and its wait. */
 const MS_A_WORD = 380;
 
-/** The line's clip and length; a line with no clip yet gets the voice-like sound. */
+/** The line's clip and length; a line with no clip gets the voice-like sound. */
 export function lineOf(key: string): SpokenLine {
   const voice = setpieceVoice[key];
   if (voice !== undefined) return { clip: voice.clip, ms: voice.ms };
@@ -237,7 +236,7 @@ export function InterviewRoom({ setpiece }: { setpiece: Setpiece }) {
     beginScene(scene);
     return () => endScene(scene);
   }, [inRoom, opened]);
-  // Section 7, limit 5: fetched ahead from the moment the application is sent, only while sound is on.
+  // Phones limit loading (docs/design/06-audio.md, section 7): fetched ahead from the moment the application is sent, only while sound is on.
   useEffect(() => {
     const keys = [GREET, ...(first === null ? [] : [`${VOICED}.q.${first}`]), ...OFFICER_REACTIONS, CLOSE];
     preload(keys.flatMap((key) => (setpieceVoice[key] === undefined ? [] : [setpieceVoice[key].clip])));

@@ -1,7 +1,7 @@
 // The room behind a door (world:entering-is-a-cut): entering is a cut to the room as a scene
 // of its own. A place whose file names `stage.inside` opens that place, an interior file like any
-// other with its own things and shot. Until every door names its interior, the room is cut from
-// the place's own file around the building; `roomOf` goes when every door names its room.
+// other with its own things and shot. A place whose file names none has its room cut from its own
+// file around the building (`roomOf`).
 import type { Thing } from "../../../shared/world/contract";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { depthDistance } from "../scene/shot";

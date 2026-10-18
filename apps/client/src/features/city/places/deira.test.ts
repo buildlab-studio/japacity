@@ -1,4 +1,4 @@
-// Deira rebuilt as one souk frontage (city.md place.deira, world:place-is-one-screen): the gold shops' and
+// Deira as one souk frontage (city.md place.deira, world:place-is-one-screen): the gold shops' and
 // the cafeteria's arcades across the road with the cafe's table under the colonnade, and on the near
 // pavement the spice stall, a taxi and the corner where the community meets. It is the hub in Dubai.
 import { content } from "@japacity/content";

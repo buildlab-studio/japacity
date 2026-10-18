@@ -20,8 +20,8 @@ const CLOSE_LOOK_Y = 1;
 export const CLOSE_AHEAD = 2.5;
 
 /**
- * The shot a place file without one is given: the frontage ahead of the start, as the earlier camera
- * looked, widened and pulled back until the start and every thing stand in it with `margin` metres round them.
+ * The shot a place file without one is given: the frontage ahead of the start, looked at the way the start
+ * faces, widened and pulled back until the start and every thing stand in it with `margin` metres round them.
  */
 const DEFAULT_SHOT = { ahead: 8, width: 24, near: 10, farPitch: 52, nearPitch: 38, turn: 25, margin: 3 } as const;
 /** The share of the lens's height the whole view keeps its depth inside, clear of the top band and the thumb buttons. */

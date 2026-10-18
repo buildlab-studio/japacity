@@ -26,8 +26,8 @@ function isRoadOffer(offer: OfferView): boolean {
 }
 
 /**
- * The exit as a control: the road's exit offer when it is open, or, until the
- * simulation opens one, any road offer that can be answered by asking.
+ * The exit as a control: the road's exit offer when it is open, else any road offer that can be answered by
+ * asking.
  */
 function exitOffer(offers: readonly OfferView[]): OfferView | null {
   const asking = (offer: OfferView) => offer.choices.some((choice) => choice.id === ASK);

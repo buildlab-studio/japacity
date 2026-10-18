@@ -14,7 +14,7 @@ import { nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const TB = "activity.tb-test";
-// Decision 0012 (activity:acts-may-repeat-in-month): the coding course and the portfolio now answer at once and repeat, so the paid things
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course and the portfolio answer at once and repeat, so the paid things
 // a plan holds are month-acts: the nurse's certification and a master's at home.
 const CERTIFICATE = "activity.nurse-certification";
 const MASTERS = "activity.masters-at-home";

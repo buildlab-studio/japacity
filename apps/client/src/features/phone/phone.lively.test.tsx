@@ -37,7 +37,7 @@ function back(): void {
   fireEvent.click(document.querySelector<HTMLElement>("[data-phone-back]")!);
 }
 
-/** The words no player reads (the shared rules of the waves): the engine's counting, never the life's. */
+/** The words no player reads (text:bands-not-figures): the engine's counting, never the life's. */
 const NEVER = /\b(slots?|turns?|banked|pages?|days left)\b|%/i;
 
 describe("the phone in the lively dress", () => {

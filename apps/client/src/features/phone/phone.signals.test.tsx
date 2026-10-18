@@ -17,7 +17,7 @@ import { PhoneApps, usePhoneWaiting } from "./PhoneApps";
 import { APP_IDS, markSeen, marksOf, reloadSeen } from "./seen";
 import { CITY_LAST_KEY } from "../../shared/kept/storage";
 
-// Decision 0012 (activity:acts-may-repeat-in-month): the coding course now answers at once and is never planned, so the course that carries
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course answers at once and is never planned, so the course that carries
 // on and tells of itself is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** The course's first line, from content. */

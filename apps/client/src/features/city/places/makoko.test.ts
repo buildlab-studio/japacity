@@ -96,7 +96,7 @@ describe("Makoko", () => {
     expect(thingSpot(stage, canoe)).not.toBeNull();
   });
 
-  test("[world:things-are-tappable-models] given the racks and the classroom, when their acts are read, then Look at the racks says what happened, the racks stage the job (activity:fish-racks-at-makoko), the racks' sheet until content has it, and the classroom is looked at", () => {
+  test("[world:things-are-tappable-models] given the racks and the classroom, when their acts are read, then Look at the racks says what happened, the racks open the job's sheet (activity:fish-racks-at-makoko), and the classroom is looked at", () => {
     const racks = thing("racks");
     expect(racks.acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["plain", null],

@@ -1,8 +1,8 @@
 // The street's things of decision 0012 (streets:lagos-street-spending; world:things-are-tappable-models): the suya spot
 // and the mallam's bench on Ojuelegba, the barber, the viewing centre and the joint on Bode Thomas, the clothes stall
 // at Tejuosho. Each stands on the pavement as a model the player taps, opens the act content stages there, and keeps
-// the hours the world's clock gives it (clock:game-day-on-real-time). Bode Thomas's whole frontage is checked in cargo.test.ts;
-// Ojuelegba's and Tejuosho's here on what the new things touch: the budget, the ground, the floors and the staged acts.
+// the hours the world's clock gives it (clock:game-day-on-real-time). Bode Thomas's whole frontage is checked in bode-thomas.cargo.test.ts;
+// Ojuelegba's and Tejuosho's here on what these things touch: the budget, the ground, the floors and the staged acts.
 import { type Footprint, isFootprint } from "@japacity/assets";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -95,7 +95,7 @@ describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
     expect(seat === undefined || Math.hypot(seat[0] - copy[0], seat[1] - copy[1]) < 2).toBe(true);
   });
 
-  test(`[assets:assets-and-places-within-budget] given ${id} with its new things, when the frontage is counted as the build check counts it, then both modes stay inside the exterior row and the instances are the copies staged`, async () => {
+  test(`[assets:assets-and-places-within-budget] given ${id} with these things, when the frontage is counted as the build check counts it, then both modes stay inside the exterior row and the instances are the copies staged`, async () => {
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
@@ -109,7 +109,7 @@ describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
     expect(entry.stages.filter((stages) => !opened.has(stages))).toEqual([]);
   });
 
-  test(`[city:crowd-sample-capped] [world:faces-never-share-height] [assets:models-record-their-footprint] given ${id}'s models with the new things, when the ground is read, then the crowd and the start stand clear of every footprint and no two floors lie within a centimetre`, async () => {
+  test(`[city:crowd-sample-capped] [world:faces-never-share-height] [assets:models-record-their-footprint] given ${id}'s models with these things, when the ground is read, then the crowd and the start stand clear of every footprint and no two floors lie within a centimetre`, async () => {
     const models = [...new Set(stage.models.map((model) => model.file))];
     const footprints = new Map<string, Footprint>();
     const floors = new Map<string, readonly ModelFace[]>();

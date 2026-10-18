@@ -180,7 +180,7 @@ describe("the room's arrangement beside the save", () => {
     expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
     expect(turnIn("place.hostel-room", "scenario.ada", storage)).toBe(0);
     expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(2);
-    // An arrangement kept before the turn was kept still reads.
+    // An arrangement kept with no turns still reads.
     storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: { "place.compound-room": { "thing.tv": [0, 1, 0] } } }));
     expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.tv": [0, 1, 0] });
     expect(turnIn("place.compound-room", "scenario.ada", storage)).toBe(0);

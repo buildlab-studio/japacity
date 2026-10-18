@@ -1,6 +1,6 @@
 // The street kiosk while the world runs the Friday draw (lottery:draw-runs-online-only; world:things-are-tappable-models):
 // the kiosk keeps its id, its name and its act, and the same tap opens the online kiosk's sheet, which sends
-// `lottery/buy`. Offline (`view.lottery` null) the act is the luck kiosk's now-act and its slip, as before. Pure.
+// `lottery/buy`. Offline (`view.lottery` null) the act is the luck kiosk's now-act and its slip. Pure.
 import type { PlayerView } from "@japacity/sim";
 
 /** The entry the kiosk's act stages in the place files and the things' table. */

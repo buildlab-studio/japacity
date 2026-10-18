@@ -24,7 +24,7 @@ describe("the month's end in the world", () => {
     const view = engineView();
     const { authority, store } = await renderWithView(<Calendar />, view);
     expect(screen.queryByRole("button", { name: "Same again" })).toBeNull();
-    // Decision 0012 (activity:acts-may-repeat-in-month): the coding course now answers at once and is never planned; the course that carries
+    // Decision 0012 (activity:acts-may-repeat-in-month): the coding course answers at once and is never planned; the course that carries
     // on is a master's at home.
     act(() => {
       store.getState().addToPlan({ activity: "activity.masters-at-home", param: null });

@@ -55,7 +55,7 @@ describe("the city as the map", () => {
     expect(state("place.bode-thomas")).toBe("been");
     expect(state("place.tejuosho-market")).toBe("can");
     expect(state("place.airport-lagos")).toBe("not");
-    // Unbuilt places are not on the map (Costain has no scene yet), and nothing from abroad is.
+    // Unbuilt places are not on the map (Costain has no scene), and nothing from abroad is.
     expect(state("place.costain")).toBeUndefined();
     expect(state("place.peckham")).toBeUndefined();
     expect(pins.every((pin) => pin.id === HOME || BUILT.has(pin.id as never))).toBe(true);
@@ -561,7 +561,7 @@ describe("the ride carries people", () => {
     expect(probe.figures).toEqual(["own"]);
   });
 
-  test("[world:ride-sheet-shows-fares] given each way's scene before its people load, when either part plays, then it costs no more draw calls than the ride did before people, seven, so the people add only their own", () => {
+  test("[world:ride-sheet-shows-fares] given each way's scene before its people load, when either part plays, then it costs at most seven draw calls, so the people add only their own", () => {
     for (const way of ["danfo", "keke", "okada", "walk"] as const) {
       const scene = buildRide(way);
       for (const phase of ["pre", "ride"] as const) {
@@ -750,7 +750,7 @@ describe("the ride cuts between its angles by itself", () => {
     }
   });
 
-  test("[world:ride-cuts-between-angles] given each way's scene before its people load, when each angle plays, then it costs no more draw calls than the ride did, seven", () => {
+  test("[world:ride-cuts-between-angles] given each way's scene before its people load, when each angle plays, then it costs at most seven draw calls", () => {
     for (const way of ["danfo", "keke", "okada", "walk"] as const) {
       const scene = buildRide(way);
       for (const part of anglesOf(way)) {

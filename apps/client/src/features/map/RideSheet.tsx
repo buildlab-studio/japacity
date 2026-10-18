@@ -83,7 +83,7 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
 
 /**
  * What a way's tile says under its name: the fare; on foot "Free"; the bus in a pass month "£0, bus pass" (place:country-pass-covers-ways,
- * world:ride-abroad-and-workplace); the single way of a country with no fares yet "Bus pass", as before.
+ * world:ride-abroad-and-workplace); the single way of a country whose ways the view does not list, "Bus pass".
  */
 export function fareTile(choice: RideChoice, formatMoney: (amount: number) => string, formatFare: (amount: number) => string = formatMoney): string {
   // The country's pass or its shuttle, named in the country's money (place:country-pass-covers-ways, place:employer-shuttle-rides-free).

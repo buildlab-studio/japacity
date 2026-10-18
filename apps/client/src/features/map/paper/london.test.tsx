@@ -1,5 +1,5 @@
 // The painted map of London (world:painted-maps-abroad): its own fit, land and districts, its cards, the home
-// sticker at the home spot, Heathrow on its inset, its own chunk, and Lagos drawn as before beside it.
+// sticker at the home spot, Heathrow on its inset, its own chunk, and Lagos drawn as its own beside it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -35,7 +35,7 @@ const FOLDERS = new Set(readdirSync(PUBLIC));
 const UK = Object.values(content.place).filter((place) => place.where === "abroad" && place.country === "country.uk" && place.position !== null && FOLDERS.has(place.assets) && place.id !== HEATHROW);
 const CARD = { width: 350, height: 614 };
 const ROOM = "place.the-room";
-/** Where City.tsx stands a home with no position today: Lagos's home spot, which London's map must not follow. */
+/** Where City.tsx stands a home with no position: Lagos's home spot, which London's map must not follow. */
 const LAGOS_HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 
 const cardOf = (id: string) => LONDON.cards.find((card) => card.id === id);
@@ -132,7 +132,7 @@ describe("Lagos beside London", () => {
     expect(LAGOS.canoe).toEqual(LANTERN_CANOE.at);
     expect(LAGOS.seaFrom).not.toBeNull();
     expect(drawing().rails).toBe("");
-    // The strip folds the rows from the top of Ikeja to the beach, as before.
+    // The strip folds the rows from the top of Ikeja to the beach.
     expect(stripFrame(300)).toEqual(stripFrame(300, 84, LAGOS.strip, PAPER.width));
     // London has no canoe, no sea and no palms (world:lantern-canoe-on-map is Lagos's alone).
     expect(LONDON.canoe).toBeNull();

@@ -152,7 +152,7 @@ export function storyLines(lines: readonly ReportLine[], max: number = STORY_MAX
     .map((entry) => entry.line);
 }
 
-/** The month's pay as the results lead with it: the salary, the side job's pay (world:month-end-results-sheet, the shrunk close). */
+/** The month's pay as the results lead with it: the salary, the side job's pay (world:month-end-results-sheet, the month's close). */
 const PAYDAY: ReadonlySet<string> = new Set(["line.activity.salary", "line.wallet.salary", "line.activity.side-pay"]);
 /** Rent paid as the month turns: a room's, a flat's, a bed space's. */
 const RENT = "line.wallet.rent";
@@ -265,7 +265,7 @@ export function drawMissed(view: Pick<PlayerView, "lottery">, lines: readonly Re
   return drawn && mine.length > 0 && shown.matched.length === 0 ? mine.length : null;
 }
 
-/** True for the whole view the Bank's figure reads; a test's slice takes the older path. */
+/** True for the whole view the Bank's figure reads; a slice of the view, as a test hands in, is read from its routes below. */
 function wholeView(view: Pick<PlayerView, "routes" | "japacity">): view is PlayerView {
   return ["plan", "pockets", "rates", "activities", "documents"].every((key) => key in view);
 }

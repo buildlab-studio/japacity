@@ -72,7 +72,7 @@ function neverEndorsed(used: Content): Content {
   return { ...used, route: { ...used.route, [TALENT]: { ...route, endorsement: { ...route.endorsement!, baseBp: 0, perPortfolioBp: 0, perNetworkBp: 0 } } } };
 }
 
-/** The developer of the review: pieces built and open source from nothing, the talent route looked into, the endorsement asked for and refused. */
+/** A developer: pieces built and open source from nothing, the talent route looked into, the endorsement asked for and refused. */
 function developerMonths(): Month[] {
   const game = readyLife(content, { from: "scenario.zainab", quiet: true, change: neverEndorsed, qualities: { "quality.tech": 85, "quality.portfolio": 0, "quality.network": 70 } });
   return monthsOf(game, (send, end) => {

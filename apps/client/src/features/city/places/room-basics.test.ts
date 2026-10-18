@@ -42,7 +42,7 @@ const OWN_UK = "activity.cook-own-uk";
 const HOME = { where: "home", country: null } as const;
 const WATER = "activity.fetch-water";
 
-/** The room's floor, 12 by 10 inside and its walls, and the tops of the two walls it has, from its ground. */
+/** The room's floor as its ground lies, and the tops of the two walls it has. */
 function outline(file: PlaceFile): [number, number, number][] {
   const [width, depth] = stageOf(file).ground.size;
   const [x, z] = [width / 2, depth / 2];
@@ -67,7 +67,7 @@ function floorShare(file: PlaceFile, shot: Shot): number {
   return Math.abs(twice) / 2 / 4;
 }
 
-/** The shot both rooms had before, seen from the front. */
+/** The room seen from the front: the view its length view is measured against. */
 const FRONT: Shot = { centre: [0, 0.6, -0.6], far: 30, near: 9, farPitch: 68, nearPitch: 36, turn: 30, yaw: 180, width: 14.5 };
 
 function thingOf(file: PlaceFile, id: string) {
@@ -86,7 +86,7 @@ describe("the room down its length", () => {
   test("[world:room-seen-down-its-length] given the room abroad on a phone held upright, when the room opens whole, then the camera looks along the long side, the door's wall at the top, and the floor and both walls stand on screen with nothing cut off", () => {
     for (const { name, file } of DOWN_ITS_LENGTH) {
       const shot = shotOf(stageOf(file));
-      // A quarter turn from the front: the 12 m side runs up the screen.
+      // A quarter turn from the front: the long side runs up the screen.
       expect(Math.abs(shot.yaw ?? 0)).toBe(90);
       const aspect = SCREENS.phone;
       const camera = cameraAt(aimShot(shot, WHOLE, { x: 0, z: 0 }, aspect), aspect);
@@ -102,13 +102,13 @@ describe("the room down its length", () => {
     }
   });
 
-  test("[world:room-seen-down-its-length] given the room fitted to its width, when the floor's share of the screen is measured against the front view it had, then it is more than half as large again on a phone (about 1.6 times: a 12 by 10 room cannot fill more of a tall screen with nothing cut off)", () => {
+  test("[world:room-seen-down-its-length] given the room fitted to its width, when the floor's share of the screen is measured against the view from the front, then it is more than half as large again on a phone (a room this long cannot fill more of a tall screen with nothing cut off)", () => {
     for (const { file } of DOWN_ITS_LENGTH) {
       const shot = shotOf(stageOf(file));
       const before = floorShare(file, FRONT);
       const after = floorShare(file, shot);
       expect(after / before).toBeGreaterThan(1.5);
-      // Fitted to the room's width, not a fixed distance: the width is the room's own, a little over its 10 m.
+      // Fitted to the room's width, not a fixed distance: at least the ground across, never its length.
       expect(shot.width).toBeLessThan(stageOf(file).ground.size[0]);
       expect(shot.width).toBeGreaterThanOrEqual(stageOf(file).ground.size[1]);
     }

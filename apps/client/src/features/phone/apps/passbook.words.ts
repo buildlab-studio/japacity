@@ -4,7 +4,7 @@
 import { formatMoney, formatNumber } from "../../../shared/words/format";
 import { hasWords, say, type Params } from "../../../shared/words/text";
 
-/** A count's own words where the drafts have them (`.one`, `.zero`), else the plain key. */
+/** A count's own words where content has them (`.one`, `.zero`), else the plain key. */
 export function passbookCount(key: string, count: number, params: Params = {}): string {
   const exact = count === 1 ? `${key}.one` : count === 0 ? `${key}.zero` : null;
   return say(exact !== null && hasWords(exact) ? exact : key, { ...params, months: count });

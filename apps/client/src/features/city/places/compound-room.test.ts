@@ -87,7 +87,7 @@ describe("the room in a compound", () => {
     expect(now["drum"]).toEqual(["fill-drum"]);
     expect(now["papers-box"]).toEqual(["papers"]);
     expect(homeStagesAt(ID, ID, HOME, PLACES)).toEqual(content.place["place.family-house"]?.stages);
-    // Lived elsewhere, the room stages nothing; the family house stages its own acts as before.
+    // Lived elsewhere, the room stages nothing; the family house stages its own acts.
     expect(homeStagesAt(ID, "place.family-house", HOME, PLACES)).toEqual([]);
     expect(homeStagesAt("place.family-house", "place.family-house", HOME, PLACES)).toEqual([]);
     expect(homeStagesAt(ID, ID, { where: "abroad", country: "country.uk" }, PLACES)).toEqual([]);
@@ -96,7 +96,7 @@ describe("the room in a compound", () => {
     expect(elsewhere["drum"]).toBeUndefined();
   });
 
-  test("[home:compound-room-is-a-home] [world:room-seen-down-its-length] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 5 in a hundred of the screen's height in the whole view, where the room of 16 by 9 metres gave it 3, and over 7 eased in on your room", () => {
+  test("[home:compound-room-is-a-home] [world:room-seen-down-its-length] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 5 in a hundred of the screen's height in the whole view, and over 7 eased in on your room", () => {
     const [x, z] = stage.start;
     for (const id of ["bed", "papers-box", "cooking", "drum", "bag"]) {
       const spot = thingSpot(stage, thingOf(id));

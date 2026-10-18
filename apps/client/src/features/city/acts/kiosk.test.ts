@@ -31,14 +31,14 @@ describe("the kiosk's ceiling", () => {
 });
 
 describe("tickets come from money earned", () => {
-  test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given a view, when the kiosk reads the marked figure, then it is shut with its words only when the naira held would pay and the earned share would not; today nothing is marked and it never is", () => {
+  test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given a view, when the kiosk reads the marked figure, then it is shut with its words only when the naira held would pay and the earned share would not; a new life holds nothing marked", () => {
     const game = newGame("scenario.ada");
     const view = game.view();
     expect(view.wallet.marked).toBe(0);
     const held = view.pockets.NGN.bank + view.pockets.NGN.cash;
     expect(earnedNaira(view)).toBe(held);
     expect(earnedShort(view, held)).toBe(false);
-    // A view with every naira held topped up, as one could read once the processor feeds the top-up.
+    // A view with every naira held topped up (wallet:top-ups-are-marked).
     const marked = { ...view, wallet: { marked: held } };
     expect(earnedNaira(marked)).toBe(0);
     expect(earnedShort(marked, 1)).toBe(true);
