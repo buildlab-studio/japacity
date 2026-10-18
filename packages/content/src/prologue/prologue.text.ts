@@ -162,7 +162,7 @@ const words: Record<string, string> = {
   "prologue.archetype.developer.life": "Codes at night",
   "prologue.archetype.nurse.name": "The nurse",
   "prologue.archetype.nurse.was": "Science, then nursing school",
-  "prologue.archetype.nurse.opens": "Opens: care work in the UK, the Gulf. Starts at 23, or older",
+  "prologue.archetype.nurse.opens": "Opens: health care in the UK, a Gulf contract, Canada's points. Starts at 23, or older",
   "prologue.archetype.nurse.savings": "500000",
   "prologue.archetype.nurse.life": "Nurse on shifts",
   "prologue.archetype.accountant.name": "The accountant",

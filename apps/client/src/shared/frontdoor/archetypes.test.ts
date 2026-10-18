@@ -256,6 +256,19 @@ describe("the tiles' words", { timeout: 20_000 }, () => {
       expect(say(`prologue.archetype.${id}.opens`)).toMatch(/the road through the desert/);
     }
   });
+
+  test("[prologue:archetype-presets-answers] given every archetype, then its tile's line of what it opens names every country its routes lead to, and the nurse's says health care, never care work", () => {
+    const named: Readonly<Record<string, RegExp>> = { "country.uk": /\bUK\b/, "country.canada": /\bCanada/, "country.uae": /\bGulf\b/ };
+    for (const archetype of ARCHETYPES) {
+      const opens = say(`prologue.archetype.${archetype.id}.opens`);
+      for (const route of archetype.routes) {
+        const country = content.route[route]?.country ?? null;
+        expect(opens, `${archetype.id}: ${route}`).toMatch(country === null ? /the road through the desert/ : (named[country] ?? /^$/));
+      }
+    }
+    expect(say("prologue.archetype.nurse.opens")).toMatch(/health care/);
+    expect(say("prologue.archetype.nurse.opens")).not.toMatch(/care work/);
+  });
 });
 
 describe("the handover reads the life as lived", () => {
