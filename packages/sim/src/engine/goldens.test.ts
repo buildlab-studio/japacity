@@ -9,7 +9,7 @@ import type { Content } from "./types";
 import { measure } from "./golden";
 import { lifeStart, loadSave } from "./replay";
 
-/** The content a save's version names, as tools/bless.ts has it. */
+/** The content a save's version names, as tools/goldens/bless.ts has it. */
 const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent, [realContent.version]: realContent };
 
 describe("golden replays", () => {

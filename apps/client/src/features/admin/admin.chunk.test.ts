@@ -1,5 +1,5 @@
 // The admin page is its own chunk, fetched only at /admin (moderation.md R-MODERATION-012):
-// the game imports only its address. The size check (tools/check-size.ts) holds the built chunks to the same.
+// the game imports only its address. The size check (tools/check/size.ts) holds the built chunks to the same.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 

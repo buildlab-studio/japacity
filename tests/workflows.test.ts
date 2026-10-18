@@ -144,7 +144,7 @@ describe("the workflows", () => {
     expect(owners).toEqual([
       "/eslint.config.js @Alameen688",
       "/tests/ @Alameen688",
-      "/tools/scrub-check.ts @Alameen688",
+      "/tools/check/scrub.ts @Alameen688",
       "wrangler.jsonc @Alameen688",
       "/.github/ @Alameen688",
       "/packages/content/src/legal/ @Alameen688",

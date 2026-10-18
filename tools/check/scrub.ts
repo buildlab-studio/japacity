@@ -78,7 +78,7 @@ export const ALLOWED: ReadonlySet<string> = new Set([
   "apps/client/src/features/legal/privacy.html",
   "apps/client/src/features/legal/legal.test.ts",
   "LICENSES.md",
-  "tools/scrub-check.ts",
+  "tools/check/scrub.ts",
 ]);
 
 export interface Hit {
@@ -186,7 +186,7 @@ export const DEPLOYMENT_VALUES: readonly DeploymentValue[] = [
 ];
 
 /** Paths where no deployment value is looked for: this list itself, which holds the patterns. */
-export const DEPLOYMENT_ALLOWED: ReadonlySet<string> = new Set(["tools/scrub-check.ts"]);
+export const DEPLOYMENT_ALLOWED: ReadonlySet<string> = new Set(["tools/check/scrub.ts"]);
 
 /** Every value of one deployment in one file's text, outside the places it may stand. A binary file is passed over. */
 export function findDeploymentValues(file: string, text: string): Hit[] {
@@ -253,7 +253,7 @@ export const PROCESS_TAGS: readonly ProcessTag[] = [
 ];
 
 /** Paths where no process tag is looked for: this list itself, which holds the patterns. */
-export const PROCESS_ALLOWED: ReadonlySet<string> = new Set(["tools/scrub-check.ts"]);
+export const PROCESS_ALLOWED: ReadonlySet<string> = new Set(["tools/check/scrub.ts"]);
 
 /** The tags the tree is looked through for: a new tag may be held off until the tree passes it. */
 export function enforcedTags(tags: readonly ProcessTag[]): ProcessTag[] {

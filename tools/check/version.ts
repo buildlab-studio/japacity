@@ -13,9 +13,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import ts from "typescript";
 
-import { content } from "../packages/content/src/index";
+import { content } from "../../packages/content/src/index";
 
-const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
 /** Folders of the simulation's source that only tests and tools read. */
@@ -152,7 +152,7 @@ function main(): void {
     return;
   }
   if (mode !== "check") {
-    console.log("Usage: tsx tools/content-seal.ts check|seal");
+    console.log("Usage: tsx tools/check/version.ts check|seal");
     process.exit(2);
   }
   if (seal === null) {

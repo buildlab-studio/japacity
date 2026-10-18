@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { DEPLOYMENT_VALUES, findDeploymentValues, scrubTree } from "./scrub-check";
+import { DEPLOYMENT_VALUES, findDeploymentValues, scrubTree } from "./scrub";
 
 const made: string[] = [];
 

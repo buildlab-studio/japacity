@@ -2,7 +2,7 @@
 // Builds the client in production mode into a folder of its own, with placeholder settings in the shape of a
 // deploy's, takes the chunks the page loads before anything else (the entry and everything it imports
 // statically, which the page's modulepreload links name), and compares each one's gzipped size with
-// tools/size-budget.json. A chunk over its budget fails with its name and both numbers. Also fails when any of
+// tools/check/size-budget.json. A chunk over its budget fails with its name and both numbers. Also fails when any of
 // the admin page's code is in those chunks (moderation.md R-MODERATION-012). Runs locally and in the check
 // workflow; it reads and writes only local files and sends nothing anywhere.
 //
@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 
-export const BUDGET_FILE = "tools/size-budget.json";
+export const BUDGET_FILE = "tools/check/size-budget.json";
 
 /** The parts a first visit downloads, each with its own budget, and their sum. */
 export const PARTS = ["main", "three", "content-sim", "loader", "shared", "total"] as const;
@@ -147,7 +147,7 @@ export function buildEnv(report: string): NodeJS.ProcessEnv {
 }
 
 function main(): void {
-  const root = fileURLToPath(new URL("..", import.meta.url));
+  const root = fileURLToPath(new URL("../..", import.meta.url));
   const budgets = JSON.parse(readFileSync(join(root, BUDGET_FILE), "utf8")) as BudgetFile;
   const problems = budgetFileProblems(budgets);
   const work = mkdtempSync(join(tmpdir(), "japacity-size-"));

@@ -7,9 +7,9 @@ import { measure, miniContent, goldenScripts } from "@japacity/sim/testing";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-import { content as realContent } from "../packages/content/src/index";
+import { content as realContent } from "../../packages/content/src/index";
 
-const goldensDir = fileURLToPath(new URL("../packages/sim/src/goldens/", import.meta.url));
+const goldensDir = fileURLToPath(new URL("../../packages/sim/src/goldens/", import.meta.url));
 
 /** The content a save's version names: the engine's mini content and the real content. */
 const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent, [realContent.version]: realContent };

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
 import { localStack, parseDotEnv, WORKER_KEYS, workerEnvFile } from "../tools/local/env";
-import { DEPLOYMENT_VALUES, findDeploymentValues } from "../tools/scrub-check";
+import { DEPLOYMENT_VALUES, findDeploymentValues } from "../tools/check/scrub";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const read = (path: string): string => readFileSync(join(root, path), "utf8");

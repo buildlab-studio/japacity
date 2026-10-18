@@ -5,7 +5,7 @@ import {
   parseNameStatus,
   protectedReason,
   type Change,
-} from "./check-protected";
+} from "./protected";
 
 const noPending = () => null;
 const paths = (changes: ReturnType<typeof findProtectedChanges>) => changes.map(({ change }) => change.path);
@@ -34,7 +34,7 @@ describe("protected paths", () => {
     ["docs/rules/status.md", "rule page"],
     ["tsconfig.base.json", "check tooling"],
     ["vitest.config.ts", "check tooling"],
-    ["tools/check-rules.ts", "check tooling"],
+    ["tools/check/rules.ts", "check tooling"],
   ])("%s is protected as a %s", (path, reason) => {
     expect(protectedReason(path)).toBe(reason);
   });
@@ -46,7 +46,7 @@ describe("protected paths", () => {
     "apps/eslint.config.js",
     "docs/design/01-concept.md",
     "packages/sim/tsconfig.json",
-    "tools/bless.ts",
+    "tools/goldens/bless.ts",
   ])("%s is not protected", (path) => {
     expect(protectedReason(path)).toBeNull();
   });

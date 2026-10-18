@@ -26,7 +26,8 @@ export interface ProtectedChange {
 
 const PROTECTED: ReadonlyArray<{ readonly reason: string; readonly matches: (path: string) => boolean }> = [
   { reason: "test file", matches: (path) => path.endsWith(".test.ts") || path.endsWith(".test.tsx") },
-  { reason: "golden file", matches: (path) => path.startsWith("goldens/") || path.includes("/goldens/") },
+  // tools/goldens/ holds the tools that write the goldens, not goldens.
+  { reason: "golden file", matches: (path) => !path.startsWith("tools/") && (path.startsWith("goldens/") || path.includes("/goldens/")) },
   { reason: "schema", matches: (path) => path.endsWith(".schema.ts") },
   { reason: "lint config", matches: (path) => path === "eslint.config.js" },
   { reason: "engine contract", matches: (path) => path === "packages/sim/src/engine/types.ts" },
@@ -34,7 +35,7 @@ const PROTECTED: ReadonlyArray<{ readonly reason: string; readonly matches: (pat
   {
     reason: "check tooling",
     matches: (path) =>
-      /^tsconfig[^/]*\.json$/.test(path) || path === "vitest.config.ts" || /^tools\/check[^/]*\.ts$/.test(path),
+      /^tsconfig[^/]*\.json$/.test(path) || path === "vitest.config.ts" || /^tools\/check\/[^/]*\.ts$/.test(path),
   },
   { reason: "pending rules list", matches: (path) => path === PENDING_FILE },
 ];

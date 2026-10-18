@@ -1,4 +1,4 @@
-// What a recording made by tools/record-lives.ts promises: the recorder picks
+// What a recording made by tools/goldens/record-lives.ts promises: the recorder picks
 // its lives by these numbers and the tests of the recorded lives read them
 // here, since the simulation imports nothing from the tools.
 

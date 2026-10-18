@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fc, test } from "@fast-check/vitest";
 import { afterEach, describe, expect } from "vitest";
-import { evaluate, findCitations, findCitationsInSource, findDefinitions, run } from "./check-rules";
+import { evaluate, findCitations, findCitationsInSource, findDefinitions, run } from "./rules";
 
-const fixtures = fileURLToPath(new URL("./__fixtures__/rules/", import.meta.url));
+const fixtures = fileURLToPath(new URL("../__fixtures__/rules/", import.meta.url));
 const ids = (citations: ReadonlyArray<{ id: string }>) => citations.map((citation) => citation.id);
 
 describe("rule definitions", () => {

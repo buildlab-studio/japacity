@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { adminInFirstVisit, BUDGET_FILE, budgetFileProblems, budgetFor, type BudgetFile, buildEnv, firstVisit, measure, overBudget, partOf, PARTS, type ReportChunk } from "./check-size";
+import { adminInFirstVisit, BUDGET_FILE, budgetFileProblems, budgetFor, type BudgetFile, buildEnv, firstVisit, measure, overBudget, partOf, PARTS, type ReportChunk } from "./size";
 
 const ROOT = "/repo";
 const module = (path: string): string => `${ROOT}/${path}`;
@@ -72,7 +72,7 @@ describe("the size check", () => {
   });
 
   test("[R-ENGINE-020] given the committed budget file, then every budget is a whole number at most its measured size plus five percent, and every change is dated", () => {
-    const file = JSON.parse(readFileSync(join(import.meta.dirname, "..", BUDGET_FILE), "utf8")) as BudgetFile;
+    const file = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", BUDGET_FILE), "utf8")) as BudgetFile;
     expect(budgetFileProblems(file)).toEqual([]);
     expect(Object.keys(file.parts).sort()).toEqual([...PARTS].sort());
   });

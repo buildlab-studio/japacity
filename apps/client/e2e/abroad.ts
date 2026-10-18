@@ -1,7 +1,7 @@
 // A life landed abroad in a real browser (docs/rules/world.md R-WORLD-038, R-WORLD-039): no recorded life flies
 // to Dubai or Castel Volturno yet, so the life is played here by the sweep's own simulated player on the real content, to
 // the country and a little past it, and kept as the save the browser opens, as the recorded lives are made
-// (tools/record-lives.ts). Then the map, the ride sheet and the things are used as a player would.
+// (tools/goldens/record-lives.ts). Then the map, the ride sheet and the things are used as a player would.
 import type { Currency, FlatSave, Id } from "@japacity/sim";
 import { lastSegment, lifeStart, savedCommands } from "@japacity/sim";
 import { runLife, type StrategyName } from "@japacity/sim/testing";

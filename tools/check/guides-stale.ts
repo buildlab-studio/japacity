@@ -1,16 +1,16 @@
-// tsx tools/guides-stale.ts --today YYYY-MM-DD: lists the guides not checked for
+// tsx tools/check/guides-stale.ts --today YYYY-MM-DD: lists the guides not checked for
 // tuning.guide.staleMonths months (R-GUIDE-004). The date is an argument so the
 // content check itself never reads a clock.
 import type { Content } from "@japacity/sim";
 
-import { content, staleGuides, text } from "../packages/content/src/index";
+import { content, staleGuides, text } from "../../packages/content/src/index";
 
 /** What the tool prints and its exit code: 1 when the arguments are wrong, otherwise 0. */
 export function guidesStale(args: readonly string[], of: Content = content): { lines: string[]; code: number } {
   const at = args.indexOf("--today");
   const today = at === -1 ? undefined : args[at + 1];
   if (today === undefined || !/^\d{4}-\d{2}-\d{2}$/.test(today)) {
-    return { lines: ["Usage: tsx tools/guides-stale.ts --today YYYY-MM-DD"], code: 1 };
+    return { lines: ["Usage: tsx tools/check/guides-stale.ts --today YYYY-MM-DD"], code: 1 };
   }
   let stale: string[];
   try {

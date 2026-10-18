@@ -1,7 +1,7 @@
 import type { Content, GuideEntry } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { content } from "../packages/content/src/index";
+import { content } from "../../packages/content/src/index";
 import { guidesStale } from "./guides-stale";
 
 /** The content with every guide checked, and its sources read, on one day. */
@@ -30,7 +30,7 @@ describe("the stale guides tool", () => {
 
   test("[R-GUIDE-004] given no date or a date that is not on the calendar, when the tool runs, then it says how to call it and fails", () => {
     expect(guidesStale([]).code).toBe(1);
-    expect(guidesStale(["--today"]).lines).toEqual(["Usage: tsx tools/guides-stale.ts --today YYYY-MM-DD"]);
+    expect(guidesStale(["--today"]).lines).toEqual(["Usage: tsx tools/check/guides-stale.ts --today YYYY-MM-DD"]);
     expect(guidesStale(["--today", "2026-02-30"]).code).toBe(1);
   });
 });

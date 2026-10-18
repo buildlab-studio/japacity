@@ -232,7 +232,7 @@ function isMain(): boolean {
 }
 
 if (isMain()) {
-  const root = fileURLToPath(new URL("..", import.meta.url));
+  const root = fileURLToPath(new URL("../..", import.meta.url));
   const { code, output } = run(root, { writePending: process.argv.includes("--write-pending") });
   for (const line of output) console.log(line);
   process.exitCode = code;

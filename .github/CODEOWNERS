@@ -8,7 +8,7 @@
 /tests/ @Alameen688
 
 # The scrub check: the legal planning and the deployment values that never enter the repository.
-/tools/scrub-check.ts @Alameen688
+/tools/check/scrub.ts @Alameen688
 
 # Every Worker's config: routes, bindings, the deployment's ids.
 wrangler.jsonc @Alameen688

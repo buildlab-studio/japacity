@@ -11,8 +11,8 @@ import { join, relative } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import { buildEnv } from "./check-size";
-import { shippedPackages } from "./notices";
+import { buildEnv } from "../tools/check/size";
+import { shippedPackages } from "../tools/notices";
 
 const ROOT = join(import.meta.dirname, "..");
 const CLIENT = join(ROOT, "apps/client");

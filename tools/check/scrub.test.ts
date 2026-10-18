@@ -5,7 +5,7 @@ import { join } from "node:path";
 
 import { afterEach, describe, expect, test } from "vitest";
 
-import { ALLOWED, enforcedTags, findProcessTags, findTellTales, PROCESS_ALLOWED, PROCESS_TAGS, type ProcessTag, scrubTree, TELL_TALES } from "./scrub-check";
+import { ALLOWED, enforcedTags, findProcessTags, findTellTales, PROCESS_ALLOWED, PROCESS_TAGS, type ProcessTag, scrubTree, TELL_TALES } from "./scrub";
 
 const made: string[] = [];
 
@@ -98,8 +98,8 @@ describe("the scrub check's process tags", () => {
   });
 
   test("given the list itself, when it carries every tag, then it is allowed", () => {
-    expect([...PROCESS_ALLOWED]).toEqual(["tools/scrub-check.ts"]);
-    expect(findProcessTags("tools/scrub-check.ts", PROCESS_TAGS.map((each) => each.example).join("\n"), PROCESS_TAGS)).toEqual([]);
+    expect([...PROCESS_ALLOWED]).toEqual(["tools/check/scrub.ts"]);
+    expect(findProcessTags("tools/check/scrub.ts", PROCESS_TAGS.map((each) => each.example).join("\n"), PROCESS_TAGS)).toEqual([]);
   });
 
   test("given a repository with an enforced tag planted in a code file, when the tree is scrubbed, then the line fails as a process tag", () => {

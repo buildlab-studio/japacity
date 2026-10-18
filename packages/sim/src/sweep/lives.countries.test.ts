@@ -11,7 +11,7 @@ import { standInWorld } from "../world/standIn";
 import { countryLifeSaves } from "./lives.countries.data";
 import { newLifeSaves } from "./lives.data";
 
-// Italy's life waits on the road's strategy (tools/record-lives.ts): the Gulf's and Canada's are recorded.
+// Italy's life waits on the road's strategy (tools/goldens/record-lives.ts): the Gulf's and Canada's are recorded.
 const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
   "tunde-gulf": { country: "country.uae", route: "route.gulf-contract" },
   "zainab-canada": { country: "country.canada", route: "route.canada-points" },

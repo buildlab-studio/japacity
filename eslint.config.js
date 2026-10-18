@@ -1,6 +1,6 @@
 // @ts-check
 // The purity rules for the simulation live here. Changing this file on a pull
-// request needs the approved-test-change label (see tools/check-protected.ts).
+// request needs the approved-test-change label (see tools/check/protected.ts).
 import js from "@eslint/js";
 import vitest from "@vitest/eslint-plugin";
 import { defineConfig, globalIgnores } from "eslint/config";
