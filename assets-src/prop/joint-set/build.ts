@@ -6,6 +6,8 @@ import { setFootprint } from "@japacity/assets";
 import { beam, box, clutter, cylinder, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
+import { at } from "../parts";
+
 export const JOINT_SET = { table: 0.62, tableTop: 0.5, seat: 0.44, ring: 0.78 } as const;
 
 /** The seats round the table, `[x, z, facing]` in the model's frame: each chair faces the table. */
@@ -18,10 +20,7 @@ export const JOINT_SEATS: readonly Vec3[] = [
 
 /** A moulded plastic chair facing +Z in its frame: the seat, a leaning back, four legs. */
 function chair(g: Object3D, x: number, z: number, facing: number): void {
-  const frame = new Group();
-  frame.position.set(x, 0, z);
-  frame.rotation.y = facing;
-  g.add(frame);
+  const frame = at(g, x, z, facing);
   const { seat } = JOINT_SET;
   box(frame, 0.46, 0.04, 0.44, 0, seat, 0, "white");
   const back = new Group();

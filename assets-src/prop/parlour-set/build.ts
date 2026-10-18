@@ -6,11 +6,10 @@ import { setFootprint } from "@japacity/assets";
 import { box, cylinder, floorQuad, quad } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
+import { at } from "../parts";
+
 function seat(g: Object3D, width: number, x: number, z: number, ry: number): void {
-  const frame = new Group();
-  frame.position.set(x, 0, z);
-  frame.rotation.y = ry;
-  g.add(frame);
+  const frame = at(g, x, z, ry);
   box(frame, width, 0.42, 0.78, 0, 0, 0, "wine");
   box(frame, width, 0.48, 0.2, 0, 0.42, -0.29, "wine");
   for (const side of [-1, 1]) box(frame, 0.18, 0.62, 0.78, side * (width / 2 - 0.09), 0, 0, "wine");
