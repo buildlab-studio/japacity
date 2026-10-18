@@ -6,11 +6,11 @@ import { connectPglite } from "@japacity/db/pglite";
 import { describe, expect, test } from "vitest";
 
 import { drizzleAuthAdapter } from "../auth/drizzle";
-import { softwarePasskey } from "../auth/software-passkey";
-import { harness } from "../auth/testing";
+import { softwarePasskey } from "../auth/passkey.testing";
+import { harness } from "../auth/auth.testing";
 import { testConfig } from "../config";
 import { memoryStores } from "../deps";
-import type { Harness, Jar } from "../auth/testing";
+import type { Harness, Jar } from "../auth/auth.testing";
 import { ADMIN_PASSKEY_DETAIL } from "./admin";
 
 const ADMIN_ROUTES = ["/api/admin/alarms", "/api/admin/report", "/api/admin/rejections", "/api/admin/analytics", "/api/admin/adverts/campaigns", "/api/admin/moderation/queue", "/api/admin/switches"];

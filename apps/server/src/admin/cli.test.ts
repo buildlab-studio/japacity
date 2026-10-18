@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { rollbackCli } from "./cli";
-import { life } from "./fixtures";
+import { life } from "./admin.testing";
 
 const SAVE = life("tunde-borrower");
 const read = (text: string) => () => Promise.resolve(text);

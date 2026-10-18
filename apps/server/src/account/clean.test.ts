@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/testing";
+import { harness, makeJar } from "../auth/auth.testing";
 import { cleanArgs, cleanCli } from "./clean";
 
 afterEach(() => {

@@ -2,8 +2,8 @@
 // partner or sibling joined to it is told, and the account stays to start another.
 import { describe, expect, test } from "vitest";
 
-import { harness } from "../auth/testing";
-import { call, held, newLife, view } from "../authority/testing";
+import { harness } from "../auth/auth.testing";
+import { call, held, newLife, view } from "../authority/authority.testing";
 import { cardOut, FRIEND, INVITER, lastBondIn, linkedPair, pairServer, sayFrom, signUp, stateOf } from "../pair/pair.testing";
 import type { ViewReply } from "../types";
 

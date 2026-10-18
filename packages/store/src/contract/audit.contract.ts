@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { AuditEntry, AuditStore } from "../types";
-import { logRows, snapshot } from "./fixtures";
+import { logRows, snapshot } from "./contract.testing";
 
 function entry(character: string, note: string): AuditEntry {
   return {

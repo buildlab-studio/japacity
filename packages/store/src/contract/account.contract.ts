@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { AccountRow, AccountStore } from "../types";
-import { must } from "./fixtures";
+import { must } from "./contract.testing";
 
 function account(id: string, over: Partial<AccountRow> = {}): AccountRow {
   return {

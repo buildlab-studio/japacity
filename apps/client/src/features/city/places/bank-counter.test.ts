@@ -7,7 +7,7 @@ import { say } from "../../../shared/words/text";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../things";
 import { heldFundsOpen, heldFundsPaid, offeredFrom } from "./offices.testing";
-import { staged } from "./placeTesting";
+import { staged } from "./place.testing";
 
 const { stage, entry } = staged(raw, "place.olokun-office");
 const things = stage.things ?? [];

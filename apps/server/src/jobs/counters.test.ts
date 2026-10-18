@@ -6,8 +6,8 @@ import { noteActive } from "../admin/active";
 import { utcDay } from "../admin/day";
 import { isolateDayLog } from "../analytics/daylog";
 import { dayName } from "../analytics/day";
-import { newLife, restMonth, send, signUp, testServer, view } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { newLife, restMonth, send, signUp, testServer, view } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import { countDay, countersJob } from "./counters";
 
 /** The day's log over the characters and accounts a test made, read from the memory stores. */

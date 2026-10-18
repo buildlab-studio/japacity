@@ -3,10 +3,10 @@ import type { State } from "@japacity/sim";
 import type { PlayerStore } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { productionConfig } from "../config";
 import type { ServerDeps } from "../deps";
-import { createLife, life, playRows, storeWorlds } from "./fixtures";
+import { createLife, life, playRows, storeWorlds } from "./admin.testing";
 import { rollbackApply, rollbackCheck } from "./rollback";
 
 const ID = "character.tunde";

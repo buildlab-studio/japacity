@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { imageFacts } from "./image";
-import { jpegOf, pngOf, webpOf } from "./testing";
+import { jpegOf, pngOf, webpOf } from "./adverts.testing";
 
 describe("reading an advert's image", () => {
   test("[R-ADVERT-004] given a still PNG, JPEG or WebP, when it is read, then its format and pixel size come from its own bytes", () => {

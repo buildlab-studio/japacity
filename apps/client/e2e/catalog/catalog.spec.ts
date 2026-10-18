@@ -8,7 +8,7 @@ import { lifeSaves, start } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
-import { ADMIN_GETS } from "../../src/features/admin/admin.fixtures";
+import { ADMIN_GETS } from "../../src/features/admin/admin.testing";
 import { type AbroadLife, clear as clearAbroad, lifeIn } from "../abroad";
 import { passOpeningWords, passThePage } from "../door";
 import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../live";

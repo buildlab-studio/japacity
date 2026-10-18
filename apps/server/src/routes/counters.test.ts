@@ -6,8 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
 import { dayName } from "../analytics/day";
-import { signUp, testServer } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { signUp, testServer } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import type { Limiter } from "../deps";
 import { openLimiters } from "../deps";
 

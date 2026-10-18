@@ -4,10 +4,10 @@ import { applyOverlay, AUTHORITY_COMMANDS } from "@japacity/sim";
 import type { SwitchName } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import type { TestServer } from "../authority/testing";
-import { harness, makeJar } from "../auth/testing";
+import type { TestServer } from "../authority/authority.testing";
+import { harness, makeJar } from "../auth/auth.testing";
 import { PASS_PREFIX } from "../account/age";
-import { call, held, newLife, restMonth, send, testServer } from "../authority/testing";
+import { call, held, newLife, restMonth, send, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import type { Beacon } from "../draw/beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../draw/beacon";

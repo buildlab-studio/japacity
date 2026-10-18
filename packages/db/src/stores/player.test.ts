@@ -1,7 +1,7 @@
 import { DRAW_ODDS, logRow, must, newCharacter, suiteForPlayerStore } from "@japacity/store/contract";
 import { describe, expect, test } from "vitest";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgAuditStore } from "./audit";
 import { pgPlayerStores } from "./player";
 import { pgWorldStore } from "./world";

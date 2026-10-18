@@ -6,7 +6,7 @@ import { listAlarms } from "../admin/alarm";
 import { utcDay } from "../admin/day";
 import { moneyJob } from "../jobs/money";
 import type { ServerReply } from "../types";
-import { held, newLife, restMonth, send, testServer, view } from "./testing";
+import { held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 
 function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
   if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);

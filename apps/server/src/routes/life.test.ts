@@ -4,7 +4,7 @@ import { applyOverlay, checkOverlay, hiddenPaths, newState, step, viewFor } from
 import { lifeSaves } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { call, held, newLife, send, testServer, view } from "../authority/testing";
+import { call, held, newLife, send, testServer, view } from "../authority/authority.testing";
 import { testConfig } from "../config";
 import type { WorldReply } from "../types";
 

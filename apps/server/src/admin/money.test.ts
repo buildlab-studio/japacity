@@ -3,14 +3,14 @@ import { time, ledgerReport } from "@japacity/sim";
 import type { AuditStore, ByReason, LedgerStore } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { moneyJob } from "../jobs/money";
 import { activeOn } from "./active";
 import { ALARM_ROWS, listAlarms, noteDiverged } from "./alarm";
 import { dayStart, utcDay } from "./day";
-import { createLife, life, playRows, storeWorlds } from "./fixtures";
+import { createLife, life, playRows, storeWorlds } from "./admin.testing";
 import { drawAlarms, drawsClosingOn, markAfterCommit, moneyReport, TICKS_PER_DRAW } from "./money";
 
 const ID = "character.tunde";

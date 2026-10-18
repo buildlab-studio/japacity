@@ -4,7 +4,7 @@ import { act, cleanup, fireEvent, screen, waitFor, within } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import pageFile from "../../../public/official/index.html?raw";
-import { fakeCanvas } from "../../shared/card/fakeCanvas";
+import { fakeCanvas } from "../../shared/card/canvas.testing";
 import { recordedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";

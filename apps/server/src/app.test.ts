@@ -2,25 +2,9 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { currentTick, makeApp } from "./app";
+import { testDeps } from "./app.testing";
 import { productionConfig, testConfig } from "./config";
-import { memoryStores, openLimiters, TEST_SIGNED_IN_WITH, testSession } from "./deps";
-import type { ServerDeps } from "./deps";
-
-export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
-  let seed = 1;
-  const config = over.config ?? testConfig({ testing: { testLogin: true } });
-  return {
-    config,
-    stores: memoryStores(),
-    contents: { current: content, previous: null },
-    secrets: { worldSeed: "test-world-seed", banSalt: "test-ban-salt", drawTokenKey: "test-draw-token-key" },
-    limits: openLimiters,
-    session: testSession(config),
-    now: () => productionConfig.clock.epoch,
-    randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
-    ...over,
-  };
-}
+import { TEST_SIGNED_IN_WITH, testSession } from "./deps";
 
 describe("the server shell", () => {
   test("[R-CLOCK-001] given the server's clock, when the tick is read, then it is the floor of the time since the epoch over a tick", () => {

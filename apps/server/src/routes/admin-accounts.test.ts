@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { adminAccountsFrom, deployedConfig, productionConfig } from "../config";
 import type { ServerConfig } from "../config";

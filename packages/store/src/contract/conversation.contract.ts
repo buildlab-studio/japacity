@@ -2,7 +2,7 @@ import type { ConversationRow } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import type { ConversationStore } from "../pair.types";
-import { must } from "./fixtures";
+import { must } from "./contract.testing";
 
 const PAIR = "character-a~character-b";
 

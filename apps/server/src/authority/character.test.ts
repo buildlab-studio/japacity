@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { productionConfig } from "../config";
 import type { ViewReply } from "../types";
 import { contentsFor } from "./overlay";
-import { call, held, signUp, testServer } from "./testing";
+import { call, held, signUp, testServer } from "./authority.testing";
 
 const { epoch } = productionConfig.clock;
 

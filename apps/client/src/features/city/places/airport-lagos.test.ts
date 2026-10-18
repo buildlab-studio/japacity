@@ -6,7 +6,7 @@ import { FLAGPOLE } from "@japacity/assets-src/prop/flagpole/build";
 import { TERMINAL } from "@japacity/assets-src/bld/terminal-front/build";
 
 import raw from "../../../../public/assets/places/airport-lagos/place.json";
-import { nearest, staged, stagedPlaceTests } from "./staged";
+import { nearest, staged, stagedPlaceTests } from "./staged.testing";
 
 const ID = "place.airport-lagos";
 const { stage, at, entry } = staged(raw, ID);

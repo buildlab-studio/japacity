@@ -1,6 +1,6 @@
 import { suiteForDeletionStore } from "@japacity/store/contract";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgDeletionStore } from "./deletion";
 
 const fresh = freshHandle();

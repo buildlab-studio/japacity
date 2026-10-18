@@ -4,7 +4,7 @@ import { DatabaseUnavailable } from "@japacity/db";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { makeApp } from "../app";
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { memoryStores } from "../deps";
 import type { Stores } from "../deps";
 import { answered, failureReply, failureStatus, RETRY_AFTER_SECONDS } from "./fail";

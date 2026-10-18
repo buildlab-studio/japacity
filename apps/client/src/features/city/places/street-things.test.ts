@@ -18,8 +18,8 @@ import { sceneWords } from "../scene.words";
 import { thingSpot, thingsNow } from "../things";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
-import { actEntries } from "./frontageTesting";
-import { instancesOf, measured, rowOf, staged, totalsOf } from "./placeTesting";
+import { actEntries } from "./frontage.testing";
+import { instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
 
 interface Expected {
   thing: string;

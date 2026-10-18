@@ -10,8 +10,8 @@ import raw from "../../../../public/assets/places/third-mainland-bridge/place.js
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
 import { thingSpot, vehicleOf } from "../things";
-import { frontageTests } from "./frontageTesting";
-import { copiesOf, staged } from "./placeTesting";
+import { frontageTests } from "./frontage.testing";
+import { copiesOf, staged } from "./place.testing";
 
 const ID = "place.third-mainland-bridge";
 const { stage } = staged(raw, ID);

@@ -8,7 +8,7 @@ import frontRaw from "../../../../public/assets/places/tejuosho-front/place.json
 import raw from "../../../../public/assets/places/tejuosho-market/place.json";
 import type { Act } from "../../../shared/world/contract";
 import { sceneWords } from "../scene.words";
-import { nearest, staged, stagedPlaceTests } from "./staged";
+import { nearest, staged, stagedPlaceTests } from "./staged.testing";
 
 const ID = "place.tejuosho-market";
 const { stage, at } = staged(raw, ID);

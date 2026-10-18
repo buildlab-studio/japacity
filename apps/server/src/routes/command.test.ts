@@ -5,7 +5,7 @@
 import type { Command } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { call, held, newLife, restMonth, testServer } from "../authority/testing";
+import { call, held, newLife, restMonth, testServer } from "../authority/authority.testing";
 import type { ServerReply } from "../types";
 
 function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { PASS_COOKIE, PASS_PREFIX, REFUSED_COOKIE } from "../account/age";
-import { harness, makeJar } from "../auth/testing";
+import { harness, makeJar } from "../auth/auth.testing";
 import { productionConfig } from "../config";
 
 const DAY_S = 86_400;

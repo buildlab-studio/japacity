@@ -7,7 +7,7 @@ import type { Act } from "../../../shared/world/contract";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingSpot, thingsNow } from "../things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
-import { staged } from "./placeTesting";
+import { staged } from "./place.testing";
 
 const { stage, entry } = staged(raw, "place.visa-centre");
 const things = stage.things ?? [];

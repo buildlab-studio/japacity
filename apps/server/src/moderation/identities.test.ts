@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { describe, expect, test } from "vitest";
 
-import { harness, makeJar, SITE } from "../auth/testing";
+import { harness, makeJar, SITE } from "../auth/auth.testing";
 import { adminModerationRoutes } from "../routes/admin-moderation";
 import { authIdentities, emailIdentity, isBanned } from "./identities";
 import { memoryReportQueue } from "./reports";
-import { report } from "./testing";
+import { report } from "./moderation.testing";
 
 describe("a ban through the sign-in library", () => {
   test("[R-MODERATION-014] [R-MODERATION-018] given a signed-in player, when an admin bans them, then their email is barred by its hash, every session of theirs ends, and the admin's does not", async () => {

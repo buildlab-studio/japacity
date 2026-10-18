@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { InviteStore, NewInvite } from "../pair.types";
-import { must } from "./fixtures";
+import { must } from "./contract.testing";
 
 const DAY = 86_400_000;
 

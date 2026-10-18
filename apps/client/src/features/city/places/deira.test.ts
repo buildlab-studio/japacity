@@ -13,8 +13,8 @@ import { words } from "../../../shared/words/text";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
 import { stagedNow, thingsNow } from "../things";
-import { frontageTests } from "./frontageTesting";
-import { copiesOf, staged, wordsOf } from "./placeTesting";
+import { frontageTests } from "./frontage.testing";
+import { copiesOf, staged, wordsOf } from "./place.testing";
 
 // Dubai's words ride their own chunk in the game (shared/words/late.ts); a test of Dubai adds them as the city does.
 addLateWords(dubaiWords);

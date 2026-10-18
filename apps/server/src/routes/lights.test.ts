@@ -6,7 +6,7 @@ import { newState, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { call, testServer } from "../authority/testing";
+import { call, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { LIGHTS_COUNTERS, LIVES_PLAYING, lightsOf, livesPlaying, roundToTen } from "../analytics/lights";
 import { livesJob } from "../jobs/lives";

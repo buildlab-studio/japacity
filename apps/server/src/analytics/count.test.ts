@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
 import { rejectionCounts } from "../admin/rejections";
-import { call, newLife, restMonth, send, testServer } from "../authority/testing";
-import type { TestServer } from "../authority/testing";
+import { call, newLife, restMonth, send, testServer } from "../authority/authority.testing";
+import type { TestServer } from "../authority/authority.testing";
 import type { Limiter } from "../deps";
 import { openLimiters } from "../deps";
 import { dayName } from "./day";

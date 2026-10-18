@@ -2,7 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../admin/day";
-import { testDeps } from "../app.test";
+import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
 import { testSession } from "../deps";

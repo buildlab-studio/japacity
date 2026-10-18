@@ -9,7 +9,7 @@ import type { MockInstance } from "vitest";
 import { utcDay } from "../admin/day";
 import { dayName } from "../analytics/day";
 import { NO_REGION } from "../analytics/list";
-import { testServer } from "../authority/testing";
+import { testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import { CSP_COUNTER, CSP_REPORT_BYTES, CSP_REPORT_PATH, CSP_REPORTS_PER_REQUEST, cspLogLine, violationsOf } from "./csp";

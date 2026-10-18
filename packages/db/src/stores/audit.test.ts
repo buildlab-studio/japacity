@@ -1,6 +1,6 @@
 import { suiteForAuditStore } from "@japacity/store/contract";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgAuditStore } from "./audit";
 
 const fresh = freshHandle();

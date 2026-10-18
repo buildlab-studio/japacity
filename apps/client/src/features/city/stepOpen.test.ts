@@ -11,7 +11,7 @@ import visaCentre from "../../../public/assets/places/visa-centre/place.json";
 import raw from "../../../public/assets/places/yaba-hub/place.json";
 import { say } from "../../shared/words/text";
 import { stepThingHere, stepWayOf } from "./nudge";
-import { staged } from "./places/placeTesting";
+import { staged } from "./places/place.testing";
 import { nudgeHere, stepOpen } from "./stepOpen";
 
 const { stage } = staged(raw, "place.yaba");

@@ -10,7 +10,7 @@ import { japaTypeOf } from "../words/japaType";
 import { ART_IDS, artShapes } from "./art";
 import { QUALITIES } from "./encode";
 import { playedWords } from "./face";
-import { fakeCanvas } from "./fakeCanvas";
+import { fakeCanvas } from "./canvas.testing";
 import type { MarkStep, Measure, Step, TextStep } from "./layout";
 import { renderStub } from "./render";
 import { stubFace, stubSize, stubSteps } from "./stub";

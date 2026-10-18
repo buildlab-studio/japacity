@@ -9,7 +9,7 @@ import { productionConfig } from "./config";
 import { memoryStores, openLimiters } from "./deps";
 import worker from "./index";
 import { makeApp } from "./app";
-import { newLife, testServer } from "./authority/testing";
+import { newLife, testServer } from "./authority/authority.testing";
 import { placePresenceStore, readsToday } from "./place/place.presence";
 import { freshRooms, listenTo, until } from "./place/place.testing";
 import { roomCounts } from "./place/place.rooms";

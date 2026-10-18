@@ -3,7 +3,7 @@ import { newState, nextGameMorning, worldClockAt } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { currentTick } from "../app";
-import { restMonth, held, newLife, send, testServer, view } from "../authority/testing";
+import { restMonth, held, newLife, send, testServer, view } from "../authority/authority.testing";
 import { sendAuthority } from "../authority/command";
 import { productionConfig, testConfig } from "../config";
 import { earnTurns, nextTurnAt } from "./turns";

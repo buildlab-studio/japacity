@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { WorldStore, WorldTickRow } from "../types";
-import { DRAW_ODDS, lotteryResult, must, world } from "./fixtures";
+import { DRAW_ODDS, lotteryResult, must, world } from "./contract.testing";
 
 function tickRow(tick: number, mark = 0): WorldTickRow {
   return {

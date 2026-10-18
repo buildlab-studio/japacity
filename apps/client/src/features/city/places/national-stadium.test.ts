@@ -10,8 +10,8 @@ import raw from "../../../../public/assets/places/national-stadium/place.json";
 import { sceneWords } from "../scene.words";
 import { stagedAt } from "../staging";
 import { thingSpot, vehicleOf } from "../things";
-import { frontageTests } from "./frontageTesting";
-import { copiesOf, staged } from "./placeTesting";
+import { frontageTests } from "./frontage.testing";
+import { copiesOf, staged } from "./place.testing";
 
 const ID = "place.national-stadium";
 const { stage, entry } = staged(raw, ID);

@@ -13,7 +13,7 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say, sayCount, words } from "../../shared/words/text";
 import { closesAt } from "./draw";
 import { LotteryView } from "./LotteryView";
-import { drawnReply, drawOf, onlineLife, tuning } from "./testing";
+import { drawnReply, drawOf, onlineLife, tuning } from "./lottery.testing";
 import { closeWords, waitWords } from "./when";
 
 const NOW = Date.UTC(2026, 9, 7, 12);

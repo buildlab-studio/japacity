@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { describe, expect, test } from "vitest";
 
 import { moderationLog } from "../schema";
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgAppealStore, pgBannedIdentityStore, pgFeedbackStore, pgModerationLogStore } from "./moderation";
 
 const fresh = freshHandle();

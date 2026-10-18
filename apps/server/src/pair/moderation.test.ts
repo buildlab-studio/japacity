@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { requestDeletion } from "../account/deletion";
 import { makeAuth } from "../auth/auth";
 import { memoryAuthAdapter } from "../auth/memory";
-import { SECRET, SITE } from "../auth/testing";
+import { SECRET, SITE } from "../auth/auth.testing";
 import { runDeletions } from "../jobs/deletion";
 import type { PairRejection } from "./codes";
 import { forgetPairs } from "./leave";

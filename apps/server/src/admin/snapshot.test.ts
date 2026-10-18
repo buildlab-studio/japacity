@@ -10,8 +10,8 @@ import { upgradeState } from "@japacity/sim";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { withContentBefore } from "../authority/overlay";
-import type { TestServer } from "../authority/testing";
-import { held, newLife, restMonth, send, testServer, view } from "../authority/testing";
+import type { TestServer } from "../authority/authority.testing";
+import { held, newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
 import { memoryStores } from "../deps";
 import type { OpenDatabase } from "./database";
 import { databaseFrom, workerContents } from "./database";

@@ -2,7 +2,7 @@ import { content, text } from "@japacity/content";
 import { DatabaseUnavailable } from "@japacity/db";
 import { describe, expect, test } from "vitest";
 
-import { newLife, testServer } from "./authority/testing";
+import { newLife, testServer } from "./authority/authority.testing";
 import { productionConfig } from "./config";
 import { openLimiters } from "./deps";
 import type { Place } from "./place/place.object";

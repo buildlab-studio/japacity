@@ -7,8 +7,8 @@ import { describe, expect, test } from "vitest";
 
 import placeFile from "../../../public/assets/places/bode-thomas-front/place.json";
 import { dressPlace, type Stage } from "../../features/city/placeFile";
-import { frontageTests } from "../../features/city/places/frontageTesting";
-import { copiesOf, staged, wordsOf } from "../../features/city/places/placeTesting";
+import { frontageTests } from "../../features/city/places/frontage.testing";
+import { copiesOf, staged, wordsOf } from "../../features/city/places/place.testing";
 import { sceneWords } from "../../features/city/scene.words";
 import { offersHere, stagedAt } from "../../features/city/staging";
 import { stagedNow, thingsNow } from "../../features/city/things";

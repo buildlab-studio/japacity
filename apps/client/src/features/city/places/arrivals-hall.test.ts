@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import raw from "../../../../public/assets/places/arrivals-hall/place.json";
 import { say } from "../../../shared/words/text";
 import { sceneWords } from "../scene.words";
-import { staged } from "./placeTesting";
+import { staged } from "./place.testing";
 
 const { stage } = staged(raw, "place.airport-lagos");
 

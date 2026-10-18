@@ -16,8 +16,8 @@ import raw from "../../../../public/assets/places/makoko/place.json";
 import { sceneWords } from "../scene.words";
 import { stopReached } from "../stops";
 import { thingSpot, vehicleOf } from "../things";
-import { frontageTests } from "./frontageTesting";
-import { copiesOf, staged, wordsOf } from "./placeTesting";
+import { frontageTests } from "./frontage.testing";
+import { copiesOf, staged, wordsOf } from "./place.testing";
 
 const ID = "place.makoko";
 const { file, stage, entry } = staged(raw, ID);

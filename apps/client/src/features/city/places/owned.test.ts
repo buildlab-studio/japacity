@@ -15,7 +15,7 @@ import makokoRaw from "../../../../public/assets/places/makoko/place.json";
 import { misfit } from "../arrange";
 import { liftable, showOwned } from "../owned";
 import { parkCar, type PlaceFile, stageOf } from "../placeFile";
-import { measured, totalsOf } from "./placeTesting";
+import { measured, totalsOf } from "./place.testing";
 
 interface Home {
   id: HomePlace;

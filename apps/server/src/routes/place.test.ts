@@ -1,7 +1,7 @@
 import { content, PRIVATE_PLACES } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { call, testServer } from "../authority/testing";
+import { call, testServer } from "../authority/authority.testing";
 import type { PresenceReply } from "../types";
 
 describe("the presence fetch at a home", () => {

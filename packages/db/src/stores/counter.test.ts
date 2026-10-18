@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { suiteForCounterStore } from "@japacity/store/contract";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgCounterStore } from "./counter";
 
 const fresh = freshHandle();

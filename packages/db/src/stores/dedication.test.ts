@@ -1,7 +1,7 @@
 import { suiteForDedicationStore } from "@japacity/store/contract";
 import { expect, test } from "vitest";
 
-import { freshHandle } from "../testing";
+import { freshHandle } from "../pglite.testing";
 import { pgAccountStore } from "./account";
 import { pgDedicationStore } from "./dedication";
 

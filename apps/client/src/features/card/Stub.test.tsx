@@ -7,7 +7,7 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { playedWords } from "../../shared/card/face";
-import { fakeCanvas } from "../../shared/card/fakeCanvas";
+import { fakeCanvas } from "../../shared/card/canvas.testing";
 import { recordedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { japaTypeOf, typeWords } from "../../shared/words/japaType";

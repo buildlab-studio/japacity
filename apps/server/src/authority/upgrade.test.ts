@@ -8,8 +8,8 @@ import { productionConfig } from "../config";
 import { upgradeCharacter } from "./command";
 import { apply, contentNamed } from "./load";
 import { contentsFor, withContentBefore } from "./overlay";
-import type { TestServer } from "./testing";
-import { held, newLife, restMonth, send, signUp, testServer, view } from "./testing";
+import type { TestServer } from "./authority.testing";
+import { held, newLife, restMonth, send, signUp, testServer, view } from "./authority.testing";
 import { transact } from "./transaction";
 
 const { epoch, worldTickMs } = productionConfig.clock;

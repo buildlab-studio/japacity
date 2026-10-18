@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { api, type Fetch } from "../../shared/net/http";
 // Registers Testing Library's cleanup for this file.
 import "../../shared/testing/render";
-import { ADMIN_GETS, STATS } from "./admin.fixtures";
+import { ADMIN_GETS, STATS } from "./admin.testing";
 import { words } from "./admin.words";
 import { ADMIN_TABS, AdminPage } from "./AdminPage";
 import { adminApi } from "./api";

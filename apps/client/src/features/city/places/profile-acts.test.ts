@@ -12,7 +12,7 @@ import { say } from "../../../shared/words/text";
 import { plannedMarks } from "../actLines";
 import { sceneWords } from "../scene.words";
 import { stagedNow, thingsNow } from "../things";
-import { staged } from "./placeTesting";
+import { staged } from "./place.testing";
 
 const CASES: { raw: unknown; place: Id<"place">; thing: string; act: string; entries: string[] }[] = [
   { raw: hubFile, place: "place.yaba", thing: "desk", act: "learn", entries: ["activity.open-source", "activity.conference-talk"] },

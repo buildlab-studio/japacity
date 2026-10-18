@@ -6,7 +6,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { recordedGame } from "../testing/fixtures";
 import { cardFace, type ShareCard } from "./face";
-import { fakeCanvas } from "./fakeCanvas";
+import { fakeCanvas } from "./canvas.testing";
 import { cardSteps, previewSteps, type MarkStep, type Measure, type Size, type Step, type TextStep } from "./layout";
 import { renderCard, renderPreview } from "./render";
 

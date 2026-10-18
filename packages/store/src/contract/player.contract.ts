@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import type { CharacterWrite, Held, PlayerStore, StoreResult, Writes } from "../types";
-import { DRAW_ODDS, logRow, logRows, must, newCharacter, snapshot, stateAt, world } from "./fixtures";
+import { DRAW_ODDS, logRow, logRows, must, newCharacter, snapshot, stateAt, world } from "./contract.testing";
 
 /** `server.snapshotEvery` in server.md's Numbers. The store keeps what it is given; the server decides when. */
 const SNAPSHOT_EVERY = 20;
