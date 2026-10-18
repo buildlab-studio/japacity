@@ -5,6 +5,7 @@
 // screen is never fetched. Each line is a card with a face sticker, the name,
 // and the figure as a chip: this week's rise in green; the player's own line
 // ringed (docs/design/13-the-lively-layer.md section 2).
+import type { BoardReply, BoardRow } from "@japacity/api";
 import { useEffect, useState } from "react";
 
 import { lookForName } from "../../shared/frontdoor/looks";
@@ -12,7 +13,7 @@ import { assetUrl, loadManifest } from "../../shared/three/manifest";
 import { TINTS } from "../../shared/ui/lively/tint";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
-import type { BoardReply, BoardRow, When } from "./boards";
+import type { When } from "./boards";
 
 function figureWords(row: BoardRow, when: When): string {
   const figure = formatNumber(row.figure);

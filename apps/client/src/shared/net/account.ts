@@ -1,7 +1,8 @@
 // The account's own row (`GET /api/account`) and its settings
 // (`PUT /api/account`), read once per server and shared by the screens that
 // need a field of it: the advert slots' region and the usage-counts setting.
-import type { AccountReply, AccountSettingsRequest, ServerRejection } from "./contract";
+import type { AccountChange, AccountReply, ServerRejection } from "@japacity/api";
+
 import type { Api } from "./http";
 
 const held = new WeakMap<Api, Promise<AccountReply>>();
@@ -31,7 +32,7 @@ export function forgetAccount(server: Api): void {
  * The server's `PUT /api/account { sendUsageCounts }` answers with the account's row.
  */
 export async function putUsageCounts(server: Api, on: boolean): Promise<AccountReply> {
-  const request: AccountSettingsRequest = { sendUsageCounts: on };
+  const request: AccountChange = { sendUsageCounts: on };
   const reply = await server.put<AccountReply>("/api/account", request).catch(() => unreachable);
   if (reply.ok) held.set(server, Promise.resolve(reply));
   return reply;

@@ -1,31 +1,11 @@
 // The client's side of adverts (docs/rules/adverts.md): the hour's slots from
 // the server, whether a slot may show at all, and the impression and tap
 // counts, sent with the interface counters and never tied to the player.
+import type { AdvertsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 
 import type { Api } from "../../shared/net/http";
-
-/** One filled slot, as `GET /api/adverts` sends it. */
-export interface ServedAdvert {
-  campaign: string;
-  creative: string;
-  version: number;
-  image: string;
-  width: number;
-  height: number;
-  advertiser: string;
-  text: string;
-  link: string | null;
-}
-
-export interface AdvertsReply {
-  ok: true;
-  region: string;
-  hour: number;
-  until: number;
-  slots: Partial<Record<Id<"advert">, ServedAdvert>>;
-}
 
 /** The interface counters an advert sends (analytics.md R-ANALYTICS-002), keyed by the slot's id. */
 export const ADVERT_COUNTERS = { impression: "advert/impression", tap: "advert/tap" } as const;

@@ -1,11 +1,11 @@
 // The money report and its alarms (R-SERVER-011, R-SERVER-012), the rejection
 // counts (R-SERVER-005) and the rollback check (R-SERVER-008). The check reads
 // only; nothing here corrects, freezes or rolls back a character (R-SERVER-010).
+import type { Alarm, ByReason, RollbackCheck } from "@japacity/api";
 import { useState } from "react";
 
 import { Button } from "../../shared/ui/Button";
 import { formatMoney, formatNumber, isCurrency } from "../../shared/words/format";
-import type { Alarm, ByReason, RollbackCheck } from "./admin.contract";
 import { dayOf, utcDate } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi } from "./api";

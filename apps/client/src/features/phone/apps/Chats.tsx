@@ -4,13 +4,13 @@
 // bond lives in its thread, whose head carries its stage and choices; the People row at the top opens
 // the slots of this life with the invite card (R-WORLD-020, people.md R-PEOPLE-010). Both are the people
 // feature's own screens, handed in by the shell.
+import type { ConversationReply, PairReply, SayReply, ServerRejection } from "@japacity/api";
 import { content } from "@japacity/content";
 import { fillOptions, type ConversationRow, type Id, type SayRefusal } from "@japacity/sim";
 import { ChevronRight, UserRound, Users } from "lucide-react";
 import { createContext, Fragment, use, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import type { ConversationReply, PairReply, SayReply, ServerRejection } from "../../../shared/net/contract";
 import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
 import { hasWords, monthsAgo, say, sayCount, words } from "../../../shared/words/text";
 import { faceMark } from "../../../shared/ui/lively/Face";

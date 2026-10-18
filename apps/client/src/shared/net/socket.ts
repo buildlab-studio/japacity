@@ -1,7 +1,8 @@
 // The nudge socket (R-CLOCK-020 to 024). It only hears that something changed
 // and asks for it through an ordinary request; game state never comes this
 // way. It sends nothing but a ping. `open` is the seam tests fake.
-import { PING, type Nudge } from "./contract";
+import { type Nudge, PING, readNudge } from "@japacity/api";
+
 import type { RandomBelow } from "./random";
 
 /** clock.md Numbers: `client.reconnect` and `client.pingMs`, mirrored from the server's page. */
@@ -45,21 +46,6 @@ export function reconnectWait(attempt: number, random: RandomBelow): number {
   const { reconnectFirstMs, reconnectMaxMs } = SOCKET_NUMBERS;
   const base = Math.min(reconnectFirstMs * 2 ** Math.min(attempt, 16), reconnectMaxMs);
   return base + random(Math.floor(base / 2) + 1);
-}
-
-function parseNudge(data: unknown): Nudge | null {
-  if (typeof data !== "string") return null;
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(data);
-  } catch {
-    return null;
-  }
-  if (typeof parsed !== "object" || parsed === null) return null;
-  const { nudge, v } = parsed as { nudge?: unknown; v?: unknown };
-  if (nudge === "view") return typeof v === "number" ? { nudge, v } : null;
-  if (nudge === "messages" || nudge === "presence") return { nudge };
-  return null;
 }
 
 export interface NudgeSocketOptions {
@@ -116,7 +102,7 @@ export function nudgeSocket(options: NudgeSocketOptions): NudgeSocket {
       }, SOCKET_NUMBERS.pingMs);
     };
     opened.onmessage = (event) => {
-      const nudge = parseNudge(event.data);
+      const nudge = readNudge(event.data);
       if (nudge !== null) heard(nudge);
     };
     opened.onerror = () => {

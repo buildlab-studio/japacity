@@ -1,7 +1,7 @@
+import type { CounterBatch, CounterRow } from "@japacity/api";
 import { content } from "@japacity/content";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { CounterBatch, CounterRow } from "./counters";
 import { loadBand, makeCounters, packBatches } from "./counters";
 import { countAsk, counting, setUsageCounts, startCounting } from "./start";
 

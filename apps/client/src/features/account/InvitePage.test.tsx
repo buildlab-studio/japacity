@@ -1,5 +1,6 @@
 // The invite link's page against a faked server: the card read before
 // sign-up, then the age screen and sign-in, then the card taken for its slot.
+import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id, InviteCard } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -11,7 +12,6 @@ import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { ModerationProvider } from "../../shared/moderation/ModerationProvider";
 import type { AccountApi, AgeAnswer } from "../../shared/net/auth";
-import type { AccountView } from "../../shared/net/contract";
 import { api } from "../../shared/net/http";
 import { engineView } from "../../shared/testing/fixtures";
 import { fakeModeration } from "../../shared/testing/moderation";

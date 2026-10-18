@@ -2,20 +2,13 @@
 // abroad, the whole game's, rounded to the nearest ten (`GET /api/lights`); with no answer, the city's own people
 // stand in: the residents of every place at home and of every place abroad, as content sizes their crowds
 // (city.md R-CITY-032). Each light glows with its share, and home never goes dark.
+import type { LightsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import { useEffect, useState } from "react";
 
 import { authorityMode } from "../../authority/mode";
 import { api } from "../../shared/net/http";
 import type { WallGuard } from "../../shared/net/wall";
-
-/** R-ACCOUNT-031: `GET /api/lights`, the same for everyone in the hour. Whole tens. */
-export interface LightsReply {
-  ok: true;
-  home: number;
-  abroad: number;
-  back: number;
-}
 
 /** What the lights show: still asking, the server's lives, or the city's own people standing in. */
 export type LightsShown = { from: "asking" } | { from: "server" | "city"; home: number; abroad: number };

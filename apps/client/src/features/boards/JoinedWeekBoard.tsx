@@ -1,8 +1,10 @@
 // The joined-the-same-week board (docs/rules/city.md R-CITY-039): kept in the
 // code and switched off (`boards.joined-week`). Loaded only once the server answers it.
+
+import type { BoardReply } from "@japacity/api";
+
 import { say } from "../../shared/words/text";
 import BoardList from "./BoardList";
-import type { BoardReply } from "./boards";
 
 export default function JoinedWeekBoard({ reply }: { reply: BoardReply }) {
   return (

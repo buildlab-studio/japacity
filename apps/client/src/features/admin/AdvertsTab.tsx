@@ -3,11 +3,11 @@
 // reviewer records before an approval as the server lists them, and the daily
 // counts (R-ADVERT-020). Pulling and rechecking a live campaign send it back to
 // review.
+import type { AdminRefusal, CampaignRow, CampaignStatus, ReviewBody, ReviewedCreative } from "@japacity/api";
 import { useId, useState } from "react";
 
 import { Tag } from "../../shared/ui/Panel";
 import { formatNumber } from "../../shared/words/format";
-import type { AdminRefusal, CampaignRow, CampaignStatus, ReviewBody, ReviewedCreative } from "./admin.contract";
 import { utcDate, utcTime } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi, Outcome } from "./api";

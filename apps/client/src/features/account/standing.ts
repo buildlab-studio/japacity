@@ -2,12 +2,12 @@
 // screens that change with it: whether the life is a guest's (R-ACCOUNT-021),
 // the username (R-ACCOUNT-024). One store for each account seam, read again
 // whenever something changes it.
+import type { AccountView } from "@japacity/api";
 import { useEffect } from "react";
 import { useStore } from "zustand";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
 import { useGame } from "../../authority/GameProvider";
-import type { AccountView } from "../../shared/net/contract";
 import type { AccountApi } from "../../shared/net/auth";
 
 interface Held {

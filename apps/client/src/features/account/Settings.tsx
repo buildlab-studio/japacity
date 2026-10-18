@@ -8,13 +8,13 @@
 // has no other way in, so its own session confirms it. The account opens from its own row at the head of the phone's
 // Settings: the name's initial, the name, the username and the way the life is kept, the whole row one tap; its sheet names the username and the name as two plain rows, then the way in and the passkeys
 // (R-ACCOUNT-024, R-ACCOUNT-027).
+import type { AccountView } from "@japacity/api";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
-import type { AccountView } from "../../shared/net/contract";
 import { Button } from "../../shared/ui/Button";
 import { GoogleButton } from "../../shared/ui/GoogleButton";
 import { Sheet } from "../../shared/ui/Sheet";

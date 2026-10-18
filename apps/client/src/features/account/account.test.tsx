@@ -1,3 +1,4 @@
+import type { AccountView } from "@japacity/api";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -7,7 +8,6 @@ import { describe, expect, test } from "vitest";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
 import type { AccountApi, AgeStanding, AuthResult } from "../../shared/net/auth";
-import type { AccountView } from "../../shared/net/contract";
 import { engineView } from "../../shared/testing/fixtures";
 import { COLUMN_PX } from "../../shared/ui/lively/CentredColumn";
 import { SHEET_COLUMN_PX } from "../../shared/ui/lively/SheetColumn";
@@ -296,7 +296,6 @@ describe("the door's sheets on a desktop", () => {
     expect(SHEET_COLUMN_PX).toBeGreaterThanOrEqual(560);
     expect(SHEET_COLUMN_PX).toBeLessThanOrEqual(640);
   });
-
 
   test("[R-ACCOUNT-029] given the start screen, then its sheet stands in the sheet column, centred at a reading width, while the scene behind and the two lights over it stay the whole window's", async () => {
     const store = signedOutStore(fakeAccount());

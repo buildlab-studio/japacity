@@ -2,6 +2,7 @@
 // R-SERVER-046, decision 0008): online, Begin sends the tile, the age step and the home once, and the page fills from the
 // reply's trail, its chips coming on one after another over about two seconds; offline each answer still goes at once,
 // from the same content function.
+import type { ClockView, PresetRequest } from "@japacity/api";
 import { presetAnswer } from "@japacity/content";
 import { worldClockAt } from "@japacity/sim";
 import type { Command, Id } from "@japacity/sim";
@@ -13,7 +14,6 @@ import { keepPerson } from "../../authority/person";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { DOOR_KEY } from "../../shared/datapage/door";
-import type { ClockView, PresetRequest } from "../../shared/net/contract";
 import { playPresetOn } from "../../shared/net/preset.testing";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";

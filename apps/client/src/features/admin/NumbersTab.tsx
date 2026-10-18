@@ -2,8 +2,9 @@
 // investor asks for, live from `GET /api/admin/stats`, as plain tables. The
 // server made every division and hid every small count (R-ANALYTICS-010); the
 // page only lays them out.
+import type { Regional, Returned, Shown, Stats, StatsPeriod } from "@japacity/api";
+
 import { formatBp, formatMoney, formatNumber } from "../../shared/words/format";
-import type { Regional, Returned, Shown, Stats, StatsPeriod } from "./admin.contract";
 import { shownCount, utcTime } from "./admin.format";
 import { words, type AdminKey } from "./admin.words";
 import type { AdminApi } from "./api";

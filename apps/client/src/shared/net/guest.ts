@@ -1,7 +1,7 @@
 // R-ACCOUNT-022: every `guest-only` refusal, from any route, told to whoever
 // listens, so the securing ask opens wherever a guest reached for something a
 // secured account may do. The client shows the ask, never a dead end.
-import type { ServerRejection } from "./contract";
+import type { ServerRejection } from "@japacity/api";
 
 export type GuestOnlyListener = (refusal: ServerRejection) => void;
 

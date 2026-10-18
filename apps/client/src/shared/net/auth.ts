@@ -8,23 +8,23 @@
 // https://www.better-auth.com/docs/plugins/captcha
 // Deleting goes to the server's own `DELETE /api/account` (R-ACCOUNT-016), never the library's.
 import { passkeyClient } from "@better-auth/passkey/client";
+import type {
+  AccountView,
+  AgeReply,
+  AgeRequest,
+  AgeStatus,
+  DeleteReply,
+  DeleteRequest,
+  GuestRequest,
+  NameProblem,
+  NameReply,
+  ServerCode,
+  ServerRejection,
+  UsernameRequest,
+} from "@japacity/api";
 import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
-import {
-  type AccountView,
-  type AgeReply,
-  type AgeRequest,
-  type AgeStatus,
-  type DeleteReply,
-  type DeleteRequest,
-  type GuestRequest,
-  type NameProblem,
-  type NameReply,
-  type ServerCode,
-  type ServerRejection,
-  type UsernameRequest,
-} from "./contract";
 import { forgetAccount, putUsageCounts, readAccount } from "./account";
 import { api, type Fetch, requestFetch } from "./http";
 import { pageWall, type WallGuard } from "./wall";

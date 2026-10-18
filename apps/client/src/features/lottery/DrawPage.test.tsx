@@ -1,3 +1,4 @@
+import type { ServerRejection } from "@japacity/api";
 import type { LotteryResult } from "@japacity/sim";
 import { drawResults, drawSeed, ticketResult, toHex } from "@japacity/sim";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
@@ -5,7 +6,6 @@ import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
-import type { ServerRejection } from "../../shared/net/contract";
 import "../../shared/testing/render";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";

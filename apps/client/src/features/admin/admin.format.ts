@@ -1,7 +1,8 @@
 // Times, days and counts as the admin page shows them: UTC throughout, since
 // the server's days are UTC days.
+import type { Shown } from "@japacity/api";
+
 import { formatBp, formatNumber } from "../../shared/words/format";
-import type { Shown } from "./admin.contract";
 import { words } from "./admin.words";
 
 const DAY_MS = 86_400_000;

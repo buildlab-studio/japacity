@@ -1,5 +1,6 @@
 // R-ENGINE-015: what the screens say when the online authority brings no answer: the loading screen's second line and
 // its card, the card over the page of the years with the answer kept, and Begin as the one request that begins.
+import type { ServerRejection } from "@japacity/api";
 import type { Command, Reply } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -11,7 +12,6 @@ import { keepPerson } from "../authority/person";
 import { createGameStore } from "../authority/store";
 import { readDoor } from "../shared/datapage/door";
 import type { AccountApi } from "../shared/net/auth";
-import type { ServerRejection } from "../shared/net/contract";
 import { requestFailure } from "../shared/net/http";
 import { BASE, fakeServer } from "../shared/testing/server";
 import { passThePage, startArchetype, toTheArchetypes } from "../shared/frontdoor/frontDoor.testing";

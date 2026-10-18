@@ -1,6 +1,6 @@
 // Words for block, report, the team's notices, the appeal and feedback, in the
 // voice of docs/rules/text.md.
-import type { ReportReason } from "../net/contract";
+import type { ReportReason } from "@japacity/api";
 
 export const moderationText = {
   "ui.block": "Block",

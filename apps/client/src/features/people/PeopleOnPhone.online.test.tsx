@@ -1,5 +1,5 @@
 // The invite link on Chats' People row online (docs/rules/pair.md R-PAIR-008, R-PAIR-018): the server's route faked here
-// in the shapes shared/net/contract.ts copies from the server, each assertion against the slot the phone shows.
+// in the shapes of @japacity/api, each assertion against the slot the phone shows.
 import { content } from "@japacity/content";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";

@@ -1,6 +1,7 @@
 // The front door online (prologue.md R-PROLOGUE-010, 011, 014; server.md R-SERVER-001): the life is the server's,
 // faked here as online.spec fakes it, every command played through the real game. A tile and an age picked at the
 // door reach the world as they were picked, and the page as the years go by never names another life.
+import type { ClockView, PresetRequest } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Id, PlayerView } from "@japacity/sim";
 import { worldClockAt } from "@japacity/sim";
@@ -13,7 +14,6 @@ import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { archetypeOf } from "../../shared/frontdoor/archetypes";
 import { toTheArchetypes } from "../../shared/frontdoor/frontDoor.testing";
-import type { ClockView, PresetRequest } from "../../shared/net/contract";
 import { playPresetOn } from "../../shared/net/preset.testing";
 import { BASE, fakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";

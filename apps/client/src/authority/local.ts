@@ -2,12 +2,12 @@
 // (docs/rules/engine.md section 1). It holds the state and the save, and is
 // the only part of the client that ever sees the seed. Screens talk to it only
 // through the Authority type, so the server takes its place unchanged.
+import type { ClockView } from "@japacity/api";
 import { content as realContent } from "@japacity/content";
 import type { Authority, Command, Content, Envelope, FlatSave, Id, PlayerView, Reply, Save, Sender, State, World } from "@japacity/sim";
 
 import { archetypeOf, fullPrologue } from "../shared/frontdoor/archetypes";
 import { tileSeed } from "../shared/frontdoor/draw";
-import type { ClockView } from "../shared/net/contract";
 import { lastSegment, lifeStart, loadSave, newSave, newState, nextGameMorning, recordCommand, replay, savedCommands, sealFrom, standInWorld, step, time, viewFor, withhold, withholdLines, worldClockAt } from "@japacity/sim";
 import { PERSON_KEY, readPerson } from "./person";
 

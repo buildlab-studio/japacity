@@ -2,11 +2,11 @@
 // from `GET /api/draw/:n`, and the result worked out again on the device with
 // the simulation's `drawSeed`, `ticketResult` for every ticket and
 // `drawResults`, with a plain line saying whether the two match.
+import type { ServerRejection } from "@japacity/api";
 import type { Tier } from "@japacity/sim";
 import { CircleCheck, CircleX } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
-import type { ServerRejection } from "../../shared/net/contract";
 import { formatMoney, formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { checkDraw, isRefusal, type DrawReply, type LoadDraw } from "./draw";

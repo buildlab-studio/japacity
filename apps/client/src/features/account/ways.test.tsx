@@ -1,6 +1,7 @@
 // The kept life says so, and how it is kept (R-ACCOUNT-023, R-ACCOUNT-024, R-ACCOUNT-027): the keeping sheet's kept
 // state after the trip to Google, the short line over the world naming the way, the account's row at the head of the
 // phone's Settings, and its sheet's rows for each shape of the ways back in.
+import type { AccountView } from "@japacity/api";
 import type { PlayerView } from "@japacity/sim";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -9,7 +10,6 @@ import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { pageOf } from "../../shared/datapage/PageSheet";
 import type { AccountApi, AuthResult } from "../../shared/net/auth";
-import type { AccountView } from "../../shared/net/contract";
 import { engineView } from "../../shared/testing/fixtures";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";

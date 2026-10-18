@@ -1,10 +1,8 @@
 // The admin page's calls, one per admin route the server has. Every call
 // settles: a refusal, a page the server does not have and a fetch that never
 // arrived all come back as one shape the page shows as it is.
-import { authorityMode } from "../../authority/mode";
-import type { AccountReply } from "../../shared/net/contract";
-import { api, type Api } from "../../shared/net/http";
 import type {
+  AccountReply,
   AdminRefusal,
   AlarmsReply,
   CampaignReply,
@@ -16,27 +14,30 @@ import type {
   DecidedReply,
   DialChange,
   FeedbackReply,
+  LedgerReportReply,
   LightDecidedReply,
   LogReply,
   PendingLightsReply,
   QueueReply,
   RecheckReply,
   RejectionsReply,
-  ReportReply,
   ReviewBody,
   RollbackCheck,
+  StatsReply,
   SwitchesReply,
   SwitchLogReply,
-  StatsReply,
   SwitchName,
-} from "./admin.contract";
+} from "@japacity/api";
+
+import { authorityMode } from "../../authority/mode";
+import { api, type Api } from "../../shared/net/http";
 
 export type Outcome = "approve" | "refuse";
 
 export interface AdminApi {
   /** True only when `GET /api/account` answers and names the account as an admin. */
   isAdmin: () => Promise<boolean>;
-  report: (day: number | null) => Promise<ReportReply>;
+  report: (day: number | null) => Promise<LedgerReportReply>;
   alarms: () => Promise<AlarmsReply>;
   rejections: () => Promise<RejectionsReply>;
   rollback: (character: string) => Promise<RollbackCheck | AdminRefusal>;

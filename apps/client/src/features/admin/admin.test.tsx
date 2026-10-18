@@ -190,7 +190,7 @@ describe("the rollback tab", () => {
     expect(await screen.findByText(words("admin.rollback.diff", { v: 88, stored: "a91f03c2", replayed: "5be0d417" }))).toBeTruthy();
     expect(screen.getByText(words("admin.rollback.summary", { character: "character.c-19bd", v: 96, replayed: 96 }))).toBeTruthy();
     const dropped = screen.getByRole("table", { name: words("admin.rollback.dropped") });
-    expect(within(dropped).getByRole("row", { name: "88 lottery/buy short Not enough money for 3 tickets." })).toBeTruthy();
+    expect(within(dropped).getByRole("row", { name: "88 lottery/buy cannot-afford Not enough money for 3 tickets." })).toBeTruthy();
     expect(server.calls.map((call) => `${call.method} ${call.path}`)).toEqual(["GET /api/admin/rollback/character.c-19bd"]);
   });
 

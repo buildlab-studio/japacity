@@ -1,13 +1,14 @@
 // The boards screen against a faked server, in the shapes boards.ts copies
 // from apps/server/src/boards/board.ts. Every board names each line by the
 // account's username, friends too, with no first name (R-CITY-040).
+import type { BoardName, BoardReply, BoardRow } from "@japacity/api";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import "../../shared/testing/render";
 import { BASE, fakeServer, type Answer, type FakeServer } from "../../shared/testing/server";
 import { say } from "../../shared/words/text";
-import { boardsApiFor, BoardsApiProvider, type BoardName, type BoardReply, type BoardRow } from "./boards";
+import { boardsApiFor, BoardsApiProvider } from "./boards";
 import { BoardsView } from "./BoardsView";
 
 const PAUSED = { status: 503, headers: { "Retry-After": "30" }, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } };

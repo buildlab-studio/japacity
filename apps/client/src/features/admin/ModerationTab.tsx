@@ -3,11 +3,22 @@
 // the actions it may be closed with (R-MODERATION-014), appeals (R-MODERATION-016),
 // the dedication lights awaiting a look with Approve and Refuse (R-MODERATION-021)
 // and the log, read by item or account (R-MODERATION-015), which has no edit.
+import {
+  type AccountSummary,
+  type DecidedReply,
+  type ModerationLogEntry,
+  type PendingLight,
+  type QueueItem,
+  REPORT_ACTIONS,
+  REPORT_REASONS,
+  type ReportAction,
+  type ReportCite,
+  type ReportReason,
+} from "@japacity/api";
 import { useState, type ReactNode } from "react";
 
 import { Button } from "../../shared/ui/Button";
 import { Tag } from "../../shared/ui/Panel";
-import { REPORT_ACTIONS, REPORT_REASONS, type AccountSummary, type DecidedReply, type ModerationLogEntry, type PendingLight, type QueueItem, type ReportAction, type ReportCite, type ReportReason } from "./admin.contract";
 import { duration, utcTime } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi } from "./api";

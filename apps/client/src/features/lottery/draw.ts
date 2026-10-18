@@ -2,11 +2,11 @@
 // time, the odds as chances, and the public check of a drawn draw, every
 // ticket worked out on the device with the simulation's own functions
 // (docs/rules/lottery.md R-LOTTERY-006, 015, 021 to 023).
+import type { ClockView, DrawReply, ServerRejection } from "@japacity/api";
 import type { LotteryOdds, LotteryResult, PlayerView, Tier } from "@japacity/sim";
 import { drawResults, drawSeed, fingerprintOf, listHashOf, PER_MILLION, ticketResult, time, toHex } from "@japacity/sim";
 
 import { authorityMode } from "../../authority/mode";
-import type { ClockView, DrawReply, ServerRejection } from "../../shared/net/contract";
 import { api, type Fetch } from "../../shared/net/http";
 
 export type Lottery = NonNullable<PlayerView["lottery"]>;

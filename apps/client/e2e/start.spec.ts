@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 // The start screen online (account.md R-ACCOUNT-029), played against a faked server on the online dev server: every
-// /api route is answered here, in the shapes apps/client/src/shared/net/contract.ts copies from the server, and the
+// /api route is answered here, in the shapes of @japacity/api, and the
 // auth library's routes as Better Auth answers them.
 import { content } from "../../../packages/content/src/index";
 import { passThePage } from "./support/door";

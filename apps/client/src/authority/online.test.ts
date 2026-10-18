@@ -1,9 +1,9 @@
+import type { ClockView } from "@japacity/api";
 import { content } from "@japacity/content";
 import { worldClockAt } from "@japacity/sim";
 import type { Id, PlayerView } from "@japacity/sim";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { ClockView } from "../shared/net/contract";
 import { abroadView, engineView } from "../shared/testing/fixtures";
 import { BASE, fakeServer } from "../shared/testing/server";
 import { fakeSockets } from "../shared/testing/socket";

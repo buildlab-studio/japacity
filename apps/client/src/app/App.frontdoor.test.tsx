@@ -2,6 +2,7 @@
 // door's sky from a look, a name filled from the pool (a dice, or typed) and an archetype, never a
 // named life picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
+import type { CounterRow } from "@japacity/api";
 import { content, namePool, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { savedCommands } from "@japacity/sim";
@@ -14,7 +15,7 @@ import { SAVE_KEY } from "../authority/local";
 import { PERSON_KEY, readPerson } from "../authority/person";
 import type { GameStore } from "../authority/store";
 import { countInto } from "../shared/analytics/start";
-import { type CounterRow, makeCounters } from "../shared/analytics/counters";
+import { makeCounters } from "../shared/analytics/counters";
 import { say, words } from "../shared/words/text";
 import { ownFile } from "../features/city/City";
 import { ROSTER } from "../features/city/roster";

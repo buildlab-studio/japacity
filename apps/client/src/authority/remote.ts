@@ -2,9 +2,21 @@
 // only carries commands there and views back (R-SERVER-001, R-ENGINE-015).
 // It keeps the last view's version and the clock beside it, never a state, a
 // seed or a world it was not sent, and predicts nothing (R-SERVER-019).
+import type {
+  ClockView,
+  CommandRequest,
+  NewCharacterReply,
+  NewCharacterRequest,
+  PresenceReply,
+  PresetReply,
+  PresetRequest,
+  ServerRejection,
+  ServerReply,
+  ViewReply,
+  WorldReply,
+} from "@japacity/api";
 import type { Command, Id, PlayerView, Reply, ReportLine } from "@japacity/sim";
 
-import type { ClockView, CommandRequest, NewCharacterReply, NewCharacterRequest, PresenceReply, PresetReply, PresetRequest, ServerRejection, ServerReply, ViewReply, WorldReply } from "../shared/net/contract";
 import { api, reportedError, retryAfterMs, type Api, type Fetch } from "../shared/net/http";
 import { pacer } from "../shared/net/pace";
 import type { WallGuard } from "../shared/net/wall";
