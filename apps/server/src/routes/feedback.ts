@@ -8,7 +8,7 @@ import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { sendFeedback } from "../moderation/feedback";
-import { countryOf } from "./place";
+import { countryOf } from "../account/country";
 
 export function feedbackRoute(deps: ServerDeps): Hono<SessionEnv> {
   const route = new Hono<SessionEnv>();

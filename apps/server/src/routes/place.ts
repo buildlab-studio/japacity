@@ -34,13 +34,6 @@ function refuse(c: Context, status: Status, code: ServerCode, detail: string): R
   return c.json(body, status);
 }
 
-/** R-ACCOUNT-008: Cloudflare's country for the request, from `request.cf` or the header it sets. */
-export function countryOf(request: Request): string | null {
-  const cf = (request as Request & { cf?: { country?: unknown } }).cf;
-  if (typeof cf?.country === "string") return cf.country;
-  return request.headers.get("cf-ipcountry");
-}
-
 function seedFrom(bytes: Uint8Array): number {
   return bytes.reduce((seed, byte) => ((seed << 8) | byte) >>> 0, 0);
 }

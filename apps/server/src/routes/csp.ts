@@ -19,7 +19,7 @@ import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
 import { TOO_LARGE_DETAIL } from "../security/body";
 import { writeLine } from "../log";
-import { countryOf } from "./place";
+import { countryOf } from "../account/country";
 
 export const CSP_REPORT_PATH = "/api/csp-report";
 
