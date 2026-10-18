@@ -55,10 +55,7 @@ description = "Actions pinned to a commit: a 40-hex commit id after @ on a uses 
 regexTarget = "line"
 regexes = ['''^\s*(-\s+)?uses:\s+[\w.-]+/[\w./-]+@[0-9a-f]{40}\b''']
 
-# History. The .env.example of commit 8d0bcc0e held random values for a local stack, under its own words "Random,
-# and local only"; the file holds plain words instead. Allowed in that commit and that file only.
+# The asset manifest maps each shipped file to its content hash; a long hex hash is not a token.
 [[allowlists]]
-description = "The local-only values of the old .env.example"
-condition = "AND"
-commits = ["8d0bcc0ecb641d02b85c825dd80bd9d03405461a"]
-paths = ['''^\.env\.example$''']
+description = "Content hashes in the asset manifest"
+paths = ['''^assets-src/manifest\.json$''']
