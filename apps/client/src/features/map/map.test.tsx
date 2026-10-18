@@ -2,6 +2,7 @@ import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
+import { metresApart, withinMetres } from "@japacity/sim";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { Group, Vector3 } from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -31,6 +32,8 @@ const BUILT = new Set(
     .filter((id): id is NonNullable<typeof id> => id !== undefined),
 );
 const HOME = "place.family-house";
+/** The simulation's metres for a thousandth of a degree of latitude, the same everywhere (R-PLACE-010). */
+const LAT_METRES_PER_E3 = metresApart({ latE3: 0, lonE3: 0 }, { latE3: 1, lonE3: 0 });
 const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 
 /** The pins for a life at home standing at the hub, with the kept list given. */
@@ -278,8 +281,8 @@ describe("the ride", () => {
     const here = pins.find((pin) => pin.state === "here");
     if (here === undefined) throw new Error("No here");
     const limit = content.tuning.city.ride.walkMetres;
-    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 1.5) / 111.32) };
-    const near = { ...here.position, latE3: here.position.latE3 + Math.floor((limit * 0.5) / 111.32) };
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 1.5) / LAT_METRES_PER_E3) };
+    const near = { ...here.position, latE3: here.position.latE3 + Math.floor((limit * 0.5) / LAT_METRES_PER_E3) };
     expect(rideChoices(here.position, far).find((way) => way.id === "walk")?.shut).toBe("far");
     expect(rideChoices(here.position, near).find((way) => way.id === "walk")?.shut).toBeUndefined();
     const farPins = pins.map((pin) => (pin.id === "place.bode-thomas" ? { ...pin, position: far } : pin));
@@ -293,12 +296,28 @@ describe("the ride", () => {
     expect(walk.getAttribute("aria-checked")).toBe("false");
   });
 
+  test("[R-WORLD-017] given stops at the edge of walking distance, when the ride sheet's ways are read, then the walk is open or shut exactly where the simulation accepts or refuses it (R-PLACE-010)", () => {
+    const here = lagosPins().find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    const { walkMetres, lonMetresPerE3 } = content.tuning.city.ride;
+    const steps = Math.floor(walkMetres / LAT_METRES_PER_E3);
+    const edge = { ...here.position, latE3: here.position.latE3 + steps };
+    const past = { ...here.position, latE3: here.position.latE3 + steps + 1 };
+    const across = { latE3: here.position.latE3 + 1, lonE3: here.position.lonE3 + Math.floor(walkMetres / lonMetresPerE3) };
+    expect(withinMetres(here.position, edge, walkMetres, lonMetresPerE3)).toBe(true);
+    expect(withinMetres(here.position, past, walkMetres, lonMetresPerE3)).toBe(false);
+    expect(withinMetres(here.position, across, walkMetres, lonMetresPerE3)).toBe(false);
+    expect(rideChoices(here.position, edge).find((way) => way.id === "walk")?.shut).toBeUndefined();
+    expect(rideChoices(here.position, past).find((way) => way.id === "walk")?.shut).toBe("far");
+    expect(rideChoices(here.position, across).find((way) => way.id === "walk")?.shut).toBe("far");
+  });
+
   test("[R-WORLD-017] given home past walking distance and no fare held, when its ride sheet shows, then Walk home is open and chosen, never Too far to walk, while another stop as far keeps the limit", async () => {
     const pins = lagosPins();
     const here = pins.find((pin) => pin.state === "here");
     if (here === undefined) throw new Error("No here");
     const limit = content.tuning.city.ride.walkMetres;
-    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 3) / 111.32) };
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((limit * 3) / LAT_METRES_PER_E3) };
     const home = rideChoices(here.position, far, null, 10000, true).find((way) => way.id === "walk");
     expect(home?.shut).toBeUndefined();
     expect(home?.long).toBe(true);
@@ -332,7 +351,7 @@ describe("the ride", () => {
     const pins = lagosPins();
     const here = pins.find((pin) => pin.state === "here");
     if (here === undefined) throw new Error("No here");
-    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((content.tuning.city.ride.walkMetres * 3) / 111.32) };
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((content.tuning.city.ride.walkMetres * 3) / LAT_METRES_PER_E3) };
     const farPins = pins.map((pin) => (pin.id === HOME ? { ...pin, position: far } : pin));
     const view = engineView();
     const broke = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 0, bank: 0 } } };

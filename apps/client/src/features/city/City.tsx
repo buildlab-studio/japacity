@@ -3,7 +3,7 @@
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
-import type { Id, PlaceEntry, PlayerView, ReportLine } from "@japacity/sim";
+import { type Id, metresApart, type PlaceEntry, type PlayerView, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -152,9 +152,7 @@ const BEEN_KEY = "japacity.city.been";
 const SEND_MONEY = "activity.send-money";
 /** Minutes by road between two places, from their positions: a base wait and a Lagos pace. */
 function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: number; lonE3: number }): number {
-  const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
-  const metres = Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
-  return 8 + Math.round(metres / 120);
+  return 8 + Math.round(metresApart(from, to, city.ride.lonMetresPerE3) / 120);
 }
 // tuning.city.roam is false, so nothing roams.
 /** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world.md R-WORLD-010). */

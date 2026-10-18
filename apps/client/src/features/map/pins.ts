@@ -1,7 +1,7 @@
 // What the map shows and what a ride costs (docs/rules/world.md R-WORLD-015 to 017), as plain
 // functions of the view, the kept list and content, so the screen only draws them.
 import { content } from "@japacity/content";
-import { type Currency, metresApart, rideFare, type RideWayView } from "@japacity/sim";
+import { type Currency, metresApart, rideFare, type RideWayView, withinMetres } from "@japacity/sim";
 
 import type { Pin, PinState, RideChoice } from "../../shared/world/contract";
 import { onMap, RENTED_HOMES } from "../../shared/world/rentedHomes";
@@ -56,12 +56,6 @@ export function mapPins({ places, here, home, homeSpot, been, built, open, name 
 /** A ride abroad takes about this long over the wait; the city's distances are not drawn yet. */
 const ABROAD_MINUTES = 25;
 
-/** Metres in a straight line between two positions. */
-function metresBetween(from: Position, to: Position): number {
-  const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
-  return Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
-}
-
 /**
  * The three ways to a place, each with its fare in kobo and its minutes. The fare is the simulation's own figure for
  * `place/ride` (R-PLACE-010: the way's flag-down figure plus its figure a kilometre over the
@@ -70,13 +64,13 @@ function metresBetween(from: Position, to: Position): number {
  * plus the straight-line distance at the way's pace.
  */
 export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000, home = false, ids: { from: string; to: string } | null = null, drive = false): RideChoice[] {
-  const { metresPerMinute, waitMinutes, walkMetres } = content.tuning.city.ride;
+  const { metresPerMinute, waitMinutes, walkMetres, lonMetresPerE3 } = content.tuning.city.ride;
   // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0017).
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
-  const metres = metresBetween(from, to);
+  const metres = metresApart(from, to, lonMetresPerE3);
   // The month's fares (the fuel scarcity doubles them, R-PLACE-010): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.
   // Home is the exception: a life may always walk home, however far, and the long walk is the cost (R-WORLD-017).
-  const far = metres > walkMetres;
+  const far = !withinMetres(from, to, walkMetres, lonMetresPerE3);
   const priced = (where: "from" | "to"): Position | null => (ids === null ? (where === "from" ? from : to) : (content.place[ids[where] as keyof typeof content.place]?.position ?? null));
   const ways: RideChoice[] = WAYS.map((id) => ({
     id,
@@ -153,7 +147,7 @@ export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to
       const id = way.way;
       const metres = minutesMetres(from !== null && to !== null ? { from, to } : at, way.lonMetresPerE3);
       // The simulation shuts a walk only between two places it knows the positions of, and never one to the room.
-      const far = id === "walk" && from !== null && to !== null && metresApart(from, to, way.lonMetresPerE3) > walkMetres;
+      const far = id === "walk" && from !== null && to !== null && !withinMetres(from, to, walkMetres, way.lonMetresPerE3);
       // The employer's bus to or from the site or the fields asks nothing in any month, as the simulation takes it (R-PLACE-013).
       const shuttle = id === "bus" && (context.shuttles.includes(ids.from) || context.shuttles.includes(ids.to));
       const pill = pillOf(way, context.country, shuttle);

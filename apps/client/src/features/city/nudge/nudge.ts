@@ -2,7 +2,7 @@
 // this order: an open set piece or interview question; an open offer; the chapter's next undone step
 // in its own nudge words; a report line waiting on the player; else the month's end.
 import { content } from "@japacity/content";
-import type { DayPart, Id, PlayerView } from "@japacity/sim";
+import { type DayPart, type Id, type PlayerView, withinMetres } from "@japacity/sim";
 
 import { everyRouteClosed } from "../../../shared/words/closed";
 import { shortfall as costShortfall } from "../../../shared/words/cost";
@@ -770,18 +770,12 @@ const MAKOKO = "place.makoko";
 /** The stops whose jobs board takes a hunt (BOARD_WAY's places). */
 const BOARD_STOPS: readonly string[] = BOARD_WAY.at.map((entry) => entry.split(":")[0] ?? "");
 
-/** Metres in a straight line between two positions, as the map measures a walk (R-WORLD-017). */
-function metresApart(from: Reach["stops"][number]["position"], to: Reach["stops"][number]["position"]): number {
-  const cos = Math.cos((from.latE3 / 1000) * (Math.PI / 180));
-  return Math.hypot((to.lonE3 - from.lonE3) * 111.32 * cos, (to.latE3 - from.latE3) * 111.32);
-}
-
 /** True when the stop is where the character stands, or close enough to walk to (R-WORLD-017's walking distance). */
 function onFoot(reach: Reach, to: string): boolean {
   if (to === reach.here) return true;
   const from = reach.stops.find((stop) => stop.id === reach.here)?.position;
   const there = reach.stops.find((stop) => stop.id === to)?.position;
-  return from !== undefined && there !== undefined && metresApart(from, there) <= content.tuning.city.ride.walkMetres;
+  return from !== undefined && there !== undefined && withinMetres(from, there, content.tuning.city.ride.walkMetres, content.tuning.city.ride.lonMetresPerE3);
 }
 
 /** The cheapest paid ride this month, in kobo: the way's flat fare under the month's fares (R-PLACE-010). */
