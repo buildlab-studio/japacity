@@ -1,3 +1,4 @@
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar } from "../auth/auth.testing";
@@ -6,8 +7,6 @@ import { cleanArgs, cleanCli } from "./clean";
 afterEach(() => {
   vi.useRealTimers();
 });
-
-const DAY_MS = 86_400_000;
 
 describe("the guest clean-up tool", () => {
   test("[R-ACCOUNT-026] given guests last played either side of the idle days and an old secured account, when the tool lists and then applies, then only guests idle strictly longer are listed and removed, through the deletion's removal", async () => {
@@ -20,7 +19,7 @@ describe("the guest clean-up tool", () => {
     vi.setSystemTime(start + 1);
     const edge = await h.guest(makeJar(), { username: "edge_one" });
     const days = 90;
-    vi.setSystemTime(start + 1 + days * DAY_MS);
+    vi.setSystemTime(start + 1 + days * time.DAY_MS);
 
     const listed = await cleanCli(h.deps, h.auth, ["--idle-days", String(days)]);
     expect(listed.exit).toBe(0);

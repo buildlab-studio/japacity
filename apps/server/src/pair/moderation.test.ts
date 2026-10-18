@@ -1,5 +1,5 @@
 import type { Reported } from "@japacity/api";
-import { pairView } from "@japacity/sim";
+import { pairView, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { requestDeletion } from "../account/deletion";
@@ -162,7 +162,7 @@ describe("report and hold", () => {
 
     expect(over.status).toBe(429);
     expect(over.body).toMatchObject({ ok: false, code: "rate-limited" });
-    server.wait(86_400_000);
+    server.wait(time.DAY_MS);
     expect((await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" })).body).toMatchObject({ ok: true });
   });
 

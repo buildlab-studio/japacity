@@ -1,4 +1,5 @@
 import type { AccountReply } from "@japacity/api";
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar, withGoogle } from "../auth/auth.testing";
@@ -160,7 +161,7 @@ describe("DELETE /api/account", () => {
     vi.setSystemTime(START + h.deps.config.account.deleteFreshMs - 1);
     const reply = await h.call("/api/account", { method: "DELETE", jar, ip: "192.0.2.50" });
     expect(reply.status).toBe(200);
-    expect(await reply.json()).toMatchObject({ ok: true, dueAt: START + h.deps.config.account.deleteFreshMs - 1 + h.deps.config.account.deleteWithinDays * 86_400_000 });
+    expect(await reply.json()).toMatchObject({ ok: true, dueAt: START + h.deps.config.account.deleteFreshMs - 1 + h.deps.config.account.deleteWithinDays * time.DAY_MS });
     expect(h.tables.session).toHaveLength(0);
     expect((await h.call("/api/account", { jar: other })).status).toBe(401);
     const again = makeJar();

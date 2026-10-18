@@ -1,5 +1,5 @@
 import { content } from "@japacity/content";
-import { factsOf, stableJson } from "@japacity/sim";
+import { factsOf, stableJson, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { pairStep } from "./step";
@@ -168,7 +168,7 @@ describe("the pair transaction", () => {
     const { server, a, key } = linked;
     await must(server, INVITER, { type: "people/court", with: key });
     await must(server, INVITER, { type: "people/end", bond: bondIn(await stateOf(server, a), key) });
-    server.wait(200 * 86_400_000);
+    server.wait(200 * time.DAY_MS);
     for (let month = 0; month < content.tuning.people.recourtMonths; month += 1) await act(server, INVITER, { type: "turn/end", slots: [] });
 
     const again = await act(server, INVITER, { type: "people/court", with: key });

@@ -1,4 +1,5 @@
 import type { State } from "@japacity/sim";
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { accountHash, deletionStatus } from "../account/deletion";
@@ -11,7 +12,6 @@ afterEach(() => {
 });
 
 const START = Date.parse("2026-10-08T09:00:00Z");
-const DAY_MS = 86_400_000;
 
 /** An account with a character, a ledger mark, a retired audit entry, a day total and a lottery ticket, then deleted. */
 async function deletedPlayer(h: Harness) {
@@ -39,7 +39,7 @@ describe("the deletion job", () => {
     vi.setSystemTime(START);
     const h = harness();
     const { account, character } = await deletedPlayer(h);
-    const dueAt = START + h.deps.config.account.deleteWithinDays * DAY_MS;
+    const dueAt = START + h.deps.config.account.deleteWithinDays * time.DAY_MS;
 
     vi.setSystemTime(dueAt - 1);
     expect(await runDeletions(h.deps, h.auth)).toBe(0);
@@ -65,14 +65,14 @@ describe("the deletion job", () => {
     vi.setSystemTime(START);
     const h = harness();
     const { account, character } = await deletedPlayer(h);
-    vi.setSystemTime(START + h.deps.config.account.deleteWithinDays * DAY_MS);
+    vi.setSystemTime(START + h.deps.config.account.deleteWithinDays * time.DAY_MS);
     await runDeletions(h.deps, h.auth);
     expect(await h.deps.stores.audit.list(character)).toHaveLength(1);
     expect((await h.deps.stores.ledger.day(1)).created).toEqual({ wage: { NGN: 500 } });
     expect(await h.deps.stores.world.tickets(1)).toHaveLength(2);
     const row = await h.deps.stores.deletion.find(await accountHash(account));
-    expect(row).toMatchObject({ account: null, accountHash: await accountHash(account), completedAt: START + h.deps.config.account.deleteWithinDays * DAY_MS });
-    expect(await deletionStatus(h.deps, account)).toEqual({ requestedAt: START, dueAt: START + h.deps.config.account.deleteWithinDays * DAY_MS, completedAt: START + h.deps.config.account.deleteWithinDays * DAY_MS });
+    expect(row).toMatchObject({ account: null, accountHash: await accountHash(account), completedAt: START + h.deps.config.account.deleteWithinDays * time.DAY_MS });
+    expect(await deletionStatus(h.deps, account)).toEqual({ requestedAt: START, dueAt: START + h.deps.config.account.deleteWithinDays * time.DAY_MS, completedAt: START + h.deps.config.account.deleteWithinDays * time.DAY_MS });
     expect(await deletionStatus(h.deps, "never-an-account")).toBeNull();
     expect((await h.call("/api/account", { jar: makeJar() })).status).toBe(401);
   });

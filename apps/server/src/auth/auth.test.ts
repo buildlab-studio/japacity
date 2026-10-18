@@ -1,3 +1,4 @@
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { productionConfig, testConfig } from "../config";
@@ -105,12 +106,12 @@ describe("signing in", () => {
       return { reply, jar };
     };
 
-    vi.setSystemTime(start + 86_400_000 - 1);
+    vi.setSystemTime(start + time.DAY_MS - 1);
     const refused = await signIn();
     expect(await json(refused.reply)).toMatchObject({ code: "not-possible" });
     expect((await h.call("/api/account", { jar: refused.jar })).status).toBe(401);
 
-    vi.setSystemTime(start + 86_400_000);
+    vi.setSystemTime(start + time.DAY_MS);
     const allowed = await signIn();
     expect(allowed.reply.status).toBe(200);
     expect((await h.call("/api/account", { jar: allowed.jar })).status).toBe(200);

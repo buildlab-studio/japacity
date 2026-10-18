@@ -1,4 +1,5 @@
 import type { ServerReply, ViewReply } from "@japacity/api";
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { GOOGLE_PROFILE, harness, makeJar, withGoogle } from "../auth/auth.testing";
@@ -83,7 +84,7 @@ describe("the guest start", () => {
     vi.setSystemTime(start);
     const h = harness();
     const { jar, account } = await h.guest();
-    vi.setSystemTime(start + 300 * 86_400_000);
+    vi.setSystemTime(start + 300 * time.DAY_MS);
     expect(await body(await h.call("/api/account", { jar }))).toMatchObject({ ok: true, account: { id: account, state: "guest" } });
   });
 
@@ -93,10 +94,10 @@ describe("the guest start", () => {
     vi.setSystemTime(start);
     const h = harness();
     const { jar, account } = await h.guest();
-    vi.setSystemTime(start + 86_400_000);
+    vi.setSystemTime(start + time.DAY_MS);
     const reply = await h.call("/api/account", { method: "DELETE", jar, json: {} });
     expect(reply.status).toBe(200);
-    expect(await body(reply)).toMatchObject({ ok: true, dueAt: start + 86_400_000 + h.deps.config.account.deleteWithinDays * 86_400_000 });
+    expect(await body(reply)).toMatchObject({ ok: true, dueAt: start + time.DAY_MS + h.deps.config.account.deleteWithinDays * time.DAY_MS });
     expect(h.tables.session).toEqual([]);
     expect(h.tables.user).toEqual([]);
     expect((await h.call("/api/account", { jar })).status).toBe(401);
