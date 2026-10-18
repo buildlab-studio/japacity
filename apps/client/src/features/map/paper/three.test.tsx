@@ -15,12 +15,13 @@ import { nameOf } from "../../../shared/words/text";
 import type { CountryChoice } from "../../../shared/world/contract";
 import { Map } from "../Map";
 import { type MapPin, mapPins } from "../pins";
-import { CALGARY, CALGARY_FIT, CALGARY_HOME_SPOT, CALGARY_PAPER, calgaryText, calgaryWords } from "./calgary";
-import { CASTEL, CASTEL_FIT, CASTEL_HOME_SPOT, CASTEL_PAPER, castelText, castelWords, INSET, NAPLES } from "./castel";
+import { CALGARY, CALGARY_FIT, CALGARY_HOME_SPOT, CALGARY_PAPER } from "./calgary";
+import { CASTEL, CASTEL_FIT, CASTEL_HOME_SPOT, CASTEL_PAPER, INSET, NAPLES } from "./castel";
 import type { PaperCity } from "./city";
 import { onCard } from "./districts";
 import { drawingOf } from "./draw";
-import { DUBAI, DUBAI_FIT, DUBAI_HOME_SPOT, DUBAI_PAPER, dubaiText, dubaiWords } from "./dubai";
+import { DUBAI, DUBAI_FIT, DUBAI_HOME_SPOT, DUBAI_PAPER } from "./dubai";
+import { calgaryMapText, calgaryMapWords, castelMapText, castelMapWords, dubaiMapText, dubaiMapWords } from "./paper.words";
 import type { Fit, Position } from "./fit";
 import { inside } from "./scatter";
 import { placeStops } from "./stops";
@@ -65,8 +66,8 @@ const COUNTRIES: readonly Country[] = [
     paper: CALGARY_PAPER,
     home: CALGARY_HOME_SPOT,
     lonMetres: 71,
-    words: calgaryWords,
-    text: calgaryText,
+    words: calgaryMapWords,
+    text: calgaryMapText,
     cards: ["airport", "north-east", "downtown"],
     cardWords: ["The airport", "The north-east", "Downtown"],
     homeCard: "north-east",
@@ -91,8 +92,8 @@ const COUNTRIES: readonly Country[] = [
     paper: DUBAI_PAPER,
     home: DUBAI_HOME_SPOT,
     lonMetres: 100,
-    words: dubaiWords,
-    text: dubaiText,
+    words: dubaiMapWords,
+    text: dubaiMapText,
     cards: ["deira", "airport", "camp", "site"],
     cardWords: ["Deira", "The airport", "The camp", "The site"],
     homeCard: "camp",
@@ -114,8 +115,8 @@ const COUNTRIES: readonly Country[] = [
     paper: CASTEL_PAPER,
     home: CASTEL_HOME_SPOT,
     lonMetres: 84,
-    words: castelWords,
-    text: castelText,
+    words: castelMapWords,
+    text: castelMapText,
     cards: ["town", "fields", "domitiana"],
     cardWords: ["The town", "The fields", "The Domitiana"],
     homeCard: "domitiana",
@@ -245,7 +246,7 @@ describe("the three papers' land and water", () => {
     const domitiana = CASTEL.cards.find((card) => card.id === "domitiana");
     if (domitiana === undefined || stop === undefined) throw new Error("No Domitiana card");
     expect(onCard(domitiana, stop.at, CARD.width, CARD.height, 16)).toBe(true);
-    for (const key of ["map.inset.naples", "map.inset.inland"]) expect(castelWords(key)).not.toBe(key);
+    for (const key of ["map.inset.naples", "map.inset.inland"]) expect(castelMapWords(key)).not.toBe(key);
   });
 
   test("[R-WORLD-038] given the client's code, when what imports the three papers is read, then only the map's lazy loads do, so each rides a chunk of its own and a first visit at home carries none of them", () => {

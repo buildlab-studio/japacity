@@ -7,7 +7,7 @@
 // purpose, as the positions are (city.md R-CITY-008): a stylised Dubai, not a survey.
 import { content } from "@japacity/content";
 
-import { mapWords } from "../map.words";
+import { dubaiMapWords } from "./paper.words";
 import type { PaperCity, StripMark } from "./city";
 import { type Card, cardByRules, type Rule } from "./districts";
 import type { DrawSource } from "./draw";
@@ -211,30 +211,6 @@ const CARDS: readonly Card[] = [
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "site", latMax: 25225 }, { card: "camp", lonMin: 55380 }, { card: "airport", lonMin: 55340 }, { card: "deira" }];
 
-/** Dubai's own words: its districts, its cards and its water. Content and the map's words win over these. */
-export const dubaiText: Record<string, string> = {
-  "map.area.dubai.deira": "Deira",
-  "map.area.dubai.bur-dubai": "Bur Dubai",
-  "map.area.dubai.garhoud": "Al Garhoud",
-  "map.area.dubai.qusais": "Al Qusais",
-  "map.area.dubai.business-bay": "Business Bay",
-  "map.water.creek": "Dubai Creek",
-  "map.water.gulf": "The Gulf",
-  "map.card.deira": "Deira",
-  "map.card.airport": "The airport",
-  "map.card.camp": "The camp",
-  "map.card.site": "The site",
-};
-
-export function dubaiWords(key: string, params: Record<string, string | number> = {}): string {
-  const own = dubaiText[key];
-  if (own === undefined) return mapWords(key, params);
-  return own.replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => {
-    const value = params[name];
-    return value === undefined ? whole : String(value);
-  });
-}
-
 /** The places of the UAE with a position, as content keeps them. */
 function uaePlaces(): Position[] {
   return Object.values(content.place)
@@ -300,7 +276,7 @@ export const DUBAI: PaperCity = {
   // Deira a little below the middle of the first look, so the creek and the Gulf come into it from the west.
   opening: { phone: [0, -100], wide: [0, -60] },
   canoe: null,
-  words: dubaiWords,
+  words: dubaiMapWords,
   sizes: { "place.deira": 108, "place.dubai-airport": 114, "place.site-uae": 106 },
 };
 

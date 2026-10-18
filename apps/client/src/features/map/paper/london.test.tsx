@@ -18,7 +18,8 @@ import { drawing, drawingOf } from "./draw";
 import { fromPaper, PAPER, toPaper } from "./fit";
 import { LANTERN_CANOE } from "./geometry";
 import { LAGOS } from "./lagos";
-import { HEATHROW, INSET, LONDON, LONDON_FIT, LONDON_HOME_SPOT, LONDON_PAPER, londonText, londonWords } from "./london";
+import { HEATHROW, INSET, LONDON, LONDON_FIT, LONDON_HOME_SPOT, LONDON_PAPER } from "./london";
+import { londonMapText, londonMapWords } from "./paper.words";
 import { inside } from "./scatter";
 import { placeStops } from "./stops";
 import { stripFrame } from "./Strip";
@@ -74,12 +75,12 @@ describe("London's fit and districts", () => {
 
   test("[R-WORLD-038] given London's cards, when they are read, then there are five in the order north to south, each named in London's own words, and every district name, the river and the inset have words", () => {
     expect(LONDON.cards.map((card) => card.id)).toEqual(["elephant", "old-kent-road", "camberwell", "peckham", "nunhead"]);
-    expect(LONDON.cards.map((card) => londonWords(card.key))).toEqual(["Elephant and London Bridge", "Old Kent Road", "Camberwell", "Peckham", "Nunhead"]);
+    expect(LONDON.cards.map((card) => londonMapWords(card.key))).toEqual(["Elephant and London Bridge", "Old Kent Road", "Camberwell", "Peckham", "Nunhead"]);
     const keys = [...LONDON.labels, ...LONDON.waterLabels].map((label) => label.key);
-    expect(keys.map((key) => londonWords(key))).toEqual(["Peckham", "Camberwell", "Nunhead", "Old Kent Road", "Elephant and Castle", "London Bridge", "The City", "The Thames"]);
-    for (const key of ["map.inset.heathrow", "map.inset.west"]) expect(londonWords(key)).not.toBe(key);
+    expect(keys.map((key) => londonMapWords(key))).toEqual(["Peckham", "Camberwell", "Nunhead", "Old Kent Road", "Elephant and Castle", "London Bridge", "The City", "The Thames"]);
+    for (const key of ["map.inset.heathrow", "map.inset.west"]) expect(londonMapWords(key)).not.toBe(key);
     // London's words never shadow the map's own: each key is London's alone.
-    for (const key of Object.keys(londonText)) expect(londonWords(key)).toBe(londonText[key]);
+    for (const key of Object.keys(londonMapText)) expect(londonMapWords(key)).toBe(londonMapText[key]);
     // The river runs across the top with the City across it: the north bank's land stands above the south's.
     const north = LONDON.draw.land.north ?? [];
     expect(inside(north, LONDON.toPaper({ latE3: 51515, lonE3: -90 }))).toBe(true);

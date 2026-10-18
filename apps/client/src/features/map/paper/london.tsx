@@ -7,7 +7,7 @@
 // the positions are (city.md R-CITY-008): a stylised London, not a survey.
 import { content } from "@japacity/content";
 
-import { mapWords } from "../map.words";
+import { londonMapWords } from "./paper.words";
 import type { PaperCity, StripMark } from "./city";
 import { type Card, cardByRules, type Rule } from "./districts";
 import type { DrawSource } from "./draw";
@@ -264,10 +264,10 @@ function Inset() {
         <path d="M -2,1 L -10,-12 L -5,-12 L 7,1 Z M -2,5 L -10,18 L -5,18 L 7,5 Z M -15,1 L -19,-6 L -15,-6 L -10,1 Z" fill="#3D7CC9" className="lm-edge" />
       </g>
       <text className="inset-name" x={middle} y={y0 + 18}>
-        {londonWords("map.inset.heathrow")}
+        {londonMapWords("map.inset.heathrow")}
       </text>
       <text className="inset-note" x={middle} y={y1 - 9}>
-        {londonWords("map.inset.west")}
+        {londonMapWords("map.inset.west")}
       </text>
     </g>
   );
@@ -291,34 +291,6 @@ const CARDS: readonly Card[] = [
 
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "elephant", latMin: 51492 }, { card: "old-kent-road", latMin: 51479 }, { card: "nunhead", lonMin: -62 }, { card: "camberwell", lonMax: -80 }, { card: "peckham" }];
-
-/** London's own words: its districts, its cards, its river and Heathrow's inset. Content and the map's words win over these. */
-export const londonText: Record<string, string> = {
-  "map.area.peckham": "Peckham",
-  "map.area.camberwell": "Camberwell",
-  "map.area.nunhead": "Nunhead",
-  "map.area.old-kent-road": "Old Kent Road",
-  "map.area.elephant": "Elephant and Castle",
-  "map.area.london-bridge": "London Bridge",
-  "map.area.city": "The City",
-  "map.water.thames": "The Thames",
-  "map.card.elephant": "Elephant and London Bridge",
-  "map.card.old-kent-road": "Old Kent Road",
-  "map.card.camberwell": "Camberwell",
-  "map.card.peckham": "Peckham",
-  "map.card.nunhead": "Nunhead",
-  "map.inset.heathrow": "Heathrow",
-  "map.inset.west": "Far west, by train",
-};
-
-export function londonWords(key: string, params: Record<string, string | number> = {}): string {
-  const own = londonText[key];
-  if (own === undefined) return mapWords(key, params);
-  return own.replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => {
-    const value = params[name];
-    return value === undefined ? whole : String(value);
-  });
-}
 
 /** The places of the UK with a position, as content keeps them. */
 function ukPlaces(): Position[] {
@@ -394,7 +366,7 @@ export const LONDON: PaperCity = {
   // The district a little below the middle of the first look, so the river and the City come into it from the north.
   opening: { phone: [0, -150], wide: [0, -100] },
   canoe: null,
-  words: londonWords,
+  words: londonMapWords,
   sizes: { "place.heathrow": 118, "place.peckham": 108, "place.rye-lane": 104 },
 };
 

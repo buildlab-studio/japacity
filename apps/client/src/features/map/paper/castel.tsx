@@ -7,7 +7,7 @@
 // coast's own fit; rough on purpose, as the positions are (city.md R-CITY-008).
 import { content } from "@japacity/content";
 
-import { mapWords } from "../map.words";
+import { castelMapWords } from "./paper.words";
 import type { PaperCity, StripMark } from "./city";
 import { type Card, cardByRules, type Rule } from "./districts";
 import type { DrawSource } from "./draw";
@@ -178,10 +178,10 @@ function Inset() {
         <path d="M -2,1 L -10,-12 L -5,-12 L 7,1 Z M -2,5 L -10,18 L -5,18 L 7,5 Z M -15,1 L -19,-6 L -15,-6 L -10,1 Z" fill="#3D7CC9" className="lm-edge" />
       </g>
       <text className="inset-name" x={middle} y={y0 + 18}>
-        {castelWords("map.inset.naples")}
+        {castelMapWords("map.inset.naples")}
       </text>
       <text className="inset-note" x={middle} y={y1 - 9}>
-        {castelWords("map.inset.inland")}
+        {castelMapWords("map.inset.inland")}
       </text>
     </g>
   );
@@ -197,30 +197,6 @@ const CARDS: readonly Card[] = [
 
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "town", latMin: 41022, lonMax: 13970 }, { card: "fields", latMin: 40985 }, { card: "domitiana" }];
-
-/** The coast's own words: its districts, its cards, its sea and river, and Naples' inset. Content and the map's words win over these. */
-export const castelText: Record<string, string> = {
-  "map.area.castel.town": "Castel Volturno",
-  "map.area.castel.pinetamare": "Pinetamare",
-  "map.area.castel.fields": "The fields",
-  "map.area.castel.varcaturo": "Varcaturo",
-  "map.water.tyrrhenian": "The sea",
-  "map.water.volturno": "The Volturno",
-  "map.card.town": "The town",
-  "map.card.fields": "The fields",
-  "map.card.domitiana": "The Domitiana",
-  "map.inset.naples": "Naples",
-  "map.inset.inland": "Inland, by bus",
-};
-
-export function castelWords(key: string, params: Record<string, string | number> = {}): string {
-  const own = castelText[key];
-  if (own === undefined) return mapWords(key, params);
-  return own.replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => {
-    const value = params[name];
-    return value === undefined ? whole : String(value);
-  });
-}
 
 /** The places of Italy with a position, as content keeps them, Naples' airport aside on its inset. */
 function italyPlaces(): Position[] {
@@ -286,7 +262,7 @@ export const CASTEL: PaperCity = {
   // The town a little below the middle of the first look, so the river comes into it from the north.
   opening: { phone: [0, -120], wide: [0, -80] },
   canoe: null,
-  words: castelWords,
+  words: castelMapWords,
   sizes: { "place.castel-volturno": 108, "place.naples-airport": 112, "place.via-domitiana": 104 },
 };
 
