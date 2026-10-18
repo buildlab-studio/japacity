@@ -33,9 +33,9 @@ async function shot(page: Page, name: string): Promise<void> {
   if (SHOTS !== null) await page.screenshot({ path: `${SHOTS}/${name}.png` });
 }
 
-/** A new life in the world mode, played past its prologue by the first open answer each time. */
+/** A new life, played past its prologue by the first open answer each time. */
 async function startLife(page: Page): Promise<void> {
-  await page.goto("/?world");
+  await page.goto("/");
   await startReadyLife(page);
   for (let step = 0; step < 40; step += 1) {
     if ((await page.locator("[data-band]").count()) > 0) break;

@@ -37,7 +37,7 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   const only = value(argv, "--only");
   const stills = value(argv, "--stills");
-  // The bundler's cache on disk is left off: a render is rare, and on a loaded machine the cache's first write was seen to
+  // The bundler's cache on disk is left off: a render is rare, and on a loaded machine the cache's first write can
   // stall the bundle for good.
   const serveUrl = await bundle({ entryPoint: join(PACKAGE, "src", "index.ts"), publicDir: join(PACKAGE, "public"), enableCaching: false });
   if (stills !== undefined) {

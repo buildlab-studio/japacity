@@ -1,8 +1,8 @@
 // The seeding before a run (load:seeded-test-accounts): test accounts
 // through the test sign-in, a character each through the character route,
 // played forward a seeded number of months between 0 and `warmTurns` by the
-// load route, and the manifest the run and the verifier read. Pairs wait for
-// the pair routes.
+// load route, and the manifest the run and the verifier read. Pairs are
+// planned but never joined: load.md names no route that joins a pair.
 //
 // Usage: pnpm tsx tools/load/seed.ts [--scale 10] [--base http://127.0.0.1:8787] [--concurrency 32]
 import { int } from "@japacity/sim";

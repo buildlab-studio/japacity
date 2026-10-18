@@ -405,14 +405,12 @@ export function checkPlace(place: PlaceFile, measured: ReadonlyMap<string, Measu
 /**
  * 14. A world-first place (one that declares its camera, world:camera-always-raised) keeps its floors a
  * centimetre apart (world:faces-never-share-height), its crowd, moving sheets and size inside world:place-is-one-screen, and one or
- * two acts on each thing (world:things-are-tappable-models). A file
- * from before the world-first design is drawn by the earlier rules until the places are rebuilt, so
- * what these checks find in it is a note, not a failure.
+ * two acts on each thing (world:things-are-tappable-models). A place file that declares no shot is not held to
+ * them: what these checks find in it is printed as a note, not a failure.
  */
 export function worldChecks(place: PlaceFile, measured: ReadonlyMap<string, Pick<Measured, "floors">>, notes: string[]): string[] {
   const found = [...checkFaces(place.place, place.stage, (file) => measured.get(file)?.floors ?? []), ...checkLimits(place), ...checkThings(place)];
   if (isWorldFile(place)) return found;
-  // A place built before the world-first checks carries no shot, so what they find there is only noted until the place is rebuilt with one.
   if (found.length > 0) notes.push(`${place.place} has no stage.shot yet, so the world-first checks only note: ${String(found.length)} problem(s), the first: ${found[0] ?? ""}`);
   return [];
 }

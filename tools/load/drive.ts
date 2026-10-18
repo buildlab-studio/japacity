@@ -1,5 +1,5 @@
-// A stand-in load generator in Node for the smaller runs made before k6 is
-// installed (load:arrival-rate-generator names k6 for the gate). It sends
+// A stand-in load generator in Node for smaller runs on a machine without k6
+// (load:arrival-rate-generator names k6 for the gate). It sends
 // what commands.k6.js sends, from the same picks in pick.js, on the same
 // arrival schedule: a linear ramp, then a constant rate that never waits for
 // the server, with an iteration dropped when every user is busy.

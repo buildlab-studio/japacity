@@ -24,7 +24,7 @@ const KEPT_CONSOLE = new Set(["error", "info"]);
  * a promise's result (`.catch(e=>console.warn(...))`), so the call is not a statement the bundler may remove.
  */
 const UNDROPPABLE_CONSOLE = /\.catch\(\w+=>console\.warn\(`\[R3F\] Error disposing renderer`/g;
-/** What the development switches leave in code that reads them: `?paint=`, `?clock=`, `?sleep=`, `?morning=`, `?tiles`, `?lively`, and the lines' hook (`?fan=off` went with the chip, world:fan-of-sticker-buttons). */
+/** What the development switches leave in code that reads them: `?paint=`, `?clock=`, `?sleep=`, `?morning=`, `?tiles`, `?lively`, and the lines' hook. */
 const DEV_SWITCH = /\.(?:get|has)\([`"'](paint|clock|sleep|morning|tiles|lively)[`"']\)/g;
 const DEV_SWITCHES = ["paint", "clock", "sleep", "morning", "tiles", "lively"];
 const DEV_HOOK = "__wink";
@@ -136,7 +136,7 @@ describe("the build for players", () => {
     const credits = JSON.parse(read(shipped, "assets/credits.json")) as { mapData: { text: string; link: string }[]; fonts: unknown[] };
     expect(credits.mapData.some((line) => line.text.includes("OpenStreetMap") && line.link.includes("openstreetmap.org/copyright"))).toBe(true);
     expect(credits.fonts.length).toBeGreaterThan(0);
-    // The way to the full list is the licence file the build writes beside the page (guide:credits-state-licences), not the private repository.
+    // The way to the full list is the licence file the build writes beside the page (guide:credits-state-licences), not the repository.
     expect(code(shipped)).toContain("licenses.txt");
   });
 });

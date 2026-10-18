@@ -33,7 +33,7 @@ describe("the load test's numbers", () => {
     expect(RAMP_SECONDS).toBe(60);
   });
 
-  test("[load:peak-reads-reported-only] given the peak, when the reads are worked out, then commands and reads make requestsPerSecond, heartbeats in the research file's proportion", () => {
+  test("[load:peak-reads-reported-only] given the peak, when the reads are worked out, then commands and reads make requestsPerSecond, heartbeats in their share of one player's day", () => {
     for (const load of [config.load, scaled(config.load, 10), scaled(config.load, 1000)]) {
       const reads = readRates(load);
       expect(load.commandsPerSecond + reads.heartbeats + reads.views + reads.worlds).toBe(load.requestsPerSecond);

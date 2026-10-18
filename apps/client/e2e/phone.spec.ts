@@ -33,7 +33,7 @@ test("[world:phone-rises-over-scene] [world:phone-holds-what-phones-hold] the ph
   test.skip(!info.project.name.startsWith("Pixel"), "phone size only");
   test.setTimeout(150_000);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/?world");
+  await page.goto("/");
   await startReadyLife(page);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   // The place behind the phone, when the software renderer gets there in time; the phone does not wait on it.
