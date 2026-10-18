@@ -10,7 +10,7 @@ import type { Motion, PlaceFile } from "./placeFile";
  * for the outdoor numbers, and the rule's caps for a room and for an outdoor place apply under them.
  * A place dressed for the send-off party keeps its own crowd: its ten and its dancers.
  */
-// tuning.city.crowdLow and crowdHigh are 8 and 16, over the rule's 6 and 10 outdoors, so the caps are applied here in code.
+// tuning.city.crowdLow and crowdHigh (8 and 16) are over every scope's cap, so outside a dressed place the caps bind.
 export function crowdTuning(city: CityTuning, scope: PlaceFile["scope"], dressed: boolean): CityTuning {
   if (dressed) return city;
   const cap = WORLD_LIMITS.people[scope];

@@ -13,7 +13,7 @@ const SHEETS = new Set(["flag", "hang", "frond"]);
 const sheetsIn = (motion: readonly Motion[]): Motion[] => motion.filter((entry) => SHEETS.has(entry.kind));
 
 describe("the crowd a place may show", () => {
-  test("[world:place-is-one-screen] given tuning's crowd figures, when a place's crowd is capped by its scope, then outdoors shows at most 6 in low mode and 10 in high, and a room 4 and 6", () => {
+  test("[world:place-is-one-screen] [city:crowd-sample-capped] given tuning's crowd figures, when a place's crowd is capped by its scope, then outdoors shows at most 6 in low mode and 10 in high, and a room 4 and 6", () => {
     const outdoors = crowdTuning(city, "exterior", false);
     const indoors = crowdTuning(city, "interior", false);
     expect([outdoors.crowdLow, outdoors.crowdHigh]).toEqual([Math.min(city.crowdLow, 6), Math.min(city.crowdHigh, 10)]);
