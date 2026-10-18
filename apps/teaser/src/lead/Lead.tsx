@@ -13,7 +13,7 @@ import { AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame
 
 import type { ClipName } from "../clips";
 import { GitHubMark, Seal, Wordmark } from "../parts/brand";
-import { Card, Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
+import { Card, Chip, Clip, confetti, PressButton, Sticker, Title } from "../parts/dress";
 import { loadRubik } from "../parts/fonts";
 import { FrameContext, type FrameShape, useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
@@ -449,7 +449,7 @@ function Bit({ bit }: { bit: (typeof CONFETTI)[number] }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = pop(frame, fps, bit.d);
-  const style: CSSProperties = { width: 40, height: 20, borderRadius: 8, background: bit.c, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * 160)}px) rotate(${String(bit.r * p)}deg) scale(${String(p)})` };
+  const style = confetti(bit.c, bit.r, p, { width: 40, height: 20, rise: 160 });
   if (useFrameShape() === "tall") {
     return (
       <Piece zone="picture" name="confetti" left={bit.tx} top={bit.ty} width={40} height={20}>

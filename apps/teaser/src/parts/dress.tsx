@@ -67,6 +67,14 @@ export function Sticker({ tile, size, tilt = 0, delay = 0, edge = 8, style }: { 
   );
 }
 
+/**
+ * A bit of confetti `p` of the way through its pop: a chip of `colour` cut with a white edge, `width` by `height`,
+ * rising `rise` px into place and turning to `turn` degrees as it grows.
+ */
+export function confetti(colour: string, turn: number, p: number, { width, height, rise }: { width: number; height: number; rise: number }): CSSProperties {
+  return { width, height, borderRadius: 8, background: colour, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * rise)}px) rotate(${String(turn * p)}deg) scale(${String(p)})` };
+}
+
 /** The night's edge round the yellow action, as the client's night paint draws it. */
 const NIGHT_ACTION_EDGE = "#0b1130";
 

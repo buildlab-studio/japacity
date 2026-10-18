@@ -2,7 +2,7 @@
 // cheers. Built in Remotion from the game's own card, chip and stickers, where a recording would be small and slow.
 import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
-import { Card, Chip, Sticker } from "../parts/dress";
+import { Card, Chip, confetti, Sticker } from "../parts/dress";
 import { land, pop, ramp } from "../parts/motion";
 import { naira } from "../parts/naira";
 import { DAY, FONT, GREEN, TINT } from "@japacity/brand";
@@ -113,7 +113,7 @@ export function WayOut() {
       <RouteCard tile="prop_flight-board" title="The Gulf" line="A job before the flight" tint={TINT.food} top={796} delay={14} />
       {CONFETTI.map((bit) => {
         const p = pop(frame, fps, bit.d);
-        return <div key={`${String(bit.x)}-${String(bit.y)}`} style={{ position: "absolute", left: bit.x, top: bit.y, width: 46, height: 22, borderRadius: 8, background: bit.c, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * 180)}px) rotate(${String(bit.r * p)}deg) scale(${String(p)})` }} />;
+        return <div key={`${String(bit.x)}-${String(bit.y)}`} style={{ position: "absolute", left: bit.x, top: bit.y, ...confetti(bit.c, bit.r, p, { width: 46, height: 22, rise: 180 }) }} />;
       })}
       <div style={{ position: "absolute", left: 1150, top: 200 }}>
         <Sticker tile="chr_ada-cheer" size={680} tilt={4} delay={14} />
