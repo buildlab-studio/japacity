@@ -1,6 +1,6 @@
 /// <reference types="node" />
-// The guest clean-up's entry (R-ACCOUNT-026), run by Node through tsx from
-// tools/guests/clean.ts and never part of the Worker. It reads the database at
+// The guest clean-up's entry (R-ACCOUNT-026), run by Node through tsx as
+// `pnpm guests:clean` and never part of the Worker. It reads the database at
 // `DATABASE_URL` and touches nothing but the auth library's tables and the
 // stores the deletion job removes from.
 import { content } from "@japacity/content";
