@@ -58,7 +58,7 @@ import { chipEffectsLine, chipTimeOf } from "../../shared/words/chips";
 import { actsOffered, answerAsk, askHeader, isPaper, KIOSK_CAP, kioskAnswer, withPlanned, withSpent } from "./acts";
 import { earnedShort, kioskCapReached } from "../../shared/words/lottoLines";
 import { doActLine, lightBack, nowLands, plainActLine, plannedMarks, SHOWN_BY_SCENE } from "./actLines";
-import { hasAbroadWords, loadAbroadWords } from "./abroadWords";
+import { hasAbroadWords, loadAbroadWords } from "./abroad.words";
 import { onShift, shiftMarks } from "./shift";
 import { NAP, SLEEP_MS, sleepMsOf, wakeCommand, wokeWords } from "./sleep";
 import { cityWords, heardWords, placeName, residentName, roleWords } from "./city.words";
