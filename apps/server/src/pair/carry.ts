@@ -14,7 +14,7 @@ import type { Book } from "./book";
 import { shareFamily } from "./family";
 import { openBond, sendFacts, sendTo, sideLive } from "./step";
 
-/** The events of the people and interview kinds this file reads, as they are recorded (people.events.ts, interview.events.ts). */
+/** The events of the people and interview kinds this file reads, as they are recorded (person.events.ts, interview.events.ts). */
 type Carried =
   | { type: "people/courted"; bond: string }
   | { type: "people/moment-added"; bond: string; moment: Moment }
@@ -196,7 +196,7 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
   }
 }
 
-/** The slot a life made from a sibling invite holds for the inviter (R-PEOPLE-011, people.family.ts). */
+/** The slot a life made from a sibling invite holds for the inviter (R-PEOPLE-011, person.family.ts). */
 const INVITER_SLOT = "sibling-1";
 
 /**
