@@ -4,9 +4,11 @@ import { copyFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "nod
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { test } from "@playwright/test";
+
 import { catalogDir, MISSED_FILE, shortCommit } from "./where";
 
-export default function setup(): void {
+function setup(): void {
   const dir = catalogDir();
   mkdirSync(dir, { recursive: true });
   // A second run of the same commit replaces its pictures; the review written beside them is kept.
@@ -15,3 +17,7 @@ export default function setup(): void {
   writeFileSync(join(dir, "run.json"), JSON.stringify({ commit: shortCommit(), started: Date.now() }));
   console.log(`The catalog is shot into ${dir}`);
 }
+
+test("before the shoot, the folder is made and emptied and the checklist copied beside it", () => {
+  setup();
+});

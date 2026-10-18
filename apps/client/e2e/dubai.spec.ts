@@ -5,11 +5,12 @@
 // On shift, and back to the camp, and the shuttle asks nothing either way.
 import { expect, test } from "@playwright/test";
 
-import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./abroad";
-import { passOpeningWords } from "./door";
-import { doAct, LIVED, placeReady, seedSave } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./support/abroad";
+import { passOpeningWords } from "./support/door";
+import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
-test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 /** The sweep's borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
 const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };

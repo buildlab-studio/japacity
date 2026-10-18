@@ -11,8 +11,9 @@ import { type Browser, devices, expect, test, type Page } from "@playwright/test
 
 import { content } from "../../../packages/content/src/index";
 import { ADMIN_GETS } from "../src/features/admin/admin.testing";
-import { passOpeningWords, startReadyLife } from "./door";
-import { LIVED, openApp, passCards, passHomeTeach, placeReady } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { passOpeningWords, startReadyLife } from "./support/door";
+import { LIVED, openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 /** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
@@ -20,7 +21,7 @@ const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 /** The pictures are taken at the design's 390 by 844, three device pixels to each. */
 const SIZE = PREVIEW === undefined || PREVIEW === "" ? {} : { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 };
 
-test.use({ ...SIZE, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ ...SIZE, launchOptions: SOFTWARE_WEBGL });
 test.skip(({ isMobile }) => !isMobile, "The dedication is drawn for a phone.");
 
 /** What this spec reads of the map's probe (map.spec.ts declares the rest). */

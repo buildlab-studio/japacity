@@ -6,10 +6,11 @@
 import { devices, expect, type Page, test } from "@playwright/test";
 
 import { text } from "../../../packages/content/src/index";
-import { startReadyLife } from "./door";
-import { passCards } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { startReadyLife } from "./support/door";
+import { type CityProbe, passCards } from "./support/live";
 
-test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 interface MapProbe {
   ready: boolean;
@@ -27,9 +28,6 @@ declare global {
 }
 
 const SHOTS = process.env.MAP_SHOTS ?? null;
-
-/** The city's own probe, as city.spec.ts declares it; only its place and readiness are read here. */
-type CityProbe = { ready: boolean; place: string } | undefined;
 
 async function shot(page: Page, name: string): Promise<void> {
   if (SHOTS !== null) await page.screenshot({ path: `${SHOTS}/${name}.png` });

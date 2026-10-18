@@ -3,6 +3,8 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { test } from "@playwright/test";
+
 import { SCREENS } from "./screens";
 import { catalogDir, MISSED_FILE } from "./where";
 
@@ -10,7 +12,7 @@ function escape(words: string): string {
   return words.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-export default function teardown(): void {
+function teardown(): void {
   const dir = catalogDir();
   if (!existsSync(dir)) return;
   const pictures = readdirSync(dir).filter((name) => name.endsWith(".png")).sort();
@@ -100,3 +102,7 @@ ${tiles.join("\n")}
   writeFileSync(join(dir, "index.html"), html);
   console.log(`The contact sheet: ${join(dir, "index.html")} (${String(pictures.length)} pictures, ${took})`);
 }
+
+test("after the shoot, the contact sheet is written", () => {
+  teardown();
+});

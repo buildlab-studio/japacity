@@ -1,6 +1,5 @@
 import type { Game } from "@japacity/sim/testing";
 import { start } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
@@ -8,16 +7,15 @@ import { expect, test, type Page } from "@playwright/test";
 // local authority replays them. The people live in the world (docs/rules/world.md R-WORLD-020): met in a place, their
 // threads and the slots in the phone's Chats, a visit at their room, the interview as the ask under the band.
 import { content } from "../../../packages/content/src/index";
-import { doAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeReady, putPhoneAway, seedSave, sleepTheMonth, bedThing } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { doAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeReady, putPhoneAway, seedSave, sleepTheMonth, bedThing } from "./support/live";
+import { shootAtSize } from "./support/preview";
 
-test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ launchOptions: SOFTWARE_WEBGL });
 
 const TOBI = "person.tobi-bank";
 const SEE = { activity: "activity.see-someone", param: null } as const;
 const PAIR = "pair-1";
-
-/** Where the pictures go, when asked for. */
-const PREVIEW = process.env.PREVIEW_DIR;
 
 /** Text that must never reach the player, as the smoke spec holds it. */
 const BROKEN: readonly [string, RegExp][] = [
@@ -30,12 +28,6 @@ const BROKEN: readonly [string, RegExp][] = [
 async function expectNothingBroken(page: Page, when: string): Promise<void> {
   const shown = await page.evaluate(() => document.body.textContent);
   for (const [what, pattern] of BROKEN) expect(shown.match(pattern)?.[0], `${what} on screen ${when}`).toBeUndefined();
-}
-
-async function shoot(page: Page, name: string, project: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
-  const size = project.startsWith("Pixel") ? "phone" : "desktop";
-  await page.screenshot({ path: join(PREVIEW, `${name}-${size}.png`), fullPage: false });
 }
 
 function tunde(): Game {
@@ -114,7 +106,7 @@ test("[R-WORLD-020] the slots in Chats show the family, and a computer partner c
   await expect(people.locator('[data-slot="partner"]')).toContainText("Nobody yet");
   await expect(people.locator("[data-slot]")).toHaveCount(Object.keys(game.state.people.slots).length);
   await expectNothingBroken(page, "in the slots");
-  await shoot(page, "tab", info.project.name);
+  await shootAtSize(page, "tab", info.project.name);
   await putPhoneAway(page);
 
   // Tobi in the parlour: talking to him opens his card, whose one button courts him (R-PEOPLE-013).
@@ -159,7 +151,7 @@ test("[R-WORLD-020] a bond carries its time together, and a visit at their room 
   const head = await openBond(page, "Tobi");
   await expect(head.locator('[data-head-row="stage"]')).toContainText("Four times together");
   await expectNothingBroken(page, "on a bond");
-  await shoot(page, "bond", info.project.name);
+  await shootAtSize(page, "bond", info.project.name);
 
   const end = head.locator('[data-head-row="end"]');
   await end.locator("summary").click();
@@ -181,7 +173,7 @@ test("[R-WORLD-020] a friend's proposal waits for an answer in their thread, and
   const pending = head.locator('[data-head-row="pending"]');
   await expect(pending).toContainText("They ask to be together.");
   await expectNothingBroken(page, "on a proposal");
-  await shoot(page, "proposal", info.project.name);
+  await shootAtSize(page, "proposal", info.project.name);
   await pending.getByRole("button", { name: "Say yes" }).click();
   await expect(head).not.toContainText("They ask to be together.");
 });
@@ -224,7 +216,7 @@ test("[R-WORLD-006] [R-INTERVIEW-004] the interview asks one question at a time 
   await expect(interview).toBeVisible();
   await expect(interview).toContainText("Question 1 of 3");
   await expectNothingBroken(page, "in the interview");
-  await shoot(page, "interview", info.project.name);
+  await shootAtSize(page, "interview", info.project.name);
 
   await interview.getByRole("button", { name: "Four to eight times" }).click();
   await interview.getByRole("button", { name: "A town back home" }).click();

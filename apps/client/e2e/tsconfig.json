@@ -1,5 +1,5 @@
 {
-  // The browser tests and their config. Kept apart from src so the app's
+  // The browser tests. Kept apart from src so the app's
   // tsconfig stays as it is, and so the lint's project service finds them.
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {

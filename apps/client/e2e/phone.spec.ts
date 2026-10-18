@@ -4,12 +4,13 @@
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
-import { startReadyLife } from "./door";
-import { passCards } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { startReadyLife } from "./support/door";
+import { passCards } from "./support/live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 
-test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ launchOptions: SOFTWARE_WEBGL });
 
 async function shot(page: Page, name: string): Promise<void> {
   if (PREVIEW !== undefined && PREVIEW !== "") await page.screenshot({ path: join(PREVIEW, `${name}.png`) });

@@ -6,13 +6,13 @@ import { expect, type Page } from "@playwright/test";
 
 import { cardsSettled } from "./door";
 
-import { text } from "../../../packages/content/src/index";
+import { text } from "../../../../packages/content/src/index";
 
 /** The address a test opens: the sleep cut to two seconds and the morning's results opened at once. */
 export const LIVED = "?sleep=2&morning=now";
 
 /** The probe the scene sets on the window; only its place and readiness are read here. */
-type CityProbe = { ready?: boolean; place?: string } | undefined;
+export type CityProbe = { ready?: boolean; place?: string } | undefined;
 
 /** Waits for the place to be drawn, so its things can be tapped. */
 export async function placeReady(page: Page, timeout = 90_000): Promise<void> {

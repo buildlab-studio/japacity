@@ -5,8 +5,9 @@
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
-import { startReadyLife } from "./door";
-import { passCards } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { startReadyLife } from "./support/door";
+import { passCards } from "./support/live";
 
 const PREVIEW = process.env.PREVIEW_DIR;
 /** Every 40 ms over the grow and the screen's fade after it, the longest of the three (Phone.tsx GROW_MS, then index.css `.motion-screen`). */
@@ -17,7 +18,7 @@ const GROW_MS = 250;
 /** What a motion may change (R-WORLD-023). */
 const COMPOSITOR = ["opacity", "transform"];
 
-test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ launchOptions: SOFTWARE_WEBGL });
 
 interface Box {
   x: number;

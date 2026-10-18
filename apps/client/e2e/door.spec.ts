@@ -4,8 +4,10 @@
 // reduced motion the same, at once.
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import { SOFTWARE_WEBGL } from "./support/browser";
+
 // The rows follow what the figure reads of its look, so the figure must be drawn: WebGL in software, as the smoke spec has it.
-test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ launchOptions: SOFTWARE_WEBGL });
 
 /** True when the element stands whole inside the door's body, the part of the screen that scrolls between the head row and the foot. */
 async function wholeInBody(page: Page, element: Locator): Promise<boolean> {

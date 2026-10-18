@@ -5,11 +5,12 @@
 // road's bus to the discount supermarket asks its flat fare, and the weekly shop takes euros.
 import { expect, test } from "@playwright/test";
 
-import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy, standing } from "./abroad";
-import { passOpeningWords } from "./door";
-import { doAct, LIVED, placeReady, seedSave } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy, standing } from "./support/abroad";
+import { passOpeningWords } from "./support/door";
+import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
-test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 /** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28, at the farm. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };

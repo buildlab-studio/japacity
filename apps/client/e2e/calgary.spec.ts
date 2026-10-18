@@ -5,11 +5,12 @@
 // the clock-in says On shift, and rides home, and the pass covers every ride of the month.
 import { expect, test } from "@playwright/test";
 
-import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./abroad";
-import { passOpeningWords } from "./door";
-import { doAct, LIVED, placeReady, seedSave } from "./live";
+import { SOFTWARE_WEBGL } from "./support/browser";
+import { type AbroadLife, clear, lifeIn, money, pickStop, rideBy } from "./support/abroad";
+import { passOpeningWords } from "./support/door";
+import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
-test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 /** The sweep's canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
 const POINTS: AbroadLife = { strategy: "canada", life: "scenario.zainab", seed: "golden-zainab-canada-0", country: "country.canada", money: "CAD", holding: 60_000 };

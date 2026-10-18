@@ -13,7 +13,7 @@ import { devices, expect, test, type Browser, type BrowserContext, type Page } f
 // the same tests run against staging behind Access; those that need Mailpit or the local database are skipped.
 import { realTarget, withAccess } from "../../../../tools/local/access";
 import { cronUrl, readLocalStack } from "../../../../tools/local/env";
-import { passOpeningWords, passThePage } from "../door";
+import { passOpeningWords, passThePage } from "../support/door";
 
 const ROOT = fileURLToPath(new URL("../../../..", import.meta.url));
 const stack = readLocalStack(ROOT);
