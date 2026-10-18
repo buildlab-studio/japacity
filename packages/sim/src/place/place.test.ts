@@ -10,7 +10,7 @@ import { applyEffects, readyLife, toDecision, UK as UK_ROUTE } from "../testing/
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
+import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
 
 const UK: Id<"country"> = "country.uk";
@@ -591,6 +591,21 @@ describe("the token kept abroad", () => {
     expect(paidFor(result, "flight")).toEqual([FLIGHT.amount]);
     expect(result.events.filter((event) => event.type === "wallet/debited").map((event) => (event as unknown as { reason: string }).reason)).toEqual(["flight"]);
     expect(game.state.route[UK_ROUTE]).toEqual(route);
+    expect(checkInvariants(game.state, game.content)).toEqual([]);
+  });
+
+  test("[R-RETURN-004] [R-STATUS-007] given the settled token and the UK study route granted, when that route is flown, then the arrival keeps the settled status, the token used, and the route departs as any granted route does", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: SETTLED }]);
+    comeHome(game);
+    expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, heldAbroad: null });
+    expect(game.state.status.current?.entry).toBe(SETTLED);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("departed");
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 

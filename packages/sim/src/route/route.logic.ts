@@ -512,7 +512,8 @@ function closeHomeOffers(ctx: Ctx, cause: Cause): void {
 /**
  * R-ROUTE-020, with R-GATE-003's arrival in place of the ending: the life goes on abroad. R-RETURN-004: a status kept
  * from a return with papers flies any route into its country, with no gate and no fee but the flight, and the
- * arrival is on that status; the route itself does not move.
+ * arrival is on that status; the route itself does not move. A granted route into that country departs as any
+ * granted route does, and the arrival is still on the status kept, since a settled status never expires (R-STATUS-007).
  */
 function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "route/depart") throw new Error(`route/depart cannot handle ${command.type}.`);
@@ -521,7 +522,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const entry = ownOf(ctx.content.route, command.route);
   const held = ownOf(ctx.state.route, command.route);
   if (entry === undefined || held === undefined) return reject("unknown-id", `There is no route ${String(command.route)}.`);
-  const token = held.state === "granted" ? null : tokenFor(readOf(ctx), entry);
+  const kept = tokenFor(readOf(ctx), entry);
+  const token = held.state === "granted" ? null : kept;
   if (held.state !== "granted" && token === null) return reject("not-legal", "Only a granted route, or a route into the country of a status kept, can be flown.");
   // The page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.
   if (ctx.state.place.where === "road") return reject("not-legal", "No flight leaves from the road.");
@@ -552,7 +554,8 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const job = gate.departureJob?.(entry, held) ?? null;
   const events = record(ctx, moved(command.route, "departed"));
   if (entry.country !== null) ctx.apply([{ type: "place/move", to: "abroad", country: entry.country }], cause);
-  if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
+  if (kept !== null) ctx.apply([{ type: "status/grant", status: kept }], cause);
+  else if (entry.status !== null) ctx.apply([job === null ? { type: "status/grant", status: entry.status } : { type: "status/grant", status: entry.status, job }], cause);
   // R-LADDER-005: the sponsor's job is the job held on arrival. R-PLACE-003: a home job does not fly.
   // activity.md is silent on when; it is the moment of the flight, so no job is held that cannot be worked.
   ctx.apply([job === null ? { type: "activity/end-job", why: "moved" } : { type: "activity/start-job", job }, { type: "activity/end-job", why: "moved", side: true }], cause);
