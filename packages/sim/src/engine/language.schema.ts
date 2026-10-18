@@ -231,7 +231,12 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("credit/min"), value: IntSchema }),
   z.strictObject({ type: z.literal("goal/done"), goal: idOf("goal") }),
   z.strictObject({ type: z.literal("era/is"), eras: z.array(idOf("era")) }),
-  z.strictObject({ type: z.literal("obligation/has"), obligationType: ObligationTypeSchema, obligation: idOf("obligation").exactOptional() }),
+  z.strictObject({
+    type: z.literal("obligation/has"),
+    obligationType: ObligationTypeSchema,
+    obligation: idOf("obligation").exactOptional(),
+    defaulted: z.boolean().exactOptional(),
+  }),
   z.strictObject({ type: z.literal("route/gate-step"), route: idOf("route"), step: z.string().min(1) }),
   z.strictObject({ type: z.literal("activity/local-tenure"), months: CountSchema }),
   z.strictObject({ type: z.literal("activity/played"), activity: idOf("activity") }),

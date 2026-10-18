@@ -171,15 +171,24 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   // R-HEALTH-006: abroad, a court date over what is still owed. A day lost: one slot next month.
-  // "A car shortfall or a defaulted loan abroad" is a loan held abroad. The car shortfall is a
-  // loan; `obligation/has` does not count a loan already in default, so a defaulted loan alone does
-  // not bring it.
+  // The car shortfall comes with a judgment whether or not it is paid; any other loan only once it is in default.
   "offer.court-date": {
     id: "offer.court-date",
     group: "abroad",
     where: "abroad",
     lockNext: { slots: COURT_LOCK.slots, months: COURT_LOCK.months, why: COURT_LOCK.why },
-    when: [{ type: "place/is", where: "abroad" }, { type: "obligation/has", obligationType: "loan" }, NO_FORCED_MONTH],
+    when: [
+      { type: "place/is", where: "abroad" },
+      {
+        type: "any",
+        of: [
+          { type: "obligation/has", obligationType: "loan", obligation: "obligation.car-shortfall" },
+          { type: "obligation/has", obligationType: "loan", obligation: "obligation.car-shortfall-home" },
+          { type: "obligation/has", obligationType: "loan", defaulted: true },
+        ],
+      },
+      NO_FORCED_MONTH,
+    ],
     // 5%
     chanceBp: 500,
     // The page gives no cooldown; the forced-month cap already keeps it to one a year.
