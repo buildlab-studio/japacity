@@ -664,6 +664,8 @@ export interface ObligationEntry {
   creditMin?: number;
   /** Paid and missed months move the credit file (R-CREDIT-002). */
   reportsToCredit?: boolean;
+  /** Paid by the activity that opens it, and returned when it closes by any way but its own default (R-ABROAD-003). */
+  deposit?: number;
   /** The monthly rate by credit mark, first rung whose `min` the mark reaches (R-CREDIT-005). */
   rateByCredit?: { min: number; rateBp: number }[];
   /** The car: deposit, final payment, resale and thresholds (docs/rules/car.md). */

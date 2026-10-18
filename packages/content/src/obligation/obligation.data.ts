@@ -55,11 +55,12 @@ function rentRoom(id: Id<"obligation">, currency: Currency, amount: number): Obl
   };
 }
 
-/** A flat in your own name: credit 20 to open, a third miss in a row evicts to a room (R-ABROAD-003). */
+/** A flat in your own name: credit 20 and a deposit of one month to open, a third miss in a row evicts to a room (R-ABROAD-003). */
 function rentFlat(id: Id<"obligation">, currency: Currency, amount: number, room: Id<"obligation">): ObligationEntry {
   return {
     ...rentRoom(id, currency, amount),
     creditMin: 20,
+    deposit: amount,
     onDefault: [
       { type: "obligation/close", obligationType: "rent" },
       { type: "obligation/open", obligation: room },

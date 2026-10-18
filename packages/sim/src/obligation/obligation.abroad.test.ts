@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { bp, convertMinor, divCeil } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
-import type { Id, ObligationEntry, ObligationState, ReportLine } from "../engine/types";
+import type { BaseEvent, Id, ObligationEntry, ObligationState, ReportLine } from "../engine/types";
 import { playMonths } from "../testing/place.journey";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
@@ -135,6 +135,40 @@ describe("rent", () => {
     setPounds(game, 0);
     playMonths(game, 2);
     expect(owedOf(game, RENT_ROOM)).toMatchObject({ missed: 2, state: "grace" });
+  });
+
+  const FLAT_UK = "activity.rent-flat-uk" as Id<"activity">;
+  const depositOf = (result: { events: BaseEvent[] }) =>
+    eventsOf(result, "wallet/credited").filter((event) => event.reason === "deposit-return").map((event) => [event.currency, event.pocket, event.amount]);
+
+  test("[R-ABROAD-003] given a flat taken with one month's rent as its deposit, when the character goes home, then the deposit comes back to the pound bank as deposit-return", () => {
+    const game = settledAbroad(content);
+    markBy(game, 60);
+    setPounds(game, 1000000);
+    game.endTurn([{ activity: FLAT_UK, param: null }]);
+    expect(isOpen(game, RENT_FLAT)).toBe(true);
+    const home = game.accept({ type: "return/home" });
+    expect(isOpen(game, RENT_FLAT)).toBe(false);
+    expect(depositOf(home)).toEqual([["GBP", "bank", entryOf(RENT_FLAT).amount]]);
+  });
+
+  test("[R-ABROAD-003] given a shared room with no deposit, when the character goes home, then nothing comes back", () => {
+    const game = settledAbroad(content);
+    expect(isOpen(game, RENT_ROOM)).toBe(true);
+    expect(depositOf(game.accept({ type: "return/home" }))).toEqual([]);
+  });
+
+  test("[R-ABROAD-003] given a flat taken with its deposit, when it is lost to the third missed rent, then the eviction returns no deposit", () => {
+    const game = settledAbroad(content);
+    markBy(game, 60);
+    setPounds(game, 1000000);
+    game.endTurn([{ activity: FLAT_UK, param: null }]);
+    closeTypes(game, "upkeep");
+    setPounds(game, 0);
+    const months = [nextMonth(game), nextMonth(game), nextMonth(game)];
+    expect(isOpen(game, RENT_FLAT)).toBe(false);
+    expect(isOpen(game, RENT_ROOM)).toBe(true);
+    expect(months.flatMap(depositOf)).toEqual([]);
   });
 });
 
