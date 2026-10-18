@@ -980,16 +980,22 @@ function lines(event: ObligationEvent, _state: State, content: Content): ReportL
 
 /**
  * R-CAR-002: an open obligation of the type, not in default; with `obligation` set, only that entry (R-GOAL-004);
- * with `defaulted`, only one in default (R-HEALTH-006).
+ * with `defaulted`, only one in default; with `localCurrency`, only one owed in the currency of the country the
+ * character is in, naira at home (R-HEALTH-006).
  */
 function judgeHas(read: ReadCtx, requirement: Requirement): RequirementResult {
   if (requirement.type !== "obligation/has") throw new Error(`obligation/has cannot judge ${requirement.type}.`);
-  const met = Object.values(read.state.obligation.items).some(
-    (item) =>
+  const country = read.state.place.country;
+  const local = country === null ? "NGN" : (read.content.country[country]?.currency ?? "NGN");
+  const met = Object.values(read.state.obligation.items).some((item) => {
+    const entry = read.content.obligation[item.entry];
+    return (
       (item.state === "defaulted") === (requirement.defaulted === true) &&
-      read.content.obligation[item.entry]?.type === requirement.obligationType &&
-      (requirement.obligation === undefined || item.entry === requirement.obligation),
-  );
+      entry?.type === requirement.obligationType &&
+      (requirement.obligation === undefined || item.entry === requirement.obligation) &&
+      (requirement.localCurrency !== true || entry.currency === local)
+    );
+  });
   return { met };
 }
 

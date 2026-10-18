@@ -266,8 +266,11 @@ export type Requirement =
   | { type: "goal/done"; goal: Id<"goal"> }
   | { type: "era/is"; eras: Id<"era">[] }
   /** An open obligation of this type exists, not in default. The car is `obligation/has` with type `car`. */
-  /** `obligation` narrows the check to one entry (goal.own-door, the repeatable flat); `defaulted` counts only one in default (offer.court-date). */
-  | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation">; defaulted?: boolean }
+  /**
+   * `obligation` narrows the check to one entry (goal.own-door, the repeatable flat); `defaulted` counts only one in default
+   * and `localCurrency` only one owed in the currency of the country the character is in (offer.court-date).
+   */
+  | { type: "obligation/has"; obligationType: ObligationType; obligation?: Id<"obligation">; defaulted?: boolean; localCurrency?: boolean }
   /** A route's gate has reached the named step: docs/rules/route-gates.md. */
   | { type: "route/gate-step"; route: Id<"route">; step: string }
   /** Months in any job in the current country. */

@@ -513,8 +513,20 @@ describe("forced months that say so a month ahead", () => {
     expect(openOf(game, COURT)).toBeUndefined();
   });
 
-  test("[R-HEALTH-006] given a loan in default, when the court date is asked for abroad, then it opens", () => {
+  test("[R-HEALTH-006] given a quick loan from home in default, owed in naira, when the court date is asked for in the UK, then it does not open: a loan owed at home brings no court abroad", () => {
     const game = loanAbroad(true);
+    applyEffects(game, [{ type: "offer/open", offer: COURT }]);
+    expect(openOf(game, COURT)).toBeUndefined();
+  });
+
+  test("[R-HEALTH-006] given the car shortfall owed in pounds and left to fall into default in the UK, when the court date is asked for, then it opens", () => {
+    const game = life();
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }, { type: "obligation/open", obligation: "obligation.car-shortfall", principal: 120000 }]);
+    const shortfall = (): string | undefined => Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.car-shortfall")?.state;
+    // Opened by hand, the shortfall credits its principal (R-OBLIGATION-006); it is taken away so nothing pays it.
+    applyEffects(game, [{ type: "money/take", currency: "GBP", pocket: "bank", amount: game.state.wallet.pockets.GBP.bank, reason: "mishap" }]);
+    for (let month = 0; month < 4 && shortfall() !== "defaulted"; month += 1) game.endTurn();
+    expect(shortfall()).toBe("defaulted");
     applyEffects(game, [{ type: "offer/open", offer: COURT }]);
     expect(openOf(game, COURT)).toBeDefined();
   });

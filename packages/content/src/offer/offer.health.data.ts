@@ -171,7 +171,8 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
   },
 
   // R-HEALTH-006: abroad, a court date over what is still owed. A day lost: one slot next month.
-  // The car shortfall comes with a judgment whether or not it is paid; any other loan only once it is in default.
+  // The car shortfall comes with a judgment whether or not it is paid; any other loan only once it is in default and owed
+  // in the country's own money, as the entries table's "defaulted loan abroad": a naira loan from home brings no court here.
   "offer.court-date": {
     id: "offer.court-date",
     group: "abroad",
@@ -184,7 +185,7 @@ export const healthOfferTable: Record<Id<"offer">, OfferEntry> = {
         of: [
           { type: "obligation/has", obligationType: "loan", obligation: "obligation.car-shortfall" },
           { type: "obligation/has", obligationType: "loan", obligation: "obligation.car-shortfall-home" },
-          { type: "obligation/has", obligationType: "loan", defaulted: true },
+          { type: "obligation/has", obligationType: "loan", defaulted: true, localCurrency: true },
         ],
       },
       NO_FORCED_MONTH,

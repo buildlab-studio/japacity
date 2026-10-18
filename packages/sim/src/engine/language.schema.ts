@@ -236,6 +236,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
     obligationType: ObligationTypeSchema,
     obligation: idOf("obligation").exactOptional(),
     defaulted: z.boolean().exactOptional(),
+    localCurrency: z.boolean().exactOptional(),
   }),
   z.strictObject({ type: z.literal("route/gate-step"), route: idOf("route"), step: z.string().min(1) }),
   z.strictObject({ type: z.literal("activity/local-tenure"), months: CountSchema }),
