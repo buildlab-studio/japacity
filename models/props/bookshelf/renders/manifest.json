@@ -1,6 +1,6 @@
 {
   "asset": "prop_bookshelf",
-  "file": "public/assets/places/library-ca/prop_bookshelf.glb",
+  "file": "public/assets/places/library-canada/prop_bookshelf.glb",
   "fileSha256": "14a84f6723cc596205d87beb0880c6b216ae4e8f75827b77fc88bfd0b884a42d",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

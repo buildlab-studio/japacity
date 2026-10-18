@@ -103,10 +103,10 @@ describe("the three countries' ways", () => {
 
   test("[place:rides-between-city-places] given a life in Calgary with dollars in cash, when the bus, the CTrain and a taxi are taken, then the bus and the train are one flat fare, the taxi grows with the distance in fives of cents, each paid in dollars as a fare", () => {
     const game = landed(CANADA_COUNTRY, 10000);
-    const byBus = ride(game, "place.calgary-north-east", "place.office-ca", "bus");
+    const byBus = ride(game, "place.calgary-north-east", "place.office-canada", "bus");
     expect(debits(byBus)).toMatchObject([{ currency: "CAD", pocket: "cash", amount: 380, reason: "fare" }]);
-    expect(rode(byBus)).toEqual({ type: "place/rode", from: "place.calgary-north-east", to: "place.office-ca", way: "bus", fare: 380, currency: "CAD" });
-    expect(rode(ride(game, "place.office-ca", "place.ctrain-station-ca", "train"))).toMatchObject({ fare: 380, currency: "CAD" });
+    expect(rode(byBus)).toEqual({ type: "place/rode", from: "place.calgary-north-east", to: "place.office-canada", way: "bus", fare: 380, currency: "CAD" });
+    expect(rode(ride(game, "place.office-canada", "place.ctrain-station-canada", "train"))).toMatchObject({ fare: 380, currency: "CAD" });
     const metres = metresApart(positionOf(content, "place.calgary-north-east"), positionOf(content, "place.calgary-airport"), 71);
     const taxi = divCeil(380 + mulDiv(200, metres, 1000), 5) * 5;
     expect(fareOf(CANADA_COUNTRY, "taxi", "place.calgary-north-east", "place.calgary-airport")).toBe(taxi);
@@ -157,7 +157,7 @@ const ZONE_PASS: Id<"activity"> = "activity.transit-pass-uae";
 describe("the pass covers the country's ways", () => {
   test("[place:country-pass-covers-ways] given the two new passes, when their entries are read, then each is a now-act once a month in its country at no time, costing the country's pass figure as a fare, staged at its station's machine", () => {
     for (const [act, country, currency, station] of [
-      [TRANSIT_PASS, CANADA_COUNTRY, "CAD", "place.ctrain-station-ca"],
+      [TRANSIT_PASS, CANADA_COUNTRY, "CAD", "place.ctrain-station-canada"],
       [ZONE_PASS, UAE, "AED", "place.metro-station-uae"],
     ] as const) {
       expect(content.activity[act]).toMatchObject({ slot: "none", when: "now", halfDays: 0, where: "abroad", country, cost: [{ currency, amount: ridesOf(country).pass, reason: "fare" }], effects: [] });
@@ -176,12 +176,12 @@ describe("the pass covers the country's ways", () => {
       ["taxi", false],
       ["walk", false],
     ]);
-    const byBus = ride(game, "place.calgary-north-east", "place.office-ca", "bus");
+    const byBus = ride(game, "place.calgary-north-east", "place.office-canada", "bus");
     expect(debits(byBus)).toEqual([]);
-    expect(rode(byBus)).toEqual({ type: "place/rode", from: "place.calgary-north-east", to: "place.office-ca", way: "bus", fare: 0, currency: "CAD" });
-    expect(rode(ride(game, "place.office-ca", "place.ctrain-station-ca", "train"))).toMatchObject({ way: "train", fare: 0 });
-    const taxi = fareOf(CANADA_COUNTRY, "taxi", "place.ctrain-station-ca", "place.calgary-airport");
-    expect(rode(ride(game, "place.ctrain-station-ca", "place.calgary-airport", "taxi"))).toMatchObject({ way: "taxi", fare: taxi });
+    expect(rode(byBus)).toEqual({ type: "place/rode", from: "place.calgary-north-east", to: "place.office-canada", way: "bus", fare: 0, currency: "CAD" });
+    expect(rode(ride(game, "place.office-canada", "place.ctrain-station-canada", "train"))).toMatchObject({ way: "train", fare: 0 });
+    const taxi = fareOf(CANADA_COUNTRY, "taxi", "place.ctrain-station-canada", "place.calgary-airport");
+    expect(rode(ride(game, "place.ctrain-station-canada", "place.calgary-airport", "taxi"))).toMatchObject({ way: "taxi", fare: taxi });
     expect(game.state.wallet.pockets.CAD.cash).toBe(20000 - 11800 - taxi);
     game.expectRejected({ type: "activity/now", activity: TRANSIT_PASS, param: null }, "not-legal");
   });
@@ -214,7 +214,7 @@ describe("the pass covers the country's ways", () => {
     game.endTurn();
     money(game, CANADA_COUNTRY, 50000);
     expect(game.view().place.ways?.filter((way) => way.passed)).toEqual([]);
-    expect(rode(ride(game, "place.calgary-north-east", "place.office-ca", "train"))).toMatchObject({ fare: 380 });
+    expect(rode(ride(game, "place.calgary-north-east", "place.office-canada", "train"))).toMatchObject({ fare: 380 });
   });
 
   test("[place:country-pass-covers-ways] given Italy with no pass, when the view is read and the bus is taken, then no way is passed, no pass act exists for Italy, and the bus asks its fare", () => {
@@ -233,12 +233,12 @@ describe("the pass covers the country's ways", () => {
     money(game, CANADA_COUNTRY, 20000);
     game.accept({ type: "activity/now", activity: TRANSIT_PASS, param: null });
     expect(game.view().place.ways?.filter((way) => way.passed)).toEqual([]);
-    expect(rode(ride(game, "place.calgary-north-east", "place.office-ca", "bus"))).toMatchObject({ fare: 380 });
+    expect(rode(ride(game, "place.calgary-north-east", "place.office-canada", "bus"))).toMatchObject({ fare: 380 });
   });
 });
 
 const SITE: Id<"place"> = "place.site-uae";
-const FIELDS: Id<"place"> = "place.farm-it";
+const FIELDS: Id<"place"> = "place.farm-italy";
 
 describe("the employer's shuttle", () => {
   test("[place:employer-shuttle-rides-free] given the places, when the shuttle is read, then the site in Dubai and the fields in Castel Volturno carry it and no other place does", () => {

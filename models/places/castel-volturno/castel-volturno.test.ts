@@ -15,7 +15,7 @@ import { buildGazeboStall } from "../../props/london/build";
 import { buildStreetBench } from "../../props/street-bench/build";
 import { buildItalyBus, ITALY_BUS, ITALY_BUS_SEAT } from "../../vehicles/italy-bus/build";
 import { buildVan, VAN, VAN_SEAT } from "../../vehicles/van/build";
-import * as farm from "../farm-it/build";
+import * as farm from "../farm-italy/build";
 import { buildPine } from "../via-domitiana/build";
 import * as castel from "./build";
 
@@ -36,11 +36,11 @@ const MODELS: [string, string, () => Group][] = [
   ["prop_palm", "places/castel-volturno/prop_palm.glb", castel.buildPalm],
   ["prop_bus-pole", "places/castel-volturno/prop_bus-pole.glb", () => castel.buildBusPole("place.castel-volturno.sign.stop", STOP)],
   ["prop_pine", "places/via-domitiana/prop_pine.glb", buildPine],
-  ["prop_crop-row", "places/farm-it/prop_crop-row.glb", farm.buildCropRow],
-  ["prop_tarp-table", "places/farm-it/prop_tarp-table.glb", () => farm.buildTarpTable("place.farm-it.sign.table", { board: "tan", ink: "black" })],
-  ["prop_field-crates", "places/farm-it/prop_field-crates.glb", farm.buildFieldCrates],
-  ["prop_water-tap", "places/farm-it/prop_water-tap.glb", farm.buildWaterTap],
-  ["prop_shade-tree", "places/farm-it/prop_shade-tree.glb", farm.buildShadeTree],
+  ["prop_crop-row", "places/farm-italy/prop_crop-row.glb", farm.buildCropRow],
+  ["prop_tarp-table", "places/farm-italy/prop_tarp-table.glb", () => farm.buildTarpTable("place.farm-italy.sign.table", { board: "tan", ink: "black" })],
+  ["prop_field-crates", "places/farm-italy/prop_field-crates.glb", farm.buildFieldCrates],
+  ["prop_water-tap", "places/farm-italy/prop_water-tap.glb", farm.buildWaterTap],
+  ["prop_shade-tree", "places/farm-italy/prop_shade-tree.glb", farm.buildShadeTree],
   ["vehicle_italy-bus", "shared/vehicle/vehicle_italy-bus.glb", buildItalyBus],
   ["vehicle_van", "shared/vehicle/vehicle_van.glb", buildVan],
 ];
@@ -136,7 +136,7 @@ interface ParkedFile {
 // The stage files are read where the client reads them, under public/assets/places.
 const PUBLIC_PLACES = join(HERE, "..", "..", "..", "apps", "client", "public", "assets", "places");
 const parked = (folder: string): ParkedFile => JSON.parse(readFileSync(join(PUBLIC_PLACES, folder, "place.json"), "utf8")) as ParkedFile;
-const FILES: [string, ParkedFile][] = ["castel-volturno", "via-domitiana", "farm-it"].map((folder) => [folder, parked(folder)]);
+const FILES: [string, ParkedFile][] = ["castel-volturno", "via-domitiana", "farm-italy"].map((folder) => [folder, parked(folder)]);
 const builders = new Map<string, () => Group>([...MODELS.map(([, file, build]): [string, () => Group] => [file, build]), ...BORROWED]);
 
 describe("Castel Volturno's stage files", () => {

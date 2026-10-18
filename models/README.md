@@ -14,7 +14,7 @@ A shipped asset `<prefix>_<slug>` has its source in `<folder>/<slug>/`: a `build
 | `props/` | `prop_` | Props, shared or of one place |
 | `shopfronts/` | `shopfront_` | Shopfront bays with their awnings |
 | `vehicles/` | `vehicle_` | Vehicles |
-| `places/` | the piece's own | One folder per place: the place's `review.json` as a whole, and, for a place whose pieces are built together, its `build.ts` and a folder per piece (`places/farm-it/crop-row/`) |
+| `places/` | the piece's own | One folder per place: the place's `review.json` as a whole, and, for a place whose pieces are built together, its `build.ts` and a folder per piece (`places/farm-italy/crop-row/`) |
 | `share/` | none | The review of the share cards' art and the link previews |
 | `stage/` | none | The page every asset is shot on (assets:contributor-renders-fixed-views) |
 

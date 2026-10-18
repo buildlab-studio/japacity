@@ -1,6 +1,6 @@
 {
   "asset": "building_room_library",
-  "file": "public/assets/places/library-ca/building_room_library.glb",
+  "file": "public/assets/places/library-canada/building_room_library.glb",
   "fileSha256": "f88d4a5bc9366234cdc8cf6a1479a380da6933b394d5a57d68851443a89d4890",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

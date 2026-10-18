@@ -127,14 +127,14 @@ const STEP_WAYS: Record<string, StepWay> = {
       // Calgary's jobs notice and its workplaces' doors, Dubai's typing centre and the site's post and trolley, the vans at
       // Castel Volturno's roundabout and the gangmaster's table in the fields (world:ride-abroad-and-workplace).
       "place.calgary-north-east:jobs-notice",
-      "place.warehouse-ca:clock-in",
-      "place.care-home-ca:reception",
-      "place.office-ca:desk",
+      "place.warehouse-canada:clock-in",
+      "place.care-home-canada:reception",
+      "place.office-canada:desk",
       "place.deira:agency",
       "place.site-uae:guard-post",
       "place.site-uae:cleaner-trolley",
       "place.castel-volturno:roundabout",
-      "place.farm-it:table",
+      "place.farm-italy:table",
     ],
   },
   // Money home from the country's counter (the room's phone only calls home, city:places-stage-their-acts): Rye Lane's transfer shop,

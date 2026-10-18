@@ -1,6 +1,6 @@
 {
   "asset": "prop_course-desk",
-  "file": "public/assets/places/library-ca/prop_course-desk.glb",
+  "file": "public/assets/places/library-canada/prop_course-desk.glb",
   "fileSha256": "f7cd1dac5f8e0bbc79d688bc548a6d353982b7974a5ffe83c585c02117f7ae58",
   "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
   "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",

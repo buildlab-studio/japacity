@@ -318,7 +318,7 @@ describe("the target headcount", () => {
   });
 
   test("[city:residents-fill-to-target] given the office in London and in Calgary and more players present than its slots, when the crowd stands, then the manager in the glass office and the colleague at the tea point keep their seats and players sit at the desks", () => {
-    for (const name of ["office-uk", "office-ca"]) {
+    for (const name of ["office-uk", "office-canada"]) {
       const found = shippedStages().find(({ file }) => file.place === `place.${name}`);
       const entry = content.place[`place.${name}`];
       if (found === undefined || entry === undefined) throw new Error(`${name} is missing`);

@@ -2576,8 +2576,8 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/ctrain-station-ca/prop_platform-shelter.glb",
-      "place": "place.ctrain-station-ca",
+      "file": "places/ctrain-station-canada/prop_platform-shelter.glb",
+      "place": "place.ctrain-station-canada",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3248,8 +3248,8 @@
       "approvedBy": "The makers, from the review sheet"
     },
     {
-      "file": "places/farm-it/prop_crop-row.glb",
-      "place": "place.farm-it",
+      "file": "places/farm-italy/prop_crop-row.glb",
+      "place": "place.farm-italy",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3274,8 +3274,8 @@
       "status": "draft"
     },
     {
-      "file": "places/farm-it/prop_field-crates.glb",
-      "place": "place.farm-it",
+      "file": "places/farm-italy/prop_field-crates.glb",
+      "place": "place.farm-italy",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3300,8 +3300,8 @@
       "status": "draft"
     },
     {
-      "file": "places/farm-it/prop_shade-tree.glb",
-      "place": "place.farm-it",
+      "file": "places/farm-italy/prop_shade-tree.glb",
+      "place": "place.farm-italy",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3326,8 +3326,8 @@
       "status": "draft"
     },
     {
-      "file": "places/farm-it/prop_tarp-table.glb",
-      "place": "place.farm-it",
+      "file": "places/farm-italy/prop_tarp-table.glb",
+      "place": "place.farm-italy",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3340,10 +3340,10 @@
       "triangles": 340,
       "drawCalls": 1,
       "materials": 1,
-      "bytes": 4020,
+      "bytes": 4024,
       "paletteCheck": {
         "passed": true,
-        "date": "2026-10-16"
+        "date": "2026-10-18"
       },
       "reference": [],
       "outline": null,
@@ -3352,8 +3352,8 @@
       "status": "draft"
     },
     {
-      "file": "places/farm-it/prop_water-tap.glb",
-      "place": "place.farm-it",
+      "file": "places/farm-italy/prop_water-tap.glb",
+      "place": "place.farm-italy",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3456,8 +3456,8 @@
       "status": "draft"
     },
     {
-      "file": "places/library-ca/building_room_library.glb",
-      "place": "place.library-ca",
+      "file": "places/library-canada/building_room_library.glb",
+      "place": "place.library-canada",
       "source": "code",
       "author": "The makers, written as code from the kit for the rooms",
       "licence": "CC BY-SA 4.0",
@@ -3482,8 +3482,8 @@
       "status": "draft"
     },
     {
-      "file": "places/library-ca/prop_bookshelf.glb",
-      "place": "place.library-ca",
+      "file": "places/library-canada/prop_bookshelf.glb",
+      "place": "place.library-canada",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3508,8 +3508,8 @@
       "status": "draft"
     },
     {
-      "file": "places/library-ca/prop_course-desk.glb",
-      "place": "place.library-ca",
+      "file": "places/library-canada/prop_course-desk.glb",
+      "place": "place.library-canada",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",
@@ -3534,8 +3534,8 @@
       "status": "draft"
     },
     {
-      "file": "places/library-ca/prop_library-table.glb",
-      "place": "place.library-ca",
+      "file": "places/library-canada/prop_library-table.glb",
+      "place": "place.library-canada",
       "source": "code",
       "author": "The makers, written as code from the kit",
       "licence": "CC BY-SA 4.0",

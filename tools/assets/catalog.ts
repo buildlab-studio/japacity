@@ -64,7 +64,7 @@ import { buildTrainCarriage } from "@japacity/models/vehicles/train-carriage/bui
 import { buildCornerPub } from "@japacity/models/buildings/corner-pub/build";
 import * as london from "@japacity/models/props/london/build";
 import * as castel from "@japacity/models/places/castel-volturno/build";
-import * as farm from "@japacity/models/places/farm-it/build";
+import * as farm from "@japacity/models/places/farm-italy/build";
 import { buildPine } from "@japacity/models/places/via-domitiana/build";
 import { buildItalyBus } from "@japacity/models/vehicles/italy-bus/build";
 import { buildVan } from "@japacity/models/vehicles/van/build";
@@ -261,7 +261,7 @@ const ROOM_FOLDERS: Record<RoomName, string> = {
   office: "office-uk",
   warehouse: "warehouse-uk",
   church: "church-uk",
-  library: "library-ca",
+  library: "library-canada",
 };
 
 /** The place each room's folder serves, for the register. */
@@ -282,7 +282,7 @@ const ROOM_PLACES: Record<RoomName, string> = {
   office: "place.office-uk",
   warehouse: "place.warehouse-uk",
   church: "place.church-uk",
-  library: "place.library-ca",
+  library: "place.library-canada",
 };
 
 function roomEntry(room: RoomName): CatalogEntry {
@@ -703,11 +703,11 @@ ENTRIES.push(
   plasterRow("building_domitiana-block", "via-domitiana", "block"),
   italyPiece("prop_pine", "via-domitiana", "pine", buildPine),
   // The fields: the rows, the gangmaster's table, the crates, the tap and the tree.
-  italyPiece("prop_crop-row", "farm-it", "crop-row", farm.buildCropRow, [...ELEVATIONS, "plan", "phone"]),
-  italyPiece("prop_tarp-table", "farm-it", "tarp-table", () => farm.buildTarpTable("place.farm-it.sign.table", { board: "tan", ink: "black", painted: true })),
-  italyPiece("prop_field-crates", "farm-it", "field-crates", farm.buildFieldCrates),
-  italyPiece("prop_water-tap", "farm-it", "water-tap", farm.buildWaterTap),
-  italyPiece("prop_shade-tree", "farm-it", "shade-tree", farm.buildShadeTree),
+  italyPiece("prop_crop-row", "farm-italy", "crop-row", farm.buildCropRow, [...ELEVATIONS, "plan", "phone"]),
+  italyPiece("prop_tarp-table", "farm-italy", "tarp-table", () => farm.buildTarpTable("place.farm-italy.sign.table", { board: "tan", ink: "black", painted: true })),
+  italyPiece("prop_field-crates", "farm-italy", "field-crates", farm.buildFieldCrates),
+  italyPiece("prop_water-tap", "farm-italy", "water-tap", farm.buildWaterTap),
+  italyPiece("prop_shade-tree", "farm-italy", "shade-tree", farm.buildShadeTree),
 );
 
 /** Calgary and Dubai on the mold (design page 11): the vehicles for their rides, the frontages and the library. */
@@ -725,11 +725,11 @@ ENTRIES.push(
   ),
   placePiece("prop_bare-tree", "calgary-north-east", north.buildBareTree),
   // The CTrain station: the shelter on the platform; the machine, the gates' sign and the car are London's and the ride's.
-  placePiece("prop_platform-shelter", "ctrain-station-ca", north.buildPlatformShelter),
+  placePiece("prop_platform-shelter", "ctrain-station-canada", north.buildPlatformShelter),
   // The library's things.
-  placePiece("prop_bookshelf", "library-ca", north.buildBookshelf),
-  placePiece("prop_library-table", "library-ca", north.buildLibraryTable),
-  placePiece("prop_course-desk", "library-ca", north.buildCourseDesk),
+  placePiece("prop_bookshelf", "library-canada", north.buildBookshelf),
+  placePiece("prop_library-table", "library-canada", north.buildLibraryTable),
+  placePiece("prop_course-desk", "library-canada", north.buildCourseDesk),
   // Union station: the hall under its shell, the viaduct with the car on it, the Nol machine and the escalator's foot.
   placePiece("building_metro-station", "metro-station-uae", () => buildMetroStation("place.metro-station-uae.sign.name", { board: "white", ink: "red", border: "red" }), [...ELEVATIONS, "plan", "phone"]),
   placePiece("building_metro-viaduct", "metro-station-uae", buildMetroViaduct, [...ELEVATIONS, "plan", "phone"]),

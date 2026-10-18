@@ -61,7 +61,7 @@ function ways(view: PlayerView, fromId: string, to: string) {
 describe("the ways in Calgary, Dubai and Castel Volturno", () => {
   test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given a life in Calgary, when the ways from the strip mall to the office downtown are read, then they are the bus and the CTrain at one flat C$3.80, the taxi by distance and on foot too far, priced by the simulation's own fare, the train named the CTrain", () => {
     const view = landed("country.canada");
-    const office = ways(view, "place.calgary-north-east", "place.office-ca");
+    const office = ways(view, "place.calgary-north-east", "place.office-canada");
     expect(office.map((way) => [way.id, way.label])).toEqual([
       ["bus", "Bus"],
       ["train", "CTrain"],
@@ -72,7 +72,7 @@ describe("the ways in Calgary, Dubai and Castel Volturno", () => {
     expect([bus?.fare, train?.fare]).toEqual([380, 380]);
     const figures = view.place.ways?.find((way) => way.way === "taxi");
     if (figures === undefined) throw new Error("No taxi");
-    expect(taxi?.fare).toBe(rideFare(figures, positionOf(content, "place.calgary-north-east"), positionOf(content, "place.office-ca")));
+    expect(taxi?.fare).toBe(rideFare(figures, positionOf(content, "place.calgary-north-east"), positionOf(content, "place.office-canada")));
     expect(walk?.shut).toBe("far");
     expect(fareWords(bus?.fare ?? 0, "CAD")).toBe(fareWords(380, "CAD"));
     expect([bus, train, taxi].some((way) => way?.pill !== undefined)).toBe(false);
@@ -80,7 +80,7 @@ describe("the ways in Calgary, Dubai and Castel Volturno", () => {
 
   test("[place:country-pass-covers-ways] [world:ride-abroad-and-workplace] given Calgary's transit pass and Dubai's zone pass bought this month, when the ways are read, then the bus and the train ask nothing and each pill names the country's pass, while the taxi still asks its fare", () => {
     const cases: [Id<"country">, string, string, string][] = [
-      ["country.canada", "place.calgary-north-east", "place.office-ca", "transit pass"],
+      ["country.canada", "place.calgary-north-east", "place.office-canada", "transit pass"],
       ["country.uae", "place.deira", "place.big-shop-uae", "zone pass"],
     ];
     for (const [country, fromId, to, pass] of cases) {
@@ -107,7 +107,7 @@ describe("the ways in Calgary, Dubai and Castel Volturno", () => {
     }
     expect(ways(uae, "place.deira", "place.big-shop-uae").find((way) => way.id === "bus")?.shuttle).toBeUndefined();
     const italy = landed("country.italy");
-    const van = ways(italy, "place.castel-volturno", "place.farm-it");
+    const van = ways(italy, "place.castel-volturno", "place.farm-italy");
     expect(van.map((way) => way.id)).toEqual(["bus", "walk"]);
     expect(van[0]).toMatchObject({ fare: 0, shuttle: true, pill: `${formatMoney(0, "EUR")}, the van` });
     // The coast road's bus elsewhere asks its flat fare, Naples airport too, and Italy has no pass.
@@ -203,9 +203,9 @@ describe("the ride sheet and the ride abroad", () => {
   test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given a life in Calgary at the strip mall, when it takes the CTrain downtown, then the ride plays in the CTrain car, its fare a pill in dollars and its title the CTrain's", async () => {
     const view = landed("country.canada");
     const CANADA: CountryChoice = { id: "country.canada", name: "Canada", locked: null };
-    const pins = [pin("place.calgary-north-east", "here"), pin("place.office-ca", "can")];
+    const pins = [pin("place.calgary-north-east", "here"), pin("place.office-canada", "can")];
     await renderWithView(<Map pins={pins} country={CANADA} countries={[CANADA]} drawing={false} onGo={() => undefined} onClose={() => undefined} onRide={() => true} />, view);
-    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.office-ca") as HTMLElement);
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.office-canada") as HTMLElement);
     const sheet = screen.getByRole("dialog");
     fireEvent.click(within(sheet).getAllByRole("radio").find((radio) => radio.dataset.way === "train") as HTMLElement);
     fireEvent.click(sheet.querySelector("[data-ride-main]") as HTMLElement);

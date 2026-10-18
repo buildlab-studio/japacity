@@ -26,9 +26,9 @@ test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [street
   await clear(page);
 
   // world:painted-maps-abroad: Calgary is a painted map of its own; its stops list stays for a screen reader.
-  await pickStop(page, "place.ctrain-station-ca");
+  await pickStop(page, "place.ctrain-station-canada");
   await expect(page.locator("[data-paper-map]").first()).toBeAttached();
-  await rideBy(page, "place.ctrain-station-ca", "bus");
+  await rideBy(page, "place.ctrain-station-canada", "bus");
 
   // place:country-pass-covers-ways: the ticket machine sells the month's transit pass, C$118.
   const before = await money(page);
@@ -37,10 +37,10 @@ test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [street
   await clear(page);
 
   // In the pass month the bus says C$0, transit pass, and asks nothing; the ride plays in Calgary's bus.
-  await pickStop(page, "place.big-shop-ca");
-  await expect(page.locator('[data-ride-sheet="place.big-shop-ca"] [data-way="bus"]')).toContainText("transit pass");
+  await pickStop(page, "place.big-shop-canada");
+  await expect(page.locator('[data-ride-sheet="place.big-shop-canada"] [data-way="bus"]')).toContainText("transit pass");
   const beforeBus = await money(page);
-  expect(await rideBy(page, "place.big-shop-ca", "bus")).toBe("calgary-bus");
+  expect(await rideBy(page, "place.big-shop-canada", "bus")).toBe("calgary-bus");
   expect(await money(page)).toBe(beforeBus);
 
   // streets:dubai-life-by-hand: the weekly shop at the superstore's trolley bay, C$90.
@@ -49,10 +49,10 @@ test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [street
   await clear(page);
 
   // The CTrain to the warehouse says C$0, transit pass, plays in the CTrain, and the clock-in says On shift.
-  await pickStop(page, "place.warehouse-ca");
-  await expect(page.locator('[data-ride-sheet="place.warehouse-ca"] [data-way="train"]')).toContainText("transit pass");
+  await pickStop(page, "place.warehouse-canada");
+  await expect(page.locator('[data-ride-sheet="place.warehouse-canada"] [data-way="train"]')).toContainText("transit pass");
   const beforeTrain = await money(page);
-  expect(await rideBy(page, "place.warehouse-ca", "train")).toBe("ctrain");
+  expect(await rideBy(page, "place.warehouse-canada", "train")).toBe("ctrain");
   expect(await money(page)).toBe(beforeTrain);
   await expect(page.locator('[data-mark="clock-in"]')).toContainText("On shift", { timeout: 20_000 });
 

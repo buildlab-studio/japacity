@@ -1,0 +1,366 @@
+{
+  "place": "place.office-canada",
+  "scope": "interior",
+  "hub": false,
+  "note": "The office downtown, Calgary (design page 11 section 3), London's office room of about 16 by 9 metres seen down its length (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; three low and six high.",
+  "instances": [
+    {
+      "file": "places/office-uk/building_room_office.glb",
+      "count": 1
+    },
+    {
+      "file": "places/office-uk/prop_desk-pod.glb",
+      "count": 5
+    },
+    {
+      "file": "places/office-uk/prop_glass-office.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_tea-point.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 2
+  },
+  "stage": {
+    "note": "London's office scene under the office downtown's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are office-uk's; the staged acts, the looks and the colleague's lines are Canada's. The desks for the professional job; the glass office for the developer's; the kitchen where a colleague says a line.",
+    "ground": {
+      "size": [
+        16.6,
+        9.6
+      ],
+      "colour": "concrete"
+    },
+    "roads": [],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            -3.5,
+            2.8,
+            0
+          ],
+          "size": 2.4,
+          "bulb": true
+        },
+        {
+          "at": [
+            3.0,
+            2.8,
+            0
+          ],
+          "size": 2.4,
+          "bulb": true
+        }
+      ]
+    },
+    "start": [
+      6.94,
+      2.8,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          4.2
+        ],
+        [
+          -7.7,
+          4.2
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/office-uk/building_room_office.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/office-uk/prop_desk-pod.glb",
+        "at": [
+          [
+            -3.0,
+            -2.2,
+            0
+          ],
+          [
+            -0.2,
+            -2.2,
+            0
+          ],
+          [
+            2.6,
+            -2.2,
+            0
+          ],
+          [
+            -3.0,
+            1.6,
+            0
+          ],
+          [
+            -0.2,
+            1.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/office-uk/prop_glass-office.glb",
+        "at": [
+          [
+            -6.3,
+            -3.1,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_tea-point.glb",
+        "at": [
+          [
+            4.8,
+            3.6,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            7.2,
+            -3.9,
+            0
+          ],
+          [
+            -7.2,
+            3.8,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            7.94,
+            2.8,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -3.2,
+        -1.05,
+        3.1416
+      ],
+      [
+        0.0,
+        -3.35,
+        0
+      ],
+      [
+        -6.3,
+        -4.15,
+        0
+      ],
+      [
+        5.45,
+        2.75,
+        -1.5708
+      ],
+      [
+        2.4,
+        -1.05,
+        3.1416
+      ],
+      [
+        1.2,
+        0.3,
+        1.5708
+      ],
+      [
+        -1.6,
+        3.4,
+        0.3
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit"
+      },
+      {
+        "spot": 1,
+        "pose": "sit"
+      },
+      {
+        "spot": 2,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 3,
+        "pose": "sit",
+        "staff": true
+      },
+      {
+        "spot": 4,
+        "pose": "sit"
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0.0,
+        0.6,
+        0.0
+      ],
+      "far": 22,
+      "near": 9,
+      "farPitch": 72,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 90,
+      "width": 11.6
+    },
+    "things": [
+      {
+        "id": "desk",
+        "file": "places/office-uk/prop_desk-pod.glb",
+        "copy": 1,
+        "label": "city.thing.desk",
+        "at": [
+          -0.2,
+          -0.6
+        ],
+        "acts": [
+          {
+            "id": "professional",
+            "label": "city.act.job-professional",
+            "kind": "sheet",
+            "stages": "activity.job-ca-professional"
+          }
+        ]
+      },
+      {
+        "id": "glass-office",
+        "file": "places/office-uk/prop_glass-office.glb",
+        "copy": 0,
+        "label": "city.thing.glass-office",
+        "at": [
+          -6.3,
+          -1.2
+        ],
+        "acts": [
+          {
+            "id": "dev",
+            "label": "city.act.job-dev",
+            "kind": "sheet",
+            "stages": "activity.job-ca-dev"
+          }
+        ]
+      },
+      {
+        "id": "colleague",
+        "file": "shared/prop/prop_tea-point.glb",
+        "copy": 0,
+        "label": "city.thing.colleague",
+        "at": [
+          4.8,
+          2.1
+        ],
+        "acts": [
+          {
+            "id": "talk",
+            "label": "city.act.talk-to",
+            "kind": "plain",
+            "tells": "city.line.colleague.office-canada.1"
+          },
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              4.15,
+              2.75,
+              1.5708
+            ]
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          7.2,
+          2.8
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

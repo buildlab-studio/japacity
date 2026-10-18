@@ -1,0 +1,384 @@
+{
+  "place": "place.church-italy",
+  "scope": "interior",
+  "hub": false,
+  "note": "The church in Castel Volturno (design page 11 section 3), London's church hall of about 16 by 9 metres seen down its length from the door end (world:place-is-one-screen, world:room-seen-down-its-length). Counts are the most in view from the whole view; four low and six high.",
+  "instances": [
+    {
+      "file": "places/church-uk/building_room_church.glb",
+      "count": 1
+    },
+    {
+      "file": "places/church-uk/prop_altar.glb",
+      "count": 1
+    },
+    {
+      "file": "places/church-uk/prop_pew.glb",
+      "count": 12
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_room-door.glb",
+      "count": 2
+    }
+  ],
+  "people": {
+    "low": 4,
+    "high": 6,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_zainab.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 4
+  },
+  "stage": {
+    "note": "London's church scene under the church in Castel Volturno's own entry (design page 11 section 3, world:ride-abroad-and-workplace): the models are church-uk's; the staged acts, the looks and the colleague's lines are Italy's. The pews for the community (activity.community-it), the hall looked at, the door.",
+    "ground": {
+      "size": [
+        16.6,
+        9.6
+      ],
+      "colour": "concrete"
+    },
+    "roads": [
+      {
+        "at": [
+          -1.0,
+          -0.2,
+          0
+        ],
+        "size": [
+          12.6,
+          1.0
+        ],
+        "colour": "wine"
+      }
+    ],
+    "light": {
+      "sun": [
+        6,
+        16,
+        12
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            -4.0,
+            3.7,
+            0
+          ],
+          "size": 2.8,
+          "bulb": true
+        },
+        {
+          "at": [
+            2.0,
+            3.7,
+            0
+          ],
+          "size": 2.8,
+          "bulb": true
+        }
+      ]
+    },
+    "start": [
+      6.0,
+      -3.44,
+      0
+    ],
+    "walkable": [
+      [
+        [
+          -7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          -4.2
+        ],
+        [
+          7.7,
+          4.2
+        ],
+        [
+          -7.7,
+          4.2
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/church-uk/building_room_church.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/church-uk/prop_altar.glb",
+        "at": [
+          [
+            -6.5,
+            0,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/church-uk/prop_pew.glb",
+        "at": [
+          [
+            -3.4,
+            1.9,
+            -1.5708
+          ],
+          [
+            -3.4,
+            -2.3,
+            -1.5708
+          ],
+          [
+            -2.2,
+            1.9,
+            -1.5708
+          ],
+          [
+            -2.2,
+            -2.3,
+            -1.5708
+          ],
+          [
+            -1.0,
+            1.9,
+            -1.5708
+          ],
+          [
+            -1.0,
+            -2.3,
+            -1.5708
+          ],
+          [
+            0.2,
+            1.9,
+            -1.5708
+          ],
+          [
+            0.2,
+            -2.3,
+            -1.5708
+          ],
+          [
+            1.4,
+            1.9,
+            -1.5708
+          ],
+          [
+            1.4,
+            -2.3,
+            -1.5708
+          ],
+          [
+            2.6,
+            1.9,
+            -1.5708
+          ],
+          [
+            2.6,
+            -2.3,
+            -1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            -7.3,
+            3.9,
+            0
+          ],
+          [
+            -7.3,
+            -3.9,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_room-door.glb",
+        "at": [
+          [
+            6.0,
+            -4.44,
+            0
+          ],
+          [
+            3.9,
+            -4.44,
+            0
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -3.42,
+        -2.0,
+        -1.5708
+      ],
+      [
+        -2.22,
+        2.4,
+        -1.5708
+      ],
+      [
+        -1.02,
+        -1.4,
+        -1.5708
+      ],
+      [
+        0.9,
+        -0.2,
+        -1.5708
+      ],
+      [
+        0.18,
+        2.0,
+        -1.5708
+      ],
+      [
+        -2.22,
+        -3.0,
+        -1.5708
+      ],
+      [
+        5.0,
+        1.6,
+        -1.5708
+      ]
+    ],
+    "acts": [
+      {
+        "spot": 0,
+        "pose": "sit"
+      },
+      {
+        "spot": 1,
+        "pose": "sit"
+      },
+      {
+        "spot": 2,
+        "pose": "sit"
+      },
+      {
+        "spot": 4,
+        "pose": "sit"
+      },
+      {
+        "spot": 5,
+        "pose": "sit"
+      }
+    ],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0.0,
+        0.6,
+        0.0
+      ],
+      "far": 22,
+      "near": 9,
+      "farPitch": 72,
+      "nearPitch": 36,
+      "turn": 30,
+      "yaw": 270,
+      "width": 11.6
+    },
+    "things": [
+      {
+        "id": "pews",
+        "file": "places/church-uk/prop_pew.glb",
+        "copy": 0,
+        "label": "city.thing.pews",
+        "at": [
+          -4.2,
+          -0.2
+        ],
+        "acts": [
+          {
+            "id": "service",
+            "label": "city.act.community",
+            "kind": "sheet",
+            "stages": "activity.community-it"
+          },
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              -3.42,
+              1.4,
+              -1.5708
+            ]
+          }
+        ]
+      },
+      {
+        "id": "hall",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 1,
+        "label": "city.thing.hall",
+        "at": [
+          3.9,
+          -3.6
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-hall",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "door",
+        "file": "shared/prop/prop_room-door.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          6.0,
+          -3.7
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.inside.out",
+            "kind": "out"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,547 @@
+{
+  "place": "place.ctrain-station-canada",
+  "scope": "exterior",
+  "hub": false,
+  "note": "The CTrain station (world:place-is-one-screen; design page 11 section 3). Counts are the most in view from the whole view; the crowd is the entry's, three low and six high (under the rule's outdoor caps).",
+  "instances": [
+    {
+      "file": "shared/vehicle/vehicle_ctrain-car.glb",
+      "count": 1
+    },
+    {
+      "file": "places/ctrain-station-canada/prop_platform-shelter.glb",
+      "count": 1
+    },
+    {
+      "file": "places/peckham-rye-station/prop_ticket-machine.glb",
+      "count": 1
+    },
+    {
+      "file": "places/peckham-rye-station/prop_platform-sign.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_bus-shelter.glb",
+      "count": 1
+    },
+    {
+      "file": "places/calgary-north-east/prop_bare-tree.glb",
+      "count": 4
+    }
+  ],
+  "people": {
+    "low": 3,
+    "high": 6,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_tobi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_nonso.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_iya.glb",
+      "shared/person/person_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 176
+  },
+  "stage": {
+    "note": "The CTrain station on the north-east line as one frontage of about 24 metres (world:place-is-one-screen; design page 11 section 3): a street-level platform with its red-roofed shelter, the ticket machine where the transit pass is bought, the station's name board on its posts, a CTrain car standing at the platform and a second track beyond it; on the sidewalk the bus stop, the road in front. Bare trees, a grey winter sky, snow along the kerbs and the platform's back edge. No moving sheet.",
+    "ground": {
+      "size": [
+        40,
+        40
+      ],
+      "colour": "concrete"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          -7.5,
+          0
+        ],
+        "size": [
+          40,
+          3.6
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          -8.22,
+          0
+        ],
+        "size": [
+          40,
+          0.08
+        ],
+        "colour": "hub",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          -6.78,
+          0
+        ],
+        "size": [
+          40,
+          0.08
+        ],
+        "colour": "hub",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          -12.0,
+          0
+        ],
+        "size": [
+          40,
+          3.6
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          -12.72,
+          0
+        ],
+        "size": [
+          40,
+          0.08
+        ],
+        "colour": "hub",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          -11.28,
+          0
+        ],
+        "size": [
+          40,
+          0.08
+        ],
+        "colour": "hub",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          -5.75,
+          0
+        ],
+        "size": [
+          32,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          -5.4,
+          0
+        ],
+        "size": [
+          32,
+          0.4
+        ],
+        "colour": "danfoYellow",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          -2.0,
+          0
+        ],
+        "size": [
+          40,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          3.6,
+          0
+        ],
+        "size": [
+          40,
+          6.4
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          3.6,
+          0
+        ],
+        "size": [
+          39,
+          0.15
+        ],
+        "colour": "danfoYellow",
+        "raise": 0.02,
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          0.3,
+          0
+        ],
+        "size": [
+          40,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          6.9,
+          0
+        ],
+        "size": [
+          40,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          0.7,
+          0
+        ],
+        "size": [
+          40,
+          0.5
+        ],
+        "colour": "white",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          6.5,
+          0
+        ],
+        "size": [
+          40,
+          0.5
+        ],
+        "colour": "white",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          0,
+          -2.35,
+          0
+        ],
+        "size": [
+          40,
+          0.4
+        ],
+        "colour": "white",
+        "raise": 0.02
+      },
+      {
+        "at": [
+          -17.0,
+          -3.8,
+          0
+        ],
+        "size": [
+          6,
+          3.0
+        ],
+        "colour": "white",
+        "raise": 0.02
+      }
+    ],
+    "light": {
+      "sun": [
+        -14,
+        30,
+        26
+      ],
+      "sky": "zinc",
+      "ground": "concrete"
+    },
+    "start": [
+      -0.4,
+      10.0,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          15.5
+        ],
+        [
+          -17.5,
+          15.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "shared/vehicle/vehicle_ctrain-car.glb",
+        "at": [
+          [
+            -1.0,
+            -7.5,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/ctrain-station-canada/prop_platform-shelter.glb",
+        "at": [
+          [
+            3.5,
+            -4.0,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/peckham-rye-station/prop_ticket-machine.glb",
+        "at": [
+          [
+            -3.0,
+            -2.9,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/peckham-rye-station/prop_platform-sign.glb",
+        "at": [
+          [
+            -5.8,
+            -2.8,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.ctrain-station-canada.sign.name"
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bus-shelter.glb",
+        "at": [
+          [
+            7.5,
+            -1.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/calgary-north-east/prop_bare-tree.glb",
+        "at": [
+          [
+            -14.5,
+            -0.8,
+            0
+          ],
+          [
+            13.5,
+            -0.6,
+            1.0
+          ],
+          [
+            -10.0,
+            -15.5,
+            2.2
+          ],
+          [
+            9.0,
+            -15.6,
+            0.4
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        1.0,
+        -4.7,
+        3.1416
+      ],
+      [
+        2.4,
+        -3.6,
+        3.1416
+      ],
+      [
+        6.4,
+        -4.8,
+        3.0
+      ],
+      [
+        -5.4,
+        -4.4,
+        1.5708
+      ],
+      [
+        7.0,
+        -0.1,
+        0
+      ],
+      [
+        8.4,
+        -0.2,
+        -0.3
+      ],
+      [
+        -1.0,
+        -0.9,
+        1.5708
+      ],
+      [
+        -10.5,
+        -3.6,
+        1.2
+      ],
+      [
+        11.5,
+        -3.8,
+        -1.5708
+      ],
+      [
+        -4.6,
+        -3.4,
+        0.4
+      ]
+    ],
+    "acts": [],
+    "motion": [],
+    "shot": {
+      "centre": [
+        0,
+        0.5,
+        -2.0
+      ],
+      "far": 40,
+      "near": 10,
+      "farPitch": 48,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 24
+    },
+    "things": [
+      {
+        "id": "ticket-machine",
+        "file": "places/peckham-rye-station/prop_ticket-machine.glb",
+        "copy": 0,
+        "label": "city.thing.ticket-machine",
+        "at": [
+          -3.0,
+          -2.2
+        ],
+        "acts": [
+          {
+            "id": "transit-pass",
+            "label": "city.act.transit-pass",
+            "kind": "sheet",
+            "stages": "activity.transit-pass-ca"
+          }
+        ]
+      },
+      {
+        "id": "platform",
+        "file": "places/ctrain-station-canada/prop_platform-shelter.glb",
+        "copy": 0,
+        "label": "city.thing.platform",
+        "at": [
+          3.5,
+          -4.3
+        ],
+        "acts": [
+          {
+            "id": "train",
+            "label": "city.act.ride",
+            "kind": "ride"
+          },
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              3.5,
+              -3.4,
+              3.1416
+            ]
+          }
+        ]
+      },
+      {
+        "id": "stop",
+        "file": "shared/prop/prop_bus-shelter.glb",
+        "copy": 0,
+        "label": "city.thing.stop",
+        "at": [
+          7.5,
+          -0.1
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      }
+    ]
+  }
+}
