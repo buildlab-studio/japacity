@@ -1,5 +1,5 @@
 import type { Command, World } from "@japacity/sim";
-import { standInWorld } from "@japacity/sim";
+import { standInWorld, time } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
 import { expect, test, type Page } from "@playwright/test";
@@ -101,7 +101,7 @@ test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before
         ok: true,
         slot: "partner",
         looking: "partner",
-        expires: Date.now() + 14 * 86_400_000,
+        expires: Date.now() + 14 * time.DAY_MS,
         card: { name: "scenario.tunde.name", japacity: { percent: 47, route: "route.uk-masters" }, looking: { key: "card.invite.looking", slot: "partner", fill: "already-in-uk", slotKey: "card.invite.slot.partner", fillKey: "card.invite.fill.already-in-uk" }, game: "card.invite.game", controls: ["block", "report"] },
       },
     },
@@ -182,7 +182,7 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
         ok: true,
         region: "NG",
         hour: 1,
-        until: Date.now() + 3_600_000,
+        until: Date.now() + time.HOUR_MS,
         slots: { "advert.phone-tile": { campaign: "campaign-1", creative: "creative-1", version: 1, image: "/api/adverts/image/creative-1/1", width: 256, height: 256, advertiser: "Mama Put Kitchen", text: "Jollof and plantain on the island, open late.", link: null } },
       },
     },
