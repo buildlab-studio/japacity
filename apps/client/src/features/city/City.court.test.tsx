@@ -1,4 +1,4 @@
-// The answer once courted, in the world (docs/rules/person.md R-PEOPLE-013, R-PEOPLE-054; world.md R-WORLD-020): once
+// The answer once courted, in the world (person:courting-opens-a-bond, person:computer-mark-is-quiet; world:nobody-picked-from-list): once
 // "Start seeing Tobi" closes the sheet and Tobi leaves the parlour, the corner tells the person's own line, and it waits
 // for the corner to show, so the home's card never hides it. The place files are the ones the game ships; the scene is
 // a stand-in that hands the city a tap on a thing's act.
@@ -12,7 +12,7 @@ import { TOLD_MS } from "../../shared/world/Lines";
 import { City } from "./City";
 import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 describe("the answer once courted", () => {
-  test("[R-PEOPLE-013] [R-PEOPLE-054] [R-WORLD-020] given Tobi in the parlour and the home's card still up, when he is courted, then the corner waits for the card to be put away and tells his answer in his own words, then that he lives in the game", async () => {
+  test("[person:courting-opens-a-bond] [person:computer-mark-is-quiet] [world:nobody-picked-from-list] given Tobi in the parlour and the home's card still up, when he is courted, then the corner waits for the card to be put away and tells his answer in his own words, then that he lives in the game", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const game = peopleGame();
     game.grant(1);
@@ -44,9 +44,9 @@ describe("the answer once courted", () => {
       if (found === null) throw new Error(`Tobi is not standing in the parlour. ${document.querySelector("[data-city]")?.getAttribute("data-city") ?? "no city"} ${[...document.querySelectorAll<HTMLElement>("[data-stand-in-thing]")].map((one) => one.dataset.standInThing).join(",")}`);
       return found;
     });
-    // The home's card, once in a life (R-HOME-008), is still up: the player goes straight to Tobi.
+    // The home's card, once in a life (home:moves-carry-cost-and-reason), is still up: the player goes straight to Tobi.
     expect(document.querySelector("[data-home-teach-ok]")).not.toBeNull();
-    // His fan's Talk (R-WORLD-034).
+    // His fan's Talk (world:fan-of-sticker-buttons).
     fireEvent.click(tobi);
     fireEvent.click(await waitFor(() => {
       const found = document.querySelector<HTMLElement>('[data-fan="after-service"] [data-fan-act="talk"] button');

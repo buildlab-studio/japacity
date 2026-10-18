@@ -1,5 +1,4 @@
-// The official accounts page, `/official` (docs/rules/share.md R-SHARE-012 to
-// R-SHARE-014): the accounts the game holds and what it never does, in the
+// The official accounts page, `/official` (share:official-accounts-page, share:official-page-warns-plainly and share:everything-links-to-official): the accounts the game holds and what it never does, in the
 // words content gives, and nothing else. It is a static file so it loads with
 // no game, no sign-in and no script; this builds it, and a test holds the file
 // to it.

@@ -1,9 +1,9 @@
-// The door's pictures (prologue.md R-PROLOGUE-009, 013): a look's face for the look strip and the
+// The door's pictures (prologue:front-door-builds-a-person, prologue:front-door-three-screens): a look's face for the look strip and the
 // life cards, its whole figure standing with a hand on the hip on the first screen and cheering on the page after
 // Begin, each shot by the asset shooter from the shipped model and published as a tile (`tiles/<look>-face.png`,
 // `-figure.png`, `-cheer.png`), and a model's own tile for a life's thing or a home. No three.js turntable and no drag:
 // the figure is a sticker. Until the manifest is read, or where a picture is missing, the look's own small picture
-// stands in. A figure in the player's own colours (R-PROLOGUE-015) is drawn once as a still in their place.
+// stands in. A figure in the player's own colours (prologue:player-colours-on-looks) is drawn once as a still in their place.
 import { useEffect, useState } from "react";
 
 import { assetUrl, loadManifest } from "../three/manifest";
@@ -109,7 +109,7 @@ function onScreen(src: string): () => void {
 }
 
 /**
- * The whole figure in the player's colours, drawn once a style as a still (R-PROLOGUE-015), or null while it draws,
+ * The whole figure in the player's colours, drawn once a style as a still (prologue:player-colours-on-looks), or null while it draws,
  * as made, or where nothing can draw it: the published figure stands then. The still is an object address, revoked
  * once nothing shows it and it is not among the few kept.
  */

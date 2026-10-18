@@ -1,4 +1,4 @@
-// The age on the door (prologue.md R-PROLOGUE-004, R-PROLOGUE-009; decision 0023): never typed. The tile's own age is
+// The age on the door (prologue:age-advances-with-steps, prologue:front-door-builds-a-person; decision 0023): never typed. The tile's own age is
 // the year its path reaches with no setback, and the player steps it a few years older, within 18 to 29. The age picked
 // is the age the life starts at: the years past the path's end are worked, and the prologue's work card says what each
 // year brings. The client only reads the cards, sends the year picked through the tile's preset, and says what a step does.
@@ -13,7 +13,7 @@ import { say, sayCount } from "../words/text";
 export const WORK_CARD = "work";
 const PASSPORT = "document.passport";
 const CANADA = "points.canada" as Id<"points">;
-/** How many years older than its own a tile's age steps on the door (R-PROLOGUE-009: a few years), content's own. */
+/** How many years older than its own a tile's age steps on the door (prologue:front-door-builds-a-person: a few years), content's own. */
 export const STEPS_OLDER = PRESET_STEPS_OLDER;
 
 function years(): number[] {
@@ -34,7 +34,7 @@ export function startYearFor(archetype: Archetype, older: number): number {
 
 /**
  * The steps older the door offers a tile, its own age first: up to three, never past the oldest start. Content's
- * `presetAges`, the ones the server takes (server.md R-SERVER-046), so the door and the server never drift apart.
+ * `presetAges`, the ones the server takes (server:server-plays-prologue-preset), so the door and the server never drift apart.
  */
 export function stepsOpen(archetype: Archetype): number[] {
   return presetAges(archetype.preset);

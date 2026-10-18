@@ -77,7 +77,7 @@ export function lowCrowd(entry: PlaceEntry): number {
   return crowdSize(entry, "low", city);
 }
 
-/** Every colour on the floor and in the motion is a palette name (R-ASSET-001). */
+/** Every colour on the floor and in the motion is a palette name (assets:colours-from-named-palette). */
 function coloursOf(stage: Stage): string[] {
   return [
     stage.ground.colour,

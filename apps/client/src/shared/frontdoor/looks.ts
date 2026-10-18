@@ -1,6 +1,6 @@
-// The looks and the names the front door offers (prologue.md R-PROLOGUE-009). A look is a shipped person
+// The looks and the names the front door offers (prologue:front-door-builds-a-person). A look is a shipped person
 // of the city's roster who is a passer-by: a whole look, which carries the sex, never a stat; no hawker,
-// rider, corper, trader or chief. A name is drawn from the one pool (person.md R-PEOPLE-061) for the
+// rider, corper, trader or chief. A name is drawn from the one pool (person:one-mixed-name-pool) for the
 // look's sex, three at a time; nobody types one.
 import { nameMix, namePool, text } from "@japacity/content";
 import { drawName } from "@japacity/sim";

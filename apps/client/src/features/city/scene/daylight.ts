@@ -1,6 +1,6 @@
-// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033; decision 0011): a dark view at
+// The sky and the sun by the world's clock (clock:game-day-on-real-time; decision 0011): a dark view at
 // night, a sunset, a morning and normal brightness by day. Each place keeps its one sun
-// and its one sky light (R-ASSET-006); the part of the world's day and the minute within it only turn the sun, tint both
+// and its one sky light (assets:lighting-set-by-place); the part of the world's day and the minute within it only turn the sun, tint both
 // lights and the sky, and light the lamps a place names. The same rule indoors and out, in every place. Pure but for the
 // hook at the foot, which reads the clock the last reply carried (handed in by the city, which holds the store, so the
 // scene's own chunk stays apart from it) and the device's between replies.
@@ -210,7 +210,7 @@ export function pinnedClock(part: DayPart): Pick<WorldClock, "part" | "minute"> 
 
 /**
  * The world's clock now: the device's reading, moved by how far the last reply's reading stood from the device's when it
- * came, so the server's reading wins on a reply and the device carries it on between replies (R-CLOCK-033).
+ * came, so the server's reading wins on a reply and the device carries it on between replies (clock:game-day-on-real-time).
  */
 export function worldNow(now: number, reply: { world: WorldClock; at: number } | null): WorldClock {
   if (reply === null) return worldClockAt(now);

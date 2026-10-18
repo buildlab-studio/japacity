@@ -1,4 +1,4 @@
-// The page's photo where WebGL can draw (prologue.md R-PROLOGUE-015): as made too, at the size
+// The page's photo where WebGL can draw (prologue:player-colours-on-looks): as made too, at the size
 // the box shows it times the screen's pixel ratio. The render itself needs WebGL, so it stands in here and reports the
 // size it was asked for.
 import { render, waitFor } from "@testing-library/react";
@@ -37,7 +37,7 @@ const fields = { name: "Kola", age: "", path: "", ready: "", photo: "look-pictur
 const shown = (): string | null => document.querySelector("[data-photo] img[data-photo-made]")?.getAttribute("src") ?? null;
 
 describe("the page's photo where WebGL draws", () => {
-  test("[R-PROLOGUE-015] given the look as made on a Pixel 7, when the page prints, then the figure is drawn as made at the box's 98 px times 2.625, 258 by 337, never the look's small picture, and kept with the person with its width", async () => {
+  test("[prologue:player-colours-on-looks] given the look as made on a Pixel 7, when the page prints, then the figure is drawn as made at the box's 98 px times 2.625, 258 by 337, never the look's small picture, and kept with the person with its width", async () => {
     keepPerson({ look: "chr_tunde", name: "Kola", archetype: null });
     render(<DataPage page={{ ...fields, wear: { look: "chr_tunde" } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,258x337"));
@@ -46,7 +46,7 @@ describe("the page's photo where WebGL draws", () => {
     expect(readPerson()).toMatchObject({ photo: "data:image/webp;base64,258x337", photoPx: 258 });
   });
 
-  test("[R-PROLOGUE-015] given a style on a screen of ratio 3 and one of ratio 1, then the photo is drawn 294 by 384 and 196 by 256: the ratio held to 2 to 3", async () => {
+  test("[prologue:player-colours-on-looks] given a style on a screen of ratio 3 and one of ratio 1, then the photo is drawn 294 by 384 and 196 by 256: the ratio held to 2 to 3", async () => {
     Object.defineProperty(window, "devicePixelRatio", { configurable: true, value: 3 });
     const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "chr_ada", style: { top: "wine" } } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,294x384"));
@@ -57,7 +57,7 @@ describe("the page's photo where WebGL draws", () => {
     expect(asked.map((one) => one.width)).toEqual([294, 196]);
   });
 
-  test("[R-PROLOGUE-015] given a photo kept as wide as the screen wants, then it is shown and nothing is drawn again", async () => {
+  test("[prologue:player-colours-on-looks] given a photo kept as wide as the screen wants, then it is shown and nothing is drawn again", async () => {
     render(<DataPage page={{ ...fields, wear: { look: "chr_bisi", photo: "data:image/webp;base64,kept", photoPx: 258 } }} />);
     await waitFor(() => expect(shown()).toBe("data:image/webp;base64,kept"));
     expect(asked).toEqual([]);

@@ -1,4 +1,4 @@
-// The nudge socket (R-CLOCK-020 to 024). It only hears that something changed
+// The nudge socket (clock:socket-only-nudges, clock:nudge-triggers-ordinary-fetch, clock:nudges-are-best-effort, clock:sockets-reconnect-with-backoff and clock:client-sends-only-pings). It only hears that something changed
 // and asks for it through an ordinary request; game state never comes this
 // way. It sends nothing but a ping. `open` is the seam tests fake.
 import { type Nudge, PING, readNudge } from "@japacity/api";
@@ -41,7 +41,7 @@ export const browserSocket: OpenSocket = (url) => {
   return like;
 };
 
-/** R-CLOCK-023: the wait before reconnect number `attempt` (from 0): 1 s doubling to 60 s, plus up to half again. */
+/** clock:sockets-reconnect-with-backoff: the wait before reconnect number `attempt` (from 0): 1 s doubling to 60 s, plus up to half again. */
 export function reconnectWait(attempt: number, random: RandomBelow): number {
   const { reconnectFirstMs, reconnectMaxMs } = SOCKET_NUMBERS;
   const base = Math.min(reconnectFirstMs * 2 ** Math.min(attempt, 16), reconnectMaxMs);
@@ -56,7 +56,7 @@ export interface NudgeSocketOptions {
   held: () => number | null;
   fetchView: () => void;
   fetchPresence: () => void;
-  /** A pair's conversation has a new row: an open conversation fetches from where it left off (R-PAIR-011). */
+  /** A pair's conversation has a new row: an open conversation fetches from where it left off (pair:conversation-phrases-stored). */
   fetchMessages?: () => void;
 }
 

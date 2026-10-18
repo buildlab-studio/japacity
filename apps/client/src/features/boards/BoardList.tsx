@@ -1,4 +1,4 @@
-// One board's lines (docs/rules/city.md R-CITY-040): rank, name and figure for
+// One board's lines (city:board-line-and-ranking): rank, name and figure for
 // the top lines, then the player's own line wherever it ranks. The name is the
 // account's username on every board, friends too. Loaded
 // only after the server has answered with a board, so a switched-off board's
@@ -48,7 +48,7 @@ export function keptLook(): string | null {
 }
 
 /**
- * The face on a line. No look travels on a board (R-CITY-040), so another player's face is one of the door's looks
+ * The face on a line. No look travels on a board (city:board-line-and-ranking), so another player's face is one of the door's looks
  * picked from the name the line shows (`lookForName`), the same name always the same face; the player's own line wears the look they
  * built at the door, kept on this device, where there is one.
  */

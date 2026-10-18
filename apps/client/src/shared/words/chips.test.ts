@@ -8,13 +8,13 @@ import { effectWordsOf, timeWordsOf } from "./acts";
 import { say } from "./text";
 
 describe("chips earn their place", () => {
-  test("[R-WORLD-006] given sleep, a nap, a bath and water, when Free would show, then it never does; a meal at home that costs nothing would say it", () => {
+  test("[world:one-action-one-sheet] given sleep, a nap, a bath and water, when Free would show, then it never does; a meal at home that costs nothing would say it", () => {
     const never = ["activity.nap", "activity.bucket-bath", "activity.fetch-water", "activity.fill-drum", "activity.watch-tv"];
     expect(never.filter((act) => freeShown(act))).toEqual([]);
     expect(freeShown("activity.cook-at-home")).toBe(true);
   });
 
-  test("[R-WORLD-006] given an act that takes a morning, when its time chip is read, then there is none; a day or more shows", () => {
+  test("[world:one-action-one-sheet] given an act that takes a morning, when its time chip is read, then there is none; a day or more shows", () => {
     expect(timeWordsOf("activity.cook-at-home")).toBe(say("ui.world.time.morning"));
     expect(chipTimeOf("activity.cook-at-home")).toBeNull();
     const longer = Object.keys(content.activity).find((act) => timeWordsOf(act) !== null && timeWordsOf(act) !== say("ui.world.time.morning")) ?? "";
@@ -22,7 +22,7 @@ describe("chips earn their place", () => {
     expect(chipTimeOf(longer)).toBe(timeWordsOf(longer));
   });
 
-  test("[R-WORLD-006] given an act that does several things, when its effect chips are read, then there are at most two", () => {
+  test("[world:one-action-one-sheet] given an act that does several things, when its effect chips are read, then there are at most two", () => {
     expect(EFFECTS_MAX).toBe(2);
     expect(chipEffectsOf("activity.cook-at-home").length).toBeLessThanOrEqual(2);
     expect(chipEffectsOf("activity.cook-at-home")).toEqual((effectWordsOf("activity.cook-at-home") ?? "").split(", ").slice(0, 2).map((part) => part.charAt(0).toUpperCase() + part.slice(1)));

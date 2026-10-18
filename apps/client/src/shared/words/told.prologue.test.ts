@@ -1,4 +1,4 @@
-// News tells the month, not the years before (docs/rules/world.md R-WORLD-008): the years are
+// News tells the month, not the years before (world:month-end-results-sheet): the years are
 // told once, on the page, so the prologue's lines (a grade, a quality up or down in the simulation's words) never list.
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -10,7 +10,7 @@ import { newsLines } from "./told";
 const DEVELOPER = ARCHETYPES.find((archetype) => archetype.id === "developer")!;
 
 describe("News after the years before", () => {
-  test("[R-WORLD-008] given the developer's years played as the door plays them and the first month ended, when News tells the month, then none of the prologue's lines is listed and the month's own are", () => {
+  test("[world:month-end-results-sheet] given the developer's years played as the door plays them and the first month ended, when News tells the month, then none of the prologue's lines is listed and the month's own are", () => {
     const game = newGame("scenario.prologue", "developer-0");
     const prologue: ReportLine[] = [];
     for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {

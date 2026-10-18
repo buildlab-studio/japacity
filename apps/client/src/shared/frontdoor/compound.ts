@@ -1,4 +1,4 @@
-// The family compound behind the door (prologue.md R-PROLOGUE-009, 016): where its file is, where the figure stands
+// The family compound behind the door (prologue:front-door-builds-a-person, prologue:nothing-behind-the-door): where its file is, where the figure stands
 // at its gate and the one camera that sees it, shared by the page's scene and the still compound behind "Your life so
 // far". The file is fetched once a session, so the cut from the first screen to the second finds it waiting.
 import type { PlaceFile } from "../scene/placeFile";

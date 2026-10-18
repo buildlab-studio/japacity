@@ -10,13 +10,13 @@ const LEG = 7 / WALK_SPEED;
 const ROUND = 2 * (LEG + CROSS_WAIT);
 
 describe("someone crossing at the stop", () => {
-  test("[R-CITY-025] given the clock at zero, when a crosser is read, then they stand at their spot about to walk out, facing the far side", () => {
+  test("[city:one-clock-one-wind] given the clock at zero, when a crosser is read, then they stand at their spot about to walk out, facing the far side", () => {
     const pace = crossAt(FROM, TO, 0, WALK_SPEED);
     expect(pace).toMatchObject({ x: 0, z: 0, walking: true, stride: 0 });
     expect(pace.facing).toBeCloseTo(0, 6);
   });
 
-  test("[R-CITY-025] given the clock halfway along the first leg, when a crosser is read, then they are halfway across at walking pace, mid stride", () => {
+  test("[city:one-clock-one-wind] given the clock halfway along the first leg, when a crosser is read, then they are halfway across at walking pace, mid stride", () => {
     const pace = crossAt(FROM, TO, LEG / 2, WALK_SPEED);
     expect(pace.z).toBeCloseTo(3.5, 6);
     expect(pace.walking).toBe(true);
@@ -24,7 +24,7 @@ describe("someone crossing at the stop", () => {
     expect(pace.stride).toBeLessThan(1);
   });
 
-  test("[R-CITY-025] given the clock at the end of the first leg and through the wait, when a crosser is read, then they stand still on the far side facing back", () => {
+  test("[city:one-clock-one-wind] given the clock at the end of the first leg and through the wait, when a crosser is read, then they stand still on the far side facing back", () => {
     for (const time of [LEG, LEG + CROSS_WAIT / 2, LEG + CROSS_WAIT - 0.01]) {
       const pace = crossAt(FROM, TO, time, WALK_SPEED);
       expect(pace).toMatchObject({ x: 0, z: 7, walking: false, stride: 0 });
@@ -33,7 +33,7 @@ describe("someone crossing at the stop", () => {
     expect(crossAt(FROM, TO, LEG - 0.01, WALK_SPEED).walking).toBe(true);
   });
 
-  test("[R-CITY-025] given the clock on the way back, when a crosser is read, then they walk home facing their spot, and wait there at the end of the round", () => {
+  test("[city:one-clock-one-wind] given the clock on the way back, when a crosser is read, then they walk home facing their spot, and wait there at the end of the round", () => {
     const back = crossAt(FROM, TO, LEG + CROSS_WAIT + LEG / 2, WALK_SPEED);
     expect(back.z).toBeCloseTo(3.5, 6);
     expect(back.walking).toBe(true);
@@ -43,14 +43,14 @@ describe("someone crossing at the stop", () => {
     expect(home.facing).toBeCloseTo(0, 6);
   });
 
-  test("[R-CITY-027] given a phase, when two crossers on one path are read at one clock, then each is the other shifted along the round, so no two cross together", () => {
+  test("[city:no-script-loop-per-sheet] given a phase, when two crossers on one path are read at one clock, then each is the other shifted along the round, so no two cross together", () => {
     const late = crossAt(FROM, TO, 1, WALK_SPEED, 2);
     const early = crossAt(FROM, TO, 3, WALK_SPEED);
     expect(late).toEqual(early);
     expect(crossAt(FROM, TO, 1, WALK_SPEED, 2)).not.toEqual(crossAt(FROM, TO, 1, WALK_SPEED));
   });
 
-  test("[R-CITY-027] given clocks across many rounds and phases, when a crosser is read, then they are always on the line between the two sides, and the same a whole round later", () => {
+  test("[city:no-script-loop-per-sheet] given clocks across many rounds and phases, when a crosser is read, then they are always on the line between the two sides, and the same a whole round later", () => {
     for (let step = -400; step <= 400; step += 1) {
       const time = step * 0.37;
       const phase = (step * 7) % 23;

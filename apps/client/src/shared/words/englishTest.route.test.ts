@@ -1,4 +1,4 @@
-// One band for the route (docs/rules/world.md R-WORLD-006): the care
+// One band for the route (world:one-action-one-sheet): the care
 // file said "English result at band 4.0 or better", the centre's sheet "Band 6.0 this sitting: likely" and the result
 // "That meets the route's 6.0." The band is the plan's route's own, from its content, on the file, the sheet and the result.
 import { content, text } from "@japacity/content";
@@ -16,7 +16,7 @@ const PAPER = "document.english-test";
 const CARE = "route.uk-care";
 
 describe("one band for the route", () => {
-  test("[R-WORLD-006] given every route whose file asks for an English result, when the file's words are read, then the band they say is the route's own from its content", () => {
+  test("[world:one-action-one-sheet] given every route whose file asks for an English result, when the file's words are read, then the band they say is the route's own from its content", () => {
     const asking = Object.keys(content.route).filter((route) => routeBand(route) !== null);
     expect(asking).toEqual(expect.arrayContaining(["route.uk-masters", CARE, "route.uk-skilled", "route.canada-points"]));
     for (const route of asking) {
@@ -26,7 +26,7 @@ describe("one band for the route", () => {
     expect(routeBand(CARE)).toBe(40);
   });
 
-  test("[R-WORLD-006] [R-WORLD-008] given the nurse whose plan is care work, when the centre's sheet and her result are read, then both say the care route's band, never the master's 6.0", () => {
+  test("[world:one-action-one-sheet] [world:month-end-results-sheet] given the nurse whose plan is care work, when the centre's sheet and her result are read, then both say the care route's band, never the master's 6.0", () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
     const view = game.view();

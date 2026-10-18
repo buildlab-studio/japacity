@@ -1,4 +1,4 @@
-// The guest start (R-ACCOUNT-021, 013, 024, 027, 029). Online, Begin on the page makes the guest life: the username,
+// The guest start (account:guest-and-secured-states, account:bot-check-on-guest-creation, account:username-and-unconfirmed-email, account:guest-reminded-to-secure, account:start-screen-over-live-city). Online, Begin on the page makes the guest life: the username,
 // filled in from the name on the page and changed there, goes to `POST /api/guest` with the token of the bot check
 // that ran unseen on the page. No email and no sign-in method: those come later, when the player keeps the life.
 // The guest line is said once, on the page. Inside the invite page, where the card makes the life, the same fields
@@ -54,7 +54,7 @@ const GUEST_WORDS: Record<GuestFailure, string> = {
   refused: "ui.account.fail.refused",
 };
 
-/** Why a username cannot be sent as typed: empty, or not R-ACCOUNT-024's shape. */
+/** Why a username cannot be sent as typed: empty, or not account:username-and-unconfirmed-email's shape. */
 function usernameProblem(username: string): string | null {
   if (username.trim() === "") return say("ui.account.name.empty");
   return USERNAME.test(username.trim()) ? null : say("ui.account.name.format");
@@ -144,7 +144,7 @@ export function useGuestDoor({ account, sitekey, load, onExpired, onFull, onStar
 
 const FIELD = "h-12 w-full min-w-0 rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[17px] font-bold text-text outline-none focus:border-action";
 
-/** The username on the page, its rule, and the guest line said once (R-ACCOUNT-024, R-ACCOUNT-027). */
+/** The username on the page, its rule, and the guest line said once (account:username-and-unconfirmed-email, account:guest-reminded-to-secure). */
 function GuestFields({ value, onChange, problem, widget }: { value: string; onChange: (username: string) => void; problem: string | null; widget: ReactNode }) {
   return (
     <section className="mt-3 flex flex-col" data-guest-fields>
@@ -175,7 +175,7 @@ function GuestFields({ value, onChange, problem, widget }: { value: string; onCh
       <p className="mt-2 text-[13px] leading-snug" data-guest-line>
         {say("ui.guest.reminder")}
       </p>
-      {/* Unseen unless Cloudflare needs a tap (R-ACCOUNT-029). */}
+      {/* Unseen unless Cloudflare needs a tap (account:start-screen-over-live-city). */}
       {widget}
     </section>
   );

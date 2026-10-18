@@ -1,4 +1,4 @@
-// A card says it costs nothing once (docs/rules/text.md R-TEXT-005): the tag
+// A card says it costs nothing once (text:bands-not-figures): the tag
 // says "No cost", so a free activity's line never opens on "Free." as well.
 import { describe, expect, test } from "vitest";
 
@@ -6,7 +6,7 @@ import { newGame, viewAfter } from "../../shared/testing/fixtures";
 import { blurbOf, say } from "../../shared/words/text";
 
 describe("a free card", () => {
-  test("[R-TEXT-005] given every activity the card tags as costing nothing, when its line is read, then the line does not say free again", () => {
+  test("[text:bands-not-figures] given every activity the card tags as costing nothing, when its line is read, then the line does not say free again", () => {
     const view = viewAfter(newGame("scenario.ada"), [{ type: "route/hear", route: "route.uk-masters", via: "test" }]);
     const free = view.activities.filter((option) => option.cost.length === 0).map((option) => option.id);
     expect(free).toContain("activity.look-into-route");

@@ -1,4 +1,4 @@
-// One story per month (docs/rules/world.md R-WORLD-008): the results and News never tell the same month two ways, as
+// One story per month (world:month-end-results-sheet): the results and News never tell the same month two ways, as
 // "A piece for the portfolio: two of three" beside "You have little work to show", and the results never promise an
 // endorsement "next month" that is then refused. News reads the month as it closed,
 // in the results' own words, and a wait whose outcome is still to be judged never promises one. Real content, the
@@ -21,7 +21,7 @@ const ENDORSEMENT: Id<"document"> = "document.endorsement";
 interface Month {
   mid: ReportLine[];
   report: ReportLine[];
-  /** The view at the month's end, whose jobs and offers say what a job pays (R-WALLET-016). */
+  /** The view at the month's end, whose jobs and offers say what a job pays (wallet:view-carries-month-pay). */
   view: PlayerView;
 }
 
@@ -89,14 +89,14 @@ function developerMonths(): Month[] {
 const LIVES = Object.keys(lifeSaves);
 
 describe("News and the results tell one story a month", () => {
-  test.each(LIVES)("[R-WORLD-008] given the recorded life %s, when each month's News is read beside its results, then every line the results tell is in News in the same words", (name) => {
+  test.each(LIVES)("[world:month-end-results-sheet] given the recorded life %s, when each month's News is read beside its results, then every line the results tell is in News in the same words", (name) => {
     for (const month of recordedMonths(name)) {
       const news = newsSays(month);
       for (const said of resultsSay(month)) expect(news).toContain(said);
     }
   });
 
-  test("[R-WORLD-008] given the developer's life, when a piece goes into the portfolio from nothing, then News counts it as the results do and never says there is little work to show", () => {
+  test("[world:month-end-results-sheet] given the developer's life, when a piece goes into the portfolio from nothing, then News counts it as the results do and never says there is little work to show", () => {
     const months = developerMonths();
     const pieces = months.filter((month) => resultsSay(month).some((said) => said.includes(words("quality.portfolio.name").toLowerCase()) || said.startsWith("A piece")));
     expect(pieces.length).toBeGreaterThan(0);
@@ -107,7 +107,7 @@ describe("News and the results tell one story a month", () => {
     }
   });
 
-  test("[R-WORLD-008] [R-ENDORSE-002] given the developer's endorsement asked for and later refused, when the month it was asked for is read, then the wait names who answers and when, and promises nothing", () => {
+  test("[world:month-end-results-sheet] [route-gates:endorsement-decided-by-draw] given the developer's endorsement asked for and later refused, when the month it was asked for is read, then the wait names who answers and when, and promises nothing", () => {
     const months = developerMonths();
     const asked = months.find((month) => [...month.mid, ...month.report].some((line) => line.key === "line.document.requested" && line.params.document === ENDORSEMENT));
     expect(asked).toBeDefined();
@@ -118,7 +118,7 @@ describe("News and the results tell one story a month", () => {
     expect(months.some((month) => month.report.some((line) => line.key === "line.route.endorsement-refused"))).toBe(true);
   });
 
-  test("[R-WORLD-008] given every paper a route judges when it is issued, when its request is told, then the words never say it should be ready", () => {
+  test("[world:month-end-results-sheet] given every paper a route judges when it is issued, when its request is told, then the words never say it should be ready", () => {
     const judged = Object.values(content.route).flatMap((route) => (route?.endorsement === undefined || route.endorsement === null ? [] : [route.endorsement.document]));
     expect(judged.length).toBeGreaterThan(0);
     for (const document of judged) {

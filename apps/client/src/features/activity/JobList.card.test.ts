@@ -1,4 +1,4 @@
-// The racks' card (docs/rules/activity.md R-ACTIVITY-017, world.md R-WORLD-006): "Work the racks"
+// The racks' card (activity:fish-racks-at-makoko, world:one-action-one-sheet): "Work the racks"
 // never opens with the hunt's own words, "You send applications and follow up on every lead", or "Likely" at the
 // bar every hunt stops at. A job named on its card speaks in its own words where content has them (`<job>.card`,
 // else the job's blurb), and the chance at the bar is said as it is: as good as certain. Real content, the child of the
@@ -29,7 +29,7 @@ function play(id: string, seed: string): ReturnType<typeof newGame> {
 }
 
 describe("the racks' card", () => {
-  test("[R-ACTIVITY-017] [R-WORLD-006] given the child of the water at the racks, when the hunt's card names the racks, then it speaks in the racks' own words, never the hunt's applications", () => {
+  test("[activity:fish-racks-at-makoko] [world:one-action-one-sheet] given the child of the water at the racks, when the hunt's card names the racks, then it speaks in the racks' own words, never the hunt's applications", () => {
     const view = play("water", "racks-nudge-0").view();
     expect(view.activities.find((option) => option.id === HUNT)?.params).toContain(RACKS);
     const line = jobCardLine(view, HUNT, RACKS);
@@ -37,7 +37,7 @@ describe("the racks' card", () => {
     expect(line).not.toContain(text[`${HUNT}.blurb`]);
   });
 
-  test("[R-ACTIVITY-017] [R-ACTIVITY-005] given the racks at the bar every hunt stops at, when their chance is said, then it is as good as certain, and one point under the bar is likely", () => {
+  test("[activity:fish-racks-at-makoko] [activity:job-hunt-lands-offer] given the racks at the bar every hunt stops at, when their chance is said, then it is as good as certain, and one point under the bar is likely", () => {
     const view = play("water", "racks-nudge-0").view();
     const bar = content.tuning.quality.hireMaxBp;
     expect(chanceOf(view, RACKS)).toBe(bar);
@@ -48,7 +48,7 @@ describe("the racks' card", () => {
     expect(jobCardLine(view, HUNT, RACKS)).not.toContain(say("jobs.chance.likely"));
   });
 
-  test("[R-WORLD-006] given every main job on the real content, when a card names it, then its words are its own where content has them, else the hunt's", () => {
+  test("[world:one-action-one-sheet] given every main job on the real content, when a card names it, then its words are its own where content has them, else the hunt's", () => {
     const view = play("water", "racks-nudge-0").view();
     for (const entry of Object.values(content.activity)) {
       if (entry === undefined || entry.slot !== "main" || entry.hireBp === null) continue;

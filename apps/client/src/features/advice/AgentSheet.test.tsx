@@ -20,7 +20,7 @@ const AGENT = `${STOP}.who.2`;
 
 const allowed = (...ids: string[]): Offer["choices"] => ids.map((id) => ({ id, allowed: true, pick: null }));
 
-/** The route's checklist less its heaviest item: an understating agent's version (R-ADVICE-005). */
+/** The route's checklist less its heaviest item: an understating agent's version (advice:agent-kind-drawn-on-offer). */
 function understated(): string[] {
   const checklist = content.route[ROUTE]?.checklist ?? [];
   const heaviest = checklist.reduce((best, item) => (item.weight > best.weight ? item : best));
@@ -72,7 +72,7 @@ async function renderStepping(first: PlayerView, after: PlayerView, lines: Repor
 const line = (key: string, params: ReportLine["params"], tone: ReportLine["tone"] = "plain"): ReportLine => ({ key, params, tone, attention: false, counts: [] });
 
 describe("the agent's sheet", () => {
-  test("[R-ADVICE-006] [R-TEXT-008] given an agent at the stop with one tell shown, when his sheet opens, then that one tell shows in a few words with the warning mark and no other, with the three looks still to make", async () => {
+  test("[advice:scams-show-their-tells] [text:show-then-tell] given an agent at the stop with one tell shown, when his sheet opens, then that one tell shows in a few words with the warning mark and no other, with the three looks still to make", async () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"])));
     const tells = document.querySelectorAll("[data-tell]");
     expect(tells).toHaveLength(1);
@@ -86,7 +86,7 @@ describe("the agent's sheet", () => {
     expect(document.querySelectorAll("[data-look-done]")).toHaveLength(0);
   });
 
-  test("[R-ADVICE-006] given his sheet, when a look is made, then it sends its choice for free and shows every tell it found in words, and the look shows as done", async () => {
+  test("[advice:scams-show-their-tells] given his sheet, when a look is made, then it sends its choice for free and shows every tell it found in words, and the look shows as done", async () => {
     const before = withOffers(stopOffer(["cash-only"]));
     const after = withOffers(stopOffer(["cash-only", "no-office", "look-office"]));
     const found = [line("line.offer.look-office-found", { offer: STOP, tell: "advice.tell.no-office" })];
@@ -101,7 +101,7 @@ describe("the agent's sheet", () => {
     expect(document.querySelector("[data-look-done]")?.textContent).toContain(text[`${STOP}.sign.look-office`]);
   });
 
-  test("[R-TEXT-008] given every tell an agent can carry, when each shows, then it is an icon, two to four words with no full stop and the warning mark with its word, never his sentence", async () => {
+  test("[text:show-then-tell] given every tell an agent can carry, when each shows, then it is an icon, two to four words with no full stop and the warning mark with its word, never his sentence", async () => {
     const all = ["cash-only", "guarantee", "no-office", "no-licence", "holds-passport", "no-passport", "pay-today", "price-low"];
     await renderWithView(sheet(), withOffers(stopOffer(all)));
     const tells = [...document.querySelectorAll<HTMLElement>("[data-tell]")];
@@ -119,7 +119,7 @@ describe("the agent's sheet", () => {
     }
   });
 
-  test("[R-ADVICE-006] given his sheet, when a look finds nothing, then the reply's words say so and no tell is added", async () => {
+  test("[advice:scams-show-their-tells] given his sheet, when a look finds nothing, then the reply's words say so and no tell is added", async () => {
     const before = withOffers(stopOffer(["cash-only"]));
     const after = withOffers(stopOffer(["cash-only", "look-licence"]));
     const nothing = [line("line.offer.look-licence-nothing", { offer: STOP })];
@@ -131,7 +131,7 @@ describe("the agent's sheet", () => {
     expect(document.querySelectorAll("[data-fresh]")).toHaveLength(0);
   });
 
-  test("[R-ADVICE-006] given a tell already shown, when a look finds only that one again, then the reply's words say so and nothing is marked as just found", async () => {
+  test("[advice:scams-show-their-tells] given a tell already shown, when a look finds only that one again, then the reply's words say so and nothing is marked as just found", async () => {
     const before = withOffers(stopOffer(["cash-only"]));
     const after = withOffers(stopOffer(["cash-only", "look-name"]));
     const again = [line("line.offer.look-name-found", { offer: STOP, tell: "advice.tell.cash-only" })];
@@ -142,13 +142,13 @@ describe("the agent's sheet", () => {
     expect(document.querySelectorAll("[data-fresh]")).toHaveLength(0);
   });
 
-  test("[R-ADVICE-006] given nobody to check his name with, when his sheet opens, then that look cannot be made and the sheet says why", async () => {
+  test("[advice:scams-show-their-tells] given nobody to check his name with, when his sheet opens, then that look cannot be made and the sheet says why", async () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"], [...allowed("take", "look-office", "look-licence"), { id: "look-name", allowed: false, pick: null }, ...allowed("decline")])));
     expect(screen.getByRole<HTMLButtonElement>("button", { name: text[`${STOP}.choice.look-name`]! }).disabled).toBe(true);
     expect(screen.getByText(say("advice.look.nobody"))).toBeTruthy();
   });
 
-  test("[R-ADVICE-005] given an agent whose kind rides hidden, when his sheet shows his fee, then nothing on it names a kind or counts his tells", async () => {
+  test("[advice:agent-kind-drawn-on-offer] given an agent whose kind rides hidden, when his sheet shows his fee, then nothing on it names a kind or counts his tells", async () => {
     // Even a kind that leaked into the terms is never read by the sheet.
     const offer = { ...stopOffer(["cash-only", "guarantee", "no-office"]), terms: { ...stopOffer([]).terms, kind: "scammer" } };
     await renderWithView(sheet(), withOffers(offer));
@@ -159,7 +159,7 @@ describe("the agent's sheet", () => {
     expect(shown).not.toMatch(/\d+\s*(tells?|signs?|of \d+|out of \d+)/i);
   });
 
-  test("[R-ADVICE-005] given his fee and the cash in hand, when the sheet shows Pay him, then the button says what is left after and sends the take", async () => {
+  test("[advice:agent-kind-drawn-on-offer] given his fee and the cash in hand, when the sheet shows Pay him, then the button says what is left after and sends the take", async () => {
     const view = withOffers(stopOffer(["cash-only"]));
     const { authority } = await renderWithView(sheet(), view);
     const take = document.querySelector<HTMLButtonElement>("[data-agent-choice='take']")!;
@@ -170,7 +170,7 @@ describe("the agent's sheet", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-1", choice: "take" }));
   });
 
-  test("[R-ADVICE-005] given an agent's version of the checklist, when his sheet opens, then it lists the items he says by name and says only the official page is sure", async () => {
+  test("[advice:agent-kind-drawn-on-offer] given an agent's version of the checklist, when his sheet opens, then it lists the items he says by name and says only the official page is sure", async () => {
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only"])));
     const says = document.querySelector<HTMLElement>("[data-agent-says]")!;
     expect(within(says).getByText(say("advice.says"))).toBeTruthy();
@@ -179,7 +179,7 @@ describe("the agent's sheet", () => {
     expect(within(says).getByText(say("advice.says.sure"))).toBeTruthy();
   });
 
-  test("[R-ADVICE-009] given he was paid, when the reply comes, then the report's words stay on the sheet after he has gone", async () => {
+  test("[advice:bad-news-told-straight] given he was paid, when the reply comes, then the report's words stay on the sheet after he has gone", async () => {
     const scam = [line("line.offer.agent-scam", { agent: AGENT, amount: { currency: "NGN", amount: FEE } }, "bad"), line("line.offer.agent-scam-tell", { tell: "advice.tell.cash-only" }, "bad")];
     await renderStepping(withOffers(stopOffer(["cash-only"])), withOffers(), scam);
     fireEvent.click(document.querySelector<HTMLButtonElement>("[data-agent-choice='take']")!);
@@ -200,7 +200,7 @@ describe("what he leaves behind", () => {
     choices: allowed("transcript", "tb-certificate", "medical", "decline"),
   };
 
-  test("[R-ADVICE-008] given his papers on offer, when the card opens at his stop, then it says what he offers in the entry's words, each paper with what is left after, and nothing more", async () => {
+  test("[advice:agent-loss-is-the-fee] given his papers on offer, when the card opens at his stop, then it says what he offers in the entry's words, each paper with what is left after, and nothing more", async () => {
     const view = withOffers(papers);
     const { authority } = await renderWithView(sheet([STOP]), view);
     const card = document.querySelector<HTMLElement>(`[data-agent-sheet='${PAPERS}']`)!;
@@ -215,7 +215,7 @@ describe("what he leaves behind", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-2", choice: "decline" }));
   });
 
-  test("[R-ADVICE-005] given his promise, when its card opens, then it shows the month he named as months away (R-WORLD-002) and sends nothing", async () => {
+  test("[advice:agent-kind-drawn-on-offer] given his promise, when its card opens, then it shows the month he named as months away (world:top-band-is-lively-pill) and sends nothing", async () => {
     const promise: Offer = { id: "offer-3", entry: PROMISE, openedMonth: 3, expiresMonth: 5, terms: { agent: AGENT }, signs: [], choices: allowed("wait") };
     const view = withOffers(promise);
     const { authority } = await renderWithView(sheet([PROMISE]), view);
@@ -227,7 +227,7 @@ describe("what he leaves behind", () => {
 });
 
 describe("the sheet a thing's act opens", () => {
-  test("[R-WORLD-005] given a desk that stages an agent and another offer, when its sheet opens, then the agent gets his own card and the other offer goes to the plain card", async () => {
+  test("[world:things-are-tappable-models] given a desk that stages an agent and another offer, when its sheet opens, then the agent gets his own card and the other offer goes to the plain card", async () => {
     const other: Offer = { id: "offer-9", entry: "offer.held-funds-agent", openedMonth: 3, expiresMonth: 5, terms: { min: 1, max: 2 }, signs: [], choices: allowed("walk-away") };
     const office: Offer = { ...stopOffer([]), id: "offer-8", entry: "offer.agent-office", terms: { who: 1, agent: "offer.agent-office.who.1", fee: FEE } };
     let handed: Offer[] = [];
@@ -248,7 +248,7 @@ describe("the sheet a thing's act opens", () => {
 });
 
 describe("the sheet's words", () => {
-  test("[R-ADVICE-009] given the sheet's own words and a sheet on screen, then no em-dash or en-dash appears anywhere", async () => {
+  test("[advice:bad-news-told-straight] given the sheet's own words and a sheet on screen, then no em-dash or en-dash appears anywhere", async () => {
     for (const value of Object.values(uiAdviceText)) expect(value).not.toMatch(/[–—]/);
     await renderWithView(sheet(), withOffers(stopOffer(["cash-only", "no-office", "look-office"])));
     expect(document.body.textContent).not.toMatch(/[–—]/);
@@ -260,7 +260,7 @@ describe("what he says he does", () => {
   const POLICE = "document.police-certificate";
   const CHASER = "offer.agent-chaser";
 
-  test("[R-ADVICE-013] given an agent who says he knows someone inside, when his sheet opens, then it says so in plain words, names the paper and the office it comes from, and how many months sooner, and never names his kind", async () => {
+  test("[advice:chaser-runs-around-cheaper] given an agent who says he knows someone inside, when his sheet opens, then it says so in plain words, names the paper and the office it comes from, and how many months sooner, and never names his kind", async () => {
     const offer = stopOffer(["cash-only"]);
     await renderWithView(sheet(), withOffers({ ...offer, terms: { ...offer.terms, pitch: "insider", paper: TRANSCRIPT, months: 2 } }));
     const pitch = document.querySelector("[data-agent-pitch]");
@@ -272,7 +272,7 @@ describe("what he says he does", () => {
     expect(document.body.textContent).not.toMatch(/fixer|chaser|scam|overpromis/i);
   });
 
-  test("[R-ADVICE-013] given the chaser a friend puts you onto, when her sheet opens, then it says she will chase it for you and that the police certificate comes a month sooner, with her fee", async () => {
+  test("[advice:chaser-runs-around-cheaper] given the chaser a friend puts you onto, when her sheet opens, then it says she will chase it for you and that the police certificate comes a month sooner, with her fee", async () => {
     const offer: Offer = {
       id: "offer-2",
       entry: CHASER,
@@ -292,7 +292,7 @@ describe("what he says he does", () => {
     expect(document.querySelector("[data-agent-fee]")?.textContent).toContain(formatMoney(800_000, "NGN"));
   });
 
-  test("[R-ADVICE-013] given an agent with no paper of yours being made, when his sheet opens, then it says there is nothing to bring forward yet", async () => {
+  test("[advice:chaser-runs-around-cheaper] given an agent with no paper of yours being made, when his sheet opens, then it says there is nothing to bring forward yet", async () => {
     const offer = stopOffer([]);
     await renderWithView(sheet(), withOffers({ ...offer, terms: { ...offer.terms, pitch: "chaser", paper: "", months: 1 } }));
     expect(document.querySelector("[data-agent-says-he]")?.textContent).toBe(text[`${STOP}.pitch.chaser`]);

@@ -1,4 +1,4 @@
-// R-ENGINE-015, R-ACCOUNT-006: the callers beyond the authority (the age screen, the guest start, the auth library's
+// engine:browser-authority-for-dev-only, account:session-is-secure-cookie: the callers beyond the authority (the age screen, the guest start, the auth library's
 // code and passkey calls, the notice's routes) go through the one request function, so a wall or no answer there is
 // sorted like the rest: the wall sets off the page's one reload, and no answer is said as the screen's own failure.
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -38,14 +38,14 @@ const hanging: Fetch = (_input, init) =>
   });
 
 describe("the account's calls go through the one request function", () => {
-  test("[R-ACCOUNT-006] given the wall in front of GET /api/age, then the page's one reload is set off and the age screen still asks", async () => {
+  test("[account:session-is-secure-cookie] given the wall in front of GET /api/age, then the page's one reload is set off and the age screen still asks", async () => {
     const { guard, walls } = counted();
     const account = betterAuthApi({ baseUrl: BASE, fetch: walled, wall: guard });
     expect(await account.ageStatus()).toBe("unasked");
     expect(walls()).toBe(1);
   });
 
-  test("[R-ACCOUNT-006] given the wall in front of POST /api/age, POST /api/guest and the auth library's code route, then each sets off the wall and says unreachable", async () => {
+  test("[account:session-is-secure-cookie] given the wall in front of POST /api/age, POST /api/guest and the auth library's code route, then each sets off the wall and says unreachable", async () => {
     const { guard, walls } = counted();
     const account = betterAuthApi({ baseUrl: BASE, fetch: walled, wall: guard });
     await expect(account.declareAge("2000-02-29")).rejects.toMatchObject({ failure: "wall" });
@@ -54,13 +54,13 @@ describe("the account's calls go through the one request function", () => {
     expect(walls()).toBe(3);
   });
 
-  test("[R-ENGINE-015] given the guest start and the passkey's sign-in with no answer, then each is said as unreachable, never the browser's words", async () => {
+  test("[engine:browser-authority-for-dev-only] given the guest start and the passkey's sign-in with no answer, then each is said as unreachable, never the browser's words", async () => {
     const account = betterAuthApi({ baseUrl: BASE, fetch: loadFailed, wall: counted().guard });
     expect(await account.startGuest("ada_lagos", null)).toEqual({ ok: false, why: "unreachable" });
     expect(await account.signInWithPasskey()).toEqual({ ok: false, why: "unreachable" });
   });
 
-  test("[R-ENGINE-015] given GET /api/age with no answer, then it gives up at 8 seconds and the age screen asks", async () => {
+  test("[engine:browser-authority-for-dev-only] given GET /api/age with no answer, then it gives up at 8 seconds and the age screen asks", async () => {
     vi.useFakeTimers();
     const account = betterAuthApi({ baseUrl: BASE, fetch: hanging, wall: counted().guard });
     const asked = account.ageStatus();
@@ -70,14 +70,14 @@ describe("the account's calls go through the one request function", () => {
 });
 
 describe("the notice's calls go through the one request function", () => {
-  test("[R-ACCOUNT-006] given the wall in front of the notice's routes, then the wall is set off and the setting says it cannot be read", async () => {
+  test("[account:session-is-secure-cookie] given the wall in front of the notice's routes, then the wall is set off and the setting says it cannot be read", async () => {
     const { guard, walls } = counted();
     const notify = httpNotifyApi(BASE, walled, guard);
     expect(await notify.status()).toBeNull();
     expect(walls()).toBe(2);
   });
 
-  test("[R-ENGINE-015] given the notice's routes with no answer, then each comes back as not done, at its clock", async () => {
+  test("[engine:browser-authority-for-dev-only] given the notice's routes with no answer, then each comes back as not done, at its clock", async () => {
     vi.useFakeTimers();
     const notify = httpNotifyApi(BASE, hanging, counted().guard);
     const turning = notify.turnOff();

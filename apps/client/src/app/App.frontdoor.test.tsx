@@ -1,4 +1,4 @@
-// The front door in the app, on the real content (prologue.md R-PROLOGUE-009, 010, 013, 014): a person built on the
+// The front door in the app, on the real content (prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:front-door-three-screens, prologue:printed-page-hands-over): a person built on the
 // door's sky from a look, a name filled from the pool (a dice, or typed) and an archetype, never a
 // named life picked; the preset played for the archetype with no card; the page as the handover saying who the person is; the
 // look kept beside the save and drawn by the city and the rides.
@@ -78,7 +78,7 @@ afterEach(() => {
 });
 
 describe("the front door", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given no save, when the game opens, then you stand whole on a photo card under the question who you are, with a name already filled from the pool and the look strip of every one of the city's passers-by on the same screen, and no named life anywhere", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given no save, when the game opens, then you stand whole on a photo card under the question who you are, with a name already filled from the pool and the look strip of every one of the city's passers-by on the same screen, and no named life anywhere", async () => {
     door();
     expect(await screen.findByRole("heading", { name: say("ui.life.title") }, { timeout: 10_000 })).toBeDefined();
     // Never a bare page: you stand whole on a photo card as a sticker, never on a turntable.
@@ -109,7 +109,7 @@ describe("the front door", () => {
     expect(said.join(" ")).not.toContain(say("ui.life.start"));
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given a look tapped, then the character at the gate wears it, and the name filled, and each name the dice gives, comes from the pool for that look's sex and is no starting life's person", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a look tapped, then the character at the gate wears it, and the name filled, and each name the dice gives, comes from the pool for that look's sex and is no starting life's person", async () => {
     door();
     const box = () => screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     for (const look of [LOOKS.find((one) => one.sex === "m")!, LOOKS.find((one) => one.sex === "f")!]) {
@@ -134,7 +134,7 @@ describe("the front door", () => {
     expect(lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))?.sex).toBe("f");
   });
 
-  test("[R-PROLOGUE-009] given many rolls, then every name offered is a pool name that suits the look, and three differ each time", () => {
+  test("[prologue:front-door-builds-a-person] given many rolls, then every name offered is a pool name that suits the look, and three differ each time", () => {
     for (let roll = 0; roll < 200; roll += 1) {
       for (const sex of ["f", "m"] as const) {
         const names = namesFor(sex, roll);
@@ -144,7 +144,7 @@ describe("the front door", () => {
     }
   });
 
-  test("[R-PROLOGUE-009] given a look picked, a name typed and a ready life begun, then the person is kept beside the save under its one key, and the city and the rides draw that look", async () => {
+  test("[prologue:front-door-builds-a-person] given a look picked, a name typed and a ready life begun, then the person is kept beside the save under its one key, and the city and the rides draw that look", async () => {
     askReadyLives();
     const { store, storage } = door();
     // Settings' run opens on the ready lives; the look is a screen back.
@@ -162,7 +162,7 @@ describe("the front door", () => {
     expect(ownFile("scenario.ngozi", null)).toBe("shared/chr/chr_ngozi.glb");
   });
 
-  test("[R-PROLOGUE-013] given a run Settings asked for, then it opens on the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to Where you live, whose Begin starts that life", async () => {
+  test("[prologue:front-door-three-screens] given a run Settings asked for, then it opens on the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to Where you live, whose Begin starts that life", async () => {
     askReadyLives();
     const { store } = door();
     // It opens on the ready lives themselves.
@@ -186,7 +186,7 @@ describe("the front door", () => {
     expect(store.getState().view?.prologue).toBeNull();
   });
 
-  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the seven archetypes, then each life's card says its tag, its name, the life in a few words, one line of what it was and its savings, the chosen one's routes stand as chips under the cards, and every card reads out its one line of what it opens; no more", async () => {
+  test("[prologue:archetype-presets-answers] [prologue:front-door-three-screens] given the seven archetypes, then each life's card says its tag, its name, the life in a few words, one line of what it was and its savings, the chosen one's routes stand as chips under the cards, and every card reads out its one line of what it opens; no more", async () => {
     door();
     await toTheArchetypes();
     const tiles = [...document.querySelectorAll<HTMLElement>("[data-archetype]")];
@@ -202,7 +202,7 @@ describe("the front door", () => {
 });
 
 describe("a life from sixteen built from an archetype", () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given the nurse's tile, when the prologue opens, then the client sends her preset at every step with no card, the page fills on the door's sky, and as the handover it names her and her archetype above the family, the years and the first step", async () => {
+  test("[prologue:archetype-presets-answers] [prologue:printed-page-hands-over] given the nurse's tile, when the prologue opens, then the client sends her preset at every step with no card, the page fills on the door's sky, and as the handover it names her and her archetype above the family, the years and the first step", async () => {
     const nurse = archetypeOf("nurse")!;
     const { store, storage } = door();
     await startArchetype("nurse");
@@ -243,7 +243,7 @@ describe("a life from sixteen built from an archetype", () => {
     expect(store.getState().view?.chapter.current).toBe("chapter.find-your-feet");
   });
 
-  test("[R-PROLOGUE-010] given the setting prologue.full, when an archetype's tile is tapped, then every card shows from the opening draw, one answer each, with no preset sent", async () => {
+  test("[prologue:archetype-presets-answers] given the setting prologue.full, when an archetype's tile is tapped, then every card shows from the opening draw, one answer each, with no preset sent", async () => {
     localStorage.setItem(FULL_PROLOGUE_KEY, "on");
     const { store } = door();
     await startArchetype("developer");
@@ -253,7 +253,7 @@ describe("a life from sixteen built from an archetype", () => {
     expect(store.getState().view?.prologue?.step).toBe("subjects");
   });
 
-  test("[R-PROLOGUE-010] given every card and answer of the prologue, then a card is at most ten words and an answer at most four, with at most one hint line", () => {
+  test("[prologue:archetype-presets-answers] given every card and answer of the prologue, then a card is at most ten words and an answer at most four, with at most one hint line", () => {
     const count = (said: string) => said.split(/\s+/).filter((word) => /[A-Za-z0-9]/.test(word)).length;
     const long: string[] = [];
     for (const step of Object.values(content.prologue)) {
@@ -267,7 +267,7 @@ describe("a life from sixteen built from an archetype", () => {
     expect(long).toEqual([]);
   });
 
-  test("[R-PROLOGUE-009] given the front door and then the prologue, when each opens, then each counts its screen once", async () => {
+  test("[prologue:front-door-builds-a-person] given the front door and then the prologue, when each opens, then each counts its screen once", async () => {
     door();
     await startArchetype("writer");
     await waitFor(() => expect(document.querySelector("[data-page-handover]")).not.toBeNull(), { timeout: 10_000 });

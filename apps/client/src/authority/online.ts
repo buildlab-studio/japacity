@@ -1,8 +1,8 @@
 // Keeps an online store fresh: the authority's reports into the store, the
 // nudge socket for the character's place, the world on its schedule, and a
-// fetch when the tab comes back into focus (R-CLOCK-019, R-CLOCK-021 to 023),
+// fetch when the tab comes back into focus (clock:world-fetch-is-jittered, clock:nudge-triggers-ordinary-fetch, clock:nudges-are-best-effort and clock:sockets-reconnect-with-backoff),
 // or comes back at all: shown again from the back-forward cache, or visible
-// again after the phone slept or the browser was left (R-ENGINE-015).
+// again after the phone slept or the browser was left (engine:browser-authority-for-dev-only).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 
@@ -94,7 +94,7 @@ export function goOnline(options: OnlineOptions): () => void {
     socket = null;
     place = next;
     if (next === null) return;
-    // R-CLOCK-027: a new place closes the old socket and opens the new one.
+    // clock:moving-switches-place-socket: a new place closes the old socket and opens the new one.
     socket = nudgeSocket({
       url: remote.api.socketUrl(`/api/place/${encodeURIComponent(next)}/socket`),
       open,
@@ -106,7 +106,7 @@ export function goOnline(options: OnlineOptions): () => void {
     });
   }
 
-  // R-ENGINE-015: back after a kill, a sleep or a while away, the view is read again: one request (the store's
+  // engine:browser-authority-for-dev-only: back after a kill, a sleep or a while away, the view is read again: one request (the store's
   // refresh is shared), the usual card if it fails. The clock and the month kept on the device stay as they were.
   const visible = () => {
     if (page?.visibilityState === "visible") refresh();

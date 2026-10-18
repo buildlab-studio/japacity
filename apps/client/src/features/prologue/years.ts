@@ -1,5 +1,5 @@
-// The years before, as the page tells them (prologue.md R-PROLOGUE-014): the view keeps no prologue once it closes
-// (R-PROLOGUE-006), so while the presets run the screen keeps the family the game drew and each step's answer and
+// The years before, as the page tells them (prologue:printed-page-hands-over): the view keeps no prologue once it closes
+// (prologue:closing-opens-home-charges), so while the presets run the screen keeps the family the game drew and each step's answer and
 // outcome on the device, and the page reads them back as fact chips: the school certificate, the course or the
 // trade, a retake or a strike as a setback with the work it cost, the service. A life whose trail was lost reads its path
 // from the life as it stands.
@@ -28,8 +28,8 @@ export interface Trail {
   draw: Draw | null;
   steps: TrailStep[];
   /**
-   * The steps at the end that came in at once from the server's reply (server.md R-SERVER-046), still to come onto the
-   * page one after another (R-PROLOGUE-010). Absent once the page has shown them.
+   * The steps at the end that came in at once from the server's reply (server:server-plays-prologue-preset), still to come onto the
+   * page one after another (prologue:archetype-presets-answers). Absent once the page has shown them.
    */
   fresh?: number;
 }
@@ -78,7 +78,7 @@ export function noteCard(draw: Draw | null, outcome: string | null): void {
 }
 
 /**
- * Keeps the steps the server played in one request (R-SERVER-046) as the cards would have kept them one by one: each
+ * Keeps the steps the server played in one request (server:server-plays-prologue-preset) as the cards would have kept them one by one: each
  * answer with the outcome its draw gave, the draw once made; the opening draw starts a new trail. They are marked fresh,
  * so the page brings them on one after another.
  */
@@ -116,7 +116,7 @@ function monthsOf(step: string): number {
 }
 
 /**
- * The work each setback cost, by its place in the trail (R-PROLOGUE-004, decision 0023). The age picked is the age the
+ * The work each setback cost, by its place in the trail (prologue:age-advances-with-steps, decision 0023). The age picked is the age the
  * life starts at, so a retake (its year and the exam again) or a strike puts the path's end later and leaves fewer years
  * of work before that age: the years of work the setback moved the end past, in months, counting the setbacks in turn.
  */
@@ -144,7 +144,7 @@ function lostWords(months: number): string {
 
 /**
  * The chips of the years before, in the order they were lived, from the trail; from the life's path when the trail is
- * lost. `water`: the child of the water's own years (R-PROLOGUE-012): school by canoe, the
+ * lost. `water`: the child of the water's own years (prologue:makoko-start-never-a-trap): school by canoe, the
  * fish racks in place of a shop counter.
  */
 export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qualities" | "pockets">, water = false): YearChip[] {
@@ -211,8 +211,8 @@ export function yearChips(trail: Trail, life: Pick<PlayerView, "scenario" | "qua
 }
 
 /**
- * The home the last card chose, by the living costs it opened (R-PROLOGUE-006), from content's own answers. `prepaid`:
- * the months until a rent paid upfront is due again, for the room in a compound (R-PROLOGUE-013, R-OBLIGATION-015).
+ * The home the last card chose, by the living costs it opened (prologue:closing-opens-home-charges), from content's own answers. `prepaid`:
+ * the months until a rent paid upfront is due again, for the room in a compound (prologue:front-door-three-screens, obligation:prepaid-entries-skip-first-charge).
  */
 function homeChosen(view: Pick<PlayerView, "obligations">): { answer: string; amount: number; prepaid: number | null; rent: boolean } | null {
   for (const answer of content.prologue["home"]?.answers ?? []) {

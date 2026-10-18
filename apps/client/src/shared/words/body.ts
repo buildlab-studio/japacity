@@ -1,4 +1,4 @@
-// The body in words (docs/rules/quality.md R-QUALITY-007; decision 0011): the band says a word only when the body
+// The body in words (quality:body-belly-and-energy; decision 0011): the band says a word only when the body
 // complains, "Hungry" when the belly is low, "Tired" when the energy is, both when both; nothing otherwise, and never a
 // number, a meter or a percentage.
 import { content } from "@japacity/content";
@@ -9,7 +9,7 @@ import { say } from "./text";
 const BELLY = "quality.belly";
 const ENERGY = "quality.energy";
 
-/** True when the energy is low: the night then sends the player to bed (R-CLOCK-033). */
+/** True when the energy is low: the night then sends the player to bed (clock:game-day-on-real-time). */
 export function tired(view: Pick<PlayerView, "qualities">): boolean {
   const energy = view.qualities.find((quality) => quality.id === ENERGY)?.value ?? null;
   return energy !== null && energy < content.tuning.turn.body.lowBelow;

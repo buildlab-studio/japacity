@@ -59,7 +59,7 @@ afterEach(() => {
 });
 
 describe("the interview's close", () => {
-  test("[R-INTERVIEW-005] given the last answer given, when the interview closes, then the sheet stays with the officer's reaction and closing line and one button, and the score is in", async () => {
+  test("[interview:one-question-at-a-time] given the last answer given, when the interview closes, then the sheet stays with the officer's reaction and closing line and one button, and the score is in", async () => {
     const game = await open({ supported: false });
     await answerAll(game);
     expect(game.view().setpiece).toBeNull();
@@ -71,7 +71,7 @@ describe("the interview's close", () => {
     expect(within(closing!).getAllByRole("button").filter((button) => button.textContent === uiRoomText["room.leave"])).toHaveLength(1);
   });
 
-  test("[R-INTERVIEW-005] given the closing line on screen, when Leave the room is tapped, then the sheet has nothing more to hold and closes", async () => {
+  test("[interview:one-question-at-a-time] given the closing line on screen, when Leave the room is tapped, then the sheet has nothing more to hold and closes", async () => {
     const game = await open({ supported: false });
     await answerAll(game);
     fireEvent.click(screen.getByRole("button", { name: uiRoomText["room.leave"]! }));
@@ -82,7 +82,7 @@ describe("the interview's close", () => {
 });
 
 describe("the sound notice in the room", () => {
-  test("[R-WORLD-001] given sound on and the room entered, when the sound-on notice is raised, then it shows in the sheet's header and the corner over the band stays empty, and it goes by itself", async () => {
+  test("[world:world-fills-the-screen] given sound on and the room entered, when the sound-on notice is raised, then it shows in the sheet's header and the corner over the band stays empty, and it goes by itself", async () => {
     await open({});
     const here = room().querySelector("[data-notice-here]");
     expect(here?.getAttribute("data-sound-notice")).toBe("on");

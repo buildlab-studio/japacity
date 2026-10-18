@@ -1,4 +1,4 @@
-// The room behind a door (docs/rules/world.md R-WORLD-013): entering is a cut to the room as a scene
+// The room behind a door (world:entering-is-a-cut): entering is a cut to the room as a scene
 // of its own. A place whose file names `stage.inside` opens that place, an interior file like any
 // other with its own things and shot. Until every door names its interior, the room is cut from
 // the place's own file around the building; `roomOf` goes when every door names its room.

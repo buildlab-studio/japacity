@@ -1,4 +1,4 @@
-// News tells the month's money in the results' own words (docs/rules/world.md R-WORLD-008): never the wallet's raw
+// News tells the month's money in the results' own words (world:month-end-results-sheet): never the wallet's raw
 // lines, which give a change at the bank as the naira left after its charge instead of the sum with the charge apart,
 // call pounds that went into the bank money in hand, and tell the FX man's changes as the bank's.
 import type { ReportLine } from "@japacity/sim";
@@ -41,7 +41,7 @@ function moneyMonth(): { game: Game; mid: ReportLine[]; end: ReportLine[] } {
 const RAW: readonly string[] = ["line.wallet.converted", "line.wallet.convert-paid", "line.wallet.bank-charge"];
 
 describe("News tells the month's money as the results do", () => {
-  test("[R-WORLD-008] [R-WORLD-019] given a month with changes both ways at the bank and with the FX man, when the results, the Bank's Lately and News tell it, then each money line is the same words in all three, and News never tells a change in the wallet's raw words", () => {
+  test("[world:month-end-results-sheet] [world:phone-holds-what-phones-hold] given a month with changes both ways at the bank and with the FX man, when the results, the Bank's Lately and News tell it, then each money line is the same words in all three, and News never tells a change in the wallet's raw words", () => {
     const { game, mid, end } = moneyMonth();
     const results = moneyLines([...mid, ...end]).map(({ line }) => nowLineWords(line));
     expect(results.length).toBeGreaterThanOrEqual(8);
@@ -59,7 +59,7 @@ describe("News tells the month's money as the results do", () => {
     for (const said of unsaid) expect(told).not.toContain(said);
   });
 
-  test("[R-WORLD-008] given the same month ended, when News opens on the phone, then its report shows the results' money lines", async () => {
+  test("[world:month-end-results-sheet] given the same month ended, when News opens on the phone, then its report shows the results' money lines", async () => {
     const { game, mid, end } = moneyMonth();
     const results = moneyLines([...mid, ...end]).map(({ line }) => nowLineWords(line));
     const { store } = await renderWithView(<PhoneApps onClose={() => undefined} area="Yaba" now={() => new Date(2026, 9, 10, 12, 5)} talk={null} />, game.view());

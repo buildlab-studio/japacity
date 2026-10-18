@@ -15,7 +15,7 @@ function figure(phase = 0): Figure {
 const turnsOf = (body: Figure): number[] => [...body.bones.values()].flatMap((bone) => [bone.rotation.x, bone.rotation.y, bone.rotation.z, bone.position.x, bone.position.y]);
 
 describe("the party's dance loops", () => {
-  test("[R-CITY-037] given a dancer on either loop, when the shared clock runs through the loop, then it starts where the prototype baked it, wraps at the loop's length and never runs backward past zero", () => {
+  test("[city:party-room-sets-the-bar] given a dancer on either loop, when the shared clock runs through the loop, then it starts where the prototype baked it, wraps at the loop's length and never runs backward past zero", () => {
     for (const dance of ["twoStep", "shuffle"] as const) {
       const seconds = DANCE_SECONDS[dance];
       expect(danceShare(dance, 0, 0)).toBe(0);
@@ -26,7 +26,7 @@ describe("the party's dance loops", () => {
     }
   });
 
-  test("[R-CITY-037] given a body posed on a loop, when the clock moves a quarter of the loop, then the legs, arms and hips have moved, the hips stay within a hand of standing height, and a full loop later it is posed the same", () => {
+  test("[city:party-room-sets-the-bar] given a body posed on a loop, when the clock moves a quarter of the loop, then the legs, arms and hips have moved, the hips stay within a hand of standing height, and a full loop later it is posed the same", () => {
     for (const dance of ["twoStep", "shuffle"] as const) {
       const body = figure(0.3);
       danceFigure(body, 0, dance);
@@ -40,7 +40,7 @@ describe("the party's dance loops", () => {
     }
   });
 
-  test("[R-CITY-037] given two dancers on the same loop with different phases, when they are posed at the same moment, then they are not in step", () => {
+  test("[city:party-room-sets-the-bar] given two dancers on the same loop with different phases, when they are posed at the same moment, then they are not in step", () => {
     const one = figure(0);
     const two = figure(0.5);
     danceFigure(one, 1, "twoStep");

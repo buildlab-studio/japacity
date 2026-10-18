@@ -1,4 +1,4 @@
-// The card's main button fits its words at 390 px (docs/rules/world.md R-WORLD-006):
+// The card's main button fits its words at 390 px (world:one-action-one-sheet):
 // "Board the plane" with a reason from the world, in one row, would wrap onto three lines and spill
 // out of the 58 px button. A long label and second line stack, the button as tall as they need.
 import type { Currency } from "@japacity/sim";
@@ -36,7 +36,7 @@ function main(): HTMLButtonElement {
 }
 
 describe("the main button's layout", () => {
-  test("[R-WORLD-006] given Board the plane shut by the held funds, when the card opens, then the label stands over the reason and the button grows to hold them", () => {
+  test("[world:one-action-one-sheet] given Board the plane shut by the held funds, when the card opens, then the label stands over the reason and the button grows to hold them", () => {
     render(<AskSheet ask={board(say("ui.world.depart-held"))} have={1_054_106_300} formatMoney={money} />);
     expect(main().getAttribute("data-ask-stacked")).toBe("true");
     expect(main().style.height).toBe("auto");
@@ -46,7 +46,7 @@ describe("the main button's layout", () => {
     expect(second?.textContent).toBe(say("ui.world.depart-held"));
   });
 
-  test("[R-WORLD-006] given a short label and a short second line, when the card opens, then they sit side by side in the usual button", () => {
+  test("[world:one-action-one-sheet] given a short label and a short second line, when the card opens, then they sit side by side in the usual button", () => {
     render(<AskSheet ask={{ ...board(), button: "Rest", cost: null }} have={0} formatMoney={money} />);
     expect(main().getAttribute("data-ask-stacked")).toBeNull();
     expect(main().style.height).toBe("");

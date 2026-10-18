@@ -1,4 +1,4 @@
-// The words of the month (world.md R-WORLD-027): the bank behind the months is never named, and no button adds an act to
+// The words of the month (world:no-months-left-count): the bank behind the months is never named, and no button adds an act to
 // the month. Every word table the player reads is walked: content's text, every table in content's ui folder (those that
 // ride a chunk of their own among them) and any table left in the client's own source.
 import { text } from "@japacity/content";
@@ -29,7 +29,7 @@ function allWords(): { key: string; words: string; file: string }[] {
 const FORBIDDEN = [/\bbanked\b/i, /\badd to (this )?month\b/i, /\b(\d+|no|more|free|spare|banked) turns?\b/i, /\bturns? (left|banked|to play)\b/i];
 
 describe("the words of the month", () => {
-  test("[R-WORLD-027] given every word table the player reads, when its words are read, then none says turn or banked, and no button says Add to month", () => {
+  test("[world:no-months-left-count] given every word table the player reads, when its words are read, then none says turn or banked, and no button says Add to month", () => {
     const words = allWords();
     expect(words.length).toBeGreaterThan(1000);
     expect(words.some(({ file }) => file.endsWith("ui.london.text.ts"))).toBe(true);

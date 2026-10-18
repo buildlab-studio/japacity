@@ -1,7 +1,7 @@
 // The Friday draw's figures as the screens need them: the close as a real
 // time, the odds as chances, and the public check of a drawn draw, every
 // ticket worked out on the device with the simulation's own functions
-// (docs/rules/lottery.md R-LOTTERY-006, 015, 021 to 023).
+// (lottery:view-shows-draw-state, lottery:result-published-in-tick-row, lottery:odds-fixed-at-draw-open, lottery:expected-return-below-price and lottery:screen-states-odds-plainly).
 import type { ClockView, DrawReply, ServerRejection } from "@japacity/api";
 import type { LotteryOdds, LotteryResult, PlayerView, Tier } from "@japacity/sim";
 import { drawResults, drawSeed, fingerprintOf, listHashOf, PER_MILLION, ticketResult, time, toHex } from "@japacity/sim";
@@ -28,7 +28,7 @@ export function isRefusal(reply: DrawReply | ServerRejection): reply is ServerRe
 }
 
 /**
- * R-LOTTERY-002, R-CLOCK-002: the real time sales close, from the server's
+ * lottery:draw-sells-between-ticks, clock:world-tick-length-and-epoch: the real time sales close, from the server's
  * clock: the next tick begins at `nextTickAt` and every tick after it is
  * twelve hours long. Null without a clock.
  */
@@ -38,7 +38,7 @@ export function closesAt(lottery: Pick<Lottery, "closesTick">, clock: Pick<Clock
 }
 
 /**
- * R-LOTTERY-002: no ticket is sold for the draw on show once its close is reached by the server's clock, or while the
+ * lottery:draw-sells-between-ticks: no ticket is sold for the draw on show once its close is reached by the server's clock, or while the
  * world says the closed draw is being made (`onSale` false). The draw before stays on show, closed, until the next opens.
  */
 export function salesClosed(lottery: Pick<Lottery, "closesTick" | "onSale">, clock: Pick<ClockView, "tick"> | null): boolean {
@@ -54,7 +54,7 @@ export interface Chance {
 }
 
 /**
- * R-LOTTERY-023: the odds as plain chances, the jackpot first, with the
+ * lottery:screen-states-odds-plainly: the odds as plain chances, the jackpot first, with the
  * jackpot standing as its amount. A prize no ticket can win is left out.
  */
 export function chancesOf(odds: LotteryOdds, jackpot: number): Chance[] {
@@ -63,7 +63,7 @@ export function chancesOf(odds: LotteryOdds, jackpot: number): Chance[] {
   return [...chance("jackpot", odds.jackpotPerMillion, jackpot), ...chance("mid", odds.midPerMillion, odds.mid), ...chance("small", odds.smallPerMillion, odds.small)];
 }
 
-/** R-LOTTERY-012, R-LOTTERY-016: whether a ticket hit the result's jackpot, and how many tickets won anything. */
+/** lottery:jackpot-rolls-over, lottery:draw-result-on-front-page: whether a ticket hit the result's jackpot, and how many tickets won anything. */
 export function resultCounts(result: LotteryResult): { hit: boolean; winners: number } {
   return {
     hit: result.winners.some((tier) => tier.tier === "jackpot" && tier.tickets.length > 0),
@@ -98,11 +98,11 @@ function sameWinners(mine: LotteryResult["winners"], published: LotteryResult["w
 }
 
 /**
- * R-LOTTERY-015: recomputes a drawn draw from what is published: the secret
+ * lottery:result-published-in-tick-row: recomputes a drawn draw from what is published: the secret
  * against the opening fingerprint, the list against its hash, the seed with
  * `drawSeed`, every ticket with `ticketResult` at the published odds, and the
  * winners and their amounts at the published jackpot, compared with the
- * result. A forced win (R-LOTTERY-012) matches only when the odds name one.
+ * result. A forced win (lottery:jackpot-rolls-over) matches only when the odds name one.
  * Null when there is no result yet or the published values are not hex.
  */
 export function checkDraw(reply: DrawReply): DrawCheck | null {

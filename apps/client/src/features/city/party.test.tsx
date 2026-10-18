@@ -1,4 +1,4 @@
-// Home's send-off answered with the party (docs/rules/chapter.md R-CHAPTER-008): the sheet
+// Home's send-off answered with the party (chapter:family-marks-the-grant): the sheet
 // closes, the scene cuts to the yard dressed for the party, and the party's own line
 // stands over it for a beat. The scene itself needs WebGL and is not drawn here; its dressing is.
 import { text } from "@japacity/content";
@@ -17,7 +17,7 @@ const taken = (choice: string): ReportLine => ({ key: "line.offer.taken", params
 const PARTY = text[`${SEND_OFF}.said.party`];
 
 describe("the party at home", () => {
-  test("[R-CHAPTER-008] [R-WORLD-008] given the send-off answered this month, when the yard is dressed, then the party keeps its set and its guests and the dinner leaves the yard plain", () => {
+  test("[chapter:family-marks-the-grant] [world:month-end-results-sheet] given the send-off answered this month, when the yard is dressed, then the party keeps its set and its guests and the dinner leaves the yard plain", () => {
     expect(partyThrown([taken("party")])).toBe(true);
     expect(partyThrown([taken("dinner")])).toBe(false);
     const file = familyFile as unknown as PlaceFile;
@@ -31,9 +31,9 @@ describe("the party at home", () => {
     expect(dressPlace(file, dressedBy([], [])).crowd).toBeNull();
   });
 
-  test("[R-CHAPTER-008] [R-WORLD-008] given the asks open over the world, when the party is the answer, then the sheet closes and the party's line stands over the yard, once, until tapped", async () => {
+  test("[chapter:family-marks-the-grant] [world:month-end-results-sheet] given the asks open over the world, when the party is the answer, then the sheet closes and the party's line stands over the yard, once, until tapped", async () => {
     const { store } = await renderWithView(<City world results={() => <p />} asks={[<p key="other">another ask</p>]} />, richView());
-    // The set piece is staged elsewhere, so the nudge says it waits there (R-CITY-011); its tap opens the sheet all the same.
+    // The set piece is staged elsewhere, so the nudge says it waits there (city:set-piece-shown-where-staged); its tap opens the sheet all the same.
     fireEvent.click(document.querySelector<HTMLElement>("[data-nudge-open]") as HTMLElement);
     expect(screen.getByText("another ask")).toBeDefined();
     act(() => store.setState({ monthLines: [taken("party")], moments: [{ key: `${SEND_OFF}.said.party`, params: {}, tone: "plain", attention: false, counts: [] }] }));

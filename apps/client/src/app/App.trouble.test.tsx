@@ -1,4 +1,4 @@
-// R-ENGINE-015: what the screens say when the online authority brings no answer: the loading screen's second line and
+// engine:browser-authority-for-dev-only: what the screens say when the online authority brings no answer: the loading screen's second line and
 // its card, the card over the page of the years with the answer kept, and Begin as the one request that begins.
 import type { ServerRejection } from "@japacity/api";
 import type { Command, Reply } from "@japacity/sim";
@@ -36,8 +36,8 @@ function noBrowserWords(): void {
   expect(document.body.textContent).not.toContain(say("ui.failed", { why: "" }).trim());
 }
 
-describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given the view takes long, then Opening your life says Still opening after 5 seconds, and not before", async () => {
+describe("the screens when a request brings no answer (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given the view takes long, then Opening your life says Still opening after 5 seconds, and not before", async () => {
     vi.useFakeTimers();
     const store = createGameStore({ view: () => new Promise(() => undefined), send: unused });
     render(<App store={store} />);
@@ -48,7 +48,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(screen.getByText("Still opening...")).toBeDefined();
   });
 
-  test("[R-ENGINE-015] given the view never answers (Load failed, three times), then the card takes the loading screen's place with Retry, and Retry opens the life", async () => {
+  test("[engine:browser-authority-for-dev-only] given the view never answers (Load failed, three times), then the card takes the loading screen's place with Retry, and Retry opens the life", async () => {
     let asked = 0;
     const store = createGameStore(
       {
@@ -70,7 +70,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(screen.queryByRole("alertdialog")).toBeNull();
   });
 
-  test("[R-ENGINE-015] [R-SERVER-043] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something broke on our side, with Retry and no Reload", async () => {
+  test("[engine:browser-authority-for-dev-only] [server:no-platform-error-page] given the server answers the view with its own 503 unavailable (the database not answering), then the card says something broke on our side, with Retry and no Reload", async () => {
     const server = fakeServer();
     const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };
     server.answer("GET /api/view", down);
@@ -86,7 +86,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
 
   // A new visitor with the server down sees the start screen's frame, never a blank page, and Retry never says "Opening
   // your life" to someone with no life.
-  test("[R-ENGINE-015] [R-SERVER-043] given a new visitor online (no life on this device) and a stand-in server answering 503, then the start screen's frame stands with the hook and the card naming the game; Retry keeps the frame, never Opening your life, and once the server answers the start screen takes its place", async () => {
+  test("[engine:browser-authority-for-dev-only] [server:no-platform-error-page] given a new visitor online (no life on this device) and a stand-in server answering 503, then the start screen's frame stands with the hook and the card naming the game; Retry keeps the frame, never Opening your life, and once the server answers the start screen takes its place", async () => {
     const server = fakeServer();
     const down = { status: 503, headers: { "Retry-After": "5" }, body: { ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 } };
     server.answer("GET /api/view", down, down, down, down, down, down, { status: 401, body: { ok: false, code: "signed-out", detail: "Nobody is signed in." } });
@@ -117,7 +117,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(screen.queryByText(say("ui.loading.slow"))).toBeNull();
   });
 
-  test("[R-ENGINE-015] given a player whose life is kept on this device and the server down, then the card stands where the life is opening", async () => {
+  test("[engine:browser-authority-for-dev-only] given a player whose life is kept on this device and the server down, then the card stands where the life is opening", async () => {
     keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
     const store = createGameStore({ view: () => Promise.reject(requestFailure("server", "502")), send: unused }, { ...noPause, account: {} as AccountApi });
     render(<App store={store} />);
@@ -125,7 +125,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(document.querySelector("[data-start-trouble]")).toBeNull();
   });
 
-  test("[R-ENGINE-015] [R-ACCOUNT-006] given a login wall or an ended session in front of the view, then the card says so with Retry and Reload", async () => {
+  test("[engine:browser-authority-for-dev-only] [account:session-is-secure-cookie] given a login wall or an ended session in front of the view, then the card says so with Retry and Reload", async () => {
     const store = createGameStore({ view: () => Promise.reject(requestFailure("wall", "redirected (0)")), send: unused }, noPause);
     render(<App store={store} />);
     expect(await screen.findByRole("alertdialog", { name: "Your session ended: open the game again." })).toBeDefined();
@@ -134,13 +134,13 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     noBrowserWords();
   });
 
-  test("[R-ENGINE-015] given a server fault, then the card says it is ours", async () => {
+  test("[engine:browser-authority-for-dev-only] given a server fault, then the card says it is ours", async () => {
     const store = createGameStore({ view: () => Promise.reject(requestFailure("server", "502")), send: unused }, noPause);
     render(<App store={store} />);
     expect(await screen.findByRole("alertdialog", { name: "Something broke on our side." })).toBeDefined();
   });
 
-  test("[R-ENGINE-015] given Begin brings no answer, then the card shows over the door, the run stays the page on the device, and Retry begins the life and marks it begun", async () => {
+  test("[engine:browser-authority-for-dev-only] given Begin brings no answer, then the card shows over the door, the run stays the page on the device, and Retry begins the life and marks it begun", async () => {
     const authority = localAuthority({ storage: memoryStorage(), fastClock: true, makeSeed: () => "trouble-door" });
     let tries = 0;
     const store = createGameStore(authority, {
@@ -169,7 +169,7 @@ describe("the screens when a request brings no answer (R-ENGINE-015)", () => {
     expect(tries).toBe(2);
   });
 
-  test("[R-ENGINE-015] given an answer of the years brings no answer, then the card shows over the page of the years, and Retry sends the same answer and the years go on to the handover", async () => {
+  test("[engine:browser-authority-for-dev-only] given an answer of the years brings no answer, then the card shows over the page of the years, and Retry sends the same answer and the years go on to the handover", async () => {
     const authority = localAuthority({ storage: memoryStorage(), fastClock: true, makeSeed: () => "trouble-years" });
     const sent: Command[] = [];
     let failOnce = true;

@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { devices, expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
-// The online game end to end on the local stack (server.md R-SERVER-038): the client as the local
+// The online game end to end on the local stack (server:production-and-staging): the client as the local
 // Worker serves it, Postgres and Mailpit in Docker Compose, Turnstile's always-pass test keys, and
 // nothing faked. One new player is played through the tests in order, on a Pixel 7: the way in, a
 // life started and a month ended, the life kept with an email code, the Friday draw bought at the
@@ -20,7 +20,7 @@ const stack = readLocalStack(ROOT);
 const target = realTarget(process.env, stack.siteUrl);
 const NO_MAILPIT = "staging has no Mailpit, so no email code can be read there";
 const NO_LOCAL_DATABASE = "the switch is set on the local database, which staging is not";
-/** A new address each run: the code sends are limited per address a day (R-ACCOUNT-014). */
+/** A new address each run: the code sends are limited per address a day (account:sign-in-routes-rate-limited). */
 const EMAIL = `player-${String(Date.now())}@example.com`;
 const USERNAME = `real_${String(Date.now()).slice(-9)}`;
 
@@ -117,7 +117,7 @@ async function closePhone(page: Page): Promise<void> {
   await page.keyboard.press("Escape");
 }
 
-/** Staging's managed bot check refuses an automated browser (R-SERVER-038, R-ACCOUNT-013): true once it did, and the life's later tests do not run. */
+/** Staging's managed bot check refuses an automated browser (server:production-and-staging, account:bot-check-on-guest-creation): true once it did, and the life's later tests do not run. */
 let stoppedAtTheCheck = false;
 const STOPPED = "Staging's bot check refused the automated browser at Begin, by design: the rest of the life is played on the local stack, or on staging by a person.";
 
@@ -143,7 +143,7 @@ test.describe("one new player, played in order on one phone", () => {
     seen.reset();
   });
 
-  test("[R-SERVER-038] [R-ACCOUNT-029] [R-ACCOUNT-012] a new visitor sees the game's own way in as the server serves it: the start screen, then the age screen", async () => {
+  test("[server:production-and-staging] [account:start-screen-over-live-city] [account:age-screen-refuses-minors] a new visitor sees the game's own way in as the server serves it: the start screen, then the age screen", async () => {
     // Signed out, the client asks who is there and is told nobody yet.
     seen.allow("401 GET /api/view", "401 GET /api/account");
     await page.goto("/");
@@ -155,7 +155,7 @@ test.describe("one new player, played in order on one phone", () => {
     expect(seen.problems()).toEqual([]);
   });
 
-  test("[R-ACCOUNT-021] [R-SERVER-001] a life started online: the age answered, the door passed, Begin makes the guest and its character on the server, and one month is ended through /api/command", async () => {
+  test("[account:guest-and-secured-states] [server:commands-only-through-route] a life started online: the age answered, the door passed, Begin makes the guest and its character on the server, and one month is ended through /api/command", async () => {
     seen.allow("401 GET /api/view", "401 GET /api/account");
     await page.getByRole("combobox", { name: "Day" }).selectOption("17");
     await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "May" });
@@ -200,7 +200,7 @@ test.describe("one new player, played in order on one phone", () => {
     expect(seen.problems()).toEqual([]);
   });
 
-  test("[R-ACCOUNT-023] [R-ACCOUNT-014] the guest keeps the life by a code sent to an email: the code is read from Mailpit's inbox, and the same life goes on", async () => {
+  test("[account:guest-secures-the-life] [account:sign-in-routes-rate-limited] the guest keeps the life by a code sent to an email: the code is read from Mailpit's inbox, and the same life goes on", async () => {
     test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
     await page.locator("[data-account-row]").click();
@@ -221,9 +221,9 @@ test.describe("one new player, played in order on one phone", () => {
     expect(seen.problems()).toEqual([]);
   });
 
-  test("[R-LOTTERY-001] [R-WORLD-006] the kiosk on Bode Thomas Street sells a ticket for the world's Friday draw, bought through /api/command", async () => {
+  test("[lottery:draw-runs-online-only] [world:one-action-one-sheet] the kiosk on Bode Thomas Street sells a ticket for the world's Friday draw, bought through /api/command", async () => {
     test.skip(!target.local, `a ticket needs the life kept by an email code, and ${NO_MAILPIT}`);
-    // The world's five-minute job keeps the draw on sale (R-CLOCK-012); it is run once more here.
+    // The world's five-minute job keeps the draw on sale (clock:cron-stores-missing-ticks); it is run once more here.
     const cron = await page.request.post(cronUrl(stack), { data: { cron: "*/5 * * * *" } });
     expect(cron.ok()).toBe(true);
     await page.evaluate(() => {
@@ -238,7 +238,7 @@ test.describe("one new player, played in order on one phone", () => {
     await passOpeningWords(page);
     const teach = page.locator("[data-home-teach-ok]");
     if (await teach.isVisible().catch(() => false)) await teach.click();
-    // The kiosk's fan, and its act (R-WORLD-034).
+    // The kiosk's fan, and its act (world:fan-of-sticker-buttons).
     await page.locator('[data-mark="kiosk"]').click();
     await page.locator('[data-fan="kiosk"] [data-fan-act] button, [data-fan-sheet="kiosk"] [data-fan-act] button').first().click();
     const sheet = page.locator('[data-world-sheet="kiosk"]');
@@ -253,7 +253,7 @@ test.describe("one new player, played in order on one phone", () => {
     expect(seen.problems()).toEqual([]);
   });
 
-  test("[R-CITY-021] the Credits open from the phone's Settings, with the map data linked", async () => {
+  test("[city:credits-screen-attributions] the Credits open from the phone's Settings, with the map data linked", async () => {
     await openApp(page, "settings");
     const row = page.locator("[data-credits-row]");
     await row.scrollIntoViewIfNeeded();
@@ -266,7 +266,7 @@ test.describe("one new player, played in order on one phone", () => {
     expect(seen.problems()).toEqual([]);
   });
 
-  test("[R-ACCOUNT-001] [R-ACCOUNT-002] the player signs out, then signs in again by a code from Mailpit, and the same life opens", async () => {
+  test("[account:sign-in-without-secret] [account:email-code-is-short-lived] the player signs out, then signs in again by a code from Mailpit, and the same life opens", async () => {
     test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
     await page.locator("[data-account-row]").click();
@@ -288,7 +288,7 @@ test.describe("one new player, played in order on one phone", () => {
     expect(seen.problems()).toEqual([]);
   });
 
-  test("[R-PAIR-007] [R-PAIR-008] the invite link's page: a card made for the partner slot opens for a friend on another phone, before sign-up, with the age screen under it", async ({ browser }) => {
+  test("[pair:invite-card-contents] [pair:invite-link-single-use] the invite link's page: a card made for the partner slot opens for a friend on another phone, before sign-up, with the age screen under it", async ({ browser }) => {
     test.skip(!target.local, `an invite needs the life kept by an email code, and ${NO_MAILPIT}`);
     await openApp(page, "chats");
     await page.locator('[data-chat-row="people"]').click();
@@ -296,7 +296,7 @@ test.describe("one new player, played in order on one phone", () => {
     const made = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/command" && (response.request().postData() ?? "").includes('"people/invite"'));
     await page.getByRole("form", { name: "Ask a friend" }).locator('button[type="submit"]').click();
     expect((await made).status()).toBe(200);
-    // The link's button waits for the early win (R-GUIDE-015); the same route it calls gives the code.
+    // The link's button waits for the early win (guide:nothing-asked-before-early-win); the same route it calls gives the code.
     const invite = await page.request.post("/api/invite", { data: { slot: "partner" }, headers: { origin: target.baseUrl } });
     expect(invite.status(), await invite.text()).toBe(200);
     const { code } = (await invite.json()) as { code: string };
@@ -320,7 +320,7 @@ test.describe("one new player, played in order on one phone", () => {
 
 });
 
-test("[R-SERVER-031] [R-SERVER-032] with sign-ups switched off in the database, a new visitor sees the full screen and no way in; switched on again, the way in is back", async ({ browser }) => {
+test("[server:four-off-switches] [server:signups-off-shows-full] with sign-ups switched off in the database, a new visitor sees the full screen and no way in; switched on again, the way in is back", async ({ browser }) => {
   test.skip(!target.local, NO_LOCAL_DATABASE);
   test.setTimeout(240_000);
   const visitor = await newPhone(browser);

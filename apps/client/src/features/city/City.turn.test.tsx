@@ -1,4 +1,4 @@
-// Turning the house in the city (docs/rules/world.md R-WORLD-009, R-WORLD-029): in a wide home a
+// Turning the house in the city (world:camera-always-raised, world:room-seen-down-its-length): in a wide home a
 // round button over Phone turns the house a quarter round each tap, the scene asked for the quarter and a finger's turn
 // coming to rest heard back; the quarter is kept beside the save, so the home opens as it was left; the button steps back
 // while a fan, the phone or the map is open, and stands nowhere but a wide home. The place files are the ones the game
@@ -74,7 +74,7 @@ const turnButton = (): HTMLElement => found("[data-turn-house]");
 const stepsBack = (): boolean => turnButton().getAttribute("aria-hidden") === "true";
 
 describe("turning the house", () => {
-  test("[R-WORLD-009] [R-WORLD-029] given Ada at the family house, when the round button is tapped, then the scene is asked for the next quarter each tap, round the circle and back, and each is kept beside the save", async () => {
+  test("[world:camera-always-raised] [world:room-seen-down-its-length] given Ada at the family house, when the round button is tapped, then the scene is asked for the next quarter each tap, round the circle and back, and each is kept beside the save", async () => {
     const { game } = await at("place.family-house");
     await waitFor(() => turnButton(), { timeout: 3000 });
     expect(turnButton().getAttribute("aria-label")).toBe(say("ui.world.other-side"));
@@ -87,7 +87,7 @@ describe("turning the house", () => {
     }
   });
 
-  test("[R-WORLD-009] [R-WORLD-029] given a finger's turn coming to rest on a quarter, when the scene says so, then that quarter is kept, and the house opens on it the next time the life is opened", async () => {
+  test("[world:camera-always-raised] [world:room-seen-down-its-length] given a finger's turn coming to rest on a quarter, when the scene says so, then that quarter is kept, and the house opens on it the next time the life is opened", async () => {
     const { game } = await at("place.family-house");
     fireEvent.click(found("[data-stand-in-drag]"));
     await waitFor(() => expect(turnShown()).toBe("3"));
@@ -98,7 +98,7 @@ describe("turning the house", () => {
     await waitFor(() => expect(turnShown()).toBe("3"), { timeout: 3000 });
   });
 
-  test("[R-WORLD-009] given the round button, when a thing's fan or the phone is open over the house, then it steps back, and it is back once the fan closes", async () => {
+  test("[world:camera-always-raised] given the round button, when a thing's fan or the phone is open over the house, then it steps back, and it is back once the fan closes", async () => {
     await at("place.family-house");
     await waitFor(() => turnButton(), { timeout: 3000 });
     // A thing's fan.
@@ -114,7 +114,7 @@ describe("turning the house", () => {
     await waitFor(() => expect(stepsBack()).toBe(true));
   });
 
-  test("[R-WORLD-009] given a place that is not a wide home, when the world shows it, then there is no round button and the scene is asked for no quarter, its own turn limit standing", async () => {
+  test("[world:camera-always-raised] given a place that is not a wide home, when the world shows it, then there is no round button and the scene is asked for no quarter, its own turn limit standing", async () => {
     await at("place.yaba");
     await waitFor(() => found("[data-thumb='phone']"), { timeout: 3000 });
     expect(document.querySelector("[data-turn-house]")).toBeNull();

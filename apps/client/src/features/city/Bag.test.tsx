@@ -1,4 +1,4 @@
-// The bag by the door read as japacity (world.md R-WORLD-029, japacity.md R-JAPACITY-003): one model,
+// The bag by the door read as japacity (world:room-seen-down-its-length, japacity:best-open-route-is-japacity): one model,
 // scaled from the figure about its own spot and eased toward a new size so a rise is seen; what is
 // held sits on top; a small tag on the handle carries the figure; the probe reports the scale.
 import type { PlayerView } from "@japacity/sim";
@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 describe("the bag's size from the figure", () => {
-  test("[R-WORLD-031] [R-WORLD-029] [R-JAPACITY-003] given the figure, when the bag's scale is read, then it is smallest at 0 and with no route yet, full at 100, and grows with every point between", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] [japacity:best-open-route-is-japacity] given the figure, when the bag's scale is read, then it is smallest at 0 and with no route yet, full at 100, and grows with every point between", () => {
     expect(bagShare(null)).toBe(0);
     expect(bagShare(0)).toBe(0);
     expect(bagShare(100)).toBe(1);
@@ -57,7 +57,7 @@ describe("the bag's size from the figure", () => {
     expect(BAG_FULL[1] / BAG_EMPTY[1]).toBeGreaterThan(BAG_FULL[0] / BAG_EMPTY[0]);
   });
 
-  test("[R-WORLD-031] [R-WORLD-029] given both rooms, when the bag is found, then each has the one bag model by the door, and scaling it keeps its foot on its spot and lifts its top to the scaled height", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given both rooms, when the bag is found, then each has the one bag model by the door, and scaling it keeps its foot on its spot and lifts its top to the scaled height", () => {
     for (const file of ROOMS) {
       const stage = stageOf(file);
       expect(stage.models.filter((model) => model.file === BAG_FILE).flatMap((model) => model.at)).toHaveLength(1);
@@ -75,7 +75,7 @@ describe("the bag's size from the figure", () => {
     }
   });
 
-  test("[R-WORLD-031] [R-WORLD-029] given a rise of the figure, when the bag eases toward its new size, then it has not jumped after one frame and stands within a twentieth of it after about half a second", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given a rise of the figure, when the bag eases toward its new size, then it has not jumped after one frame and stands within a twentieth of it after about half a second", () => {
     let share = bagShare(20);
     const goal = bagShare(29);
     share = easeBag(share, goal, FRAME);
@@ -90,12 +90,12 @@ describe("the bag's size from the figure", () => {
 });
 
 describe("what is packed on top", () => {
-  test("[R-WORLD-031] [R-WORLD-029] given a new life with nothing held, when the pieces are read, then nothing is on top; Tunde, who holds his passport from the start, has it there", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given a new life with nothing held, when the pieces are read, then nothing is on top; Tunde, who holds his passport from the start, has it there", () => {
     expect(bagPieces(engineView("scenario.ada"))).toEqual([]);
     expect(bagPieces(engineView("scenario.tunde"))).toEqual(["passport"]);
   });
 
-  test("[R-WORLD-031] [R-WORLD-029] given Ada's careful life, when a route is known and then her papers come, then the flyer goes on top first and the passport and the papers join it, three pieces and no more", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given Ada's careful life, when a route is known and then her papers come, then the flyer goes on top first and the passport and the papers join it, three pieces and no more", () => {
     const known = adaUntil((view) => view.routes.some((route) => route.state === "known"));
     expect(bagPieces(known)).toEqual(["flyer"]);
     const papers = adaUntil((view) => view.documents.filter((paper) => paper.state === "held").length >= 2);
@@ -104,7 +104,7 @@ describe("what is packed on top", () => {
     expect(bagPieces(later)).toEqual(["passport", "papers", "flyer"]);
   });
 
-  test("[R-WORLD-031] [R-WORLD-029] given a route only heard of, when the pieces are read, then no flyer: only a route known, applied for, granted or flown on puts it on top", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given a route only heard of, when the pieces are read, then no flyer: only a route known, applied for, granted or flown on puts it on top", () => {
     const base = engineView("scenario.ada");
     const route = base.routes[0];
     if (route === undefined) throw new Error("No route");
@@ -117,7 +117,7 @@ describe("what is packed on top", () => {
 });
 
 describe("the tag and the probe", () => {
-  test("[R-WORLD-031] [R-WORLD-029] [R-JAPACITY-003] given the figure, when the tag is drawn, then it carries the figure as the band would, and with no route yet it carries none", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] [japacity:best-open-route-is-japacity] given the figure, when the tag is drawn, then it carries the figure as the band would, and with no route yet it carries none", () => {
     // The figure alone, as the rise's "+N" says it, never a percentage.
     expect(tagWords(0)).toBe("0");
     expect(tagWords(41)).toBe("41");
@@ -126,7 +126,7 @@ describe("the tag and the probe", () => {
     expect(tagWords(null)).toBeNull();
   });
 
-  test("[R-WORLD-031] [R-WORLD-029] given the city's probe, when a frame of the bag is reported, then the browser test reads the bag's scale, its goal, the figure and the pieces", () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] given the city's probe, when a frame of the bag is reported, then the browser test reads the bag's scale, its goal, the figure and the pieces", () => {
     window.__city = { place: "place.family-house" } as CityProbe;
     reportBag({ share: 0.5, goal: 0.6, figure: 60, pieces: ["flyer"] });
     expect(window.__city.bag).toEqual({ share: 0.5, goal: 0.6, scale: bagScaleAt(0.5), figure: 60, pieces: ["flyer"] });
@@ -143,7 +143,7 @@ describe("the rise in the world", () => {
     return { before, after };
   }
 
-  test("[R-WORLD-031] [R-WORLD-029] [R-JAPACITY-003] given the world in view, when the figure rises, then one rise flies over it for the gain; with the phone up over the world it waits until the phone is put away", async () => {
+  test("[world:japacity-bag-by-door] [world:room-seen-down-its-length] [japacity:best-open-route-is-japacity] given the world in view, when the figure rises, then one rise flies over it for the gain; with the phone up over the world it waits until the phone is put away", async () => {
     const { before, after } = figures();
     const { store } = await renderWithView(<City world />, before);
     expect(document.querySelector("[data-rise]")).toBeNull();

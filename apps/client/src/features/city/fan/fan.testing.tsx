@@ -1,6 +1,6 @@
-// The tests' stand-in for the scene (R-WORLD-034): a tap on a thing says where the thing stands, as the scene's frame loop
+// The tests' stand-in for the scene (world:fan-of-sticker-buttons): a tap on a thing says where the thing stands, as the scene's frame loop
 // does, before the city hears the tap, so the fan opens and lays out; the walk is instant, so a fan button's act lands at
-// once, as it would on arrival (R-WORLD-010). A test mocks the scene with `StandInScene`, or builds its own from
+// once, as it would on arrival (world:nothing-roams). A test mocks the scene with `StandInScene`, or builds its own from
 // `standInTap` and `useStandInWalk`, and presses a fan's button with `pressFanAct`. Only the tests import it.
 import { fireEvent, waitFor } from "@testing-library/react";
 import { useEffect } from "react";
@@ -32,9 +32,9 @@ export interface StandInProps {
   things?: readonly Thing[] | undefined;
   actOn?: { thing: Thing; act: Act; at: number } | null | undefined;
   onPick: (pick: StandInPick) => void;
-  /** The thing the timed sleep lies on (R-WORLD-025), shown as `data-stand-in-asleep`. */
+  /** The thing the timed sleep lies on (world:sleep-ends-the-month), shown as `data-stand-in-asleep`. */
   asleep?: string | null | undefined;
-  /** The act done at once that landed last (R-WORLD-005), shown as `data-stand-in-acted`. */
+  /** The act done at once that landed last (world:things-are-tappable-models), shown as `data-stand-in-acted`. */
   acted?: { activity: string; at: number } | null | undefined;
   /** The scene's frame drawn: the stand-in's `data-stand-in-draw` button draws one. */
   onFrame?: ((ms: number) => void) | undefined;

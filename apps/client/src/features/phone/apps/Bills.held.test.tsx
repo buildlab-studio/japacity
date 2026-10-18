@@ -1,4 +1,4 @@
-// Bills, Pay now on the held funds (docs/rules/world.md R-WORLD-006, R-WORLD-019), played on the
+// Bills, Pay now on the held funds (world:one-action-one-sheet, world:phone-holds-what-phones-hold), played on the
 // real engine: the funds go back from the locked pocket, so the slip's
 // "after" is the naira the character keeps, never "₦0 left", and once paid the view (and the band
 // that reads it) counts after the payment.
@@ -35,7 +35,7 @@ async function adaHolding() {
 }
 
 describe("Bills, the held funds paid back", () => {
-  test("[R-WORLD-006] [R-WORLD-019] given held funds open, when Pay now's slip opens, then what is left after is the naira the character keeps, not nothing", async () => {
+  test("[world:one-action-one-sheet] [world:phone-holds-what-phones-hold] given held funds open, when Pay now's slip opens, then what is left after is the naira the character keeps, not nothing", async () => {
     const { game, held } = await adaHolding();
     fireEvent.click(document.querySelector<HTMLElement>(`[data-pay="${held.id}"]`)!);
     const naira = game.view().pockets.NGN;
@@ -45,7 +45,7 @@ describe("Bills, the held funds paid back", () => {
     expect(document.querySelector<HTMLButtonElement>("[data-ask-main]")?.disabled).toBe(false);
   });
 
-  test("[R-WORLD-006] [R-WORLD-019] given the held funds paid back, when the reply comes, then the view counts after the payment: nothing locked, the bill gone, and the band reads the new pockets", async () => {
+  test("[world:one-action-one-sheet] [world:phone-holds-what-phones-hold] given the held funds paid back, when the reply comes, then the view counts after the payment: nothing locked, the bill gone, and the band reads the new pockets", async () => {
     const { game, store, held } = await adaHolding();
     fireEvent.click(document.querySelector<HTMLElement>(`[data-pay="${held.id}"]`)!);
     fireEvent.click(document.querySelector<HTMLElement>("[data-ask-main]")!);

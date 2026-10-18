@@ -1,4 +1,4 @@
-// The staged wins in the world (docs/rules/luck.md R-LUCK-008; world.md R-WORLD-008): a month whose lines carry a big one
+// The staged wins in the world (luck:big-wins-are-staged; world:month-end-results-sheet): a month whose lines carry a big one
 // tells it first, in the corner, and the results open once it has passed; a month with none opens its results at once.
 // The scene is a stand-in that hands the city the taps a player makes.
 import type { PlayerView, ReportLine } from "@japacity/sim";
@@ -14,7 +14,7 @@ import { City, RESULTS_BEAT_MS } from "../features/city/City";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -49,11 +49,11 @@ function reported(lines: ReportLine[]): PlayerView {
   return { ...engineView(), report: { month: 1, lines, japacityBefore: null, japacityAfter: null, attention: false } };
 }
 
-/** What the corner tells, the world's channel for a big line (R-WORLD-008), read from its store. */
+/** What the corner tells, the world's channel for a big line (world:month-end-results-sheet), read from its store. */
 const corner = (): string[] => linesNow().lines.map((said) => said.text);
 
 describe("the staged wins in the world", () => {
-  test("[R-LUCK-008] given a month whose lines carry a big one, when it ends, then the big line is told on its own before the results open", async () => {
+  test("[luck:big-wins-are-staged] given a month whose lines carry a big one, when it ends, then the big line is told on its own before the results open", async () => {
     const { authority, store } = await renderWithView(<City world results={(place) => <Results place={place} />} />, reported([PLAIN, SALARY]));
     await waitFor(() => expect(document.querySelector("[data-stand-in-scene]")).not.toBeNull(), { timeout: 3000 });
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
@@ -72,7 +72,7 @@ describe("the staged wins in the world", () => {
     expect(document.querySelector("[data-world-sheet='results']")).not.toBeNull();
   });
 
-  test("[R-LUCK-008] given a month with no big line, then the results open at once, with nothing staged", async () => {
+  test("[luck:big-wins-are-staged] given a month with no big line, then the results open at once, with nothing staged", async () => {
     const { authority, store } = await renderWithView(<City world results={(place) => <Results place={place} />} />, reported([PLAIN]));
     await waitFor(() => expect(document.querySelector("[data-stand-in-scene]")).not.toBeNull(), { timeout: 3000 });
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });

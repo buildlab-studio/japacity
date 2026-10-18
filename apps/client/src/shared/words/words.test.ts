@@ -92,7 +92,7 @@ describe("names mid-sentence", () => {
 
 describe("requirement sentences", () => {
   const cases: [Requirement, string][] = [
-    // A quality's gate is said by its band, never its figure (R-TEXT-005).
+    // A quality's gate is said by its band, never its figure (text:bands-not-figures).
     [{ type: "quality/min", quality: "quality.tech", value: 40 }, say("ui.req.band.quality.tech.1")],
     [{ type: "quality/min", quality: "quality.edu-grade", value: 3 }, `${text["quality.edu-grade.name"]!}: ${text["quality.edu-grade.value.3"]!} or better`],
     [{ type: "document/held", document: "document.passport" }, `${text["document.passport.name"]!} in hand`],
@@ -114,14 +114,14 @@ describe("requirement sentences", () => {
 });
 
 describe("a job's gates in words", () => {
-  test("[R-TEXT-005] given every job's gates in content, when they are said, then each quality is said by its band, never its figure", () => {
+  test("[text:bands-not-figures] given every job's gates in content, when they are said, then each quality is said by its band, never its figure", () => {
     const jobs = Object.values(content.activity).filter((entry) => entry.pay !== null && entry.pay !== undefined);
     const gates = jobs.flatMap((entry) => entry.requires).filter((requirement) => requirement.type === "quality/min" || requirement.type === "quality/max");
     expect(gates.length).toBeGreaterThan(0);
     for (const gate of gates) expect(requirementSentence(gate)).not.toMatch(/\d/);
   });
 
-  test("[R-TEXT-005] given a job's gates, when they are said, then they read as a person would say them", () => {
+  test("[text:bands-not-figures] given a job's gates, when they are said, then they read as a person would say them", () => {
     expect(requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 })).toBe("More than basic English");
     expect(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 })).toBe("Good tech");
     expect(requirementSentence({ type: "quality/min", quality: "quality.portfolio", value: 3 })).toBe("A portfolio with a few pieces");
@@ -129,7 +129,7 @@ describe("a job's gates in words", () => {
     expect(say("jobs.needs", { needs: requirementSentence({ type: "quality/min", quality: "quality.english", value: 50 }) })).toBe("Needs: More than basic English");
   });
 
-  test("[R-TEXT-005] given a job that asks for time in another, when its gate is said, then the time reads as a person says it and the job as the person who does it", () => {
+  test("[text:bands-not-figures] given a job that asks for time in another, when its gate is said, then the time reads as a person says it and the job as the person who does it", () => {
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 })).toBe("Three years as a bank officer");
     expect(say("jobs.needs", { needs: requirementSentence({ type: "activity/tenure", activities: ["activity.job-bank-officer"], months: 36 }) })).toBe("Needs: Three years as a bank officer");
     expect(requirementSentence({ type: "activity/tenure", activities: ["activity.job-nurse"], months: 24 })).toBe(`Two years as a ${runningName("activity.job-nurse")}`);
@@ -143,13 +143,13 @@ describe("a job's gates in words", () => {
     for (const gate of gates) expect(requirementSentence(gate)).not.toMatch(/months in (?!any job)/);
   });
 
-  test("[R-TEXT-005] given the handover's life so far, when the portfolio is read, then it is said in words, not as a figure", () => {
+  test("[text:bands-not-figures] given the handover's life so far, when the portfolio is read, then it is said in words, not as a figure", () => {
     for (let value = 0; value <= (content.quality["quality.portfolio"]?.max ?? 10); value += 1) expect(valueWords("quality.portfolio", value)).not.toMatch(/\d/);
     expect(valueWords("quality.portfolio", 1)).toBe(say("ui.band.quality.portfolio.0"));
   });
 
-  test("[R-TEXT-005] given every quality the player is shown, when its move is told, then it is said in words, never as a figure", () => {
-    // The age is a figure by nature; the degree's level and grade are named by the prologue's own lines (R-PROLOGUE-008).
+  test("[text:bands-not-figures] given every quality the player is shown, when its move is told, then it is said in words, never as a figure", () => {
+    // The age is a figure by nature; the degree's level and grade are named by the prologue's own lines (prologue:view-shows-step-card).
     const named = new Set(["quality.age-months", "quality.edu-level", "quality.edu-grade"]);
     const shown = Object.values(content.quality).filter((entry) => entry.shown && !named.has(entry.id));
     expect(shown.length).toBeGreaterThan(8);
@@ -163,7 +163,7 @@ describe("a job's gates in words", () => {
 });
 
 describe("the words the world's sheets borrow", () => {
-  test("[R-WORLD-006] given every route that flies, when the plane's line is said, then it names the country, never the route's name with an apostrophe", () => {
+  test("[world:one-action-one-sheet] given every route that flies, when the plane's line is said, then it names the country, never the route's name with an apostrophe", () => {
     const countries = new Set(Object.values(content.route).flatMap((route) => (route?.country === undefined || route.country === null ? [] : [route.country])));
     expect(countries.size).toBeGreaterThan(0);
     for (const country of countries) {
@@ -173,13 +173,13 @@ describe("the words the world's sheets borrow", () => {
     expect(say("ui.world.depart-line", { country: say("ui.country.place.country.uk") })).toBe("The visa is in your passport. Board, and the next place is the UK.");
   });
 
-  // The journey, not the wait (text.md R-TEXT-007): the asks say who is asking, never who waits.
-  test("[R-WORLD-006] [R-CHAPTER-008] given the send-off asked at the family house, when the asks say who is asking, then Mama is named and home is the place", () => {
+  // The journey, not the wait (text:voice-by-surface): the asks say who is asking, never who waits.
+  test("[world:one-action-one-sheet] [chapter:family-marks-the-grant] given the send-off asked at the family house, when the asks say who is asking, then Mama is named and home is the place", () => {
     expect(say("ui.world.ask-away.place.family-house")).toBe("Mama is asking for you at home.");
     expect(say("ui.world.ask-away.place.family-house")).toContain(text["family.from.mum"] ?? "-");
   });
 
-  test("[R-WORLD-005] given the night shift beside a day job, when its card words are read, then they carry its pay a month and its chance, as the board's do", () => {
+  test("[world:things-are-tappable-models] given the night shift beside a day job, when its card words are read, then they carry its pay a month and its chance, as the board's do", () => {
     const view = newGame("scenario.ada").view();
     const said = jobCardWords(view, "activity.night-support");
     const pay = content.activity["activity.night-support"]?.pay;

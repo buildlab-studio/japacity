@@ -39,7 +39,7 @@ async function testSat(storage: ReturnType<typeof removableStorage>, at: { now: 
 }
 
 describe("envelopes in the local authority", () => {
-  test("[R-CLOCK-032] given the English test sat and the month ended in the evening, when the view and the lines are read, then the result is sealed until seven the next morning and a reload keeps it sealed", async () => {
+  test("[clock:envelopes-show-real-waits] given the English test sat and the month ended in the evening, when the view and the lines are read, then the result is sealed until seven the next morning and a reload keeps it sealed", async () => {
     const storage = removableStorage();
     const at = { now: lagos(11, 21) };
     const { authority, turned } = await testSat(storage, at);
@@ -55,7 +55,7 @@ describe("envelopes in the local authority", () => {
     expect((JSON.parse(storage.items.get(SAVE_KEY)!) as { envelopes: unknown[] }).envelopes).toHaveLength(1);
   });
 
-  test("[R-CLOCK-032] given the morning has come, when the view is read, then the result stands, the morning gives the envelope and its line once, and the save lets it go", async () => {
+  test("[clock:envelopes-show-real-waits] given the morning has come, when the view is read, then the result stands, the morning gives the envelope and its line once, and the save lets it go", async () => {
     const storage = removableStorage();
     const at = { now: lagos(11, 21) };
     await testSat(storage, at);
@@ -71,7 +71,7 @@ describe("envelopes in the local authority", () => {
     expect((JSON.parse(storage.items.get(SAVE_KEY)!) as { envelopes: unknown[] }).envelopes).toEqual([]);
   });
 
-  test("[R-CLOCK-032] given the dev switch, when the envelopes are read in the evening, then they open at once", async () => {
+  test("[clock:envelopes-show-real-waits] given the dev switch, when the envelopes are read in the evening, then they open at once", async () => {
     const storage = removableStorage();
     const at = { now: lagos(11, 21) };
     const { authority } = await testSat(storage, at);

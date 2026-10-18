@@ -1,4 +1,4 @@
-// The world's picker cards and money (docs/rules/world.md R-WORLD-006): each card that costs money
+// The world's picker cards and money (world:one-action-one-sheet): each card that costs money
 // says on its button what is left after, as the ask card does, and a cost that cannot be paid
 // shuts the button with how much is short. Nothing is planned that cannot be paid.
 import { content } from "@japacity/content";
@@ -14,7 +14,7 @@ import { nameOf, say } from "../../shared/words/text";
 import { ActivityPicker } from "./ActivityView";
 
 const TB = "activity.tb-test";
-// Decision 0012 (R-ACTIVITY-019): the coding course and the portfolio now answer at once and repeat, so the paid things
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course and the portfolio now answer at once and repeat, so the paid things
 // a plan holds are month-acts: the nurse's certification and a master's at home.
 const CERTIFICATE = "activity.nurse-certification";
 const MASTERS = "activity.masters-at-home";
@@ -25,7 +25,7 @@ function naira(view: PlayerView): number {
   return view.pockets.NGN.bank + view.pockets.NGN.cash;
 }
 
-/** The balance under the card's button, before or after, in kobo (R-WORLD-006). */
+/** The balance under the card's button, before or after, in kobo (world:one-action-one-sheet). */
 function balance(which: "before" | "after"): number | null {
   const value = document.querySelector(`[data-balance-${which}]`)?.getAttribute(`data-balance-${which}`);
   return value === undefined || value === null ? null : Number(value);
@@ -37,7 +37,7 @@ function offered(id: ActivityOption["id"], amount: number, affordable = true): A
 }
 
 describe("the picker's cards and money", () => {
-  test("[R-WORLD-006] given an activity that costs money, when its card shows, then the button says the act and its price, and under it the balance before, struck, and after, counting the bank and the cash", async () => {
+  test("[world:one-action-one-sheet] given an activity that costs money, when its card shows, then the button says the act and its price, and under it the balance before, struck, and after, counting the bank and the cash", async () => {
     const view = engineView("scenario.ada");
     const cost = content.activity[TB]?.cost[0]?.amount;
     if (typeof cost !== "number") throw new Error("The TB test has no fixed fee.");
@@ -50,7 +50,7 @@ describe("the picker's cards and money", () => {
     expect(balance("after")).toBe(naira(view) - cost);
   });
 
-  test("[R-WORLD-006] given an activity that costs one kobo more than the player has, when its card shows, then the button is shut and says how much is short, and nothing is planned", async () => {
+  test("[world:one-action-one-sheet] given an activity that costs one kobo more than the player has, when its card shows, then the button is shut and says how much is short, and nothing is planned", async () => {
     const view = engineView("scenario.ada");
     const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(TB, naira(view) + 1, false)] });
     const button = addButton(TB);
@@ -60,11 +60,11 @@ describe("the picker's cards and money", () => {
     expect(store.getState().plan.every((pick) => pick === null)).toBe(true);
   });
 
-  test("[R-WORLD-006] given a plan that already pays for one activity, when another card shows, then the balance after is after both, and one the plan leaves too little for is shut as short", async () => {
+  test("[world:one-action-one-sheet] given a plan that already pays for one activity, when another card shows, then the balance after is after both, and one the plan leaves too little for is shut as short", async () => {
     const view = engineView("scenario.ada");
     const first = 2_500_000;
     const second = naira(view) - first;
-    // Only month-acts are planned, each once (R-ACTIVITY-015, R-WORLD-007), so the plan
+    // Only month-acts are planned, each once (activity:now-acts-and-month-acts, world:month-acts-carry-on), so the plan
     // that pays is a course and then a second month-act beside it (decision 0012: two that still take the month).
     expect([CERTIFICATE, MASTERS].every((id) => plannable(id))).toBe(true);
     const { store } = await renderWithView(<ActivityPicker only={[TB]} />, { ...view, activities: [offered(CERTIFICATE, first), offered(MASTERS, first), offered(TB, second)] });
@@ -82,7 +82,7 @@ describe("the picker's cards and money", () => {
     expect(addButton(TB).querySelector("[data-after]")?.textContent).toBe(say("ui.world.short", { amount: formatMoney(first, "NGN") }));
   });
 
-  test("[R-WORLD-006] given a free activity, when its card shows, then the button carries no money line", async () => {
+  test("[world:one-action-one-sheet] given a free activity, when its card shows, then the button carries no money line", async () => {
     const view = engineView("scenario.ada");
     const family: ActivityOption = { id: "activity.family-time", allowed: true, missing: [], params: null, cost: [], affordable: true, when: "month", done: false };
     await renderWithView(<ActivityPicker only={["activity.family-time"]} />, { ...view, activities: [family] });
@@ -92,12 +92,12 @@ describe("the picker's cards and money", () => {
 });
 
 describe("the picker and a pick that fills no slot", () => {
-  test("[R-TURN-006] [R-ADVICE-003] given every slot planned, when the picker shows someone who went, then it can still be added", async () => {
+  test("[turn:free-slots-per-month] [advice:someone-who-went-answers-free] given every slot planned, when the picker shows someone who went, then it can still be added", async () => {
     const FRIEND = "activity.ask-someone-who-went";
     const UK = "route.uk-masters";
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
     const { store, authority } = await renderWithView(<ActivityPicker only={[FRIEND]} />, view);
-    // Rest is never planned (R-TURN-006), so the free time is filled with month-acts.
+    // Rest is never planned (turn:free-slots-per-month), so the free time is filled with month-acts.
     const month = view.activities.filter((option) => option.allowed && option.params === null && plannable(option.id)).map((option) => option.id);
     act(() => {
       for (const activity of month.slice(0, view.freeSlots)) store.getState().addToPlan({ activity, param: null });
@@ -106,7 +106,7 @@ describe("the picker and a pick that fills no slot", () => {
     const button = addButton(FRIEND);
     expect(button.disabled).toBe(false);
     fireEvent.click(button);
-    // R-ACTIVITY-015: the word of someone who went is asked at once, so a full month never shuts it and it
+    // activity:now-acts-and-month-acts: the word of someone who went is asked at once, so a full month never shuts it and it
     // is sent now rather than planned.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: FRIEND, param: UK }));
   });

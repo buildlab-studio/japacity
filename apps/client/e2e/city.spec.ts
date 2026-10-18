@@ -27,14 +27,14 @@ declare global {
   }
 }
 
-test("[R-CITY-033] a street opens after a ride, the character walks where the ground is tapped, a person's card opens, and the frame stays in budget", async ({ page }, info) => {
+test("[city:residents-carry-no-tag] a street opens after a ride, the character walks where the ground is tapped, a person's card opens, and the frame stays in budget", async ({ page }, info) => {
   test.setTimeout(180_000);
   await page.goto(`/${LIVED}`);
   await startReadyLife(page);
   await placeReady(page);
   await passHomeTeach(page);
 
-  // Ojuelegba by the map's ride: the street opens with its name on the band (R-WORLD-015, R-WORLD-017).
+  // Ojuelegba by the map's ride: the street opens with its name on the band (world:map-is-painted-lagos, world:ride-sheet-shows-fares).
   await rideTo(page, "place.ojuelegba");
   await expect(page.locator("[data-band] h2")).toHaveText("Ojuelegba");
   await passCards(page);
@@ -71,7 +71,7 @@ test("[R-CITY-033] a street opens after a ride, the character walks where the gr
   await expect.poll(moved, { timeout: 10_000 }).toBeGreaterThan(0.5);
   expect(sent).toEqual([]);
 
-  // Tap someone standing in view: their card says who they are (R-CITY-033). A person may stand behind a stall or a
+  // Tap someone standing in view: their card says who they are (city:residents-carry-no-tag). A person may stand behind a stall or a
   // sign, so each one in view is tried until a person's card opens.
   const spots = await page.evaluate((size) => {
     const city = window.__city;
@@ -94,13 +94,13 @@ test("[R-CITY-033] a street opens after a ride, the character walks where the gr
   await expect(page.locator("[data-band]")).toBeVisible();
 });
 
-test("[R-CITY-021] the credits are reachable from the phone's Settings and credit the map data", async ({ page }) => {
+test("[city:credits-screen-attributions] the credits are reachable from the phone's Settings and credit the map data", async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto(`/${LIVED}`);
   await startReadyLife(page);
   await placeReady(page);
   await passHomeTeach(page);
-  // The city has no menu of its own; its Credits stand in the phone's Settings (R-WORLD-018).
+  // The city has no menu of its own; its Credits stand in the phone's Settings (world:phone-rises-over-scene).
   const settings = await openApp(page, "settings");
   const row = settings.locator("[data-credits-row]");
   await row.scrollIntoViewIfNeeded();

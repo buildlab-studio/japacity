@@ -1,4 +1,4 @@
-// The routes an activity asks about, as a list like the jobs list (docs/rules/world.md R-WORLD-006):
+// The routes an activity asks about, as a list like the jobs list (world:one-action-one-sheet):
 // each route the activity can ask about is a row with its name, what it is, and
 // whether it is only heard of or already looked into. A row is picked by a tap.
 import type { PlayerView } from "@japacity/sim";

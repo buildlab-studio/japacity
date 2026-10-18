@@ -1,9 +1,9 @@
 // The month in hand, for words that tell a month the simulation stamped as months away
-// (docs/rules/world.md R-WORLD-002). The game store sets it whenever the view changes and the
+// (world:top-band-is-lively-pill). The game store sets it whenever the view changes and the
 // provider clears it when the game leaves the screen; with no game around it is null, and a
 // stamped month keeps its number. Beside it, where the life on screen is from (prologue.md
-// R-PROLOGUE-002), which fills `{hometown}` in content's lines; and the names a computer person
-// goes by in this life, where the player's own first name is theirs (R-PROLOGUE-009, R-PEOPLE-061;
+// prologue:family-draw-on-first-answer), which fills `{hometown}` in content's lines; and the names a computer person
+// goes by in this life, where the player's own first name is theirs (prologue:front-door-builds-a-person, person:one-mixed-name-pool;
 // worked out in `authority/others.ts`, so the name pool stays out of the words every screen loads).
 let current: number | null = null;
 let hometown: string | null = null;

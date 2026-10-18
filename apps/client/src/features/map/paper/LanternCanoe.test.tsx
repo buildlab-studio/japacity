@@ -1,4 +1,4 @@
-// The lantern canoe on the open map of Lagos (docs/rules/world.md R-WORLD-036): where it is moored and what it is not,
+// The lantern canoe on the open map of Lagos (world:lantern-canoe-on-map): where it is moored and what it is not,
 // how it is drawn by day and at night, its second lantern, its stillness, and its tap, which opens the dedication page
 // the shell hands in and folds nothing.
 import { readFileSync } from "node:fs";
@@ -78,7 +78,7 @@ function unfold(): void {
 const canoe = () => document.querySelector<HTMLElement>("[data-canoe]");
 
 describe("where the canoe is moored", () => {
-  test("[R-WORLD-036] given the paper, then the canoe is on the open lagoon, water on every side for a long way, north-east of the Third Mainland Bridge's middle", () => {
+  test("[world:lantern-canoe-on-map] given the paper, then the canoe is on the open lagoon, water on every side for a long way, north-east of the Third Mainland Bridge's middle", () => {
     expect(Object.values(LAND).some((ring) => inside(ring, LANTERN_CANOE.at))).toBe(false);
     // Water on every side at the open zoom: no land within 80 paper units, about 75 screen pixels.
     for (const [dx, dy] of [[80, 0], [-80, 0], [0, 80], [0, -80], [56, 56], [-56, 56], [56, -56], [-56, -56]] as const) {
@@ -90,7 +90,7 @@ describe("where the canoe is moored", () => {
     expect(CY).toBeLessThan(middle[1]);
   });
 
-  test("[R-WORLD-036] given the canoe, then no ride crosses it: it is far from the ferry's line, every road and bridge, and every stop, and it is neither a stop nor decor", () => {
+  test("[world:lantern-canoe-on-map] given the canoe, then no ride crosses it: it is far from the ferry's line, every road and bridge, and every stop, and it is neither a stop nor decor", () => {
     expect(nearLine(LANTERN_CANOE.at, FERRY_LINE, 120)).toBe(false);
     for (const road of ROADS) expect(nearLine(LANTERN_CANOE.at, road.points, 60)).toBe(false);
     expect(nearLine(LANTERN_CANOE.at, BRIDGE_NAME_PATH, 40)).toBe(false);
@@ -99,7 +99,7 @@ describe("where the canoe is moored", () => {
     expect(DECOR.some((item) => item.at[0] === CX && item.at[1] === CY)).toBe(false);
   });
 
-  test("[R-WORLD-036] given the scatter, then it keeps clear of the canoe: no wave is drawn over it", () => {
+  test("[world:lantern-canoe-on-map] given the scatter, then it keeps clear of the canoe: no wave is drawn over it", () => {
     const ground = groundOf();
     expect(ground.clear).toContainEqual([CX, CY, LANTERN_CANOE_CLEAR]);
     for (const [x, y] of scatter(ground).waves) expect(Math.hypot(x - CX, y - CY)).toBeGreaterThanOrEqual(LANTERN_CANOE_CLEAR);
@@ -107,7 +107,7 @@ describe("where the canoe is moored", () => {
 });
 
 describe("where the open map opens", () => {
-  test("[R-WORLD-036] given the open map opening from any neighbourhood's card, on a phone of either size or a laptop, then the canoe stands whole on the screen below the head row, or wholly off it, never half off", () => {
+  test("[world:lantern-canoe-on-map] given the open map opening from any neighbourhood's card, on a phone of either size or a laptop, then the canoe stands whole on the screen below the head row, or wholly off it, never half off", () => {
     const screens = [
       { size: { width: 412, height: 839 }, wide: false },
       { size: { width: 390, height: 844 }, wide: false },
@@ -132,7 +132,7 @@ describe("where the open map opens", () => {
 });
 
 describe("the canoe on the map", () => {
-  test("[R-WORLD-036] given the map folded, then neither the strip nor the cards draw the canoe; unfolded, the open map draws one, named for a screen reader, with one lantern and the probe's point apart from the stops", async () => {
+  test("[world:lantern-canoe-on-map] given the map folded, then neither the strip nor the cards draw the canoe; unfolded, the open map draws one, named for a screen reader, with one lantern and the probe's point apart from the stops", async () => {
     vi.useFakeTimers();
     await open();
     expect(canoe()).toBeNull();
@@ -147,7 +147,7 @@ describe("the canoe on the map", () => {
     expect(window.__map?.stops.some((stop) => stop.at[0] === CX && stop.at[1] === CY)).toBe(false);
   });
 
-  test("[R-WORLD-036] given the canoe, when it is tapped, then the dedication page the shell hands in opens, the map stays open with no stop picked, and closing the page leaves the map as it was", async () => {
+  test("[world:lantern-canoe-on-map] given the canoe, when it is tapped, then the dedication page the shell hands in opens, the map stays open with no stop picked, and closing the page leaves the map as it was", async () => {
     vi.useFakeTimers();
     const { opened } = await open();
     unfold();
@@ -163,7 +163,7 @@ describe("the canoe on the map", () => {
     expect(document.querySelector("[data-paper-map]")?.getAttribute("data-fold")).toBe("open");
   });
 
-  test("[R-WORLD-036] [R-WORLD-021] given the canoe, then its glow is the fill the shell hands in, a small one by day, the light on the water under the night paint, and its hit area is at least 44 px", async () => {
+  test("[world:lantern-canoe-on-map] [world:colours-are-role-tokens] given the canoe, then its glow is the fill the shell hands in, a small one by day, the light on the water under the night paint, and its hit area is at least 44 px", async () => {
     vi.useFakeTimers();
     await open();
     unfold();
@@ -178,7 +178,7 @@ describe("the canoe on the map", () => {
     expect(css).toMatch(/\[data-paint="night"\] \.paper-canoe-night \{ opacity: 1; \}/u);
   });
 
-  test("[R-WORLD-036] [R-WORLD-023] given the lantern's glow, then it breathes by opacity alone and holds still under reduced motion", () => {
+  test("[world:lantern-canoe-on-map] [world:motions-under-half-second] given the lantern's glow, then it breathes by opacity alone and holds still under reduced motion", () => {
     const css = readFileSync(join(import.meta.dirname, "paper.css"), "utf8");
     const frames = /@keyframes paper-breathe \{([^}]*\}[^}]*)\}/u.exec(css)?.[1] ?? "";
     expect(frames).toContain("opacity");
@@ -187,7 +187,7 @@ describe("the canoe on the map", () => {
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.paper-canoe-breath \{ animation: none; \}/u);
   });
 
-  test("[R-WORLD-036] [R-ACCOUNT-033] given the account's own light lit, then the canoe carries a second lantern at its stern", async () => {
+  test("[world:lantern-canoe-on-map] [account:name-a-light-for-yours] given the account's own light lit, then the canoe carries a second lantern at its stern", async () => {
     const reply = { ok: true, count: 3, lights: [{ id: "light.a" }], mine: { id: "light.a", name: "Mama Nkechi", years: { from: null, to: null }, approved: false } };
     setDedicationServer({ get: () => Promise.resolve(reply) } as unknown as Api);
     vi.useFakeTimers();
@@ -200,7 +200,7 @@ describe("the canoe on the map", () => {
     expect(canoe()?.querySelector("[data-lantern='stern']")).not.toBeNull();
   });
 
-  test("[R-WORLD-036] given a country abroad, then there is no lagoon and no canoe", async () => {
+  test("[world:lantern-canoe-on-map] given a country abroad, then there is no lagoon and no canoe", async () => {
     await open(ABROAD);
     expect(document.querySelector("[data-paper-map]")).toBeNull();
     expect(canoe()).toBeNull();

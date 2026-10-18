@@ -1,5 +1,4 @@
-// The month's dues abroad against the country's money held (docs/rules/world.md R-WORLD-003,
-// 019). The obligation kind takes a foreign charge from that currency's own pockets
+// The month's dues abroad against the country's money held (world:nudge-says-one-thing, world:phone-holds-what-phones-hold). The obligation kind takes a foreign charge from that currency's own pockets
 // and never through the naira, so a month whose dues pass the pounds held goes unpaid however much
 // naira and how many dollars wait. The Bank and the nudge both read it.
 import { content } from "@japacity/content";

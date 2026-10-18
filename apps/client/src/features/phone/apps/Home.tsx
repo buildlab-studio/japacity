@@ -1,5 +1,5 @@
-// The phone's home card (docs/rules/home.md R-HOME-007), at the top of Bills. The engine decides (R-HOME-002) and
-// the view carries each move with its charge a month and why it is shut (R-HOME-008); the card only says them.
+// The phone's home card (home:view-carries-home), at the top of Bills. The engine decides (home:move-home-once-a-month) and
+// the view carries each move with its charge a month and why it is shut (home:moves-carry-cost-and-reason); the card only says them.
 import type { HomeMoveShut, HomePlace, PlayerView } from "@japacity/sim";
 
 import { useView } from "../../../authority/GameProvider";
@@ -15,13 +15,13 @@ export interface HomeMove {
   to: HomePlace;
   /** What it costs a month there, in naira. */
   monthly: number;
-  /** What is paid on the move: the first month's rent in Makoko, the year's rent and fees for the room in a compound (R-HOME-010), nothing at the family house. */
+  /** What is paid on the move: the first month's rent in Makoko, the year's rent and fees for the room in a compound (home:compound-room-is-a-home), nothing at the family house. */
   now: number;
   /** Why it is shut, in words, or null when it may be made. */
   shut: string | null;
 }
 
-/** Why a move is shut, in words: the view says which (R-HOME-008). Short of the room's year and fees says so, not a month's rent. */
+/** Why a move is shut, in words: the view says which (home:moves-carry-cost-and-reason). Short of the room's year and fees says so, not a month's rent. */
 function shutWords(shut: HomeMoveShut, now: number, to: HomePlace): string {
   switch (shut) {
     case "moved":
@@ -46,7 +46,7 @@ function homeMoves(view: Pick<PlayerView, "home">): HomeMove[] {
  */
 function chargeWords(home: PlayerView["home"]): string {
   if (home.rent === null) return say("phone.home.charge.none");
-  // R-HOME-012 (decision 0013): nothing of the living is charged as the month turns, so no figure a month is said for it;
+  // home:living-by-hand (decision 0013): nothing of the living is charged as the month turns, so no figure a month is said for it;
   // the family house says it as your share for the house (decision 0018).
   if (home.rent.amount === 0) {
     const byHand = home.place === null ? null : `phone.home.charge.by-hand.${home.place}`;
@@ -56,15 +56,15 @@ function chargeWords(home: PlayerView["home"]): string {
   return say(own !== null && hasWords(own) ? own : "phone.home.charge", { amount: home.rent });
 }
 
-/** R-HOME-010: the room's yearly rent and when it is next taken, or null where none is open. */
+/** home:compound-room-is-a-home: the room's yearly rent and when it is next taken, or null where none is open. */
 function roomRentWords(home: PlayerView["home"]): string | null {
   if (home.roomRent === null) return null;
   return sayCount("phone.home.rent-year", home.roomRent.dueIn, { amount: formatMoney(home.roomRent.year, "NGN"), count: home.roomRent.dueIn });
 }
 
 /**
- * The move's line: from the room, the move back says the year paid stays with the landlord (R-HOME-010). Where
- * living there charges nothing a month (R-HOME-012, decision 0013), the line says it is bought as
+ * The move's line: from the room, the move back says the year paid stays with the landlord (home:compound-room-is-a-home). Where
+ * living there charges nothing a month (home:living-by-hand, decision 0013), the line says it is bought as
  * you go and names no figure a month.
  */
 function moveLineKey(from: HomePlace | null, to: HomePlace, monthly: number): string {
@@ -109,7 +109,7 @@ export function HomeCard() {
         <div className="min-w-0 flex-1">
           <h3 className="text-[13px] font-semibold text-text-2">{say("phone.home.title")}</h3>
           <p className="text-[19px] leading-tight font-bold">{home.place === null ? say("phone.home.none") : say(`phone.home.place.${home.place}`)}</p>
-          {/* R-HOME-008: the card opens with what the home is, the place's own blurb. */}
+          {/* home:moves-carry-cost-and-reason: the card opens with what the home is, the place's own blurb. */}
           {home.place === null || blurbOf(home.place) === null ? null : (
             <p className="mt-0.5 text-[14px] leading-snug text-text-2" data-home-blurb>
               {blurbOf(home.place)}
@@ -155,7 +155,7 @@ export function HomeCard() {
                   </>
                 ) : null}
               </button>
-              {/* The risk is said once, plainly, beside the move it belongs to (R-HOME-007), not under the family house. */}
+              {/* The risk is said once, plainly, beside the move it belongs to (home:view-carries-home), not under the family house. */}
               {move.to === MAKOKO ? (
                 <p className="text-[12px] text-text-2" data-home-risk>
                   {say("phone.home.risk")}

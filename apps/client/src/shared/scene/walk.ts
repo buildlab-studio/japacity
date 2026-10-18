@@ -1,6 +1,6 @@
-// Tap to walk (city.md R-CITY-030): the character walks to the spot tapped at walking pace, along a
+// Tap to walk (city:tap-to-walk): the character walks to the spot tapped at walking pace, along a
 // route round the things in the way that walk/route.ts finds on the place's route map. Client state
-// only: no command, no turn, nothing the authority hears of (city.md R-CITY-001).
+// only: no command, no turn, nothing the authority hears of (city:places-change-no-state).
 import type { Point } from "./walk/map";
 
 /** Walking pace in metres a second: tuning.city.walkMmPerS. */

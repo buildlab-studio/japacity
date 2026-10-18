@@ -1,4 +1,4 @@
-// The month's words in the world (docs/rules/world.md R-WORLD-007, 008): the Calendar app and the results, read
+// The month's words in the world (world:month-acts-carry-on, world:month-end-results-sheet): the Calendar app and the results, read
 // from content's ui/ui.turn.text.ts.
 import { readerOf } from "../../shared/words/text";
 

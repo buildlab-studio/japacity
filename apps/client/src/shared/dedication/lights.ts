@@ -1,5 +1,5 @@
-// The dedication's lights as the client holds them (docs/rules/server.md R-SERVER-045; account.md R-ACCOUNT-032 and
-// R-ACCOUNT-033; world.md R-WORLD-036): what `GET /api/dedication/lights` last answered, the account's own light
+// The dedication's lights as the client holds them (server:dedication-routes; account:dedication-page-and-its-doors and
+// account:name-a-light-for-yours; world:lantern-canoe-on-map): what `GET /api/dedication/lights` last answered, the account's own light
 // among it, and the two writes, lighting one and putting it out. Shared because the dedication page draws the lights
 // and the map's lantern canoe carries a second lantern once the account's own is lit. Offline, in a build with no
 // server, or when the read fails, the water is out of reach and nothing is guessed. Nothing here is counted.
@@ -20,7 +20,7 @@ export type LightRefused = { ok: false; problems: LightProblem[] } | { ok: false
 
 /**
  * A picture never moves the page: a login wall met here is left to the account's own reads, which reload for it
- * (R-ENGINE-015), as the two lights' read does.
+ * (engine:browser-authority-for-dev-only), as the two lights' read does.
  */
 const QUIET_WALL: WallGuard = { met: () => false, passed: () => undefined };
 
@@ -68,7 +68,7 @@ function isReply(value: unknown): value is DedicationReply {
   return reply.ok === true && typeof reply.count === "number" && Array.isArray(reply.lights);
 }
 
-/** R-ACCOUNT-032: reads the lights as the page opens. A failed read, or no server, leaves the water out of reach. */
+/** account:dedication-page-and-its-doors: reads the lights as the page opens. A failed read, or no server, leaves the water out of reach. */
 export async function readLights(): Promise<Water> {
   const asked = serverNow();
   if (asked === null) {
@@ -85,7 +85,7 @@ export async function readLights(): Promise<Water> {
   return water;
 }
 
-/** R-ACCOUNT-033: lights the account's light; the reply's own light shows at once and the count takes it in. */
+/** account:name-a-light-for-yours: lights the account's light; the reply's own light shows at once and the count takes it in. */
 export async function lightOne(sent: { name: string; from: number | null; to: number | null }): Promise<LitReply | LightRefused> {
   const asked = serverNow();
   if (asked === null) return { ok: false, out: true };
@@ -105,7 +105,7 @@ export async function lightOne(sent: { name: string; from: number | null; to: nu
   }
 }
 
-/** R-ACCOUNT-033: "Put it out". True once the server has taken it. */
+/** account:name-a-light-for-yours: "Put it out". True once the server has taken it. */
 export async function putOutMine(): Promise<boolean> {
   const asked = serverNow();
   if (asked === null) return false;
@@ -129,7 +129,7 @@ export function useWater(): Water {
 }
 
 /**
- * R-WORLD-036: whether the account's own light is lit, for the canoe's second lantern. Asks the server once in a visit
+ * world:lantern-canoe-on-map: whether the account's own light is lit, for the canoe's second lantern. Asks the server once in a visit
  * if nothing has asked yet; until an answer, and with none, the canoe carries its one lantern.
  */
 export function useMineLit(): boolean {

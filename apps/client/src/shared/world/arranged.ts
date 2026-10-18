@@ -1,6 +1,6 @@
 // The room's own arrangement: where the player set down each thing they own in a home
 // of their own, by home and thing, as `[x, z, turn]` in the place's metres. What is owned is the simulation's; where it
-// stands is the room's, kept on the device beside the save as a place's first names are (world.md R-WORLD-005), under
+// stands is the room's, kept on the device beside the save as a place's first names are (world:things-are-tappable-models), under
 // one key of its own that goes when the life ends, with the life's scenario so another life's arrangement is never read.
 // The way a wide home's view is turned is kept under the same key, by home, as a quarter from 0 to
 // 3, so a reload opens the house as it was left.

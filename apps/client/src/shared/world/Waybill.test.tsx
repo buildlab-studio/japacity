@@ -1,4 +1,4 @@
-// The waybill at the cargo counter (docs/rules/world.md R-WORLD-006): a paper slip that says who
+// The waybill at the cargo counter (world:one-action-one-sheet): a paper slip that says who
 // shipped the parcel, to whom, what is in it and the handling charge, with the sender's note, and
 // one button that collects it. Played on the real engine through a game handle.
 import { content } from "@japacity/content";
@@ -42,7 +42,7 @@ function main(): HTMLButtonElement {
 }
 
 describe("the slip's rows", () => {
-  test("[R-WORLD-006] given a slip with rows, when it opens, then each row shows its label and value on the paper, the strong one bold, in place of the one big figure", () => {
+  test("[world:one-action-one-sheet] given a slip with rows, when it opens, then each row shows its label and value on the paper, the strong one bold, in place of the one big figure", () => {
     const ask: Ask = {
       form: "slip",
       icon: "box",
@@ -69,7 +69,7 @@ describe("the slip's rows", () => {
 });
 
 describe("the waybill", () => {
-  test("[R-WORLD-006] given a parcel from Ada's sibling in the UK, when its waybill is built, then it is a slip naming the sender, Ada, the thing and the charge, with the sender's note and one button that collects it", () => {
+  test("[world:one-action-one-sheet] given a parcel from Ada's sibling in the UK, when its waybill is built, then it is a slip naming the sender, Ada, the thing and the charge, with the sender's note and one button that collects it", () => {
     const { view } = ada();
     const offer = view.offers.find((item) => item.entry === PARCEL)!;
     const holds = offer.choices[0]!.id;
@@ -89,12 +89,12 @@ describe("the waybill", () => {
     expect(ask.when).toBe("now");
   });
 
-  test("[R-WORLD-006] given no parcel waiting, when the waybill is built, then there is none", () => {
+  test("[world:one-action-one-sheet] given no parcel waiting, when the waybill is built, then there is none", () => {
     const game = newGame("scenario.ada", SIBLING_ABROAD);
     expect(parcelAsk(game.view(), { send: () => undefined, done: () => undefined, formatMoney: money })).toBeNull();
   });
 
-  test("[R-WORLD-005] given the waybill open in a game, when Collect it is tapped, then the parcel's own choice is sent, the charge leaves the naira, and the sheet closes", async () => {
+  test("[world:things-are-tappable-models] given the waybill open in a game, when Collect it is tapped, then the parcel's own choice is sent, the charge leaves the naira, and the sheet closes", async () => {
     const { game } = ada();
     setPockets(game, { NGN: handling * 3 });
     const authority = gameAuthority(game);
@@ -117,7 +117,7 @@ describe("the waybill", () => {
     expect(done).toHaveBeenCalled();
   });
 
-  test("[R-WORLD-006] given less naira than the charge, when the waybill opens, then the button is shut and says how much is short", async () => {
+  test("[world:one-action-one-sheet] given less naira than the charge, when the waybill opens, then the button is shut and says how much is short", async () => {
     const { game } = ada();
     setPockets(game, { NGN: handling - 100 });
     const store = createGameStore(gameAuthority(game));
@@ -131,7 +131,7 @@ describe("the waybill", () => {
     expect(document.querySelector("[data-ask-after]")?.textContent).toContain(money(100, "NGN"));
   });
 
-  test("[R-WORLD-006] given the waybill standing in the asks sheet with less naira than the charge, when Not now is tapped, then the sheet it stands in lowers and the parcel waits on", async () => {
+  test("[world:one-action-one-sheet] given the waybill standing in the asks sheet with less naira than the charge, when Not now is tapped, then the sheet it stands in lowers and the parcel waits on", async () => {
     const { game } = ada();
     setPockets(game, { NGN: handling - 100 });
     const store = createGameStore(gameAuthority(game));

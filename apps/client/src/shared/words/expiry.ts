@@ -9,7 +9,7 @@ export const SOON = 2;
 
 /**
  * Months a held paper has left, counting this one, or null when it does not run out, is not held, or a new copy
- * is on its way (docs/rules/document.md R-DOCUMENT-008): a licence being renewed is not about to run out.
+ * is on its way (document:paper-on-its-way): a licence being renewed is not about to run out.
  */
 export function monthsLeft(paper: Paper, month: number): number | null {
   if (paper.state !== "held" || paper.expiresMonth === null || paper.onItsWay !== null) return null;

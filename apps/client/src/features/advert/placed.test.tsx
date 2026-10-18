@@ -38,7 +38,7 @@ async function place(fake: FakeServer | null, ui: ReactElement, view = shown()) 
 }
 
 describe("where the slots stand", () => {
-  test("[R-ADVERT-001] [R-ADVERT-002] given content's slots, then each city place holds its billboards, posters and shopfronts, and the phone holds only its one tile", () => {
+  test("[advert:adverts-only-in-slots] [advert:slots-capped-per-place] given content's slots, then each city place holds its billboards, posters and shopfronts, and the phone holds only its one tile", () => {
     for (const slot of Object.values(content.advert)) {
       const at = slot.surface === "phone-tile" ? "phone" : slot.place;
       expect(slotsAt(at).map((each) => each.id)).toContain(slot.id);
@@ -48,7 +48,7 @@ describe("where the slots stand", () => {
     expect(slotsAt("place.ojuelegba")).toEqual([]);
   });
 
-  test("[R-ADVERT-008] given a place with a billboard and the hour's campaign for it, when the place is on screen, then the slots are fetched for the account's region and only the filled one shows", async () => {
+  test("[advert:campaign-chosen-without-player-data] given a place with a billboard and the hour's campaign for it, when the place is on screen, then the slots are fetched for the account's region and only the filled one shows", async () => {
     const [billboard] = slotsAt("place.jibowu");
     if (billboard === undefined) throw new Error("Jibowu holds a billboard.");
     const fake = server({ [billboard.id]: SERVED });
@@ -58,14 +58,14 @@ describe("where the slots stand", () => {
     expect(document.querySelectorAll("[data-advert-empty]")).toHaveLength(0);
   });
 
-  test("[R-ADVERT-002] given the phone tile filled, then the phone shows it and no other slot", async () => {
+  test("[advert:slots-capped-per-place] given the phone tile filled, then the phone shows it and no other slot", async () => {
     const fake = server({ "advert.phone-tile": { ...SERVED, width: 256, height: 256 }, "advert.park-billboard": SERVED });
     await place(fake, <PhoneTile />);
     await waitFor(() => expect(document.querySelectorAll("[data-advert-slot]")).toHaveLength(1));
     expect(document.querySelector("[data-advert-slot='advert.phone-tile']")).not.toBeNull();
   });
 
-  test("[R-SERVER-031] given the adverts switch off, when the server answers 503, then no advert shows and nothing is said to the player", async () => {
+  test("[server:four-off-switches] given the adverts switch off, when the server answers 503, then no advert shows and nothing is said to the player", async () => {
     const fake = server({});
     fake.answer("GET /api/adverts", { status: 503, body: { ok: false, code: "switched-off", detail: "Adverts are off.", retryAfter: 30 }, headers: { "Retry-After": "30" } });
     await place(fake, <PhoneTile />);
@@ -74,7 +74,7 @@ describe("where the slots stand", () => {
     expect(document.body.textContent).toBe("");
   });
 
-  test("[R-ADVERT-003] given the view saying no advert may show, or no server, then nothing is fetched and no slot renders", async () => {
+  test("[advert:no-adverts-on-protected-screens] given the view saying no advert may show, or no server, then nothing is fetched and no slot renders", async () => {
     const fake = server({ "advert.phone-tile": SERVED });
     await place(fake, <PhoneTile />, { ...shown(), adverts: false });
     await place(null, <PhoneTile />);

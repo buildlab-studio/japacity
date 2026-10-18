@@ -1,7 +1,7 @@
-// The neighbourhoods (docs/rules/world.md R-WORLD-015): the painted map zoomed in on one district is a card, and the
+// The neighbourhoods (world:map-is-painted-lagos): the painted map zoomed in on one district is a card, and the
 // cards swipe sideways in the city's order, north to south. A place belongs to the card whose district holds its
 // position, by the first rule that matches, so a new place with a position finds its card by itself. Each painted city
-// has its own cards and rules (R-WORLD-038); the ones here are Lagos's.
+// has its own cards and rules (world:painted-maps-abroad); the ones here are Lagos's.
 import { at, type Point, type Position } from "./fit";
 
 export const CARD_IDS = ["ikeja", "yaba", "ojuelegba", "surulere", "bode", "ebute", "makoko", "island", "lekki"] as const;

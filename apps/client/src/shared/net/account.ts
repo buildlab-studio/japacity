@@ -28,7 +28,7 @@ export function forgetAccount(server: Api): void {
 }
 
 /**
- * R-ANALYTICS-006: changes "Send usage counts" on the account.
+ * analytics:player-can-stop-usage-counts: changes "Send usage counts" on the account.
  * The server's `PUT /api/account { sendUsageCounts }` answers with the account's row.
  */
 export async function putUsageCounts(server: Api, on: boolean): Promise<AccountReply> {
@@ -38,7 +38,7 @@ export async function putUsageCounts(server: Api, on: boolean): Promise<AccountR
   return reply;
 }
 
-/** The region the account was made in, the advert slots' key (R-ADVERT-008); `default` when unknown. */
+/** The region the account was made in, the advert slots' key (advert:campaign-chosen-without-player-data); `default` when unknown. */
 export async function regionOf(server: Api): Promise<string> {
   const reply = await readAccount(server);
   return reply.ok && reply.account.country !== "" ? reply.account.country : "default";

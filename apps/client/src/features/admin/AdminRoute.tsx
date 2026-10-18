@@ -1,4 +1,4 @@
-// R-MODERATION-012: the admin page mounts at /admin only once the server says
+// moderation:admin-view-for-admin-list: the admin page mounts at /admin only once the server says
 // the signed-in account is on its admin list. Until then, and for everyone
 // else, the address shows the ordinary app.
 import { useEffect, useState, type ReactNode } from "react";

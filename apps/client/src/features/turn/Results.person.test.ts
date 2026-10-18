@@ -1,4 +1,4 @@
-// A bond that ended, on the results (docs/rules/person.md R-PEOPLE-042, R-PEOPLE-035; world.md R-WORLD-008): a thread
+// A bond that ended, on the results (person:computer-partner-drifts, person:either-side-ends-a-bond; world:month-end-results-sheet): a thread
 // that ends, as Tobi's when nobody makes time, is told on the results and not left to News alone. Real content, a real
 // life played through the engine.
 import { content } from "@japacity/content";
@@ -9,7 +9,7 @@ import { nameOf, words } from "../../shared/words/text";
 import { BOND_ENDED, storyLines } from "./month.results";
 
 describe("a bond that ended, on the results", () => {
-  test("[R-PEOPLE-042] [R-WORLD-008] given Tobi courted and no time made together, when his patience runs out, then the month's results tell that he stopped waiting, in that month and by name", () => {
+  test("[person:computer-partner-drifts] [world:month-end-results-sheet] given Tobi courted and no time made together, when his patience runs out, then the month's results tell that he stopped waiting, in that month and by name", () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     const patience = content.person[TOBI]?.behaviour.patienceMonths ?? 0;
@@ -27,7 +27,7 @@ describe("a bond that ended, on the results", () => {
     expect(words(told[0]!.key, told[0]!.params)).toContain(nameOf(TOBI));
   });
 
-  test("[R-PEOPLE-035] [R-WORLD-008] given Tobi courted, when the player ends it, then the line that says so is among the month's story, not left for News", () => {
+  test("[person:either-side-ends-a-bond] [world:month-end-results-sheet] given Tobi courted, when the player ends it, then the line that says so is among the month's story, not left for News", () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     const ended = game.accept({ type: "people/end", bond });

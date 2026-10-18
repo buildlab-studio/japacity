@@ -1,4 +1,4 @@
-// What an act did to the person, in a person's words (docs/rules/text.md R-TEXT-005): News
+// What an act did to the person, in a person's words (text:bands-not-figures): News
 // said "Network up. Wellbeing up." at the meetup, "Tech skill up. Wellbeing down." for the project, "Wellbeing
 // settles. You feel well." and "Care skill up." every month. No line names a quality or which way it went.
 import { content } from "@japacity/content";
@@ -11,7 +11,7 @@ import { tidyLines } from "./lines";
 import { hasWords, nameOf, say, words } from "./text";
 import { newsLines } from "./told";
 
-/** The words a system would use for a quality's move, never a person's (R-TEXT-005's pattern). */
+/** The words a system would use for a quality's move, never a person's (text:bands-not-figures's pattern). */
 const SYSTEM = /\b(?:up|down|wellbeing|skill|settles)\b/i;
 const MOVES = ["line.quality.gain", "line.quality.loss", "line.quality.worn", "line.quality.drift"];
 const SHOWN = Object.values(content.quality).filter((entry) => entry !== undefined && entry.shown && entry.id !== "quality.age-months");
@@ -23,7 +23,7 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 }
 
 describe("a quality's move in a person's words", () => {
-  test("[R-TEXT-005] given every quality the player is shown and every way it moves, when the line is told, then it says no figure, no up or down, and never the quality's name", () => {
+  test("[text:bands-not-figures] given every quality the player is shown and every way it moves, when the line is told, then it says no figure, no up or down, and never the quality's name", () => {
     const said: string[] = [];
     for (const entry of SHOWN) {
       // A quality told by a named level ("Education: Master's degree") says the level a person names, not a move.
@@ -38,7 +38,7 @@ describe("a quality's move in a person's words", () => {
     expect(said).toEqual([]);
   });
 
-  test("[R-TEXT-005] given the month's drift toward rest, when it is told, then it says where the person is against rest, from below, at rest or from above", () => {
+  test("[text:bands-not-figures] given the month's drift toward rest, when it is told, then it says where the person is against rest, from below, at rest or from above", () => {
     const rest = content.tuning.quality.wellbeingDriftTo;
     const drift = (value: number) => words("line.quality.drift", { quality: "quality.wellbeing", points: 2, value, source: "month" });
     expect(drift(rest - 4)).toBe(say("line.quality.told.quality.wellbeing.drift.below"));
@@ -46,7 +46,7 @@ describe("a quality's move in a person's words", () => {
     expect(drift(rest + 4)).toBe(say("line.quality.told.quality.wellbeing.drift.above"));
   });
 
-  test("[R-TEXT-005] given a developer's month at the meetup and on her project, when News tells it, then each act's moves are one line in its own words, and no move says a quality or a direction", () => {
+  test("[text:bands-not-figures] given a developer's month at the meetup and on her project, when News tells it, then each act's moves are one line in its own words, and no move says a quality or a direction", () => {
     const game = newGame("scenario.zainab");
     const met = game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
     const month = game.endTurn([slot("activity.build-portfolio")]);
@@ -62,7 +62,7 @@ describe("a quality's move in a person's words", () => {
     expect(shown.filter((each) => SYSTEM.test(each) || each.includes(nameOf("quality.network")) || each.includes(nameOf("quality.tech")))).toEqual([]);
   });
 
-  test("[R-TEXT-005] given an answer told in the offer's own words, and a rest, when the month is tidied, then what they moved is not told again", () => {
+  test("[text:bands-not-figures] given an answer told in the offer's own words, and a rest, when the month is tidied, then what they moved is not told again", () => {
     expect(hasWords("offer.harvest.said.give")).toBe(true);
     const lines = [
       line("line.offer.taken", { offer: "offer.harvest", choice: "give" }),

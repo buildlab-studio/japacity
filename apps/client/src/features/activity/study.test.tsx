@@ -1,4 +1,4 @@
-// The English test's card after a month of study (docs/rules/world.md R-WORLD-006): it never says "a month of study
+// The English test's card after a month of study (world:one-action-one-sheet): it never says "a month of study
 // lifts the chance" when a month leaves it a long shot. It says how many months it takes, counted as the simulation
 // adds English.
 import { slot } from "@japacity/sim/testing";
@@ -21,7 +21,7 @@ function gameWith(english: number) {
 }
 
 describe("how long study takes to lift the test's chance", () => {
-  test("[R-WORLD-006] given English a long shot that one month of study cannot lift, when the test's card opens, then it says how many months it takes, and after a month of study one fewer", async () => {
+  test("[world:one-action-one-sheet] given English a long shot that one month of study cannot lift, when the test's card opens, then it says how many months it takes, and after a month of study one fewer", async () => {
     const game = gameWith(30);
     const before = game.view();
     expect(testChance(before).band).toBe("long");
@@ -37,7 +37,7 @@ describe("how long study takes to lift the test's chance", () => {
     expect(studyWords(after)).toBe("Study first: two months of study lift the chance.");
   });
 
-  test("[R-WORLD-006] given English one month of study lifts, when the card opens, then it keeps the one month's words, and the month after it is no longer a long shot", () => {
+  test("[world:one-action-one-sheet] given English one month of study lifts, when the card opens, then it keeps the one month's words, and the month after it is no longer a long shot", () => {
     const game = gameWith(40);
     expect(studyWords(game.view())).toBe("Study first: a month of study lifts the chance.");
     game.endTurn([slot(STUDY_ENGLISH)]);
@@ -45,7 +45,7 @@ describe("how long study takes to lift the test's chance", () => {
     expect(studyWords(game.view())).toBeNull();
   });
 
-  test("[R-WORLD-006] given no English at all, when the card opens, then it says the months it takes and never a promise of one", () => {
+  test("[world:one-action-one-sheet] given no English at all, when the card opens, then it says the months it takes and never a promise of one", () => {
     const view = gameWith(0).view();
     const months = studyMonths(view);
     expect(months).not.toBeNull();

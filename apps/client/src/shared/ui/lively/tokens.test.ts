@@ -1,4 +1,4 @@
-// The lively layer's tokens (docs/design/13-the-lively-layer.md, section 2; decision 0025; world.md R-WORLD-021): the day
+// The lively layer's tokens (docs/design/13-the-lively-layer.md, section 2; decision 0025; world:colours-are-role-tokens): the day
 // paint on :root, the night paint under data-paint="night", one type face in three sizes, and the circle pattern kept
 // off every everyday surface.
 import { readFileSync } from "node:fs";
@@ -37,7 +37,7 @@ function hueGap(a: number, b: number): number {
 }
 
 describe("the day paint", () => {
-  test("[R-WORLD-021] given :root, then the sheet is pale sky, cards white, the ink navy, the edge navy at 1 px, the action danfo yellow with a navy underside, and money in and out keep their colours", () => {
+  test("[world:colours-are-role-tokens] given :root, then the sheet is pale sky, cards white, the ink navy, the edge navy at 1 px, the action danfo yellow with a navy underside, and money in and out keep their colours", () => {
     const day = block(":root {");
     expect(token(day, "--sheet")).toBe("#eaf3fb");
     expect(token(day, "--sheet-2")).toBe("#ffffff");
@@ -51,7 +51,7 @@ describe("the day paint", () => {
     expect(token(day, "--out")).toBe("#c23a2a");
   });
 
-  test("[R-WORLD-021] given :root, then each kind of act has its soft tint, and the plain one is the sheet's", () => {
+  test("[world:colours-are-role-tokens] given :root, then each kind of act has its soft tint, and the plain one is the sheet's", () => {
     const day = block(":root {");
     expect(token(day, "--tint-food")).toBe("#ffe8dc");
     expect(token(day, "--tint-study")).toBe("#dde9fb");
@@ -63,7 +63,7 @@ describe("the day paint", () => {
 });
 
 describe("the night paint", () => {
-  test("[R-WORLD-021] given data-paint night, then the sheet is navy, cards a lighter navy, the ink and the edges cream, and the yellow action unchanged", () => {
+  test("[world:colours-are-role-tokens] given data-paint night, then the sheet is navy, cards a lighter navy, the ink and the edges cream, and the yellow action unchanged", () => {
     const night = block(':root[data-paint="night"]');
     expect(token(night, "--sheet")).toBe("#1c2a5e");
     expect(token(night, "--sheet-2")).toBe("#243470");
@@ -73,7 +73,7 @@ describe("the night paint", () => {
     expect(token(night, "color-scheme")).toBe("dark");
   });
 
-  test("[R-WORLD-021] given data-paint night, then every tint is darkened to the same hue, dark enough for the cream ink", () => {
+  test("[world:colours-are-role-tokens] given data-paint night, then every tint is darkened to the same hue, dark enough for the cream ink", () => {
     const day = block(":root {");
     const night = block(':root[data-paint="night"]');
     for (const kind of KINDS.filter((each) => each !== "plain")) {
@@ -84,18 +84,18 @@ describe("the night paint", () => {
     expect(token(night, "--tint-plain")).toBe(token(night, "--sheet"));
   });
 
-  test("[R-WORLD-021] given the night paint, then a part of the page can carry it too, so the two paints stand side by side", () => {
+  test("[world:colours-are-role-tokens] given the night paint, then a part of the page can carry it too, so the two paints stand side by side", () => {
     expect(CSS).toMatch(/\n:root\[data-paint="night"\],\n\[data-paint="night"\] \{/);
   });
 });
 
 describe("one look", () => {
-  test("[R-WORLD-021] given index.css, then the danfo theme and the comparison surfaces are gone", () => {
+  test("[world:colours-are-role-tokens] given index.css, then the danfo theme and the comparison surfaces are gone", () => {
     expect(CSS).not.toContain('data-ui="danfo"');
     expect(CSS).not.toContain("data-surface");
   });
 
-  test("[R-WORLD-021] given the type, then Rubik is the face at 500 and 700, latin only, with the system's behind it; Danfo stays for the wordmark", () => {
+  test("[world:colours-are-role-tokens] given the type, then Rubik is the face at 500 and 700, latin only, with the system's behind it; Danfo stays for the wordmark", () => {
     expect(CSS).toContain('@import "@fontsource/rubik/latin-500.css";');
     expect(CSS).toContain('@import "@fontsource/rubik/latin-700.css";');
     expect(CSS).not.toMatch(/@fontsource\/rubik\/(index|[0-9]{3})\.css/);
@@ -103,13 +103,13 @@ describe("one look", () => {
     expect(CSS).toMatch(/--font-display: "Danfo",/);
   });
 
-  test("[R-WORLD-021] given the type, then titles and money are 22 px, the body 16 and chips 12", () => {
+  test("[world:colours-are-role-tokens] given the type, then titles and money are 22 px, the body 16 and chips 12", () => {
     expect(CSS).toContain("--text-title: 22px;");
     expect(CSS).toContain("--text-body: 16px;");
     expect(CSS).toContain("--text-chip: 12px;");
   });
 
-  test("[R-WORLD-021] given the circle pattern, then the band, its second shade and the sheet heads on them no longer carry it; only the adire class does", () => {
+  test("[world:colours-are-role-tokens] given the circle pattern, then the band, its second shade and the sheet heads on them no longer carry it; only the adire class does", () => {
     const rules = [...CSS.matchAll(/\n\.([a-z0-9-]+) \{([^}]*)\}/g)].filter((match) => (match[2] ?? "").includes("var(--pattern)")).map((match) => match[1]);
     expect(rules.sort()).toEqual(["adire", "wall"]);
   });

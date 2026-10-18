@@ -1,4 +1,4 @@
-// Acts that answer in the place (docs/rules/activity.md R-ACTIVITY-015): a now-act's card sends it at once and the
+// Acts that answer in the place (activity:now-acts-and-month-acts): a now-act's card sends it at once and the
 // place answers in a person's voice, with Done to close; a month-act fills a slot of the month. Played on the real
 // content through the engine, as the local authority plays it.
 import { text } from "@japacity/content";
@@ -21,7 +21,7 @@ const PASSPORT = "activity.get-passport" as Id<"activity">;
 const MEETUP = "activity.meetup" as Id<"activity">;
 const HUNT = "activity.job-hunt" as Id<"activity">;
 const LEARN = "activity.learn-tech" as Id<"activity">;
-// Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and repeats; the course that fills a slot of the
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course now answers at once and repeats; the course that fills a slot of the
 // month is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 
@@ -48,7 +48,7 @@ function askShown(): HTMLElement {
 }
 
 describe("a card's button", () => {
-  test("[R-ACTIVITY-015] given the kiosk's slip, when Buy is pressed, then the ticket is bought now and nothing is planned; the slip stays with the kiosk's line and Done, and the draw comes with the month", async () => {
+  test("[activity:now-acts-and-month-acts] given the kiosk's slip, when Buy is pressed, then the ticket is bought now and nothing is planned; the slip stays with the kiosk's line and Done, and the draw comes with the month", async () => {
     const { store, sent } = await played();
     inWorld(store);
     await act(async () => {
@@ -68,7 +68,7 @@ describe("a card's button", () => {
     expect(store.getState().view?.report?.lines.some((line) => line.key === "line.activity.lotto-lost" || line.key === "line.activity.lotto-won")).toBe(true);
   });
 
-  test("[R-ACTIVITY-015] given the motor park, when asking around, then the driver's line is the answer, the Gulf is heard of now and the pitch is open now", async () => {
+  test("[activity:now-acts-and-month-acts] given the motor park, when asking around, then the driver's line is the answer, the Gulf is heard of now and the pitch is open now", async () => {
     const { store } = await played();
     inWorld(store);
     await act(async () => {
@@ -82,7 +82,7 @@ describe("a card's button", () => {
     expect(view.offers.some((offer) => offer.entry === "offer.road-park")).toBe(true);
   });
 
-  test("[R-ACTIVITY-015] given no passport, when it is asked for, then the passport is on its way now and the answer says in how many months, never a month number", async () => {
+  test("[activity:now-acts-and-month-acts] given no passport, when it is asked for, then the passport is on its way now and the answer says in how many months, never a month number", async () => {
     const { store } = await played();
     await act(async () => {
       await actOnCard({ activity: PASSPORT, param: null }, store.getState());
@@ -96,7 +96,7 @@ describe("a card's button", () => {
     expect(words(line.key, line.params)).toBe(`Passport applied for. It is on its way, in ${String(months)} months.`);
   });
 
-  test("[R-ACTIVITY-015] given a month-act, when its button is pressed, then it fills the next free slot and nothing is sent", async () => {
+  test("[activity:now-acts-and-month-acts] given a month-act, when its button is pressed, then it fills the next free slot and nothing is sent", async () => {
     const { store, sent } = await played();
     const before = sent.length;
     expect(await actOnCard({ activity: COURSE, param: null }, store.getState())).toBe("planned");
@@ -114,7 +114,7 @@ describe("a card's button", () => {
 });
 
 describe("the place's answer", () => {
-  test("[R-ACTIVITY-015] given a now-line, when the sheet shows it, then a paper bought keeps its slip, any other is a card, the line is the speaker's words, and the one button is Done", () => {
+  test("[activity:now-acts-and-month-acts] given a now-line, when the sheet shows it, then a paper bought keeps its slip, any other is a card, the line is the speaker's words, and the one button is Done", () => {
     const close = (): void => undefined;
     const slip = answerAsk({ key: "line.activity.play-lotto.now", params: { activity: LOTTO, param: "1" }, tone: "plain", attention: false, counts: [] }, { who: "Ojuelegba", clock: "21Y 3M" }, close);
     expect(slip).toMatchObject({ form: "slip", line: text["line.activity.play-lotto.now"], button: say("ui.world.done"), cost: null, when: "now" });
@@ -124,7 +124,7 @@ describe("the place's answer", () => {
 });
 
 describe("the thing's chip", () => {
-  test("[R-ACTIVITY-015] given a now-act done this month, when the acts the place offers are read, then it is gone this month and back the next; a purchase stays", async () => {
+  test("[activity:now-acts-and-month-acts] given a now-act done this month, when the acts the place offers are read, then it is gone this month and back the next; a purchase stays", async () => {
     const { store } = await played();
     const job = store.getState().view!.activities.find((option) => option.id === HUNT)?.params?.[0];
     if (job === undefined) throw new Error("Ada has no job to hunt.");
@@ -134,7 +134,7 @@ describe("the thing's chip", () => {
       await actOnCard({ activity: HUNT, param: job }, store.getState());
       await actOnCard({ activity: LOTTO, param: "1" }, store.getState());
     });
-    // Decision 0012 (R-ACTIVITY-019): an act that repeats is never done for the month, so it stays offered, as a purchase does.
+    // Decision 0012 (activity:acts-may-repeat-in-month): an act that repeats is never done for the month, so it stays offered, as a purchase does.
     await act(async () => {
       await actOnCard({ activity: LEARN, param: null }, store.getState());
     });

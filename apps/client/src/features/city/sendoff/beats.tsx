@@ -1,4 +1,4 @@
-// The six beats as pictures (docs/rules/chapter.md R-CHAPTER-012): each one screen, drawn with the
+// The six beats as pictures (chapter:send-off-scene-in-beats): each one screen, drawn with the
 // game's own stickers (the published tiles), its words handed in, and one yellow button. Nothing here reads the game:
 // the scene (SendOffScene.tsx) hands each beat its words and its acts, and the development preview hands it a fixture.
 import type { CSSProperties, ReactNode } from "react";
@@ -56,7 +56,7 @@ export interface Dress {
   /** The age as the band says it. */
   age: string;
   look: string;
-  /** The character's whole figure, in their own colours where they chose them (R-PROLOGUE-015), drawn by the city. */
+  /** The character's whole figure, in their own colours where they chose them (prologue:player-colours-on-looks), drawn by the city. */
   figure: ReactNode;
   cast: Cast;
   money: string;
@@ -73,7 +73,7 @@ function Person({ look, pose = "figure", className = "", style }: { look: string
   return <Pic model={`${look}-${pose}`} className={className} {...(style === undefined ? {} : { style })} />;
 }
 
-/** The character, in their own colours where they chose them (R-PROLOGUE-015). */
+/** The character, in their own colours where they chose them (prologue:player-colours-on-looks). */
 function You({ dress, className = "", style }: { dress: Dress; className?: string; style?: CSSProperties }) {
   return (
     <span className={`so-abs so-sticker ${className}`} style={style} data-so-you>
@@ -152,7 +152,7 @@ function Go({ children, onClick, disabled = false, mark }: { children: ReactNode
   );
 }
 
-/** The quiet way out before the plane (R-CHAPTER-012: leaving before beat 3 leaves the life at the airport). */
+/** The quiet way out before the plane (chapter:send-off-scene-in-beats: leaving before beat 3 leaves the life at the airport). */
 function Leave({ onLeave }: { onLeave: () => void }) {
   return (
     <button type="button" className="so-leave" onClick={onLeave} data-so-leave>
@@ -176,12 +176,12 @@ export interface Box {
 
 /**
  * The lane at the foot of the hall, the counter and the gate: the yellow button, Not yet and the two thumbs stand on it,
- * under the scene, and no person of the scene reaches into it (R-CHAPTER-012 (k)).
+ * under the scene, and no person of the scene reaches into it (chapter:send-off-scene-in-beats (k)).
  */
 export const LANE_TOP = 664;
 
 /**
- * The hall (beat 1), laid out at one scale (R-CHAPTER-012 (k)): the clerks behind the three counters small with
+ * The hall (beat 1), laid out at one scale (chapter:send-off-scene-in-beats (k)): the clerks behind the three counters small with
  * distance, the queue in front of counter 4 at one size, the character the queue's last, and the family behind the rope
  * nearest, each standing clear of the lane. The queue's places run back to the counter: the first is at it.
  */
@@ -292,7 +292,7 @@ export function Departures({ dress, step, said, onStep, onLeave, waiting }: { dr
 }
 
 /**
- * The counter (beat 2), close (R-CHAPTER-012 (k)): the character in front of the desk and the officer behind it,
+ * The counter (beat 2), close (chapter:send-off-scene-in-beats (k)): the character in front of the desk and the officer behind it,
  * further away and so smaller, his head no higher than hers, the Window and Aisle chips above his head.
  */
 export const COUNTER = {
@@ -362,7 +362,7 @@ export function Counter({ dress, flight, to, seat, seatWords, onSeat, onTake, on
 
 /**
  * The gate (beat 3), laid out so the family waving stand above the lane and Board the plane sits under them, never over
- * their bodies (R-CHAPTER-012 (k)); Papa's bubble hangs over the door's side with its tail at his raised hands, clear of
+ * their bodies (chapter:send-off-scene-in-beats (k)); Papa's bubble hangs over the door's side with its tail at his raised hands, clear of
  * his head.
  */
 export const GATE = {
@@ -417,7 +417,7 @@ export function Gate({ dress, city, papa, board, blocked, busy, rejection, onBoa
   );
 }
 
-/** Beat 4: the plane, the map's own layer handed in (world.md R-WORLD-037). */
+/** Beat 4: the plane, the map's own layer handed in (world:plane-cut-at-send-off). */
 export function Plane({ cut }: { cut: ReactNode }) {
   return (
     <div className="so-beat" data-so-beat="plane">
@@ -493,7 +493,7 @@ function StapleAtStop({ landing, blind }: { landing: Landing; blind: string }) {
   }
 }
 
-/** Snow falling, drawn as flakes: small white dots scattered the same way every time (no soft gradient, R-WORLD-021). */
+/** Snow falling, drawn as flakes: small white dots scattered the same way every time (no soft gradient, world:colours-are-role-tokens). */
 function Snow({ count = 46 }: { count?: number }) {
   return (
     <div className="so-snow" aria-hidden data-so-snow>
@@ -560,7 +560,7 @@ function Behind({ landing }: { landing: Landing }) {
 }
 
 /**
- * The landing (beat 5), laid out on the hall's lane (R-CHAPTER-012 (k)): the
+ * The landing (beat 5), laid out on the hall's lane (chapter:send-off-scene-in-beats (k)): the
  * character, the bag at her feet and the person at the stop stand clear of the lane at the foot, so the button stands
  * under them and never over her feet or her bag. A person's picture is twice as tall as it is wide; the bag's is square.
  */
@@ -666,7 +666,7 @@ function AtTheWindow({ landing }: { landing: Landing }) {
 }
 
 /**
- * The first ride (beat 6), laid out so the character stands clear of the pings (R-CHAPTER-012 (k)): the pings in a stack
+ * The first ride (beat 6), laid out so the character stands clear of the pings (chapter:send-off-scene-in-beats (k)): the pings in a stack
  * on the left above the lane, the character on the right with "So this is it." over her head, and "Send-off card saved"
  * in the scene's toast lane under the band, on nobody.
  */

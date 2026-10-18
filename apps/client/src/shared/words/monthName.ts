@@ -1,5 +1,5 @@
-// The month's name as the band says it (docs/rules/world.md R-WORLD-002; decision 0011), and the world's part of the day
-// beside it (clock.md R-CLOCK-033; decision 0011). Month 0 of a life is the month of the year the life began in, read on
+// The month's name as the band says it (world:top-band-is-lively-pill; decision 0011), and the world's part of the day
+// beside it (clock:game-day-on-real-time; decision 0011). Month 0 of a life is the month of the year the life began in, read on
 // Lagos's clock, so a life begun in March is in April at month 1. The month's phase by its free time spent stays for
 // what reads it; the band does not say it.
 import type { DayPart, PlayerView } from "@japacity/sim";
@@ -23,7 +23,7 @@ export function monthNameOf(beganAt: number, month: number): string {
 }
 
 /**
- * Where the month stands by its free time spent (R-TURN-010): below a third Early, below two thirds Mid, below the whole
+ * Where the month stands by its free time spent (turn:month-lived-in-half-days): below a third Early, below two thirds Mid, below the whole
  * Late, and at the whole the month's end. Whole numbers only: the edges are compared as thirds, never as fractions.
  */
 export function phaseOf(halfDays: PlayerView["halfDays"]): MonthPhase {
@@ -34,7 +34,7 @@ export function phaseOf(halfDays: PlayerView["halfDays"]): MonthPhase {
   return "late";
 }
 
-/** The world's part of the day in words (R-CLOCK-033): Morning, Afternoon, Evening, Night. */
+/** The world's part of the day in words (clock:game-day-on-real-time): Morning, Afternoon, Evening, Night. */
 export function dayPartWords(part: DayPart): string {
   return say(`ui.day.part.${part}`);
 }

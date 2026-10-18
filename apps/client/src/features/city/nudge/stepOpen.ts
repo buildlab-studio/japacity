@@ -1,5 +1,5 @@
-// What following the chapter's step opens (docs/rules/world.md R-WORLD-003): the phone's app with the step's card
-// when the step is taken on the phone (a paper asked for by a call, R-WORLD-019); the step's own card when it
+// What following the chapter's step opens (world:nudge-says-one-thing): the phone's app with the step's card
+// when the step is taken on the phone (a paper asked for by a call, world:phone-holds-what-phones-hold); the step's own card when it
 // has one and its thing stands here, else the thing's acts; the Calendar when the
 // step is the month's end; else the map with the step's stop picked (none when the player stands there).
 import { hasWords } from "../../../shared/words/text";

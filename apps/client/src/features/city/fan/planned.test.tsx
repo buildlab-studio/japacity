@@ -1,7 +1,7 @@
-// A thing's fan with its act carrying on in the plan (docs/rules/world.md R-WORLD-005, R-WORLD-007, R-WORLD-034): a
+// A thing's fan with its act carrying on in the plan (world:things-are-tappable-models, world:month-acts-carry-on, world:fan-of-sticker-buttons): a
 // month-act started at a thing carries on each month until it is stopped, so its fan button
 // says Ongoing, shut, with a stop beside it that takes it out of the plan. Time with Mama is an
-// act done at once (decision 0012, R-ACTIVITY-019), on one sheet with her shop, so the fan is read on a month-act that
+// act done at once (decision 0012, activity:acts-may-repeat-in-month), on one sheet with her shop, so the fan is read on a month-act that
 // carries on: the apprenticeship at the accessories stall in Computer Village. Every thing has a fan.
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -36,7 +36,7 @@ function fanned(plan: Parameters<typeof withPlanned>[1], id: string) {
 }
 
 describe("an ongoing act's fan", () => {
-  test("[R-WORLD-007] [R-WORLD-005] [R-WORLD-034] given the apprenticeship started, when the stall's fan is built, then its button says Ongoing and is shut, and its stop takes it out; with nothing started it is open", () => {
+  test("[world:month-acts-carry-on] [world:things-are-tappable-models] [world:fan-of-sticker-buttons] given the apprenticeship started, when the stall's fan is built, then its button says Ongoing and is shut, and its stop takes it out; with nothing started it is open", () => {
     const open = fanned([null, null, null], "accessories-open");
     const openButton = document.querySelector<HTMLElement>(`[data-fan-act="${LEARN}"] button`);
     expect(openButton?.getAttribute("aria-disabled")).toBeNull();
@@ -58,7 +58,7 @@ describe("an ongoing act's fan", () => {
     expect(ongoing.onAct.mock.calls.map(([entry]) => [entry.kind, entry.act.stages])).toEqual([["stop", LEARN]]);
   });
 
-  test("[R-WORLD-007] [R-WORLD-034] given only the apprenticeship started, when the stall's fan is built, then its other act is still open", () => {
+  test("[world:month-acts-carry-on] [world:fan-of-sticker-buttons] given only the apprenticeship started, when the stall's fan is built, then its other act is still open", () => {
     const { entries } = fanned([{ activity: LEARN, param: null }, null, null], "accessories-other");
     const other = entries.filter((entry) => entry.kind === "act" && entry.id !== LEARN);
     expect(other.map((entry) => entry.id)).toEqual(["activity.job-phone-sales"]);

@@ -1,5 +1,5 @@
-// Each step of the file not yet met names its act and its place in Japa (docs/rules/world.md R-WORLD-019,
-// route-gates.md R-ENDORSE-001): "Strong tech" and "People who will write for you" never stand unticked with no act
+// Each step of the file not yet met names its act and its place in Japa (world:phone-holds-what-phones-hold,
+// route-gates:applying-for-endorsement): "Strong tech" and "People who will write for you" never stand unticked with no act
 // named, and the TB line says the six months it lasts, not only "At the clinic, once the passport is held". Real
 // content, a developer played through `step`.
 import { content } from "@japacity/content";
@@ -16,7 +16,7 @@ const TALENT: Id<"route"> = "route.uk-talent";
 const CARE: Id<"route"> = "route.uk-care";
 
 describe("the file's needs name their acts", () => {
-  test("[R-ENDORSE-001] [R-WORLD-019] given a developer whose plan is the talent route, short of tech and of people who will write, when Japa shows, then each of those needs names its act and place under it, and a need met names none", async () => {
+  test("[route-gates:applying-for-endorsement] [world:phone-holds-what-phones-hold] given a developer whose plan is the talent route, short of tech and of people who will write, when Japa shows, then each of those needs names its act and place under it, and a need met names none", async () => {
     const game = readyLife(content, { quiet: true, qualities: { "quality.tech": 85, "quality.portfolio": 5, "quality.network": 70 } });
     for (let months = 0; months < 4 && game.state.route["route.uk-masters"]!.state === "unknown"; months += 1) game.endTurn();
     applyEffects(game, [{ type: "route/hear", route: TALENT, via: "meetup" }]);
@@ -36,8 +36,8 @@ describe("the file's needs name their acts", () => {
     expect(row("portfolio")?.querySelector("[data-step-way]")).toBeNull();
   });
 
-  test("[R-ENDORSE-001] given each need of the endorsement, when its way is read, then it names an act that moves that need and the place it is taken", () => {
-    // The act each way names moves the quality the need reads (R-ACTIVITY-013): the course tech, the meetup and the talk the network.
+  test("[route-gates:applying-for-endorsement] given each need of the endorsement, when its way is read, then it names an act that moves that need and the place it is taken", () => {
+    // The act each way names moves the quality the need reads (activity:waiting-months-build-profile): the course tech, the meetup and the talk the network.
     const moves = (activity: string, quality: string) => (content.activity[activity as Id<"activity">]?.effects ?? []).some((effect) => effect.type === "quality/add" && effect.quality === quality && effect.amount > 0);
     expect(moves("activity.learn-tech", "quality.tech")).toBe(true);
     expect(moves("activity.meetup", "quality.network")).toBe(true);
@@ -50,7 +50,7 @@ describe("the file's needs name their acts", () => {
 });
 
 describe("the TB line says it runs out", () => {
-  test("[R-DOCUMENT-004] [R-WORLD-019] given the care file and the talent file, when the TB step's line is read, then it says how long the certificate lasts, from its entry, and that it is taken last, when the application is near", () => {
+  test("[document:one-pending-copy] [world:phone-holds-what-phones-hold] given the care file and the talent file, when the TB step's line is read, then it says how long the certificate lasts, from its entry, and that it is taken last, when the application is near", () => {
     const months = content.document["document.tb-certificate"]!.validMonths!;
     for (const route of [CARE, TALENT]) {
       const way = stepWay(route, { id: "tb", met: false }).way;

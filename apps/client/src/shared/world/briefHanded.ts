@@ -50,7 +50,7 @@ export function handBrief(scenario: string, chapter: string): void {
   notify();
 }
 
-/** The Japa app's mark: the brief handed last, so a new one brings the dot back (R-WORLD-018). */
+/** The Japa app's mark: the brief handed last, so a new one brings the dot back (world:phone-rises-over-scene). */
 export function japaMark(scenario: string): string {
   return briefsHanded(scenario).at(-1) ?? "";
 }

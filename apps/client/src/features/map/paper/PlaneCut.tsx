@@ -1,4 +1,4 @@
-// The plane cut (docs/rules/world.md R-WORLD-037; chapter.md R-CHAPTER-012 beat 4): the painted map of Lagos at night,
+// The plane cut (world:plane-cut-at-send-off; chapter:send-off-scene-in-beats beat 4): the painted map of Lagos at night,
 // folded out with the lagoon under, one layer over it with a small plane lifting off from the airport along a dashed line
 // toward the top of the screen in the route's direction, and the city's name arriving on a sticker card. The plane moves
 // by transform alone for about three seconds; under reduced motion the map, the plane at the line's end and the sticker

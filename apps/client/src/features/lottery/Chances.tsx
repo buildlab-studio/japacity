@@ -1,4 +1,4 @@
-// The odds of a draw as plain chances (docs/rules/lottery.md R-LOTTERY-023),
+// The odds of a draw as plain chances (lottery:screen-states-odds-plainly),
 // for the kiosk and the draw page.
 import type { LotteryOdds } from "@japacity/sim";
 

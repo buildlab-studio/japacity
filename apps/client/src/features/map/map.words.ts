@@ -1,5 +1,5 @@
 // The map's words, read from content's ui/ui.map.text.ts, and the ride's working numbers (docs/rules/world.md
-// R-WORLD-015 to 017).
+// world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares).
 import { readerOf } from "../../shared/words/text";
 import type { RideChoice } from "../../shared/world/contract";
 

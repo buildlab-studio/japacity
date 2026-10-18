@@ -1,4 +1,4 @@
-// One rent for the room (docs/rules/prologue.md R-PROLOGUE-013, home.md R-HOME-010): the door and Bills never name two
+// One rent for the room (prologue:front-door-three-screens, home:compound-room-is-a-home): the door and Bills never name two
 // figures for the same room. The door says the move-in with its fees, the figure Bills asks, and the year's rent after it, from the same tuning.
 import { content } from "@japacity/content";
 import { int } from "@japacity/sim";
@@ -10,7 +10,7 @@ import { say } from "../../shared/words/text";
 import { homeFigures } from "./ScenarioView";
 
 describe("the room's move-in on the door", () => {
-  test("[R-PROLOGUE-013] [R-HOME-010] given the room in Ojuelegba, when the door's line and Bills' move are read, then the door's move-in is the year's rent with the agent's and the agreement's fees, the figure Bills asks, and its year after is the rent alone", () => {
+  test("[prologue:front-door-three-screens] [home:compound-room-is-a-home] given the room in Ojuelegba, when the door's line and Bills' move are read, then the door's move-in is the year's rent with the agent's and the agreement's fees, the figure Bills asks, and its year after is the rent alone", () => {
     const { rentYear, feesBp, upkeep } = content.tuning.home.compound;
     const movein = rentYear + int.bp(rentYear, feesBp);
     const door = homeFigures("compound-room");

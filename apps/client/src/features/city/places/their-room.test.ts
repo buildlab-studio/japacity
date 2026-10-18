@@ -1,4 +1,4 @@
-// Their room (place.their-room; docs/rules/world.md R-WORLD-020, person.md R-PEOPLE-014): one shared room, on the map
+// Their room (place.their-room; world:nobody-picked-from-list, person:time-together-is-an-act): one shared room, on the map
 // once a bond is courting, where time together is a visit on its chair and nobody is met. Built
 // from the room in a compound's shell, the size such a room is. The checks the other rooms pass, read against the
 // interior row; for the two rooms a person is met in, the hub and the family house's parlour, everyone standing at a
@@ -44,7 +44,7 @@ async function footprintsOf(of: PlaceFile): Promise<Map<string, Footprint>> {
 }
 
 describe("their room's file", () => {
-  test("[R-WORLD-020] given their room in content, when its folder is read, then it is its own file for its own entry, a room with no address where nobody stands to be met", () => {
+  test("[world:nobody-picked-from-list] given their room in content, when its folder is read, then it is its own file for its own entry, a room with no address where nobody stands to be met", () => {
     expect(entry.assets).toBe("their-room");
     expect(stage.standing).toBeUndefined();
     expect(file.place).toBe(ID);
@@ -52,7 +52,7 @@ describe("their room's file", () => {
     expect(file.scope).toBe("interior");
   });
 
-  test("[R-ASSET-007] given the room's shipped files measured as the build check measures them, when it is counted, then both modes fit the interior row and its download fits the row's bytes", async () => {
+  test("[assets:assets-and-places-within-budget] given the room's shipped files measured as the build check measures them, when it is counted, then both modes fit the interior row and its download fits the row's bytes", async () => {
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
@@ -61,7 +61,7 @@ describe("their room's file", () => {
     expect(totals.bytes).toBeLessThanOrEqual(budgets.place.interior.bytes);
   });
 
-  test("[R-ASSET-007] given the room's file, when its counts are read, then the instances are the copies staged, the crowd is the entry's figure in each mode, the floor is one draw call of the triangles drawn, and every colour is a palette name", () => {
+  test("[assets:assets-and-places-within-budget] given the room's file, when its counts are read, then the instances are the copies staged, the crowd is the entry's figure in each mode, the floor is one draw call of the triangles drawn, and every colour is a palette name", () => {
     expect(file.instances).toEqual(instancesOf(stage));
     expect(file.people.low).toBe(crowd("low"));
     expect(file.people.high).toBe(crowd("high"));
@@ -70,14 +70,14 @@ describe("their room's file", () => {
     expect(allPalette(stage)).toBe(true);
   });
 
-  test("[R-WORLD-011] given the room's file, when its limits are read, then it is within the indoor caps with no moving sheet, and its camera is declared", () => {
+  test("[world:place-is-one-screen] given the room's file, when its limits are read, then it is within the indoor caps with no moving sheet, and its camera is declared", () => {
     expect(checkLimits(file)).toEqual([]);
     expect(file.people.high).toBeLessThanOrEqual(WORLD_LIMITS.people.interior.high);
     expect(stage.motion.filter((motion) => SHEET_KINDS.has(motion.kind))).toEqual([]);
     expect(stage.shot).toBeDefined();
   });
 
-  test("[R-CITY-014] given the room's crowd spots, when the high mode's crowd stands, then there is a spot for everyone on walkable ground clear of every footprint, none where the player starts, and everyone in the sample a person of the city", async () => {
+  test("[city:crowd-sample-capped] given the room's crowd spots, when the high mode's crowd stands, then there is a spot for everyone on walkable ground clear of every footprint, none where the player starts, and everyone in the sample a person of the city", async () => {
     expect(stage.people.length).toBeGreaterThanOrEqual(crowd("high"));
     expect(checkWalkable(ID, stage, await footprintsOf(file))).toEqual([]);
     const [x, z] = stage.start;
@@ -88,7 +88,7 @@ describe("their room's file", () => {
 });
 
 describe("their room's things", () => {
-  test("[R-WORLD-005] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, and its name and every act's label resolve", () => {
+  test("[world:things-are-tappable-models] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, and its name and every act's label resolve", () => {
     const wrong: string[] = [];
     for (const one of things) {
       const copies = stage.models.find((model) => model.file === one.file)?.at.length ?? 0;
@@ -102,7 +102,7 @@ describe("their room's things", () => {
     expect(new Set(things.map((one) => one.id)).size).toBe(things.length);
   });
 
-  test("[R-PEOPLE-014] [R-WORLD-005] given what the room stages in content, when its things' acts are read, then the visit opens from the chair, and with nothing offered the door alone stays, so the room is never shown with a dead act", () => {
+  test("[person:time-together-is-an-act] [world:things-are-tappable-models] given what the room stages in content, when its things' acts are read, then the visit opens from the chair, and with nothing offered the door alone stays, so the room is never shown with a dead act", () => {
     expect(entry.stages).toEqual(["activity.see-someone"]);
     expect(actEntries(placeFile, ID)).toEqual(["activity.see-someone"]);
     expect(thingsNow(thingsOf(stage), () => false).map((one) => one.id)).toEqual(["door"]);
@@ -110,7 +110,7 @@ describe("their room's things", () => {
 });
 
 describe("everyone standing at a thing", () => {
-  test("[R-WORLD-020] [R-ASSET-030] given the hub and the family house's parlour, where people are met, when everyone who can stand at a thing stands there, then each stands on walkable ground clear of every footprint, apart from where the player starts, and each thing's own spot is clear too", async () => {
+  test("[world:nobody-picked-from-list] [assets:models-record-their-footprint] given the hub and the family house's parlour, where people are met, when everyone who can stand at a thing stands there, then each stands on walkable ground clear of every footprint, apart from where the player starts, and each thing's own spot is clear too", async () => {
     for (const [id, raw] of [
       ["place.yaba", hubRaw],
       ["place.family-house", parlourRaw],
@@ -155,7 +155,7 @@ function overlap(one: PlacedBox, two: PlacedBox): boolean {
 }
 
 describe("their room dressed for each person", () => {
-  test("[R-WORLD-020] given the computer partners whose home is their room, when the room's dressings are read, then there is one for each, named by the person and by no offer, each a prop or two from the shared kit with nothing hidden, no crowd and no motion, and the partner standing as themselves in the model they are met in", () => {
+  test("[world:nobody-picked-from-list] given the computer partners whose home is their room, when the room's dressings are read, then there is one for each, named by the person and by no offer, each a prop or two from the shared kit with nothing hidden, no crowd and no motion, and the partner standing as themselves in the model they are met in", () => {
     expect(HOMES).toHaveLength(6);
     expect(dressings.map((one) => one.person).sort()).toEqual(HOMES.map((meeting) => meeting.person).sort());
     const wrong: string[] = [];
@@ -176,7 +176,7 @@ describe("their room dressed for each person", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-020] [R-ASSET-030] given each dressing, when its props and the partner stand in the room, then each prop stands on walkable ground clear of every other footprint, the chair's spot, the door's and the start, and the partner on walkable ground clear of every footprint, away from the chair's spot, the door's and the start", async () => {
+  test("[world:nobody-picked-from-list] [assets:models-record-their-footprint] given each dressing, when its props and the partner stand in the room, then each prop stands on walkable ground clear of every other footprint, the chair's spot, the door's and the start, and the partner on walkable ground clear of every footprint, away from the chair's spot, the door's and the start", async () => {
     const footprints = await footprintsOf(file);
     // Each prop's copy apart, so two copies of the bag are each checked against the other.
     const placed = (models: Dressing["models"]): PlacedBox[][] => models.flatMap((model) => model.at.map((at) => placedBoxes([{ file: model.file, at: [at] }], footprints)));
@@ -213,13 +213,13 @@ describe("their room dressed for each person", () => {
     expect(checkWalkable(ID, stage, footprints)).toEqual([]);
   });
 
-  test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] given Tobi courted, when their room opens, then it is dressed for him: his props join the room, he stands in it alone as a thing with his name and the computer mark and no act, no stranger stands there in either mode, and the chair's visit and the door stay; a bond with a player, or no bond, keeps the plain room", () => {
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] [person:computer-mark-is-quiet] given Tobi courted, when their room opens, then it is dressed for him: his props join the room, he stands in it alone as a thing with his name and the computer mark and no act, no stranger stands there in either mode, and the chair's visit and the door stay; a bond with a player, or no bond, keeps the plain room", () => {
     const game = peopleGame();
     expect(roomPartner(game.view())).toBeNull();
     courted(game, TOBI);
     expect(roomPartner(game.view())).toBe(TOBI);
     const dressed = dressPlace(file, [], roomPartner(game.view()));
-    // Nobody is met here, so no meeting takes the partner away (R-WORLD-020).
+    // Nobody is met here, so no meeting takes the partner away (world:nobody-picked-from-list).
     const room = stageOf(withStanding(dressed.file, []));
     const own = dressings.find((one) => one.person === TOBI);
     expect(room.models).toEqual([...stage.models, ...(own?.models ?? [])]);
@@ -240,7 +240,7 @@ describe("their room dressed for each person", () => {
     expect(standingAsThemselves(stage)).toEqual([]);
   });
 
-  test("[R-WORLD-020] given two computer partners courted, one with a home in Lagos and one home only for December, when their room opens, then it is the one the map puts it near, whichever was courted first", () => {
+  test("[world:nobody-picked-from-list] given two computer partners courted, one with a home in Lagos and one home only for December, when their room opens, then it is the one the map puts it near, whichever was courted first", () => {
     const game = peopleGame();
     courted(game, "person.kelechi-dev");
     expect(roomPartner(game.view())).toBe("person.kelechi-dev");

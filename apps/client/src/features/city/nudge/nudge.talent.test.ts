@@ -1,5 +1,5 @@
-// The talent route's nudges follow the file's order (docs/rules/world.md R-WORLD-003; route-gates.md R-ENDORSE-001,
-// R-ENDORSE-003): the passport comes before the endorsement, so a life following every nudge never buys an endorsement
+// The talent route's nudges follow the file's order (world:nudge-says-one-thing; route-gates:applying-for-endorsement,
+// route-gates:talent-visa-needs-endorsement): the passport comes before the endorsement, so a life following every nudge never buys an endorsement
 // that runs out waiting on it; a route the news has closed says so instead of "needs more"; a need whose act is
 // already running is passed over. Real content, lives played through `step`.
 import { content } from "@japacity/content";
@@ -37,7 +37,7 @@ function actNamed(view: PlayerView, nudge: ReturnType<typeof nudgeOf>): SlotPick
     const best = [...board].sort((a, b) => payOf(b) - payOf(a))[0];
     return best === undefined || payOf(best) <= payOf(view.job.id ?? "") ? null : pick("activity.job-hunt", best);
   }
-  // "Look into it" names the page of the life's own way out, read in Japa: its card there (R-CHAPTER-009).
+  // "Look into it" names the page of the life's own way out, read in Japa: its card there (chapter:chapters-follow-lean-route).
   if (nudge.key.endsWith(".own.needs") || nudge.key.endsWith(".nudge.own")) {
     const pages = view.activities.find((option) => option.id === "activity.look-into-route")?.params ?? [];
     return pick("activity.look-into-route", pages.includes(TALENT) ? TALENT : (pages[0] ?? null));
@@ -128,7 +128,7 @@ function talentLife(options: { documents?: { document: Id<"document">; monthsLef
 }
 
 describe("the talent file in its order", () => {
-  test("[R-WORLD-003] [R-ENDORSE-001] [R-ENDORSE-003] given the ready developer, when the nudge is followed as the play driver follows it for 36 months, then the passport is held before the endorsement is paid, the endorsement is paid once for each answer and never runs out unused, and the TB test and the application are paid for when it is", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] [route-gates:talent-visa-needs-endorsement] given the ready developer, when the nudge is followed as the play driver follows it for 36 months, then the passport is held before the endorsement is paid, the endorsement is paid once for each answer and never runs out unused, and the TB test and the application are paid for when it is", () => {
     const game = start({ scenario: "scenario.zainab", seed: "ready-developer", content, worldSeed: "world-1" });
     expect(game.view().documents.some((paper) => paper.id === "document.passport")).toBe(false);
     const { paid, refused, ranOut, passportMonth } = followTheNudge(game, 36);
@@ -141,7 +141,7 @@ describe("the talent file in its order", () => {
     expect(ranOut).toBe(0);
   });
 
-  test("[R-WORLD-003] [R-ENDORSE-003] given the endorsement held and no passport, when the nudge is read, then it names the passport at its office, never the application its sheet shuts", () => {
+  test("[world:nudge-says-one-thing] [route-gates:talent-visa-needs-endorsement] given the endorsement held and no passport, when the nudge is read, then it names the passport at its office, never the application its sheet shuts", () => {
     const view = inTheFile(talentLife({ documents: [] }).view(), { portfolio: true, endorsement: true });
     expect(view.routes.find((route) => route.id === TALENT)?.checklist.find((item) => item.id === "passport")?.met).toBe(false);
     const nudge = nudgeOf(view);
@@ -150,7 +150,7 @@ describe("the talent file in its order", () => {
     expect(stepWayOf(view)).toMatchObject({ go: "place.passport-office", opens: "activity.get-passport" });
   });
 
-  test("[R-WORLD-003] [R-ENDORSE-001] given the endorsement open to ask for and no passport, when the nudge is read, then it names the passport first; with the passport on its way, it says when it comes", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given the endorsement open to ask for and no passport, when the nudge is read, then it names the passport first; with the passport on its way, it says when it comes", () => {
     const game = talentLife({ documents: [] });
     const first = nudgeOf(inTheFile(game.view(), { portfolio: true, endorsement: false }));
     expect(first.key).toBe("chapter.build-the-file.item.passport.nudge");
@@ -160,7 +160,7 @@ describe("the talent file in its order", () => {
     expect(waiting.key.startsWith("chapter.build-the-file.item.passport") || waiting.key.startsWith("ui.nudge.")).toBe(true);
   });
 
-  test("[R-WORLD-003] [R-ENDORSE-001] [R-ENDORSE-003] given the passport held and too little to pay the TB test and the application after the endorsement, when the nudge is read, then it names how much more to find, never the endorsement, and its words are under eight", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] [route-gates:talent-visa-needs-endorsement] given the passport held and too little to pay the TB test and the application after the endorsement, when the nudge is read, then it names how much more to find, never the endorsement, and its words are under eight", () => {
     const passport = [{ document: "document.passport" as const, monthsLeft: 60, value: null }];
     const view = inTheFile(talentLife({ documents: passport, pockets: { NGN: { bank: 300_000_000, cash: 0 } } }).view(), { portfolio: true, endorsement: false });
     const endorse = view.activities.find((option) => option.id === ENDORSE)!;
@@ -176,7 +176,7 @@ describe("the talent file in its order", () => {
     expect(nudgeOf(rich).key).toBe(`${FILE}.item.endorsement.nudge`);
   });
 
-  test("[R-WORLD-003] [R-ENDORSE-003] given the endorsement and the passport held, when the nudge is read, then the TB test comes before the application, and the application once it is held", () => {
+  test("[world:nudge-says-one-thing] [route-gates:talent-visa-needs-endorsement] given the endorsement and the passport held, when the nudge is read, then the TB test comes before the application, and the application once it is held", () => {
     const game = talentLife({ documents: [{ document: "document.passport", monthsLeft: 60, value: null }], pockets: { NGN: { bank: 3_000_000_000, cash: 0 } } });
     applyEffects(game, [{ type: "document/grant", document: "document.endorsement" }]);
     const view = inTheFile(game.view(), { portfolio: true, endorsement: true });
@@ -191,7 +191,7 @@ describe("the talent file in its order", () => {
 });
 
 describe("a closed route says so", () => {
-  test("[R-WORLD-003] [R-ENDORSE-001] given every need of the endorsement met and every route closed by the news, when the nudge is read, then it says every route is closed in under eight words, its tap opens Japa, and no desk is pointed at", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given every need of the endorsement met and every route closed by the news, when the nudge is read, then it says every route is closed in under eight words, its tap opens Japa, and no desk is pointed at", () => {
     const closed = Object.fromEntries(WINDOWS.map((window) => [window, 0])) as Record<Id<"var">, number>;
     let from = Number.POSITIVE_INFINITY;
     const game = talentLife({ vars: (tick) => (tick >= from ? closed : {}) });
@@ -210,7 +210,7 @@ describe("a closed route says so", () => {
     expect(stepOpen(nudge.way!, null, [], "place.yaba")).toEqual({ kind: "app", app: "japa", act: null });
   });
 
-  test("[R-WORLD-003] given only the talent route closed, when the nudge is read, then it names that route as closed, not every route", () => {
+  test("[world:nudge-says-one-thing] given only the talent route closed, when the nudge is read, then it names that route as closed, not every route", () => {
     let from = Number.POSITIVE_INFINITY;
     const game = talentLife({ vars: (tick) => (tick >= from ? { "var.uk-talent-window": 0 } : {}) });
     from = game.tick;
@@ -224,7 +224,7 @@ describe("a closed route says so", () => {
 });
 
 describe("a need already running is passed over", () => {
-  test("[R-WORLD-003] [R-ENDORSE-001] given the developer tile in the talent file short of tech and of people, when the coding course is planned or carries on, then the nudge moves on to the meetup; with every need's act running, it says the plan is set", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given the developer tile in the talent file short of tech and of people, when the coding course is planned or carries on, then the nudge moves on to the meetup; with every need's act running, it says the plan is set", () => {
     const game = tileDeveloper("tile-developer-course");
     expect(game.state.prologue.open).toBe(false);
     // Tech short of the endorsement's 75 and the people short of its 50, the pieces met, the passport held.

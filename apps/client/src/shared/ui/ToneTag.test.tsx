@@ -1,4 +1,4 @@
-// A gain or a cost as a tag (prologue.md R-PROLOGUE-014): the arrow says the way as well as the colour.
+// A gain or a cost as a tag (prologue:printed-page-hands-over): the arrow says the way as well as the colour.
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -8,7 +8,7 @@ import { ToneTag } from "./ToneTag";
 import "../testing/render";
 
 describe("a tone tag", () => {
-  test("[R-PROLOGUE-014] given an up, a down and a plain tag, then up carries an arrow named up in green, down an arrow named down in red, and plain no arrow", () => {
+  test("[prologue:printed-page-hands-over] given an up, a down and a plain tag, then up carries an arrow named up in green, down an arrow named down in red, and plain no arrow", () => {
     const { container } = render(
       <>
         <ToneTag tone="up">Parents schooled</ToneTag>

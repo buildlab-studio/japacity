@@ -1,4 +1,4 @@
-// One country at a time (docs/rules/world.md R-WORLD-016): the country shown is the button; the
+// One country at a time (world:one-country-at-a-time): the country shown is the button; the
 // others are listed locked with the reason. A locked one shakes and stays shut.
 import { Check, ChevronDown, Lock, MapPin } from "lucide-react";
 import { useRef, useState } from "react";

@@ -1,5 +1,5 @@
-// When the bank-full notice may be asked for (docs/rules/clock.md R-CLOCK-031,
-// guide.md R-GUIDE-015): after a good moment, never on load, never before the
+// When the bank-full notice may be asked for (clock:full-bank-push-notification,
+// guide:nothing-asked-before-early-win): after a good moment, never on load, never before the
 // early win, not again for `reaskDays` after a dismissal, never after the
 // browser's own refusal.
 import type { ReportLine } from "@japacity/sim";
@@ -31,8 +31,8 @@ export function mayAsk({ permission, key, dismissedAt, now, reaskDays }: AskTerm
   return dismissedAt === null || now - dismissedAt >= reaskDays * time.DAY_MS;
 }
 
-/** R-ANALYTICS-011: the ask's client counters, keyed by the ask and by when it came against the early win. */
+/** analytics:day-one-and-seven-return: the ask's client counters, keyed by the ask and by when it came against the early win. */
 export type CountAsk = (name: "ask/shown" | "ask/accepted", ask: "notify", when: "before" | "after") => void;
 
-/** R-ANALYTICS-011: the ask counted on the interface counters, keyed `notify:before` or `notify:after`. */
+/** analytics:day-one-and-seven-return: the ask counted on the interface counters, keyed `notify:before` or `notify:after`. */
 export const countAsk: CountAsk = (name, ask, when) => countAnalyticsAsk(ask, name === "ask/shown" ? "shown" : "accepted", when === "after");

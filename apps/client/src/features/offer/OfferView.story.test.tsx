@@ -1,7 +1,7 @@
 // Asks on the real engine and the real content: each answer says what it
-// paid for and what happened (docs/rules/world.md R-WORLD-008), the burial's slot is held the month
-// its ask says (R-WORLD-007), the aunty's gift shows its risk before it is taken, and the savings
-// circle is never offered to a life on its way out (R-WORLD-003).
+// paid for and what happened (world:month-end-results-sheet), the burial's slot is held the month
+// its ask says (world:month-acts-carry-on), the aunty's gift shows its risk before it is taken, and the savings
+// circle is never offered to a life on its way out (world:nudge-says-one-thing).
 import { content, text } from "@japacity/content";
 import type { Effect, Id, ReportLine } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
@@ -65,7 +65,7 @@ function grantedLife(): Game {
 }
 
 describe("the party at home, told and named", () => {
-  test("[R-WORLD-008] [R-CHAPTER-008] given the send-off answered with the party, when its lines are read, then the cost is the send-off's and the yard's line is told", () => {
+  test("[world:month-end-results-sheet] [chapter:family-marks-the-grant] given the send-off answered with the party, when its lines are read, then the cost is the send-off's and the yard's line is told", () => {
     const game = grantedLife();
     const lines = answer(game, SEND_OFF, "party");
     expect(paid(lines)).toEqual([`The send-off: ${formatMoney(content.tuning.chapter.sendOffNaira, "NGN")}.`]);
@@ -74,7 +74,7 @@ describe("the party at home, told and named", () => {
 });
 
 describe("the burial's slot", () => {
-  test("[R-WORLD-007] [R-HEALTH-006] given the burial asked, when its answer to go is read, then it names the month the slot is held as the month the lock holds", async () => {
+  test("[world:month-acts-carry-on] [health:forced-months-warned-ahead] given the burial asked, when its answer to go is read, then it names the month the slot is held as the month the lock holds", async () => {
     const game = homeLife();
     const offer = openOffer(game, BURIAL);
     await renderWithView(<OfferView />, game.view());
@@ -91,7 +91,7 @@ describe("the burial's slot", () => {
     expect(offer.expiresMonth).toBe(game.view().month + 1);
   });
 
-  test("[R-WORLD-008] given the burial answered with the trip, when its lines are read, then the trip is told and its cost is the burial's", () => {
+  test("[world:month-end-results-sheet] given the burial answered with the trip, when its lines are read, then the trip is told and its cost is the burial's", () => {
     const game = homeLife();
     openOffer(game, BURIAL);
     const lines = answer(game, BURIAL, "go");
@@ -99,13 +99,13 @@ describe("the burial's slot", () => {
     expect(paid(lines)).toEqual([`The burial: ${formatMoney(6_000_000, "NGN")}.`]);
   });
 
-  test("[R-WORLD-007] given a lock for the burial, when its row is named, then it reads as the burial", () => {
+  test("[world:month-acts-carry-on] given a lock for the burial, when its row is named, then it reads as the burial", () => {
     expect(say("ui.locks.row.burial")).toBe("At the burial");
   });
 });
 
 describe("the aunty's $500", () => {
-  test("[R-WORLD-008] [R-LUCK-010] given the aunty's gift asked, when the ask shows, then it has two answers and each says its risk before it is taken", async () => {
+  test("[world:month-end-results-sheet] [luck:japa-luck-in-existing-systems] given the aunty's gift asked, when the ask shows, then it has two answers and each says its risk before it is taken", async () => {
     const game = knownLife();
     openOffer(game, AUNTY);
     await renderWithView(<OfferView />, game.view());
@@ -117,17 +117,17 @@ describe("the aunty's $500", () => {
     expect(text[`${AUNTY}.choice.note`]).toContain("with a note");
   });
 
-  test("[R-WORLD-008] [R-LUCK-010] given the gift taken as it comes, when its lines are read, then the $500 lands flagged and the line says what to do about it", () => {
+  test("[world:month-end-results-sheet] [luck:japa-luck-in-existing-systems] given the gift taken as it comes, when its lines are read, then the $500 lands flagged and the line says what to do about it", () => {
     const game = knownLife();
     openOffer(game, AUNTY);
     const lines = answer(game, AUNTY, "thank");
     expect(game.state.wallet.lots).toContainEqual(expect.objectContaining({ currency: "USD", amount: 50_000, reason: "gift" }));
     expect(told(lines)).toContain(text[`${AUNTY}.said.thank`]);
-    // The journey, not the wait (text.md R-TEXT-007): the money sits; the player does not wait.
+    // The journey, not the wait (text:voice-by-surface): the money sits; the player does not wait.
     expect(text[`${AUNTY}.said.thank`]).toContain("Ask her for a note saying it was a gift, or let it sit three months before you apply.");
   });
 
-  test("[R-WORLD-008] [R-LUCK-010] given the gift asked for through the bank with a note, when its lines are read, then the $500 lands unflagged and the line says so", () => {
+  test("[world:month-end-results-sheet] [luck:japa-luck-in-existing-systems] given the gift asked for through the bank with a note, when its lines are read, then the $500 lands unflagged and the line says so", () => {
     const game = knownLife();
     const before = game.state.wallet.pockets.USD.bank;
     openOffer(game, AUNTY);
@@ -151,17 +151,17 @@ describe("the savings circle and a life on its way out", () => {
     return Object.values(game.state.offer.items).some((item) => item.entry === AJO);
   }
 
-  test("[R-WORLD-003] given a life at home with no route granted, when the savings circle comes up, then it asks", () => {
+  test("[world:nudge-says-one-thing] given a life at home with no route granted, when the savings circle comes up, then it asks", () => {
     expect(circleOpens(newGame("scenario.tunde"))).toBe(true);
   });
 
-  test("[R-WORLD-003] given the visa granted, when the savings circle comes up, then it does not ask: ten months of shares have no place in a life leaving", () => {
+  test("[world:nudge-says-one-thing] given the visa granted, when the savings circle comes up, then it does not ask: ten months of shares have no place in a life leaving", () => {
     const game = grantedLife();
     expect(game.state.route[UK]?.state).toBe("granted");
     expect(circleOpens(game)).toBe(false);
   });
 
-  test("[R-WORLD-003] given a life that has flown, when the savings circle comes up, then it does not ask", () => {
+  test("[world:nudge-says-one-thing] given a life that has flown, when the savings circle comes up, then it does not ask", () => {
     const game = flownAda(content);
     expect(Object.values(game.state.route).some((route) => route.state === "departed")).toBe(true);
     expect(circleOpens(game)).toBe(false);
@@ -169,14 +169,14 @@ describe("the savings circle and a life on its way out", () => {
 });
 
 describe("the adviser's reading and the loan's charge", () => {
-  test("[R-WORLD-008] given the adviser's reading of a route that does not fit, when its line is said, then it is her reading, with what is missing", () => {
+  test("[world:month-end-results-sheet] given the adviser's reading of a route that does not fit, when its line is said, then it is her reading, with what is missing", () => {
     const said = words("line.activity.adviser-missing", { route: UK, count: 8, months: 3 });
     expect(said.startsWith("Her reading:")).toBe(true);
     expect(said).toContain("8 things are missing");
     expect(words("line.route.looked-into-advised", { route: UK })).not.toContain("Now you know what it takes");
   });
 
-  test("[R-WORLD-008] given proof of funds held from the microfinance bank, when the month's charge is paid, then the results name it as the loan's charge", () => {
+  test("[world:month-end-results-sheet] given proof of funds held from the microfinance bank, when the month's charge is paid, then the results name it as the loan's charge", () => {
     const game = newGame("scenario.tunde");
     applyEffects(game, [
       { type: "money/add", currency: "NGN", pocket: "bank", amount: 50_000_000, reason: "gift" },

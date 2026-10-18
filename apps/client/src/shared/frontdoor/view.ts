@@ -1,7 +1,7 @@
-// What a tap on the door shows, and when (prologue.md R-PROLOGUE-013). "Make it
+// What a tap on the door shows, and when (prologue:front-door-three-screens). "Make it
 // yours" opened, and the next part to choose in it, scroll into the door's body only as far as needed to show them
 // whole, so the figure above stays in view as long as it can: smooth, or at once under reduced motion (world.md
-// R-WORLD-023). Work that holds the main thread after a tap (drawing the figure in your colours) waits until the frame
+// world:motions-under-half-second). Work that holds the main thread after a tap (drawing the figure in your colours) waits until the frame
 // with the tap's answer has painted.
 import { motionOn } from "../ui/motion";
 

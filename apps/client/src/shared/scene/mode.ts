@@ -1,4 +1,4 @@
-// The two graphics modes and how the city moves between them (city.md R-CITY-019). Pure: the scene
+// The two graphics modes and how the city moves between them (city:two-graphics-modes). Pure: the scene
 // feeds in each frame's time and the time spent in the place, and reads back the mode and its table.
 import type { Tuning } from "@japacity/sim";
 import { GRAPHICS_KEY } from "../kept/storage";
@@ -8,7 +8,7 @@ export type Mode = "low" | "high";
 export type ModeChoice = "auto" | Mode;
 export type CityTuning = Tuning["city"];
 
-/** Frames judged at a time, and how many of them must agree (R-CITY-019: 95 in 100). */
+/** Frames judged at a time, and how many of them must agree (city:two-graphics-modes: 95 in 100). */
 export const WINDOW_FRAMES = 100;
 export const AGREE_FRAMES = 95;
 
@@ -28,7 +28,7 @@ const PHONE_HIGH_MEMORY_GB = 4;
 
 /**
  * A desktop (a fine pointer and a wide window) starts in high. A phone with a sharp screen and enough memory, or a memory the
- * browser keeps to itself, starts in high too and drops if its frames are slow (R-CITY-019: the rise
+ * browser keeps to itself, starts in high too and drops if its frames are slow (city:two-graphics-modes: the rise
  * from low read as a jump in quality a moment into the first place); a coarse or small phone starts in low and rises.
  */
 export function startingMode(device: Device, city: CityTuning, choice: ModeChoice = "auto"): Mode {
@@ -85,14 +85,14 @@ export function observeFrame(watch: FrameWatch, frameMs: number, city: CityTunin
   return { ...watch, frames, elapsedMs };
 }
 
-/** How the scene is drawn in a mode: the table of R-CITY-019. */
+/** How the scene is drawn in a mode: the table of city:two-graphics-modes. */
 export interface ModeSettings {
   pixelRatio: number;
   shadows: boolean;
   crowd: number;
   /** Where the fog starts and is full, in metres. */
   fog: { near: number; far: number };
-  // Atmosphere is haze only: a rim light would be a third light against R-ASSET-006, and rain has no rule for when it falls.
+  // Atmosphere is haze only: a rim light would be a third light against assets:lighting-set-by-place, and rain has no rule for when it falls.
   atmosphere: boolean;
   /**
    * How far the fog and the sky lean from the sky's colour toward the ground's, from 0 to 1. The

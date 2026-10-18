@@ -1,4 +1,4 @@
-// A place loading (city.md R-CITY-018): its name and the progress, the progress as a bar that fills, never a figure in
+// A place loading (city:places-load-on-entry): its name and the progress, the progress as a bar that fills, never a figure in
 // per cent, since a player's words never carry a percentage (the lively layer's words rule). The bar is the one every
 // wait takes (shared/ui/Loader), filled to the share of the place's models in.
 import { Loader } from "../../shared/ui/Loader";

@@ -1,4 +1,4 @@
-// The month's end in the world: the month ends as the bed's sleep runs out (R-WORLD-025), sending the plan's
+// The month's end in the world: the month ends as the bed's sleep runs out (world:sleep-ends-the-month), sending the plan's
 // commitments as they stand on the view's version; a refusal is said in content's words where the month is kept, the
 // Calendar; and the results tell a split payment and a doubled salary once each. The interview's hold on the month is in
 // app/world.interview.test.tsx; the staged wins in app/world.staged.test.tsx.
@@ -20,11 +20,11 @@ describe("the month's end in the world", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "turn/end", slots: [], basedOn: view.v }]));
   });
 
-  test("[R-WORLD-007] given a course started, when the month ends, then it is sent, and no Same again is offered: what is started carries on by itself", async () => {
+  test("[world:month-acts-carry-on] given a course started, when the month ends, then it is sent, and no Same again is offered: what is started carries on by itself", async () => {
     const view = engineView();
     const { authority, store } = await renderWithView(<Calendar />, view);
     expect(screen.queryByRole("button", { name: "Same again" })).toBeNull();
-    // Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and is never planned; the course that carries
+    // Decision 0012 (activity:acts-may-repeat-in-month): the coding course now answers at once and is never planned; the course that carries
     // on is a master's at home.
     act(() => {
       store.getState().addToPlan({ activity: "activity.masters-at-home", param: null });

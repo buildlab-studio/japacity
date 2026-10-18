@@ -1,4 +1,4 @@
-// The data page's stamps (prologue.md R-PROLOGUE-009): none until a visa is granted. The visa's is
+// The data page's stamps (prologue:front-door-builds-a-person): none until a visa is granted. The visa's is
 // the first, round and red, with the way under it; the steps after it stamp beneath it, in the order a life takes them:
 // the flight out, the landing, a status secured. Nothing before the visa stamps the page.
 import { content } from "@japacity/content";

@@ -8,7 +8,7 @@
 @import "@fontsource/rubik/latin-500.css";
 @import "@fontsource/rubik/latin-700.css";
 
-/* The role tokens (docs/rules/world.md R-WORLD-021). A component names a role, never a colour. One look, two paints
+/* The role tokens (world:colours-are-role-tokens). A component names a role, never a colour. One look, two paints
    (decision 0025, the lively layer): the day's pale sky here, and the night's navy under data-paint="night" on <html>,
    set from the world's clock (shared/world/paint.ts). The 3D world keeps its own colours in both. */
 :root {
@@ -62,7 +62,7 @@
   --out: #c23a2a;
   --scrim: rgba(12, 16, 34, 0.5);
   --device: #0d1124;
-  /* The drawn map's water takes the lagoon tone (R-WORLD-021). */
+  /* The drawn map's water takes the lagoon tone (world:colours-are-role-tokens). */
   --water: #5f9fc0;
   --land: #ece5d5;
   --land-2: #e1d8c4;
@@ -70,7 +70,7 @@
   --map-label: #5d564a;
   --paper-bill: #fbf7ec;
   --paper-ticket: #fff3c4;
-  /* A line in the world, said over a person or told in the corner (R-WORLD-026): off-white, lighter than the band. */
+  /* A line in the world, said over a person or told in the corner (world:street-talk-budget): off-white, lighter than the band. */
   --said: #f6f6f3;
   --on-said: #25221d;
   --app-calendar: #1f6f78;
@@ -85,7 +85,7 @@
   --app-news: #4a5068;
   --app-settings: #8a8378;
   /* Google's sign-in button, in Google's own colours (developers.google.com/identity/branding-guidelines, read 11 Oct
-     2026): the light theme on a light sheet, the dark theme on a dark one (R-ACCOUNT-023). */
+     2026): the light theme on a light sheet, the dark theme on a dark one (account:guest-secures-the-life). */
   --google-fill: #ffffff;
   --google-stroke: #747775;
   --google-text: #1f1f1f;
@@ -215,7 +215,7 @@ body {
   }
 }
 
-/* The world's bands, chips and the one main button (world.md R-WORLD-002, 006, 021, 023). */
+/* The world's bands, chips and the one main button (world:top-band-is-lively-pill, world:one-action-one-sheet, world:colours-are-role-tokens, world:motions-under-half-second). */
 .band { background-color: var(--strong); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
 .band-2 { background-color: var(--strong-2); color: var(--on-strong); outline: var(--band-outline); outline-offset: -1px; }
 /* The adire circles over a band, where they stay (decision 0025): the travel data page, behind the wordmark, the door. */
@@ -232,13 +232,13 @@ body {
 .btn-main:active { transform: translateY(2px); box-shadow: inset 0 -1px 0 var(--action-edge); }
 .btn-main:disabled { opacity: 0.5; }
 .btn-dark { background: var(--strong); color: var(--on-strong); border-radius: 5px; font-weight: 800; outline: var(--band-outline); outline-offset: -1px; }
-/* Every tappable thing squashes a little on press and springs back (the lively layer, section 7; R-WORLD-023). On its own
+/* Every tappable thing squashes a little on press and springs back (the lively layer, section 7; world:motions-under-half-second). On its own
    scale, so a tilt or a move it already has stays; in the components layer, so an element's own transition utility wins. */
 @layer components {
   .press { transition-property: scale; transition-duration: 120ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1.3); }
   .press:active { scale: 0.96; }
 }
-/* Google's standard sign-in button (R-ACCOUNT-023), to the guidelines' numbers for Android and the web: 40 px tall, a
+/* Google's standard sign-in button (account:guest-secures-the-life), to the guidelines' numbers for Android and the web: 40 px tall, a
    1 px stroke inside, 12 px before the G, the G at 20 px, 10 px after it, 12 px after the words, Google Sans Medium
    14/20. Full width, as the sheet's other ways are, the G at the left and the words in the middle, as Google's own
    button draws it at a set width. */
@@ -356,13 +356,13 @@ body {
 .chip-in { animation: chip-in 0.22s cubic-bezier(0.2, 0.9, 0.25, 1.1) both; }
 .wobble-in { animation: wobble-in 0.26s cubic-bezier(0.2, 0.9, 0.25, 1) both; }
 .shake { animation: shake 0.28s ease-in-out both; }
-/* Reduced motion cuts every shell motion to a fade (R-WORLD-023). The rule at the top of this file
+/* Reduced motion cuts every shell motion to a fade (world:motions-under-half-second). The rule at the top of this file
    stops every animation with !important, so the fade must carry it too to win. */
 @media (prefers-reduced-motion: reduce) {
   .rise, .pop, .drop, .phone-up, .chip-in, .fade, .wobble-in, .shake { animation: fade 0.2s ease both !important; }
 }
 
-/* State changes (R-WORLD-023): what opens, closes, appears or expands moves by a plain
+/* State changes (world:motions-under-half-second): what opens, closes, appears or expands moves by a plain
    CSS transition on transform and opacity only (the compositor's), 150 to 250 ms, never on a layout property and never
    by a render loop. Base UI's dialogs mark their first frame [data-starting-style] and their closing frames
    [data-ending-style], and wait for the transition before they unmount; anything else mounted fresh starts from its
@@ -396,7 +396,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @starting-style { .motion-in-right { transform: translateX(100%); } }
 .motion-in-fade { transition-property: opacity; transition-duration: 180ms; transition-timing-function: ease; }
 @starting-style { .motion-in-fade { opacity: 0; } }
-/* The phone's grow and shrink (R-WORLD-018, 023): one transform from the box it was in to the box it is in, measured once
+/* The phone's grow and shrink (world:phone-rises-over-scene, world:motions-under-half-second): one transform from the box it was in to the box it is in, measured once
    (Phone.tsx), with the screen's content hidden in flight and faded in once the frame lands. Put away, it drops back
    the way it rose while the scrim clears. */
 .motion-handset { transition-property: transform; transition-duration: 250ms; transition-timing-function: cubic-bezier(0.2, 0.9, 0.25, 1); }
@@ -419,7 +419,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   opacity: 1;
 }
 
-/* A thing's quiet mark (R-WORLD-005, R-WORLD-021): a small still dot, the signal colour at about 60%, with a hairline so it
+/* A thing's quiet mark (world:things-are-tappable-models, world:colours-are-role-tokens): a small still dot, the signal colour at about 60%, with a hairline so it
    reads on light ground; the nudge's thing pulses gently, and a place's first entry shows the names, then they fade. */
 .mark-dot {
   width: 6px;
@@ -461,7 +461,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   }
 }
 
-/* The bed's timed sleep (R-WORLD-025): the chip's thin bar runs down over the sleep's length (its duration set inline),
+/* The bed's timed sleep (world:sleep-ends-the-month): the chip's thin bar runs down over the sleep's length (its duration set inline),
    and the small sleep mark's three "z" grow in and fade out in turn over the bed, on transform and opacity alone. */
 .sleep-bar {
   transform-origin: 0 50%;
@@ -644,7 +644,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
   box-shadow: 0 3px 0 var(--action-under);
 }
 .ask-mark { box-shadow: 0 0 0 4px var(--sheet-2), 0 0 0 5.5px var(--edge), 0 5px 0 5.5px var(--edge); }
-/* An honest ask's main answer: the same white row with the navy underside, the press it invites (R-ADVICE-006). */
+/* An honest ask's main answer: the same white row with the navy underside, the press it invites (advice:scams-show-their-tells). */
 .ask-reply-main { box-shadow: 0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); }
 /* The ride sheet's ways: white tiles with the edge; the way chosen on the soft
    yellow with the navy underside. */
@@ -662,7 +662,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @keyframes coin-fly { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); } 20% { opacity: 1; } 100% { opacity: 0.2; transform: translate(calc(-50% + var(--tx, 0px)), var(--ty, 0px)) scale(1); } }
 .coin-fly { animation: coin-fly 0.42s cubic-bezier(0.4, 0, 0.2, 1) both; }
 @media (prefers-reduced-motion: reduce) { .coin-fly { animation: fade 0.2s ease both !important; } }
-/* The lively layer's own round shapes, round by design as the pill and the sticker chip are (R-WORLD-021 with
+/* The lively layer's own round shapes, round by design as the pill and the sticker chip are (world:colours-are-role-tokens with
    decision 0025): the band's sky, a chip's picture, the road's dots and tick, the thumbs' first words and an asker's mark. */
 .band-sky, .chip-pic, .brief-dot, .brief-tick, .ask-mark, .first-label { border-radius: 9999px; }
 .first-label { border: 1px solid var(--edge); background: var(--sheet-2); color: var(--text); }
@@ -713,13 +713,13 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 /* A chip whose words run long (a pay with its next step, a home's month) wraps rather than run past its card. */
 .sticker-chip.chip-wrap { white-space: normal; }
 
-/* The front door (prologue.md R-PROLOGUE-013): the pale sky from
+/* The front door (prologue:front-door-three-screens): the pale sky from
    edge to edge by day and the navy by night, round white buttons with the edge's underside, round face stickers with
    the cut's white rim and a yellow ring on the one picked, cards with a firmer edge than the world's, and the stacked
    postcards of the homes. Transitions are short and on transform and opacity only. */
 :root { --door-sky-1: #bfe0fa; --door-sky-2: #d6ecfc; --door-photo-1: #fff3c4; --door-photo-2: #ffe6d5; --door-sun: #ffd54a; }
 :root[data-paint="night"], [data-paint="night"] { --door-sky-1: #0e1636; --door-sky-2: #1c2a5e; --door-photo-1: #2c3f87; --door-photo-2: #1c2a5e; --door-sun: #f6edd8; }
-/* One flat sky (R-WORLD-021: nothing drawn with a gradient), the lighter of the drawing's two by day. */
+/* One flat sky (world:colours-are-role-tokens: nothing drawn with a gradient), the lighter of the drawing's two by day. */
 .door-sky { background: var(--door-sky-2); color: var(--text); }
 .round-button,
 .pill-button {
@@ -806,7 +806,7 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 @keyframes door-deal { from { opacity: 0; transform: translate(-18px, 10px) rotate(-6deg); } to { opacity: 1; transform: none; } }
 .door-deal { animation: door-deal 240ms ease-out both; }
 @media (prefers-reduced-motion: reduce) { .door-deal { animation: none; } }
-/* The loader (R-ENGINE-015; shared/ui/Loader.tsx): the bar under every wait's words, the column's width, the
+/* The loader (engine:browser-authority-for-dev-only; shared/ui/Loader.tsx): the bar under every wait's words, the column's width, the
    band's ink on the sheet's ground. It runs by transform alone over two seconds; under reduced motion it stands as a
    full quiet bar. */
 .loader-column { display: flex; flex-direction: column; align-items: stretch; width: max-content; min-width: 160px; max-width: 100%; margin: 0 auto; text-align: center; }

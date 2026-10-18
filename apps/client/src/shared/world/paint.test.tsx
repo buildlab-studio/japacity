@@ -1,5 +1,5 @@
 // The two paints of the lively layer (docs/design/13-the-lively-layer.md, section 2; decision 0025): the same shapes in
-// navy when the world's clock (clock.md R-CLOCK-033) says night, set as one attribute on <html>.
+// navy when the world's clock (clock:game-day-on-real-time) says night, set as one attribute on <html>.
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -18,14 +18,14 @@ function Painted({ live }: { live?: boolean } = {}) {
 }
 
 describe("the paint", () => {
-  test("[R-CLOCK-033] given each part of the world's day, when its paint is read, then night is the night paint and every other part the day's", () => {
+  test("[clock:game-day-on-real-time] given each part of the world's day, when its paint is read, then night is the night paint and every other part the day's", () => {
     expect(paintOf("morning")).toBe("day");
     expect(paintOf("afternoon")).toBe("day");
     expect(paintOf("evening")).toBe("day");
     expect(paintOf("night")).toBe("night");
   });
 
-  test("[R-CLOCK-033] given the development switch for the paint, when it is read, then a development build takes the paint asked for, and a build for players never does", () => {
+  test("[clock:game-day-on-real-time] given the development switch for the paint, when it is read, then a development build takes the paint asked for, and a build for players never does", () => {
     expect(devPaint("?paint=night", true)).toBe("night");
     expect(devPaint("?clock=night&paint=day", true)).toBe("day");
     expect(devPaint("?paint=dusk", true)).toBeNull();
@@ -33,7 +33,7 @@ describe("the paint", () => {
     expect(devPaint("?paint=night", false)).toBeNull();
   });
 
-  test("[R-WORLD-021] given a paint, when it is applied, then the root carries it as data-paint", () => {
+  test("[world:colours-are-role-tokens] given a paint, when it is applied, then the root carries it as data-paint", () => {
     const root = { dataset: {} as DOMStringMap };
     applyPaint("night", root);
     expect(root.dataset.paint).toBe("night");
@@ -41,7 +41,7 @@ describe("the paint", () => {
     expect(root.dataset.paint).toBe("day");
   });
 
-  test("[R-CLOCK-033] [R-WORLD-021] given the world's clock at night, when the hook runs, then the root takes the night paint, and it goes back to the day's when the hook is gone; held back, the clock's night paints the day", () => {
+  test("[clock:game-day-on-real-time] [world:colours-are-role-tokens] given the world's clock at night, when the hook runs, then the root takes the night paint, and it goes back to the day's when the hook is gone; held back, the clock's night paints the day", () => {
     history.replaceState(null, "", "/?clock=night");
     expect(NIGHT_PAINT_LIVE).toBe(true);
     const byDefault = render(<Painted />);
@@ -57,7 +57,7 @@ describe("the paint", () => {
     expect(document.documentElement.dataset.paint).toBeUndefined();
   });
 
-  test("[R-CLOCK-033] given the world's clock in the morning, when the hook runs, then the root takes the day paint; the paint switch wins over the clock", () => {
+  test("[clock:game-day-on-real-time] given the world's clock in the morning, when the hook runs, then the root takes the day paint; the paint switch wins over the clock", () => {
     history.replaceState(null, "", "/?clock=morning");
     const { unmount } = render(<Painted />);
     expect(document.documentElement.dataset.paint).toBe("day");

@@ -1,4 +1,4 @@
-// The things' labels over the place (docs/rules/world.md R-WORLD-005): each stands over its
+// The things' labels over the place (world:things-are-tappable-models): each stands over its
 // thing, and where two would cover each other the higher one on the screen is lifted clear, so none hides another. A
 // thing's dot never moves off its thing; only its name is lifted, and never far: a name that would stand more than
 // NAME_LIFT_MAX over its dot waits unshown, so the family house's names never stack into the sky.

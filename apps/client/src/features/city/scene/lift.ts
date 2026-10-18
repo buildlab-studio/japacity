@@ -11,7 +11,7 @@ export const LIFT_HOLD_MS = 420;
 export const LIFT_DRAG_PX = 8;
 /** How high a lifted thing rides over the floor, in metres. */
 export const LIFT_Y = 0.28;
-/** How long a thing that does not fit takes to shake back, in ms (under half a second, R-WORLD-023). */
+/** How long a thing that does not fit takes to shake back, in ms (under half a second, world:motions-under-half-second). */
 export const SHAKE_MS = 300;
 
 /** The hold area over a thing you own: a round target for a thumb, quiet until the thing is lifted, then a ring. */

@@ -1,5 +1,5 @@
-// The people of this life on the phone (docs/rules/world.md R-WORLD-020, R-WORLD-006, R-WORLD-018; person.md R-PEOPLE-010,
-// R-PEOPLE-014, R-PEOPLE-016): once courting, a bond's Chats thread carries a head with its stage and its choices, one row
+// The people of this life on the phone (world:nobody-picked-from-list, world:one-action-one-sheet, world:phone-rises-over-scene; person:invite-fills-a-slot,
+// person:time-together-is-an-act, person:proposing-a-step): once courting, a bond's Chats thread carries a head with its stage and its choices, one row
 // each, and its rows send the bond's commands; Chats' People row opens the slots with the invite card. Chats as the
 // shell hands it the people feature's screens, over a real life played through the engine. Here beside the shell, since
 // it joins two features as App.tsx does.
@@ -22,7 +22,7 @@ import { askName, BondHead, leftWords, PeopleSlots, togetherWords } from "../fea
 
 const people = content.tuning.people;
 
-/** The handset's head Back, as the phone hands it: an inner screen's way back to the chats while one is open (R-WORLD-018). */
+/** The handset's head Back, as the phone hands it: an inner screen's way back to the chats while one is open (world:phone-rises-over-scene). */
 function Handset({ children }: { children: ReactNode }) {
   const [back, setBack] = useState<(() => void) | null>(null);
   const hand = useCallback((next: (() => void) | null) => setBack(() => next), []);
@@ -64,7 +64,7 @@ function open(element: HTMLElement): void {
 }
 
 describe("the People row", () => {
-  test("[R-WORLD-020] [R-PEOPLE-010] given a new life, when Chats' People row is opened, then the slots of this life show, partner, siblings, mother and father, and an empty partner slot makes the invite card behind a tap once the early win is in", async () => {
+  test("[world:nobody-picked-from-list] [person:invite-fills-a-slot] given a new life, when Chats' People row is opened, then the slots of this life show, partner, siblings, mother and father, and an empty partner slot makes the invite card behind a tap once the early win is in", async () => {
     const game = peopleGame();
     game.grant(1);
     game.endTurn([]);
@@ -81,7 +81,7 @@ describe("the People row", () => {
     expect(slots.querySelectorAll('[data-slot^="sibling-"]').length).toBe(Object.keys(game.state.people.slots).filter((key) => key.startsWith("sibling-")).length);
     // Never a list of strangers: no candidate is shown here.
     expect(slots.querySelector("[data-candidate]")).toBeNull();
-    // An invite is an ask, so it waits for the early win (R-GUIDE-015).
+    // An invite is an ask, so it waits for the early win (guide:nothing-asked-before-early-win).
     act(() => store.setState({ earlyWin: false }));
     expect(screen.queryByRole("button", { name: say("ui.people.partner.invite") })).toBeNull();
     act(() => store.setState({ earlyWin: true }));
@@ -97,7 +97,7 @@ describe("the People row", () => {
 });
 
 describe("a bond's thread head", () => {
-  test("[R-WORLD-020] [R-WORLD-006] given Tobi courted, when his thread is opened, then the computer mark stands by the name, its head says the stage on one row with the moments, and what can be asked waits behind its own row", async () => {
+  test("[world:nobody-picked-from-list] [world:one-action-one-sheet] given Tobi courted, when his thread is opened, then the computer mark stands by the name, its head says the stage on one row with the moments, and what can be asked waits behind its own row", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
     await renderWithGame(chats(), game);
@@ -121,7 +121,7 @@ describe("a bond's thread head", () => {
     expect(screen.getByRole("heading", { name: new RegExp(`^${nameOf(TOBI)}`) })).toBeDefined();
   });
 
-  test("[R-PEOPLE-016] [R-WORLD-020] given Tobi courted to the moments partners need, when the head's ask row proposes, then people/propose goes to the engine and the head says partners", async () => {
+  test("[person:proposing-a-step] [world:nobody-picked-from-list] given Tobi courted to the moments partners need, when the head's ask row proposes, then people/propose goes to the engine and the head says partners", async () => {
     const game = peopleGame(eagerContent());
     const bond = courted(game, TOBI, people.partnerMoments);
     const { authority } = await renderWithGame(chats(), game);
@@ -132,7 +132,7 @@ describe("a bond's thread head", () => {
     expect(authority.sent.at(-1)).toMatchObject({ type: "people/propose", bond, step: "partner" });
   });
 
-  test("[R-PEOPLE-016] [R-WORLD-020] given a friend who asked to be partners, when their thread is opened, then the answer waits open at the top of the head and Yes sends people/answer", async () => {
+  test("[person:proposing-a-step] [world:nobody-picked-from-list] given a friend who asked to be partners, when their thread is opened, then the answer waits open at the top of the head and Yes sends people/answer", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/court", with: "pair-1" });
@@ -147,7 +147,7 @@ describe("a bond's thread head", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/answer", bond, step: "partner", yes: true }));
   });
 
-  test("[R-PEOPLE-035] [R-WORLD-020] given a bond courting, when the head's end row is opened, then the cost is said at once and ending it sends people/end", async () => {
+  test("[person:either-side-ends-a-bond] [world:nobody-picked-from-list] given a bond courting, when the head's end row is opened, then the cost is said at once and ending it sends people/end", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
     const { authority, store } = await renderWithGame(chats(), game);
@@ -161,7 +161,7 @@ describe("a bond's thread head", () => {
     expect(store.getState().view?.people.bonds.find((one) => one.id === bond)?.stage).toBe("ended");
   });
 
-  test("[R-PAIR-014] [R-WORLD-020] given a friend who plays, online, when their thread is opened, then its head carries block and report one tap away, and a computer's head carries neither", async () => {
+  test("[pair:block-and-report-one-tap] [world:nobody-picked-from-list] given a friend who plays, online, when their thread is opened, then its head carries block and report one tap away, and a computer's head carries neither", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     const computer = courted(game, TOBI);
@@ -191,7 +191,7 @@ describe("a bond's thread head", () => {
 describe("the words of a bond's head", () => {
   // The mark's word is "Not a player"; the head's rows say a
   // person's words, never "moments", "Costs standing" or "Ask them".
-  test("[R-TEXT-005] [R-TEXT-007] [R-PEOPLE-009] given Tobi just courted, when his thread is opened, then the mark says Not a player, and the head says nothing shared yet, six more times together before you can ask, ask Tobi, and that ending it will be talked about", async () => {
+  test("[text:bands-not-figures] [text:voice-by-surface] [person:computer-candidates-labelled] given Tobi just courted, when his thread is opened, then the mark says Not a player, and the head says nothing shared yet, six more times together before you can ask, ask Tobi, and that ending it will be talked about", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     await renderWithGame(chats(), game);
@@ -208,7 +208,7 @@ describe("the words of a bond's head", () => {
     for (const system of ["moment", "Costs", "Ask them", "COMPUTER", "Computer"]) expect(said).not.toContain(system);
   });
 
-  test("[R-TEXT-007] given a friend who plays, when the ask row is named, then it asks your friend, never them", () => {
+  test("[text:voice-by-surface] given a friend who plays, when the ask row is named, then it asks your friend, never them", () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/court", with: "pair-1" });
@@ -218,7 +218,7 @@ describe("the words of a bond's head", () => {
 });
 
 describe("the answer once courted, in the thread", () => {
-  test("[R-PEOPLE-013] [R-WORLD-020] given Tobi just courted, when his thread is opened, then its first message is his answer, from him, before any time together", async () => {
+  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] given Tobi just courted, when his thread is opened, then its first message is his answer, from him, before any time together", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
     await renderWithGame(chats(), game);
@@ -232,7 +232,7 @@ describe("the answer once courted, in the thread", () => {
 });
 
 describe("a thread that ended", () => {
-  test("[R-PEOPLE-042] [R-WORLD-020] given Tobi courted and no time made together, when his patience runs out, then his thread stays that month with his line and his reason, and is gone the month after", async () => {
+  test("[person:computer-partner-drifts] [world:nobody-picked-from-list] given Tobi courted and no time made together, when his patience runs out, then his thread stays that month with his line and his reason, and is gone the month after", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     const patience = content.person[TOBI]?.behaviour.patienceMonths ?? 0;
@@ -255,7 +255,7 @@ describe("a thread that ended", () => {
     expect(document.querySelector(`[data-chat-row="${bond}"]`)).toBeNull();
   });
 
-  test("[R-PEOPLE-035] [R-PEOPLE-042] given Tobi courted, when the player ends it, then the thread stays the month with the line that says the player ended it, and no reason of his", async () => {
+  test("[person:either-side-ends-a-bond] [person:computer-partner-drifts] given Tobi courted, when the player ends it, then the thread stays the month with the line that says the player ended it, and no reason of his", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
     await renderWithGame(chats(), game);

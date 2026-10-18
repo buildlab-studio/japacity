@@ -1,4 +1,4 @@
-// Bank, Lately in the application month (docs/rules/world.md R-WORLD-019), played on the recorded life
+// Bank, Lately in the application month (world:phone-holds-what-phones-hold), played on the recorded life
 // ada-careful, whose results list the fare and the salary in dollars. Lately is the month's money whole,
 // from the results' own money lines, in their order, so it leaves neither out.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
@@ -14,13 +14,13 @@ import { PhoneApps } from "../PhoneApps";
 import { lately } from "../phone.testing";
 
 const LIFE = "ada-careful";
-/** The visa application, sent at once (R-ACTIVITY-015): found in the recorded life, wherever its cut puts it. */
+/** The visa application, sent at once (activity:now-acts-and-month-acts): found in the recorded life, wherever its cut puts it. */
 function applicationIndex(commands: readonly { command: { type: string; activity?: string } }[]): number {
   return commands.findIndex(({ command }) => command.type === "activity/now" && command.activity === "activity.apply-for-visa");
 }
 
 describe("Bank, Lately in the application month", () => {
-  test("[R-WORLD-019] given ada-careful riding to the visa centre and sending the application, when Bank opens after the month, then Lately lists the results' money lines whole and in their order, the dollar salary and the fare among them", async () => {
+  test("[world:phone-holds-what-phones-hold] given ada-careful riding to the visa centre and sending the application, when Bank opens after the month, then Lately lists the results' money lines whole and in their order, the dollar salary and the fare among them", async () => {
     const save = recordedSave(LIFE);
     const APPLICATION = applicationIndex(save.commands);
     if (APPLICATION < 0) throw new Error("The recording no longer applies for the visa at once.");
@@ -47,7 +47,7 @@ describe("Bank, Lately in the application month", () => {
     const state = store.getState();
     const view = state.view;
     if (view?.report === null || view === null) throw new Error("No report.");
-    // The application's line is said where it was sent, among the month's lines (R-ACTIVITY-015).
+    // The application's line is said where it was sent, among the month's lines (activity:now-acts-and-month-acts).
     expect([...state.lastMonthLines, ...view.report.lines].some((line) => line.key === "line.route.applied")).toBe(true);
     const results = moneyLines([...state.lastMonthLines, ...view.report.lines]).map(({ line }) => words(line.key, line.params));
     const salary = results.find((row) => row.startsWith("Salary") && row.includes("$"));

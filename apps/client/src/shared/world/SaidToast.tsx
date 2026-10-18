@@ -1,6 +1,6 @@
 // A toast in a person's voice (docs/design/13-the-lively-layer.md sections 2 and 4; the hand's toasts): under the band, a
 // picture, the speaker's name pill and their few words, standing a few seconds and gone. The interview's close says
-// "Your answers are in." in the officer's voice this way (interview.md R-INTERVIEW-004).
+// "Your answers are in." in the officer's voice this way (interview:answers-taken-in-order).
 import { useEffect, useRef } from "react";
 
 import { Tile } from "../tiles/Tile";

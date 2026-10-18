@@ -1,4 +1,4 @@
-// The front door in a real browser (prologue.md R-PROLOGUE-013): "Make it yours" kept in sight, since an expanded
+// The front door in a real browser (prologue:front-door-three-screens): "Make it yours" kept in sight, since an expanded
 // section can open below the fold. Opened, the section comes whole into the door's body once the figure is read and its
 // rows stand; a colour picked brings the next part to choose whole into view the same way. Both sizes; and under
 // reduced motion the same, at once.
@@ -26,7 +26,7 @@ async function openYours(page: Page): Promise<void> {
 }
 
 for (const reduced of [false, true]) {
-  test(`[R-PROLOGUE-013] given the first screen${reduced ? " under reduced motion" : ""}, when Make it yours is opened, then its section stands whole in view, and each colour picked brings the next part whole into view`, async ({ page }) => {
+  test(`[prologue:front-door-three-screens] given the first screen${reduced ? " under reduced motion" : ""}, when Make it yours is opened, then its section stands whole in view, and each colour picked brings the next part whole into view`, async ({ page }) => {
     if (reduced) await page.emulateMedia({ reducedMotion: "reduce" });
     await openYours(page);
     const section = page.locator("[data-door-yours]");

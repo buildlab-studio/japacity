@@ -1,4 +1,4 @@
-// The front door where a life is started only once (prologue.md R-PROLOGUE-011): there the
+// The front door where a life is started only once (prologue:tile-path-open-from-start): there the
 // family's draw is made once, so the tiles say the years may go another way. Where a life may be started over, the
 // authority keeps the tile's path open instead, and the tiles say nothing of it.
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
@@ -24,14 +24,14 @@ function door(lifeAgain: boolean) {
 }
 
 describe("the tiles' words on one life", () => {
-  test("[R-PROLOGUE-011] given a life that is started only once, as online, when the tiles are shown, then they say the years may go another way", async () => {
+  test("[prologue:tile-path-open-from-start] given a life that is started only once, as online, when the tiles are shown, then they say the years may go another way", async () => {
     door(false);
     await toTheArchetypes();
     expect(document.querySelector("[data-door-once]")?.textContent).toBe(say("prologue.archetype.once"));
     expect(document.querySelector("[data-archetypes]")).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-011] given a life that may be started over, when the tiles are shown, then nothing says the years may go another way", async () => {
+  test("[prologue:tile-path-open-from-start] given a life that may be started over, when the tiles are shown, then nothing says the years may go another way", async () => {
     door(true);
     await toTheArchetypes();
     expect(document.querySelector("[data-archetypes]")).not.toBeNull();
@@ -40,7 +40,7 @@ describe("the tiles' words on one life", () => {
 });
 
 describe("the door's first screen", () => {
-  test("[R-PROLOGUE-013] given the door's first screen by day and by night, then the lockup heads it once, in the light ground's file on the day's pale sky and the dark ground's on the night's navy, and the screen's own question is its heading", async () => {
+  test("[prologue:front-door-three-screens] given the door's first screen by day and by night, then the lockup heads it once, in the light ground's file on the day's pale sky and the dark ground's on the night's navy, and the screen's own question is its heading", async () => {
     for (const [paint, ground] of [["day", "light"], ["night", "dark"]] as const) {
       // A run kept from the tests above would open past the first screen.
       localStorage.clear();

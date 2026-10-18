@@ -1,18 +1,18 @@
-// The send-off as a scene (docs/rules/chapter.md R-CHAPTER-012): where the scene stands, kept outside any one screen so
+// The send-off as a scene (chapter:send-off-scene-in-beats): where the scene stands, kept outside any one screen so
 // the city, the moment card, the share card and the phone each read it without importing one another. The scene lives
 // only in this tab: the simulation knows nothing of it, and a reload after the plane opens in the room abroad with no
 // scene (beats 4 to 6 run on the client over the view). The one thing kept on the device is the seat the counter gave
-// (beat 2), so the ticket stub carries it later (share.md R-SHARE-015) whatever happens to the tab in between.
+// (beat 2), so the ticket stub carries it later (share:send-off-card-kept) whatever happens to the tab in between.
 import type { Id } from "@japacity/sim";
 import { useStore } from "zustand";
 import { createStore } from "zustand/vanilla";
 import { SEAT_KEY } from "../kept/storage";
 
-/** The six beats, in order (R-CHAPTER-012). */
+/** The six beats, in order (chapter:send-off-scene-in-beats). */
 export const BEATS = ["departures", "counter", "gate", "plane", "landing", "ride"] as const;
 type Beat = (typeof BEATS)[number];
 
-/** Window or aisle: the counter's two chips change nothing but the stub's seat letter (R-CHAPTER-012 beat 2). */
+/** Window or aisle: the counter's two chips change nothing but the stub's seat letter (chapter:send-off-scene-in-beats beat 2). */
 export type Seat = "window" | "aisle";
 
 /** The route the scene flies, read when it opens, so the beats after the plane never depend on the view's route state. */
@@ -30,7 +30,7 @@ export interface SendOffScene extends SendOffFlight {
 interface SendOffStore {
   scene: SendOffScene | null;
   seat: Seat;
-  /** True once the first ride has shown "Send-off card saved" (share.md R-SHARE-015): the card goes to the cards kept. */
+  /** True once the first ride has shown "Send-off card saved" (share:send-off-card-kept): the card goes to the cards kept. */
   saved: boolean;
   open: (flight: SendOffFlight) => void;
   stepForward: () => void;
@@ -56,7 +56,7 @@ function keepSeat(seat: Seat): void {
   }
 }
 
-/** The three taps of Step forward (R-CHAPTER-012 beat 1). */
+/** The three taps of Step forward (chapter:send-off-scene-in-beats beat 1). */
 const QUEUE_TAPS = 3;
 
 export const sendOff = createStore<SendOffStore>()((set, get) => ({
@@ -102,7 +102,7 @@ export function useSendOffSaved(): boolean {
 }
 
 /**
- * What the shell's plane cut is handed (world.md R-WORLD-037): the map's own layer, drawn by the map's feature and
+ * What the shell's plane cut is handed (world:plane-cut-at-send-off): the map's own layer, drawn by the map's feature and
  * handed to the scene through the shell, so neither imports the other.
  */
 export interface PlaneCutSlot {

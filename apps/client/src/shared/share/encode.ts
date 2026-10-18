@@ -1,8 +1,8 @@
 // The size check every drawn card passes before it may travel (docs/rules/share.md
-// R-SHARE-009, R-SHARE-010): the image is encoded at falling qualities until it
+// share:card-drawn-on-device, share:card-link-has-fixed-preview): the image is encoded at falling qualities until it
 // is under the limit, and refused when even the lowest is not.
 
-/** JPEG qualities tried in turn, in hundredths. The first sits where the busiest face (the send-off: a body, three long things done, black words on the yellow, and the marks of R-SHARE-006 over it all) keeps room under the limit. */
+/** JPEG qualities tried in turn, in hundredths. The first sits where the busiest face (the send-off: a body, three long things done, black words on the yellow, and the marks of share:card-never-looks-official over it all) keeps room under the limit. */
 export const QUALITIES = [62, 56, 50, 46, 40] as const;
 
 export type Encoded = { ok: true; blob: Blob; quality: number } | { ok: false; reason: "too-big" | "no-image"; bytes: number };

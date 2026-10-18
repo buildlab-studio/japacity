@@ -1,8 +1,8 @@
-// The painted map's drawing (docs/rules/world.md R-WORLD-015), authored in the thousandths of a degree content keeps
+// The painted map's drawing (world:map-is-painted-lagos), authored in the thousandths of a degree content keeps
 // positions in and laid on the paper through the one fit (fit.ts): the mainland with the lagoon along its east, the
 // island and Ikoyi across the water, Victoria Island and Lekki along the Atlantic, the roads and the five bridges, the
 // parks, the landmarks drawn as symbols, the district names lying on the ground, the boats and the stilt houses.
-// Rough on purpose, as the positions are (city.md R-CITY-008, R-CITY-009): a stylised Lagos, not a survey.
+// Rough on purpose, as the positions are (city:positions-rough-on-purpose, city:positions-not-for-geometry): a stylised Lagos, not a survey.
 import { at, type Point } from "./fit";
 
 /** [lat, lon] in thousandths of a degree. */
@@ -331,7 +331,7 @@ export const DECOR: readonly Decor[] = [
 ];
 
 /**
- * The lantern canoe (docs/rules/world.md R-WORLD-036): one canoe moored on the open lagoon north-east of the Third
+ * The lantern canoe (world:lantern-canoe-on-map): one canoe moored on the open lagoon north-east of the Third
  * Mainland Bridge, where nothing is staged and no ride goes, water on every side at the open zoom, well clear of the
  * ferry's line, the bridges and every stop. Not a stop and not decor: drawn by the open map alone, with its lantern.
  */

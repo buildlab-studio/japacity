@@ -1,5 +1,5 @@
-// The version line at the foot of Settings and the dedication page its five taps open (docs/rules/city.md R-CITY-021;
-// account.md R-ACCOUNT-032). The line says the build the page carries (R-SERVER-038), or
+// The version line at the foot of Settings and the dedication page its five taps open (city:credits-screen-attributions;
+// account:dedication-page-and-its-doors). The line says the build the page carries (server:production-and-staging), or
 // "local" with none. Five taps within about five seconds open the page; four do not, a sixth changes nothing, a tap
 // elsewhere or closing the page starts the count again, leaving Settings closes it, and nothing of it is counted or
 // sent. The shell hands the page in (the phone imports no other feature), so here a stand-in with the owner's line is
@@ -94,13 +94,13 @@ function openings(): number {
 }
 
 describe("the version line and the dedication", () => {
-  test("[R-CITY-021] given the dedication and the version line, when their words are looked up, then they are the owner's line and the line's words, kept in content", () => {
+  test("[city:credits-screen-attributions] given the dedication and the version line, when their words are looked up, then they are the owner's line and the line's words, kept in content", () => {
     expect(DEDICATION).toBe(OWNERS_LINE);
     expect(text["phone.settings.version"]).toBe("Version");
     expect(text["phone.settings.version.local"]).toBe("local");
   });
 
-  test("[R-CITY-021] given a page stamped with its build, when Settings opens, then its last line says Version and the short commit; with no stamp, then it says local", async () => {
+  test("[city:credits-screen-attributions] given a page stamped with its build, when Settings opens, then its last line says Version and the short commit; with no stamp, then it says local", async () => {
     expect(versionOf("e39f911b0a1c")).toBe("e39f911");
     expect(versionOf("e39f911b0a1c+changes")).toBe("e39f911");
     expect(versionOf("unknown")).toBeNull();
@@ -123,7 +123,7 @@ describe("the version line and the dedication", () => {
     expect(say("phone.settings.version.local")).toBe("local");
   });
 
-  test("[R-CITY-021] [R-ACCOUNT-032] given Settings open, when the version line is tapped four times, then nothing opens; the fifth opens the dedication page; the sixth does nothing new, and nothing is counted or sent", async () => {
+  test("[city:credits-screen-attributions] [account:dedication-page-and-its-doors] given Settings open, when the version line is tapped four times, then nothing opens; the fifth opens the dedication page; the sixth does nothing new, and nothing is counted or sent", async () => {
     await openSettings();
     const fetching = vi.spyOn(globalThis, "fetch");
     tap(DEDICATION_TAPS - 1);
@@ -141,7 +141,7 @@ describe("the version line and the dedication", () => {
     expect(fetching).not.toHaveBeenCalled();
   });
 
-  test("[R-CITY-021] [R-ACCOUNT-032] given the fifth tap, then the page opens in place of the line under the row: nothing more shows under the version line and no link or sheet comes with it", async () => {
+  test("[city:credits-screen-attributions] [account:dedication-page-and-its-doors] given the fifth tap, then the page opens in place of the line under the row: nothing more shows under the version line and no link or sheet comes with it", async () => {
     await openSettings();
     const row = document.querySelector("[data-version]")!;
     const before = row.innerHTML;
@@ -155,7 +155,7 @@ describe("the version line and the dedication", () => {
     expect(document.querySelectorAll("[role='dialog']")).toHaveLength(dialogs + 1);
   });
 
-  test("[R-CITY-021] [R-ACCOUNT-032] given five taps spread wider than the window, when the fifth lands, then nothing opens; five within it, then the dedication page opens", async () => {
+  test("[city:credits-screen-attributions] [account:dedication-page-and-its-doors] given five taps spread wider than the window, when the fifth lands, then nothing opens; five within it, then the dedication page opens", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date(2026, 9, 11, 15, 0));
     await openSettings();
@@ -175,7 +175,7 @@ describe("the version line and the dedication", () => {
     expect(openings()).toBe(1);
   });
 
-  test("[R-CITY-021] [R-ACCOUNT-032] given four taps, when the player taps elsewhere, then the count starts again; given the page open, when it is closed, then the count starts again too", async () => {
+  test("[city:credits-screen-attributions] [account:dedication-page-and-its-doors] given four taps, when the player taps elsewhere, then the count starts again; given the page open, when it is closed, then the count starts again too", async () => {
     await openSettings();
     tap(DEDICATION_TAPS - 1);
     fireEvent.pointerDown(versionButton());
@@ -195,7 +195,7 @@ describe("the version line and the dedication", () => {
     expect(openings()).toBe(2);
   });
 
-  test("[R-CITY-021] [R-ACCOUNT-032] given the page open, when Settings is left and opened again, then the page is closed on return", async () => {
+  test("[city:credits-screen-attributions] [account:dedication-page-and-its-doors] given the page open, when Settings is left and opened again, then the page is closed on return", async () => {
     await openSettings();
     tap(DEDICATION_TAPS);
     expect(dedication()).toHaveLength(1);

@@ -37,7 +37,7 @@ function fakeServer(over: Record<string, Handler> = {}): { calls: Call[]; admin:
   return { calls, admin: adminApi(api({ baseUrl: BASE, fetch }), BASE) };
 }
 
-/** R-MODERATION-012: the page reads and acts only through the admin routes and the account's own row. */
+/** moderation:admin-view-for-admin-list: the page reads and acts only through the admin routes and the account's own row. */
 function expectOnlyAdminRoutes(calls: readonly Call[]): void {
   for (const call of calls) expect(call.path === "/api/account" || call.path.startsWith("/api/admin/"), `${call.method} ${call.path}`).toBe(true);
   expect(calls.some((call) => call.path === "/api/command" || call.path === "/api/view")).toBe(false);
@@ -65,7 +65,7 @@ afterEach(() => {
 });
 
 describe("where the admin page mounts", () => {
-  test("[R-MODERATION-012] given /admin and an account on the admin list, when the app opens, then the admin page replaces the game", async () => {
+  test("[moderation:admin-view-for-admin-list] given /admin and an account on the admin list, when the app opens, then the admin page replaces the game", async () => {
     window.history.replaceState({}, "", "/admin");
     const server = fakeServer();
     render(
@@ -82,7 +82,7 @@ describe("where the admin page mounts", () => {
     expect(row.className).not.toContain("overflow-x-auto");
   });
 
-  test("[R-MODERATION-012] given /admin and an account off the list, when the app opens, then the ordinary app shows and the page never mounts", async () => {
+  test("[moderation:admin-view-for-admin-list] given /admin and an account off the list, when the app opens, then the ordinary app shows and the page never mounts", async () => {
     window.history.replaceState({}, "", "/admin");
     const server = fakeServer({ "GET /api/account": () => ({ ...(ADMIN_GETS["/api/account"] as object), account: { id: "account.ada", country: "NG", age: { passed: true, method: "declared" }, createdAt: 0, character: null, admin: false } }) });
     render(
@@ -95,7 +95,7 @@ describe("where the admin page mounts", () => {
     expect(screen.queryByRole("heading", { name: words("admin.title") })).toBeNull();
   });
 
-  test("[R-MODERATION-012] given /admin and no session or no server behind the page, when the app opens, then the ordinary app shows", async () => {
+  test("[moderation:admin-view-for-admin-list] given /admin and no session or no server behind the page, when the app opens, then the ordinary app shows", async () => {
     window.history.replaceState({}, "", "/admin");
     for (const answer of [{ ok: false, code: "signed-out", detail: "Sign in first." }, undefined]) {
       const server = fakeServer({ "GET /api/account": () => answer });
@@ -111,7 +111,7 @@ describe("where the admin page mounts", () => {
     }
   });
 
-  test("[R-MODERATION-012] given any other address, when the app opens, then the account is not even asked", async () => {
+  test("[moderation:admin-view-for-admin-list] given any other address, when the app opens, then the account is not even asked", async () => {
     window.history.replaceState({}, "", "/");
     const server = fakeServer();
     render(
@@ -126,7 +126,7 @@ describe("where the admin page mounts", () => {
 });
 
 describe("the money tab", () => {
-  test("[R-SERVER-011] given yesterday's report, when the tab opens, then money created and destroyed shows by reason and currency, in whole units and in minor units", async () => {
+  test("[server:daily-money-report] given yesterday's report, when the tab opens, then money created and destroyed shows by reason and currency, in whole units and in minor units", async () => {
     const server = page("money");
     const created = await screen.findByRole("table", { name: words("admin.money.created") });
     expect(within(created).getByRole("row", { name: `salary NGN ${formatMoney(125_000_000, "NGN")} 125,000,000` })).toBeTruthy();
@@ -138,7 +138,7 @@ describe("the money tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[R-SERVER-011] given a UTC day typed, when it is shown, then the report for that day is asked by its day number; a date that is not one cannot be sent", async () => {
+  test("[server:daily-money-report] given a UTC day typed, when it is shown, then the report for that day is asked by its day number; a date that is not one cannot be sent", async () => {
     const server = page("money");
     await screen.findByRole("table", { name: words("admin.money.created") });
     const day = screen.getByLabelText(words("admin.money.day"));
@@ -149,7 +149,7 @@ describe("the money tab", () => {
     await waitFor(() => expect(server.calls.filter((call) => call.path === "/api/admin/report").map((call) => call.query)).toEqual(["", `?day=${String(YESTERDAY)}`]));
   });
 
-  test("[R-SERVER-012] given alarms raised, when the tab opens, then each is listed with its figures, and a character's alarm opens the rollback check on that character", async () => {
+  test("[server:ledger-alarm-lists-suspects] given alarms raised, when the tab opens, then each is listed with its figures, and a character's alarm opens the rollback check on that character", async () => {
     page("money");
     const alarms = await screen.findByRole("list", { name: words("admin.money.alarms") });
     const items = within(alarms).getAllByRole("listitem");
@@ -164,14 +164,14 @@ describe("the money tab", () => {
     expect(screen.getByLabelText(words("admin.rollback.character"))).toHaveProperty("value", "character.c-19bd");
   });
 
-  test("[R-SERVER-012] given the alarms route refuses, when the tab opens, then the refusal shows as it came", async () => {
+  test("[server:ledger-alarm-lists-suspects] given the alarms route refuses, when the tab opens, then the refusal shows as it came", async () => {
     page("money", { "GET /api/admin/alarms": () => ({ ok: false, code: "missing", detail: "No alarms store." }) });
     expect((await screen.findByRole("alert")).textContent).toBe(words("admin.refused.code", { code: "missing", detail: "No alarms store." }));
   });
 });
 
 describe("the rejections tab", () => {
-  test("[R-SERVER-005] given rejections counted, when the tab opens, then each code shows with its count", async () => {
+  test("[server:rejections-write-nothing] given rejections counted, when the tab opens, then each code shows with its count", async () => {
     page("rejections");
     const table = await screen.findByRole("table", { name: words("admin.rejections.title") });
     expect(within(table).getAllByRole("row").map((row) => row.textContent)).toEqual(["CodeCount", "no-turns17", "rate-limited3", "stale41"]);
@@ -179,7 +179,7 @@ describe("the rejections tab", () => {
 });
 
 describe("the rollback tab", () => {
-  test("[R-SERVER-008] given a character, when the check is run, then it is confirmed first, asked once for that one character, and the first difference and the dropped commands show", async () => {
+  test("[server:rollback-check-finds-divergence] given a character, when the check is run, then it is confirmed first, asked once for that one character, and the first difference and the dropped commands show", async () => {
     const server = page("rollback", { "GET /api/admin/rollback/character.c-19bd": () => ROLLBACK });
     const run = screen.getByRole("button", { name: words("admin.rollback.run") });
     expect(run).toHaveProperty("disabled", true);
@@ -194,7 +194,7 @@ describe("the rollback tab", () => {
     expect(server.calls.map((call) => `${call.method} ${call.path}`)).toEqual(["GET /api/admin/rollback/character.c-19bd"]);
   });
 
-  test("[R-SERVER-008] given a character the server does not hold, when the check is run, then its refusal shows; given a clean one, then no difference is said", async () => {
+  test("[server:rollback-check-finds-divergence] given a character the server does not hold, when the check is run, then its refusal shows; given a clean one, then no difference is said", async () => {
     page("rollback", {
       "GET /api/admin/rollback/character.gone": () => ({ ok: false, code: "missing", detail: "No character character.gone." }),
       "GET /api/admin/rollback/character.clean": () => ({ ok: true, report: { character: "character.clean", v: 4, replayed: 4, firstDiff: null, dropped: [] } }),
@@ -210,7 +210,7 @@ describe("the rollback tab", () => {
     expect(await screen.findByText(words("admin.rollback.clean"))).toBeTruthy();
   });
 
-  test("[R-SERVER-010] given the rollback tab, then it offers a check on one character and no control that changes any character", () => {
+  test("[server:no-mass-rollback] given the rollback tab, then it offers a check on one character and no control that changes any character", () => {
     page("rollback");
     expect(screen.getAllByRole("textbox")).toHaveLength(1);
     expect(screen.getAllByRole("button").map((button) => button.textContent).filter((name) => !["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Adverts", "Switches"].includes(name))).toEqual([words("admin.rollback.run")]);
@@ -218,14 +218,14 @@ describe("the rollback tab", () => {
 });
 
 describe("the moderation tab", () => {
-  test("[R-MODERATION-010] [R-MODERATION-011] given open reports and an appeal, when the tab opens, then they are listed in the server's order with the oldest's age against the target", async () => {
+  test("[moderation:one-queue-by-reason-weight] [moderation:reports-decided-within-target] given open reports and an appeal, when the tab opens, then they are listed in the server's order with the oldest's age against the target", async () => {
     page("moderation");
     const queue = await screen.findByRole("list", { name: words("admin.moderation.queue") });
     expect([...queue.querySelectorAll("[data-item]")].map((item) => item.getAttribute("data-item"))).toEqual(["report.1", "report.2", "appeal.1"]);
     expect(screen.getByText(words("admin.moderation.summary", { count: 3, oldest: "1 d 6 h", target: "1 d", overdue: 1 }))).toBeTruthy();
   });
 
-  test("[R-MODERATION-013] given a report, when it is shown, then its reason, the held messages as phrases with times, and both accounts' region, age, past reports and earlier actions show, and never an email", async () => {
+  test("[moderation:queue-item-shows-context] given a report, when it is shown, then its reason, the held messages as phrases with times, and both accounts' region, age, past reports and earlier actions show, and never an email", async () => {
     page("moderation");
     const item = (await screen.findByRole("heading", { name: words("admin.moderation.report", { id: "report.1", reason: "scam" }) })).closest("li")!;
     const held = within(item).getByRole("heading", { name: words("admin.moderation.messages") }).nextElementSibling!;
@@ -246,7 +246,7 @@ describe("the moderation tab", () => {
     expect(other.querySelector("[data-account='account.chidi']")?.textContent).toContain("No region, account gone");
   });
 
-  test("[R-MODERATION-014] given a report, when it is closed with a mute, then the days are needed, it is confirmed, the action, reason and days are sent, and the logged entry is shown after the queue reloads", async () => {
+  test("[moderation:fixed-admin-actions] given a report, when it is closed with a mute, then the days are needed, it is confirmed, the action, reason and days are sent, and the logged entry is shown after the queue reloads", async () => {
     let queues = 0;
     const server = page("moderation", {
       "GET /api/admin/moderation/queue": () => {
@@ -272,7 +272,7 @@ describe("the moderation tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[R-MODERATION-014] given a report, when it is closed with a refer, then the outside body is needed and sent; a refusal shows as it came", async () => {
+  test("[moderation:fixed-admin-actions] given a report, when it is closed with a refer, then the outside body is needed and sent; a refusal shows as it came", async () => {
     const server = page("moderation", { "POST /api/admin/moderation/report.1/close": () => ({ ok: false, code: "ended", detail: "Report report.1 is decided." }) });
     const item = (await screen.findByRole("heading", { name: words("admin.moderation.report", { id: "report.1", reason: "scam" }) })).closest("li")!;
     fireEvent.change(within(item).getByLabelText(words("admin.close.action")), { target: { value: "refer" } });
@@ -284,14 +284,14 @@ describe("the moderation tab", () => {
     expect(posts(server.calls).map((call) => call.body)).toEqual([{ action: "refer", reason: "other", body: "The police" }]);
   });
 
-  test("[R-MODERATION-014] given every action a report can be closed with, then the page offers exactly those and nothing that edits a balance or a state", async () => {
+  test("[moderation:fixed-admin-actions] given every action a report can be closed with, then the page offers exactly those and nothing that edits a balance or a state", async () => {
     page("moderation");
     const item = (await screen.findByRole("heading", { name: words("admin.moderation.report", { id: "report.1", reason: "scam" }) })).closest("li")!;
     const options = [...within(item).getByLabelText(words("admin.close.action")).querySelectorAll("option")].map((option) => option.value);
     expect(options).toEqual(["dismiss", "warn", "mute", "suspend", "ban", "reset-name", "refer", "rollback"]);
   });
 
-  test("[R-MODERATION-016] given an appeal, when it is decided, then the outcome and reason are sent; the server's not-yours refusal shows as it came", async () => {
+  test("[moderation:actioned-player-told-and-appeals] given an appeal, when it is decided, then the outcome and reason are sent; the server's not-yours refusal shows as it came", async () => {
     const server = page("moderation", { "POST /api/admin/moderation/appeal.1/close": () => ({ ok: false, code: "not-yours", detail: "Another admin decides an appeal against your own action." }) });
     const item = (await screen.findByRole("heading", { name: words("admin.moderation.appeal", { id: "appeal.1" }) })).closest("li")!;
     expect(within(item).getByText(words("admin.moderation.against", { action: "warn", account: "account.ada", admin: "account.owner", at: "2026-09-19 12:00 UTC", reason: "harassment" }))).toBeTruthy();
@@ -302,7 +302,7 @@ describe("the moderation tab", () => {
     expect(posts(server.calls).map((call) => [call.path, call.body])).toEqual([["/api/admin/moderation/appeal.1/close", { outcome: "overturned", reason: "other" }]]);
   });
 
-  test("[R-MODERATION-015] given an item or an account named, when the log is shown, then its entries are listed with nothing to change or remove them", async () => {
+  test("[moderation:admin-actions-logged-append-only] given an item or an account named, when the log is shown, then its entries are listed with nothing to change or remove them", async () => {
     const server = page("moderation");
     await screen.findByRole("list", { name: words("admin.moderation.queue") });
     const show = screen.getByRole("button", { name: words("admin.log.show") });
@@ -317,7 +317,7 @@ describe("the moderation tab", () => {
 });
 
 describe("the dedication lights", () => {
-  test("[R-MODERATION-021] given lights awaiting a look, when the moderation tab opens, then each shows its name, years, the account's username and region and when lit, oldest first, with Approve and Refuse", async () => {
+  test("[moderation:dedication-lights-await-approval] given lights awaiting a look, when the moderation tab opens, then each shows its name, years, the account's username and region and when lit, oldest first, with Approve and Refuse", async () => {
     const server = page("moderation");
     const list = await screen.findByRole("list", { name: words("admin.lights.list") });
     const items = [...list.querySelectorAll("[data-light]")];
@@ -332,7 +332,7 @@ describe("the dedication lights", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[R-MODERATION-021] [R-MODERATION-015] given a light, when it is approved, then it is confirmed, the approval is sent for that account, the logged entry shows and the list is read again", async () => {
+  test("[moderation:dedication-lights-await-approval] [moderation:admin-actions-logged-append-only] given a light, when it is approved, then it is confirmed, the approval is sent for that account, the logged entry shows and the list is read again", async () => {
     let reads = 0;
     const server = page("moderation", {
       "GET /api/admin/dedication/pending": () => {
@@ -350,7 +350,7 @@ describe("the dedication lights", () => {
     expect(reads).toBe(2);
   });
 
-  test("[R-MODERATION-021] given a light, when it is refused, then it is confirmed and the refusal is sent; a refusal from the server shows as it came", async () => {
+  test("[moderation:dedication-lights-await-approval] given a light, when it is refused, then it is confirmed and the refusal is sent; a refusal from the server shows as it came", async () => {
     const server = page("moderation", { "POST /api/admin/dedication/account.bola/refuse": () => ({ ok: false, code: "unknown-id", detail: "No light for account.bola." }) });
     const item = (await screen.findByRole("heading", { name: "Uncle Tunde" })).closest("li")!;
     fireEvent.click(within(item).getByRole("button", { name: words("admin.lights.refuse") }));
@@ -359,14 +359,14 @@ describe("the dedication lights", () => {
     expect(posts(server.calls).map((call) => call.path)).toEqual(["/api/admin/dedication/account.bola/refuse"]);
   });
 
-  test("[R-MODERATION-021] given no light awaiting a look, when the tab opens, then the list says so", async () => {
+  test("[moderation:dedication-lights-await-approval] given no light awaiting a look, when the tab opens, then the list says so", async () => {
     page("moderation", { "GET /api/admin/dedication/pending": () => ({ ok: true, lights: [] }) });
     expect(await screen.findByText(words("admin.lights.empty"))).toBeTruthy();
   });
 });
 
 describe("the analytics tab", () => {
-  test("[R-ANALYTICS-009] [R-ANALYTICS-010] given the dashboard, when the tab opens, then the daily series shows as a table and a count under minShown only as fewer than", async () => {
+  test("[analytics:dashboard-shows-fixed-list] [analytics:small-counts-shown-as-fewer] given the dashboard, when the tab opens, then the daily series shows as a table and a count under minShown only as fewer than", async () => {
     const server = page("analytics");
     const daily = await screen.findByRole("table", { name: words("admin.analytics.daily") });
     expect(within(daily).getAllByRole("row").map((row) => [...row.querySelectorAll("td")].map((cell) => cell.textContent))).toEqual([
@@ -379,7 +379,7 @@ describe("the analytics tab", () => {
     expect(server.calls.find((call) => call.path === "/api/admin/analytics")?.query).toBe("");
   });
 
-  test("[R-ANALYTICS-011] given the sign-up weeks, when the tab opens, then day 1 and day 7 show beside the reference lines, a hidden rate says so, and an ask before the early win shows in red", async () => {
+  test("[analytics:day-one-and-seven-return] given the sign-up weeks, when the tab opens, then day 1 and day 7 show beside the reference lines, a hidden rate says so, and an ask before the early win shows in red", async () => {
     page("analytics");
     const weeks = await screen.findByRole("table", { name: words("admin.analytics.weeks") });
     const cells = within(weeks).getAllByRole("row").slice(1).map((row) => [...row.querySelectorAll("td")].map((cell) => cell.textContent));
@@ -393,7 +393,7 @@ describe("the analytics tab", () => {
     expect(fault.className).toContain("text-bad");
   });
 
-  test("[R-ANALYTICS-009] given a day typed, when it is shown, then the dashboard for that day is asked", async () => {
+  test("[analytics:dashboard-shows-fixed-list] given a day typed, when it is shown, then the dashboard for that day is asked", async () => {
     const server = page("analytics");
     await screen.findByRole("table", { name: words("admin.analytics.daily") });
     fireEvent.change(screen.getByLabelText(words("admin.analytics.day")), { target: { value: "2026-10-01" } });
@@ -403,7 +403,7 @@ describe("the analytics tab", () => {
 });
 
 describe("the adverts tab", () => {
-  test("[R-ADVERT-012] given a pending campaign shown in Nigeria in a restricted category, when it is reviewed, then every check it needs is offered, and only the ticked ones are sent with the note", async () => {
+  test("[advert:reviewer-checks-and-records] given a pending campaign shown in Nigeria in a restricted category, when it is reviewed, then every check it needs is offered, and only the ticked ones are sent with the note", async () => {
     const server = page("adverts", { "POST /api/admin/adverts/campaigns/campaign-a1/approve": () => ({ ok: true, campaign: { id: "campaign-a1", status: "approved" } }) });
     const card = (await screen.findByRole("heading", { name: words("admin.campaign.title", { id: "campaign-a1" }) })).closest("li")!;
     expect(within(card).getByText(words("admin.campaign.advertiser", { name: "Brightpath Study Centre", country: "NG", number: "RC-000123", contact: "Kemi Ade", email: "kemi@brightpath.example" }))).toBeTruthy();
@@ -420,7 +420,7 @@ describe("the adverts tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[R-ADVERT-012] given a campaigns reply naming checks the page has never seen, when a version is reviewed, then exactly the reply's checks are offered", async () => {
+  test("[advert:reviewer-checks-and-records] given a campaigns reply naming checks the page has never seen, when a version is reviewed, then exactly the reply's checks are offered", async () => {
     if (!CAMPAIGNS.ok) throw new Error("The fixture is a refusal.");
     const [first, ...rest] = CAMPAIGNS.campaigns;
     if (first === undefined) throw new Error("The fixture has no campaign.");
@@ -433,7 +433,7 @@ describe("the adverts tab", () => {
     expect(within(within(version).getByRole("group", { name: words("admin.creative.review") })).getAllByRole("checkbox").map((box) => box.parentElement?.textContent)).toEqual(["format", "new-check"]);
   });
 
-  test("[R-ADVERT-010] given an approval missing checks, when the server refuses it, then the missing checks are named", async () => {
+  test("[advert:named-person-approves-creatives] given an approval missing checks, when the server refuses it, then the missing checks are named", async () => {
     page("adverts", {
       "POST /api/admin/adverts/creatives/creative-b2/1/approve": () => ({ ok: false, code: "unchecked", detail: "Not approved: the review has not recorded text, link-domain.", missing: ["text", "link-domain"] }),
     });
@@ -447,7 +447,7 @@ describe("the adverts tab", () => {
     expect(refusal.textContent).toContain(words("admin.missing", { missing: "text, link-domain" }));
   });
 
-  test("[R-ADVERT-010] [R-ADVERT-011] given creatives and their reviews, when the tab opens, then each version shows its file, text, link, status and its image from the admin route whatever its status, and every review with its reviewer, checks and banned list", async () => {
+  test("[advert:named-person-approves-creatives] [advert:changes-return-to-review] given creatives and their reviews, when the tab opens, then each version shows its file, text, link, status and its image from the admin route whatever its status, and every review with its reviewer, checks and banned list", async () => {
     page("adverts");
     const image = (id: string, version: number) => `${BASE}/api/admin/adverts/creatives/${id}/${String(version)}/image`;
     const pending = (await screen.findByRole("heading", { name: words("admin.creative.title", { id: "creative-b2", version: 1 }) })).closest("li")!;
@@ -464,7 +464,7 @@ describe("the adverts tab", () => {
     expect(within(reviews).getByRole("row", { name: "creative-d4 1 account.owner 2026-10-06 12:00 UTC format, not-game-like, text 2026-10-08 approved Clean." })).toBeTruthy();
   });
 
-  test("[R-ADVERT-020] given a campaign's daily counts, when the tab opens, then they show as a table by day, slot and region, and a campaign with none says so", async () => {
+  test("[advert:advertiser-records-stored] given a campaign's daily counts, when the tab opens, then they show as a table by day, slot and region, and a campaign with none says so", async () => {
     page("adverts");
     const live = (await screen.findByRole("heading", { name: words("admin.campaign.title", { id: "campaign-c3" }) })).closest("li")!;
     const counts = within(live).getByRole("table", { name: words("admin.counts") });
@@ -473,7 +473,7 @@ describe("the adverts tab", () => {
     expect(within(within(pending).getByRole("table", { name: words("admin.counts") })).getByText(words("admin.none"))).toBeTruthy();
   });
 
-  test("[R-ADVERT-014] given a live campaign, when it is pulled or its links rechecked, then each is confirmed and its answer shown", async () => {
+  test("[advert:reported-advert-pulled-at-once] given a live campaign, when it is pulled or its links rechecked, then each is confirmed and its answer shown", async () => {
     const server = page("adverts", {
       "POST /api/admin/adverts/campaigns/campaign-c3/pull": () => ({ ok: true, campaign: { status: "paused" } }),
       "POST /api/admin/adverts/campaigns/campaign-c3/recheck": () => ({ ok: true, failing: ["https://harbourtea.example/menu"], pulled: true }),
@@ -491,7 +491,7 @@ describe("the adverts tab", () => {
 });
 
 describe("the switches tab", () => {
-  test("[R-SERVER-031] given the switch row, when a switch is turned off, then a reason is needed, it is confirmed, the change is sent with the reason, and the row and the log are read again", async () => {
+  test("[server:four-off-switches] given the switch row, when a switch is turned off, then a reason is needed, it is confirmed, the change is sent with the reason, and the row and the log are read again", async () => {
     const server = page("switches", { "POST /api/admin/switches": () => ({ ok: true, switches: { ...SWITCH_ROW, signups: false }, dials: { placeTargets: {}, computerAfterMonths: null } }) });
     const row = (await screen.findByText(words("admin.switch.signups"))).closest("li")!;
     expect(within(row).getByText(words("admin.switch.on"))).toBeTruthy();
@@ -508,7 +508,7 @@ describe("the switches tab", () => {
     expectOnlyAdminRoutes(server.calls);
   });
 
-  test("[R-CITY-039] given the switch row, when the tab opens, then each of the five board switches is listed with its state, the joined-week board off", async () => {
+  test("[city:boards-switch-when-and-who] given the switch row, when the tab opens, then each of the five board switches is listed with its state, the joined-week board off", async () => {
     page("switches");
     await screen.findByText(words("admin.switch.signups"));
     const states = (["boards.this-week.everyone", "boards.this-week.friends", "boards.all-time.everyone", "boards.all-time.friends", "boards.joined-week"] as const).map((name) => {
@@ -519,7 +519,7 @@ describe("the switches tab", () => {
     expect(states).toEqual(["on", "on", "on", "on", "off"]);
   });
 
-  test("[R-SERVER-031] given the switch log, when the tab opens, then every change shows with who, when and why, oldest first", async () => {
+  test("[server:four-off-switches] given the switch log, when the tab opens, then every change shows with who, when and why, oldest first", async () => {
     page("switches");
     const log = await screen.findByRole("table", { name: words("admin.switch.log") });
     expect(within(log).getAllByRole("row").slice(1).map((row) => row.textContent)).toEqual([
@@ -528,7 +528,7 @@ describe("the switches tab", () => {
     ]);
   });
 
-  test("[R-SERVER-030] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent; there is no top-up dial", async () => {
+  test("[server:private-settings-and-dials] given the dials, when one is set at 0 and one unset, then each is confirmed and sent with its reason; a value that is not a whole number cannot be sent; there is no top-up dial", async () => {
     const server = page("switches", { "POST /api/admin/dials": () => ADMIN_GETS["/api/admin/switches"] });
     const months = (await screen.findByText(words("admin.dial.computerAfterMonths"))).closest("li")!;
     expect(within(months).getByText("25")).toBeTruthy();

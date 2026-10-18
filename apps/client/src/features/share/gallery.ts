@@ -1,5 +1,5 @@
 // The cards a player has had, kept on this device only (docs/rules/share.md
-// R-SHARE-011: a card is never stored on the server). A card goes in when it is
+// share:card-never-stored: a card is never stored on the server). A card goes in when it is
 // closed, once.
 import type { JapaType } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -17,7 +17,7 @@ export interface Kept {
   card: ShareCard;
   /** The japa type read when the send-off was due, kept with that card (decision 0024); absent on every other card. */
   type?: JapaType;
-  /** The seat the counter gave at the send-off (share.md R-SHARE-015), kept with that card for its stub; absent on every other card. */
+  /** The seat the counter gave at the send-off (share:send-off-card-kept), kept with that card for its stub; absent on every other card. */
   seat?: Seat;
 }
 

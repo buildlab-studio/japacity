@@ -15,7 +15,7 @@ import { City } from "./City";
 const GIG = "activity.side-gig";
 
 describe("toasts that answer every tap", () => {
-  test("[R-WORLD-005] [R-WORLD-023] given an act done in the world that brings money in, when its answer lands, then a toast under the band shows its picture, its name and the figure in, a coin flies to the counter, and it goes after a few seconds", async () => {
+  test("[world:things-are-tappable-models] [world:motions-under-half-second] given an act done in the world that brings money in, when its answer lands, then a toast under the band shows its picture, its name and the figure in, a coin flies to the counter, and it goes after a few seconds", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       const view = engineView();
@@ -39,7 +39,7 @@ describe("toasts that answer every tap", () => {
     }
   });
 
-  test("[R-WORLD-008] given the month turning with money in, when the results open, then no toast stands over them: the results tell the month", async () => {
+  test("[world:month-end-results-sheet] given the month turning with money in, when the results open, then no toast stands over them: the results tell the month", async () => {
     const view = engineView();
     markTaught("title", view.scenario);
     const { store } = await renderWithView(<City world results={() => <p />} />, view);

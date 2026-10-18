@@ -78,16 +78,16 @@ function Head({ brief, line }: { brief: Brief; line: string }) {
 }
 
 /**
- * The mission card (R-WORLD-001): handed by its person, their words first, one button. The card's
+ * The mission card (world:world-fills-the-screen): handed by its person, their words first, one button. The card's
  * Let's go carries the opening's mark (`data-opening-go`), so whatever passed the opening card passes this one; the card
- * is marked open as a sheet is, so a staged ask waits for it to close (account.md R-ACCOUNT-023).
+ * is marked open as a sheet is, so a staged ask waits for it to close (account:guest-secures-the-life).
  */
 export function MissionCard({ brief, onGo }: { brief: Brief; onGo: () => void }) {
   useEffect(() => cue("open"), []);
   const now = brief.items.find((item) => item.now);
   return (
     <>
-    {/* The card stands on the drawn place, dimmed as behind the chapter's close (R-WORLD-001), never on a blank world: the
+    {/* The card stands on the drawn place, dimmed as behind the chapter's close (world:world-fills-the-screen), never on a blank world: the
         shell shows it only once the place's first frame is drawn. */}
     <div aria-hidden className="fade fixed inset-0 z-[45] bg-scrim/60" data-brief-scrim />
     <CentredColumn className="pointer-events-none fixed inset-x-0 bottom-0 z-[46] px-3 pb-[max(12px,env(safe-area-inset-bottom))]">
@@ -167,7 +167,7 @@ export function ChapterClose({ brief, line, next, after, onGo }: { brief: Brief;
   }, []);
   return (
     <>
-    {/* The world dims behind the close, as behind any moment (R-WORLD-001), and the thumbs wait under it. */}
+    {/* The world dims behind the close, as behind any moment (world:world-fills-the-screen), and the thumbs wait under it. */}
     <div aria-hidden className="motion-scrim fixed inset-0 z-[45] bg-scrim" data-brief-close-scrim />
     <CentredColumn className="pointer-events-none fixed inset-0 z-[46] flex flex-col justify-end px-3 pt-[max(76px,calc(env(safe-area-inset-top)+76px))] pb-[max(12px,env(safe-area-inset-bottom))]">
       <div className="pointer-events-auto relative flex max-h-full flex-col gap-3 overflow-y-auto" role="dialog" aria-label={brief.title} data-brief-close={brief.chapter} data-open>

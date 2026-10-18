@@ -2,7 +2,7 @@
 // one question at a time with its options, never a truth or a score; while a
 // question waits the month cannot end. Once this side has answered it waits
 // for the other, and the player carries on. After scoring: the result and how
-// many answers agreed, never which (R-INTERVIEW-004, 005, 011). Dressed as
+// many answers agreed, never which (interview:answers-taken-in-order, interview:one-question-at-a-time, interview:players-answer-at-own-pace). Dressed as
 // the ask (design page 13 section 4): the officer's pill and the desk's tile
 // at the head, the question as the title, the options as the ask's replies.
 import type { PlayerView } from "@japacity/sim";
@@ -17,7 +17,7 @@ import { nameOf, runningName, say, words } from "../../shared/words/text";
 
 const ENTRY = "interview.genuineness";
 
-/** The desk the officer sits at, as the toast at the close shows it (R-INTERVIEW-004). */
+/** The desk the officer sits at, as the toast at the close shows it (interview:answers-taken-in-order). */
 export const INTERVIEW_DESK = "activity.interview-prep";
 
 type Interview = NonNullable<PlayerView["interview"]>;
@@ -51,7 +51,7 @@ function Question({ interview }: { interview: Interview }) {
   const { question } = interview;
   if (question === null) return null;
   return (
-    // One question at a time (R-INTERVIEW-005): its options as the ask's replies, none of them the main one, since no answer is right.
+    // One question at a time (interview:one-question-at-a-time): its options as the ask's replies, none of them the main one, since no answer is right.
     <div className="flex flex-col gap-2.5" data-interview-options>
       {question.options.map((option) => (
         <button

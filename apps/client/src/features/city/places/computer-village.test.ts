@@ -1,7 +1,7 @@
-// Computer Village rebuilt as one frontage (city.md place.computer-village, world.md R-WORLD-011):
+// Computer Village rebuilt as one frontage (city.md place.computer-village, world:place-is-one-screen):
 // the phone plaza and the laptop house across the road, and on the near pavement the repair bench
 // where the laptop's fault and the side gig open, a phone shop where a phone is bought, an accessories stall
-// where the trade is learned and phones are sold (streets.md R-STREET-001 to 003), a danfo and an okada.
+// where the trade is learned and phones are sold (streets:buy-phone-at-computer-village, streets:phone-sales-job and streets:apprentice-learns-repair), a danfo and an okada.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -20,7 +20,7 @@ const thing = (id: string) => thingIn(stage.things, id);
 describe("Computer Village", () => {
   frontageTests(raw, ID);
 
-  test("[R-WORLD-005] given the repair bench, when its acts are read, then the laptop's fault opens as a sheet while its offer is open and the side gig as a second, each under its own words", () => {
+  test("[world:things-are-tappable-models] given the repair bench, when its acts are read, then the laptop's fault opens as a sheet while its offer is open and the side gig as a second, each under its own words", () => {
     const bench = thing("repair-bench");
     expect(bench.file.endsWith("prop_repair-table.glb")).toBe(true);
     expect(bench.acts.map((act) => [act.kind, act.stages])).toEqual([
@@ -30,7 +30,7 @@ describe("Computer Village", () => {
     expect(bench.acts.map((act) => cityWords(act.label))).toEqual(["The laptop", "Side gig"]);
   });
 
-  test("[R-STREET-001] given the phone stall, when its acts are read, then buying a phone opens as a sheet under its own words and looking stays a plain act", () => {
+  test("[streets:buy-phone-at-computer-village] given the phone stall, when its acts are read, then buying a phone opens as a sheet under its own words and looking stays a plain act", () => {
     const stall = thing("phone-stall");
     expect(stall.acts.map((act) => [act.kind, act.stages])).toEqual([
       ["sheet", "activity.buy-phone"],
@@ -39,7 +39,7 @@ describe("Computer Village", () => {
     expect(stall.acts.map((act) => cityWords(act.label))).toEqual(["Buy a phone", "Look"]);
   });
 
-  test("[R-STREET-002] [R-STREET-003] given the accessories stall, when its acts are read, then the apprenticeship and the phone sales job each open as a sheet under their own words", () => {
+  test("[streets:phone-sales-job] [streets:apprentice-learns-repair] given the accessories stall, when its acts are read, then the apprenticeship and the phone sales job each open as a sheet under their own words", () => {
     const stall = thing("accessories");
     expect(stall.acts.map((act) => [act.kind, act.stages])).toEqual([
       ["sheet", "activity.apprentice-repair"],
@@ -48,12 +48,12 @@ describe("Computer Village", () => {
     expect(stall.acts.map((act) => cityWords(act.label))).toEqual(["Learn repairs", "Sell phones"]);
   });
 
-  test("[R-CITY-011] given what Computer Village stages, when the city looks for where each is shown at home, then it is shown here", () => {
+  test("[city:set-piece-shown-where-staged] given what Computer Village stages, when the city looks for where each is shown at home, then it is shown here", () => {
     const places = Object.values(content.place);
     for (const id of ["offer.laptop-fault", "activity.side-gig", "activity.buy-phone", "activity.job-phone-sales", "activity.apprentice-repair"]) expect(stagedAt(id, { where: "home", country: null }, places)).toBe(ID);
   });
 
-  test("[R-CITY-014] given the repair bench, when the crowd stands, then the repairer keeps the spot behind it and those waiting stand on the near side", () => {
+  test("[city:crowd-sample-capped] given the repair bench, when the crowd stands, then the repairer keeps the spot behind it and those waiting stand on the near side", () => {
     const [bench] = copiesOf(stage, "prop_repair-table.glb");
     if (bench === undefined) throw new Error("No bench");
     const repairer = stage.people[stage.prefer?.trader?.[0] ?? -1];
@@ -64,7 +64,7 @@ describe("Computer Village", () => {
     expect(waiting.every(([x, z]) => z > bench[1] && Math.hypot(x - bench[0], z - bench[1]) < 2.5)).toBe(true);
   });
 
-  test("[R-WORLD-017] given the danfo and the okada at the kerb, when they are tapped, then each opens the ride sheet for its own vehicle", () => {
+  test("[world:ride-sheet-shows-fares] given the danfo and the okada at the kerb, when they are tapped, then each opens the ride sheet for its own vehicle", () => {
     for (const id of ["danfo", "okada"]) {
       expect(thing(id).acts.map((act) => act.kind)).toEqual(["ride"]);
       expect(vehicleOf(thing(id))).toBe(id);
@@ -72,7 +72,7 @@ describe("Computer Village", () => {
     }
   });
 
-  test("[R-CITY-024] given the shops across the road and the phone shop, when their boards are read, then they sell and fix phones and laptops in the place's own words", () => {
+  test("[city:place-words-are-text-keys] given the shops across the road and the phone shop, when their boards are read, then they sell and fix phones and laptops in the place's own words", () => {
     const words = stage.models.flatMap((model) => (model.signs ?? []).flat()).map(wordsOf);
     expect(words.some((said) => said.includes("PHONES"))).toBe(true);
     expect(words.some((said) => said.includes("LAPTOP"))).toBe(true);

@@ -1,7 +1,7 @@
-// The prologue: sixteen to the end of the service year (prologue.md R-PROLOGUE-008), on the door's sky, with no
+// The prologue: sixteen to the end of the service year (prologue:view-shows-step-card), on the door's sky, with no
 // compound and no figure on a plinth. A new life never shows a card: its archetype answers every step
-// (R-PROLOGUE-010) while the page over the compound fills as the years go by, and when the last answer is in, the
-// page is the handover (R-PROLOGUE-014): the family the game drew turned over, the years before as fact chips, the
+// (prologue:archetype-presets-answers) while the page over the compound fills as the years go by, and when the last answer is in, the
+// page is the handover (prologue:printed-page-hands-over): the family the game drew turned over, the years before as fact chips, the
 // money as it stands, and the world opens when Go is tapped. A life with no archetype (the setting
 // `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.
 import { content, presetAges, presetAnswer } from "@japacity/content";
@@ -43,7 +43,7 @@ type Draw = NonNullable<Prologue["draw"]>;
 
 const FAMILY_MEANS = "quality.family-means";
 
-/** The line the prologue's last answer ends with (R-PROLOGUE-006). */
+/** The line the prologue's last answer ends with (prologue:closing-opens-home-charges). */
 export const PROLOGUE_CLOSED = "line.prologue.closed";
 
 /** Lines the life so far already says in words, so the answer's outcome does not say them twice. */
@@ -68,8 +68,8 @@ function tileOpening(archetype: Pick<Archetype, "id"> | null): [string, string] 
 }
 
 /**
- * The draw as sentences, never as a bare figure (R-PROLOGUE-002, 008). A tile with its own opening says it in place of
- * the draw's town and means (the child of the water grew up on the lagoon, R-PROLOGUE-012); the rest is the draw's.
+ * The draw as sentences, never as a bare figure (prologue:family-draw-on-first-answer, prologue:view-shows-step-card). A tile with its own opening says it in place of
+ * the draw's town and means (the child of the water grew up on the lagoon, prologue:makoko-start-never-a-trap); the rest is the draw's.
  */
 export function drawSentences(draw: Draw, archetype: Pick<Archetype, "id"> | null = null): string[] {
   const strained = content.tuning.prologue.waecStrain.under;
@@ -86,7 +86,7 @@ function ageYears(view: PlayerView): number {
 }
 
 /**
- * Why an answer is not open (R-PROLOGUE-003): the situation in content's words, never the threshold
+ * Why an answer is not open (prologue:steps-offer-legal-answers): the situation in content's words, never the threshold
  * ("your family would not have it"). A money line carries the sum it needs.
  * Only an answer content has no words for falls back to its requirements.
  */
@@ -205,7 +205,7 @@ function Outcome({ prologue }: { prologue: Prologue }) {
   );
 }
 
-/** The draw, the qualities that have moved from nothing, and money, as they stand (R-PROLOGUE-008). No `draw` leaves the draw out. */
+/** The draw, the qualities that have moved from nothing, and money, as they stand (prologue:view-shows-step-card). No `draw` leaves the draw out. */
 function LifeSoFar({ view, draw, open = false, archetype = null }: { view: PlayerView; draw?: Draw | null; open?: boolean; archetype?: Archetype | null }) {
   const held = view.qualities.filter((quality) => quality.id !== AGE && quality.value !== 0 && content.quality[quality.id]?.shown === true);
   const naira = view.pockets.NGN.bank + view.pockets.NGN.cash;
@@ -238,7 +238,7 @@ function LifeSoFar({ view, draw, open = false, archetype = null }: { view: Playe
   );
 }
 
-/** A tile's preset as the door set it: the tile, the age step and the home, each within what the door offers it (R-PROLOGUE-009, 013). */
+/** A tile's preset as the door set it: the tile, the age step and the home, each within what the door offers it (prologue:front-door-builds-a-person, prologue:front-door-three-screens). */
 interface PresetChoice {
   base: Archetype;
   age: number;
@@ -264,10 +264,10 @@ function presetArchetype(): Archetype | null {
 }
 
 /**
- * Plays the archetype's answer at every card (R-PROLOGUE-010), and keeps each answer and what its
- * draw gave for the page (R-PROLOGUE-014). The answer is content's `presetAnswer`, the one the server plays. Null
+ * Plays the archetype's answer at every card (prologue:archetype-presets-answers), and keeps each answer and what its
+ * draw gave for the page (prologue:printed-page-hands-over). The answer is content's `presetAnswer`, the one the server plays. Null
  * `answer`: the card shows (a refusal, or a card with every answer shut). Online, Begin sends the whole preset as one
- * request and the server plays every step (server.md R-SERVER-046); the page fills from the reply's trail. Offline each
+ * request and the server plays every step (server:server-plays-prologue-preset); the page fills from the reply's trail. Offline each
  * answer goes at once as a command.
  */
 function usePreset(view: PlayerView, prologue: Prologue, choice: PresetChoice | null): string | null {
@@ -308,7 +308,7 @@ function PrologueCard({ view, prologue }: { view: PlayerView; prologue: Prologue
   useEffect(() => {
     if (answer === null) noteCard(prologue.draw, prologue.lastOutcome);
   }, [answer, prologue.draw, prologue.lastOutcome]);
-  // A new life never shows a card: the page fills as its years go by (R-PROLOGUE-014).
+  // A new life never shows a card: the page fills as its years go by (prologue:printed-page-hands-over).
   if (answer !== null) return <PageScreen view={view} archetype={archetype} draw={prologue.draw} />;
   return (
     <DoorFrame mark="prologue" title={null}>
@@ -341,7 +341,7 @@ export function prologueJustClosed(lines: readonly ReportLine[]): boolean {
  * trader with capital starts at the meetup or the official page; the
  * handover has its own words for a step whose nudge is not something to do. A life whose archetype takes its first
  * step somewhere of its own says that place: the nurse's job at the clinic, a trade's motor park.
- * A life in Makoko's room with no job says the racks beside it, as the band's nudge does at the same moment (R-ACTIVITY-017);
+ * A life in Makoko's room with no job says the racks beside it, as the band's nudge does at the same moment (activity:fish-racks-at-makoko);
  * the motor park comes after.
  */
 export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" | "pockets"> & Partial<Pick<PlayerView, "documents" | "routes" | "job" | "activities">>): string | null {
@@ -356,16 +356,16 @@ export function firstStep(view: Pick<PlayerView, "chapter" | "scenario" | "quali
 }
 
 
-/** When the family's card turns over on the handover page; no stamp lands, and the world opens only on Go or a tap (R-PROLOGUE-014). */
+/** When the family's card turns over on the handover page; no stamp lands, and the world opens only on Go or a tap (prologue:printed-page-hands-over). */
 export const TURN_MS = 450;
 
 /**
  * About how long the years the server played in one request take to come onto the page, a chip after another, so the
- * years still read as years (R-PROLOGUE-010); the family turns over after the last.
+ * years still read as years (prologue:archetype-presets-answers); the family turns over after the last.
  */
 export const REVEAL_MS = 2000;
 
-/** The chips the page shows before the server's fresh steps, and the pause between each of the rest (R-PROLOGUE-010). */
+/** The chips the page shows before the server's fresh steps, and the pause between each of the rest (prologue:archetype-presets-answers). */
 function revealOf(trail: Trail, view: PlayerView, water: boolean, total: number): { from: number; every: number } {
   const fresh = trail.fresh ?? 0;
   if (fresh <= 0) return { from: total, every: 0 };
@@ -416,7 +416,7 @@ function Chips({ chips, mark }: { chips: readonly YearChip[]; mark?: string }) {
   return (
     <div className="mt-1.5 grid grid-cols-2 gap-1.5" {...(mark === undefined ? {} : { [mark]: "" })}>
       {chips.map((chip) => (
-        // Where the life starts is said in a line of its own across the page (R-PROLOGUE-013).
+        // Where the life starts is said in a line of its own across the page (prologue:front-door-three-screens).
         <div key={chip.id} className={`min-w-0 ${chip.id === "home" ? "col-span-2" : ""}`}>
           <FactChip id={chip.id} icon={chip.icon} label={chip.label} note={chip.note} state={chip.state} />
         </div>
@@ -433,7 +433,7 @@ function homeIn(view: PlayerView): Home | null {
 }
 
 /**
- * Where the life starts (R-PROLOGUE-013, 014): the home's picture over the story's own chip of where the character
+ * Where the life starts (prologue:front-door-three-screens, prologue:printed-page-hands-over): the home's picture over the story's own chip of where the character
  * sleeps and when its rent or living costs fall next, read from the life (the obligations it opened), never the door.
  */
 function StartsIn({ home, chip }: { home: Home | null; chip: YearChip }) {
@@ -453,7 +453,7 @@ function StartsIn({ home, chip }: { home: Home | null; chip: YearChip }) {
 }
 
 /**
- * The page after Begin (R-PROLOGUE-014), in the door's dress: "Your page, printed" over the
+ * The page after Begin (prologue:printed-page-hands-over), in the door's dress: "Your page, printed" over the
  * travel data page with the life's thing slapped on it; you cheering on a sticker beside where you start and when rent
  * is next due; the family the game drew; the years before as chips with the story's own; the money and japacity as they
  * stand; and where this life can lead. While the years go by (`onDone` absent) the family is still face down and the
@@ -475,7 +475,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   const kept = draw ?? trail.draw;
   const water = archetype?.id === "water";
   const lived = yearChips(trail, view, water);
-  // The years the server played in one request come on one after another, as the handover opens (R-PROLOGUE-010).
+  // The years the server played in one request come on one after another, as the handover opens (prologue:archetype-presets-answers).
   const [reveal] = useState(() => (handover ? revealOf(trail, view, water, lived.length) : { from: lived.length, every: 0 }));
   const [brought, setBrought] = useState(reveal.from);
   const revealing = handover && brought < lived.length;
@@ -492,7 +492,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   }, [handover, revealing, brought, reveal.every]);
 
   const look = gateLook(person?.look);
-  // Online the server plays the years in one request (R-SERVER-046): until its first step is in, the page is the splash's
+  // Online the server plays the years in one request (server:server-plays-prologue-preset): until its first step is in, the page is the splash's
   // wait in the page's own frame, its words where the opening's stand and the bar under them.
   if (!handover && online && trail.steps.length === 0)
     return (
@@ -506,7 +506,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
     );
 
   const base = pageOf(view, person);
-  // The family and where it is from print on the page as its card turns over; until then their lines wait (R-PROLOGUE-009, 014).
+  // The family and where it is from print on the page as its card turns over; until then their lines wait (prologue:front-door-builds-a-person, prologue:printed-page-hands-over).
   const shown = handover && turned && kept !== null;
   const page: PageFields = {
     ...base,
@@ -586,7 +586,7 @@ function PageScreen({ view, archetype, draw, onDone }: { view: PlayerView; arche
   );
 }
 
-/** The page as the handover (R-PROLOGUE-014): shown once, right after the prologue's last answer. */
+/** The page as the handover (prologue:printed-page-hands-over): shown once, right after the prologue's last answer. */
 export function PageHandover({ onDone }: { onDone: () => void }) {
   const view = useView();
   return <PageScreen view={view} archetype={presetArchetype()} draw={null} onDone={onDone} />;

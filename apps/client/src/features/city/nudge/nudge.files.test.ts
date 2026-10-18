@@ -1,4 +1,4 @@
-// The nudge respects money and the file (docs/rules/world.md R-WORLD-003).
+// The nudge respects money and the file (world:nudge-says-one-thing).
 // A step the player cannot pay names its gap; the TB certificate, which runs out, comes after the file's other steps; a
 // shut step names the act that opens it; the meetup's nudge is one tap. Real content, lives played through `step`.
 import { content, text } from "@japacity/content";
@@ -63,7 +63,7 @@ function holding(view: PlayerView, amount: number): PlayerView {
 }
 
 describe("a step the naira cannot pay names the gap", () => {
-  test("[R-WORLD-003] given every chapter step whose act costs naira, when its words are read, then it has words for the gap with the amount and for waiting on payday, each one sentence under eight words", () => {
+  test("[world:nudge-says-one-thing] given every chapter step whose act costs naira, when its words are read, then it has words for the gap with the amount and for waiting on payday, each one sentence under eight words", () => {
     const priced = Object.entries(STEP_ACTIVITY).filter(([, act]) => (content.activity[act as Id<"activity">]?.cost ?? []).some((cost) => cost.currency === "NGN"));
     expect(priced.length).toBeGreaterThan(10);
     const missing: string[] = [];
@@ -84,7 +84,7 @@ describe("a step the naira cannot pay names the gap", () => {
     expect(missing).toEqual([]);
   });
 
-  test("[R-WORLD-003] given the ready nurse at the council's step with less naira than its fee, when the nudge is read, then it names how much more to find, never the act", () => {
+  test("[world:nudge-says-one-thing] given the ready nurse at the council's step with less naira than its fee, when the nudge is read, then it names how much more to find, never the act", () => {
     const view = readyInTheFile().view();
     expect(nudgeOf(view).key).toBe(`${FILE}.item.verification.nudge`);
     const fee = view.activities.find((option) => option.id === VERIFY)!.cost.reduce((sum, cost) => sum + cost.amount, 0);
@@ -94,9 +94,9 @@ describe("a step the naira cannot pay names the gap", () => {
     expect(nudgeOf(broke)).toEqual({ key: `${FILE}.item.verification.short`, params: { amount: formatMoney(1_730_000, "NGN") }, about: "step" });
   });
 
-  // The care checklist counts the certificate (R-SPONSOR-005), so the waiting months name it while she can pay it,
+  // The care checklist counts the certificate (route-gates:care-route-needs-verification), so the waiting months name it while she can pay it,
   // and its gap while she cannot.
-  test("[R-WORLD-003] [R-ACTIVITY-013] [R-SPONSOR-005] given the ready nurse on the ward while the council works, with the certification open to her and paid for, when the nudge is read each month and followed, then it names the certification, its tap opens the certification's card at the clinic, and once she has sat it it is never named again", () => {
+  test("[world:nudge-says-one-thing] [activity:waiting-months-build-profile] [route-gates:care-route-needs-verification] given the ready nurse on the ward while the council works, with the certification open to her and paid for, when the nudge is read each month and followed, then it names the certification, its tap opens the certification's card at the clinic, and once she has sat it it is never named again", () => {
     const care = content.route["route.uk-care"]!;
     expect(care.checklist.some((item) => item.requirement.type === "document/held" && item.requirement.document === "document.nurse-certificate")).toBe(true);
     const game = readyInTheFile();
@@ -119,7 +119,7 @@ describe("a step the naira cannot pay names the gap", () => {
     expect(game.view().documents.find((paper) => paper.id === "document.nurse-certificate")).toBeDefined();
   });
 
-  test("[R-WORLD-003] [R-ACTIVITY-013] given the ready nurse on the ward while the council works, when the naira held cannot pay the certification, then the nudge names how much more to find and never the act, and close to payday it says to wait for it", () => {
+  test("[world:nudge-says-one-thing] [activity:waiting-months-build-profile] given the ready nurse on the ward while the council works, when the naira held cannot pay the certification, then the nudge names how much more to find and never the act, and close to payday it says to wait for it", () => {
     const game = readyInTheFile();
     game.accept({ type: "activity/now", activity: VERIFY, param: null });
     const view = until(game, (seen) => nudgeOf(seen).key === CERTIFY_NUDGE, 12, followed);
@@ -137,7 +137,7 @@ describe("a step the naira cannot pay names the gap", () => {
 });
 
 describe("the TB test comes last", () => {
-  test("[R-WORLD-003] [R-DOCUMENT-004] given the ready nurse at the decision day's TB step with her police paper still to get, when the nudge is read, then it names the police paper and its way, never the TB test", () => {
+  test("[world:nudge-says-one-thing] [document:one-pending-copy] given the ready nurse at the decision day's TB step with her police paper still to get, when the nudge is read, then it names the police paper and its way, never the TB test", () => {
     const view = readyInTheFile().view();
     const care = view.routes.find((route) => route.id === "route.uk-care")!;
     const atDay: PlayerView = {
@@ -153,7 +153,7 @@ describe("the TB test comes last", () => {
     expect(nudgeOf(policeHeld).key).toMatch(/^chapter\.decision-day-care\.item\.tb/);
   });
 
-  test("[R-WORLD-003] given a developer at the talent decision day with no passport, when the nudge is read, then it names the passport the TB test needs, never the TB test", () => {
+  test("[world:nudge-says-one-thing] given a developer at the talent decision day with no passport, when the nudge is read, then it names the passport the TB test needs, never the TB test", () => {
     const view = talentGame({}, []).view();
     expect(view.routes.find((route) => route.id === TALENT)?.checklist.find((item) => item.id === "passport")?.met).toBe(false);
     const talentDay: PlayerView = {
@@ -185,7 +185,7 @@ function talentFile(qualities: Partial<Record<Id<"quality">, number>>): PlayerVi
 }
 
 describe("the endorsement's needs name their acts", () => {
-  test("[R-WORLD-003] [R-ENDORSE-001] given the endorsement shut by tech, when the nudge is read, then it names the coding course at the hub in under eight words and its tap opens the course's own card at the desk; with the tech met, the meetup", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given the endorsement shut by tech, when the nudge is read, then it names the coding course at the hub in under eight words and its tap opens the course's own card at the desk; with the tech met, the meetup", () => {
     const view = talentFile({ "quality.tech": 50, "quality.portfolio": 5, "quality.network": 30 });
     const shut = view.activities.find((option) => option.id === "activity.apply-endorsement")!;
     expect(shut.allowed).toBe(false);
@@ -204,7 +204,7 @@ describe("the endorsement's needs name their acts", () => {
     expect(next.way).toMatchObject({ go: "place.yaba", at: ["place.yaba:meetup"], opens: "activity.meetup" });
   });
 
-  test("[R-WORLD-003] [R-ENDORSE-001] given the endorsement open, when the nudge's tap is followed at the hub's desk, then it opens the endorsement's own card, not the desk's chips", () => {
+  test("[world:nudge-says-one-thing] [route-gates:applying-for-endorsement] given the endorsement open, when the nudge's tap is followed at the hub's desk, then it opens the endorsement's own card, not the desk's chips", () => {
     const view = talentFile({ "quality.tech": 85, "quality.portfolio": 5, "quality.network": 70 });
     const way = stepWayOf(view)!;
     expect(way).toMatchObject({ go: "place.yaba", opens: "activity.apply-endorsement" });
@@ -213,13 +213,13 @@ describe("the endorsement's needs name their acts", () => {
 });
 
 describe("the meetup is one tap", () => {
-  test("[R-WORLD-003] [R-GUIDE-014] given the ready nurse's first month, when the nudge names the meetup and is followed at the hub, then it opens the meetup's own card, not the corner's two acts", () => {
+  test("[world:nudge-says-one-thing] [guide:early-win-in-three-turns] given the ready nurse's first month, when the nudge names the meetup and is followed at the hub, then it opens the meetup's own card, not the corner's two acts", () => {
     const view = readyNurse("meetup-one-tap").view();
     expect(nudgeOf(view).key).toBe("chapter.find-your-feet.item.heard.nudge");
     const way = stepWayOf(view)!;
     expect(way).toMatchObject({ go: "place.yaba", opens: "activity.meetup" });
     expect(stepOpen(way, "meetup", view.activities.filter((option) => option.allowed).map((option) => option.id), "place.yaba")).toEqual({ kind: "act", activity: "activity.meetup" });
-    // Followed, care work is heard of that month (R-GUIDE-016).
+    // Followed, care work is heard of that month (guide:first-meetup-hears-fitting-route).
     const game = readyNurse("meetup-one-tap");
     month(game, [slot("activity.meetup")]);
     expect(game.view().routes.find((route) => route.id === "route.uk-care")?.state).not.toBe("unknown");

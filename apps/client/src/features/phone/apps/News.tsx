@@ -1,4 +1,4 @@
-// News (docs/rules/world.md R-WORLD-008, R-WORLD-018): the era line, the last month's report lines
+// News (world:month-end-results-sheet, world:phone-rises-over-scene): the era line, the last month's report lines
 // (they stay here after the results sheet), and the stories that have reached the character.
 import { content } from "@japacity/content";
 import type { NewsStage, PlayerView, RouteStateName } from "@japacity/sim";
@@ -32,7 +32,7 @@ function storyForYou(story: { id: string; forYou: boolean }, routes: readonly { 
   });
 }
 
-/** The settlement cleared (docs/rules/home.md R-HOME-003): it leads News as it leads the results. */
+/** The settlement cleared (home:makoko-eviction-draw): it leads News as it leads the results. */
 const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
 /** The story of the clearing, carried the month it happens: the character's own news, so the world's schedule never holds it. */
 const CLEARED = "news.makoko-cleared";
@@ -44,8 +44,8 @@ function storyPicture(id: string): string {
 }
 
 /**
- * When the era began and when it is due to end (director.md R-DIRECTOR-002), as months ago and months from now, never a
- * month's number (world.md R-WORLD-002): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
+ * When the era began and when it is due to end (director:one-era-at-a-time), as months ago and months from now, never a
+ * month's number (world:top-band-is-lively-pill): the view's `sinceMonth` and `untilMonth` are the months the simulation stamps.
  */
 function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
   const began = era.sinceMonth < 0 ? say("ui.news.era-before") : say("phone.news.era.since", { when: monthsAgo(era.sinceMonth, month).toLowerCase() });
@@ -53,7 +53,7 @@ function eraMonths(era: NonNullable<PlayerView["era"]>, month: number): string {
 }
 
 /**
- * The last Friday draw on the front page (lottery.md R-LOTTERY-016): the jackpot it stood at, whether it was hit or
+ * The last Friday draw on the front page (lottery:draw-result-on-front-page): the jackpot it stood at, whether it was hit or
  * rolls over, and how many tickets won, never who.
  */
 export function drawnWords(last: NonNullable<NonNullable<PlayerView["lottery"]>["last"]>): string {
@@ -69,7 +69,7 @@ export function News() {
   const drawn = lottery?.last ?? null;
   // The empty line never sits under a story the front page already shows.
   const frontPage = era !== null || drawn !== null;
-  // R-WORLD-008: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
+  // world:month-end-results-sheet: the month's lines stay here, those of what was done mid-month (an agent paid, an ask answered) first.
   const midMonth = useGame((state) => state.lastMonthLines);
   const world = [...news].sort((a, b) => STAGE_ORDER.indexOf(a.stage) - STAGE_ORDER.indexOf(b.stage) || b.since - a.since);
   const cleared = (report?.lines ?? []).some((line) => EVICTED.has(line.key));
@@ -99,7 +99,7 @@ export function News() {
       {report === null ? null : (
         <div data-report={report.month}>
           <Head>{say("phone.news.month", { when: monthsAgo(report.month, month) })}</Head>
-          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, R-WORLD-008), each
+          {/* The month's lines are told as the results tell them, money too (shared/words/told.ts, world:month-end-results-sheet), each
               as a chip: good news in green, a loss plain, never louder than the good. */}
           <ul className="flex flex-wrap gap-2">
             {newsLines(midMonth, report.lines, view).map((line, index) => (

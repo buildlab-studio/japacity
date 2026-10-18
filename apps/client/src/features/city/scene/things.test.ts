@@ -25,7 +25,7 @@ if (street === undefined) throw new Error("Bode Thomas has no stage");
 const kiosk: Thing = { id: "kiosk", file: "places/x/shop_lotto-kiosk.glb", copy: 0, label: "city.thing.lotto", acts: [{ id: "play-lotto", label: "scene.act.play-lotto", kind: "sheet", stages: "activity.play-lotto" }] };
 
 describe("things in a place", () => {
-  test("[R-WORLD-005] given Bode Thomas's file, which declares no things yet, when its things are read, then the lotto kiosk, the betting shop and the danfo, keke and okada each stand at their model's first copy with one act and a name in words", () => {
+  test("[world:things-are-tappable-models] given Bode Thomas's file, which declares no things yet, when its things are read, then the lotto kiosk, the betting shop and the danfo, keke and okada each stand at their model's first copy with one act and a name in words", () => {
     const things = thingsOf(street);
     expect(things.map((thing) => thing.id).sort()).toEqual(["bet-slip", "play-lotto", "veh_danfo", "veh_keke", "veh_okada"]);
     for (const thing of things) {
@@ -39,7 +39,7 @@ describe("things in a place", () => {
     expect(things.find((thing) => thing.id === "veh_danfo")?.acts[0]?.kind).toBe("ride");
   });
 
-  test("[R-WORLD-005] given a file that declares its things, when they are read, then they are the file's own, and a thing with three acts offers only two", () => {
+  test("[world:things-are-tappable-models] given a file that declares its things, when they are read, then they are the file's own, and a thing with three acts offers only two", () => {
     const three: Thing = { ...kiosk, acts: [...kiosk.acts, { id: "look", label: "x", kind: "plain" }, { id: "sit", label: "y", kind: "plain" }] };
     const things = thingsOf({ models: street.models, things: [three] });
     expect(things).toHaveLength(1);
@@ -47,7 +47,7 @@ describe("things in a place", () => {
     expect(things[0]?.acts).toHaveLength(MAX_ACTS);
   });
 
-  test("[R-WORLD-005] given the view not offering the lotto, when the things are read for now, then the kiosk carries no act and no label, while a ride and a door always stay", () => {
+  test("[world:things-are-tappable-models] given the view not offering the lotto, when the things are read for now, then the kiosk carries no act and no label, while a ride and a door always stay", () => {
     const danfo: Thing = { id: "danfo", file: "veh_danfo.glb", copy: 0, label: "city.thing.danfo", acts: [{ id: "ride", label: "city.ride.danfo", kind: "ride" }] };
     const door: Thing = { id: "door", file: "", copy: 0, label: "scene.thing.door", at: [0, 0], acts: [{ id: "out", label: "scene.act.out", kind: "out" }] };
     expect(thingsNow([kiosk, danfo, door], () => false).map((thing) => thing.id)).toEqual(["danfo", "door"]);
@@ -58,11 +58,11 @@ describe("things in a place", () => {
 });
 
 describe("the straight walk", () => {
-  test("[R-WORLD-010] given a thing that names where to stand, when it is tapped, then the character walks straight to that spot", () => {
+  test("[world:nothing-roams] given a thing that names where to stand, when it is tapped, then the character walks straight to that spot", () => {
     expect(walkSpot(street, { ...kiosk, at: [3, 4] }, { x: -10, z: 20 })).toEqual([3, 4]);
   });
 
-  test("[R-WORLD-010] given a thing that names no spot, when it is tapped, then the character walks straight toward its copy and stops short of it, and one already beside it stays", () => {
+  test("[world:nothing-roams] given a thing that names no spot, when it is tapped, then the character walks straight toward its copy and stops short of it, and one already beside it stays", () => {
     const thing = thingsOf(street).find((candidate) => candidate.id === "play-lotto");
     if (thing === undefined) throw new Error("No kiosk");
     const spot = thingSpot(street, thing);
@@ -80,7 +80,7 @@ describe("the straight walk", () => {
 });
 
 describe("a third act on a sheet", () => {
-  test("[R-WORLD-005] given a sheet act that names what stands in its place, when none of its entries can open, then that act shows instead, and with one open the sheet act itself", () => {
+  test("[world:things-are-tappable-models] given a sheet act that names what stands in its place, when none of its entries can open, then that act shows instead, and with one open the sheet act itself", () => {
     const lie: Act = { id: "lie", label: "city.act.lie", kind: "plain", pose: "lie", seat: [0, 0, 0] };
     const bed: Thing = { id: "bed", file: "shared/prop/prop_bed.glb", copy: 0, label: "city.thing.bed", acts: [{ id: "nap", label: "activity.nap.name", kind: "sheet", stages: "activity.nap", otherwise: lie }, { id: "end-month", label: "ui.world.end-month", kind: "end" }] };
     expect(thingsNow([bed], () => true)[0]).toBe(bed);
@@ -89,7 +89,7 @@ describe("a third act on a sheet", () => {
     expect(thingsNow([plain], () => false)).toEqual([]);
   });
 
-  test("[R-WORLD-005] given a desk whose act lists more entries, when some are offered, then the act stays listing only those, and goes once none is", () => {
+  test("[world:things-are-tappable-models] given a desk whose act lists more entries, when some are offered, then the act stays listing only those, and goes once none is", () => {
     const desk: Thing = { id: "desk", file: "places/x/prop_long-desk.glb", copy: 0, label: "city.thing.long-desk", acts: [{ id: "routes", label: "city.act.routes", kind: "sheet", stages: "activity.look-into-route", more: ["activity.see-adviser", "activity.ask-someone-who-went"] }] };
     const some = thingsNow([desk], (stages) => stages === "activity.see-adviser" || stages === "activity.ask-someone-who-went");
     expect(some[0]?.acts[0]).toEqual({ id: "routes", label: "city.act.routes", kind: "sheet", stages: "activity.see-adviser", more: ["activity.ask-someone-who-went"] });
@@ -100,7 +100,7 @@ describe("a third act on a sheet", () => {
 });
 
 describe("a job on a board", () => {
-  test("[R-WORLD-005] given the hunt can ask for a job the place stages, when the things are read, then the job's act shows; a job the hunt cannot ask for does not", () => {
+  test("[world:things-are-tappable-models] given the hunt can ask for a job the place stages, when the things are read, then the job's act shows; a job the hunt cannot ask for does not", () => {
     const things: Thing[] = [
       { id: "stall", label: "city.thing.accessories", file: "x.glb", copy: 0, acts: [{ id: "sales", kind: "sheet", label: "city.act.phone-sales", stages: "activity.job-phone-sales" }, { id: "learn", kind: "sheet", label: "city.act.apprentice", stages: "activity.apprentice-repair" }] },
     ];
@@ -113,7 +113,7 @@ describe("a job on a board", () => {
 });
 
 describe("what an act can open now", () => {
-  test("[R-WORLD-005] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and the chapter in hand", () => {
+  test("[world:things-are-tappable-models] given the view's offered activities, the open offers and the set piece asking, when a thing's acts are read, then an activity stays while offered and staged, an offer while open, the set piece while asking, and the chapter in hand", () => {
     const now = stagedNow(new Set(["activity.play-lotto"]), new Set(["activity.play-lotto", "activity.rest"]), new Set(["offer.nepa-bill"]), "setpiece.december", "chapter.find-your-feet");
     expect(now("activity.play-lotto")).toBe(true);
     expect(now("activity.rest")).toBe(false);
@@ -127,7 +127,7 @@ describe("what an act can open now", () => {
 });
 
 describe("a command act", () => {
-  test("[R-ROUTE-008] [R-WORLD-005] given the bank counter, when a school's offer waits, then its deposit act shows and sends the payment; with none waiting it is gone", () => {
+  test("[route:deposit-secures-school] [world:things-are-tappable-models] given the bank counter, when a school's offer waits, then its deposit act shows and sends the payment; with none waiting it is gone", () => {
     const found = builtPlaces().find((built) => built.folder === "bank-counter");
     if (found === undefined) throw new Error("No bank counter");
     const counter = (stageOf(found.file).things ?? []).find((thing) => thing.id === "counter");
@@ -141,7 +141,7 @@ describe("a command act", () => {
 });
 
 describe("the gate", () => {
-  test("[R-CHAPTER-006] [R-WORLD-005] given the arrivals hall's gate, when a visa is granted, then its act boards the plane, and with none granted it is gone", () => {
+  test("[chapter:send-off-card-on-close] [world:things-are-tappable-models] given the arrivals hall's gate, when a visa is granted, then its act boards the plane, and with none granted it is gone", () => {
     const found = builtPlaces().find((built) => built.folder === "arrivals-hall");
     if (found === undefined) throw new Error("No arrivals hall");
     const gate = (stageOf(found.file).things ?? []).find((thing) => thing.id === "gate");
@@ -155,7 +155,7 @@ describe("the gate", () => {
 });
 
 describe("a seat", () => {
-  test("[R-WORLD-005] given every built place, when its acts with a pose are read, then each has a seat to take, and a free act that fills a slot is a do act with the activity offered or gone", () => {
+  test("[world:things-are-tappable-models] given every built place, when its acts with a pose are read, then each has a seat to take, and a free act that fills a slot is a do act with the activity offered or gone", () => {
     const seated = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose !== undefined).map((act) => ({ folder, thing: thing.id, act }))));
     expect(seated.length).toBeGreaterThan(5);
     for (const { folder, thing, act } of seated) expect(act.seat, `${folder} ${thing} ${act.id}`).toHaveLength(3);
@@ -168,7 +168,7 @@ describe("a seat", () => {
 describe("lying on a thing", () => {
   // The bed's mattress is 0.40 to 0.60 m with the wrapper over its foot to 0.64 and the pillow to 0.72; the couch's
   // cushions are at 0.48 (assets-src/prop/furniture.ts). A fixed 0.5 would put the figure inside the mattress.
-  test("[R-WORLD-005] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
+  test("[world:things-are-tappable-models] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
     const lain = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose === "lie").map((act) => ({ folder, thing, act }))));
     const beds = lain.filter(({ thing }) => thing.file.endsWith("prop_bed.glb"));
     expect(beds.map(({ folder }) => folder).sort()).toEqual(["home-room-house", "the-room"]);
@@ -196,7 +196,7 @@ describe("lying on a thing", () => {
 });
 
 describe("the things of the built places", () => {
-  test("[R-WORLD-005] given every built place, when its things and acts are read, then each label has words and no thing offers more than two acts", () => {
+  test("[world:things-are-tappable-models] given every built place, when its things and acts are read, then each label has words and no thing offers more than two acts", () => {
     const files = builtPlaces().filter(({ file }) => stageOf(file).things !== undefined);
     expect(files.length).toBeGreaterThan(10);
     for (const { folder, file } of files) {
@@ -208,7 +208,7 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-025] [R-TURN-006] [R-ACTIVITY-019] given the bed at home, in a compound, in the hostel and in the room abroad, when their acts are read, then each offers a nap on its sheet lain on the bed, and Sleep, the band's own act; while no nap can be had, Lie down stands in its place, done at once with the lying pose and no slot", () => {
+  test("[world:sleep-ends-the-month] [turn:free-slots-per-month] [activity:acts-may-repeat-in-month] given the bed at home, in a compound, in the hostel and in the room abroad, when their acts are read, then each offers a nap on its sheet lain on the bed, and Sleep, the band's own act; while no nap can be had, Lie down stands in its place, done at once with the lying pose and no slot", () => {
     for (const folder of ["home-family-house", "home-room-house", "home-hostel-house", "the-room"]) {
       const found = builtPlaces().find((built) => built.folder === folder);
       if (found === undefined) throw new Error(`No ${folder}`);
@@ -234,7 +234,7 @@ describe("the things of the built places", () => {
     }
   });
 
-  test("[R-WORLD-005] [R-WORLD-025] [R-ACTIVITY-019] given the family house, when its things are read, then the cooking corner offers both meals on one sheet, the drum the water and the bath on one, the television Nollywood with Papa from the sofa, Mama her gist and her shop on one beside the bills, and the table the study, the course, the portfolio and the night support on one beside the fees", () => {
+  test("[world:things-are-tappable-models] [world:sleep-ends-the-month] [activity:acts-may-repeat-in-month] given the family house, when its things are read, then the cooking corner offers both meals on one sheet, the drum the water and the bath on one, the television Nollywood with Papa from the sofa, Mama her gist and her shop on one beside the bills, and the table the study, the course, the portfolio and the night support on one beside the fees", () => {
     const found = builtPlaces().find((built) => built.folder === "home-family-house");
     if (found === undefined) throw new Error("No parlour");
     const stage = stageOf(found.file);
@@ -264,7 +264,7 @@ describe("the things of the built places", () => {
     expect(thingsNow(cooking === undefined ? [] : [cooking], (stages) => stages === "activity.cook-at-home")[0]?.acts[0]).toEqual({ id: "cook", label: "city.act.cook", kind: "sheet", stages: "activity.cook-at-home" });
   });
 
-  test("[R-WORLD-019] given the family house, when its papers box is read, then it stands at the bed, its one act opens the Papers app, and its words resolve", () => {
+  test("[world:phone-holds-what-phones-hold] given the family house, when its papers box is read, then it stands at the bed, its one act opens the Papers app, and its words resolve", () => {
     const found = builtPlaces().find((built) => built.folder === "home-family-house");
     if (found === undefined) throw new Error("No parlour");
     const stage = stageOf(found.file);
@@ -292,7 +292,7 @@ describe("the hours a thing keeps", () => {
   const late: Thing = { id: "late", file: "x.glb", copy: 0, label: "city.thing.joint", acts: [{ ...drink, parts: ["night"] }] };
   const all = () => true;
 
-  test("[R-CLOCK-033] [R-WORLD-005] given a thing open in the evening and at night, when the world stands in either, then its act stands as the file gives it, the seat and the pose kept", () => {
+  test("[clock:game-day-on-real-time] [world:things-are-tappable-models] given a thing open in the evening and at night, when the world stands in either, then its act stands as the file gives it, the seat and the pose kept", () => {
     for (const part of ["evening", "night"] as const) {
       expect(thingsNow([viewing], all, part)[0]).toBe(viewing);
       expect(thingsNow([joint], all, part)[0]).toBe(joint);
@@ -302,7 +302,7 @@ describe("the hours a thing keeps", () => {
     expect(thingsNow([joint], (stages) => stages === "activity.beer-joint", "evening")[0]?.acts[0]?.more).toBeUndefined();
   });
 
-  test("[R-CLOCK-033] [R-WORLD-005] given a thing open in the evening and at night, when the world stands in the morning or the afternoon, then it still stands with one plain act saying when it opens, its line saying it is shut, no seat and no pose", () => {
+  test("[clock:game-day-on-real-time] [world:things-are-tappable-models] given a thing open in the evening and at night, when the world stands in the morning or the afternoon, then it still stands with one plain act saying when it opens, its line saying it is shut, no seat and no pose", () => {
     for (const part of ["morning", "afternoon"] as const) {
       const [shut] = thingsNow([viewing], all, part);
       expect(shut?.id).toBe("viewing");
@@ -317,14 +317,14 @@ describe("the hours a thing keeps", () => {
     expect(thingsNow([viewing], () => false, "morning")[0]?.acts[0]?.label).toBe("city.act.opens-evening");
   });
 
-  test("[R-CLOCK-033] [R-WORLD-005] given a thing open only at night, when the world stands in the evening, then its shut act names the night, the first part it opens in", () => {
+  test("[clock:game-day-on-real-time] [world:things-are-tappable-models] given a thing open only at night, when the world stands in the evening, then its shut act names the night, the first part it opens in", () => {
     expect(thingsNow([late], all, "evening")[0]?.acts[0]?.label).toBe("city.act.opens-night");
     expect(thingsNow([late], all, "morning")[0]?.acts[0]?.label).toBe("city.act.opens-night");
     expect(cityWords("city.act.opens-night")).toBe("Opens at night");
     expect(thingsNow([late], all, "night")[0]).toBe(late);
   });
 
-  test("[R-CLOCK-033] [R-WORLD-005] given acts with no hours and a thing open by the hour but not offered, when the things are read, then the first stand at every part and the second goes", () => {
+  test("[clock:game-day-on-real-time] [world:things-are-tappable-models] given acts with no hours and a thing open by the hour but not offered, when the things are read, then the first stand at every part and the second goes", () => {
     for (const part of ["morning", "afternoon", "evening", "night"] as const) expect(thingsNow([kiosk], all, part)[0]).toBe(kiosk);
     expect(thingsNow([viewing], () => false, "evening")).toEqual([]);
     // Read with no part (a test of the acts alone), the hours are not read.

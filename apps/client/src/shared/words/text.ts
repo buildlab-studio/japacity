@@ -18,12 +18,12 @@ export function hasWords(key: string): boolean {
 }
 
 function lookup(key: string): string {
-  // A computer person never carries the player's own first name (R-PEOPLE-061).
+  // A computer person never carries the player's own first name (person:one-mixed-name-pool).
   return swapped(key, text[key] ?? lateWord(key) ?? key);
 }
 
 /**
- * Content's placeholder for where the life is from (prologue.md R-PROLOGUE-002): `{hometown}` in
+ * Content's placeholder for where the life is from (prologue:family-draw-on-first-answer): `{hometown}` in
  * any line names the town of the life on screen, so one line serves every hometown. A line that is handed its own
  * `hometown` says that one. With no life on screen, or its family not drawn yet, "your hometown".
  */
@@ -71,7 +71,7 @@ const MONEY_PARAMS = new Set([
 /**
  * Params that name a month in content's lines: each is a month whose end brings what the line
  * says. They read as months away from the month in hand ("in 2 months"), so no running month
- * number shows (R-WORLD-002); `until` reads as how long it holds ("for 3 more months").
+ * number shows (world:top-band-is-lively-pill); `until` reads as how long it holds ("for 3 more months").
  */
 const MONTH_PARAMS = new Set(["month", "until", "readyMonth"]);
 
@@ -159,7 +159,7 @@ function opensSentence(whole: string, offset: number): boolean {
 
 function stringParam(name: string, value: string, midSentence: boolean): string {
   if (name === "pocket" && hasWords(`ui.pocket.${value}`)) return say(`ui.pocket.${value}`);
-  // A slot lock's reason (R-TURN-009), as the Month sheet says it: "your side job", never its key.
+  // A slot lock's reason (turn:slots-can-be-locked), as the Month sheet says it: "your side job", never its key.
   if (name === "why" && hasWords(`ui.locks.why.${value}`)) {
     const why = say(`ui.locks.why.${value}`);
     return midSentence ? why : why.charAt(0).toUpperCase() + why.slice(1);
@@ -199,7 +199,7 @@ const LINE_COUNTS: Record<string, string> = {
 
 /**
  * Lines said by their source, by the param that names it: `<key>.<source>` where content has words for that source,
- * so a route heard of reads as where the word came from, never as what the player heard (R-TEXT-007).
+ * so a route heard of reads as where the word came from, never as what the player heard (text:voice-by-surface).
  */
 const LINE_SOURCES: Record<string, string> = { "line.route.heard": "via" };
 
@@ -259,9 +259,9 @@ const QUALITY_MOVES: Record<string, "gain" | "loss" | "worn" | "drift"> = {
 };
 
 /**
- * A quality's move as what a person would notice (R-TEXT-005): "You know a few more people
+ * A quality's move as what a person would notice (text:bands-not-figures): "You know a few more people
  * now", never "Network up". Wear from work says the work; the month's drift says where wellbeing settles against its
- * resting point (R-QUALITY-004). Null when content has no words for that move.
+ * resting point (quality:wellbeing-drifts-to-baseline). Null when content has no words for that move.
  */
 function movedWords(quality: string, way: "gain" | "loss" | "worn" | "drift", value: number | null): string | null {
   const told = `line.quality.told.${quality}`;
@@ -325,25 +325,25 @@ export function say(key: string, params: Params = {}): string {
   });
 }
 
-/** A month the simulation stamps, told as months from the month in hand: "in 2 months", "next month", "this month" (R-WORLD-002). */
+/** A month the simulation stamps, told as months from the month in hand: "in 2 months", "next month", "this month" (world:top-band-is-lively-pill). */
 export function inMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.in-months", count, { count });
 }
 
-/** A deadline the month ends on, told as "by next month", "within 3 months", "this month" (R-WORLD-002). */
+/** A deadline the month ends on, told as "by next month", "within 3 months", "this month" (world:top-band-is-lively-pill). */
 export function byMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.by-months", count, { count });
 }
 
-/** How long something holds until a stamped month, told as "for 3 more months", "for one more month", "until this month ends" (R-WORLD-002). */
+/** How long something holds until a stamped month, told as "for 3 more months", "for one more month", "until this month ends" (world:top-band-is-lively-pill). */
 export function forMonths(stamped: number, now: number): string {
   const count = Math.max(0, stamped - now);
   return sayCount("ui.for-months", count, { count });
 }
 
-/** A month gone by, told as "2 months ago", "Last month", "This month" (R-WORLD-002). */
+/** A month gone by, told as "2 months ago", "Last month", "This month" (world:top-band-is-lively-pill). */
 export function monthsAgo(stamped: number, now: number): string {
   const count = Math.max(0, now - stamped);
   return sayCount("ui.months-ago", count, { count });
@@ -358,7 +358,7 @@ export function sayCount(key: string, count: number, params: Params = {}): strin
   return say(exact !== null && hasWords(exact) ? exact : key, params);
 }
 
-/** A slot's param as words: an entry's name, or a count of tickets at the kiosk, which picks a number (R-LUCK-005). */
+/** A slot's param as words: an entry's name, or a count of tickets at the kiosk, which picks a number (luck:kiosk-sells-lotto-tickets). */
 export function paramWords(param: string): string {
   if (hasWords(`${param}.name`)) return nameOf(param);
   if (!/^\d+$/.test(param)) return param;

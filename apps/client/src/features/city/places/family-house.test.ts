@@ -1,7 +1,7 @@
-// The family house staged (city.md place.family-house, R-CITY-037): one wide floor seen whole,
+// The family house staged (city.md place.family-house, city:party-room-sets-the-bar): one wide floor seen whole,
 // Mama and Papa in the parlour, your corner, the kitchen and the yard; the same house dressed for offer.send-off-party,
 // its guests idling and its dancers on their two loops in the yard while the offer is open; the family's asks,
-// the pledge and home's own send-off (R-CHAPTER-008), answered round the parlour's centre table; and the street front
+// the pledge and home's own send-off (chapter:family-marks-the-grant), answered round the parlour's centre table; and the street front
 // behind the door, which keeps the house's notice on the gate.
 import { content } from "@japacity/content";
 import { type PlayerView, time } from "@japacity/sim";
@@ -35,7 +35,7 @@ if (yard === undefined) throw new Error("The family house has no yard gate");
 const YARD = { x0: yard.from[0], x1: yard.to[0] };
 
 describe("the family house's budget", () => {
-  test("[R-ASSET-007] given the house's shipped files measured as the build check measures them, when it is counted with the party's guests and dancers and the family's car at its spot, then both modes fit its row", async () => {
+  test("[assets:assets-and-places-within-budget] given the house's shipped files measured as the build check measures them, when it is counted with the party's guests and dancers and the family's car at its spot, then both modes fit its row", async () => {
     expect(file.scope).toBe(entry.scope);
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
@@ -44,7 +44,7 @@ describe("the family house's budget", () => {
     }
   });
 
-  test("[R-ASSET-007] given the party set carrying the banner's sign anchor, when one copy of it is counted, then its sign faces add a draw call as a building's do", async () => {
+  test("[assets:assets-and-places-within-budget] given the party set carrying the banner's sign anchor, when one copy of it is counted, then its sign faces add a draw call as a building's do", async () => {
     const one = { ...file, instances: [{ file: "places/family-house/prop_party-set.glb", count: 1 }], people: { low: 0, high: 0, sample: [] } };
     const totals = await totalsOf(one);
     const bare = await totalsOf({ ...one, instances: [] });
@@ -53,7 +53,7 @@ describe("the family house's budget", () => {
     expect(totals.low.drawCalls - bare.low.drawCalls).toBe(set.drawCalls + 1);
   });
 
-  test("[R-ASSET-007] given the house's file, when its counts are read, then the instances are the most copies of any dressing with the car at its spot, its people the party's guests and dancers in each mode, and its colours palette names", () => {
+  test("[assets:assets-and-places-within-budget] given the house's file, when its counts are read, then the instances are the most copies of any dressing with the car at its spot, its people the party's guests and dancers in each mode, and its colours palette names", () => {
     expect(file.instances).toEqual(instancesOf(stage));
     expect(file.instances.find((instance) => instance.file === CAR_FILE)?.count).toBe(1);
     const guests = (mode: "low" | "high"): number => crowdSize({ crowd: party.crowd }, mode, city);
@@ -66,7 +66,7 @@ describe("the family house's budget", () => {
 });
 
 describe("the send-off party", () => {
-  test("[R-CITY-011] given the send-off party offered at home, when the city looks for it, then it is staged at the family house, and only an open offer dresses the house", () => {
+  test("[city:set-piece-shown-where-staged] given the send-off party offered at home, when the city looks for it, then it is staged at the family house, and only an open offer dresses the house", () => {
     const open = richView().offers[0];
     if (open === undefined) throw new Error("The rich view has no open offer");
     const view: Pick<PlayerView, "offers" | "place"> = { place: engineView().place, offers: [{ ...open, entry: PARTY }] };
@@ -76,7 +76,7 @@ describe("the send-off party", () => {
     expect(dressPlace(file, ["offer.nepa-bill"]).crowd).toBeNull();
   });
 
-  test("[R-CITY-037] given the send-off party open, when the house is dressed, then the yard gives way to the party set and its chairs, the family's car taken out with the line and the carport, the crates of drinks moved to the fence, the banner reads from its text key, bunting hangs, the fire smokes, and about ten people are there in the high mode", () => {
+  test("[city:party-room-sets-the-bar] given the send-off party open, when the house is dressed, then the yard gives way to the party set and its chairs, the family's car taken out with the line and the carport, the crates of drinks moved to the fence, the banner reads from its text key, bunting hangs, the fire smokes, and about ten people are there in the high mode", () => {
     const { file: dressed, crowd } = dressPlace(parkCar(file, true), [PARTY]);
     const stageNow = dressed.stage;
     if (stageNow === undefined || crowd === null) throw new Error("Not dressed");
@@ -97,7 +97,7 @@ describe("the send-off party", () => {
     expect(checkLimits(file)).toEqual([]);
   });
 
-  test("[R-CITY-037] given the party's dancers, when they are read, then the two loops are played on three bodies, one in an agbada and one in a wrapper, on the yard's floor before the banner, and a tap on one finds a resident", () => {
+  test("[city:party-room-sets-the-bar] given the party's dancers, when they are read, then the two loops are played on three bodies, one in an agbada and one in a wrapper, on the yard's floor before the banner, and a tap on one finds a resident", () => {
     const dancers = party.dancers;
     expect(dancers).toHaveLength(3);
     expect(new Set(dancers.map((dancer) => dancer.dance))).toEqual(new Set(["twoStep", "shuffle"]));
@@ -113,7 +113,7 @@ describe("the send-off party", () => {
     expect(dancerShown(dressed.stage, DANCER_SLOT + dancers.length)).toBeUndefined();
   });
 
-  test("[R-CITY-016] given the party open on a hundred days, Saturdays' occasion dress included, when the guests are sampled beside the dancers, then no guest wears a dancer's outfit or another guest's", () => {
+  test("[city:dress-mix-by-place] given the party open on a hundred days, Saturdays' occasion dress included, when the guests are sampled beside the dancers, then no guest wears a dancer's outfit or another guest's", () => {
     const { file: dressed, crowd } = dressPlace(file, [PARTY]);
     if (crowd === null) throw new Error("Not dressed");
     const dancing = party.dancers.map((dancer) => dancer.file);
@@ -128,7 +128,7 @@ describe("the send-off party", () => {
     }
   });
 
-  test("[R-CITY-037] [R-WORLD-005] given the send-off open, when the bag's acts are read for now, then the party's sheet opens from the bag, beside the packing, in at most two acts", () => {
+  test("[city:party-room-sets-the-bar] [world:things-are-tappable-models] given the send-off open, when the bag's acts are read for now, then the party's sheet opens from the bag, beside the packing, in at most two acts", () => {
     const bag = stage.things?.find((thing) => thing.id === "bag");
     if (bag === undefined) throw new Error("The house has no bag");
     expect(bag.acts.length).toBeLessThanOrEqual(MAX_ACTS);
@@ -137,7 +137,7 @@ describe("the send-off party", () => {
     expect(cityWords(bag.acts[1]?.label ?? "")).toBe("The send-off");
   });
 
-  test("[R-CITY-024] given the house's boards, when they are read, then the banner has its words from the text table; the street front behind the door keeps the notice on the gate, its one house lettered once", () => {
+  test("[city:place-words-are-text-keys] given the house's boards, when they are read, then the banner has its words from the text table; the street front behind the door keeps the notice on the gate, its one house lettered once", () => {
     expect(wordsOf("place.family-house.sign.1")).toBe("SAFE JOURNEY");
     expect(signKeys(stage)).toEqual([]);
     const front = staged(frontFile, "place.family-house").stage;
@@ -146,7 +146,7 @@ describe("the send-off party", () => {
     expect(signKeys(front)).toEqual([]);
   });
 
-  test("[R-CITY-014] given an ordinary day, when the house is read, then its own few people have spots on the ground, Mama and Papa sit in the parlour, and the start stands by the front door looking into the house", () => {
+  test("[city:crowd-sample-capped] given an ordinary day, when the house is read, then its own few people have spots on the ground, Mama and Papa sit in the parlour, and the start stands by the front door looking into the house", () => {
     expect(stage.people.length).toBeGreaterThanOrEqual(crowdSize(entry, "high", city));
     expect(stage.people.every((spot) => onGround(stage, spot))).toBe(true);
     expect(stage.acts?.filter((act) => act.pose === "sit").map((act) => act.spot)).toEqual(expect.arrayContaining([0, 1]));
@@ -162,7 +162,7 @@ describe("the family's asks round the centre table", () => {
   if (table === undefined) throw new Error("The house has no family table");
   const open = (offers: string[]): ReturnType<typeof thingsNow> => thingsNow([table], stagedNow(new Set(), new Set(entry.stages), new Set(offers), null));
 
-  test("[R-CHAPTER-008] [R-WORLD-005] given the house in content, when what its things open is read, then home's send-off is staged at the house and opens from the centre table, beside both pledges, in at most two acts", () => {
+  test("[chapter:family-marks-the-grant] [world:things-are-tappable-models] given the house in content, when what its things open is read, then home's send-off is staged at the house and opens from the centre table, beside both pledges, in at most two acts", () => {
     expect(entry.stages).toContain(SEND_OFF);
     expect(actEntries(placeFile, "place.family-house")).toEqual(expect.arrayContaining([SEND_OFF, ...PLEDGES]));
     expect(table.acts.length).toBeLessThanOrEqual(MAX_ACTS);
@@ -171,13 +171,13 @@ describe("the family's asks round the centre table", () => {
     expect(cityWords(act?.label ?? "")).toBe("Your send-off");
   });
 
-  test("[R-CHAPTER-008] [R-WORLD-005] given only the send-off open, when the table's acts are read for now, then its one act opens the send-off's sheet; with nothing open the table offers nothing", () => {
+  test("[chapter:family-marks-the-grant] [world:things-are-tappable-models] given only the send-off open, when the table's acts are read for now, then its one act opens the send-off's sheet; with nothing open the table offers nothing", () => {
     const now = open([SEND_OFF]);
     expect(now[0]?.acts.map((each) => [each.id, each.stages])).toEqual([["send-off-home", SEND_OFF]]);
     expect(open([])).toEqual([]);
   });
 
-  test("[R-WORLD-005] given either pledge open, when the table's acts are read for now, then the pledge's act opens that one, so each still opens from the table", () => {
+  test("[world:things-are-tappable-models] given either pledge open, when the table's acts are read for now, then the pledge's act opens that one, so each still opens from the table", () => {
     for (const pledge of PLEDGES) {
       const now = open([pledge]);
       expect(now[0]?.acts.map((each) => [each.id, each.stages])).toEqual([["pledge", pledge]]);
@@ -186,7 +186,7 @@ describe("the family's asks round the centre table", () => {
     expect(both[0]?.acts.map((each) => each.id)).toEqual(["pledge", "send-off-home"]);
   });
 
-  test("[R-WORLD-005] given every entry the house stages, when its things' acts are read, then each opens from an act of a thing there", () => {
+  test("[world:things-are-tappable-models] given every entry the house stages, when its things' acts are read, then each opens from an act of a thing there", () => {
     const opened = new Set(actEntries(placeFile, "place.family-house"));
     // The rest is lived by hand (decision 0013): the bed's rest and the night's support are the table's and the bed's own acts.
     expect(entry.stages.filter((one) => !opened.has(one) && one !== "activity.rest" && one !== "activity.fill-drum")).toEqual([]);

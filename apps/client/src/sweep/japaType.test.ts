@@ -1,5 +1,5 @@
-// The japa type read from the view at the send-off (decision 0024; docs/rules/share.md R-SHARE-001,
-// R-SHARE-004, R-SHARE-005): one of six labels from the way out, the months kept (decision 0024), the
+// The japa type read from the view at the send-off (decision 0024; share:cards-due-at-set-moments,
+// share:card-contents, share:card-carries-no-money): one of six labels from the way out, the months kept (decision 0024), the
 // risks taken and how home was held. Read from the recorded lives and a trader's tile played into her shop.
 import { content, japaTypes, text } from "@japacity/content";
 import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
@@ -79,7 +79,7 @@ function trader(others: SlotPick["activity"][]): PlayerView {
 }
 
 describe("the japa type, read at the send-off", () => {
-  test("[R-WORLD-008] given each recorded life, when each month closes, then the months the view counts as kept are those whose results figure, in the money of the place, was above zero", () => {
+  test("[world:month-end-results-sheet] given each recorded life, when each month closes, then the months the view counts as kept are those whose results figure, in the money of the place, was above zero", () => {
     for (const [name, save] of Object.entries(SAVES)) {
       const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
       // The month's lines as the results sheet reads them: the commands sent in the month, then the month's end.
@@ -116,7 +116,7 @@ describe("the japa type, read at the send-off", () => {
     }
   });
 
-  test("[R-SHARE-001] given the recorded lives at their send-off, when the type is read, then Aniekan, Ada and Tunde are family anchors and Zainab the long way round (a return)", () => {
+  test("[share:cards-due-at-set-moments] given the recorded lives at their send-off, when the type is read, then Aniekan, Ada and Tunde are family anchors and Zainab the long way round (a return)", () => {
     // Decisions 0011 and 0012: the card reads a repeat act's taps as months, so study does not
     // lead the things done most. Aniekan's refusals are on the Gulf contract, not the way he took; the junior
     // developer's job leads his things done most, and with no reading before it his standing makes him the family anchor.
@@ -142,7 +142,7 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf(zainab)).toBe("long-way-round");
   });
 
-  test("[R-SHARE-001] given a trader's tile played into her own shop, when the type is read at a send-off, then the shop's months kept make her the careful saver before the hustler, fewer kept make her the hustler, and the kiosk beside the shop, the lotto and the bet slip both, is one risk and not the gambler", () => {
+  test("[share:cards-due-at-set-moments] given a trader's tile played into her own shop, when the type is read at a send-off, then the shop's months kept make her the careful saver before the hustler, fewer kept make her the hustler, and the kiosk beside the shop, the lotto and the bet slip both, is one risk and not the gambler", () => {
     const shop = trader(["activity.ask-around", "activity.rest"]);
     const twoThirds = Math.ceil((shop.card!.months * 2) / 3);
     expect(shop.keptMonths).toBeGreaterThanOrEqual(twoThirds);
@@ -154,7 +154,7 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...kiosk, keptMonths: twoThirds - 1 })).toBe("hustler");
   });
 
-  test("[R-SHARE-001] given no send-off due, a chapter card or no card, when the type is read, then there is none yet", () => {
+  test("[share:cards-due-at-set-moments] given no send-off due, a chapter card or no card, when the type is read, then there is none yet", () => {
     const ada = sendOff("ada-careful");
     expect(japaTypeOf({ ...ada, card: null })).toBeNull();
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, kind: "chapter" } })).toBeNull();
@@ -163,7 +163,7 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf(game.view())).toBeNull();
   });
 
-  test("[R-SHARE-004] given Ada's send-off with one thing changed at a time, when the type is read, then each of the six types is reached by its own reason", () => {
+  test("[share:card-contents] given Ada's send-off with one thing changed at a time, when the type is read, then each of the six types is reached by its own reason", () => {
     const ada = adaPlain();
     // A return in the record and still going: the long way round, before anything else.
     expect(japaTypeOf({ ...ada, place: { ...ada.place, returns: [{ month: 6, shape: "broke", country: "country.uk" }] } })).toBe("long-way-round");
@@ -176,7 +176,7 @@ describe("the japa type, read at the send-off", () => {
     // Home at its proudest: standing at the top of its range, or the top band with time given to family.
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: content.quality["quality.standing"]!.max } })).toBe("family-anchor");
     const standing = content.quality["quality.standing"]!;
-    // The lowest standing in the top of the four bands the screen says (R-TEXT-005).
+    // The lowest standing in the top of the four bands the screen says (text:bands-not-figures).
     const topBand = standing.min + Math.ceil((3 * (standing.max - standing.min + 1)) / 4);
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: topBand, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).toBe("family-anchor");
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, standing: topBand - 1, topActivities: ["activity.family-time", "activity.job-junior-dev"] } })).not.toBe("family-anchor");
@@ -202,7 +202,7 @@ describe("the japa type, read at the send-off", () => {
   });
 
 
-  test("[R-SHARE-005] given every type, when its words are read, then it is a name and a line, never a figure", () => {
+  test("[share:card-carries-no-money] given every type, when its words are read, then it is a name and a line, never a figure", () => {
     for (const type of japaTypes) {
       const words = typeWords(type);
       expect(words).toEqual({ name: text[`share.type.${type}.name`], line: text[`share.type.${type}.line`] });

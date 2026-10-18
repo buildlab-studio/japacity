@@ -17,7 +17,7 @@ function answerItem(scene: HTMLElement, answer: string): HTMLElement {
 }
 
 describe("the December visit", () => {
-  test("[R-RETURN-005] [R-SETPIECE-005] given December abroad, then the visit takes the whole screen with one question, the free answer first and each price in pounds", async () => {
+  test("[return:december-visit-set-piece] [route:view-shows-progress-not-score] given December abroad, then the visit takes the whole screen with one question, the free answer first and each price in pounds", async () => {
     const view = decemberGame().view();
     const question = view.setpiece!.question!;
     expect(view.setpiece!.entry).toBe(DECEMBER);
@@ -37,7 +37,7 @@ describe("the December visit", () => {
     }
   });
 
-  test("[R-SETPIECE-003] given no pounds for the flight, then going is greyed but still shown, with the rejection's words and what it needs", async () => {
+  test("[route:set-piece-answers-in-order] given no pounds for the flight, then going is greyed but still shown, with the rejection's words and what it needs", async () => {
     const game = decemberGame();
     setPockets(game, { GBP: 0 });
     const view = game.view();
@@ -54,7 +54,7 @@ describe("the December visit", () => {
     expect(within(answerItem(scene, "stay")).getByRole("button").hasAttribute("disabled")).toBe(false);
   });
 
-  test("[R-RETURN-005] given pounds enough, when the flight is booked, then setpiece/answer names the question and the answer", async () => {
+  test("[return:december-visit-set-piece] given pounds enough, when the flight is booked, then setpiece/answer names the question and the answer", async () => {
     const game = decemberGame();
     const fare = answerPrice("go-uk", "go")[0]!;
     const view = viewAfter(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: fare.amount, reason: "gift" }]);
@@ -65,7 +65,7 @@ describe("the December visit", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "setpiece/answer", question: "go-uk", answer: "go", basedOn: view.v }]));
   });
 
-  test("[R-SETPIECE-002] given the report still open, then the scene waits; set aside, a tile in the plan opens it again", async () => {
+  test("[route:open-set-piece-holds-month] given the report still open, then the scene waits; set aside, a tile in the plan opens it again", async () => {
     const { store } = await renderWithView(<SetpieceView />, decemberGame().view());
     await screen.findByRole("dialog");
     store.getState().setReportOpen(true);
@@ -79,7 +79,7 @@ describe("the December visit", () => {
     expect(await screen.findByRole("dialog")).toBeDefined();
   });
 
-  test("[R-RETURN-005] given every country's visit in content, then each question's free answer is shown first", () => {
+  test("[return:december-visit-set-piece] given every country's visit in content, then each question's free answer is shown first", () => {
     for (const question of content.setpiece[DECEMBER]!.questions) {
       const order = sceneOrder(question.id, question.answers.map((answer) => answer.id));
       expect(answerPrice(question.id, order[0]!)).toEqual([]);

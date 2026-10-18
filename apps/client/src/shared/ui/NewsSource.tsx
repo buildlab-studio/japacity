@@ -1,5 +1,5 @@
 // Where a story is heard, a small icon and a word beside it on News.
-// A rumour is marked as a rumour whatever its source, so talk never reads like a changed rule (R-NEWS-001).
+// A rumour is marked as a rumour whatever its source, so talk never reads like a changed rule (news:stages-move-forward-only).
 import { content, text } from "@japacity/content";
 import type { NewsSource, NewsStage } from "@japacity/sim";
 import { Ear, Landmark, Newspaper, Radio, UserRound, Users, type LucideIcon } from "lucide-react";

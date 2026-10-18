@@ -1,4 +1,4 @@
-// The school sheet (docs/rules/world.md R-WORLD-006; route.md R-ROUTE-007): it
+// The school sheet (world:one-action-one-sheet; route:school-answers-by-grade): it
 // said "You send your papers to one university" and named none, and its corner was a gear.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -15,7 +15,7 @@ function withGrade(grade: number) {
 }
 
 describe("the sheet that applies to one university", () => {
-  test("[R-WORLD-006] given one university the papers can go to, when its sheet shows, then it names the university, its deposit and the chance of an offer", () => {
+  test("[world:one-action-one-sheet] given one university the papers can go to, when its sheet shows, then it names the university, its deposit and the chance of an offer", () => {
     const school = content.school[NORTHGATE];
     if (school === undefined) throw new Error("No Northgate.");
     const line = schoolSheetLine(withGrade(school.minGrade), NORTHGATE);
@@ -23,7 +23,7 @@ describe("the sheet that applies to one university", () => {
     expect(line).not.toMatch(/one university/);
   });
 
-  test("[R-WORLD-006] given a grade above the school's least, when the chance is read, then it rises by the step for each grade, never past the cap, as the school's answer draws it", () => {
+  test("[world:one-action-one-sheet] given a grade above the school's least, when the chance is read, then it rises by the step for each grade, never past the cap, as the school's answer draws it", () => {
     const school = content.school["school.kingsmere"];
     if (school === undefined) throw new Error("No Kingsmere.");
     const numbers = content.tuning.route;
@@ -33,7 +33,7 @@ describe("the sheet that applies to one university", () => {
     expect(offerChance(withGrade(school.minGrade + 40), "school.kingsmere")).toBe(numbers.offerMaxBp);
   });
 
-  test("[R-WORLD-006] given the sheet's corner, when its icon is named, then it is the building the phone's icon set draws, not the gear it falls back to", () => {
+  test("[world:one-action-one-sheet] given the sheet's corner, when its icon is named, then it is the building the phone's icon set draws, not the gear it falls back to", () => {
     expect(SCHOOL_ICON).toBe("landmark");
   });
 });

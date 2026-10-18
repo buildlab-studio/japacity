@@ -1,4 +1,4 @@
-// R-ACCOUNT-006, R-ENGINE-015: the login wall in front of staging (Cloudflare Access). A fetch cannot pass it: Access answers an /api request without its cookie with a redirect to
+// account:session-is-secure-cookie, engine:browser-authority-for-dev-only: the login wall in front of staging (Cloudflare Access). A fetch cannot pass it: Access answers an /api request without its cookie with a redirect to
 // its own login on another origin, which a fetch must not follow. Only the page can: so the first wall reloads the
 // whole page once, and Access shows its login. A second wall within a minute means the reload did not get through, so
 // nothing reloads again and the card with Reload says it instead. A reply from the game clears the mark, but only

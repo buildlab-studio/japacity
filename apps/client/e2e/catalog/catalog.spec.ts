@@ -38,7 +38,7 @@ async function signedOut(page: Page): Promise<void> {
 }
 
 /**
- * The opening for a life kept on this device (R-ENGINE-015): the view held back, failed with the server's own
+ * The opening for a life kept on this device (engine:browser-authority-for-dev-only): the view held back, failed with the server's own
  * 503 or behind a wall; every other /api route not found.
  */
 async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void> {
@@ -56,7 +56,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
 }
 
 /**
- * The page after Begin while the server plays the years (R-PROLOGUE-014, R-SERVER-046): a kept life still at
+ * The page after Begin while the server plays the years (prologue:printed-page-hands-over, server:server-plays-prologue-preset): a kept life still at
  * its first card, the view answered and the preset's reply held back, so the page stays on its wait.
  */
 async function pageWaiting(page: Page): Promise<void> {
@@ -116,7 +116,7 @@ test("open: the splash the page paints, the life opening, the page after Begin w
   await page.unrouteAll({ behavior: "ignoreErrors" });
   await opening(page, "wall");
   await attempt(page, "open-fault-wall", async () => {
-    // The first wall reloads the page once (R-ACCOUNT-006); the second shows the card.
+    // The first wall reloads the page once (account:session-is-secure-cookie); the second shows the card.
     await page.goto(`${ONLINE}/`);
     await page.getByRole("alertdialog", { name: "Your session ended: open the game again." }).waitFor({ timeout: 30_000 });
     await shot(page, "open-fault-wall");
@@ -279,7 +279,7 @@ const STARTS: readonly { archetype: string; home: string | null; keys: [string, 
   { archetype: "The developer", home: "The family house", keys: ["home-family-first", "home-family-day", "home-family-night"] },
   { archetype: "The developer", home: "Your own room", keys: ["home-room-first", "home-room-day", "home-room-night"] },
   { archetype: "The developer", home: "A hostel room", keys: ["home-hostel-first", "home-hostel-day", "home-hostel-night"] },
-  // The child of the water lives on the water (R-PROLOGUE-012): Where you live offers no other roof.
+  // The child of the water lives on the water (prologue:makoko-start-never-a-trap): Where you live offers no other roof.
   { archetype: "The child of the water", home: null, keys: ["home-water-first", "home-water-day", null] },
 ];
 
@@ -338,7 +338,7 @@ const ADA_IN_LONDON = 440;
 /** Where the city keeps the place the life stands in, read when the world opens (City.tsx, `lastPlace`). */
 const LAST_KEY = "japacity.city.last";
 
-/** Every card over the world passed: the granted card a recorded life owes on its decision day (R-SHARE-001) among them. */
+/** Every card over the world passed: the granted card a recorded life owes on its decision day (share:cards-due-at-set-moments) among them. */
 async function clearTheWorld(page: Page): Promise<void> {
   for (let round = 0; round < 3; round += 1) {
     const granted = page.locator("[data-share-card='granted']");
@@ -412,7 +412,7 @@ async function markNamed(page: Page, label: string): Promise<string> {
 async function actFromFan(page: Page, thing: string, act: string): Promise<void> {
   if (!(await openFan(page, thing))) throw new Error(`The fan of ${thing} did not open.`);
   await page.locator(`[data-fan="${thing}"] [data-fan-act="${act}"] button, [data-fan-sheet="${thing}"] [data-fan-act="${act}"] button`).first().click({ timeout: 10_000 });
-  // The character walks to the thing first; the act's sheet follows (R-WORLD-021).
+  // The character walks to the thing first; the act's sheet follows (world:colours-are-role-tokens).
   await page.getByRole("dialog").last().waitFor({ state: "visible", timeout: 20_000 });
 }
 
@@ -508,7 +508,7 @@ test("room: the family house lived in, its things, an ask and the data page, by 
 test("room: the visa interview", async ({ page }) => {
   await attempt(page, "room-interview", async () => {
     await openLife(page, "ada-careful", ADA_INTERVIEW, DAY);
-    // The interview opens over the world as the asks sheet with the officer's question (R-INTERVIEW-004).
+    // The interview opens over the world as the asks sheet with the officer's question (interview:answers-taken-in-order).
     const asked = page.locator("[data-world-sheet='asks'], [data-setpiece], [data-interview]").first();
     if (!(await asked.isVisible().catch(() => false))) await page.locator("[data-nudge] button").first().click({ timeout: 10_000 });
     await asked.waitFor({ timeout: 15_000 });
@@ -641,7 +641,7 @@ async function openAbroad(page: Page, want: AbroadLife, search: string): Promise
   await clearAbroad(page);
 }
 
-/** A ride abroad in the country's own vehicle (R-WORLD-039), its four angles shot as they come. */
+/** A ride abroad in the country's own vehicle (world:ride-abroad-and-workplace), its four angles shot as they come. */
 async function countryRide(page: Page, vehicle: string, way: string, stop: string): Promise<void> {
   const angles = ["outside", "above", "window", "seat"];
   const rode = await attempt(page, `ride-${vehicle}-outside`, async () => {
@@ -830,7 +830,7 @@ test("street: a thing's fan and sheet, the paper slip and a person, at Bode Thom
 // The map and the ride.
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The map from its thumb, drawn: folded on the player's card (R-WORLD-015). */
+/** The map from its thumb, drawn: folded on the player's card (world:map-is-painted-lagos). */
 async function mapReady(page: Page): Promise<void> {
   await page.locator('[data-thumb="map"]').click();
   await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
@@ -883,7 +883,7 @@ async function mapAt(page: Page, paint: "day" | "night"): Promise<void> {
 test("map: folded, open, the ride sheet and the country menu, by day and by night, and a danfo ride", async ({ page }) => {
   await openLife(page, "ada-careful", ADA_GRANTED, DAY);
   await mapAt(page, "day");
-  // The ride: the danfo picked on the sheet, each of its four angles shot as it comes (R-WORLD-032).
+  // The ride: the danfo picked on the sheet, each of its four angles shot as it comes (world:ride-cuts-between-angles).
   const angles = ["outside", "above", "window", "seat"];
   const rode = await attempt(page, "ride-outside", async () => {
     await mapReady(page);
@@ -913,7 +913,7 @@ test("map: folded, open, the ride sheet and the country menu, by day and by nigh
   await mapAt(page, "night");
 });
 
-/** A London ride (R-WORLD-039), its four angles shot as they come, as the danfo's are. */
+/** A London ride (world:ride-abroad-and-workplace), its four angles shot as they come, as the danfo's are. */
 async function londonRide(page: Page, way: "bus" | "train", stop: string): Promise<void> {
   const angles = ["outside", "above", "window", "seat"];
   const rode = await attempt(page, `ride-${way}-outside`, async () => {
@@ -1098,7 +1098,7 @@ const ADA_BEFORE_BAND = 222;
 
 test("month: the morning's envelope on the phone's lock screen", async ({ page }) => {
   await attempt(page, "month-morning", async () => {
-    // The result sealed until the morning (R-CLOCK-032): the month slept with the morning switch off, then on.
+    // The result sealed until the morning (clock:envelopes-show-real-waits): the month slept with the morning switch off, then on.
     await openLife(page, "ada-careful", ADA_BEFORE_BAND, "?sleep=2&morning=off&clock=afternoon");
     await sleepNow(page);
     await toResults(page, null);
@@ -1118,7 +1118,7 @@ test("month: the morning's envelope on the phone's lock screen", async ({ page }
 
 test("abroad: the map's list, the phone, the Bank's Send money, a month, and the status clock", async ({ page }) => {
   await openLife(page, "ada-abroad", ADA_IN_LONDON, DAY);
-  // R-WORLD-038: London is a painted map as Lagos is, folded on Peckham's card, the stops list kept for a screen reader.
+  // world:painted-maps-abroad: London is a painted map as Lagos is, folded on Peckham's card, the stops list kept for a screen reader.
   await attempt(page, "map-abroad", async () => {
     await mapReady(page);
     await shot(page, "map-abroad", 1200);
@@ -1163,7 +1163,7 @@ test("abroad: the map's list, the phone, the Bank's Send money, a month, and the
     await shotPages(page, "abroad-results", page.locator("[data-world-sheet='results']"), 3, 900);
     await leaveResults(page);
   });
-  // The job quit in Jobs: on a sponsored visa the status clock starts (R-STATUS-003) and stands on the phone.
+  // The job quit in Jobs: on a sponsored visa the status clock starts (status:lost-job-starts-clock) and stands on the phone.
   const quit = await attempt(page, "warning-clock-home", async () => {
     await clearTheWorld(page);
     const screen = await app(page, "jobs");
@@ -1181,7 +1181,7 @@ test("abroad: the map's list, the phone, the Bank's Send money, a month, and the
       await shot(page, "warning-clock-app", 900);
     });
   } else missed("warning-clock-app", "The job could not be quit, so no clock ran.");
-  missed("warning-run-down", "No recorded life is ever run down: wellbeing stays far above the line in all six (R-HEALTH-001), and a played month mends it faster than work wears it.");
+  missed("warning-run-down", "No recorded life is ever run down: wellbeing stays far above the line in all six (health:low-wellbeing-warns-first), and a played month mends it faster than work wears it.");
 });
 
 // ---------------------------------------------------------------------------------------------------------------------

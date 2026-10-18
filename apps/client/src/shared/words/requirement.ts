@@ -94,7 +94,7 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
       const own = `ui.req.min.${requirement.quality}`;
       // A level with a name: "A portfolio with a few pieces of work", "Degree grade: Second class upper or better".
       if (hasWords(label)) return hasWords(own) ? say(own, { value: lowerFirst(say(label)) }) : say("ui.req.quality-min-label", { quality: nameOf(requirement.quality), value: say(label) });
-      // A quality with bands is said by the band the gate sits in, never its figure (R-TEXT-005).
+      // A quality with bands is said by the band the gate sits in, never its figure (text:bands-not-figures).
       const band = bandAt(requirement.quality, requirement.value);
       if (band !== null) return hasWords(`ui.req.band.${requirement.quality}.${String(band.n)}`) ? say(`ui.req.band.${requirement.quality}.${String(band.n)}`) : say("ui.req.quality-min-band", { quality: nameOf(requirement.quality), band: band.words });
       return say("ui.req.quality-min", { quality: nameOf(requirement.quality), value: requirement.value });
@@ -245,7 +245,7 @@ export function anyOptions(requirement: Requirement, context: SentenceContext = 
   return sentences;
 }
 
-/** True for a choice between a person abroad and a wide enough network, the two ways to someone who went (R-ADVICE-003). */
+/** True for a choice between a person abroad and a wide enough network, the two ways to someone who went (advice:someone-who-went-answers-free). */
 function abroadOrCircle(of: readonly Requirement[]): boolean {
   return of.length === 2 && of.some((inner) => inner.type === "people/bond" && inner.where === "abroad") && of.some((inner) => inner.type === "quality/min" && inner.quality === "quality.network");
 }
@@ -257,14 +257,14 @@ function asksForRoute(requirement: Requirement): boolean {
 }
 
 /**
- * Why a shut button is shut, in a few words for the button itself (R-WORLD-006): the first thing
+ * Why a shut button is shut, in a few words for the button itself (world:one-action-one-sheet): the first thing
  * missing, said as what it needs ("Needs your passport first", "Needs a route you have heard of").
  * The card's list under it says every missing thing in full.
  */
 export function needsWords(missing: readonly Requirement[], context: SentenceContext = {}): string {
   const [first] = missing;
   if (first === undefined) return say("ui.needs.nothing-to-pick");
-  // A job this act would start, running already, is the whole story whatever else is short (the shop open, R-ACTIVITY-016).
+  // A job this act would start, running already, is the whole story whatever else is short (the shop open, activity:trader-opens-own-shop).
   if (missing.some((need) => need.type === "not" && need.of.type === "job/is" && need.of.activities.length === 1)) return say("ui.needs.running");
   if (alreadyDone(first, context)) return say("ui.needs.done");
   if (first.type === "document/held" && first.min === undefined) return say("ui.needs.document", { document: runningName(first.document) });
@@ -284,7 +284,7 @@ function saysFigureOf(said: string, quality: string): boolean {
 
 /**
  * A route's checklist item as the Japa app says it: content's words, unless they give a quality's figure,
- * which no screen ever shows (R-TEXT-005; "Tech skill at 75 or more"). Then the
+ * which no screen ever shows (text:bands-not-figures; "Tech skill at 75 or more"). Then the
  * item is said by the band its gate opens at, "Strong tech": anyone in that band meets it.
  */
 export function checklistWords(route: Id<"route">, item: string): string {
@@ -298,7 +298,7 @@ export function checklistWords(route: Id<"route">, item: string): string {
 }
 
 /**
- * True when a shut card says why itself (R-ADVICE-001, R-WORLD-006): its "Not yet:" list, or
+ * True when a shut card says why itself (advice:four-ways-to-learn-route, world:one-action-one-sheet): its "Not yet:" list, or
  * the sentence that there is nothing to choose yet ("No route to look into yet"). The reason is said once, there; the
  * button is shut and says only "Not yet". A card whose needs are all done already says that instead.
  */

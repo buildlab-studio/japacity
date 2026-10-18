@@ -1,5 +1,5 @@
 // A switched-off board's screen is never fetched (docs/rules/city.md
-// R-CITY-039): with every board answering switched-off, the lazy chunks of
+// city:boards-switch-when-and-who): with every board answering switched-off, the lazy chunks of
 // the board lines and the joined-week board are never imported.
 import { render, screen, waitFor } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
@@ -21,7 +21,7 @@ vi.mock("./JoinedWeekBoard", async (original) => {
   return original();
 });
 
-test("[R-CITY-039] given every board switched off, when the screen opens, then each says it is paused and no board's screen is loaded", async () => {
+test("[city:boards-switch-when-and-who] given every board switched off, when the screen opens, then each says it is paused and no board's screen is loaded", async () => {
   const server = fakeServer();
   const paused = { status: 503, headers: { "Retry-After": "30" }, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } };
   for (const path of ["this-week/everyone", "this-week/friends", "all-time/everyone", "all-time/friends", "joined-week"]) server.answer(`GET /api/boards/${path}`, paused);
@@ -35,7 +35,7 @@ test("[R-CITY-039] given every board switched off, when the screen opens, then e
   expect(imported).toEqual({ lines: 0, joined: 0 });
 });
 
-test("[R-CITY-039] given a board switched on again, when the screen opens, then its lines are loaded then and only then", async () => {
+test("[city:boards-switch-when-and-who] given a board switched on again, when the screen opens, then its lines are loaded then and only then", async () => {
   expect(imported.lines).toBe(0);
   const server = fakeServer();
   server.answer("GET /api/boards/this-week/everyone", { body: { ok: true, board: "this-week.everyone", size: 50, rows: [{ rank: 1, username: "ada_lagos", figure: 4, me: true }], own: { rank: 1, username: "ada_lagos", figure: 4, me: true } } });

@@ -1,4 +1,4 @@
-// The "changed into" lines under Kept (docs/rules/world.md R-WORLD-008). A change of money counts for nothing in Kept
+// The "changed into" lines under Kept (world:month-end-results-sheet). A change of money counts for nothing in Kept
 // (decision 0024: the kept figure leaves out the change's two sides, the bank's charge stays money out), so a month
 // whose band fell by the change could read as money hidden. So each change in the month is said under Kept on its own line, both sides
 // as they were: "Changed ₦806,930 into £561". The side paid in at the bank is what went at the
@@ -37,7 +37,7 @@ function shownChanges(): string[] {
 }
 
 describe("the changed-into lines under Kept", () => {
-  test("[R-WORLD-008] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with what went at the rate and what came in, in the order made, Kept counts only the bank's charges, and Kept plus the changes is the band's move", async () => {
+  test("[world:month-end-results-sheet] given naira changed into pounds at the bank, more with the FX man, and pounds changed back into naira, when the month's results show, then each change is one line under Kept with what went at the rate and what came in, in the order made, Kept counts only the bank's charges, and Kept plus the changes is the band's move", async () => {
     const game = newGame("scenario.tunde");
     setPockets(game, { NGN: 200_000_000 });
     const start = held(game, "NGN");
@@ -64,7 +64,7 @@ describe("the changed-into lines under Kept", () => {
       `Changed ${formatMoney(back.paid, "GBP")} into ${formatMoney(back.got, "NGN")}`,
     ]);
     expect(shownChanges()[0]).toBe(say(CHANGED_INTO, { paid: { currency: "NGN", amount: atBank.paid }, got: { currency: "GBP", amount: atBank.got } }));
-    // The lines sit under Kept, and the change is said once: no tag says it again (R-TEXT-008).
+    // The lines sit under Kept, and the change is said once: no tag says it again (text:show-then-tell).
     const keptLine = document.querySelector("[data-results-kept]");
     const changes = document.querySelector("[data-results-changes]");
     expect(keptLine !== null && changes !== null && (keptLine.compareDocumentPosition(changes) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0).toBe(true);
@@ -77,13 +77,13 @@ describe("the changed-into lines under Kept", () => {
     expect(nairaKept + nairaChanged).toBe(held(game, "NGN") - start);
   });
 
-  test("[R-WORLD-008] [R-TEXT-008] given the changed-into line, when its words are read, then they come from content, carry no raw key, and nothing in them looks like a bank alert", () => {
+  test("[world:month-end-results-sheet] [text:show-then-tell] given the changed-into line, when its words are read, then they come from content, carry no raw key, and nothing in them looks like a bank alert", () => {
     const said = say(CHANGED_INTO, { paid: { currency: "NGN", amount: 80_693_000 }, got: { currency: "GBP", amount: 56_100 } });
     expect(said).toBe(`Changed ${formatMoney(80_693_000, "NGN")} into ${formatMoney(56_100, "GBP")}`);
     expect(said).not.toMatch(/ui\.|alert|credit|debit|ref|txn|✓/i);
   });
 
-  test("[R-WORLD-008] given a month with no change of money, when the results show, then no changed-into line shows", async () => {
+  test("[world:month-end-results-sheet] given a month with no change of money, when the results show, then no changed-into line shows", async () => {
     const game = newGame("scenario.tunde");
     game.endTurn();
     const { store } = await renderWithView(<Results place="Home" />, game.view());

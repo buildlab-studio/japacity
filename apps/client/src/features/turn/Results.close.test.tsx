@@ -1,4 +1,4 @@
-// The month's close (docs/rules/world.md R-WORLD-008; decisions 0013 and 0011): the
+// The month's close (world:month-end-results-sheet; decisions 0013 and 0011): the
 // results sheet after Sleep leads with payday when there is one, then the rent when it was due, then the moments, then
 // Kept, in up to six lines. What was bought by hand during the month was paid as it was done and is not listed again:
 // no "Done this month", no living line, no relief line at home, no "you rested". The sheet keeps its look.
@@ -30,7 +30,7 @@ function sheetText(): string {
 }
 
 describe("the month's close", () => {
-  test("[R-WORLD-008] given the nurse's lived month (meals, water, gist and study bought by hand) and her salary, when the results open after Sleep, then payday leads, then the moments, then Kept, in up to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
+  test("[world:month-end-results-sheet] given the nurse's lived month (meals, water, gist and study bought by hand) and her salary, when the results open after Sleep, then payday leads, then the moments, then Kept, in up to six lines, with nothing bought by hand listed, no living line, no relief and no rest filler", async () => {
     const game = newGame("scenario.ngozi");
     const mid: ReportLine[] = [];
     for (const activity of ["activity.cook-at-home", "activity.cook-at-home", "activity.fetch-water", "activity.family-time", "activity.study-english"] as const) mid.push(...game.accept({ type: "activity/now", activity, param: null }).lines);
@@ -55,7 +55,7 @@ describe("the month's close", () => {
     expect(document.querySelector("[data-results-back]")).not.toBeNull();
   });
 
-  test("[R-WORLD-008] given a month with pay and rent due, when the close is read, then payday leads, the rent comes next, then the moments, then Kept", async () => {
+  test("[world:month-end-results-sheet] given a month with pay and rent due, when the close is read, then payday leads, the rent comes next, then the moments, then Kept", async () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
       line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),
@@ -78,7 +78,7 @@ describe("the month's close", () => {
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(45_000_000 - 12_000_000 - 3_000_000));
   });
 
-  test("[R-WORLD-008] given a month with pay and the visa granted, when the results open, then the visa's answer leads as the hero before payday, then the rent, then Kept", async () => {
+  test("[world:month-end-results-sheet] given a month with pay and the visa granted, when the results open, then the visa's answer leads as the hero before payday, then the rent, then Kept", async () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
       line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),
@@ -91,7 +91,7 @@ describe("the month's close", () => {
     expect(document.querySelector("[data-results-story] li")?.hasAttribute("data-results-best")).toBe(true);
   });
 
-  test("[R-WORLD-008] given pay, rent and more moments than fit, when the close is read, then the moments take only the room left, so the sheet holds six lines with Kept", () => {
+  test("[world:month-end-results-sheet] given pay, rent and more moments than fit, when the close is read, then the moments take only the room left, so the sheet holds six lines with Kept", () => {
     const turned = [
       line("line.wallet.salary", { amount: naira(45_000_000) }, "good"),
       line("line.wallet.rent", { amount: naira(12_000_000) }, "bad"),

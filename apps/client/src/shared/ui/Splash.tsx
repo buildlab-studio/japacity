@@ -1,4 +1,4 @@
-// R-ENGINE-015 (the splash): the game's mark with its name under it, about a
+// engine:browser-authority-for-dev-only (the splash): the game's mark with its name under it, about a
 // third down the game's ground. index.html paints this very markup before the script runs and holds its style and the
 // mark's drawing (one symbol, outside #root, so React's renders keep it), so the page and the opening screen are one
 // splash and nothing jumps when the script mounts. Splash.test.tsx holds the two equal. What stands under the name (the

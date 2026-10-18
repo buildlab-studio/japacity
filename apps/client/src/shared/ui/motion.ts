@@ -1,4 +1,4 @@
-// Whether the interface moves at all here (world.md R-WORLD-023): not under reduced motion, where every change snaps, and
+// Whether the interface moves at all here (world:motions-under-half-second): not under reduced motion, where every change snaps, and
 // not where the page cannot say (a test's document has no media queries), so nothing waits on a motion never drawn.
 import { type RefObject, useEffect, useRef } from "react";
 

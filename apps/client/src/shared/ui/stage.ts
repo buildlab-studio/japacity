@@ -9,7 +9,7 @@ import { cardKey } from "./cardKey";
 
 export { cardKey } from "./cardKey";
 
-/** True when no staged win or moment card is on screen and the report is closed: the card may open (R-MOMENT-006). */
+/** True when no staged win or moment card is on screen and the report is closed: the card may open (moment:card-shows-when-outcome-lands). */
 export function useCardsTurn(): boolean {
   const moments = useGame((state) => state.moments.length);
   const momentCards = useGame((state) => state.momentCards.length);
@@ -25,12 +25,12 @@ export function useScenesTurn(): boolean {
   return cardsTurn && (key === null || cardClosed === key);
 }
 
-/** True once the early win has been shown in this tab: what asks something of the player waits for it (R-GUIDE-015). */
+/** True once the early win has been shown in this tab: what asks something of the player waits for it (guide:nothing-asked-before-early-win). */
 export function useEarlyWin(): boolean {
   return useGame((state) => state.earlyWin);
 }
 
-/** An ask, shown only after the early win (R-GUIDE-015). */
+/** An ask, shown only after the early win (guide:nothing-asked-before-early-win). */
 export function AfterEarlyWin({ children }: { children: ReactNode }): ReactNode {
   return useEarlyWin() ? children : null;
 }

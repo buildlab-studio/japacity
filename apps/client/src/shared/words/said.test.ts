@@ -17,7 +17,7 @@ function flightLines() {
 }
 
 describe("words that fit", () => {
-  test("[R-WORLD-008] given Ada's flight, when the status granted and the landing are told, then the status reads as its own name after a colon and the country takes no bare article", () => {
+  test("[world:month-end-results-sheet] given Ada's flight, when the status granted and the landing are told, then the status reads as its own name after a colon and the country takes no bare article", () => {
     const lines = flightLines();
     const granted = lines.find((line) => line.key === "line.status.granted");
     const arrived = lines.find((line) => line.key === "line.place.arrived");
@@ -32,17 +32,17 @@ describe("words that fit", () => {
     expect(landing).not.toMatch(/\bin United\b/);
   });
 
-  test("[R-WORLD-002] given a chapter closed, when its line is read, then it names the chapter and says nothing of turns", () => {
+  test("[world:top-band-is-lively-pill] given a chapter closed, when its line is read, then it names the chapter and says nothing of turns", () => {
     const said = words("line.chapter.closed", { chapter: "chapter.find-your-feet" });
     expect(said).toContain(nameOf("chapter.find-your-feet"));
     expect(said).not.toMatch(/turn/i);
   });
 
-  test("[R-WORLD-006] given an act planned from a sheet on the phone, when the corner tells it, then it is the act's name and planned", () => {
+  test("[world:one-action-one-sheet] given an act planned from a sheet on the phone, when the corner tells it, then it is the act's name and planned", () => {
     expect(say("ui.world.planned", { what: nameOf("activity.job-hunt") })).toBe(`${nameOf("activity.job-hunt")}: planned.`);
   });
 
-  test("[R-STREET-009] given the market behind the station, when its aunty speaks, then her words fit a woman or a man, since nothing but the bridge's night reads the character's sex", () => {
+  test("[streets:sex-optional-with-neutral-path] given the market behind the station, when its aunty speaks, then her words fit a woman or a man, since nothing but the bridge's night reads the character's sex", () => {
     const body = text["offer.street-find-uk.body"] ?? "";
     expect(body).not.toMatch(/\b(son|daughter|boy|girl|nephew|niece)\b/i);
   });

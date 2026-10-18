@@ -1,4 +1,4 @@
-// A computer character is never shown as a player on a card or in a news line (docs/rules/person.md R-PEOPLE-059).
+// A computer character is never shown as a player on a card or in a news line (person:computers-never-shown-as-players).
 // The card is read from a recorded life whose family are computer characters, the news from the real content.
 import { content, shareKinds, text, type ShareKind } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -21,7 +21,7 @@ const COMPUTER_NAMES = Object.keys(content.person)
 const naming = (words: string) => COMPUTER_NAMES.filter((name) => new RegExp(`\\b${name}\\b`).test(words));
 
 describe("a computer character is never shown as a player", () => {
-  test("[R-PEOPLE-059] given a recorded life with computer bonds, when every kind of card is laid out and previewed, then no computer character's name is on it, only the player's own", () => {
+  test("[person:computers-never-shown-as-players] given a recorded life with computer bonds, when every kind of card is laid out and previewed, then no computer character's name is on it, only the player's own", () => {
     const game = recordedGame("ada-careful");
     const computers = Object.values(game.state.people.slots).filter((slot) => slot.state === "computer").length + Object.values(game.state.people.bonds).filter((bond) => bond.with.kind === "computer").length;
     expect(computers).toBeGreaterThan(0);
@@ -37,7 +37,7 @@ describe("a computer character is never shown as a player", () => {
     }
   });
 
-  test("[R-PEOPLE-059] given every news story and every share card's words in content, when they are read, then none names a computer character", () => {
+  test("[person:computers-never-shown-as-players] given every news story and every share card's words in content, when they are read, then none names a computer character", () => {
     const keys = Object.keys(text).filter((key) => key.startsWith("news.") || key.startsWith("share."));
     expect(keys.length).toBeGreaterThan(100);
     expect(keys.flatMap((key) => naming(text[key] ?? "").map((name) => `${key}: ${name}`))).toEqual([]);

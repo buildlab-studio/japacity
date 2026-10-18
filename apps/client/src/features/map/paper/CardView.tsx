@@ -1,4 +1,4 @@
-// A neighbourhood's card (docs/rules/world.md R-WORLD-015): the same painted map zoomed in on one
+// A neighbourhood's card (world:map-is-painted-lagos): the same painted map zoomed in on one
 // district inside a white card with a navy edge, its name folded into the card's top edge as a small pill. The stickers
 // are larger here, and still the pins.
 import type { CSSProperties } from "react";
@@ -44,7 +44,7 @@ export function titleBox(title: string): readonly [number, number, number, numbe
 }
 
 /**
- * The district names a card paints (R-WORLD-015): each one whole on the card's paper, clear of its edges and of its
+ * The district names a card paints (world:map-is-painted-lagos): each one whole on the card's paper, clear of its edges and of its
  * title pill, so no name runs under the pill nor is cut by the card's edge. A name's box is reckoned from its letters
  * at its own size on the screen, turned by its tilt.
  */

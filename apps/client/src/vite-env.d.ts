@@ -3,13 +3,13 @@
 interface ImportMetaEnv {
   /** "1" turns the fast clock on in a dev or preview build. Never in production: see src/authority/clock.ts. */
   readonly VITE_FAST_CLOCK?: string;
-  /** "1" lets a production build run the in-browser authority (R-ENGINE-015): see src/shared/net/authorityMode.ts. */
+  /** "1" lets a production build run the in-browser authority (engine:browser-authority-for-dev-only): see src/shared/net/authorityMode.ts. */
   readonly VITE_ALLOW_LOCAL_AUTHORITY?: string;
   /** The server's address. Set, the server is the authority: see src/shared/net/authorityMode.ts. */
   readonly VITE_SERVER_URL?: string;
-  /** Cloudflare Turnstile's site key for the sign-up check (R-ACCOUNT-013): see src/features/account/Turnstile.tsx. */
+  /** Cloudflare Turnstile's site key for the sign-up check (account:bot-check-on-guest-creation): see src/features/account/Turnstile.tsx. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
-  /** The build number feedback carries (R-MODERATION-020), set by the build: see src/shared/moderation/api.ts. */
+  /** The build number feedback carries (moderation:feedback-box-in-settings), set by the build: see src/shared/moderation/api.ts. */
   readonly VITE_BUILD?: string;
   /** The Cloudflare Web Analytics site token. Set, the build puts the beacon in the page: see vite/beacon.plugin.ts. */
   readonly VITE_ANALYTICS_TOKEN?: string;

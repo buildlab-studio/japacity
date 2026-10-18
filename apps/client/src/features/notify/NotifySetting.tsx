@@ -1,6 +1,6 @@
 // The bank-full notice's switch in the account settings (docs/rules/clock.md
-// R-CLOCK-031). On asks the browser and keeps this device; off forgets every
-// device of the account (account.md R-ACCOUNT-020).
+// clock:full-bank-push-notification). On asks the browser and keeps this device; off forgets every
+// device of the account (account:only-needed-data-kept).
 import { useEffect, useState } from "react";
 
 import { say } from "../../shared/words/text";

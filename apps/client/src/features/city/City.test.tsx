@@ -27,7 +27,7 @@ function said(key: string): string {
 const credits = JSON.parse(readFileSync(join(PUBLIC, "assets", "credits.json"), "utf8")) as CreditsFile;
 
 describe("the city reads the view and never changes it", () => {
-  test("[R-CITY-001] given the city in front of the panels, when the player opens the menu and enters another place, then no command is sent", async () => {
+  test("[city:places-change-no-state] given the city in front of the panels, when the player opens the menu and enters another place, then no command is sent", async () => {
     const { authority } = await renderWithView(<City />, engineView());
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.menu") }));
@@ -38,14 +38,14 @@ describe("the city reads the view and never changes it", () => {
     expect(authority.sent).toEqual([]);
   });
 
-  test("[R-CITY-024] given a new life, when the city is looked at, then the hub's name is content's words for it", async () => {
+  test("[city:place-words-are-text-keys] given a new life, when the city is looked at, then the hub's name is content's words for it", async () => {
     await renderWithView(<City />, engineView());
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     expect(screen.getByRole("heading", { name: said("place.ojuelegba.name") })).toBeDefined();
     expect(text["place.ojuelegba.name"]).toBe(content.place["place.ojuelegba"]?.realName);
   });
 
-  test("[R-CITY-011] given a set piece open, when the city is looked at, then it shows the place that stages it with the question, and the answers stay in the month", async () => {
+  test("[city:set-piece-shown-where-staged] given a set piece open, when the city is looked at, then it shows the place that stages it with the question, and the answers stay in the month", async () => {
     await renderWithView(<City />, richView());
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     expect(screen.getByRole("heading", { name: said("place.visa-centre.name") })).toBeDefined();
@@ -56,7 +56,7 @@ describe("the city reads the view and never changes it", () => {
 });
 
 describe("loading", () => {
-  test("[R-CITY-018] given the hub's file and today's sample, when the first download is planned, then it holds only the hub's own files and shared ones", () => {
+  test("[city:places-load-on-entry] given the hub's file and today's sample, when the first download is planned, then it holds only the hub's own files and shared ones", () => {
     const hub = content.place["place.ojuelegba"];
     if (hub === undefined) throw new Error("The hub is missing");
     const file = hubFile as unknown as PlaceFile;
@@ -66,7 +66,7 @@ describe("loading", () => {
     expect(files.filter((path) => !path.startsWith("places/ojuelegba/") && !path.startsWith("shared/"))).toEqual([]);
   });
 
-  test("[R-CITY-018] given the published manifest, when a shipped file's address is asked for, then it is the hashed name beside the file under public/assets, and an unshipped one has none", () => {
+  test("[city:places-load-on-entry] given the published manifest, when a shipped file's address is asked for, then it is the hashed name beside the file under public/assets, and an unshipped one has none", () => {
     const url = assetUrl(manifest, "places/ojuelegba/place.json");
     expect(url).toMatch(new RegExp(`^${PUBLISHED}places/ojuelegba/place\\.[0-9a-f]{12}\\.json$`));
     expect(assetUrl(manifest, "places/nowhere/place.json")).toBeNull();
@@ -74,7 +74,7 @@ describe("loading", () => {
 });
 
 describe("credits", () => {
-  test("[R-CITY-021] given credits.json, when the credits screen shows, then the map data line links OpenStreetMap to its copyright page, with the register's attributions, the fonts, the generated media and the licences, in that order", () => {
+  test("[city:credits-screen-attributions] given credits.json, when the credits screen shows, then the map data line links OpenStreetMap to its copyright page, with the register's attributions, the fonts, the generated media and the licences, in that order", () => {
     render(<CreditsList credits={credits} />);
     expect(screen.getByRole("link", { name: "OpenStreetMap" }).getAttribute("href")).toBe("https://www.openstreetmap.org/copyright");
     expect(screen.getByText(/available under the Open Database Licence/)).toBeDefined();
@@ -86,7 +86,7 @@ describe("credits", () => {
     expect(within(document.querySelector<HTMLElement>('[data-credits="assets"]')!).getByRole("heading").textContent).toBe("Sound and art from others");
   });
 
-  test("[R-CITY-021] given the register's voice row, when the generated media is stated, then the statement does not repeat the row", () => {
+  test("[city:credits-screen-attributions] given the register's voice row, when the generated media is stated, then the statement does not repeat the row", () => {
     expect(credits.assets.length).toBeGreaterThan(0);
     for (const row of credits.assets) {
       expect(credits.generated).not.toContain(row.attribution);
@@ -94,7 +94,7 @@ describe("credits", () => {
     }
   });
 
-  test("[R-CITY-021] given the phone's Settings, when its Credits row is pressed, then the same credits sheet opens", () => {
+  test("[city:credits-screen-attributions] given the phone's Settings, when its Credits row is pressed, then the same credits sheet opens", () => {
     render(<CreditsRow />);
     expect(screen.queryByRole("dialog")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${cityWords("city.credits")}`) }));
@@ -102,7 +102,7 @@ describe("credits", () => {
     expect(within(sheet).getByText(cityWords("city.credits.loading"))).toBeDefined();
   });
 
-  test("[R-GUIDE-008] given a register row with an attribution, when the credits show, then it stands under sound and art from others; with none, then the section is not there", () => {
+  test("[guide:credits-screen-in-game] given a register row with an attribution, when the credits show, then it stands under sound and art from others; with none, then the section is not there", () => {
     render(<CreditsList credits={{ ...credits, assets: [{ file: "x.glb", attribution: "A bus by Someone, CC BY 4.0" }] }} />);
     expect(document.querySelector('[data-credits="assets"] p')?.textContent).toBe("A bus by Someone, CC BY 4.0");
     cleanup();
@@ -110,7 +110,7 @@ describe("credits", () => {
     expect(document.querySelector('[data-credits="assets"]')).toBeNull();
   });
 
-  test("[R-GUIDE-009] given map data from OpenStreetMap, when the credits screen shows, then its line links OpenStreetMap to the copyright page; with none, then no map line", () => {
+  test("[guide:credits-carry-map-line] given map data from OpenStreetMap, when the credits screen shows, then its line links OpenStreetMap to the copyright page; with none, then no map line", () => {
     render(<CreditsList credits={credits} />);
     const map = document.querySelector('[data-credits="map"]');
     expect(map?.querySelector("a")?.getAttribute("href")).toBe("https://www.openstreetmap.org/copyright");
@@ -120,7 +120,7 @@ describe("credits", () => {
     expect(document.querySelector('[data-credits="map"]')).toBeNull();
   });
 
-  test("[R-GUIDE-010] given the credits screen, when its licences are read, then code, docs, content and art, and the reserved name are stated, with the full list the build ships beside the page linked", () => {
+  test("[guide:credits-state-licences] given the credits screen, when its licences are read, then code, docs, content and art, and the reserved name are stated, with the full list the build ships beside the page linked", () => {
     render(<CreditsList credits={credits} />);
     const licences = document.querySelector('[data-credits="licences"]');
     for (const words of ["Code: MIT.", "Docs: CC BY 4.0.", "Game content and art: CC BY-SA 4.0.", "The name Japacity and its logo are reserved."]) expect(licences?.textContent).toContain(words);

@@ -1,4 +1,4 @@
-// The door in its sticker board dress (prologue.md R-PROLOGUE-013): a life's card
+// The door in its sticker board dress (prologue:front-door-three-screens): a life's card
 // swiped to the middle of the deck is the life picked, as a tap on it is, and the pager follows; the door's sky and its
 // cards read in both paints, the night's navy from the world's clock as every surface over the world.
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -36,7 +36,7 @@ const set = (element: Element, key: string, value: number): void => {
 };
 
 describe("the lives swiped", () => {
-  test("[R-PROLOGUE-013] given the lives' deck, when a card is swiped to the middle and the deck comes to rest, then that life is picked and kept, its routes show under the deck and the pager's dot moves to it", () => {
+  test("[prologue:front-door-three-screens] given the lives' deck, when a card is swiped to the middle and the deck comes to rest, then that life is picked and kept, its routes show under the deck and the pager's dot moves to it", () => {
     door();
     fireEvent.click(next());
     vi.useFakeTimers();
@@ -63,7 +63,7 @@ describe("the lives swiped", () => {
 });
 
 describe("the door in both paints", () => {
-  test("[R-PROLOGUE-013] given the night paint, then every screen of the door stands on the sky that follows it, its cards and buttons in the layer's role colours, never a colour of their own", () => {
+  test("[prologue:front-door-three-screens] given the night paint, then every screen of the door stands on the sky that follows it, its cards and buttons in the layer's role colours, never a colour of their own", () => {
     for (const paint of ["day", "night"] as const) {
       history.replaceState(null, "", `/?paint=${paint}`);
       door();
@@ -83,7 +83,7 @@ describe("the door in both paints", () => {
 });
 
 describe("nothing behind the door", () => {
-  test("[R-PROLOGUE-016] given each screen of the door, the ready lives among them, then no scene stands behind it: no tailor's corner, no compound and no scrim, only the sky", () => {
+  test("[prologue:nothing-behind-the-door] given each screen of the door, the ready lives among them, then no scene stands behind it: no tailor's corner, no compound and no scrim, only the sky", () => {
     door();
     for (const stage of ["you", "life", "page"]) {
       expect(document.querySelector("[data-door-frame]")?.getAttribute("data-gate")).toBe(stage);

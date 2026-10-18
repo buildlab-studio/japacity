@@ -1,4 +1,4 @@
-// The status clock's banner (docs/rules/status.md R-STATUS-003).
+// The status clock's banner (status:lost-job-starts-clock).
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -8,7 +8,7 @@ import { sayCount } from "../../shared/words/text";
 import { ClockBanner } from "./ClockBanner";
 
 describe("the status clock", () => {
-  test("[R-STATUS-003] given the job gone and the clock running, then the clock is the loudest thing: a banner in big type", async () => {
+  test("[status:lost-job-starts-clock] given the job gone and the clock running, then the clock is the loudest thing: a banner in big type", async () => {
     await renderWithView(<ClockBanner />, richAbroadView());
     const banner = screen.getByRole("alert");
     expect(banner.textContent).toContain(sayCount("ui.status.clock", 2, { months: 2 }));
@@ -21,7 +21,7 @@ describe("the status clock", () => {
     expect(banner.querySelector("[data-clock-words]")?.className).toContain("min-w-0");
   });
 
-  test("[R-STATUS-003] given no clock running, then there is no banner", async () => {
+  test("[status:lost-job-starts-clock] given no clock running, then there is no banner", async () => {
     await renderWithView(<ClockBanner />, abroadView());
     expect(screen.queryByRole("alert")).toBeNull();
   });

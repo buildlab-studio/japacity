@@ -1,4 +1,4 @@
-// Bank, Lately (docs/rules/world.md R-WORLD-019), played on the real engine: every move of money
+// Bank, Lately (world:phone-holds-what-phones-hold), played on the real engine: every move of money
 // once, each with one line. The living costs are listed once, never as both the wallet's line and
 // the bill's "paid this month", and a fare paid mid-month is listed.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
@@ -14,8 +14,8 @@ import { PhoneApps } from "../PhoneApps";
 import { lately } from "../phone.testing";
 
 describe("Bank, Lately", () => {
-  test("[R-WORLD-019] given a month that paid the living costs and then a danfo fare, when Bank opens, then the living costs show once and the fare shows", async () => {
-    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so a month at the family
+  test("[world:phone-holds-what-phones-hold] given a month that paid the living costs and then a danfo fare, when Bank opens, then the living costs show once and the fare shows", async () => {
+    // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so a month at the family
     // house moves no money for it at all.
     const byHand = createGameStore(gameAuthority(newGame("scenario.ada")));
     await byHand.getState().refresh();

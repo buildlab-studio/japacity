@@ -46,12 +46,12 @@ export interface AdminApi {
   decideAppeal: (item: string, body: DecideAppealBody) => Promise<DecidedReply>;
   log: (filter: { item?: string; account?: string }) => Promise<LogReply>;
   feedback: () => Promise<FeedbackReply>;
-  /** R-MODERATION-021: the dedication lights whose names await a look, oldest first. */
+  /** moderation:dedication-lights-await-approval: the dedication lights whose names await a look, oldest first. */
   pendingLights: () => Promise<PendingLightsReply>;
-  /** R-MODERATION-021: a light's name approved for everyone, or the light refused and put out. */
+  /** moderation:dedication-lights-await-approval: a light's name approved for everyone, or the light refused and put out. */
   decideLight: (account: string, outcome: Outcome) => Promise<LightDecidedReply>;
   analytics: (day: string | null) => Promise<DashboardReply>;
-  /** R-ANALYTICS-012: the numbers, live. */
+  /** analytics:admin-stats-for-admins-only: the numbers, live. */
   stats: () => Promise<StatsReply>;
   switches: () => Promise<SwitchesReply>;
   switchLog: () => Promise<SwitchLogReply>;
@@ -62,7 +62,7 @@ export interface AdminApi {
   decideCreative: (creative: string, version: number, outcome: Outcome, body: ReviewBody) => Promise<CreativeReply>;
   pull: (campaign: string) => Promise<CampaignReply>;
   recheck: (campaign: string) => Promise<RecheckReply>;
-  /** R-ADVERT-011: where an admin sees any version's image, whatever its status. */
+  /** advert:changes-return-to-review: where an admin sees any version's image, whatever its status. */
   imageUrl: (creative: string, version: number) => string;
 }
 

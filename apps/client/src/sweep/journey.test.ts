@@ -1,4 +1,4 @@
-// The journey, not the wait (docs/rules/text.md R-TEXT-007): a line
+// The journey, not the wait (text:voice-by-surface): a line
 // never narrates the player as idle, in dead time or waited on; it says what they do or what moves. A plain "wait for X"
 // where X is truly on its way is allowed, so the scan looks only for the dead-time shapes, and the
 // reworded lines are pinned so they do not come back.
@@ -15,7 +15,7 @@ const said = (line: string) => line.replace(/\{[^}]*\}/g, "");
 
 /** Someone else's words, which keep their shape: a person speaking in character, and the signs painted in the world. */
 const THEIRS: { pattern: RegExp; reason: string }[] = [
-  { pattern: /^place\.[^.]+\.overheard\.\d+$/, reason: "a person's words overheard in a place (city.md R-CITY-024)" },
+  { pattern: /^place\.[^.]+\.overheard\.\d+$/, reason: "a person's words overheard in a place (city:place-words-are-text-keys)" },
   { pattern: /^place\.[^.]+\.sign\.\d+$/, reason: "a sign painted in the world: KEYS CUT WHILE YOU WAIT" },
   { pattern: /^person\.amaka-nurse\.drifted$/, reason: "Amaka's own words, in quotes, when she has given up on you" },
 ];
@@ -136,12 +136,12 @@ const REWORDED: Record<string, string> = {
 };
 
 describe("the journey, not the wait", () => {
-  test("[R-TEXT-007] given every words table, when each line is read, then none narrates the player as idle, in dead time or waited on, but for someone else's own words", () => {
+  test("[text:voice-by-surface] given every words table, when each line is read, then none narrates the player as idle, in dead time or waited on, but for someone else's own words", () => {
     expect(every.length).toBeGreaterThan(5000);
     expect(every.filter(({ key, line }) => !theirs(key) && DEAD_TIME.test(said(line))).map(({ key, line }) => `${key}: ${line}`)).toEqual([]);
   });
 
-  test("[R-TEXT-007] given the dead-time shapes, then the scan catches them, and passes a plain wait for a thing on its way", () => {
+  test("[text:voice-by-surface] given the dead-time shapes, then the scan catches them, and passes a plain wait for a thing on its way", () => {
     for (const line of ["Your months are full. Your life is waiting.", "Still waiting on you: the bill.", "Visa papers, typed while you wait.", "Mama is waiting for you at home.", "Nothing to do but wait.", "Keep waiting", "Dead time at home"]) {
       expect({ line, caught: DEAD_TIME.test(said(line)) }).toEqual({ line, caught: true });
     }
@@ -150,7 +150,7 @@ describe("the journey, not the wait", () => {
     }
   });
 
-  test("[R-TEXT-007] given the reworded lines, then each reads as listed", () => {
+  test("[text:voice-by-surface] given the reworded lines, then each reads as listed", () => {
     expect(Object.keys(REWORDED).length).toBeGreaterThan(100);
     expect(Object.entries(REWORDED).filter(([key, line]) => all.get(key) !== line).map(([key]) => key)).toEqual([]);
     expect(text["activity.get-passport.blurb"]).toBe(REWORDED["activity.get-passport.blurb"]);

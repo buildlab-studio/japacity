@@ -1,5 +1,5 @@
-// The typed name (prologue.md R-PROLOGUE-009): a first name the player types, with three
-// suggestions from the pool under the box. It passes the username's checks (account.md R-ACCOUNT-024): letters
+// The typed name (prologue:front-door-builds-a-person): a first name the player types, with three
+// suggestions from the pool under the box. It passes the username's checks (account:username-and-unconfirmed-email): letters
 // only here, since it is a first name, a length, and no reserved or blocked word in any spelling. The rule has it
 // reported and reset like a username; the moderation kind's `reset-name` resets the username only.
 import { blockedWords, reservedNames } from "@japacity/content";

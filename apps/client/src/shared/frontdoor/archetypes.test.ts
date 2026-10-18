@@ -1,4 +1,4 @@
-// The archetypes on the real content (prologue.md R-PROLOGUE-010): each preset is played on
+// The archetypes on the real content (prologue:archetype-presets-answers): each preset is played on
 // fresh lives over many seeds, the draws falling as they fall. Every step has the archetype's answer, sent while it
 // is allowed; where a draw has shut it, the open answer that suits the archetype goes instead, and no card shows.
 import { content } from "@japacity/content";
@@ -60,7 +60,7 @@ function play(archetype: Archetype, seed: string, on: typeof content = content):
 // Plays every archetype over many seeds; on a busy machine (several checks at once) it can pass five seconds,
 // so it carries its own longer limit.
 describe("the archetypes", { timeout: 20_000 }, () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-012] given every archetype, then there are seven, the child of the water last, and every step and answer it names exists on its step", () => {
+  test("[prologue:archetype-presets-answers] [prologue:makoko-start-never-a-trap] given every archetype, then there are seven, the child of the water last, and every step and answer it names exists on its step", () => {
     expect(ARCHETYPES.map((archetype) => archetype.id)).toEqual(["developer", "nurse", "accountant", "writer", "trader", "shop-worker", "water"]);
     for (const archetype of ARCHETYPES) {
       for (const [step, answers] of Object.entries(archetype.preset)) {
@@ -73,7 +73,7 @@ describe("the archetypes", { timeout: 20_000 }, () => {
     }
   });
 
-  test("[R-PROLOGUE-010] given every archetype on fresh lives over many seeds, when its preset is played, then no card is left to show: on its path every step has the archetype's answer, sent while it is allowed, and off it (a draw that shut the trade, a second retake) the open answer that suits it goes", () => {
+  test("[prologue:archetype-presets-answers] given every archetype on fresh lives over many seeds, when its preset is played, then no card is left to show: on its path every step has the archetype's answer, sent while it is allowed, and off it (a draw that shut the trade, a second retake) the open answer that suits it goes", () => {
     const wrong: string[] = [];
     const shutSeen = new Map<string, number>();
     for (const archetype of ARCHETYPES) {
@@ -94,7 +94,7 @@ describe("the archetypes", { timeout: 20_000 }, () => {
     expect(shutSeen.get("trader")).toBeGreaterThan(0);
   });
 
-  test("[R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes on its own path, then the life is in the first chapter and at least one route the tile names is heard or can be heard", () => {
+  test("[prologue:archetype-presets-answers] given every archetype over many seeds, when its prologue closes on its own path, then the life is in the first chapter and at least one route the tile names is heard or can be heard", () => {
     const wrong: string[] = [];
     const keptBy = new Map<string, number>();
     for (const archetype of ARCHETYPES) {
@@ -119,7 +119,7 @@ describe("the archetypes", { timeout: 20_000 }, () => {
     for (const archetype of ARCHETYPES) expect(keptBy.get(archetype.id) ?? 0).toBeGreaterThan(SEEDS / 3);
   });
 
-  test("[R-PROLOGUE-010] given every archetype but the shop worker and the trader, then a route of its own effort is reached without the road", () => {
+  test("[prologue:archetype-presets-answers] given every archetype but the shop worker and the trader, then a route of its own effort is reached without the road", () => {
     const ownEffort = new Set(["route.uk-masters", "route.uk-skilled", "route.uk-talent", "route.uk-care", "route.canada-points", "route.gulf-contract", "route.road"]);
     expect(ARCHETYPES.filter((archetype) => !archetype.routes.some((route) => ownEffort.has(route))).map((archetype) => archetype.id)).toEqual([]);
     const wrong: string[] = [];
@@ -159,7 +159,7 @@ const GRADE = "quality.edu-grade";
 const GRADE_BAR = barOf((content.route["route.uk-masters"]?.checklist ?? []).map((item) => item.requirement), GRADE);
 
 describe("every tile's promise is kept by the life it starts", () => {
-  test("[R-PROLOGUE-010] [R-GUIDE-016] given the nurse over many seeds on her own path, when she hands over, then care is at the staff nurse's bar with the licence held, the job is staged at the clinic and the hunt can ask for it there, and her first step is that job at the clinic; her first meetup tells of care work", () => {
+  test("[prologue:archetype-presets-answers] [guide:first-meetup-hears-fitting-route] given the nurse over many seeds on her own path, when she hands over, then care is at the staff nurse's bar with the licence held, the job is staged at the clinic and the hunt can ask for it there, and her first step is that job at the clinic; her first meetup tells of care work", () => {
     const nurse = archetypeOf("nurse")!;
     const bar = barOf(content.activity[NURSE_JOB]?.requires ?? [], "quality.care");
     expect(content.place[CLINIC]?.stages).toContain(NURSE_JOB);
@@ -182,7 +182,7 @@ describe("every tile's promise is kept by the life it starts", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-010] [R-GUIDE-016] given the developer over many seeds on his own path, when he hands over, then the grade is at the master's bar and tech hears of the talent route at his first meetup, or it was heard at the send-off", () => {
+  test("[prologue:archetype-presets-answers] [guide:first-meetup-hears-fitting-route] given the developer over many seeds on his own path, when he hands over, then the grade is at the master's bar and tech hears of the talent route at his first meetup, or it was heard at the send-off", () => {
     const developer = archetypeOf("developer")!;
     expect(developer.preset["hustle"]).toEqual(["focus"]);
     expect(developer.preset["side-skill"]).toEqual(["code"]);
@@ -197,7 +197,7 @@ describe("every tile's promise is kept by the life it starts", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-010] [R-CHAPTER-009] [R-ROAD-012] given the trader and the shop worker over many seeds, when each hands over having heard of the Gulf from the drivers, then the first step is asking around at the motor park, the ask looks the Gulf into there, and the road's pitches can reach him at home", () => {
+  test("[prologue:archetype-presets-answers] [chapter:chapters-follow-lean-route] [road:pitch-reaches-anyone-at-home] given the trader and the shop worker over many seeds, when each hands over having heard of the Gulf from the drivers, then the first step is asking around at the motor park, the ask looks the Gulf into there, and the road's pitches can reach him at home", () => {
     const wrong: string[] = [];
     for (const archetype of ARCHETYPES.filter((one) => one.id === "trader" || one.id === "shop-worker")) {
       expect(archetype.preset["friend"]).toEqual(["drivers"]);
@@ -222,7 +222,7 @@ describe("every tile's promise is kept by the life it starts", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-010] [R-GUIDE-016] given the accountant and the writer over many seeds on their own path, when each plays a first meetup, then the master's is heard of, a route their tiles name", () => {
+  test("[prologue:archetype-presets-answers] [guide:first-meetup-hears-fitting-route] given the accountant and the writer over many seeds on their own path, when each plays a first meetup, then the master's is heard of, a route their tiles name", () => {
     const wrong: string[] = [];
     for (const archetype of ARCHETYPES.filter((one) => one.id === "accountant" || one.id === "writer")) {
       expect(archetype.routes).toContain("route.uk-masters");
@@ -238,7 +238,7 @@ describe("every tile's promise is kept by the life it starts", () => {
 });
 
 describe("the tiles' words", { timeout: 20_000 }, () => {
-  test("[R-PROLOGUE-004] [R-PROLOGUE-010] given every archetype over many seeds, when its prologue closes at its own age, then its tile names the age it hands over from, in years, and every one of its lives starts in that year", () => {
+  test("[prologue:age-advances-with-steps] [prologue:archetype-presets-answers] given every archetype over many seeds, when its prologue closes at its own age, then its tile names the age it hands over from, in years, and every one of its lives starts in that year", () => {
     const said: Record<string, number> = {};
     const found: Record<string, number[]> = {};
     for (const archetype of ARCHETYPES) {
@@ -251,7 +251,7 @@ describe("the tiles' words", { timeout: 20_000 }, () => {
     expect(say("ui.door.path.hint")).not.toMatch(/\d/);
   });
 
-  test("[R-PROLOGUE-010] given the trader's and the shop worker's tiles, then the road is said as the road through the desert, never bare", () => {
+  test("[prologue:archetype-presets-answers] given the trader's and the shop worker's tiles, then the road is said as the road through the desert, never bare", () => {
     for (const id of ["trader", "shop-worker"]) {
       expect(say(`prologue.archetype.${id}.opens`)).toMatch(/the road through the desert/);
     }
@@ -259,7 +259,7 @@ describe("the tiles' words", { timeout: 20_000 }, () => {
 });
 
 describe("the handover reads the life as lived", () => {
-  test("[R-PROLOGUE-011] given lives on one draw each, as online, when the trader's tile is shut by the family and the life goes to university, then the handover's page reads the years as lived and never names the trader; a trader's life kept says the trader", () => {
+  test("[prologue:tile-path-open-from-start] given lives on one draw each, as online, when the trader's tile is shut by the family and the life goes to university, then the handover's page reads the years as lived and never names the trader; a trader's life kept says the trader", () => {
     const trader = archetypeOf("trader")!;
     const said = { kept: 0, off: 0 };
     const wrong: string[] = [];
@@ -282,12 +282,12 @@ describe("the handover reads the life as lived", () => {
     expect(said.off).toBeGreaterThan(0);
   });
 
-  test("[R-PROLOGUE-004] [R-PROLOGUE-011] given a degree tile started at 29, whose life failed the exam twice and went to the counter, when it hands over, then it reads as work from school on, never the tile; a kept nurse says the nurse", () => {
+  test("[prologue:age-advances-with-steps] [prologue:tile-path-open-from-start] given a degree tile started at 29, whose life failed the exam twice and went to the counter, when it hands over, then it reads as work from school on, never the tile; a kept nurse says the nurse", () => {
     const wrong: string[] = [];
     let off = 0;
     for (const archetype of ARCHETYPES.filter((one) => one.id !== "trader" && one.id !== "shop-worker")) {
       for (let at = 0; at < SEEDS; at += 1) {
-        // At its own year no retake is drawn (R-PROLOGUE-004): a second retake needs years of work to spare, so the
+        // At its own year no retake is drawn (prologue:age-advances-with-steps): a second retake needs years of work to spare, so the
         // tile is started at the oldest year the card offers.
         const { game, kept } = play(withAge(archetype, 29 - lowestYear(archetype)), `${archetype.id}-${String(at)}`);
         const line = handover(archetype, game);
@@ -304,7 +304,7 @@ describe("the handover reads the life as lived", () => {
   // Plays the counter life over every degree tile and many seeds: more than the five seconds a test is given under load.
   }, 20_000);
 
-  test("[R-PROLOGUE-011] given the words for one life and for a life as lived, then each is there, plain, with no dash", () => {
+  test("[prologue:tile-path-open-from-start] given the words for one life and for a life as lived, then each is there, plain, with no dash", () => {
     for (const key of ["prologue.archetype.once", "prologue.page.lived.degree", "prologue.page.lived.capital", "prologue.page.lived.trade", "ui.page.lived.degree", "ui.page.lived.capital", "ui.page.lived.trade"]) {
       expect(say(key)).not.toBe(key);
       expect(say(key)).not.toMatch(/[\u2013\u2014]/);
@@ -313,7 +313,7 @@ describe("the handover reads the life as lived", () => {
 });
 
 describe("the nurse's send-off", () => {
-  test("[R-PROLOGUE-011] given the nurse's tile, then her send-off leaning is the nurses' crowd, so care work is heard before any page is read", () => {
+  test("[prologue:tile-path-open-from-start] given the nurse's tile, then her send-off leaning is the nurses' crowd, so care work is heard before any page is read", () => {
     expect(ARCHETYPES.find((tile) => tile.id === "nurse")?.leaning).toEqual({ friend: "care" });
   });
 });
@@ -339,7 +339,7 @@ function nairaHeld(game: Game): number {
  */
 function upMonth(game: Game, hunt: boolean): boolean {
   if (game.state.turn.banked < 1) game.grant(content.tuning.turn.cap);
-  // The hunt goes on while a lesser job is held (the sure first hunt may land the racks, R-GUIDE-014), as the better-job nudge tells a player.
+  // The hunt goes on while a lesser job is held (the sure first hunt may land the racks, guide:early-win-in-three-turns), as the better-job nudge tells a player.
   const slots = hunt && game.view().job.id !== DESK_JOB ? [{ activity: "activity.job-hunt" as const, param: DESK_JOB }] : [];
   const result = game.endTurn(slots);
   for (const offer of game.view().offers) {
@@ -351,10 +351,10 @@ function upMonth(game: Game, hunt: boolean): boolean {
   return result.events.some((event) => event.type === "home/evicted");
 }
 
-describe("the child of the water (R-PROLOGUE-012)", () => {
+describe("the child of the water (prologue:makoko-start-never-a-trap)", () => {
   const water = archetypeOf(WATER)!;
 
-  test("[R-PROLOGUE-012] given the child of the water over many seeds, when its preset is played, then every life keeps its path, school then the shop counter with no master, and closes in Makoko's room at the page's rent with nothing else owed, the family house there to go back to", () => {
+  test("[prologue:makoko-start-never-a-trap] given the child of the water over many seeds, when its preset is played, then every life keeps its path, school then the shop counter with no master, and closes in Makoko's room at the page's rent with nothing else owed, the family house there to go back to", () => {
     expect(water.preset).toMatchObject({ subjects: ["commercial"], "after-school": ["work"], shop: ["save"], friend: ["drivers"], home: ["makoko"] });
     expect(water.preset["master"]).toBeUndefined();
     const wrong: string[] = [];
@@ -365,7 +365,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
       // No card: the send-off is its crowd's, as the table names it, and nothing a draw shut.
       if (unnamed.length > 0 || shut.length > 0) wrong.push(`${String(at)}: unnamed ${unnamed.join(",")}, shut ${shut.join(",")}`);
       if (view.home.place !== MAKOKO || view.home.moved !== null) wrong.push(`${String(at)}: home ${JSON.stringify(view.home)}`);
-      // Decision 0013 (R-HOME-012): the room's bill stands at the page's rent, and the engine charges none of it as the month turns.
+      // Decision 0013 (home:living-by-hand): the room's bill stands at the page's rent, and the engine charges none of it as the month turns.
       if (view.home.rent?.amount !== 0) wrong.push(`${String(at)}: rent ${JSON.stringify(view.home.rent)}`);
       if (view.obligations.map((owed) => owed.entry).join(",") !== MAKOKO_UPKEEP) wrong.push(`${String(at)}: owes ${view.obligations.map((owed) => owed.entry).join(",")}`);
       if (view.obligations.some((owed) => owed.amount !== content.tuning.home.makokoUpkeep)) wrong.push(`${String(at)}: the room's bill ${JSON.stringify(view.obligations)}`);
@@ -375,12 +375,12 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-012] given the child of the water and the shop worker on the same seeds, when each rests six months, then the room on the water has saved more every time, by Makoko's rent against the family's upkeep", () => {
+  test("[prologue:makoko-start-never-a-trap] given the child of the water and the shop worker on the same seeds, when each rests six months, then the room on the water has saved more every time, by Makoko's rent against the family's upkeep", () => {
     const shopWorker = archetypeOf("shop-worker")!;
     const wrong: string[] = [];
     for (let at = 0; at < 30; at += 1) {
       const seed = `save-${String(at)}`;
-      // Decision 0013 (R-HOME-012): with the living lived by hand neither home charges anything as the month turns, so the
+      // Decision 0013 (home:living-by-hand): with the living lived by hand neither home charges anything as the month turns, so the
       // saving the page promises is tested with the living charged whole, as the simulation's relief tests charge it.
       const lives = [play(water, seed, chargedLivingContent).game, play(shopWorker, seed, chargedLivingContent).game];
       for (const game of lives) for (let month = 0; month < 6; month += 1) upMonth(game, false);
@@ -390,7 +390,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-012] given the child of the water at its handover, then work is at hand: the hunt can ask for the desk job its schooling allows in the first month; and working it from the room, a shop's capital for a stall at the market comes within the first year, where from the family house it does not", () => {
+  test("[prologue:makoko-start-never-a-trap] given the child of the water at its handover, then work is at hand: the hunt can ask for the desk job its schooling allows in the first month; and working it from the room, a shop's capital for a stall at the market comes within the first year, where from the family house it does not", () => {
     const shopWorker = archetypeOf("shop-worker")!;
     const reached = { water: 0, home: 0 };
     const wrong: string[] = [];
@@ -398,7 +398,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     for (let at = 0; at < lives; at += 1) {
       const seed = `up-${String(at)}`;
       for (const [who, archetype] of [["water", water], ["home", shopWorker]] as const) {
-        // Decision 0013 (R-HOME-012): the capital the room saves against the family house is tested with the living charged
+        // Decision 0013 (home:living-by-hand): the capital the room saves against the family house is tested with the living charged
         // whole, as the simulation's relief tests charge it; lived by hand, neither home charges anything.
         const { game } = play(archetype, seed, chargedLivingContent);
         if (!(game.view().activities.find((option) => option.id === "activity.job-hunt")?.params ?? []).includes(DESK_JOB)) wrong.push(`${seed} ${who}: the hunt cannot ask for the desk job`);
@@ -410,7 +410,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(reached).toEqual({ water: lives, home: 0 });
   });
 
-  test("[R-PROLOGUE-012] [R-CHAPTER-009] [R-ROAD-012] given the child of the water over many seeds, when it hands over having heard of the Gulf from the drivers, then the chapter's step is asking around at the motor park (the handover says the racks first while they are work at hand, R-ACTIVITY-017), the ask looks the Gulf into there, and the road's pitches can reach it at home", () => {
+  test("[prologue:makoko-start-never-a-trap] [chapter:chapters-follow-lean-route] [road:pitch-reaches-anyone-at-home] given the child of the water over many seeds, when it hands over having heard of the Gulf from the drivers, then the chapter's step is asking around at the motor park (the handover says the racks first while they are work at hand, activity:fish-racks-at-makoko), the ask looks the Gulf into there, and the road's pitches can reach it at home", () => {
     expect(water.routes).toEqual(["route.gulf-contract", "route.road"]);
     expect(water.preset["friend"]).toEqual(["drivers"]);
     const wrong: string[] = [];
@@ -432,7 +432,7 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
     expect(kept).toBe(SEEDS);
   });
 
-  test("[R-PROLOGUE-012] [R-HOME-003] [R-HOME-004] given the child of the water over many lives, when the settlement is cleared, then the same month a relative in Lagos takes it in with no rent, and it is never left with nowhere to go", () => {
+  test("[prologue:makoko-start-never-a-trap] [home:makoko-eviction-draw] [home:taken-in-after-eviction] given the child of the water over many lives, when the settlement is cleared, then the same month a relative in Lagos takes it in with no rent, and it is never left with nowhere to go", () => {
     let cleared = 0;
     const wrong: string[] = [];
     for (let at = 0; at < 20; at += 1) {
@@ -457,8 +457,8 @@ describe("the child of the water (R-PROLOGUE-012)", () => {
   });
 });
 
-describe("the child of the water's words (R-PROLOGUE-012)", () => {
-  test("[R-PROLOGUE-012] given the child of the water's tile, then it says where the life starts and names its way out, the road said as the road through the desert", () => {
+describe("the child of the water's words (prologue:makoko-start-never-a-trap)", () => {
+  test("[prologue:makoko-start-never-a-trap] given the child of the water's tile, then it says where the life starts and names its way out, the road said as the road through the desert", () => {
     expect(say("prologue.archetype.water.was")).toMatch(/Makoko/);
     expect(say("prologue.archetype.water.opens")).toMatch(/^Opens: a Gulf contract, the road through the desert/);
     for (const key of ["name", "was", "opens", "nudge.job", "nudge.heard", "nudge.shop"]) {
@@ -470,7 +470,7 @@ describe("the child of the water's words (R-PROLOGUE-012)", () => {
 });
 
 describe("the age line at a tile's own age", () => {
-  test("[R-PROLOGUE-009] given the tiles, then only those whose ways out count age in Canada's points are told how long before the points fall", () => {
+  test("[prologue:front-door-builds-a-person] given the tiles, then only those whose ways out count age in Canada's points are told how long before the points fall", () => {
     expect(ARCHETYPES.filter((archetype) => agePointsCount(archetype)).map((archetype) => archetype.id)).toEqual(["nurse", "accountant", "writer"]);
   });
 });

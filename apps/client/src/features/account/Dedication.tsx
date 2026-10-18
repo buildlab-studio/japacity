@@ -1,18 +1,18 @@
-// The dedication page (docs/rules/account.md R-ACCOUNT-032): a full screen of night over
+// The dedication page (account:dedication-page-and-its-doors): a full screen of night over
 // the lagoon, strings of small lights held up by canoes, the owner's light large on the top string with "soksonjr"
 // under it, and every light anyone has lit along the strings, the approved ones carrying their names. At the top the
 // true count and "on the water tonight"; at the foot content's short line and "Sun re o.", then "Light one for yours"
-// or the account's own light named with its line. Reached from the lantern canoe on the map (world.md R-WORLD-036) and
-// from the five taps on Settings' version line (city.md R-CITY-021), handed in by the shell, and from nowhere else.
+// or the account's own light named with its line. Reached from the lantern canoe on the map (world:lantern-canoe-on-map) and
+// from the five taps on Settings' version line (city:credits-screen-attributions), handed in by the shell, and from nowhere else.
 //
-// "Light one for yours" (R-ACCOUNT-033) names the unlit light beside the owner's in
+// "Light one for yours" (account:name-a-light-for-yours) names the unlit light beside the owner's in
 // place: two boxes drawn alike with the label inside, and "Light it", which sends `PUT /api/dedication/light`; the
 // reply's light shows at once. "Put it out" sends `DELETE`. Offline, or when the read fails, the owner's light, the
 // strings bare, no count, and the button closed with its line.
 //
 // Cheap on a phone: one SVG for the strings, the canoes, the bulbs and the dots; glow layers only for the owner's light,
 // the account's own and the named ones, each breathing by opacity alone and still under reduced motion (world.md
-// R-WORLD-023); the dots are plain circles with no glow and no filter. Never counted, never sent but the light itself.
+// world:motions-under-half-second); the dots are plain circles with no glow and no filter. Never counted, never sent but the light itself.
 import type { MyLight, SharedLight } from "@japacity/api";
 import { checkLight, DEDICATION_NICKNAME, DEDICATION_SHORT, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, type LightAsked, type LightProblem, lightWords, lightYears } from "@japacity/content";
 import { Dialog } from "@base-ui/react/dialog";
@@ -26,7 +26,7 @@ import { Bulb, capTop, Glow } from "./bulb";
 /** The page's stage in the design's own units, one pixel each and centred; a wider phone shows more of the night. */
 export const STAGE = { width: 390, height: 680 } as const;
 
-/** R-ACCOUNT-032: the most lights the page draws on a phone; the count says the true number whatever is drawn. */
+/** account:dedication-page-and-its-doors: the most lights the page draws on a phone; the count says the true number whatever is drawn. */
 export const MOST_DRAWN = 240;
 
 /** A string: a quadratic curve from `a` through the pull of `c` to `b`. */
@@ -145,7 +145,7 @@ function hangOf(r: number): number {
 }
 
 /**
- * R-ACCOUNT-032: where each light is drawn: at most 240, the first ones (the approved, then the newest) as bulbs along
+ * account:dedication-page-and-its-doors: where each light is drawn: at most 240, the first ones (the approved, then the newest) as bulbs along
  * the near strings, the rest as dots receding. The account's own light is never among them: it hangs beside the owner's.
  */
 export function placeLights(lights: readonly SharedLight[], ownId: string | null, withOwnSlot: boolean): Placed[] {
@@ -281,7 +281,7 @@ const BOX = "flex flex-col gap-[3px] rounded-[12px] border-[1.5px] border-[#3b4c
 const BOX_LABEL = "text-[13px] text-[#c8c3b4]";
 const FIELD = "bg-transparent text-[18px] font-semibold text-text outline-hidden placeholder:font-medium placeholder:text-[#8e97ab]";
 
-/** R-ACCOUNT-033: naming the unlit light in place: who it is for, the years if wanted, and Light it. */
+/** account:name-a-light-for-yours: naming the unlit light in place: who it is for, the years if wanted, and Light it. */
 function NameIt({ year, onLit }: { year: number; onLit: (mine: MyLight) => void }) {
   const [asked, setAsked] = useState<LightAsked>(EMPTY);
   const [sending, setSending] = useState(false);
@@ -374,7 +374,7 @@ export interface DedicationProps {
   year?: number;
 }
 
-/** R-ACCOUNT-032: the page, over everything, the night at any hour. */
+/** account:dedication-page-and-its-doors: the page, over everything, the night at any hour. */
 export function Dedication({ open, onClose, year }: DedicationProps) {
   const water = useWater();
   const [naming, setNaming] = useState(false);
@@ -422,7 +422,7 @@ export function Dedication({ open, onClose, year }: DedicationProps) {
               <Glow key={one.light.id} x={one.x} y={one.y} radius={24} alpha={0.55} offsetMs={(index * 700) % 4_000} name="named" />
             ))}
             <Strings placed={placed} own={mine !== null} naming={naming} />
-            {/* The big light carries its name under it, exactly as the owner wrote it (R-ACCOUNT-032, city.md R-CITY-021). */}
+            {/* The big light carries its name under it, exactly as the owner wrote it (account:dedication-page-and-its-doors, city:credits-screen-attributions). */}
             <p className="absolute -translate-x-1/2 text-[14px] font-semibold tracking-wide" style={{ left: HIS_X, top: hisY + HIS_R + 10 }} data-dedication-name>
               {DEDICATION_NICKNAME}
             </p>

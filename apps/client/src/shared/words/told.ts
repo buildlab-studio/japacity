@@ -1,4 +1,4 @@
-// How the month's lines are told, on the results and in News alike (docs/rules/world.md R-WORLD-008):
+// How the month's lines are told, on the results and in News alike (world:month-end-results-sheet):
 // a piece for the portfolio counted as a piece, a score or a count said in words, a bill missed with what it
 // cost, a hunt's answer with the job and its pay. In shared/ so the results and the phone's News read one telling.
 import { content, text } from "@japacity/content";
@@ -16,7 +16,7 @@ export const PIECE = "line.activity.piece-built";
 export const PIECE_MORE = "line.activity.piece-built-more";
 const PORTFOLIO = "quality.portfolio";
 
-/** The exam marked: the score and what a pass needs (R-ACTIVITY-013). */
+/** The exam marked: the score and what a pass needs (activity:waiting-months-build-profile). */
 export const EXAM_MARKED: ReadonlySet<string> = new Set(["line.activity.exam-passed", "line.activity.exam-failed"]);
 
 /** The most pieces any route's checklist asks for: what a piece is counted toward. */
@@ -28,7 +28,7 @@ const PIECES_ASKED = Math.max(
 );
 
 /**
- * The portfolio rising, told as a piece for it (R-ACTIVITY-013): how many of what a route asks, or past
+ * The portfolio rising, told as a piece for it (activity:waiting-months-build-profile): how many of what a route asks, or past
  * that, how many there are. Any other line is itself.
  */
 export function asPiece(line: ReportLine): ReportLine {
@@ -54,7 +54,7 @@ function answered(line: ReportLine): ReportLine {
 }
 
 /**
- * A story line as the results tell it (R-WORLD-008): a bill missed says its figure and what it
+ * A story line as the results tell it (world:month-end-results-sheet): a bill missed says its figure and what it
  * cost, a hunt says the job and its answer, an offer of work says the pay a month. Anything else
  * is told as News tells it.
  */
@@ -63,7 +63,7 @@ export function toldOnResults(line: ReportLine, pays: PayView & BandView): Repor
   // The English result against the plan's own band.
   if (line.key === ISSUED_BAND_MET || line.key === ISSUED_BAND_SHORT) return bandResultFor(line, pays);
   if (line.key === TAKEN) return answered(line);
-  // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (R-TEXT-005).
+  // A score or a count of pieces reads as a person says it: "one of three", never "1 of 3" (text:bands-not-figures).
   // An act sat as a set piece is told in its own words where content has them: the talk, how it went.
   const own = EXAM_MARKED.has(line.key) && typeof line.params.activity === "string" ? `${line.key}.${line.params.activity}` : null;
   if (own !== null && hasWords(own)) return { ...line, key: own };
@@ -77,21 +77,21 @@ export function toldOnResults(line: ReportLine, pays: PayView & BandView): Repor
   return line;
 }
 
-/** The settlement cleared (docs/rules/home.md R-HOME-003): it leads News as it leads the results. */
+/** The settlement cleared (home:makoko-eviction-draw): it leads News as it leads the results. */
 const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
 
 function leads(line: ReportLine): boolean {
   return EVICTED.has(line.key) || isUnpaid(line) || line.key.startsWith("ui.results.unpaid");
 }
 
-/** Money that went unpaid leads News as it leads the results (R-WORLD-008), after the room cleared away. */
+/** Money that went unpaid leads News as it leads the results (world:month-end-results-sheet), after the room cleared away. */
 function newsOrder(lines: readonly ReportLine[]): ReportLine[] {
   return [...lines.filter((line) => EVICTED.has(line.key)), ...lines.filter((line) => leads(line) && !EVICTED.has(line.key)), ...lines.filter((line) => !leads(line))];
 }
 
 /**
  * The month's lines as News tells them: those of what was done mid-month (an agent paid, an ask answered) first, money
- * unpaid leading, each in the results' own words, so News never tells the month another way (R-WORLD-008). Money is
+ * unpaid leading, each in the results' own words, so News never tells the month another way (world:month-end-results-sheet). Money is
  * told by the results' money lines (`moneyTold`), in or out by its sign: a change at the bank says both sides and the
  * charge, never the wallet's "Changed money". `pays` is the view a hunt's job is paid from.
  */

@@ -1,4 +1,4 @@
-// Acts that answer in the place (docs/rules/activity.md R-ACTIVITY-015): an entry says when it answers. A now-act's
+// Acts that answer in the place (activity:now-acts-and-month-acts): an entry says when it answers. A now-act's
 // card sends it at once and the place answers in a person's voice; a month-act fills a slot of the month.
 import type { ServerRejection } from "@japacity/api";
 import { content } from "@japacity/content";
@@ -14,7 +14,7 @@ export function answersNow(activity: string): boolean {
 }
 
 /**
- * The month's free time an act done at once takes, in words (R-ACTIVITY-018): a morning for 1 half-day, a day for 2,
+ * The month's free time an act done at once takes, in words (activity:now-acts-spend-half-days): a morning for 1 half-day, a day for 2,
  * a weekend for 4, a week for 10, and between them the nearer below. Null for a purchase or an act that takes the month,
  * which spend none of it.
  */
@@ -23,20 +23,20 @@ export function timeWordsOf(activity: string, halfDays?: number): string | null 
   if (entry === undefined || entry.when !== "now" || entry.purchase === true) return null;
   // The view's own time when a thing owned changes it (the gas cooker's pot), else the entry's.
   const half = halfDays ?? entry.halfDays ?? 1;
-  // An act that takes no time (gist, a look) says none (R-ACTIVITY-020).
+  // An act that takes no time (gist, a look) says none (activity:spent-body-refuses-acts).
   if (half <= 0) return null;
   const span = half <= 1 ? "morning" : half < 4 ? "day" : half < 6 ? "weekend" : half < 10 ? "half-week" : "week";
   return say(`ui.world.time.${span}`);
 }
 
-/** The body's qualities and what an act that adds to them does, in words (R-QUALITY-007: never a figure for the body). */
+/** The body's qualities and what an act that adds to them does, in words (quality:body-belly-and-energy: never a figure for the body). */
 const BODY_DOES: Readonly<Record<string, string>> = { "quality.belly": "ui.act.does.fills", "quality.energy": "ui.act.does.rests", "quality.wellbeing": "ui.act.does.lifts" };
 
 /** The groups of quality an act's sheet may name with its figure: a skill or a proof ("+2 English"). */
 const SKILLS: ReadonlySet<string> = new Set(["skills", "proof"]);
 
 /**
- * What an act does, in words, on one line (R-WORLD-006): from its `quality/add` effects, short: "Fills you" for the belly,
+ * What an act does, in words, on one line (world:one-action-one-sheet): from its `quality/add` effects, short: "Fills you" for the belly,
  * "rests you" for the energy, "lifts you" for wellbeing, and a skill with its figure, "+2 English". Null when it adds
  * none of these.
  */
@@ -53,11 +53,11 @@ export function effectWordsOf(activity: string): string | null {
   return line === "" ? null : line.charAt(0).toUpperCase() + line.slice(1);
 }
 
-/** Rest, which an empty slot already is (R-TURN-006): never planned, never a thing's act, never in a picker. */
+/** Rest, which an empty slot already is (turn:free-slots-per-month): never planned, never a thing's act, never in a picker. */
 const REST = "activity.rest";
 
 /**
- * True when the entry may be planned into the month's free time (R-TURN-006, R-ACTIVITY-015): a month-act
+ * True when the entry may be planned into the month's free time (turn:free-slots-per-month, activity:now-acts-and-month-acts): a month-act
  * that fills a slot. A now-act is done at once, and rest is what an empty slot does, so neither is ever planned.
  */
 export function plannable(activity: string): boolean {
@@ -65,7 +65,7 @@ export function plannable(activity: string): boolean {
   return entry !== undefined && entry.slot !== "none" && entry.when !== "now" && activity !== REST;
 }
 
-/** The view's acts a picker lists: every one but rest, which an empty slot already is (R-TURN-006). */
+/** The view's acts a picker lists: every one but rest, which an empty slot already is (turn:free-slots-per-month). */
 export function pickable<T extends { id: string }>(options: readonly T[]): T[] {
   return options.filter((option) => option.id !== REST);
 }

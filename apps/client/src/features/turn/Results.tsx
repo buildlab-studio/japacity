@@ -1,4 +1,4 @@
-// The month's results (docs/rules/world.md R-WORLD-008). The staged wins (Moment) come first; the sheet
+// The month's results (world:month-end-results-sheet). The staged wins (Moment) come first; the sheet
 // opens once they have passed. For the lived month: payday when there is one, the
 // rent when it was due, the month's moments, then Kept, in up to six lines; what was bought by hand during the month
 // was paid as it was done and is not listed again. `foot`: a line another feature puts under the results, placed by the shell.
@@ -33,7 +33,7 @@ function signed(sign: number, amount: number, currency: Parameters<typeof format
   return `${sign < 0 ? "-" : "+"}${formatMoney(Math.abs(amount), currency)}`;
 }
 
-/** The adviser's reading: the route in her words, then its conditions as tags (R-ADVICE-004, R-TEXT-008). */
+/** The adviser's reading: the route in her words, then its conditions as tags (advice:licensed-adviser-is-truthful, text:show-then-tell). */
 const READING_MISSING = "line.activity.adviser-missing";
 const READING_FITS = "line.activity.adviser-fits";
 
@@ -75,7 +75,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const shown = useResultsOpen();
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
-  // R-WORLD-002: no month number; the character's age stands small beside what was kept, and a birthday is said.
+  // world:top-band-is-lively-pill: no month number; the character's age stands small beside what was kept, and a birthday is said.
   const ageMonths = qualityIn(view, "quality.age-months");
   const clock = say("ui.world.age", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const birthday = ageMonths > 0 && ageMonths % 12 === 0;
@@ -166,7 +166,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
         ))}
 
         {lines.length === 0 ? (
-          // No money moved: said plainly, never "+₦0" (R-WORLD-008).
+          // No money moved: said plainly, never "+₦0" (world:month-end-results-sheet).
           <div className="flex items-baseline justify-between gap-3" data-results-kept={0}>
             <span className="text-[16px] leading-none font-semibold text-text-2">{turnWords("turn.results.nothing-moved")}</span>
           </div>
@@ -182,7 +182,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
             <span className={`num text-[15px] ${net.amount < 0 ? "text-out" : "text-in"}`}>{signed(net.amount, net.amount, net.currency)}</span>
           </div>
         ))}
-        {/* Each change of money, both sides as they were: it counts for nothing in Kept, so it is said here (R-WORLD-008). */}
+        {/* Each change of money, both sides as they were: it counts for nothing in Kept, so it is said here (world:month-end-results-sheet). */}
         {changes.length === 0 ? null : (
           <ul className="-mt-2 flex flex-col items-end gap-0.5" data-results-changes>
             {changes.map((change, index) => (
@@ -263,7 +263,7 @@ function momentPicture(key: string): string {
 function StoryRow({ line, hero }: { line: ReportLine; hero: boolean }) {
   const view = useView();
   const told = toldOnResults(line, view);
-  // R-HOME-003: the room cleared away is told in the same red as a bill unpaid.
+  // home:makoko-eviction-draw: the room cleared away is told in the same red as a bill unpaid.
   const unpaid = isUnpaid(line) || isEvicted(line);
   const lead = leadsAlone(line);
   const tone = lead ? "text-[18px] leading-tight font-bold" : unpaid ? "text-[15px] leading-snug font-semibold text-out" : "text-[15px] leading-snug";

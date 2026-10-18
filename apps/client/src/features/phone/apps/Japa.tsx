@@ -1,11 +1,11 @@
-// Japa (docs/rules/world.md R-WORLD-018, 019): the plan as steps with how ready you are, the japacity
+// Japa (world:phone-rises-over-scene, world:phone-holds-what-phones-hold): the plan as steps with how ready you are, the japacity
 // figure as a bar that fills (never a percentage on screen), the road's log of briefs handed by the shell,
 // the route's steps, the papers as a step with their state, and what is coming up (the visa
 // decision, a paper's ready month). The Papers screen inside shows what is in the box under the
 // bed; the papers themselves are a thing at home. Once a visa is granted it names the next step;
 // after the flight it shows the visa held, what it lets you do, and the landing's steps. The head names
 // the plan the chapters follow with its file, and each other way heard of opens its page with the switch
-// (docs/rules/chapter.md R-CHAPTER-009).
+// (chapter:chapters-follow-lean-route).
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, RouteView } from "@japacity/sim";
 import { Check, ChevronRight, Circle, FileClock, Flag, Stamp, type LucideIcon } from "lucide-react";
@@ -31,8 +31,8 @@ import { RoutePage } from "./PlanSwitch";
 const OFFICIAL = "activity.look-into-route";
 
 /**
- * The chapter whose steps lie ahead (R-WORLD-019): the current one while it does not close, its steps as the
- * view marks them; once the view says it closes at the month's end (R-CHAPTER-010, `closesOn` honoured), the
+ * The chapter whose steps lie ahead (world:phone-holds-what-phones-hold): the current one while it does not close, its steps as the
+ * view marks them; once the view says it closes at the month's end (chapter:view-says-closes-and-next, `closesOn` honoured), the
  * chapter the view names next, which opens when the month ends, its steps not yet marked.
  */
 export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter">; now: boolean; items: { id: string; met: boolean }[] } | null {
@@ -44,7 +44,7 @@ export function chapterAhead(chapter: PlayerView["chapter"]): { id: Id<"chapter"
 }
 
 /**
- * R-CHAPTER-009: the chapter's own checklist while it is a way out's variant (the care file, the talent
+ * chapter:chapters-follow-lean-route: the chapter's own checklist while it is a way out's variant (the care file, the talent
  * file, the Gulf's), its items in the chapter's words, ticked as the chapter sheet ticks them. The
  * master's chapters keep the route's steps alone.
  */
@@ -125,8 +125,8 @@ function nextStepWords(ahead: NonNullable<ReturnType<typeof chapterAhead>>): str
 }
 
 /**
- * R-ADVICE-002: the route whose official page can be read now: the plan's route when the page
- * offers it (the plan the chapters follow, R-CHAPTER-009, else the figure's), else the first route
+ * advice:official-page-shows-checklist: the route whose official page can be read now: the plan's route when the page
+ * offers it (the plan the chapters follow, chapter:chapters-follow-lean-route, else the figure's), else the first route
  * the page offers (a route only heard of, before any plan).
  */
 function officialRoute(view: PlayerView): string | null {
@@ -137,7 +137,7 @@ function officialRoute(view: PlayerView): string | null {
 }
 
 /**
- * The way out the Japa header names (R-WORLD-019), read as the nudge reads it: the plan's route,
+ * The way out the Japa header names (world:phone-holds-what-phones-hold), read as the nudge reads it: the plan's route,
  * else a route only heard of, since a route heard of is already a way out to look into.
  */
 function headRoute(view: PlayerView): RouteView | null {
@@ -151,7 +151,7 @@ export interface MoveCost {
 }
 
 /**
- * What the study route's "saved for the move" figure is made of, as R-ROUTE-009 counts the funds to
+ * What the study route's "saved for the move" figure is made of, as route:funds-required counts the funds to
  * show: the tuition still to pay (the school chosen, else the cheapest offer, else the cheapest
  * school, less any discount and deposit), the living money for the months, and beside them the
  * flight, paid in naira when the visa is granted. Empty for a route whose gate counts its own funds.
@@ -192,7 +192,7 @@ function isReminder(item: Coming): item is Reminder {
   return item.kind === "visa" || item.kind === "paper" || item.kind === "plan";
 }
 
-/** A reminder as Japa shows it (R-TEXT-008): the thing in two or three words, and when, said once beside it. */
+/** A reminder as Japa shows it (text:show-then-tell): the thing in two or three words, and when, said once beside it. */
 export interface ReminderRow {
   kind: Reminder["kind"];
   what: string;
@@ -228,7 +228,7 @@ export function remindersOf(view: PlayerView): ReminderRow[] {
 function Step({ met, children, way, bar }: { met: boolean; children: string; way?: string; bar?: { have: number; need: number } }) {
   return (
     <li className="flex items-start gap-2.5 px-3 py-2" data-met={met ? "true" : "false"}>
-      {/* Done is the mark, with its word for a screen reader (R-TEXT-008); a step still to take is an empty ring. */}
+      {/* Done is the mark, with its word for a screen reader (text:show-then-tell); a step still to take is an empty ring. */}
       {met ? (
         <div className="mt-0.5 shrink-0">
           <Mark state="done" />
@@ -272,7 +272,7 @@ function NextStep({ step }: { step: string }) {
   );
 }
 
-/** After the flight (R-WORLD-019): the visa held and what it lets you do, then the landing's steps. */
+/** After the flight (world:phone-holds-what-phones-hold): the visa held and what it lets you do, then the landing's steps. */
 function Abroad({ view, onPapers }: { view: PlayerView; onPapers: () => void }) {
   const held = view.status;
   const ahead = chapterAhead(view.chapter);
@@ -359,7 +359,7 @@ function PapersButton({ view, onOpen }: { view: PlayerView; onOpen: () => void }
   );
 }
 
-/** How ready the character is to go, as a bar that fills (the japacity figure; R-WORLD-019): never a percentage on screen. */
+/** How ready the character is to go, as a bar that fills (the japacity figure; world:phone-holds-what-phones-hold): never a percentage on screen. */
 function ReadyMeter({ percent }: { percent: number }) {
   return (
     <div className="mt-2" data-japa-percent={percent}>
@@ -376,7 +376,7 @@ function ReadyMeter({ percent }: { percent: number }) {
 export function Japa({ briefs = null }: { briefs?: ReactNode }) {
   const view = useView();
   const [page, setPage] = useState<Id<"route"> | null>(null);
-  // R-ADVICE-002: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
+  // advice:official-page-shows-checklist: the official page can be read from the phone: it goes into the month like the hub's desk would put it.
   const addToPlan = useGame((state) => state.addToPlan);
   const send = useGame((state) => state.send);
   const plan = useGame((state) => state.plan);
@@ -392,14 +392,14 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
     );
   }
   const route = planRoute(view);
-  // R-CHAPTER-009: the head names the plan the chapters follow; with none, the way the nudge reads.
+  // chapter:chapters-follow-lean-route: the head names the plan the chapters follow; with none, the way the nudge reads.
   const lean = view.plan.route;
   const head = lean === null ? headRoute(view) : (view.routes.find((each) => each.id === lean) ?? null);
   const others = lean === null ? [] : view.plan.ways.filter((way) => way.route !== lean);
   const costs = route === null ? [] : moveCosts(route);
   const lookInto = view.ended ? null : officialRoute(view);
   const planned = lookInto !== null && plan.some((pick) => pick !== null && pick.activity === OFFICIAL && pick.param === lookInto);
-  // The plan's own figure while no route's figure counts yet, read as the data page reads it (R-CHAPTER-009).
+  // The plan's own figure while no route's figure counts yet, read as the data page reads it (chapter:chapters-follow-lean-route).
   const percent = readyPercent(view);
   const coming = remindersOf(view);
   // Once a visa is granted the plan is done but the story is not: the next step, the plane, is named.
@@ -413,7 +413,7 @@ export function Japa({ briefs = null }: { briefs?: ReactNode }) {
       <button
         type="button"
         disabled={planned}
-        // R-ACTIVITY-015: the official page is read at once, and the phone says the page's line.
+        // activity:now-acts-and-month-acts: the official page is read at once, and the phone says the page's line.
         onClick={() => void actOnCard({ activity: OFFICIAL, param: lookInto }, { send, addToPlan }).then((acted) => said(acted === "planned" ? say("ui.world.planned", { what: nameOf(OFFICIAL) }) : acted === "full" ? say("ui.world.full") : acted === "answered" ? nowSaid(OFFICIAL, lookInto) : ""))}
         className="lively-card press mt-3 flex w-full items-center gap-3 p-3 text-left disabled:opacity-70"
         data-official-page={lookInto}

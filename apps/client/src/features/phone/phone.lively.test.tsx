@@ -41,7 +41,7 @@ function back(): void {
 const NEVER = /\b(slots?|turns?|banked|pages?|days left)\b|%/i;
 
 describe("the phone in the lively dress", () => {
-  test("[R-WORLD-018] given the phone opens, when its lock screen shows, then the wallpaper is the plain navy with no pattern, the day is said in words, and the place stands in a pill", async () => {
+  test("[world:phone-rises-over-scene] given the phone opens, when its lock screen shows, then the wallpaper is the plain navy with no pattern, the day is said in words, and the place stands in a pill", async () => {
     await openPhone(engineView());
     const glass = document.querySelector<HTMLElement>("[data-phone-glass]");
     expect(glass?.className).toContain("phone-wall");
@@ -52,7 +52,7 @@ describe("the phone in the lively dress", () => {
     expect([...document.querySelectorAll("[data-app]")].every((icon) => icon.className.includes("phone-app-icon"))).toBe(true);
   });
 
-  test("[R-WORLD-018] given each app opens, when its head shows, then it carries the app's own tile and its name on the sheet, never the navy band", async () => {
+  test("[world:phone-rises-over-scene] given each app opens, when its head shows, then it carries the app's own tile and its name on the sheet, never the navy band", async () => {
     await openPhone(richView());
     for (const id of APP_IDS) {
       openApp(id);
@@ -68,7 +68,7 @@ describe("the phone in the lively dress", () => {
     ["a new life", engineView],
     ["a life in the middle of an application", richView],
   ] as const) {
-    test(`[R-WORLD-018] [R-TEXT-005] given ${name}, when every app opens, then nothing a player reads says slots, a turn, banked, pages, days left or a percentage`, async () => {
+    test(`[world:phone-rises-over-scene] [text:bands-not-figures] given ${name}, when every app opens, then nothing a player reads says slots, a turn, banked, pages, days left or a percentage`, async () => {
       await openPhone(fixture());
       for (const id of APP_IDS) {
         if (id === "bank") continue; // The Bank opens on the passbook; its words are checked there.
@@ -79,7 +79,7 @@ describe("the phone in the lively dress", () => {
     });
   }
 
-  test("[R-WORLD-019] given a route in play with its figure, when Japa opens, then how ready you are is a bar that fills and no percentage is written, and the road's log the shell hands stands under the way out", async () => {
+  test("[world:phone-holds-what-phones-hold] given a route in play with its figure, when Japa opens, then how ready you are is a bar that fills and no percentage is written, and the road's log the shell hands stands under the way out", async () => {
     await openPhone(richView(), <section data-test-log>log</section>);
     const japa = openApp("japa");
     const meter = japa.querySelector<HTMLElement>("[data-japa-percent] [role='meter']");
@@ -92,7 +92,7 @@ describe("the phone in the lively dress", () => {
     expect(head!.compareDocumentPosition(log!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  test("[R-WORLD-019] [R-WORLD-021] given a life in the middle of an application, when Papers opens, then each paper is a card with its picture and its state as a chip", async () => {
+  test("[world:phone-holds-what-phones-hold] [world:colours-are-role-tokens] given a life in the middle of an application, when Papers opens, then each paper is a card with its picture and its state as a chip", async () => {
     await openPhone(richView());
     const papers = openApp("papers");
     const rows = [...papers.querySelectorAll<HTMLElement>("[data-paper]")];
@@ -104,7 +104,7 @@ describe("the phone in the lively dress", () => {
     }
   });
 
-  test("[R-WORLD-018] [R-WORLD-021] given a life with a job, when Jobs opens, then the job held is a card with its picture and its pay as a green chip", async () => {
+  test("[world:phone-rises-over-scene] [world:colours-are-role-tokens] given a life with a job, when Jobs opens, then the job held is a card with its picture and its pay as a green chip", async () => {
     const view = richView();
     await openPhone(view);
     const jobs = openApp("jobs");
@@ -114,7 +114,7 @@ describe("the phone in the lively dress", () => {
     expect(held?.querySelector("[data-money-chip]")).not.toBeNull();
   });
 
-  test("[R-WORLD-019] given no offer waits and the phone can open the map, when Jobs opens, then the board where jobs go up stands with the way to it", async () => {
+  test("[world:phone-holds-what-phones-hold] given no offer waits and the phone can open the map, when Jobs opens, then the board where jobs go up stands with the way to it", async () => {
     const view = engineView();
     expect(view.offers.filter((offer) => offer.terms.job !== undefined)).toEqual([]);
     await openPhone(view);
@@ -123,7 +123,7 @@ describe("the phone in the lively dress", () => {
     expect(jobs.querySelector("[data-jobs-board]")?.textContent).toBe(say("phone.jobs.board.go", { place: "the hub" }));
   });
 
-  test("[R-WORLD-018] given the month's lines in News, when it opens, then each line is a chip, good news in green", async () => {
+  test("[world:phone-rises-over-scene] given the month's lines in News, when it opens, then each line is a chip, good news in green", async () => {
     const view = richView();
     await openPhone(view);
     const news = openApp("news");
@@ -132,7 +132,7 @@ describe("the phone in the lively dress", () => {
     for (const line of lines.filter((one) => one.getAttribute("data-tone") === "good")) expect(line.className).toContain("bg-tint-money");
   });
 
-  test("[R-WORLD-018] given Settings, when it opens, then the sound and the graphics stand in one card, each choice one segmented pill", async () => {
+  test("[world:phone-rises-over-scene] given Settings, when it opens, then the sound and the graphics stand in one card, each choice one segmented pill", async () => {
     await openPhone(engineView());
     const settings = openApp("settings");
     const card = settings.querySelector("[data-settings-card]");

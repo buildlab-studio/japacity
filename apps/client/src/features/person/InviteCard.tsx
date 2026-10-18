@@ -1,4 +1,4 @@
-// The invite card (R-PAIR-007, R-PAIR-008, R-PEOPLE-010): made from the fixed
+// The invite card (pair:invite-card-contents, pair:invite-link-single-use, person:invite-fills-a-slot): made from the fixed
 // fills, shown as a friend will see it, and taken back with the same command.
 // The card carries the character's name and japacity, never the account's,
 // never a photo, a sum or a contact. Online it gets its single-use link. Dressed as the lively layer's cards
@@ -127,7 +127,7 @@ export function InviteOut({ slot, invite, api }: { slot: string; invite: { looki
   );
 }
 
-/** Making a card for an empty partner slot or a computer sibling (R-PEOPLE-010). */
+/** Making a card for an empty partner slot or a computer sibling (person:invite-fills-a-slot). */
 export function InviteMaker({ slot }: { slot: string }) {
   const id = useId();
   const send = useGame((state) => state.send);

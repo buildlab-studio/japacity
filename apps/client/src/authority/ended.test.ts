@@ -1,4 +1,4 @@
-// Ending a life (account.md R-ACCOUNT-030): locally the save and the kept person go, nothing is written again until a
+// Ending a life (account:start-a-new-life): locally the save and the kept person go, nothing is written again until a
 // new life is chosen, and the next one starts on a roll of its own; online the account's own route ends it; either
 // way the store drops what the device kept of the life and opens the front door.
 import type { Save } from "@japacity/sim";
@@ -31,7 +31,7 @@ function seedOf(storage: ReturnType<typeof removableStorage>): string | null {
 }
 
 describe("ending a life on this device", () => {
-  test("[R-ACCOUNT-030] given a local life and its kept person, when the life ends, then the save and the person are gone, nothing is written while the door is open, a reload opens the door, and the next life starts on a seed of its own", async () => {
+  test("[account:start-a-new-life] given a local life and its kept person, when the life ends, then the save and the person are gone, nothing is written while the door is open, a reload opens the door, and the next life starts on a seed of its own", async () => {
     const storage = removableStorage();
     const makeSeed = seeds();
     const authority = localAuthority({ fastClock: true, storage, makeSeed, now: () => 0 });
@@ -53,7 +53,7 @@ describe("ending a life on this device", () => {
     expect(seedOf(storage)).not.toBe(old);
   });
 
-  test("[R-ACCOUNT-030] given what a life keeps beside its save, then the keys forgotten hold the person, the month, the days and the years' trail as their own modules name them, and the device's settings stay", () => {
+  test("[account:start-a-new-life] given what a life keeps beside its save, then the keys forgotten hold the person, the month, the days and the years' trail as their own modules name them, and the device's settings stay", () => {
     expect(LIFE_KEYS).toEqual(expect.arrayContaining([PERSON_KEY, MONTH_KEY, DAYS_KEY, TRAIL_KEY]));
     for (const key of LIFE_KEYS) localStorage.setItem(key, "kept");
     localStorage.setItem("japacity.theme", "danfo");
@@ -66,7 +66,7 @@ describe("ending a life on this device", () => {
     expect(localStorage.getItem("japacity.sound.muted")).toBe("1");
   });
 
-  test("[R-ACCOUNT-030] given a store over a local life, when the life is ended, then the view is gone, the door opens, the device keeps nothing of the life, and the page is asked to load afresh once", async () => {
+  test("[account:start-a-new-life] given a store over a local life, when the life is ended, then the view is gone, the door opens, the device keeps nothing of the life, and the page is asked to load afresh once", async () => {
     const authority = localAuthority({ fastClock: true, makeSeed: seeds(), now: () => 0 });
     let afresh = 0;
     const store = createGameStore(authority, { life: authority, afterLifeEnded: () => (afresh += 1) });
@@ -87,7 +87,7 @@ describe("ending a life on this device", () => {
     expect(afresh).toBe(1);
   });
 
-  test("[R-ACCOUNT-030] given a store whose authority cannot end a life, then it offers no end", () => {
+  test("[account:start-a-new-life] given a store whose authority cannot end a life, then it offers no end", () => {
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: seeds(), now: () => 0 });
     expect(createGameStore(authority).getState().endLife).toBeNull();
   });
@@ -100,7 +100,7 @@ describe("ending a life online", () => {
     return { server, remote };
   }
 
-  test("[R-ACCOUNT-030] given a character, when the life is ended, then it posts to /api/character/end and forgets the version it held", async () => {
+  test("[account:start-a-new-life] given a character, when the life is ended, then it posts to /api/character/end and forgets the version it held", async () => {
     const { server, remote } = setUp();
     server.answer("POST /api/character", { body: { ok: true, view: engineView(), lines: [], clock: { tick: 0, nextTickAt: 1, nextTurnAt: null } } });
     await remote.newLife("scenario.ada");
@@ -113,7 +113,7 @@ describe("ending a life online", () => {
     expect(remote.held()).toBeNull();
   });
 
-  test("[R-ACCOUNT-030] given the server answers no-character, then the life counts as ended; given another refusal, then it does not", async () => {
+  test("[account:start-a-new-life] given the server answers no-character, then the life counts as ended; given another refusal, then it does not", async () => {
     const { server, remote } = setUp();
     server.answer("POST /api/character/end", { status: 404, body: { ok: false, code: "no-character", detail: "none" } });
     expect(await remote.endLife()).toBe(true);

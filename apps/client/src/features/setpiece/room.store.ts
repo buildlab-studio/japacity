@@ -22,7 +22,7 @@ export interface RoomState {
 
 export const roomStore = createStore<RoomState>(() => ({ opened: 0, inRoom: false, entered: false, prelude: null, answered: false, closing: null }));
 
-/** R-SETPIECE-005: drawn at random, never from what the answer scored. */
+/** route:view-shows-progress-not-score: drawn at random, never from what the answer scored. */
 export function drawReaction(): string {
   const [drawn = 0] = crypto.getRandomValues(new Uint32Array(1));
   return OFFICER_REACTIONS[drawn % OFFICER_REACTIONS.length] ?? OFFICER_REACTIONS[0] ?? GREET;

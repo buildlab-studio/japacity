@@ -1,4 +1,4 @@
-// The month the settlement is cleared (docs/rules/home.md R-HOME-003), in the News app: the line
+// The month the settlement is cleared (home:makoko-eviction-draw), in the News app: the line
 // leads the month's lines as money unpaid does, and the story of the clearing is carried with it.
 import { content } from "@japacity/content";
 import { applyOverlay } from "@japacity/sim";
@@ -23,7 +23,7 @@ async function openNews(view: Parameters<typeof renderWithView>[1]): Promise<voi
 }
 
 describe("News the month of the clearing", () => {
-  test("[R-HOME-003] given Ada evicted from Makoko this month, when News opens, then the eviction leads the month's lines and the story of the clearing is there", async () => {
+  test("[home:makoko-eviction-draw] given Ada evicted from Makoko this month, when News opens, then the eviction leads the month's lines and the story of the clearing is there", async () => {
     const game = start({ content: applyOverlay(content, { version: "test-news-evicted", tuning: { home: { evictionBp: 10000 } } }), scenario: "scenario.ada" });
     setPockets(game, { NGN: 500_000_00 });
     game.accept({ type: "home/move", to: "place.makoko" });
@@ -36,7 +36,7 @@ describe("News the month of the clearing", () => {
     expect(story?.textContent).toContain(words("news.makoko-cleared.in-force.head"));
   });
 
-  test("[R-HOME-003] given a month with no clearing, when News opens, then no story of one is told", async () => {
+  test("[home:makoko-eviction-draw] given a month with no clearing, when News opens, then no story of one is told", async () => {
     const game = newGame();
     game.endTurn();
     await openNews(game.view());

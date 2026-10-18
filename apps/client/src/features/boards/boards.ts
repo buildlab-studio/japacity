@@ -1,4 +1,4 @@
-// The server's boards (docs/rules/city.md R-CITY-039, R-CITY-040), as the
+// The server's boards (city:boards-switch-when-and-who, city:board-line-and-ranking), as the
 // boards screen reaches them. Only online: offline there are no other players,
 // so the screen gets null and shows nothing.
 import type { BoardName, BoardReply, ServerRejection } from "@japacity/api";

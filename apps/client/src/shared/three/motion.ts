@@ -3,7 +3,7 @@
 // shrink to nothing instead of fading, so nothing is transparent. Every one reads the shared clock
 // and wind (clock.ts). The dial is mesh fineness: `fine` sheets and water in the high mode, `coarse`
 // in the low mode; the motion itself is the same in both. The sheets and the water tile are the
-// shipped grids of each level (assets.md R-ASSET-029) once loaded, and built here until then.
+// shipped grids of each level (assets:sheets-ship-two-mesh-levels) once loaded, and built here until then.
 import { gridFile, type GridPiece, WATER_TILE } from "@japacity/assets-src/prop/motion/grids";
 import {
   AdditiveBlending,
@@ -432,7 +432,7 @@ export function puffGeometry(): BufferGeometry {
   return geometry;
 }
 
-/** Smoke as soft pale puffs: a blended shape shown smooth (R-ASSET-005), each copy in one of `colours` in turn. */
+/** Smoke as soft pale puffs: a blended shape shown smooth (assets:flat-and-smooth-shading), each copy in one of `colours` in turn. */
 export function smoke(count: number, colours: readonly Color[]): InstancedMesh {
   const material = motionMaterial("smoke");
   // A soft shape is the one moving surface shown smooth; a little glow keeps its shaded side pale like smoke.
@@ -522,7 +522,7 @@ function halo(): DataTexture {
 /**
  * A warm point of light: a small unlit bead (the bulb, the lantern's flame) and a soft halo round it that faces the
  * camera, added to what is behind it. No light is added to the scene (the place keeps its one sun and one sky light,
- * R-ASSET-006); `glowAt` sets how bright it stands, 0 out.
+ * assets:lighting-set-by-place); `glowAt` sets how bright it stands, 0 out.
  */
 export function glow(radius: number, color: Color, bead = true): Group {
   const group = new Group();

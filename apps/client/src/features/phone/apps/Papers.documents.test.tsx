@@ -1,4 +1,4 @@
-// The papers list in Papers (docs/rules/document.md R-DOCUMENT-008; world.md R-WORLD-019, R-WORLD-002): none said
+// The papers list in Papers (document:paper-on-its-way; world:phone-holds-what-phones-hold, world:top-band-is-lively-pill): none said
 // plainly, each paper named from content with its state, a warning two months before one
 // runs out, none while a new copy is on its way, and when a copy comes said as months away, never a month number.
 import { text } from "@japacity/content";
@@ -19,7 +19,7 @@ function paper(id: string): HTMLElement {
 const TB = "document.tb-certificate" as const;
 
 describe("the papers, in Papers", () => {
-  test("[R-WORLD-019] given none, then it says so", async () => {
+  test("[world:phone-holds-what-phones-hold] given none, then it says so", async () => {
     // No paper held and no way out read into yet: nothing to list.
     const base = engineView();
     const view: PlayerView = { ...base, documents: [], plan: { ...base.plan, route: null }, routes: base.routes.map((route) => ({ ...route, state: "unknown" as const })) };
@@ -28,7 +28,7 @@ describe("the papers, in Papers", () => {
     expect(document.querySelector("[data-papers-none]")?.textContent).toBe(say("phone.papers.none"));
   });
 
-  test("[R-WORLD-019] [R-DOCUMENT-008] given held and pending papers, then each is named from content with its state, the coming one as months away", async () => {
+  test("[world:phone-holds-what-phones-hold] [document:paper-on-its-way] given held and pending papers, then each is named from content with its state, the coming one as months away", async () => {
     const view = richView();
     await openPapers(view);
     const passport = paper("document.passport");
@@ -40,14 +40,14 @@ describe("the papers, in Papers", () => {
     expect(paper("document.english-test").textContent).toContain(say("ui.document.band", { band: "6.5" }));
   });
 
-  test("[R-DOCUMENT-008] given a held paper two months from running out, then it warns", async () => {
+  test("[document:paper-on-its-way] given a held paper two months from running out, then it warns", async () => {
     const rich = richView();
     const documents = [{ id: TB, state: "held" as const, readyMonth: null, expiresMonth: rich.month + 2, value: null, onItsWay: null }];
     await openPapers({ ...rich, documents });
     expect(paper(TB).textContent).toContain(sayCount("ui.document.expires-soon", 2, { months: 2 }));
   });
 
-  test("[R-DOCUMENT-008] given a held paper two months from running out with a new copy on its way, then it says when the new copy comes and does not warn", async () => {
+  test("[document:paper-on-its-way] given a held paper two months from running out with a new copy on its way, then it says when the new copy comes and does not warn", async () => {
     const rich = richView();
     const documents = [{ id: TB, state: "held" as const, readyMonth: rich.month + 1, expiresMonth: rich.month + 2, value: null, onItsWay: rich.month + 1 }];
     await openPapers({ ...rich, documents });
@@ -55,7 +55,7 @@ describe("the papers, in Papers", () => {
     expect(paper(TB).textContent).not.toContain(sayCount("ui.document.expires-soon", 2, { months: 2 }));
   });
 
-  test("[R-DOCUMENT-008] given held papers far from running out, then there is no warning", async () => {
+  test("[document:paper-on-its-way] given held papers far from running out, then there is no warning", async () => {
     await openPapers(richView());
     expect(document.querySelector("[data-papers]")?.textContent).not.toMatch(/Runs out/);
   });

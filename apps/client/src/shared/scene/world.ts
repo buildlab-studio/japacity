@@ -34,7 +34,7 @@ export interface Placed {
   walk: PoseName;
   /** A crosser walks from `from` to `to` and back, `phase` seconds along the round. */
   cross?: { from: [number, number]; to: [number, number]; phase: number };
-  /** A stroller's place in the strolls, when they stroll between spots (city.md R-CITY-036). */
+  /** A stroller's place in the strolls, when they stroll between spots (city:players-shown-present-not-tracked). */
   stroll?: number;
 }
 
@@ -43,13 +43,13 @@ export interface World {
   crowd: Placed[];
   /** People on a dance loop, posed by `danceFigure` in the scene's one frame loop. */
   dancers: { figure: Figure; dance: DanceName }[];
-  /** People standing still at a thing of their own (R-WORLD-020), idling where they stand. */
+  /** People standing still at a thing of their own (world:nobody-picked-from-list), idling where they stand. */
   standers: Figure[];
   own: Figure;
   indicator: Mesh;
   /**
    * The place's route map, built once here from the footprints and the walkable ground (city.md
-   * R-CITY-030), or null when nothing roams (world.md R-WORLD-010) and walks are straight.
+   * city:tap-to-walk), or null when nothing roams (world:nothing-roams) and walks are straight.
    */
   routes: RouteMap | null;
   strolls: Strolls;
@@ -57,7 +57,7 @@ export interface World {
   walls: WallParts;
 }
 
-/** Which prefixes cast a shadow in the high mode: characters and vehicles only (R-ASSET-006). */
+/** Which prefixes cast a shadow in the high mode: characters and vehicles only (assets:lighting-set-by-place). */
 function castsShadow(file: string): boolean {
   const name = file.split("/").pop() ?? "";
   return name.startsWith("chr_") || name.startsWith("veh_");
@@ -85,7 +85,7 @@ function stripPieces(strip: Strip): { from: number; to: number; colour: string }
 /**
  * The ground and every strip on it as one mesh of vertex colours, so the whole floor of a place is
  * one draw call however many roads, kerbs and gutters it has. A raised strip is a block with its top
- * and sides. Each strip lies a step over the strips under it (world.md R-WORLD-012), as the place
+ * and sides. Each strip lies a step over the strips under it (world:faces-never-share-height), as the place
  * check reads them, so no two of its faces fight for a pixel.
  */
 export function groundGeometry(stage: Stage): BufferGeometry {
@@ -129,7 +129,7 @@ export function groundGeometry(stage: Stage): BufferGeometry {
 export function groundOf(stage: Stage): Group {
   const group = new Group();
   group.name = "ground";
-  // The floor draws a little behind its true depth, so a model's floor laid on it always wins the pixel (R-WORLD-012).
+  // The floor draws a little behind its true depth, so a model's floor laid on it always wins the pixel (world:faces-never-share-height).
   const ground = new Mesh(groundGeometry(stage), new MeshLambertMaterial({ vertexColors: true, flatShading: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 }));
   ground.receiveShadow = true;
   ground.name = "ground";
@@ -355,7 +355,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     crowd.push(placed);
     standing.push({ slot: shown.slot, index, placed });
   }
-  // Nothing roams in the world (R-WORLD-010): no route map is built and nobody strolls, unless tuning turns roaming on.
+  // Nothing roams in the world (world:nothing-roams): no route map is built and nobody strolls, unless tuning turns roaming on.
   const routes = roam
     ? routeMap(stage, (file) => {
         const model = models.get(file);
@@ -385,7 +385,7 @@ export function buildWorld(stage: Stage, models: ReadonlyMap<string, Object3D>, 
     root.add(figure.root);
     dancers.push({ figure, dance: dancer.dance });
   });
-  // A person met in a place stands still at their thing, idling, and a tap on them is a tap on the thing (R-WORLD-020).
+  // A person met in a place stands still at their thing, idling, and a tap on them is a tap on the thing (world:nobody-picked-from-list).
   const standers: Figure[] = [];
   (stage.standing ?? []).forEach((stander, index) => {
     const loaded = models.get(stander.file);
@@ -453,7 +453,7 @@ export function animateWorld(world: World, time: number, seconds: number): void 
 /** The warm colour of a lamp's glow: a bulb or a lantern's flame at night. */
 const LAMP_COLOUR = 0xffb46a;
 
-/** The place's lamps as warm points of light, out until the day's light sets how bright they stand (R-CLOCK-033). */
+/** The place's lamps as warm points of light, out until the day's light sets how bright they stand (clock:game-day-on-real-time). */
 export function lampsOf(lamps: readonly Lamp[]): Object3D[] {
   return lamps.map((lamp) => {
     const point = glow(lamp.size / 2, new Color(LAMP_COLOUR), lamp.bulb === true);

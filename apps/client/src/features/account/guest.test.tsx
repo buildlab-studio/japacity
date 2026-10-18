@@ -66,21 +66,21 @@ const IPHONE_INSTAGRAM = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)
 const PLAIN_CHROME = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36";
 
 describe("the in-app browsers", () => {
-  test("[R-ACCOUNT-023] given the user agents of WhatsApp, X, Instagram, TikTok and Facebook's browser, then each is in-app; the phone's own browsers are not", () => {
+  test("[account:guest-secures-the-life] given the user agents of WhatsApp, X, Instagram, TikTok and Facebook's browser, then each is in-app; the phone's own browsers are not", () => {
     for (const agent of [ANDROID_WHATSAPP, IPHONE_INSTAGRAM, "Mozilla/5.0 (iPhone) Mobile Twitter for iPhone", "Mozilla/5.0 (Linux; Android 13) musical_ly_2023", "Mozilla/5.0 (iPhone) [FBAN/FBIOS;FBAV/400.0]"]) {
       expect(inAppBrowser(agent)).toBe(true);
     }
     for (const agent of [PLAIN_CHROME, "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Version/17.0 Mobile/15E148 Safari/604.1"]) expect(inAppBrowser(agent)).toBe(false);
   });
 
-  test("[R-ACCOUNT-023] given an in-app browser, then Android gets a link that opens the phone's browser at the same address, and an iPhone none", () => {
+  test("[account:guest-secures-the-life] given an in-app browser, then Android gets a link that opens the phone's browser at the same address, and an iPhone none", () => {
     expect(browserLink("https://japacity.test/?x=1", ANDROID_WHATSAPP)).toBe("intent://japacity.test/?x=1#Intent;scheme=https;end");
     expect(browserLink("https://japacity.test/", IPHONE_INSTAGRAM)).toBeNull();
   });
 });
 
 describe("the securing sheet", () => {
-  test("[R-ACCOUNT-023] given a guest in the phone's own browser, then Google comes first, and an emailed code keeps the life and says so", async () => {
+  test("[account:guest-secures-the-life] given a guest in the phone's own browser, then Google comes first, and an emailed code keeps the life and says so", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
     const buttons = screen.getAllByRole("button").map((button) => button.textContent);
@@ -104,7 +104,7 @@ describe("the securing sheet", () => {
     expect(within(sheet).getAllByRole("button").map((button) => button.getAttribute("aria-label"))).toEqual([say("ui.report.close")]);
   });
 
-  test("[R-ACCOUNT-023] given the first-chapter ask, when the life is kept by the emailed code, then the ask's reason goes with the rest and the kept state stands alone", async () => {
+  test("[account:guest-secures-the-life] given the first-chapter ask, when the life is kept by the emailed code, then the ask's reason goes with the rest and the kept state stands alone", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={say("ui.secure.ask.first-chapter")} agent={PLAIN_CHROME} />);
     expect(screen.getByText(say("ui.secure.ask.first-chapter"))).toBeDefined();
@@ -117,7 +117,7 @@ describe("the securing sheet", () => {
     expect(screen.getByRole("heading", { name: say("ui.secure.done.title") })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-023] given a guest in the phone's own browser, then Google is offered on Google's own button: the G as Google gives it at the left, one of Google's texts, and the game's voice kept for the sheet", async () => {
+  test("[account:guest-secures-the-life] given a guest in the phone's own browser, then Google is offered on Google's own button: the G as Google gives it at the left, one of Google's texts, and the game's voice kept for the sheet", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
     const google = screen.getByRole("button", { name: say("ui.secure.google") });
@@ -129,7 +129,7 @@ describe("the securing sheet", () => {
     expect(screen.getByText(say("ui.secure.or"))).toBeDefined();
   });
 
-  test("[R-ACCOUNT-029] [R-ACCOUNT-023] given the keep-this-life sheet, then the wordmark tops it once, above the sheet's title, its words the game's name", async () => {
+  test("[account:start-screen-over-live-city] [account:guest-secures-the-life] given the keep-this-life sheet, then the wordmark tops it once, above the sheet's title, its words the game's name", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
     const marks = screen.getAllByRole("img", { name: say("ui.game") });
@@ -140,7 +140,7 @@ describe("the securing sheet", () => {
     expect(marks[0]!.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  test("[R-ACCOUNT-023] given an in-app browser, then Google is not shown, the code is offered, and the way out to the browser is there", async () => {
+  test("[account:guest-secures-the-life] given an in-app browser, then Google is not shown, the code is offered, and the way out to the browser is there", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={ANDROID_WHATSAPP} />);
     expect(screen.queryByRole("button", { name: say("ui.secure.google") })).toBeNull();
@@ -149,7 +149,7 @@ describe("the securing sheet", () => {
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
 
-  test("[R-ACCOUNT-023] given an email that already has a life, when the code is typed, then the player is told it is taken and the life stays a guest's", async () => {
+  test("[account:guest-secures-the-life] given an email that already has a life, when the code is typed, then the player is told it is taken and the life stays a guest's", async () => {
     const account = fakeAccount(me("guest"), { signInWithCode: () => Promise.resolve({ ok: false, why: "taken" }) });
     await mount(account, <SecureSheet account={account} open onOpenChange={() => undefined} reason={null} agent={PLAIN_CHROME} />);
     fireEvent.change(screen.getByLabelText(say("ui.account.email.label")), { target: { value: "ada@example.test" } });
@@ -164,14 +164,14 @@ describe("the securing sheet", () => {
 describe("when the asks come", () => {
   const firstDone = () => withChapter(engineView(), ["chapter.find-your-feet"], "chapter.build-the-file");
 
-  test("[R-ACCOUNT-023] given the view, then the first chapter done is the first moment and the decision-day chapter the visa one; before either there is none", () => {
+  test("[account:guest-secures-the-life] given the view, then the first chapter done is the first moment and the decision-day chapter the visa one; before either there is none", () => {
     expect(askMoment(withChapter(engineView(), [], "chapter.find-your-feet"))).toBeNull();
     expect(askMoment(firstDone())).toBe("first-chapter");
     expect(askMoment(withChapter(engineView(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day"))).toBe("visa");
     expect(askMoment(null)).toBeNull();
   });
 
-  test("[R-ACCOUNT-023] [R-GUIDE-015] given a guest past its first chapter but not its early win, then nothing is asked; once the win is in, the ask opens once", async () => {
+  test("[account:guest-secures-the-life] [guide:nothing-asked-before-early-win] given a guest past its first chapter but not its early win, then nothing is asked; once the win is in, the ask opens once", async () => {
     const view = me("guest");
     const account = fakeAccount(view);
     const store = await mount(account, <SecureAsk />, firstDone(), false);
@@ -186,7 +186,7 @@ describe("when the asks come", () => {
     expect(screen.queryByText(say("ui.secure.ask.first-chapter"))).toBeNull();
   });
 
-  test("[R-ACCOUNT-023] given a chapter's card up over the world when the first ask is due, then the ask waits and opens once the card is gone", async () => {
+  test("[account:guest-secures-the-life] given a chapter's card up over the world when the first ask is due, then the ask waits and opens once the card is gone", async () => {
     const card = document.createElement("div");
     card.setAttribute("role", "dialog");
     card.setAttribute("data-open", "");
@@ -200,7 +200,7 @@ describe("when the asks come", () => {
     expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-023] [R-CHAPTER-011] given the first brief's card still waiting for the place's first frame when the first ask is due, then the ask waits for the card as for an open sheet and opens once the card is handed", async () => {
+  test("[account:guest-secures-the-life] [chapter:first-chapter-mission-card] given the first brief's card still waiting for the place's first frame when the first ask is due, then the ask waits for the card as for an open sheet and opens once the card is handed", async () => {
     const pending = document.createElement("span");
     pending.setAttribute("data-brief-pending", "");
     document.body.append(pending);
@@ -213,7 +213,7 @@ describe("when the asks come", () => {
     expect(await screen.findByText(say("ui.secure.ask.first-chapter"), undefined, { timeout: 2000 })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-023] given a guest reaching the decision-day chapter after its win, then the visa ask opens; a secured account is never asked", async () => {
+  test("[account:guest-secures-the-life] given a guest reaching the decision-day chapter after its win, then the visa ask opens; a secured account is never asked", async () => {
     const decision = withChapter(engineView(), ["chapter.find-your-feet", "chapter.build-the-file"], "chapter.decision-day");
     const guest = fakeAccount(me("guest"));
     await mount(guest, <SecureAsk />, decision, true);
@@ -225,7 +225,7 @@ describe("when the asks come", () => {
     expect(screen.queryByText(say("ui.secure.ask.visa"))).toBeNull();
   });
 
-  test("[R-ACCOUNT-022] given a guest-only refusal from any route, then the securing sheet opens with what to do, never a dead end", async () => {
+  test("[account:social-needs-secured-account] given a guest-only refusal from any route, then the securing sheet opens with what to do, never a dead end", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <SecureAsk />);
     act(() => heardBody({ ok: false, code: "guest-only", detail: "Secure this life with Google or an email code to buy lottery tickets." }));
@@ -233,7 +233,7 @@ describe("when the asks come", () => {
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
   });
 
-  test("[R-ACCOUNT-023] given Google came back saying the method is taken, then the sheet opens and says so", async () => {
+  test("[account:guest-secures-the-life] given Google came back saying the method is taken, then the sheet opens and says so", async () => {
     const account = fakeAccount(me("guest"), { returnedFromGoogle: () => "taken" });
     await mount(account, <SecureAsk />);
     expect(await screen.findByText(say("ui.account.fail.taken"))).toBeDefined();
@@ -241,7 +241,7 @@ describe("when the asks come", () => {
 });
 
 describe("the quiet lines", () => {
-  test("[R-ACCOUNT-027] given a guest, then the month report's line shows only after the first chapter, and never for a secured account", async () => {
+  test("[account:guest-reminded-to-secure] given a guest, then the month report's line shows only after the first chapter, and never for a secured account", async () => {
     const before = fakeAccount(me("guest"));
     await mount(before, <GuestReminder afterFirstChapter />, withChapter(engineView(), []));
     await waitFor(() => expect(before.calls).toContain("view()"));
@@ -257,7 +257,7 @@ describe("the quiet lines", () => {
     expect(screen.queryByText(say("ui.guest.reminder"))).toBeNull();
   });
 
-  test("[R-ACCOUNT-027] [R-ACCOUNT-023] given a guest's settings, then the reminder shows and no passkey is offered; a secured account sees the passkey and no reminder", async () => {
+  test("[account:guest-reminded-to-secure] [account:guest-secures-the-life] given a guest's settings, then the reminder shows and no passkey is offered; a secured account sees the passkey and no reminder", async () => {
     const guest = fakeAccount(me("guest"));
     await mount(guest, <AccountSettings account={guest} />);
     expect(await screen.findByText(say("ui.guest.reminder"))).toBeDefined();
@@ -271,7 +271,7 @@ describe("the quiet lines", () => {
 });
 
 describe("signing out of a guest life", () => {
-  test("[R-ACCOUNT-021] given a guest, when it signs out, then it is told first that the life has no way back, and only a second press signs out", async () => {
+  test("[account:guest-and-secured-states] given a guest, when it signs out, then it is told first that the life has no way back, and only a second press signs out", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     await screen.findByText(say("ui.guest.reminder"));
@@ -284,7 +284,7 @@ describe("signing out of a guest life", () => {
 });
 
 describe("the username in the settings", () => {
-  test("[R-ACCOUNT-024] given the free change unused, when a new name is saved, then the server is asked and the new name shows", async () => {
+  test("[account:username-and-unconfirmed-email] given the free change unused, when a new name is saved, then the server is asked and the new name shows", async () => {
     const account = fakeAccount(me("guest"));
     await mount(account, <AccountSettings account={account} />);
     expect(await screen.findByText(say("ui.account.name.current", { name: "ada_lagos" }))).toBeDefined();
@@ -296,7 +296,7 @@ describe("the username in the settings", () => {
     expect(account.calls).toContain('rename("Ada_Ibadan")');
   });
 
-  test("[R-ACCOUNT-024] given a change made and the wait not over, then no change is offered and the day it opens is said", async () => {
+  test("[account:username-and-unconfirmed-email] given a change made and the wait not over, then no change is offered and the day it opens is said", async () => {
     const until = Date.now() + 5 * time.DAY_MS;
     await mount(fakeAccount(me("secured", { renameFrom: until })), <AccountSettings account={fakeAccount(me("secured", { renameFrom: until }))} />);
     expect(await screen.findByText(/You changed it not long ago/)).toBeDefined();

@@ -1,6 +1,6 @@
-// The start screen online (R-ACCOUNT-029):
-// over the scene with the lockup at the head of the sheet, no title over the figure, a hook in two rows (R-TEXT-006; one of three
-// lines, picked once per visit, R-ACCOUNT-031), the whole game in three steps as an icon and a word each, then Play
+// The start screen online (account:start-screen-over-live-city):
+// over the scene with the lockup at the head of the sheet, no title over the figure, a hook in two rows (text:hook-not-explanation; one of three
+// lines, picked once per visit, account:two-lights-and-wink-lines), the whole game in three steps as an icon and a word each, then Play
 // with its small second line, and "I already have a life here" for an account kept before. The two lights hang over the
 // top of the scene (TwoLights.tsx), so a line about the light is a caption. Nothing says Lagos: the scene behind does.
 import { useId, useSyncExternalStore } from "react";

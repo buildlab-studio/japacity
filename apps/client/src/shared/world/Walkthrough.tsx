@@ -1,6 +1,6 @@
-// The first-use labels (docs/rules/world.md R-WORLD-033): nothing lectures before play. On a device that has not
+// The first-use labels (world:no-walkthrough-before-play): nothing lectures before play. On a device that has not
 // played, the Map and Phone thumbs each carry a short word at their foot until each is tapped once; the calendar's tap
-// says its own words (R-WORLD-027). The device keeps what was tapped under the walkthrough's old key, and keeps that
+// says its own words (world:no-months-left-count). The device keeps what was tapped under the walkthrough's old key, and keeps that
 // it has played once both were, as the walkthrough kept that it was seen.
 import { useEffect, useState } from "react";
 

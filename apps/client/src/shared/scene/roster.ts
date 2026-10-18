@@ -1,5 +1,5 @@
 // The shipped people as the crowd sees them: who is a man or a woman, who is in traditional cloth,
-// who wears the Friday jalamia or the Saturday occasion dress (city.md R-CITY-016), and the part
+// who wears the Friday jalamia or the Saturday occasion dress (city:dress-mix-by-place), and the part
 // each plays when a card is opened on them. One row per shipped `chr_` file; the body tests
 // (`chr_body_*`, `chr_control`) are not people of the city.
 import type { PoseName } from "@japacity/assets-src/people/poses";

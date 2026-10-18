@@ -14,7 +14,7 @@ import { DONE_TOAST_MS, doneToast } from "./brief/brief";
 import { City } from "./City";
 import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -52,7 +52,7 @@ async function standing(place: string, view = engineView()) {
 }
 
 describe("the first brief's card", () => {
-  test("[R-CHAPTER-011] [R-WORLD-003] given a new life whose place is still drawing, when the world opens, then the brief's card waits for the place's first frame, then stands on the dimmed place with nothing under the band, and the chip comes only once Let's go has carried it", async () => {
+  test("[chapter:first-chapter-mission-card] [world:nudge-says-one-thing] given a new life whose place is still drawing, when the world opens, then the brief's card waits for the place's first frame, then stands on the dimmed place with nothing under the band, and the chip comes only once Let's go has carried it", async () => {
     const view = engineView();
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     await renderWithView(world(), view);
@@ -72,7 +72,7 @@ describe("the first brief's card", () => {
 });
 
 describe("the first brief's card's wait", () => {
-  test("[R-CHAPTER-011] [R-ACCOUNT-023] given a new life whose place is still drawing, then the card's wait is marked in the document for the asks and the suite, and the mark goes once the card stands", async () => {
+  test("[chapter:first-chapter-mission-card] [account:guest-secures-the-life] given a new life whose place is still drawing, then the card's wait is marked in the document for the asks and the suite, and the mark goes once the card stands", async () => {
     const view = engineView();
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     await renderWithView(world(), view);
@@ -89,7 +89,7 @@ describe("the first brief's card's wait", () => {
 });
 
 describe("the chip that shows the whole place", () => {
-  test("[R-WORLD-009] given the view close on the character, when a line stands in the corner or a thing's fan opens, then See the whole place steps back, so it never shares the foot with the corner's line nor stands under an open card, and comes back once the world is free", async () => {
+  test("[world:camera-always-raised] given the view close on the character, when a line stands in the corner or a thing's fan opens, then See the whole place steps back, so it never shares the foot with the corner's line nor stands under an open card, and comes back once the world is free", async () => {
     resetLines();
     await standing("place.family-house");
     // The home's small card is put away, so the world is free.
@@ -111,13 +111,13 @@ describe("the chip that shows the whole place", () => {
 });
 
 describe("the road in the world, only in the moment", () => {
-  test("[R-WORLD-003] given the first brief carried and the player at home, away from its place, when the world shows, then nothing stands under the band and no marker stands anywhere", async () => {
+  test("[world:nudge-says-one-thing] given the first brief carried and the player at home, away from its place, when the world shows, then nothing stands under the band and no marker stands anywhere", async () => {
     await standing("place.family-house");
     expect(document.querySelector("[data-band] [data-nudge]")).toBeNull();
     expect(document.querySelector("[data-marker]")).toBeNull();
   });
 
-  test("[R-WORLD-003] [R-WORLD-005] given the player at the hub where the brief's first thing is done, when the world shows, then the chip names the brief with a dot for each thing, the marker stands on the board with the thing to do, and the chip's tap opens the board's fan", async () => {
+  test("[world:nudge-says-one-thing] [world:things-are-tappable-models] given the player at the hub where the brief's first thing is done, when the world shows, then the chip names the brief with a dot for each thing, the marker stands on the board with the thing to do, and the chip's tap opens the board's fan", async () => {
     const view = engineView();
     await standing("place.yaba", view);
     const chip = await waitFor(() => found("[data-brief-chip='here']"));
@@ -130,18 +130,18 @@ describe("the road in the world, only in the moment", () => {
     expect(chip.textContent).not.toContain(say("chapter.find-your-feet.item.job"));
     expect(found("[data-marker-ring]").dataset.markerRing).toBe("jobs");
     fireEvent.click(found("[data-brief-chip] [data-nudge-open]"));
-    // The board's fan opens over it (R-WORLD-034).
+    // The board's fan opens over it (world:fan-of-sticker-buttons).
     expect(document.querySelector('[data-fan="jobs"]')).not.toBeNull();
   });
 
-  test("[R-WORLD-003] [R-WORLD-005] given the marker on the step's thing, when its pill is tapped, then the thing is picked as the chip's tap picks it, whoever stands in front of the thing", async () => {
+  test("[world:nudge-says-one-thing] [world:things-are-tappable-models] given the marker on the step's thing, when its pill is tapped, then the thing is picked as the chip's tap picks it, whoever stands in front of the thing", async () => {
     await standing("place.yaba", engineView());
     await waitFor(() => found("[data-marker-tap]"));
     fireEvent.click(found("[data-marker-tap='jobs']"));
     expect(document.querySelector('[data-fan="jobs"]')).not.toBeNull();
   });
 
-  test("[R-WORLD-003] given the chip at the step's place, when a thing comes in, then its dot ticks, the giver's toast rides under the chip in their words for three seconds, then goes", async () => {
+  test("[world:nudge-says-one-thing] given the chip at the step's place, when a thing comes in, then its dot ticks, the giver's toast rides under the chip in their words for three seconds, then goes", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       const view = engineView();
@@ -163,7 +163,7 @@ describe("the road in the world, only in the moment", () => {
     }
   });
 
-  test("[R-WORLD-003] given a chapter that closes while the world is open, when nothing covers it, then the brief comes back with every tick and its stamp, the next brief stands as a picture card, and Let's go hands it", async () => {
+  test("[world:nudge-says-one-thing] given a chapter that closes while the world is open, when nothing covers it, then the brief comes back with every tick and its stamp, the next brief stands as a picture card, and Let's go hands it", async () => {
     const view = engineView();
     const { store } = await standing("place.family-house", view);
     const next = { ...view, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: ["chapter.find-your-feet" as const], closes: false, next: "chapter.decision-day" as const } };
@@ -181,7 +181,7 @@ describe("the road in the world, only in the moment", () => {
 });
 
 describe("the notes' lane in the world", () => {
-  test("[R-CITY-018] given the world up, when the place's notes lane is drawn, then it starts under the band and not behind it", async () => {
+  test("[city:places-load-on-entry] given the world up, when the place's notes lane is drawn, then it starts under the band and not behind it", async () => {
     await standing("place.family-house");
     const lane = found("[data-notes-lane]");
     expect(lane.className).toContain("mt-[72px]");

@@ -1,4 +1,4 @@
-// The passbook's words (the Bank's first page; docs/rules/wallet.md R-WALLET-021), in the voice of
+// The passbook's words (the Bank's first page; wallet:passbook-against-plan-cost), in the voice of
 // docs/rules/text.md: a title of a few words, one line in a person's voice, money in naira, months as a count of months.
 // Never a day count, a percentage, slots, turns or pages. The words are content's ui/ui.passbook.text.ts.
 import { formatMoney, formatNumber } from "../../../shared/words/format";

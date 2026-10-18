@@ -1,4 +1,4 @@
-// Whether the month's News has been read (docs/rules/world.md R-WORLD-003, R-WORLD-018): the phone keeps what was seen under one key; the nudge that says "the month's news is in"
+// Whether the month's News has been read (world:nudge-says-one-thing, world:phone-rises-over-scene): the phone keeps what was seen under one key; the nudge that says "the month's news is in"
 // goes once News has been opened for this month's report.
 import type { PlayerView } from "@japacity/sim";
 import { SEEN_KEY } from "../kept/storage";

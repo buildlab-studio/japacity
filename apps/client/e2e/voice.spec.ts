@@ -53,7 +53,7 @@ async function seed(page: Page, options: { saveData?: boolean } = {}): Promise<s
 }
 
 /**
- * The interview waits in the world as an ask (R-WORLD-006): the line under the band opens the asks sheet, where the
+ * The interview waits in the world as an ask (world:one-action-one-sheet): the line under the band opens the asks sheet, where the
  * interview's lobby stands. Any card over the world is passed first.
  */
 async function openTheAsk(page: Page): Promise<void> {

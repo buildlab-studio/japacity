@@ -1,4 +1,4 @@
-// A card's title in the plain face (docs/rules/share.md R-SHARE-004):
+// A card's title in the plain face (share:card-contents):
 // in the display caps "A CHAPTER CLOSES" and "THE SEND-OFF" read hard on a phone, as the word mark would.
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -22,9 +22,9 @@ describe("a card's title", () => {
   test.each([
     ["chapter", "share.chapter.title"],
     ["send-off", "share.send-off.title"],
-  ] as const)("[R-SHARE-004] given the %s card, when it shows, then its title is in the plain face, not the display caps", async (kind, key) => {
+  ] as const)("[share:card-contents] given the %s card, when it shows, then its title is in the plain face, not the display caps", async (kind, key) => {
     await renderWithView(<CardView />, adaWith(kind));
-    // R-SHARE-015: the send-off opens from its tile; every other card on its own.
+    // share:send-off-card-kept: the send-off opens from its tile; every other card on its own.
     if (kind === "send-off") fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     const title = await screen.findByRole("heading", { name: text[key] ?? key });
     expect(title.className).toContain("font-sans");

@@ -1,4 +1,4 @@
-// The plan and the switch between ways out, a way's page inside Japa (docs/rules/chapter.md R-CHAPTER-009): a way's page says what
+// The plan and the switch between ways out, a way's page inside Japa (chapter:chapters-follow-lean-route): a way's page says what
 // making it the plan would do to japacity against the plan, the japacity kind's figures from the view, and
 // offers Keep mine or Make this the plan. Making it the plan records the choice the chapters follow from
 // the next close (`chapter/lean`) and, for a way only heard of, plans its official page for the month.
@@ -70,7 +70,7 @@ export function PlanSwitch({ route, onKeep, onSaid }: { route: Id<"route">; onKe
     const reply = await send({ type: "chapter/lean", route });
     if (reply?.ok !== true) return;
     setMade(true);
-    // A way only heard of is looked into at once (R-ACTIVITY-015), as its official page is read anywhere else.
+    // A way only heard of is looked into at once (activity:now-acts-and-month-acts), as its official page is read anywhere else.
     if (!heard || official?.allowed !== true || official.params?.includes(route) !== true || plannedAlready(plan, route)) return;
     const acted = await actOnCard({ activity: OFFICIAL, param: route }, { send, addToPlan });
     if (acted === "answered") onSaid?.(nowSaid(OFFICIAL, route));

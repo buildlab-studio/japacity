@@ -15,7 +15,7 @@ function openMenu() {
 }
 
 describe("the guides from the game", () => {
-  test("[R-GUIDE-005] given a life in play, when the menu is opened, then every guide links to its page, opened beside the game", async () => {
+  test("[guide:guides-are-open-pages] given a life in play, when the menu is opened, then every guide links to its page, opened beside the game", async () => {
     await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
     openMenu();
     for (const id of Object.keys(content.guide)) {
@@ -25,7 +25,7 @@ describe("the guides from the game", () => {
     }
   });
 
-  test("[R-GUIDE-005] given a life aiming at a route, when the menu is opened, then the route's own guide comes first", async () => {
+  test("[guide:guides-are-open-pages] given a life aiming at a route, when the menu is opened, then the route's own guide comes first", async () => {
     await renderWithView(<GuidesMenu />, richView());
     openMenu();
     const first = screen.getAllByRole("link")[0];
@@ -33,7 +33,7 @@ describe("the guides from the game", () => {
     expect(first?.textContent).toContain(say("guide.page.route-link"));
   });
 
-  test("[R-GUIDE-011] given the menu, when it is opened, then how the game was made is reachable, and no link leads to a credits or sources page", async () => {
+  test("[guide:generated-media-named-plainly] given the menu, when it is opened, then how the game was made is reachable, and no link leads to a credits or sources page", async () => {
     await renderWithView(<GuidesMenu />, engineView("scenario.ada"));
     openMenu();
     expect(screen.getByRole("link", { name: say("guide.page.made") }).getAttribute("href")).toBe(MADE_PATH);
@@ -41,11 +41,11 @@ describe("the guides from the game", () => {
     expect(hrefs.filter((href) => href.startsWith("/guides/credits") || href.startsWith("/guides/sources"))).toEqual([]);
   });
 
-  test("[R-GUIDE-005] given a life in play in the world, when the phone's Settings opens, then the guides menu is under About the game, beside the credits, and opens every guide", async () => {
+  test("[guide:guides-are-open-pages] given a life in play in the world, when the phone's Settings opens, then the guides menu is under About the game, beside the credits, and opens every guide", async () => {
     const store = createGameStore(fakeAuthority(engineView("scenario.ada")));
     await store.getState().refresh();
     render(<App store={store} />);
-    // The world is the game (R-WORLD-001): no page header, and the guides sit in the phone's Settings.
+    // The world is the game (world:world-fills-the-screen): no page header, and the guides sit in the phone's Settings.
     fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
     fireEvent.click(await waitFor(() => found('[data-app="settings"]')));
     const menu = await screen.findByRole("button", { name: say("guide.page.menu") });

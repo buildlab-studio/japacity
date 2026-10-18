@@ -1,4 +1,4 @@
-// Talk overheard in a place (city.md R-CITY-003, world.md R-WORLD-026): the place's own lines from
+// Talk overheard in a place (city:overheard-talk-from-view, world:street-talk-budget): the place's own lines from
 // content, and in Lagos the talk of news already delivered and routes already heard, all read from
 // the view. Abroad a place says only its own lines, never Lagos rumour. Chosen from the place's id,
 // the day and how many lines have been heard there today; it never makes a route heard.
@@ -12,7 +12,7 @@ export interface Heard {
   /** A words key: the place's own line, or the city's line about a story or a route. */
   key: string;
   params: Record<string, string>;
-  /** The words key naming who says it, where one person plainly does (`<line>.by`, world.md R-WORLD-026); else nobody named. */
+  /** The words key naming who says it, where one person plainly does (`<line>.by`, world:street-talk-budget); else nobody named. */
   by?: string;
 }
 
@@ -32,9 +32,9 @@ export function placeLines(place: string): string[] {
 /** A place's own short set in the city's words (city.words.ts), beside content's lines: the room abroad's landlord, radiator and neighbour. */
 const OWN_SET: Readonly<Record<string, readonly string[]>> = {
   "place.the-room": ["city.overheard.room.1", "city.overheard.room.2", "city.overheard.room.3", "city.overheard.room.4"],
-  // London's places on the Lagos mold (world.md R-WORLD-039; streets.md R-STREET-007's spirit): content's three lines each and these.
+  // London's places on the Lagos mold (world:ride-abroad-and-workplace; streets:peckham-talks-like-lagos's spirit): content's three lines each and these.
   ...londonSets(["rye-lane", "peckham-rye-station", "big-shop-uk", "care-home-uk", "ward-uk", "office-uk", "warehouse-uk", "church-uk", "test-centre-uk"]),
-  // Calgary's, Dubai's and Castel Volturno's places (world.md R-WORLD-039): a line beside content's three where
+  // Calgary's, Dubai's and Castel Volturno's places (world:ride-abroad-and-workplace): a line beside content's three where
   // content has them, four of the city's own where it has none, so every place says at least four.
   ...ownSets([
     ["place.calgary-north-east", 1],
@@ -94,7 +94,7 @@ export function heardHere(view: Pick<PlayerView, "news" | "routes"> & Partial<Pi
 }
 
 /**
- * Who says a line, as the bubble names them (R-WORLD-026): the name content gives beside the line, and the thing of the
+ * Who says a line, as the bubble names them (world:street-talk-budget): the name content gives beside the line, and the thing of the
  * place that is that person (Mama at the family house) so the words float over them; a line no one is named for has
  * neither, and floats over the resident nearest in the house's or the street's own voice.
  */

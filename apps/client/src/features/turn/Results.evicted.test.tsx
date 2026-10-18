@@ -1,4 +1,4 @@
-// The month the settlement is cleared (docs/rules/home.md R-HOME-003), on the real engine: the
+// The month the settlement is cleared (home:makoko-eviction-draw), on the real engine: the
 // results lead with it, in the money's red as a bill unpaid is, told straight.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -31,7 +31,7 @@ async function showResults(game: Game, lines: ReportLine[]) {
 }
 
 describe("the eviction month's results", () => {
-  test("[R-HOME-003] given Ada in Makoko the month the settlement is cleared, when the results show, then the first story line is the eviction with the cash lost, in red", async () => {
+  test("[home:makoko-eviction-draw] given Ada in Makoko the month the settlement is cleared, when the results show, then the first story line is the eviction with the cash lost, in red", async () => {
     const game = inMakoko();
     const { lines } = game.endTurn();
     expect(storyLines(lines)[0]?.key).toBe("line.home.evicted");
@@ -42,7 +42,7 @@ describe("the eviction month's results", () => {
     expect(first?.textContent).toContain(formatMoney(content.tuning.home.evictionLossNaira, "NGN"));
   });
 
-  test("[R-HOME-003] given an eviction month that also brought other news, when the story is ordered, then the eviction still comes first", () => {
+  test("[home:makoko-eviction-draw] given an eviction month that also brought other news, when the story is ordered, then the eviction still comes first", () => {
     const evicted: ReportLine = { key: "line.home.evicted-no-cash", params: { lost: { currency: "NGN", amount: 0 } }, tone: "bad", attention: true, counts: [] };
     const granted: ReportLine = { key: "line.route.granted", params: { route: "route.uk-masters" }, tone: "good", attention: true, counts: [] };
     const unpaid: ReportLine = { key: "line.obligation.missed", params: { obligation: "obligation.upkeep-makoko", amount: { currency: "NGN", amount: 100 } }, tone: "bad", attention: true, counts: [] };

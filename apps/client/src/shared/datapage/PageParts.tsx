@@ -1,4 +1,4 @@
-// The pieces under the travel data page (prologue.md R-PROLOGUE-014): a stat box, a figure over its label, and the one
+// The pieces under the travel data page (prologue:printed-page-hands-over): a stat box, a figure over its label, and the one
 // line that says what japacity is.
 import { Info } from "lucide-react";
 

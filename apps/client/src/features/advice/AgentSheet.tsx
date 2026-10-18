@@ -1,4 +1,4 @@
-// The agent's sheet in the world (docs/rules/advice.md R-ADVICE-005, 006, 009, 013). The world's
+// The agent's sheet in the world (advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells, advice:bad-news-told-straight, advice:chaser-runs-around-cheaper). The world's
 // card form, inside the sheet the shell opens for a tapped thing: who he is, his line with the fee,
 // what he says he does (knows someone inside, or will chase it for you) and which paper that brings
 // how many months sooner, the fee as the cost, the one tell that shows at once, and three free looks
@@ -18,13 +18,13 @@ import { tidyLines } from "../../shared/words/lines";
 import { hasWords, inMonths, nameOf, runningName, say, words } from "../../shared/words/text";
 import { afterPaying, plannedCosts } from "../../shared/words/cost";
 
-/** Every entry of the agent family starts with this (R-ADVICE-005). */
+/** Every entry of the agent family starts with this (advice:agent-kind-drawn-on-offer). */
 const FAMILY = "offer.agent-";
 const PROMISE = "offer.agent-promise";
 const PAPERS = "offer.agent-papers";
 const TAKE = "take";
 const DECLINE = "decline";
-/** A look's choice id starts with this; the same id in `signs` marks the look as done (R-ADVICE-006). */
+/** A look's choice id starts with this; the same id in `signs` marks the look as done (advice:scams-show-their-tells). */
 const LOOK = "look-";
 
 function inAgentFamily(entry: string): boolean {
@@ -41,13 +41,13 @@ function paramsOf(offer: Offer): Record<string, ReportParam> {
   return fee === null ? {} : { fee: { currency: "NGN", amount: fee } };
 }
 
-/** Who stands there: his drawn name (`<entry>.who.<n>.name`), or the entry's name when none was drawn (R-ADVICE-010). */
+/** Who stands there: his drawn name (`<entry>.who.<n>.name`), or the entry's name when none was drawn (advice:advisers-are-invented-people). */
 function whoOf(offer: Offer): string {
   const agent = offer.terms.agent;
   return typeof agent === "string" && hasWords(`${agent}.name`) ? nameOf(agent) : nameOf(offer.entry);
 }
 
-/** What he says he does, the paper he names ("" for none) and the months sooner (R-ADVICE-013). Null when the offer carries none. */
+/** What he says he does, the paper he names ("" for none) and the months sooner (advice:chaser-runs-around-cheaper). Null when the offer carries none. */
 function pitchOf(offer: Offer): { pitch: string; paper: string; months: number } | null {
   const { pitch, paper, months } = offer.terms;
   if (typeof pitch !== "string" || typeof paper !== "string" || typeof months !== "number") return null;
@@ -60,7 +60,7 @@ function deskOf(paper: string): string {
   return say(hasWords(key) ? key : "advice.desk");
 }
 
-/** R-ADVICE-013: his claim in plain words, then what it would bring forward and by how much. */
+/** advice:chaser-runs-around-cheaper: his claim in plain words, then what it would bring forward and by how much. */
 function Pitch({ offer }: { offer: Offer }) {
   const said = pitchOf(offer);
   if (said === null) return null;
@@ -89,7 +89,7 @@ function tellsOf(offer: Offer): string[] {
   return offer.signs.filter((sign) => !marks.has(sign));
 }
 
-/** The agent's version of the route's checklist, as item names (R-ADVICE-005). */
+/** The agent's version of the route's checklist, as item names (advice:agent-kind-drawn-on-offer). */
 function saysOf(offer: Offer): string[] {
   const says = offer.terms.says;
   const route = offer.terms.route;
@@ -98,7 +98,7 @@ function saysOf(offer: Offer): string[] {
 }
 
 /**
- * The lines of a reply the sheet shows: the agent's own and the papers' (R-ADVICE-006, 009), not the
+ * The lines of a reply the sheet shows: the agent's own and the papers' (advice:scams-show-their-tells, advice:bad-news-told-straight), not the
  * ledger's or the generic "you answered" line, which the month's report keeps. Every line when none is.
  */
 const TOLD = ["line.offer.agent-", "line.offer.look-", "line.document."];
@@ -157,10 +157,10 @@ function Lines({ lines, mark }: { lines: readonly ReportLine[]; mark: string }) 
   );
 }
 
-/** The one main button, with what is left after; then the way to say no (R-WORLD-006). */
+/** The one main button, with what is left after; then the way to say no (world:one-action-one-sheet). */
 function Choices({ offer, main, onChosen }: { offer: Offer; main: Offer["choices"]; onChosen: (lines: ReportLine[]) => void }) {
   const { choose, idle } = useChoose();
-  // The fee leaves cash first and the bank for the rest (decision 0014): what is left after counts both pockets and the month's plan, and a short fee says the gap (R-WORLD-006).
+  // The fee leaves cash first and the bank for the rest (decision 0014): what is left after counts both pockets and the month's plan, and a short fee says the gap (world:one-action-one-sheet).
   const view = useView();
   const plan = useGame((state) => state.plan);
   const fee = feeOf(offer) ?? 0;
@@ -217,7 +217,7 @@ function freshTells(found: Found | null): Set<string> {
   return new Set(tells.filter((tell) => !(found?.before ?? []).includes(tell)));
 }
 
-/** The free looks (R-ADVICE-006): each sends its choice, costs nothing, and shows what it found before any fee. */
+/** The free looks (advice:scams-show-their-tells): each sends its choice, costs nothing, and shows what it found before any fee. */
 function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; setFound: (found: Found) => void }) {
   const { choose, idle } = useChoose();
   const looks = looksOf(offer);
@@ -264,7 +264,7 @@ function Looks({ offer, found, setFound }: { offer: Offer; found: Found | null; 
   );
 }
 
-/** Each tell's icon (R-TEXT-008): the thing the player noticed, drawn. */
+/** Each tell's icon (text:show-then-tell): the thing the player noticed, drawn. */
 const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
   "cash-only": Banknote,
   guarantee: ShieldCheck,
@@ -277,7 +277,7 @@ const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
 };
 
 /**
- * A tell as the player notices it (R-ADVICE-006, R-TEXT-008): its icon, a few words and the warning mark, never his
+ * A tell as the player notices it (advice:scams-show-their-tells, text:show-then-tell): its icon, a few words and the warning mark, never his
  * whole sentence. A tell with no short words yet keeps the entry's own.
  */
 function Tell({ entry, tell, fresh }: { entry: string; tell: string; fresh: boolean }) {
@@ -293,7 +293,7 @@ function Tell({ entry, tell, fresh }: { entry: string; tell: string; fresh: bool
   );
 }
 
-/** An agent at the stop or the desk (R-ADVICE-005, 006). */
+/** An agent at the stop or the desk (advice:agent-kind-drawn-on-offer, advice:scams-show-their-tells). */
 export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const fee = feeOf(offer);
   const tells = tellsOf(offer);
@@ -333,7 +333,7 @@ export function AgentSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines
   );
 }
 
-/** The scammer's papers (R-ADVICE-005, 008): what he offers, in the entry's words, and nothing more. */
+/** The scammer's papers (advice:agent-kind-drawn-on-offer, advice:agent-loss-is-the-fee): what he offers, in the entry's words, and nothing more. */
 function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines: ReportLine[]) => void }) {
   const fee = feeOf(offer);
   return (
@@ -346,7 +346,7 @@ function PapersSheet({ offer, onChosen }: { offer: Offer; onChosen: (lines: Repo
 }
 
 /**
- * The overpromiser's promise (R-ADVICE-005): the card with the month he named. Its one
+ * The overpromiser's promise (advice:agent-kind-drawn-on-offer): the card with the month he named. Its one
  * choice, `wait`, would take the offer and close it, so the month he named would pass with no line
  * saying nothing moved. The card sends nothing; the sheet's close leaves it waiting.
  */

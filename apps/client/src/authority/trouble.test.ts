@@ -1,4 +1,4 @@
-// R-ENGINE-015: the online authority's failures, as the store keeps them for the card: what went wrong by its kind,
+// engine:browser-authority-for-dev-only: the online authority's failures, as the store keeps them for the card: what went wrong by its kind,
 // what it was for, and Retry sending the same again.
 import type { ServerRejection } from "@japacity/api";
 import { readdirSync, readFileSync } from "node:fs";
@@ -42,8 +42,8 @@ function scripted(views: (PlayerView | Error)[], replies: (Reply | ServerRejecti
   return { store, waits, sent };
 }
 
-describe("the store when a request brings no answer (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given the view fails three times, then it is asked for again twice with a pause, then the card shows with the kind and never the browser's words", async () => {
+describe("the store when a request brings no answer (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given the view fails three times, then it is asked for again twice with a pause, then the card shows with the kind and never the browser's words", async () => {
     const { store, waits } = scripted([loadFailed()]);
     await store.getState().refresh();
     expect(waits).toEqual([...VIEW_RETRY_MS]);
@@ -52,7 +52,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(JSON.stringify(store.getState())).not.toContain("Load failed");
   });
 
-  test("[R-ENGINE-015] given the view fails once and then answers, then no card shows", async () => {
+  test("[engine:browser-authority-for-dev-only] given the view fails once and then answers, then no card shows", async () => {
     const { store, waits } = scripted([loadFailed(), at(3)]);
     await store.getState().refresh();
     expect(waits).toEqual([VIEW_RETRY_MS[0]]);
@@ -60,7 +60,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(store.getState().view?.v).toBe(3);
   });
 
-  test("[R-ENGINE-015] [R-ACCOUNT-006] given a wall in front of the view, then the card says the session ended, and Retry once it is passed brings the view and closes the card", async () => {
+  test("[engine:browser-authority-for-dev-only] [account:session-is-secure-cookie] given a wall in front of the view, then the card says the session ended, and Retry once it is passed brings the view and closes the card", async () => {
     const wall = requestFailure("wall", "redirected (0)");
     const { store } = scripted([wall, wall, wall, at(5)]);
     await store.getState().refresh();
@@ -71,7 +71,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(store.getState().view?.v).toBe(5);
   });
 
-  test("[R-ACCOUNT-006] given a wall the page is already reloading for, then no card flashes and the view is not asked again: the login comes next", async () => {
+  test("[account:session-is-secure-cookie] given a wall the page is already reloading for, then no card flashes and the view is not asked again: the login comes next", async () => {
     const { store, waits } = scripted([requestFailure("wall", "an opaque redirect", true)]);
     await store.getState().refresh();
     expect(waits).toEqual([]);
@@ -79,7 +79,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(store.getState().failed).toBeNull();
   });
 
-  test("[R-ENGINE-015] given a focus, a page shown again and a nudge at once, then one request reads the view", async () => {
+  test("[engine:browser-authority-for-dev-only] given a focus, a page shown again and a nudge at once, then one request reads the view", async () => {
     let asked = 0;
     const store = createGameStore({
       view: () => {
@@ -92,7 +92,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(asked).toBe(1);
   });
 
-  test("[R-ENGINE-015] given a command that brings no answer, then the card shows over the sheet, the plan is kept, and Retry sends the same command on the same version and hands its answer to the first sender", async () => {
+  test("[engine:browser-authority-for-dev-only] given a command that brings no answer, then the card shows over the sheet, the plan is kept, and Retry sends the same command on the same version and hands its answer to the first sender", async () => {
     const { store, sent } = scripted([at(3)], [loadFailed(), { ok: true, view: at(4), lines: [] }]);
     await store.getState().refresh();
     store.getState().setSlot(0, { activity: "activity.learn-tech", param: null });
@@ -112,7 +112,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(store.getState().view?.v).toBe(4);
   });
 
-  test("[R-ENGINE-015] given a retried command comes back stale, then it most likely landed the first time: the latest view shows and nothing is refused", async () => {
+  test("[engine:browser-authority-for-dev-only] given a retried command comes back stale, then it most likely landed the first time: the latest view shows and nothing is refused", async () => {
     const stale: ServerRejection = { ok: false, code: "stale", detail: "moved on" };
     const { store } = scripted([at(3), at(4)], [requestFailure("server", "502"), stale]);
     await store.getState().refresh();
@@ -125,7 +125,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(store.getState().view?.v).toBe(4);
   });
 
-  test("[R-ENGINE-015] given Begin brings no answer, then the card shows for the life, Begin waits, and Retry starts the life", async () => {
+  test("[engine:browser-authority-for-dev-only] given Begin brings no answer, then the card shows for the life, Begin waits, and Retry starts the life", async () => {
     let tries = 0;
     const store = createGameStore(
       { view: () => Promise.resolve(at(1)), send: () => Promise.reject(new Error("unused")) },
@@ -157,7 +157,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(store.getState().view?.v).toBe(1);
   });
 
-  test("[R-ENGINE-015] given a fault that is no request's, then the game could not start says it as ours, never the error's own text", async () => {
+  test("[engine:browser-authority-for-dev-only] given a fault that is no request's, then the game could not start says it as ours, never the error's own text", async () => {
     const { store } = scripted([new Error("Cannot read properties of undefined (reading 'v')")]);
     await store.getState().refresh();
     expect(store.getState().failed).toBe(say("ui.failed.why.server"));
@@ -165,7 +165,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     expect(failureWords(requestFailure("network", "Load failed"))).toBe("the server did not answer");
   });
 
-  test("[R-ENGINE-015] the card's words, by kind, are a person's, from the words tables", () => {
+  test("[engine:browser-authority-for-dev-only] the card's words, by kind, are a person's, from the words tables", () => {
     expect([say("ui.trouble.network"), say("ui.trouble.wall"), say("ui.trouble.server"), say("ui.trouble.retry"), say("ui.trouble.reload"), say("ui.loading.slow")]).toEqual([
       "The server did not answer.",
       "Your session ended: open the game again.",
@@ -176,7 +176,7 @@ describe("the store when a request brings no answer (R-ENGINE-015)", () => {
     ]);
   });
 
-  test("[R-ENGINE-015] no catch in the authority is empty: each says what follows the failure", () => {
+  test("[engine:browser-authority-for-dev-only] no catch in the authority is empty: each says what follows the failure", () => {
     const folder = import.meta.dirname;
     const files = readdirSync(folder).filter((name) => /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name));
     const empty: string[] = [];

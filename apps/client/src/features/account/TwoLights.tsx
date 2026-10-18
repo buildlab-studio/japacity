@@ -1,4 +1,4 @@
-// The two lights (docs/rules/account.md R-ACCOUNT-031):
+// The two lights (account:two-lights-and-wink-lines):
 // one bulb for the lives at home, one for the lives abroad, on one wire hanging from the top edge over the scene. Each
 // glows with its share; sparks run along the wire toward abroad, and now and then one comes back. Home never goes
 // dark. It is a picture of everyone, never a task: nothing to tap, nothing to switch, no reward, so a line about the
@@ -7,8 +7,8 @@
 // Drawn to stay light on a phone: the wire, the bulbs and the words are one still SVG; the glows and the sparks are
 // small layers moved only by transform and opacity, which the browser's compositor runs off the page's own thread.
 // The glows breathe slowly, and each flickers as a spark reaches it; there is no render loop. Reduced motion holds
-// everything still and draws no sparks (world.md R-WORLD-023). The caption under the counts is 12 px,
-// as text.md R-TEXT-008 asks of a line that is not a label over a value.
+// everything still and draws no sparks (world:motions-under-half-second). The caption under the counts is 12 px,
+// as text:show-then-tell asks of a line that is not a label over a value.
 import { useEffect, useRef, useState } from "react";
 
 import { motionReduced } from "../../shared/ui/motion";
@@ -97,7 +97,7 @@ function glowOf(shareBp: number): { alpha: number; radius: number; glass: number
 
 /**
  * The glow's light: a warm radial fall-off from the bulb, `alpha` at its heart. The one fill every
- * light glows with: the two lights here and the dedication's lights (R-ACCOUNT-032, R-ACCOUNT-033), so the game keeps
+ * light glows with: the two lights here and the dedication's lights (account:dedication-page-and-its-doors, account:name-a-light-for-yours), so the game keeps
  * its one glow.
  */
 export function glowFill(alpha: number): string {

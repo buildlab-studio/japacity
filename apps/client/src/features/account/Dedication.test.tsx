@@ -1,5 +1,5 @@
-// The dedication page (docs/rules/account.md R-ACCOUNT-032) and naming a light of the player's
-// own in place (R-ACCOUNT-033); world.md R-WORLD-023 for the stillness. The server is a stand-in handed to the shared
+// The dedication page (account:dedication-page-and-its-doors) and naming a light of the player's
+// own in place (account:name-a-light-for-yours); world:motions-under-half-second for the stillness. The server is a stand-in handed to the shared
 // lights module, as the shell's would be.
 import type { SharedLight } from "@japacity/api";
 import { DEDICATION_NICKNAME, DEDICATION_SHORT } from "@japacity/content";
@@ -75,7 +75,7 @@ async function opened(year = 2026): Promise<HTMLElement> {
 }
 
 describe("the page", () => {
-  test("[R-ACCOUNT-032] [R-CITY-021] given the water read, then the page holds the count and on the water tonight, the owner's light with soksonjr under it, content's short line, Sun re o., the one button and a close", async () => {
+  test("[account:dedication-page-and-its-doors] [city:credits-screen-attributions] given the water read, then the page holds the count and on the water tonight, the owner's light with soksonjr under it, content's short line, Sun re o., the one button and a close", async () => {
     const sent = server({ count: 312, lights: lights(["Grandma", "Chidi"], 20) });
     const page = await opened();
     expect(sent).toEqual([{ method: "GET", path: "/api/dedication/lights" }]);
@@ -95,7 +95,7 @@ describe("the page", () => {
     expect(page.querySelector("[data-dedication-close]")?.className).toContain("fixed");
   });
 
-  test("[R-ACCOUNT-032] given the count, then it is the true number, never rounded, one light said as one", async () => {
+  test("[account:dedication-page-and-its-doors] given the count, then it is the true number, never rounded, one light said as one", async () => {
     server({ count: 4_812, lights: lights([], 3) });
     const many = render(<Dedication open onClose={() => undefined} />);
     await act(async () => {
@@ -107,7 +107,7 @@ describe("the page", () => {
     expect((await opened()).querySelector("[data-dedication-count] p")?.textContent).toBe("1 light");
   });
 
-  test("[R-ACCOUNT-032] given approved and bare lights, then each approved light carries its name under its bulb and the rest are bare; the top strings are bulbs and the rest plain dots with no glow and no filter", async () => {
+  test("[account:dedication-page-and-its-doors] given approved and bare lights, then each approved light carries its name under its bulb and the rest are bare; the top strings are bulbs and the rest plain dots with no glow and no filter", async () => {
     server({ count: 60, lights: lights(["Grandma", "Aunty Ronke", "Chidi"], 57) });
     const page = await opened();
     expect([...page.querySelectorAll("[data-light-name]")].map((name) => name.textContent)).toEqual(["Grandma", "Aunty Ronke", "Chidi"]);
@@ -126,7 +126,7 @@ describe("the page", () => {
     expect(page.querySelectorAll("svg[data-dedication-strings]")).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-032] given more lights than a phone draws, then at most 240 are drawn while the count says the true number", async () => {
+  test("[account:dedication-page-and-its-doors] given more lights than a phone draws, then at most 240 are drawn while the count says the true number", async () => {
     server({ count: 5_000, lights: lights([], 240) });
     const page = await opened();
     expect(MOST_DRAWN).toBe(240);
@@ -135,7 +135,7 @@ describe("the page", () => {
     expect(page.querySelector("[data-dedication-count] p")?.textContent).toBe("5,000 lights");
   });
 
-  test("[R-ACCOUNT-032] given named and bare lights on the strings, then a named light takes every other place with a bare one between and every other name sits a row lower, so two names are never neighbours", () => {
+  test("[account:dedication-page-and-its-doors] given named and bare lights on the strings, then a named light takes every other place with a bare one between and every other name sits a row lower, so two names are never neighbours", () => {
     const named = Array.from({ length: 6 }, (_, at) => ({ id: `light.named-${String(at)}`, name: `Name ${String(at)}` }));
     const bare = Array.from({ length: 10 }, (_, at) => ({ id: `light.bare-${String(at)}` }));
     const placed = placeLights([...named, ...bare], null, false).filter((one) => one.kind === "bulb");
@@ -148,7 +148,7 @@ describe("the page", () => {
     expect(allNamed.map((one) => one.light.id)).toEqual(named.map((one) => one.id));
   });
 
-  test("[R-ACCOUNT-032] given the account's own light among the lights, then it is never drawn on the strings: it hangs beside the owner's, and with it at most 240 are drawn", () => {
+  test("[account:dedication-page-and-its-doors] given the account's own light among the lights, then it is never drawn on the strings: it hangs beside the owner's, and with it at most 240 are drawn", () => {
     const listed = [{ id: "light.mine" }, ...lights([], 300)];
     const placed = placeLights(listed, "light.mine", true);
     expect(placed.some((one) => one.light.id === "light.mine")).toBe(false);
@@ -159,7 +159,7 @@ describe("the page", () => {
     expect(placed.slice(35).every((one) => one.kind === "dot")).toBe(true);
   });
 
-  test("[R-ACCOUNT-032] given no server, then the page shows the owner's light, the strings bare, no count, and the button closed with its line", async () => {
+  test("[account:dedication-page-and-its-doors] given no server, then the page shows the owner's light, the strings bare, no count, and the button closed with its line", async () => {
     setDedicationServer(null);
     const page = await opened();
     expect(page.dataset.water).toBe("out");
@@ -171,7 +171,7 @@ describe("the page", () => {
     expect(page.querySelector("[data-dedication-out]")?.textContent).toBe("The water is out of reach right now.");
   });
 
-  test("[R-ACCOUNT-032] given a read that fails, then the page is the same as offline", async () => {
+  test("[account:dedication-page-and-its-doors] given a read that fails, then the page is the same as offline", async () => {
     server({ count: 0, lights: [] }, { get: () => Promise.reject(new Error("network")) });
     const page = await opened();
     await act(async () => {
@@ -182,7 +182,7 @@ describe("the page", () => {
     expect(page.querySelector("[data-dedication-out]")?.textContent).toBe("The water is out of reach right now.");
   });
 
-  test("[R-ACCOUNT-032] given the page open, when close is tapped, then it closes", () => {
+  test("[account:dedication-page-and-its-doors] given the page open, when close is tapped, then it closes", () => {
     server({ count: 0, lights: [] });
     const closed = vi.fn();
     render(<Dedication open onClose={closed} />);
@@ -190,7 +190,7 @@ describe("the page", () => {
     expect(closed).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-ACCOUNT-032] [R-WORLD-023] given reduced motion, then the page's lights hold still; otherwise they breathe by opacity alone", async () => {
+  test("[account:dedication-page-and-its-doors] [world:motions-under-half-second] given reduced motion, then the page's lights hold still; otherwise they breathe by opacity alone", async () => {
     server({ count: 3, lights: lights(["Grandma"], 2) });
     moving(true);
     const still = render(<Dedication open onClose={() => undefined} />);
@@ -220,7 +220,7 @@ function type(page: HTMLElement, name: string, from = "", to = ""): void {
 }
 
 describe("light one for yours", () => {
-  test("[R-ACCOUNT-033] given the button, when it is tapped, then the unlit light beside the owner's is named in place: two boxes drawn alike with the label inside, no sheet, no fieldset or legend, and Light it waits for a name", async () => {
+  test("[account:name-a-light-for-yours] given the button, when it is tapped, then the unlit light beside the owner's is named in place: two boxes drawn alike with the label inside, no sheet, no fieldset or legend, and Light it waits for a name", async () => {
     server({ count: 2, lights: lights([], 2) });
     const page = await opened();
     fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
@@ -237,7 +237,7 @@ describe("light one for yours", () => {
     expect(problems(page)).toEqual([]);
   });
 
-  test("[R-ACCOUNT-033] given the limits at each edge, then four words light and five say so; 1900 and this year light, 1899 and next year say so; an end before the start says so", async () => {
+  test("[account:name-a-light-for-yours] given the limits at each edge, then four words light and five say so; 1900 and this year light, 1899 and next year say so; an end before the start says so", async () => {
     server({ count: 0, lights: [] });
     const page = await opened(2026);
     fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
@@ -257,7 +257,7 @@ describe("light one for yours", () => {
     expect(problems(page)).toEqual([]);
   });
 
-  test("[R-ACCOUNT-033] given a name and years, when Light it is pressed, then the light is sent, shows at once from the reply beside the maintainer's with its name and years, the count takes it in, and the line says its name shows once looked over", async () => {
+  test("[account:name-a-light-for-yours] given a name and years, when Light it is pressed, then the light is sent, shows at once from the reply beside the maintainer's with its name and years, the count takes it in, and the line says its name shows once looked over", async () => {
     const sent = server({ count: 2, lights: lights([], 2) });
     const page = await opened();
     fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
@@ -278,7 +278,7 @@ describe("light one for yours", () => {
     expect(page.querySelector("[data-dedication-name]")?.compareDocumentPosition(own)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  test("[R-ACCOUNT-033] given the account's own light, when Put it out is pressed, then it is sent, the light goes, the count lets it go and the button returns", async () => {
+  test("[account:name-a-light-for-yours] given the account's own light, when Put it out is pressed, then it is sent, the light goes, the count lets it go and the button returns", async () => {
     const sent = server({ count: 3, lights: [{ id: "light.mine" }, ...lights([], 2)], mine: MINE });
     const page = await opened();
     expect(page.querySelector("[data-own-light]")).not.toBeNull();
@@ -294,7 +294,7 @@ describe("light one for yours", () => {
     expect(within(page).getByRole("button", { name: "Light one for yours" })).not.toBeNull();
   });
 
-  test("[R-ACCOUNT-033] given the server refuses the light with the shared check's problem, then the problem shows and nothing is lit", async () => {
+  test("[account:name-a-light-for-yours] given the server refuses the light with the shared check's problem, then the problem shows and nothing is lit", async () => {
     server({ count: 0, lights: [] }, { put: () => Promise.resolve({ ok: false, code: "bad-light", detail: "x", problems: ["name-words"] }) });
     const page = await opened();
     fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
@@ -307,7 +307,7 @@ describe("light one for yours", () => {
     expect(page.querySelector("[data-own-light]")).toBeNull();
   });
 
-  test("[R-ACCOUNT-033] given the server cannot be reached when the light is sent, then the page says the water is out of reach and nothing is lit", async () => {
+  test("[account:name-a-light-for-yours] given the server cannot be reached when the light is sent, then the page says the water is out of reach and nothing is lit", async () => {
     server({ count: 0, lights: [] }, { put: () => Promise.reject(new Error("network")) });
     const page = await opened();
     fireEvent.click(within(page).getByRole("button", { name: "Light one for yours" }));
@@ -320,7 +320,7 @@ describe("light one for yours", () => {
     expect(page.querySelector("[data-own-light]")).toBeNull();
   });
 
-  test("[R-ACCOUNT-033] given an approved light of the account's own, then it still hangs beside the maintainer's with its name", async () => {
+  test("[account:name-a-light-for-yours] given an approved light of the account's own, then it still hangs beside the maintainer's with its name", async () => {
     server({ count: 1, lights: [{ id: "light.mine", name: "Mama Nkechi" }], mine: { ...MINE, approved: true } });
     const page = await opened();
     expect(page.querySelector("[data-own-light]")?.textContent).toBe("Mama Nkechi1951 to 2024");

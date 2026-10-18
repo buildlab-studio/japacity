@@ -18,7 +18,7 @@ function pitchOf(aim: ReturnType<typeof aimShot>): number {
 const SHOT: Shot = { centre: [2, 0, -3], far: 30, near: 9, farPitch: 55, nearPitch: 40, turn: 20, yaw: 180, width: 24 };
 
 describe("the place's camera", () => {
-  test("[R-WORLD-009] given every built place and its room, on a phone upright and sideways, a tablet and a desktop, when the place is entered, then the whole of it shows: its width end to end and every thing on screen", () => {
+  test("[world:camera-always-raised] given every built place and its room, on a phone upright and sideways, a tablet and a desktop, when the place is entered, then the whole of it shows: its width end to end and every thing on screen", () => {
     const places = builtPlaces().flatMap(({ folder, file }) => [{ folder, file }, ...(folder === "family-house" ? [{ folder: "family-house room", file: roomOf(file, HOUSE) }] : [])]);
     expect(places.length).toBeGreaterThanOrEqual(10);
     for (const { folder, file } of places) {
@@ -37,7 +37,7 @@ describe("the place's camera", () => {
     }
   });
 
-  test("[R-WORLD-009] given a shot's width, when the screen is narrower, then the whole view stands further back, and the width's ends land just inside the screen's edges", () => {
+  test("[world:camera-always-raised] given a shot's width, when the screen is narrower, then the whole view stands further back, and the width's ends land just inside the screen's edges", () => {
     expect(fitDistance(24, SCREENS.phone)).toBeGreaterThan(fitDistance(24, SCREENS.desktop));
     const shot: Shot = { ...SHOT, far: 0 };
     const camera = cameraAt(aimShot(shot, WHOLE, { x: 0, z: 0 }, SCREENS.phone), SCREENS.phone);
@@ -48,7 +48,7 @@ describe("the place's camera", () => {
     expect(wholeDistance(SHOT, SCREENS.desktop)).toBe(SHOT.far);
   });
 
-  test("[R-WORLD-009] given the whole view and the close view, when each is aimed, then the camera is raised at the shot's pitch, never at eye level and never straight down, and close looks just ahead of the character", () => {
+  test("[world:camera-always-raised] given the whole view and the close view, when each is aimed, then the camera is raised at the shot's pitch, never at eye level and never straight down, and close looks just ahead of the character", () => {
     const character = { x: 5, z: 4 };
     const whole = aimShot(SHOT, WHOLE, character, SCREENS.phone);
     expect(pitchOf(whole)).toBeCloseTo(SHOT.farPitch, 6);
@@ -66,7 +66,7 @@ describe("the place's camera", () => {
     }
   });
 
-  test("[R-WORLD-009] given a pinch released anywhere, when it comes to rest, then the view is the whole place or close on the character and nowhere between", () => {
+  test("[world:camera-always-raised] given a pinch released anywhere, when it comes to rest, then the view is the whole place or close on the character and nowhere between", () => {
     for (let zoom = 0; zoom <= 1.0001; zoom += 0.01) expect([0, 1]).toContain(snapZoom(zoom));
     expect(snapZoom(0.49)).toBe(0);
     expect(snapZoom(0.5)).toBe(1);
@@ -74,7 +74,7 @@ describe("the place's camera", () => {
     expect(snapZoom(1)).toBe(1);
   });
 
-  test("[R-WORLD-009] given one finger turning the view, when it turns past the place's limit either way, then the view stops at the limit", () => {
+  test("[world:camera-always-raised] given one finger turning the view, when it turns past the place's limit either way, then the view stops at the limit", () => {
     expect(clampTurn(SHOT, 12)).toBe(12);
     expect(clampTurn(SHOT, 45)).toBe(SHOT.turn);
     expect(clampTurn(SHOT, -45)).toBe(-SHOT.turn);
@@ -83,7 +83,7 @@ describe("the place's camera", () => {
     expect(turned).toEqual(limit);
   });
 
-  test("[R-WORLD-009] given a place file with a shot, the shot is the file's; given one without, the shot looks ahead of the start the way the start faces, raised", () => {
+  test("[world:camera-always-raised] given a place file with a shot, the shot is the file's; given one without, the shot looks ahead of the start the way the start faces, raised", () => {
     const [{ file } = { file: null }] = builtPlaces();
     if (file === null) throw new Error("No place is built");
     const stage = stageOf(file);
@@ -97,7 +97,7 @@ describe("the place's camera", () => {
   });
 });
 
-describe("a room seen down its length (R-WORLD-029)", () => {
+describe("a room seen down its length (world:room-seen-down-its-length)", () => {
   const rooms = builtPlaces().filter(({ file }) => {
     const stage = stageOf(file);
     const shot = shotOf(stage);
@@ -106,7 +106,7 @@ describe("a room seen down its length (R-WORLD-029)", () => {
 
   // The homes at home are wide floors seen straight down their length (places/homes.test.ts); the
   // room abroad keeps its long side up the screen.
-  test("[R-WORLD-029] given the rooms whose long side runs up the screen, when the whole view is aimed, then it looks in from no higher than the room pitch, and the room abroad is one of them while the offices and the wide homes are not", () => {
+  test("[world:room-seen-down-its-length] given the rooms whose long side runs up the screen, when the whole view is aimed, then it looks in from no higher than the room pitch, and the room abroad is one of them while the offices and the wide homes are not", () => {
     const names = rooms.map(({ folder }) => folder);
     expect(names).toContain("the-room");
     for (const home of ["home-family-house", "home-room-house", "home-hostel-house"]) expect(names).not.toContain(home);
@@ -114,7 +114,7 @@ describe("a room seen down its length (R-WORLD-029)", () => {
     for (const { file } of rooms) expect(roomShot(shotOf(stageOf(file)), stageOf(file), file.scope).farPitch).toBeLessThanOrEqual(ROOM_PITCH);
   });
 
-  test("[R-WORLD-029] given each such room on a phone held upright and a small phone, when the whole view is aimed, then every corner of its floor is on screen, and on the phone a figure standing at its start reads taller than from the file's own pitch", () => {
+  test("[world:room-seen-down-its-length] given each such room on a phone held upright and a small phone, when the whole view is aimed, then every corner of its floor is on screen, and on the phone a figure standing at its start reads taller than from the file's own pitch", () => {
     const cut: string[] = [];
     const small: string[] = [];
     expect(rooms.length).toBeGreaterThan(0);
@@ -143,11 +143,11 @@ describe("a room seen down its length (R-WORLD-029)", () => {
 describe("the eased-in room's distance", () => {
   const corner = { width: 4.4, pitch: 42, floor: [-6.475, 1.6, -3.2, 6.475] as [number, number, number, number] };
 
-  test("[R-WORLD-029] [R-WORLD-009] given the family house's corner eased in on a phone held upright, when the camera's distance is set, then it is the width's fit alone, the room's length running off the screen by design", () => {
+  test("[world:room-seen-down-its-length] [world:camera-always-raised] given the family house's corner eased in on a phone held upright, when the camera's distance is set, then it is the width's fit alone, the room's length running off the screen by design", () => {
     expect(roomDistance(corner, 390 / 844)).toBe(fitDistance(4.4, 390 / 844));
   });
 
-  test("[R-WORLD-029] [R-WORLD-009] given the same corner on a laptop's wide screen, when the camera's distance is set, then it stands back far enough for the floor along the view to stand inside the lens's height, so the bed at the room's edge stays on screen", () => {
+  test("[world:room-seen-down-its-length] [world:camera-always-raised] given the same corner on a laptop's wide screen, when the camera's distance is set, then it stands back far enough for the floor along the view to stand inside the lens's height, so the bed at the room's edge stays on screen", () => {
     const wide = roomDistance(corner, 1280 / 800);
     expect(wide).toBeGreaterThan(fitDistance(4.4, 1280 / 800));
     expect(wide).toBe(depthDistance(6.475 - 1.6, 42));
@@ -155,7 +155,7 @@ describe("the eased-in room's distance", () => {
 });
 
 describe("the turn's snap", () => {
-  test("[R-WORLD-009] given a wide home's turn released anywhere, when it comes to rest, then it is the nearest quarter and nowhere between; the button eases the short way to a kept quarter", () => {
+  test("[world:camera-always-raised] given a wide home's turn released anywhere, when it comes to rest, then it is the nearest quarter and nowhere between; the button eases the short way to a kept quarter", () => {
     expect(snapTurn(0)).toBe(0);
     expect(snapTurn(44)).toBe(0);
     expect(snapTurn(46)).toBe(90);
@@ -169,7 +169,7 @@ describe("the turn's snap", () => {
     expect(turnToward(90, 2)).toBe(180);
   });
 
-  test("[R-WORLD-009] given the tilt released anywhere, when it comes to rest, then it is the normal view or the view from above, never between", () => {
+  test("[world:camera-always-raised] given the tilt released anywhere, when it comes to rest, then it is the normal view or the view from above, never between", () => {
     expect(snapTilt(0.2)).toBe(0);
     expect(snapTilt(0.49)).toBe(0);
     expect(snapTilt(0.5)).toBe(1);

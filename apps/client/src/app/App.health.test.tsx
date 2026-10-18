@@ -17,7 +17,7 @@ const health = content.tuning.health;
 /**
  * Ada with wellbeing pushed under the run-down line, played until the warning stands. Resting lifts her over the
  * line until her four months of living run out and the unpaid upkeep pulls her under. Decision
- * 0013 (R-HOME-012): at home the living is not charged as the month turns, so her months are played with it
+ * 0013 (home:living-by-hand): at home the living is not charged as the month turns, so her months are played with it
  * charged whole, as the simulation's relief tests charge it, for the unpaid months to pull her under.
  */
 function runDownView(): PlayerView {
@@ -33,7 +33,7 @@ function runDownView(): PlayerView {
 }
 
 describe("the run-down warning", () => {
-  test("[R-HEALTH-007] given wellbeing under the line two months running, then the banner names it with wellbeing against the line", async () => {
+  test("[health:view-shows-health-warning] given wellbeing under the line two months running, then the banner names it with wellbeing against the line", async () => {
     const view = runDownView();
     await renderWithView(<RunDownBanner />, view);
     const banner = screen.getByRole("alert");
@@ -42,16 +42,16 @@ describe("the run-down warning", () => {
     expect(within(banner).getByText(say("ui.health.run-down-figure", { quality: nameOf(WELLBEING), value: wellbeing, line: health.runDownBelow }))).toBeDefined();
   });
 
-  test("[R-HEALTH-007] given the warning does not stand, then there is no banner", async () => {
+  test("[health:view-shows-health-warning] given the warning does not stand, then there is no banner", async () => {
     await renderWithView(<RunDownBanner />, engineView());
     expect(document.querySelector("[data-run-down]")).toBeNull();
   });
 
-  test("[R-HEALTH-007] given the warning stands, then the banner is on the phone's home and above every app, whichever app is open", async () => {
+  test("[health:view-shows-health-warning] given the warning stands, then the banner is on the phone's home and above every app, whichever app is open", async () => {
     const store = createGameStore(fakeAuthority(runDownView()));
     await store.getState().refresh();
     render(<App store={store} />);
-    // The world is the game (R-WORLD-001): the life's screens are the phone's apps (R-WORLD-018).
+    // The world is the game (world:world-fills-the-screen): the life's screens are the phone's apps (world:phone-rises-over-scene).
     fireEvent.click(await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 }));
     await waitFor(() => expect(document.querySelector("[data-phone-warnings] [data-run-down]")).not.toBeNull());
     for (const app of ["calendar", "bank", "japa", "chats", "news"]) {
@@ -65,7 +65,7 @@ describe("the run-down warning", () => {
 });
 
 describe("the reasons a slot is held", () => {
-  test("[R-TURN-009] given each lock reason content uses, then each has words of its own", () => {
+  test("[turn:slots-can-be-locked] given each lock reason content uses, then each has words of its own", () => {
     const reasons = new Set<string>(["side-job", "illness", "village-burial", "court-date"]);
     for (const entry of Object.values(content.offer)) {
       for (const choice of entry.choices) for (const effect of choice.effects) if (effect.type === "turn/lock") reasons.add(effect.why);

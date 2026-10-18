@@ -1,4 +1,4 @@
-// Which authority the build runs (R-ENGINE-015). With VITE_SERVER_URL set the
+// Which authority the build runs (engine:browser-authority-for-dev-only). With VITE_SERVER_URL set the
 // server is the authority. Without it the in-browser authority runs, which
 // exists for development, tests and offline play; a production
 // build runs it only when told to in so many words.

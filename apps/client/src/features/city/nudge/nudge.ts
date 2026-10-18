@@ -1,4 +1,4 @@
-// The nudge line's choice (docs/rules/world.md R-WORLD-003): one thing to notice, from the view, in
+// The nudge line's choice (world:nudge-says-one-thing): one thing to notice, from the view, in
 // this order: an open set piece or interview question; an open offer; the chapter's next undone step
 // in its own nudge words; a report line waiting on the player; else the month's end.
 import { content } from "@japacity/content";
@@ -20,7 +20,7 @@ import type { Nudge } from "../../../shared/world/contract";
 export type NudgeAbout = "setpiece" | "offer" | "step" | "report" | "dues" | "goal" | "end";
 
 /**
- * Where a chapter's step is done (R-WORLD-003): the things that move it, as `<place>:<thing>` in
+ * Where a chapter's step is done (world:nudge-says-one-thing): the things that move it, as `<place>:<thing>` in
  * the order to prefer when more than one stands in the place, and the stop to ride to when none
  * does. `go` null: the step is done by ending the month.
  */
@@ -73,7 +73,7 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.decision-day.tb": CLINIC_DESK,
   "chapter.decision-day.applied": VISA_DESK,
   "chapter.decision-day.granted": MONTH_END,
-  // R-CHAPTER-009: the file and decision day of each way out of the player's own effort.
+  // chapter:chapters-follow-lean-route: the file and decision day of each way out of the player's own effort.
   "chapter.build-the-file-care.tenure": MONTH_END,
   "chapter.build-the-file-care.verification": onThePhone("activity.request-verification"),
   "chapter.build-the-file-care.sponsor": HUB_DESK,
@@ -109,7 +109,7 @@ const STEP_WAYS: Record<string, StepWay> = {
   "chapter.decision-day-gulf.granted": MONTH_END,
   "chapter.send-off.departed": { go: "place.airport-lagos", at: ["place.airport-lagos:gate"] },
   // Abroad the steps are reached through `at` in the place the character stands. In London the job is got at the
-  // notice or the agency in Peckham and also at each workplace's own door, desk or clock-in (world.md R-WORLD-039), and
+  // notice or the agency in Peckham and also at each workplace's own door, desk or clock-in (world:ride-abroad-and-workplace), and
   // money home is sent from the phone or the transfer shop on Rye Lane.
   "chapter.landing.room": { go: "place.the-room", at: ["place.the-room:post"] },
   "chapter.landing.job": {
@@ -125,7 +125,7 @@ const STEP_WAYS: Record<string, StepWay> = {
       "place.warehouse-uk:clock-in",
       "place.office-uk:desk",
       // Calgary's jobs notice and its workplaces' doors, Dubai's typing centre and the site's post and trolley, the vans at
-      // Castel Volturno's roundabout and the gangmaster's table in the fields (world.md R-WORLD-039).
+      // Castel Volturno's roundabout and the gangmaster's table in the fields (world:ride-abroad-and-workplace).
       "place.calgary-north-east:jobs-notice",
       "place.warehouse-ca:clock-in",
       "place.care-home-ca:reception",
@@ -137,7 +137,7 @@ const STEP_WAYS: Record<string, StepWay> = {
       "place.farm-it:table",
     ],
   },
-  // Money home from the country's counter (the room's phone only calls home now, R-CITY-010): Rye Lane's transfer shop,
+  // Money home from the country's counter (the room's phone only calls home now, city:places-stage-their-acts): Rye Lane's transfer shop,
   // the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop.
   "chapter.landing.request": { go: "place.rye-lane", at: ["place.rye-lane:transfer", "place.calgary-north-east:transfer", "place.deira:exchange", "place.castel-volturno:call-shop"] },
   "chapter.landing.file": MONTH_END,
@@ -153,9 +153,9 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
   const step = stepOf(view);
   if (view.chapter.current === null || step === null) return null;
   // A life's own way to its first steps, where its archetype has one the table does not name.
-  // While a life in Makoko's room has no job, the racks beside it come first (R-ACTIVITY-017).
+  // While a life in Makoko's room has no job, the racks beside it come first (activity:fish-racks-at-makoko).
   if (racksAtHand(view)) return RACKS_WAY;
-  // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (R-CHAPTER-009).
+  // The first chapter's "Look into it" reads the page of the life's own way out, so a nurse leans to care work and not to the master's she read of first (chapter:chapters-follow-lean-route).
   // It comes before the life's own way to its first steps: that way names the hub's desk with no act, and a tap on the
   // nudge then offered the desk's chips (the course, the adviser's fee) in place of the free page.
   const route = ownRoute(view);
@@ -176,7 +176,7 @@ export function stepWayOf(view: StepView & Partial<Pick<PlayerView, "obligations
 
 /**
  * The stop the chapter's first undone step is taken at, from the tables, so the map never keeps shut the place the
- * nudge sends the player to (R-WORLD-015). Null when the step is the month's end.
+ * nudge sends the player to (world:map-is-painted-lagos). Null when the step is the month's end.
  */
 export function stepStopOf(chapter: Pick<PlayerView["chapter"], "current" | "items">): string | null {
   const step = chapter.items.find((item) => !item.met)?.id;
@@ -188,17 +188,17 @@ export function itemWayOf(chapter: string, item: string): StepWay | null {
   return STEP_WAYS[`${chapter}.${item}`] ?? null;
 }
 
-/** The fish racks beside the room in Makoko, else the board in town that lists them too (R-ACTIVITY-017). */
+/** The fish racks beside the room in Makoko, else the board in town that lists them too (activity:fish-racks-at-makoko). */
 const RACKS_WAY: StepWay = { go: "place.makoko", at: ["place.makoko:racks", "place.yaba:jobs", "place.ojuelegba:hub"] };
 
-/** Where held funds go back: the bank's counter (R-ROUTE-020). */
+/** Where held funds go back: the bank's counter (route:departure-pays-flight). */
 const HELD_FUNDS_WAY: StepWay = { go: "place.olokun-office", at: ["place.olokun-office:clerk"] };
 
 type StepView = Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "scenario" | "qualities" | "pockets" | "routes" | "documents" | "job" | "activities" | "place">>;
 
 /**
  * Where the landing chapter's steps are taken in each country abroad, so the nudge's way goes to the country's own stop
- * and not London's (world.md R-WORLD-039): the job at Peckham's notice, Calgary's strip mall, Dubai's site (the
+ * and not London's (world:ride-abroad-and-workplace): the job at Peckham's notice, Calgary's strip mall, Dubai's site (the
  * contract's job is held there from the first morning) or the roundabout at Castel Volturno where the vans come; money
  * home at Rye Lane, the strip mall, Deira or the roundabout's call shop.
  */
@@ -244,14 +244,14 @@ export function stepThingHere(way: StepWay, here: string | null, things: readonl
   return null;
 }
 
-/** The paper a step waits on, so a started step can name the wait (R-WORLD-003). */
+/** The paper a step waits on, so a started step can name the wait (world:nudge-says-one-thing). */
 const STEP_PAPER: Record<string, string> = {
   "chapter.build-the-file.passport": "document.passport",
   "chapter.build-the-file.transcript": "document.transcript",
   // The English result is a paper too: once sat, the nudge says when it comes.
   "chapter.build-the-file.english": "document.english-test",
   "chapter.decision-day.tb": "document.tb-certificate",
-  // R-CHAPTER-009: the papers of the other files.
+  // chapter:chapters-follow-lean-route: the papers of the other files.
   "chapter.build-the-file-care.verification": "document.nmcn-verification",
   "chapter.build-the-file-care.licence": "document.nursing-licence",
   "chapter.build-the-file-talent.endorsement": "document.endorsement",
@@ -267,7 +267,7 @@ const STEP_PAPER: Record<string, string> = {
 };
 
 /**
- * A step whose route can refuse it and make the player wait before asking again (R-ENDORSE-002): the endorsement. While
+ * A step whose route can refuse it and make the player wait before asking again (route-gates:endorsement-decided-by-draw): the endorsement. While
  * the wait runs the step names when it opens again, never the act it shuts.
  */
 const STEP_REFUSAL: Record<string, string> = {
@@ -294,7 +294,7 @@ const NEED_WAYS: Readonly<Record<string, StepWay>> = {
 
 /**
  * The first need a shut step's act is missing that has its own words and way (`<own>.needs.<quality>`), or null. A need
- * whose act is already in the month's plan, or carries on in it ("Ongoing", R-WORLD-007), is passed over for the next
+ * whose act is already in the month's plan, or carries on in it ("Ongoing", world:month-acts-carry-on), is passed over for the next
  * (so "Take the coding course at the hub" never stands while the course runs); with every need's act
  * planned, the plan is set and the step says to end the month (`<own>.needs.planned`).
  */
@@ -328,7 +328,7 @@ export const STEP_ACTIVITY: Readonly<Record<string, string>> = {
   "chapter.decision-day.tb": "activity.tb-test",
   "chapter.decision-day.applied": "activity.apply-for-visa",
   "chapter.landing.job": "activity.job-hunt",
-  // R-CHAPTER-009: the acts of the other files.
+  // chapter:chapters-follow-lean-route: the acts of the other files.
   "chapter.build-the-file-care.verification": "activity.request-verification",
   "chapter.build-the-file-care.sponsor": "activity.find-sponsor",
   "chapter.build-the-file-care.licence": "activity.renew-licence",
@@ -362,7 +362,7 @@ const STEP_ACTIVITY_ALSO: Record<string, readonly string[]> = {
 
 type NudgeView = Pick<PlayerView, "setpiece" | "interview" | "offers" | "chapter" | "report"> & Partial<Pick<PlayerView, "documents" | "routes" | "month" | "activities" | "pockets" | "place" | "obligations" | "job" | "scenario" | "qualities" | "goals" | "plan" | "rates">>;
 
-/** A result sealed until the world's next morning (R-CLOCK-032, decision 0011): "Comes in the morning". */
+/** A result sealed until the world's next morning (clock:envelopes-show-real-waits, decision 0011): "Comes in the morning". */
 export const MORNING = "ui.wait.morning";
 
 /** The nudge that sends a waiting life to the board for better pay. */
@@ -371,13 +371,13 @@ export const BETTER_JOB = "ui.nudge.better-job";
 const HELD_FUNDS = "held-funds";
 
 const NURSE_JOB = "activity.job-nurse";
-/** The nurse's certification as a waiting-month act (R-ACTIVITY-013). */
+/** The nurse's certification as a waiting-month act (activity:waiting-months-build-profile). */
 const CERTIFICATION = "nurse-certification";
 
 /**
- * The waiting months' acts by profile (R-ACTIVITY-013): the act a life with nothing else to do is pointed at, where it is
- * offered and not yet planned. The nurse's certification is one again: the care file counts the certificate (R-SPONSOR-005
- *), so the waiting months name it while she can pay it, and its gap while she cannot (R-WORLD-003).
+ * The waiting months' acts by profile (activity:waiting-months-build-profile): the act a life with nothing else to do is pointed at, where it is
+ * offered and not yet planned. The nurse's certification is one again: the care file counts the certificate (route-gates:care-route-needs-verification
+ *), so the waiting months name it while she can pay it, and its gap while she cannot (world:nudge-says-one-thing).
  */
 /** What a waiting-month act reads of the view. */
 type MeanwhileView = Partial<Pick<PlayerView, "activities" | "qualities" | "documents" | "job">>;
@@ -387,7 +387,7 @@ const MEANWHILE: readonly { act: string; fits: (view: MeanwhileView) => boolean 
   { act: "open-source", fits: (view) => qualityIn(view, "quality.tech") >= 40 },
   { act: "tech-posts", fits: (view) => qualityIn(view, "quality.tech") >= 30 },
   // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
-  // ward is the clinic, never the hub's board. The act stays on the hub's board alone (R-CITY-010).
+  // ward is the clinic, never the hub's board. The act stays on the hub's board alone (city:places-stage-their-acts).
   { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 && view.job?.id !== NURSE_JOB },
 ];
 
@@ -415,7 +415,7 @@ type Said = { key: string; params?: Record<string, string | number>; way?: StepW
 
 /**
  * The waiting-month act's nudge: its own words while the naira held pays it, else its gap and a way to the money, never the
- * act (R-WORLD-003: a step the player cannot pay says the shortfall). Null: no act fits, or no words.
+ * act (world:nudge-says-one-thing: a step the player cannot pay says the shortfall). Null: no act fits, or no words.
  */
 function meanwhileSaid(view: NudgeView, planned: readonly string[], has: (key: string) => boolean): Said | null {
   const act = meanwhileOf(view, planned);
@@ -445,7 +445,7 @@ function shortfall(view: NudgeView, option: NonNullable<NudgeView["activities"]>
 }
 
 const CARE_ROUTE = "route.uk-care";
-/** The care file and its decision day (R-CHAPTER-009). */
+/** The care file and its decision day (chapter:chapters-follow-lean-route). */
 const CARE_CHAPTERS: ReadonlySet<string> = new Set(["chapter.build-the-file-care", "chapter.decision-day-care"]);
 const TENURE = "tenure";
 const LICENCE_STEP = "chapter.build-the-file-care.licence";
@@ -521,12 +521,12 @@ function talentDetour(view: CareView, step: string): string | null {
   return null;
 }
 
-/** True when the route's window is what shuts the act: the news has closed the way (R-ROUTE-005). */
+/** True when the route's window is what shuts the act: the news has closed the way (route:closed-window-blocks-applying). */
 function closedBy(option: NonNullable<NudgeView["activities"]>[number]): boolean {
   return option.missing.some((requirement) => requirement.type === "var/min" && WINDOW_VARS.has(requirement.var));
 }
 
-/** The routes' window variables, from content (R-ROUTE-005): the road has none. */
+/** The routes' window variables, from content (route:closed-window-blocks-applying): the road has none. */
 const WINDOW_VARS: ReadonlySet<string> = new Set(Object.values(content.route).flatMap((route) => (route?.window === null || route?.window === undefined ? [] : [route.window])));
 
 /** A closed way says so plainly and opens Japa, where the same is said: no desk is offered an act it cannot take. */
@@ -551,7 +551,7 @@ const TALENT_COSTS: Readonly<Record<string, readonly string[]>> = {
 
 /**
  * The talent step's gap: the naira the file's costs from here need at the bank now, with its charge, against what is
- * held (cost.ts, R-WALLET-009). The hunt planned says so; else the gap, whose way is the jobs board. Null: no gap.
+ * held (cost.ts, wallet:foreign-fee-payment-order). The hunt planned says so; else the gap, whose way is the jobs board. Null: no gap.
  */
 function talentShort(view: NudgeView, own: string, stepKey: string, planned: readonly string[], has: (key: string) => boolean): Said | null {
   const acts = TALENT_COSTS[stepKey];
@@ -604,14 +604,14 @@ const FILE_PAPERS: readonly { item: string; step: string }[] = [
   { item: "passport", step: PASSPORT_STEP },
   { item: "english", step: ENGLISH_STEP },
 ];
-/** The sponsor step's words while the care window is shut (R-WORLD-003). */
+/** The sponsor step's words while the care window is shut (world:nudge-says-one-thing). */
 const SPONSOR_SHUT = "chapter.build-the-file-care.item.sponsor.shut";
 
 /**
  * The way the shut sponsor step's nudge opens: no sponsor takes a nurse from abroad while the care
  * window is shut, so the tap goes to the file's own next paper that can be got now, the passport, then the English test;
  * never the decision day's papers, which run out (the TB test lasts six months, the police paper twelve: taken last)
- * and wait at the visa centre the map opens with that chapter (R-WORLD-015); else the waiting-month act she can pay, else
+ * and wait at the visa centre the map opens with that chapter (world:map-is-painted-lagos); else the waiting-month act she can pay, else
  * the month's end. Null: the sponsor step is not shut, or this is not the care file.
  */
 function sponsorShutWay(view: CareView & MeanwhileView & Partial<Pick<PlayerView, "pockets">>, step: string, planned: readonly string[]): StepWay | null {
@@ -660,22 +660,22 @@ function nairaDues(view: NudgeView): number {
  */
 function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: readonly string[], has: (key: string) => boolean): { key: string; params?: Record<string, string | number>; way?: StepWay } | null {
   const month = view.month ?? 0;
-  // An act done at once this month (R-ACTIVITY-015) waits on the month's end as a planned one does; the view marks it `done`.
+  // An act done at once this month (activity:now-acts-and-month-acts) waits on the month's end as a planned one does; the view marks it `done`.
   const done: readonly string[] = (view.activities ?? []).filter((option) => option.done).map((option) => option.id);
   const planned: readonly string[] = [...plannedOnly, ...done];
   // A now-act's "planned" words would read wrong once it is done: its own done words first, then the generic line.
   const doneKey = (key: string): string | null => (has(`${key}.done`) ? `${key}.done` : has("ui.nudge.done-now") ? "ui.nudge.done-now" : null);
-  // A refusal's wait comes first: the step cannot be taken again until it is out (R-ENDORSE-002).
+  // A refusal's wait comes first: the step cannot be taken again until it is out (route-gates:endorsement-decided-by-draw).
   const wait = refusalWait(view, stepKey);
   if (wait !== null && has(`${own}.wait`)) return { key: `${own}.wait`, params: { when: inMonths(wait, month) } };
   const paper = STEP_PAPER[stepKey];
-  // A result sealed until the morning (R-CLOCK-032) says when it comes, and nothing else to do for it.
+  // A result sealed until the morning (clock:envelopes-show-real-waits) says when it comes, and nothing else to do for it.
   if (paper !== undefined && sealedTillMorning(view, paper) && has(MORNING)) return { key: MORNING };
   if (paper !== undefined) {
     const held = view.documents?.find((document) => document.id === paper);
     if (held !== undefined && held.onItsWay !== null) {
       // A hunt planned while working says so; a wait is a saving month: the board's better job
-      // comes before "work and save"; else the archetype's own act for the wait (R-ACTIVITY-013).
+      // comes before "work and save"; else the archetype's own act for the wait (activity:waiting-months-build-profile).
       if (planned.includes("activity.job-hunt") && (view.job?.id ?? null) !== null) return { key: "ui.nudge.hunt-planned" };
       if (betterJobOnBoard(view) && has(BETTER_JOB)) return { key: BETTER_JOB };
       const meanwhile = meanwhileSaid(view, planned, has);
@@ -683,7 +683,7 @@ function startedKey(view: NudgeView, own: string, stepKey: string, plannedOnly: 
       if (has(`${own}.started`)) return { key: `${own}.started`, params: { when: inMonths(held.onItsWay, month) } };
     }
   }
-  // The trader's shop planned at her stall (R-ACTIVITY-016): the job step has no hunt to name, so its own planned words say it.
+  // The trader's shop planned at her stall (activity:trader-opens-own-shop): the job step has no hunt to name, so its own planned words say it.
   if (stepKey === "chapter.find-your-feet.job" && planned.includes("activity.open-shop") && has(`${own}.planned.open-shop`)) return { key: `${own}.planned.open-shop` };
   const activity = STEP_ACTIVITY[stepKey];
   if (activity !== undefined) {
@@ -767,7 +767,7 @@ const MAKOKO = "place.makoko";
 /** The stops whose jobs board takes a hunt (BOARD_WAY's places). */
 const BOARD_STOPS: readonly string[] = BOARD_WAY.at.map((entry) => entry.split(":")[0] ?? "");
 
-/** True when the stop is where the character stands, or close enough to walk to (R-WORLD-017's walking distance). */
+/** True when the stop is where the character stands, or close enough to walk to (world:ride-sheet-shows-fares's walking distance). */
 function onFoot(reach: Reach, to: string): boolean {
   if (to === reach.here) return true;
   const from = reach.stops.find((stop) => stop.id === reach.here)?.position;
@@ -775,8 +775,8 @@ function onFoot(reach: Reach, to: string): boolean {
   return from !== undefined && there !== undefined && withinMetres(from, there, content.tuning.city.ride.walkMetres, content.tuning.city.ride.lonMetresPerE3);
 }
 
-/** The cheapest paid ride this month, in kobo: the way's flat fare under the month's fares (R-PLACE-010). */
-/** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (R-STREET-010). */
+/** The cheapest paid ride this month, in kobo: the way's flat fare under the month's fares (place:rides-between-city-places). */
+/** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (streets:parcels-shipped-home). */
 export const OFFER_PLACES: Readonly<Record<string, string>> = { "offer.family-send-off": "place.family-house", "offer.parcel-shipped": "place.bode-thomas" };
 
 /** True when every open offer waits in a place that is a ride away and the naira held pays no fare. */
@@ -799,7 +799,7 @@ function cheapestFare(view: NudgeView): number {
 /**
  * When nothing can be paid, a free step: the step's stop needs a fare the naira held cannot
  * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home whenever home is not
- * here, however far (a life may always walk home, R-WORLD-017), then the racks for a
+ * here, however far (a life may always walk home, world:ride-sheet-shows-fares), then the racks for a
  * life in Makoko with no job, a job on a board within reach, and at home the month's end. Null when the step can be
  * reached.
  */
@@ -814,7 +814,7 @@ export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: st
   if (reach.home !== null && reach.home !== reach.here && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
   if (jobless && board.includes(RACKS) && onFoot(reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
   if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
-  // At home with nothing free near: the month's end is the step, never a ride that cannot be paid (R-WORLD-003). Away
+  // At home with nothing free near: the month's end is the step, never a ride that cannot be paid (world:nudge-says-one-thing). Away
   // from home the walk home comes first, above.
   if (has("ui.nudge.broke.wait")) return { key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } };
   return null;
@@ -833,21 +833,21 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   const visaAtStake = gap !== null && (obligations ?? []).some((owed) => owed.entry === "obligation.tuition" && owed.missed >= 1 && owed.due > 0);
   if (visaAtStake && has("ui.nudge.dues-visa")) return { key: "ui.nudge.dues-visa", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   // An offer answered in a place of the city (the parcel at the cargo office) does not lead while nothing can be paid and
-  // that place is a ride away: the nudge would send a broke life to a fare it cannot pay, every month (R-WORLD-003).
+  // that place is a ride away: the nudge would send a broke life to a fare it cannot pay, every month (world:nudge-says-one-thing).
   if (view.offers.length > 0 && !(reach !== undefined && offersOutOfReach(view, reach))) return { key: "ui.nudge.offer", about: "offer" };
   if (gap !== null) return { key: "ui.nudge.dues", params: { due: formatMoney(gap.due, gap.currency), held: formatMoney(gap.held, gap.currency) }, about: "dues" };
   // Nothing can be paid and the step's stop is a ride away: a free step on foot comes first.
   const free = reach === undefined ? null : freeStep(view, reach, has);
   if (free !== null) return free;
-  // While a life in Makoko's room has no job, the racks beside it come before any other step (R-ACTIVITY-017).
-  // Applied at once (R-ACTIVITY-015) counts as planned: the racks' nudge then says the wait, not the racks again.
+  // While a life in Makoko's room has no job, the racks beside it come before any other step (activity:fish-racks-at-makoko).
+  // Applied at once (activity:now-acts-and-month-acts) counts as planned: the racks' nudge then says the wait, not the racks again.
   const huntTaken = planned.includes("activity.job-hunt") || (view.activities ?? []).some((option) => option.id === "activity.job-hunt" && option.done);
   if (racksAtHand(view)) return { key: huntTaken ? `${FIRST_CHAPTER}.item.job.started` : RACKS_STEP, about: "step" };
   const step = stepOf(view);
   if (view.chapter.current !== null && step !== null) {
     const care = CARE_CHAPTERS.has(view.chapter.current);
     // In the months on the ward, the certification comes first while she can sit it: the care file counts it
-    // (R-SPONSOR-005). Short of its fee, the gap.
+    // (route-gates:care-route-needs-verification). Short of its fee, the gap.
     if (care && step === TENURE && meanwhileOf(view, planned) === CERTIFICATION) {
       const said = meanwhileSaid(view, planned, has);
       if (said !== null) return { ...said, about: "step" };
@@ -869,7 +869,7 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
     // The life's own way to the step has its own words (the nurse's clinic, the trade's motor park).
     const way = ownWay(view);
     if (way !== null && has(`${own}.nudge.${way.key}`)) return { key: `${own}.nudge.${way.key}`, about: "step" };
-    // "Look into it" names the page of the life's own way out (R-CHAPTER-009), read in Japa, one tap away wherever she
+    // "Look into it" names the page of the life's own way out (chapter:chapters-follow-lean-route), read in Japa, one tap away wherever she
     // stands, never a ride to the hub: `.needs` words open Japa, as the needs do.
     const route = view.chapter.current === FIRST_CHAPTER && step === "known" ? ownRoute(view) : null;
     if (route !== null && has(`${own}.own.needs`)) return { key: `${own}.own.needs`, params: { route: has(`${route}.short`) ? say(`${route}.short`) : lowerFirst(nameOf(route)) }, about: "step" };
@@ -882,13 +882,13 @@ export function nudgeOf(view: NudgeView, has: (key: string) => boolean = hasWord
   if (!newsRead && view.report !== null && tidyLines(view.report.lines).some(asksAttention)) return { key: "ui.nudge.report", about: "report" };
   // A chapter with every item met closes when the month ends: say that, never a goal's act over it.
   if (view.chapter.current !== null && has("ui.nudge.chapter-done")) return { key: "ui.nudge.chapter-done", about: "end" };
-  // With no chapter step left, the nearest open goal names its first act (R-GOAL-003).
+  // With no chapter step left, the nearest open goal names its first act (goal:view-shows-goal-items).
   const goal = view.goals?.open.find((open) => open.items.some((item) => !item.met) && has(`${open.id}.first`));
   if (goal !== undefined) return { key: `${goal.id}.first`, about: "goal" };
   return { key: "ui.nudge.end", about: "end" };
 }
 
-/** The night's nudge (clock.md R-CLOCK-033; world.md R-WORLD-025; decision 0011). */
+/** The night's nudge (clock:game-day-on-real-time; world:sleep-ends-the-month; decision 0011). */
 export const NIGHT = "ui.nudge.night";
 
 /**

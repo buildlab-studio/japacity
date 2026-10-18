@@ -1,4 +1,4 @@
-// The invite card in the lively dress (docs/rules/pair.md R-PAIR-007, person.md R-PEOPLE-010; design page 13 section 2):
+// The invite card in the lively dress (pair:invite-card-contents, person:invite-fills-a-slot; design page 13 section 2):
 // a white card with the looking line as a sticker chip, the character's face sticker beside the maker's heading (never on
 // the card, which carries no look to the friend), the pressed yellow button for the one action and a ghost button to take
 // the card back. What it shows and what it sends are its own tests'
@@ -29,12 +29,12 @@ async function maker() {
 }
 
 describe("the invite card in the lively dress", () => {
-  test("[R-PAIR-007] given the card maker, when it shows, then the character's face sticker stands beside the heading and not on the card, the card is a white lively card with its looking line a sticker chip, and Make the card the one pressed yellow button", async () => {
+  test("[pair:invite-card-contents] given the card maker, when it shows, then the character's face sticker stands beside the heading and not on the card, the card is a white lively card with its looking line a sticker chip, and Make the card the one pressed yellow button", async () => {
     const { form } = await maker();
     fireEvent.change(within(form).getByLabelText(say("ui.people.invite.fill")), { target: { value: "who-codes" } });
     const card = form.querySelector<HTMLElement>("[data-invite-card]");
     expect(card?.className).toContain("lively-card");
-    // The card is the friend's, and no look travels with it (R-PAIR-007): its face is the maker's, beside the heading.
+    // The card is the friend's, and no look travels with it (pair:invite-card-contents): its face is the maker's, beside the heading.
     expect(card?.querySelector("[data-face-sticker]")).toBeNull();
     const heading = within(form).getByRole("heading", { name: say("ui.people.invite.title") });
     // No look kept on this device: the face is one of the door's looks, picked from the character's name.
@@ -46,7 +46,7 @@ describe("the invite card in the lively dress", () => {
     expect(yellow[0]?.textContent).toBe(say("ui.people.invite.make"));
   });
 
-  test("[R-PAIR-007] [R-PEOPLE-010] given a look kept from the door and the card out, then the maker wears that look's face, the card out carries none, the slot says it is out once, and Take the card back is a ghost button", async () => {
+  test("[pair:invite-card-contents] [person:invite-fills-a-slot] given a look kept from the door and the card out, then the maker wears that look's face, the card out carries none, the slot says it is out once, and Take the card back is a ghost button", async () => {
     keepPerson({ look: "chr_kemi", name: "Kemi", archetype: "developer" });
     const { form, authority } = await maker();
     expect(within(form).getByRole("heading", { name: say("ui.people.invite.title") }).parentElement?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe("chr_kemi");

@@ -1,6 +1,6 @@
-// "Ask someone who went", shut in the first month (docs/rules/world.md R-WORLD-006, advice.md R-ADVICE-003): its
+// "Ask someone who went", shut in the first month (world:one-action-one-sheet, advice:someone-who-went-answers-free): its
 // reason never reads "One of: With a partner or A few people who can help". The way to the word of someone who
-// went is a person abroad or a wide enough circle, said in one plain line, the band never a figure (R-TEXT-005). Real
+// went is a person abroad or a wide enough circle, said in one plain line, the band never a figure (text:bands-not-figures). Real
 // content, a developer's first month from sixteen.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -25,7 +25,7 @@ function developerView() {
 }
 
 describe("the word of someone who went, shut for now", () => {
-  test("[R-WORLD-006] [R-ADVICE-003] given a developer's first month, when the shut reason of Ask someone who went is read, then it is one plain line: someone you know abroad, or a wide enough circle", () => {
+  test("[world:one-action-one-sheet] [advice:someone-who-went-answers-free] given a developer's first month, when the shut reason of Ask someone who went is read, then it is one plain line: someone you know abroad, or a wide enough circle", () => {
     const view = developerView();
     const option = view.activities.find((each) => each.id === FRIEND);
     expect(option?.allowed).toBe(false);
@@ -35,7 +35,7 @@ describe("the word of someone who went, shut for now", () => {
     expect(needsWords(missing, { routes: view.routes }).toLowerCase()).toContain(LINE.toLowerCase());
   });
 
-  test("[R-WORLD-006] given the act's need on the real content, when it is read, then it is the person abroad or the network, so the line says both and nothing else", () => {
+  test("[world:one-action-one-sheet] given the act's need on the real content, when it is read, then it is the person abroad or the network, so the line says both and nothing else", () => {
     const need = content.activity[FRIEND]?.requires.find((requirement) => requirement.type === "any");
     expect(need?.type === "any" ? need.of.map((inner) => inner.type).sort() : []).toEqual(["people/bond", "quality/min"]);
     expect(requirementSentence(need!)).toBe(LINE);

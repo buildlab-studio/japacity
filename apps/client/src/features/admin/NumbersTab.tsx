@@ -1,6 +1,6 @@
-// The Numbers tab (analytics.md R-ANALYTICS-009, 012, 013): the figures an
+// The Numbers tab (analytics:dashboard-shows-fixed-list, analytics:admin-stats-for-admins-only, analytics:session-split-by-command-gaps): the figures an
 // investor asks for, live from `GET /api/admin/stats`, as plain tables. The
-// server made every division and hid every small count (R-ANALYTICS-010); the
+// server made every division and hid every small count (analytics:small-counts-shown-as-fewer); the
 // page only lays them out.
 import type { Regional, Returned, Shown, Stats, StatsPeriod } from "@japacity/api";
 

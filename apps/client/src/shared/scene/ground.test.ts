@@ -7,7 +7,7 @@ import { builtPlaces } from "./placeFile.testing";
 import { groundGeometry, groundOf } from "./world";
 
 describe("faces at one height", () => {
-  test("[R-WORLD-012] given every built place, when its floor is drawn, then each strip's top stands where the place check reads it, and no strip fights the ground or another strip it overlaps", () => {
+  test("[world:faces-never-share-height] given every built place, when its floor is drawn, then each strip's top stands where the place check reads it, and no strip fights the ground or another strip it overlaps", () => {
     for (const { file } of builtPlaces()) {
       const stage = stageOf(file);
       const tops = stripTops(stage.roads);
@@ -20,7 +20,7 @@ describe("faces at one height", () => {
     }
   });
 
-  test("[R-WORLD-012] given a place's floor, when it is drawn, then it draws with a depth offset, so a model's floor laid on it wins the pixel", () => {
+  test("[world:faces-never-share-height] given a place's floor, when it is drawn, then it draws with a depth offset, so a model's floor laid on it wins the pixel", () => {
     const [{ file } = { file: null }] = builtPlaces();
     if (file === null) throw new Error("No place is built");
     const mesh = groundOf(stageOf(file)).children[0] as Mesh;

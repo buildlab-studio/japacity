@@ -1,5 +1,5 @@
-// The dedication in a real browser (docs/rules/world.md R-WORLD-036; account.md R-ACCOUNT-032 and R-ACCOUNT-033;
-// moderation.md R-MODERATION-021; city.md R-CITY-021): in a life, the lantern canoe on the open map of Lagos opens the
+// The dedication in a real browser (world:lantern-canoe-on-map; account:dedication-page-and-its-doors and account:name-a-light-for-yours;
+// moderation:dedication-lights-await-approval; city:credits-screen-attributions): in a life, the lantern canoe on the open map of Lagos opens the
 // page and folds nothing; offline the water is out of reach. Online, against a server faked here with one store shared
 // by every page, an account lights a light and sees its name, a second account sees one more bare light and no name,
 // the admin approves it on the admin page, the second account then sees the name, and Put it out takes it away. Five
@@ -52,7 +52,7 @@ async function openTheMap(page: Page): Promise<void> {
   await page.waitForTimeout(500);
 }
 
-test("[R-WORLD-036] [R-ACCOUNT-032] in a life, the lantern canoe on the open map is no stop, opens the dedication page and folds nothing; offline the water is out of reach", async ({ page }) => {
+test("[world:lantern-canoe-on-map] [account:dedication-page-and-its-doors] in a life, the lantern canoe on the open map is no stop, opens the dedication page and folds nothing; offline the water is out of reach", async ({ page }) => {
   test.setTimeout(180_000);
   // The day's paint stood in (a development build's `?paint=`), so the first picture is the canoe by day whatever the hour.
   await page.goto(`/${LIVED}&paint=day`);
@@ -99,7 +99,7 @@ test("[R-WORLD-036] [R-ACCOUNT-032] in a life, the lantern canoe on the open map
   expect((await mapProbe(page))?.phase).toBe("open");
 });
 
-test("[R-CITY-021] [R-ACCOUNT-032] five taps on Settings' version line open the dedication page, offline; four do not", async ({ page }) => {
+test("[city:credits-screen-attributions] [account:dedication-page-and-its-doors] five taps on Settings' version line open the dedication page, offline; four do not", async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto(`/${LIVED}`);
   await startReadyLife(page);
@@ -122,8 +122,8 @@ test("[R-CITY-021] [R-ACCOUNT-032] five taps on Settings' version line open the 
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
-// Online: the dedication's routes faked here as the server answers them (server.md R-SERVER-045, moderation.md
-// R-MODERATION-021), one store for every page, so what one account lights another reads.
+// Online: the dedication's routes faked here as the server answers them (server:dedication-routes, moderation.md
+// moderation:dedication-lights-await-approval), one store for every page, so what one account lights another reads.
 // ---------------------------------------------------------------------------------------------------------------------
 
 interface Kept {
@@ -231,7 +231,7 @@ async function context(browser: Browser) {
   return browser.newContext({ ...devices["Pixel 7"], ...SIZE });
 }
 
-test("[R-ACCOUNT-032] [R-ACCOUNT-033] [R-MODERATION-021] [R-WORLD-036] online: an account lights a light from the canoe's page and sees its name; another sees one more bare light and no name until the admin approves it; Put it out takes it away", async ({ browser }) => {
+test("[account:dedication-page-and-its-doors] [account:name-a-light-for-yours] [moderation:dedication-lights-await-approval] [world:lantern-canoe-on-map] online: an account lights a light from the canoe's page and sees its name; another sees one more bare light and no name until the admin approves it; Put it out takes it away", async ({ browser }) => {
   test.setTimeout(300_000);
   const kept = water();
   const ada = await (await context(browser)).newPage();

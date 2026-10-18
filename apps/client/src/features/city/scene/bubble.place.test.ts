@@ -1,4 +1,4 @@
-// No line over a face (docs/rules/world.md R-WORLD-026, R-WORLD-005): a
+// No line over a face (world:street-talk-budget, world:things-are-tappable-models): a
 // person's words stand clear of every head, every thing's name and every mark in the scene, not placed from the speaker
 // alone, with the tail still ending over the speaker; and a thing's dot stays on its thing while only its name is lifted
 // clear, never far. Proved over every place the game draws, seen whole as the scene first shows it on a phone.
@@ -62,7 +62,7 @@ const SCENES = builtPlaces().map(({ folder, file }) => {
 });
 
 describe("no line over a face", () => {
-  test("[R-WORLD-026] given every place seen whole with its crowd at its fullest, every resident and person a speaker in turn, every thing's dot shown and no one named or one person named for an ask, when a bubble is placed, then its tail is never longer than a bubble's height and still ends over the speaker, and it covers no head and no name wherever any spot within that reach is clear of them; where none is, it stands over the crowd with its tail at the longest", () => {
+  test("[world:street-talk-budget] given every place seen whole with its crowd at its fullest, every resident and person a speaker in turn, every thing's dot shown and no one named or one person named for an ask, when a bubble is placed, then its tail is never longer than a bubble's height and still ends over the speaker, and it covers no head and no name wherever any spot within that reach is clear of them; where none is, it stands over the crowd with its tail at the longest", () => {
     const missed: string[] = [];
     let covering = 0;
     let placed = 0;
@@ -76,8 +76,8 @@ describe("no line over a face", () => {
         if (at === null) continue;
         dots.push({ x: at.x, y: at.y - MARK_HIT / 2 + 6, width: 12, height: 12 });
         anchors.push(at);
-        // A person's name shows while they hold an ask; every other thing is its dot (R-WORLD-005). Nothing speaks in a
-        // place's first seconds, while the first entry names everything (R-WORLD-026).
+        // A person's name shows while they hold an ask; every other thing is its dot (world:things-are-tappable-models). Nothing speaks in a
+        // place's first seconds, while the first entry names everything (world:street-talk-budget).
         if (isPerson(thing)) persons.push({ id: thing.id, spot, name: { x: at.x, y: at.y - MARK_HIT, width: cityWords(thing.label).length * 8 + 24, height: 26 } });
       }
       const soft: Rect[] = anchors.map(dotRect);
@@ -92,7 +92,7 @@ describe("no line over a face", () => {
         const foot = laid[0]?.shown === true ? laid[0].foot : null;
         const clear: Rect[] = [...heads, ...(named === null || foot === null ? [] : [{ left: named.name.x - named.name.width / 2, right: named.name.x + named.name.width / 2, top: foot - named.name.height, bottom: foot }])];
         for (const [x, z] of scene.people) {
-          // A named person who speaks gives their name way to their words (R-WORLD-005).
+          // A named person who speaks gives their name way to their words (world:things-are-tappable-models).
           if (named !== null && x === named.spot[0] && z === named.spot[1]) continue;
           const tip = projected(scene.camera, x, LABEL_Y, z);
           const over = onPixels(tip);
@@ -129,13 +129,13 @@ describe("no line over a face", () => {
     // catalog's busiest streets and the family house seen whole); never more than one in three.
     expect(covering * 3).toBeLessThanOrEqual(placed);
     // A near spot over a dot beats a far one (a dot can be tapped again a moment later, a face is read): the bubble hands
-    // a tap on a dot through (R-WORLD-005), and covers one in at most three placements in five.
+    // a tap on a dot through (world:things-are-tappable-models), and covers one in at most three placements in five.
     expect(onDots * 5).toBeLessThanOrEqual(placed * 3);
   });
 });
 
 describe("a thing's mark on its thing", () => {
-  test("[R-WORLD-005] given every place seen whole and every thing named at once, as a place's first entry names them, when the names are laid out, then none covers another or a dot, and none stands more than two rows over its own dot", () => {
+  test("[world:things-are-tappable-models] given every place seen whole and every thing named at once, as a place's first entry names them, when the names are laid out, then none covers another or a dot, and none stands more than two rows over its own dot", () => {
     for (const scene of SCENES) {
       const dots: LabelBox[] = [];
       const names: LabelBox[] = [];
@@ -157,7 +157,7 @@ describe("a thing's mark on its thing", () => {
     }
   });
 
-  test("[R-WORLD-005] given the family house's names stacked, when they are laid out, then the dots never move, no name stands more than two rows over its dot, none covers another or a dot, and a name with no room within two rows waits unshown", () => {
+  test("[world:things-are-tappable-models] given the family house's names stacked, when they are laid out, then the dots never move, no name stands more than two rows over its dot, none covers another or a dot, and a name with no room within two rows waits unshown", () => {
     // Six names bunched in one column, each over its dot, as the parlour's Mama, Tobi, the sofa and the water drum stood.
     const names: LabelBox[] = [330, 324, 318, 312, 306, 300].map((y, index) => ({ x: 160 + index * 6, y, width: 90, height: 24 }));
     const dots: LabelBox[] = names.map((name) => ({ x: name.x, y: name.y + 22, width: 12, height: 12 }));

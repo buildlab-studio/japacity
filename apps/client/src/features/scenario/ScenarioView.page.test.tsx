@@ -1,4 +1,4 @@
-// The door's third screen, Where you live, and the page after Begin (prologue.md R-PROLOGUE-013, 014):
+// The door's third screen, Where you live, and the page after Begin (prologue:front-door-three-screens, prologue:printed-page-hands-over):
 // before Begin nothing is drawn or lived yet, so nothing is printed: no data page, no family, no money or japacity
 // figure; the strip at the top goes back to the look and name and to the path and age. The page prints after Begin,
 // where the years the tile will pass stand not yet lived until they are, and it says where the life starts and when its
@@ -42,7 +42,7 @@ async function toTheArchetypesFor(id: string): Promise<void> {
 }
 
 describe("the door's page", () => {
-  test("[R-PROLOGUE-013] [R-PROLOGUE-014] given Where you live before Begin, then nothing is printed that is not yet true: no page, no family, no money or japacity figure and no year lived; the strip at the top goes back to the look and name, and to the path and age", () => {
+  test("[prologue:front-door-three-screens] [prologue:printed-page-hands-over] given Where you live before Begin, then nothing is printed that is not yet true: no page, no family, no money or japacity figure and no year lived; the strip at the top goes back to the look and name, and to the path and age", () => {
     door();
     fireEvent.click(button("ui.door.skip"));
     expect(stage()).toBe("page");
@@ -54,7 +54,7 @@ describe("the door's page", () => {
     expect(stage()).toBe("you");
   });
 
-  test("[R-PROLOGUE-014] given each tile, then the years it will pass are its own path's: the degree's school, exam, university and service; the trade's master; the counter's years at the shop", () => {
+  test("[prologue:printed-page-hands-over] given each tile, then the years it will pass are its own path's: the degree's school, exam, university and service; the trade's master; the counter's years at the shop", () => {
     expect(plannedYears(archetypeOf("nurse")!).map((chip) => chip.id)).toEqual(["waec", "exam", "university", "service"]);
     expect(plannedYears(archetypeOf("trader")!).map((chip) => chip.id)).toEqual(["waec", "master"]);
     expect(plannedYears(archetypeOf("shop-worker")!).map((chip) => chip.id)).toEqual(["waec", "shop"]);
@@ -62,7 +62,7 @@ describe("the door's page", () => {
     for (const tile of ARCHETYPES) for (const chip of plannedYears(tile)) expect(chip.state).toBe("waiting");
   });
 
-  test("[R-PROLOGUE-013] [R-PROLOGUE-014] given the room picked on Where you live, when Begin is pressed and the years are in, then the page after Begin says where the life starts and that rent comes round in twelve months", async () => {
+  test("[prologue:front-door-three-screens] [prologue:printed-page-hands-over] given the room picked on Where you live, when Begin is pressed and the years are in, then the page after Begin says where the life starts and that rent comes round in twelve months", async () => {
     render(<App store={bootGame({ storage: localStorage, fastClock: true, makeSeed: () => "page-room" })} />);
     await toTheArchetypesFor("accountant");
     fireEvent.click(screen.getByRole("radio", { name: say("ui.door.home.compound-room") }));

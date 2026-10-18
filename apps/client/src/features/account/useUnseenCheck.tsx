@@ -1,4 +1,4 @@
-// The bot check run unseen where a guest life is made (R-ACCOUNT-013, R-ACCOUNT-029): the widget is mounted with
+// The bot check run unseen where a guest life is made (account:bot-check-on-guest-creation, account:start-screen-over-live-city): the widget is mounted with
 // nothing to do, and the step that makes the account waits a moment for its token rather than asking the player to.
 // A token is good once, so the widget is reset after every attempt that sent one.
 import { useRef, useState, type ReactNode } from "react";

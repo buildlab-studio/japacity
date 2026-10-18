@@ -8,7 +8,7 @@ import { say, sayCount } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
 describe("the slots illness holds", () => {
-  test("[R-HEALTH-007] [R-TURN-009] given the hospital chosen, then the month plan names the illness lock and that it holds this month only", async () => {
+  test("[health:view-shows-health-warning] [turn:slots-can-be-locked] given the hospital chosen, then the month plan names the illness lock and that it holds this month only", async () => {
     const game = newGame();
     const offer = openOffer(game, "offer.illness");
     game.accept({ type: "offer/choose", offer: offer.id, choice: "hospital" });
@@ -20,7 +20,7 @@ describe("the slots illness holds", () => {
     expect(shown.textContent).toBe(say("ui.locks.item", { slots: sayCount("ui.offer.lock.slots", 1, { count: 1 }), why: say("ui.locks.why.illness"), left: sayCount("ui.locks.left", 1, { count: 1 }) }));
   });
 
-  test("[R-HEALTH-007] [R-HEALTH-003] given the worse turn with no money for the hospital, then two slots are held with the months left and the last month", async () => {
+  test("[health:view-shows-health-warning] [health:worse-illness-locks-slots] given the worse turn with no money for the hospital, then two slots are held with the months left and the last month", async () => {
     const game = newGame();
     const offer = openOffer(game, "offer.illness-worse");
     const naira = game.state.wallet.pockets.NGN;

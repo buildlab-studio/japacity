@@ -59,7 +59,7 @@ function monthEnded(lines: ReportLine[]): PlayerView {
 }
 
 describe("what the results read", () => {
-  test("[R-WORLD-008] given a month's lines, when the money is read, then each line in or out has its sign, a plain move or a flag is not money, and what was kept is in less out", () => {
+  test("[world:month-end-results-sheet] given a month's lines, when the money is read, then each line in or out has its sign, a plain move or a flag is not money, and what was kept is in less out", () => {
     const money = moneyLines([SALARY, MOVED, UPKEEP, FLAGGED, NEWS]);
     expect(money.map(({ line, sign }) => [line.key, sign])).toEqual([
       ["line.wallet.salary", 1],
@@ -69,13 +69,13 @@ describe("what the results read", () => {
     expect(otherLines([SALARY, MOVED, UPKEEP, NEWS]).map((line) => line.key)).toEqual(["line.wallet.moved", "line.test.not-written"]);
   });
 
-  test("[R-WORLD-008] given a draw result, when the numbers are read, then they are the winning tickets in order with the player's own matched", () => {
+  test("[world:month-end-results-sheet] given a draw result, when the numbers are read, then they are the winning tickets in order with the player's own matched", () => {
     expect(drawShown(withDraw(engineView(), [12, 30]))).toEqual({ draw: 7, numbers: [12, 41], matched: [12] });
     expect(drawShown(withDraw(engineView(), null))?.matched).toEqual([]);
     expect(drawShown({ lottery: null })).toBeNull();
   });
 
-  test("[R-WORLD-008] given a route with funds to show, when the savings are read, then they are the shown funds against the need in the route's money; with none, the japacity figure", () => {
+  test("[world:month-end-results-sheet] given a route with funds to show, when the savings are read, then they are the shown funds against the need in the route's money; with none, the japacity figure", () => {
     const rich = richView();
     expect(savings(rich)).toEqual({ kind: "funds", shown: 1_200_000, required: 3_000_000, currency: "GBP" });
     expect(savings({ ...rich, routes: [] })).toEqual({ kind: "percent", percent: 64 });
@@ -85,7 +85,7 @@ describe("what the results read", () => {
 });
 
 describe("the results sheet", () => {
-  test("[R-WORLD-008] given the month ended with a salary and the living taken, when the results show, then they say the month is done, payday leads with its figure in its colour, no living line, and what was kept comes after", async () => {
+  test("[world:month-end-results-sheet] given the month ended with a salary and the living taken, when the results show, then they say the month is done, payday leads with its figure in its colour, no living line, and what was kept comes after", async () => {
     const view = monthEnded([SALARY, UPKEEP, NEWS]);
     const { store } = await renderWithView(<Results place="Ojuelegba" />, view);
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -109,7 +109,7 @@ describe("the results sheet", () => {
     expect(within(sheet).getByText(turnWords("turn.results.news"))).toBeTruthy();
   });
 
-  test("[R-WORLD-008] given a draw result, when the results show, then the draw's numbers show and the player's matched one is lit with the signal", async () => {
+  test("[world:month-end-results-sheet] given a draw result, when the results show, then the draw's numbers show and the player's matched one is lit with the signal", async () => {
     const { store } = await renderWithView(<Results place="Ojuelegba" />, withDraw(monthEnded([SALARY]), [41]));
     act(() => store.setState({ reportOpen: true }));
     const lit = [...document.querySelectorAll("[data-results-draw] li")].map((chip) => [chip.textContent, chip.getAttribute("data-matched"), chip.className.includes("bg-signal")]);
@@ -119,7 +119,7 @@ describe("the results sheet", () => {
     ]);
   });
 
-  test("[R-WORLD-008] given the results, then the savings bar stands toward the move, and the one main button goes back to the place and closes them", async () => {
+  test("[world:month-end-results-sheet] given the results, then the savings bar stands toward the move, and the one main button goes back to the place and closes them", async () => {
     const { store } = await renderWithView(<Results place="Ojuelegba" />, monthEnded([SALARY]));
     act(() => store.setState({ reportOpen: true }));
     const bar = screen.getByRole("progressbar", { name: turnWords("turn.results.savings") });
@@ -131,7 +131,7 @@ describe("the results sheet", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  test("[R-WORLD-008] given staged wins still to show, when the month ends, then the results wait for them", async () => {
+  test("[world:month-end-results-sheet] given staged wins still to show, when the month ends, then the results wait for them", async () => {
     const { store } = await renderWithView(<Results place="Ojuelegba" />, monthEnded([SALARY]));
     act(() => store.setState({ reportOpen: true, moments: [SALARY] }));
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -140,7 +140,7 @@ describe("the results sheet", () => {
   });
 });
 
-/** The front page's line of the draw whose result the view holds (R-LOTTERY-016). */
+/** The front page's line of the draw whose result the view holds (lottery:draw-result-on-front-page). */
 const DRAWN: ReportLine = { key: "line.lottery.drawn-rolled", params: { draw: 7, jackpot: { currency: "NGN", amount: 20_000_000 }, winners: 2 }, tone: "plain", attention: false, counts: [] };
 
 /** A month at the kiosk on the first seed whose draw makes the tickets lose, or win, as the real engine plays it. */
@@ -155,7 +155,7 @@ function kioskMonth(won: boolean, tickets: number): ReportLine[] {
 
 // A ticket bought and lost is said in words, never only as the tag "Lotto: ₦200".
 describe("the draw's outcome said", () => {
-  test("[R-WORLD-008] [R-LUCK-005] given a ticket bought at the kiosk and lost, when the month's results show, then the story says the ticket did not win, in words, whatever else the month held", async () => {
+  test("[world:month-end-results-sheet] [luck:kiosk-sells-lotto-tickets] given a ticket bought at the kiosk and lost, when the month's results show, then the story says the ticket did not win, in words, whatever else the month held", async () => {
     const lines = kioskMonth(false, 1);
     const story = storyLines(lines);
     const lost = story.find((line) => line.key === "line.activity.lotto-lost");
@@ -169,14 +169,14 @@ describe("the draw's outcome said", () => {
     expect(within(screen.getByRole("dialog")).getByText("Your ticket did not win.")).toBeTruthy();
   });
 
-  test("[R-WORLD-008] [R-LUCK-005] given tickets bought at the kiosk and one won, then the story says the win", () => {
+  test("[world:month-end-results-sheet] [luck:kiosk-sells-lotto-tickets] given tickets bought at the kiosk and one won, then the story says the win", () => {
     const lines = kioskMonth(true, 5);
     const won = storyLines(lines).find((line) => line.key === "line.activity.lotto-won");
     expect(won).toBeDefined();
     expect(words(won!.key, won!.params)).toMatch(/^5 tickets for ₦1,000, and one came in: ₦[\d,]+\.$/);
   });
 
-  test("[R-WORLD-008] [R-LOTTERY-016] given the Friday draw's result in the month's lines and the player's tickets in it, none matched, then the results say the tickets did not win; matched, or with no ticket, or before the result, they do not", async () => {
+  test("[world:month-end-results-sheet] [lottery:draw-result-on-front-page] given the Friday draw's result in the month's lines and the player's tickets in it, none matched, then the results say the tickets did not win; matched, or with no ticket, or before the result, they do not", async () => {
     expect(drawMissed(withDraw(engineView(), [30, 55]), [DRAWN])).toBe(2);
     expect(drawMissed(withDraw(engineView(), [12, 30]), [DRAWN])).toBeNull();
     expect(drawMissed(withDraw(engineView(), null), [DRAWN])).toBeNull();

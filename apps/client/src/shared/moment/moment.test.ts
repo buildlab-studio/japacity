@@ -27,24 +27,24 @@ const AT_HOME = played("ada-careful", 227).view;
 const naira = (amount: number) => ({ currency: "NGN" as const, amount });
 
 describe("which outcomes are moments", () => {
-  test("[R-MOMENT-001] given Ada's decision day, when the visa is granted and the chapter closes in one report, then one card is due, the grant's", () => {
+  test("[moment:outcomes-that-are-moments] given Ada's decision day, when the visa is granted and the chapter closes in one report, then one card is due, the grant's", () => {
     const { lines, view } = played("ada-careful", 285);
     expect(lines.map((told) => told.key)).toEqual(expect.arrayContaining(["line.route.granted", "line.chapter.closed"]));
     expect(momentLine(lines, view)?.key).toBe("line.route.granted");
   });
 
   // Decision 0012: in the re-recorded lives Tunde the borrower's first application is refused on its funds; Zainab's is not.
-  test("[R-MOMENT-001] given Tunde's first application refused on its funds, then the refusal is the card", () => {
+  test("[moment:outcomes-that-are-moments] given Tunde's first application refused on its funds, then the refusal is the card", () => {
     const { lines, view } = played("tunde-borrower", 101);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.route.refused", params: { route: "route.uk-masters", reason: "funds" } });
   });
 
-  test("[R-MOMENT-001] given Ada's flight, when it lands, then the landing is the card, made by the flight's own line", () => {
+  test("[moment:outcomes-that-are-moments] given Ada's flight, when it lands, then the landing is the card, made by the flight's own line", () => {
     const { lines, view } = played("ada-careful", 289);
     expect(momentLine(lines, view)?.key).toBe("line.route.departed");
   });
 
-  test("[R-MOMENT-001] given a chapter closing with nothing bigger beside it, then the chapter is the card; of two closed at once the last is told", () => {
+  test("[moment:outcomes-that-are-moments] given a chapter closing with nothing bigger beside it, then the chapter is the card; of two closed at once the last is told", () => {
     const { lines, view } = played("ada-careful", 227);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.build-the-file" } });
     // Decision 0012: in the re-recorded lives it is Ada abroad whose flight closes decision day and the send-off at once.
@@ -52,7 +52,7 @@ describe("which outcomes are moments", () => {
     expect(momentLine(both.lines, both.view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.send-off" } });
   });
 
-  test("[R-MOMENT-001] given the agent, the bus home and the draw, then each is its card, the draw only when it is staged as a big win", () => {
+  test("[moment:outcomes-that-are-moments] given the agent, the bus home and the draw, then each is its card, the draw only when it is staged as a big win", () => {
     expect(momentLine([line("line.offer.agent-scam", { agent: "offer.agent-stop.who.1", amount: naira(2_500_000) }, { tone: "bad" })], AT_HOME)?.key).toBe("line.offer.agent-scam");
     expect(momentLine([line("line.activity.robbed", { cash: naira(14_200_000), phone: naira(6_000_000) }, { tone: "bad" })], AT_HOME)?.key).toBe("line.activity.robbed");
     expect(momentLine([line("line.lottery.letter", { draw: 6, won: naira(5_000_000) }, { big: true })], AT_HOME)?.key).toBe("line.lottery.letter");
@@ -60,7 +60,7 @@ describe("which outcomes are moments", () => {
     expect(momentLine([line("line.activity.lotto-won", { tickets: 3, stake: naira(60_000), won: naira(50_000) })], AT_HOME)).toBeNull();
   });
 
-  test("[R-MOMENT-001] given the order of the list, when a refusal and a robbery come in one report, then the refusal is the card, and no line of a quiet month makes one", () => {
+  test("[moment:outcomes-that-are-moments] given the order of the list, when a refusal and a robbery come in one report, then the refusal is the card, and no line of a quiet month makes one", () => {
     const robbed = line("line.activity.robbed", { cash: naira(14_200_000), phone: naira(6_000_000) }, { tone: "bad" });
     const refused = line("line.route.refused", { route: "route.uk-masters", reason: "interview" }, { tone: "bad" });
     expect(momentLine([robbed, refused], AT_HOME)).toBe(refused);
@@ -70,13 +70,13 @@ describe("which outcomes are moments", () => {
     expect(MOMENTS.map((entry) => entry.kind)).toEqual(["refused", "refused", "granted", "robbed", "agent", "deposit", "won", "won", "landed", "chapter", "held", "held"]);
   });
 
-  test("[R-MOMENT-001] given the road or a life that has ended, then nothing is a moment", () => {
+  test("[moment:outcomes-that-are-moments] given the road or a life that has ended, then nothing is a moment", () => {
     const refused = line("line.route.refused", { route: "route.uk-masters", reason: "funds" }, { tone: "bad" });
     expect(momentLine([refused], { ...AT_HOME, place: { ...AT_HOME.place, where: "road" } })).toBeNull();
     expect(momentLine([refused], { ...AT_HOME, ended: true })).toBeNull();
   });
 
-  test("[R-MOMENT-006] given a line and its tidied copy, then they are the same line, and another is not", () => {
+  test("[moment:card-shows-when-outcome-lands] given a line and its tidied copy, then they are the same line, and another is not", () => {
     const granted = line("line.route.granted", { route: "route.uk-masters" }, { big: true });
     expect(sameLine(granted, { ...granted, params: { ...granted.params } })).toBe(true);
     expect(sameLine(granted, line("line.route.granted", { route: "route.uk-care" }))).toBe(false);
@@ -100,7 +100,7 @@ function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: Play
 // The endorsement refused and the cousin's ₦300,000 deposit each make a card.
 describe("the biggest losses get their card", () => {
   // Decision 0012: in the re-recorded lives only Zainab, abroad-bound, is refused an endorsement.
-  test("[R-MOMENT-001] given the endorsement refused by the body (Zainab's recorded life), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
+  test("[moment:outcomes-that-are-moments] given the endorsement refused by the body (Zainab's recorded life), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
     for (const [life, index] of [["zainab-abroad", 74]] as const) {
       const { lines, view, before } = played(life, index);
       expect(lines.map((told) => told.key)).toContain("line.route.endorsement-refused");
@@ -113,7 +113,7 @@ describe("the biggest losses get their card", () => {
     }
   });
 
-  test("[R-MOMENT-001] [R-MOMENT-002] given the cousin's pitch taken and the deposit gone to a fraud, when the month ends, then the deposit is the card: the pitch's name, its own line, the deposit as the figure", () => {
+  test("[moment:outcomes-that-are-moments] [moment:moment-card-contents] given the cousin's pitch taken and the deposit gone to a fraud, when the month ends, then the deposit is the card: the pitch's name, its own line, the deposit as the figure", () => {
     const { answer, month, view } = depositTaken();
     const shot = momentLine(month, view, answer);
     expect(shot?.key).toBe("line.route.road-fraud");
@@ -131,7 +131,7 @@ describe("the biggest losses get their card", () => {
   // Decision 0013: the re-recorded lives never take the cousin's pitch, so the honest pitch is taken here on the first
   // seed whose hidden draw sends the road to the night meeting (no fraud), and the road is walked as Zainab's old
   // recording walked it: on at the night, paid at the truth, then month after month.
-  test("[R-MOMENT-001] given Zainab taking the cousin's pitch that is no fraud, when she walks the road month after month, then no deposit card comes in any month after it", () => {
+  test("[moment:outcomes-that-are-moments] given Zainab taking the cousin's pitch that is no fraud, when she walks the road month after month, then no deposit card comes in any month after it", () => {
     for (let seed = 1; seed < 40; seed += 1) {
       const game = newGame("scenario.zainab", `honest-${String(seed)}`);
       viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "cash", amount: 100_000_000, reason: "gift" }]);
@@ -158,7 +158,7 @@ describe("the biggest losses get their card", () => {
 });
 
 describe("what a card holds", () => {
-  test("[R-MOMENT-002] given Ada's grant, then the card names the route, says the route's line, and the figure is the months played", () => {
+  test("[moment:moment-card-contents] given Ada's grant, then the card names the route, says the route's line, and the figure is the months played", () => {
     const { lines, view } = played("ada-careful", 285);
     const face = momentFace(momentLine(lines, view)!, view)!;
     expect(face).toMatchObject({ kind: "granted", tone: "good", kicker: say("moment.granted.kicker"), title: say("route.uk-masters.name"), line: say("moment.granted.line.route.uk-masters"), chip: null });
@@ -168,7 +168,7 @@ describe("what a card holds", () => {
   });
 
   // Decision 0012: the re-recorded refusal on the funds is Tunde the borrower's, on a file 55% untraced.
-  test("[R-MOMENT-002] given Tunde's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
+  test("[moment:moment-card-contents] given Tunde's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
     const { lines, view, before } = played("tunde-borrower", 101);
     const face = momentFace(momentLine(lines, view)!, view, before)!;
     expect(face).toMatchObject({ kind: "refused", tone: "bad", line: say("moment.refused.line.funds"), chip: null });
@@ -183,14 +183,14 @@ describe("what a card holds", () => {
     expect(momentFace(momentLine(lines, again)!, again, before)!.chip).toBe(say("moment.refused.again", { count: 2 }));
   });
 
-  test("[R-MOMENT-002] given every reason a letter can give, then the refusal card has its own line for it", () => {
+  test("[moment:moment-card-contents] given every reason a letter can give, then the refusal card has its own line for it", () => {
     for (const reason of ["funds", "interview", "history", "credibility", "sponsor", "agent", "endorsement", "relationship", "sham", "lead"]) {
       const face = momentFace(line("line.route.refused", { route: "route.uk-masters", reason }, { tone: "bad" }), AT_HOME)!;
       expect(face.line).toBe(say(`moment.refused.line.${reason}`));
     }
   });
 
-  test("[R-MOMENT-002] given the agent and the bus home, then the figure is the money gone, in whole naira, with the new phone beside the cash", () => {
+  test("[moment:moment-card-contents] given the agent and the bus home, then the figure is the money gone, in whole naira, with the new phone beside the cash", () => {
     const agent = momentFace(line("line.offer.agent-scam", { agent: "offer.agent-stop.who.1", amount: naira(2_500_000) }, { tone: "bad" }), AT_HOME)!;
     expect(agent).toMatchObject({ kind: "agent", tone: "bad", title: say("offer.agent-stop.who.1.name"), line: say("moment.agent.line") });
     expect(figureWords(agent.figure, agent.figure.value)).toBe(formatMoney(2_500_000, "NGN"));
@@ -202,7 +202,7 @@ describe("what a card holds", () => {
     expect(pocketsEmpty.chip).toBeNull();
   });
 
-  test("[R-MOMENT-002] given a big win, then the figure is the sum won, and a kiosk win says the tickets and what they cost", () => {
+  test("[moment:moment-card-contents] given a big win, then the figure is the sum won, and a kiosk win says the tickets and what they cost", () => {
     const letter = momentFace(line("line.lottery.letter", { draw: 6, won: naira(31_400_000) }, { big: true }), AT_HOME)!;
     expect(letter).toMatchObject({ kind: "won", tone: "good", title: say("moment.won.title.letter"), chip: null });
     expect(figureWords(letter.figure, letter.figure.value)).toBe("₦314,000");
@@ -211,14 +211,14 @@ describe("what a card holds", () => {
     expect(kiosk.chip).toBe(`3 tickets for ${formatMoney(60_000, "NGN")}`);
   });
 
-  test("[R-MOMENT-002] given Ada's landing, then the title is the country, the line is the country's, and the figure the months from Lagos", () => {
+  test("[moment:moment-card-contents] given Ada's landing, then the title is the country, the line is the country's, and the figure the months from Lagos", () => {
     const { lines, view } = played("ada-careful", 289);
     const face = momentFace(momentLine(lines, view)!, view)!;
     expect(face).toMatchObject({ kind: "landed", title: say("country.uk.name"), line: say("moment.landed.line.country.uk") });
     expect(face.figure).toMatchObject({ value: view.month, unit: { kind: "count" } });
   });
 
-  test("[R-MOMENT-002] given a chapter at home, then the figure is japacity; given one after the flight, the months played", () => {
+  test("[moment:moment-card-contents] given a chapter at home, then the figure is japacity; given one after the flight, the months played", () => {
     const home = played("ada-careful", 227);
     const face = momentFace(momentLine(home.lines, home.view)!, home.view)!;
     expect(face).toMatchObject({ title: say("chapter.build-the-file.title"), line: say("chapter.build-the-file.close") });
@@ -229,7 +229,7 @@ describe("what a card holds", () => {
     expect(landed.figure).toEqual({ value: abroad.view.month, unit: { kind: "count" }, caption: say("moment.chapter.caption") });
   });
 
-  test("[R-MOMENT-005] given every card these lives and lines make, then the line never repeats the figure the card shows, and a loss carries no joke version", () => {
+  test("[moment:words-in-game-voice] given every card these lives and lines make, then the line never repeats the figure the card shows, and a loss carries no joke version", () => {
     const faces = [played("ada-careful", 285), played("tunde-borrower", 101), played("ada-careful", 289), played("ada-careful", 227)].map(({ lines, view, before }) => momentFace(momentLine(lines, view)!, view, before)!);
     faces.push(momentFace(line("line.activity.robbed", { cash: naira(14_200_000), phone: naira(6_000_000) }, { tone: "bad" }), AT_HOME)!);
     faces.push(momentFace(line("line.offer.agent-scam", { agent: "offer.agent-stop.who.1", amount: naira(2_500_000) }, { tone: "bad" }), AT_HOME)!);
@@ -237,7 +237,7 @@ describe("what a card holds", () => {
       expect(face.line).not.toContain(figureWords(face.figure, face.figure.value));
       expect(face.line).not.toMatch(/\{|\}/);
     }
-    // A loss's words have one version only: no joke can be drawn for it (R-TEXT-002).
+    // A loss's words have one version only: no joke can be drawn for it (text:bad-news-never-joked).
     for (const entry of MOMENTS.filter((moment) => moment.tone === "bad")) expect(say(`moment.${entry.kind}.line.v2`)).toBe(`moment.${entry.kind}.line.v2`);
   });
 });

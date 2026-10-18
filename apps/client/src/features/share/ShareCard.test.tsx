@@ -53,7 +53,7 @@ describe("the share cards", () => {
   });
 
   test("given a card due, then it opens full screen on its own, and once closed the tile opens it again", async () => {
-    // R-SHARE-015: the send-off does not open on its own (ShareCard.keepsake.test.tsx); a granted card still does.
+    // share:send-off-card-kept: the send-off does not open on its own (ShareCard.keepsake.test.tsx); a granted card still does.
     await renderWithView(<CardView />, withCard({ ...SEND_OFF, kind: "granted" }));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText(say("ui.card.how"))).toBeDefined();
@@ -63,7 +63,7 @@ describe("the share cards", () => {
     expect(await screen.findByRole("dialog")).toBeDefined();
   });
 
-  test("[R-SHARE-004] [R-SHARE-003] given a card opened over the world, then it names the character as the band does, and its share, the screenshot's hint and Close stand together on a ground of their own at the foot of a sheet that scrolls within the screen", async () => {
+  test("[share:card-contents] [share:card-offered-never-sent] given a card opened over the world, then it names the character as the band does, and its share, the screenshot's hint and Close stand together on a ground of their own at the foot of a sheet that scrolls within the screen", async () => {
     // The card says the name the band says, it scrolls within the screen, and the hint and Close stand on a ground of
     // their own, never printed bare over the phone's icons.
     const view = withCard({ ...SEND_OFF, kind: "granted" });
@@ -92,7 +92,7 @@ describe("the share cards", () => {
 });
 
 describe("the seal on a card", () => {
-  test("[R-SHARE-006] given any card on screen, then the seal stands in its footer before the game's name as a picture behind an empty box, with no image element", () => {
+  test("[share:card-never-looks-official] given any card on screen, then the seal stands in its footer before the game's name as a picture behind an empty box, with no image element", () => {
     for (const kind of ["send-off", "real-story", "lost"] as const) {
       const { container, unmount } = render(<ShareCardFace card={{ ...SEND_OFF, kind }} />);
       const seal = container.querySelector("[data-seal]") as HTMLElement;

@@ -1,5 +1,5 @@
-// A way out closed by the news (docs/rules/route.md R-ROUTE-005; docs/rules/world.md R-WORLD-003,
-// R-WORLD-019): the nudge and Japa read one test of it, so they never disagree on whether every route is shut.
+// A way out closed by the news (route:closed-window-blocks-applying; world:nudge-says-one-thing,
+// world:phone-holds-what-phones-hold): the nudge and Japa read one test of it, so they never disagree on whether every route is shut.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 

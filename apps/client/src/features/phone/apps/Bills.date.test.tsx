@@ -1,4 +1,4 @@
-// A bill's slip is dated in the game's own time (docs/rules/world.md R-WORLD-019, R-WORLD-002): the
+// A bill's slip is dated in the game's own time (world:phone-holds-what-phones-hold, world:top-band-is-lively-pill): the
 // character's age in years and months, as the band shows it, never the real calendar.
 import { applyEffects } from "@japacity/sim/testing";
 import { qualityIn } from "@japacity/sim";
@@ -16,7 +16,7 @@ import { PhoneApps } from "../PhoneApps";
 const WEEKDAY = /\b(MON|TUE|WED|THU|FRI|SAT|SUN)\b/;
 
 describe("a bill's slip", () => {
-  test("[R-WORLD-019] [R-WORLD-002] given a bill to pay now, when its slip opens, then it is dated by the character's age as the band shows it, and carries no day of the real calendar", async () => {
+  test("[world:phone-holds-what-phones-hold] [world:top-band-is-lively-pill] given a bill to pay now, when its slip opens, then it is dated by the character's age as the band shows it, and carries no day of the real calendar", async () => {
     const game = newGame("scenario.ada");
     // Held funds are a bill paid by hand from Bills.
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.held-funds", principal: 1_000_000_000 }]);

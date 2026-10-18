@@ -1,4 +1,4 @@
-// Counts as a person says them (docs/rules/text.md R-TEXT-005): words up to ten, figures above.
+// Counts as a person says them (text:bands-not-figures): words up to ten, figures above.
 import { formatNumber } from "./format";
 import { hasWords, say } from "./text";
 

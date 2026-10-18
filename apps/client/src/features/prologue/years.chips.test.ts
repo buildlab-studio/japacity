@@ -1,4 +1,4 @@
-// The page's setback chips (prologue.md R-PROLOGUE-004, R-PROLOGUE-014; decision 0023): the age picked is the age the
+// The page's setback chips (prologue:age-advances-with-steps, prologue:printed-page-hands-over; decision 0023): the age picked is the age the
 // life starts at, so a retake or a strike costs years of work before it, never the age, and its chip says the work lost.
 import { describe, expect, test } from "vitest";
 
@@ -28,7 +28,7 @@ function lived(seed: string) {
 const passed = (life: { trail: TrailStep[] }, step: string): boolean => life.trail.some((one) => one.step === step);
 
 describe("the setback chips", () => {
-  test("[R-PROLOGUE-004] [R-PROLOGUE-014] given a degree three years older with a retake, a strike or both, when the page tells the years, then each setback's chip says the work it cost before the age picked", () => {
+  test("[prologue:age-advances-with-steps] [prologue:printed-page-hands-over] given a degree three years older with a retake, a strike or both, when the page tells the years, then each setback's chip says the work it cost before the age picked", () => {
     const lives = Array.from({ length: 80 }, (_, at) => lived(`chips-${String(at)}`));
     const notes = (life: (typeof lives)[number]): Record<string, string | null> =>
       Object.fromEntries(yearChips({ draw: null, steps: life.trail }, life.view).filter((chip) => chip.state === "setback").map((chip) => [chip.id.replace(/-\d+$/, ""), chip.note]));
@@ -47,7 +47,7 @@ describe("the setback chips", () => {
 });
 
 describe("the child of the water's chips", () => {
-  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given the child of the water's years played with the door's answers, when the page tells them, then the chips are hers: school by canoe and the fish racks, never a shop counter; the shop worker's same years keep the counter", () => {
+  test("[prologue:makoko-start-never-a-trap] [prologue:printed-page-hands-over] given the child of the water's years played with the door's answers, when the page tells them, then the chips are hers: school by canoe and the fish racks, never a shop counter; the shop worker's same years keep the counter", () => {
     const trailOf = (id: string) => {
       const archetype = archetypeOf(id)!;
       const game = newGame("scenario.prologue", `${id}-chips`);

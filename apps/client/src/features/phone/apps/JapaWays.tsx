@@ -1,10 +1,10 @@
-// Japa's files of the ways out (docs/rules/world.md R-WORLD-019; route-gates.md; route.md), in the lively dress: each way
+// Japa's files of the ways out (world:phone-holds-what-phones-hold; route-gates.md; route.md), in the lively dress: each way
 // looked into as a card with its state and its window as chips, the gate's own part (the sponsor and the salary bar, the
 // points against the cut-off, the endorsement and its wait, the agent and the job, the partner it rests on), the
 // universities with what they ask and cost, the funds shown against what is needed, and the record (the deposit, the
 // visa's months, the refusals in words). The deposit is paid at the bank's counter and the plane boarded at the airport's
 // gate, in the world. Then the goals: the open ones with their steps, the done ones with when, as months ago. The road is never a
-// way here (R-ROAD-001). Nothing hidden is in the view, so nothing hidden is shown; never a percentage on screen.
+// way here (road:road-route-has-no-figure). Nothing hidden is in the view, so nothing hidden is shown; never a percentage on screen.
 import { content } from "@japacity/content";
 import type { Currency, Id, PlayerView, RouteGateView, RouteView } from "@japacity/sim";
 import { Check, Circle } from "lucide-react";
@@ -19,7 +19,7 @@ import { MoneyChip, PicTile, WordChip } from "../ui";
 
 const GRADE = "quality.edu-grade";
 
-/** A month gone by as it reads inside a line: "2 months ago", "last month", "this month"; never its number (R-WORLD-002). */
+/** A month gone by as it reads inside a line: "2 months ago", "last month", "this month"; never its number (world:top-band-is-lively-pill). */
 export function agoWords(stamped: number, now: number): string {
   return lowerFirst(monthsAgo(stamped, now));
 }
@@ -31,7 +31,7 @@ function countryCurrency(route: RouteView): Currency {
 }
 
 /**
- * The ways with a file to show: looked into or further, never the road (R-ROAD-001, whatever the engine sends), and,
+ * The ways with a file to show: looked into or further, never the road (road:road-route-has-no-figure, whatever the engine sends), and,
  * abroad, never the way already flown on, whose file is history.
  */
 function waysOnFile(view: PlayerView): RouteView[] {
@@ -78,7 +78,7 @@ function Sponsor({ gate, currency }: { gate: Extract<RouteGateView, { gate: "spo
 
 function Points({ gate, month }: { gate: Extract<RouteGateView, { gate: "points" }>; month: number }) {
   const short = Math.max(0, gate.cutoff - gate.points);
-  // R-POINTS-006: whether an invitation will come is the engine's, the care cut-off for a carer among it.
+  // route-gates:points-view-carries-invites: whether an invitation will come is the engine's, the care cut-off for a carer among it.
   const said = !gate.invites ? say("ui.gate.points.short", { short: formatNumber(short) }) : short > 0 ? say("ui.gate.points.over-care") : say("ui.gate.points.over");
   return (
     <>
@@ -126,7 +126,7 @@ function Contract({ gate, currency }: { gate: Extract<RouteGateView, { gate: "co
   );
 }
 
-/** The partner or dependant gate: the bond it rests on and how the other side's application stands (R-PEOPLE-022, R-PEOPLE-026). */
+/** The partner or dependant gate: the bond it rests on and how the other side's application stands (person:dependant-gate-needs, person:partner-gate-needs). */
 function Bond({ gate, view }: { gate: Extract<RouteGateView, { gate: "partner" | "dependant" }>; view: PlayerView }) {
   const bond = gate.bond === null ? undefined : view.people.bonds.find((held) => held.id === gate.bond);
   if (bond === undefined) return <Line tone="quiet">{say("ui.gate.bond.none")}</Line>;
@@ -225,7 +225,7 @@ function Funds({ route, view }: { route: RouteView; view: PlayerView }) {
   const open = route.state === "known" || route.state === "applying";
   if (!open && shown === 0 && required === 0 && route.support === null) return null;
   const short = Math.max(0, required - shown);
-  // Each gate shows its own line in its own currency (R-GATE-004).
+  // Each gate shows its own line in its own currency (route-gates:route-entry-gate-block).
   const currency = countryCurrency(route);
   return (
     <div className="mt-3 flex flex-col gap-1" data-funds>

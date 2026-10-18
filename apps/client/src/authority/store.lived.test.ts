@@ -1,4 +1,4 @@
-// The month turns only when the life sleeps (docs/rules/world.md R-WORLD-025; activity.md R-ACTIVITY-020; decision 0011):
+// The month turns only when the life sleeps (world:sleep-ends-the-month; activity:spent-body-refuses-acts; decision 0011):
 // an act that spends the month's last free time turns nothing; the night falls, and the bed's Sleep is the way on.
 import type { Command, PlayerView, Reply } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -29,7 +29,7 @@ function authority(firstSpent: number) {
 const cook: Command = { type: "activity/now", activity: "activity.cook-at-home", param: null, basedOn: 0 };
 
 describe("the month turns when the life sleeps", () => {
-  test("[R-WORLD-025] [R-ACTIVITY-020] given the act that spends the month's last free time, when it is accepted, then the store ends nothing by itself and no results open", async () => {
+  test("[world:sleep-ends-the-month] [activity:spent-body-refuses-acts] given the act that spends the month's last free time, when it is accepted, then the store ends nothing by itself and no results open", async () => {
     const fake = authority(60);
     const store = createGameStore(fake);
     await store.getState().refresh();
@@ -40,7 +40,7 @@ describe("the month turns when the life sleeps", () => {
     expect(store.getState().view?.halfDays).toEqual({ spent: 60, free: 60 });
   });
 
-  test("[R-WORLD-025] given the month's time all spent, when the life sleeps, then the month ends with the commitments and the results open", async () => {
+  test("[world:sleep-ends-the-month] given the month's time all spent, when the life sleeps, then the month ends with the commitments and the results open", async () => {
     const fake = authority(60);
     const store = createGameStore(fake);
     await store.getState().refresh();

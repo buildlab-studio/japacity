@@ -1,4 +1,4 @@
-// The route on the painted map (docs/rules/world.md R-WORLD-015, R-WORLD-017): from where the player stands to the stop
+// The route on the painted map (world:map-is-painted-lagos, world:ride-sheet-shows-fares): from where the player stands to the stop
 // picked along the roads and over the bridges, drawn as a dotted yellow line with a danfo on it; on the card when the
 // stop is in the same neighbourhood, across the city on the strip, and on the open map whenever it is open.
 import type { Point } from "./fit";

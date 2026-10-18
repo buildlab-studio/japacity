@@ -1,6 +1,6 @@
 // A job's pay a month: the one figure the offer, the Jobs app and the jobs list show (docs/rules/world.md
-// R-WORLD-006). Content keeps a job abroad's pay a year and a job at home a
-// month; the simulation pays the year over twelve (abroad-money.md R-ABROAD-002), and so does this.
+// world:one-action-one-sheet). Content keeps a job abroad's pay a year and a job at home a
+// month; the simulation pays the year over twelve (abroad-money:salary-abroad-taxed-locally), and so does this.
 import { content } from "@japacity/content";
 import { int, type Id, type MoneyParam } from "@japacity/sim";
 
@@ -21,7 +21,7 @@ export function payAMonth(job: string): MoneyParam | null {
 
 /**
  * The pay line a screen shows for a job held, a side job or a job offered: the view's month as the wallet will book it
- * (docs/rules/wallet.md R-WALLET-016: after tax, with the raise, the tier and the sponsor's salary), never content's
+ * (wallet:view-carries-month-pay: after tax, with the raise, the tier and the sponsor's salary), never content's
  * written figure; null when the view can read none.
  */
 export function payLine(pay: MoneyParam | null | undefined): string | null {

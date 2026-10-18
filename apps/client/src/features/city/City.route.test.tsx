@@ -1,7 +1,7 @@
-// The deposit and the plane in the world (docs/rules/world.md R-WORLD-005, R-WORLD-006; route.md; chapter.md R-CHAPTER-006):
+// The deposit and the plane in the world (world:things-are-tappable-models, world:one-action-one-sheet; route.md; chapter:send-off-card-on-close):
 // the bank's counter carries Pay the deposit for the university that made an offer, and the airport's gate Board the plane
 // once a visa is granted; the counter opens its card and its one button sends the command, and the gate opens the
-// send-off scene, whose third beat sends the flight (chapter.md R-CHAPTER-012). The scene is a stand-in that hands the city the
+// send-off scene, whose third beat sends the flight (chapter:send-off-scene-in-beats). The scene is a stand-in that hands the city the
 // taps a player makes; the place files are the ones the game ships.
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import type { PlayerView } from "@japacity/sim";
@@ -16,7 +16,7 @@ import { sendOff } from "../../shared/world/sendOff";
 import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -33,9 +33,9 @@ afterEach(() => {
 });
 
 describe("the deposit and the plane in the world", () => {
-  test("[R-WORLD-006] given a school offer and no deposit, when the bank's counter is asked to pay the deposit, then route/pay-deposit names the school", async () => {
+  test("[world:one-action-one-sheet] given a school offer and no deposit, when the bank's counter is asked to pay the deposit, then route/pay-deposit names the school", async () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.olokun-office"]));
-    // Enough in the naira bank for the deposit, so the card's one button is open (a short balance shuts it, R-WORLD-006).
+    // Enough in the naira bank for the deposit, so the card's one button is open (a short balance shuts it, world:one-action-one-sheet).
     const rich = richView();
     const view: PlayerView = { ...rich, pockets: { ...rich.pockets, NGN: { ...rich.pockets.NGN, bank: 9_000_000_000 } } };
     const { authority } = await renderWithView(<City world />, view);
@@ -47,7 +47,7 @@ describe("the deposit and the plane in the world", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "route/pay-deposit", route: "route.uk-masters", school: "school.northgate", basedOn: view.v }]));
   });
 
-  test("[R-CHAPTER-006] [R-CHAPTER-012] given a granted visa, when the airport's gate is asked to board, then the send-off scene opens in place of a card, and its gate's Board the plane sends route/depart once", async () => {
+  test("[chapter:send-off-card-on-close] [chapter:send-off-scene-in-beats] given a granted visa, when the airport's gate is asked to board, then the send-off scene opens in place of a card, and its gate's Board the plane sends route/depart once", async () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.airport-lagos"]));
     const rich = richView();
     const view: PlayerView = { ...rich, routes: rich.routes.map((route) => ({ ...route, state: "granted" })) };
@@ -65,7 +65,7 @@ describe("the deposit and the plane in the world", () => {
     act(() => sendOff.getState().close());
   });
 
-  test("[R-RETURN-004] given a return with papers keeping the settled status and the UK route flown before, when the airport's gate is asked to board, then the send-off scene's Board the plane sends route/depart on that route", async () => {
+  test("[return:papers-return-keeps-status] given a return with papers keeping the settled status and the UK route flown before, when the airport's gate is asked to board, then the send-off scene's Board the plane sends route/depart on that route", async () => {
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.airport-lagos"]));
     const rich = richView();
     const view: PlayerView = {

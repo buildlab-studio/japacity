@@ -1,5 +1,5 @@
-// The send-off as a scene in a real browser on a phone (docs/rules/chapter.md R-CHAPTER-012, world.md R-WORLD-037,
-// share.md R-SHARE-015): Ada's recorded life, granted, rides to the airport, and the gate's act opens the six beats in
+// The send-off as a scene in a real browser on a phone (chapter:send-off-scene-in-beats, world:plane-cut-at-send-off,
+// share:send-off-card-kept): Ada's recorded life, granted, rides to the airport, and the gate's act opens the six beats in
 // place of the card the flight was. Departures with three taps of Step forward and a line a tap, the counter's stub and
 // Window or aisle, the gate where Board the plane sends the flight once, the plane over the night map, the landing in
 // Peckham with the bus, the top deck with the pings, the card saved and the Phone's badge; Ring the bell and the life
@@ -20,7 +20,7 @@ async function departures(page: Page): Promise<number> {
   return page.evaluate(() => (localStorage.getItem("japacity.save") ?? "").split('"type":"route/depart"').length - 1);
 }
 
-test("[R-CHAPTER-012] [R-WORLD-037] [R-SHARE-015] a granted life boards through the six beats of the send-off and lands in the room abroad with the card kept on the phone", async ({ page }, info) => {
+test("[chapter:send-off-scene-in-beats] [world:plane-cut-at-send-off] [share:send-off-card-kept] a granted life boards through the six beats of the send-off and lands in the room abroad with the card kept on the phone", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The send-off is played at phone size");
   test.setTimeout(240_000);
   await seedSave(page, adaBeforeFlight());
@@ -79,7 +79,7 @@ test("[R-CHAPTER-012] [R-WORLD-037] [R-SHARE-015] a granted life boards through 
   await scene.locator("[data-so-go='ring']").click();
   await expect(scene).toHaveCount(0);
 
-  // The life in the room abroad; the landing's moment, then no share card of its own (R-SHARE-015).
+  // The life in the room abroad; the landing's moment, then no share card of its own (share:send-off-card-kept).
   await passCards(page);
   await placeReady(page);
   expect(await placeNow(page)).not.toBe("place.airport-lagos");
@@ -98,7 +98,7 @@ test("[R-CHAPTER-012] [R-WORLD-037] [R-SHARE-015] a granted life boards through 
   await expect(sheet.locator("[data-stub-seat]")).toHaveText(text["share.stub.seat.aisle"]!);
 });
 
-test("[R-CHAPTER-012] leaving the scene before the gate's button leaves the life at the airport, and the act opens it again", async ({ page }, info) => {
+test("[chapter:send-off-scene-in-beats] leaving the scene before the gate's button leaves the life at the airport, and the act opens it again", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The send-off is played at phone size");
   test.setTimeout(180_000);
   await seedSave(page, adaBeforeFlight());

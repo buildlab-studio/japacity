@@ -1,6 +1,6 @@
-// The money report and its alarms (R-SERVER-011, R-SERVER-012), the rejection
-// counts (R-SERVER-005) and the rollback check (R-SERVER-008). The check reads
-// only; nothing here corrects, freezes or rolls back a character (R-SERVER-010).
+// The money report and its alarms (server:daily-money-report, server:ledger-alarm-lists-suspects), the rejection
+// counts (server:rejections-write-nothing) and the rollback check (server:rollback-check-finds-divergence). The check reads
+// only; nothing here corrects, freezes or rolls back a character (server:no-mass-rollback).
 import type { Alarm, ByReason, RollbackCheck } from "@japacity/api";
 import { isCurrency, time } from "@japacity/sim";
 import { useState } from "react";
@@ -119,7 +119,7 @@ export function RejectionsTab({ api }: { api: AdminApi }) {
   );
 }
 
-/** One rollback check's answer, also shown when a report is closed with `rollback` (R-MODERATION-019). */
+/** One rollback check's answer, also shown when a report is closed with `rollback` (moderation:rollback-through-admin-view). */
 export function RollbackAnswer({ check }: { check: RollbackCheck }) {
   if (!check.ok) return <p className="text-bad">{words("admin.refused.code", { code: check.code, detail: check.detail })}</p>;
   const { report } = check;

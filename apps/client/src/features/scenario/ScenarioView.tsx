@@ -1,14 +1,14 @@
-// The front door (prologue.md R-PROLOGUE-009, 013), in its lively dress (a sticker board, the homes stacked as
+// The front door (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in its lively dress (a sticker board, the homes stacked as
 // postcards), with everything already chosen so Next, Next, Begin starts a life. You (the name filled from the pool
 // for the look's sex, a dice for another, the look strip as round face stickers, your own colours) stands you whole on a
 // photo card; Your life so far is the lives swiped sideways with the age under them; Where you live is the homes as
-// postcards, then Begin. The page prints after Begin (R-PROLOGUE-014). Skip on the first two goes to Where you live;
+// postcards, then Begin. The page prints after Begin (prologue:printed-page-hands-over). Skip on the first two goes to Where you live;
 // Shuffle picks a look, a name and a tile at random. The ready lives are not on the door: a run Settings asks for lists
 // them on the second screen in the place of the tiles. The figure is a sticker of the shipped model, never a turntable.
 // The run is kept as it goes, so a reload at any step comes back to that step; nothing of the life is written
-// before Begin, and the run is marked begun only once the authority has answered it (R-ENGINE-015). For a tile,
-// Begin starts the life at once and the page fills as the years go by (R-PROLOGUE-014).
-// Online and signed out, the gate hands in the guest start (account.md R-ACCOUNT-029): Where you live holds the
+// before Begin, and the run is marked begun only once the authority has answered it (engine:browser-authority-for-dev-only). For a tile,
+// Begin starts the life at once and the page fills as the years go by (prologue:printed-page-hands-over).
+// Online and signed out, the gate hands in the guest start (account:start-screen-over-live-city): Where you live holds the
 // username, filled in from the name and changed there, and the guest line; Begin makes the guest life before the character.
 import { content } from "@japacity/content";
 import { type Id } from "@japacity/sim";
@@ -94,7 +94,7 @@ function before(draft: DoorDraft): DoorStage | null {
 function yearsFor(draft: DoorDraft): number | null {
   const archetype = draft.ready === null ? archetypeOf(draft.archetype) : null;
   const ready = READY.find((id) => id === draft.ready) ?? null;
-  // The year picked is the year the life starts at (R-PROLOGUE-004, decision 0023): a true number, never "about".
+  // The year picked is the year the life starts at (prologue:age-advances-with-steps, decision 0023): a true number, never "about".
   return archetype !== null ? startYearFor(archetype, Math.max(0, draft.age)) : ready !== null ? yearsOf(readyMonths(ready)) : null;
 }
 
@@ -117,7 +117,7 @@ function captionOf(draft: DoorDraft): string {
   return say("ui.door.caption", { path, age: say("prologue.page.age.years", { years }) });
 }
 
-/** The guest start the gate hands in online (account.md R-ACCOUNT-021, 024, 029); the account feature's GuestDoor. */
+/** The guest start the gate hands in online (account:guest-and-secured-states, account:username-and-unconfirmed-email, account:start-screen-over-live-city); the account feature's GuestDoor. */
 export interface DoorGuest {
   fill: (name: string) => string;
   check: (username: string) => string | null;
@@ -130,7 +130,7 @@ export interface DoorGuest {
 }
 
 /**
- * R-ANALYTICS-002, R-ANALYTICS-008: the front door's screens as the funnel counts them: the first door,
+ * analytics:client-sends-interface-counts, analytics:nightly-game-counters: the front door's screens as the funnel counts them: the first door,
  * the second (an archetype or a ready life), and the third, Where you live with Begin, still counted as the page it
  * stood in for. Begun is no screen of its own.
  */
@@ -155,7 +155,7 @@ export function doorScreen(stage: DoorStage): "door-1" | "door-2" | "page" | nul
 export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   const notice = useGame((state) => state.notice);
   const chooseLife = useGame((state) => state.chooseLife);
-  // The life chooser cannot be opened again where a life is started only once (R-ACCOUNT-015).
+  // The life chooser cannot be opened again where a life is started only once (account:one-character-per-account).
   const once = useGame((state) => state.openLifeChooser === null);
   // Opened from Settings over a life: the ready lives' back returns to it.
   const backToLife = useGame((state) => (state.view === null ? null : state.closeLifeChooser));
@@ -167,7 +167,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
   });
   const [tried, setTried] = useState(false);
   const [pressed, setPressed] = useState(false);
-  // Offline the door is the first screen, so it carries the start screen's hook (R-TEXT-006).
+  // Offline the door is the first screen, so it carries the start screen's hook (text:hook-not-explanation).
   const [offline] = useState(() => authorityMode().authority === "local");
   useScreenCount(doorScreen(draft.stage));
   // The username as typed on Where you live; null while the name fills it in.
@@ -227,11 +227,11 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
     }
     const ready = draft.ready === null ? null : (READY.find((id) => id === draft.ready) ?? null);
     const start = (): void => {
-      // The player's own colours, and the photo drawn in them (or as made) as the page printed, are kept with the person (R-PROLOGUE-015).
+      // The player's own colours, and the photo drawn in them (or as made) as the page printed, are kept with the person (prologue:player-colours-on-looks).
       const style = isMade(draft.style) ? undefined : draft.style;
       const photo = madePhoto(draft.look, style);
       keepPerson({ look: draft.look, name: draft.name.trim(), archetype: ready === null ? draft.archetype : null, ...(style === undefined ? {} : { style }), ...(photo === undefined ? {} : { photo: photo.photo, photoPx: photo.px }) });
-      // R-ENGINE-015: Begin is one request, and its answer the point of no return. Until it comes the run stays on the
+      // engine:browser-authority-for-dev-only: Begin is one request, and its answer the point of no return. Until it comes the run stays on the
       // device as this screen (a reload comes back to it, filled in); once the authority holds the life the run is begun,
       // and a reload opens the life where it stands. The home goes first: the years read it as they play.
       const fitted = { ...draft, ...(home === null ? {} : { home }) };
@@ -243,7 +243,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
         })
         .catch((error: unknown) => {
           setPressed(false);
-          // R-ACCOUNT-021: a guest whose session was gone by the character's start is made again by the next Begin, and the page says so.
+          // account:guest-and-secured-states: a guest whose session was gone by the character's start is made again by the next Begin, and the page says so.
           const said = guest?.lost(error) ?? null;
           if (said !== null) setUsernameSaid(said);
         });
@@ -257,7 +257,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
     setUsernameSaid(typed);
     if (typed !== null) return;
     setPressed(true);
-    // R-ACCOUNT-021: the guest life first; the character is the account's one (R-ACCOUNT-015).
+    // account:guest-and-secured-states: the guest life first; the character is the account's one (account:one-character-per-account).
     void guest.start(username, typedUsername === null).then((said) => {
       setUsernameSaid(said);
       if (said === null) start();
@@ -307,7 +307,7 @@ export function ScenarioView({ guest = null }: { guest?: DoorGuest | null }) {
         {...frame}
         title={say("ui.life.title")}
         lockup
-        // R-TEXT-006: no sentence about the game. Offline, where the door is the first screen, it opens
+        // text:hook-not-explanation: no sentence about the game. Offline, where the door is the first screen, it opens
         // with the start screen's hook and three steps; online the hook was just seen, and the question and the fields carry it.
         line={
           offline ? (

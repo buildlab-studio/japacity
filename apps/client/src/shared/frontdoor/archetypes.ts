@@ -1,6 +1,6 @@
-// The archetypes (prologue.md R-PROLOGUE-010, "The archetypes"): each a preset of the prologue's answers, never held
+// The archetypes (prologue:archetype-presets-answers, "The archetypes"): each a preset of the prologue's answers, never held
 // by the simulation. The presets themselves are content's (`packages/content/src/prologue/prologue.preset.ts`), so the client
-// offline and the server online play one source (server.md R-SERVER-046); a tile here adds the routes its words name.
+// offline and the server online play one source (server:server-plays-prologue-preset); a tile here adds the routes its words name.
 // Every step has its answer: the client sends the first of the archetype's answers that is allowed, and where a draw has
 // shut them all, the open answer that suits the archetype best (`doorAnswer`), so no card shows for a new life. The
 // words for each live in content under `prologue.archetype.<id>.*`.
@@ -71,7 +71,7 @@ export function archetypeOf(id: string | null | undefined): Archetype | null {
 }
 
 /**
- * The year a tile's life starts at with no step on the door (R-PROLOGUE-004, decision 0023): its cards answered as the
+ * The year a tile's life starts at with no step on the door (prologue:age-advances-with-steps, decision 0023): its cards answered as the
  * tile answers them, each draw with no setback, up to its age card, and the youngest year that card opens there.
  */
 export function lowestYear(archetype: Archetype): number {
@@ -79,7 +79,7 @@ export function lowestYear(archetype: Archetype): number {
 }
 
 /**
- * The tile with the age the front door set (R-PROLOGUE-009, decision 0023): `years` older than the year its path
+ * The tile with the age the front door set (prologue:front-door-builds-a-person, decision 0023): `years` older than the year its path
  * reaches, sent as that year on whichever age card the life comes to; a year shut there gives way to the nearest
  * open one above, then below.
  */
@@ -87,7 +87,7 @@ export function withAge(archetype: Archetype, years: number): Archetype {
   return { ...archetype, preset: agedAnswers(archetype.preset, years) };
 }
 
-/** The homes the door offers a tile (R-PROLOGUE-013): the compound room, the hostel room and the family house to every tile, Makoko to the child of the water alone. */
+/** The homes the door offers a tile (prologue:front-door-three-screens): the compound room, the hostel room and the family house to every tile, Makoko to the child of the water alone. */
 export function homesFor(archetype: Archetype): Home[] {
   return presetHomes(archetype.preset);
 }
@@ -97,7 +97,7 @@ export function homeOf(archetype: Archetype): Home {
   return presetHome(archetype.preset);
 }
 
-/** The tile with the home picked on the door as its home step's preset (R-PROLOGUE-010, 013). */
+/** The tile with the home picked on the door as its home step's preset (prologue:archetype-presets-answers, prologue:front-door-three-screens). */
 export function withHome(archetype: Archetype, home: string | null | undefined): Archetype {
   return { ...archetype, preset: homedAnswers(archetype.preset, home) };
 }
@@ -132,13 +132,13 @@ export function agePointsCount(archetype: Pick<Archetype, "routes">): boolean {
   return archetype.routes.includes("route.canada-points");
 }
 
-/** The archetype's own answer at this card while one of them is allowed, else null: a draw has shut them (R-PROLOGUE-010). */
+/** The archetype's own answer at this card while one of them is allowed, else null: a draw has shut them (prologue:archetype-presets-answers). */
 export function presetAnswer(archetype: Archetype, prologue: Pick<Prologue, "step" | "answers">): string | null {
   return presetOwnAnswer(archetype.preset, prologue.step, prologue.answers);
 }
 
 /**
- * The answer the front door sends at this card for a new life (R-PROLOGUE-010): the preset's,
+ * The answer the front door sends at this card for a new life (prologue:archetype-presets-answers): the preset's,
  * else the open answer that suits the archetype, else the first open one. Null only when every answer is shut.
  */
 export function doorAnswer(archetype: Archetype, prologue: Pick<Prologue, "step" | "answers">): string | null {

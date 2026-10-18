@@ -1,4 +1,4 @@
-// The person built at the front door (prologue.md R-PROLOGUE-009, 010, 015): a look, a first name, an
+// The person built at the front door (prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:player-colours-on-looks): a look, a first name, an
 // archetype, and the player's own colours on the look with the page's photo in them. The simulation holds none of them: they are kept on the device beside the save, under one
 // key of their own, and the city and the rides draw the character in the look. Online, presence already
 // carries a look; the server would keep these beside the character the same way.
@@ -15,7 +15,7 @@ export interface KeptPerson {
   name: string;
   /** The archetype whose preset the prologue plays, or null for a ready life. */
   archetype: string | null;
-  /** The player's own colours on the look (R-PROLOGUE-015); absent as made. Paint only, never a stat. */
+  /** The player's own colours on the look (prologue:player-colours-on-looks); absent as made. Paint only, never a stat. */
   style?: LookStyle;
   /** The page's photo: the figure rendered in its colours, or as made, as an image's data address; absent where nothing could draw it. */
   photo?: string;
@@ -77,8 +77,8 @@ export function keptStyleOf(file: string, storage: Read | null = browserStorage(
 }
 
 /**
- * The player's first name for the life on screen (R-PROLOGUE-009): the one given at the door, kept beside the save, else
- * a ready life's own. No computer person carries it (person.md R-PEOPLE-061).
+ * The player's first name for the life on screen (prologue:front-door-builds-a-person): the one given at the door, kept beside the save, else
+ * a ready life's own. No computer person carries it (person:one-mixed-name-pool).
  */
 export function playerName(view: Pick<PlayerView, "scenario"> | null, storage: Read | null = browserStorage()): string | null {
   if (view === null) return null;

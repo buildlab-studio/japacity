@@ -1,5 +1,5 @@
-// Their room in the world, dressed for the person whose room it is (docs/rules/world.md R-WORLD-020; city.md R-CITY-011,
-// R-CITY-001; person.md R-PEOPLE-014, R-PEOPLE-054): with Tobi's bond courting, the city draws his room
+// Their room in the world, dressed for the person whose room it is (world:nobody-picked-from-list; city:set-piece-shown-where-staged,
+// city:places-change-no-state; person:time-together-is-an-act, person:computer-mark-is-quiet): with Tobi's bond courting, the city draws his room
 // with his props and him standing in it, a thing with his name and the computer mark and no act, and the visit stays on
 // the chair. The place file is the one the game ships; the scene is a stand-in that shows what the city hands it.
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 describe("their room in the world", () => {
-  test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] [R-CITY-001] given Tobi's bond courting, when their room is drawn, then it is dressed for Tobi: his props stand in it, his figure stands alone as a thing named by him with the computer mark and no act, no stranger in the room, the visit stays on the chair, and a tap on him sends nothing", async () => {
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] [person:computer-mark-is-quiet] [city:places-change-no-state] given Tobi's bond courting, when their room is drawn, then it is dressed for Tobi: his props stand in it, his figure stands alone as a thing named by him with the computer mark and no act, no stranger in the room, the visit stays on the chair, and a tap on him sends nothing", async () => {
     const game = peopleGame();
     game.grant(1);
     game.endTurn([]);
@@ -75,7 +75,7 @@ describe("their room in the world", () => {
     expect(authority.sent).toHaveLength(before);
   });
 
-  test("[R-WORLD-020] given no bond courting, when their room is drawn, then it is the plain room with nobody standing in it", async () => {
+  test("[world:nobody-picked-from-list] given no bond courting, when their room is drawn, then it is the plain room with nobody standing in it", async () => {
     const game = peopleGame();
     game.grant(1);
     game.endTurn([]);
@@ -86,7 +86,7 @@ describe("their room in the world", () => {
     expect([...document.querySelectorAll<HTMLElement>("[data-stand-in-model]")].map((one) => one.dataset.standInModel)).toEqual(ROOM.stage?.models.map((model) => model.file));
   });
 
-  test("[R-PEOPLE-054] [R-WORLD-020] given Tobi standing in his room, when he is tapped, then his fan shows his name with the computer tag and no act, since the bond's choices live in Chats and the visit on the chair", () => {
+  test("[person:computer-mark-is-quiet] [world:nobody-picked-from-list] given Tobi standing in his room, when he is tapped, then his fan shows his name with the computer tag and no act, since the bond's choices live in Chats and the visit on the chair", () => {
     const [tobi] = standingAsThemselves(stageOf(dressPlace(ROOM, [], TOBI).file));
     expect(tobi).toBeDefined();
     expect(fanEntriesOf(tobi!)).toEqual([]);

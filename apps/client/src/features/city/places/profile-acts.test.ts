@@ -1,4 +1,4 @@
-// Where the waiting months' acts are staged (docs/rules/activity.md R-ACTIVITY-013, world.md R-WORLD-005): the
+// Where the waiting months' acts are staged (activity:waiting-months-build-profile, world:things-are-tappable-models): the
 // hub's desks for open source and the talk, its meetup corner's screen for the talk itself, the routes sheet
 // for a master's at home, the board for being noticed, the Inverter Room's laptops for the posts, the clinic's
 // notice for the certification and its chairs for the exam. Each opens from an act of a thing, at most two a thing.
@@ -25,7 +25,7 @@ const CASES: { raw: unknown; place: Id<"place">; thing: string; act: string; ent
 ];
 
 describe("the waiting months' acts on their things", () => {
-  test("[R-ACTIVITY-013] [R-WORLD-005] given each act's place, when its things are read, then the place stages it in content, one act of one thing lists it, the thing offers at most two acts and every name resolves", () => {
+  test("[activity:waiting-months-build-profile] [world:things-are-tappable-models] given each act's place, when its things are read, then the place stages it in content, one act of one thing lists it, the thing offers at most two acts and every name resolves", () => {
     for (const { raw, place, thing, act, entries } of CASES) {
       const { stage, entry } = staged(raw, place);
       const found = stage.things?.find((candidate) => candidate.id === thing);
@@ -41,14 +41,14 @@ describe("the waiting months' acts on their things", () => {
     }
   });
 
-  test("[R-ACTIVITY-013] [R-WORLD-005] given the posts offered, when the laptops' act is read for now, then it happens at once with the character seated and no line, its label saying planned, and with the posts not offered the laptops offer nothing", () => {
+  test("[activity:waiting-months-build-profile] [world:things-are-tappable-models] given the posts offered, when the laptops' act is read for now, then it happens at once with the character seated and no line, its label saying planned, and with the posts not offered the laptops offer nothing", () => {
     const { stage, entry } = staged(roomFile, "place.yaba-hub");
     const laptops = stage.things?.find((candidate) => candidate.id === "laptops");
     if (laptops === undefined) throw new Error("The room has no laptops");
     const post = laptops.acts[0];
     expect(post?.kind).toBe("do");
     expect(post?.pose).toBe("sit");
-    // The seat shows the act, so it says no line; the laptops' label says it is planned (R-WORLD-005, R-TEXT-008).
+    // The seat shows the act, so it says no line; the laptops' label says it is planned (world:things-are-tappable-models, text:show-then-tell).
     expect(cityWords(`${post?.label ?? ""}.done`)).toBe(`${post?.label ?? ""}.done`);
     expect(plannedMarks([laptops], new Set(["activity.tech-posts"]))).toEqual({ laptops: say("ui.world.thing.planned") });
     const offered = thingsNow([laptops], stagedNow(new Set(["activity.tech-posts"]), new Set(entry.stages), new Set(), null));
@@ -56,7 +56,7 @@ describe("the waiting months' acts on their things", () => {
     expect(thingsNow([laptops], stagedNow(new Set(), new Set(entry.stages), new Set(), null))).toEqual([]);
   });
 
-  test("[R-ACTIVITY-013] [R-WORLD-006] given the exam open, when the clinic's chairs are read for now, then they offer the exam's sheet beside the seat; with no exam open, only the seat", () => {
+  test("[activity:waiting-months-build-profile] [world:one-action-one-sheet] given the exam open, when the clinic's chairs are read for now, then they offer the exam's sheet beside the seat; with no exam open, only the seat", () => {
     const { stage, entry } = staged(clinicFile, "place.tb-clinic");
     const chairs = stage.things?.find((candidate) => candidate.id === "chairs");
     if (chairs === undefined) throw new Error("The clinic has no chairs");

@@ -30,7 +30,7 @@ function settledTraderView() {
 }
 
 describe("the trader's chapter sheet", () => {
-  test("[R-ACTIVITY-016] [R-PROLOGUE-011] [R-CHAPTER-005] given a trader with the settlement a month in, when her chapter sheet opens, then it opens on the settlement, lists her steps in her words, and never says the service year", async () => {
+  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] [chapter:items-are-live-requirements] given a trader with the settlement a month in, when her chapter sheet opens, then it opens on the settlement, lists her steps in her words, and never says the service year", async () => {
     const view = settledTraderView();
     await renderWithView(<ChapterView />, view);
     expect(screen.getByText(text[`${FIRST_CHAPTER}.open.prologue.capital`]!)).toBeDefined();
@@ -38,7 +38,7 @@ describe("the trader's chapter sheet", () => {
     expect(document.body.textContent).not.toMatch(/service year|allowance/i);
   });
 
-  test("[R-ACTIVITY-016] [R-CHAPTER-005] given a fixed life, when its chapter sheet opens, then it opens on the life's own line", async () => {
+  test("[activity:trader-opens-own-shop] [chapter:items-are-live-requirements] given a fixed life, when its chapter sheet opens, then it opens on the life's own line", async () => {
     const view = newGame("scenario.tunde").view();
     await renderWithView(<ChapterView />, view);
     expect(screen.getByText(text[`${FIRST_CHAPTER}.open.tunde`]!)).toBeDefined();

@@ -1,4 +1,4 @@
-// R-ENGINE-015 (the splash): the page's first paint is the splash, written in
+// engine:browser-authority-for-dev-only (the splash): the page's first paint is the splash, written in
 // index.html, and the opening screen renders the same markup from one component. index.html is the one source of the
 // splash's style and of the mark's drawing; these tests hold the page and the component equal, the drawing equal to the
 // brand's small mark, the colours equal to the day paint's tokens, and the inline bytes under their budget.
@@ -35,18 +35,18 @@ function shapes(svg: string): string[] {
   return [...svg.matchAll(/<(?:circle|path)\b[^>]*\/>/g)].map((shape) => shape[0]);
 }
 
-describe("the splash (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given index.html, then what it paints inside #root is the splash component's own markup, so nothing jumps when the script mounts", () => {
+describe("the splash (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given index.html, then what it paints inside #root is the splash component's own markup, so nothing jumps when the script mounts", () => {
     expect(ROOT.trim()).toBe(renderToStaticMarkup(<Splash />));
   });
 
-  test("[R-ENGINE-015] given index.html's splash, then its only words are the game's name, never Opening your life, since the page cannot know yet whether this device keeps a life", () => {
+  test("[engine:browser-authority-for-dev-only] given index.html's splash, then its only words are the game's name, never Opening your life, since the page cannot know yet whether this device keeps a life", () => {
     const words = ROOT.replace(/<[^>]+>/g, "").trim();
     expect(words).toBe(say("ui.game"));
     expect(PAGE).not.toContain(say("ui.loading"));
   });
 
-  test("[R-ENGINE-015] given the mark's drawing in index.html, then it is the brand's small mark, shape for shape, drawn inline and never fetched", () => {
+  test("[engine:browser-authority-for-dev-only] given the mark's drawing in index.html, then it is the brand's small mark, shape for shape, drawn inline and never fetched", () => {
     expect(shapes(SMALL_MARK).length).toBeGreaterThan(0);
     expect(shapes(SYMBOL)).toEqual(shapes(SMALL_MARK));
     expect(SYMBOL).toContain('viewBox="0 0 512 512"');
@@ -54,7 +54,7 @@ describe("the splash (R-ENGINE-015)", () => {
     expect(ROOT).not.toMatch(/<img|src=/);
   });
 
-  test("[R-ENGINE-015] [R-WORLD-021] given the splash's style, then every colour is a role token whose first-paint fallback is the day paint's own value, and the body takes the game's ground", () => {
+  test("[engine:browser-authority-for-dev-only] [world:colours-are-role-tokens] given the splash's style, then every colour is a role token whose first-paint fallback is the day paint's own value, and the body takes the game's ground", () => {
     const day = /\n:root \{([\s\S]*?)\n\}/.exec(CSS)?.[1] ?? "";
     const used = [...STYLE.matchAll(/var\((--[\w-]+),\s*(#[0-9a-f]{3,6})\)/gi)];
     expect(used.length).toBeGreaterThan(0);
@@ -64,7 +64,7 @@ describe("the splash (R-ENGINE-015)", () => {
     expect(STYLE).toMatch(/body\{[^}]*background:var\(--sheet,/);
   });
 
-  test("[R-ENGINE-015] given the splash's words, then they pulse softly by opacity alone over two seconds, and stand still under reduced motion", () => {
+  test("[engine:browser-authority-for-dev-only] given the splash's words, then they pulse softly by opacity alone over two seconds, and stand still under reduced motion", () => {
     const keyframes = found(/@keyframes splash-pulse\{([\s\S]*?\})\}/, "pulse");
     const properties = new Set([...keyframes.matchAll(/([a-z-]+):/g)].map((property) => property[1]));
     expect([...properties]).toEqual(["opacity"]);
@@ -72,12 +72,12 @@ describe("the splash (R-ENGINE-015)", () => {
     expect(STYLE).toMatch(/@media \(prefers-reduced-motion:reduce\)\{\.splash-words\{animation:none\}\}/);
   });
 
-  test("[R-ENGINE-015] given the inline style and the mark's drawing, then together they stay under 1.5 KB", () => {
+  test("[engine:browser-authority-for-dev-only] given the inline style and the mark's drawing, then together they stay under 1.5 KB", () => {
     const bytes = Buffer.byteLength(STYLE) + Buffer.byteLength(SYMBOL) + Buffer.byteLength(ROOT);
     expect(bytes).toBeLessThan(1536);
   });
 
-  test("[R-ENGINE-015] given the splash, then its column starts a little over a fifth of the way down, so the mark and the name sit about a third down, clear of the thumb row", () => {
+  test("[engine:browser-authority-for-dev-only] given the splash, then its column starts a little over a fifth of the way down, so the mark and the name sit about a third down, clear of the thumb row", () => {
     expect(STYLE).toMatch(/\.splash\{[^}]*padding:22vh /);
   });
 });

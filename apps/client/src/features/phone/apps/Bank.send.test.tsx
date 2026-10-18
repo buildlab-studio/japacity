@@ -1,4 +1,4 @@
-// The money sheets say what you get (docs/rules/world.md R-WORLD-006),
+// The money sheets say what you get (world:one-action-one-sheet),
 // on Ada's recorded life just landed in London: Change money says the pounds that come before the
 // change is confirmed, and what is held in both monies after; Send money home lists the channels
 // with their cost and speed, an amount with its rate and the naira that lands, and a card whose
@@ -16,7 +16,7 @@ import { Bank } from "./Bank";
 import { askCard as card, sent } from "../phone.testing";
 
 describe("Change money says what you get", () => {
-  test("[R-WORLD-006] [R-WALLET-004] given Ada just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds she gets, the figure the engine gives, and what she holds in both monies after: the pounds in the bank on the line, the dollars left on the button", async () => {
+  test("[world:one-action-one-sheet] [wallet:bank-converts-at-official-rate] given Ada just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds she gets, the figure the engine gives, and what she holds in both monies after: the pounds in the bank on the line, the dollars left on the button", async () => {
     const game = recordedGame("ada-careful");
     const view = game.view();
     await renderWithView(<Bank />, view);
@@ -40,7 +40,7 @@ describe("Change money says what you get", () => {
 });
 
 describe("Send money home", () => {
-  test("[R-WORLD-006] [R-ABROAD-006] given Ada just landed, when Send money home opens in the Bank, then each channel says what it costs and how fast it lands, and the amount says its rate and the naira that lands", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given Ada just landed, when Send money home opens in the Bank, then each channel says what it costs and how fast it lands, and the amount says its rate and the naira that lands", async () => {
     const view = recordedGame("ada-careful").view();
     await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
@@ -59,7 +59,7 @@ describe("Send money home", () => {
     expect(quote).toContain(formatMoney(100, "GBP"));
   });
 
-  test("[R-WORLD-006] [R-ABROAD-006] given a quarter of the pounds by app, when the card opens and is confirmed, then its button says Send and the amount with what is left in pounds, and the money goes at once", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given a quarter of the pounds by app, when the card opens and is confirmed, then its button says Send and the amount with what is left in pounds, and the money goes at once", async () => {
     const view = recordedGame("ada-careful").view();
     const { authority } = await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
@@ -74,7 +74,7 @@ describe("Send money home", () => {
     await waitFor(() => expect(sent(authority)).toEqual([{ type: "wallet/remit", currency: "GBP", amount: quarter, channel: "app" }]));
   });
 
-  test("[R-WORLD-006] [R-ABROAD-006] given the bank's transfer picked, when the card opens, then its line says the naira lands next month", async () => {
+  test("[world:one-action-one-sheet] [abroad-money:remit-sends-money-home] given the bank's transfer picked, when the card opens, then its line says the naira lands next month", async () => {
     const view = recordedGame("ada-careful").view();
     await renderWithView(<Bank />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-bank-act="send"]')!);
@@ -87,7 +87,7 @@ describe("Send money home", () => {
 });
 
 describe("the Bank's foot and an open chooser", () => {
-  test("[R-WORLD-019] given Send money home opened abroad, when its ways stand, then the foot's buttons come after the last way and never stand over it; closed, the foot stands at the screen's foot again", async () => {
+  test("[world:phone-holds-what-phones-hold] given Send money home opened abroad, when its ways stand, then the foot's buttons come after the last way and never stand over it; closed, the foot stands at the screen's foot again", async () => {
     // The trap: Through someone cut under the foot's two buttons, with no sign it scrolls.
     const game = recordedGame("ada-careful");
     await renderWithView(<Bank opening="send" />, game.view());

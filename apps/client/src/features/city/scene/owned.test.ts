@@ -1,5 +1,5 @@
-// The market's things in the room and buy mode's floor rule (world.md R-WORLD-035,
-// R-WORLD-005, R-WORLD-029): what is owned stands at its set spot or where it was set down,
+// The market's things in the room and buy mode's floor rule (world:room-things-and-buy-mode,
+// world:things-are-tappable-models, world:room-seen-down-its-length): what is owned stands at its set spot or where it was set down,
 // taking the place of the model it replaces; buy mode only in a home of your own; a thing set down fits only on the floor,
 // clear of every other footprint and of the ways; the arrangement is kept beside the save by life.
 import { type Footprint, type FootprintBox } from "@japacity/assets";
@@ -57,12 +57,12 @@ function memoryStorage(): Pick<Storage, "getItem" | "setItem" | "removeItem"> & 
 }
 
 describe("the things in the room", () => {
-  test("[R-WORLD-035] [R-WORLD-029] given a home with nothing owned standing, when it is staged, then it is the same file, so nothing is rebuilt", () => {
+  test("[world:room-things-and-buy-mode] [world:room-seen-down-its-length] given a home with nothing owned standing, when it is staged, then it is the same file, so nothing is rebuilt", () => {
     const file = room();
     expect(showOwned(file, [])).toBe(file);
   });
 
-  test("[R-WORLD-035] [R-WORLD-029] given a fan, a new mattress and a TV owned, when the room is staged, then each stands at its set spot as a model of its own, the new mattress takes the old bed's place and the TV is a thing with its act", () => {
+  test("[world:room-things-and-buy-mode] [world:room-seen-down-its-length] given a fan, a new mattress and a TV owned, when the room is staged, then each stands at its set spot as a model of its own, the new mattress takes the old bed's place and the TV is a thing with its act", () => {
     const staged = showOwned(room(), ["thing.fan", "thing.mattress", "thing.tv"]);
     const models = staged.stage?.models ?? [];
     expect(models.find((model) => model.file === BED)).toBeUndefined();
@@ -75,12 +75,12 @@ describe("the things in the room", () => {
     expect(liftable(staged).map((item) => item.thing)).toEqual(["thing.fan", "thing.mattress", "thing.tv"]);
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given a fan set down somewhere else, when the room is staged, then it stands where it was set down, turned as it was", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given a fan set down somewhere else, when the room is staged, then it stands where it was set down, turned as it was", () => {
     const staged = showOwned(room(), ["thing.fan"], { "thing.fan": [2, 1, QUARTER] });
     expect(staged.stage?.models.find((model) => model.owned === "thing.fan")?.at).toEqual([[2, 1, QUARTER]]);
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given buy mode's homes, when it is asked where it stands, then only in the home lived in when it is a home of your own with something owned in it: never the family house, a street or someone else's room", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given buy mode's homes, when it is asked where it stands, then only in the home lived in when it is a home of your own with something owned in it: never the family house, a street or someone else's room", () => {
     expect(buyModeAt("place.compound-room", "place.compound-room", ["thing.fan"])).toBe(true);
     expect(buyModeAt("place.hostel-room", "place.hostel-room", ["thing.fan"])).toBe(true);
     expect(buyModeAt("place.makoko", "place.makoko", ["thing.fan"])).toBe(true);
@@ -95,40 +95,40 @@ describe("buy mode's floor rule", () => {
   const stage = (): Stage => room().stage!;
   const staged = (): Stage => showOwned(room(), ["thing.fan", "thing.tv"]).stage!;
 
-  test("[R-WORLD-035] [R-WORLD-005] given the fan lifted, when it is set down on open floor, then it fits", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given the fan lifted, when it is set down on open floor, then it fits", () => {
     expect(misfit(staged(), "thing.fan", FAN, [1.5, 0, 0], footprintOf)).toBeNull();
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given the fan lifted, when it is set down past the floor's edge or half over it, then it does not fit: the floor", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given the fan lifted, when it is set down past the floor's edge or half over it, then it does not fit: the floor", () => {
     expect(misfit(staged(), "thing.fan", FAN, [3.5, 0, 0], footprintOf)).toBe("floor");
     expect(misfit(staged(), "thing.fan", FAN, [2.9, 0, 0], footprintOf)).toBe("floor");
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given the fan lifted, when it is set down on the bed, on the TV or through the wall, then it does not fit: another thing", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given the fan lifted, when it is set down on the bed, on the TV or through the wall, then it does not fit: another thing", () => {
     expect(misfit(staged(), "thing.fan", FAN, [-2, 0.5, 0], footprintOf)).toBe("thing");
     expect(misfit(staged(), "thing.fan", FAN, [0.3, -2.5, 0], footprintOf)).toBe("thing");
     expect(misfit(staged(), "thing.fan", FAN, [1, -2.75, 0], footprintOf)).toBe("thing");
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given the fan lifted, when it is set down in the doorway, on a person's spot or where the bed is walked to, then it does not fit: the way", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given the fan lifted, when it is set down in the doorway, on a person's spot or where the bed is walked to, then it does not fit: the way", () => {
     expect(misfit(staged(), "thing.fan", FAN, [0, 2.6, 0], footprintOf)).toBe("way");
     expect(misfit(staged(), "thing.fan", FAN, [2, 2, 0], footprintOf)).toBe("way");
     expect(misfit(staged(), "thing.fan", FAN, [-1.2, 0, 0], footprintOf)).toBe("way");
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given the fan lifted from its spot, when it is set down where it stood, then it fits: it never collides with itself", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given the fan lifted from its spot, when it is set down where it stood, then it fits: it never collides with itself", () => {
     expect(misfit(staged(), "thing.fan", FAN, [1, -2, 0], footprintOf)).toBeNull();
     expect(misfit(stage(), "thing.fan", FAN, [1, -2, 0], footprintOf)).toBeNull();
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given a TV a quarter turned, when it is read, then a long thing turned takes the floor the other way, and a turn goes round in quarters", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given a TV a quarter turned, when it is read, then a long thing turned takes the floor the other way, and a turn goes round in quarters", () => {
     expect(misfit(staged(), "thing.tv", TV, [2.7, 0, 0], footprintOf)).toBe("floor");
     expect(misfit(staged(), "thing.tv", TV, [2.7, 0, QUARTER], footprintOf)).toBeNull();
     expect(turned([0, 0, 0])).toEqual([0, 0, QUARTER]);
     expect(turned(turned(turned(turned([0, 0, 0]))))[2]).toBeCloseTo(0, 6);
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given two boxes, when they only touch, then they do not overlap: a wardrobe may stand flush against a wall", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given two boxes, when they only touch, then they do not overlap: a wardrobe may stand flush against a wall", () => {
     const a = { x: 0, z: 0, halfWidth: 0.5, halfDepth: 0.5, cos: 1, sin: 0 };
     expect(boxesOverlap(a, { ...a, x: 1 })).toBe(false);
     expect(boxesOverlap(a, { ...a, x: 0.9 })).toBe(true);
@@ -137,7 +137,7 @@ describe("buy mode's floor rule", () => {
 });
 
 describe("the room's arrangement beside the save", () => {
-  test("[R-WORLD-035] [R-WORLD-005] given a thing set down, when the arrangement is read back for the same life, then it is where it was set down; another life reads nothing, and a new life forgets it", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given a thing set down, when the arrangement is read back for the same life, then it is where it was set down; another life reads nothing, and a new life forgets it", () => {
     const storage = memoryStorage();
     keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.ada", storage);
     keepArranged("place.compound-room", "thing.tv", [0, 1, 0], "scenario.ada", storage);
@@ -148,7 +148,7 @@ describe("the room's arrangement beside the save", () => {
     expect(storage.data.has(ARRANGED_KEY)).toBe(false);
   });
 
-  test("[R-WORLD-035] [R-WORLD-005] given a kept arrangement that is not well formed, when it is read, then the bad spots are dropped and nothing throws", () => {
+  test("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given a kept arrangement that is not well formed, when it is read, then the bad spots are dropped and nothing throws", () => {
     const storage = memoryStorage();
     storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: { "place.compound-room": { "thing.fan": [1, "x", 0], "thing.tv": [0, 1, 0] } } }));
     expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({ "thing.tv": [0, 1, 0] });
@@ -156,7 +156,7 @@ describe("the room's arrangement beside the save", () => {
     expect(arrangedIn("place.compound-room", "scenario.ada", storage)).toEqual({});
   });
 
-  test("[R-WORLD-009] [R-WORLD-029] given a wide home's view turned, when the life is reloaded, then the home opens on the quarter it was left on, each home its own, beside the arrangement without disturbing it; another life reads the house unturned, and a new life forgets it", () => {
+  test("[world:camera-always-raised] [world:room-seen-down-its-length] given a wide home's view turned, when the life is reloaded, then the home opens on the quarter it was left on, each home its own, beside the arrangement without disturbing it; another life reads the house unturned, and a new life forgets it", () => {
     const storage = memoryStorage();
     expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
     keepArranged("place.compound-room", "thing.fan", [1, 2, QUARTER], "scenario.ada", storage);
@@ -174,7 +174,7 @@ describe("the room's arrangement beside the save", () => {
     expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);
   });
 
-  test("[R-WORLD-009] given a kept turn that is not a quarter, when it is read, then it is dropped and the house opens unturned", () => {
+  test("[world:camera-always-raised] given a kept turn that is not a quarter, when it is read, then it is dropped and the house opens unturned", () => {
     const storage = memoryStorage();
     storage.setItem(ARRANGED_KEY, JSON.stringify({ scenario: "scenario.ada", homes: {}, turns: { "place.family-house": 1.5, "place.hostel-room": "2", "place.compound-room": 2 } }));
     expect(turnIn("place.family-house", "scenario.ada", storage)).toBe(0);

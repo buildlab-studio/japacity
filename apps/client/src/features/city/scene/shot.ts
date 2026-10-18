@@ -1,4 +1,4 @@
-// The camera of a place (docs/rules/world.md R-WORLD-009). The whole view looks at the place's centre
+// The camera of a place (world:camera-always-raised). The whole view looks at the place's centre
 // from far enough back that its width fits the screen; the close view looks at the character. Pure:
 // the scene feeds in the view and the screen's shape and reads back where to stand.
 import type { Shot } from "../../../shared/world/contract";
@@ -10,7 +10,7 @@ import { thingSpot, thingsOf } from "./things";
 export const SHOT_FOV = 50;
 /**
  * The camera's near plane, in metres. The raised view never comes closer than a few metres, so
- * the depth buffer is spent on the place and faces a centimetre apart stay apart (R-WORLD-012).
+ * the depth buffer is spent on the place and faces a centimetre apart stay apart (world:faces-never-share-height).
  */
 export const SHOT_NEAR_PLANE = 1;
 /** A little room round the place's width, so its edge is not cut by the screen's. */
@@ -89,13 +89,13 @@ export function shotOf(stage: Pick<Stage, "start" | "models" | "things" | "shot"
 }
 
 /**
- * The pitch a room seen down its length is shown whole at (R-WORLD-029): from straight above a
+ * The pitch a room seen down its length is shown whole at (world:room-seen-down-its-length): from straight above a
  * standing figure is a dot in a room this long, so the whole view looks in from lower and the people stand up in it.
  */
 export const ROOM_PITCH = 50;
 
 /**
- * A room seen down its length (R-WORLD-029): an interior whose floor's long side runs up the screen, the shot turned a
+ * A room seen down its length (world:room-seen-down-its-length): an interior whose floor's long side runs up the screen, the shot turned a
  * quarter from the floor's own axes. Its whole view keeps the file's distance and width, from no higher than ROOM_PITCH.
  */
 export function roomShot(shot: Shot, stage: Pick<Stage, "ground" | "shot">, scope: "exterior" | "interior"): Shot {
@@ -151,7 +151,7 @@ export function quarterTurns(turn: number): 0 | 1 | 2 | 3 {
 
 /**
  * The view from above: a vertical drag lifts a wide home's view from its own pitch to
- * this one, about 65 degrees, raised and never straight down (R-WORLD-009), and it comes to rest on one of the two.
+ * this one, about 65 degrees, raised and never straight down (world:camera-always-raised), and it comes to rest on one of the two.
  */
 export const TOP_PITCH = 65;
 
@@ -186,7 +186,7 @@ export const EASE = 7;
 /** How close to its end an easing view comes before it stands there. */
 export const SETTLE = 0.002;
 /**
- * The same easing for a wide home's rooms (world.md R-WORLD-029), quick enough that a
+ * The same easing for a wide home's rooms (world:room-seen-down-its-length), quick enough that a
  * tap or a pinch has the camera in on the room, or back on the whole house, in under 400 ms.
  */
 export const ROOM_EASE = 12;
@@ -194,7 +194,7 @@ export const ROOM_SETTLE = 0.01;
 
 /**
  * One frame of the zoom's easing toward where it is going: a share of the way still to go, standing at the end once close.
- * Under reduced motion (`still`, world.md R-WORLD-023) it stands at the end at once, with no ease.
+ * Under reduced motion (`still`, world:motions-under-half-second) it stands at the end at once, with no ease.
  */
 export function easeZoom(zoom: number, to: number, delta: number, rate = EASE, settle = SETTLE, still = false): number {
   if (still) return to;
@@ -215,9 +215,9 @@ export interface ViewEase {
 }
 
 /**
- * One frame of a wide home's view (R-WORLD-029): the ease in on a room or back out to the whole
+ * One frame of a wide home's view (world:room-seen-down-its-length): the ease in on a room or back out to the whole
  * house, a quarter turn and the tilt, each at the rooms' rate, in under 400 ms, once no finger holds it. Under reduced
- * motion (`still`, R-WORLD-023) each changes at once instead; a finger still moves the view live while it drags.
+ * motion (`still`, world:motions-under-half-second) each changes at once instead; a finger still moves the view live while it drags.
  */
 export function easeRoomView(view: ViewEase, delta: number, still = false): Pick<ViewEase, "zoom" | "turn" | "tilt"> {
   const zoom = view.pinching ? view.zoom : easeZoom(view.zoom, view.zoomTo, delta, ROOM_EASE, ROOM_SETTLE, still);
@@ -238,7 +238,7 @@ export function roomAt(rooms: readonly Room[], x: number, z: number): Room | nul
 export type HomeTap = { kind: "in"; room: Room } | { kind: "out" } | { kind: "walk" };
 
 /**
- * A tap on a wide home's floor or walls (R-WORLD-029): from the whole house (`whole`)
+ * A tap on a wide home's floor or walls (world:room-seen-down-its-length): from the whole house (`whole`)
  * it eases in on the room tapped; eased in on `current`, a tap outside it eases back out to the whole house, and a tap
  * inside it walks there as anywhere.
  */
@@ -269,7 +269,7 @@ export interface HomeView {
 }
 
 /**
- * Where the camera stands and looks, and its lens, for a wide home (world.md R-WORLD-029): at
+ * Where the camera stands and looks, and its lens, for a wide home (world:room-seen-down-its-length): at
  * `zoom` 1 the whole house seen down its length on the shot's long lens, fitted
  * to its width; at 0 eased in on `room` at the rooms' distance on the scene's own lens, the rest of the house running off
  * the screen's edges; between, the two mixed. The view looks from the file's facing turned by `view.turn`, the house
@@ -333,7 +333,7 @@ export function roomAcross(room: Pick<Room, "width" | "floor"> & { centre?: Room
 
 /**
  * How far back the eased-in view of a room stands. A phone held upright fits the room's width across the screen, its
- * length running off the top and bottom by design (R-WORLD-029). A screen wider than tall would come far too
+ * length running off the top and bottom by design (world:room-seen-down-its-length). A screen wider than tall would come far too
  * close on the width alone, so there the room's floor along the view must stand inside the lens's height too, and a
  * thing at the room's near edge (the bed in the corner) stays on screen on a laptop as it does on a phone. Turned
  *, the width is the room's floor as it lies across the turned view (`roomAcross`) and the depth as

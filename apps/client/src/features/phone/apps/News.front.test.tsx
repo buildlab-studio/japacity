@@ -1,6 +1,6 @@
-// The front of News on the phone (docs/rules/news.md R-NEWS-001, R-NEWS-004; director.md R-DIRECTOR-002; lottery.md
-// R-LOTTERY-016), each assertion against the News app: the era with its months, the last Friday draw, the empty line, the stories and
-// where each was heard. The era's months are said as months ago and from now, never a month's number (world.md R-WORLD-002).
+// The front of News on the phone (news:stages-move-forward-only, news:changed-stages-delivered-once; director:one-era-at-a-time; lottery.md
+// lottery:draw-result-on-front-page), each assertion against the News app: the era with its months, the last Friday draw, the empty line, the stories and
+// where each was heard. The era's months are said as months ago and from now, never a month's number (world:top-band-is-lively-pill).
 import { content, text } from "@japacity/content";
 import type { LotteryResult, PlayerView } from "@japacity/sim";
 import { screen } from "@testing-library/react";
@@ -54,7 +54,7 @@ function online(last: LotteryResult | null): PlayerView {
 const stories = () => [...document.querySelectorAll<HTMLElement>("[data-story]")];
 
 describe("the draw on the front of News", () => {
-  test("[R-LOTTERY-016] given a drawn draw whose jackpot was hit, when the news is read, then the front page gives the jackpot it stood at, that it was hit, and how many tickets won, and no ticket number or code", async () => {
+  test("[lottery:draw-result-on-front-page] given a drawn draw whose jackpot was hit, when the news is read, then the front page gives the jackpot it stood at, that it was hit, and how many tickets won, and no ticket number or code", async () => {
     await renderWithView(<News />, online(RESULT));
     const line = document.querySelector<HTMLElement>("[data-news-drawn]")!;
     expect(line.textContent).toContain(say("ui.news.drawn", { draw: 6, jackpot: formatMoney(24_000_000, "NGN"), winners: 17 }));
@@ -62,14 +62,14 @@ describe("the draw on the front of News", () => {
     expect(line.textContent).not.toContain(RESULT.listHash);
   });
 
-  test("[R-LOTTERY-016] given a draw whose jackpot nobody hit, or one with no ticket sold, when the news is read, then the line says it rolls over, or that nobody won", () => {
+  test("[lottery:draw-result-on-front-page] given a draw whose jackpot nobody hit, or one with no ticket sold, when the news is read, then the line says it rolls over, or that nobody won", () => {
     const missed: LotteryResult = { ...RESULT, winners: [{ tier: "jackpot", tickets: [], amount: 24_000_000 }, ...RESULT.winners.slice(1)], nextJackpot: 24_600_000 };
     expect(drawnWords(missed)).toBe(say("ui.news.drawn-rolled", { draw: 6, jackpot: formatMoney(24_000_000, "NGN"), winners: 16 }));
     const empty: LotteryResult = { ...RESULT, count: 0, winners: RESULT.winners.map((tier) => ({ ...tier, tickets: [] })) };
     expect(drawnWords(empty)).toBe(say("ui.news.drawn-none", { draw: 6 }));
   });
 
-  test("[R-LOTTERY-016] given no draw drawn yet or the game offline, when the news is read, then there is no draw line", async () => {
+  test("[lottery:draw-result-on-front-page] given no draw drawn yet or the game offline, when the news is read, then there is no draw line", async () => {
     await renderWithView(<News />, online(null));
     expect(document.querySelector("[data-news-drawn]")).toBeNull();
     expect(screen.getByText(say("ui.news.title"))).toBeDefined();
@@ -91,7 +91,7 @@ describe("the era on the front of News", () => {
     expect(document.querySelector("[data-era]")).toBeNull();
   });
 
-  test("[R-DIRECTOR-002] given the engine's era, then the front page names it with the month it began and the month it is due to end", async () => {
+  test("[director:one-era-at-a-time] given the engine's era, then the front page names it with the month it began and the month it is due to end", async () => {
     const view = abroadView(1);
     const era = view.era!;
     await renderWithView(<News />, view);
@@ -103,7 +103,7 @@ describe("the era on the front of News", () => {
     expect(document.querySelector("[data-era-months]")?.className).toContain("chip-wrap");
   });
 
-  test("[R-DIRECTOR-002] given an era that began before the life, then it says so rather than a month before the first", async () => {
+  test("[director:one-era-at-a-time] given an era that began before the life, then it says so rather than a month before the first", async () => {
     const base = abroadView();
     const view = { ...base, era: { ...base.era!, sinceMonth: -3 } };
     await renderWithView(<News />, view);
@@ -139,7 +139,7 @@ describe("the stories in News", () => {
 });
 
 describe("where a story comes from", () => {
-  test("[R-NEWS-004] given every story at every stage past its rumour, when its source is read, then it is one of the five and has a word", () => {
+  test("[news:changed-stages-delivered-once] given every story at every stage past its rumour, when its source is read, then it is one of the five and has a word", () => {
     for (const entry of Object.values(content.news)) {
       for (const stage of ["announced", "in-force"] as const) {
         const source = newsSource(entry.id, stage);
@@ -150,16 +150,16 @@ describe("where a story comes from", () => {
     }
   });
 
-  test("[R-NEWS-004] given a story told by a person, when its source is read, then the word is the person's name", () => {
+  test("[news:changed-stages-delivered-once] given a story told by a person, when its source is read, then the word is the person's name", () => {
     expect(newsSource("news.uk-unis-recruit", "in-force")).toEqual({ kind: "person", word: text["news.uk-unis-recruit.in-force.source"] });
     expect(text["news.uk-unis-recruit.in-force.source"]).toBe("Tolu");
   });
 
-  test("[R-NEWS-001] [R-NEWS-004] given a rumour, when its source is read, then it is marked a rumour with its own word", () => {
+  test("[news:stages-move-forward-only] [news:changed-stages-delivered-once] given a rumour, when its source is read, then it is marked a rumour with its own word", () => {
     expect(newsSource("news.uk-living-rise", "rumour")).toEqual({ kind: "rumour", word: say("ui.news.source.rumour") });
   });
 
-  test("[R-NEWS-004] given News on the phone, when stories show, then each carries its source mark", async () => {
+  test("[news:changed-stages-delivered-once] given News on the phone, when stories show, then each carries its source mark", async () => {
     await renderWithView(<News />, richView());
     const marks = [...document.querySelectorAll<HTMLElement>("[data-source]")];
     expect(marks.length).toBe(richView().news.length);

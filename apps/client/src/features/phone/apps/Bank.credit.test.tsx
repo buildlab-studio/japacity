@@ -1,6 +1,6 @@
-// The credit file abroad in the Bank (docs/rules/credit.md R-CREDIT-006, R-CREDIT-007): the mark, the counts, a
+// The credit file abroad in the Bank (credit:judgment-blocks-credit, credit:view-shows-credit-file): the mark, the counts, a
 // judgment and when it clears, and what the next ten points buy are the Bank's card abroad; the month it clears is said
-// as months away (R-WORLD-002).
+// as months away (world:top-band-is-lively-pill).
 import type { PlayerView } from "@japacity/sim";
 import { screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -15,7 +15,7 @@ function nextTen(): HTMLElement {
 }
 
 describe("the credit file in the Bank", () => {
-  test("[R-CREDIT-007] given Ada just landed with an empty file, then the mark is a meter at nothing and the phone contract is what the next ten points buy", async () => {
+  test("[credit:view-shows-credit-file] given Ada just landed with an empty file, then the mark is a meter at nothing and the phone contract is what the next ten points buy", async () => {
     const view = abroadView();
     const file = view.credit!;
     expect(file.mark).toBe(0);
@@ -27,14 +27,14 @@ describe("the credit file in the Bank", () => {
     for (const need of soon) expect(within(nextTen()).getByText(say("ui.credit.need", { name: nameOf(need.id), min: need.creditMin }))).toBeDefined();
   });
 
-  test("[R-CREDIT-007] given a mark of 24, then what is open now, what the next ten points buy and what is further off are told apart", async () => {
+  test("[credit:view-shows-credit-file] given a mark of 24, then what is open now, what the next ten points buy and what is further off are told apart", async () => {
     await renderWithView(<Bank />, richAbroadView());
     expect(screen.getByText(say("ui.credit.next-ten", { mark: 34 }))).toBeDefined();
     expect(within(nextTen()).getByText(say("ui.credit.need", { name: nameOf("obligation.car"), min: 30 }))).toBeDefined();
     expect(screen.getByText(`${nameOf("obligation.phone-uk")}, ${nameOf("obligation.rent-flat-uk")}`)).toBeDefined();
   });
 
-  test("[R-CREDIT-006] given a judgment on the file, then the month it clears shows, as months away, and nothing above 20 is offered", async () => {
+  test("[credit:judgment-blocks-credit] given a judgment on the file, then the month it clears shows, as months away, and nothing above 20 is offered", async () => {
     const rich = richAbroadView();
     const view: PlayerView = { ...rich, credit: { ...rich.credit!, mark: 25, judgmentUntil: 90 } };
     await renderWithView(<Bank />, view);

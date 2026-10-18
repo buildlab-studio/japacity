@@ -52,7 +52,7 @@ describe("the table of pictures", () => {
     expect(named.filter((id) => !(id in TILE_TABLE))).toEqual([]);
   });
 
-  test("[R-WORLD-019] given every paper and every way out in content, when the phone's Papers and Japa ask for its picture, then the table has a row for it", () => {
+  test("[world:phone-holds-what-phones-hold] given every paper and every way out in content, when the phone's Papers and Japa ask for its picture, then the table has a row for it", () => {
     expect(Object.keys(content.document).filter((id) => !(id in TILE_TABLE))).toEqual([]);
     expect(Object.keys(content.route).filter((id) => !(id in TILE_TABLE))).toEqual([]);
   });
@@ -81,7 +81,7 @@ describe("the table of pictures", () => {
     const things = new Set(homeThings.map((thing) => `thing.${thing.id}`));
     const unknown = Object.keys(TILE_TABLE).filter((id) => {
       if (id.startsWith("thing.")) return !things.has(id);
-      // The acts' glyphs (R-WORLD-034): `act.<glyph>` for each glyph drawn, and only those.
+      // The acts' glyphs (world:fan-of-sticker-buttons): `act.<glyph>` for each glyph drawn, and only those.
       if (id.startsWith("act.")) return !(ACT_GLYPHS as readonly string[]).includes(id.slice("act.".length));
       if (id.startsWith("phone.")) return !PHONE_PICTURES.includes(id);
       // The market's things: `market.<slug>` for the thing `thing.<slug>` of content.
@@ -101,14 +101,14 @@ describe("the table of pictures", () => {
     expect(standIns().map((row) => row.id)).toEqual(rows.filter(([, row]) => typeof row !== "string").map(([id]) => id).sort());
   });
 
-  test("[R-WORLD-034] given the acts with no activity of their own, when their pictures are asked for, then each kind has its drawn glyph, none stands in, and the glyph rows are exactly those", () => {
+  test("[world:fan-of-sticker-buttons] given the acts with no activity of their own, when their pictures are asked for, then each kind has its drawn glyph, none stands in, and the glyph rows are exactly those", () => {
     expect([...ACT_GLYPHS]).toEqual(expect.arrayContaining(["sit", "lie", "sleep", "pay", "papers", "pack", "out", "talk"]));
     for (const glyph of ACT_GLYPHS) expect(tileOf(glyphTile(glyph))).toEqual({ glyph });
     expect(Object.keys(TILE_TABLE).filter((id) => id.startsWith("act.")).sort()).toEqual(ACT_GLYPHS.map(glyphTile).sort());
     expect(standIns().filter((row) => row.id.startsWith("act."))).toEqual([]);
   });
 
-  test("[R-HOME-001] given every thing of the market, when the phone's Market asks for its picture, then the table has a row for it naming a model, never a stand-in", () => {
+  test("[home:home-slice-fields] given every thing of the market, when the phone's Market asks for its picture, then the table has a row for it naming a model, never a stand-in", () => {
     const rows = Object.keys(content.thing).map((id) => ({ id, row: TILE_TABLE[marketTile(id)] }));
     expect(rows.filter(({ row }) => typeof row !== "string").map(({ id }) => id)).toEqual([]);
   });

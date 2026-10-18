@@ -1,4 +1,4 @@
-// No simulation number in a player's words (docs/rules/text.md R-TEXT-005): a quality is
+// No simulation number in a player's words (text:bands-not-figures): a quality is
 // said by its band, never its figure. The talent file read "Tech skill at 75 or more" and the board "₦90,000 at
 // tech 50", while no screen ever shows a tech number. Walked over the real content: every quality, every
 // requirement on one, every side job's tier and every route's checklist.
@@ -47,7 +47,7 @@ function qualityGates(): Requirement[] {
 }
 
 describe("qualities in words, never numbers", () => {
-  test("[R-TEXT-005] given every quality the player is shown, when it moves to any value, then its line says no figure", () => {
+  test("[text:bands-not-figures] given every quality the player is shown, when it moves to any value, then its line says no figure", () => {
     expect(SHOWN.length).toBeGreaterThan(0);
     const figures: string[] = [];
     for (const entry of SHOWN) {
@@ -61,7 +61,7 @@ describe("qualities in words, never numbers", () => {
     expect(figures).toEqual([]);
   });
 
-  test("[R-TEXT-005] given every requirement on a quality the player is shown in content, when it is said, then no figure follows the quality's name", () => {
+  test("[text:bands-not-figures] given every requirement on a quality the player is shown in content, when it is said, then no figure follows the quality's name", () => {
     // A hidden quality (the health counters) gates only the draws; the player sees the warning and the offers, never the gate.
     const shown = new Set<string>(SHOWN.map((entry) => entry.id));
     const gates = qualityGates().filter((gate) => "quality" in gate && shown.has(gate.quality));
@@ -69,7 +69,7 @@ describe("qualities in words, never numbers", () => {
     expect(gates.map((gate) => requirementSentence(gate)).filter(saysAFigure)).toEqual([]);
   });
 
-  test("[R-TEXT-005] [R-ACTIVITY-014] given every side job's tier in content, when what lifts the pay is said, then it is the band the tier opens at, never a figure", () => {
+  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given every side job's tier in content, when what lifts the pay is said, then it is the band the tier opens at, never a figure", () => {
     const tiers = Object.values(content.activity).flatMap((entry) => entry.tiers ?? []);
     expect(tiers.length).toBeGreaterThan(0);
     for (const tier of tiers) {
@@ -79,13 +79,13 @@ describe("qualities in words, never numbers", () => {
     }
   });
 
-  test("[R-TEXT-005] [R-ACTIVITY-014] given weekend tutoring under its tech tier, when the board says its pay, then the tier's pay is said with the band it opens at", () => {
+  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given weekend tutoring under its tech tier, when the board says its pay, then the tier's pay is said with the band it opens at", () => {
     const view = newGame("scenario.ada").view();
     expect(liftWords(view, "activity.weekend-tutoring")).toBe(`${say("ui.tier.lift", { next: "₦90,000", band: "your tech is good" })}`);
     expect(payLiftWords("activity.weekend-tutoring", view)).toBe("₦60,000 a month; ₦90,000 once your tech is good");
   });
 
-  test("[R-TEXT-005] [R-WORLD-019] given every route's checklist in content, when its items are said, then none says a quality's figure, and the talent file asks for strong tech", () => {
+  test("[text:bands-not-figures] [world:phone-holds-what-phones-hold] given every route's checklist in content, when its items are said, then none says a quality's figure, and the talent file asks for strong tech", () => {
     const said = Object.values(content.route).flatMap((route) => route.checklist.map((item) => checklistWords(route.id, item.id)));
     expect(said.length).toBeGreaterThan(0);
     expect(said.filter(saysAFigure)).toEqual([]);
@@ -93,7 +93,7 @@ describe("qualities in words, never numbers", () => {
     expect(checklistWords("route.uk-talent", "tech")).toBe("Strong tech");
   });
 
-  test("[R-TEXT-005] given every chapter's items in content, when they are said, then none says a quality's figure", () => {
+  test("[text:bands-not-figures] given every chapter's items in content, when they are said, then none says a quality's figure", () => {
     const said = Object.values(content.chapter).flatMap((chapter) => chapter.items.map((item) => words(`${chapter.id}.item.${item.id}`)));
     expect(said.length).toBeGreaterThan(0);
     expect(said.filter(saysAFigure)).toEqual([]);

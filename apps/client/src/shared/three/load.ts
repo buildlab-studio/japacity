@@ -1,4 +1,4 @@
-// Loading a place's files (city.md R-CITY-018, R-CITY-024). Every file is fetched by the name
+// Loading a place's files (city:places-load-on-entry, city:place-words-are-text-keys). Every file is fetched by the name
 // tools/assets/publish.ts gave it, which carries the hash of its contents, so the browser keeps it
 // and a second visit downloads nothing. Models are decoded with meshopt, given flat shading, and
 // lettered from the place's text keys once the sign font has loaded.
@@ -20,7 +20,7 @@ function loadSignFont(): Promise<unknown> {
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const models = new Map<string, Promise<Group>>();
 
-/** Smooth shading on the parts a builder named round (R-ASSET-005), wherever prepareModel left them flat. */
+/** Smooth shading on the parts a builder named round (assets:flat-and-smooth-shading), wherever prepareModel left them flat. */
 function keepRoundPartsSmooth(root: Object3D): void {
   root.traverse((object) => {
     if ((object.userData as { smooth?: unknown }).smooth !== true) return;

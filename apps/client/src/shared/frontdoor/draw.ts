@@ -1,4 +1,4 @@
-// The front door's draw (prologue.md R-PROLOGUE-011): a tile's path is open from the first card. Where a life
+// The front door's draw (prologue:tile-path-open-from-start): a tile's path is open from the first card. Where a life
 // may be started over (the local authority), it starts on the first of a few named seeds whose draws keep every
 // step the tile chooses open, played as the tile plays it. Online the server draws once, and the life is read
 // as it was lived.
@@ -9,7 +9,7 @@ import { type Archetype, doorAnswer, FROM_SIXTEEN, ownSteps, presetAnswer } from
 
 export { FROM_SIXTEEN };
 
-/** How many named seeds the front door tries before it takes the first (R-PROLOGUE-011). */
+/** How many named seeds the front door tries before it takes the first (prologue:tile-path-open-from-start). */
 export const SEED_TRIES = 8;
 
 /** The prologue has eleven cards and a few beats between; a life that runs past this is broken, not long. */
@@ -50,7 +50,7 @@ export function keepsTile(archetype: Archetype, seed: string, world: World, cont
 
 /**
  * The seed a tile's life starts on where a life may be started over: the first of `base-0` to `base-7` that keeps
- * the tile's path, or `base-0` when none does, whose life is then read as lived (R-PROLOGUE-011).
+ * the tile's path, or `base-0` when none does, whose life is then read as lived (prologue:tile-path-open-from-start).
  */
 export function tileSeed(archetype: Archetype, base: string, world: World, content: Content): string {
   for (let n = 0; n < SEED_TRIES; n += 1) {

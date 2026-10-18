@@ -1,4 +1,4 @@
-// Draws the page's photo (prologue.md R-PROLOGUE-015): the look standing, in the player's colours, framed from the
+// Draws the page's photo (prologue:player-colours-on-looks): the look standing, in the player's colours, framed from the
 // chest up against nothing, once, on the one renderer every still is drawn on. Loaded only when a photo is drawn.
 // The door's figure in the player's colours is drawn the same way, whole, as the shooter frames the published figure;
 // and the door reads what a look is made of here, for "Make it yours", now that no turntable stands on the door.
@@ -108,7 +108,7 @@ async function still(root: Object3D, camera: PerspectiveCamera, width: number, h
 }
 
 /**
- * The door's whole figure in the player's colours (R-PROLOGUE-015): posed with a hand on the hip, or cheering, seen
+ * The door's whole figure in the player's colours (prologue:player-colours-on-looks): posed with a hand on the hip, or cheering, seen
  * from 25 degrees to its left as the shooter shoots the published figure, so the still stands where that picture stood.
  * An object address the caller revokes once nothing shows it.
  */
@@ -130,7 +130,7 @@ export async function renderFigure(file: string, style: LookStyle | undefined, v
   return still(figure.root, camera, FIGURE_PX.width, FIGURE_PX.height);
 }
 
-/** What a look is made of, read from its figure through the skeleton (R-PROLOGUE-015), for the rows of "Make it yours". */
+/** What a look is made of, read from its figure through the skeleton (prologue:player-colours-on-looks), for the rows of "Make it yours". */
 export async function readOwn(file: string): Promise<OwnColours | null> {
   const manifest = await loadManifest();
   const model = await loadModel(manifest, file, (key) => text[key]);

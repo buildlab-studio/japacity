@@ -1,4 +1,4 @@
-// R-SERVER-038: the build's own commit, read from the tag the build put in index.html (vite/stamp.plugin.ts) and said
+// server:production-and-staging: the build's own commit, read from the tag the build put in index.html (vite/stamp.plugin.ts) and said
 // once in the console, so a stale page kept by a cache can be told apart from a new one.
 
 export const STAMP_META = "japacity-build";

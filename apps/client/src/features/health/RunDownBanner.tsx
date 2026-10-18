@@ -1,4 +1,4 @@
-// The run-down warning (R-HEALTH-001, R-HEALTH-007): while it stands, a banner
+// The run-down warning (health:low-wellbeing-warns-first, health:view-shows-health-warning): while it stands, a banner
 // above every tab says so, with wellbeing against the line and what helps.
 // Illness comes from staying under the line, so the banner names the line.
 import { content } from "@japacity/content";

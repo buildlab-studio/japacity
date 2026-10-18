@@ -1,5 +1,5 @@
-// What the home's acts show where they are done (docs/rules/world.md R-WORLD-005; activity.md R-ACTIVITY-019; clock.md
-// R-CLOCK-033): a meal keeps the steam, jollof more of it and longer, the bath's drops off the drum, the television's
+// What the home's acts show where they are done (world:things-are-tappable-models; activity:acts-may-repeat-in-month; clock.md
+// clock:game-day-on-real-time): a meal keeps the steam, jollof more of it and longer, the bath's drops off the drum, the television's
 // flicker while Nollywood plays, the lantern turned up for study, and the lamps that glow as the light goes. Read from the
 // shipped files.
 import { Group, InstancedMesh, Mesh, Sprite } from "three";
@@ -31,7 +31,7 @@ function copyOf(stage: Stage, suffix: string): readonly number[] {
 const near = (a: readonly number[], x: number, z: number, within: number): boolean => Math.hypot((a[0] ?? 0) - x, (a[2] ?? 0) - z) < within;
 
 describe("what the home's acts show", () => {
-  test("[R-WORLD-005] [R-ACTIVITY-019] given jollof cooked at each home, when its answer is read, then it is steam off the same pot as the meal's, more puffs, for a while each time it lands, never standing for the month", () => {
+  test("[world:things-are-tappable-models] [activity:acts-may-repeat-in-month] given jollof cooked at each home, when its answer is read, then it is steam off the same pot as the meal's, more puffs, for a while each time it lands, never standing for the month", () => {
     for (const { name, stage } of HOMES) {
       // Each home's corner names its own meal and pot: the family house's pot, or one of your own.
       const cook = (stage.things ?? []).flatMap((thing) => thing.acts).find((act) => act.id === "cook");
@@ -48,7 +48,7 @@ describe("what the home's acts show", () => {
     }
   });
 
-  test("[R-WORLD-005] [R-ACTIVITY-019] given a bucket bath at each home with a drum, when its answer is read, then drops fall off the drum's rim to the floor for a few seconds", () => {
+  test("[world:things-are-tappable-models] [activity:acts-may-repeat-in-month] given a bucket bath at each home with a drum, when its answer is read, then drops fall off the drum's rim to the floor for a few seconds", () => {
     for (const { name, stage, drum } of HOMES) {
       const [bath] = showsFor(stage, "activity.bucket-bath");
       const drops = bath?.motion[0];
@@ -63,7 +63,7 @@ describe("what the home's acts show", () => {
     }
   });
 
-  test("[R-WORLD-005] [R-ACTIVITY-019] given Nollywood with Papa, when its answer is read, then the television's screen flickers while it plays and its light spills into the room; only the parlour has a television", () => {
+  test("[world:things-are-tappable-models] [activity:acts-may-repeat-in-month] given Nollywood with Papa, when its answer is read, then the television's screen flickers while it plays and its light spills into the room; only the parlour has a television", () => {
     const [tv] = showsFor(parlour, "activity.watch-tv");
     if (tv === undefined) throw new Error("No television's answer");
     const [x = 0, z = 0, turn = 0] = copyOf(parlour, "prop_tv-stand.glb");
@@ -80,7 +80,7 @@ describe("what the home's acts show", () => {
     expect(stageOf(makokoRaw as unknown as PlaceFile).things?.some((thing) => thing.acts.some((act) => act.stages === "activity.watch-tv"))).toBe(false);
   });
 
-  test("[R-WORLD-005] [R-ACTIVITY-019] given study at the parlour's table, when its answer is read, then the lantern beside it is turned up for a while, for the English, the course and the portfolio alike", () => {
+  test("[world:things-are-tappable-models] [activity:acts-may-repeat-in-month] given study at the parlour's table, when its answer is read, then the lantern beside it is turned up for a while, for the English, the course and the portfolio alike", () => {
     const [x, z] = copyOf(parlour, "prop_lantern.glb");
     for (const study of ["activity.study-english", "activity.learn-tech", "activity.build-portfolio"]) {
       const [show] = showsFor(parlour, study);
@@ -92,7 +92,7 @@ describe("what the home's acts show", () => {
     }
   });
 
-  test("[R-CLOCK-033] given the homes, when their lamps are read, then the parlour has its bulb and its lantern, the room in a compound and the room abroad their bulbs, each a warm point that adds no light", () => {
+  test("[clock:game-day-on-real-time] given the homes, when their lamps are read, then the parlour has its bulb and its lantern, the room in a compound and the room abroad their bulbs, each a warm point that adds no light", () => {
     const parlourLamps = parlour.light.lamps ?? [];
     expect(parlourLamps.filter((lamp) => lamp.bulb === true)).toHaveLength(1);
     const [lx, lz] = copyOf(parlour, "prop_lantern.glb");
@@ -110,7 +110,7 @@ describe("what the home's acts show", () => {
     }
   });
 
-  test("[R-WORLD-005] given each new kind of answer, when it is built at the mode's mesh level, then it is one cheap piece: the drops one instanced draw, the flicker one plane, the glow a halo", () => {
+  test("[world:things-are-tappable-models] given each new kind of answer, when it is built at the mode's mesh level, then it is one cheap piece: the drops one instanced draw, the flicker one plane, the glow a halo", () => {
     const [bath] = showsFor(parlour, "activity.bucket-bath");
     const [tv] = showsFor(parlour, "activity.watch-tv");
     const drops = bath?.motion[0];

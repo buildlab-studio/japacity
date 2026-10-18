@@ -21,7 +21,7 @@ async function stackSetup(): Promise<void> {
     if (health === null || !health.ok()) throw new Error(`Nothing answers at ${stack.siteUrl}/api/health. Start the local stack first: pnpm dev:full`);
     const mail = await http.get(`${stack.mailpitUrl}/api/v1/info`).catch(() => null);
     if (mail === null || !mail.ok()) throw new Error(`Mailpit does not answer at ${stack.mailpitUrl}. Start the local stack first: pnpm dev:full`);
-    // The world's five-minute job: the ticks and the Friday draw (R-CLOCK-012, R-LOTTERY-001).
+    // The world's five-minute job: the ticks and the Friday draw (clock:cron-stores-missing-ticks, lottery:draw-runs-online-only).
     const cron = await http.post(cronUrl(stack), { data: { cron: "*/5 * * * *" } });
     if (!cron.ok()) throw new Error(`The world's cron did not run: ${String(cron.status())} ${await cron.text()}`);
   } finally {

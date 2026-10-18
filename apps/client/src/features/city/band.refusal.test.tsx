@@ -1,4 +1,4 @@
-// The band after a refusal (docs/rules/world.md R-WORLD-002, R-WORLD-003): the nudge "Ask for the
+// The band after a refusal (world:top-band-is-lively-pill, world:nudge-says-one-thing): the nudge "Ask for the
 // endorsement again in 6 months" over the coming chip "You can ask for the endorsement again, in 6 months"
 // would say nearly the same sentence twice. When the chip's "what" is the nudge's own wait, the chip stays folded: the
 // row peeks with the nudge alone, and the handle still opens the chip. Real content, a real refusal played through step.
@@ -37,7 +37,7 @@ function refusedView(): PlayerView {
 }
 
 describe("the band after a refusal", () => {
-  test("[R-WORLD-002] [R-WORLD-003] given the endorsement refused, when the nudge names the wait and the chip would name the same wait, then the chip folds; another thing coming, or another month, does not fold it", () => {
+  test("[world:top-band-is-lively-pill] [world:nudge-says-one-thing] given the endorsement refused, when the nudge names the wait and the chip would name the same wait, then the chip folds; another thing coming, or another month, does not fold it", () => {
     const view = refusedView();
     const nudge = nudgeOf(view);
     const coming = soonest(view);
@@ -50,7 +50,7 @@ describe("the band after a refusal", () => {
     expect(chipFolds({ ...nudge, about: "end" }, coming, view.month)).toBe(false);
   });
 
-  test("[R-WORLD-002] given the endorsement refused, when the band's row peeks at the hub, then the brief's chip stands alone and no coming chip says the wait again; the handle still opens the coming chip", async () => {
+  test("[world:top-band-is-lively-pill] given the endorsement refused, when the band's row peeks at the hub, then the brief's chip stands alone and no coming chip says the wait again; the handle still opens the coming chip", async () => {
     localStorage.setItem("japacity.city.last", JSON.stringify(["place.yaba"]));
     const view = refusedView();
     await renderWithView(<City world results={(at) => <p data-results-for={at} />} />, view);

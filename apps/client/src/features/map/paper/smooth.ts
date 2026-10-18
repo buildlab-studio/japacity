@@ -1,4 +1,4 @@
-// The painted line (docs/rules/world.md R-WORLD-015): a coast, a road or the route is drawn as a soft curve through
+// The painted line (world:map-is-painted-lagos): a coast, a road or the route is drawn as a soft curve through
 // its points rather than a ruled line, the way a hand-drawn map is, with every control point a whole number.
 import type { Point } from "./fit";
 

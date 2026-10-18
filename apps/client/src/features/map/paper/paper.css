@@ -1,4 +1,4 @@
-/* The painted map (docs/rules/world.md R-WORLD-015). One paper in two paints: the day's pale paper
+/* The painted map (world:map-is-painted-lagos). One paper in two paints: the day's pale paper
    and soft lagoon, the night's navy paper with lit windows and glowing stickers. Lines and names keep their size on the
    screen whatever the zoom: each view sets --z, how many screen pixels a paper unit takes, and every width divides by it. */
 .paper {
@@ -98,7 +98,7 @@
 .paper-svg .bridge-edge { stroke: var(--map-line); stroke-width: calc(10.5px / var(--z, 1)); }
 .paper-svg .bridge-deck { stroke: var(--road); stroke-width: calc(8px / var(--z, 1)); }
 .paper-svg .bridge-lamps { stroke: var(--lamps); stroke-width: calc(2.6px / var(--z, 1)); stroke-dasharray: 0 calc(11px / var(--z, 1)); }
-/* London's railway (R-WORLD-038): a dark line with pale ties across it, its width kept on the screen as the roads'. */
+/* London's railway (world:painted-maps-abroad): a dark line with pale ties across it, its width kept on the screen as the roads'. */
 .paper-svg .rail path { fill: none; stroke-linecap: butt; stroke-linejoin: round; }
 .paper-svg .rail-edge { stroke: var(--map-line); stroke-width: calc(4px / var(--z, 1)); }
 .paper-svg .rail-ties { stroke: var(--road); stroke-width: calc(2px / var(--z, 1)); stroke-dasharray: calc(3px / var(--z, 1)) calc(4px / var(--z, 1)); }
@@ -232,8 +232,8 @@
 
 .paper-name[data-name="new"] { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
 
-/* The lantern canoe (docs/rules/world.md R-WORLD-036): a sticker on the open water, the same size on the screen at every
-   zoom, its glow breathing by opacity alone and still under reduced motion (R-WORLD-023). By day a warm dot's small
+/* The lantern canoe (world:lantern-canoe-on-map): a sticker on the open water, the same size on the screen at every
+   zoom, its glow breathing by opacity alone and still under reduced motion (world:motions-under-half-second). By day a warm dot's small
    glow; under the night paint the light on that water, drawn over the paper's night so it never goes out. */
 .paper-canoe { position: absolute; left: 0; top: 0; width: 44px; height: 44px; transform-origin: 0 0; transform: scale(var(--inv, 1)) translate(-50%, -50%); background: none; border: 0; padding: 0; cursor: pointer; z-index: 1; -webkit-tap-highlight-color: transparent; transition: opacity 160ms ease; }
 .paper-canoe:focus-visible { outline: 2px solid #f6b800; outline-offset: 2px; border-radius: 8px; }

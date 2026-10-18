@@ -1,4 +1,4 @@
-// A bond's parts in the lively dress (docs/rules/person.md R-PEOPLE-016, R-PEOPLE-051; design page 13 section 2): the
+// A bond's parts in the lively dress (person:proposing-a-step, person:view-shows-people; design page 13 section 2): the
 // person's face sticker over what is known of them, the mark and the facts as sticker chips, what waits on a white card,
 // the pressed yellow button for the one action and ghost buttons for the rest. What each part says and sends is
 // PeopleOnPhone.test's; this proves the dress and the face.
@@ -29,7 +29,7 @@ function row(bond: string, id: string): HTMLElement {
 }
 
 describe("a bond in the lively dress", () => {
-  test("[R-PEOPLE-051] given a computer partner courted, when the head's stage row opens, then the facts stand under the person's face sticker, picked from their name, each fact a sticker chip", async () => {
+  test("[person:view-shows-people] given a computer partner courted, when the head's stage row opens, then the facts stand under the person's face sticker, picked from their name, each fact a sticker chip", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     await renderWithGame(offline(<Head id={bond} />), game);
@@ -42,7 +42,7 @@ describe("a bond in the lively dress", () => {
     for (const chip of chips) expect(chip.className).toContain("sticker-chip");
   });
 
-  test("[R-PEOPLE-016] given the moments partners need, when the ask row opens, then asking is the one pressed yellow button, and once partners marrying is yellow and applying together a ghost beside it", async () => {
+  test("[person:proposing-a-step] given the moments partners need, when the ask row opens, then asking is the one pressed yellow button, and once partners marrying is yellow and applying together a ghost beside it", async () => {
     const game = peopleGame(eagerContent());
     const bond = courted(game, TOBI, game.content.tuning.people.partnerMoments);
     await renderWithGame(offline(<Head id={bond} />), game);
@@ -61,7 +61,7 @@ describe("a bond in the lively dress", () => {
     expect(joint.className).toContain("phone-ghost");
   });
 
-  test("[R-PEOPLE-016] [R-PEOPLE-037] given a friend's question waiting and the end row opened, then the question sits on a white card with yes as the one yellow button and no a ghost, and ending says its cost on a white card with ghost buttons only", async () => {
+  test("[person:proposing-a-step] [person:ender-pays-in-standing] given a friend's question waiting and the end row opened, then the question sits on a white card with yes as the one yellow button and no a ghost, and ending says its cost on a white card with ghost buttons only", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/court", with: bond });
@@ -77,7 +77,7 @@ describe("a bond in the lively dress", () => {
     for (const button of within(end as HTMLElement).getAllByRole("button")) expect(button.className).toContain("phone-ghost");
   });
 
-  test("[R-PEOPLE-051] given the People row, when a computer sibling and a parent show, then each slot is a lively card with the person's face sticker, and the quiet mark is a sticker chip", async () => {
+  test("[person:view-shows-people] given the People row, when a computer sibling and a parent show, then each slot is a lively card with the person's face sticker, and the quiet mark is a sticker chip", async () => {
     const game = peopleGame();
     if (game.state.turn.banked === 0) game.grant(1);
     game.endTurn([]);

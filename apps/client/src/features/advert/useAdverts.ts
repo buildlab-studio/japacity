@@ -1,5 +1,5 @@
 // The hour's slots for the player's region, fetched again when the hour ends.
-// Nothing is fetched while the view says no advert may show (R-ADVERT-003).
+// Nothing is fetched while the view says no advert may show (advert:no-adverts-on-protected-screens).
 import type { AdvertsReply } from "@japacity/api";
 import { useEffect, useState } from "react";
 

@@ -1,4 +1,4 @@
-// The papers as the phone's Papers app holds them (docs/rules/world.md R-WORLD-019; document.md R-DOCUMENT-008):
+// The papers as the phone's Papers app holds them (world:phone-holds-what-phones-hold; document:paper-on-its-way):
 // every paper the life has or is waiting on, each with its state, what it counts toward,
 // and the act that moves it. An act that is a call or a message in real life (the registry, the council, the assessment
 // body) is taken on the phone; one that is a visit (the passport office, the test centre, the clinic) says where and
@@ -31,7 +31,7 @@ export interface PaperRow {
   id: string;
   kind: "document" | "visa";
   state: PaperState;
-  /** The month a copy is due, while one is on its way (R-DOCUMENT-008). */
+  /** The month a copy is due, while one is on its way (document:paper-on-its-way). */
   onItsWay: number | null;
   expiresMonth: number | null;
   value: number | null;
@@ -71,7 +71,7 @@ function actOf(view: PapersView, document: string): PaperAct | null {
   return place === null ? null : { activity, how: "visit", place };
 }
 
-/** A paper with a copy being made is on its way, a held one being renewed among them (R-DOCUMENT-008). */
+/** A paper with a copy being made is on its way, a held one being renewed among them (document:paper-on-its-way). */
 function stateOf(paper: PlayerView["documents"][number]): PaperState {
   if (paper.onItsWay !== null || paper.state === "pending") return "coming";
   return paper.state === "held" ? "held" : "expired";
@@ -97,7 +97,7 @@ function visaRow(view: PapersView): PaperRow | null {
 }
 
 /**
- * Every paper the life has or is waiting on (R-WORLD-019): the visa first once granted; then the papers the plan's
+ * Every paper the life has or is waiting on (world:phone-holds-what-phones-hold): the visa first once granted; then the papers the plan's
  * route asks for in its order, each held, on its way, run out or not yet; then any other paper the life holds.
  */
 export function papersOf(view: PapersView): PaperRow[] {
@@ -120,7 +120,7 @@ export function papersOf(view: PapersView): PaperRow[] {
 const NOTICE_LINES: Readonly<Record<string, string>> = {
   issued: "issued",
   "issued-band": "issued-band",
-  // A paper bought from a scammer lands as any other: the phone never tells which is fake (R-ADVICE-008).
+  // A paper bought from a scammer lands as any other: the phone never tells which is fake (advice:agent-loss-is-the-fee).
   faked: "issued",
   hastened: "hastened",
   requested: "requested",
@@ -128,7 +128,7 @@ const NOTICE_LINES: Readonly<Record<string, string>> = {
   voided: "voided",
 };
 
-/** A paper landing or moving, told on the phone (R-WORLD-030): `kind` picks the words, `document` the paper. */
+/** A paper landing or moving, told on the phone (world:month-passes-as-lived): `kind` picks the words, `document` the paper. */
 export interface PaperNotice {
   kind: string;
   document: string;
@@ -150,7 +150,7 @@ export function paperNotices(view: Pick<PlayerView, "report">): PaperNotice[] {
   });
 }
 
-/** The Papers app's mark (R-WORLD-018's dot): the month's paper notices, empty when none landed or moved. */
+/** The Papers app's mark (world:phone-rises-over-scene's dot): the month's paper notices, empty when none landed or moved. */
 export function papersMarkOf(view: Pick<PlayerView, "report">): string {
   const notices = paperNotices(view);
   return notices.length === 0 ? "" : `${String(view.report?.month ?? 0)}:${notices.map((notice) => `${notice.kind}.${notice.document}`).join(",")}`;

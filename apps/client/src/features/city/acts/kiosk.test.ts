@@ -1,4 +1,4 @@
-// The kiosk's ceiling in its own voice (docs/rules/luck.md R-LUCK-005): once this month's
+// The kiosk's ceiling in its own voice (luck:kiosk-sells-lotto-tickets): once this month's
 // tickets reach the most one slip sells, the kiosk's answer says so in place of "Ticket bought".
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -12,7 +12,7 @@ import { KIOSK_CAP, kioskAnswer } from "./acts";
 const { maxTickets } = content.tuning.luck;
 
 describe("the kiosk's ceiling", () => {
-  test("[R-LUCK-005] [R-TEXT-007] given the month's tickets reaching the most one slip sells, when the kiosk answers the last of them, then it says the ceiling in its own voice, and before that it says a ticket was bought", () => {
+  test("[luck:kiosk-sells-lotto-tickets] [text:voice-by-surface] given the month's tickets reaching the most one slip sells, when the kiosk answers the last of them, then it says the ceiling in its own voice, and before that it says a ticket was bought", () => {
     // The kiosk's words name the ceiling as five: the tuning and the words move together.
     expect(maxTickets).toBe(5);
     expect(text[KIOSK_CAP]).toMatch(/^The kiosk man says: .*five this month/);
@@ -31,7 +31,7 @@ describe("the kiosk's ceiling", () => {
 });
 
 describe("tickets come from money earned", () => {
-  test("[R-WALLET-020] [R-LOTTERY-018] given a view, when the kiosk reads the marked figure, then it is shut with its words only when the naira held would pay and the earned share would not; today nothing is marked and it never is", () => {
+  test("[wallet:top-ups-are-marked] [lottery:tickets-bought-with-earned-naira] given a view, when the kiosk reads the marked figure, then it is shut with its words only when the naira held would pay and the earned share would not; today nothing is marked and it never is", () => {
     const game = newGame("scenario.ada");
     const view = game.view();
     expect(view.wallet.marked).toBe(0);

@@ -1,4 +1,4 @@
-// An answer in News says what was chosen (docs/rules/world.md R-WORLD-008): News
+// An answer in News says what was chosen (world:month-end-results-sheet): News
 // said only "Answered: A hospital trust offers a nursing post." The answer is told with the choice, in the choice's
 // own words, where the offer has no words of its own for that answer.
 import type { ReportLine } from "@japacity/sim";
@@ -14,7 +14,7 @@ function said(lines: readonly ReportLine[]): string[] {
 }
 
 describe("an answer told with what was chosen", () => {
-  test("[R-WORLD-008] given the hospital trust's post declined, when News tells the month, then it says the post was declined", () => {
+  test("[world:month-end-results-sheet] given the hospital trust's post declined, when News tells the month, then it says the post was declined", () => {
     const line: ReportLine = { key: "line.offer.taken", params: { offer: "offer.sponsor-trust", choice: "decline" }, tone: "plain", attention: false, counts: [] };
     const told = said(newsLines([line], [], engineView()));
     expect(told).toHaveLength(1);
@@ -22,7 +22,7 @@ describe("an answer told with what was chosen", () => {
     expect(told[0]).toContain(words("offer.sponsor-trust.choice.decline", {}));
   });
 
-  test("[R-WORLD-008] given a guest's where-next answered with the family house, when News tells the month, then the answer names the family house", () => {
+  test("[world:month-end-results-sheet] given a guest's where-next answered with the family house, when News tells the month, then the answer names the family house", () => {
     const game = newGame("scenario.tunde");
     applyEffects(game, [{ type: "offer/open", offer: "offer.where-next" }]);
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.where-next")!;

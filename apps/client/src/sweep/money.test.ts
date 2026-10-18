@@ -1,5 +1,5 @@
-// The money that changes hands, on the results and the Bank's Lately (docs/rules/world.md R-WORLD-008,
-// R-WORLD-019; wallet.md R-WALLET-004, 006, 007, 015). Kept must move
+// The money that changes hands, on the results and the Bank's Lately (world:month-end-results-sheet,
+// world:phone-holds-what-phones-hold; wallet:bank-converts-at-official-rate, wallet:bank-queue-delays-purchases, wallet:aboki-trades-at-street-rate, wallet:months-kept-counted). Kept must move
 // with the band, so the FX man's change cannot show only the pounds that came in. Every change shows both sides, each
 // in its own money, and the figure kept is the simulation's own count: under decision 0024 a change counts for nothing
 // in it either way, and only a bank's charge stays money out.
@@ -33,19 +33,19 @@ function withCash(naira: number): Game {
   return game;
 }
 
-/** The month's net so far, as the wallet holds it before the month closes (R-WALLET-015). */
+/** The month's net so far, as the wallet holds it before the month closes (wallet:months-kept-counted). */
 function simNet(game: Game, currency: Currency): number {
   return game.state.wallet.monthNet?.[currency] ?? 0;
 }
 
-/** The stand-in world with the bank's queue up, as the news of a dollar squeeze sets it (R-WALLET-006). */
+/** The stand-in world with the bank's queue up, as the news of a dollar squeeze sets it (wallet:bank-queue-delays-purchases). */
 function queuedWorld(tick: number): World {
   const world = standInWorld("world-1", tick, content);
   return { ...world, vars: { ...world.vars, "var.fx-bank-queue": 2 } };
 }
 
 describe("the money that changes hands", () => {
-  test("[R-WORLD-008] [R-WALLET-007] [R-WALLET-015] given naira changed into pounds with the FX man, when the month's money is read, then the pounds came in and the naira went out, each on its line in its own money, and what is kept counts the change for nothing, as the wallet's own count does", () => {
+  test("[world:month-end-results-sheet] [wallet:aboki-trades-at-street-rate] [wallet:months-kept-counted] given naira changed into pounds with the FX man, when the month's money is read, then the pounds came in and the naira went out, each on its line in its own money, and what is kept counts the change for nothing, as the wallet's own count does", () => {
     const paid = 50_000_000;
     const game = withCash(paid);
     const before = game.view().pockets;
@@ -67,13 +67,13 @@ describe("the money that changes hands", () => {
     expect(told.lines.some((line) => line.key === "line.wallet.short-count")).toBe(false);
     const nets = kept(money);
     expect(nets).toEqual([]);
-    // R-WALLET-015: the sheet's figure and the wallet's count of the month agree, in every money (a move to cash counts nothing).
+    // wallet:months-kept-counted: the sheet's figure and the wallet's count of the month agree, in every money (a move to cash counts nothing).
     expect(nets.find((net) => net.currency === "NGN")?.amount ?? 0).toBe(simNet(game, "NGN"));
     expect(nets.find((net) => net.currency === "GBP")?.amount ?? 0).toBe(simNet(game, "GBP"));
     expect(game.state.wallet).not.toHaveProperty("monthNet");
   });
 
-  test("[R-WORLD-008] [R-WALLET-007] given pounds changed back into naira with the FX man, when the month's money is read, then the naira came in and the pounds went out, each in its own money", () => {
+  test("[world:month-end-results-sheet] [wallet:aboki-trades-at-street-rate] given pounds changed back into naira with the FX man, when the month's money is read, then the naira came in and the pounds went out, each in its own money", () => {
     const game = withCash(50_000_000);
     game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 50_000_000, via: "aboki" });
     const pounds = game.view().pockets.GBP.cash;
@@ -90,7 +90,7 @@ describe("the money that changes hands", () => {
     expect(change).toContain(formatMoney(got, "NGN"));
   });
 
-  test("[R-WORLD-008] [R-WALLET-006] [R-WALLET-015] given naira paid in at the bank while its queue holds foreign money back, when each month's money is read, then the naira are told the month they leave and the pounds the month they land, and only the bank's charge counts, as gone the month it is taken, as the wallet counts it", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-queue-delays-purchases] [wallet:months-kept-counted] given naira paid in at the bank while its queue holds foreign money back, when each month's money is read, then the naira are told the month they leave and the pounds the month they land, and only the bank's charge counts, as gone the month it is taken, as the wallet counts it", () => {
     const game = start({ scenario: "scenario.tunde", content, worldAt: queuedWorld });
     const paid = 10_000_000;
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: paid, via: "bank" });
@@ -117,7 +117,7 @@ describe("the money that changes hands", () => {
     expect(kept(pounds)).toEqual([]);
   });
 
-  test("[R-WORLD-008] [R-WALLET-015] given every recorded life, when each month closes, then the figure the results show as kept in the money of the place is the wallet's own net for that month, to the kobo", () => {
+  test("[world:month-end-results-sheet] [wallet:months-kept-counted] given every recorded life, when each month closes, then the figure the results show as kept in the money of the place is the wallet's own net for that month, to the kobo", () => {
     for (const [name, save] of Object.entries(SAVES)) {
       const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
       let month: ReportLine[] = [];
@@ -138,7 +138,7 @@ describe("the money that changes hands", () => {
     }
   });
 
-  test("[R-WORLD-008] [R-ACTIVITY-015] given one lotto ticket bought at the kiosk, then three, when the month's money is read, then each is told as lotto tickets, never as going out", () => {
+  test("[world:month-end-results-sheet] [activity:now-acts-and-month-acts] given one lotto ticket bought at the kiosk, then three, when the month's money is read, then each is told as lotto tickets, never as going out", () => {
     const game = newGame("scenario.tunde");
     const one = game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" });
     const ticket = content.tuning.luck.ticket;
@@ -147,7 +147,7 @@ describe("the money that changes hands", () => {
     expect(said(three.lines)).toEqual([`- Lotto tickets: ${formatMoney(ticket * 3, "NGN")}.`]);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] given pounds changed into naira at the bank for a charge that rounds to nothing, when the sheet before it and the month's money tell it, then no charge of £0 is said; a charge of a pound or more still is", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given pounds changed into naira at the bank for a charge that rounds to nothing, when the sheet before it and the month's money tell it, then no charge of £0 is said; a charge of a pound or more still is", () => {
     const game = newGame("scenario.tunde");
     game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 16_617_500, via: "bank" });
     const nothing = formatMoney(0, "GBP");

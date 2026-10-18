@@ -1,4 +1,4 @@
-// The live city behind the start screen and the ways in (account.md R-ACCOUNT-029): the painted map
+// The live city behind the start screen and the ways in (account:start-screen-over-live-city): the painted map
 // of Lagos (paper/), open over the family house in Surulere, its built places standing as their stickers. A picture:
 // nothing in it is picked. Loaded apart from the first screen's code, as the compound is.
 import { content } from "@japacity/content";
@@ -22,7 +22,7 @@ const LAGOS = Object.values(content.place).filter((place) => place.where === "ho
 /** The pins: the family house as home, and every built place of Lagos with a position. */
 export function startPins(built: ReadonlySet<string> | null): MapPin[] {
   const family: MapPin = { id: FAMILY_HOUSE, name: nameOf(FAMILY_HOUSE), state: "here", position: FAMILY_SPOT, things: 0 };
-  // A rented room is on the map only while lived in (R-HOME-010), never before the life begins.
+  // A rented room is on the map only while lived in (home:compound-room-is-a-home), never before the life begins.
   const rest = LAGOS.filter((place) => place.id !== FAMILY_HOUSE && !RENTED_HOMES.has(place.id) && (built === null || built.has(place.id))).map(
     (place): MapPin => ({ id: place.id, name: nameOf(place.id), state: "can", position: place.position ?? FAMILY_SPOT, things: place.stages.length }),
   );

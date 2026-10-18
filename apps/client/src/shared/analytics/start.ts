@@ -1,6 +1,6 @@
 // Starts the interface counters for a game played against the server: a
 // batch every `batchSeconds` and one when the page is hidden, each sent by
-// `navigator.sendBeacon` to `/api/counters` (R-ANALYTICS-003). Screens and
+// `navigator.sendBeacon` to `/api/counters` (analytics:client-batches-counters). Screens and
 // the account feature count through `counting()`.
 import { content } from "@japacity/content";
 
@@ -26,18 +26,18 @@ export function countInto(counters: Counters): () => void {
   };
 }
 
-/** R-ANALYTICS-011: the function the account feature calls for each ask it makes. */
+/** analytics:day-one-and-seven-return: the function the account feature calls for each ask it makes. */
 export function countAsk(kind: AskKind, outcome: AskOutcome, afterEarlyWin: boolean): void {
   current.ask(kind, outcome, afterEarlyWin);
 }
 
-/** R-ANALYTICS-002: the player turned the sound on or off. */
+/** analytics:client-sends-interface-counts: the player turned the sound on or off. */
 export function countSound(on: boolean): void {
   current.count("settings/sound", on ? "on" : "off");
 }
 
 /**
- * R-ANALYTICS-006: the account's "Send usage counts" setting. The counters
+ * analytics:player-can-stop-usage-counts: the account's "Send usage counts" setting. The counters
  * start on; the boot and the settings sheet call this once the account says.
  */
 export function setUsageCounts(on: boolean): void {

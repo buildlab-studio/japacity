@@ -1,4 +1,4 @@
-// A gain or a cost said as a short tag (prologue.md R-PROLOGUE-014): up is green with an arrow up, down red with an
+// A gain or a cost said as a short tag (prologue:printed-page-hands-over): up is green with an arrow up, down red with an
 // arrow down, plain has neither; the arrow carries the way, so colour never says it alone.
 import { ArrowDown, ArrowUp } from "lucide-react";
 import type { ReactNode } from "react";

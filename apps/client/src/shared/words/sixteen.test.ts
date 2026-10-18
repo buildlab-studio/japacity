@@ -23,10 +23,10 @@ function play(seed: string, pick: (allowed: readonly string[], step: string, tur
 }
 
 describe("the path the life from sixteen took", () => {
-  test("[R-PROLOGUE-008] given many lives from sixteen down every path, when each is read at its handover, then it holds a shop's capital exactly when the master's settlement was generous or fair", () => {
+  test("[prologue:view-shows-step-card] given many lives from sixteen down every path, when each is read at its handover, then it holds a shop's capital exactly when the master's settlement was generous or fair", () => {
     const seen = new Map<string, number>();
     for (let n = 0; n < 160; n += 1) {
-      // Each age card at the year its path reaches (R-PROLOGUE-004): years worked past it save toward a shop's capital too.
+      // Each age card at the year its path reaches (prologue:age-advances-with-steps): years worked past it save toward a shop's capital too.
       const { view, settlement } = play(`sixteen-path-${String(n)}`, (allowed, step, turn) =>
         step === "after-school" && n % 3 !== 0 && allowed.includes("apprentice") ? "apprentice" : step.startsWith("age-") ? (allowed[0] ?? "") : (allowed[(n + turn) % allowed.length] ?? ""),
       );
@@ -43,13 +43,13 @@ describe("the path the life from sixteen took", () => {
     expect(kinds).toContain("trade prologue.settlement.outcome.cheated");
   });
 
-  test("[R-PROLOGUE-008] given a fixed life, when its path is read, then it has none", () => {
+  test("[prologue:view-shows-step-card] given a fixed life, when its path is read, then it has none", () => {
     expect(sixteenPath(newGame("scenario.ada").view())).toBeNull();
   });
 });
 
 describe("the first step for a trader with capital", () => {
-  test("[R-PROLOGUE-008] given a settled trader who heard of no way out, when the first step is read, then it is the meetup, then the official page, before the jobs board", () => {
+  test("[prologue:view-shows-step-card] given a settled trader who heard of no way out, when the first step is read, then it is the meetup, then the official page, before the jobs board", () => {
     const { view } = play("sixteen-0", (allowed) => ["apprentice", "spare-parts", "stay", "settle", "nowhere", "family-house"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "");
     expect(sixteenPath(view)).toBe("capital");
     expect(view.chapter.current).toBe("chapter.find-your-feet");
@@ -59,7 +59,7 @@ describe("the first step for a trader with capital", () => {
     expect(nextStepOf(heard)).toBe("known");
   });
 
-  test("[R-PROLOGUE-008] given a graduate, when the first step is read, then it is the chapter's own first undone step", () => {
+  test("[prologue:view-shows-step-card] given a graduate, when the first step is read, then it is the chapter's own first undone step", () => {
     const { view } = play("prologue-first", (allowed) => allowed[0] ?? "");
     expect(sixteenPath(view)).toBe("degree");
     expect(nextStepOf(view)).toBe(view.chapter.items.find((item) => !item.met)?.id);
@@ -68,12 +68,12 @@ describe("the first step for a trader with capital", () => {
 });
 
 describe("the racks at hand", () => {
-  /** The child of the water's answers (R-PROLOGUE-012), and the shop worker's, the same years at the family house. */
+  /** The child of the water's answers (prologue:makoko-start-never-a-trap), and the shop worker's, the same years at the family house. */
   const WATER = ["begin", "commercial", "work", "save", "nowhere", "makoko"];
   const SHOP = ["begin", "commercial", "work", "save", "nowhere", "family-house"];
   const by = (answers: readonly string[]) => (allowed: readonly string[]) => answers.find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
 
-  test("[R-ACTIVITY-017] given a life handed over in Makoko's room with no job, when the racks are read, then they are at hand, and for the same years at the family house they are not", () => {
+  test("[activity:fish-racks-at-makoko] given a life handed over in Makoko's room with no job, when the racks are read, then they are at hand, and for the same years at the family house they are not", () => {
     for (const seed of ["racks-0", "racks-1", "racks-2"]) {
       const water = play(seed, by(WATER)).view;
       expect(water.activities.find((option) => option.id === "activity.job-hunt")?.params).toContain(RACKS);

@@ -1,4 +1,4 @@
-// The clinic's jobs notice (prologue.md R-PROLOGUE-010): the staff nurse's job is
+// The clinic's jobs notice (prologue:archetype-presets-answers): the staff nurse's job is
 // on the wall where a nurse from sixteen takes her first step, and only a life the hunt can ask for it sees it.
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -21,7 +21,7 @@ function noticeActs(view: PlayerView): string[] {
 }
 
 describe("the clinic's jobs notice", () => {
-  test("[R-PROLOGUE-010] given a life with the care a staff nurse needs, when the clinic's things are read, then the jobs notice offers the staff nurse's job, standing on the floor by the back wall", () => {
+  test("[prologue:archetype-presets-answers] given a life with the care a staff nurse needs, when the clinic's things are read, then the jobs notice offers the staff nurse's job, standing on the floor by the back wall", () => {
     const view = viewAfter(newGame("scenario.ada"), [{ type: "quality/add", quality: "quality.care", amount: 60 }]);
     expect(noticeActs(view)).toEqual([NURSE_JOB]);
     const notice = (stage.things ?? []).find((thing) => thing.id === "jobs-notice")!;
@@ -30,7 +30,7 @@ describe("the clinic's jobs notice", () => {
     expect(spot !== null && onGround(stage, [spot[0], spot[1], 0])).toBe(true);
   });
 
-  test("[R-PROLOGUE-010] given a life without that care, when the clinic's things are read, then the notice offers nothing", () => {
+  test("[prologue:archetype-presets-answers] given a life without that care, when the clinic's things are read, then the notice offers nothing", () => {
     expect(noticeActs(newGame("scenario.ada").view())).toEqual([]);
   });
 });

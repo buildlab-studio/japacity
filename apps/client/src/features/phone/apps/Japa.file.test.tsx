@@ -1,5 +1,5 @@
-// Japa's BUILD THE FILE in the file's order, and a way closed by the news said plainly (docs/rules/world.md R-WORLD-019,
-// route-gates.md R-ENDORSE-003): the talent file lists the passport and the TB test the application needs beside the
+// Japa's BUILD THE FILE in the file's order, and a way closed by the news said plainly (world:phone-holds-what-phones-hold,
+// route-gates:talent-visa-needs-endorsement): the talent file lists the passport and the TB test the application needs beside the
 // portfolio, the endorsement and the application; and while the pandemic has closed every route, Japa says so rather
 // than mark every need done in silence. Real content, a developer played through `step`.
 import { content } from "@japacity/content";
@@ -29,7 +29,7 @@ function developer(closed: readonly string[] = []): PlayerView {
 }
 
 describe("the talent file in Japa", () => {
-  test("[R-WORLD-019] [R-ENDORSE-003] given the talent file, when Japa shows, then BUILD THE FILE lists the passport before the endorsement and the TB test before the application, each ticked as the route reads it, with where it is got", async () => {
+  test("[world:phone-holds-what-phones-hold] [route-gates:talent-visa-needs-endorsement] given the talent file, when Japa shows, then BUILD THE FILE lists the passport before the endorsement and the TB test before the application, each ticked as the route reads it, with where it is got", async () => {
     await renderWithView(<Japa />, developer());
     const rows = [...document.querySelectorAll(`[data-chapter-steps='${FILE}'] li`)];
     const said = rows.map((row) => row.querySelector("span > span")?.textContent ?? "");
@@ -42,7 +42,7 @@ describe("the talent file in Japa", () => {
 });
 
 describe("a closed way in Japa", () => {
-  test("[R-WORLD-019] [R-WORLD-003] given every route closed by the news, when Japa shows, then it says every route is closed and that the news says when they open", async () => {
+  test("[world:phone-holds-what-phones-hold] [world:nudge-says-one-thing] given every route closed by the news, when Japa shows, then it says every route is closed and that the news says when they open", async () => {
     await renderWithView(<Japa />, developer(WINDOWS));
     const line = document.querySelector("[data-japa-closed]");
     expect(line?.getAttribute("data-japa-closed")).toBe("every");
@@ -50,7 +50,7 @@ describe("a closed way in Japa", () => {
     expect(line?.textContent).toBe("Every route is closed for now. The news says when they open.");
   });
 
-  test("[R-WORLD-019] given only the talent route closed, when Japa shows, then it says this way is closed, never every route", async () => {
+  test("[world:phone-holds-what-phones-hold] given only the talent route closed, when Japa shows, then it says this way is closed, never every route", async () => {
     await renderWithView(<Japa />, developer(["var.uk-talent-window"]));
     const line = document.querySelector("[data-japa-closed]");
     expect(line?.getAttribute("data-japa-closed")).toBe(TALENT);

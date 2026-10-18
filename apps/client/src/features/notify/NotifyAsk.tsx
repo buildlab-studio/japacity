@@ -1,4 +1,4 @@
-// The ask for the bank-full notice (docs/rules/clock.md R-CLOCK-031): one sheet,
+// The ask for the bank-full notice (clock:full-bank-push-notification): one sheet,
 // once after a good moment has been seen and its report closed, on a device
 // that has neither agreed nor refused. "Not now" is kept on the device and
 // waits `reaskDays`; the browser's own refusal is never asked past.
@@ -18,7 +18,7 @@ export interface NotifyAskProps {
   /** Seams for tests. `api` null: no server, no ask. */
   api?: NotifyApi | null;
   device?: NotifyDevice;
-  /** R-GUIDE-015: true once the early win has been shown. The store's flag unless a test hands in its own. */
+  /** guide:nothing-asked-before-early-win: true once the early win has been shown. The store's flag unless a test hands in its own. */
   earlyWin?: () => boolean;
   count?: CountAsk;
 }

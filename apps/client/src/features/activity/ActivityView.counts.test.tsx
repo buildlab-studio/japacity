@@ -1,5 +1,5 @@
-// The waiting months' cards say what each act counts toward (docs/rules/activity.md R-ACTIVITY-013): the
-// sheet a thing opens (world.md R-WORLD-005, R-WORLD-006) shows the card with its route in words.
+// The waiting months' cards say what each act counts toward (activity:waiting-months-build-profile): the
+// sheet a thing opens (world:things-are-tappable-models, world:one-action-one-sheet) shows the card with its route in words.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -20,7 +20,7 @@ function cardOf(id: string): HTMLElement {
 }
 
 describe("what each act counts toward", () => {
-  test("[R-ACTIVITY-013] [R-WORLD-005] [R-WORLD-006] given each of the waiting months' acts on the sheet its thing opens, when its card is read, then it says in words the route it counts toward", async () => {
+  test("[activity:waiting-months-build-profile] [world:things-are-tappable-models] [world:one-action-one-sheet] given each of the waiting months' acts on the sheet its thing opens, when its card is read, then it says in words the route it counts toward", async () => {
     const view = viewAfter(newGame("scenario.zainab"), [{ type: "quality/add", quality: "quality.network", amount: 10 }]);
     await renderWithView(<ActivityPicker only={[...ACTS]} />, view);
     for (const id of ACTS) {
@@ -33,15 +33,15 @@ describe("what each act counts toward", () => {
     }
   });
 
-  test("[R-ACTIVITY-013] given the master's and the developer's acts, when their lines are read, then the master's counts toward Canada's points and open source toward the talent route", () => {
+  test("[activity:waiting-months-build-profile] given the master's and the developer's acts, when their lines are read, then the master's counts toward Canada's points and open source toward the talent route", () => {
     expect(countsWords("activity.masters-at-home")).toBe("Counts toward: Canada's points");
     expect(countsWords("activity.open-source")).toBe("Counts toward: the talent route");
     expect(countsWords("activity.nurse-certification")).toBe("Counts toward: care work in the UK");
     expect(countsWords("activity.be-noticed")).toBe("Counts toward: the study visa and Canada's points");
   });
 
-  test("[R-ACTIVITY-013] given an act that counts toward no route, when its card is read, then it says nothing about counting", async () => {
-    // Rest is in no picker (R-TURN-006), so time with family stands for an act that counts toward nothing.
+  test("[activity:waiting-months-build-profile] given an act that counts toward no route, when its card is read, then it says nothing about counting", async () => {
+    // Rest is in no picker (turn:free-slots-per-month), so time with family stands for an act that counts toward nothing.
     await renderWithView(<ActivityPicker only={["activity.family-time"]} />, newGame("scenario.ada").view());
     expect(countsWords("activity.family-time")).toBeNull();
     expect(cardOf("activity.family-time").querySelector("[data-counts]")).toBeNull();

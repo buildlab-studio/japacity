@@ -1,7 +1,7 @@
 // A lively sheet (docs/design/13-the-lively-layer.md, section 2): the sheet colour, rising from the foot with its handle,
 // a picture, a title of a few words and one line under it, then what it holds. On a laptop it rises in the centred
 // column. Built on Base UI's dialog for the focus trap and the escape key; it rises and sinks by a short transition on
-// transform (index.css .motion-rise, world.md R-WORLD-023), and Base UI unmounts it once that ends.
+// transform (index.css .motion-rise, world:motions-under-half-second), and Base UI unmounts it once that ends.
 import { Dialog } from "@base-ui/react/dialog";
 import type { ReactNode, RefObject } from "react";
 

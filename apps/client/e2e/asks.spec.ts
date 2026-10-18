@@ -6,10 +6,10 @@ import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 // Nothing is asked of the player before the early win (docs/rules/guide.md
-// R-GUIDE-015). A new life is played online against a faked server that runs
+// guide:nothing-asked-before-early-win). A new life is played online against a faked server that runs
 // the simulation itself, month by month as the view's next step suggests
-// (R-GUIDE-014): each step taken at the thing in the world that stages it, the
-// month slept in the bed (docs/rules/world.md R-WORLD-025, R-WORLD-030), and
+// (guide:early-win-in-three-turns): each step taken at the thing in the world that stages it, the
+// month slept in the bed (world:sleep-ends-the-month, world:month-passes-as-lived), and
 // every screen before the first good line is searched for an ask.
 import { content, text } from "../../../packages/content/src/index";
 import { accountView } from "../src/shared/testing/fixtures";
@@ -73,7 +73,7 @@ async function fakeServer(page: Page): Promise<Faked> {
   return { game: () => game, lines: () => lines };
 }
 
-/** Every ask R-GUIDE-015 names that the shell holds back: a sign-in method, the notice, a share, an invite. */
+/** Every ask guide:nothing-asked-before-early-win names that the shell holds back: a sign-in method, the notice, a share, an invite. */
 const ASKS = {
   "sign-in": (page: Page) => page.getByRole("button", { name: "Continue with Google" }),
   notify: (page: Page) => page.getByRole("dialog", { name: "Know when your months are full" }),
@@ -99,7 +99,7 @@ function nameOf(id: string): string {
   return said;
 }
 
-/** Where an activity is staged in the world: the place file, the thing and its act that stage it (R-WORLD-005), read from the place files the game ships. */
+/** Where an activity is staged in the world: the place file, the thing and its act that stage it (world:things-are-tappable-models), read from the place files the game ships. */
 function stagedAt(activity: string): { place: string; thing: string; act: string } {
   const places = join(import.meta.dirname, "..", "public", "assets", "places");
   for (const folder of readdirSync(places)) {
@@ -114,7 +114,7 @@ function stagedAt(activity: string): { place: string; thing: string; act: string
   throw new Error(`No thing in the world stages ${activity}.`);
 }
 
-/** The ride to a stop the map holds open (R-WORLD-015, R-WORLD-017), by the stop's button beside the painted map. */
+/** The ride to a stop the map holds open (world:map-is-painted-lagos, world:ride-sheet-shows-fares), by the stop's button beside the painted map. */
 async function rideTo(page: Page, id: string): Promise<void> {
   if ((await placeNow(page)) === id) return;
   await page.locator('[data-thumb="map"]').click();
@@ -128,7 +128,7 @@ async function rideTo(page: Page, id: string): Promise<void> {
   await passCards(page);
 }
 
-/** Takes the view's next step in the world: at each pick's place, its thing's act, and on the act's card the param and the act (R-ACTIVITY-015). */
+/** Takes the view's next step in the world: at each pick's place, its thing's act, and on the act's card the param and the act (activity:now-acts-and-month-acts). */
 async function takeNextStep(page: Page, game: Game): Promise<void> {
   for (const pick of chapterNextStep(game.view(), content)) {
     const at = stagedAt(pick.activity);
@@ -137,7 +137,7 @@ async function takeNextStep(page: Page, game: Game): Promise<void> {
     const card = page.getByRole("dialog");
     if (pick.param !== null && pick.activity === "activity.job-hunt") await card.locator(`[role="radio"][data-job="${pick.param}"]`).click();
     else if (pick.param !== null) {
-      // One choice shows no list: the first meetup hears of one route (R-GUIDE-016), and the card takes it.
+      // One choice shows no list: the first meetup hears of one route (guide:first-meetup-hears-fitting-route), and the card takes it.
       const route = card.locator(`[role="radio"][data-route="${pick.param}"]`);
       const select = card.locator(`[id="param-${pick.activity}"]`);
       if ((await route.count()) > 0) await route.click();
@@ -146,14 +146,14 @@ async function takeNextStep(page: Page, game: Game): Promise<void> {
     // The act's card says its name on its main button, with the price after it where it costs.
     const named = nameOf(pick.activity).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     await card.getByRole("button", { name: new RegExp(`^${named}( · |$)`) }).last().click();
-    // The act's answer, told on its card, is put away (R-WORLD-008).
+    // The act's answer, told on its card, is put away (world:month-end-results-sheet).
     const done = page.getByRole("dialog").getByRole("button", { name: /^(Done|Close)$/ });
     if (await done.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await done.last().click();
     await expect(page.getByRole("dialog")).toHaveCount(0, { timeout: 15_000 });
   }
 }
 
-test("[R-GUIDE-015] [R-GUIDE-014] [R-MOMENT-006] a new life played online as the next step suggests is asked nothing before its first good line, and the asks come after it", async ({ page }, info) => {
+test("[guide:nothing-asked-before-early-win] [guide:early-win-in-three-turns] [moment:card-shows-when-outcome-lands] a new life played online as the next step suggests is asked nothing before its first good line, and the asks come after it", async ({ page }, info) => {
   // The step's thing under its marker is tapped where the scene draws it, which is measured at phone size.
   test.skip(info.project.name !== "Pixel 7", "The world is lived at phone size");
   test.setTimeout(300_000);
@@ -169,7 +169,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] [R-MOMENT-006] a new life played online as the
 
   let won = false;
   let shareShown = false;
-  // The chapter's close told by its moment card (R-MOMENT-006): never before the early win, and with no share button (R-MOMENT-007).
+  // The chapter's close told by its moment card (moment:card-shows-when-outcome-lands): never before the early win, and with no share button (moment:moment-is-not-share-card).
   let chapterTold = false;
   const chapterCard = async (): Promise<void> => {
     const told = page.locator("[data-moment-screen='chapter']");
@@ -184,7 +184,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] [R-MOMENT-006] a new life played online as the
     const before = !won;
     if (before) await expectNoAsk(page, `before month ${String(month)} is lived`);
     await takeNextStep(page, game);
-    // A step taken at once (R-ACTIVITY-015) may be the first good line itself: the meetup hears of a way out there and then.
+    // A step taken at once (activity:now-acts-and-month-acts) may be the first good line itself: the meetup hears of a way out there and then.
     won ||= server.lines().some((line) => line.tone === "good");
     // Quiet: nothing good has happened yet, so nothing may be asked.
     const quiet = before && !won;
@@ -225,7 +225,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] [R-MOMENT-006] a new life played online as the
   expect(won, "an early win within the first three months").toBe(true);
 
   // The chapter closed after the early win, told by its moment card; its share card is kept in the gallery without opening
-  // (R-MOMENT-006), where it is offered to share. A share card no moment told opens with its button.
+  // (moment:card-shows-when-outcome-lands), where it is offered to share. A share card no moment told opens with its button.
   expect(chapterTold || shareShown, "the chapter's close told after the early win").toBe(true);
   const kept = await page.evaluate(() => localStorage.getItem("japacity.cards") ?? "[]");
   expect(kept, "the chapter's card kept in the gallery after the early win").toContain("chapter.find-your-feet");

@@ -1,4 +1,4 @@
-// Bills in a month no instalment is taken (docs/rules/world.md R-WORLD-019, R-WORLD-002): tuition says
+// Bills in a month no instalment is taken (world:phone-holds-what-phones-hold, world:top-band-is-lively-pill): tuition says
 // when the next one comes, as months away, never "Taken at the month's end." in a month none is taken.
 import { fireEvent, render } from "@testing-library/react";
 import { setPockets } from "@japacity/sim/testing";
@@ -27,7 +27,7 @@ async function billsOf(game: ReturnType<typeof abroadGame>): Promise<string> {
 }
 
 describe("a bill taken every few months", () => {
-  test("[R-WORLD-019] given tuition taken every three months abroad, when Bills is read the month after one was taken, then it says the next instalment comes in 2 months, not that one is taken this month", async () => {
+  test("[world:phone-holds-what-phones-hold] given tuition taken every three months abroad, when Bills is read the month after one was taken, then it says the next instalment comes in 2 months, not that one is taken this month", async () => {
     const game = abroadGame();
     setPockets(game, { ...ABROAD_POCKETS, GBP: 10_000_000 });
     const dueOf = (): number | undefined => game.view().obligations.find((owed) => owed.entry === TUITION)?.due;
@@ -43,7 +43,7 @@ describe("a bill taken every few months", () => {
     expect(bill).not.toContain("Taken at the month's end.");
   });
 
-  test("[R-HOME-010] [R-OBLIGATION-015] given the room's year of rent paid on the move, when Bills is read in the months between, then the rent's bill says when the next year is taken, never that it is taken at the month's end", async () => {
+  test("[home:compound-room-is-a-home] [obligation:prepaid-entries-skip-first-charge] given the room's year of rent paid on the move, when Bills is read in the months between, then the rent's bill says when the next year is taken, never that it is taken at the month's end", async () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });

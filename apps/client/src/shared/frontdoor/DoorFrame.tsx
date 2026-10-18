@@ -1,4 +1,4 @@
-// The front door's screen (prologue.md R-PROLOGUE-013): the pale sky from edge to edge by
+// The front door's screen (prologue:front-door-three-screens): the pale sky from edge to edge by
 // day and the navy by night (the world's clock, decision 0025), the lockup on the first screen, Back as a round white
 // button and Shuffle and Skip on the right on the first two screens, the screen's question as its one heading with one
 // line under it, the body scrolling, and at the foot the three screens' dots over the one yellow action. On a laptop the

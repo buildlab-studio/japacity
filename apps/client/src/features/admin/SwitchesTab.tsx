@@ -1,5 +1,5 @@
-// The four off switches and the dials of the private settings (R-SERVER-030,
-// R-SERVER-031): each change carries a reason and is logged with who made it.
+// The four off switches and the dials of the private settings (server:private-settings-and-dials,
+// server:four-off-switches): each change carries a reason and is logged with who made it.
 import { type DialChange, type Dials, MAX_DIAL, type SettingChange, SWITCH_NAMES, type SwitchName } from "@japacity/api";
 import { content } from "@japacity/content";
 import { useState } from "react";

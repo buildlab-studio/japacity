@@ -1,4 +1,4 @@
-// The painted map as a view sees it (docs/rules/world.md R-WORLD-015): the paper, the small pictures standing on it
+// The painted map as a view sees it (world:map-is-painted-lagos): the paper, the small pictures standing on it
 // (Makoko's huts, the canoes, the danfos) and the places, each its own sticker and the sticker the pin, moved and
 // zoomed together by one transform. The stickers keep their size on the screen at every zoom; the huts and boats are
 // part of the paper and grow with it. One pin rule in every zoom (stops.ts): a ring only where the player stands, on the
@@ -32,7 +32,7 @@ function sizeOf(id: string, sizes: Readonly<Record<string, number>> = LAGOS_SIZE
   return sizes[id] ?? 92;
 }
 
-/** R-WORLD-036: the lantern canoe as the open map draws it: its glow, its tap, and whether it carries a second lantern. */
+/** world:lantern-canoe-on-map: the lantern canoe as the open map draws it: its glow, its tap, and whether it carries a second lantern. */
 export interface Canoe extends CanoeFill {
   onOpen: () => void;
   mine: boolean;
@@ -54,7 +54,7 @@ export interface WorldProps {
   /** The part of the paper this view shows, when it never moves: the grain outside it is left undrawn. */
   within?: readonly [number, number, number, number] | null;
   onPick?: (id: string) => void;
-  /** R-WORLD-036: the lantern canoe, drawn on the open map alone. */
+  /** world:lantern-canoe-on-map: the lantern canoe, drawn on the open map alone. */
   canoe?: Canoe | null;
   /** The district names painted, by key; all when absent. */
   labels?: ReadonlySet<string> | null;

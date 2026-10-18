@@ -1,4 +1,4 @@
-// The travel data page, line for line (prologue.md R-PROLOGUE-009): the
+// The travel data page, line for line (prologue:front-door-builds-a-person): the
 // header and its type line, the photo, NAME, NATIONALITY beside AGE, PATH, SO FAR, FAMILY beside READY as the big
 // figure, and the machine-readable strip from the game's own data. The visa's stamp is round and red.
 import { render } from "@testing-library/react";
@@ -9,14 +9,14 @@ import { DataPage, mrz, PAGE_CODE, PAGE_COLOURS, Stamp, stripLines } from "./Dat
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
 
-/** Tailwind's whole round, which the palette's own test counts as a pill (R-WORLD-021). */
+/** Tailwind's whole round, which the palette's own test counts as a pill (world:colours-are-role-tokens). */
 const ROUND = ["rounded", "full"].join("-");
 
 // The page's age is in whole years with its word, "23 yrs", never the months.
 const PAGE = { name: "Ifẹ́", age: "23 yrs", path: "The developer", was: "Science, then computer science", ready: "12%", photo: "", family: "A family that gets by", strip: { district: "Surulere", years: 23, percent: 12 } };
 
 describe("the data page", () => {
-  test("[R-PROLOGUE-009] given a page, then it prints its lines in order: the type line, the name, the nationality beside the age, the path, so far, the family beside ready as the big figure, then the strip", () => {
+  test("[prologue:front-door-builds-a-person] given a page, then it prints its lines in order: the type line, the name, the nationality beside the age, the path, so far, the family beside ready as the big figure, then the strip", () => {
     render(<DataPage page={PAGE} />);
     const field = (id: string): string | null => document.querySelector(`[data-page] [data-field='${id}']`)?.textContent ?? null;
     expect(document.querySelector("[data-page-type]")?.textContent).toBe(say("ui.page.type-line"));
@@ -37,7 +37,7 @@ describe("the data page", () => {
     for (const value of document.querySelectorAll<HTMLElement>("[data-page] [data-field] > div:last-child")) expect(value.className).not.toContain("truncate");
   });
 
-  test("[R-PROLOGUE-009] given where the life is from, then FROM prints in the row under the photo before FAMILY, with READY beside them; before the family is drawn it waits as the page's dots", () => {
+  test("[prologue:front-door-builds-a-person] given where the life is from, then FROM prints in the row under the photo before FAMILY, with READY beside them; before the family is drawn it waits as the page's dots", () => {
     render(<DataPage page={{ ...PAGE, from: "Port Harcourt" }} />);
     const field = (id: string): string | null => document.querySelector(`[data-page] [data-field='${id}']`)?.textContent ?? null;
     expect(field("from")).toBe(`${say("ui.page.field.from")}Port Harcourt`);
@@ -50,7 +50,7 @@ describe("the data page", () => {
     expect(document.querySelector("[data-page] [data-field='from']")?.textContent).toBe(`${say("ui.page.field.from")}${say("prologue.page.empty")}`);
   });
 
-  test("[R-PROLOGUE-009] given the game's own data, then the strip carries the name, the home's district, the age and how ready, in capitals with fillers; a part not known yet is fillers; never a real number", () => {
+  test("[prologue:front-door-builds-a-person] given the game's own data, then the strip carries the name, the home's district, the age and how ready, in capitals with fillers; a part not known yet is fillers; never a real number", () => {
     // The strip's age is the years alone, "23Y", never "23Y1M".
     expect(stripLines("Ifẹ́", PAGE.strip)).toEqual(["P<JPCIFE<<<<<<<<<<<<<<<<<<<<<<", "SURULERE<<23Y<<12<<<<<<<<<<<<<"]);
     expect(stripLines("Ada", { district: "Ojuelegba", years: 24, percent: null })[1]).toBe("OJUELEGBA<<24Y<<<<<<<<<<<<<<<<");
@@ -58,7 +58,7 @@ describe("the data page", () => {
     for (const line of stripLines("Temi", PAGE.strip)) expect(line).toHaveLength(30);
   });
 
-  test("[R-PROLOGUE-009] given a page, then its country code is the game's own made-up JPC in the type line and the strip, never a real one, and a faint JAPACITY mark runs across the paper", () => {
+  test("[prologue:front-door-builds-a-person] given a page, then its country code is the game's own made-up JPC in the type line and the strip, never a real one, and a faint JAPACITY mark runs across the paper", () => {
     expect(PAGE_CODE).toBe("JPC");
     render(<DataPage page={PAGE} />);
     expect(document.querySelector("[data-page-type]")?.textContent).toContain(PAGE_CODE);
@@ -73,7 +73,7 @@ describe("the data page", () => {
     expect(Number(word?.style.opacity)).toBeLessThan(0.1);
   });
 
-  test("[R-PROLOGUE-009] given the visa's stamp, then it is round and red with the way under it; a step after it is a small box", () => {
+  test("[prologue:front-door-builds-a-person] given the visa's stamp, then it is round and red with the way under it; a step after it is a small box", () => {
     render(<DataPage page={{ ...PAGE, stamps: [{ words: say("prologue.page.stamp.granted"), under: "care work" }, { words: say("ui.page.stamp.flight") }] }} />);
     const round = document.querySelector<HTMLElement>("[data-stamp-visa] [data-stamp-round]")!;
     expect(round.className.split(" ")).toContain(ROUND);

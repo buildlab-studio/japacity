@@ -20,7 +20,7 @@ export function fileOf(key: string, part = 1): string {
   return `${String(at + 1).padStart(3, "0")}-${key}${part > 1 ? `-p${String(part)}` : ""}.png`;
 }
 
-/** Every motion of the interface is under half a second (R-WORLD-023); a picture waits that out, and the fonts. */
+/** Every motion of the interface is under half a second (world:motions-under-half-second); a picture waits that out, and the fonts. */
 async function settle(page: Page, ms: number): Promise<void> {
   await page.waitForTimeout(ms);
   await page.evaluate(() => document.fonts.ready.then(() => undefined));

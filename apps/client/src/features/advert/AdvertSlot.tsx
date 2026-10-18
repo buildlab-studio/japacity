@@ -1,4 +1,4 @@
-// One advert slot (R-ADVERT-001 to 005, R-ADVERT-022): the approved image with
+// One advert slot (advert:adverts-only-in-slots, advert:slots-capped-per-place, advert:no-adverts-on-protected-screens, advert:one-labelled-still-image, advert:tap-opens-advert-card, advert:impression-counted-when-seen): the approved image with
 // the game's own "Advert" label, or the slot's own empty board. Tapping opens
 // the game's advert card; the link opens only after the leaving notice, and
 // only when the player chooses it. Nothing here touches the game's state.
@@ -26,7 +26,7 @@ export interface AdvertSlotProps {
 
 const HALF_VISIBLE = 0.5;
 
-/** R-ADVERT-022: on screen at least half visible for `impressionMs`, then counted once. */
+/** advert:impression-counted-when-seen: on screen at least half visible for `impressionMs`, then counted once. */
 function useImpression(slot: Id<"advert">, active: boolean, onCount: CountAdvert | undefined) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -88,7 +88,7 @@ function AdvertCard({ slot, served, open, onOpenChange }: { slot: Id<"advert">; 
       <Button variant="quiet" onClick={() => close(false)}>
         {say("advert.card.close")}
       </Button>
-      {/* R-MODERATION-003: an advert is reported by its campaign and the slot it stood in. */}
+      {/* moderation:report-from-every-surface: an advert is reported by its campaign and the slot it stood in. */}
       <BlockReport who={{ campaign: served.campaign, name: served.advertiser }} cites={{ campaign: served.campaign, slot }} surface="advert" />
     </Sheet>
   );

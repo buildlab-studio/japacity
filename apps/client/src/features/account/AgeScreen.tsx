@@ -1,7 +1,7 @@
-// The age screen (R-ACCOUNT-012): three fields, the day, the month and the year, none filled in and none
+// The age screen (account:age-screen-refuses-minors): three fields, the day, the month and the year, none filled in and none
 // hinting at the age needed, before the username and the guest life. The server decides and keeps no date of
 // birth; this screen only sends what was picked. The bot check runs where the account is made, at Begin on the
-// page (R-ACCOUNT-013, R-ACCOUNT-029).
+// page (account:bot-check-on-guest-creation, account:start-screen-over-live-city).
 import { ArrowLeft } from "lucide-react";
 import { useState, type FormEvent } from "react";
 

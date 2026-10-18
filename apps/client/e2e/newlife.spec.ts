@@ -5,7 +5,7 @@ import { start, type Game } from "@japacity/sim/testing";
 
 import { expect, test, type Page } from "@playwright/test";
 
-// "Start a new life" online (docs/rules/account.md R-ACCOUNT-030): a guest in the world opens Settings, the sheet
+// "Start a new life" online (account:start-a-new-life): a guest in the world opens Settings, the sheet
 // names the character, a tap does nothing and a hold ends the life through the server's own route; the front door
 // opens filled in, and Begin starts the new life under the same guest, with no bot check and no new guest asked
 // for. Played against a faked server that runs the simulation itself, as asks.spec.ts does.
@@ -50,7 +50,7 @@ async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"
         if (!result.ok) return route.fulfill(json({ ok: false, code: result.code, detail: result.detail }, 409));
         return route.fulfill(json({ ...viewReply(game), lines: result.lines }));
       }
-      // R-SERVER-046: Begin sends the new life's preset once, played here as the server plays it.
+      // server:server-plays-prologue-preset: Begin sends the new life's preset once, played here as the server plays it.
       if (asked === "POST /api/prologue/preset" && game !== null) {
         return route.fulfill(json(playPresetOn(game, request.postDataJSON() as PresetRequest, { ...clockAt(game.tick), morningAt: 0, world: worldClockAt(game.tick) })));
       }
@@ -67,7 +67,7 @@ async function fakeServer(page: Page): Promise<{ sent: string[]; scenarios: Id<"
   return { sent, scenarios };
 }
 
-test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door opens filled in, and Begin starts the new life under the same guest", async ({ page }, info) => {
+test("[account:start-a-new-life] a guest ends the life from Settings by a hold, the door opens filled in, and Begin starts the new life under the same guest", async ({ page }, info) => {
   // The hold, the door and the years of the new page as the faked server plays them, which a loaded machine stretches.
   test.setTimeout(120_000);
   if (info.project.name.startsWith("Pixel")) await page.setViewportSize({ width: 390, height: 844 });
@@ -121,7 +121,7 @@ test("[R-ACCOUNT-030] a guest ends the life from Settings by a hold, the door op
   expect(faked.sent).not.toContain("turnstile");
 });
 
-test("[R-CITY-021] a guest opens the Credits from the phone's Settings: the same sheet as the city's menu, with the map data linked", async ({ page }) => {
+test("[city:credits-screen-attributions] a guest opens the Credits from the phone's Settings: the same sheet as the city's menu, with the map data linked", async ({ page }) => {
   await fakeServer(page);
   await page.goto("/");
   await passOpeningWords(page, 20_000);

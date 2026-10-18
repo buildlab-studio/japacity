@@ -1,4 +1,4 @@
-// The game's lockup and seal (account.md R-ACCOUNT-029): the J in two rings with two bulbs on a
+// The game's lockup and seal (account:start-screen-over-live-city): the J in two rings with two bulbs on a
 // wire across the top, warm for home and cool for abroad, beside the name in the plain bold face. The files are
 // drawn in public/brand/ (their notes in brand/README.md, out of the served folder), one for each ground: a light
 // ground is the sheet, a dark one the band or the sky behind the figure. The seal has three drawings: the full one,

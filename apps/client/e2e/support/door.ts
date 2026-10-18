@@ -1,10 +1,10 @@
-// The way through the front door for a browser test (prologue.md R-PROLOGUE-013, 014): three screens with everything
-// chosen. A tile: Next, the tile, Next to Where you live, Begin; its page fills and waits for Go (R-PROLOGUE-014). A ready life: the
+// The way through the front door for a browser test (prologue:front-door-three-screens, prologue:printed-page-hands-over): three screens with everything
+// chosen. A tile: Next, the tile, Next to Where you live, Begin; its page fills and waits for Go (prologue:printed-page-hands-over). A ready life: the
 // test asks for the ready lives as Settings does and opens the door again, on them, then Pick on its kind, Begin.
 import type { Page } from "@playwright/test";
 
 /**
- * The first chapter's title stands over the world for a moment with nothing to press (R-CHAPTER-011); a later
+ * The first chapter's title stands over the world for a moment with nothing to press (chapter:first-chapter-mission-card); a later
  * chapter's card has Go, which takes the step and may open the map with the stop picked. A test that wants the world
  * as it stands waits the title out, or passes the card and closes that map. The classic page has neither, so the wait is short.
  */
@@ -23,7 +23,7 @@ export async function passOpeningWords(page: Page, timeout = 4_000): Promise<voi
 }
 
 /**
- * The first brief's card waits for the place's first frame (R-CHAPTER-011) and the city marks the
+ * The first brief's card waits for the place's first frame (chapter:first-chapter-mission-card) and the city marks the
  * wait with `[data-brief-pending]` from the moment the band stands: a card is looked for only once that mark is gone, so
  * a card still coming never stands over the next tap. Where no world comes the waits end on their own.
  */
@@ -50,7 +50,7 @@ export async function startReadyLife(page: Page, kind?: string, timeout = 30_000
   await passOpeningWords(page);
 }
 
-/** The page as the handover waits for the player (R-PROLOGUE-014): Go on it, once its years are in, if it shows. */
+/** The page as the handover waits for the player (prologue:printed-page-hands-over): Go on it, once its years are in, if it shows. */
 export async function passThePage(page: Page, timeout = 30_000): Promise<void> {
   const go = page.locator("[data-page-handover]").getByRole("button", { name: "Go", exact: true });
   // A life whose page is not shown (online, the server closes the years) goes straight to the world.

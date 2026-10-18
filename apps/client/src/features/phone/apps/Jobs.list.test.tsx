@@ -1,4 +1,4 @@
-// The offers in Jobs in the lively dress (world.md R-WORLD-018, R-WORLD-021): each offer a
+// The offers in Jobs in the lively dress (world:phone-rises-over-scene, world:colours-are-role-tokens): each offer a
 // card with its picture, no radio circle, the offer picked ringed in yellow, and one yellow button at the foot that
 // repeats the pick.
 import { content } from "@japacity/content";
@@ -33,7 +33,7 @@ function twoOffers() {
 }
 
 describe("the offers in Jobs", () => {
-  test("[R-WORLD-018] [R-WORLD-021] given two offers, when Jobs opens, then each is a card with the job's picture and no radio circle, the first picked and ringed, its pay as a green chip, and one yellow button at the foot repeats it; picking the other moves the ring and the button's words", async () => {
+  test("[world:phone-rises-over-scene] [world:colours-are-role-tokens] given two offers, when Jobs opens, then each is a card with the job's picture and no radio circle, the first picked and ringed, its pay as a green chip, and one yellow button at the foot repeats it; picking the other moves the ring and the button's words", async () => {
     await renderWithView(<Jobs />, twoOffers());
     const rows = (): HTMLButtonElement[] => [...document.querySelectorAll<HTMLButtonElement>("[data-job-offers] [role='radio']")];
     expect(rows()).toHaveLength(2);

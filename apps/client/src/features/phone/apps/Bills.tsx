@@ -1,6 +1,6 @@
-// Bills (docs/rules/world.md R-WORLD-018, 019): the bill notices, each with what is due this month.
+// Bills (world:phone-rises-over-scene, world:phone-holds-what-phones-hold): the bill notices, each with what is due this month.
 // A bill that can be paid now (a loan, held funds, a car behind, what a sponsor owes) opens its
-// own paper slip; the rest are taken at the month's end. The engine still decides (R-OBLIGATION-008).
+// own paper slip; the rest are taken at the month's end. The engine still decides (obligation:paying-down-obligations).
 import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 
@@ -30,7 +30,7 @@ export function payNow(owed: Owed): { amount: number; line: string; button: stri
 }
 
 /**
- * When a bill taken every few months comes next, said as months away (R-WORLD-002), in a month none is
+ * When a bill taken every few months comes next, said as months away (world:top-band-is-lively-pill), in a month none is
  * taken: "Next instalment in 2 months." Null for a bill due now,
  * one behind, or one taken every month.
  */
@@ -47,7 +47,7 @@ export function nextTakenAhead(owed: Owed, month: number): number | null {
   const every = entry?.everyMonths;
   // A rent owes nothing between its years, so it is said whatever is outstanding.
   if (every === undefined || every <= 1 || owed.due > 0 || owed.missed > 0 || (owed.outstanding <= 0 && entry?.type !== "rent")) return null;
-  // R-OBLIGATION-015: a period paid when it opened is first taken a whole period after the opening month.
+  // obligation:prepaid-entries-skip-first-charge: a period paid when it opened is first taken a whole period after the opening month.
   const first = entry?.prepaid === true ? every : 1;
   // The view's "this month" is the month after the one in hand, as `due` reads it.
   for (let ahead = 1; ahead <= every + 1; ahead += 1) {
@@ -77,7 +77,7 @@ function haveFor(pocket: PlayerView["pockets"][Currency], pay: NonNullable<Retur
 }
 
 /**
- * R-HOME-012 (decision 0013): the naira living at home is bought as you go and charged nothing as the month turns, so
+ * home:living-by-hand (decision 0013): the naira living at home is bought as you go and charged nothing as the month turns, so
  * its notice would say a bill is taken at the month's end when none is. The home card above says how it is lived.
  */
 function livedByHand(owed: Owed): boolean {
@@ -106,7 +106,7 @@ export function Bills() {
   });
   return (
     <div data-phone-app="bills">
-      {/* R-HOME-007: where the character lives and what it costs, above the bills it brings. */}
+      {/* home:view-carries-home: where the character lives and what it costs, above the bills it brings. */}
       <HomeCard />
       {owed.length === 0 ? (
         <p className="px-0.5 text-[15px] text-text-2">{say("ui.obligation.none")}</p>
@@ -129,7 +129,7 @@ export function Bills() {
                       bill.outstanding <= 0 && bill.missed <= 0 && bill.state === "active" ? null : (
                         <>
                           {bill.outstanding > 0 ? <MoneyChip out className="num">{say("ui.obligation.outstanding", { amount: formatMoney(bill.outstanding, currency) })}</MoneyChip> : null}
-                          {/* A loan's months left (R-OBLIGATION-003's counts); a car and a promise say theirs below. */}
+                          {/* A loan's months left (obligation:miss-applies-its-effects's counts); a car and a promise say theirs below. */}
                           {bill.monthsLeft === null || bill.outstanding <= 0 || kind === "car" || kind === "undertaking" ? null : <WordChip tone="plain">{sayCount("ui.obligation.months-left", bill.monthsLeft, { months: bill.monthsLeft })}</WordChip>}
                           {bill.missed > 0 ? <WordChip tone="bad">{sayCount("ui.obligation.missed", bill.missed, { count: bill.missed })}</WordChip> : null}
                           {bill.state === "active" ? null : <WordChip tone="bad">{say(`ui.obligation.state.${bill.state}`)}</WordChip>}
@@ -139,7 +139,7 @@ export function Bills() {
                     foot={
                       pay === null && kind !== "car" && kind !== "undertaking" ? null : (
                         <div className="flex flex-col gap-2.5">
-                          {/* R-CAR-007, R-UNDERTAKING-012: a car and a sponsor's promise carry their own figures. */}
+                          {/* car:view-shows-car-terms, undertaking:view-lists-undertaking: a car and a sponsor's promise carry their own figures. */}
                           {kind === "car" ? <CarFacts owed={bill} /> : kind === "undertaking" ? <UndertakingFacts owed={bill} /> : null}
                           {pay === null ? null : (
                             <GhostButton wide onClick={() => open(slip(bill, currency, pay))} className="justify-center" data-pay={bill.id}>

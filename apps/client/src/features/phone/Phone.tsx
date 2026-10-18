@@ -1,4 +1,4 @@
-// The phone (docs/rules/world.md R-WORLD-018), its apps four across. The apps are handed in as the
+// The phone (world:phone-rises-over-scene), its apps four across. The apps are handed in as the
 // contract's `PhoneApp`, so the handset knows nothing of what they show.
 import { ChevronLeft, Maximize2, Minimize2 } from "lucide-react";
 import { type ReactNode, type RefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -23,24 +23,24 @@ export interface PhoneProps {
   onOpen?: (id: string) => void;
   /** The clock, for tests. */
   now?: () => Date;
-  /** An app to open on, counted as seen (the nudge's "The month's news is in", R-WORLD-003). */
+  /** An app to open on, counted as seen (the nudge's "The month's news is in", world:nudge-says-one-thing). */
   start?: string | null;
-  /** What the wallpaper tells between the clock and the apps: the month's acts telling of themselves (R-WORLD-030). */
+  /** What the wallpaper tells between the clock and the apps: the month's acts telling of themselves (world:month-passes-as-lived). */
   notices?: ReactNode;
-  /** Puts the phone away onto the map at a stop (R-WORLD-019): a paper's visit in Papers. */
+  /** Puts the phone away onto the map at a stop (world:phone-holds-what-phones-hold): a paper's visit in Papers. */
   onMap?: (stop: string) => void;
   /** The place's picture beside its name on the wallpaper, where it has one. */
   areaPicture?: ReactNode;
 }
 
 /**
- * The room the grown handset leaves above it for the told lane (R-WORLD-026): grown to the screen's top, a lane above it
- * would stand off the screen, so the grown handset is this much shorter, still nearly the whole screen (R-WORLD-018).
+ * The room the grown handset leaves above it for the told lane (world:street-talk-budget): grown to the screen's top, a lane above it
+ * would stand off the screen, so the grown handset is this much shorter, still nearly the whole screen (world:phone-rises-over-scene).
  */
 export const TOLD_LANE = "h-[calc(100dvh-max(8px,env(safe-area-inset-top))-max(8px,env(safe-area-inset-bottom))-44px)]";
 
 /**
- * What an app's act did, told over the handset in the corner's own look (R-WORLD-026), in a lane of its own just above the
+ * What an app's act did, told over the handset in the corner's own look (world:street-talk-budget), in a lane of its own just above the
  * handset: never inside the glass, where it would sit on the app icons or on Send money home. Above the handset at rest
  * is the dimmed world under the band; grown, the room it leaves.
  */
@@ -79,7 +79,7 @@ const REST_TILT_DEG = -2;
 const GROW_MS = 250;
 
 /**
- * The grow and the shrink as one move (world.md R-WORLD-018, R-WORLD-023). The handset is
+ * The grow and the shrink as one move (world:phone-rises-over-scene, world:motions-under-half-second). The handset is
  * laid out once at its new size; FLIP then draws it where it stood (`invertedTransform`) and lets the transition carry it
  * home, so every frame between is a transform the compositor draws and nothing is laid out again. Its content, laid out
  * at the new size, stays hidden in flight and fades in once the frame lands. A tap while it flies waits for the landing.
@@ -135,7 +135,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
   }, [start, onOpen]);
   const { grown, toggle, handset, screen } = useGrow();
   const [away, setAway] = useState(false);
-  /** Puts the phone away: it drops back the way it rose while the scrim clears, then it is gone (R-WORLD-023). */
+  /** Puts the phone away: it drops back the way it rose while the scrim clears, then it is gone (world:motions-under-half-second). */
   const putAway = () => {
     if (away) return;
     if (motionOn()) setAway(true);
@@ -195,7 +195,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
         <button type="button" tabIndex={-1} aria-hidden onClick={putAway} className={`motion-in-fade absolute inset-0 cursor-default bg-scrim ${away ? "opacity-0" : ""}`} data-phone-scrim />
         {/* The handset is laid out at rest or grown, centred at the foot, and never moves by layout: the grow and the
             shrink are one transform from the box it left (useGrow), and putting it away is a transform too, so the
-            frames between are the compositor's (R-WORLD-023). On a laptop it is laid out in
+            frames between are the compositor's (world:motions-under-half-second). On a laptop it is laid out in
             the centred column, so grown it is a phone's width, not the screen's (decision 0025). */}
         <CentredColumn className="pointer-events-none absolute inset-0">
         <div
@@ -275,7 +275,7 @@ export function Phone({ apps, onClose, area, when, onOpen, now = realNow, start 
                     {/* The pill stands beside the name, and drops under it where the phone at rest has no room for both. */}
                     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
                       <h2 className="shrink-0 text-[24px] leading-tight font-bold">{app.name}</h2>
-                      {/* What is there now (R-WORLD-018). */}
+                      {/* What is there now (world:phone-rises-over-scene). */}
                       {app.context === undefined || app.context === null ? null : (
                         <span className="pill max-w-full px-2.5 py-0.5 text-[13px] font-bold whitespace-nowrap" data-app-context>
                           <span className="truncate">{app.context}</span>

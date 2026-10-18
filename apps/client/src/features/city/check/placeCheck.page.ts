@@ -1,4 +1,4 @@
-// The place check's page (city.md R-CITY-027, R-CITY-038): a staged place built by the client's own
+// The place check's page (city:no-script-loop-per-sheet, city:places-meet-party-room-bar): a staged place built by the client's own
 // world code from the shipped files, seen from the start's street camera on the cheap phone profile,
 // once still and once moving. Still is the place without its motion list and with no frame update;
 // moving adds the motion, the clock and the crowd's idling as the city's frame loop runs them. Each
@@ -129,7 +129,7 @@ const placeCheck = {
   },
 
   /**
-   * What routing costs on the place (city.md R-CITY-030): its route map built again from the loaded
+   * What routing costs on the place (city:tap-to-walk): its route map built again from the loaded
    * footprints and the walkable ground, then `count` taps routed one after another from the start,
    * each walk starting where the last one ended. Milliseconds each.
    */

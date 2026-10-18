@@ -15,7 +15,7 @@ function sink() {
 }
 
 describe("the interface counters", () => {
-  test("[R-ANALYTICS-002] [R-ANALYTICS-001] given names and keys on and off the list, when they are counted, then only the client's listed names with allowed keys are sent", () => {
+  test("[analytics:client-sends-interface-counts] [analytics:game-counters-from-server] given names and keys on and off the list, when they are counted, then only the client's listed names with allowed keys are sent", () => {
     const { sent, counters } = sink();
     counters.count("screen/opened", "wallet");
     counters.count("screen/opened", "wallet", 2);
@@ -34,7 +34,7 @@ describe("the interface counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-003] given rows that fill a batch to exactly the largest size, when they are packed, then they go as one; one byte more and they go as two, none over the size", () => {
+  test("[analytics:client-batches-counters] given rows that fill a batch to exactly the largest size, when they are packed, then they go as one; one byte more and they go as two, none over the size", () => {
     const row = (key: string): CounterRow => ({ name: "advert/impression", key, count: 1 });
     const two = (extra: number) => [row("advert.a"), row(`advert.b${"b".repeat(extra)}`)];
     const base = bytes(packBatches(two(0), maxBatchBytes)[0] ?? "");
@@ -50,7 +50,7 @@ describe("the interface counters", () => {
     expect(rowsIn(over)).toEqual(two(maxBatchBytes - base + 1));
   });
 
-  test("[R-ANALYTICS-003] [R-ANALYTICS-004] given more counted than one batch or one row may carry, when it is flushed, then every body is within the size and every count within the largest", () => {
+  test("[analytics:client-batches-counters] [analytics:server-checks-every-batch] given more counted than one batch or one row may carry, when it is flushed, then every body is within the size and every count within the largest", () => {
     const { sent, counters } = sink();
     for (let index = 0; index < 600; index += 1) counters.count("advert/impression", `advert.slot-${String(index)}`);
     counters.count("screen/opened", "news", maxCount * 2 + 1);
@@ -63,7 +63,7 @@ describe("the interface counters", () => {
     expect(rowsIn(sent)).toHaveLength(603);
   });
 
-  test("[R-ANALYTICS-006] given usage counts turned off, when anything is counted and flushed, then nothing is sent, and what was held before is dropped", () => {
+  test("[analytics:player-can-stop-usage-counts] given usage counts turned off, when anything is counted and flushed, then nothing is sent, and what was held before is dropped", () => {
     const { sent, counters } = sink();
     counters.count("screen/opened", "wallet");
     counters.setEnabled(false);
@@ -78,7 +78,7 @@ describe("the interface counters", () => {
     expect(rowsIn(sent)).toEqual([{ name: "screen/opened", key: "route", count: 1 }]);
   });
 
-  test("[R-ANALYTICS-011] given asks before and after the early win, when they are counted, then each is keyed by what was asked and when", () => {
+  test("[analytics:day-one-and-seven-return] given asks before and after the early win, when they are counted, then each is keyed by what was asked and when", () => {
     const { sent, counters } = sink();
     counters.ask("sign-in", "shown", true);
     counters.ask("sign-in", "accepted", true);
@@ -91,7 +91,7 @@ describe("the interface counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-002] given load times at the band edges, when banded, then each falls in its band", () => {
+  test("[analytics:client-sends-interface-counts] given load times at the band edges, when banded, then each falls in its band", () => {
     expect([0, 999, 1000, 2999, 3000, 9999, 10000].map(loadBand)).toEqual(["under-1s", "under-1s", "1s-3s", "1s-3s", "3s-10s", "3s-10s", "over-10s"]);
   });
 });
@@ -104,7 +104,7 @@ describe("counting against the server", () => {
     vi.useRealTimers();
   });
 
-  test("[R-ANALYTICS-003] given the game started online, when a batch period passes and when the page is hidden, then a batch goes by beacon to /api/counters, and nothing is written to the device", async () => {
+  test("[analytics:client-batches-counters] given the game started online, when a batch period passes and when the page is hidden, then a batch goes by beacon to /api/counters, and nothing is written to the device", async () => {
     const beacons: { url: string; body: string }[] = [];
     const pending: Promise<void>[] = [];
     const beacon = (url: string, body: Blob) => {

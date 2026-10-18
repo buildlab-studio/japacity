@@ -1,4 +1,4 @@
-// The age screen's three fields, picked as a person picks them, for the screens' tests (R-ACCOUNT-012).
+// The age screen's three fields, picked as a person picks them, for the screens' tests (account:age-screen-refuses-minors).
 import { fireEvent, screen } from "@testing-library/react";
 
 import { say } from "../../shared/words/text";

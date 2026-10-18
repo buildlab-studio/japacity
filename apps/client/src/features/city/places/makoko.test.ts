@@ -1,4 +1,4 @@
-// Makoko on the lagoon (city.md place.makoko, home.md R-HOME-006): houses on stilts over the water
+// Makoko on the lagoon (city.md place.makoko, home:home-is-the-home-point): houses on stilts over the water
 // beside the Third Mainland Bridge, a plank walk in front of them, the racks where fish is smoked,
 // the classroom on stilts, canoes moored at the walk and canoes paddled along the channel, the
 // bridge far off behind. The room a character may rent carries the parlour's acts for the home's
@@ -37,7 +37,7 @@ function inPlace([x, z, turn]: readonly number[], [px, pz]: readonly [number, nu
 describe("Makoko", () => {
   frontageTests(raw, ID);
 
-  test("[R-HOME-006] [R-ACTIVITY-019] given the room on the water, when its things are read, then the room naps on its bunk and sleeps, lying down at once while no nap can be had, the porch's cooking corner cooks and fetches water with the meals and the bath on their sheets, and the papers box opens the phone's Papers, each thing with at most two acts", () => {
+  test("[home:home-is-the-home-point] [activity:acts-may-repeat-in-month] given the room on the water, when its things are read, then the room naps on its bunk and sleeps, lying down at once while no nap can be had, the porch's cooking corner cooks and fetches water with the meals and the bath on their sheets, and the papers box opens the phone's Papers, each thing with at most two acts", () => {
     const room = thing("room");
     expect(room.file).toBe("places/makoko/bld_makoko-house_a.glb");
     expect(room.acts.map((act) => [act.id, act.kind, act.stages ?? null, act.pose ?? null])).toEqual([
@@ -62,14 +62,14 @@ describe("Makoko", () => {
       ["sheet", "activity.fetch-water", ["activity.bucket-bath"]],
     ]);
     const papers = thing("room-papers").acts;
-    // The passport is a visit to Immigration (R-WORLD-019), the transcript a call from the phone.
+    // The passport is a visit to Immigration (world:phone-holds-what-phones-hold), the transcript a call from the phone.
     expect(papers.map((act) => [act.id, act.kind, act.app])).toEqual([["papers", "app", "papers"]]);
     for (const id of ["room", "room-chores", "room-papers"]) expect(thing(id).acts.length).toBeLessThanOrEqual(2);
     // The parlour's own words for the same acts.
     expect([cityWords(room.acts[0]?.otherwise?.label ?? ""), ...room.acts.map((act) => cityWords(act.label))]).toEqual([cityWords("city.act.lie"), cityWords("activity.nap.name"), cityWords("ui.world.end-month")]);
   });
 
-  test("[R-HOME-006] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {
+  test("[home:home-is-the-home-point] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {
     const [house] = copiesOf(stage, "bld_makoko-house_a.glb");
     if (house === undefined) throw new Error("No room");
     const { depth, porch, width } = ROOM_HOUSE;
@@ -86,7 +86,7 @@ describe("Makoko", () => {
     }
   });
 
-  test("[R-WORLD-017] given the canoe moored at the walk, when it is tapped, then Go by canoe opens the ride sheet, the way back to the city by water", () => {
+  test("[world:ride-sheet-shows-fares] given the canoe moored at the walk, when it is tapped, then Go by canoe opens the ride sheet, the way back to the city by water", () => {
     const canoe = thing("canoe");
     expect(canoe.file).toBe("places/third-mainland-bridge/prop_canoe.glb");
     expect(canoe.acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([["ride", "Go by canoe"]]);
@@ -96,7 +96,7 @@ describe("Makoko", () => {
     expect(thingSpot(stage, canoe)).not.toBeNull();
   });
 
-  test("[R-WORLD-005] given the racks and the classroom, when their acts are read, then Look at the racks says what happened, the racks stage the job (R-ACTIVITY-017), the racks' sheet until content has it, and the classroom is looked at", () => {
+  test("[world:things-are-tappable-models] given the racks and the classroom, when their acts are read, then Look at the racks says what happened, the racks stage the job (activity:fish-racks-at-makoko), the racks' sheet until content has it, and the classroom is looked at", () => {
     const racks = thing("racks");
     expect(racks.acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["plain", null],
@@ -110,7 +110,7 @@ describe("Makoko", () => {
     expect(school.file).toBe("places/makoko/bld_makoko-school.glb");
   });
 
-  test("[R-CITY-026] given the lagoon, when the place is read, then one water grid in the lagoon's colour runs under the houses and the walk, and the walk, the porch and the racks stand over its highest ripple", () => {
+  test("[city:motion-in-vertex-shader] given the lagoon, when the place is read, then one water grid in the lagoon's colour runs under the houses and the walk, and the walk, the porch and the racks stand over its highest ripple", () => {
     expect(water).toHaveLength(1);
     const [grid] = water;
     if (grid === undefined) throw new Error("No water");
@@ -124,7 +124,7 @@ describe("Makoko", () => {
     expect(stage.ground.colour).toBe("lagoon");
   });
 
-  test("[R-CITY-027] given the canoes paddled along the channel, when their lanes are read, then goods and the children to school travel on the shared clock, each lane in the water and clear of the walk and of the canoes moored there", () => {
+  test("[city:no-script-loop-per-sheet] given the canoes paddled along the channel, when their lanes are read, then goods and the children to school travel on the shared clock, each lane in the water and clear of the walk and of the canoes moored there", () => {
     const travelling = stage.models.filter((model) => model.glide !== undefined);
     expect(travelling.map((model) => model.file).sort()).toEqual(["places/makoko/prop_canoe-goods.glb", "places/makoko/prop_canoe-school.glb"]);
     const [grid] = water;
@@ -146,7 +146,7 @@ describe("Makoko", () => {
     }
   });
 
-  test("[R-CITY-025] given the racks, when the place's motion is read, then the smoke rises from the kiln's trays and the washing on its line is the place's one moving sheet", () => {
+  test("[city:one-clock-one-wind] given the racks, when the place's motion is read, then the smoke rises from the kiln's trays and the washing on its line is the place's one moving sheet", () => {
     const [racks] = copiesOf(stage, "prop_fish-racks.glb");
     if (racks === undefined) throw new Error("No racks");
     const [sx, sy, sz] = RACKS.smoke;
@@ -159,7 +159,7 @@ describe("Makoko", () => {
     expect(stage.motion.filter((motion) => motion.kind === "leaves")).toHaveLength(1);
   });
 
-  test("[R-CITY-024] given Makoko's boards, when their words are read, then the classroom, the church and the fish seller each have one, in the place's own keys, and none names a business or a sum of money", () => {
+  test("[city:place-words-are-text-keys] given Makoko's boards, when their words are read, then the classroom, the church and the fish seller each have one, in the place's own keys, and none names a business or a sum of money", () => {
     const boards = stage.models.flatMap((model) => (model.signs ?? []).flat());
     expect(boards.length).toBeGreaterThanOrEqual(3);
     const said = boards.map(wordsOf);
@@ -171,14 +171,14 @@ describe("Makoko", () => {
     expect(lettered?.signs?.[0]?.map(wordsOf).join(" ")).toContain("SCHOOL");
   });
 
-  test("[R-WORLD-026] given the talk overheard in Makoko, when its lines are read, then there are at least five, about the water, the fish, the school and the bridge, and the clearing is told straight", () => {
+  test("[world:street-talk-budget] given the talk overheard in Makoko, when its lines are read, then there are at least five, about the water, the fish, the school and the bridge, and the clearing is told straight", () => {
     const lines = Object.keys(text).filter((key) => /^place\.makoko\.overheard\.[0-9]+$/.test(key)).map((key) => text[key] ?? "");
     expect(lines.length).toBeGreaterThanOrEqual(5);
     for (const about of [/water/i, /fish/i, /school/i, /bridge/i, /clear/i]) expect(lines.some((line) => about.test(line))).toBe(true);
     expect(lines.filter((line) => /!|\{|route\.|news\.|[–—]/.test(line))).toEqual([]);
   });
 
-  test("[R-WORLD-015] given Makoko's published file, when the map's stops are drawn, then its stop stands beside the bridge, open to a life at home from the start", () => {
+  test("[world:map-is-painted-lagos] given Makoko's published file, when the map's stops are drawn, then its stop stands beside the bridge, open to a life at home from the start", () => {
     expect((manifest as { files: Record<string, string> }).files["places/makoko/place.json"]).toBeDefined();
     const position = entry.position;
     const bridge = content.place["place.third-mainland-bridge" as Id<"place">]?.position;
@@ -191,7 +191,7 @@ describe("Makoko", () => {
     expect(file.place).toBe(ID);
   });
 
-  test("[R-HOME-006] given the whole view, when the bridge is read against the houses, then the span stands far behind them in the direction the view looks, so the two share a view", () => {
+  test("[home:home-is-the-home-point] given the whole view, when the bridge is read against the houses, then the span stands far behind them in the direction the view looks, so the two share a view", () => {
     const spans = copiesOf(stage, "lm_third-mainland-span.glb");
     expect(spans.length).toBeGreaterThanOrEqual(1);
     const houses = stage.models.filter((model) => model.file.includes("bld_")).flatMap((model) => model.at);

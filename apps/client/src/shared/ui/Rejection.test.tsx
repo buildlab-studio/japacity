@@ -1,4 +1,4 @@
-// The rejection sheet (R-SERVER-003): a life the server must check says so in its own words and offers Retry, which
+// The rejection sheet (server:log-rows-hash-state): a life the server must check says so in its own words and offers Retry, which
 // asks for the life again; every other rejection keeps its Close. Over the remote authority and a stand-in server.
 import { worldClockAt } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -28,7 +28,7 @@ function online() {
 }
 
 describe("the rejection sheet", () => {
-  test("[R-SERVER-003] given a command refused as diverged, then the sheet says the life needs checking, offers Retry and no Close, and Retry clears it once the view comes", async () => {
+  test("[server:log-rows-hash-state] given a command refused as diverged, then the sheet says the life needs checking, offers Retry and no Close, and Retry clears it once the view comes", async () => {
     const { server, store } = online();
     server.answer("GET /api/view", viewed(3));
     await store.getState().refresh();
@@ -50,7 +50,7 @@ describe("the rejection sheet", () => {
     expect(store.getState().failed).toBeNull();
   });
 
-  test("[R-SERVER-003] given any other rejection, then the sheet keeps its detail and its Close, and offers no Retry", async () => {
+  test("[server:log-rows-hash-state] given any other rejection, then the sheet keeps its detail and its Close, and offers no Retry", async () => {
     const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.resolve({ ok: false, code: "not-legal", detail: "Not now." }) });
     await store.getState().refresh();
     await store.getState().endMonth();
@@ -65,7 +65,7 @@ describe("the rejection sheet", () => {
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  test("[R-SERVER-003] given the life refused as diverged as it opens, then the sheet stands in the loading screen's place with no failure line, and Retry opens the life once the server answers", async () => {
+  test("[server:log-rows-hash-state] given the life refused as diverged as it opens, then the sheet stands in the loading screen's place with no failure line, and Retry opens the life once the server answers", async () => {
     const { server, store } = online();
     server.answer("GET /api/view", DIVERGED, DIVERGED, viewed(4));
     render(<App store={store} />);

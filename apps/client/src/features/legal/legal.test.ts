@@ -29,7 +29,7 @@ const terms = () => parsed(TERMS_PATH);
 const privacy = () => parsed(PRIVACY_PATH);
 
 describe("the two legal pages", () => {
-  test("[R-REGION-010] given each link in the game, when its path is looked up among the pages served, then a page is there with its own title and a phone's viewport", () => {
+  test("[region:operator-named-once] given each link in the game, when its path is looked up among the pages served, then a page is there with its own title and a phone's viewport", () => {
     expect(LEGAL_LINKS.map((link) => link.href)).toEqual(LEGAL_TEMPLATES.map((page) => page.path));
     for (const link of LEGAL_LINKS) {
       const page = parsed(link.href);
@@ -39,7 +39,7 @@ describe("the two legal pages", () => {
     }
   });
 
-  test("[R-REGION-010] given the two pages, when they are built, then each is a file at the top of the client's output named after its clean address", () => {
+  test("[region:operator-named-once] given the two pages, when they are built, then each is a file at the top of the client's output named after its clean address", () => {
     expect(LEGAL_LINKS.map((link) => link.href)).toEqual(["/terms", "/privacy"]);
     expect(legalPages(CLIENT).map((page) => [page.path, page.file])).toEqual([
       ["/terms", "terms.html"],
@@ -47,7 +47,7 @@ describe("the two legal pages", () => {
     ]);
   });
 
-  test("[R-REGION-010] given the dev server, when a page is asked for, then the clean address serves it and the .html form or a trailing slash goes on to the clean address, as the platform does", () => {
+  test("[region:operator-named-once] given the dev server, when a page is asked for, then the clean address serves it and the .html form or a trailing slash goes on to the clean address, as the platform does", () => {
     for (const { path, file } of LEGAL_TEMPLATES) {
       expect(legalRoute(path)).toEqual({ serve: path });
       expect(legalRoute(`/${file}`)).toEqual({ redirect: path });
@@ -56,7 +56,7 @@ describe("the two legal pages", () => {
     for (const other of ["/", "/official", "/legal/terms.html", "/guides/numbers/", "/termsx", "/privacy.htm"]) expect(legalRoute(other)).toBeNull();
   });
 
-  test("[R-SHARE-014] given the two pages, when they are read, then each links to the other, back to the game and to the official accounts page", () => {
+  test("[share:everything-links-to-official] given the two pages, when they are read, then each links to the other, back to the game and to the official accounts page", () => {
     const hrefs = (page: Document) => [...page.querySelectorAll("a")].map((link) => link.getAttribute("href"));
     expect(hrefs(terms())).toEqual(expect.arrayContaining([PRIVACY_PATH, "/", "/official"]));
     expect(hrefs(privacy())).toEqual(expect.arrayContaining([TERMS_PATH, "/", "/official"]));
@@ -94,33 +94,33 @@ describe("the two legal pages", () => {
 });
 
 describe("the terms of play", () => {
-  test("[R-REGION-003] given the terms, when they are read, then they say the game is for 18 or over, as the age screen asks", () => {
+  test("[region:one-age-line-for-all] given the terms, when they are read, then they say the game is for 18 or over, as the age screen asks", () => {
     expect(words(terms().querySelector("[data-age]"))).toContain("You must be 18 or over to play.");
     expect(words(terms().querySelector("[data-age]"))).toContain("turns away anyone under 18");
   });
 
-  test("[R-MODERATION-003] given the terms, when they are read, then they say a player can block or report another wherever they meet", () => {
+  test("[moderation:report-from-every-surface] given the terms, when they are read, then they say a player can block or report another wherever they meet", () => {
     expect(words(terms().querySelector("[data-block-report]"))).toContain("Wherever you meet another player, you can block them or report them.");
   });
 
-  test("[R-MODERATION-014] given the terms, when they are read, then they say what breaks them may be removed and an account may be closed for it", () => {
+  test("[moderation:fixed-admin-actions] given the terms, when they are read, then they say what breaks them may be removed and an account may be closed for it", () => {
     const removal = words(terms().querySelector("[data-removal]"));
     expect(removal).toContain("remove what breaks these terms");
     expect(removal).toContain("close your account");
   });
 
-  test("[R-MODERATION-016] given the terms, when they are read, then they give the complaints route: a letter to the operator's address, answered within 14 days", () => {
+  test("[moderation:actioned-player-told-and-appeals] given the terms, when they are read, then they give the complaints route: a letter to the operator's address, answered within 14 days", () => {
     const complaints = terms().querySelector("[data-complaints]");
     expect(complaints?.querySelector("a")?.getAttribute("href")).toBe(`mailto:${OPERATOR.email}`);
     expect(words(complaints)).toContain("We reply within 14 days.");
     expect(words(terms().querySelector("[data-removal]"))).toContain("how to appeal");
   });
 
-  test("[R-CITY-041] given the terms, when they are read, then they carry the notice on real names in the about page's own words", () => {
+  test("[city:invented-names-for-risky-businesses] given the terms, when they are read, then they carry the notice on real names in the about page's own words", () => {
     expect(words(terms().querySelector("[data-names]"))).toContain(text["guide.page.about.names"]);
   });
 
-  test("[R-GUIDE-010] given the terms, when their licences are read, then they point to the game's Credits and the full list it links, and keep the name and logo out of every licence", () => {
+  test("[guide:credits-state-licences] given the terms, when their licences are read, then they point to the game's Credits and the full list it links, and keep the name and logo out of every licence", () => {
     expect(words(terms().querySelector("[data-licences]"))).toBe(
       "The game's code, writing and art are shared under open licences: the game's Credits (in Settings) say them in short and link the full list of every package the game ships, with its licence. The name Japacity and its logo are not licensed.",
     );
@@ -144,20 +144,20 @@ describe("the privacy notice", () => {
     for (const item of privacy().querySelectorAll("[data-kept-item]")) expect(words(item)).toMatch(/[Kk]ept|30 days/);
   });
 
-  test("[R-ACCOUNT-033] given the notice, when it is read, then it says the name and years a player types for a dedication light are kept with the account and shown to other players once looked over", () => {
+  test("[account:name-a-light-for-yours] given the notice, when it is read, then it says the name and years a player types for a dedication light are kept with the account and shown to other players once looked over", () => {
     const light = words(privacy().querySelector('[data-kept-item="dedication"]'));
     expect(light).toContain("the name and the years you type");
     expect(light).toContain("kept with your account and shown to other players only once we have looked them over");
     expect(light).toContain("Kept until");
   });
 
-  test("[R-MODERATION-015] given the notice, when it is read, then it names the log of decisions among what is kept, and for how long", () => {
+  test("[moderation:admin-actions-logged-append-only] given the notice, when it is read, then it names the log of decisions among what is kept, and for how long", () => {
     const log = words(privacy().querySelector('[data-kept-item="moderation"]'));
     expect(log).toContain("in a log that is never changed");
     expect(log).toContain("Kept for 3 years");
   });
 
-  test("[R-ACCOUNT-019] given the notice, when it is read, then it says how long backups of the database are kept, under what is kept, and that a restore brings no deleted account back", () => {
+  test("[account:backups-never-restore-deleted] given the notice, when it is read, then it says how long backups of the database are kept, under what is kept, and that a restore brings no deleted account back", () => {
     const notice = privacy();
     const backups = notice.querySelector("[data-backups]");
     expect(words(backups)).toBe("Backups of the database are kept for up to 7 days; a deleted account is not brought back by a restore.");

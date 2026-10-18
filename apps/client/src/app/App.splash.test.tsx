@@ -1,4 +1,4 @@
-// R-ENGINE-015 (the splash and the fault card): the opening screen is the splash
+// engine:browser-authority-for-dev-only (the splash and the fault card): the opening screen is the splash
 // with "Opening your life..." under the game's name, and a fault takes the game's card dress, never red text: the line
 // by its kind, a plain detail under it, Retry as the yellow pressed button and Reload as the quiet one.
 import { act, render, screen } from "@testing-library/react";
@@ -34,8 +34,8 @@ function noRedText(): void {
   expect(document.querySelector(".text-bad")).toBeNull();
 }
 
-describe("the opening screen as the splash (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given a view that takes long, then the opening is the splash (the mark and the game's name, as index.html paints them) with Opening your life pulsing under the name, and Still opening as a second line after 5 seconds", async () => {
+describe("the opening screen as the splash (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given a view that takes long, then the opening is the splash (the mark and the game's name, as index.html paints them) with Opening your life pulsing under the name, and Still opening as a second line after 5 seconds", async () => {
     vi.useFakeTimers();
     const store = createGameStore({ view: () => new Promise(() => undefined), send: unused });
     render(<App store={store} />);
@@ -51,8 +51,8 @@ describe("the opening screen as the splash (R-ENGINE-015)", () => {
   });
 });
 
-describe("the opening's bar (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given a view that takes long, then a thin running bar stands right under Opening your life, with no known share, and Still opening comes under the bar so the bar never moves", async () => {
+describe("the opening's bar (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given a view that takes long, then a thin running bar stands right under Opening your life, with no known share, and Still opening comes under the bar so the bar never moves", async () => {
     vi.useFakeTimers();
     const store = createGameStore({ view: () => new Promise(() => undefined), send: unused });
     render(<App store={store} />);
@@ -68,8 +68,8 @@ describe("the opening's bar (R-ENGINE-015)", () => {
   });
 });
 
-describe("the fault card (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given a kept life and a view the server never answers, then the card stands on the splash under the mark in the game's card dress: the line, a plain detail, Retry as the yellow pressed button, and no red text", async () => {
+describe("the fault card (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given a kept life and a view the server never answers, then the card stands on the splash under the mark in the game's card dress: the line, a plain detail, Retry as the yellow pressed button, and no red text", async () => {
     keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
     const store = createGameStore({ view: () => Promise.reject(requestFailure("network", "no answer in 8000 ms")), send: unused }, { ...noPause, account: {} as AccountApi });
     render(<App store={store} />);
@@ -85,7 +85,7 @@ describe("the fault card (R-ENGINE-015)", () => {
     noRedText();
   });
 
-  test("[R-ENGINE-015] [R-ACCOUNT-006] given a login wall, then the card's two buttons are Retry, the yellow pressed one, first, and Reload, the quiet one, under it", async () => {
+  test("[engine:browser-authority-for-dev-only] [account:session-is-secure-cookie] given a login wall, then the card's two buttons are Retry, the yellow pressed one, first, and Reload, the quiet one, under it", async () => {
     const store = createGameStore({ view: () => Promise.reject(requestFailure("wall", "redirected (0)")), send: unused }, noPause);
     render(<App store={store} />);
     const card = await screen.findByRole("alertdialog", { name: say("ui.trouble.wall") });
@@ -98,13 +98,13 @@ describe("the fault card (R-ENGINE-015)", () => {
     noRedText();
   });
 
-  test("[R-ENGINE-015] given each kind of trouble, then its detail is plain words of its own, never a status or a code", () => {
+  test("[engine:browser-authority-for-dev-only] given each kind of trouble, then its detail is plain words of its own, never a status or a code", () => {
     const details = [...(["network", "wall", "server"] as const).map((kind) => say(`ui.trouble.${kind}.detail`)), say("ui.failed.detail")];
     for (const detail of details) plain(detail);
     expect(new Set(details).size).toBe(details.length);
   });
 
-  test("[R-ENGINE-015] given a fault in the game itself, then The game could not start stands as the same card on the splash, with Reload as the yellow pressed button, never as red text", async () => {
+  test("[engine:browser-authority-for-dev-only] given a fault in the game itself, then The game could not start stands as the same card on the splash, with Reload as the yellow pressed button, never as red text", async () => {
     const store = createGameStore({ view: () => Promise.reject(new Error("boom")), send: unused }, noPause);
     render(<App store={store} />);
     const card = await screen.findByRole("alert");

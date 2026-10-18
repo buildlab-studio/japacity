@@ -1,7 +1,7 @@
-// When the plan stretches the character (docs/rules/world.md R-WORLD-030): a job held and two things
+// When the plan stretches the character (world:month-passes-as-lived): a job held and two things
 // beside it that tire, a side job among them or two commitments that carry on. The Calendar says it in one
 // line with no figure; what it costs is the simulation's, as it already is. The study done act by act
-// (decision 0012, R-ACTIVITY-019) answers at once and carries nothing on, so it never stretches the day here.
+// (decision 0012, activity:acts-may-repeat-in-month) answers at once and carries nothing on, so it never stretches the day here.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 

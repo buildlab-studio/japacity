@@ -1,4 +1,4 @@
-// What the results sheet reads from the view (docs/rules/world.md R-WORLD-008): the month's money
+// What the results sheet reads from the view (world:month-end-results-sheet): the month's money
 // lines with their signs, what was kept, the draw's numbers with any of the player's lit, and the
 // savings toward the move. Plain functions over the view, so the sheet only lays them out.
 import { content } from "@japacity/content";
@@ -12,10 +12,10 @@ import { savingsOf } from "../../shared/words/savings";
 import { sameLine } from "../../shared/moment/moment";
 import { EXAM_MARKED, PIECE, PIECE_MORE, asPiece, toldOnResults } from "../../shared/words/told";
 
-// How a line is told on the results lives in shared/words/told.ts, so News tells the month in the same words (R-WORLD-008).
+// How a line is told on the results lives in shared/words/told.ts, so News tells the month in the same words (world:month-end-results-sheet).
 export { asPiece, toldOnResults };
 
-// The month's money lines live in shared/words/money.ts, so the Bank's Lately reads the same lines (R-WORLD-019).
+// The month's money lines live in shared/words/money.ts, so the Bank's Lately reads the same lines (world:phone-holds-what-phones-hold).
 export { CHANGED, CHANGED_OUT, type MoneyLine, moneyLines } from "../../shared/words/money";
 
 /** The lines that are not money: these live in the phone's News app. */
@@ -29,15 +29,15 @@ export function otherLines(lines: readonly ReportLine[]): ReportLine[] {
 export const STORY_MAX = 6;
 
 /**
- * The chores' own lines (R-OBLIGATION-014): one for each activity whose `obligation/relief` lowered the living costs,
+ * The chores' own lines (obligation:cooking-and-fetching-water): one for each activity whose `obligation/relief` lowered the living costs,
  * keyed by its slug as the obligation kind tells it. Each is told whatever else the month held, so a saving that went
- * into the living costs always has its line (R-WORLD-008).
+ * into the living costs always has its line (world:month-end-results-sheet).
  */
 const CHORES: ReadonlySet<string> = new Set(
   Object.values(content.activity).flatMap((entry) => (entry?.effects.some((effect) => effect.type === "obligation/relief") === true ? [`line.obligation.relief.${entry.id.slice(entry.id.indexOf(".") + 1)}`] : [])),
 );
 
-/** A charge that fell due and could not be paid: no money moved, but the month went wrong (R-WORLD-008). */
+/** A charge that fell due and could not be paid: no money moved, but the month went wrong (world:month-end-results-sheet). */
 
 
 /** True for a line that tells a bill not paid. */
@@ -49,16 +49,16 @@ const OPENED = "line.offer.opened";
 const JOB_OFFER = "offer.job";
 
 /**
- * The kiosk's draw (luck.md R-LUCK-005): a month a ticket was bought says what the
+ * The kiosk's draw (luck:kiosk-sells-lotto-tickets): a month a ticket was bought says what the
  * draw came to, won or not, never only the ticket's tag. Told whatever else the month held, as the chores are.
  */
 const KIOSK_DRAW: ReadonlySet<string> = new Set(["line.activity.lotto-won", "line.activity.lotto-lost"]);
 
-/** Someone who cares says cash on you is cash at risk (R-WALLET-019): told on the results, not left for News. */
+/** Someone who cares says cash on you is cash at risk (wallet:cash-pile-warning): told on the results, not left for News. */
 const CASH_WARNING = "line.wallet.cash-warning";
 
 /**
- * A bond that ended this month (person.md R-PEOPLE-035 to 042): told on the results, never left for News alone, so a
+ * A bond that ended this month (person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:leaving-player-ends-bonds, person:gossip-when-two-timing and person:computer-partner-drifts): told on the results, never left for News alone, so a
  * partner who stopped waiting or left is said the month it happens.
  */
 export const BOND_ENDED: ReadonlySet<string> = new Set(["line.people.drifted", "line.people.left", "line.people.ended", "line.people.ended-absence", "line.people.ended-restart", "line.people.ended-block"]);
@@ -66,7 +66,7 @@ export const BOND_ENDED: ReadonlySet<string> = new Set(["line.people.drifted", "
 /** The visa granted: the month's news, told first and alone in the lead. */
 const GRANTED = "line.route.granted";
 
-/** The settlement cleared (docs/rules/home.md R-HOME-003), with cash lost or none: it leads the month, before anything else. */
+/** The settlement cleared (home:makoko-eviction-draw), with cash lost or none: it leads the month, before anything else. */
 const EVICTED: ReadonlySet<string> = new Set(["line.home.evicted", "line.home.evicted-no-cash"]);
 
 /** True for the line that tells the room on the water is gone: first, and in the money's red as a bill unpaid is. */
@@ -76,7 +76,7 @@ export function isEvicted(line: ReportLine): boolean {
 
 
 /**
- * What the waiting months' acts came to (R-ACTIVITY-013): the exam's score, a piece for the portfolio,
+ * What the waiting months' acts came to (activity:waiting-months-build-profile): the exam's score, a piece for the portfolio,
  * open source's first merge or its quiet month, the raise or the month nobody said anything. Each is
  * told the month it happens, with the hunt's answer.
  */
@@ -98,16 +98,16 @@ const STORY: readonly ((line: ReportLine) => boolean)[] = [
   // The passbook's stamps: money held for the road is told beside the visa, before the month's troubles.
   (line) => line.key.startsWith("line.passbook."),
   isUnpaid,
-  // R-PEOPLE-042: a bond that ended this month, before the month's errands.
+  // person:computer-partner-drifts: a bond that ended this month, before the month's errands.
   (line) => BOND_ENDED.has(line.key),
-  // R-OBLIGATION-014: what cooking and fetching water saved on the upkeep, each its own line.
+  // obligation:cooking-and-fetching-water: what cooking and fetching water saved on the upkeep, each its own line.
   (line) => ["line.activity.hunt-hired", "line.activity.hunt-missed", "line.activity.job-started", "line.activity.side-started", "line.offer.opened"].includes(line.key),
   (line) => ACTS.has(line.key),
   // The adviser's reading, paid for, leads the route's own lines.
   (line) => ["line.activity.adviser-missing", "line.activity.adviser-fits"].includes(line.key),
   (line) => line.key.startsWith("line.route."),
   (line) => (line.key.startsWith("line.document.") && line.key !== "line.document.already-pending") || line.key.startsWith("line.activity.driving-"),
-  // R-WALLET-019: the warning about cash on you is told with the deposit that will be asked about.
+  // wallet:cash-pile-warning: the warning about cash on you is told with the deposit that will be asked about.
   (line) => line.key === "line.wallet.flagged" || line.key === CASH_WARNING,
   (line) => line.key.startsWith("line.chapter.") || line.key.startsWith("line.goal.") || isSaid(line),
   (line) => line.key.startsWith("line.setpiece.") || line.key.startsWith("line.interview.") || line.key.startsWith("line.status."),
@@ -129,7 +129,7 @@ function flagTold(lines: readonly ReportLine[]): boolean {
 }
 
 /**
- * The month's story for the results (R-WORLD-008): the lines that move the story, not money, in
+ * The month's story for the results (world:month-end-results-sheet): the lines that move the story, not money, in
  * the order the results lead with them, at most `max` of the month's events (`STORY_MAX` unless the sheet has less room)
  * and then every chore. The rest of the month stays in News.
  */
@@ -147,12 +147,12 @@ export function storyLines(lines: readonly ReportLine[], max: number = STORY_MAX
     .map((line, index) => ({ line, index, rank: storyRank(line) }))
     .filter((entry) => entry.rank !== -1)
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
-    // The cash warning is said once in a life with attention (R-WALLET-019): a full month never drops it.
+    // The cash warning is said once in a life with attention (wallet:cash-pile-warning): a full month never drops it.
     .filter((entry, at, ranked) => alwaysTold(entry.line) || ranked.slice(0, at).filter((before) => !alwaysTold(before.line)).length < max)
     .map((entry) => entry.line);
 }
 
-/** The month's pay as the results lead with it: the salary, the side job's pay (R-WORLD-008, the shrunk close). */
+/** The month's pay as the results lead with it: the salary, the side job's pay (world:month-end-results-sheet, the shrunk close). */
 const PAYDAY: ReadonlySet<string> = new Set(["line.activity.salary", "line.wallet.salary", "line.activity.side-pay"]);
 /** Rent paid as the month turns: a room's, a flat's, a bed space's. */
 const RENT = "line.wallet.rent";
@@ -173,7 +173,7 @@ export interface MonthClose {
 }
 
 /**
- * The month's close (R-WORLD-008): it leads with payday when there is one, then the rent
+ * The month's close (world:month-end-results-sheet): it leads with payday when there is one, then the rent
  * when it was due, then the moments, then Kept, in up to six lines. What was bought by hand during the month (food,
  * water, a fare) was paid as it was done and is not listed again; no living line, no "you rested". Only the lines of the
  * month's turn (`turned`) hold the pay and the rent; the story reads the whole month (`told`).
@@ -219,8 +219,8 @@ const CHANGE_SIDES: ReadonlySet<string> = new Set([CHANGED, CHANGED_OUT, CHANGED
 
 /**
  * What was kept in each currency the lines moved: in less out, in the order each first appears. A change of money
- * counts for nothing either way (decision 0024, R-WORLD-008): its two sides are left out, and only the
- * bank's charge stays as money out, as the wallet counts the month (R-WALLET-015), counted once: its own line, or the
+ * counts for nothing either way (decision 0024, world:month-end-results-sheet): its two sides are left out, and only the
+ * bank's charge stays as money out, as the wallet counts the month (wallet:months-kept-counted), counted once: its own line, or the
  * change's line when it is too small to show. An FX man's short count is its own line, money out.
  */
 export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount: number }[] {
@@ -253,8 +253,8 @@ export function drawShown(view: Pick<PlayerView, "lottery">): { draw: number; nu
 
 /**
  * How many tickets the player held in the Friday draw whose result this month's lines bring, when none of them won
- * (lottery.md R-LOTTERY-016); else null. The view's numbers are the last draw's
- * only while the next is on sale (R-LOTTERY-005: a closed draw being made holds the newer ones).
+ * (lottery:draw-result-on-front-page); else null. The view's numbers are the last draw's
+ * only while the next is on sale (lottery:tickets-numbered-by-commit: a closed draw being made holds the newer ones).
  */
 export function drawMissed(view: Pick<PlayerView, "lottery">, lines: readonly ReportLine[]): number | null {
   const lottery = view.lottery;
@@ -279,7 +279,7 @@ function wholeView(view: Pick<PlayerView, "routes" | "japacity">): view is Playe
 export function savings(view: Pick<PlayerView, "routes" | "japacity"> & Partial<Pick<PlayerView, "place">>): { kind: "funds"; shown: number; required: number; currency: Currency } | { kind: "percent"; percent: number } | null {
   // Once flown, the move is made: no target on the results.
   if (view.place?.where === "abroad") return null;
-  // A whole view reads the Bank's own figure, so the two never disagree (R-WORLD-019).
+  // A whole view reads the Bank's own figure, so the two never disagree (world:phone-holds-what-phones-hold).
   if (wholeView(view)) {
     const shared = savingsOf(view);
     if (shared !== null) return { kind: "funds", ...shared };
@@ -317,7 +317,7 @@ function isLotto(entry: MoneyLine): boolean {
 /** What came in from a change, at the bank or with the FX man: the side the results tell as the change. */
 const CHANGE_IN: ReadonlySet<string> = new Set([CHANGED, CHANGED_SMALL, CHANGED_STREET]);
 
-/** The line under Kept for each change of money in the month (R-WORLD-008). */
+/** The line under Kept for each change of money in the month (world:month-end-results-sheet). */
 export const CHANGED_INTO = "ui.results.changed-into";
 
 /** One change of money, both sides as they were: what was paid in (the bank's charge with it) and what came in. */
@@ -327,7 +327,7 @@ export interface ChangeInto {
 }
 
 /**
- * Each change of money in the month, in the order made, both sides as they were (R-WORLD-008): a change counts for nothing in the kept figure (decision 0024), so it is said under Kept
+ * Each change of money in the month, in the order made, both sides as they were (world:month-end-results-sheet): a change counts for nothing in the kept figure (decision 0024), so it is said under Kept
  * on its own line, "Changed ₦806,930 into £561", naira into pounds or dollars or back, at the bank or with the FX man.
  * A change whose foreign side waits in the bank's queue is told by its own line when paid in and is not one here, since
  * only one side is on the month's lines.
@@ -341,7 +341,7 @@ export function changesInto(lines: readonly MoneyLine[]): ChangeInto[] {
   });
 }
 
-/** A tag under what was kept: what moved the month, as a sign and a few words (R-TEXT-008). */
+/** A tag under what was kept: what moved the month, as a sign and a few words (text:show-then-tell). */
 export interface MonthTag {
   id: "lotto";
   tone: "up" | "down" | "plain";
@@ -350,7 +350,7 @@ export interface MonthTag {
 }
 
 /**
- * The tags that say what the kept figure holds (R-WORLD-008, R-TEXT-008): the lotto, down, the month's tickets
+ * The tags that say what the kept figure holds (world:month-end-results-sheet, text:show-then-tell): the lotto, down, the month's tickets
  * together. A change of money is said by its own line under Kept instead (`changesInto`), never twice.
  */
 export function monthTags(lines: readonly MoneyLine[]): MonthTag[] {

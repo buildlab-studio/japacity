@@ -1,4 +1,4 @@
-// The client keeps under the server's command limit on its own (docs/rules/server.md R-SERVER-025):
+// The client keeps under the server's command limit on its own (server:per-account-rate-limits):
 // the server takes ten commands from an account in any ten seconds and refuses the eleventh, so the client lets at most
 // eight leave in any ten seconds and holds the next until there is room, rather than be refused in the middle of play.
 // The two it leaves free are for what goes beside the game's own commands (the username, a feedback, an invite).
@@ -7,8 +7,8 @@
 export const COMMANDS_PER_WINDOW = 8;
 export const WINDOW_MS = 10_000;
 /**
- * The pace for the prologue's presets sent one at a time online (prologue.md R-PROLOGUE-010): eight in ten seconds. The
- * preset leaves as one request (server.md R-SERVER-046) and the page paces its own chips, so nothing in the game reads
+ * The pace for the prologue's presets sent one at a time online (prologue:archetype-presets-answers): eight in ten seconds. The
+ * preset leaves as one request (server:server-plays-prologue-preset) and the page paces its own chips, so nothing in the game reads
  * this or `presetWait`; pace.test.ts holds them to the limit.
  */
 export const PRESET_STEP_MS = WINDOW_MS / COMMANDS_PER_WINDOW;

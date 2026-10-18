@@ -1,4 +1,4 @@
-// One action, one sheet (docs/rules/world.md R-WORLD-006). A priced act's button says the act and its price, and under
+// One action, one sheet (world:one-action-one-sheet). A priced act's button says the act and its price, and under
 // it the balance before stands struck beside the balance after (decision 0013). A main button the player cannot pay for
 // is shut and says how much is short, as the ride sheet does, so nothing is planned or sent that cannot be paid.
 import { Dialog } from "@base-ui/react/dialog";
@@ -41,7 +41,7 @@ interface Main {
 
 /**
  * The button's money: how much is short, the one exception everywhere; for a priced act the balance before and after
- * under the button (R-WORLD-006, decision 0013), with the month's dues as its warning; for any other ask (a change of
+ * under the button (world:one-action-one-sheet, decision 0013), with the month's dues as its warning; for any other ask (a change of
  * money, a bill from the phone) what is left after on the button's second line, as before.
  */
 function mainOf(paying: AfterPaying | null, formatMoney: AskSheetProps["formatMoney"], priced: boolean): Main {
@@ -76,7 +76,7 @@ function BalanceOf({ balance, formatMoney, className }: { balance: NonNullable<M
   );
 }
 
-/** The main button's words: the act and its price when the pockets pay for it (R-WORLD-006), else the act alone. */
+/** The main button's words: the act and its price when the pockets pay for it (world:one-action-one-sheet), else the act alone. */
 function labelOf(ask: Ask, formatMoney: AskSheetProps["formatMoney"]): string {
   const priced = ask.priced === true && ask.cost !== null && ask.blocked === undefined && ask.note === undefined;
   return priced && ask.cost !== null ? pricedLabel(ask.button, formatMoney(ask.cost.amount, ask.cost.currency)) : ask.button;
@@ -92,7 +92,7 @@ export function AskSheet(props: AskSheetProps) {
   return <GameSheet {...props} />;
 }
 
-/** Inside a game: what is left after counts the pockets and the month's plan, against the month's dues (R-WORLD-006). */
+/** Inside a game: what is left after counts the pockets and the month's plan, against the month's dues (world:one-action-one-sheet). */
 function GameSheet(props: AskSheetProps) {
   const view = useGame((state) => state.view);
   const plan = useGame((state) => state.plan);
@@ -103,7 +103,7 @@ function GameSheet(props: AskSheetProps) {
 
 function Sheet({ ask, formatMoney, icon, main: counted }: AskSheetProps & { main: Main }) {
   const open = ask !== null;
-  // A reason from the world shuts the button and takes the second line (R-WORLD-006).
+  // A reason from the world shuts the button and takes the second line (world:one-action-one-sheet).
   const main: Main = ask?.blocked !== undefined ? { after: ask.blocked, figure: null, shut: true } : ask?.note !== undefined ? { after: ask.note, figure: null, shut: false } : counted;
   return (
     <Dialog.Root
@@ -150,7 +150,7 @@ function Card({ ask, main, formatMoney, icon }: { ask: Ask; main: Main; formatMo
             ))}
           </div>
         )}
-        {/* R-ACTIVITY-018: an act done at once says the time it takes in words, beside its price. */}
+        {/* activity:now-acts-spend-half-days: an act done at once says the time it takes in words, beside its price. */}
         {ask.time === undefined ? null : (
           <div className="mt-3 flex items-baseline justify-between border-t border-sheet-line pt-2.5" data-ask-time>
             <span className="text-[14px] font-semibold">{say("ui.world.takes")}</span>
@@ -201,7 +201,7 @@ const STACKED: CSSProperties = { height: "auto", minHeight: 58, flexDirection: "
  * that warns of the month's dues keeps the button open and carries a warning mark.
  */
 function MainButton({ ask, main, label }: { ask: Ask; main: Main; label: string }) {
-  // A priced act done at once needs no second line: the balance under the button says what is left (R-WORLD-006).
+  // A priced act done at once needs no second line: the balance under the button says what is left (world:one-action-one-sheet).
   const second = main.after ?? (main.balance !== undefined && ask.when === "now" ? null : say(ask.when === "now" ? "ui.world.now" : "ui.world.counts-at-end"));
   const stacked = second !== null && label.length + second.length > SIDE_BY_SIDE;
   return (

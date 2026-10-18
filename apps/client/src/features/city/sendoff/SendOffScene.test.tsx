@@ -1,7 +1,7 @@
-// The send-off as a scene on the real engine (docs/rules/chapter.md R-CHAPTER-012): Ada's recorded life one command
+// The send-off as a scene on the real engine (chapter:send-off-scene-in-beats): Ada's recorded life one command
 // before the flight, granted, and the six beats played by their buttons. Beats 1 and 2 send nothing; Board the plane
 // sends `route/depart` once; the plane's cut, the landing at each country's hub, the first ride with the family's first
-// messages, and Ring the bell into the room abroad. The map's own cut is a stand-in here (world.md R-WORLD-037 is
+// messages, and Ring the bell into the room abroad. The map's own cut is a stand-in here (world:plane-cut-at-send-off is
 // tested beside the map, PlaneCut.test.tsx).
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -84,7 +84,7 @@ async function toTheGate(): Promise<void> {
 }
 
 describe("the send-off as a scene", () => {
-  test("[R-CHAPTER-012] given a granted life, when the scene opens, then Departures has two ahead and Mama's line, each of three taps moves the queue a place and a line of the airport's own is said, the character's last, then the counter, and nothing is sent", async () => {
+  test("[chapter:send-off-scene-in-beats] given a granted life, when the scene opens, then Departures has two ahead and Mama's line, each of three taps moves the queue a place and a line of the airport's own is said, the character's last, then the counter, and nothing is sent", async () => {
     const { authority } = await adaAtTheGate();
     expect(beat()).toBe("departures");
     expect(found("[data-so-marker]").textContent).toBe(sendOffWords("sendoff.queue.ahead", { count: 2 }));
@@ -107,7 +107,7 @@ describe("the send-off as a scene", () => {
     expect(authority.sent).toEqual([]);
   });
 
-  test("[R-CHAPTER-012] given the counter, then the passport and the stub slide across, the flight chip shows the tuning's flight figure, Window or aisle changes the stub's seat and nothing else, and nothing is sent", async () => {
+  test("[chapter:send-off-scene-in-beats] given the counter, then the passport and the stub slide across, the flight chip shows the tuning's flight figure, Window or aisle changes the stub's seat and nothing else, and nothing is sent", async () => {
     const { authority, store } = await adaAtTheGate();
     for (let tap = 0; tap < 3; tap += 1) fireEvent.click(found("[data-so-go='step']"));
     await waitFor(() => expect(beat()).toBe("counter"), { timeout: 4000 });
@@ -126,7 +126,7 @@ describe("the send-off as a scene", () => {
     expect(authority.sent).toEqual([]);
   });
 
-  test("[R-CHAPTER-012] given the scene left before the gate's button, then it closes, nothing was sent, and the life is still at the airport", async () => {
+  test("[chapter:send-off-scene-in-beats] given the scene left before the gate's button, then it closes, nothing was sent, and the life is still at the airport", async () => {
     const { authority, store } = await adaAtTheGate();
     const before = store.getState().view;
     fireEvent.click(found("[data-so-go='step']"));
@@ -137,7 +137,7 @@ describe("the send-off as a scene", () => {
     expect(store.getState().view).toBe(before);
   });
 
-  test("[R-CHAPTER-012] given the gate, then Papa says the airport's sixth line named as content names him, Board the plane sends route/depart once however often it is tapped, and the plane follows", async () => {
+  test("[chapter:send-off-scene-in-beats] given the gate, then Papa says the airport's sixth line named as content names him, Board the plane sends route/depart once however often it is tapped, and the plane follows", async () => {
     const { authority, route } = await adaAtTheGate();
     await toTheGate();
     expect(text[`${GATE_LINE}.by`]).toBe("Papa");
@@ -152,7 +152,7 @@ describe("the send-off as a scene", () => {
     expect(departs(authority.sent)).toBe(1);
   });
 
-  test("[R-CHAPTER-012] given held funds still open, then the gate says what stops the flight and Board the plane is shut", async () => {
+  test("[chapter:send-off-scene-in-beats] given held funds still open, then the gate says what stops the flight and Board the plane is shut", async () => {
     const view = recordedGame("ada-careful", 1).view();
     const owed = view.obligations[0];
     if (owed === undefined) throw new Error("Ada's life owes nothing to copy.");
@@ -166,7 +166,7 @@ describe("the send-off as a scene", () => {
     expect(authority.sent).toEqual([]);
   });
 
-  test("[R-CHAPTER-012] [R-WORLD-037] given the plane boarded, then the map's cut shows for about three seconds with the hub's city, then the landing", async () => {
+  test("[chapter:send-off-scene-in-beats] [world:plane-cut-at-send-off] given the plane boarded, then the map's cut shows for about three seconds with the hub's city, then the landing", async () => {
     await adaAtTheGate();
     await toTheGate();
     fireEvent.click(found("[data-so-go='board']"));
@@ -184,7 +184,7 @@ describe("the send-off as a scene", () => {
     expect(Date.now() - shownAt).toBeGreaterThanOrEqual(PLANE_MS - 50);
   }, 15_000);
 
-  test("[R-CHAPTER-012] given a granted life played through every beat, when the bell is rung, then the scene closes, the flight was sent once, and the life stands abroad", async () => {
+  test("[chapter:send-off-scene-in-beats] given a granted life played through every beat, when the bell is rung, then the scene closes, the flight was sent once, and the life stands abroad", async () => {
     const { authority, store } = await adaAtTheGate();
     await toTheGate();
     fireEvent.click(found("[data-so-go='board']"));
@@ -199,7 +199,7 @@ describe("the send-off as a scene", () => {
     expect(store.getState().view?.place.country).toBe("country.uk");
   }, 15_000);
 
-  test.each(["country.uk", "country.canada", "country.uae", "country.italy"] as const)("[R-CHAPTER-012] given a landing in %s, then it is the country's hub in content with its staple, its weather, the hub's first overheard line at the stop and the staple's button", async (country) => {
+  test.each(["country.uk", "country.canada", "country.uae", "country.italy"] as const)("[chapter:send-off-scene-in-beats] given a landing in %s, then it is the country's hub in content with its staple, its weather, the hub's first overheard line at the stop and the staple's button", async (country) => {
     await adaAtTheGate();
     const landing = landingOf(country)!;
     act(() => {
@@ -224,7 +224,7 @@ describe("the send-off as a scene", () => {
     expect(document.querySelector("[data-so-breath]") !== null).toBe(country === "country.canada" || country === "country.uk");
   });
 
-  test("[R-CHAPTER-012] [R-SHARE-015] given the first ride, then So this is it., the family's first messages in content from the senders the game has, the card saved with a tick, and the Phone's badge counting the messages", async () => {
+  test("[chapter:send-off-scene-in-beats] [share:send-off-card-kept] given the first ride, then So this is it., the family's first messages in content from the senders the game has, the card saved with a tick, and the Phone's badge counting the messages", async () => {
     const { store } = await adaAtTheGate();
     act(() => {
       sendOff.getState().to("ride");
@@ -242,7 +242,7 @@ describe("the send-off as a scene", () => {
     expect(screen.getByRole("button", { name: "Ring the bell" })).toBeDefined();
   });
 
-  test("[R-CHAPTER-012] given every beat's motion, then it moves by transform and opacity alone, under half a second, and stands still under reduced motion", () => {
+  test("[chapter:send-off-scene-in-beats] given every beat's motion, then it moves by transform and opacity alone, under half a second, and stands still under reduced motion", () => {
     const css = readFileSync(join(import.meta.dirname, "sendoff.css"), "utf8");
     const frames = [...css.matchAll(/@keyframes\s+([\w-]+)\s*\{((?:[^{}]*\{[^{}]*\})*)[^{}]*\}/g)];
     expect(frames.length).toBeGreaterThan(5);

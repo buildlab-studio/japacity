@@ -1,4 +1,4 @@
-// A painted city (docs/rules/world.md R-WORLD-015, R-WORLD-038): everything the folding map needs to draw one city
+// A painted city (world:map-is-painted-lagos, world:painted-maps-abroad): everything the folding map needs to draw one city
 // on its paper, so the same strip, cards and open map draw Lagos or London. Lagos's lives in lagos.tsx; London's in its
 // own chunk (london.tsx), loaded only when the map shows the UK, so a first visit at home carries none of it.
 import type { ReactNode } from "react";
@@ -45,7 +45,7 @@ export interface PaperCity extends Placer {
   over: (drawn: Drawing) => ReactNode;
   /** How far the open map's first look stands from the card's middle, on a phone and on a laptop, in paper units. */
   opening: { phone: Point; wide: Point };
-  /** Where the lantern canoe floats, or null where there is none (R-WORLD-036 is Lagos's alone). */
+  /** Where the lantern canoe floats, or null where there is none (world:lantern-canoe-on-map is Lagos's alone). */
   canoe: Point | null;
   /** The city's own words: its districts, cards and water, then the map's. */
   words: (key: string, params?: Record<string, string | number>) => string;

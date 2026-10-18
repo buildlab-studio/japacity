@@ -1,4 +1,4 @@
-// The three marks on every share picture (docs/rules/share.md R-SHARE-006): a
+// The three marks on every share picture (share:card-never-looks-official): a
 // faint watermark of the game's name across the background, a diagonal badge at a top corner with the
 // game's name, and the branding with the address at the foot. Drawn under the words, never over them.
 import { content, shareChapters, shareKinds, text, type ShareKind } from "@japacity/content";
@@ -67,7 +67,7 @@ afterEach(() => {
 });
 
 describe("the marks on every share picture", () => {
-  test("[R-SHARE-006] given every card and every preview, when laid out, then a faint watermark of the game's name repeats across the background, under every word", () => {
+  test("[share:card-never-looks-official] given every card and every preview, when laid out, then a faint watermark of the game's name repeats across the background, under every word", () => {
     for (const { label, steps, size } of everyCard()) {
       const watermark = marks(steps, "watermark");
       expect([label, watermark.length >= 6]).toEqual([label, true]);
@@ -89,7 +89,7 @@ describe("the marks on every share picture", () => {
     }
   });
 
-  test("[R-SHARE-006] given every card and every preview, when laid out, then one diagonal badge with the game's name sits on a top corner and covers no word", () => {
+  test("[share:card-never-looks-official] given every card and every preview, when laid out, then one diagonal badge with the game's name sits on a top corner and covers no word", () => {
     for (const { label, steps, size } of everyCard()) {
       const badges = marks(steps, "badge");
       expect([label, badges.length]).toEqual([label, 1]);
@@ -106,7 +106,7 @@ describe("the marks on every share picture", () => {
     }
   });
 
-  test("[R-SHARE-006] given every card and every preview, when laid out, then the game's name and its address are at the foot", () => {
+  test("[share:card-never-looks-official] given every card and every preview, when laid out, then the game's name and its address are at the foot", () => {
     for (const { label, steps, size } of everyCard()) {
       const sender = words(steps).find((step) => step.role === "sender");
       const address = words(steps).find((step) => step.role === "address");
@@ -116,7 +116,7 @@ describe("the marks on every share picture", () => {
     }
   });
 
-  test("[R-SHARE-006] given a card and a preview drawn on the canvas, when encoded, then the watermark and the badge were painted before the file was made", async () => {
+  test("[share:card-never-looks-official] given a card and a preview drawn on the canvas, when encoded, then the watermark and the badge were painted before the file was made", async () => {
     const drawn = fakeCanvas(() => 1000);
     expect((await renderCard(cardFace(adaCard(), "scenario.ada"))).ok).toBe(true);
     const names = drawn.texts.filter((entry) => entry.text.toLowerCase() === NAME.toLowerCase());

@@ -2,8 +2,7 @@ import { start } from "@japacity/sim/testing";
 
 import { expect, test, type Page } from "@playwright/test";
 
-// The guest start and keeping a guest life (docs/rules/account.md R-ACCOUNT-021
-// to 027), played against a faked server as online.spec.ts does: every /api
+// The guest start and keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email, account:guest-floods-are-capped, account:idle-guests-cleaned-by-hand and account:guest-reminded-to-secure), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
 import { content, uiOnlineText, uiText } from "../../../packages/content/src/index";
 import { accountView } from "../src/shared/testing/fixtures";
@@ -12,7 +11,7 @@ import { shootPhone } from "./support/preview";
 
 test.use({ baseURL: ONLINE });
 
-/** R-ACCOUNT pictures are phone pictures, taken on the Pixel projects only, at 390 by 844. */
+/** The account pictures are phone pictures, taken on the Pixel projects only, at 390 by 844. */
 const PICTURE = { width: 390, height: 844 };
 
 const CLOCK = clockAt(3);
@@ -27,12 +26,12 @@ async function serve(page: Page, answers: Record<string, Answer>, sent: string[]
 
 /**
  * The second chapter's mission card opens over the world as it loads, handed by its person (design page 13 section 4);
- * the asks wait until its Let's go is pressed (R-ACCOUNT-023).
+ * the asks wait until its Let's go is pressed (account:guest-secures-the-life).
  */
 async function pastTheCard(page: Page): Promise<void> {
   const card = page.locator("[data-brief='chapter.build-the-file']");
   await expect(card).toBeVisible({ timeout: 20_000 });
-  // The keep-this-life ask never stands over the card (R-ACCOUNT-023: never over a moment or another card that is up).
+  // The keep-this-life ask never stands over the card (account:guest-secures-the-life: never over a moment or another card that is up).
   await page.waitForTimeout(1500);
   await expect(page.getByRole("dialog", { name: "Keep this life" })).toHaveCount(0);
   await card.getByRole("button", { name: "Let's go" }).click();
@@ -49,7 +48,7 @@ function pastFirstChapter(): Answer {
   return { body: { ok: true, view: { ...view, chapter: { ...view.chapter, done: ["chapter.find-your-feet"], current: "chapter.build-the-file", items } }, lines: [], clock: CLOCK } };
 }
 
-test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age screen and changes the username on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {
+test("[account:guest-and-secured-states] [account:username-and-unconfirmed-email] [guide:nothing-asked-before-early-win] a new visitor passes the age screen and changes the username on the door's page; Begin starts the guest with it, and no sign-in method is asked at the door", async ({ page }, info) => {
   const sent: string[] = [];
   const bodies: unknown[] = [];
   const answers: Record<string, Answer> = {
@@ -84,7 +83,7 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age
   expect(sent.some((route) => route.includes("/api/auth/"))).toBe(false);
 });
 
-test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked once to keep the life, and the month's line stays after", async ({ page }, info) => {
+test("[account:guest-secures-the-life] [account:guest-reminded-to-secure] a guest past its first chapter is asked once to keep the life, and the month's line stays after", async ({ page }, info) => {
   await serve(page, {
     "GET /api/view": pastFirstChapter(),
     "GET /api/account": { body: { ok: true, account: GUEST } },
@@ -96,7 +95,7 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
   await expect(ask).toBeVisible({ timeout: 20_000 });
   // Read through the words table, so the line the sheet says is the one the test looks for.
   await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
-  // Google's own button, in one of Google's texts (R-ACCOUNT-023).
+  // Google's own button, in one of Google's texts (account:guest-secures-the-life).
   await expect(ask.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shootPhone(page, "first-chapter-ask-phone", info.project.name, PICTURE);
   await ask.getByRole("button", { name: "Not now" }).click();
@@ -106,7 +105,7 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
 test.describe("inside a messaging app's browser", () => {
   test.use({ userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36 WhatsApp/2.24.1" });
 
-  test("[R-ACCOUNT-023] the securing sheet offers the emailed code and the way out to the browser, and no Google", async ({ page }, info) => {
+  test("[account:guest-secures-the-life] the securing sheet offers the emailed code and the way out to the browser, and no Google", async ({ page }, info) => {
     const view = pastFirstChapter();
     await serve(page, {
       "GET /api/view": view,
@@ -125,7 +124,7 @@ test.describe("inside a messaging app's browser", () => {
   });
 });
 
-test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email, from the ask after the first chapter, and the same life goes on", async ({ page }) => {
+test("[account:guest-secures-the-life] a guest secures the life later by a code sent to an email, from the ask after the first chapter, and the same life goes on", async ({ page }) => {
   const sent: string[] = [];
   const view = pastFirstChapter();
   const answers: Record<string, Answer> = {
@@ -156,7 +155,7 @@ test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email,
   expect(sent).not.toContain("POST /api/character");
 });
 
-test("[R-ACCOUNT-023] a guest that comes back from Google with the life kept sees the keeping sheet in its kept state, the address left clean, and the world says Kept with Google as it closes", async ({ page }, info) => {
+test("[account:guest-secures-the-life] a guest that comes back from Google with the life kept sees the keeping sheet in its kept state, the address left clean, and the world says Kept with Google as it closes", async ({ page }, info) => {
   await serve(page, {
     "GET /api/view": pastFirstChapter(),
     "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
@@ -174,7 +173,7 @@ test("[R-ACCOUNT-023] a guest that comes back from Google with the life kept see
   await expect(page.locator("[data-way-toast]")).toHaveText("Kept with Google");
 });
 
-test("[R-ACCOUNT-021] [R-ACCOUNT-027] a kept life names its way in on Settings' account row; signing out says so once on the start screen, and the notice goes when I already have a life here is tapped", async ({ page }, info) => {
+test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] a kept life names its way in on Settings' account row; signing out says so once on the start screen, and the notice goes when I already have a life here is tapped", async ({ page }, info) => {
   const sent: string[] = [];
   const answers: Record<string, Answer> = {
     "GET /api/view": pastFirstChapter(),

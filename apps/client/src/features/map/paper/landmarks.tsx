@@ -1,4 +1,4 @@
-// Lagos's landmarks drawn as symbols on the painted map (docs/rules/world.md R-WORLD-015): the theatre's hat, the
+// Lagos's landmarks drawn as symbols on the painted map (world:map-is-painted-lagos): the theatre's hat, the
 // island's towers, the tower by the toll gate, the toll gate, the link bridge's pylon, the ferry and the port's cranes.
 import type { Point } from "./fit";
 

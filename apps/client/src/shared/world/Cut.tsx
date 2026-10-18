@@ -1,8 +1,8 @@
-// The cut (docs/rules/world.md R-WORLD-013): the screen goes dark for under half a second, the scene
+// The cut (world:entering-is-a-cut): the screen goes dark for under half a second, the scene
 // changes behind it, and it comes back. Every scene change but the ride goes through it.
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// The hold at the darkest point: with the fades either side it reads as a cut, and it leaves the scene swap room under the half second (R-WORLD-013).
+// The hold at the darkest point: with the fades either side it reads as a cut, and it leaves the scene swap room under the half second (world:entering-is-a-cut).
 export const CUT_MS = 260;
 
 /** `cutTo(then)` darkens the screen, runs `then` at the darkest point, and lifts the dark again. */

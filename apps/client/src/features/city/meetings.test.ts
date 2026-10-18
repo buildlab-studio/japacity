@@ -1,5 +1,5 @@
-// The computer partners met in a place (docs/rules/world.md R-WORLD-020; person.md R-PEOPLE-009, R-PEOPLE-013,
-// R-PEOPLE-014): each stands as a thing only in the place content meets them in,
+// The computer partners met in a place (world:nobody-picked-from-list; person:computer-candidates-labelled, person:courting-opens-a-bond,
+// person:time-together-is-an-act): each stands as a thing only in the place content meets them in,
 // only while the view lists them, one met only in December only in December; the thing's one act opens a card whose
 // button sends `people/court`. Where each is met: the meetup's two at the hub's meetup, after the service
 // and a friend of the family at the family house, nobody met in their room. Real content, a real life through the engine.
@@ -68,7 +68,7 @@ function talks(acts: Record<string, string[]>): [string, string][] {
 }
 
 describe("a person standing where content meets them", () => {
-  test("[R-PEOPLE-009] [R-WORLD-020] given Tunde's first month, when the family house is read, then Tobi after the service and Hauwa, a friend of the family, stand as things named by them with the computer mark, each act courts them, and nobody stands where content meets nobody", () => {
+  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given Tunde's first month, when the family house is read, then Tobi after the service and Hauwa, a friend of the family, stand as things named by them with the computer mark, each act courts them, and nobody stands where content meets nobody", () => {
     const view = tunde().view();
     const listed = view.people.candidates.map((candidate) => candidate.person);
     expect(listed).toEqual(expect.arrayContaining([TOBI, HAUWA]));
@@ -88,7 +88,7 @@ describe("a person standing where content meets them", () => {
     expect(anywhere.filter((person) => !listed.includes(person))).toEqual([]);
   });
 
-  test("[R-PEOPLE-009] [R-WORLD-020] given Tobi courted, when the view no longer lists him, then he stands nowhere: his thing and his figure are gone from the parlour, and Hauwa still stands", () => {
+  test("[person:computer-candidates-labelled] [world:nobody-picked-from-list] given Tobi courted, when the view no longer lists him, then he stands nowhere: his thing and his figure are gone from the parlour, and Hauwa still stands", () => {
     const game = tunde();
     courted(game, TOBI);
     const view = game.view();
@@ -100,7 +100,7 @@ describe("a person standing where content meets them", () => {
     expect(talks(actsHere(parlour, HOUSE, view, false))).toEqual([["friend-guest", HAUWA]]);
   });
 
-  test("[R-PEOPLE-013] [R-WORLD-020] given people met only in December, when it is not December they stand nowhere, and in December the meetup's two stand at the hub's meetup and the one met only then takes a thing two share", () => {
+  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] given people met only in December, when it is not December they stand nowhere, and in December the meetup's two stand at the hub's meetup and the one met only then takes a thing two share", () => {
     const view = tunde().view();
     expect(view.people.candidates.map((candidate) => candidate.person)).toEqual(expect.arrayContaining([KELECHI, EJIRO, UDUAK, TONYE]));
     expect(talks(actsHere(hub, HUB, view, false))).toEqual([]);
@@ -115,7 +115,7 @@ describe("a person standing where content meets them", () => {
     expect(standingAt(HOUSE, game.view().people.candidates, true).find((one) => one.thing === "after-service")?.person).toBe(TOBI);
   });
 
-  test("[R-WORLD-020] given each meeting, when the city reads where it stands, then the place file declares its thing with one talk act and someone to stand there for each person, its mark is over them, the model is from the place's kit, and nobody is met in their room", () => {
+  test("[world:nobody-picked-from-list] given each meeting, when the city reads where it stands, then the place file declares its thing with one talk act and someone to stand there for each person, its mark is over them, the model is from the place's kit, and nobody is met in their room", () => {
     const files: Record<string, PlaceFile[]> = { [HUB]: [hub], [HOUSE]: [parlour] };
     expect(Object.keys(meetingThings).sort()).toEqual([HOUSE, HUB]);
     expect(stageOf(room).standing).toBeUndefined();
@@ -134,7 +134,7 @@ describe("a person standing where content meets them", () => {
     }
   });
 
-  test("[R-WORLD-011] given people standing at their things, when the crowd is drawn, then residents give up their places only past the scope's cap, then players, and the residents at parts last", () => {
+  test("[world:place-is-one-screen] given people standing at their things, when the crowd is drawn, then residents give up their places only past the scope's cap, then players, and the residents at parts last", () => {
     const crowd = [
       { slot: 0, kind: "resident" as const },
       { slot: 1, kind: "resident" as const },
@@ -143,7 +143,7 @@ describe("a person standing where content meets them", () => {
     ];
     expect(makeRoom(crowd, 2).map((one) => one.slot)).toEqual([0, 3]);
     expect(makeRoom(crowd, 0)).toEqual(crowd);
-    // R-CITY-032: once the other residents are gone, players give way; a resident at a part goes only after them, the highest spot first.
+    // city:residents-fill-to-target: once the other residents are gone, players give way; a resident at a part goes only after them, the highest spot first.
     const parts = [
       { slot: 0, kind: "resident" as const, part: 0 },
       { slot: 1, kind: "resident" as const },
@@ -159,7 +159,7 @@ describe("a person standing where content meets them", () => {
     expect(roomFor(4, 0, 4)).toBe(0);
   });
 
-  test("[R-WORLD-011] [R-CITY-032] given every shipped place with people standing at its things and more players present than slots, when the crowd is drawn in each mode, then the crowd and those standing stay within the scope's cap, and a part's resident gives way only once no player is left", () => {
+  test("[world:place-is-one-screen] [city:residents-fill-to-target] given every shipped place with people standing at its things and more players present than slots, when the crowd is drawn in each mode, then the crowd and those standing stay within the scope's cap, and a part's resident gives way only once no player is left", () => {
     const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
     const many = Array.from({ length: 12 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
     let checked = 0;
@@ -189,7 +189,7 @@ describe("a person standing where content meets them", () => {
 });
 
 describe("the talk sheet", () => {
-  test("[R-PEOPLE-013] [R-WORLD-020] [R-WORLD-006] given Tobi standing in the parlour, when he is talked to, then the card carries the computer mark, his meeting line and one button that courts him, and its button sends people/court with him", () => {
+  test("[person:courting-opens-a-bond] [world:nobody-picked-from-list] [world:one-action-one-sheet] given Tobi standing in the parlour, when he is talked to, then the card carries the computer mark, his meeting line and one button that courts him, and its button sends people/court with him", () => {
     const game = tunde();
     const sent: string[] = [];
     const ask = talkAsk(TOBI, game.view(), maxCourting, WORDS, { send: (person) => sent.push(person), dismiss: () => undefined });
@@ -206,7 +206,7 @@ describe("the talk sheet", () => {
     expect(game.view().people.bonds.find((bond) => bond.person === TOBI)?.stage).toBe("courting");
   });
 
-  test("[R-PEOPLE-013] given the most bonds a life may court already courting, when another is talked to, then the card's button is shut, says Not yet, and the reason stands on it", () => {
+  test("[person:courting-opens-a-bond] given the most bonds a life may court already courting, when another is talked to, then the card's button is shut, says Not yet, and the reason stands on it", () => {
     const game = tunde();
     const others = game.view().people.candidates.map((candidate) => candidate.person).filter((person) => person !== TOBI);
     expect(others.length).toBeGreaterThanOrEqual(maxCourting);
@@ -220,10 +220,10 @@ describe("the talk sheet", () => {
 });
 
 describe("seeing someone beside someone else", () => {
-  // Hauwa is still offered while Tobi is courted. The rules allow it (R-PEOPLE-013, up to
+  // Hauwa is still offered while Tobi is courted. The rules allow it (person:courting-opens-a-bond, up to
   // maxCourting), and courting beside courting costs nothing, so then the card says nothing more; beside a partner, gossip
-  // follows (R-PEOPLE-018, R-PEOPLE-041), and the card says what it costs before the tap.
-  test("[R-PEOPLE-041] [R-PEOPLE-013] given Tobi only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {
+  // follows (person:one-partner-at-a-time, person:gossip-when-two-timing), and the card says what it costs before the tap.
+  test("[person:gossip-when-two-timing] [person:courting-opens-a-bond] given Tobi only courted, when Hauwa is talked to, then her card adds nothing, since the rules ask nothing of courting two", () => {
     const game = tunde();
     courted(game, TOBI);
     const ask = talkAsk(HAUWA, game.view(), maxCourting, WORDS, { send: () => undefined, dismiss: () => undefined });
@@ -231,7 +231,7 @@ describe("seeing someone beside someone else", () => {
     expect(ask.note).toBeUndefined();
   });
 
-  test("[R-PEOPLE-041] [R-PEOPLE-018] given Tobi a partner, when Hauwa is talked to, then her card's button stays open and its second line says seeing her too costs standing if it comes out, and Tobi may leave", () => {
+  test("[person:gossip-when-two-timing] [person:one-partner-at-a-time] given Tobi a partner, when Hauwa is talked to, then her card's button stays open and its second line says seeing her too costs standing if it comes out, and Tobi may leave", () => {
     const game = peopleGame(eagerContent());
     const bond = partnered(game);
     expect(game.view().people.bonds.find((one) => one.id === bond)?.stage).toBe("partner");
@@ -245,8 +245,8 @@ describe("seeing someone beside someone else", () => {
 
 describe("the answer once courted", () => {
   // The corner tells the person's own line, then the plain line
-  // that they live in the game (R-PEOPLE-054).
-  test("[R-PEOPLE-013] [R-PEOPLE-054] given a computer partner courted, when the corner is told, then their answer comes first in their own words, as theirs, and the plain line that they live in the game follows", () => {
+  // that they live in the game (person:computer-mark-is-quiet).
+  test("[person:courting-opens-a-bond] [person:computer-mark-is-quiet] given a computer partner courted, when the corner is told, then their answer comes first in their own words, as theirs, and the plain line that they live in the game follows", () => {
     for (const { person } of partnerMeetings) {
       const told = courtedTold(person, {
         name: nameOf,
@@ -262,7 +262,7 @@ describe("the answer once courted", () => {
 });
 
 describe("their room", () => {
-  test("[R-WORLD-020] given no bond courting, their room is not open; once Tobi is courted it is, near his home in content", () => {
+  test("[world:nobody-picked-from-list] given no bond courting, their room is not open; once Tobi is courted it is, near his home in content", () => {
     const game = tunde();
     expect(roomOpen(game.view())).toBe(false);
     courted(game, TOBI);
@@ -270,7 +270,7 @@ describe("their room", () => {
     expect(roomNear(game.view())).toBe(partnerMeetings.find((meeting) => meeting.person === TOBI)?.home.near);
   });
 
-  test("[R-PEOPLE-014] [R-WORLD-020] given Tobi courted, when their room is entered, then the visit is staged there on its chair, and nobody stands there to be met", () => {
+  test("[person:time-together-is-an-act] [world:nobody-picked-from-list] given Tobi courted, when their room is entered, then the visit is staged there on its chair, and nobody stands there to be met", () => {
     const game = tunde();
     courted(game, TOBI);
     const view = game.view();

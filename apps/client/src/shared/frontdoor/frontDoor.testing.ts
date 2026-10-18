@@ -1,4 +1,4 @@
-// The way through the front door for a screen test (prologue.md R-PROLOGUE-009, 013, 014): the name on the first screen
+// The way through the front door for a screen test (prologue:front-door-builds-a-person, prologue:front-door-three-screens, prologue:printed-page-hands-over): the name on the first screen
 // (the filled one unless one is given), Next, a tile and Next to Where you live, or a ready life's Pick, then Begin. A tile's life fills its page and
 // opens the world from it; `passThePage` taps it on. A ready life is reached only on a run Settings asked for: a test
 // calls `askReadyLives` before the app is drawn.

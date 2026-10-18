@@ -1,4 +1,4 @@
-// The draw page (docs/rules/lottery.md R-LOTTERY-015): a draw's public data
+// The draw page (lottery:result-published-in-tick-row): a draw's public data
 // from `GET /api/draw/:n`, and the result worked out again on the device with
 // the simulation's `drawSeed`, `ticketResult` for every ticket and
 // `drawResults`, with a plain line saying whether the two match.

@@ -1,4 +1,4 @@
-// A fact as an icon and two or three words, with a smaller note and a mark for its state (prologue.md R-PROLOGUE-014):
+// A fact as an icon and two or three words, with a smaller note and a mark for its state (prologue:printed-page-hands-over):
 // the years before on the page are chips, never sentences.
 import type { ComponentType } from "react";
 

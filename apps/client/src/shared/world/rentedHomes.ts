@@ -1,4 +1,4 @@
-// Which homes stand on the map (city.md's rows under home.md R-HOME-010 and R-HOME-002): the family house always, a
+// Which homes stand on the map (city.md's rows under home:compound-room-is-a-home and home:move-home-once-a-month): the family house always, a
 // rented room or the hostel only as the home lived in. Read by the city's stops and the map's pins alike.
 
 /** A rented home is on the map only while it is lived in; the family house keeps its place. */

@@ -1,4 +1,4 @@
-// A state as a small round mark (prologue.md R-PROLOGUE-014): each state differs in its shape as well as its colour,
+// A state as a small round mark (prologue:printed-page-hands-over): each state differs in its shape as well as its colour,
 // never colour alone, and carries its word for a screen reader and as its title.
 import { Check, Clock, TriangleAlert, X } from "lucide-react";
 import type { ComponentType } from "react";
@@ -7,7 +7,7 @@ import { say } from "../words/text";
 
 export type MarkState = "done" | "failed" | "setback" | "waiting";
 
-/** Each state's glyph, its colours and its word. Small squares, never pills (R-WORLD-021); the setback's is turned on its point. */
+/** Each state's glyph, its colours and its word. Small squares, never pills (world:colours-are-role-tokens); the setback's is turned on its point. */
 const MARKS: Record<MarkState, { glyph: ComponentType<{ size?: number; strokeWidth?: number; "aria-hidden"?: boolean }>; shape: string; colour: string; word: string }> = {
   done: { glyph: Check, shape: "rounded-[4px]", colour: "bg-in text-white", word: "ui.page.mark.done" },
   failed: { glyph: X, shape: "rounded-[4px]", colour: "bg-out text-white", word: "ui.page.mark.failed" },

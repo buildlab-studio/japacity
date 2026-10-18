@@ -1,7 +1,7 @@
-// The street's things of decision 0012 (docs/rules/streets.md R-STREET-011; world.md R-WORLD-005): the suya spot
+// The street's things of decision 0012 (streets:lagos-street-spending; world:things-are-tappable-models): the suya spot
 // and the mallam's bench on Ojuelegba, the barber, the viewing centre and the joint on Bode Thomas, the clothes stall
 // at Tejuosho. Each stands on the pavement as a model the player taps, opens the act content stages there, and keeps
-// the hours the world's clock gives it (clock.md R-CLOCK-033). Bode Thomas's whole frontage is checked in cargo.test.ts;
+// the hours the world's clock gives it (clock:game-day-on-real-time). Bode Thomas's whole frontage is checked in cargo.test.ts;
 // Ojuelegba's and Tejuosho's here on what the new things touch: the budget, the ground, the floors and the staged acts.
 import { type Footprint, isFootprint } from "@japacity/assets";
 import { content, text } from "@japacity/content";
@@ -67,7 +67,7 @@ function thingOf(stage: Stage, id: string): Thing {
 describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
   const { file, stage, entry } = staged(raw, id);
 
-  test.each(things)(`[R-WORLD-005] [R-STREET-011] given ${id}'s $thing, when it is read, then it stands at its own model with its name and the one act that opens what content stages there`, ({ thing: thingId, model, name, act }) => {
+  test.each(things)(`[world:things-are-tappable-models] [streets:lagos-street-spending] given ${id}'s $thing, when it is read, then it stands at its own model with its name and the one act that opens what content stages there`, ({ thing: thingId, model, name, act }) => {
     const thing = thingOf(stage, thingId);
     expect(thing.file).toBe(model);
     expect(cityWords(thing.label)).toBe(name);
@@ -82,7 +82,7 @@ describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
     }
   });
 
-  test.each(things)(`[R-WORLD-005] [R-STREET-011] given ${id}'s $thing, when its model and its spots are read, then the model stands on a pavement clear of the carriageway, the thing is beside it and a seat is on the model`, ({ thing: thingId }) => {
+  test.each(things)(`[world:things-are-tappable-models] [streets:lagos-street-spending] given ${id}'s $thing, when its model and its spots are read, then the model stands on a pavement clear of the carriageway, the thing is beside it and a seat is on the model`, ({ thing: thingId }) => {
     const thing = thingOf(stage, thingId);
     const copy = stage.models.find((model) => model.file === thing.file)?.at[thing.copy];
     if (copy === undefined) throw new Error(`${thingId} has no copy`);
@@ -95,7 +95,7 @@ describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
     expect(seat === undefined || Math.hypot(seat[0] - copy[0], seat[1] - copy[1]) < 2).toBe(true);
   });
 
-  test(`[R-ASSET-007] given ${id} with its new things, when the frontage is counted as the build check counts it, then both modes stay inside the exterior row and the instances are the copies staged`, async () => {
+  test(`[assets:assets-and-places-within-budget] given ${id} with its new things, when the frontage is counted as the build check counts it, then both modes stay inside the exterior row and the instances are the copies staged`, async () => {
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
@@ -104,12 +104,12 @@ describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {
     expect(file.instances).toEqual(instancesOf(stage));
   });
 
-  test(`[R-WORLD-005] [R-STREET-011] given what ${id} stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there`, () => {
+  test(`[world:things-are-tappable-models] [streets:lagos-street-spending] given what ${id} stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there`, () => {
     const opened = new Set(actEntries(raw, id));
     expect(entry.stages.filter((stages) => !opened.has(stages))).toEqual([]);
   });
 
-  test(`[R-CITY-014] [R-WORLD-012] [R-ASSET-030] given ${id}'s models with the new things, when the ground is read, then the crowd and the start stand clear of every footprint and no two floors lie within a centimetre`, async () => {
+  test(`[city:crowd-sample-capped] [world:faces-never-share-height] [assets:models-record-their-footprint] given ${id}'s models with the new things, when the ground is read, then the crowd and the start stand clear of every footprint and no two floors lie within a centimetre`, async () => {
     const models = [...new Set(stage.models.map((model) => model.file))];
     const footprints = new Map<string, Footprint>();
     const floors = new Map<string, readonly ModelFace[]>();
@@ -128,7 +128,7 @@ describe("the hours on Bode Thomas", () => {
   const street = stage.things ?? [];
   const all = () => true;
 
-  test("[R-CLOCK-033] [R-WORLD-005] [R-STREET-011] given the viewing centre and the joint, when the world stands in the evening or at night, then each opens its sheet and sits the figure on its bench or chair", () => {
+  test("[clock:game-day-on-real-time] [world:things-are-tappable-models] [streets:lagos-street-spending] given the viewing centre and the joint, when the world stands in the evening or at night, then each opens its sheet and sits the figure on its bench or chair", () => {
     for (const part of ["evening", "night"] as const) {
       const now = thingsNow(street, all, part);
       expect(thingOf({ ...stage, things: now }, "viewing").acts[0]).toMatchObject({ kind: "sheet", stages: "activity.viewing-centre", pose: "sit" });
@@ -136,7 +136,7 @@ describe("the hours on Bode Thomas", () => {
     }
   });
 
-  test("[R-CLOCK-033] [R-WORLD-005] [R-STREET-011] given the viewing centre and the joint, when the world stands in the morning or the afternoon, then both still stand shut, saying they open in the evening and why, while the barber stays open", () => {
+  test("[clock:game-day-on-real-time] [world:things-are-tappable-models] [streets:lagos-street-spending] given the viewing centre and the joint, when the world stands in the morning or the afternoon, then both still stand shut, saying they open in the evening and why, while the barber stays open", () => {
     for (const part of ["morning", "afternoon"] as const) {
       const now = { ...stage, things: thingsNow(street, all, part) };
       const viewing = thingOf(now, "viewing");

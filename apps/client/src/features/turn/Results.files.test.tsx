@@ -1,4 +1,4 @@
-// What the results tell of the talk and of a paper running out (docs/rules/world.md R-WORLD-008). The talk's
+// What the results tell of the talk and of a paper running out (world:month-end-results-sheet). The talk's
 // line says how it went and what it counted for, never only "The talk is over.". A paper the plan needs, such as a TB
 // certificate, never runs out unseen months after it was taken. Played on the real engine and content.
 import { content } from "@japacity/content";
@@ -41,7 +41,7 @@ async function month(store: GameStore, game: Game, picks: Id<"activity">[] = [])
   act(() => store.setState({ moments: [], reportOpen: true }));
 }
 
-/** A now-act done at once (R-ACTIVITY-015): the meetup, a paper's request. */
+/** A now-act done at once (activity:now-acts-and-month-acts): the meetup, a paper's request. */
 async function now(store: GameStore, activity: Id<"activity">, param: string | null = null): Promise<void> {
   await act(async () => {
     const reply = await store.getState().send({ type: "activity/now", activity, param });
@@ -82,21 +82,21 @@ describe("how the talk went", () => {
     return results(store).story;
   }
 
-  test("[R-ACTIVITY-013] [R-WORLD-008] given the talk opened with the code run live, when the month's results open, then they say it went well and what it counted for, not only that it is over", async () => {
+  test("[activity:waiting-months-build-profile] [world:month-end-results-sheet] given the talk opened with the code run live, when the month's results open, then they say it went well and what it counted for, not only that it is over", async () => {
     const rows = await gave("demo");
     expect(rows).toContain(say("line.activity.exam-passed.activity.conference-talk"));
     expect(say("line.activity.exam-passed.activity.conference-talk")).toMatch(/went well.*counts toward the endorsement's letters/);
     expect(rows).not.toContain(words("line.setpiece.closed", { setpiece: TALK_PIECE }));
   });
 
-  test("[R-ACTIVITY-013] [R-WORLD-008] given the talk read off the slides, when the month's results open, then they say it fell flat, and what it still counted for", async () => {
+  test("[activity:waiting-months-build-profile] [world:month-end-results-sheet] given the talk read off the slides, when the month's results open, then they say it fell flat, and what it still counted for", async () => {
     const rows = await gave("slides");
     expect(rows).toContain(say("line.activity.exam-failed.activity.conference-talk"));
     expect(say("line.activity.exam-failed.activity.conference-talk")).toMatch(/fell flat.*counts toward the endorsement's letters/);
     expect(rows.join(" ")).not.toMatch(/\bexam\b|\d/);
   });
 
-  test("[R-ACTIVITY-013] given the talk's answers, when they are read from content, then the live code and the story hold the room and the slides do not", () => {
+  test("[activity:waiting-months-build-profile] given the talk's answers, when they are read from content, then the live code and the story hold the room and the slides do not", () => {
     const answers = content.setpiece[TALK_PIECE]!.questions[0]!.answers;
     expect(Object.fromEntries(answers.map((answer) => [answer.id, answer.score]))).toEqual({ demo: 1, story: 1, slides: 0 });
     expect(content.activity[TALK]!.exam).toEqual({ setpiece: TALK_PIECE, pass: 1, effects: [] });
@@ -104,7 +104,7 @@ describe("how the talk went", () => {
 });
 
 describe("a paper running out before the application", () => {
-  test("[R-DOCUMENT-004] [R-WORLD-008] given the ready nurse with care work her plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
+  test("[document:one-pending-copy] [world:month-end-results-sheet] given the ready nurse with care work her plan and a TB certificate taken early, when it is two months and then one from running out, then the results say so in one line each month; a paper of no use to her plan is never warned of", async () => {
     const game = newGame("scenario.ngozi");
     const store = await storeOf(game);
     for (let months = 0; months < 6 && (game.state.route[CARE]?.state ?? "unknown") === "unknown"; months += 1) {

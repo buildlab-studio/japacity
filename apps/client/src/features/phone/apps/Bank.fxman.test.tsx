@@ -1,4 +1,4 @@
-// The FX man's sheet (docs/rules/world.md R-WORLD-006): the FX man is paid in cash, so a line that counts the bank and
+// The FX man's sheet (world:one-action-one-sheet): the FX man is paid in cash, so a line that counts the bank and
 // the cash would say "After, you hold ₦791,419 and £615" over a button "₦0 left". The line and the button read the same
 // money, what is held to pay with where the act is paid, and what is left of it is said once, on the button. Real
 // content, a real life at home.
@@ -31,7 +31,7 @@ async function changeAllWithTheFxMan(view: PlayerView): Promise<void> {
 }
 
 describe("the FX man's sheet reads the cash he is paid from", () => {
-  test("[R-WORLD-006] given naira in the bank and in cash, when all the cash is changed into pounds with the FX man, then the button says no naira left and the line never names the naira the bank still holds", async () => {
+  test("[world:one-action-one-sheet] given naira in the bank and in cash, when all the cash is changed into pounds with the FX man, then the button says no naira left and the line never names the naira the bank still holds", async () => {
     const view = heldAtHome();
     await changeAllWithTheFxMan(view);
     const told = card().textContent ?? "";
@@ -42,7 +42,7 @@ describe("the FX man's sheet reads the cash he is paid from", () => {
     expect(told.split(formatMoney(0, "NGN")).length - 1).toBe(1);
   });
 
-  test("[R-WORLD-006] given the same change, when its line is read, then the pounds after are the cash in hand with what he counts out", async () => {
+  test("[world:one-action-one-sheet] given the same change, when its line is read, then the pounds after are the cash in hand with what he counts out", async () => {
     const view = heldAtHome();
     await changeAllWithTheFxMan(view);
     const told = card().textContent ?? "";
@@ -51,7 +51,7 @@ describe("the FX man's sheet reads the cash he is paid from", () => {
     expect(told).not.toContain(formatMoney(view.pockets.GBP.bank + view.pockets.GBP.cash + got.amount, "GBP"));
   });
 
-  test("[R-WORLD-006] given no pounds in hand before, when the FX man's line is read, then what you get is said once, with no line of what you hold after", async () => {
+  test("[world:one-action-one-sheet] given no pounds in hand before, when the FX man's line is read, then what you get is said once, with no line of what you hold after", async () => {
     const base = heldAtHome();
     const view = { ...base, pockets: { ...base.pockets, GBP: { ...base.pockets.GBP, cash: 0 } } };
     await changeAllWithTheFxMan(view);

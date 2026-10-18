@@ -1,11 +1,11 @@
-// The front door's run as answered so far (prologue.md R-PROLOGUE-009): the step it is at and every answer, kept on
+// The front door's run as answered so far (prologue:front-door-builds-a-person): the step it is at and every answer, kept on
 // the device under one key of its own, so a reload at any step comes back to that step. The life itself is written
 // only at Begin (the authority keeps the save unwritten until a life is chosen).
 import { readStyle, type LookStyle } from "../frontdoor/style";
 import { browserStorage, DOOR_KEY } from "../kept/storage";
 
 /**
- * The steps of the run, in order (R-PROLOGUE-013): `you` (the name and the look), `life` (the tiles and the age under
+ * The steps of the run, in order (prologue:front-door-three-screens): `you` (the name and the look), `life` (the tiles and the age under
  * them), `page`; `ready` is the ready lives' list in the place of the tiles, for a run Settings asked for; `begun` once
  * Begin was pressed.
  */
@@ -26,15 +26,15 @@ export interface DoorDraft {
   typed?: boolean;
   /** True for a run Settings asked for: its second screen lists the ready lives in the place of the tiles. */
   asked?: boolean;
-  /** Where the life starts (R-PROLOGUE-013): the home step's answer, the tile's own until the player picks the other. */
+  /** Where the life starts (prologue:front-door-three-screens): the home step's answer, the tile's own until the player picks the other. */
   home?: string;
   /** True once the player picked the home: a new tile or age keeps it while the life can still move in. */
   homePicked?: boolean;
   /** Which three names the pool suggests. */
   roll: number;
-  /** Years from the tile's own age (R-PROLOGUE-009): negative is younger. */
+  /** Years from the tile's own age (prologue:front-door-builds-a-person): negative is younger. */
   age: number;
-  /** The player's own colours on the look (R-PROLOGUE-015); absent as made. */
+  /** The player's own colours on the look (prologue:player-colours-on-looks); absent as made. */
   style?: LookStyle | undefined;
 }
 

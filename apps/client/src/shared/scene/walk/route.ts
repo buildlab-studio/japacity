@@ -1,4 +1,4 @@
-// A route round the things in the way (city.md R-CITY-030): A* over the
+// A route round the things in the way (city:tap-to-walk): A* over the
 // route map's free cells, eight ways and never across a corner, then pulled straight wherever the line
 // is clear. A line already clear needs no search, and a goal is only ever sought in the part of the
 // ground the walker stands on, so a tap the walker cannot reach costs a ring search and no more.

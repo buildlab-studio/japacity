@@ -1,14 +1,14 @@
-// A warm light of the dedication (docs/rules/account.md R-ACCOUNT-032, R-ACCOUNT-033): the bulb as the two lights draw
+// A warm light of the dedication (account:dedication-page-and-its-doors, account:name-a-light-for-yours): the bulb as the two lights draw
 // it, at any size, and its glow. The glow is the two lights' own fill (TwoLights.tsx `glowFill`) on one small layer that
 // breathes by opacity alone, about every four seconds, run by the browser's compositor with no render loop; reduced
-// motion holds it still (world.md R-WORLD-023). Nothing here reads the paint of the hour, so the light never goes out
+// motion holds it still (world:motions-under-half-second). Nothing here reads the paint of the hour, so the light never goes out
 // at night.
 import { useEffect, useRef, useState } from "react";
 
 import { motionReduced } from "../../shared/ui/motion";
 import { glowFill } from "./TwoLights";
 
-/** R-ACCOUNT-032: one breath, in or out, about four seconds, as the design's own `breathe` runs. */
+/** account:dedication-page-and-its-doors: one breath, in or out, about four seconds, as the design's own `breathe` runs. */
 const BREATH_MS = 4_000;
 
 /** The breath: from a little under its light to its full light and back; opacity alone. */

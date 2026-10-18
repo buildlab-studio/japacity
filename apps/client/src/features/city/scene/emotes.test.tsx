@@ -11,13 +11,13 @@ const people = [
 ];
 
 describe("the emotes over the crowd", () => {
-  test("[R-WORLD-026] given residents, when a turn is drawn, then at most two residents carry a picture and the player none", () => {
+  test("[world:street-talk-budget] given residents, when a turn is drawn, then at most two residents carry a picture and the player none", () => {
     const drawn = emotesFor(people, 0);
     expect(drawn.length).toBe(2);
     expect(drawn.every((one) => one.slot !== 0)).toBe(true);
   });
 
-  test("[R-WORLD-026] [R-WORLD-005] given a picture over a resident, when it is tapped, then the tap is that person's: the shell hears their slot", () => {
+  test("[world:street-talk-budget] [world:things-are-tappable-models] given a picture over a resident, when it is tapped, then the tap is that person's: the shell hears their slot", () => {
     const onTap = vi.fn();
     render(<Emotes people={people} hidden={false} onTap={onTap} />);
     const picture = document.querySelector<HTMLElement>("[data-emote-tap]");

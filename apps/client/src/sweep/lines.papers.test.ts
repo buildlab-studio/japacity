@@ -1,4 +1,4 @@
-// A paper on its way and the same paper ready are never told in one list (docs/rules/world.md R-WORLD-008):
+// A paper on its way and the same paper ready are never told in one list (world:month-end-results-sheet):
 // never "Your passport is on the way. It should be ready this month." beside "Your passport is ready.", nor the
 // English test's "It should be ready this month." beside "Your English test result is out.". Real content, real draws.
 import type { PlayerView, ReportLine } from "@japacity/sim";
@@ -27,7 +27,7 @@ function quickPassport(): { mid: ReportLine[]; end: ReportLine[]; view: PlayerVi
 const about = (lines: readonly ReportLine[], key: string): ReportLine[] => lines.filter((line) => line.key === key && line.params["document"] === PASSPORT);
 
 describe("a paper on its way and ready, told once", () => {
-  test("[R-WORLD-008] given a passport asked for mid-month that is issued at that month's end, when the month's lines are told, then the results and News say it is ready and never that it is on the way", () => {
+  test("[world:month-end-results-sheet] given a passport asked for mid-month that is issued at that month's end, when the month's lines are told, then the results and News say it is ready and never that it is on the way", () => {
     const { mid, end, view } = quickPassport();
     const all = [...mid, ...end];
     expect(about(all, "line.document.requested")).toHaveLength(1);
@@ -39,7 +39,7 @@ describe("a paper on its way and ready, told once", () => {
     expect(about(newsLines(mid, end, view), "line.document.requested")).toEqual([]);
   });
 
-  test("[R-WORLD-008] given a passport asked for that is not ready by the month's end, when the month's lines are told, then it is on the way", () => {
+  test("[world:month-end-results-sheet] given a passport asked for that is not ready by the month's end, when the month's lines are told, then it is on the way", () => {
     const game = newGame("scenario.ada");
     const mid = game.accept({ type: "activity/now", activity: "activity.get-passport", param: null }).lines;
     const end = game.endTurn().lines;
@@ -47,7 +47,7 @@ describe("a paper on its way and ready, told once", () => {
     expect(about(tidyLines([...mid, ...end]), "line.document.requested")).toHaveLength(1);
   });
 
-  test("[R-WORLD-008] given the English test sat mid-month and its band out at that month's end, when the month's lines are told, then the results and News tell the band once and never that the result is on the way", () => {
+  test("[world:month-end-results-sheet] given the English test sat mid-month and its band out at that month's end, when the month's lines are told, then the results and News tell the band once and never that the result is on the way", () => {
     const game = newGame("scenario.tunde");
     const ENGLISH = "document.english-test";
     const mid = game.accept({ type: "activity/now", activity: "activity.sit-english-test", param: null }).lines;

@@ -1,5 +1,5 @@
-// Where everything on a drawn card goes (docs/rules/share.md R-SHARE-004,
-// R-SHARE-009, R-SHARE-010): a list of plain drawing steps, worked out from the
+// Where everything on a drawn card goes (share:card-contents,
+// share:card-drawn-on-device, share:card-link-has-fixed-preview): a list of plain drawing steps, worked out from the
 // card's words and a way to measure text, so the layout can be tested without
 // a canvas. Sizes are written for the 1080 pixel wide card and scaled.
 import type { ShareKind } from "@japacity/content";
@@ -48,7 +48,7 @@ export interface TextStep {
 }
 
 /**
- * A mark of the game's own on the picture (R-SHARE-006): the faint watermark's repeats and the corner
+ * A mark of the game's own on the picture (share:card-never-looks-official): the faint watermark's repeats and the corner
  * badge. Turned about its centre by `angle` degrees, clockwise; `alpha` is its opacity in hundredths.
  * Not a word of the card: the layout keeps it under the words or clear of them.
  */
@@ -144,7 +144,7 @@ export function stripes(x: number, y: number, width: number, height: number, ban
 const WATERMARK_ALPHA = 7;
 
 /**
- * The game's name repeated across the whole picture at a slant (R-SHARE-006), each repeat anchored inside
+ * The game's name repeated across the whole picture at a slant (share:card-never-looks-official), each repeat anchored inside
  * it, rows offset so no column lines up. `unit` scales the card's design sizes to this picture.
  */
 export function watermark(name: string, size: Size, unit: (value: number) => number, color: PaletteName): MarkStep[] {
@@ -160,7 +160,7 @@ export function watermark(name: string, size: Size, unit: (value: number) => num
 }
 
 /**
- * The diagonal badge across a top corner (R-SHARE-006): a band cut across the corner between `near` and
+ * The diagonal badge across a top corner (share:card-never-looks-official): a band cut across the corner between `near` and
  * `far` along each edge, with the game's name along it in capitals.
  */
 export function cornerBadge(name: string, size: Size, unit: (value: number) => number, corner: "left" | "right", tone: { band: PaletteName; ink: PaletteName }): MarkStep {
@@ -192,7 +192,7 @@ export function cornerBadge(name: string, size: Size, unit: (value: number) => n
   };
 }
 
-/** The drawing steps of a whole card at `size` (R-SHARE-004, R-SHARE-009). */
+/** The drawing steps of a whole card at `size` (share:card-contents, share:card-drawn-on-device). */
 export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] {
   const unit = scaler(size.width, 1080);
   const tone = TONES[face.kind];
@@ -242,7 +242,7 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
   }
   const block = y;
 
-  // The footer, fixed at the foot: the sender, the disclaimer no smaller than the address (R-SHARE-004).
+  // The footer, fixed at the foot: the sender, the disclaimer no smaller than the address (share:card-contents).
   const rule = size.height - unit(300);
   const footer: Step[] = [{ op: "line", x1: pad, y1: rule, x2: size.width - pad, y2: rule, width: unit(3), color: tone.soft }];
   const footText: TextStep[] = [];
@@ -272,7 +272,7 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
     { op: "clip", box: art, radius: unit(36) },
     ...(artShapes(face.art, art) ?? [{ op: "rect", x: art.x, y: art.y, w: art.w, h: art.h, color: tone.soft } satisfies Shape]),
     { op: "unclip" },
-    // The marks before the words (R-SHARE-006): the watermark over the art and the ground, the badge on the corner the art starts under.
+    // The marks before the words (share:card-never-looks-official): the watermark over the art and the ground, the badge on the corner the art starts under.
     ...watermark(face.sender, size, unit, tone.ink),
     cornerBadge(face.sender, size, unit, "right", { band: tone.ink, ink: tone.background }),
     ...text.map((step) => ({ ...step, y: step.y + shift })),
@@ -282,7 +282,7 @@ export function cardSteps(face: CardFace, size: Size, measure: Measure): Step[] 
 }
 
 /**
- * The link preview for one kind (R-SHARE-010): the kind's art, title and the
+ * The link preview for one kind (share:card-link-has-fixed-preview): the kind's art, title and the
  * game's words, and nothing about any player.
  */
 export function previewSteps(face: Pick<CardFace, "kind" | "kicker" | "title" | "art" | "sender" | "address" | "disclaimer">, size: Size, measure: Measure): Step[] {
@@ -295,7 +295,7 @@ export function previewSteps(face: Pick<CardFace, "kind" | "kicker" | "title" | 
     { op: "rect", x: 0, y: 0, w: size.width, h: size.height, color: tone.background },
     ...(artShapes(face.art, art) ?? []),
     ...stripes(art.w, 0, size.width - art.w, unit(20), unit(28), tone),
-    // The marks (R-SHARE-006): the watermark closer set, since the preview is short; the badge on the art's corner, clear of the words.
+    // The marks (share:card-never-looks-official): the watermark closer set, since the preview is short; the badge on the art's corner, clear of the words.
     ...watermark(face.sender, size, scaler(size.width, 1600), tone.ink),
     cornerBadge(face.sender, size, scaler(size.width, 1080), "left", { band: tone.ink, ink: tone.background }),
   ];

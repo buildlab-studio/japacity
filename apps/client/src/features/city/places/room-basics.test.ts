@@ -1,5 +1,5 @@
-// The room down its length with the basics (docs/rules/world.md R-WORLD-029, obligation.md
-// R-OBLIGATION-014): the parlour at home and the room abroad, read from their shipped files and
+// The room down its length with the basics (world:room-seen-down-its-length, obligation.md
+// obligation:cooking-and-fetching-water): the parlour at home and the room abroad, read from their shipped files and
 // the real content. The camera turned so the long side runs up a phone held upright, fitted to the
 // room's width with nothing cut off; the cooking corner, the drum at home only, the bed, the table,
 // the bag by the door, each with its act; and what the month's plan shows on the thing.
@@ -30,14 +30,14 @@ const ROOMS = [
   { name: "the room in a compound", file: compound, place: "place.compound-room" },
 ] as const;
 /**
- * The rooms seen down their length. The homes at home are wide floors seen whole straight down their length (R-WORLD-029),
+ * The rooms seen down their length. The homes at home are wide floors seen whole straight down their length (world:room-seen-down-its-length),
  * tested in homes.test.ts.
  */
 const DOWN_ITS_LENGTH = ROOMS.filter((one) => one.place === "place.the-room");
 const COOK = "activity.cook-at-home";
 /** A meal of your own in a room you rent. */
 const OWN = "activity.cook-own";
-/** The room abroad's meal in pounds (home.md R-HOME-012; streets.md R-STREET-012). */
+/** The room abroad's meal in pounds (home:living-by-hand; streets:london-life-by-hand). */
 const OWN_UK = "activity.cook-own-uk";
 const HOME = { where: "home", country: null } as const;
 const WATER = "activity.fetch-water";
@@ -83,7 +83,7 @@ function actsNow(file: PlaceFile, place: string, view: PlayerView, extra: string
 }
 
 describe("the room down its length", () => {
-  test("[R-WORLD-029] given the room abroad on a phone held upright, when the room opens whole, then the camera looks along the long side, the door's wall at the top, and the floor and both walls stand on screen with nothing cut off", () => {
+  test("[world:room-seen-down-its-length] given the room abroad on a phone held upright, when the room opens whole, then the camera looks along the long side, the door's wall at the top, and the floor and both walls stand on screen with nothing cut off", () => {
     for (const { name, file } of DOWN_ITS_LENGTH) {
       const shot = shotOf(stageOf(file));
       // A quarter turn from the front: the 12 m side runs up the screen.
@@ -102,7 +102,7 @@ describe("the room down its length", () => {
     }
   });
 
-  test("[R-WORLD-029] given the room fitted to its width, when the floor's share of the screen is measured against the front view it had, then it is more than half as large again on a phone (about 1.6 times: a 12 by 10 room cannot fill more of a tall screen with nothing cut off)", () => {
+  test("[world:room-seen-down-its-length] given the room fitted to its width, when the floor's share of the screen is measured against the front view it had, then it is more than half as large again on a phone (about 1.6 times: a 12 by 10 room cannot fill more of a tall screen with nothing cut off)", () => {
     for (const { file } of DOWN_ITS_LENGTH) {
       const shot = shotOf(stageOf(file));
       const before = floorShare(file, FRONT);
@@ -116,7 +116,7 @@ describe("the room down its length", () => {
 });
 
 describe("the basics at home", () => {
-  test("[R-WORLD-029] [R-OBLIGATION-014] [R-ACTIVITY-019] [R-CITY-037] given the family house, when its things are read, then the cooking corner cooks, the drum fetches water, the bed naps and sleeps, and the bag by the door packs and throws the send-off; each says its act in words", () => {
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] [activity:acts-may-repeat-in-month] [city:party-room-sets-the-bar] given the family house, when its things are read, then the cooking corner cooks, the drum fetches water, the bed naps and sleeps, and the bag by the door packs and throws the send-off; each says its act in words", () => {
     const acts = (id: string) => thingOf(parlour, id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null, cityWords(act.label)]);
     expect(acts("cooking")).toEqual([["sheet", COOK, "Cook"]]);
     expect(acts("drum")).toEqual([["sheet", WATER, "Water and a bath"]]);
@@ -134,7 +134,7 @@ describe("the basics at home", () => {
     expect(Math.hypot(bag[0] - door[0], bag[1] - door[1])).toBeLessThan(2);
   });
 
-  test("[R-WORLD-029] [R-OBLIGATION-014] given Ada at home, when the parlour's acts are read for now, then cooking and water are both there, and the bag packs only once the route is granted", () => {
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given Ada at home, when the parlour's acts are read for now, then cooking and water are both there, and the bag packs only once the route is granted", () => {
     const now = actsNow(parlour, "place.family-house", engineView("scenario.ada"));
     expect(now["cooking"]).toEqual(["cook"]);
     expect(now["drum"]).toEqual(["fetch-water"]);
@@ -145,7 +145,7 @@ describe("the basics at home", () => {
 });
 
 describe("the acts lived by hand at home", () => {
-  test("[R-ACTIVITY-019] [R-WORLD-005] given Ada at home, when the parlour's acts are read with the acts that repeat staged at home, then the bed naps, the television plays, the drum's sheet holds the bath, Mama's her shop and the table's the study and the course; jollof only once it can be had", () => {
+  test("[activity:acts-may-repeat-in-month] [world:things-are-tappable-models] given Ada at home, when the parlour's acts are read with the acts that repeat staged at home, then the bed naps, the television plays, the drum's sheet holds the bath, Mama's her shop and the table's the study and the course; jollof only once it can be had", () => {
     const view = engineView("scenario.ada");
     const offered = new Set(view.activities.filter((option) => option.allowed).map((option) => option.id));
     const staged = new Set<string>([...(content.place["place.family-house"]?.stages ?? []), ...byHandAt("place.family-house", "place.family-house", HOME, content.activity)]);
@@ -164,7 +164,7 @@ describe("the acts lived by hand at home", () => {
 });
 
 describe("the basics abroad", () => {
-  test("[R-WORLD-029] [R-OBLIGATION-014] given the room abroad, when its things are read and its acts for a life just landed, then the cooking corner cooks and there is no drum: the room has a tap", () => {
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given the room abroad, when its things are read and its acts for a life just landed, then the cooking corner cooks and there is no drum: the room has a tap", () => {
     expect(thingOf(room, "cooking").acts.map((act) => [act.kind, act.stages])).toEqual([["sheet", OWN_UK]]);
     expect((stageOf(room).things ?? []).some((thing) => thing.id === "drum")).toBe(false);
     expect(stageOf(room).models.some((model) => model.file.endsWith("prop_water-drum.glb"))).toBe(false);
@@ -176,12 +176,12 @@ describe("the basics abroad", () => {
 });
 
 describe("the state on the thing", () => {
-  test("[R-WORLD-029] [R-OBLIGATION-014] given nothing planned, when the room is shown, then it is the file as shipped, so the scene is not rebuilt", () => {
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given nothing planned, when the room is shown, then it is the file as shipped, so the scene is not rebuilt", () => {
     expect(showPlanned(parlour, [])).toBe(parlour);
     expect(showPlanned(parlour, ["activity.rest"])).toBe(parlour);
   });
 
-  test("[R-WORLD-029] [R-OBLIGATION-014] given cooking planned for the month, when each room is shown, at home, abroad and in a compound, then steam rises over the pot of the cooking corner", () => {
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given cooking planned for the month, when each room is shown, at home, abroad and in a compound, then steam rises over the pot of the cooking corner", () => {
     for (const { name, file } of ROOMS) {
       const shown = stageOf(showPlanned(file, [COOK, OWN, OWN_UK]));
       const steam = shown.motion.filter((motion) => motion.kind === "smoke");
@@ -195,7 +195,7 @@ describe("the state on the thing", () => {
     }
   });
 
-  test("[R-WORLD-029] [R-OBLIGATION-014] given water planned for the month at home, when the parlour is shown, then the drum stands filled, its water over the drum's own spot, counted in the file's instances", () => {
+  test("[world:room-seen-down-its-length] [obligation:cooking-and-fetching-water] given water planned for the month at home, when the parlour is shown, then the drum stands filled, its water over the drum's own spot, counted in the file's instances", () => {
     const drum = stageOf(parlour).models.find((model) => model.file.endsWith("prop_water-drum.glb"))?.at[0];
     const shown = stageOf(showPlanned(parlour, [WATER, COOK]));
     const water = shown.models.find((model) => model.file.endsWith("prop_drum-water.glb"))?.at[0];

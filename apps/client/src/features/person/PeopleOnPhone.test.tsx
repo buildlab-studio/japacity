@@ -1,4 +1,4 @@
-// The people of this life as the phone shows them (docs/rules/person.md; world.md R-WORLD-020): the slots on Chats'
+// The people of this life as the phone shows them (docs/rules/person.md; world:nobody-picked-from-list): the slots on Chats'
 // People row, with the invite card behind a tap, and a bond's thread head with its rows, each assertion
 // against the element the phone shows.
 import { content, text } from "@japacity/content";
@@ -54,7 +54,7 @@ function playFirst(game: ReturnType<typeof peopleGame>): void {
 }
 
 describe("the slots on the People row", () => {
-  test("[R-PEOPLE-007] given a new fixed life, when the People row opens, then the partner slot is empty, each sibling and both parents are shown, and the computer ones carry the quiet mark", async () => {
+  test("[person:family-and-partner-slots] given a new fixed life, when the People row opens, then the partner slot is empty, each sibling and both parents are shown, and the computer ones carry the quiet mark", async () => {
     const game = peopleGame();
     playFirst(game);
     await renderWithGame(offline(<PeopleSlots api={null} />), game);
@@ -70,7 +70,7 @@ describe("the slots on the People row", () => {
     expect(order).toEqual(["partner", "sibling-1", "sibling-2", "mother", "father"]);
   });
 
-  test("[R-PEOPLE-007] given the family played by the game, when the People row opens, then the quiet mark stands in one place on every card, beside who the slot is, and no slot is a numbered placeholder", async () => {
+  test("[person:family-and-partner-slots] given the family played by the game, when the People row opens, then the quiet mark stands in one place on every card, beside who the slot is, and no slot is a numbered placeholder", async () => {
     // "Not a player" stands in the same place for a sibling and for a parent, and no slot reads as a numbered
     // placeholder such as "Sibling 2".
     const game = peopleGame();
@@ -86,7 +86,7 @@ describe("the slots on the People row", () => {
     expect(document.querySelector('[data-slot="sibling-1"] [data-slot-title]')!.textContent).toContain(say("ui.people.slot.sibling"));
   });
 
-  test("[R-PEOPLE-047] given computer siblings drawn with the family, then each sibling's card names them from content where the facts tell them apart, and says where they live", async () => {
+  test("[person:computer-siblings-drawn-with-family] given computer siblings drawn with the family, then each sibling's card names them from content where the facts tell them apart, and says where they live", async () => {
     const game = peopleGame();
     playFirst(game);
     const { store } = await renderWithGame(offline(<PeopleSlots api={null} />), game);
@@ -101,7 +101,7 @@ describe("the slots on the People row", () => {
     }
   });
 
-  test("[R-PEOPLE-007] given the parents played by the game, then each is named as the character's mother or father, with she or he, and never with the mark's words as a name", async () => {
+  test("[person:family-and-partner-slots] given the parents played by the game, then each is named as the character's mother or father, with she or he, and never with the mark's words as a name", async () => {
     const game = peopleGame();
     playFirst(game);
     await renderWithGame(offline(<PeopleSlots api={null} />), game);
@@ -119,13 +119,13 @@ describe("the slots on the People row", () => {
     expect(within(mother).getByText(say("ui.people.mark.computer")).textContent).toBe(say("ui.people.mark.computer"));
   });
 
-  test("[R-UNDERTAKING-004] given a bar on sponsoring, then the People row says the month it lifts and who is sponsored", async () => {
+  test("[undertaking:sponsored-arrivals-wait-to-sponsor] given a bar on sponsoring, then the People row says the month it lifts and who is sponsored", async () => {
     const game = peopleGame();
     const view = game.view();
     const shown: PlayerView = { ...view, month: 10, people: { ...view.people, barUntilMonth: 70, sponsoring: { bond: "bond-9", route: "route.ca-spouse", month: 7 } } };
     await renderWithView(offline(<PeopleSlots api={null} />), shown);
     const sponsoring = document.querySelector<HTMLElement>("[data-people-slots] [data-sponsoring]")!;
-    // How long the bar holds and when the promise was made, as months away and ago, never a month number (R-WORLD-002).
+    // How long the bar holds and when the promise was made, as months away and ago, never a month number (world:top-band-is-lively-pill).
     expect(within(sponsoring).getByText(say("ui.people.bar", { when: forMonths(70, 10) }))).toBeDefined();
     expect(forMonths(70, 10)).toBe("for 60 more months");
     expect(within(sponsoring).getByText(say("ui.people.sponsoring", { route: nameOf("route.ca-spouse"), when: "3 months ago" }))).toBeDefined();
@@ -134,7 +134,7 @@ describe("the slots on the People row", () => {
 });
 
 describe("the invite card behind a tap", () => {
-  test("[R-GUIDE-015] given a new life before its early win, then no invite is asked for: no card maker and no sibling invite; after the win, both show", async () => {
+  test("[guide:nothing-asked-before-early-win] given a new life before its early win, then no invite is asked for: no card maker and no sibling invite; after the win, both show", async () => {
     const game = peopleGame();
     playFirst(game);
     const { store } = await renderWithGame(offline(<PeopleSlots api={null} />), game);
@@ -148,7 +148,7 @@ describe("the invite card behind a tap", () => {
     expect(screen.getAllByRole("button", { name: say("ui.people.sibling.invite") }).length).toBeGreaterThan(0);
   });
 
-  test("[R-PAIR-007] given the card maker, when a fill is picked, then the card shows the character's name, the looking line, the game's words and nothing else about the player", async () => {
+  test("[pair:invite-card-contents] given the card maker, when a fill is picked, then the card shows the character's name, the looking line, the game's words and nothing else about the player", async () => {
     const game = peopleGame();
     const { store } = await renderWithGame(offline(<PeopleSlots api={null} />), game);
     act(() => store.setState({ earlyWin: true }));
@@ -162,7 +162,7 @@ describe("the invite card behind a tap", () => {
     expect(face.textContent).not.toMatch(/[₦£$]|@|\d{6,}/);
   });
 
-  test("[R-PEOPLE-010] given the card made and then taken back, then the slot shows the card while it is out and is empty again after", async () => {
+  test("[person:invite-fills-a-slot] given the card made and then taken back, then the slot shows the card while it is out and is empty again after", async () => {
     const game = peopleGame();
     const { authority, store } = await renderWithGame(offline(<PeopleSlots api={null} />), game);
     act(() => store.setState({ earlyWin: true }));
@@ -180,7 +180,7 @@ describe("the invite card behind a tap", () => {
 });
 
 describe("a bond's thread head", () => {
-  test("[R-PEOPLE-004] given a friend's facts with funds only where consent put them, then the head shows the funds, and the floor only as met or not", async () => {
+  test("[person:money-counted-never-moved] given a friend's facts with funds only where consent put them, then the head shows the funds, and the floor only as met or not", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     const view = (await renderWithGame(offline(<Head id={bond} />), game)).store.getState().view!;
@@ -196,7 +196,7 @@ describe("a bond's thread head", () => {
     expect(within(stage).getAllByText(/Earns above the floor/).length).toBeGreaterThan(0);
   });
 
-  test("[R-PEOPLE-016] given a bond with the moments partners need, when the player asks, then the proposal goes to the engine and the answer shows on the head, with marrying and its share next", async () => {
+  test("[person:proposing-a-step] given a bond with the moments partners need, when the player asks, then the proposal goes to the engine and the answer shows on the head, with marrying and its share next", async () => {
     const game = peopleGame(eagerContent());
     const bond = courted(game, TOBI, people.partnerMoments);
     const { authority } = await renderWithGame(offline(<Head id={bond} />), game);
@@ -208,7 +208,7 @@ describe("a bond's thread head", () => {
     expect(within(ask).getByText(say("ui.people.propose.marry-share", { amount: formatMoney(people.weddingShare, "NGN") }))).toBeDefined();
   });
 
-  test("[R-PEOPLE-016] given a computer who says no, then the head says the question waits for the cooldown", async () => {
+  test("[person:proposing-a-step] given a computer who says no, then the head says the question waits for the cooldown", async () => {
     const copy = eagerContent();
     for (const entry of Object.values(copy.person)) entry.behaviour.agreeBp = 0;
     const game = peopleGame(copy);
@@ -223,7 +223,7 @@ describe("a bond's thread head", () => {
     expect(head(bond).textContent).not.toMatch(/month \d+/i);
   });
 
-  test("[R-PEOPLE-016] given a friend's proposal waiting, when the player says yes, then the answer goes with the step; their question is the only ask on the head", async () => {
+  test("[person:proposing-a-step] given a friend's proposal waiting, when the player says yes, then the answer goes with the step; their question is the only ask on the head", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/court", with: bond });
@@ -237,7 +237,7 @@ describe("a bond's thread head", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/answer", bond, step: "partner", yes: true }));
   });
 
-  test("[R-PEOPLE-021] given partners and a route that brings a partner, when the player asks to apply together, then the route and the lead go with the proposal", async () => {
+  test("[person:joint-application-proposed] given partners and a route that brings a partner, when the player asks to apply together, then the route and the lead go with the proposal", async () => {
     const game = peopleGame(eagerContent());
     const bond = partnered(game);
     const view = game.view();
@@ -252,7 +252,7 @@ describe("a bond's thread head", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "people/propose", bond, step: "joint", route: "route.uk-skilled", lead: "them" }));
   });
 
-  test("[R-PEOPLE-037] given each stage, when the player goes to end it, then the standing and wellbeing it costs are said before, with more while a joint application is applying", async () => {
+  test("[person:ender-pays-in-standing] given each stage, when the player goes to end it, then the standing and wellbeing it costs are said before, with more while a joint application is applying", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     const view = game.view();
@@ -277,7 +277,7 @@ describe("a bond's thread head", () => {
     }
   });
 
-  test("[R-PEOPLE-044] given the stand-in on for a friend, then the head says so and ending it costs nobody anything", async () => {
+  test("[person:stand-in-acts-narrowly] given the stand-in on for a friend, then the head says so and ending it costs nobody anything", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/stand-in", pair: "pair-1", stage: "on" }, "authority");
@@ -288,7 +288,7 @@ describe("a bond's thread head", () => {
     expect(within(end).getByText(say("ui.people.end.absence"))).toBeDefined();
   });
 
-  test("[R-PEOPLE-043] given a friend quiet for a week, then the head warns that a stand-in takes over at two weeks", async () => {
+  test("[person:stand-in-after-absence] given a friend quiet for a week, then the head warns that a stand-in takes over at two weeks", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/stand-in", pair: "pair-1", stage: "warned" }, "authority");
@@ -296,7 +296,7 @@ describe("a bond's thread head", () => {
     expect(within(row(bond, "stage")).getByText(say("ui.people.stand-in.warned"))).toBeDefined();
   });
 
-  test("[R-PEOPLE-041] given a partner and someone else courted, then the courted head warns that people talk, at the tuning's chance", async () => {
+  test("[person:gossip-when-two-timing] given a partner and someone else courted, then the courted head warns that people talk, at the tuning's chance", async () => {
     const game = peopleGame(eagerContent());
     partnered(game);
     const other = courted(game, "person.amaka-nurse");
@@ -304,7 +304,7 @@ describe("a bond's thread head", () => {
     expect(within(row(other, "stage")).getByText(say("ui.people.gossip", { chance: formatBp(people.gossipBp) }))).toBeDefined();
   });
 
-  test("[R-PEOPLE-042] given a computer partner with no time together for a month short of its patience, then the head warns it will stop waiting; with time together it only states the rule", async () => {
+  test("[person:computer-partner-drifts] given a computer partner with no time together for a month short of its patience, then the head warns it will stop waiting; with time together it only states the rule", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
     const patience = content.person[TOBI]!.behaviour.patienceMonths!;
@@ -320,7 +320,7 @@ describe("a bond's thread head", () => {
     expect(within(row(bond, "stage")).getByText(say("ui.people.drift.rule", { name, patience }))).toBeDefined();
   });
 
-  test("[R-INTERVIEW-005] given an interview open, then the bond's moments are hidden and the head says the player answers from memory", async () => {
+  test("[interview:one-question-at-a-time] given an interview open, then the bond's moments are hidden and the head says the player answers from memory", async () => {
     const game = interviewGame();
     const bond = Object.keys(game.state.people.bonds).find((id) => game.state.people.bonds[id]!.with.kind === "player")!;
     await renderWithGame(offline(<Head id={bond} />), game);
@@ -329,7 +329,7 @@ describe("a bond's thread head", () => {
     expect(line.textContent).not.toContain(togetherWords(0));
   });
 
-  test("[R-PEOPLE-039] given a bond ended, then its head is read only with no choices on it, and says when the two may start again", async () => {
+  test("[person:ended-bond-record-kept] given a bond ended, then its head is read only with no choices on it, and says when the two may start again", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 1);
     game.accept({ type: "people/end", bond });

@@ -1,4 +1,4 @@
-// "Make it yours" kept in sight (prologue.md R-PROLOGUE-013, the door's first screen with Make it yours as a disclosure),
+// "Make it yours" kept in sight (prologue:front-door-three-screens, the door's first screen with Make it yours as a disclosure),
 // since an expanded section can open below the fold: opened, the section is brought into view once its
 // rows stand, and each colour picked brings the next part to choose into view, smoothly, or at once under reduced motion.
 import { act, fireEvent, render, screen } from "@testing-library/react";
@@ -57,7 +57,7 @@ const marks = (): string[] =>
 const PRINTED: OwnColours = { skin: "skin4", hair: "hair", top: "indigo", fabric: "ankara" };
 
 describe("Make it yours in view", () => {
-  test("[R-PROLOGUE-013] given Make it yours shut, when it is opened and its rows stand, then its section is brought into view smoothly, once", () => {
+  test("[prologue:front-door-three-screens] given Make it yours shut, when it is opened and its rows stand, then its section is brought into view smoothly, once", () => {
     stubReducedMotion(false);
     door();
     openYours();
@@ -71,7 +71,7 @@ describe("Make it yours in view", () => {
     expect(marks()).toEqual(["yours"]);
   });
 
-  test("[R-PROLOGUE-013] given the figure already read, when Make it yours is opened, shut and opened again, then each opening brings it into view", () => {
+  test("[prologue:front-door-three-screens] given the figure already read, when Make it yours is opened, shut and opened again, then each opening brings it into view", () => {
     stubReducedMotion(false);
     door();
     act(() => reportOwn(lookShown(), PRINTED));
@@ -81,7 +81,7 @@ describe("Make it yours in view", () => {
     expect(marks()).toEqual(["yours", "yours"]);
   });
 
-  test("[R-PROLOGUE-013] given reduced motion, when Make it yours is opened and a colour picked, then each is brought into view at once, with no smooth scroll", () => {
+  test("[prologue:front-door-three-screens] given reduced motion, when Make it yours is opened and a colour picked, then each is brought into view at once, with no smooth scroll", () => {
     stubReducedMotion(true);
     door();
     act(() => reportOwn(lookShown(), PRINTED));
@@ -94,7 +94,7 @@ describe("Make it yours in view", () => {
     ]);
   });
 
-  test("[R-PROLOGUE-013] given Make it yours open, when a colour is picked in each part in turn, then the next part to choose is brought into view, and the last brings nothing", () => {
+  test("[prologue:front-door-three-screens] given Make it yours open, when a colour is picked in each part in turn, then the next part to choose is brought into view, and the last brings nothing", () => {
     stubReducedMotion(false);
     door();
     act(() => reportOwn(lookShown(), PRINTED));
@@ -111,7 +111,7 @@ describe("Make it yours in view", () => {
     ]);
   });
 
-  test("[R-PROLOGUE-013] given a look with no hair to read, when the skin is picked, then the top, the next part shown, is brought into view", () => {
+  test("[prologue:front-door-three-screens] given a look with no hair to read, when the skin is picked, then the top, the next part shown, is brought into view", () => {
     stubReducedMotion(false);
     door();
     act(() => reportOwn(lookShown(), { ...PRINTED, hair: null }));

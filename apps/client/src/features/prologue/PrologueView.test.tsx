@@ -70,7 +70,7 @@ async function walk(seed: string, pick: Pick): Promise<{ steps: string[]; greyed
 }
 
 describe("the prologue screen", () => {
-  test("[R-PROLOGUE-008] given a new life from sixteen, when it opens, then the opening card shows with its one answer and nothing drawn yet", async () => {
+  test("[prologue:view-shows-step-card] given a new life from sixteen, when it opens, then the opening card shows with its one answer and nothing drawn yet", async () => {
     const game = newGame(PROLOGUE);
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
@@ -86,7 +86,7 @@ describe("the prologue screen", () => {
     expect(screen.getByText(say("ui.profile.age", { years: 16 }))).toBeDefined();
   });
 
-  test("[R-PROLOGUE-008] given a life from sixteen, when every card is answered with the first answer open, then each card, answer and draw shows in words, and the handover opens month 1", async () => {
+  test("[prologue:view-shows-step-card] given a life from sixteen, when every card is answered with the first answer open, then each card, answer and draw shows in words, and the handover opens month 1", async () => {
     const { steps, game } = await walk("prologue-first", (allowed) => allowed[0] ?? "");
     expect(steps[0]).toBe("draw");
     expect(steps.at(-1)).toBe("home");
@@ -94,25 +94,25 @@ describe("the prologue screen", () => {
 
     expect(await screen.findByRole("heading", { name: words("line.prologue.closed") })).toBeDefined();
     fireEvent.click(screen.getByRole("button", { name: say("ui.prologue.start", { month: 1 }) }));
-    // The world opens on month 1 (R-WORLD-001): its band, with no month number on it (R-WORLD-002).
+    // The world opens on month 1 (world:world-fills-the-screen): its band, with no month number on it (world:top-band-is-lively-pill).
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull());
     expect(playerMonth(game.view().month)).toBe(1);
   });
 
-  test("[R-PROLOGUE-008] given a life from sixteen, when every card is answered with the last answer open, then a second path is walked to the handover", async () => {
+  test("[prologue:view-shows-step-card] given a life from sixteen, when every card is answered with the last answer open, then a second path is walked to the handover", async () => {
     const { steps } = await walk("prologue-last", (allowed) => allowed.at(-1) ?? "");
     expect(steps).toContain("draw");
     expect(steps.at(-1)).toBe("home");
     expect(await screen.findByRole("heading", { name: words("line.prologue.closed") })).toBeDefined();
   });
 
-  test("[R-PROLOGUE-003] given cards with answers whose requirements do not hold, then each is greyed with its reason and cannot be pressed", async () => {
+  test("[prologue:steps-offer-legal-answers] given cards with answers whose requirements do not hold, then each is greyed with its reason and cannot be pressed", async () => {
     const { greyed } = await walk("prologue-first", (allowed) => allowed[0] ?? "");
     // The walk checks each greyed answer's reason; this life must have met at least one.
     expect(greyed.length).toBeGreaterThan(0);
   });
 
-  test("[R-PROLOGUE-002] given a draw, then it reads as sentences: the family's means as words at each edge, never a bare figure", () => {
+  test("[prologue:family-draw-on-first-answer] given a draw, then it reads as sentences: the family's means as words at each edge, never a bare figure", () => {
     const strained = content.tuning.prologue.waecStrain.under;
     // A private university is open from these means: the family is comfortable.
     const privately = content.prologue.university?.answers.find((answer) => answer.id === "private")?.requires[0];

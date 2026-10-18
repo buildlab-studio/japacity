@@ -1,4 +1,4 @@
-// The client keeps under the server's command limit (docs/rules/server.md R-SERVER-025, prologue.md R-PROLOGUE-010):
+// The client keeps under the server's command limit (server:per-account-rate-limits, prologue:archetype-presets-answers):
 // a new life online that sent its prologue's presets as fast as the replies came would have the eleventh in ten
 // seconds refused 429, and the band would never come.
 import { describe, expect, test } from "vitest";
@@ -56,7 +56,7 @@ async function begunTimes(count: number): Promise<number[]> {
 }
 
 describe("the client keeps under the command limit", () => {
-  test("[R-SERVER-025] given the pacer, when it is read, then it lets eight leave in any ten seconds, two fewer than the server takes, and the preset's step spreads the eight evenly", () => {
+  test("[server:per-account-rate-limits] given the pacer, when it is read, then it lets eight leave in any ten seconds, two fewer than the server takes, and the preset's step spreads the eight evenly", () => {
     expect(COMMANDS_PER_WINDOW).toBe(8);
     expect(WINDOW_MS).toBe(10_000);
     expect(COMMANDS_PER_WINDOW).toBeLessThan(SERVER_PER_10S);
@@ -67,7 +67,7 @@ describe("the client keeps under the command limit", () => {
     expect(waitBefore([0, 1, 2, 3, 4, 5, 6, 7], WINDOW_MS)).toBe(0);
   });
 
-  test("[R-SERVER-025] given the pacer on its own clock, when twenty commands are taken back to back, then the first eight leave at once and no ten seconds ever hold more than eight", async () => {
+  test("[server:per-account-rate-limits] given the pacer on its own clock, when twenty commands are taken back to back, then the first eight leave at once and no ten seconds ever hold more than eight", async () => {
     let time = 0;
     const left: number[] = [];
     const pace = pacer(
@@ -85,7 +85,7 @@ describe("the client keeps under the command limit", () => {
     expect(busiestWindow(left)).toBe(COMMANDS_PER_WINDOW);
   });
 
-  test("[R-SERVER-025] given the remote authority, when a life is made and twenty commands are sent as fast as the replies come, then every request on the command limit leaves at most eight in any ten seconds, waiting rather than refused", async () => {
+  test("[server:per-account-rate-limits] given the remote authority, when a life is made and twenty commands are sent as fast as the replies come, then every request on the command limit leaves at most eight in any ten seconds, waiting rather than refused", async () => {
     const server = fakeServer();
     let time = 0;
     const posted: number[] = [];
@@ -117,7 +117,7 @@ describe("the client keeps under the command limit", () => {
     expect(busiestWindow(posted)).toBeLessThanOrEqual(COMMANDS_PER_WINDOW);
   });
 
-  test("[R-PROLOGUE-010] [R-SERVER-025] given every archetype, home and age over many seeds, when its preset is played online as the page plays it, then the longest preset, with the life's own POST before it, never puts more than eight commands in any ten seconds, under the server's ten", { timeout: 30_000 }, async () => {
+  test("[prologue:archetype-presets-answers] [server:per-account-rate-limits] given every archetype, home and age over many seeds, when its preset is played online as the page plays it, then the longest preset, with the life's own POST before it, never puts more than eight commands in any ten seconds, under the server's ten", { timeout: 30_000 }, async () => {
     let longest = 0;
     for (const base of ARCHETYPES) {
       for (const home of homesFor(base)) {

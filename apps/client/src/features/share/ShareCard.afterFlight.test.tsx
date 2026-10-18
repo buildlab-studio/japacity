@@ -1,4 +1,4 @@
-// The cards after the flight (docs/rules/share.md R-SHARE-004): the japacity
+// The cards after the flight (share:card-contents): the japacity
 // figure is how ready the move is, so once flown no card carries it. Ada's recorded life, landed in
 // London, hunts the shop job twice, takes it and works a month: the first pay card abroad comes with
 // no "100% Ready to go", and speaks of the landing instead.
@@ -33,7 +33,7 @@ function firstPayCard(): Card {
 }
 
 describe("the cards after the flight", () => {
-  test("[R-SHARE-004] given Ada's first pay abroad, when its card is read, then the japacity figure is gone though the view still carries it, and the card speaks of the landing", () => {
+  test("[share:card-contents] given Ada's first pay abroad, when its card is read, then the japacity figure is gone though the view still carries it, and the card speaks of the landing", () => {
     const card = firstPayCard();
     expect(card.percent).toBe(100);
     const face = cardFace(card, "scenario.ada");
@@ -43,7 +43,7 @@ describe("the cards after the flight", () => {
     expect(face.route).not.toBeNull();
   });
 
-  test("[R-SHARE-004] [R-SHARE-005] given the first pay card on screen and drawn, then no percent and no Ready to go show, and no sum of money", () => {
+  test("[share:card-contents] [share:card-carries-no-money] given the first pay card on screen and drawn, then no percent and no Ready to go show, and no sum of money", () => {
     const card = firstPayCard();
     const { container } = render(<ShareCardFace card={card} scenario="scenario.ada" />);
     expect(container.textContent).not.toContain("%");
@@ -56,14 +56,14 @@ describe("the cards after the flight", () => {
     expect(roles).toContain("body");
   });
 
-  test("[R-SHARE-004] given a card for a moment after the flight, a status secured, the December visit, the landing's chapter or the one after, then none carries the japacity figure", () => {
+  test("[share:card-contents] given a card for a moment after the flight, a status secured, the December visit, the landing's chapter or the one after, then none carries the japacity figure", () => {
     const card = firstPayCard();
     for (const after of [{ kind: "secured" }, { kind: "december" }, { kind: "chapter", chapter: "chapter.landing" }, { kind: "chapter", chapter: "chapter.secure" }] as const) {
       expect([after.kind, cardFace({ ...card, ...after }, "scenario.ada").percent]).toEqual([after.kind, null]);
     }
   });
 
-  test("[R-SHARE-004] given a moment before the flight or on its day, the visa granted, a chapter at home, the send-off, a draw won, then the japacity figure stays", () => {
+  test("[share:card-contents] given a moment before the flight or on its day, the visa granted, a chapter at home, the send-off, a draw won, then the japacity figure stays", () => {
     const card = firstPayCard();
     for (const before of [{ kind: "granted" }, { kind: "chapter", chapter: "chapter.build-the-file" }, { kind: "send-off" }, { kind: "draw-win" }] as const) {
       expect([before.kind, cardFace({ ...card, chapter: null, ...before }, "scenario.ada").percent]).toEqual([before.kind, 100]);

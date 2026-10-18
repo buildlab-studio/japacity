@@ -1,4 +1,4 @@
-// Lagos as a painted city (docs/rules/world.md R-WORLD-015, R-WORLD-036): the drawing, the districts, the strip and the
+// Lagos as a painted city (world:map-is-painted-lagos, world:lantern-canoe-on-map): the drawing, the districts, the strip and the
 // landmarks of geometry.ts, districts.ts and fit.ts gathered into one city, and the context every part of the folding map
 // reads its city from. Lagos is the context's own value, so the map draws Lagos unless it is handed another city.
 import { createContext, use } from "react";

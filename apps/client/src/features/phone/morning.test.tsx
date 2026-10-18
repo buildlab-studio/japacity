@@ -1,4 +1,4 @@
-// The morning on the lock screen (docs/rules/clock.md R-CLOCK-032; docs/design/12-the-lived-month-and-the-files.md,
+// The morning on the lock screen (clock:envelopes-show-real-waits; docs/design/12-the-lived-month-and-the-files.md,
 // section 2, point 5): a result real life makes you wait for is sealed until seven the next morning in Lagos. While it
 // is sealed, Papers says when it comes; once its morning has come the store learns it from the authority, and the lock
 // screen tells it first, as a notice from its office, once. Its line joins the month's lines.
@@ -66,7 +66,7 @@ beforeEach(() => {
 });
 
 describe("the result sealed until the morning", () => {
-  test("[R-CLOCK-032] given the English test sat and the month ended in the evening, when Papers opens, then the result's card says it comes tomorrow at seven and names no band", async () => {
+  test("[clock:envelopes-show-real-waits] given the English test sat and the month ended in the evening, when Papers opens, then the result's card says it comes tomorrow at seven and names no band", async () => {
     const at = { now: lagos(11, 21) };
     const store = await storeOver(await testSat(at));
     expect(english(store.getState().view)).toMatchObject({ state: "pending", readyMonth: store.getState().view?.month });
@@ -87,7 +87,7 @@ describe("the result sealed until the morning", () => {
 });
 
 describe("the morning on the lock screen", () => {
-  test("[R-CLOCK-032] given the English result's morning has come, when the store loads and the phone opens, then the test centre's notice shows first with the band, once, and its line joins the month's lines", async () => {
+  test("[clock:envelopes-show-real-waits] given the English result's morning has come, when the store loads and the phone opens, then the test centre's notice shows first with the band, once, and its line joins the month's lines", async () => {
     const at = { now: lagos(11, 21) };
     const authority = await testSat(at);
     at.now = lagos(12, 7, 1);

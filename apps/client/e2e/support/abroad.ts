@@ -1,4 +1,4 @@
-// A life landed abroad in a real browser (docs/rules/world.md R-WORLD-038, R-WORLD-039): no recorded life flies
+// A life landed abroad in a real browser (world:painted-maps-abroad, world:ride-abroad-and-workplace): no recorded life flies
 // to Dubai or Castel Volturno yet, so the life is played here by the sweep's own simulated player on the real content, to
 // the country and a little past it, and kept as the save the browser opens, as the recorded lives are made
 // (tools/goldens/record-lives.ts). Then the map, the ride sheet and the things are used as a player would.
@@ -56,7 +56,7 @@ export async function clear(page: Page): Promise<void> {
   for (let round = 0; round < 3; round += 1) {
     const done = page.getByRole("dialog").getByRole("button", { name: "Done", exact: true });
     if (await done.first().isVisible().catch(() => false)) await done.first().click();
-    // A moment's share card over the world (the first pay abroad, R-SHARE-001): closed, or put away by its scrim.
+    // A moment's share card over the world (the first pay abroad, share:cards-due-at-set-moments): closed, or put away by its scrim.
     const share = page.getByRole("dialog").filter({ has: page.locator("[data-share-card]") }).first();
     if (await share.isVisible().catch(() => false)) {
       const close = share.getByRole("button", { name: "Close", exact: true });

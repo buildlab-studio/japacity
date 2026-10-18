@@ -48,7 +48,7 @@ const NOTIFY = "/api/notify";
 const SUBSCRIBE = "/api/notify/subscribe";
 const KEY = "/api/notify/key";
 
-/** Every call through the one request function (R-ENGINE-015): its clock, same origin, a wall or no answer sorted by kind. */
+/** Every call through the one request function (engine:browser-authority-for-dev-only): its clock, same origin, a wall or no answer sorted by kind. */
 export function httpNotifyApi(baseUrl: string, fetch: Fetch = pageFetch, wall: WallGuard = pageWall): NotifyApi {
   const http = api({ baseUrl, fetch, wall });
   async function call<T extends { ok: true }>(path: string, method: "GET" | "POST" | "PUT", body?: NotifySettingRequest | SubscribeRequest): Promise<T | null> {

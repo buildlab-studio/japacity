@@ -1,4 +1,4 @@
-// Deira rebuilt as one souk frontage (city.md place.deira, world.md R-WORLD-011): the gold shops' and
+// Deira rebuilt as one souk frontage (city.md place.deira, world:place-is-one-screen): the gold shops' and
 // the cafeteria's arcades across the road with the cafe's table under the colonnade, and on the near
 // pavement the spice stall, a taxi and the corner where the community meets. It is the hub in Dubai.
 import { content } from "@japacity/content";
@@ -27,19 +27,19 @@ const thing = (id: string) => thingIn(stage.things, id);
 describe("Deira", () => {
   frontageTests(raw, ID);
 
-  test("[R-CITY-013] given the hub in Dubai, when its file is read, then the entry is the country's hub and the file is not the first download", () => {
+  test("[city:ojuelegba-is-the-hub] given the hub in Dubai, when its file is read, then the entry is the country's hub and the file is not the first download", () => {
     expect(entry.hub).toBe(true);
     expect(file.hub).toBe(false);
   });
 
-  test("[R-WORLD-005] given the corner, when its act is read, then the community in Dubai opens as a sheet under its own words", () => {
+  test("[world:things-are-tappable-models] given the corner, when its act is read, then the community in Dubai opens as a sheet under its own words", () => {
     const corner = thing("corner");
     expect(corner.acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.community-uae", "Community"]]);
     expect(stagedAt("activity.community-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
-  // The souq's shopping is at Naif (R-STREET-005), so Deira's spice stall is looked at only.
-  test("[R-WORLD-005] [R-STREET-005] given the souk's other things, when they are read, then the gold shop and the spice stall are looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
+  // The souq's shopping is at Naif (streets:street-shopping-abroad), so Deira's spice stall is looked at only.
+  test("[world:things-are-tappable-models] [streets:street-shopping-abroad] given the souk's other things, when they are read, then the gold shop and the spice stall are looked at, the cafe's chairs sat on with the find beside them, and the taxi opens the ride sheet", () => {
     expect(thing("gold-shop").acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(thing("spice-stall").acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(thing("cafe").acts.map((act) => [act.kind, cityWords(act.label)])).toEqual([
@@ -50,16 +50,16 @@ describe("Deira", () => {
     expect(thing("taxi").file).toBe("places/deira/veh_taxi-dubai.glb");
   });
 
-  // The souq stands at Naif (R-STREET-005, R-STREET-014), so the stall here does not open the street shopping, which
+  // The souq stands at Naif (streets:street-shopping-abroad, streets:dubai-life-by-hand), so the stall here does not open the street shopping, which
   // Deira does not stage.
-  test("[R-STREET-005] [R-STREET-014] given the spice stall, when its acts are read, then it is looked at with words of its own, and the street shopping is staged at Naif for Dubai, not here", () => {
+  test("[streets:street-shopping-abroad] [streets:dubai-life-by-hand] given the spice stall, when its acts are read, then it is looked at with words of its own, and the street shopping is staged at Naif for Dubai, not here", () => {
     expect(thing("spice-stall").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([["plain", null]]);
     expect(cityWords(thing("spice-stall").acts[0]?.label ?? "")).not.toBe(thing("spice-stall").acts[0]?.label);
     expect(entry.stages).not.toContain("activity.street-shopping-uae");
     expect(stagedAt("activity.street-shopping-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe("place.naif");
   });
 
-  test("[R-STREET-006] given the cafe, when the find in Dubai is open and then not, then its second act opens the find's sheet only while it is open, and Sit always stays", () => {
+  test("[streets:street-finds-abroad] given the cafe, when the find in Dubai is open and then not, then its second act opens the find's sheet only while it is open, and Sit always stays", () => {
     const things = stage.things ?? [];
     const staged = new Set<string>(entry.stages);
     const cafe = (open: string[]) => thingsNow(things, stagedNow(new Set(), staged, new Set(open), null)).find((candidate) => candidate.id === "cafe");
@@ -71,7 +71,7 @@ describe("Deira", () => {
     expect(stagedAt("offer.street-find-uae", { where: "abroad", country: "country.uae" }, Object.values(content.place))).toBe(ID);
   });
 
-  test("[R-CITY-024] given the arcades across the road, when their boards are read, then the gold shops stand under at least two gold boards and the cafe under the cafeteria's", () => {
+  test("[city:place-words-are-text-keys] given the arcades across the road, when their boards are read, then the gold shops stand under at least two gold boards and the cafe under the cafeteria's", () => {
     const words = stage.models.flatMap((model) => (model.signs ?? []).flat()).map(wordsOf);
     expect(words.filter((said) => said.includes("GOLD")).length).toBeGreaterThanOrEqual(2);
     const lettered = stage.models.find((model) => model.file.endsWith("bld_deira-arcade_b.glb"));
@@ -84,7 +84,7 @@ describe("Deira", () => {
   });
 });
 
-// Work in Dubai (R-CITY-010, design page 15 section 3): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
+// Work in Dubai (city:places-stage-their-acts, design page 15 section 3): the typing centre that does the labour papers opens the hunt, and the UAE's two jobs are staged at
 // the site across the creek, at the guard's post and the cleaner's trolley. Both come by the agent's contract and the
 // hunt never asks for them (activity.abroad.data.ts: no hire chance), so each thing there is looked at, and its job act
 // opens only for a job the hunt can ask for. Deira's labour bus is looked at; the ride to the site is the site's own.
@@ -97,7 +97,7 @@ describe("Deira's jobs", () => {
     return found;
   };
 
-  test("[R-WORLD-005] [R-CITY-010] given the UAE's jobs, when Deira and the site are read, then the typing centre opens the hunt, Deira's site bus is looked at, and the guard's and the cleaner's jobs are at the site's post and trolley, each staged there for the UAE and both looked at", () => {
+  test("[world:things-are-tappable-models] [city:places-stage-their-acts] given the UAE's jobs, when Deira and the site are read, then the typing centre opens the hunt, Deira's site bus is looked at, and the guard's and the cleaner's jobs are at the site's post and trolley, each staged there for the UAE and both looked at", () => {
     expect(thing("agency").acts.map((act) => [act.kind, act.stages ?? null])).toEqual([
       ["sheet", "activity.job-hunt"],
       ["plain", null],
@@ -119,7 +119,7 @@ describe("Deira's jobs", () => {
     expect(wordsOf(typing ?? "")).toContain("TYPING CENTRE");
   });
 
-  test("[R-WORLD-005] given a Gulf job started by the agent's contract, when the hunt cannot ask for it, then its act does not show at the site and the thing keeps its look", () => {
+  test("[world:things-are-tappable-models] given a Gulf job started by the agent's contract, when the hunt cannot ask for it, then its act does not show at the site and the thing keeps its look", () => {
     for (const job of ["activity.job-gulf-guard", "activity.job-gulf-cleaner"] as const) expect(content.activity[job]?.hireBp).toBeNull();
     const things = siteStaged.stage.things ?? [];
     const now = thingsNow(things, stagedNow(new Set(), new Set(siteStaged.entry.stages), new Set(), null));
@@ -132,7 +132,7 @@ describe("Deira's jobs", () => {
 
 // The dhow at the creek: the answer is followed by a line in the find's own words.
 describe("the find by the creek", () => {
-  test("[R-WORLD-006] given the find answered with Stay and watch, when the taken line is told, then it is said in the find's own words", () => {
+  test("[world:one-action-one-sheet] given the find answered with Stay and watch, when the taken line is told, then it is said in the find's own words", () => {
     const [said] = tidyLines([{ key: "line.offer.taken", params: { offer: "offer.street-find-uae", choice: "look" }, tone: "plain", attention: false, counts: [] }]);
     expect(said?.key).toBe("offer.street-find-uae.said.look");
     expect(words(said?.key ?? "", said?.params ?? {})).toBe("You watch them load until the light goes. One of the crew hands you sweet tea.");

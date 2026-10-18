@@ -1,4 +1,4 @@
-// The map and the ride in a real browser at phone size (docs/rules/world.md R-WORLD-015 to 017): the
+// The map and the ride in a real browser at phone size (world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares): the
 // painted map opens folded on the card where the player stands, the strip unfolds it into the whole
 // map, a pin there folds it back on its card with the stop picked, the route runs from the player's
 // stop to the stop, the ride sheet rises, and the ride plays and lands in the place. With MAP_SHOTS
@@ -56,13 +56,13 @@ async function startLife(page: Page): Promise<void> {
     await page.waitForTimeout(250);
   }
   await page.waitForSelector("[data-band]", { timeout: 30_000 });
-  // The first brief's card stands on the drawn place until its Let's go (R-CHAPTER-011), so the
+  // The first brief's card stands on the drawn place until its Let's go (chapter:first-chapter-mission-card), so the
   // place is waited for and the card passed before any thumb is tapped.
   await page.waitForFunction(() => (window as unknown as { __city?: CityProbe }).__city?.ready === true, null, { timeout: 90_000 });
   await passCards(page);
 }
 
-test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map opens, unfolds and a pin is picked and ridden to, then it opens folded on the player's card, the pin folds it back on its own card with the route from the player's stop, and the ride lands there", async ({ page }, info) => {
+test("[world:map-is-painted-lagos] [world:ride-sheet-shows-fares] given a life at home on a phone, when the map opens, unfolds and a pin is picked and ridden to, then it opens folded on the player's card, the pin folds it back on its own card with the route from the player's stop, and the ride lands there", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The map is measured at phone size");
   test.setTimeout(180_000);
   await startLife(page);
@@ -108,7 +108,7 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await shot(page, "05-stop-picked");
 
   // The ride: a short scene with its band and Skip, then the place opens with its name on the band. The corner does
-  // not tell it: the corner holds only the player's own act's answer (R-WORLD-026).
+  // not tell it: the corner holds only the player's own act's answer (world:street-talk-budget).
   await page.locator('[data-way="danfo"]').click();
   await page.locator("[data-ride-main]").click();
   await expect(page.locator("[data-ride]")).toBeVisible();
@@ -117,12 +117,12 @@ test("[R-WORLD-015] [R-WORLD-017] given a life at home on a phone, when the map 
   await shot(page, "08-ride");
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
   await page.waitForFunction((id) => (window as unknown as { __city?: CityProbe }).__city?.place === id, target, { timeout: 30_000 });
-  // The band names the place small (R-WORLD-002), by its short name where content gives one.
+  // The band names the place small (world:top-band-is-lively-pill), by its short name where content gives one.
   await expect(page.locator("[data-band] h2")).toHaveText(text[`${target}.short`] ?? text[`${target}.name`] ?? target);
   await shot(page, "09-arrived");
 });
 
-test("[R-WORLD-015] given the map folded on a phone, when the strip is dragged down and a district of the open map is tapped, then the map opens and folds back on that district's card, and the cards swipe sideways", async ({ page }, info) => {
+test("[world:map-is-painted-lagos] given the map folded on a phone, when the strip is dragged down and a district of the open map is tapped, then the map opens and folds back on that district's card, and the cards swipe sideways", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The fold is a phone's");
   test.setTimeout(150_000);
   await startLife(page);
@@ -164,7 +164,7 @@ test("[R-WORLD-015] given the map folded on a phone, when the strip is dragged d
   await page.waitForFunction(() => window.__map?.card === "lekki", null, { timeout: 20_000 });
 });
 
-test("[R-WORLD-032] given a life at home on a phone, when a danfo ride plays, then it cuts by itself from outside at the stop to above, the window and the seat, each once and in order, with no view switch", async ({ page }, info) => {
+test("[world:ride-cuts-between-angles] given a life at home on a phone, when a danfo ride plays, then it cuts by itself from outside at the stop to above, the window and the seat, each once and in order, with no view switch", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The ride is watched at phone size");
   test.setTimeout(180_000);
   await startLife(page);
@@ -207,7 +207,7 @@ test("[R-WORLD-032] given a life at home on a phone, when a danfo ride plays, th
   await expect(page.locator("[data-ride]")).toBeHidden({ timeout: 8000 });
 });
 
-test("[R-WORLD-016] given the map open on a phone, when a locked country in the dropdown is tapped, then it shakes and stays shut", async ({ page }, info) => {
+test("[world:one-country-at-a-time] given the map open on a phone, when a locked country in the dropdown is tapped, then it shakes and stays shut", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The map is shown at phone size");
   test.setTimeout(120_000);
   await startLife(page);
@@ -226,7 +226,7 @@ test.describe("on a Pixel 7", () => {
   const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
   test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch });
 
-  test("[R-WORLD-016] given the whole map open on a Pixel 7, when the country menu at its top is opened, then its list opens downward and every country is on the screen and can be tapped; folded, the menu at the foot opens upward, every country on the screen", async ({ page }, info) => {
+  test("[world:one-country-at-a-time] given the whole map open on a Pixel 7, when the country menu at its top is opened, then its list opens downward and every country is on the screen and can be tapped; folded, the menu at the foot opens upward, every country on the screen", async ({ page }, info) => {
     test.skip(info.project.name !== "Pixel 7", "The map is shown at phone size");
     test.setTimeout(120_000);
     await startLife(page);

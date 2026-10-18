@@ -8,7 +8,7 @@ import type { ModeSettings } from "../../../shared/scene/mode";
 import type { PlaceFile } from "../../../shared/scene/placeFile";
 import type { Walker } from "../../../shared/scene/walk";
 
-/** What the screen makes of a tap: a person, a shopfront, a thing chosen, or what an act of a thing does. A tap on the player's own figure makes nothing (R-WORLD-005). */
+/** What the screen makes of a tap: a person, a shopfront, a thing chosen, or what an act of a thing does. A tap on the player's own figure makes nothing (world:things-are-tappable-models). */
 export type Picked =
   | { kind: "person"; slot: number }
   | { kind: "model"; file: string; signs: string[] }
@@ -20,11 +20,11 @@ export type Picked =
   | { kind: "inside" }
   | { kind: "out" };
 
-/** What the scene reports after a tap: the contract's pick (world.md R-WORLD-005), or a shopfront with its signs. */
+/** What the scene reports after a tap: the contract's pick (world:things-are-tappable-models), or a shopfront with its signs. */
 export type ScenePick = WorldPicked | { kind: "model"; file: string; signs: string[] };
 
 export interface SceneProps {
-  /** True while the opening words stand over the world: the thing labels hide under them (R-WORLD-001). */
+  /** True while the opening words stand over the world: the thing labels hide under them (world:world-fills-the-screen). */
   labelsHidden?: boolean;
   place: string;
   file: PlaceFile;
@@ -34,29 +34,29 @@ export interface SceneProps {
   settings: ModeSettings;
   /** The city is in front of the panels and takes taps; behind them it only idles. */
   looking: boolean;
-  /** Sign words by text key (R-CITY-024). */
+  /** Sign words by text key (city:place-words-are-text-keys). */
   text: (key: string) => string | undefined;
   onProgress: (loaded: number, total: number) => void;
   onFailed: (why: string) => void;
   onPick: (picked: ScenePick) => void;
   onFrame: (frameMs: number) => void;
-  /** The world mode: the raised camera of world.md R-WORLD-009, the place's things and their acts. */
+  /** The world mode: the raised camera of world:camera-always-raised, the place's things and their acts. */
   overview?: boolean;
   /** The world mode: the street camera, the hold-to-plan view, routed walks and strolling people (tuning.city.roam). */
   roam?: boolean;
-  /** The world mode: the things the player can tap here, each with the acts the view allows now (R-WORLD-005). */
+  /** The world mode: the things the player can tap here, each with the acts the view allows now (world:things-are-tappable-models). */
   things?: readonly Thing[];
-  /** The world mode: a state its name carries by thing id, while an act of it carries on in the plan ("Ongoing"; R-WORLD-005). */
+  /** The world mode: a state its name carries by thing id, while an act of it carries on in the plan ("Ongoing"; world:things-are-tappable-models). */
   marks?: Readonly<Record<string, string>>;
-  /** The world mode: the things whose name shows over their mark: a person holding an ask or the nudge's target (R-WORLD-005). */
+  /** The world mode: the things whose name shows over their mark: a person holding an ask or the nudge's target (world:things-are-tappable-models). */
   named?: readonly string[];
-  /** The world mode: the thing the nudge points at, whose mark pulses gently (R-WORLD-003). */
+  /** The world mode: the thing the nudge points at, whose mark pulses gently (world:nudge-says-one-thing). */
   nudged?: string | null;
-  /** The world mode: true for the two seconds every name shows on a place's first entry in a life, then fades (R-WORLD-005). */
+  /** The world mode: true for the two seconds every name shows on a place's first entry in a life, then fades (world:things-are-tappable-models). */
   teaching?: boolean;
   /**
    * The world mode: an act chosen on a button of the thing's fan, each tap a new `at`: the character walks to the thing and
-   * the act follows on arrival, a second tap ending the walk at once (R-WORLD-010).
+   * the act follows on arrival, a second tap ending the walk at once (world:nothing-roams).
    */
   actOn?: { thing: Thing; act: Act; at: number } | null;
   /** The world mode: a tap on open ground, which puts away the thing's fan. */
@@ -73,12 +73,12 @@ export interface SceneProps {
   turn?: number;
   /** The world mode, a wide home: a finger's turn came to rest on this quarter, 0 to 3. */
   onTurned?: (quarter: number) => void;
-  /** The world mode: the act done at once that landed last and when, so its answer plays where it was done (R-WORLD-005). */
+  /** The world mode: the act done at once that landed last and when, so its answer plays where it was done (world:things-are-tappable-models). */
   acted?: { activity: string; at: number } | null;
-  /** The world's clock the last reply carried, or null before one (R-CLOCK-033); the scene carries it on by the device's clock. */
+  /** The world's clock the last reply carried, or null before one (clock:game-day-on-real-time); the scene carries it on by the device's clock. */
   worldClock?: WorldClock | null;
   /**
-   * The world mode: the thing the character sleeps on while the bed's timed sleep runs, or null (R-WORLD-025). The figure
+   * The world mode: the thing the character sleeps on while the bed's timed sleep runs, or null (world:sleep-ends-the-month). The figure
    * lies on it as the nap does, a small sleep mark floats over it, and when it goes back to null the figure gets up.
    */
   asleep?: string | null;
@@ -100,7 +100,7 @@ export interface CityProbe {
   frames: number[];
   walker: Walker;
   people: number;
-  /** The moving sheets drawn (world.md R-WORLD-011). */
+  /** The moving sheets drawn (world:place-is-one-screen). */
   sheets: number;
   /** Where a slot's person stands on screen, in CSS pixels, or null when off screen. */
   screenOf: (slot: number) => { x: number; y: number } | null;
@@ -121,7 +121,7 @@ export interface CityProbe {
   walls?: number | null;
   /** The world mode: where a thing stands on screen, in CSS pixels, or null when off screen. */
   screenOfThing?: (id: string) => { x: number; y: number } | null;
-  /** The sun's shadow: its bias, its normal bias and how far either side of the place's centre it reaches (R-WORLD-012). */
+  /** The sun's shadow: its bias, its normal bias and how far either side of the place's centre it reaches (world:faces-never-share-height). */
   shadow?: { bias: number; normalBias: number; reach: number };
   /** The world mode: whether the shot's width and every thing stand on screen in the view drawn now. */
   fits?: () => { width: boolean; offScreen: string[] };

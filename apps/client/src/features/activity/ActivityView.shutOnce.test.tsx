@@ -1,4 +1,4 @@
-// One shut reason per card (docs/rules/advice.md R-ADVICE-001, world.md R-WORLD-006): the adviser's card and the word
+// One shut reason per card (advice:four-ways-to-learn-route, world:one-action-one-sheet): the adviser's card and the word
 // of someone who went never say their reason twice, once over the button and again on it. The reason is said once, on the card; the button is shut and
 // says only "Not yet". Real content, a real life from sixteen.
 import { describe, expect, test } from "vitest";
@@ -31,7 +31,7 @@ function count(text: string, part: string): number {
 }
 
 describe("a shut card says why once", () => {
-  test("[R-ADVICE-001] [R-WORLD-006] given a developer's first month with no way out heard of, when Ask about routes shows the adviser and someone who went, then each card says its reason once, its button is shut and says only Not yet, and no second sentence says it again", async () => {
+  test("[advice:four-ways-to-learn-route] [world:one-action-one-sheet] given a developer's first month with no way out heard of, when Ask about routes shows the adviser and someone who went, then each card says its reason once, its button is shut and says only Not yet, and no second sentence says it again", async () => {
     const view = developer().view();
     await renderWithView(<ActivityPicker only={[ADVISER, FRIEND]} />, view);
     const cards = [...document.querySelectorAll<HTMLElement>("[data-activity-picker] > li")];
@@ -49,7 +49,7 @@ describe("a shut card says why once", () => {
     }
   });
 
-  test("[R-ADVICE-001] [R-WORLD-006] given a developer's first month with no way out heard of, when the adviser's card shows, then its reason reads as a person says it, Hear of a way out first, and Not yet is said once, on the shut button, never again over the reason", async () => {
+  test("[advice:four-ways-to-learn-route] [world:one-action-one-sheet] given a developer's first month with no way out heard of, when the adviser's card shows, then its reason reads as a person says it, Hear of a way out first, and Not yet is said once, on the shut button, never again over the reason", async () => {
     const view = developer().view();
     await renderWithView(<ActivityPicker only={[ADVISER, FRIEND]} />, view);
     const cards = [...document.querySelectorAll<HTMLElement>("[data-activity-picker] > li")];

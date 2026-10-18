@@ -1,12 +1,12 @@
 // A slot lock as the player reads it: how many slots, why, and for how long
-// (R-TURN-009, R-HEALTH-007). A lock's `untilMonth` is the last month it holds,
+// (turn:slots-can-be-locked, health:view-shows-health-warning). A lock's `untilMonth` is the last month it holds,
 // counted as the view counts months, so the month in hand is one month left.
 import type { SlotLock } from "@japacity/sim";
 
 import { playerMonth } from "./format";
 import { hasWords, say, sayCount } from "./text";
 
-/** The reason a side job holds its slot: renewed each month it is kept (R-ACTIVITY-010). */
+/** The reason a side job holds its slot: renewed each month it is kept (activity:side-job-holds-a-slot). */
 export const SIDE_JOB_LOCK = "side-job";
 
 /** Months a lock still holds, counting the month in hand. */

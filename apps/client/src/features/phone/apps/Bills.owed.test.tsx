@@ -1,4 +1,4 @@
-// What is owed, in Bills (docs/rules/world.md R-WORLD-019): the upkeep's name and this month's charge, and a loan's
+// What is owed, in Bills (world:phone-holds-what-phones-hold): the upkeep's name and this month's charge, and a loan's
 // still owed with its misses counted. No amount is typed (decision 0025: the phone shows no form); the slip paying
 // this month's part in kobo is phone.test.tsx's "given Bills with a loan due".
 import { text } from "@japacity/content";
@@ -12,7 +12,7 @@ import { say, sayCount } from "../../../shared/words/text";
 import { Bills } from "./Bills";
 
 describe("what is owed, in Bills", () => {
-  // The naira upkeep at home is lived by hand and has no bill (R-HOME-012, decision 0013), so the upkeep abroad stands in.
+  // The naira upkeep at home is lived by hand and has no bill (home:living-by-hand, decision 0013), so the upkeep abroad stands in.
   test("given upkeep, then its name and this month's charge are shown", async () => {
     const view = abroadView();
     const upkeep = view.obligations.find((owed) => owed.entry === "obligation.upkeep-uk")!;
@@ -32,7 +32,7 @@ describe("what is owed, in Bills", () => {
     expect(screen.queryByText(/1 payments/)).toBeNull();
   });
 
-  test("[R-OBLIGATION-003] given a loan with one month left and one miss, then Bills reads 1 month left and 1 payment, never 1 months", async () => {
+  test("[obligation:miss-applies-its-effects] given a loan with one month left and one miss, then Bills reads 1 month left and 1 payment, never 1 months", async () => {
     const base = richView();
     const obligations = base.obligations.map((owed) => (owed.id === "obligation-9" ? { ...owed, monthsLeft: 1, missed: 1 } : owed));
     await renderWithView(<Bills />, { ...base, obligations });

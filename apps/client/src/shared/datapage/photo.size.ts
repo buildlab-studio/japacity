@@ -1,4 +1,4 @@
-// How big the page's photo is drawn (prologue.md R-PROLOGUE-015): at the size the box shows
+// How big the page's photo is drawn (prologue:player-colours-on-looks): at the size the box shows
 // it, times the screen's pixel ratio, so one drawn pixel is one pixel on the glass; and small enough to keep with the
 // person beside the save on the device.
 

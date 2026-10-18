@@ -1,4 +1,4 @@
-// The sky and the sun by the world's clock (docs/rules/clock.md R-CLOCK-033, decision 0011): the place's one sun and one
+// The sky and the sun by the world's clock (clock:game-day-on-real-time, decision 0011): the place's one sun and one
 // sky light turned and tinted by the part of the world's day and the minute within it; the development switch that pins it.
 import { time, worldClockAt } from "@japacity/sim";
 import { Color } from "three";
@@ -21,7 +21,7 @@ const warmth = (hex: number): number => {
 const flatAngle = ([x, , z]: readonly number[]): number => Math.atan2(z ?? 0, x ?? 0);
 
 describe("the sky and the sun by the world's clock", () => {
-  test("[R-CLOCK-033] given the afternoon's start, when the place is lit, then it is lit as it always was: its own sun where the file puts it, a white light, its own sky", () => {
+  test("[clock:game-day-on-real-time] given the afternoon's start, when the place is lit, then it is lit as it always was: its own sun where the file puts it, a white light, its own sky", () => {
     const look = lookAt("afternoon", 12 * HOUR, SUN);
     const at = sunAt(SUN, look);
     at.forEach((value, index) => expect(value).toBeCloseTo(SUN[index] ?? 0, 6));
@@ -31,7 +31,7 @@ describe("the sky and the sun by the world's clock", () => {
     expect(look.lamps).toBe(0);
   });
 
-  test("[R-CLOCK-033] given the morning, when the place is lit, then the sun is low and warm with long soft shadows, the sky pale, and it climbs toward the day's light by noon", () => {
+  test("[clock:game-day-on-real-time] given the morning, when the place is lit, then the sun is low and warm with long soft shadows, the sky pale, and it climbs toward the day's light by noon", () => {
     const early = lookAt("morning", 6 * HOUR + 30, SUN);
     const late = lookAt("morning", 11 * HOUR + 50, SUN);
     const noon = lookAt("afternoon", 12 * HOUR, SUN);
@@ -44,7 +44,7 @@ describe("the sky and the sun by the world's clock", () => {
     expect(lum(skyOf(new Color(0xf3d9a4), early).getHex())).toBeGreaterThanOrEqual(lum(0xf3d9a4));
   });
 
-  test("[R-CLOCK-033] given the evening, when the place is lit, then the sun is orange and low on the other side from the morning's, the sky warms, and by its end the lamps are on", () => {
+  test("[clock:game-day-on-real-time] given the evening, when the place is lit, then the sun is orange and low on the other side from the morning's, the sky warms, and by its end the lamps are on", () => {
     const morning = lookAt("morning", 7 * HOUR, SUN);
     const evening = lookAt("evening", 18 * HOUR + 30, SUN);
     const dusk = lookAt("evening", 21 * HOUR + 55, SUN);
@@ -58,7 +58,7 @@ describe("the sky and the sun by the world's clock", () => {
     expect(dusk.lamps).toBeCloseTo(1, 1);
   });
 
-  test("[R-CLOCK-033] given the night, when the place is lit, then the sky is deep blue, the sun almost out, the sky light low, and the lamps full; toward six it pales into the morning", () => {
+  test("[clock:game-day-on-real-time] given the night, when the place is lit, then the sky is deep blue, the sun almost out, the sky light low, and the lamps full; toward six it pales into the morning", () => {
     const night = lookAt("night", 0, SUN);
     const noon = lookAt("afternoon", 14 * HOUR, SUN);
     const sky = skyOf(new Color(0xf3d9a4), night);
@@ -79,7 +79,7 @@ describe("the sky and the sun by the world's clock", () => {
     expect(lookAt("night", 4 * HOUR, SUN)).toEqual(night);
   });
 
-  test("[R-CLOCK-033] given a minute of the day, when its share of its part is read, then each part runs from its start to its end, the night across midnight", () => {
+  test("[clock:game-day-on-real-time] given a minute of the day, when its share of its part is read, then each part runs from its start to its end, the night across midnight", () => {
     expect(progressIn("morning", 6 * HOUR)).toBe(0);
     expect(progressIn("morning", 9 * HOUR)).toBe(0.5);
     expect(progressIn("evening", 20 * HOUR)).toBe(0.5);
@@ -88,7 +88,7 @@ describe("the sky and the sun by the world's clock", () => {
     expect(ownHeightOf([0, 1, 1])).toBeCloseTo(45, 6);
   });
 
-  test("[R-CLOCK-033] given the device and a reply, when the clock is read between replies, then the reply's reading wins and the device carries it on; with no reply the device's own", () => {
+  test("[clock:game-day-on-real-time] given the device and a reply, when the clock is read between replies, then the reply's reading wins and the device carries it on; with no reply the device's own", () => {
     const at = time.GAME_DAY_EPOCH_MS + 3 * time.GAME_DAY_MS;
     expect(worldNow(at, null)).toEqual(worldClockAt(at));
     // The server's clock stood an hour of the game ahead of the device's when its reply came.
@@ -97,7 +97,7 @@ describe("the sky and the sun by the world's clock", () => {
     expect(worldNow(later, { world: ahead, at }).minute).toBe(worldClockAt(later + time.GAME_DAY_MS / 24).minute);
   });
 
-  test("[R-CLOCK-033] given the development switch, when ?clock= names a part, then the scene's clock stands at it; outside development, or with any other word, it does not", () => {
+  test("[clock:game-day-on-real-time] given the development switch, when ?clock= names a part, then the scene's clock stands at it; outside development, or with any other word, it does not", () => {
     expect(pinnedPart("?clock=night", true)).toBe("night");
     expect(pinnedPart("?a=1&clock=morning", true)).toBe("morning");
     expect(pinnedPart("?clock=night", false)).toBeNull();
@@ -112,7 +112,7 @@ describe("the sky and the sun by the world's clock", () => {
 });
 
 describe("the rooms' light", () => {
-  test("[R-CLOCK-033] given a room by day, when its look is read, then its sun is warmed toward the room's own and both lights stand as strong as the room's are at noon; at night the look's lamps are untouched and the sun is the night's", () => {
+  test("[clock:game-day-on-real-time] given a room by day, when its look is read, then its sun is warmed toward the room's own and both lights stand as strong as the room's are at noon; at night the look's lamps are untouched and the sun is the night's", () => {
     const noon = lookAt("afternoon", time.AFTERNOON_HOUR * HOUR, SUN);
     const room = roomLook(noon);
     expect(room.sunStrength).toBeCloseTo(ROOM_LIGHT.sunStrength, 6);
@@ -124,7 +124,7 @@ describe("the rooms' light", () => {
     expect(roomLook(night).sunStrength).toBeLessThan(room.sunStrength);
   });
 
-  test("[R-ASSET-006] given a street and an office, when their light is read, then both take the layer's pale, cool sky light and pale sky in place of the sand, the office a warm floor bounce at the rooms' strengths and the street its own ground with the fog fading into the pale sky", () => {
+  test("[assets:lighting-set-by-place] given a street and an office, when their light is read, then both take the layer's pale, cool sky light and pale sky in place of the sand, the office a warm floor bounce at the rooms' strengths and the street its own ground with the fog fading into the pale sky", () => {
     for (const kind of ["street", "office"] as const) {
       const light = PLACE_LIGHT[kind];
       expect(light.sky).toBe(ROOM_LIGHT.sky);
@@ -140,7 +140,7 @@ describe("the rooms' light", () => {
     expect(PLACE_LIGHT.office.haze).toBe(false);
   });
 
-  test("[R-ASSET-006] given place files, when the light each asks for is read, then a home's room light stays the room's, any other indoor place is an office and every outdoor place a street", () => {
+  test("[assets:lighting-set-by-place] given place files, when the light each asks for is read, then a home's room light stays the room's, any other indoor place is an office and every outdoor place a street", () => {
     expect(lightKindOf({ scope: "interior", stage: { light: { room: true } } })).toBe("room");
     expect(lightKindOf({ scope: "exterior", stage: { light: { room: true } } })).toBe("room");
     expect(lightKindOf({ scope: "interior", stage: { light: {} } })).toBe("office");
@@ -148,7 +148,7 @@ describe("the rooms' light", () => {
     expect(lightKindOf({ scope: "exterior", stage: null })).toBe("street");
   });
 
-  test("[R-CLOCK-033] given a street by day, when its look is read, then its sun is warmed toward the warm one and its lights stand at the street's noon strengths; at night its lamps and sun are the night's own", () => {
+  test("[clock:game-day-on-real-time] given a street by day, when its look is read, then its sun is warmed toward the warm one and its lights stand at the street's noon strengths; at night its lamps and sun are the night's own", () => {
     const noon = lookAt("afternoon", time.AFTERNOON_HOUR * HOUR, SUN);
     const street = placeLook(noon, "street");
     expect(street.sunStrength).toBeCloseTo(PLACE_LIGHT.street.sunStrength, 6);

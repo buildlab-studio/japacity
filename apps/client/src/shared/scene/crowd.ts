@@ -1,4 +1,4 @@
-// Who stands in a place today (city.md R-CITY-014 to 017). Pure: a hash of the place's id, the real
+// Who stands in a place today (city:crowd-sample-capped, city:players-fill-the-crowd, city:dress-mix-by-place and city:sample-seeded-by-date). Pure: a hash of the place's id, the real
 // date and the slot picks each person, so the same place on the same day shows the same people and a
 // screenshot taken twice is the same. Never `Math.random`, never a stream of the simulation.
 import type { PoseName } from "@japacity/assets-src/people/poses";
@@ -14,7 +14,7 @@ export type Band = "quiet" | "busy" | "packed";
 /** Another player in the place, as the authority's presence sample gives them. */
 export interface Other {
   look: string;
-  /** The display name the server sent, which every player in a sample carries (R-CITY-015). */
+  /** The display name the server sent, which every player in a sample carries (city:players-fill-the-crowd). */
   name: string;
 }
 
@@ -26,7 +26,7 @@ export interface Shown {
   /** A player's name exactly as the server gave it, or null: residents carry no tag. */
   tag: string | null;
   /**
-   * The spot a resident stands at in a part of the place (R-CITY-032): the trader at her stall, the clerk at the
+   * The spot a resident stands at in a part of the place (city:residents-fill-to-target): the trader at her stall, the clerk at the
    * counter. Never taken by a player; someone standing at a thing takes it only past the scope's cap, once no one else is left.
    */
   part?: number;
@@ -81,7 +81,7 @@ export function weekday(date: string): number {
 const FRIDAY = 5;
 const SATURDAY = 6;
 
-/** How many people a place shows in a mode: the place's target, capped by the mode's figure and the place's own (R-CITY-014, R-CITY-032). */
+/** How many people a place shows in a mode: the place's target, capped by the mode's figure and the place's own (city:crowd-sample-capped, city:residents-fill-to-target). */
 export function crowdSize(place: Pick<PlaceEntry, "crowd">, mode: Mode, city: CityTuning): number {
   const cap = mode === "low" ? Math.min(city.crowdLow, place.crowd.low) : Math.min(city.crowdHigh, place.crowd.high);
   return Math.min(place.crowd.target, cap);
@@ -96,7 +96,7 @@ export function bandOf(size: number, target: number): Band {
 
 type PlaceFacts = Pick<PlaceEntry, "id" | "crowd" | "traditionalBp" | "occasion">;
 
-/** The Friday jalamia or the Saturday occasion dress for a slot, when the day and the draw call for it (R-CITY-016). */
+/** The Friday jalamia or the Saturday occasion dress for a slot, when the day and the draw call for it (city:dress-mix-by-place). */
 function dayDress(place: PlaceFacts, chosen: Person, date: string, slot: number, city: CityTuning, taken: ReadonlySet<string> = new Set()): Person {
   const day = weekday(date);
   const free = (people: readonly Person[]): Person[] => people.filter((person) => !taken.has(person.file));
@@ -111,7 +111,7 @@ function dayDress(place: PlaceFacts, chosen: Person, date: string, slot: number,
   return chosen;
 }
 
-/** One computer person for a slot, from the place's dress mix and the day (R-CITY-016). */
+/** One computer person for a slot, from the place's dress mix and the day (city:dress-mix-by-place). */
 export function resident(place: PlaceFacts, pool: readonly Person[], date: string, slot: number, city: CityTuning): Person {
   const people = pool.length === 0 ? ROSTER : pool;
   const dress = chance(place.id, date, slot, "dress") < place.traditionalBp ? "traditional" : "modern";
@@ -159,7 +159,7 @@ export function residents(place: PlaceFacts, pool: readonly Person[], date: stri
  * presence sample in every slot no part holds, from the last slot back, each tagged with the name the server sent. Given the
  * place's `parts`, the residents who stand at a part spot (`partSpots`) with no one else online are marked
  * with it and keep it.
- * Players seen today (R-CITY-036) take the slots after the live ones and stand at their spots like them.
+ * Players seen today (city:players-shown-present-not-tracked) take the slots after the live ones and stand at their spots like them.
  * `worn` names outfits already on show outside the sample, which no resident is given.
  */
 export function sampleCrowd(
@@ -181,8 +181,8 @@ export function sampleCrowd(
     const spots = Array.from({ length: parts.spots }, (_, index) => index);
     for (const { shown, index } of placeCrowd(people, spots, parts.prefer, parts.acts)) if (kept.has(index)) people[shown.slot] = { ...shown, part: index };
   }
-  // R-CITY-015, R-CITY-032: players before residents in every slot no part holds; R-CITY-036: those seen today after the live ones.
-  // No player is ever shown in someone's home, whatever sample the client holds (R-CITY-015).
+  // city:players-fill-the-crowd, city:residents-fill-to-target: players before residents in every slot no part holds; city:players-shown-present-not-tracked: those seen today after the live ones.
+  // No player is ever shown in someone's home, whatever sample the client holds (city:players-fill-the-crowd).
   const open = people.filter((shown) => shown.part === undefined).map((shown) => shown.slot).reverse();
   const players = PRIVATE_PLACES.has(place.id) ? [] : [...others, ...today];
   players.slice(0, open.length).forEach((other, index) => {
@@ -228,7 +228,7 @@ export function walkPose(person: Pick<Person, "pose">): PoseName {
  * Who stands at which of the place's spots. The mode's count of spots is used: every part first (`partSpots`), those a
  * resident already holds before the rest, then the place's other spots in order, so a part past the first few spots
  * (the invigilator's desk, the ward's second nurse) is drawn in the low mode too, and never more spots than the count
- * (R-CITY-032). A resident holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to
+ * (city:residents-fill-to-target). A resident holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to
  * a resident of that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in
  * slot order each time; everyone else fills the rest in spot order. A player never takes a part.
  */

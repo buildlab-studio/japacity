@@ -1,4 +1,4 @@
-// "Make it yours" under the look strip (prologue.md R-PROLOGUE-015): a skin tone, a hair colour and a top colour from
+// "Make it yours" under the look strip (prologue:player-colours-on-looks): a skin tone, a hair colour and a top colour from
 // small round swatches (a ring and a tick on the one chosen), and on a printed top its fabric, each starting as the look
 // was made, with the way back to as made.
 // The rows follow what the figure on the plinth read of its look, so a head under a cap shows no hair row and a plain
@@ -53,7 +53,7 @@ function Row({ part, own, style, onStyle }: { part: Part; own: OwnColours; style
 
 /**
  * `heading`: the rows' own heading; the door's first screen heads them with its own disclosure button instead.
- * `follow`: each pick brings the next row shown into view, so the next part to choose is never out of sight (R-PROLOGUE-013).
+ * `follow`: each pick brings the next row shown into view, so the next part to choose is never out of sight (prologue:front-door-three-screens).
  */
 export function OwnColoursRows({ look, style, onStyle, heading = true, follow = false }: { look: string; style: LookStyle | undefined; onStyle: (style: LookStyle) => void; heading?: boolean; follow?: boolean }) {
   const own = useOwnColours(look);

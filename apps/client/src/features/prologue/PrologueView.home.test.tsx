@@ -1,4 +1,4 @@
-// The home card's answers say what each costs (docs/rules/prologue.md R-PROLOGUE-009), on the card itself and not
+// The home card's answers say what each costs (prologue:front-door-builds-a-person), on the card itself and not
 // first on the handover.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -17,7 +17,7 @@ function upkeepOf(answer: string): number {
 }
 
 describe("the home card", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the card that asks where you sleep, when its answers show, then there are the family house, the room in a compound, the hostel room and Makoko, and each says what it costs, as every other card says its cost", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given the card that asks where you sleep, when its answers show, then there are the family house, the room in a compound, the hostel room and Makoko, and each says what it costs, as every other card says its cost", async () => {
     const house = formatMoney(upkeepOf("family-house"), "NGN");
     const makoko = formatMoney(upkeepOf("makoko"), "NGN");
     // The room in a compound says its year's rent; the hostel room, the fourth home, its month's rent.
@@ -38,7 +38,7 @@ describe("the home card", () => {
 });
 
 describe("the page's home", () => {
-  test("[R-PROLOGUE-013] [R-PROLOGUE-014] given a life that closed in the room in a compound, when the page tells where it sleeps, then the page says it starts in its own room in Ojuelegba, with the rent in 12 months", async () => {
+  test("[prologue:front-door-three-screens] [prologue:printed-page-hands-over] given a life that closed in the room in a compound, when the page tells where it sleeps, then the page says it starts in its own room in Ojuelegba, with the rent in 12 months", async () => {
     const base = engineView();
     const family = base.obligations[0];
     if (family === undefined) throw new Error("The fixture owes nothing.");
@@ -58,7 +58,7 @@ describe("the page's home", () => {
     expect(home?.textContent).toBe("You start in your own room, OjuelegbaRent in 12 months");
   });
 
-  test("[R-PROLOGUE-012] [R-PROLOGUE-014] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with what next month takes for its living", async () => {
+  test("[prologue:makoko-start-never-a-trap] [prologue:printed-page-hands-over] given a life that closed on a room in Makoko, when the page tells where it sleeps, then the page says it starts in the room on the water in Makoko, with what next month takes for its living", async () => {
     const base = engineView();
     const rent = upkeepOf("makoko");
     const family = base.obligations[0];
@@ -71,7 +71,7 @@ describe("the page's home", () => {
     await renderWithView(<PageHandover onDone={() => undefined} />, view);
     const home = document.querySelector("[data-starts-in] [data-fact='home']");
     expect(document.querySelector("[data-starts-in]")?.getAttribute("data-starts-in")).toBe("makoko");
-    // Decision 0013 (R-HOME-012): nothing of the room's upkeep is taken as the month turns, so the page names no figure
+    // Decision 0013 (home:living-by-hand): nothing of the room's upkeep is taken as the month turns, so the page names no figure
     // for next month and says the living is bought as you go.
     expect(home?.textContent).toBe(`${say("ui.page.home.makoko")}${say("ui.page.home.by-hand")}`);
     expect(home?.textContent).toBe("You start in a room on the water, MakokoFood, water and fares as you go");

@@ -1,4 +1,4 @@
-// An ask answered at its place lists what still waits (docs/rules/world.md R-WORLD-006): once
+// An ask answered at its place lists what still waits (world:one-action-one-sheet): once
 // the send-off is answered at the house, the sheet names the ask still open
 // and one button opens it, so it never says nobody is asking while the nudge says someone is.
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -10,7 +10,7 @@ import { cityWords } from "./city.words";
 import { stillWaiting, StillWaiting } from "./StillWaiting";
 
 describe("what still waits", () => {
-  test("[R-WORLD-006] given the send-off answered at the house and the NEPA bill still asking, when the sheet shows, then it names the bill and one button opens the asks", () => {
+  test("[world:one-action-one-sheet] given the send-off answered at the house and the NEPA bill still asking, when the sheet shows, then it names the bill and one button opens the asks", () => {
     // The send-off is answered, so it has left the offers; the NEPA bill is still asking.
     const game = newGame("scenario.ada");
     openOffer(game, "offer.nepa-bill");
@@ -26,7 +26,7 @@ describe("what still waits", () => {
     expect(open).toHaveBeenCalledOnce();
   });
 
-  test("[R-WORLD-006] given nothing else asking, when the sheet shows, then no list stands, and the empty line does not claim nobody asks anywhere", () => {
+  test("[world:one-action-one-sheet] given nothing else asking, when the sheet shows, then no list stands, and the empty line does not claim nobody asks anywhere", () => {
     expect(stillWaiting([], ["offer.family-send-off"])).toEqual([]);
     const { container } = render(<StillWaiting offers={[]} onOpen={() => undefined} />);
     expect(container.textContent).toBe("");

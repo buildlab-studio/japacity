@@ -1,6 +1,6 @@
 // The one way the client talks HTTP to the server: JSON in, JSON out, the
 // session cookie sent along, a clock on every request and every answer sorted
-// into its class (R-ENGINE-015). `fetch` is passed in so tests answer for the server.
+// into its class (engine:browser-authority-for-dev-only). `fetch` is passed in so tests answer for the server.
 import type { ServerRejection } from "@japacity/api";
 
 import { heardBody } from "./guest";
@@ -10,7 +10,7 @@ export type Fetch = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface Api {
   get<T>(path: string): Promise<T>;
-  /** `headers`: any beyond the JSON pair, such as the bot check's token (R-ACCOUNT-013). */
+  /** `headers`: any beyond the JSON pair, such as the bot check's token (account:bot-check-on-guest-creation). */
   post<T>(path: string, body: unknown, headers?: Record<string, string>): Promise<T>;
   put<T>(path: string, body: unknown): Promise<T>;
   delete<T>(path: string, body: unknown): Promise<T>;
@@ -27,13 +27,13 @@ export interface ApiOptions {
 
 const SECOND_MS = 1000;
 
-/** R-ENGINE-015: how long a read waits for the server before it counts as no answer. */
+/** engine:browser-authority-for-dev-only: how long a read waits for the server before it counts as no answer. */
 export const READ_TIMEOUT_MS = 8_000;
-/** R-ENGINE-015: how long a command (a write) waits; longer, as the server plays it through before it answers. */
+/** engine:browser-authority-for-dev-only: how long a command (a write) waits; longer, as the server plays it through before it answers. */
 export const COMMAND_TIMEOUT_MS = 15_000;
 
 /**
- * R-ENGINE-015: what went wrong with a request that brought no answer the game can read. `network`: the fetch threw or
+ * engine:browser-authority-for-dev-only: what went wrong with a request that brought no answer the game can read. `network`: the fetch threw or
  * timed out. `wall`: something stands between the page and the game (a login wall, an expired session): a redirect, a
  * 401 or 403 without the game's own refusal, or a page where JSON was expected. `server`: a 5xx, the server's own `unavailable`, or a body nobody can read.
  */
@@ -89,7 +89,7 @@ function isRefusal(body: unknown): body is ServerRejection {
   return typeof body === "object" && body !== null && (body as Partial<ServerRejection>).ok === false && typeof (body as Partial<ServerRejection>).code === "string";
 }
 
-/** R-SERVER-043: the server's own failure, `{ ok: false, code: "unavailable" }` with a 503 or a 500: no refusal of the game's. */
+/** server:no-platform-error-page: the server's own failure, `{ ok: false, code: "unavailable" }` with a 503 or a 500: no refusal of the game's. */
 function isServerFailure(body: object): boolean {
   return (body as { ok?: unknown }).ok === false && (body as { code?: unknown }).code === "unavailable";
 }
@@ -103,7 +103,7 @@ function parsed(text: string): unknown {
 }
 
 /**
- * R-ENGINE-015, R-ACCOUNT-006: sorts a response into its class. Only the game's Worker answers in JSON; a login wall
+ * engine:browser-authority-for-dev-only, account:session-is-secure-cookie: sorts a response into its class. Only the game's Worker answers in JSON; a login wall
  * answers with a redirect or a page, and the platform with a bare 5xx. So a 4xx with a JSON body is the server's own
  * answer (the game's `signed-out`, the auth library's refusals), and a 401 or 403 without one is a wall.
  */
@@ -118,7 +118,7 @@ export function classify<T>(response: Pick<Response, "status" | "type" | "redire
   const body = page ? undefined : parsed(text);
   if (typeof body === "object" && body !== null) {
     if (status >= 200 && status < 300) return { kind: "ok", body: body as T };
-    // R-SERVER-043: the server's own failure (`unavailable`) is no refusal the game can act on: the trouble card shows.
+    // server:no-platform-error-page: the server's own failure (`unavailable`) is no refusal the game can act on: the trouble card shows.
     if (status >= 500 && isServerFailure(body)) return { kind: "server", detail: `${String(status)} unavailable` };
     if (isRefusal(body)) return { kind: "rejected", body: body as T };
     if (status >= 500) return { kind: "server", detail: `${String(status)}` };
@@ -157,7 +157,7 @@ async function exchange(fetch: Fetch, wall: WallGuard, url: string, init: Reques
     clearTimeout(timer);
   }
   const outcome = classify(response, text);
-  // R-ACCOUNT-006: a wall reloads the page once so the login shows; a second within a minute is left to the card.
+  // account:session-is-secure-cookie: a wall reloads the page once so the login shows; a second within a minute is left to the card.
   if (outcome.kind === "wall") throw requestFailure("wall", outcome.detail, wall.met());
   if (outcome.kind !== "ok" && outcome.kind !== "rejected") throw requestFailure(outcome.kind, outcome.detail);
   wall.passed();

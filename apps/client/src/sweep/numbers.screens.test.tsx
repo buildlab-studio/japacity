@@ -1,4 +1,4 @@
-// No simulation number on two screens (docs/rules/text.md R-TEXT-005): the
+// No simulation number on two screens (text:bands-not-figures): the
 // talent file in the Japa app never reads "Tech skill at 75 or more", nor the hub's board "₦90,000 at tech 50". Played on the real content.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -38,7 +38,7 @@ function talentKnown(): PlayerView {
 }
 
 describe("no quality's figure on the screens", () => {
-  test("[R-TEXT-005] [R-WORLD-019] given the talent route looked into, when the Japa app opens, then its steps say strong tech and no quality's figure", async () => {
+  test("[text:bands-not-figures] [world:phone-holds-what-phones-hold] given the talent route looked into, when the Japa app opens, then its steps say strong tech and no quality's figure", async () => {
     await renderWithView(<PhoneApps onClose={() => undefined} area="Yaba" now={() => new Date(2026, 9, 8, 12, 5)} talk={null} />, talentKnown());
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="japa"]')!);
     const steps = [...document.querySelectorAll("[data-steps] li")].map((row) => row.textContent ?? "");
@@ -47,7 +47,7 @@ describe("no quality's figure on the screens", () => {
     expect(steps.flatMap(figures)).toEqual([]);
   });
 
-  test("[R-TEXT-005] [R-ACTIVITY-014] given Ada at the hub's board, when its rows are read, then no row says a quality's figure, and weekend tutoring's pay rises once her tech is good", async () => {
+  test("[text:bands-not-figures] [activity:side-jobs-pay-by-tier] given Ada at the hub's board, when its rows are read, then no row says a quality's figure, and weekend tutoring's pay rises once her tech is good", async () => {
     await renderWithView(<ActivityPicker only={[HUNT]} />, newGame("scenario.ada").view());
     const rows = [...document.querySelectorAll("[data-job]")];
     expect(rows.length).toBeGreaterThan(1);

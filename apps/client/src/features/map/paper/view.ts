@@ -1,7 +1,7 @@
-// The open map's view (docs/rules/world.md R-WORLD-015, R-WORLD-036): which paper point stands in the middle of the
+// The open map's view (world:map-is-painted-lagos, world:lantern-canoe-on-map): which paper point stands in the middle of the
 // screen and at what zoom, where it first opens from a card, and the frame it gives the drawing. Plain numbers, so
 // where the open map lands from every card is tested without a screen. Each painted city opens on its own paper
-// (R-WORLD-038); Lagos's unless another is given.
+// (world:painted-maps-abroad); Lagos's unless another is given.
 import type { PaperCity } from "./city";
 import { PAPER, type Point } from "./fit";
 import { LAGOS } from "./lagos";
@@ -48,7 +48,7 @@ const OPEN_HEAD = 64;
 
 /**
  * Where the canoe may stand on the screen as the open map opens: whole, clear of the screen's edges by a little, and
- * below the head row, so it is never half off the screen nor under the close button (R-WORLD-036).
+ * below the head row, so it is never half off the screen nor under the close button (world:lantern-canoe-on-map).
  */
 export function canoeRoom(size: Size): readonly [number, number, number, number] {
   const keep = CANOE_HALF + CANOE_ROOM;
@@ -58,7 +58,7 @@ export function canoeRoom(size: Size): readonly [number, number, number, number]
 /**
  * The open map's first look from a card: the district a little up and to the left of the middle, so the lagoon, its
  * bridge and the island come into the same look as where the player was. Where that look would show only part of the
- * lantern canoe, or put it under the head row, it moves by the least that brings the canoe whole into view (R-WORLD-036);
+ * lantern canoe, or put it under the head row, it moves by the least that brings the canoe whole into view (world:lantern-canoe-on-map);
  * a look that leaves the canoe wholly off the screen stays as it is.
  */
 export function openingView(card: string, wide: boolean, size: Size, city: Pick<PaperCity, "cards" | "paper" | "opening" | "canoe"> = LAGOS): OpenView {

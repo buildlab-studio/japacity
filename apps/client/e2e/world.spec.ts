@@ -1,4 +1,4 @@
-// The world as the game, in a real browser at phone size (docs/rules/world.md R-WORLD-001 to 008, 024, 025, 030): the
+// The world as the game, in a real browser at phone size (world:world-fills-the-screen, world:top-band-is-lively-pill, world:nudge-says-one-thing, world:thumb-buttons-carry-dots, world:things-are-tappable-models, world:one-action-one-sheet, world:month-acts-carry-on, world:month-end-results-sheet, world:no-classic-view-kept, world:sleep-ends-the-month, world:month-passes-as-lived): the
 // default address opens the world with the band and the two thumb buttons and nothing else, nothing under the band; ?classic
 // opens the world as any address does; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
@@ -29,7 +29,7 @@ async function startLife(page: Page): Promise<void> {
 
 /**
  * The names of the buttons a player can see over the place. The marks and labels over things and the talk over the crowd
- * belong to the scene (R-WORLD-005, the talk budget of design page 13 section 5), and the nudge is checked on its own.
+ * belong to the scene (world:things-are-tappable-models, the talk budget of design page 13 section 5), and the nudge is checked on its own.
  */
 async function visibleButtons(page: Page): Promise<string[]> {
   return page.evaluate(() =>
@@ -51,20 +51,20 @@ function adaOneMonthIn(): string {
   return kept({ ...save, commands: save.commands.slice(0, firstEnd) });
 }
 
-test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the world with the band, the two buttons and the wide home's round turn button and nothing else, and nothing under the band", async ({ page }, info) => {
+test("[world:world-fills-the-screen] [world:no-classic-view-kept] [world:nudge-says-one-thing] the default address opens the world with the band, the two buttons and the wide home's round turn button and nothing else, and nothing under the band", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(120_000);
   await startLife(page);
   await expect(page.locator("[data-thumb='map']")).toBeVisible();
   await expect(page.locator("[data-thumb='phone']")).toBeVisible();
-  // The home says what it is once, on its first entry in a life (R-HOME-008); dismissed, nothing else stands over the place.
+  // The home says what it is once, on its first entry in a life (home:moves-carry-cost-and-reason); dismissed, nothing else stands over the place.
   await passHomeTeach(page);
-  // The journey's step shows only in the moment (R-WORLD-003): nothing under the band by default.
+  // The journey's step shows only in the moment (world:nudge-says-one-thing): nothing under the band by default.
   await expect(page.locator("[data-nudge]")).toHaveCount(0);
-  // The band: the name over the age opens the data page (R-PROLOGUE-009; the name itself is that same button for a screen
-  // reader), and the month's part of the day opens the Calendar (R-WORLD-002); then the two thumbs, and over Phone the
+  // The band: the name over the age opens the data page (prologue:front-door-builds-a-person; the name itself is that same button for a screen
+  // reader), and the month's part of the day opens the Calendar (world:top-band-is-lively-pill); then the two thumbs, and over Phone the
   // round button that turns the wide home a quarter round. No Next month: the bed turns the month
-  // (R-WORLD-030).
+  // (world:month-passes-as-lived).
   const buttons = await visibleButtons(page);
   const month = buttons.find((name) => /^[A-Z][a-z]+, (Morning|Afternoon|Evening|Night)\. Open the calendar$/.test(name));
   expect(month).toBeDefined();
@@ -76,7 +76,7 @@ test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the wo
   await shoot(page, "world-open-phone");
 });
 
-test("[R-WORLD-024] ?classic opens the world as any address does, with no month page", async ({ page }, info) => {
+test("[world:no-classic-view-kept] ?classic opens the world as any address does, with no month page", async ({ page }, info) => {
   phoneOnly(info.project.name);
   await page.goto("/?classic");
   await startReadyLife(page);
@@ -85,7 +85,7 @@ test("[R-WORLD-024] ?classic opens the world as any address does, with no month 
   await expect(page.getByRole("heading", { name: "Month 1", exact: true })).toHaveCount(0);
 });
 
-test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the band's month opens the Calendar with nothing to end; the bed's Sleep turns the month, the results show over the scene, and the button goes back to the place a month older", async ({ page }, info) => {
+test("[world:top-band-is-lively-pill] [world:month-acts-carry-on] [world:month-end-results-sheet] [world:sleep-ends-the-month] [world:month-passes-as-lived] the band's month opens the Calendar with nothing to end; the bed's Sleep turns the month, the results show over the scene, and the button goes back to the place a month older", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(150_000);
   await startLife(page);
@@ -95,7 +95,7 @@ test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the 
   const monthBefore = (await page.locator("[data-band-month]").getAttribute("aria-label")) ?? "";
   const bandBefore = (await page.locator("[data-band]").textContent()) ?? "";
 
-  // The Calendar: what carries on (R-WORLD-007), no Same again, no slot words, and nothing in it ends the month.
+  // The Calendar: what carries on (world:month-acts-carry-on), no Same again, no slot words, and nothing in it ends the month.
   await page.locator("[data-band-month]").click();
   const calendar = page.locator("[data-app-screen='calendar']");
   await expect(calendar).toBeVisible();
@@ -108,7 +108,7 @@ test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the 
   await shoot(page, "world-month-phone");
   await putPhoneAway(page);
 
-  // The bed's Sleep: the chip and Wake up while it runs, the month turns when it runs out (R-WORLD-025).
+  // The bed's Sleep: the chip and Wake up while it runs, the month turns when it runs out (world:sleep-ends-the-month).
   const results = await sleepTheMonth(page);
   await expect(page.locator("[data-phone]")).toHaveCount(0);
   await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
@@ -121,7 +121,7 @@ test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the 
 
   await expect(results.locator("[data-results-back]")).toHaveText(new RegExp(`^Back to ${place.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"));
   await backFromResults(page);
-  // The band's clock is the age, never a month number (R-WORLD-002): a month on, it reads one month older, in the next month.
+  // The band's clock is the age, never a month number (world:top-band-is-lively-pill): a month on, it reads one month older, in the next month.
   await expect(page.locator("[data-band]")).not.toHaveText(bandBefore);
   await expect(page.locator("[data-band]")).toContainText(/\d+ yrs \d+ mo/);
   await expect(page.locator("[data-band-month]")).not.toHaveAttribute("aria-label", monthBefore);
@@ -129,12 +129,12 @@ test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the 
   expect(await placeNow(page)).toBe(where);
 });
 
-test("[R-WORLD-003] an ask waiting keeps its line under the band, and a tap on it opens what is asked", async ({ page }, info) => {
+test("[world:nudge-says-one-thing] an ask waiting keeps its line under the band, and a tap on it opens what is asked", async ({ page }, info) => {
   phoneOnly(info.project.name);
   test.setTimeout(150_000);
   await seedSave(page, adaOneMonthIn());
   await page.goto(`/${LIVED}`);
-  // A seeded session has no report yet, so the first chapter's title stands over the world for a moment (R-CHAPTER-011).
+  // A seeded session has no report yet, so the first chapter's title stands over the world for a moment (chapter:first-chapter-mission-card).
   await passOpeningWords(page);
   await placeReady(page);
   await passHomeTeach(page);

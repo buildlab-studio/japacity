@@ -106,7 +106,7 @@ describe("offers", () => {
 });
 
 describe("a job offer's warning", () => {
-  test("[R-ACTIVITY-010] [R-WORLD-003] given a nurse on the care route offered a side job, then the offer never says the job ends her months as a nurse; a main job elsewhere still does", async () => {
+  test("[activity:side-job-holds-a-slot] [world:nudge-says-one-thing] given a nurse on the care route offered a side job, then the offer never says the job ends her months as a nurse; a main job elsewhere still does", async () => {
     const base = richView();
     const offer = base.offers[0];
     if (offer === undefined) throw new Error("No offer");

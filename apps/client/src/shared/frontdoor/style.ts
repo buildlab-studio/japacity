@@ -1,4 +1,4 @@
-// The player's own colours on a shipped look (prologue.md R-PROLOGUE-015): a skin tone, a hair colour, a top colour
+// The player's own colours on a shipped look (prologue:player-colours-on-looks): a skin tone, a hair colour, a top colour
 // and, on a look with a printed top, the fabric. A style is a copy's paint, never a new model and never a stat: what
 // is left out stays as the look was made. Nothing here loads three, so the door's first screen stays light; the
 // painting itself is in colours.ts, loaded with the scene.

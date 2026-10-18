@@ -14,7 +14,7 @@ import "../shared/testing/render";
 import { memoryStorage } from "../shared/testing/storage";
 
 async function startLife(): Promise<void> {
-  // Through the front door to the first ready life, on a run Settings asked for (R-PROLOGUE-013).
+  // Through the front door to the first ready life, on a run Settings asked for (prologue:front-door-three-screens).
   askReadyLives();
   render(<App store={bootGame({ storage: memoryStorage(), fastClock: true })} />);
   await startReadyLife(Object.keys(content.scenario)[0]!);
@@ -25,10 +25,10 @@ afterEach(() => {
 });
 
 describe("the world is the game", () => {
-  test("[R-WORLD-001] given a life picked at the default address, when it starts, then the world opens with the band and the two thumb buttons, and no header, tabs or month page", async () => {
+  test("[world:world-fills-the-screen] given a life picked at the default address, when it starts, then the world opens with the band and the two thumb buttons, and no header, tabs or month page", async () => {
     history.replaceState(null, "", "/");
     await startLife();
-    // The first chapter's brief is handed as a mission card by a person at the hub (R-CHAPTER-011).
+    // The first chapter's brief is handed as a mission card by a person at the hub (chapter:first-chapter-mission-card).
     await waitFor(() => expect(document.querySelector("[data-brief]")).not.toBeNull());
     expect(screen.getByRole("button", { name: say("ui.brief.go") })).toBeTruthy();
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull());
@@ -40,7 +40,7 @@ describe("the world is the game", () => {
     expect(screen.queryByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeNull();
   });
 
-  test("[R-CITY-021] given a life played on this device with no account, when the phone's Settings is opened, then the Credits row stands under its own heading, About the game, below the account and the ready lives, and opens the credits sheet", async () => {
+  test("[city:credits-screen-attributions] given a life played on this device with no account, when the phone's Settings is opened, then the Credits row stands under its own heading, About the game, below the account and the ready lives, and opens the credits sheet", async () => {
     history.replaceState(null, "", "/");
     await startLife();
     fireEvent.click(await waitFor(() => document.querySelector<HTMLElement>("[data-thumb='phone']")!));
@@ -53,7 +53,7 @@ describe("the world is the game", () => {
     expect(await screen.findByRole("dialog", { name: "Credits" })).toBeTruthy();
   });
 
-  test("[R-WORLD-024] given ?classic, when a life starts, then the world opens as at any address, with no month page", async () => {
+  test("[world:no-classic-view-kept] given ?classic, when a life starts, then the world opens as at any address, with no month page", async () => {
     history.replaceState(null, "", "/?classic");
     await startLife();
     await waitFor(() => expect(document.querySelector("[data-band] [data-band-month]")).not.toBeNull(), { timeout: 10_000 });
@@ -61,7 +61,7 @@ describe("the world is the game", () => {
     expect(screen.queryByRole("heading", { name: say("ui.month.planning", { month: 1 }) })).toBeNull();
   });
 
-  test("[R-WORLD-024] given the shell's code, then nothing asks for a month page, and no month page module, bar or head exists", () => {
+  test("[world:no-classic-view-kept] given the shell's code, then nothing asks for a month page, and no month page module, bar or head exists", () => {
     const app = readFileSync(join(import.meta.dirname, "App.tsx"), "utf8");
     expect(app).not.toMatch(/classic/i);
     expect(app).not.toContain("../Classic");

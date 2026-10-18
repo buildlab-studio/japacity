@@ -1,4 +1,4 @@
-// The ride sheet (docs/rules/world.md R-WORLD-017): picking a
+// The ride sheet (world:ride-sheet-shows-fares): picking a
 // stop raises a sheet at the foot of the map with the place's own picture, its name and state, a line about it, the
 // ways to go as picture tiles with the fare and minutes under each, the balance before struck through and after, and
 // one yellow Go that says the ride and its fare. The map stays in view above it.
@@ -26,13 +26,13 @@ export interface RideSheetProps {
   formatFare?: (amount: number) => string;
   onChoose: (way: RideChoice) => void;
   onClose: () => void;
-  /** "Stay here" on the stop the character stands at: closes the map as well, back to the place (R-WORLD-017). */
+  /** "Stay here" on the stop the character stands at: closes the map as well, back to the place (world:ride-sheet-shows-fares). */
   onStay?: () => void;
-  /** The way chosen first, when a vehicle in the place was tapped (R-WORLD-017). */
+  /** The way chosen first, when a vehicle in the place was tapped (world:ride-sheet-shows-fares). */
   by?: RideChoice["id"];
   /** Hears the way picked, from the first, so the route on the map carries its sticker (the car of your own among them). */
   onWay?: (way: RideChoice["id"]) => void;
-  /** A way's picture where the country's own vehicle stands for it (Calgary's bus, Dubai's metro car, the van); `WAY_MODEL`'s else (R-WORLD-039). */
+  /** A way's picture where the country's own vehicle stands for it (Calgary's bus, Dubai's metro car, the van); `WAY_MODEL`'s else (world:ride-abroad-and-workplace). */
   wayModel?: (choice: RideChoice) => string | null;
 }
 
@@ -82,11 +82,11 @@ export function firstWay(ways: readonly RideChoice[], have: number, by?: RideCho
 }
 
 /**
- * What a way's tile says under its name: the fare; on foot "Free"; the bus in a pass month "£0, bus pass" (R-PLACE-012,
- * R-WORLD-039); the single way of a country with no fares yet "Bus pass", as before.
+ * What a way's tile says under its name: the fare; on foot "Free"; the bus in a pass month "£0, bus pass" (place:country-pass-covers-ways,
+ * world:ride-abroad-and-workplace); the single way of a country with no fares yet "Bus pass", as before.
  */
 export function fareTile(choice: RideChoice, formatMoney: (amount: number) => string, formatFare: (amount: number) => string = formatMoney): string {
-  // The country's pass or its shuttle, named in the country's money (R-PLACE-012, R-PLACE-013).
+  // The country's pass or its shuttle, named in the country's money (place:country-pass-covers-ways, place:employer-shuttle-rides-free).
   if (choice.pill !== undefined) return choice.pill;
   if (choice.passed === true) return mapWords("map.way.passed", { amount: formatMoney(0) });
   if (choice.fare !== 0) return formatFare(choice.fare);
@@ -110,7 +110,7 @@ export function RideSheet({ pin, home, ways, have, formatMoney, formatFare = for
     const label =
       way.id === "walk" ? mapWords(home ? "map.walk-home" : "map.walk") : way.id === "drive" ? mapWords(home ? "map.drive-home" : "map.drive") : mapWords(home ? "map.go-home" : "map.go", { way: way.label.toLowerCase() });
     if (way.fare === 0) return { label, after: null, disabled: false };
-    // R-WORLD-006: the button says the ride and its fare; short, it says how much instead, the one exception.
+    // world:one-action-one-sheet: the button says the ride and its fare; short, it says how much instead, the one exception.
     const priced = pricedLabel(label, formatFare(way.fare));
     if (short) return { label: priced, after: mapWords("map.short", { amount: formatFare(-left) }), disabled: true };
     return { label: priced, after: null, disabled: false };

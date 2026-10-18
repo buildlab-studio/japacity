@@ -7,7 +7,7 @@ import { CARDS_KEY } from "../kept/storage";
 const read = (value: string | null) => ({ getItem: (key: string) => (key === CARDS_KEY ? value : null) });
 
 describe("the type kept with the send-off", () => {
-  test("[R-PROLOGUE-009] given the gallery's entries, when the type is read for a life, then only that life's send-off card with a known type gives it", () => {
+  test("[prologue:front-door-builds-a-person] given the gallery's entries, when the type is read for a life, then only that life's send-off card with a known type gives it", () => {
     const kept = JSON.stringify([
       { key: "a", scenario: "scenario.tunde", card: { kind: "send-off" }, type: "hustler" },
       { key: "b", scenario: "scenario.ada", card: { kind: "chapter" }, type: "gambler" },
@@ -18,7 +18,7 @@ describe("the type kept with the send-off", () => {
     expect(keptTypeOf("scenario.zainab", read(kept))).toBeNull();
   });
 
-  test("[R-PROLOGUE-009] given nothing kept, a broken store, an unknown type or a blocked storage, when the type is read, then it is null", () => {
+  test("[prologue:front-door-builds-a-person] given nothing kept, a broken store, an unknown type or a blocked storage, when the type is read, then it is null", () => {
     expect(keptTypeOf("scenario.ada", read(null))).toBeNull();
     expect(keptTypeOf("scenario.ada", read("{not json"))).toBeNull();
     expect(keptTypeOf("scenario.ada", read(JSON.stringify({ kept: [] })))).toBeNull();

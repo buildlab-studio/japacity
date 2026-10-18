@@ -2,7 +2,7 @@ import { standInWorld } from "@japacity/sim";
 import { finishPrologue, start } from "@japacity/sim/testing";
 import { expect, test, type Page } from "@playwright/test";
 
-// The start screen online (account.md R-ACCOUNT-029), played against a faked server on the online dev server: every
+// The start screen online (account:start-screen-over-live-city), played against a faked server on the online dev server: every
 // /api route is answered here, in the shapes of @japacity/api, and the
 // auth library's routes as Better Auth answers them.
 import { content } from "../../../packages/content/src/index";
@@ -79,11 +79,11 @@ async function pickBirth(page: Page, day: string, month: string, year: string): 
   await page.getByRole("combobox", { name: "Year" }).selectOption(year);
 }
 
-test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-screen door, Begin making the guest life with the bot check unseen, and the world", async ({ page }, info) => {
+test("[account:start-screen-over-live-city] [account:guest-and-secured-states] Play leads to the age screen, the three-screen door, Begin making the guest life with the bot check unseen, and the world", async ({ page }, info) => {
   const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
   await page.goto("/");
 
-  // The start screen over the compound: the hook, the three steps, Play, and the way back to a kept life (R-ACCOUNT-031 hangs the two lights over it).
+  // The start screen over the compound: the hook, the three steps, Play, and the way back to a kept life (account:two-lights-and-wink-lines hangs the two lights over it).
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('[data-gate="start"] [data-front-scene]')).toBeAttached();
   // The compound draws in its own chunk; the picture waits for it, where the browser can draw it at all.
@@ -105,7 +105,7 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
   await shootAtSize(page, "start-age-picked", info.project.name);
   await page.getByRole("button", { name: "Continue" }).click();
 
-  // The date as picked and no token: the bot check goes with the guest start (R-ACCOUNT-013).
+  // The date as picked and no token: the bot check goes with the guest start (account:bot-check-on-guest-creation).
   const name = page.getByRole("textbox", { name: "Your name" });
   await expect(name).toBeVisible({ timeout: 20_000 });
   const declared = faked.sent.find((request) => request.route === "POST /api/age");
@@ -142,7 +142,7 @@ test("[R-ACCOUNT-029] [R-ACCOUNT-021] Play leads to the age screen, the three-sc
   await shootAtSize(page, "start-world", info.project.name);
 });
 
-test("[R-ACCOUNT-029] under 18 is refused on the age screen, and the refusal is remembered on the next visit", async ({ page }, info) => {
+test("[account:start-screen-over-live-city] under 18 is refused on the age screen, and the refusal is remembered on the next visit", async ({ page }, info) => {
   let refused = false;
   const thisYear = new Date().getFullYear();
   await fakeDoor(page, {
@@ -167,7 +167,7 @@ test("[R-ACCOUNT-029] under 18 is refused on the age screen, and the refusal is 
   await expect(page.getByRole("combobox", { name: "Day" })).toHaveCount(0);
 });
 
-test("[R-ACCOUNT-029] I already have a life here shows the ways back in, Google first, with no age screen", async ({ page }, info) => {
+test("[account:start-screen-over-live-city] I already have a life here shows the ways back in, Google first, with no age screen", async ({ page }, info) => {
   const faked = await fakeDoor(page, signUpRoutes(lifeMade()));
   await page.goto("/");
   await page.getByRole("button", { name: "I already have a life here" }).click({ timeout: 20_000 });

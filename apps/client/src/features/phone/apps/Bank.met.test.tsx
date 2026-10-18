@@ -1,4 +1,4 @@
-// Saved for the move, met (docs/rules/world.md R-WORLD-019): once what is held covers the figure, the Bank says so, and
+// Saved for the move, met (world:phone-holds-what-phones-hold): once what is held covers the figure, the Bank says so, and
 // says the figure is the move's fees, never a bare "SAVED FOR THE MOVE £429 of £324". Played on the real engine and
 // content.
 import { content } from "@japacity/content";
@@ -24,7 +24,7 @@ function carePlan() {
 }
 
 describe("Saved for the move, once it is met", () => {
-  test("[R-WORLD-019] given a nurse whose plan is care work holding more than its fees, when the Bank opens, then it says the figure is met and is the move's fees, never only the two figures", async () => {
+  test("[world:phone-holds-what-phones-hold] given a nurse whose plan is care work holding more than its fees, when the Bank opens, then it says the figure is met and is the move's fees, never only the two figures", async () => {
     const game = carePlan();
     const required = savingsOf(game.view())!.required;
     const view = viewAfter(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: required * 2, reason: "gift" }]);

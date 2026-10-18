@@ -1,7 +1,7 @@
-// The people of this life on the phone (docs/rules/world.md R-WORLD-020, R-WORLD-018, R-WORLD-006): once courting, a
+// The people of this life on the phone (world:nobody-picked-from-list, world:phone-rises-over-scene, world:one-action-one-sheet): once courting, a
 // bond lives in its Chats thread, whose head carries the bond's stage and its choices, one row each, the details folded
 // behind the row; and Chats' People row opens the slots, the one place they are seen in the world, with the invite card
-// on an empty partner slot or a computer sibling (person.md R-PEOPLE-010). These are the people tab's own pieces
+// on an empty partner slot or a computer sibling (person:invite-fills-a-slot). These are the people tab's own pieces
 // (BondCard's parts, the slot card, InviteCard), handed to the phone by the shell, so the phone never imports this
 // feature. A pair's conversation is Chats' own thread.
 import { content } from "@japacity/content";
@@ -39,7 +39,7 @@ function siblingWhere(bond: BondView): string | null {
 
 /**
  * One slot as the family is told, on the People row's screen. An empty partner slot offers the invite card behind a tap,
- * as a computer sibling's does (R-PEOPLE-010); a sibling who plays keeps block and report on their record, and their
+ * as a computer sibling's does (person:invite-fills-a-slot); a sibling who plays keeps block and report on their record, and their
  * conversation is their Chats thread.
  */
 function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotView; bond: BondView | null; api: PairApi | null }) {
@@ -94,7 +94,7 @@ function SlotCard({ slotKey, slot, bond, api }: { slotKey: string; slot: SlotVie
   );
 }
 
-/** Who the player sponsors, and a bar on sponsoring with how long it holds, never a month number (undertaking.md R-UNDERTAKING-004; world.md R-WORLD-002). */
+/** Who the player sponsors, and a bar on sponsoring with how long it holds, never a month number (undertaking:sponsored-arrivals-wait-to-sponsor; world:top-band-is-lively-pill). */
 function Sponsoring() {
   const { people, month } = useView();
   if (people.sponsoring === null && people.barUntilMonth === null) return null;
@@ -107,8 +107,8 @@ function Sponsoring() {
 }
 
 /**
- * One row of the head: its name and one figure; what else there is folds behind a tap (R-WORLD-006). The figure is a
- * person's words (R-TEXT-007), so it may run to a second line rather than be cut.
+ * One row of the head: its name and one figure; what else there is folds behind a tap (world:one-action-one-sheet). The figure is a
+ * person's words (text:voice-by-surface), so it may run to a second line rather than be cut.
  */
 function Row({ id, name, figure, open = false, children }: { id: string; name: string; figure: ReactNode; open?: boolean; children: ReactNode }) {
   return (
@@ -125,13 +125,13 @@ function Row({ id, name, figure, open = false, children }: { id: string; name: s
   );
 }
 
-/** A count as a person says it at the head of a line: "Six", "Once" is the words file's own (R-TEXT-005). */
+/** A count as a person says it at the head of a line: "Six", "Once" is the words file's own (text:bands-not-figures). */
 function countSaid(count: number): string {
   const said = countWords(count);
   return said.charAt(0).toUpperCase() + said.slice(1);
 }
 
-/** The times together so far, in a person's words (R-TEXT-005, R-TEXT-007): "Nothing shared yet", "Once together", "Three times together". */
+/** The times together so far, in a person's words (text:bands-not-figures, text:voice-by-surface): "Nothing shared yet", "Once together", "Three times together". */
 export function togetherWords(count: number): string {
   return sayCount("ui.people.head.moments", count, { count: countSaid(count) });
 }
@@ -141,7 +141,7 @@ export function leftWords(count: number): string {
   return sayCount("ui.people.head.moments-left", count, { count: countSaid(count) });
 }
 
-/** Who the ask row asks: a computer by name, a friend as "your friend" (R-TEXT-007: "Ask Tobi", never "Ask them"). */
+/** Who the ask row asks: a computer by name, a friend as "your friend" (text:voice-by-surface: "Ask Tobi", never "Ask them"). */
 export function askName(bond: BondView): string {
   return bond.person === null ? say("ui.people.who.player") : bondName(bond);
 }
@@ -161,9 +161,9 @@ function endFigure(view: ReturnType<typeof useView>, bond: BondView): string {
 }
 
 /**
- * The head of a bond's thread in Chats (R-WORLD-020, R-PEOPLE-014): the stage, an answer waiting, what can be asked,
+ * The head of a bond's thread in Chats (world:nobody-picked-from-list, person:time-together-is-an-act): the stage, an answer waiting, what can be asked,
  * the joint, the sponsoring once partners, and ending it. A player on the other side keeps block and report one tap
- * away (pair.md R-PAIR-014).
+ * away (pair:block-and-report-one-tap).
  */
 export function BondHead({ bond, api }: { bond: BondView; api: PairApi | null }) {
   if (bond.stage === "ended") return <EndedHead bond={bond} />;
@@ -171,7 +171,7 @@ export function BondHead({ bond, api }: { bond: BondView; api: PairApi | null })
 }
 
 /**
- * An ended bond's head, for the month its thread stays (R-PEOPLE-042): what
+ * An ended bond's head, for the month its thread stays (person:computer-partner-drifts): what
  * happened in one line, then the reason in their own words where they gave one, a computer who stopped waiting or left.
  */
 function EndedHead({ bond }: { bond: BondView }) {
@@ -191,7 +191,7 @@ function EndedHead({ bond }: { bond: BondView }) {
           {say(reason)}
         </p>
       )}
-      {/* The record stays read only; the two may court again after a while (R-PEOPLE-039). */}
+      {/* The record stays read only; the two may court again after a while (person:ended-bond-record-kept). */}
       <p className="text-[13px] text-text-2" data-recourt>
         {say("ui.people.ended.recourt", { months: content.tuning.people.recourtMonths })}
       </p>
@@ -213,7 +213,7 @@ function LiveHead({ bond, api }: { bond: BondView; api: PairApi | null }) {
       <Row
         id="stage"
         name={say(`ui.people.stage.${bond.stage}`)}
-        // While an interview is open the times together are hidden, so each answers from memory (R-INTERVIEW-005).
+        // While an interview is open the times together are hidden, so each answers from memory (interview:one-question-at-a-time).
         figure={bond.moments === null ? say("ui.people.moments.hidden", { piece: interviewName() }) : togetherWords(moments)}
       >
         <Warnings bond={bond} view={view} />
@@ -257,7 +257,7 @@ function LiveHead({ bond, api }: { bond: BondView; api: PairApi | null }) {
 
 /**
  * The People row's screen: the slots of this life (partner, siblings, mother, father) as the people tab shows them, with
- * the invite card behind a tap on an empty partner slot or a computer sibling. Never a list of strangers (R-WORLD-020).
+ * the invite card behind a tap on an empty partner slot or a computer sibling. Never a list of strangers (world:nobody-picked-from-list).
  */
 export function PeopleSlots({ api }: { api: PairApi | null }) {
   const view = useView();

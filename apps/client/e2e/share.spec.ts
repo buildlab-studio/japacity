@@ -1,6 +1,6 @@
 // The share card in a real browser on a phone (docs/rules/share.md): Ada's
 // recorded life boards the plane through the send-off scene, the send-off card
-// is opened from the phone (R-SHARE-015), and the player saves it as a file
+// is opened from the phone (share:send-off-card-kept), and the player saves it as a file
 // where the browser has no share sheet.
 import { readFileSync } from "node:fs";
 
@@ -31,9 +31,9 @@ function jpegSize(bytes: Buffer): { width: number; height: number } | null {
 }
 
 /**
- * Ada boards the plane in the world (R-CHAPTER-006, route/depart): the granted card owed on load is closed, the map rides
- * her to the airport, the gate's act opens the send-off scene whose Board the plane takes the flight (R-CHAPTER-012), the
- * landing's moment card is closed, and the send-off card is opened from its tile on the phone's home (R-SHARE-015).
+ * Ada boards the plane in the world (chapter:send-off-card-on-close, route/depart): the granted card owed on load is closed, the map rides
+ * her to the airport, the gate's act opens the send-off scene whose Board the plane takes the flight (chapter:send-off-scene-in-beats), the
+ * landing's moment card is closed, and the send-off card is opened from its tile on the phone's home (share:send-off-card-kept).
  */
 async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await page.addInitScript(
@@ -64,14 +64,14 @@ async function flyAda(page: Page, withShareSheet: boolean): Promise<void> {
   await page.locator("[data-keepsake-open]").click();
 }
 
-test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on a phone as a JPEG at the card's size and under its limit", async ({ page }) => {
+test("[share:card-drawn-on-device] [chapter:send-off-card-on-close] a recorded life's send-off card is saved on a phone as a JPEG at the card's size and under its limit", async ({ page }) => {
   test.setTimeout(180_000);
   await flyAda(page, false);
   const sheet = page.getByRole("dialog");
   const card = sheet.locator("[data-share-card='send-off']");
   await expect(card).toBeVisible();
   await expect(card.getByText("Japacity is a game.")).toBeVisible();
-  // The card names her as the band does: the first word of the life's own name (R-SHARE-004).
+  // The card names her as the band does: the first word of the life's own name (share:card-contents).
   await expect(card.getByText("Adaeze", { exact: true })).toBeVisible();
 
   const download = page.waitForEvent("download");
@@ -83,16 +83,16 @@ test("[R-SHARE-009] [R-CHAPTER-006] a recorded life's send-off card is saved on 
   expect(jpegSize(bytes)).toEqual({ width: content.tuning.share.width, height: content.tuning.share.height });
   await expect(sheet.getByText("Saved to your downloads.")).toBeVisible();
 
-  // R-SHARE-011: closed, the card goes to the gallery on this device, newest first, after the granted card closed on load.
+  // share:card-never-stored: closed, the card goes to the gallery on this device, newest first, after the granted card closed on load.
   await sheet.getByRole("button", { name: "Close" }).click();
-  // The card's screen is gone; the phone it was opened from stays open under it (R-SHARE-015).
+  // The card's screen is gone; the phone it was opened from stays open under it (share:send-off-card-kept).
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
   await expect(page.getByRole("dialog", { name: "Your send-off card is ready" })).toHaveCount(0);
   const kept = await page.evaluate(() => JSON.parse(localStorage.getItem("japacity.cards") ?? "[]") as { card: { kind: string } }[]);
   expect(kept.map((entry) => entry.card.kind)).toEqual(["send-off", "granted"]);
 });
 
-test("[R-SHARE-003] a phone with a share sheet gets the card only when the player taps", async ({ page }) => {
+test("[share:card-offered-never-sent] a phone with a share sheet gets the card only when the player taps", async ({ page }) => {
   test.setTimeout(180_000);
   await page.addInitScript(() => {
     const shared: unknown[] = [];
@@ -118,7 +118,7 @@ test("[R-SHARE-003] a phone with a share sheet gets the card only when the playe
   expect(shared[0]?.files[0]?.type).toBe("image/jpeg");
 });
 
-test("[R-SHARE-012] [R-SHARE-010] the official accounts page and the link previews are served as fixed files", async ({ page, request }) => {
+test("[share:official-accounts-page] [share:card-link-has-fixed-preview] the official accounts page and the link previews are served as fixed files", async ({ page, request }) => {
   await page.goto("/official/index.html");
   await expect(page.getByRole("heading", { name: "Official accounts" })).toBeVisible();
   await expect(page.getByRole("link", { name: "japacity.app", exact: true })).toBeVisible();

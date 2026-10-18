@@ -1,5 +1,5 @@
-// The fan in the city (docs/design/13-the-lively-layer.md section 3; docs/rules/world.md R-WORLD-005, R-WORLD-006,
-// R-WORLD-010, R-WORLD-034): a tap on any thing fans its acts out of the thing; a button of the simulation's acts done at
+// The fan in the city (docs/design/13-the-lively-layer.md section 3; world:things-are-tappable-models, world:one-action-one-sheet,
+// world:nothing-roams, world:fan-of-sticker-buttons): a tap on any thing fans its acts out of the thing; a button of the simulation's acts done at
 // once sends the act the sheet would send, once the walk has reached the thing; a pose, Sleep, a card or a command is
 // handed to the walk and done on arrival as its kind does; a thing with no room beside it opens the sheet; the chip is
 // gone. The place file is the one the game ships; the scene is a stand-in that hands the city the taps, says where the
@@ -34,7 +34,7 @@ interface StandInProps {
 const handed: string[] = [];
 
 function StandInScene({ things, actOn = null, onPick }: StandInProps) {
-  // The walk is instant here: the act follows the fan's tap at once, as it would on arrival (R-WORLD-010).
+  // The walk is instant here: the act follows the fan's tap at once, as it would on arrival (world:nothing-roams).
   useEffect(() => {
     if (actOn === null) return;
     handed.push(`${actOn.thing.id}:${actOn.act.id}:${actOn.act.pose ?? ""}`);
@@ -102,7 +102,7 @@ function fanTheCookingCorner(at: { x: number; y: number } | null = { x: 90, y: 5
 }
 
 describe("the cooking corner's fan", () => {
-  test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-006] [R-HOME-012] given Ada at the family house, when the cooking corner is tapped, then its two acts fan out of it, the pot free and the big pot with its price alone, no chip is asked of the scene, the nudge steps back, and while the big pot is pressed the band's counter shows what would be left", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] [world:one-action-one-sheet] [home:living-by-hand] given Ada at the family house, when the cooking corner is tapped, then its two acts fan out of it, the pot free and the big pot with its price alone, no chip is asked of the scene, the nudge steps back, and while the big pot is pressed the band's counter shows what would be left", async () => {
     const { game } = await inTheParlour();
     fanTheCookingCorner();
     const fan = found('[data-fan="cooking"]');
@@ -125,13 +125,13 @@ describe("the cooking corner's fan", () => {
     expect(found("[data-band-money]").dataset.bandPreview).toBe(String(held - price));
     fireEvent.pointerUp(found(`[data-fan-act="${JOLLOF}"] button`));
     expect(found("[data-band-money]").dataset.bandPreview).toBeUndefined();
-    // The chip is gone (R-WORLD-034): nothing but the fan stands over the corner.
+    // The chip is gone (world:fan-of-sticker-buttons): nothing but the fan stands over the corner.
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
     expect(document.querySelector("[data-nudge]")).toBeNull();
     expect(document.querySelector("[role=dialog]")).toBeNull();
   });
 
-  test("[R-WORLD-026] [R-WORLD-034] given someone overheard over the room, when the cooking corner's fan opens, then their words are hushed at once and do not come back when the fan closes, since the fan's title and buttons would stand on them", async () => {
+  test("[world:street-talk-budget] [world:fan-of-sticker-buttons] given someone overheard over the room, when the cooking corner's fan opens, then their words are hushed at once and do not come back when the fan closes, since the fan's title and buttons would stand on them", async () => {
     resetLines();
     await inTheParlour();
     act(() => {
@@ -148,7 +148,7 @@ describe("the cooking corner's fan", () => {
     resetLines();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-010] given the cooking corner's fan, when food from the pot is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] [world:nothing-roams] given the cooking corner's fan, when food from the pot is tapped, then once the walk reaches the corner the act is sent at once as its sheet would send it, and the fan closes", async () => {
     const { authority } = await inTheParlour();
     fanTheCookingCorner();
     const before = authority.sent.length;
@@ -157,7 +157,7 @@ describe("the cooking corner's fan", () => {
     await waitFor(() => expect(document.querySelector("[data-fan]")).toBeNull());
   });
 
-  test("[R-WORLD-006] given too little naira for the big pot, when its button is tapped, then it says how much is short, shakes, and sends nothing", async () => {
+  test("[world:one-action-one-sheet] given too little naira for the big pot, when its button is tapped, then it says how much is short, shakes, and sends nothing", async () => {
     const { authority } = await inTheParlour((game) => setPockets(game, { NGN: 50_000 }));
     fanTheCookingCorner();
     const before = authority.sent.length;
@@ -168,21 +168,21 @@ describe("the cooking corner's fan", () => {
     expect(authority.sent.slice(before)).toEqual([]);
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given the cooking corner off the screen as it is tapped, when its acts would fan, then the existing sheet of its two meals opens instead", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the cooking corner off the screen as it is tapped, when its acts would fan, then the existing sheet of its two meals opens instead", async () => {
     await inTheParlour();
     fanTheCookingCorner(null);
     await waitFor(() => expect(document.querySelector("[role=dialog]")).not.toBeNull());
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given a thing in the middle of the phone with no room either side, when its acts would fan, then the sheet opens instead", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given a thing in the middle of the phone with no room either side, when its acts would fan, then the sheet opens instead", async () => {
     await inTheParlour();
     fanTheCookingCorner({ x: 195, y: 420 });
     await waitFor(() => expect(document.querySelector("[role=dialog]")).not.toBeNull());
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given a development build asked for ?fan=off, when the cooking corner is tapped, then the address asks for nothing: the corner fans as in every build and no chip is drawn", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given a development build asked for ?fan=off, when the cooking corner is tapped, then the address asks for nothing: the corner fans as in every build and no chip is drawn", async () => {
     window.history.replaceState(null, "", "/?fan=off");
     await inTheParlour();
     fanTheCookingCorner();
@@ -190,7 +190,7 @@ describe("the cooking corner's fan", () => {
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-025] given a thing whose acts are not done at once (the bed's Sleep), when it is tapped, then it fans too: its nap with the bed's picture and Sleep with the sleep glyph, the act's own label, no price pill and no Free, and no chip", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] [world:sleep-ends-the-month] given a thing whose acts are not done at once (the bed's Sleep), when it is tapped, then it fans too: its nap with the bed's picture and Sleep with the sleep glyph, the act's own label, no price pill and no Free, and no chip", async () => {
     await inTheParlour();
     fireEvent.click(found('[data-stand-in-thing="mattress"]'));
     act(() => anchorFan("mattress", { x: 90, y: 560 }));
@@ -203,14 +203,14 @@ describe("the cooking corner's fan", () => {
     expect(sleep.querySelector("[data-fan-price]")).toBeNull();
     const rest = [...fan.querySelectorAll<HTMLElement>("[data-fan-act]")].filter((node) => node !== sleep);
     expect(rest).toHaveLength(1);
-    // The nap where one can be had, else Lie down in its place (R-WORLD-025, the contract's `otherwise`).
+    // The nap where one can be had, else Lie down in its place (world:sleep-ends-the-month, the contract's `otherwise`).
     expect(["activity.nap", "lie"]).toContain(rest[0]?.dataset.fanAct);
     expect(fan.textContent).not.toContain(say("ui.world.free"));
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
     expect(document.querySelector("[role=dialog]")).toBeNull();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] [R-WORLD-010] given the sofa, when it is tapped, then Sit and Lie down fan out with their glyphs and no price; Sit is handed to the walk with its pose and lands as the sofa's act, sending nothing, and the fan closes", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] [world:nothing-roams] given the sofa, when it is tapped, then Sit and Lie down fan out with their glyphs and no price; Sit is handed to the walk with its pose and lands as the sofa's act, sending nothing, and the fan closes", async () => {
     const { authority } = await inTheParlour();
     fireEvent.click(found('[data-stand-in-thing="sofa"]'));
     act(() => anchorFan("sofa", { x: 90, y: 560 }));
@@ -229,7 +229,7 @@ describe("the cooking corner's fan", () => {
     expect(document.querySelector("[role=dialog]")).toBeNull();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given the light bill open at Mama, when she is tapped, then her fan holds Pay with the pay glyph and no price pill beside her time; Pay opens the bill's card once the walk has reached her", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the light bill open at Mama, when she is tapped, then her fan holds Pay with the pay glyph and no price pill beside her time; Pay opens the bill's card once the walk has reached her", async () => {
     await inTheParlour((one) => {
       openOffer(one, "offer.nepa-bill");
     });
@@ -246,7 +246,7 @@ describe("the cooking corner's fan", () => {
     expect(document.querySelector("[data-fan]")).toBeNull();
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given a thing with a pose act and no room beside it, when its acts would fan, then the same buttons open as a small sheet, and a card there does as the fan's button does", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given a thing with a pose act and no room beside it, when its acts would fan, then the same buttons open as a small sheet, and a card there does as the fan's button does", async () => {
     await inTheParlour();
     fireEvent.click(found('[data-stand-in-thing="sofa"]'));
     act(() => anchorFan("sofa", null));
@@ -258,7 +258,7 @@ describe("the cooking corner's fan", () => {
     await waitFor(() => expect(document.querySelector("[data-fan-sheet]")).toBeNull());
   });
 
-  test("[R-WORLD-034] [R-WORLD-003] [R-WORLD-005] given the fan open, when a tap lands outside it or Escape is pressed, then the fan goes and the band's row comes back as it stood; a tap on the fan keeps it", async () => {
+  test("[world:fan-of-sticker-buttons] [world:nudge-says-one-thing] [world:things-are-tappable-models] given the fan open, when a tap lands outside it or Escape is pressed, then the fan goes and the band's row comes back as it stood; a tap on the fan keeps it", async () => {
     await inTheParlour();
     const row = (): string | null => document.querySelector("[data-band] [data-nudge]")?.textContent ?? null;
     const before = row();

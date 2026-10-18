@@ -9,12 +9,12 @@ import { nameOf, say, sayCount } from "../../shared/words/text";
 import { ActivityView } from "./ActivityView";
 
 describe("the side job and slots held", () => {
-  test("[R-TURN-009] given a slot held by a side job, then the plan says which slot is held, why and for how long", async () => {
+  test("[turn:slots-can-be-locked] given a slot held by a side job, then the plan says which slot is held, why and for how long", async () => {
     await renderWithView(<ActivityView />, richAbroadView());
     expect(screen.getByText(say("ui.locks.side", { slots: sayCount("ui.offer.lock.slots", 1, { count: 1 }), why: say("ui.locks.why.side-job") }))).toBeDefined();
   });
 
-  test("[R-ACTIVITY-010] [R-WALLET-016] given the view's side job, then the plan names it and the view's pay for it", async () => {
+  test("[activity:side-job-holds-a-slot] [wallet:view-carries-month-pay] given the view's side job, then the plan names it and the view's pay for it", async () => {
     const written = content.activity["activity.weekend-tutoring"]?.pay;
     if (written === null || written === undefined || typeof written.amount !== "number") throw new Error("The tutoring has no pay.");
     const sidePay = { currency: written.currency, amount: written.amount };
@@ -25,7 +25,7 @@ describe("the side job and slots held", () => {
     expect(card.textContent).toContain(say("ui.job.pay", { amount: formatMoney(sidePay.amount, sidePay.currency) }));
   });
 
-  test("[R-ACTIVITY-010] given a side job held, when it is quit, then activity/quit is sent with side true", async () => {
+  test("[activity:side-job-holds-a-slot] given a side job held, when it is quit, then activity/quit is sent with side true", async () => {
     const view = richAbroadView();
     const { authority } = await renderWithView(<ActivityView />, view);
     fireEvent.click(screen.getByRole("button", { name: say("ui.side.quit") }));

@@ -1,4 +1,4 @@
-// How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the talk budget, docs/design/13-the-lively-layer.md
+// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/13-the-lively-layer.md
 // section 5): a person's words in a bubble over their head that follows them and goes on a tap, at most eight words for
 // about four seconds, a longer line clipped to two lines that opens whole in a sheet with their name; the street's talk as an ambient bubble
 // over the resident nearest, with twenty seconds of quiet after; the bottom corner for the player's own act's answer alone,
@@ -36,7 +36,7 @@ afterEach(() => {
 });
 
 describe("the bubble over a person", () => {
-  test("[R-WORLD-005] given Mama speaking, when the bubble shows, then it carries her name small over her words, marks her as the speaker and is no toast", () => {
+  test("[world:things-are-tappable-models] given Mama speaking, when the bubble shows, then it carries her name small over her words, marks her as the speaker and is no toast", () => {
     render(<SpeechBubble anchored={false} />);
     act(() => speak("mummy", "Mama", MAMA));
     expect(bubble()?.dataset.speech).toBe("mummy");
@@ -45,7 +45,7 @@ describe("the bubble over a person", () => {
     expect(document.querySelector("[data-toast]")).toBeNull();
   });
 
-  test("[R-WORLD-005] [R-WORLD-026] given Mama's words up, when they are tapped, then they go at once; left alone, they go after about four seconds", () => {
+  test("[world:things-are-tappable-models] [world:street-talk-budget] given Mama's words up, when they are tapped, then they go at once; left alone, they go after about four seconds", () => {
     render(<SpeechBubble anchored={false} />);
     act(() => speak("mummy", "Mama", MAMA));
     fireEvent.click(bubble()!);
@@ -64,7 +64,7 @@ describe("the bubble over a person", () => {
     expect(SPEECH_MS).toBeLessThanOrEqual(4500);
   });
 
-  test("[R-WORLD-005] given someone speaking, when another speaks, then one bubble shows, the new speaker's, and the first one's timer never takes it down", () => {
+  test("[world:things-are-tappable-models] given someone speaking, when another speaks, then one bubble shows, the new speaker's, and the first one's timer never takes it down", () => {
     render(<SpeechBubble anchored={false} />);
     act(() => speak("agent", "Agent", "Not today."));
     act(() => {
@@ -79,7 +79,7 @@ describe("the bubble over a person", () => {
     expect(bubble()?.dataset.speech).toBe("officer");
   });
 
-  test("[R-WORLD-005] given a scene drawn, when the bubble shows, then it waits hidden for the scene to place it over the speaker; while the world is covered it hides", () => {
+  test("[world:things-are-tappable-models] given a scene drawn, when the bubble shows, then it waits hidden for the scene to place it over the speaker; while the world is covered it hides", () => {
     const { rerender } = render(<SpeechBubble anchored />);
     act(() => speak("mama", "Mama", "God bless you. Light is back."));
     expect(bubble()?.style.visibility).toBe("hidden");
@@ -87,7 +87,7 @@ describe("the bubble over a person", () => {
     expect(bubble()).toBeNull();
   });
 
-  test("[R-WORLD-005] given Mama in the parlour seen from the room's whole view, when her bubble is placed, then its tail stands over her, inside the screen and under the band; behind the camera it hides", () => {
+  test("[world:things-are-tappable-models] given Mama in the parlour seen from the room's whole view, when her bubble is placed, then its tail stands over her, inside the screen and under the band; behind the camera it hides", () => {
     const stage = stageOf(parlourFile as unknown as PlaceFile);
     const mama = thingsOf(stage).find((thing) => thing.id === "mama");
     const spot = mama === undefined ? null : thingSpot(stage, mama);
@@ -110,7 +110,7 @@ describe("the bubble over a person", () => {
 });
 
 describe("the bubble's tail and its room", () => {
-  test("[R-WORLD-026] given a person speaking, when the bubble shows, then its tail is drawn in the bubble's own fill with the edge round its sides and the underside under its point, and its words wear one pair of curly quotes that are the bubble's, not the line's", () => {
+  test("[world:street-talk-budget] given a person speaking, when the bubble shows, then its tail is drawn in the bubble's own fill with the edge round its sides and the underside under its point, and its words wear one pair of curly quotes that are the bubble's, not the line's", () => {
     render(<SpeechBubble anchored={false} />);
     act(() => speak("mama", "Mama", MAMA));
     const tail = bubble()?.querySelector("[data-speech-tail]");
@@ -122,7 +122,7 @@ describe("the bubble's tail and its room", () => {
     expect(words?.textContent).toBe(MAMA);
   });
 
-  test("[R-WORLD-026] given a bubble moved off its speaker, when its tail is drawn, then it leaves the box between its rounded corners, starts inside the box so its fill covers the edge there, and its point ends over the speaker", () => {
+  test("[world:street-talk-budget] given a bubble moved off its speaker, when its tail is drawn, then it leaves the box between its rounded corners, starts inside the box so its fill covers the edge there, and its point ends over the speaker", () => {
     const paths = tailPaths(240, { x: -150, length: 70 });
     const points = (d: string): number[][] => [...d.matchAll(/([\d.-]+) ([\d.-]+)/g)].map((match) => [Number(match[1]), Number(match[2])]);
     const fill = points(paths.fill);
@@ -136,7 +136,7 @@ describe("the bubble's tail and its room", () => {
     expect(points(paths.edge)[1]).toEqual([-30, 70]);
   });
 
-  test("[R-WORLD-026] given heads right over the speaker, when the bubble is placed, then it steps aside or rises clear of them, its tail reaching down to the speaker and never longer than a bubble's height; with room it keeps the spot it had, so it does not hop; a dot under it is better than a far spot", () => {
+  test("[world:street-talk-budget] given heads right over the speaker, when the bubble is placed, then it steps aside or rises clear of them, its tail reaching down to the speaker and never longer than a bubble's height; with room it keeps the spot it had, so it does not hop; a dot under it is better than a far spot", () => {
     const size = { width: 412, height: 839 };
     const box = { width: 220, height: 70 };
     const at = { x: 0, y: -0.1, z: 0.5 };
@@ -168,7 +168,7 @@ describe("the bubble's tail and its room", () => {
 });
 
 describe("the talk budget's words", () => {
-  test("[R-WORLD-026] given a line of at most eight words, when a person says it, then it floats whole; a longer line shows … and a tap opens it in a sheet with their name", () => {
+  test("[world:street-talk-budget] given a line of at most eight words, when a person says it, then it floats whole; a longer line shows … and a tap opens it in a sheet with their name", () => {
     render(<SpeechBubble anchored={false} />);
     expect(WORDS_MAX).toBe(8);
     const long = "The universities are coming to the hub this week, they say.";
@@ -186,7 +186,7 @@ describe("the talk budget's words", () => {
     expect(document.querySelector("[data-lively-sheet]")?.textContent).toContain("Mama");
   });
 
-  test("[R-WORLD-026] given the street's talk, when a line comes, then it floats over the resident nearest the player, and the next waits at least twenty seconds of quiet; never over someone speaking", () => {
+  test("[world:street-talk-budget] given the street's talk, when a line comes, then it floats over the resident nearest the player, and the next waits at least twenty seconds of quiet; never over someone speaking", () => {
     render(<SpeechBubble anchored={false} />);
     const start = Date.now();
     act(() => {
@@ -208,7 +208,7 @@ describe("the talk budget's words", () => {
 });
 
 describe("the bottom corner", () => {
-  test("[R-WORLD-026] given lines told, when the corner shows, then it holds one at a time, the first told first, the player's own act's answer, and never the street's talk", () => {
+  test("[world:street-talk-budget] given lines told, when the corner shows, then it holds one at a time, the first told first, the player's own act's answer, and never the street's talk", () => {
     render(<Corner />);
     act(() => {
       murmur("A hawker: Pure water!");
@@ -220,7 +220,7 @@ describe("the bottom corner", () => {
     expect(document.querySelector("[data-heard], [data-chatter]")).toBeNull();
   });
 
-  test("[R-WORLD-026] given two lines told together, when time passes, then the first stands about seven seconds, then the second takes its turn for its own time, then the corner is empty", () => {
+  test("[world:street-talk-budget] given two lines told together, when time passes, then the first stands about seven seconds, then the second takes its turn for its own time, then the corner is empty", () => {
     render(<Corner />);
     act(() => {
       tell(ORANGES);
@@ -237,7 +237,7 @@ describe("the bottom corner", () => {
     expect(document.querySelector("[data-corner]")).toBeNull();
   });
 
-  test("[R-WORLD-026] given a line showing, when a new tap is answered a while later, then its line takes the corner at once and the old one is gone", () => {
+  test("[world:street-talk-budget] given a line showing, when a new tap is answered a while later, then its line takes the corner at once and the old one is gone", () => {
     render(<Corner />);
     act(() => tell(ORANGES));
     act(() => {
@@ -251,7 +251,7 @@ describe("the bottom corner", () => {
     expect(document.querySelector("[data-corner]")).toBeNull();
   });
 
-  test("[R-WORLD-026] given the phone over the world, when the corner shows over it, then it holds what was told, so an app's line is read", () => {
+  test("[world:street-talk-budget] given the phone over the world, when the corner shows over it, then it holds what was told, so an app's line is read", () => {
     render(<Corner told />);
     act(() => {
       tell("Money changed");
@@ -259,7 +259,7 @@ describe("the bottom corner", () => {
     expect(told()).toEqual(["Money changed"]);
   });
 
-  test("[R-WORLD-026] given the world covered, when lines are told, then the corner hides and keeps them for when the world shows", () => {
+  test("[world:street-talk-budget] given the world covered, when lines are told, then the corner hides and keeps them for when the world shows", () => {
     const { rerender } = render(<Corner hidden />);
     act(() => tell(ORANGES));
     expect(document.querySelector("[data-corner]")).toBeNull();
@@ -278,7 +278,7 @@ function Street({ free }: { free: boolean }) {
 }
 
 describe("the street's talk", () => {
-  test("[R-WORLD-026] given the world free, when it opens, then a line floats at once over the resident nearest, the next only after the quiet, and none while the world is covered", () => {
+  test("[world:street-talk-budget] given the world free, when it opens, then a line floats at once over the resident nearest, the next only after the quiet, and none while the world is covered", () => {
     const { rerender } = render(<Street free />);
     expect(linesNow().speech?.text).toBe("Talk 1");
     expect(linesNow().lines).toHaveLength(0);
@@ -303,7 +303,7 @@ describe("the street's talk", () => {
     expect(linesNow().speech).toBeNull();
   });
 
-  test("[R-WORLD-026] given someone speaking, when the street's turn comes, then it waits", () => {
+  test("[world:street-talk-budget] given someone speaking, when the street's turn comes, then it waits", () => {
     act(() => speak("mama", "Mama", MAMA, TALK_EVERY_MS * 2));
     render(<Street free />);
     expect(linesNow().speech?.who).toBe("mama");
@@ -320,7 +320,7 @@ function Named({ heard }: { heard: { text: string; name?: string; who?: string }
 }
 
 describe("a line overheard with its speaker", () => {
-  test("[R-WORLD-026] given a line content names a speaker for, when it floats, then the bubble says their name, over them where they stand; a line with no speaker keeps the house's voice over the resident nearest", () => {
+  test("[world:street-talk-budget] given a line content names a speaker for, when it floats, then the bubble says their name, over them where they stand; a line with no speaker keeps the house's voice over the resident nearest", () => {
     const { unmount } = render(<Named heard={{ text: "Your uncle called. When are you going?", name: "Mama", who: "mama" }} />);
     expect(linesNow().speech).toMatchObject({ who: "mama", name: "Mama", text: "Your uncle called. When are you going?" });
     expect(document.querySelector("[data-speech='mama']")?.textContent).toContain("Mama");

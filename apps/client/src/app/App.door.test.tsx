@@ -1,4 +1,4 @@
-// The shell's composition online (App.tsx): signed out, the door after the age screen holds the guest start (account.md R-ACCOUNT-029): the page
+// The shell's composition online (App.tsx): signed out, the door after the age screen holds the guest start (account:start-screen-over-live-city): the page
 // has the username, filled in from the name and changed there, and the guest line once; Begin makes the guest life
 // with the unseen bot check's token, then the character, then the game opens on it.
 import type { Id } from "@japacity/sim";
@@ -110,7 +110,7 @@ function toThePage(): void {
 }
 
 describe("the username a name fills in", () => {
-  test("[R-ACCOUNT-024] given names from the door, then the username keeps their letters and digits, joins the words with underscores, drops the marks, and stays 3 to 20 long", () => {
+  test("[account:username-and-unconfirmed-email] given names from the door, then the username keeps their letters and digits, joins the words with underscores, drops the marks, and stays 3 to 20 long", () => {
     expect(usernameFrom("Adaeze Okafor")).toBe("Adaeze_Okafor");
     expect(usernameFrom("Ọlámídé")).toBe("Olamide");
     expect(usernameFrom("Chi-Chi O'Neil")).toBe("Chi_Chi_O_Neil");
@@ -123,7 +123,7 @@ describe("the username a name fills in", () => {
 });
 
 describe("the guest start at Begin", () => {
-  test("[R-ACCOUNT-029] [R-ACCOUNT-021] [R-ACCOUNT-027] given Play and the age passed, then the door follows with no way in; the page holds the username filled from the name and the guest line once; Begin makes the guest with the token, then the life, and the game opens", async () => {
+  test("[account:start-screen-over-live-city] [account:guest-and-secured-states] [account:guest-reminded-to-secure] given Play and the age passed, then the door follows with no way in; the page holds the username filled from the name and the guest line once; Begin makes the guest with the token, then the life, and the game opens", async () => {
     const account = fakeAccount();
     const turnstile = fakeTurnstile();
     const { store, lives } = online(account, turnstile);
@@ -147,7 +147,7 @@ describe("the guest start at Begin", () => {
     expect(lives).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-024] given the username changed on the page, then Begin sends it as typed; one not of the rule's shape is said and sends nothing; the server's refusal is said by it and Begin can be pressed again", async () => {
+  test("[account:username-and-unconfirmed-email] given the username changed on the page, then Begin sends it as typed; one not of the rule's shape is said and sends nothing; the server's refusal is said by it and Begin can be pressed again", async () => {
     const answers: GuestAnswer[] = [{ ok: false, why: "reserved" }, { ok: true }];
     const account = fakeAccount(() => answers.shift() ?? { ok: true });
     const { store, lives } = online(account);
@@ -172,7 +172,7 @@ describe("the guest start at Begin", () => {
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toEqual(["startGuest(staff_ada)", "startGuest(Ada_Lagos)"]);
   });
 
-  test("[R-ACCOUNT-024] given a filled username someone holds, then Begin tries once more with digits after it; a typed one someone holds is said, never changed", async () => {
+  test("[account:username-and-unconfirmed-email] given a filled username someone holds, then Begin tries once more with digits after it; a typed one someone holds is said, never changed", async () => {
     const filled = fakeAccount((username) => (/_\d{3}$/.test(username) ? { ok: true } : { ok: false, why: "taken" }));
     const { store } = online(filled);
     const name = await toTheDoor();
@@ -185,7 +185,7 @@ describe("the guest start at Begin", () => {
     expect(asked[1]).toMatch(/^startGuest\([A-Za-z0-9_]{3,16}_\d{3}\)$/);
   });
 
-  test("[R-ACCOUNT-024] given a typed username someone holds, then the page says so and sends no other", async () => {
+  test("[account:username-and-unconfirmed-email] given a typed username someone holds, then the page says so and sends no other", async () => {
     const typed = fakeAccount(() => ({ ok: false, why: "taken" }));
     online(typed);
     await toTheDoor();
@@ -196,7 +196,7 @@ describe("the guest start at Begin", () => {
     expect(typed.calls.filter((call) => call.startsWith("startGuest"))).toEqual(["startGuest(ada_lagos)"]);
   });
 
-  test("[R-ACCOUNT-029] [R-ACCOUNT-013] given the unseen check's token not yet in, when Begin is pressed, then the guest start waits for the token and goes with it, and nothing about the check is said", async () => {
+  test("[account:start-screen-over-live-city] [account:bot-check-on-guest-creation] given the unseen check's token not yet in, when Begin is pressed, then the guest start waits for the token and goes with it, and nothing about the check is said", async () => {
     const account = fakeAccount();
     const turnstile = fakeTurnstile({ passAtOnce: false });
     const { store } = online(account, turnstile);
@@ -215,7 +215,7 @@ describe("the guest start at Begin", () => {
     expect(account.bots).toEqual([TOKEN]);
   });
 
-  test("[R-ACCOUNT-013] given the guest start's page, when the widget is rendered, then it carries the action guest, the one the server asks siteverify's pass to name", async () => {
+  test("[account:bot-check-on-guest-creation] given the guest start's page, when the widget is rendered, then it carries the action guest, the one the server asks siteverify's pass to name", async () => {
     const turnstile = fakeTurnstile({ passAtOnce: false });
     online(fakeAccount(), turnstile);
     await toTheDoor();
@@ -224,7 +224,7 @@ describe("the guest start at Begin", () => {
     expect(turnstile.rendered[0]?.action).toBe("guest");
   });
 
-  test("[R-ACCOUNT-029] given a script that never loads, when Begin is pressed, then the guest start goes at once without a token, for the server to judge", async () => {
+  test("[account:start-screen-over-live-city] given a script that never loads, when Begin is pressed, then the guest start goes at once without a token, for the server to judge", async () => {
     const account = fakeAccount();
     const { store } = online(account, { load: () => new Promise(() => undefined) });
     await toTheDoor();
@@ -234,7 +234,7 @@ describe("the guest start at Begin", () => {
     expect(account.bots).toEqual([null]);
   });
 
-  test("[R-ACCOUNT-012] given an age answer that ran out by Begin, then the age screen asks again, and after it the run is back at the page", async () => {
+  test("[account:age-screen-refuses-minors] given an age answer that ran out by Begin, then the age screen asks again, and after it the run is back at the page", async () => {
     const answers: GuestAnswer[] = [{ ok: false, why: "expired" }, { ok: true }];
     const account = fakeAccount(() => answers.shift() ?? { ok: true });
     const { store } = online(account);
@@ -249,7 +249,7 @@ describe("the guest start at Begin", () => {
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
   });
 
-  test("[R-ACCOUNT-021] [R-ACCOUNT-015] given the guest made but the life not started, when Begin is pressed again, then no second guest is asked for and the life starts", async () => {
+  test("[account:guest-and-secured-states] [account:one-character-per-account] given the guest made but the life not started, when Begin is pressed again, then no second guest is asked for and the life starts", async () => {
     const account = fakeAccount();
     const { store, lives } = online(account, fakeTurnstile(), { failFirstLife: true });
     await toTheDoor();
@@ -263,7 +263,7 @@ describe("the guest start at Begin", () => {
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-021] given the guest made but the server answering the character's start signed-out, then the page says the life did not start, and the next Begin makes the guest again and the life starts", async () => {
+  test("[account:guest-and-secured-states] given the guest made but the server answering the character's start signed-out, then the page says the life did not start, and the next Begin makes the guest again and the life starts", async () => {
     const account = fakeAccount();
     const { store, lives } = online(account, fakeTurnstile(), { failFirstLife: reportedError({ ok: false, code: "signed-out", detail: "Sign in first." }) });
     await toTheDoor();

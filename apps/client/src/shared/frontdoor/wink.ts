@@ -1,4 +1,4 @@
-// The lines with a wink (docs/rules/account.md R-ACCOUNT-031, text.md R-TEXT-006): a few places carry two or three
+// The lines with a wink (account:two-lights-and-wink-lines, text:hook-not-explanation): a few places carry two or three
 // lines at most, and one is picked at random once per visit on the device, so a reload may show another. Never
 // from the player's data, and never on bad news. The words are in content's ui/ui.online.text.ts.
 import { deviceRandom, type RandomBelow } from "../net/random";

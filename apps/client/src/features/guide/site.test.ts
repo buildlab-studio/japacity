@@ -31,7 +31,7 @@ const pages = site();
 const masters = at(pages, guidePath("guide.uk-masters"));
 
 describe("the guide pages", () => {
-  test("[R-GUIDE-005] given the content, when the site is built, then every guide is a plain page under /guides/ with no script, linking into the game", () => {
+  test("[guide:guides-are-open-pages] given the content, when the site is built, then every guide is a plain page under /guides/ with no script, linking into the game", () => {
     const paths = pages.map((page) => page.path);
     for (const id of Object.keys(content.guide)) expect(paths).toContain(guidePath(id));
     expect(paths).toEqual(expect.arrayContaining(["/guides/", MADE_PATH]));
@@ -46,7 +46,7 @@ describe("the guide pages", () => {
     expect(masters.title).toBe(`${text["guide.uk-masters.title"] ?? ""} | Japacity`);
   });
 
-  test("[R-GUIDE-005] given a guide page, when its words are read, then they are the content's words, and a change to the content shows on the page", () => {
+  test("[guide:guides-are-open-pages] given a guide page, when its words are read, then they are the content's words, and a change to the content shows on the page", () => {
     const real = text["guide.uk-masters.section.real"] ?? "";
     const paragraphs = [...masters.querySelectorAll('[data-section="real"] p')].map((paragraph) => paragraph.textContent);
     expect(paragraphs).toEqual(real.split("\n\n"));
@@ -59,12 +59,12 @@ describe("the guide pages", () => {
     expect(sentences.filter((sentence) => code.includes(sentence))).toEqual([]);
   });
 
-  test("[R-GUIDE-002] given a route's guide page, when it is read, then its three parts come in order under their headings", () => {
+  test("[guide:every-route-has-a-guide] given a route's guide page, when it is read, then its three parts come in order under their headings", () => {
     const headings = [...masters.querySelectorAll("section[data-section] h2")].map((heading) => heading.textContent);
     expect(headings).toEqual([text["guide.page.heading.real"], text["guide.page.heading.game"], text["guide.page.heading.next"]]);
   });
 
-  test("[R-GUIDE-003] given every guide page, when it is read, then it opens with the general information line and its checked date", () => {
+  test("[guide:guides-never-advise] given every guide page, when it is read, then it opens with the general information line and its checked date", () => {
     for (const guide of Object.values(content.guide)) {
       const document = at(pages, guidePath(guide.id));
       const opening = document.querySelector("article h1 + p");
@@ -72,7 +72,7 @@ describe("the guide pages", () => {
     }
   });
 
-  test("[R-GUIDE-004] given a guide on the stale list, when its page is built, then the notice shows above its body; given a fresh guide, then it does not", () => {
+  test("[guide:guides-show-checked-date] given a guide on the stale list, when its page is built, then the notice shows above its body; given a fresh guide, then it does not", () => {
     expect(masters.querySelector("[data-stale]")).toBeNull();
     const later = "2027-04-09";
     const stale = at(site({ today: later, stale: staleGuides(content, later) }), guidePath("guide.uk-masters"));
@@ -82,7 +82,7 @@ describe("the guide pages", () => {
     expect(at(site({ today: "2027-04-08", stale: staleGuides(content, "2027-04-08") }), guidePath("guide.uk-masters")).querySelector("[data-stale]")).toBeNull();
   });
 
-  test("[R-GUIDE-001] given a guide page, when its sources are read, then each links its source with the date it was read", () => {
+  test("[guide:guide-entry-fields] given a guide page, when its sources are read, then each links its source with the date it was read", () => {
     const guide = content.guide["guide.uk-masters"]!;
     const items = [...masters.querySelectorAll("article section:last-of-type li")];
     expect(items.map((item) => item.querySelector("a")?.getAttribute("href"))).toEqual(guide.sources.map((source) => source.url));
@@ -91,7 +91,7 @@ describe("the guide pages", () => {
 });
 
 describe("where the numbers come from", () => {
-  test("[R-GUIDE-006] given every rule page with a Numbers table, when the site is built, then each has a page listing every row, and a working value says so", () => {
+  test("[guide:numbers-pages-cite-sources] given every rule page with a Numbers table, when the site is built, then each has a page listing every row, and a working value says so", () => {
     const numbered = files.rulePages.map((page) => readRulePage(page.name, page.markdown)).filter((page) => page.numbers !== null);
     expect(numbered.map((page) => page.name)).toEqual(expect.arrayContaining(["guide", "route", "route-gates", "wallet"]));
     for (const rule of numbered) {
@@ -106,12 +106,12 @@ describe("where the numbers come from", () => {
     expect(sourced?.hasAttribute("data-working")).toBe(false);
   });
 
-  test("[R-GUIDE-006] given a route's guide, when its page is read, then it links the numbers pages of the kinds it explains", () => {
+  test("[guide:numbers-pages-cite-sources] given a route's guide, when its page is read, then it links the numbers pages of the kinds it explains", () => {
     const links = [...masters.querySelectorAll("a")].map((link) => link.getAttribute("href"));
     expect(links).toEqual(expect.arrayContaining([numbersPath("route"), numbersPath("route-gates"), numbersPath("wallet")]));
   });
 
-  test("[R-GUIDE-006] given a rule page, when its dates and tables are read, then dates come out as days and links and code are kept apart", () => {
+  test("[guide:numbers-pages-cite-sources] given a rule page, when its dates and tables are read, then dates come out as days and links and code are kept apart", () => {
     expect(isoDay("All read 8 Oct 2026.")).toBe("2026-10-08");
     expect(isoDay("> Status: rules, 7 October 2026.")).toBe("2026-10-07");
     expect(isoDay("no date")).toBeNull();
@@ -128,7 +128,7 @@ describe("where the numbers come from", () => {
 describe("the words a player reads", () => {
   const numbered = files.rulePages.map((page) => readRulePage(page.name, page.markdown)).filter((page) => page.numbers !== null);
 
-  test("[R-GUIDE-006] given every page of the site, when it is read, then no number is called a working value: a player reads an estimate", () => {
+  test("[guide:numbers-pages-cite-sources] given every page of the site, when it is read, then no number is called a working value: a player reads an estimate", () => {
     for (const page of pages) {
       const document = new DOMParser().parseFromString(page.html, "text/html");
       expect(`${page.path}: ${document.body.textContent}`).not.toMatch(/working value/i);
@@ -138,7 +138,7 @@ describe("the words a player reads", () => {
     expect(stale?.textContent.toLowerCase()).toContain(text["guide.page.numbers.estimate"]);
   });
 
-  test("[R-GUIDE-006] given every rule page with numbers, then its numbers page has a name a player knows, and the lists and titles use it instead of the rule page's title", () => {
+  test("[guide:numbers-pages-cite-sources] given every rule page with numbers, then its numbers page has a name a player knows, and the lists and titles use it instead of the rule page's title", () => {
     expect(numbered.filter((page) => text[`guide.page.numbers.name.${page.name}`] === undefined).map((page) => page.name)).toEqual([]);
     // The numbers guide is served at the numbers index, and it alone: two pages never share a path.
     expect(guidePath("guide.numbers")).toBe(NUMBERS_PATH);
@@ -157,7 +157,7 @@ describe("the words a player reads", () => {
     expect(listed).not.toContain("Offers");
   });
 
-  test("[R-GUIDE-001] given the guides' index, then each guide says which routes it serves, by name, or that it serves every route", () => {
+  test("[guide:guide-entry-fields] given the guides' index, then each guide says which routes it serves, by name, or that it serves every route", () => {
     const index = at(pages, "/guides/");
     const lines = Object.values(content.guide).map((guide) => ({ guide, line: index.querySelector(`[data-guide="${guide.id}"] [data-routes]`)?.textContent ?? "" }));
     expect(lines.filter(({ guide }) => guide.routes.length === 0).map(({ line }) => line)).toEqual(expect.arrayContaining([text["guide.page.index.routes.zero"]]));
@@ -165,7 +165,7 @@ describe("the words a player reads", () => {
     expect(missing).toEqual([]);
   });
 
-  test("[R-GUIDE-003] given every guide page, then each short name is spelled out where the page first uses it", () => {
+  test("[guide:guides-never-advise] given every guide page, then each short name is spelled out where the page first uses it", () => {
     const short = ["UKCISA", "IOM", "CRS", "NAPTIP", "NMC", "UAE", "TB"];
     const unexplained = Object.values(content.guide).flatMap((guide) => {
       const body = [...at(pages, guidePath(guide.id)).querySelectorAll("[data-section]")].map((section) => section.textContent).join(" ");
@@ -182,7 +182,7 @@ describe("the words a player reads", () => {
 });
 
 describe("how this game was made", () => {
-  test("[R-GUIDE-011] given the page, when it is read, then it says by kind where generated media is used, that a person approved it, and links the register; no page links a credits page", () => {
+  test("[guide:generated-media-named-plainly] given the page, when it is read, then it says by kind where generated media is used, that a person approved it, and links the register; no page links a credits page", () => {
     const made = at(pages, MADE_PATH);
     expect([...made.querySelectorAll("[data-made]")].map((item) => item.getAttribute("data-made"))).toEqual(["images", "clips", "voices", "music"]);
     expect(made.body.textContent).toContain(files.credits.generated);
@@ -194,9 +194,9 @@ describe("how this game was made", () => {
     expect(voices).toContain("Kokoro-82M");
     expect(voices).toContain("every line is also shown as text");
     expect(voices).not.toMatch(/no voice in the game is generated/i);
-    // While the repository is private, the page links no register (R-GUIDE-011).
+    // While the repository is private, the page links no register (guide:generated-media-named-plainly).
     expect(made.querySelector('a[href*="github.com"]')).toBeNull();
-    // The credits are a screen of the game and the sources a page of the documentation site (R-GUIDE-007, R-GUIDE-008).
+    // The credits are a screen of the game and the sources a page of the documentation site (guide:one-sources-page, guide:credits-screen-in-game).
     const paths = pages.map((page) => page.path);
     expect(paths.filter((path) => path.startsWith("/guides/credits") || path.startsWith("/guides/sources"))).toEqual([]);
     const linking = pages.filter((page) => /href="\/guides\/(credits|sources)\//.test(page.html));

@@ -1,10 +1,10 @@
 // What the game keeps on this device: every key it reads or writes in the browser's storage, and the one way the
-// storage is reached. Ending a life drops the life's own keys (`authority/ended.ts` LIFE_KEYS, account.md R-ACCOUNT-030);
+// storage is reached. Ending a life drops the life's own keys (`authority/ended.ts` LIFE_KEYS, account:start-a-new-life);
 // the device's settings stay.
 
 /** The life's save. */
 export const SAVE_KEY = "japacity.save";
-/** The person built at the front door (R-PROLOGUE-009): the look, the name, the archetype. */
+/** The person built at the front door (prologue:front-door-builds-a-person): the look, the name, the archetype. */
 export const PERSON_KEY = "japacity.person";
 /** The month between loads: the plan, the lines so far, and the card closed. */
 export const MONTH_KEY = "japacity.month";

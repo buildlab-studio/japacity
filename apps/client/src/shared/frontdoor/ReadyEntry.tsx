@@ -1,4 +1,4 @@
-// "Start from a ready life" in Settings (prologue.md R-PROLOGUE-013): the ready lives are not on the door, and
+// "Start from a ready life" in Settings (prologue:front-door-three-screens): the ready lives are not on the door, and
 // testers reach them here. The shell hands this into Settings' slot, so the phone never imports the door. Shown only
 // where a life may be started over (the local authority); a tap opens the door on the ready lives' list.
 import { ArrowRight } from "lucide-react";

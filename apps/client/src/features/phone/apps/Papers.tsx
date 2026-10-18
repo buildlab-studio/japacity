@@ -1,4 +1,4 @@
-// Papers (docs/rules/world.md R-WORLD-019; document.md R-DOCUMENT-008): the
+// Papers (world:phone-holds-what-phones-hold; document:paper-on-its-way): the
 // box under the bed on the phone. Every paper the life has or is waiting on, with its state in words, what it counts
 // toward, and the act that moves it: a call or a message (the transcript, the council, the assessment) opens its card
 // here, the card the box's sheet showed; a visit (the passport office, the test centre) says where and opens the map
@@ -23,7 +23,7 @@ import { PapersPlace, PapersStatus, PapersYou } from "./PapersMore";
 
 const ENGLISH_RESULT = "document.english-test";
 
-/** The cards of the acts given, from the shell: the same card a thing's sheet shows (R-WORLD-005). */
+/** The cards of the acts given, from the shell: the same card a thing's sheet shows (world:things-are-tappable-models). */
 export type PaperCards = (ids: string[]) => ReactNode;
 
 
@@ -35,7 +35,7 @@ function stateWords(row: PaperRow, view: PlayerView): string {
   }
   switch (row.state) {
     case "coming":
-      // A result sealed until the morning says when it comes (R-CLOCK-032), never "this month".
+      // A result sealed until the morning says when it comes (clock:envelopes-show-real-waits), never "this month".
       if (sealedTillMorning(view, row.id)) return say("ui.wait.morning");
       return say("phone.papers.pending", { when: inMonths(row.onItsWay ?? view.month, view.month) });
     case "held":
@@ -120,14 +120,14 @@ function Paper({ row, view, onCard }: { row: PaperRow; view: PlayerView; onCard:
   );
 }
 
-/** `opening`: an act whose card opens at once, as the nudge's step asks (R-WORLD-003). `cards`: the shell's card for an act. */
+/** `opening`: an act whose card opens at once, as the nudge's step asks (world:nudge-says-one-thing). `cards`: the shell's card for an act. */
 export function Papers({ opening = null, cards = null }: { opening?: string | null; cards?: PaperCards | null }) {
   const view = useView();
   const said = use(PhoneSaid);
   const rows = papersOf(view);
   const offered = (activity: string | null): boolean => activity !== null && view.activities.some((option) => option.id === activity && option.allowed);
   const [card, setCard] = useState<string | null>(() => (cards !== null && offered(opening) ? opening : null));
-  // An act done at once from its card is answered on the phone, in the corner, and the card closes (R-ACTIVITY-015, R-WORLD-026).
+  // An act done at once from its card is answered on the phone, in the corner, and the card closes (activity:now-acts-and-month-acts, world:street-talk-budget).
   const lines = useGame((state) => state.lines);
   const seen = useRef(lines);
   useEffect(() => {

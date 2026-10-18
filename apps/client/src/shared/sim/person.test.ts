@@ -10,7 +10,7 @@ const SIBLING_FACTS = { label: "computer" as const, ageMonths: 0, where: "home" 
 const partners = Object.values(content.person).filter((entry) => entry.role === "partner" && !entry.behaviour.papers);
 
 describe("who a bond is with", () => {
-  test.each(partners.map((entry) => [entry.id]))("[R-PEOPLE-052] given %s courted, then the bond is named from content through its facts alone", (person) => {
+  test.each(partners.map((entry) => [entry.id]))("[person:computers-follow-same-rules] given %s courted, then the bond is named from content through its facts alone", (person) => {
     const game = peopleGame(eagerContent());
     // Some partners are offered only at home or from a certain age; the engine's own list decides.
     if (!game.view().people.candidates.some((candidate) => candidate.person === person)) return;
@@ -21,7 +21,7 @@ describe("who a bond is with", () => {
     expect(bondName(shown)).toBe(text[`${person}.name`]);
   });
 
-  test("[R-PEOPLE-051] given the view's bond, then the person is read from the view, not guessed from the facts", () => {
+  test("[person:view-shows-people] given the view's bond, then the person is read from the view, not guessed from the facts", () => {
     const game = peopleGame();
     game.endTurn([]);
     for (const bond of game.view().people.bonds) {
@@ -31,12 +31,12 @@ describe("who a bond is with", () => {
     }
   });
 
-  test("[R-PEOPLE-047] given two siblings drawn from one entry, then their names are told apart by age; given one, then the entry's name alone", () => {
+  test("[person:computer-siblings-drawn-with-family] given two siblings drawn from one entry, then their names are told apart by age; given one, then the entry's name alone", () => {
     const base = { role: "sibling" as const, label: "computer" as const, person: "person.sib-home" as const };
     const facts = (ageMonths: number) => ({ ...SIBLING_FACTS, ageMonths });
     const older = { ...base, id: "bond-1", facts: facts(360) };
     const younger = { ...base, id: "bond-2", facts: facts(240) };
-    // The name as the screen says it: the sibling at home names where the life is from (R-PROLOGUE-002).
+    // The name as the screen says it: the sibling at home names where the life is from (prologue:family-draw-on-first-answer).
     const name = nameOf("person.sib-home");
     expect(bondName(older, [older, younger])).toBe(words("ui.people.sibling.older", { name }));
     expect(bondName(younger, [older, younger])).toBe(words("ui.people.sibling.younger", { name }));
@@ -46,13 +46,13 @@ describe("who a bond is with", () => {
     expect(bondName(older, [older, { ...younger, facts: facts(360) }])).not.toBe(bondName({ ...younger, facts: facts(360) }, [older, { ...younger, facts: facts(360) }]));
   });
 
-  test("[R-PEOPLE-007] given the slots in any order, then partner comes first, the siblings by number, then the parents", () => {
+  test("[person:family-and-partner-slots] given the slots in any order, then partner comes first, the siblings by number, then the parents", () => {
     expect(slotOrder(["father", "sibling-10", "mother", "sibling-2", "partner", "sibling-1"])).toEqual(["partner", "sibling-1", "sibling-2", "sibling-10", "mother", "father"]);
   });
 });
 
 describe("words for the people's lists", () => {
-  test("[R-PEOPLE-014] given every spot, what and call a computer can draw, then a moment reads in words with no raw id", () => {
+  test("[person:time-together-is-an-act] given every spot, what and call a computer can draw, then a moment reads in words with no raw id", () => {
     for (const entry of partners) {
       for (const spot of entry.spots) for (const what of entry.whats) expect(momentWords({ n: 1, by: "me", kind: "met", spot, what, tick: 0 })).not.toMatch(/[a-z]-[a-z]|\{|\}/);
       for (const what of entry.calls) expect(momentWords({ n: 1, by: "me", kind: "call", spot: null, what, tick: 0 })).not.toMatch(/[a-z]-[a-z]|\{|\}/);
@@ -60,7 +60,7 @@ describe("words for the people's lists", () => {
     expect(momentWords({ n: 1, by: "them", kind: "wedding", spot: "family-compound", what: "wedding", tick: 0 })).toContain(text["people.wedding-spot.family-compound"]);
   });
 
-  test("[R-PEOPLE-014] given the people's lines, then who, where, what and the step read as words", () => {
+  test("[person:time-together-is-an-act] given the people's lines, then who, where, what and the step read as words", () => {
     expect(words("line.people.met", { who: "person.tobi-bank", spot: "suya-spot", what: "argued-made-up" })).toBe(
       `Time with ${text["person.tobi-bank.name"]!} at ${text["people.spot.suya-spot"]!}. You ${text["people.what.argued-made-up"]!}.`,
     );
@@ -69,7 +69,7 @@ describe("words for the people's lists", () => {
     expect(words("line.people.invited", { slot: "sibling-2" })).toBe("Your card is out. Looking for: sibling.");
   });
 
-  test("[R-INTERVIEW-005] given every question and every option its lists can give, then each option reads as words, never an id", () => {
+  test("[interview:one-question-at-a-time] given every question and every option its lists can give, then each option reads as words, never an id", () => {
     const entry = content.interview["interview.genuineness"]!;
     const lists: Record<string, string[]> = {
       spots: content.people.spots,
@@ -90,7 +90,7 @@ describe("words for the people's lists", () => {
     }
   });
 
-  test("[R-PAIR-010] given every phrase that may be said in a conversation and each fill from its fixed list, then it reads with the fill put in", () => {
+  test("[pair:preset-phrases-only] given every phrase that may be said in a conversation and each fill from its fixed list, then it reads with the fill put in", () => {
     const said = conversationPhrases();
     expect(said.map((phrase) => phrase.id)).not.toContain("phrase.evening");
     expect(said).toHaveLength(Object.values(content.phrase).filter((phrase) => phrase.where !== "place").length);
@@ -108,7 +108,7 @@ describe("words for the people's lists", () => {
 });
 
 describe("time with someone", () => {
-  test("[R-PEOPLE-014] given a bond at home and one abroad, then seeing someone goes to the one at home and calling to the one abroad", () => {
+  test("[person:time-together-is-an-act] given a bond at home and one abroad, then seeing someone goes to the one at home and calling to the one abroad", () => {
     const game = peopleGame();
     const home = courted(game, "person.tobi-bank");
     const away = courted(game, "person.kelechi-dev");
@@ -118,11 +118,11 @@ describe("time with someone", () => {
     expect(timeWith(view, "activity.rest")).toBeNull();
   });
 
-  test("[R-PEOPLE-014] given two bonds at home, when one has just had a moment, then the next slot of time goes to the other, as the engine sends it", () => {
+  test("[person:time-together-is-an-act] given two bonds at home, when one has just had a moment, then the next slot of time goes to the other, as the engine sends it", () => {
     const game = peopleGame();
     courted(game, "person.tobi-bank");
     courted(game, "person.amaka-nurse");
-    // R-ACTIVITY-015: seeing someone is an act done at once, so a moment in the month both bonds were courted would
+    // activity:now-acts-and-month-acts: seeing someone is an act done at once, so a moment in the month both bonds were courted would
     // tie them on that month; a month passes first.
     playMonth(game, []);
     for (let month = 0; month < 3; month += 1) {
@@ -136,7 +136,7 @@ describe("time with someone", () => {
 });
 
 describe("ending it", () => {
-  test("[R-PEOPLE-037] given a connected bond, then ending it costs no standing, only the wellbeing", () => {
+  test("[person:ender-pays-in-standing] given a connected bond, then ending it costs no standing, only the wellbeing", () => {
     const game = peopleGame();
     const bond = courted(game, "person.tobi-bank");
     const view = game.view();

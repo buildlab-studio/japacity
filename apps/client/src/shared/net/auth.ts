@@ -6,7 +6,7 @@
 // https://www.better-auth.com/docs/plugins/passkey
 // https://www.better-auth.com/docs/authentication/google
 // https://www.better-auth.com/docs/plugins/captcha
-// Deleting goes to the server's own `DELETE /api/account` (R-ACCOUNT-016), never the library's.
+// Deleting goes to the server's own `DELETE /api/account` (account:player-deletes-account), never the library's.
 import { passkeyClient } from "@better-auth/passkey/client";
 import type {
   AccountView,
@@ -30,16 +30,16 @@ import { api, type Fetch, pageFetch, requestFetch } from "./http";
 import { pageWall, type WallGuard } from "./wall";
 
 /**
- * `no-life`: a way in with no life behind it; a life starts as a guest (R-ACCOUNT-021, R-ACCOUNT-029).
- * `taken`: that sign-in already has a life, so securing with it joins nothing (R-ACCOUNT-023).
- * `guest-only`: a passkey waits until the life is secured (R-ACCOUNT-023).
- * `passkey-first`: R-ACCOUNT-003's refusal of a new passkey on an admin account from a session not opened with a passkey.
+ * `no-life`: a way in with no life behind it; a life starts as a guest (account:guest-and-secured-states, account:start-screen-over-live-city).
+ * `taken`: that sign-in already has a life, so securing with it joins nothing (account:guest-secures-the-life).
+ * `guest-only`: a passkey waits until the life is secured (account:guest-secures-the-life).
+ * `passkey-first`: account:passkey-needs-signed-in-session's refusal of a new passkey on an admin account from a session not opened with a passkey.
  * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
- * (its `account_not_linked`); the player is pointed to the code (R-ACCOUNT-023).
+ * (its `account_not_linked`); the player is pointed to the code (account:guest-secures-the-life).
  */
 type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first" | "not-linked";
 
-/** Why the page leaves for Google: to keep a guest's life (R-ACCOUNT-023), or to sign back in to a kept one. */
+/** Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), or to sign back in to a kept one. */
 type GoogleTrip = "keep" | "sign-in";
 
 /** A trip to Google that went through: the guest's life kept, or a kept life signed back in to. */
@@ -49,7 +49,7 @@ export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
 
 export type AgeStanding = "unasked" | "passed" | "refused";
 
-/** R-SERVER-032: sign-ups are switched off; ask again after `retryAfter` seconds. */
+/** server:signups-off-shows-full: sign-ups are switched off; ask again after `retryAfter` seconds. */
 export interface Full {
   full: true;
   retryAfter: number;
@@ -58,31 +58,31 @@ export interface Full {
 /** What the age screen's answer can be beyond a standing: a date the server did not believe. */
 export type AgeAnswer = AgeStanding | Full | "bad-date" | "bot-check";
 
-/** Why a guest life was not started (R-ACCOUNT-013, 021, 024, 025): a username problem, the bot check, the flood limits, an age pass that ran out, or the server's own state. */
+/** Why a guest life was not started (account:bot-check-on-guest-creation, account:guest-and-secured-states, account:username-and-unconfirmed-email, account:guest-floods-are-capped): a username problem, the bot check, the flood limits, an age pass that ran out, or the server's own state. */
 export type GuestFailure = NameProblem | "bot-check" | "too-many" | "expired" | "full" | "unreachable" | "refused";
 
 export type GuestAnswer = { ok: true } | { ok: false; why: GuestFailure };
 
-/** Why a username change was refused (R-ACCOUNT-024). */
+/** Why a username change was refused (account:username-and-unconfirmed-email). */
 type NameAnswer = { ok: true } | { ok: false; why: NameProblem | "unreachable" | "refused" };
 
 export interface AccountApi {
-  /** R-ACCOUNT-011, R-ACCOUNT-012, R-SERVER-032: where this browser stands before any sign-in method. */
+  /** account:sign-up-open-everywhere, account:age-screen-refuses-minors, server:signups-off-shows-full: where this browser stands before any sign-in method. */
   ageStatus(): Promise<AgeStanding | Full>;
-  /** R-ACCOUNT-012: sends the date as typed. The server decides and keeps no date of birth. */
+  /** account:age-screen-refuses-minors: sends the date as typed. The server decides and keeps no date of birth. */
   declareAge(birth: string): Promise<AgeAnswer>;
-  /** R-ACCOUNT-002. `bot` is the Turnstile token, sent wherever an account could be made (R-ACCOUNT-013). */
+  /** account:email-code-is-short-lived. `bot` is the Turnstile token, sent wherever an account could be made (account:bot-check-on-guest-creation). */
   sendCode(email: string, bot: string | null): Promise<AuthResult>;
   signInWithCode(email: string, code: string, bot: string | null): Promise<AuthResult>;
-  /** R-ACCOUNT-021, 013: `POST /api/guest` with the username and the bot check's token, after the age screen. */
+  /** account:guest-and-secured-states, account:bot-check-on-guest-creation: `POST /api/guest` with the username and the bot check's token, after the age screen. */
   startGuest(username: string, bot: string | null): Promise<GuestAnswer>;
   /** The account as the server says it now, or null when it cannot say. */
   view(): Promise<AccountView | null>;
-  /** R-ACCOUNT-024: `PUT /api/account/username`. */
+  /** account:username-and-unconfirmed-email: `PUT /api/account/username`. */
   rename(username: string): Promise<NameAnswer>;
   /**
    * Leaves the page for Google and comes back signed in. From a guest's
-   * session this secures the guest (R-ACCOUNT-023), `trip` "keep"; a refusal
+   * session this secures the guest (account:guest-secures-the-life), `trip` "keep"; a refusal
    * comes back as `?error=` on the page and a success as `?google=` with the
    * trip, both read by `returnedFromGoogle`.
    */
@@ -90,16 +90,16 @@ export interface AccountApi {
   /** What the last trip to Google came back with, once: a failure, a success by its trip, or null when there was none. */
   returnedFromGoogle(): AuthFailure | GoogleDone | null;
   signInWithPasskey(): Promise<AuthResult>;
-  /** R-ACCOUNT-003: only from a signed-in session. */
+  /** account:passkey-needs-signed-in-session: only from a signed-in session. */
   addPasskey(): Promise<AuthResult>;
   /** The signed-in account's email, where it has one. */
   email(): Promise<string | null>;
-  /** R-ANALYTICS-006: the account's "Send usage counts", or null when the server does not say. */
+  /** analytics:player-can-stop-usage-counts: the account's "Send usage counts", or null when the server does not say. */
   usageCounts(): Promise<boolean | null>;
-  /** R-ANALYTICS-006: true once the server keeps the new setting. */
+  /** analytics:player-can-stop-usage-counts: true once the server keeps the new setting. */
   setUsageCounts(on: boolean): Promise<boolean>;
   /**
-   * R-ACCOUNT-016: `DELETE /api/account`. `code`, the email code sent with `sendCode`, confirms a
+   * account:player-deletes-account: `DELETE /api/account`. `code`, the email code sent with `sendCode`, confirms a
    * session that is no longer fresh. `not-fresh`: sign in again or send a code; `bad-code`: that code did not work.
    */
   deleteAccount(code: string | null): Promise<AuthResult>;
@@ -154,7 +154,7 @@ async function attempt(run: () => Promise<{ error: LibraryError | null }>, bySta
 
 const botHeaders = (bot: string | null) => (bot === null ? {} : { headers: { [CAPTCHA_HEADER]: bot } });
 
-/** R-SERVER-032: the server's wait before asking again, from the refusal or its Retry-After header, in seconds. */
+/** server:signups-off-shows-full: the server's wait before asking again, from the refusal or its Retry-After header, in seconds. */
 const FULL_RETRY_FALLBACK_S = 30;
 
 function full(rejection: ServerRejection): Full {
@@ -187,14 +187,14 @@ function deleted(reply: DeleteReply): AuthResult {
   return { ok: false, why: reply.code === "rate-limited" ? "too-many" : "refused" };
 }
 
-/** A refusal from `GET /api/age`: the server's 503 while sign-ups are off (R-SERVER-032). */
+/** A refusal from `GET /api/age`: the server's 503 while sign-ups are off (server:signups-off-shows-full). */
 function isRejection(reply: AgeStatus | ServerRejection): reply is ServerRejection {
   return "ok" in reply && reply.ok === false;
 }
 
 /**
- * `wall`: what a login wall sets off (R-ACCOUNT-006), the page's one reload or a test's. Every request here, the auth
- * library's among them, goes through the one request function (R-ENGINE-015): its clock, same origin, no redirect
+ * `wall`: what a login wall sets off (account:session-is-secure-cookie), the page's one reload or a test's. Every request here, the auth
+ * library's among them, goes through the one request function (engine:browser-authority-for-dev-only): its clock, same origin, no redirect
  * followed, a wall or no answer sorted by its kind.
  */
 export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: string; fetch?: Fetch; wall?: WallGuard }): AccountApi {
@@ -214,7 +214,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
 
   return {
     async ageStatus() {
-      // `GET /api/age` reads the server's refusal cookie (R-ACCOUNT-012); its switch gate answers 503 first while sign-ups are off (R-SERVER-031).
+      // `GET /api/age` reads the server's refusal cookie (account:age-screen-refuses-minors); its switch gate answers 503 first while sign-ups are off (server:four-off-switches).
       try {
         const reply = await server.get<AgeStatus | ServerRejection>("/api/age");
         if (!isRejection(reply)) return reply.refused === true ? "refused" : "unasked";
@@ -276,7 +276,7 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
     },
     // A button, not the browser's autofill: autofill needs a field this game does not have.
     signInWithPasskey: () => attempt(() => client.signIn.passkey({ autoFill: false })),
-    // R-ACCOUNT-003: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session (apps/server/src/auth/hooks.ts).
+    // account:passkey-needs-signed-in-session: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session (apps/server/src/auth/hooks.ts).
     addPasskey: () => attempt(() => client.passkey.addPasskey({}), { 403: "passkey-first" }),
     async email() {
       try {

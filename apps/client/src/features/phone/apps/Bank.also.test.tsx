@@ -1,4 +1,4 @@
-// The Bank's other money says where it is held (docs/rules/world.md R-WORLD-019): a bare "Also held: £81" would not say
+// The Bank's other money says where it is held (world:phone-holds-what-phones-hold): a bare "Also held: £81" would not say
 // whether the pounds are cash or in the bank, and the band shows only the naira.
 import { describe, expect, test } from "vitest";
 
@@ -9,7 +9,7 @@ import { Bank } from "./Bank";
 import { say } from "../../../shared/words/text";
 
 describe("other money held, and where", () => {
-  test("[R-WORLD-019] given pounds in the bank and dollars both in the bank and in cash, when the Bank opens at home, then each figure says where it is held", async () => {
+  test("[world:phone-holds-what-phones-hold] given pounds in the bank and dollars both in the bank and in cash, when the Bank opens at home, then each figure says where it is held", async () => {
     const view = viewAfter(newGame("scenario.tunde"), [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 8_100, reason: "gift" },
       { type: "money/add", currency: "USD", pocket: "bank", amount: 50_000, reason: "gift" },
@@ -23,7 +23,7 @@ describe("other money held, and where", () => {
     expect(band).not.toContain(formatMoney(52_000, "USD"));
   });
 
-  test("[R-WORLD-019] given pounds in the bank and dollars both in the bank and in cash, when the Bank opens at home, then each other money is its own chip, so the row wraps inside the card one money at a time", async () => {
+  test("[world:phone-holds-what-phones-hold] given pounds in the bank and dollars both in the bank and in cash, when the Bank opens at home, then each other money is its own chip, so the row wraps inside the card one money at a time", async () => {
     const view = viewAfter(newGame("scenario.tunde"), [
       { type: "money/add", currency: "GBP", pocket: "bank", amount: 8_100, reason: "gift" },
       { type: "money/add", currency: "USD", pocket: "bank", amount: 50_000, reason: "gift" },

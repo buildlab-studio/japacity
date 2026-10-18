@@ -1,4 +1,4 @@
-// The price and the balance on every priced act (docs/rules/world.md R-WORLD-006; decision 0013): the button says the
+// The price and the balance on every priced act (world:one-action-one-sheet; decision 0013): the button says the
 // act and its price ("Indomie and egg · ₦1,500"); under it the balance before stands struck beside the balance after,
 // from the view's pockets and the act's cost; nothing moves until the tap; short, the button says how much instead. The
 // time in words stays beside it, and what the act does, in words, on one line.
@@ -34,7 +34,7 @@ function meal(act: () => void = () => undefined): Ask {
 }
 
 describe("the price and the balance", () => {
-  test("[R-WORLD-006] given ₦48,500 in hand and the meal's card, when it opens, then the button says Indomie and egg · ₦1,500, and under it ₦48,500 struck beside ₦47,000; nothing moves until the tap", async () => {
+  test("[world:one-action-one-sheet] given ₦48,500 in hand and the meal's card, when it opens, then the button says Indomie and egg · ₦1,500, and under it ₦48,500 struck beside ₦47,000; nothing moves until the tap", async () => {
     expect(content.activity[COOK]?.cost[0]?.amount).toBe(MEAL);
     const act = vi.fn();
     const { store } = await renderWithView(<AskSheet ask={meal(act)} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} />, holding(4_850_000, 0));
@@ -55,13 +55,13 @@ describe("the price and the balance", () => {
     expect(act).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-006] given cash and bank together, when the balance is read, then before is both and after is both less the price", async () => {
+  test("[world:one-action-one-sheet] given cash and bank together, when the balance is read, then before is both and after is both less the price", async () => {
     await renderWithView(<AskSheet ask={meal()} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} />, holding(50_000, 2_000_000));
     expect(found("[data-balance-before]").getAttribute("data-balance-before")).toBe("2050000");
     expect(found("[data-balance-after]").getAttribute("data-balance-after")).toBe(String(2_050_000 - MEAL));
   });
 
-  test("[R-WORLD-006] given less than the meal's price, when its card opens, then the button is shut and says how much is short, the one exception, with no balance under it", async () => {
+  test("[world:one-action-one-sheet] given less than the meal's price, when its card opens, then the button is shut and says how much is short, the one exception, with no balance under it", async () => {
     await renderWithView(<AskSheet ask={meal()} formatMoney={(amount, currency) => formatMoney(amount, currency as "NGN")} />, holding(100_000, 0));
     const main = found("[data-ask-main]") as HTMLButtonElement;
     expect(main.disabled).toBe(true);
@@ -70,7 +70,7 @@ describe("the price and the balance", () => {
     expect(document.querySelector("[data-balance]")).toBeNull();
   });
 
-  test("[R-WORLD-006] given the meal on a sheet of several, when its card shows, then its button says the meal and its price and the balance stands under it, struck before and after", async () => {
+  test("[world:one-action-one-sheet] given the meal on a sheet of several, when its card shows, then its button says the meal and its price and the balance stands under it, struck before and after", async () => {
     const view = holding(4_850_000, 0);
     await renderWithView(<ActivityPicker only={[COOK]} />, view);
     const card = found("[data-activity-picker] li");
@@ -83,7 +83,7 @@ describe("the price and the balance", () => {
     expect(card.querySelector("[data-time]")).toBeNull();
   });
 
-  test("[R-WORLD-006] given a stop picked on the map, when the ride sheet shows, then the button says the ride and its fare, and the balance before is struck beside the balance after; short, it says how much", () => {
+  test("[world:one-action-one-sheet] given a stop picked on the map, when the ride sheet shows, then the button says the ride and its fare, and the balance before is struck beside the balance after; short, it says how much", () => {
     const pin = { id: "place.yaba", name: "Yaba", state: "can" as const, position: { latE3: 0, lonE3: 0 }, things: 2 };
     const ways = [{ id: "danfo" as const, label: "Danfo", fare: 30_000, minutes: 25 }];
     const { unmount } = render(<RideSheet pin={pin} home={false} ways={ways} have={4_850_000} formatMoney={money} onChoose={() => undefined} onClose={() => undefined} />);
@@ -96,7 +96,7 @@ describe("the price and the balance", () => {
     expect(document.querySelector("[data-balance]")).toBeNull();
   });
 
-  test("[R-WORLD-006] [R-QUALITY-007] given the room's acts, when what each does is said, then the belly fills, the energy rests, wellbeing lifts and a skill has its figure, short, on one line, and the body never a number", () => {
+  test("[world:one-action-one-sheet] [quality:body-belly-and-energy] given the room's acts, when what each does is said, then the belly fills, the energy rests, wellbeing lifts and a skill has its figure, short, on one line, and the body never a number", () => {
     expect(effectWordsOf(COOK)).toBe("Fills you, lifts you");
     expect(effectWordsOf("activity.nap")).toBe("Rests you, lifts you");
     expect(effectWordsOf("activity.study-english")).toBe("+2 English");
@@ -105,7 +105,7 @@ describe("the price and the balance", () => {
     for (const id of [COOK, "activity.nap", "activity.cook-jollof", "activity.bucket-bath"]) expect(effectWordsOf(id) ?? "").not.toMatch(/\d/);
   });
 
-  test("[R-ACTIVITY-018] [R-ACTIVITY-020] given gist, which takes no time, when its time is said, then it says none; a morning's act says a morning", () => {
+  test("[activity:now-acts-spend-half-days] [activity:spent-body-refuses-acts] given gist, which takes no time, when its time is said, then it says none; a morning's act says a morning", () => {
     expect(content.activity["activity.family-time"]?.halfDays).toBe(0);
     expect(timeWordsOf("activity.family-time")).toBeNull();
     expect(timeWordsOf(COOK)).toBe("A morning");

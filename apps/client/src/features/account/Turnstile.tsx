@@ -1,15 +1,15 @@
-// Cloudflare Turnstile's widget, the bot check on sign-up (R-ACCOUNT-013).
+// Cloudflare Turnstile's widget, the bot check on sign-up (account:bot-check-on-guest-creation).
 // Rendered explicitly, as Cloudflare's client-side rendering page describes:
 // https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/
 // Test keys: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 // A token is good once, so the widget is reset after every attempt that used it.
-// The check runs unseen (R-ACCOUNT-029): `interaction-only` shows the widget only
+// The check runs unseen (account:start-screen-over-live-city): `interaction-only` shows the widget only
 // when Cloudflare needs the person to do something.
 import { useEffect, useRef } from "react";
 
 export interface TurnstileOptions {
   sitekey: string;
-  /** Returned by siteverify, which the server checks (R-ACCOUNT-013). */
+  /** Returned by siteverify, which the server checks (account:bot-check-on-guest-creation). */
   action: string;
   callback: (token: string) => void;
   "expired-callback": () => void;
@@ -27,7 +27,7 @@ export interface TurnstileApi {
 export type LoadTurnstile = () => Promise<TurnstileApi>;
 
 /**
- * R-ACCOUNT-013: the action the widget is rendered with. The guest start is the one surface it guards,
+ * account:bot-check-on-guest-creation: the action the widget is rendered with. The guest start is the one surface it guards,
  * and the server refuses a pass made for any other (apps/server/src/account/turnstile.ts, TURNSTILE_ACTION).
  */
 export const TURNSTILE_ACTION = "guest";

@@ -1,4 +1,4 @@
-// The ride (docs/rules/world.md R-WORLD-017, R-WORLD-032). The angles and their cuts are rideScene.ts's;
+// The ride (world:ride-sheet-shows-fares, world:ride-cuts-between-angles). The angles and their cuts are rideScene.ts's;
 // the rider's, driver's or conductor's line shows as a chip.
 import { useEffect, useRef, useState } from "react";
 
@@ -13,13 +13,13 @@ import { type AbroadVehicle, VEHICLES } from "./rideVehicles";
 
 export { LONG_WALK_MS, PRE_MS, RIDE_MS } from "./rideScene";
 
-/** How long past its own length the ride may run by the wall clock before it ends anyway (R-WORLD-032): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
+/** How long past its own length the ride may run by the wall clock before it ends anyway (world:ride-cuts-between-angles): a stall of up to three seconds is forgiven, so a slow device never holds the player much longer than the ride. */
 const RIDE_SLACK_MS = 3500;
 
 /** The look the city falls back to when the life's own person is not shipped (City.tsx). */
 const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
 
-/** The life's own person file as the city names it (City.tsx): the look built at the front door (R-PROLOGUE-009), else the life's person, shipped or not; `shownOwn` settles it. */
+/** The life's own person file as the city names it (City.tsx): the look built at the front door (prologue:front-door-builds-a-person), else the life's person, shipped or not; `shownOwn` settles it. */
 export function ownLook(scenario: string, kept: string | null = keptLookFile()): string {
   return kept ?? `shared/chr/chr_${scenario.slice("scenario.".length)}.glb`;
 }
@@ -38,7 +38,7 @@ export interface RideProbe {
   /** The country's own vehicle abroad (Calgary's bus, the CTrain, Dubai's metro, the labour bus, the van...), or null. */
   vehicle: AbroadVehicle | null;
   phase: Phase;
-  /** The angle on screen now (R-WORLD-032). */
+  /** The angle on screen now (world:ride-cuts-between-angles). */
   angle: Angle;
   /** Every angle shown so far, in order, each once as it came. */
   angles: Angle[];
@@ -66,7 +66,7 @@ declare global {
 
 export interface RideProps {
   way: Way;
-  /** The country's own vehicle the ride plays in (R-WORLD-039), its lines its own; null for Lagos's ways and London's. */
+  /** The country's own vehicle the ride plays in (world:ride-abroad-and-workplace), its lines its own; null for Lagos's ways and London's. */
   vehicle?: AbroadVehicle | null;
   /** The way's name as the sheet said it ("CTrain", "Metro"); the way's own words when left out. */
   wayName?: string;
@@ -83,9 +83,9 @@ export interface RideProps {
   from?: string;
   /** Turn back: the character gets down at the next stop and walks back, the fare gone. Called once, instead of `onDone`. */
   onTurnBack?: () => void;
-  /** A walk home past the walking limit: it plays for `LONG_WALK_MS` and has no Skip (R-WORLD-017). */
+  /** A walk home past the walking limit: it plays for `LONG_WALK_MS` and has no Skip (world:ride-sheet-shows-fares). */
   long?: boolean;
-  /** The fare paid, as words, shown as a pill under the title abroad: "£1.75", or "£0, bus pass" in a pass month (R-WORLD-039). */
+  /** The fare paid, as words, shown as a pill under the title abroad: "£1.75", or "£0, bus pass" in a pass month (world:ride-abroad-and-workplace). */
   fare?: string;
 }
 
@@ -103,18 +103,18 @@ function seatFrom(way: Way): number | null {
 }
 
 /**
- * Where you are as the ride goes (R-WORLD-017): pulling out of the place left for the
+ * Where you are as the ride goes (world:ride-sheet-shows-fares): pulling out of the place left for the
  * first third, a road line through the middle, the stop named near the end. `u` is the ride's progress
  * after the pre-roll, 0 to 1. A road line that names a person is the way's own, so "The driver cuts through a side
  * street" never plays on an okada, where the driver is the rider. Once the danfo's ride cuts from the window to
- * the seat, the road line moves on to the next, so the two angles never carry the same caption (R-WORLD-032).
+ * the seat, the road line moves on to the next, so the two angles never carry the same caption (world:ride-cuts-between-angles).
  */
 export function alongOf(u: number, seed: number, way: Way, vehicle: AbroadVehicle | null = null): { key: string; needs: "from" | "to" | null } {
   if (u < 0.34) return { key: way === "walk" ? "map.ride.along.start.walk" : "map.ride.along.start", needs: "from" };
   const seat = seatFrom(way);
   const onward = seat !== null && u >= seat ? 1 : 0;
   const road = ((Math.abs(Math.trunc(seed)) + onward) % ROAD_LINES) + 1;
-  // Each vehicle abroad says its own road, every line of it (R-WORLD-039), as London's bus and train do.
+  // Each vehicle abroad says its own road, every line of it (world:ride-abroad-and-workplace), as London's bus and train do.
   if (u < 0.78 && vehicle !== null) return { key: `map.ride.along.road.${String(road)}.${vehicle}`, needs: null };
   const own = way === "bus" || way === "train" || PERSON_LINES.has(road);
   if (u < 0.78) return { key: own ? `map.ride.along.road.${String(road)}.${way}` : `map.ride.along.road.${String(road)}`, needs: null };
@@ -133,7 +133,7 @@ export function lineOf(way: Way, seed: number, vehicle: AbroadVehicle | null = n
 /** The model each way rides in where its file is not named for the way: the life's own car, London's red bus and its train. */
 const VEHICLE_FILE: Readonly<Partial<Record<Way, string>>> = { drive: "car", bus: "london-bus", train: "train-carriage" };
 
-/** The vehicle a way rides in: the danfo, keke or okada of the street, the life's own car, or London's bus or train (R-WORLD-039). */
+/** The vehicle a way rides in: the danfo, keke or okada of the street, the life's own car, or London's bus or train (world:ride-abroad-and-workplace). */
 export function vehicleFile(way: Exclude<Way, "walk">, vehicle: AbroadVehicle | null = null): string {
   if (vehicle !== null) return VEHICLES[vehicle].file;
   return `shared/veh/veh_${VEHICLE_FILE[way] ?? way}.glb`;
@@ -217,7 +217,7 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
   // What the browser test reads; the scene is built whether or not it draws, so it can say who is on the vehicle.
   const probe = useRef<RideProbe>({ way, vehicle, phase, angle, angles: [angle], clock: 0, line, figures: [], loaded: 0, preMs: pre, drawCalls: 0, triangles: 0, frameMs: { pre: [], ride: [] } });
 
-  // One step of the ride's clock, clamped so a slow frame never jumps the ride ahead (R-WORLD-032).
+  // One step of the ride's clock, clamped so a slow frame never jumps the ride ahead (world:ride-cuts-between-angles).
   // The angle and the line change only when the clock crosses into another; the bar and the dark follow every step.
   const shownAngle = useRef(angle);
   const shownAlong = useRef(along?.key ?? null);
@@ -335,14 +335,14 @@ export function Ride({ way, vehicle = null, wayName, place, drawing, own = FALLB
     };
   }, [drawing, way, vehicle, own, ride, pre]);
 
-  // The shuttle's vehicle names itself (the site bus, the van); elsewhere the way as the sheet named it (R-WORLD-039).
+  // The shuttle's vehicle names itself (the site bus, the van); elsewhere the way as the sheet named it (world:ride-abroad-and-workplace).
   const vehicleName = vehicle === null ? null : `map.vehicle.${vehicle}`;
   const named = vehicleName !== null && mapWords(vehicleName) !== vehicleName ? mapWords(vehicleName) : (wayName ?? mapWords(`map.way.${way}`));
   const title = mapWords("map.ride.to", { way: named, place });
   return (
     <div className="fade fixed inset-0 z-[46] bg-strong" data-ride={way} data-ride-vehicle={vehicle ?? undefined} data-ride-phase={phase} data-ride-angle={angle} aria-live="polite">
       {drawing ? <div ref={box} className="size-full" aria-hidden /> : null}
-      {/* The cut between angles: a short dark over the scene, never a slide (R-WORLD-013, R-WORLD-032). */}
+      {/* The cut between angles: a short dark over the scene, never a slide (world:entering-is-a-cut, world:ride-cuts-between-angles). */}
       {drawing ? <div ref={dark} className="pointer-events-none absolute inset-0 bg-device opacity-0" aria-hidden data-ride-dark /> : null}
       <div className="pointer-events-none absolute inset-x-0 top-0 px-3 pt-[max(10px,env(safe-area-inset-top))]">
         <div className="band pointer-events-auto flex items-center gap-3 rounded-[6px] px-3 py-2.5 shadow-[0_10px_24px_rgba(10,14,30,0.35)]">

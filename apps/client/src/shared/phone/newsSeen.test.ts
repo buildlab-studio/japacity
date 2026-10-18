@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 describe("news read", () => {
-  test("[R-WORLD-003] [R-WORLD-018] given a report and no mark seen, then News is unread; once the device has seen its mark, then it is read; a new report makes it unread again", () => {
+  test("[world:nudge-says-one-thing] [world:phone-rises-over-scene] given a report and no mark seen, then News is unread; once the device has seen its mark, then it is read; a new report makes it unread again", () => {
     const view = { ...engineView(), report: { month: 3, lines: [], japacityBefore: null, japacityAfter: null, attention: false } };
     expect(newsRead(view)).toBe(false);
     localStorage.setItem(SEEN_KEY, JSON.stringify({ news: newsMarkOf(view) }));

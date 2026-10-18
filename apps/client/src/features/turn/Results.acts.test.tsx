@@ -1,5 +1,5 @@
 // What the waiting months' acts came to, on the results the month it happens (docs/rules/world.md
-// R-WORLD-008, docs/rules/activity.md R-ACTIVITY-013), played on the real engine
+// world:month-end-results-sheet, activity:waiting-months-build-profile), played on the real engine
 // and the real content: the exam's score and what a pass needs, a piece for the portfolio, open
 // source's first merge and its quiet months, the raise with what it adds and the month nobody said
 // anything. Each is told with the month's story, as a hunt's "not this time" is.
@@ -44,12 +44,12 @@ async function storeOf(game: Game): Promise<GameStore> {
 
 /**
  * One month through the store as the Month sheet sends it: these acts planned, the rest rest. `now`: acts done at once
- * within the month before it turns (decision 0012, R-ACTIVITY-019), each sent as the act's sheet sends it.
+ * within the month before it turns (decision 0012, activity:acts-may-repeat-in-month), each sent as the act's sheet sends it.
  */
 async function month(store: GameStore, game: Game, picks: Id<"activity">[] = [], now: Id<"activity">[] = []): Promise<void> {
   if (game.state.turn.banked < 1) game.grant(1);
   await store.getState().refresh();
-  // Each month here is its own plan: what was started last month carries on (R-WORLD-007), so it is cleared first.
+  // Each month here is its own plan: what was started last month carries on (world:month-acts-carry-on), so it is cleared first.
   act(() => store.getState().clearPlan());
   for (const pick of picks) expect(store.getState().addToPlan(slot(pick))).toBe(true);
   for (const activity of now) {
@@ -96,14 +96,14 @@ describe("the certification exam on the results", () => {
     return results(store);
   }
 
-  test("[R-WORLD-008] [R-ACTIVITY-013] given the nurse gets one of three right, when the month's results open, then they say her score and what a pass needs, not only that the exam is over", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the nurse gets one of three right, when the month's results open, then they say her score and what a pass needs, not only that the exam is over", async () => {
     const pass = content.activity[CERTIFY]!.exam!.pass;
     const rows = await sat([true, false, false]);
     expect(rows).toContain(words("line.activity.exam-failed", { right: countWords(1), asked: countWords(3), pass: countWords(pass) }));
     expect(rows).not.toContain(words("line.setpiece.closed", { setpiece: EXAM }));
   });
 
-  test("[R-WORLD-008] [R-ACTIVITY-013] given the nurse gets two of three right, when the month's results open, then they say she passed, with her score", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the nurse gets two of three right, when the month's results open, then they say she passed, with her score", async () => {
     const rows = await sat([true, false, true]);
     expect(rows).toContain(words("line.activity.exam-passed", { right: countWords(2), asked: countWords(3) }));
     expect(rows).not.toContain(words("line.setpiece.closed", { setpiece: EXAM }));
@@ -111,12 +111,12 @@ describe("the certification exam on the results", () => {
 });
 
 describe("the developer's months on the results", () => {
-  test("[R-WORLD-008] [R-ACTIVITY-013] given a developer one piece short of what a route asks, when she builds something and then builds again, then each month's results tell the piece, the first how many of what is asked", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a developer one piece short of what a route asks, when she builds something and then builds again, then each month's results tell the piece, the first how many of what is asked", async () => {
     const game = newGame("scenario.zainab");
     const need = piecesAsked();
     expect(game.state.quality[PORTFOLIO]).toBe(need - 1);
     const store = await storeOf(game);
-    // Decision 0012 (R-ACTIVITY-019): the portfolio is built act by act, at once, and the month's results tell the piece
+    // Decision 0012 (activity:acts-may-repeat-in-month): the portfolio is built act by act, at once, and the month's results tell the piece
     // with the month's own lines.
     await month(store, game, [], [BUILD]);
     expect(results(store)).toContain(words("line.activity.piece-built", { pieces: countWords(need), need: countWords(need) }));
@@ -126,7 +126,7 @@ describe("the developer's months on the results", () => {
     expect(more.some((row) => row.startsWith(words("line.activity.piece-built", { pieces: "", need: "" }).split(":")[0]!))).toBe(false);
   });
 
-  test("[R-WORLD-008] [R-ACTIVITY-013] given a developer on open source, when three months are played, then the results tell the first merge, then the piece, then the quiet month of fixes", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a developer on open source, when three months are played, then the results tell the first merge, then the piece, then the quiet month of fixes", async () => {
     const game = newGame("scenario.zainab");
     const need = piecesAsked();
     const store = await storeOf(game);
@@ -142,7 +142,7 @@ describe("the developer's months on the results", () => {
     expect(third).not.toContain(words("line.activity.first-merged"));
   });
 
-  test("[R-WORLD-008] [R-ACTIVITY-013] given a piece under, at and over what a route asks, when the story is read, then the first two say how many of what is asked and the last how many there are", () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a piece under, at and over what a route asks, when the story is read, then the first two say how many of what is asked and the last how many there are", () => {
     const need = piecesAsked();
     const gain = (value: number): ReportLine => ({ key: "line.quality.gain", params: { quality: PORTFOLIO, points: 1, value }, tone: "good", attention: false, counts: [] });
     expect(storyLines([gain(1)])).toEqual([expect.objectContaining({ key: "line.activity.piece-built", params: { pieces: 1, need } })]);
@@ -154,7 +154,7 @@ describe("the developer's months on the results", () => {
 });
 
 describe("being noticed at work on the results", () => {
-  test("[R-WORLD-008] [R-ACTIVITY-013] given the raise lands, when the month's results open, then they say the manager noticed and what it adds a month", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given the raise lands, when the month's results open, then they say the manager noticed and what it adds a month", async () => {
     const game = newGame("scenario.tunde", raiseSeed(content, true));
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
@@ -167,7 +167,7 @@ describe("being noticed at work on the results", () => {
     expect(results(store)).toContain(said);
   });
 
-  test("[R-WORLD-008] [R-ACTIVITY-013] given a month at work tried without the raise, when the month's results open, then they say nobody has said anything yet", async () => {
+  test("[world:month-end-results-sheet] [activity:waiting-months-build-profile] given a month at work tried without the raise, when the month's results open, then they say nobody has said anything yet", async () => {
     const game = newGame("scenario.tunde", raiseSeed(content, false));
     const job = game.state.activity.job!;
     const store = await storeOf(game);
@@ -175,7 +175,7 @@ describe("being noticed at work on the results", () => {
     expect(results(store)).toContain(words("line.activity.not-noticed", { job }));
   });
 
-  test("[R-WORLD-008] given a full month of story, when an act's outcome is ranked, then it stands with the hunt's answer, before the way out heard of and the chores", () => {
+  test("[world:month-end-results-sheet] given a full month of story, when an act's outcome is ranked, then it stands with the hunt's answer, before the way out heard of and the chores", () => {
     const plain = (key: string, params: ReportLine["params"] = {}): ReportLine => ({ key, params, tone: "plain", attention: false, counts: [] });
     const routes = Object.keys(content.route).slice(0, STORY_MAX);
     const told = storyLines([plain("line.obligation.relief.cooked"), ...routes.map((route) => plain("line.route.heard", { route })), plain("line.activity.not-noticed", { job: "activity.job-bank-officer" })]);
@@ -185,7 +185,7 @@ describe("being noticed at work on the results", () => {
 });
 
 describe("the cash warning in a full month", () => {
-  test("[R-WALLET-019] given more story lines than the results hold, when the month closed with the cash warning, then the warning is still told", () => {
+  test("[wallet:cash-pile-warning] given more story lines than the results hold, when the month closed with the cash warning, then the warning is still told", () => {
     const busy: ReportLine[] = Array.from({ length: 9 }, (_unused, index) => ({ key: `line.route.heard-${String(index)}`, params: {}, tone: "plain", attention: false, counts: [] }));
     const warning: ReportLine = { key: "line.wallet.cash-warning", params: {}, tone: "plain", attention: true, counts: [] };
     const told = storyLines([...busy, warning]);

@@ -1,4 +1,4 @@
-// The world's shell over the place (docs/rules/world.md R-WORLD-001 to 004): what stands over the
+// The world's shell over the place (world:world-fills-the-screen, world:top-band-is-lively-pill, world:nudge-says-one-thing and world:thumb-buttons-carry-dots): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
 import { qualityIn, worldClockAt } from "@japacity/sim";
 import { playPrologueBy } from "@japacity/sim/testing";
@@ -18,10 +18,10 @@ import { cityWords } from "./city.words";
 import { nudgeOf, stepWayOf } from "./nudge/nudge";
 
 const world = (extra: Partial<Parameters<typeof City>[0]> = {}) => <City world results={(place) => <p data-results-for={place} />} {...extra} />;
-/** The world with a phone that says which app it opened on (R-WORLD-002: the Calendar is on the phone). */
+/** The world with a phone that says which app it opened on (world:top-band-is-lively-pill: the Calendar is on the phone). */
 const phoned = (extra: Partial<Parameters<typeof City>[0]> = {}) => world({ phone: (_close, _area, app) => <p data-phone-app={app ?? ""} />, ...extra });
 
-/** Renders the world and passes a later chapter's opening card when one stands over it (R-WORLD-001, R-CHAPTER-011). */
+/** Renders the world and passes a later chapter's opening card when one stands over it (world:world-fills-the-screen, chapter:first-chapter-mission-card). */
 async function opened(ui: Parameters<typeof renderWithView>[0], view: Parameters<typeof renderWithView>[1]): Promise<Awaited<ReturnType<typeof renderWithView>>> {
   const rendered = await renderWithView(ui, view);
   const go = document.querySelector<HTMLElement>("[data-opening-go]");
@@ -38,7 +38,7 @@ function band(): HTMLElement {
   return found;
 }
 
-/** The month's name and phase on the band: a tap opens the Calendar (R-WORLD-002, R-TURN-010). */
+/** The month's name and phase on the band: a tap opens the Calendar (world:top-band-is-lively-pill, turn:month-lived-in-half-days). */
 function monthChip(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-band] [data-band-month]");
   if (found === null) throw new Error("No month on the band");
@@ -52,7 +52,7 @@ function thumbs(): HTMLElement {
 }
 
 describe("the world fills the screen", () => {
-  test("[R-WORLD-001] [R-CHAPTER-011] given a life that has not played a month, when the world opens, then the first brief stands over the world as a mission card handed by a person, with Let's go and nothing under the band, and a life with a month behind it opens straight on the world", async () => {
+  test("[world:world-fills-the-screen] [chapter:first-chapter-mission-card] given a life that has not played a month, when the world opens, then the first brief stands over the world as a mission card handed by a person, with Let's go and nothing under the band, and a life with a month behind it opens straight on the world", async () => {
     const view = engineView();
     await renderWithView(world(), view);
     const opening = document.querySelector<HTMLElement>("[data-opening]");
@@ -67,17 +67,17 @@ describe("the world fills the screen", () => {
     expect(document.querySelector("[data-opening]")).toBeNull();
   });
 
-  test("[R-WORLD-001] given a life in the world, when it opens, then only the band, the brief's chip for its moment and the Map and Phone buttons stand over the place, and once the chip has tucked into the phone nothing stands under the band", async () => {
+  test("[world:world-fills-the-screen] given a life in the world, when it opens, then only the band, the brief's chip for its moment and the Map and Phone buttons stand over the place, and once the chip has tucked into the phone nothing stands under the band", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
     const view = engineView();
     const { store } = await opened(world(), view);
     expect(band()).toBeTruthy();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
-    // The nudge is a button when it opens the way to what it names (R-WORLD-003); the band's handle shows only while something is coming (R-WORLD-002).
-    // The month's name and phase are part of the band, a chip that opens the Calendar (R-WORLD-002, decision 0011).
-    // The name over the age opens the data page (R-PROLOGUE-009). With the brief carried, the home's
-    // small card says what the home is, once (R-HOME-008).
+    // The nudge is a button when it opens the way to what it names (world:nudge-says-one-thing); the band's handle shows only while something is coming (world:top-band-is-lively-pill).
+    // The month's name and phase are part of the band, a chip that opens the Calendar (world:top-band-is-lively-pill, decision 0011).
+    // The name over the age opens the data page (prologue:front-door-builds-a-person). With the brief carried, the home's
+    // small card says what the home is, once (home:moves-carry-cost-and-reason).
     expect(screen.getAllByRole("button").map((button) => button.getAttribute("aria-label") ?? button.textContent)).toEqual([say("prologue.page.open"), say("ui.month.chip", { ...bandMonth(view, store.getState().beganAt, worldClockAt(Date.now())) }), say("chapter.find-your-feet.brief.title"), say("ui.world.map"), say("ui.world.phone"), cityWords("city.home.teach.close")]);
     expect(document.querySelector("[data-report-here], [data-overheard], [data-scene]")).toBeNull();
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -91,19 +91,19 @@ describe("the world fills the screen", () => {
     }
   });
 
-  test("[R-WORLD-001] given a set piece and offers waiting, when the world opens, then nothing of them stands over the place until the nudge is tapped, and the sheet opens over it", async () => {
+  test("[world:world-fills-the-screen] given a set piece and offers waiting, when the world opens, then nothing of them stands over the place until the nudge is tapped, and the sheet opens over it", async () => {
     await renderWithView(world({ asks: <p data-asks-body>asks</p> }), richView());
     expect(document.querySelector("[data-scene], [data-asks-body]")).toBeNull();
-    // The set piece is staged elsewhere, so the nudge says it waits there (R-CITY-011); its tap opens the sheet all the same.
+    // The set piece is staged elsewhere, so the nudge says it waits there (city:set-piece-shown-where-staged); its tap opens the sheet all the same.
     fireEvent.click(document.querySelector<HTMLElement>("[data-nudge-open]") as HTMLElement);
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByText("asks")).toBeTruthy();
     expect(band()).toBeTruthy();
   });
 
-  test("[R-WORLD-006] given three asks waiting, when the nudge is tapped, then the sheet shows one at a time, counted, with Next and Back", async () => {
+  test("[world:one-action-one-sheet] given three asks waiting, when the nudge is tapped, then the sheet shows one at a time, counted, with Next and Back", async () => {
     await renderWithView(world({ asks: [<p key="a" data-ask="a">first</p>, <p key="b" data-ask="b">second</p>, <p key="c" data-ask="c">third</p>] }), richView());
-    // The set piece is staged elsewhere, so the nudge says it waits there (R-CITY-011); its tap opens the sheet all the same.
+    // The set piece is staged elsewhere, so the nudge says it waits there (city:set-piece-shown-where-staged); its tap opens the sheet all the same.
     fireEvent.click(document.querySelector<HTMLElement>("[data-nudge-open]") as HTMLElement);
     const sheet = screen.getByRole("dialog");
     expect(within(sheet).getByText("first")).toBeTruthy();
@@ -118,7 +118,7 @@ describe("the world fills the screen", () => {
     expect(within(sheet).getByText("second")).toBeTruthy();
   });
 
-  test("[R-WORLD-002] given the band, when its month or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
+  test("[world:top-band-is-lively-pill] given the band, when its month or the coming chip is tapped, then the phone opens on the Calendar, the chip on what is coming", async () => {
     const { authority } = await opened(phoned(), { ...richView(), setpiece: null, interview: null });
     fireEvent.click(monthChip());
     expect(document.querySelector("[data-phone-app]")?.getAttribute("data-phone-app")).toBe("calendar");
@@ -127,7 +127,7 @@ describe("the world fills the screen", () => {
 });
 
 describe("the band and the thumb buttons", () => {
-  test("[R-WORLD-002] [R-CLOCK-033] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and the world's part of the day beside it, and no month number or count", async () => {
+  test("[world:top-band-is-lively-pill] [clock:game-day-on-real-time] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and the world's part of the day beside it, and no month number or count", async () => {
     const view = engineView();
     const { store } = await opened(world(), view);
     const ageMonths = qualityIn(view, "quality.age-months");
@@ -143,14 +143,14 @@ describe("the band and the thumb buttons", () => {
     expect(document.querySelector("[data-band] [data-end-month], [data-band] [data-month-count]")).toBeNull();
   });
 
-  test("[R-WORLD-003] given a chip open when the month ends, when the results show, then the chip is gone and the nudge is back", async () => {
+  test("[world:nudge-says-one-thing] given a chip open when the month ends, when the results show, then the chip is gone and the nudge is back", async () => {
     const view = { ...engineView(), report: null };
     const { store } = await opened(world(), view);
     act(() => store.setState({ reportOpen: true, view: { ...view, report: richView().report } }));
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
   });
 
-  test("[R-WORLD-002] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
+  test("[world:top-band-is-lively-pill] given the results showing, when the band renders, then it hides once they are up, and it shows again once the player goes back", async () => {
     const { store } = await opened(world(), richView());
     expect(band().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
@@ -161,21 +161,21 @@ describe("the band and the thumb buttons", () => {
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
 
-  test("[R-WORLD-002] given the staged wins still to show, when the month has ended, then the band stays until the results come up", async () => {
+  test("[world:top-band-is-lively-pill] given the staged wins still to show, when the month has ended, then the band stays until the results come up", async () => {
     const { store } = await opened(world(), richView());
     const view = richView();
     act(() => store.setState({ reportOpen: true, moments: view.report?.lines.slice(0, 1) ?? [] }));
     expect(band().getAttribute("aria-hidden")).toBe("false");
   });
 
-  test("[R-WORLD-004] given the results showing, when the thumb bar renders, then Map and Phone hide with it", async () => {
+  test("[world:thumb-buttons-carry-dots] given the results showing, when the thumb bar renders, then Map and Phone hide with it", async () => {
     const { store } = await opened(world(), richView());
     expect(thumbs().getAttribute("aria-hidden")).toBe("false");
     act(() => store.setState({ reportOpen: true }));
     expect(thumbs().getAttribute("aria-hidden")).toBe("true");
   });
 
-  test("[R-WORLD-008] [R-WORLD-025] given the month ended, when the shell shows, then a short beat in the room comes first, the scene goes dark after it, and the results are handed the name of where the player is", async () => {
+  test("[world:month-end-results-sheet] [world:sleep-ends-the-month] given the month ended, when the shell shows, then a short beat in the room comes first, the scene goes dark after it, and the results are handed the name of where the player is", async () => {
     const { store } = await opened(world(), engineView());
     const shown = band().querySelector("h2")?.textContent ?? "";
     act(() => store.setState({ reportOpen: true }));
@@ -191,7 +191,7 @@ describe("the band and the thumb buttons", () => {
 });
 
 describe("street talk", () => {
-  test("[R-WORLD-026] given a place with overheard lines, when the world shows, then nothing is said in the first seconds, then a line floats over the resident nearest, never in the corner, and it hides while a sheet is open", async () => {
+  test("[world:street-talk-budget] given a place with overheard lines, when the world shows, then nothing is said in the first seconds, then a line floats over the resident nearest, never in the corner, and it hides while a sheet is open", async () => {
     vi.useFakeTimers();
     try {
       await opened(world(), engineView());
@@ -220,12 +220,12 @@ describe("the nudge", () => {
   const quiet = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
   const step = quiet.chapter.items.find((item) => !item.met)?.id;
 
-  test("[R-WORLD-003] given the view, when the nudge is chosen, then it follows the order: question, offer, the chapter's step, a report line waiting, the month's end", () => {
+  test("[world:nudge-says-one-thing] given the view, when the nudge is chosen, then it follows the order: question, offer, the chapter's step, a report line waiting, the month's end", () => {
     const rich = richView();
     expect(nudgeOf(rich).key).toBe("ui.nudge.setpiece");
     expect(nudgeOf({ ...rich, setpiece: null, interview: null }).key).toBe("ui.nudge.offer");
     expect(quiet.chapter.current).not.toBeNull();
-    // The story's words for the step exist in content now, so the nudge takes them (R-WORLD-003).
+    // The story's words for the step exist in content now, so the nudge takes them (world:nudge-says-one-thing).
     expect(nudgeOf(quiet).key).toBe(`${String(quiet.chapter.current)}.item.${String(step)}.nudge`);
     const noStep = { ...quiet, chapter: { ...quiet.chapter, current: null } };
     expect(nudgeOf({ ...noStep, report: rich.report }).key).toBe("ui.nudge.report");
@@ -234,7 +234,7 @@ describe("the nudge", () => {
     expect(nudgeOf({ ...noStep, report: nothingWaits }).key).toBe("ui.nudge.end");
   });
 
-  test("[R-WORLD-003] given a step already started, when the nudge is chosen, then it names the wait: a paper on its way, a school's answer, a hunt or a test planned, funds short", () => {
+  test("[world:nudge-says-one-thing] given a step already started, when the nudge is chosen, then it names the wait: a paper on its way, a school's answer, a hunt or a test planned, funds short", () => {
     const base = { ...quiet, month: 10 };
     const file = { ...base, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }, { id: "transcript", met: false }, { id: "english", met: false }, { id: "offer", met: false }], done: [], closes: false, next: null } };
     const waiting = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
@@ -251,7 +251,7 @@ describe("the nudge", () => {
     expect(nudgeOf(short)).toMatchObject({ key: "chapter.decision-day.item.held.short", params: { amount: formatMoney(200000, "GBP") } });
   });
 
-  test("[R-WORLD-003] given a step planned this month, or one the player cannot afford, when the nudge is chosen, then it says so: the planned step waits on the month, the dear one names the gap", () => {
+  test("[world:nudge-says-one-thing] given a step planned this month, or one the player cannot afford, when the nudge is chosen, then it says so: the planned step waits on the month, the dear one names the gap", () => {
     const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(file, undefined, ["activity.get-passport"]).key).toBe("chapter.build-the-file.item.passport.planned");
     const dear = {
@@ -262,7 +262,7 @@ describe("the nudge", () => {
     expect(nudgeOf(dear)).toMatchObject({ key: "chapter.build-the-file.item.passport.short", params: { amount: formatMoney(9900000, "NGN") } });
   });
 
-  test("[R-WORLD-003] given a step short of money, when a hunt is planned or the job's pay covers the gap, then the nudge says so; given the page or the meetup planned, then it waits on the month; abroad the dues gap comes before the step", () => {
+  test("[world:nudge-says-one-thing] given a step short of money, when a hunt is planned or the job's pay covers the gap, then the nudge says so; given the page or the meetup planned, then it waits on the month; abroad the dues gap comes before the step", () => {
     const file = { ...quiet, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "english", met: false }], done: [], closes: false, next: null } };
     const dear = {
       ...file,
@@ -271,7 +271,7 @@ describe("the nudge", () => {
     };
     expect(nudgeOf(dear).key).toBe("chapter.build-the-file.item.english.short");
     expect(nudgeOf(dear, undefined, ["activity.job-hunt"]).key).toBe("ui.nudge.hunt-planned");
-    // A hunt applied for at once (R-ACTIVITY-015) reads as a planned one: the view marks it done and nothing is in the plan.
+    // A hunt applied for at once (activity:now-acts-and-month-acts) reads as a planned one: the view marks it done and nothing is in the plan.
     const applied = { ...dear, activities: dear.activities.map((option) => (option.id === "activity.job-hunt" ? { ...option, done: true } : option)) };
     expect(nudgeOf(applied).key).toBe("ui.nudge.hunt-planned");
     // A job whose month's pay covers the gap: the nudge says to work and save.
@@ -295,9 +295,9 @@ describe("the nudge", () => {
     expect(nudgeOf(abroad).about).toBe("dues");
   });
 
-  test("[R-WORLD-006] given an ask that belongs at the family house, when the sheet opens elsewhere, then it says someone waits there and one button goes there", async () => {
+  test("[world:one-action-one-sheet] given an ask that belongs at the family house, when the sheet opens elsewhere, then it says someone waits there and one button goes there", async () => {
     const view = { ...richView(), setpiece: null, interview: null };
-    // The player stands on Bode Thomas Street, not at home (the city never moves them to an ask's place by itself, R-CITY-011).
+    // The player stands on Bode Thomas Street, not at home (the city never moves them to an ask's place by itself, city:set-piece-shown-where-staged).
     localStorage.setItem("japacity.city.last", JSON.stringify(["place.bode-thomas"]));
     await opened(world({ asks: [<p key="a" data-ask="a">the send-off</p>], asksAt: ["place.family-house"] }), view);
     fireEvent.click(screen.getByRole("button", { name: say("ui.nudge.offer") }));
@@ -307,20 +307,20 @@ describe("the nudge", () => {
     expect(within(sheet).getByRole("button", { name: say("ui.world.go-there") })).toBeTruthy();
   });
 
-  test("[R-WORLD-003] given the story has nudge words for the step, when the nudge is chosen, then they are used over the step's own words", () => {
+  test("[world:nudge-says-one-thing] given the story has nudge words for the step, when the nudge is chosen, then they are used over the step's own words", () => {
     const own = `${String(quiet.chapter.current)}.item.${String(step)}`;
     expect(nudgeOf(quiet, (key) => key === `${own}.nudge`).key).toBe(`${own}.nudge`);
     expect(nudgeOf(quiet, () => false).key).toBe(own);
   });
 
-  test("[R-WORLD-003] given the nudges the interface writes, then each is one sentence of at most eight words", () => {
+  test("[world:nudge-says-one-thing] given the nudges the interface writes, then each is one sentence of at most eight words", () => {
     for (const key of ["ui.nudge.setpiece", "ui.nudge.offer", "ui.nudge.report", "ui.nudge.end"]) {
       const words = say(key);
       expect({ key, count: words.split(/\s+/).length <= 8, sentences: words.split(". ").length }).toEqual({ key, count: true, sentences: 1 });
     }
   });
 
-  test("[R-WORLD-003] given an offer waiting, when it opens, then the nudge says so; and the nudge hides while the phone's Calendar is open", async () => {
+  test("[world:nudge-says-one-thing] given an offer waiting, when it opens, then the nudge says so; and the nudge hides while the phone's Calendar is open", async () => {
     const { store } = await opened(phoned(), { ...richView(), setpiece: null, interview: null, offers: [], job: { ...richView().job, id: null, side: null } });
     const nudge = () => document.querySelector("[data-nudge]")?.textContent ?? null;
     expect(nudge()).not.toBe(say("ui.nudge.offer"));
@@ -334,7 +334,7 @@ describe("the nudge", () => {
 });
 
 describe("the trader from sixteen with a shop's capital", () => {
-  test("[R-WORLD-001] [R-WORLD-003] given a settled trader at his handover, when the world opens, then the opening words speak of the settlement and the nudge sends him to the motor park, not the board", () => {
+  test("[world:world-fills-the-screen] [world:nudge-says-one-thing] given a settled trader at his handover, when the world opens, then the opening words speak of the settlement and the nudge sends him to the motor park, not the board", () => {
     const game = newGame("scenario.prologue", "sixteen-0");
     playPrologueBy(game, ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"]);
     const view = game.view();
@@ -348,7 +348,7 @@ describe("the trader from sixteen with a shop's capital", () => {
   });
 });
 
-/** The waiting months' acts (R-ACTIVITY-013) left out, so a test can read the wait's own words. */
+/** The waiting months' acts (activity:waiting-months-build-profile) left out, so a test can read the wait's own words. */
 function noMeanwhile<T extends { activities: { id: string }[] }>(view: T): T {
   return { ...view, activities: view.activities.filter((option) => !["activity.open-source", "activity.tech-posts", "activity.be-noticed", "activity.nurse-certification"].includes(option.id)) };
 }
@@ -356,7 +356,7 @@ function noMeanwhile<T extends { activities: { id: string }[] }>(view: T): T {
 describe("the nudge while a step waits", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
 
-  test("[R-WORLD-003] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
+  test("[world:nudge-says-one-thing] given a paper on its way and a better-paid job on the board, when the nudge is read, then it sends the life to the board, not to wait", () => {
     const file = { ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null } };
     const pending = noMeanwhile({ ...file, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }], job: { ...file.job, id: "activity.job-customer-service" as const } });
     const hunt = pending.activities.find((option) => option.id === "activity.job-hunt");
@@ -367,19 +367,19 @@ describe("the nudge while a step waits", () => {
     expect(nudgeOf(noBoard).key).toBe("chapter.build-the-file.item.passport.started");
   });
 
-  test("[R-WORLD-003] given last month's report waiting and News read, when the nudge is read, then it moves on to the month's end", () => {
+  test("[world:nudge-says-one-thing] given last month's report waiting and News read, when the nudge is read, then it moves on to the month's end", () => {
     const line = { key: "line.offer.opened", params: { offer: "offer.nepa-bill" }, tone: "plain" as const, attention: true, counts: [] };
     const reported = { ...base, chapter: { current: null, items: [], done: [], closes: false, next: null }, report: { month: 3, lines: [line], japacityBefore: null, japacityAfter: null, attention: true } };
     expect(nudgeOf(reported).about).toBe("report");
     expect(nudgeOf(reported, undefined, [], true).about).toBe("end");
   });
 
-  test("[R-WORLD-003] given the landing chapter's job step with a hunt planned, when the nudge is read, then it says the application is in", () => {
+  test("[world:nudge-says-one-thing] given the landing chapter's job step with a hunt planned, when the nudge is read, then it says the application is in", () => {
     const abroad = { ...base, chapter: { current: "chapter.landing" as const, items: [{ id: "job", met: false }], done: [], closes: false, next: null } };
     expect(nudgeOf(abroad, undefined, ["activity.job-hunt"]).key).toBe("chapter.landing.item.job.planned");
   });
 
-  test("[R-WORLD-003] given a tuition instalment already missed and the next not covered, when an ask is open too, then the dues come first and say the visa is at stake", () => {
+  test("[world:nudge-says-one-thing] given a tuition instalment already missed and the next not covered, when an ask is open too, then the dues come first and say the visa is at stake", () => {
     const owed = base.obligations[0];
     if (owed === undefined) throw new Error("No obligation to shape.");
     const abroad = {
@@ -394,7 +394,7 @@ describe("the nudge while a step waits", () => {
     expect(nudge.about).toBe("dues");
   });
 
-  test("[R-WORLD-003] [R-ROUTE-020] given the visa granted and held funds still open, when the plane's step is read, then the nudge says to give the funds back and the way is the bank's counter", () => {
+  test("[world:nudge-says-one-thing] [route:departure-pays-flight] given the visa granted and held funds still open, when the plane's step is read, then the nudge says to give the funds back and the way is the bank's counter", () => {
     const owed = base.obligations[0];
     if (owed === undefined) throw new Error("No obligation to shape.");
     const held = { ...base, chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: false }], done: [], closes: false, next: null }, obligations: [{ ...owed, entry: "obligation.held-funds" as never, due: 0 }] };
@@ -408,7 +408,7 @@ describe("the nudge while a step waits", () => {
 describe("the archetypes' own ways", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null, scenario: "scenario.prologue" as const };
 
-  test("[R-PROLOGUE-010] [R-WORLD-003] given a nurse from sixteen with her licence and no job, when the first step is read, then the nudge sends her to the staff nurse job at the clinic", () => {
+  test("[prologue:archetype-presets-answers] [world:nudge-says-one-thing] given a nurse from sixteen with her licence and no job, when the first step is read, then the nudge sends her to the staff nurse job at the clinic", () => {
     const nurse = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [], closes: false, next: null },
@@ -421,7 +421,7 @@ describe("the archetypes' own ways", () => {
     expect(stepWayOf(nurse)).toEqual({ go: "place.tb-clinic", at: ["place.tb-clinic:jobs-notice"] });
   });
 
-  test("[R-WORLD-003] given a chapter whose every item is met, when the nudge is chosen, then it says the chapter is done and to turn the page, never a goal's first act", () => {
+  test("[world:nudge-says-one-thing] given a chapter whose every item is met, when the nudge is chosen, then it says the chapter is done and to turn the page, never a goal's first act", () => {
     const done = {
       ...base,
       chapter: { current: "chapter.send-off" as const, items: [{ id: "departed", met: true }], done: [], closes: false, next: null },
@@ -430,7 +430,7 @@ describe("the archetypes' own ways", () => {
     expect(nudgeOf(done)).toEqual({ key: "ui.nudge.chapter-done", about: "end" });
   });
 
-  test("[R-WORLD-003] [R-CHAPTER-009] given a nurse from sixteen in her job who has heard of care work and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given a nurse from sixteen in her job who has heard of care work and the master's, when the first step is read, then the nudge says to read the care page and the way opens that page with care chosen", () => {
     const nurse = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: true }, { id: "pay", met: true }, { id: "heard", met: true }, { id: "known", met: false }], done: [], closes: false, next: null },
@@ -452,7 +452,7 @@ describe("the archetypes' own ways", () => {
     expect(stepWayOf(graduate)).toEqual({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"], opens: "activity.look-into-route" });
   });
 
-  test("[R-PROLOGUE-010] [R-WORLD-003] given a trader from sixteen who has heard of no way out, when the first step is read, then the nudge sends him to the motor park, and asking around planned says so", () => {
+  test("[prologue:archetype-presets-answers] [world:nudge-says-one-thing] given a trader from sixteen who has heard of no way out, when the first step is read, then the nudge sends him to the motor park, and asking around planned says so", () => {
     const trader = {
       ...base,
       chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }, { id: "pay", met: false }, { id: "heard", met: false }, { id: "known", met: false }], done: [], closes: false, next: null },
@@ -471,31 +471,31 @@ describe("the nudge in the waiting months", () => {
   const base = { ...engineView(), setpiece: null, interview: null, offers: [], report: null };
   const waiting = noMeanwhile({ ...base, month: 10, chapter: { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: false }], done: [], closes: false, next: null }, documents: [{ id: "document.passport" as const, state: "pending" as const, readyMonth: 12, expiresMonth: null, value: null, onItsWay: 12 }] });
 
-  test("[R-WORLD-003] [R-SPONSOR-005] given a nurse in the nursing job with the care route in play, when a better-paid job sits on the board, then the nudge never sends her off the job", () => {
+  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given a nurse in the nursing job with the care route in play, when a better-paid job sits on the board, then the nudge never sends her off the job", () => {
     const nurse = { ...waiting, job: { ...waiting.job, id: "activity.job-nurse" as const }, routes: [{ ...richView().routes[0]!, id: "route.uk-care" as const, state: "heard" as const }] };
     expect(nudgeOf(nurse).key).not.toBe("ui.nudge.better-job");
     const unknown = { ...nurse, routes: [] };
     expect(nudgeOf(unknown).key).toBe("ui.nudge.better-job");
   });
 
-  test("[R-WORLD-003] given a hunt planned while a job is held and a paper on its way, when the nudge is read, then it says the application is in", () => {
+  test("[world:nudge-says-one-thing] given a hunt planned while a job is held and a paper on its way, when the nudge is read, then it says the application is in", () => {
     const working = { ...waiting, job: { ...waiting.job, id: "activity.job-customer-service" as const } };
     expect(nudgeOf(working, undefined, ["activity.job-hunt"]).key).toBe("ui.nudge.hunt-planned");
   });
 
-  test("[R-WORLD-003] given a hunt missed last month and other jobs on the board, when the first chapter's job step is read, then the nudge names another way", () => {
+  test("[world:nudge-says-one-thing] given a hunt missed last month and other jobs on the board, when the first chapter's job step is read, then the nudge names another way", () => {
     const missed = { ...base, chapter: { current: "chapter.find-your-feet" as const, items: [{ id: "job", met: false }], done: [], closes: false, next: null }, report: { month: 3, lines: [{ key: "line.activity.hunt-missed", params: { job: "activity.job-nurse" }, tone: "bad" as const, attention: false, counts: [] }], japacityBefore: null, japacityAfter: null, attention: false } };
     expect(nudgeOf(missed).key).toBe("chapter.find-your-feet.item.job.nudge.again");
   });
 
-  test("[R-WORLD-003] [R-GOAL-003] given every chapter done and a goal open with a first act, when the nudge is read, then it names the goal's first act", () => {
+  test("[world:nudge-says-one-thing] [goal:view-shows-goal-items] given every chapter done and a goal open with a first act, when the nudge is read, then it names the goal's first act", () => {
     const settled = { ...base, chapter: { current: null, items: [], done: [], closes: false, next: null }, goals: { open: [{ id: "goal.own-door" as const, items: [{ id: "flat", met: false }] }], done: [] } };
     const nudge = nudgeOf(settled);
     expect(nudge.key).toBe("goal.own-door.first");
     expect(nudge.about).toBe("goal");
   });
 
-  test("[R-ACTIVITY-013] [R-WORLD-003] given a paper on its way and the life's own act open this month, when the nudge is read, then it names that act, and once planned it moves on", () => {
+  test("[activity:waiting-months-build-profile] [world:nudge-says-one-thing] given a paper on its way and the life's own act open this month, when the nudge is read, then it names that act, and once planned it moves on", () => {
     const offered = (id: string) => ({ id, allowed: true, affordable: true, cost: [], missing: [], params: null }) as never;
     const coder = { ...waiting, qualities: waiting.qualities.map((quality) => (quality.id === "quality.tech" ? { ...quality, value: 45 } : quality)), activities: [...waiting.activities, offered("activity.open-source"), offered("activity.tech-posts")] };
     expect(nudgeOf(coder).key).toBe("ui.nudge.meanwhile.open-source");
@@ -506,7 +506,7 @@ describe("the nudge in the waiting months", () => {
 });
 
 describe("the home the game opens in", () => {
-  test("[R-HOME-006] given a life living in Makoko, when the world opens, then it opens on the water and the map's Home pin stands there", async () => {
+  test("[home:home-is-the-home-point] given a life living in Makoko, when the world opens, then it opens on the water and the map's Home pin stands there", async () => {
     localStorage.removeItem("japacity.city.last");
     const base = engineView();
     const view = { ...base, home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: 25_000 } } };
@@ -521,7 +521,7 @@ describe("the home the game opens in", () => {
       view,
     );
     expect(document.querySelector("[data-city]")?.getAttribute("data-city")).toBe("place.makoko");
-    // Go took the first step's way, which opens the map (R-WORLD-003); the slot has it already.
+    // Go took the first step's way, which opens the map (world:nudge-says-one-thing); the slot has it already.
     if (handed === null) fireEvent.click(screen.getByRole("button", { name: say("ui.world.map") }));
     const slot = handed as CityMapSlot | null;
     if (slot === null) throw new Error("The map was not handed its slot");
@@ -531,7 +531,7 @@ describe("the home the game opens in", () => {
     expect(slot.pins.find((pin) => pin.id === "place.family-house")?.state).not.toBe("home");
   });
 
-  test("[R-WORLD-014] [R-WORLD-020] given a life living in Makoko, when the map is handed its pins, then the family house is still on it, a little from the home spot, so the people met there can be reached", async () => {
+  test("[world:opens-where-last-stopped] [world:nobody-picked-from-list] given a life living in Makoko, when the map is handed its pins, then the family house is still on it, a little from the home spot, so the people met there can be reached", async () => {
     localStorage.removeItem("japacity.city.last");
     const base = engineView();
     const view = { ...base, home: { ...base.home, place: "place.makoko" as const, rent: { currency: "NGN" as const, amount: 25_000 } } };
@@ -555,7 +555,7 @@ describe("the home the game opens in", () => {
     expect(house?.position).not.toEqual(home?.position);
   });
 
-  test("[R-HOME-010] [R-HOME-006] given a life living in the room in a compound, when the world opens, then it opens in the room and the map's Home pin stands there", async () => {
+  test("[home:compound-room-is-a-home] [home:home-is-the-home-point] given a life living in the room in a compound, when the world opens, then it opens in the room and the map's Home pin stands there", async () => {
     localStorage.removeItem("japacity.city.last");
     const base = engineView();
     const view = { ...base, home: { ...base.home, place: "place.compound-room" as const, rent: { currency: "NGN" as const, amount: 50_000_00 } } };
@@ -577,7 +577,7 @@ describe("the home the game opens in", () => {
     expect(slot.pins.find((pin) => pin.id === "place.compound-room")?.state).toBe("here");
   });
 
-  test("[R-HOME-001] [R-HOME-006] given a life living in the hostel room, when the world opens, then it opens in the hostel and the map's Home pin stands there", async () => {
+  test("[home:home-slice-fields] [home:home-is-the-home-point] given a life living in the hostel room, when the world opens, then it opens in the hostel and the map's Home pin stands there", async () => {
     localStorage.removeItem("japacity.city.last");
     const base = engineView();
     const view = { ...base, home: { ...base.home, place: "place.hostel-room" as const, rent: { currency: "NGN" as const, amount: 15_000_00 } } };
@@ -599,7 +599,7 @@ describe("the home the game opens in", () => {
     expect(slot.pins.find((pin) => pin.id === "place.hostel-room")?.state).toBe("here");
   });
 
-  test("[R-HOME-006] given a life in the family house, when the world opens, then it opens in the compound", async () => {
+  test("[home:home-is-the-home-point] given a life in the family house, when the world opens, then it opens in the compound", async () => {
     localStorage.removeItem("japacity.city.last");
     await opened(world(), engineView());
     expect(document.querySelector("[data-city]")?.getAttribute("data-city")).toBe("place.family-house");
@@ -607,7 +607,7 @@ describe("the home the game opens in", () => {
 });
 
 describe("once per life", () => {
-  test("[R-CHAPTER-011] given the first brief handed once, when the page reloads, then its card never shows again in this life, and a new life is handed it again", async () => {
+  test("[chapter:first-chapter-mission-card] given the first brief handed once, when the page reloads, then its card never shows again in this life, and a new life is handed it again", async () => {
     localStorage.clear();
     const view = engineView();
     await renderWithView(world(), view);
@@ -626,7 +626,7 @@ describe("once per life", () => {
     localStorage.clear();
   });
 
-  test("[R-HOME-008] given the first entry into the home in a life, when the world opens there, then one small card says what the home is, its blurb; dismissed, it never shows again", async () => {
+  test("[home:moves-carry-cost-and-reason] given the first entry into the home in a life, when the world opens there, then one small card says what the home is, its blurb; dismissed, it never shows again", async () => {
     localStorage.clear();
     const view = { ...richView(), setpiece: null, interview: null };
     await opened(world(), view);
@@ -645,7 +645,7 @@ describe("once per life", () => {
 });
 
 describe("the band says what the home is", () => {
-  test("[R-WORLD-002] given each home, when the band's place line is read, then it names the home's kind in few words, short enough for the band beside the age: your room by its area, the family house, the room on the water, the shared room abroad by its area", async () => {
+  test("[world:top-band-is-lively-pill] given each home, when the band's place line is read, then it names the home's kind in few words, short enough for the band beside the age: your room by its area, the family house, the room on the water, the shared room abroad by its area", async () => {
     const base = engineView();
     expect(homeLine("place.compound-room", base)).toBe("Your room, Ojuelegba");
     expect(homeLine("place.family-house", base)).toBe("The family house");

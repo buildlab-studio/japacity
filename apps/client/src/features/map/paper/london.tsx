@@ -1,10 +1,10 @@
-// London as a painted city (docs/rules/world.md R-WORLD-038; design page 14 section 3): south-east London on paper, the
+// London as a painted city (world:painted-maps-abroad; design page 14 section 3): south-east London on paper, the
 // Thames across the top with the City across the water, the railway through Peckham Rye, the main roads, the district
 // names, five neighbourhood cards, every built place of the UK as its sticker, the home sticker at the home spot off
 // Choumert Road, and Heathrow on an inset in the paper's south-west corner with its plane, since it lies far to the west.
 // Its own chunk, loaded only when the map shows the UK, so a first visit at home carries none of it. Authored in the
 // thousandths of a degree content keeps positions in, laid on the paper through London's own fit; rough on purpose, as
-// the positions are (city.md R-CITY-008): a stylised London, not a survey.
+// the positions are (city:positions-rough-on-purpose): a stylised London, not a survey.
 import { londonMapWords } from "./paper.words";
 import { abroadPaper, card, type LatLon, paperPen } from "./abroad";
 import type { PaperCity, StripMark } from "./city";
@@ -17,7 +17,7 @@ import { PaperMap, type PaperMapProps } from "./PaperMap";
 /**
  * London's fit: north up, a thousandth of a degree sixteen paper units south and ten east, so the paper keeps
  * London's true shape (a thousandth of a degree of longitude is about 69 m at 51.5 degrees north against 111 m of
- * latitude, R-PLACE-010). The paper runs from 0.108 to 0.040 west and from 51.520 down to 51.458 north.
+ * latitude, place:rides-between-city-places). The paper runs from 0.108 to 0.040 west and from 51.520 down to 51.458 north.
  */
 export const LONDON_FIT: Fit = { xLon: 10, xLat: 0, x0: 1080, yLon: 0, yLat: -16, y0: 824320 };
 export const LONDON_PAPER = { width: 680, height: 992 } as const;
@@ -222,7 +222,7 @@ function Spire({ at: [x, y] }: { at: Point }) {
 }
 
 /**
- * Heathrow's inset (R-WORLD-038): a framed panel in the paper's south-west corner with the airport's runways and its
+ * Heathrow's inset (world:painted-maps-abroad): a framed panel in the paper's south-west corner with the airport's runways and its
  * plane, the airport's sticker standing in it, and a dashed arrow off its west side, since Heathrow lies far west.
  */
 export const HEATHROW = "place.heathrow";

@@ -1,4 +1,4 @@
-// The game's seal on every drawn picture (docs/rules/share.md R-SHARE-006): the J in its rings with
+// The game's seal on every drawn picture (share:card-never-looks-official): the J in its rings with
 // the two bulbs, drawn small at the foot before the game's name, on the card, its link preview and the ticket stub.
 import { content, shareKinds } from "@japacity/content";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -19,7 +19,7 @@ const sender = (steps: readonly Step[]) => steps.find((step): step is TextStep =
 afterEach(() => vi.restoreAllMocks());
 
 describe("the seal on a picture", () => {
-  test("[R-SHARE-006] given every kind of card, then one seal stands at the foot before the game's name, clear of it and inside the card, light on white and on the send-off's yellow, dark on black", () => {
+  test("[share:card-never-looks-official] given every kind of card, then one seal stands at the foot before the game's name, clear of it and inside the card, light on white and on the send-off's yellow, dark on black", () => {
     for (const kind of shareKinds) {
       const steps = cardSteps(cardFace({ ...adaCard(), kind }, "scenario.ada"), SIZE, measure);
       const [seal, ...rest] = seals(steps);
@@ -37,7 +37,7 @@ describe("the seal on a picture", () => {
     }
   });
 
-  test("[R-SHARE-006] given the link preview and the ticket stub, then each carries one seal before the game's name, clear of it", () => {
+  test("[share:card-never-looks-official] given the link preview and the ticket stub, then each carries one seal before the game's name, clear of it", () => {
     const card = adaCard();
     const face = cardFace(card, "scenario.ada");
     const preview = previewSteps(face, { width: tuning.previewWidth, height: tuning.previewHeight }, measure);
@@ -48,7 +48,7 @@ describe("the seal on a picture", () => {
     }
   });
 
-  test("[R-SHARE-006] given a card drawn to the canvas, then the seal is painted with the canvas's own shapes, and the card still comes out", async () => {
+  test("[share:card-never-looks-official] given a card drawn to the canvas, then the seal is painted with the canvas's own shapes, and the card still comes out", async () => {
     const drawn = fakeCanvas(() => 100);
     const result = await renderCard(cardFace(adaCard(), "scenario.ada"));
     expect(result.ok).toBe(true);

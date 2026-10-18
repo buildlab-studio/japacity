@@ -1,5 +1,5 @@
-// Castel Volturno on the mold in a real browser at phone size (docs/rules/world.md R-WORLD-038, R-WORLD-039;
-// place.md R-PLACE-010, R-PLACE-013; streets.md R-STREET-015): a life that took the road, played by the sweep's own
+// Castel Volturno on the mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace;
+// place:rides-between-city-places, place:employer-shuttle-rides-free; streets:castel-volturno-by-hand): a life that took the road, played by the sweep's own
 // player, lands on the coast holding the farm's cash job. Italy has no pass, so the bus is paid each time: the van to the
 // fields asks nothing and the gangmaster's table says On shift, the van back to the roundabout asks nothing, the coast
 // road's bus to the discount supermarket asks its flat fare, and the weekly shop takes euros.
@@ -15,7 +15,7 @@ test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile
 /** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28, at the farm. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
 
-test("[R-WORLD-039] [R-PLACE-013] [R-STREET-015] given a road life landed at Castel Volturno, when it rides the van to the fields and back and the bus to the discount supermarket for the weekly shop, then the van asks nothing either way, the table says On shift, the bus asks its flat fare and the shop takes euros", async ({ page }) => {
+test("[world:ride-abroad-and-workplace] [place:employer-shuttle-rides-free] [streets:castel-volturno-by-hand] given a road life landed at Castel Volturno, when it rides the van to the fields and back and the bus to the discount supermarket for the weekly shop, then the van asks nothing either way, the table says On shift, the bus asks its flat fare and the shop takes euros", async ({ page }) => {
   test.setTimeout(480_000);
   await seedSave(page, lifeIn(ROAD));
   await page.goto(`/${LIVED}&clock=afternoon`);
@@ -25,8 +25,8 @@ test("[R-WORLD-039] [R-PLACE-013] [R-STREET-015] given a road life landed at Cas
   await placeReady(page);
   await clear(page);
 
-  // R-WORLD-038: the coast is a painted map of its own, Naples on its inset; the stops list for a screen reader.
-  // R-PLACE-013: the van to the fields says €0, the van, plays in the van, and the gangmaster's table says On shift.
+  // world:painted-maps-abroad: the coast is a painted map of its own, Naples on its inset; the stops list for a screen reader.
+  // place:employer-shuttle-rides-free: the van to the fields says €0, the van, plays in the van, and the gangmaster's table says On shift.
   await pickStop(page, "place.farm-it");
   await expect(page.locator("[data-paper-map]").first()).toBeAttached();
   await expect(page.locator('[data-ride-sheet="place.farm-it"] [data-way="bus"]')).toContainText("the van");
@@ -51,7 +51,7 @@ test("[R-WORLD-039] [R-PLACE-013] [R-STREET-015] given a road life landed at Cas
   expect(await rideBy(page, "place.big-shop-it", "bus")).toBe("italy-bus");
   await expect.poll(() => money(page), { timeout: 20_000 }).toBeLessThan(beforeBus + 1);
 
-  // R-STREET-015: the weekly shop at the trolleys, €35.
+  // streets:castel-volturno-by-hand: the weekly shop at the trolleys, €35.
   const beforeShop = await money(page);
   await doAct(page, "trolley", "weekly-shop");
   await expect.poll(() => money(page), { timeout: 20_000 }).toBeLessThanOrEqual(beforeShop - 34);

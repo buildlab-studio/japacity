@@ -57,7 +57,7 @@ export function MapShot({ paint, zoom = [1.05, 1.25], toward = [0.5, 0.5] }: { p
 
 /**
  * The night falling over the family house: the same view by day and at night, the night drawn down over the day with a
- * soft edge, as the world's clock turns the paint (R-CLOCK-033). A wipe of the shot, not a fade of the frame. The tall
+ * soft edge, as the world's clock turns the paint (clock:game-day-on-real-time). A wipe of the shot, not a fade of the frame. The tall
  * frame draws the phone's own recordings of the house.
  */
 export function NightFalls({ from = 0, falls = [14, 40] }: { from?: number; falls?: readonly [number, number] }) {

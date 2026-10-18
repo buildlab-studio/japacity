@@ -1,4 +1,4 @@
-// A workplace with a door (docs/rules/world.md R-WORLD-039): the thing where a job abroad is got (the reception desk, the
+// A workplace with a door (world:ride-abroad-and-workplace): the thing where a job abroad is got (the reception desk, the
 // nurses' station, the clock-in, the desks, the tills, the kitchen door, the courier's bike) is also where it is held.
 // Once the job is the life's, the hunt does not list it, so its act would leave the thing; instead the act becomes the
 // shift's own plain act and the thing's label says "On shift". Pure: it reads the things and the job held, nothing else.
@@ -27,7 +27,7 @@ export function onShift(things: readonly Thing[], job: string | null, abroad: bo
   });
 }
 
-/** The label's state for each thing that carries the shift: "On shift", in the words given (R-WORLD-039). */
+/** The label's state for each thing that carries the shift: "On shift", in the words given (world:ride-abroad-and-workplace). */
 export function shiftMarks(things: readonly Pick<Thing, "id" | "acts">[], words: string): Record<string, string> {
   const marks: Record<string, string> = {};
   for (const thing of things) if (thing.acts.some((act) => act.id === SHIFT_ACT)) marks[thing.id] = words;

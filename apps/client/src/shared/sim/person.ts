@@ -86,7 +86,7 @@ export function momentWords(moment: Moment): string {
   return moment.by === "them" ? say("ui.people.moment.by-them", { moment: said() }) : said();
 }
 
-/** True when the other side is where the character is: home, or the same country abroad (R-PEOPLE-014). */
+/** True when the other side is where the character is: home, or the same country abroad (person:time-together-is-an-act). */
 function samePlace(view: PlayerView, facts: PersonFacts): boolean {
   if (facts.where !== view.place.where) return false;
   return facts.where !== "abroad" || facts.country === view.place.country;
@@ -98,7 +98,7 @@ function lastTick(bond: BondView): number {
 }
 
 /**
- * The bond a slot of time with someone goes to (R-PEOPLE-014): of the bonds at
+ * The bond a slot of time with someone goes to (person:time-together-is-an-act): of the bonds at
  * courting or later in the same place (to see) or elsewhere (to call), the one
  * that has waited longest for a moment.
  * The view has no `lastMomentMonth`, so the wait is read from the last
@@ -122,7 +122,7 @@ function jointRoute(view: PlayerView): Id<"route"> | null {
 }
 
 export interface EndCost {
-  /** True when the stand-in is on, and ending it costs nobody anything (R-PEOPLE-044). */
+  /** True when the stand-in is on, and ending it costs nobody anything (person:stand-in-acts-narrowly). */
   absence: boolean;
   standing: number;
   wellbeing: number;
@@ -130,7 +130,7 @@ export interface EndCost {
   joint: boolean;
 }
 
-/** What ending a bond costs the one who ends it, said before it is done (R-PEOPLE-037, R-PEOPLE-036). */
+/** What ending a bond costs the one who ends it, said before it is done (person:ender-pays-in-standing, person:joint-collapses-with-bond). */
 export function endCost(view: PlayerView, bond: BondView): EndCost {
   const numbers = content.tuning.people;
   const onJoint = view.people.joint?.bond === bond.id;
@@ -143,7 +143,7 @@ export function endCost(view: PlayerView, bond: BondView): EndCost {
 
 /**
  * The player's month a moment's tick fell in, through the era's own reading of
- * ticks as months (R-DIRECTOR-002), or null before the director runs.
+ * ticks as months (director:one-era-at-a-time), or null before the director runs.
  */
 function monthOfTick(view: PlayerView, tick: number): number | null {
   const era = view.era;
@@ -160,8 +160,8 @@ export function monthsWithout(view: PlayerView, bond: BondView): number | null {
 }
 
 /**
- * The month a bond ended, read back from its cooldown (R-PEOPLE-039 sets it to the end's month plus
- * `tuning.people.recourtMonths`), or null for a bond not ended. The view carries no end of its own (R-PEOPLE-051).
+ * The month a bond ended, read back from its cooldown (person:ended-bond-record-kept sets it to the end's month plus
+ * `tuning.people.recourtMonths`), or null for a bond not ended. The view carries no end of its own (person:view-shows-people).
  */
 function endedMonth(bond: Pick<BondView, "stage" | "cooldownUntil">): number | null {
   if (bond.stage !== "ended" || bond.cooldownUntil === null) return null;
@@ -169,7 +169,7 @@ function endedMonth(bond: Pick<BondView, "stage" | "cooldownUntil">): number | n
 }
 
 /**
- * True while an ended bond's thread stays in Chats (R-PEOPLE-042): through the
+ * True while an ended bond's thread stays in Chats (person:computer-partner-drifts): through the
  * month it ended in, with the line that says so in its head, and gone once that month ends.
  */
 export function endStillTold(view: Pick<PlayerView, "month">, bond: Pick<BondView, "stage" | "cooldownUntil">): boolean {
@@ -196,7 +196,7 @@ export function endedHow(bond: Pick<BondView, "person">, lines: readonly ReportL
   return told.findLast((how) => how !== undefined) ?? "other";
 }
 
-/** The routes a joint may be asked on: known or later, and bringing a partner (R-PEOPLE-021, R-PEOPLE-025). */
+/** The routes a joint may be asked on: known or later, and bringing a partner (person:joint-application-proposed, person:partner-routes-heard-via-bond). */
 export function jointRoutes(view: PlayerView): Id<"route">[] {
   return view.routes
     .filter((route) => route.state !== "unknown")
@@ -207,7 +207,7 @@ export function jointRoutes(view: PlayerView): Id<"route">[] {
     .map((route) => route.id);
 }
 
-/** The steps a bond may be asked to take at its stage. The engine still judges each (R-PEOPLE-016, R-PEOPLE-021). */
+/** The steps a bond may be asked to take at its stage. The engine still judges each (person:proposing-a-step, person:joint-application-proposed). */
 export function stepsFor(view: PlayerView, bond: BondView): ("partner" | "marry" | "joint")[] {
   if (bond.role !== "partner") return [];
   switch (bond.stage) {
@@ -247,7 +247,7 @@ export function fillWords(id: Id<"phrase">, kind: string, fill: string): string 
   }
 }
 
-/** The phrases that may be said in a conversation (R-PAIR-010, R-PAIR-012): every one not kept for places. */
+/** The phrases that may be said in a conversation (pair:preset-phrases-only, pair:place-phrases-not-stored): every one not kept for places. */
 export function conversationPhrases(): PhraseEntry[] {
   return Object.values(content.phrase).filter((phrase) => phrase.where !== "place");
 }

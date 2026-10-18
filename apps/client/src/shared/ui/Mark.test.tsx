@@ -1,4 +1,4 @@
-// The marks the page's chips carry (prologue.md R-PROLOGUE-014): a state is said by shape and colour together, and by its word.
+// The marks the page's chips carry (prologue:printed-page-hands-over): a state is said by shape and colour together, and by its word.
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -8,11 +8,11 @@ import { Mark, type MarkState } from "./Mark";
 import "../testing/render";
 
 const STATES: readonly MarkState[] = ["done", "failed", "setback", "waiting"];
-/** Tailwind's whole round, which the palette's own test counts as a pill (R-WORLD-021). */
+/** Tailwind's whole round, which the palette's own test counts as a pill (world:colours-are-role-tokens). */
 const PILL = ["rounded", "full"].join("-");
 
 describe("a mark", () => {
-  test("[R-PROLOGUE-014] given each state, then its mark carries its word for a screen reader, and no two states share a glyph or a colour, none is a pill, and the setback's shape is turned on its point", () => {
+  test("[prologue:printed-page-hands-over] given each state, then its mark carries its word for a screen reader, and no two states share a glyph or a colour, none is a pill, and the setback's shape is turned on its point", () => {
     const seen = new Map<MarkState, { glyph: string; colour: string; turned: boolean }>();
     for (const state of STATES) {
       const { container, unmount } = render(<Mark state={state} />);
@@ -33,7 +33,7 @@ describe("a mark", () => {
     expect(seen.get("done")?.turned).toBe(false);
   });
 
-  test("[R-TEXT-008] given a mark named for where it stands, then its shape and colour stay the state's and the screen reader hears the name it was given", () => {
+  test("[text:show-then-tell] given a mark named for where it stands, then its shape and colour stay the state's and the screen reader hears the name it was given", () => {
     const { container } = render(<Mark state="setback" word="Warning sign" />);
     const mark = container.querySelector<HTMLElement>("[data-mark='setback']")!;
     expect(mark.getAttribute("aria-label")).toBe("Warning sign");

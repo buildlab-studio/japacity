@@ -1,4 +1,4 @@
-// What a place may show (docs/rules/world.md R-WORLD-011), applied when the place is built so a
+// What a place may show (world:place-is-one-screen), applied when the place is built so a
 // phone never draws more: the crowd by the place's scope and the mode, and at most one moving sheet,
 // none in low mode. The numbers are the place check's (tools/assets/world-check.ts). Pure.
 import { SHEET_KINDS, WORLD_LIMITS } from "../../../../../tools/assets/world-check";

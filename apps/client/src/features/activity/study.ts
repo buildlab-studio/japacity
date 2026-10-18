@@ -1,4 +1,4 @@
-// How long study takes to lift the English test's chance (docs/rules/world.md R-WORLD-006). The months are counted as the simulation adds English, so the card never promises
+// How long study takes to lift the English test's chance (world:one-action-one-sheet). The months are counted as the simulation adds English, so the card never promises
 // what one month cannot do.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -14,7 +14,7 @@ const BP_WHOLE = 10_000;
 /** The furthest the card counts: past a year it says so instead of a figure. */
 const STUDY_MONTHS_MAX = 12;
 
-/** The English one month of study adds on top of `english`, as the simulation applies a skill's gain (R-QUALITY-005, R-ACTIVITY-010). */
+/** The English one month of study adds on top of `english`, as the simulation applies a skill's gain (quality:high-skills-gain-slower, activity:side-job-holds-a-slot). */
 function gainFrom(english: number, sideJob: boolean): number {
   const entry = content.quality[ENGLISH];
   const amount = (content.activity[STUDY_ENGLISH]?.effects ?? []).reduce((sum, effect) => (effect.type === "quality/add" && effect.quality === ENGLISH ? sum + effect.amount : sum), 0);
@@ -28,7 +28,7 @@ function gainFrom(english: number, sideJob: boolean): number {
 
 /**
  * The study a month holds: an act that repeats is done a day at a time, and a month of it is the times a slot runs it
- * (R-ACTIVITY-019, decision 0012: three of them a month give what the month's slot gave); one that fills the month, once.
+ * (activity:acts-may-repeat-in-month, decision 0012: three of them a month give what the month's slot gave); one that fills the month, once.
  */
 function studiesAMonth(): number {
   return content.activity[STUDY_ENGLISH]?.repeat === true ? content.tuning.turn.repeatPerSlot : 1;

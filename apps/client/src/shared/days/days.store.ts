@@ -1,4 +1,4 @@
-// The days of the month as the interface keeps them (docs/rules/world.md R-WORLD-030): one record
+// The days of the month as the interface keeps them (world:month-passes-as-lived): one record
 // for the month in hand, kept on the device beside the month's plan (the store's own memory) so a
 // reload lands on the same day, and replaced when the month turns. The game store is watched for
 // what moves them; nothing here sends a command or touches the view.

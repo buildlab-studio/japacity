@@ -1,5 +1,5 @@
 // Many copies of one model as one draw call per part: the place budget counts a building or a prop
-// once however many stand in view (assets.md R-ASSET-007, the build check's count).
+// once however many stand in view (assets:assets-and-places-within-budget, the build check's count).
 import { Group, InstancedMesh, Matrix4, type Mesh, type Object3D, Quaternion, Vector3 } from "three";
 
 /** x, z and the turn about +Y. */

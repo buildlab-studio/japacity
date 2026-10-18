@@ -1,4 +1,4 @@
-// The way home from the bag's Go home on the engine's own forecast (docs/rules/place.md R-PLACE-004, R-PLACE-005): the fare bought from naira, the return a life would make today read before it happens, the
+// The way home from the bag's Go home on the engine's own forecast (place:return-home-paid-or-assisted, place:return-shape-decided-at-once): the fare bought from naira, the return a life would make today read before it happens, the
 // assisted ticket, and no way home with a status held and nothing to pay. The card and its one button are drawn and
 // sent in goHome.test.tsx; the fare and the times home are read in Papers (features/phone/apps/Papers.place.test.tsx).
 import { content } from "@japacity/content";
@@ -17,7 +17,7 @@ function hands() {
 }
 
 describe("the bag's Go home on the engine's forecast", () => {
-  test("[R-PLACE-004] given Ada abroad with no pounds and naira enough, then the card asks the naira the fare takes, and its button goes home", () => {
+  test("[place:return-home-paid-or-assisted] given Ada abroad with no pounds and naira enough, then the card asks the naira the fare takes, and its button goes home", () => {
     const game = abroadGame();
     setPockets(game, { NGN: 500_000_000 });
     const view = game.view();
@@ -30,7 +30,7 @@ describe("the bag's Go home on the engine's forecast", () => {
     expect(hand.go).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-PLACE-005] given Ada on a student visa with pounds for the fare and savings besides, and naira at home no more than the broke line, then the return she would make today reads by choice, before it happens, with the standing it brings", () => {
+  test("[place:return-shape-decided-at-once] given Ada on a student visa with pounds for the fare and savings besides, and naira at home no more than the broke line, then the return she would make today reads by choice, before it happens, with the standing it brings", () => {
     const game = abroadGame();
     setPockets(game, { GBP: 200_000, NGN: content.tuning.place.brokeLine });
     const view = game.view();
@@ -39,15 +39,15 @@ describe("the bag's Go home on the engine's forecast", () => {
     const ask = goHomeAsk(view, hands());
     expect(ask?.line).toBe(say("ui.world.go-home.line.by-choice"));
     expect(ask?.facts).toContain(say(standing > 0 ? "ui.world.go-home.standing.up" : standing < 0 ? "ui.world.go-home.standing.down" : "ui.world.go-home.standing.same"));
-    // Nothing is on record until it happens (R-PLACE-009).
+    // Nothing is on record until it happens (place:view-shows-place-and-returns).
     expect(view.place.returns).toEqual([]);
   });
 
-  test("[R-PLACE-004] given no status and nothing to pay the fare with, then the assisted return is the way home", () => {
+  test("[place:return-home-paid-or-assisted] given no status and nothing to pay the fare with, then the assisted return is the way home", () => {
     const game = abroadGame();
     setPockets(game, { NGN: 0, GBP: 0, USD: 0, CAD: 0, AED: 0, EUR: 0 });
     const view = viewAfter(game, [{ type: "status/lose" }]);
-    // Losing the visa leaves only the country's overstayer status, which is no permission to be there (R-PLACE-004).
+    // Losing the visa leaves only the country's overstayer status, which is no permission to be there (place:return-home-paid-or-assisted).
     expect(view.status?.entry).toBe(UK.overstayer);
     expect(view.place.wayHome).toMatchObject({ paidFrom: null, shape: "assisted" });
     const hand = hands();
@@ -57,7 +57,7 @@ describe("the bag's Go home on the engine's forecast", () => {
     expect(hand.go).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-PLACE-004] given a status held and no money for the fare, then there is no way home today and the button is shut", () => {
+  test("[place:return-home-paid-or-assisted] given a status held and no money for the fare, then there is no way home today and the button is shut", () => {
     const game = abroadGame();
     setPockets(game, { NGN: 0, GBP: 0, USD: 0, CAD: 0, AED: 0, EUR: 0 });
     const view = game.view();

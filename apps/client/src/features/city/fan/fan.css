@@ -2,7 +2,7 @@
    navy edge and underside, tinted by kind; a white name pill; the yellow price pill with its navy underside; the balance
    small beside it. Every colour reads the system's token first (`--tint-food`, `--edge`, `--action`), with a fixed value
    behind it for where the token is missing.
-   Motion is transform and opacity only, under 300 ms, a fade under reduced motion (R-WORLD-023). */
+   Motion is transform and opacity only, under 300 ms, a fade under reduced motion (world:motions-under-half-second). */
 
 .fan {
   --fan-edge: var(--edge, var(--strong, #1c2a5e));
@@ -51,7 +51,7 @@
 .fan-item[data-fan-refused="spent"],
 .fan-item[data-fan-refused="planned"] { --fan-tint: #e3e8ec; }
 
-/* The thing's name over its hinge, a white pill as the marker's (R-WORLD-005): navy by day, the night's pill at night.
+/* The thing's name over its hinge, a white pill as the marker's (world:things-are-tappable-models): navy by day, the night's pill at night.
    Fan.tsx places it from the hinge once it is measured (titleAt). */
 .fan-title {
   position: absolute;
@@ -72,7 +72,7 @@
   animation: fan-fade 160ms ease-out both;
 }
 
-/* A person the game plays: the quiet mark beside the name, in the case a person writes it (R-PEOPLE-009). */
+/* A person the game plays: the quiet mark beside the name, in the case a person writes it (person:computer-candidates-labelled). */
 .fan-mark {
   border: 1px solid var(--sheet-line, rgba(28, 42, 94, 0.12));
   border-radius: 6px;

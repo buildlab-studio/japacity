@@ -1,4 +1,4 @@
-// The figure on the plinth (prologue.md R-PROLOGUE-009): it turns slowly by itself, a
+// The figure on the plinth (prologue:front-door-builds-a-person): it turns slowly by itself, a
 // finger drags it round, and let go it coasts back into its slow turn. Shared by the gate, which hears the finger,
 // and the scene, which turns the figure each frame.
 

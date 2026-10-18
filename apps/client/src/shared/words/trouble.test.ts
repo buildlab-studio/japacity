@@ -17,15 +17,15 @@ function sources(folder: string): string[] {
   });
 }
 
-describe("a failed request on screen is said in the player's words (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] each kind of failure is said by the trouble words, and anything else as ours, never the error's own text", () => {
+describe("a failed request on screen is said in the player's words (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] each kind of failure is said by the trouble words, and anything else as ours, never the error's own text", () => {
     expect(troubleWords(requestFailure("network", "Load failed"))).toBe("The server did not answer.");
     expect(troubleWords(requestFailure("wall", "an opaque redirect"))).toBe("Your session ended: open the game again.");
     expect(troubleWords(requestFailure("server", "502"))).toBe("Something broke on our side.");
     expect(troubleWords(new TypeError("Failed to fetch"))).toBe("Something broke on our side.");
   });
 
-  test("[R-ENGINE-015] no screen or helper of the client reads an error's message to show it: the trouble words say it instead", () => {
+  test("[engine:browser-authority-for-dev-only] no screen or helper of the client reads an error's message to show it: the trouble words say it instead", () => {
     const found: string[] = [];
     const files = sources(CLIENT);
     expect(files.length).toBeGreaterThan(100);

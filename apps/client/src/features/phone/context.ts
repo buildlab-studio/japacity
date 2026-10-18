@@ -1,4 +1,4 @@
-// The context pill beside an app's name in its head (docs/rules/world.md R-WORLD-018): a few words
+// The context pill beside an app's name in its head (world:phone-rises-over-scene): a few words
 // of what is there now, read from the view, "5 open", "Draw on Friday", "Rent in 3 months", "Next stamp ₦1m". Jobs, Lotto,
 // Bills and Bank fill it; every other app has none. Nothing counts days: a bill is months away, the draw is a weekday.
 import { content } from "@japacity/content";
@@ -27,7 +27,7 @@ function jobsContext(view: View): string | null {
   return open === 0 ? null : say("phone.context.jobs.open", { count: open });
 }
 
-/** Lotto: the Friday draw, online or at the kiosk in Lagos (R-LUCK-005, R-LOTTERY-001); abroad the kiosk is far away. */
+/** Lotto: the Friday draw, online or at the kiosk in Lagos (luck:kiosk-sells-lotto-tickets, lottery:draw-runs-online-only); abroad the kiosk is far away. */
 function lottoContext(view: View): string | null {
   if (view.lottery === null && view.place.where !== "home") return null;
   return say("phone.context.lotto");
@@ -49,7 +49,7 @@ function billsContext(view: View): string | null {
   return say(type === "rent" ? "phone.context.bills.rent" : type === "tuition" ? "phone.context.bills.fees" : "phone.context.bills.next", { when });
 }
 
-/** Bank: the next stamp of the passbook to reach, or all in once the target is held (R-WALLET-021). */
+/** Bank: the next stamp of the passbook to reach, or all in once the target is held (wallet:passbook-against-plan-cost). */
 function bankContext(view: View): string | null {
   const book = view.passbook;
   if (book === null || book.stamps.length === 0) return null;

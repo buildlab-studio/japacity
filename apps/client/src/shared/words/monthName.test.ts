@@ -1,6 +1,6 @@
-// The month's name the band carries (docs/rules/world.md R-WORLD-002; decision 0011): month 0 of a life is the month of
+// The month's name the band carries (world:top-band-is-lively-pill; decision 0011): month 0 of a life is the month of
 // the year it began in, in Lagos. The month's phase by its free time spent, read where it is still needed, and the
-// world's part of the day the band says beside the name (clock.md R-CLOCK-033), in words only.
+// world's part of the day the band says beside the name (clock:game-day-on-real-time), in words only.
 import { describe, expect, test } from "vitest";
 
 import { dayPartWords, monthIndexOf, monthNameOf, phaseOf } from "./monthName";
@@ -9,7 +9,7 @@ import { dayPartWords, monthIndexOf, monthNameOf, phaseOf } from "./monthName";
 const MARCH = Date.UTC(2026, 2, 15, 11);
 
 describe("the month's name", () => {
-  test("[R-WORLD-002] given a life begun in March, when the month's name is read at months 0, 1 and 10, then it is March, April and January, and the year turns over after December", () => {
+  test("[world:top-band-is-lively-pill] given a life begun in March, when the month's name is read at months 0, 1 and 10, then it is March, April and January, and the year turns over after December", () => {
     expect(monthNameOf(MARCH, 0)).toBe("March");
     expect(monthNameOf(MARCH, 1)).toBe("April");
     expect(monthNameOf(MARCH, 10)).toBe("January");
@@ -17,18 +17,18 @@ describe("the month's name", () => {
     expect([monthIndexOf(MARCH, 22), monthIndexOf(MARCH, 23)]).toEqual([0, 1]);
   });
 
-  test("[R-WORLD-002] given a life begun at half past eleven at night on the last day of March by the world's clock, when the month's name is read, then it is April: the month is Lagos's", () => {
+  test("[world:top-band-is-lively-pill] given a life begun at half past eleven at night on the last day of March by the world's clock, when the month's name is read, then it is April: the month is Lagos's", () => {
     expect(monthNameOf(Date.UTC(2026, 2, 31, 23, 30), 0)).toBe("April");
   });
 
-  test("[R-WORLD-002] given every month of the year, then each has its name in words, none a key or a number", () => {
+  test("[world:top-band-is-lively-pill] given every month of the year, then each has its name in words, none a key or a number", () => {
     const names = Array.from({ length: 12 }, (_, month) => monthNameOf(Date.UTC(2026, 0, 15, 11), month));
     expect(names).toEqual(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]);
   });
 });
 
 describe("the month's phase", () => {
-  test("[R-TURN-010] given the month's free time, when its phase is read at each edge, then it is Early below a third, Mid below two thirds, Late below the whole and Month end at the whole", () => {
+  test("[turn:month-lived-in-half-days] given the month's free time, when its phase is read at each edge, then it is Early below a third, Mid below two thirds, Late below the whole and Month end at the whole", () => {
     expect(phaseOf({ spent: 0, free: 60 })).toBe("early");
     expect(phaseOf({ spent: 19, free: 60 })).toBe("early");
     expect(phaseOf({ spent: 20, free: 60 })).toBe("mid");
@@ -48,7 +48,7 @@ describe("the month's phase", () => {
 });
 
 describe("the world's part of the day", () => {
-  test("[R-CLOCK-033] given each part of the world's day, when it is said, then it is Morning, Afternoon, Evening or Night, and never a digit or a clock time", () => {
+  test("[clock:game-day-on-real-time] given each part of the world's day, when it is said, then it is Morning, Afternoon, Evening or Night, and never a digit or a clock time", () => {
     expect([dayPartWords("morning"), dayPartWords("afternoon"), dayPartWords("evening"), dayPartWords("night")]).toEqual(["Morning", "Afternoon", "Evening", "Night"]);
     for (const part of ["morning", "afternoon", "evening", "night"] as const) expect(dayPartWords(part)).not.toMatch(/[\d%:]/);
   });

@@ -8,7 +8,7 @@ import { thingsOf } from "../scene/things";
 const house = familyHouse as unknown as PlaceFile;
 
 describe("the cut into a room", () => {
-  test("[R-WORLD-013] given the compound, which names no room of its own yet, when the house is entered, then the room is a small scene of its own: no building over it, the door as the start and its one thing, and a shot of its own", () => {
+  test("[world:entering-is-a-cut] given the compound, which names no room of its own yet, when the house is entered, then the room is a small scene of its own: no building over it, the door as the start and its one thing, and a shot of its own", () => {
     expect(insideOf(house)).toBeNull();
     const room = stageOf(roomOf(house, HOUSE));
     expect(room.models.some((model) => /\/bld_/.test(model.file))).toBe(false);
@@ -21,7 +21,7 @@ describe("the cut into a room", () => {
     expect(roomOf(house, HOUSE).scope).toBe("interior");
   });
 
-  test("[R-WORLD-013] given a place whose file names its room, when its door is read, then the room is that place, an interior file like any other, and the cut room is not used", () => {
+  test("[world:entering-is-a-cut] given a place whose file names its room, when its door is read, then the room is that place, an interior file like any other, and the cut room is not used", () => {
     const stage = stageOf(house);
     const named: PlaceFile = { ...house, stage: { ...stage, inside: "place.parlour" } };
     expect(insideOf(named)).toBe("place.parlour");

@@ -1,4 +1,4 @@
-// The painted map of London (docs/rules/world.md R-WORLD-038): its own fit, land and districts, its cards, the home
+// The painted map of London (world:painted-maps-abroad): its own fit, land and districts, its cards, the home
 // sticker at the home spot, Heathrow on its inset, its own chunk, and Lagos drawn as before beside it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -41,7 +41,7 @@ const LAGOS_HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 const cardOf = (id: string) => LONDON.cards.find((card) => card.id === id);
 
 describe("London's fit and districts", () => {
-  test("[R-WORLD-038] given London's fit, when a position is laid on its paper, then it keeps London's true shape in whole numbers, north up, and undoing it gives the position back", () => {
+  test("[world:painted-maps-abroad] given London's fit, when a position is laid on its paper, then it keeps London's true shape in whole numbers, north up, and undoing it gives the position back", () => {
     // A thousandth of a degree of longitude is about 69 m at 51.5 degrees north against 111 m of latitude.
     expect(LONDON_FIT.xLon / -LONDON_FIT.yLat).toBeCloseTo(69 / 111, 1);
     const [x, y] = LONDON.toPaper(LONDON_HOME_SPOT);
@@ -53,7 +53,7 @@ describe("London's fit and districts", () => {
     expect(LONDON.toPaper(office)[1]).toBeLessThan(y);
   });
 
-  test("[R-WORLD-038] given every built place of the UK with a position, when London's map stands them, then each is on the paper, on the land south of the Thames, and shows on its own district's card", () => {
+  test("[world:painted-maps-abroad] given every built place of the UK with a position, when London's map stands them, then each is on the paper, on the land south of the Thames, and shows on its own district's card", () => {
     expect(UK.length).toBeGreaterThanOrEqual(9);
     const placed = placeStops(UK.map((place) => ({ id: place.id, state: "can", position: place.position ?? LONDON_HOME_SPOT })), LONDON);
     const south = LONDON.draw.land.south ?? [];
@@ -74,7 +74,7 @@ describe("London's fit and districts", () => {
     expect(of("place.test-centre-uk")).toBe("elephant");
   });
 
-  test("[R-WORLD-038] given London's cards, when they are read, then there are five in the order north to south, each named in London's own words, and every district name, the river and the inset have words", () => {
+  test("[world:painted-maps-abroad] given London's cards, when they are read, then there are five in the order north to south, each named in London's own words, and every district name, the river and the inset have words", () => {
     expect(LONDON.cards.map((card) => card.id)).toEqual(["elephant", "old-kent-road", "camberwell", "peckham", "nunhead"]);
     expect(LONDON.cards.map((card) => londonMapWords(card.key))).toEqual(["Elephant and London Bridge", "Old Kent Road", "Camberwell", "Peckham", "Nunhead"]);
     const keys = [...LONDON.labels, ...LONDON.waterLabels].map((label) => label.key);
@@ -88,7 +88,7 @@ describe("London's fit and districts", () => {
     expect(inside(LONDON.draw.land.south ?? [], LONDON.toPaper({ latE3: 51515, lonE3: -90 }))).toBe(false);
   });
 
-  test("[R-WORLD-038] given the room abroad, which has no position of its own, when London's map stands it however it is handed, then its sticker is at the home spot off Choumert Road, on Peckham's card", () => {
+  test("[world:painted-maps-abroad] given the room abroad, which has no position of its own, when London's map stands it however it is handed, then its sticker is at the home spot off Choumert Road, on Peckham's card", () => {
     const [room] = placeStops([{ id: ROOM, state: "home", position: LAGOS_HOME_SPOT }], LONDON);
     expect(room?.at).toEqual(LONDON.toPaper(LONDON_HOME_SPOT));
     expect(LONDON_HOME_SPOT).toEqual({ latE3: 51471, lonE3: -73 });
@@ -98,7 +98,7 @@ describe("London's fit and districts", () => {
     expect(onCard(peckham, room.at, CARD.width, CARD.height, 16)).toBe(true);
   });
 
-  test("[R-WORLD-038] given Heathrow, too far west for the paper, when London's map stands it, then its sticker is on the inset in the paper's south-west corner, on Camberwell's card, never where the fit alone would put it", () => {
+  test("[world:painted-maps-abroad] given Heathrow, too far west for the paper, when London's map stands it, then its sticker is on the inset in the paper's south-west corner, on Camberwell's card, never where the fit alone would put it", () => {
     const heathrow = content.place[HEATHROW]?.position;
     if (heathrow === undefined || heathrow === null) throw new Error("Heathrow has no position");
     // By the fit alone it would stand far off the paper's west edge.
@@ -123,7 +123,7 @@ function toPaperByFit(position: { latE3: number; lonE3: number }): [number, numb
 }
 
 describe("Lagos beside London", () => {
-  test("[R-WORLD-015] [R-WORLD-038] given the painted city the map draws by default, when it is read, then it is Lagos's own fit, paper, cards, drawing, strip and lantern canoe, so Lagos is drawn as its own", () => {
+  test("[world:map-is-painted-lagos] [world:painted-maps-abroad] given the painted city the map draws by default, when it is read, then it is Lagos's own fit, paper, cards, drawing, strip and lantern canoe, so Lagos is drawn as its own", () => {
     expect(LAGOS.toPaper).toBe(toPaper);
     expect(LAGOS.fromPaper).toBe(fromPaper);
     expect(LAGOS.paper).toBe(PAPER);
@@ -134,14 +134,14 @@ describe("Lagos beside London", () => {
     expect(drawing().rails).toBe("");
     // The strip folds the rows from the top of Ikeja to the beach, as before.
     expect(stripFrame(300)).toEqual(stripFrame(300, 84, LAGOS.strip, PAPER.width));
-    // London has no canoe, no sea and no palms (R-WORLD-036 is Lagos's alone).
+    // London has no canoe, no sea and no palms (world:lantern-canoe-on-map is Lagos's alone).
     expect(LONDON.canoe).toBeNull();
     expect(LONDON.seaFrom).toBeNull();
     expect(drawingOf(LONDON.draw).palmFronds).toBe("");
     expect(drawingOf(LONDON.draw).rails).not.toBe("");
   });
 
-  test("[R-WORLD-038] given the client's code, when what imports London's drawing is read, then only the map's lazy load does, so it rides a chunk of its own and a first visit at home carries none of it", () => {
+  test("[world:painted-maps-abroad] given the client's code, when what imports London's drawing is read, then only the map's lazy load does, so it rides a chunk of its own and a first visit at home carries none of it", () => {
     const SRC = join(import.meta.dirname, "..", "..", "..");
     const files = (readdirSync(SRC, { recursive: true }) as string[]).filter((path) => /\.(ts|tsx)$/.test(path) && !/\.test\.tsx?$/.test(path));
     const importers = files.filter((path) => /from\s+["'][./a-z]*\/?london["']/.test(readFileSync(join(SRC, path), "utf8")));
@@ -169,7 +169,7 @@ async function settle(selector: string): Promise<void> {
 }
 
 describe("the map abroad", () => {
-  test("[R-WORLD-038] given Ada in Peckham, when the map opens in the UK, then it is London's painted map folded on Peckham's card with the strip, the stops kept as a list for a screen reader, and the probe names London's cards", async () => {
+  test("[world:painted-maps-abroad] given Ada in Peckham, when the map opens in the UK, then it is London's painted map folded on Peckham's card with the strip, the stops kept as a list for a screen reader, and the probe names London's cards", async () => {
     await renderWithView(<Map pins={ukPins("place.peckham")} country={UK_CHOICE} countries={[UK_CHOICE, CANADA]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.ada"));
     await settle("[data-paper-map]");
     expect(document.querySelector("[data-paper-map]")).not.toBeNull();
@@ -189,7 +189,7 @@ describe("the map abroad", () => {
     expect(document.querySelector('[data-card="peckham"] [data-card-title]')?.textContent).toBe("Peckham");
   });
 
-  test("[R-WORLD-038] [R-WORLD-017] given London's open map, when Heathrow's sticker on the inset is tapped, then its stop is picked with the ride sheet at the foot", async () => {
+  test("[world:painted-maps-abroad] [world:ride-sheet-shows-fares] given London's open map, when Heathrow's sticker on the inset is tapped, then its stop is picked with the ride sheet at the foot", async () => {
     await renderWithView(<Map pins={ukPins("place.peckham")} country={UK_CHOICE} countries={[UK_CHOICE]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.ada"));
     await settle("[data-paper-map]");
     fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
@@ -200,7 +200,7 @@ describe("the map abroad", () => {
     expect(document.querySelector(`[data-ride-sheet="${HEATHROW}"]`)).not.toBeNull();
   });
 
-  test("[R-WORLD-038] given Canada, which has its own painted map, when the map opens there, then the stops stand as a list for a screen reader alone, with no hint, and Calgary's paper is drawn, not London's", async () => {
+  test("[world:painted-maps-abroad] given Canada, which has its own painted map, when the map opens there, then the stops stand as a list for a screen reader alone, with no hint, and Calgary's paper is drawn, not London's", async () => {
     const pins: MapPin[] = [{ id: "place.calgary-north-east", name: "north-east Calgary", state: "here", position: { latE3: 51090, lonE3: -113960 }, things: 1 }];
     await renderWithView(<Map pins={pins} country={CANADA} countries={[CANADA]} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView("scenario.ada"));
     await settle("[data-paper-map]");

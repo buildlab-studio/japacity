@@ -41,7 +41,7 @@ describe("the local authority", () => {
     expect(ticks).toEqual([0, 1]);
   });
 
-  test("[R-PROLOGUE-009] given no save, when the authority starts and is read, then nothing is written until a life is chosen, so a reload brings the front door back", async () => {
+  test("[prologue:front-door-builds-a-person] given no save, when the authority starts and is read, then nothing is written until a life is chosen, so a reload brings the front door back", async () => {
     const storage = memoryStorage();
     const authority = localAuthority({ fastClock: false, storage, makeSeed: seeds(), now: () => 0 });
     expect(authority.start).toEqual({ kind: "new" });
@@ -161,7 +161,7 @@ describe("a life from sixteen through a tile, where a life may be started over",
   const keepTile = (storage: ReturnType<typeof memoryStorage>, archetype: string | null) => storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype }));
   const seedOf = (storage: ReturnType<typeof memoryStorage>) => lifeStart(storedSave(storage))?.seed;
 
-  test("[R-PROLOGUE-011] given a named seed, when a new life is started on it, then the life is on that seed and its world on a fresh one", async () => {
+  test("[prologue:tile-path-open-from-start] given a named seed, when a new life is started on it, then the life is on that seed and its world on a fresh one", async () => {
     const storage = memoryStorage();
     const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
     keepTile(storage, "trader");
@@ -170,7 +170,7 @@ describe("a life from sixteen through a tile, where a life may be started over",
     expect(lifeStart(storedSave(storage))?.worldSeed).not.toBe("named-seed");
   });
 
-  test("[R-PROLOGUE-011] given the trader's tile kept beside the save, when lives from sixteen are started again and again, then each starts on a seed named from the drawn one, and after the subjects the card lets him learn a trade", async () => {
+  test("[prologue:tile-path-open-from-start] given the trader's tile kept beside the save, when lives from sixteen are started again and again, then each starts on a seed named from the drawn one, and after the subjects the card lets him learn a trade", async () => {
     const storage = memoryStorage();
     const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
     keepTile(storage, "trader");
@@ -192,7 +192,7 @@ describe("a life from sixteen through a tile, where a life may be started over",
     expect(tried.some((seed) => !seed.endsWith("-0"))).toBe(true);
   });
 
-  test("[R-PROLOGUE-011] given no tile kept, or a ready life, when a new life is started, then it keeps the seed drawn for it", async () => {
+  test("[prologue:tile-path-open-from-start] given no tile kept, or a ready life, when a new life is started, then it keeps the seed drawn for it", async () => {
     const storage = memoryStorage();
     const authority = localAuthority({ fastClock: true, storage, makeSeed: seeds(), now: () => 0 });
     keepTile(storage, null);

@@ -1,7 +1,7 @@
-// Where the slots stand (R-ADVERT-001, R-ADVERT-002): the city's billboards,
+// Where the slots stand (advert:adverts-only-in-slots, advert:slots-capped-per-place): the city's billboards,
 // posters and shopfronts of the place on screen, and the one phone tile. Each
 // shows only a slot the hour fills; an empty board is not worth the space.
-// Nothing shows offline, or wherever the view says no advert may (R-ADVERT-003).
+// Nothing shows offline, or wherever the view says no advert may (advert:no-adverts-on-protected-screens).
 import { content } from "@japacity/content";
 import type { AdvertSlotEntry } from "@japacity/sim";
 import { createContext, createElement, use, useEffect, useMemo, useState, type ReactNode } from "react";
@@ -53,7 +53,7 @@ function useRegion(server: AdvertsServer | null, wanted: boolean): string | null
   return region;
 }
 
-/** R-ANALYTICS-002: impressions and taps go with the interface counters. */
+/** analytics:client-sends-interface-counts: impressions and taps go with the interface counters. */
 const count: CountAdvert = (name, key) => counting().count(name, key);
 
 const SLOTS = Object.values(content.advert);
@@ -91,7 +91,7 @@ export function PlaceAdverts({ place }: { place: string }) {
   return <Filled place={place} className="pointer-events-auto w-full max-w-xs" />;
 }
 
-/** The phone's one sponsored tile (R-ADVERT-002). */
+/** The phone's one sponsored tile (advert:slots-capped-per-place). */
 export function PhoneTile() {
   return <Filled place={PHONE} className="w-36" />;
 }

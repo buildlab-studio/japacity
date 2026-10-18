@@ -1,4 +1,4 @@
-// The savings toward the move, one figure for the Bank and the results sheet (R-WORLD-019): the plan's route read as the Japa app reads it, what its decision day asks for plus the
+// The savings toward the move, one figure for the Bank and the results sheet (world:phone-holds-what-phones-hold): the plan's route read as the Japa app reads it, what its decision day asks for plus the
 // fees still ahead, against every money held at the official rate.
 import { content } from "@japacity/content";
 import { CURRENCIES, int, type Currency, type ForeignCurrency, type PlayerView, type RouteView } from "@japacity/sim";

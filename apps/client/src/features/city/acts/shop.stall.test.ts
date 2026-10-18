@@ -1,4 +1,4 @@
-// The trader's shop at her stall (docs/rules/activity.md R-ACTIVITY-016, world.md R-WORLD-005): "Open the
+// The trader's shop at her stall (activity:trader-opens-own-shop, world:things-are-tappable-models): "Open the
 // shop" says what it costs and what it pays, and the stall keeps its label in the market while the shop runs. Real
 // content, real draws.
 import { content } from "@japacity/content";
@@ -39,7 +39,7 @@ function marketThings(view: PlayerView) {
 }
 
 describe("the trader's shop at her stall", () => {
-  test("[R-ACTIVITY-016] given the content, when Open the shop's sheet is read, then it says the shop costs nothing to open and what it pays a month, the shop's own figure", () => {
+  test("[activity:trader-opens-own-shop] given the content, when Open the shop's sheet is read, then it says the shop costs nothing to open and what it pays a month, the shop's own figure", () => {
     const pay = content.activity[SHOP]?.pay;
     if (pay === null || pay === undefined || typeof pay.amount !== "number") throw new Error("The shop pays no fixed figure in content.");
     expect(content.activity[OPEN_SHOP]?.cost).toEqual([]);
@@ -48,7 +48,7 @@ describe("the trader's shop at her stall", () => {
     expect(blurb).toContain(`${formatMoney(pay.amount, pay.currency)} a month`);
   });
 
-  test("[R-ACTIVITY-016] [R-WORLD-005] given a settled trader whose shop opened at the month's end, when the market is read, then her stall stands with its label, and its sheet says the shop is running, not what it lacks", () => {
+  test("[activity:trader-opens-own-shop] [world:things-are-tappable-models] given a settled trader whose shop opened at the month's end, when the market is read, then her stall stands with its label, and its sheet says the shop is running, not what it lacks", () => {
     const game = settledTrader();
     expect(marketThings(game.view()).some((thing) => thing.id === "own-stall")).toBe(true);
     game.endTurn([{ activity: OPEN_SHOP, param: null }]);

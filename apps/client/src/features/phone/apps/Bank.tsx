@@ -1,4 +1,4 @@
-// Bank (docs/rules/world.md R-WORLD-018, 019): at home it opens on the passbook: the money held for the road against
+// Bank (world:phone-rises-over-scene, world:phone-holds-what-phones-hold): at home it opens on the passbook: the money held for the road against
 // the plan's whole cost, the stamps as stickers, last
 // month in and out as chips, the roads as cards with one tap each and the pace line, every figure the simulation's. Behind
 // it, in the same dress, the rest of the bank: what is saved toward the move in the way's own money, the last money lines,
@@ -39,13 +39,13 @@ function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
   return HOME_CURRENCIES.includes(local) ? [...HOME_CURRENCIES] : [...HOME_CURRENCIES, local];
 }
 
-/** The savings figures, shared with the results sheet (R-WORLD-019); kept here for the Bank's own tests. */
+/** The savings figures, shared with the results sheet (world:phone-holds-what-phones-hold); kept here for the Bank's own tests. */
 export { savedFor, savingsOf };
 
 /**
  * The money that moved lately, newest last: the month just ended whole, as its results list it (its
  * mid-month moves and its end, in the results' order), then this month's moves so far. One source with
- * the results (shared/words/money.ts, `moneyLines`), so the two never differ (R-WORLD-019): a payment
+ * the results (shared/words/money.ts, `moneyLines`), so the two never differ (world:phone-holds-what-phones-hold): a payment
  * split across pockets is one line, a bill's "paid this month" is the same
  * money, a fare paid on the way is a move, a change at the bank is told as the results tell it.
  */
@@ -75,7 +75,7 @@ function noFigureKey(view: PlayerView): string {
 
 /**
  * How the savings are said: what is held of the figure, or once it is met, that it is enough and what the figure is
- * for, the fees alone or the funds to show and the fees (R-WORLD-019), never a held sum "of" a smaller one.
+ * for, the fees alone or the funds to show and the fees (world:phone-holds-what-phones-hold), never a held sum "of" a smaller one.
  */
 function savingsKey(view: PlayerView, savings: { shown: number; required: number }): string {
   if (savings.shown < savings.required) return "phone.bank.savings.line";
@@ -103,7 +103,7 @@ function shareOf(pocket: number, share: Share): number {
 
 /**
  * The most the bank will change into foreign money now, in whole units of the money paid in, by
- * the month's limit (R-WALLET-005): the bank's charge comes off first and what is left is counted
+ * the month's limit (wallet:monthly-fx-allowance): the bank's charge comes off first and what is left is counted
  * in US cents at the official rate, as the wallet counts it. Null where no limit binds: a sale for
  * naira, the FX man, or abroad, where the view shows no limit. A remainder too small to buy one whole
  * unit of the money bought counts as nothing: twelve cents left come to ₦191 for nine pence, a change
@@ -178,7 +178,7 @@ function ChangeChooser({ onAsk, start }: { onAsk: ReturnType<typeof useAsk>["ope
   const [chosenTo, setTo] = useState<Currency>(start?.to ?? "GBP");
   const [chosenShare, setShare] = useState<ChangeShare>("quarter");
   const to = chosenTo === from ? (currencies.find((currency) => currency !== from) ?? "NGN") : chosenTo;
-  // R-WALLET-005: at the bank at home the chips offer only what the month's limit lets it take, the limit's remainder first.
+  // wallet:monthly-fx-allowance: at the bank at home the chips offer only what the month's limit lets it take, the limit's remainder first.
   const limit = via === "bank" ? bankLimit(view, from, to) : null;
   const offered = changeShares(pocketOf(from), limit);
   const share = offered.find((option) => option.share === chosenShare) ?? offered.find((option) => option.share === "quarter") ?? offered[0] ?? null;
@@ -321,7 +321,7 @@ function sendable(view: Pick<PlayerView, "pockets" | "place">): ForeignCurrency[
   return [...held.filter((currency) => currency === local), ...held.filter((currency) => currency !== local)];
 }
 
-/** What one unit of the money sent buys at home by each channel, as the wallet pays it (R-ABROAD-008). */
+/** What one unit of the money sent buys at home by each channel, as the wallet pays it (abroad-money:remit-quote-is-shared). */
 function rateBy(view: Pick<PlayerView, "rates">, currency: ForeignCurrency, channel: RemitChannel): number {
   // The rate before any fee: what one unit buys, the fee being said on its own.
   const { official, street } = view.rates[currency];
@@ -330,7 +330,7 @@ function rateBy(view: Pick<PlayerView, "rates">, currency: ForeignCurrency, chan
 }
 
 /**
- * Send money home (R-ABROAD-006, R-WORLD-006): the channels each with what
+ * Send money home (abroad-money:remit-sends-money-home, world:one-action-one-sheet): the channels each with what
  * they cost and how fast they land, an amount with the rate, the naira that lands and what is left
  * here, then one card whose button says the amount. The money leaves at once whichever way it goes;
  * the bank's transfer lands next month, and the card says so.
@@ -366,7 +366,7 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
           >
             <span className="text-[14px] font-bold">{say(`ui.remit.channel.${option}`)}</span>
             <span className="text-[13px] leading-snug opacity-85">{say(`ui.remit.terms.${option}${option !== "informal" && feeBp(option) === 0 ? ".free" : ""}`, { fee: formatBp(feeBp(option)), loss: formatBp(content.tuning.remit.informalLossBp) })}</span>
-            {/* R-ABROAD-008: what each channel lands in naira for the amount, by the wallet's own quote, so the choice means something. */}
+            {/* abroad-money:remit-quote-is-shared: what each channel lands in naira for the amount, by the wallet's own quote, so the choice means something. */}
             {quote === null ? null : (
               <span className="text-[13px] leading-snug font-bold" data-arrives>
                 {say("ui.remit.arrives", { naira: formatMoney(quote[option].naira, "NGN"), fee: formatMoney(quote[option].fee, currency) })}
@@ -410,7 +410,7 @@ function SendChooser({ onAsk }: { onAsk: ReturnType<typeof useAsk>["open"] }) {
   );
 }
 
-/** A channel's fee, in basis points of the amount sent (R-ABROAD-006). */
+/** A channel's fee, in basis points of the amount sent (abroad-money:remit-sends-money-home). */
 function feeBp(channel: RemitChannel): number {
   const { appFeeBp, bankFeeBp } = content.tuning.remit;
   return channel === "app" ? appFeeBp : channel === "bank" ? bankFeeBp : 0;
@@ -850,7 +850,7 @@ function OnTheWay({ view }: { view: PlayerView }) {
   );
 }
 
-/** Abroad, the family at home (R-ABROAD-006, 007): the naira at home that their requests are paid from, and what goes home each month. */
+/** Abroad, the family at home (abroad-money:remit-sends-money-home, abroad-money:family-asks-more-abroad): the naira at home that their requests are paid from, and what goes home each month. */
 function FamilyCard({ view }: { view: PlayerView }) {
   const naira = view.pockets.NGN;
   const support = view.obligations.filter((owed) => content.obligation[owed.entry]?.type === "support");
@@ -877,18 +877,18 @@ function FamilyCard({ view }: { view: PlayerView }) {
   );
 }
 
-/** The highest credit mark and the step the file is read in (R-CREDIT-007: what the next ten points buy). */
+/** The highest credit mark and the step the file is read in (credit:view-shows-credit-file: what the next ten points buy). */
 const MARK_MAX = 100;
 const MARK_STEP = 10;
 
 /**
- * The credit file abroad (credit.md R-CREDIT-007): the mark as a bar with every entry that needs credit marked on it, the
- * counts, a judgment and when it clears (R-CREDIT-006), what is open now, what the next ten points buy and what is further off.
+ * The credit file abroad (credit:view-shows-credit-file): the mark as a bar with every entry that needs credit marked on it, the
+ * counts, a judgment and when it clears (credit:judgment-blocks-credit), what is open now, what the next ten points buy and what is further off.
  */
 function CreditCard({ view, file }: { view: PlayerView; file: NonNullable<PlayerView["credit"]> }) {
   const capped = file.judgmentUntil !== null;
   const cap = content.tuning.credit.judgmentCap;
-  // A judgment keeps every need above the cap out of reach (R-CREDIT-006).
+  // A judgment keeps every need above the cap out of reach (credit:judgment-blocks-credit).
   const reachable = (min: number) => !capped || min <= cap;
   const open = file.needs.filter((need) => need.creditMin <= file.mark && reachable(need.creditMin));
   const next = file.needs.filter((need) => need.creditMin > file.mark && need.creditMin <= file.mark + MARK_STEP && reachable(need.creditMin));
@@ -956,7 +956,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const { open, sheet } = useAsk();
   const [choosing, setChoosing] = useState<"change" | "move" | "send" | null>(openOn);
   const [start, setStart] = useState<ChangeStart | undefined>(undefined);
-  // The money the character lives on: the naira at home, the country's own abroad (R-WORLD-002).
+  // The money the character lives on: the naira at home, the country's own abroad (world:top-band-is-lively-pill).
   const local = localCurrency(view);
   const abroad = local !== "NGN";
   // Once flown, the move is made and has no target. The figure is the results' own, from the month the plan is set (its
@@ -976,7 +976,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
     setChoosing("change");
   };
 
-  // What a choice opens settles in where it was tapped, and comes into view over the foot (R-WORLD-023).
+  // What a choice opens settles in where it was tapped, and comes into view over the foot (world:motions-under-half-second).
   const chooser = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (choosing !== null && typeof chooser.current?.scrollIntoView === "function") chooser.current.scrollIntoView({ block: "nearest", behavior: "smooth" });

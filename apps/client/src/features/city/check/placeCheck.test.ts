@@ -25,7 +25,7 @@ const input = (mode: "low" | "high", moving: boolean): CheckInput => ({
 });
 
 describe("the place check's runs", () => {
-  test("[R-CITY-028] given the hub on the cheap phone, when the check's page builds each mode, then low draws the coarse grids without shadows and high the fine ones, each with its own crowd and never the player's figure", () => {
+  test("[city:motion-never-turned-off] given the hub on the cheap phone, when the check's page builds each mode, then low draws the coarse grids without shadows and high the fine ones, each with its own crowd and never the player's figure", () => {
     for (const mode of ["low", "high"] as const) {
       const run = runOf(input(mode, true));
       expect(run.settings.mesh).toBe(mode === "low" ? "coarse" : "fine");
@@ -36,7 +36,7 @@ describe("the place check's runs", () => {
     }
   });
 
-  test("[R-CITY-027] given the clock moved on by the places checked before, when the next place is built, then the clock starts again at the moment every place starts at, whatever the place and the mode", () => {
+  test("[city:no-script-loop-per-sheet] given the clock moved on by the places checked before, when the next place is built, then the clock starts again at the moment every place starts at, whatever the place and the mode", () => {
     const makoko = content.place["place.makoko"];
     if (makoko === undefined) throw new Error("Makoko is missing from content");
     const runs = (["low", "high"] as const).flatMap((mode) => [runOf(input(mode, true)), runOf({ ...input(mode, true), file: makokoFile as unknown as PlaceFile, entry: makoko })]);
@@ -49,13 +49,13 @@ describe("the place check's runs", () => {
     }
   });
 
-  test("[R-CITY-027] given the hub, when it is built still and moving, then the two differ only in the motion, and the same day gives the same crowd", () => {
+  test("[city:no-script-loop-per-sheet] given the hub, when it is built still and moving, then the two differ only in the motion, and the same day gives the same crowd", () => {
     const moving = runOf(input("high", true));
     expect(runOf(input("high", false))).toEqual({ ...moving, moving: false });
     expect(runOf(input("high", true)).people).toEqual(moving.people);
   });
 
-  test("[R-CITY-030] given the hub's walkable ground, when the check draws its taps, then the same 300 fall every run, over the ground and up to two metres past it", () => {
+  test("[city:tap-to-walk] given the hub's walkable ground, when the check draws its taps, then the same 300 fall every run, over the ground and up to two metres past it", () => {
     const stage = (hubFile as unknown as PlaceFile).stage;
     if (stage === undefined) throw new Error("The hub has no stage");
     const taps = tapsOf(stage, "place.ojuelegba", 300);

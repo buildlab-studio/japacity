@@ -1,7 +1,7 @@
-// The Calendar app (docs/rules/world.md R-WORLD-002, R-WORLD-007, R-WORLD-018; decision 0011): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
-// stopped (R-WORLD-007), a held month's reason among them; the chores done this month and what they saved; what is coming
-// with its months away and where, each row opening where it is dealt with (a paper in Papers, R-WORLD-019). The month
-// turns when it is lived (R-TURN-010), so there is no plan to fill and nothing here ends it. Handed to the phone by the
+// The Calendar app (world:top-band-is-lively-pill, world:month-acts-carry-on, world:phone-rises-over-scene; decision 0011): the month on the phone, in order. The job held; what carries on, each thing started carrying on until it is
+// stopped (world:month-acts-carry-on), a held month's reason among them; the chores done this month and what they saved; what is coming
+// with its months away and where, each row opening where it is dealt with (a paper in Papers, world:phone-holds-what-phones-hold). The month
+// turns when it is lived (turn:month-lived-in-half-days), so there is no plan to fill and nothing here ends it. Handed to the phone by the
 // shell, so the phone knows nothing of the month.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotLock, SlotPick } from "@japacity/sim";
@@ -45,7 +45,7 @@ function jobRows(job: PlayerView["job"]): string[] {
 }
 
 /**
- * R-HOME-010: one line when the room's year of rent is taken at this month's end and the naira
+ * home:compound-room-is-a-home: one line when the room's year of rent is taken at this month's end and the naira
  * held, cash and bank, falls short of it. Null otherwise.
  */
 function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): string | null {
@@ -57,10 +57,10 @@ function rentShortWords(view: Pick<PlayerView, "home" | "pockets">): string | nu
 }
 
 /**
- * The chores done this month and what they saved (R-OBLIGATION-014): cooking and the water answer now,
+ * The chores done this month and what they saved (obligation:cooking-and-fetching-water): cooking and the water answer now,
  * and their share is held on the upkeep for its next charge, so the line reads the relief the view carries. The drum
  * filled from the yard's tap saves nothing and says so plainly. Null when nothing was done, and no saving is said where
- * nothing of the living is charged (R-HOME-012, decision 0013): the relief takes nothing off nothing.
+ * nothing of the living is charged (home:living-by-hand, decision 0013): the relief takes nothing off nothing.
  */
 export function choresWords(view: Pick<PlayerView, "obligations" | "activities">): string | null {
   const done = (id: string): boolean => view.activities.some((option) => option.id === id && option.done === true);
@@ -80,7 +80,7 @@ export function choresWords(view: Pick<PlayerView, "obligations" | "activities">
 }
 
 /**
- * The line that says what the month's pass covers, by country (place.md R-PLACE-012): London's bus pass, Calgary's
+ * The line that says what the month's pass covers, by country (place:country-pass-covers-ways): London's bus pass, Calgary's
  * transit pass, Dubai's zone pass. The act that buys each is the simulation's `PASS_ACT`; Italy has none.
  */
 const PASS_LINES: Readonly<Record<string, string>> = {
@@ -90,7 +90,7 @@ const PASS_LINES: Readonly<Record<string, string>> = {
 };
 
 /**
- * The pass bought this month (R-PLACE-012, world.md R-WORLD-039): the month's, so the Calendar says the ways it covers are
+ * The pass bought this month (place:country-pass-covers-ways, world:ride-abroad-and-workplace): the month's, so the Calendar says the ways it covers are
  * free until the month ends, and the next month asks again. Null where no pass was bought this month.
  */
 export function passWords(view: Pick<PlayerView, "activities" | "place">): string | null {
@@ -144,7 +144,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
   const chores = choresWords(view);
   const pass = passWords(view);
   const jobs = jobRows(view.job);
-  // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (R-WORLD-002, R-WORLD-019).
+  // A row of what is coming opens where it is dealt with: a paper in Papers, a wait in Japa, a due in Bills (world:top-band-is-lively-pill, world:phone-holds-what-phones-hold).
   const openFor = (item: Coming): (() => void) | null => {
     switch (item.kind) {
       case "paper":
@@ -164,7 +164,7 @@ export function Calendar({ opening = null }: { opening?: CalendarOpening }) {
       }
     }
   };
-  // A dated ask names the place it is answered at, or where it is attended where content stages it nowhere: the burial in the village (R-WORLD-002).
+  // A dated ask names the place it is answered at, or where it is attended where content stages it nowhere: the burial in the village (world:top-band-is-lively-pill).
   const noteOf = (item: Coming): string | null => (item.kind === "offer" && item.entry !== undefined ? (askPlace(item.entry) ?? attendedAt(item.entry)) : null);
 
   return (

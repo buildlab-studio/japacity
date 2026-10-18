@@ -1,4 +1,4 @@
-// The place's route map (city.md R-CITY-030, assets.md R-ASSET-030): a grid of 25 cm cells over the
+// The place's route map (city:tap-to-walk, assets:models-record-their-footprint): a grid of 25 cm cells over the
 // place's walkable ground, built once on entering from the walkable polygons and every model's
 // footprint and nothing else. A cell is hard where no one may stand (off the walkable ground, or under
 // a footprint), near where it lies within the walker's clearance of a footprint, and free otherwise;

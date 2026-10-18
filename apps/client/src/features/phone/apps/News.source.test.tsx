@@ -1,5 +1,5 @@
-// News on the phone names where each story was heard, and marks a rumour as a rumour (docs/rules/news.md R-NEWS-001,
-// R-NEWS-004).
+// News on the phone names where each story was heard, and marks a rumour as a rumour (news:stages-move-forward-only,
+// news:changed-stages-delivered-once).
 import { content } from "@japacity/content";
 import type { NewsStage } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
@@ -29,7 +29,7 @@ async function phoneStories(news: ReturnType<typeof story>[]): Promise<HTMLEleme
 const markOf = (element: HTMLElement | undefined) => element?.querySelector<HTMLElement>("[data-source]") ?? null;
 
 describe("where a story comes from, on the phone", () => {
-  test("[R-NEWS-004] given News on the phone with a story announced, one told by a person and a rumour, when it opens, then each shows its icon and its word, and none shows the stage's system word", async () => {
+  test("[news:changed-stages-delivered-once] given News on the phone with a story announced, one told by a person and a rumour, when it opens, then each shows its icon and its word, and none shows the stage's system word", async () => {
     const shown = await phoneStories([story("news.naira-float", "announced"), story("news.uk-unis-recruit", "in-force"), story("news.uk-living-rise", "rumour")]);
     const [announced, person, rumour] = ["news.naira-float", "news.uk-unis-recruit", "news.uk-living-rise"].map((id) => shown.find((element) => element.dataset.story === id));
     expect(markOf(announced)?.dataset.source).toBe(newsSource("news.naira-float", "announced").kind);

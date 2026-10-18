@@ -1,4 +1,4 @@
-// Sleep is a timed act from the bed (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0011): sleep
+// Sleep is a timed act from the bed (world:sleep-ends-the-month, world:things-are-tappable-models; decision 0011): sleep
 // takes a fixed time and the player can wake out of it. The bed's Sleep lays the figure down under a soft dark wash, with
 // a chip under the band and a Wake up button; the month turns only when the sleep runs out, and waking first makes it a
 // nap. The place file is the one the game ships; the scene is a stand-in that hands the city the taps a player makes.
@@ -19,7 +19,7 @@ import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 import { found } from "../../shared/testing/render";
 
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -71,7 +71,7 @@ const sent = (authority: { sent: readonly { type: string }[] }, type: string) =>
 const washOn = (): boolean => found("[data-sleep-wash]").dataset.sleepWash === "on";
 
 describe("sleep, a timed act from the bed", () => {
-  test("[R-WORLD-025] [R-WORLD-005] given the bed's Sleep tapped, when the sleep runs, then the figure lies on the bed under the wash with the chip and Wake up, the nudge hidden and Map and Phone kept, and nothing is sent until the time runs out; then turn/end goes once and the results open", async () => {
+  test("[world:sleep-ends-the-month] [world:things-are-tappable-models] given the bed's Sleep tapped, when the sleep runs, then the figure lies on the bed under the wash with the chip and Wake up, the nudge hidden and Map and Phone kept, and nothing is sent until the time runs out; then turn/end goes once and the results open", async () => {
     const { authority } = await byTheBed();
     expect(document.querySelector("[data-nudge]")).not.toBeNull();
     expect(washOn()).toBe(false);
@@ -103,7 +103,7 @@ describe("sleep, a timed act from the bed", () => {
     expect(sent(authority, "turn/end")).toHaveLength(1);
   });
 
-  test("[R-WORLD-025] given a sleep under way, when the chip is tapped before it runs out, then the nap is sent and no turn/end, the chip, Wake up and the wash go, the figure gets up, and the corner says Up again by day", async () => {
+  test("[world:sleep-ends-the-month] given a sleep under way, when the chip is tapped before it runs out, then the nap is sent and no turn/end, the chip, Wake up and the wash go, the figure gets up, and the corner says Up again by day", async () => {
     const { authority, game } = await byTheBed("afternoon");
     expect(game.view().activities.find((option) => option.id === NAP)?.allowed).toBe(true);
     pressFanActNow("mattress", "end-month");
@@ -124,7 +124,7 @@ describe("sleep, a timed act from the bed", () => {
     expect(sent(authority, "turn/end")).toHaveLength(0);
   });
 
-  test("[R-WORLD-025] given a sleep at the world's night, when Wake up is tapped, then it does as the chip does, and the corner says the night is still yours", async () => {
+  test("[world:sleep-ends-the-month] given a sleep at the world's night, when Wake up is tapped, then it does as the chip does, and the corner says the night is still yours", async () => {
     const { authority } = await byTheBed("night");
     pressFanActNow("mattress", "end-month");
     await pass(1000);
@@ -138,7 +138,7 @@ describe("sleep, a timed act from the bed", () => {
     expect(sent(authority, "turn/end")).toHaveLength(0);
   });
 
-  test("[R-WORLD-025] given a sleep under way, when the phone is opened from its button and the sleep runs out under it, then the month waits for the phone to be put away, then turns once", async () => {
+  test("[world:sleep-ends-the-month] given a sleep under way, when the phone is opened from its button and the sleep runs out under it, then the month waits for the phone to be put away, then turns once", async () => {
     const { authority } = await byTheBed();
     pressFanActNow("mattress", "end-month");
     await pass(0);
@@ -151,7 +151,7 @@ describe("sleep, a timed act from the bed", () => {
     expect(sent(authority, "turn/end")).toHaveLength(1);
   });
 
-  test("[R-WORLD-025] given a sleep under way, when the world's night falls, then the nudge stays hidden until the sleep is over, and comes back on waking", async () => {
+  test("[world:sleep-ends-the-month] given a sleep under way, when the world's night falls, then the nudge stays hidden until the sleep is over, and comes back on waking", async () => {
     const { store } = await byTheBed();
     pressFanActNow("mattress", "end-month");
     await pass(0);

@@ -41,7 +41,7 @@ function tampered(result: LotteryResult): LotteryResult {
 }
 
 describe("the draw page", () => {
-  test("[R-LOTTERY-015] [R-LOTTERY-023] given a drawn draw, when its page is read, then the seed and every ticket are worked out on the device with drawSeed and ticketResult, a plain line says they match, and the odds and next jackpot are shown", async () => {
+  test("[lottery:result-published-in-tick-row] [lottery:screen-states-odds-plainly] given a drawn draw, when its page is read, then the seed and every ticket are worked out on the device with drawSeed and ticketResult, a plain line says they match, and the odds and next jackpot are shown", async () => {
     const reply = drawnReply(6, 60);
     const result = reply.result!;
     const check = checkDraw(reply)!;
@@ -60,7 +60,7 @@ describe("the draw page", () => {
     expect(document.querySelector("[data-lottery-odds]")?.textContent).toContain(say("ui.lottery.chance.jackpot", { every: formatNumber(20), amount: formatMoney(GENEROUS.jackpotStart, "NGN") }));
   });
 
-  test("[R-LOTTERY-015] given a result whose prize amounts were raised, or a forced jackpot where the odds name none, when the page is read, then it says they do not match; with a forced win named, the forced ticket matches", () => {
+  test("[lottery:result-published-in-tick-row] given a result whose prize amounts were raised, or a forced jackpot where the odds name none, when the page is read, then it says they do not match; with a forced win named, the forced ticket matches", () => {
     const reply = drawnReply(6, 60);
     const result = reply.result!;
     const raised = { ...result, winners: result.winners.map((tier) => (tier.tier === "small" ? { ...tier, amount: tier.amount + 1 } : tier)) };
@@ -75,7 +75,7 @@ describe("the draw page", () => {
     expect(checkDraw({ ...quiet, odds: named, result: { ...quiet.result!, odds: named, winners: forced } })).toMatchObject({ matches: true });
   });
 
-  test("[R-LOTTERY-015] given a result whose winners were moved, a secret that is not the fingerprint's, or a list that is not its hash, when the page is read, then each line says it does not match", async () => {
+  test("[lottery:result-published-in-tick-row] given a result whose winners were moved, a secret that is not the fingerprint's, or a list that is not its hash, when the page is read, then each line says it does not match", async () => {
     const reply = drawnReply(6, 60);
     await page({ ...reply, result: tampered(reply.result!) });
     expect(verdict("winners")).toEqual({ good: false, text: say("ui.lottery.page.check.winners-bad") });
@@ -86,7 +86,7 @@ describe("the draw page", () => {
     expect(checkDraw({ ...reply, list: reply.list!.slice(1) })).toMatchObject({ list: false });
   });
 
-  test("[R-LOTTERY-015] given the list, when it is shown, then each ticket is a code and its number, never a name, beside what the phone worked out it won", async () => {
+  test("[lottery:result-published-in-tick-row] given the list, when it is shown, then each ticket is a code and its number, never a name, beside what the phone worked out it won", async () => {
     const reply = drawnReply(6, 12);
     await page(reply);
     fireEvent.click(screen.getByRole("button", { name: say("ui.lottery.page.show-list") }));
@@ -99,7 +99,7 @@ describe("the draw page", () => {
     expect(check.tickets.some((tier) => tier !== null)).toBe(true);
   });
 
-  test("[R-LOTTERY-015] given a draw on sale or one frozen with no result yet, when its page is read, then it shows what is published so far and says what comes next", async () => {
+  test("[lottery:result-published-in-tick-row] given a draw on sale or one frozen with no result yet, when its page is read, then it shows what is published so far and says what comes next", async () => {
     const drawn = drawnReply(6, 10);
     await page({ ...drawn, list: null, count: null, listHash: null, result: null });
     expect(screen.getByText(say("ui.lottery.page.open"))).toBeDefined();
@@ -107,26 +107,26 @@ describe("the draw page", () => {
     expect(document.querySelector("[data-draw-checks]")).toBeNull();
   });
 
-  test("[R-LOTTERY-015] given the list published and the result not yet, when the page is read, then it says the result waits for the public round", async () => {
+  test("[lottery:result-published-in-tick-row] given the list published and the result not yet, when the page is read, then it says the result waits for the public round", async () => {
     const drawn = drawnReply(6, 10);
     await page({ ...drawn, result: null });
     expect(screen.getByText(say("ui.lottery.page.waiting"))).toBeDefined();
     expect(screen.getByText(formatNumber(10))).toBeDefined();
   });
 
-  test("[R-LOTTERY-015] given a refusal from the server, when the page is read, then it says the draw could not be fetched", async () => {
+  test("[lottery:result-published-in-tick-row] given a refusal from the server, when the page is read, then it says the draw could not be fetched", async () => {
     await page({ ok: false, code: "not-legal", detail: "There is no draw 6." });
     expect(screen.getByText(say("ui.lottery.page.failed"))).toBeDefined();
   });
 
-  test("[R-LOTTERY-023] given a draw on sale, when its page is read, then it shows the odds and the jackpot it opened with, and nothing about a pot or a top-up", async () => {
+  test("[lottery:screen-states-odds-plainly] given a draw on sale, when its page is read, then it shows the odds and the jackpot it opened with, and nothing about a pot or a top-up", async () => {
     const drawn = drawnReply(6, 10, tuning.odds, 25_000_000);
     await page({ ...drawn, list: null, count: null, listHash: null, result: null });
     expect(document.querySelector("[data-lottery-odds]")?.textContent).toContain(say("ui.lottery.chance.jackpot", { every: formatNumber(5000), amount: formatMoney(25_000_000, "NGN") }));
     expect(document.body.textContent).not.toMatch(/\bpot\b|top.?up/i);
   });
 
-  test("[R-LOTTERY-015] given the kiosk with a last draw, when it is checked, then the draw page opens for that draw and fetches it", async () => {
+  test("[lottery:result-published-in-tick-row] given the kiosk with a last draw, when it is checked, then the draw page opens for that draw and fetches it", async () => {
     const reply = drawnReply(6, 60);
     const life = onlineLife(drawOf({ last: reply.result }));
     const store = createGameStore(life.authority);
@@ -144,7 +144,7 @@ describe("the draw page", () => {
     expect(verdict("winners").good).toBe(true);
   });
 
-  test("[R-LOTTERY-015] given the local authority, when the kiosk is built, then there is no server to fetch a draw from", () => {
+  test("[lottery:result-published-in-tick-row] given the local authority, when the kiosk is built, then there is no server to fetch a draw from", () => {
     expect(serverDrawLoader()).toBeNull();
   });
 });

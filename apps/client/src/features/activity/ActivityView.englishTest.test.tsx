@@ -1,4 +1,4 @@
-// The sit-the-test sheet (docs/rules/world.md R-WORLD-006): the chance of the band the
+// The sit-the-test sheet (world:one-action-one-sheet): the chance of the band the
 // route needs before ₦285,500 is paid, and on a long shot the advice to study first with the study act
 // on the same sheet.
 import { screen } from "@testing-library/react";
@@ -19,7 +19,7 @@ function adaWith(english: number) {
 }
 
 describe("the sit-the-test sheet", () => {
-  test("[R-WORLD-006] given Ada's English a long shot from 6.0, when the test's sheet opens from the desk, then it says the chance and to study first, and the study act is on the same sheet after the test", async () => {
+  test("[world:one-action-one-sheet] given Ada's English a long shot from 6.0, when the test's sheet opens from the desk, then it says the chance and to study first, and the study act is on the same sheet after the test", async () => {
     const view = adaWith(40);
     expect(view.activities.find((option) => option.id === ENGLISH_TEST)?.allowed).toBe(true);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
@@ -30,7 +30,7 @@ describe("the sit-the-test sheet", () => {
     expect(screen.getAllByRole("heading").map((heading) => heading.textContent)).toEqual([nameOf(ENGLISH_TEST), nameOf(STUDY_ENGLISH)]);
   });
 
-  test("[R-WORLD-006] given Ada's English likely to reach 6.0, when the test's sheet opens, then it says so and holds the test alone", async () => {
+  test("[world:one-action-one-sheet] given Ada's English likely to reach 6.0, when the test's sheet opens, then it says so and holds the test alone", async () => {
     const view = adaWith(75);
     await renderWithView(<ActivityPicker only={[ENGLISH_TEST]} />, view);
     expect(screen.getByText("Band 6.0 this sitting: likely.")).toBeDefined();

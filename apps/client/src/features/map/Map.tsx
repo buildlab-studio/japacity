@@ -1,8 +1,8 @@
-// The map and the ride (docs/rules/world.md R-WORLD-015 to 017), composed. The city hands the pins,
+// The map and the ride (world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares), composed. The city hands the pins,
 // the country and its neighbours, whether WebGL draws (for the ride's scene), a ride already chosen in a
 // place, the step's place, and what to do on arriving and on closing; `onRide` carries the fare of the way
 // chosen. Lagos, London, Calgary, Dubai and Castel Volturno are painted maps, folding between the strip and the cards
-// (paper/PaperMap.tsx), the same on every device (R-WORLD-038); the stops stay as a list for a screen reader.
+// (paper/PaperMap.tsx), the same on every device (world:painted-maps-abroad); the stops stay as a list for a screen reader.
 import { X } from "lucide-react";
 import "./map.css";
 
@@ -23,7 +23,7 @@ import { type AbroadVehicle, vehicleFor, wayModelFor } from "./rideVehicles";
 /** The painted map, its own chunk: a first visit downloads none of it until the map is opened. */
 const PaperMap = lazy(() => import("./paper/PaperMap").then((paper) => ({ default: paper.PaperMap })));
 /**
- * The painted maps abroad (R-WORLD-038): the same folding map handed London, Calgary, Dubai or Castel
+ * The painted maps abroad (world:painted-maps-abroad): the same folding map handed London, Calgary, Dubai or Castel
  * Volturno, each drawing a chunk of its own, loaded only when the map shows that country.
  */
 const PAINTED_ABROAD: Readonly<Record<string, typeof PaperMap>> = {
@@ -45,26 +45,26 @@ export interface MapProps {
   /** The ride is over: the place opens. */
   onGo: (id: string) => void;
   onClose: () => void;
-  /** A way was chosen: the city sends `place/ride` for its fare, and answers whether it was accepted; the ride plays only then (R-PLACE-010). */
+  /** A way was chosen: the city sends `place/ride` for its fare, and answers whether it was accepted; the ride plays only then (place:rides-between-city-places). */
   onRide?: (choice: RideChoice, to: string) => Promise<boolean> | boolean | void;
-  /** Turn back on a ride: the character gets down at the next stop and walks back to `from`, the fare gone (R-WORLD-017). */
+  /** Turn back on a ride: the character gets down at the next stop and walks back to `from`, the fare gone (world:ride-sheet-shows-fares). */
   onTurnBack?: (from: string, to: string) => void;
   /** Opens another country the player may switch to. */
   onCountry?: (id: string) => void;
   /** The home of the country shown, when it is also where the player stands. */
   home?: string | null;
-  /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
+  /** The way to choose first on the ride sheet: the vehicle tapped in the place (world:ride-sheet-shows-fares). */
   by?: RideChoice["id"];
-  /** A stop to open picked, with its ride sheet up: the nudge's step elsewhere (R-WORLD-003). */
+  /** A stop to open picked, with its ride sheet up: the nudge's step elsewhere (world:nudge-says-one-thing). */
   pickFirst?: string | null;
   /** The place the live step points to: the map opens on its neighbourhood, its sticker ringed and named. */
   step?: string | null;
-  /** The dedication page and its glow, handed in by the shell: the lantern canoe on the open map opens it (world.md R-WORLD-036). */
+  /** The dedication page and its glow, handed in by the shell: the lantern canoe on the open map opens it (world:lantern-canoe-on-map). */
   dedication?: MapDedication | null;
 }
 
 /**
- * What the shell hands the map for the lantern canoe (world.md R-WORLD-036, account.md R-ACCOUNT-032): the dedication
+ * What the shell hands the map for the lantern canoe (world:lantern-canoe-on-map, account:dedication-page-and-its-doors): the dedication
  * page drawn open or closed with its way to close, and the glow's fill, the two lights' one glow, so this feature
  * imports neither.
  */
@@ -80,14 +80,14 @@ function keyOf(pins: readonly MapPin[]): string {
 
 export function Map({ pins, country, countries, drawing, diveTo = null, diveBy = "danfo", onGo, onClose, onRide, onTurnBack, onCountry, home = null, by, pickFirst = null, step = null, dedication = null }: MapProps) {
   const view = useView();
-  // The ways where the character is (R-PLACE-010): abroad, the country's from the view; with none listed, the single way
+  // The ways where the character is (place:rides-between-city-places): abroad, the country's from the view; with none listed, the single way
   // at no fare.
   const abroadWays = view.place.where === "abroad" ? (view.place.ways ?? []) : [];
-  // The country the life is in and the stops its employer's shuttle serves, for the pills and the vehicles (R-PLACE-013).
+  // The country the life is in and the stops its employer's shuttle serves, for the pills and the vehicles (place:employer-shuttle-rides-free).
   const placeCountry = view.place.where === "abroad" ? view.place.country : null;
   const shuttles: readonly string[] = view.place.shuttles ?? [];
   const currency = abroadWays[0]?.currency ?? "NGN";
-  // All the money of the country's currency: the fare leaves cash first and the bank for the rest (R-PLACE-010).
+  // All the money of the country's currency: the fare leaves cash first and the bank for the rest (place:rides-between-city-places).
   const pocket = view.pockets[currency];
   const have = pocket.cash + pocket.bank;
   const key = keyOf(pins);
@@ -103,7 +103,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const here = stable.find((pin) => pin.state === "here") ?? null;
   const pin = stable.find((candidate) => candidate.id === picked) ?? null;
   const abroad = country.id === "lagos" ? null : country.id;
-  // Home stays walkable however far (R-WORLD-017).
+  // Home stays walkable however far (world:ride-sheet-shows-fares).
   // While the life's car stands at home the sheet offers Drive.
   const drive = view.things.drive;
   const choicesTo = (to: MapPin, at: MapPin): RideChoice[] =>
@@ -125,7 +125,7 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
 
   /**
    * A fare as words: the country's pass or its shuttle by name ("£0, bus pass", "C$0, transit pass", "AED 0, site bus",
-   * R-PLACE-012, R-PLACE-013), else the fare in the country's money.
+   * place:country-pass-covers-ways, place:employer-shuttle-rides-free), else the fare in the country's money.
    */
   const fareOf = (choice: RideChoice): string =>
     choice.pill ?? (choice.passed === true ? mapWords("map.way.passed", { amount: formatMoney(0, currency) }) : fareWords(choice.fare, currency));
@@ -134,9 +134,9 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   const start = (choice: RideChoice | undefined, to: string, way: RideChoice["id"]): void => {
     const answer = choice === undefined || onRide === undefined ? true : onRide(choice, to);
     const long = choice?.long === true;
-    // Abroad the ride carries its fare as a pill, in the country's money (R-WORLD-039); on foot nothing is paid.
+    // Abroad the ride carries its fare as a pill, in the country's money (world:ride-abroad-and-workplace); on foot nothing is paid.
     const fare = abroadWays.length === 0 || choice === undefined || choice.id === "walk" ? {} : { fare: fareOf(choice) };
-    // The country's own vehicle (R-WORLD-039): the labour bus or the van on the shuttle's bus, else the way's.
+    // The country's own vehicle (world:ride-abroad-and-workplace): the labour bus or the van on the shuttle's bus, else the way's.
     const shuttle = choice?.shuttle === true || (way === "bus" && here !== null && (shuttles.includes(here.id) || shuttles.includes(to)));
     const ridden = { vehicle: vehicleFor(placeCountry, way, shuttle), ...(choice === undefined || placeCountry === null ? {} : { label: choice.label }) };
     if (answer instanceof Promise) {
@@ -173,16 +173,16 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
     </button>
   );
   // The menu's list opens away from the edge its pill stands on: upward from the folded map's foot, downward from the top
-  // of the open map and of the list abroad, so every country stays on the screen (R-WORLD-016).
+  // of the open map and of the list abroad, so every country stays on the screen (world:one-country-at-a-time).
   const countryMenu = (up: boolean) => <Countries country={country} countries={countries} up={up} {...(onCountry === undefined ? {} : { onCountry })} />;
   const named = useCallback((id: string): string => stable.find((candidate) => candidate.id === id)?.name ?? id, [stable]);
-  // R-WORLD-036: the canoe opens the dedication page over the map, and closing it leaves the map as it was.
+  // world:lantern-canoe-on-map: the canoe opens the dedication page over the map, and closing it leaves the map as it was.
   const [dedicated, setDedicated] = useState(false);
   const canoe = useMemo(() => (dedication === null ? null : { glow: dedication.glow, onOpen: () => setDedicated(true) }), [dedication?.glow]);
 
   return (
     <div className="fixed inset-0 z-[40] bg-sheet text-text" data-map data-picked={picked ?? ""}>
-      {/* The stops as a list: for a screen reader, beside the painted map of every country (R-WORLD-038). */}
+      {/* The stops as a list: for a screen reader, beside the painted map of every country (world:painted-maps-abroad). */}
       <ul aria-label={mapWords("map.stops")} className={painted ? "sr-only" : "absolute inset-x-3 top-20 flex flex-col gap-1.5"}>
         {stable.map((stop) => (
           <li key={stop.id}>

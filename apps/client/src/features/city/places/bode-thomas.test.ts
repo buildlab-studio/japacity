@@ -12,7 +12,7 @@ const north = Math.min(...kerbs);
 const south = Math.max(...kerbs);
 
 describe("Bode Thomas Street's budget", () => {
-  test("[R-ASSET-007] given the street's shipped files measured as the build check measures them, when the place is counted, then both modes fit the exterior row", async () => {
+  test("[assets:assets-and-places-within-budget] given the street's shipped files measured as the build check measures them, when the place is counted, then both modes fit the exterior row", async () => {
     const totals = await totalsOf(file);
     expect(file.scope).toBe("exterior");
     for (const mode of ["low", "high"] as const) {
@@ -21,7 +21,7 @@ describe("Bode Thomas Street's budget", () => {
     }
   });
 
-  test("[R-ASSET-007] given the street's file, when its counts are read, then the instances are the copies staged, the crowd is the client's in each mode, and the floor is one draw call of palette colours", () => {
+  test("[assets:assets-and-places-within-budget] given the street's file, when its counts are read, then the instances are the copies staged, the crowd is the client's in each mode, and the floor is one draw call of palette colours", () => {
     expect(file.instances).toEqual(instancesOf(stage));
     expect(file.people.low).toBe(lowCrowd(entry));
     expect(file.people.high).toBe(highCrowd(entry));
@@ -31,7 +31,7 @@ describe("Bode Thomas Street's budget", () => {
 });
 
 describe("the street", () => {
-  test("[R-CITY-010] given the place that stages the lotto and the betting slip, when its stage is read, then the kiosk stands on the south pavement across the road from the betting shop's building, each lettered with its own board", () => {
+  test("[city:places-stage-their-acts] given the place that stages the lotto and the betting slip, when its stage is read, then the kiosk stands on the south pavement across the road from the betting shop's building, each lettered with its own board", () => {
     expect(entry.stages).toEqual(expect.arrayContaining(["activity.play-lotto", "activity.bet-slip"]));
     const [kiosk] = copiesOf(stage, "shop_lotto-kiosk.glb");
     const [betting] = copiesOf(stage, "bld_bode-thomas-betting.glb");
@@ -43,7 +43,7 @@ describe("the street", () => {
     expect(wordsOf("place.bode-thomas.sign.2")).toContain("Betting");
   });
 
-  test("[R-CITY-014] given the street's crowd spots, when the high mode's sample stands, then there are spots for all of it on the ground, the low mode's first spots queue at the kiosk's hatch, and the roles' spots are in the sample", () => {
+  test("[city:crowd-sample-capped] given the street's crowd spots, when the high mode's sample stands, then there are spots for all of it on the ground, the low mode's first spots queue at the kiosk's hatch, and the roles' spots are in the sample", () => {
     expect(stage.people.length).toBeGreaterThanOrEqual(highCrowd(entry));
     expect(stage.people.every((spot) => onGround(stage, spot))).toBe(true);
     expect(onGround(stage, stage.start)).toBe(true);
@@ -54,7 +54,7 @@ describe("the street", () => {
     for (const indices of Object.values(stage.prefer ?? {})) for (const index of indices) expect(index).toBeLessThan(highCrowd(entry));
   });
 
-  test("[R-CITY-024] given the shop rows and plazas standing twice, when their copies are lettered, then every copy has its own keys, each with words, and no key shows twice", () => {
+  test("[city:place-words-are-text-keys] given the shop rows and plazas standing twice, when their copies are lettered, then every copy has its own keys, each with words, and no key shows twice", () => {
     const keys = signKeys(stage);
     expect(keys.length).toBeGreaterThanOrEqual(16);
     expect(new Set(keys).size).toBe(keys.length);
@@ -63,7 +63,7 @@ describe("the street", () => {
     expect(lettered.map((model) => model.signs?.length)).toEqual(lettered.map((model) => model.at.length));
   });
 
-  test("[R-CITY-025] given the street's motion, when it is read, then the grill smokes, leaves blow along the road, bunting hangs at the betting shop and a palm moves, all on the shared clock", () => {
+  test("[city:one-clock-one-wind] given the street's motion, when it is read, then the grill smokes, leaves blow along the road, bunting hangs at the betting shop and a palm moves, all on the shared clock", () => {
     const kinds = stage.motion.map((motion) => motion.kind);
     expect(kinds).toEqual(expect.arrayContaining(["smoke", "leaves", "bunting", "frond"]));
   });

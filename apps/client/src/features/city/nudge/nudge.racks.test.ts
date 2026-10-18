@@ -1,4 +1,4 @@
-// The child of the water's work at hand (docs/rules/activity.md R-ACTIVITY-017, world.md R-WORLD-003): while a
+// The child of the water's work at hand (activity:fish-racks-at-makoko, world:nudge-says-one-thing): while a
 // life in Makoko's room holds no job, the nudge names the fish racks beside the room and its way goes there; the
 // shop worker's tile, at the family house, keeps the board in town. Real content, real draws.
 import { text } from "@japacity/content";
@@ -27,7 +27,7 @@ function play(id: string, seed: string): ReturnType<typeof newGame> {
 }
 
 describe("the racks as the work at hand", () => {
-  test("[R-ACTIVITY-017] [R-WORLD-003] given the child of the water with no job, when the nudge is read, then it names the racks in under eight words and its way is the racks beside the room; once the hunt is planned it says to end the month", () => {
+  test("[activity:fish-racks-at-makoko] [world:nudge-says-one-thing] given the child of the water with no job, when the nudge is read, then it names the racks in under eight words and its way is the racks beside the room; once the hunt is planned it says to end the month", () => {
     const view = play("water", "racks-nudge-0").view();
     expect(view.job.id).toBeNull();
     expect(view.activities.find((option) => option.id === HUNT)?.params).toContain(RACKS);
@@ -39,7 +39,7 @@ describe("the racks as the work at hand", () => {
     expect(nudgeOf({ ...view, offers: [] }, undefined, [HUNT])).toEqual({ key: "chapter.find-your-feet.item.job.started", about: "step" });
   });
 
-  test("[R-ACTIVITY-017] [R-WORLD-003] given the child of the water at the racks, when the nudge is read, then the racks are no longer named and the life's own way out leads again", () => {
+  test("[activity:fish-racks-at-makoko] [world:nudge-says-one-thing] given the child of the water at the racks, when the nudge is read, then the racks are no longer named and the life's own way out leads again", () => {
     const game = play("water", "racks-nudge-0");
     for (let month = 0; month < 6 && game.state.activity.job !== RACKS; month += 1) {
       game.endTurn([{ activity: HUNT, param: RACKS }]);
@@ -52,14 +52,14 @@ describe("the racks as the work at hand", () => {
     expect(stepWayOf(view)?.go).not.toBe("place.makoko");
   });
 
-  test("[R-ACTIVITY-017] [R-WORLD-003] given the shop worker at the family house with no job, when the nudge is read, then it never names the racks", () => {
+  test("[activity:fish-racks-at-makoko] [world:nudge-says-one-thing] given the shop worker at the family house with no job, when the nudge is read, then it never names the racks", () => {
     const view = play("shop-worker", "racks-nudge-0").view();
     expect(view.job.id).toBeNull();
     expect(nudgeOf({ ...view, offers: [] }).key).not.toBe(RACKS_NUDGE);
     expect(stepWayOf(view)?.go).not.toBe("place.makoko");
   });
 
-  test("[R-ACTIVITY-017] given the child of the water at the racks, when the hunt is asked there, then the place answers in the racks' own words, not a manager taking a CV; another job keeps the hunt's line", () => {
+  test("[activity:fish-racks-at-makoko] given the child of the water at the racks, when the hunt is asked there, then the place answers in the racks' own words, not a manager taking a CV; another job keeps the hunt's line", () => {
     const game = play("water", "racks-nudge-0");
     const said = nowLineIn(game.accept({ type: "activity/now", activity: HUNT, param: RACKS }).lines);
     if (said === null) throw new Error("The racks gave no answer.");

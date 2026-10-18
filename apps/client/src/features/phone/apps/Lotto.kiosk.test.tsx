@@ -1,4 +1,4 @@
-// The Lotto app offline (docs/rules/world.md R-WORLD-018): the street kiosk
+// The Lotto app offline (world:phone-rises-over-scene): the street kiosk
 // runs its own draw, so the app says where the tickets are sold, by the street's name, this month's tickets, and the
 // last draw's result from the month's results when that month had a ticket. Never a bare one-line screen.
 import { content } from "@japacity/content";
@@ -11,7 +11,7 @@ import { nameOf, say, words } from "../../../shared/words/text";
 import { kioskDrawLine, kioskStreet, Lotto } from "./Lotto";
 
 describe("the Lotto app offline", () => {
-  test("[R-WORLD-018] given a life offline with no ticket yet, when the Lotto app opens, then it names the kiosk's street, Bode Thomas Street, and says no ticket this month, more than one bare line", async () => {
+  test("[world:phone-rises-over-scene] given a life offline with no ticket yet, when the Lotto app opens, then it names the kiosk's street, Bode Thomas Street, and says no ticket this month, more than one bare line", async () => {
     const game = newGame("scenario.ada");
     expect(game.view().lottery).toBeNull();
     expect(content.place["place.bode-thomas"]?.stages).toContain("activity.play-lotto");
@@ -25,7 +25,7 @@ describe("the Lotto app offline", () => {
     expect(app?.textContent).not.toMatch(/phone\.|ui\.|line\./);
   });
 
-  test("[R-WORLD-018] [R-LUCK-005] given a ticket bought at the kiosk this month, when the Lotto app opens, then it says the month's ticket and no longer says none", async () => {
+  test("[world:phone-rises-over-scene] [luck:kiosk-sells-lotto-tickets] given a ticket bought at the kiosk this month, when the Lotto app opens, then it says the month's ticket and no longer says none", async () => {
     const game = newGame("scenario.ada");
     const lines = game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines;
     const { store } = await renderWithView(<Lotto />, game.view());
@@ -35,7 +35,7 @@ describe("the Lotto app offline", () => {
     expect(document.querySelector("[data-lotto-street]")).not.toBeNull();
   });
 
-  test("[R-WORLD-018] given last month's results with the kiosk's draw in them, when the Lotto app opens, then it shows the last draw's result in the results' own words", async () => {
+  test("[world:phone-rises-over-scene] given last month's results with the kiosk's draw in them, when the Lotto app opens, then it shows the last draw's result in the results' own words", async () => {
     const game = newGame("scenario.ada");
     game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" });
     game.endTurn();

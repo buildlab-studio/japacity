@@ -33,7 +33,7 @@ function twoRoutesHeard() {
 }
 
 describe("the routes list", () => {
-  test("[R-WORLD-006] given two routes heard of, when the desk's sheet shows the official page, then the routes are rows with their name, what each is and heard of, and no native select", async () => {
+  test("[world:one-action-one-sheet] given two routes heard of, when the desk's sheet shows the official page, then the routes are rows with their name, what each is and heard of, and no native select", async () => {
     const view = twoRoutesHeard();
     const official = view.activities.find((option) => option.id === OFFICIAL);
     expect(official?.params).toEqual(expect.arrayContaining([UK, CANADA]));
@@ -49,7 +49,7 @@ describe("the routes list", () => {
     }
   });
 
-  test("[R-WORLD-006] given two routes heard of, when the official page shows, then nothing is picked for the player and Do this is shut until a row is tapped, then plans that route", async () => {
+  test("[world:one-action-one-sheet] given two routes heard of, when the official page shows, then nothing is picked for the player and Do this is shut until a row is tapped, then plans that route", async () => {
     const { store, authority } = await renderWithView(<ActivityPicker only={[OFFICIAL]} />, twoRoutesHeard());
     expect(within(card(OFFICIAL)).getAllByRole("radio").every((row) => row.getAttribute("aria-checked") === "false")).toBe(true);
     expect(addButton(OFFICIAL).disabled).toBe(true);
@@ -57,12 +57,12 @@ describe("the routes list", () => {
     fireEvent.click(within(card(OFFICIAL)).getByRole("radio", { name: new RegExp(nameOf(CANADA)) }));
     expect(addButton(OFFICIAL).disabled).toBe(false);
     fireEvent.click(addButton(OFFICIAL));
-    // R-ACTIVITY-015: the official page is read at once, so the route tapped goes with the command sent now.
+    // activity:now-acts-and-month-acts: the official page is read at once, so the route tapped goes with the command sent now.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: CANADA }));
     expect(store.getState().plan.some((pick) => pick?.activity === OFFICIAL)).toBe(false);
   });
 
-  test("[R-WORLD-006] given one route heard of, when someone who went shows, then it stays a card whose one row is picked, and the adviser stays a card with no list", async () => {
+  test("[world:one-action-one-sheet] given one route heard of, when someone who went shows, then it stays a card whose one row is picked, and the adviser stays a card with no list", async () => {
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "route/hear", route: UK, via: "test" }]);
     await renderWithView(<ActivityPicker only={[FRIEND, ADVISER]} />, view);
     const rows = within(card(FRIEND)).getAllByRole("radio");
@@ -71,7 +71,7 @@ describe("the routes list", () => {
     expect(within(card(ADVISER)).queryAllByRole("radio")).toEqual([]);
   });
 
-  test("[R-WORLD-006] given a sponsor's route looked into, when finding a sponsor shows, then its row says looked into", async () => {
+  test("[world:one-action-one-sheet] given a sponsor's route looked into, when finding a sponsor shows, then its row says looked into", async () => {
     const SKILLED = "route.uk-skilled" as Id<"route">;
     const SPONSOR = "activity.find-sponsor";
     const game = newGame("scenario.tunde");

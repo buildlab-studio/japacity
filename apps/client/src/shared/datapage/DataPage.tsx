@@ -1,4 +1,4 @@
-// The travel data page (prologue.md R-PROLOGUE-009). The header with its type line, the photo, the name, the
+// The travel data page (prologue:front-door-builds-a-person). The header with its type line, the photo, the name, the
 // nationality beside the age, the path and what the life was so far, where the life is from and the family beside how
 // ready as the big figure (FROM), and the machine-readable strip at the foot, built from the game's own data. It prints
 // on the door, after Begin and on the band's page. No stamp lands on it until a visa is granted:
@@ -44,7 +44,7 @@ export interface PageFields {
   /** The look's picture, the photo as made. */
   photo: string;
   /**
-   * The look and the player's own colours on it (R-PROLOGUE-015): in a style, the photo is the figure rendered in it,
+   * The look and the player's own colours on it (prologue:player-colours-on-looks): in a style, the photo is the figure rendered in it,
    * the one kept with the person where there is one, else drawn as the page prints; the look's picture until then.
    */
   wear?: { look: string; style?: LookStyle; photo?: string; photoPx?: number };
@@ -53,7 +53,7 @@ export interface PageFields {
   /** The family the game drew, its means in a few words; empty until it is drawn, absent where the page does not say it. */
   family?: string;
   /**
-   * Where the life is from, as a passport names a place of birth (R-PROLOGUE-009): the hometown's
+   * Where the life is from, as a passport names a place of birth (prologue:front-door-builds-a-person): the hometown's
    * name; empty until the family is drawn, absent where the page does not say it.
    */
   from?: string;
@@ -70,7 +70,7 @@ export interface PageStamp {
 /** What the machine-readable strip is built from; a part not known yet prints as fillers. */
 export interface Strip {
   district: string;
-  /** Whole years only, "26Y": the page carries no months (R-PROLOGUE-009). */
+  /** Whole years only, "26Y": the page carries no months (prologue:front-door-builds-a-person). */
   years: number | null;
   percent: number | null;
 }

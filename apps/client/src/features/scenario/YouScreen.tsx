@@ -1,4 +1,4 @@
-// The door's first screen, You (prologue.md R-PROLOGUE-013, 015): you as a big photo card,
+// The door's first screen, You (prologue:front-door-three-screens, prologue:player-colours-on-looks): you as a big photo card,
 // the whole figure standing with a hand on the hip on a sticker with your name stuck on it, a danfo and a travel bag
 // slapped on; the name with its dice; the look strip as round face stickers, every look in one strip; and "Make it
 // yours" under it, opened on a tap, the figure then drawn in your colours.
@@ -73,7 +73,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
       alive = false;
     };
   }, [yours, look]);
-  // Opened, the section comes into view once its rows stand, so a panel opened below the fold is seen (R-PROLOGUE-013).
+  // Opened, the section comes into view once its rows stand, so a panel opened below the fold is seen (prologue:front-door-three-screens).
   // Once an opening: a pick inside it brings the next part instead.
   const section = useRef<HTMLElement>(null);
   const rowsShown = useOwnColours(look) !== null;
@@ -141,7 +141,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
           })}
         </div>
       </section>
-      {/* Your own colours on the look (R-PROLOGUE-015), under the strip, opened on a tap. */}
+      {/* Your own colours on the look (prologue:player-colours-on-looks), under the strip, opened on a tap. */}
       <section ref={section} className="mt-1 px-5 pb-4" data-door-yours>
         <h2>
           <button type="button" className="pill-button h-9! text-[14px]!" aria-expanded={yours} onClick={() => setYours((open) => !open)} data-yours-open>

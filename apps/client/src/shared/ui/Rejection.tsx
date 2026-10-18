@@ -6,7 +6,7 @@ import { say } from "../words/text";
 
 /**
  * The last rejection's words, from content. Shown where the player acted. A life the server must check
- * (`diverged`, R-SERVER-003) gets its own words and Retry, which asks for the life again, in place of Close.
+ * (`diverged`, server:log-rows-hash-state) gets its own words and Retry, which asks for the life again, in place of Close.
  */
 export function Rejection() {
   const rejection = useGame((state) => state.rejection);

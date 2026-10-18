@@ -1,7 +1,7 @@
-// The adverts' review (R-ADVERT-010 to 014): every campaign with its state now,
+// The adverts' review (advert:named-person-approves-creatives, advert:changes-return-to-review, advert:reviewer-checks-and-records, advert:submissions-never-auto-post and advert:reported-advert-pulled-at-once): every campaign with its state now,
 // its advertiser, the creatives' versions and images, the checks a named
 // reviewer records before an approval as the server lists them, and the daily
-// counts (R-ADVERT-020). Pulling and rechecking a live campaign send it back to
+// counts (advert:advertiser-records-stored). Pulling and rechecking a live campaign send it back to
 // review.
 import type { AdminRefusal, CampaignRow, CampaignStatus, ReviewBody, ReviewedCreative } from "@japacity/api";
 import { time } from "@japacity/sim";
@@ -23,7 +23,7 @@ const STATUS_TONE: Record<CampaignStatus, "plain" | "accent" | "good" | "bad"> =
   refused: "bad",
 };
 
-/** R-ADVERT-010, R-ADVERT-012: the checks to record, a note, and the two decisions. */
+/** advert:named-person-approves-creatives, advert:reviewer-checks-and-records: the checks to record, a note, and the two decisions. */
 function Review({ title, what, required, send, onDone }: { title: string; what: string; required: readonly string[]; send: (outcome: Outcome, body: ReviewBody) => Promise<{ ok: true } | AdminRefusal>; onDone: () => void }) {
   const [made, setMade] = useState<readonly string[]>([]);
   const [note, setNote] = useState("");

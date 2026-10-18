@@ -1,4 +1,4 @@
-// Where the life is from, on the page and the family card (prologue.md R-PROLOGUE-009, R-PROLOGUE-014): the page prints FROM beside FAMILY as its card turns over, the card's title says
+// Where the life is from, on the page and the family card (prologue:front-door-builds-a-person, prologue:printed-page-hands-over): the page prints FROM beside FAMILY as its card turns over, the card's title says
 // "Family from" the town with its means a tag, and the child of the water is from Lagos. Real content, real draws.
 import { act } from "@testing-library/react";
 import { content } from "@japacity/content";
@@ -49,7 +49,7 @@ async function handover(id: string, seed: string): Promise<ReturnType<typeof new
 const field = (id: string): string | null => document.querySelector(`[data-page] [data-field='${id}']`)?.textContent ?? null;
 
 describe("where the life is from, on the handover", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-014] given a tile's life handed over, when its family turns over, then the card says Family from the town the view names, the means stand as a tag beside the others, and the page prints FROM that town beside FAMILY in its means", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:printed-page-hands-over] given a tile's life handed over, when its family turns over, then the card says Family from the town the view names, the means stand as a tag beside the others, and the page prints FROM that town beside FAMILY in its means", async () => {
     const game = await handover("developer", "hometown-page-0");
     const hometown = game.view().hometown;
     expect(hometown).not.toBeNull();
@@ -65,11 +65,11 @@ describe("where the life is from, on the handover", () => {
     // FROM stands before FAMILY in the row under the photo, and READY after both.
     const order = [...document.querySelectorAll<HTMLElement>("[data-page] [data-field]")].map((one) => one.dataset["field"]);
     expect(order.slice(order.indexOf("from"))).toEqual(["from", "family", "ready"]);
-    // The strip carries what the page's rule names, never the town (R-PROLOGUE-009).
+    // The strip carries what the page's rule names, never the town (prologue:front-door-builds-a-person).
     expect(document.querySelector("[data-page-strip]")?.textContent).not.toContain(town.toUpperCase().replace(/[^A-Z]/g, "<"));
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-012] [R-PROLOGUE-014] given the child of the water handed over, then it is from Lagos, its card still the house on stilts in Makoko", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:makoko-start-never-a-trap] [prologue:printed-page-hands-over] given the child of the water handed over, then it is from Lagos, its card still the house on stilts in Makoko", async () => {
     const game = await handover("water", "hometown-water-0");
     expect(game.view().hometown).toBe("hometown.lagos");
     expect(document.querySelector("[data-family-title]")?.textContent).toBe(say("ui.page.family.water"));

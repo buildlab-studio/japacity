@@ -45,7 +45,7 @@ afterEach(() => {
 });
 
 describe("the moment card on screen", () => {
-  test("[R-MOMENT-002] given the one chance, when the card stands, then it holds the kicker, the title, the line, the figure with its caption, the new phone, and the game's mark with its address in the corner", async () => {
+  test("[moment:moment-card-contents] given the one chance, when the card stands, then it holds the kicker, the title, the line, the figure with its caption, the new phone, and the game's mark with its address in the corner", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     await arrive(store, authority, [ROBBED]);
     const card = await screen.findByRole("dialog", { name: say("moment.robbed.kicker") });
@@ -64,7 +64,7 @@ describe("the moment card on screen", () => {
     expect(face.lastElementChild).toBe(sign);
   });
 
-  test("[R-MOMENT-002] given a win, then the card is drawn light, and its mark is the one for a light ground", async () => {
+  test("[moment:moment-card-contents] given a win, then the card is drawn light, and its mark is the one for a light ground", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     await arrive(store, authority, [WON]);
     const card = await screen.findByRole("dialog", { name: say("moment.won.kicker") });
@@ -75,7 +75,7 @@ describe("the moment card on screen", () => {
   });
 
   // The display face has no naira sign, so it never holds the letter.
-  test("[R-LOTTERY-013] given the win letter staged, then the card tells the prize with its naira sign, and nothing on it is set in the display face", async () => {
+  test("[lottery:winners-paid-by-authority] given the win letter staged, then the card tells the prize with its naira sign, and nothing on it is set in the display face", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     await arrive(store, authority, [WON]);
     const card = await screen.findByRole("dialog", { name: say("moment.won.kicker") });
@@ -85,7 +85,7 @@ describe("the moment card on screen", () => {
     expect(face.className).not.toContain("font-display");
   });
 
-  test("[R-MOMENT-003] given the card, then it stands centred no wider than 380 px, 16 px in from the sides, with the line, the figure, the kicker and the address at their sizes", async () => {
+  test("[moment:card-reads-when-cropped] given the card, then it stands centred no wider than 380 px, 16 px in from the sides, with the line, the figure, the kicker and the address at their sizes", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     await arrive(store, authority, [ROBBED]);
     const card = await screen.findByRole("dialog", { name: say("moment.robbed.kicker") });
@@ -107,7 +107,7 @@ describe("the moment card on screen", () => {
     expect(figureSize("24")).toBe(88);
   });
 
-  test("[R-MOMENT-004] given every card, then the figure carries no sign and stands in the card's own ink, never green or red, and nothing on it is an alert, a tick, a reference or a bank", async () => {
+  test("[moment:card-never-looks-official] given every card, then the figure carries no sign and stands in the card's own ink, never green or red, and nothing on it is an alert, a tick, a reference or a bank", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     for (const told of [ROBBED, WON, REFUSED]) {
       await arrive(store, authority, [told]);
@@ -124,7 +124,7 @@ describe("the moment card on screen", () => {
     }
   });
 
-  test("[R-MOMENT-006] given a card over the world, when Close is pressed or the dimmed world is tapped, then it goes; until then the share card waits its turn", async () => {
+  test("[moment:card-shows-when-outcome-lands] given a card over the world, when Close is pressed or the dimmed world is tapped, then it goes; until then the share card waits its turn", async () => {
     const { store, authority } = await renderWithView(<MomentCard over="world" />, engineView());
     let turn: boolean | null = null;
     function Probe() {
@@ -148,7 +148,7 @@ describe("the moment card on screen", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
-  test("[R-MOMENT-006] given the results open, then a card waiting does not stand over the world instead, and a run of months shows its cards one after another", async () => {
+  test("[moment:card-shows-when-outcome-lands] given the results open, then a card waiting does not stand over the world instead, and a run of months shows its cards one after another", async () => {
     const view = reportedView();
     const authority = fakeAuthority(view);
     const store = createGameStore(authority);
@@ -166,7 +166,7 @@ describe("the moment card on screen", () => {
     expect(await screen.findByRole("dialog", { name: say("moment.won.kicker") })).toBeDefined();
   });
 
-  test("[R-MOMENT-006] given no screen for moment cards, when a moment's line comes, then none is kept, so the share card's turn is never held", async () => {
+  test("[moment:card-shows-when-outcome-lands] given no screen for moment cards, when a moment's line comes, then none is kept, so the share card's turn is never held", async () => {
     const view = engineView();
     const authority = fakeAuthority(view);
     const store = createGameStore(authority);
@@ -182,7 +182,7 @@ describe("the moment card on screen", () => {
     expect(store.getState().momentCards).toEqual([]);
   });
 
-  test("[R-MOMENT-007] given a card, then it offers nothing to share or save, draws no image, and sends and counts nothing", async () => {
+  test("[moment:moment-is-not-share-card] given a card, then it offers nothing to share or save, draws no image, and sends and counts nothing", async () => {
     const beacon = vi.fn(() => true);
     Object.defineProperty(navigator, "sendBeacon", { value: beacon, configurable: true });
     const fetched = vi.spyOn(globalThis, "fetch");
@@ -202,7 +202,7 @@ describe("the moment card on screen", () => {
     expect(authority.sent.length).toBe(sent + 1);
   });
 
-  test("[R-MOMENT-008] given every entry of the moments' list, when its card stands, then it has its words, the line, the figure, the mark and the address", async () => {
+  test("[moment:new-moments-join-same-way] given every entry of the moments' list, when its card stands, then it has its words, the line, the figure, the mark and the address", async () => {
     const view = engineView();
     const authority = fakeAuthority(view);
     const store = createGameStore(authority);
@@ -247,7 +247,7 @@ describe("the moment card on screen", () => {
 });
 
 describe("the moment card and the send-off scene", () => {
-  test("[R-CHAPTER-012] [R-MOMENT-006] given the send-off scene covering the world, then the landing's card waits, and stands once the bell is rung", async () => {
+  test("[chapter:send-off-scene-in-beats] [moment:card-shows-when-outcome-lands] given the send-off scene covering the world, then the landing's card waits, and stands once the bell is rung", async () => {
     const view = engineView();
     const store = createGameStore(fakeAuthority(view));
     await store.getState().refresh();

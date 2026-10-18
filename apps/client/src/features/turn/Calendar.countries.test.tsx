@@ -1,4 +1,4 @@
-// The Calendar's line for each country's pass (place.md R-PLACE-012, world.md R-WORLD-039): Calgary's
+// The Calendar's line for each country's pass (place:country-pass-covers-ways, world:ride-abroad-and-workplace): Calgary's
 // transit pass and Dubai's zone pass say what they cover, as London's bus pass does; Italy has no pass.
 import type { Id, PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -17,7 +17,7 @@ function landed(country: Id<"country">, pass = false): PlayerView {
 }
 
 describe("the Calendar's pass abroad", () => {
-  test("[R-PLACE-012] [R-WORLD-039] given a life in Calgary or Dubai, when the month's pass is bought, then the Calendar says what it covers is free till the month ends, and before it says nothing; Italy has no pass", () => {
+  test("[place:country-pass-covers-ways] [world:ride-abroad-and-workplace] given a life in Calgary or Dubai, when the month's pass is bought, then the Calendar says what it covers is free till the month ends, and before it says nothing; Italy has no pass", () => {
     expect(passWords(landed("country.canada"))).toBeNull();
     expect(passWords(landed("country.canada", true))).toBe("Transit pass bought: the bus and the CTrain are free till the month ends");
     expect(passWords(landed("country.uae"))).toBeNull();

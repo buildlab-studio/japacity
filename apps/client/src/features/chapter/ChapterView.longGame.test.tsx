@@ -12,7 +12,7 @@ import { ChapterView } from "./ChapterView";
 const DONE: PlayerView["chapter"]["done"] = ["chapter.find-your-feet", "chapter.build-the-file", "chapter.decision-day", "chapter.send-off", "chapter.landing"];
 
 describe("chapters 5 and 6, and after", () => {
-  test("[R-CHAPTER-007] given Landing from the engine after the flight, then its items are content's words", async () => {
+  test("[chapter:long-game-after-last-chapter] given Landing from the engine after the flight, then its items are content's words", async () => {
     const game = recordedGame("ada-careful");
     game.endTurn();
     const view = game.view();
@@ -21,7 +21,7 @@ describe("chapters 5 and 6, and after", () => {
     for (const item of view.chapter.items) expect(screen.getByText(text[`chapter.landing.item.${item.id}`]!)).toBeDefined();
   });
 
-  test("[R-CHAPTER-007] given Secure, then its one item lists its paths as any one of them", async () => {
+  test("[chapter:long-game-after-last-chapter] given Secure, then its one item lists its paths as any one of them", async () => {
     const view: PlayerView = { ...abroadView(), chapter: { current: "chapter.secure", items: [{ id: "secure", met: false }], done: DONE, closes: false, next: null } };
     await renderWithView(<ChapterView />, view);
     const item = screen.getByText(text["chapter.secure.item.secure"]!).closest("li")!;
@@ -31,7 +31,7 @@ describe("chapters 5 and 6, and after", () => {
     for (const option of options) expect(within(paths).getByText(option)).toBeDefined();
   });
 
-  test("[R-CHAPTER-007] given every chapter done, then the long game takes its place with the open goals and their items met", async () => {
+  test("[chapter:long-game-after-last-chapter] given every chapter done, then the long game takes its place with the open goals and their items met", async () => {
     const base = richAbroadView();
     const view: PlayerView = { ...base, chapter: { current: null, items: [], done: [...DONE, "chapter.secure"], closes: false, next: null } };
     await renderWithView(<ChapterView />, view);

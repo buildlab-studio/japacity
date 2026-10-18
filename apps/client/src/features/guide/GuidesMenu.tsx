@@ -1,7 +1,7 @@
-// The guides from inside the game (R-GUIDE-005, R-GUIDE-011): a row in the phone's Settings, under About the game,
+// The guides from inside the game (guide:guides-are-open-pages, guide:generated-media-named-plainly): a row in the phone's Settings, under About the game,
 // beside the credits (`row`), or a small book button; either way the guide
 // for the route in view, every guide, the numbers and how the game was made. The credits are a
-// screen of the game itself (R-GUIDE-008), not a page here.
+// screen of the game itself (guide:credits-screen-in-game), not a page here.
 // The pages are the prerendered ones, opened beside the game so the life stays where it is.
 import { content, guideForRoute } from "@japacity/content";
 import { ArrowRight, BookOpen } from "lucide-react";
@@ -25,7 +25,7 @@ function PageLink({ href, children }: { href: string; children: string }) {
   );
 }
 
-/** `row`: drawn as a row of the phone's Settings, as the credits' row is (city.md R-CITY-021); else a small book button. */
+/** `row`: drawn as a row of the phone's Settings, as the credits' row is (city:credits-screen-attributions); else a small book button. */
 export function GuidesMenu({ row = false }: { row?: boolean } = {}) {
   const view = useView();
   const [open, setOpen] = useState(false);

@@ -4,7 +4,7 @@ import { start } from "@japacity/sim/testing";
 import { expect, test, type Page } from "@playwright/test";
 
 // Lives with people in them are played by the simulation's own test handle and handed to the client as a save, so the
-// local authority replays them. The people live in the world (docs/rules/world.md R-WORLD-020): met in a place, their
+// local authority replays them. The people live in the world (world:nobody-picked-from-list): met in a place, their
 // threads and the slots in the phone's Chats, a visit at their room, the interview as the ask under the band.
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
@@ -88,7 +88,7 @@ async function openBond(page: Page, name: string) {
   return head;
 }
 
-test("[R-WORLD-020] the slots in Chats show the family, and a computer partner courted in the parlour is said to live in the game", async ({ page }, info) => {
+test("[world:nobody-picked-from-list] the slots in Chats show the family, and a computer partner courted in the parlour is said to live in the game", async ({ page }, info) => {
   test.setTimeout(120_000);
   const game = tunde();
   month(game);
@@ -101,7 +101,7 @@ test("[R-WORLD-020] the slots in Chats show the family, and a computer partner c
   await shootAtSize(page, "tab", info.project.name);
   await putPhoneAway(page);
 
-  // Tobi in the parlour: talking to him opens his card, whose one button courts him (R-PEOPLE-013).
+  // Tobi in the parlour: talking to him opens his card, whose one button courts him (person:courting-opens-a-bond).
   await intoTheRoom(page);
   const tobi = (await page.locator('[data-mark][aria-label="Tobi"]').getAttribute("data-mark")) ?? "";
   await doAct(page, tobi, "talk");
@@ -112,7 +112,7 @@ test("[R-WORLD-020] the slots in Chats show the family, and a computer partner c
   await expect(page.locator("[data-app-screen='chats'] h3 [data-person-mark='computer']")).toBeVisible();
 });
 
-test("[R-WORLD-020] a bond carries its time together, and a visit at their room counts with it", async ({ page }, info) => {
+test("[world:nobody-picked-from-list] a bond carries its time together, and a visit at their room counts with it", async ({ page }, info) => {
   test.setTimeout(180_000);
   const game = tunde();
   game.accept({ type: "people/court", with: TOBI });
@@ -121,7 +121,7 @@ test("[R-WORLD-020] a bond carries its time together, and a visit at their room 
   await expect((await openBond(page, "Tobi")).locator('[data-head-row="stage"]')).toContainText("Three times together");
   await putPhoneAway(page);
 
-  // Seeing someone answers at once (R-ACTIVITY-015): the visit at their room makes the moment now, in the month in hand.
+  // Seeing someone answers at once (activity:now-acts-and-month-acts): the visit at their room makes the moment now, in the month in hand.
   await page.locator('[data-thumb="map"]').click();
   await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
   await page.evaluate(() => document.querySelector<HTMLButtonElement>('[data-stop="place.their-room"]')?.click());
@@ -134,7 +134,7 @@ test("[R-WORLD-020] a bond carries its time together, and a visit at their room 
   await doAct(page, "time-together", "together");
   const asked = page.getByRole("dialog").getByRole("button", { name: /^See someone/ });
   if (await asked.last().waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await asked.last().click();
-  // The visit's answer, told on its card (R-WORLD-008), is put away with Done.
+  // The visit's answer, told on its card (world:month-end-results-sheet), is put away with Done.
   const answer = page.getByRole("dialog", { name: "See someone" });
   await expect(answer).toContainText("You met up.");
   await answer.getByRole("button", { name: "Done" }).click();
@@ -150,7 +150,7 @@ test("[R-WORLD-020] a bond carries its time together, and a visit at their room 
   await expect(end).toContainText("Ending it costs you standing at home and some of your wellbeing.");
 });
 
-test("[R-WORLD-020] a friend's proposal waits for an answer in their thread, and yes makes them partners", async ({ page }, info) => {
+test("[world:nobody-picked-from-list] a friend's proposal waits for an answer in their thread, and yes makes them partners", async ({ page }, info) => {
   test.setTimeout(120_000);
   const game = tunde();
   month(game);
@@ -170,7 +170,7 @@ test("[R-WORLD-020] a friend's proposal waits for an answer in their thread, and
   await expect(head).not.toContainText("They ask to be together.");
 });
 
-test("[R-WORLD-006] [R-INTERVIEW-004] the interview asks one question at a time and holds the month until the last answer", async ({ page }, info) => {
+test("[world:one-action-one-sheet] [interview:answers-taken-in-order] the interview asks one question at a time and holds the month until the last answer", async ({ page }, info) => {
   test.setTimeout(150_000);
   const game = tunde();
   month(game);
@@ -190,7 +190,7 @@ test("[R-WORLD-006] [R-INTERVIEW-004] the interview asks one question at a time 
   );
   await seed(page, game);
 
-  // The bed will not turn the month while the interview waits (R-INTERVIEW-004): Sleep is refused and nothing turns.
+  // The bed will not turn the month while the interview waits (interview:answers-taken-in-order): Sleep is refused and nothing turns.
   await intoTheRoom(page);
   const age = (await page.locator("[data-band]").textContent())?.match(/\d+ yrs \d+ mo/)?.[0] ?? "";
   await doAct(page, await bedThing(page), "end-month");
@@ -202,7 +202,7 @@ test("[R-WORLD-006] [R-INTERVIEW-004] the interview asks one question at a time 
   await passCards(page);
   await page.keyboard.press("Escape");
 
-  // The ask's line under the band opens the interview, one question at a time (R-WORLD-006).
+  // The ask's line under the band opens the interview, one question at a time (world:one-action-one-sheet).
   await page.locator("[data-nudge-open]").click();
   const interview = page.getByRole("region", { name: "The relationship interview" });
   await expect(interview).toBeVisible();
@@ -213,7 +213,7 @@ test("[R-WORLD-006] [R-INTERVIEW-004] the interview asks one question at a time 
   await interview.getByRole("button", { name: "Four to eight times" }).click();
   await interview.getByRole("button", { name: "A town back home" }).click();
   await interview.getByRole("button", { name: "In the UK" }).click();
-  // The last answer sends the interview off the asks (R-WORLD-006), and the bed turns the month again.
+  // The last answer sends the interview off the asks (world:one-action-one-sheet), and the bed turns the month again.
   await expect(interview).toHaveCount(0);
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);

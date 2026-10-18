@@ -1,7 +1,7 @@
-// How ready the character is to go, one figure for Japa and the data page (docs/rules/world.md R-WORLD-019), so
+// How ready the character is to go, one figure for Japa and the data page (world:phone-holds-what-phones-hold), so
 // the data page and Japa never disagree. The japacity figure, else the plan's own
 // figure while no route's figure counts yet (care work, shut to applicants from abroad, reads from the month its page
-// is read, as the master's does: R-CHAPTER-009).
+// is read, as the master's does: chapter:chapters-follow-lean-route).
 import type { PlayerView } from "@japacity/sim";
 
 import { say } from "./text";

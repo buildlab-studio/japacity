@@ -1,5 +1,5 @@
-// The street kiosk in the world, online and offline (docs/rules/lottery.md R-LOTTERY-001; world.md R-WORLD-005,
-// R-WORLD-006), with the city and the kiosk's sheet composed as the shell composes them: on Bode Thomas Street, the
+// The street kiosk in the world, online and offline (lottery:draw-runs-online-only; world:things-are-tappable-models,
+// world:one-action-one-sheet), with the city and the kiosk's sheet composed as the shell composes them: on Bode Thomas Street, the
 // kiosk's act opens the Friday draw's sheet while the world runs the draw, and the luck kiosk's slip while it does not. The place file is the one the game ships; the scene is a stand-in that
 // offers each thing's acts as buttons, as a tap on the thing does once the character has walked to it.
 import { readFileSync } from "node:fs";
@@ -23,7 +23,7 @@ import { KioskSheet } from "../features/lottery/KioskSheet";
 import { drawOf, onlineLife, tuning } from "../features/lottery/lottery.testing";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -58,7 +58,7 @@ async function onTheStreet(lottery: World["lottery"]): Promise<{ store: GameStor
   return { store, life };
 }
 
-/** The kiosk tapped on the street once the place is drawn, and its act on its fan (R-WORLD-034). */
+/** The kiosk tapped on the street once the place is drawn, and its act on its fan (world:fan-of-sticker-buttons). */
 async function tapKiosk(): Promise<void> {
   fireEvent.click(await waitFor(() => {
     const found = document.querySelector<HTMLElement>('[data-stand-in-thing="kiosk"]');
@@ -74,7 +74,7 @@ async function tapKiosk(): Promise<void> {
 }
 
 describe("the street kiosk while the world runs the Friday draw", () => {
-  test("[R-LOTTERY-001] [R-WORLD-005] given the world online, when the kiosk is tapped, then its sheet sells the Friday draw and its one button sends lottery/buy with the count", async () => {
+  test("[lottery:draw-runs-online-only] [world:things-are-tappable-models] given the world online, when the kiosk is tapped, then its sheet sells the Friday draw and its one button sends lottery/buy with the count", async () => {
     const { store, life } = await onTheStreet(drawOf());
     // The offline act is not allowed online, yet the kiosk keeps its act and its name.
     expect(store.getState().view?.activities.find((option) => option.id === KIOSK)?.allowed ?? false).toBe(false);
@@ -90,7 +90,7 @@ describe("the street kiosk while the world runs the Friday draw", () => {
     expect(sheet.querySelector("[data-lottery-jackpot]")?.textContent).toContain(formatMoney(tuning.odds.jackpotStart, "NGN"));
     expect(kiosk.getByText(say("ui.lottery.price", { price: formatMoney(tuning.ticket, "NGN"), max: tuning.maxTickets }))).toBeDefined();
     expect(sheet.querySelector("[data-lottery-close]")).not.toBeNull();
-    // R-WORLD-006: the odds, the seal and the last draw fold behind a tap on a row, not on the sheet's face.
+    // world:one-action-one-sheet: the odds, the seal and the last draw fold behind a tap on a row, not on the sheet's face.
     expect(sheet.querySelector("[data-lottery-odds]")).toBeNull();
     expect(sheet.querySelector("[data-lottery-fingerprint]")).toBeNull();
     fireEvent.click(within(sheet.querySelector<HTMLElement>('[data-kiosk-fold="odds"]')!).getByRole("button"));
@@ -98,7 +98,7 @@ describe("the street kiosk while the world runs the Friday draw", () => {
 
     fireEvent.click(kiosk.getByRole("button", { name: say("ui.lottery.more") }));
     const buy = sheet.ownerDocument.querySelector<HTMLButtonElement>("[data-kiosk-buy]");
-    // R-WORLD-006: the button says the act and its price; under it the band's naira before, struck, and after.
+    // world:one-action-one-sheet: the button says the act and its price; under it the band's naira before, struck, and after.
     expect(buy?.textContent).toBe(say("ui.act.priced", { act: say("ui.lottery.kiosk.buy", { count: 2 }), price: formatMoney(2 * tuning.ticket, "NGN") }));
     const naira = (store.getState().view?.pockets.NGN.bank ?? 0) + (store.getState().view?.pockets.NGN.cash ?? 0);
     expect(sheet.ownerDocument.querySelector("[data-balance-before]")?.textContent).toBe(formatMoney(naira, "NGN"));
@@ -113,7 +113,7 @@ describe("the street kiosk while the world runs the Friday draw", () => {
     expect(sheet.querySelector("[data-lottery-held]")?.getAttribute("data-lottery-held")).toBe("2");
   });
 
-  test("[R-LOTTERY-001] [R-WORLD-005] given the world offline, when the kiosk is tapped, then its slip is the luck kiosk's now-act", async () => {
+  test("[lottery:draw-runs-online-only] [world:things-are-tappable-models] given the world offline, when the kiosk is tapped, then its slip is the luck kiosk's now-act", async () => {
     const { store, life } = await onTheStreet(null);
     expect(store.getState().view?.activities.find((option) => option.id === KIOSK)?.allowed).toBe(true);
     await tapKiosk();
@@ -132,7 +132,7 @@ describe("the street kiosk while the world runs the Friday draw", () => {
     expect(screen.queryByText(say("ui.lottery.title"))).toBeNull();
   });
 
-  test("[R-LOTTERY-001] given a view that still lists the offline act as allowed while the world runs the draw, when the kiosk's act is read, then it opens the online sheet only", () => {
+  test("[lottery:draw-runs-online-only] given a view that still lists the offline act as allowed while the world runs the draw, when the kiosk's act is read, then it opens the online sheet only", () => {
     const online = { lottery: onlineLife(drawOf()).game.view().lottery };
     expect(kioskOnline(online)).toBe(true);
     expect(opensKiosk(KIOSK, online)).toBe(true);

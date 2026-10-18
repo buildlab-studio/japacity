@@ -1,4 +1,4 @@
-// The savings circle in the Bank's Lately (docs/rules/world.md R-WORLD-019): a share
+// The savings circle in the Bank's Lately (world:phone-holds-what-phones-hold): a share
 // paid in reads as the circle, never as going out, and the pot as the circle paying you, never as a gift.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -10,7 +10,7 @@ import { words } from "../../../shared/words/text";
 import { latelyLines } from "./Bank";
 
 describe("the savings circle in the Bank", () => {
-  test("[R-WORLD-019] given Tunde in the circle, when the month of the pot ends, then Lately says the circle's share and the circle paying him, never going out or a gift", () => {
+  test("[world:phone-holds-what-phones-hold] given Tunde in the circle, when the month of the pot ends, then Lately says the circle's share and the circle paying him, never going out or a gift", () => {
     const game = newGame("scenario.tunde");
     const circle = openOffer(game, "offer.join-ajo");
     game.accept({ type: "offer/choose", offer: circle.id, choice: "join" });

@@ -1,7 +1,7 @@
-// The two lights' figures (docs/rules/account.md R-ACCOUNT-031): online, the server's counts of lives at home and
+// The two lights' figures (account:two-lights-and-wink-lines): online, the server's counts of lives at home and
 // abroad, the whole game's, rounded to the nearest ten (`GET /api/lights`); with no answer, the city's own people
 // stand in: the residents of every place at home and of every place abroad, as content sizes their crowds
-// (city.md R-CITY-032). Each light glows with its share, and home never goes dark.
+// (city:residents-fill-to-target). Each light glows with its share, and home never goes dark.
 import type { LightsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ export function sharesOf(shown: LightsShown): { homeBp: number; abroadBp: number
 
 /**
  * A picture never moves the page: a login wall met by this read is left to the account's own reads, which reload for it
- * (R-ENGINE-015), and a reply here neither sets nor clears their mark.
+ * (engine:browser-authority-for-dev-only), and a reply here neither sets nor clears their mark.
  */
 const QUIET_WALL: WallGuard = { met: () => false, passed: () => undefined };
 

@@ -27,7 +27,7 @@ const city = content.tuning.city;
 const at = (name: string): [number, number, number][] => stage.models.find((model) => model.file.endsWith(name))?.at ?? [];
 
 describe("the hub's budget", () => {
-  test("[R-ASSET-007] given the hub's shipped files measured as the build check measures them, when its place is counted, then the low mode fits the first-load row and the high mode the exterior row", async () => {
+  test("[assets:assets-and-places-within-budget] given the hub's shipped files measured as the build check measures them, when its place is counted, then the low mode fits the first-load row and the high mode the exterior row", async () => {
     const files = [...new Set([...file.instances.map((instance) => instance.file), ...file.people.sample])];
     const measured = new Map(await Promise.all(files.map(async (path) => [path, await measureFile({ root: ROOT, source: join(ROOT, "assets-src"), public: PUBLIC, dist: "" }, path)] as const)));
     const { totals, missing } = placeTotals(hubFile as unknown as CheckedPlace, measured);
@@ -38,7 +38,7 @@ describe("the hub's budget", () => {
     expect(totals.high.triangles).toBeLessThanOrEqual(budgets.place.exterior.triangles);
   });
 
-  test("[R-ASSET-007] given the hub's file, when its counts are read, then every model's copies are the instances counted, the crowd is the sample the client shows in each mode, and the floor is one draw call", () => {
+  test("[assets:assets-and-places-within-budget] given the hub's file, when its counts are read, then every model's copies are the instances counted, the crowd is the sample the client shows in each mode, and the floor is one draw call", () => {
     expect(file.instances).toEqual(stage.models.map((model) => ({ file: model.file, count: model.at.length })));
     expect(file.people.low).toBe(crowdSize(hub, "low", city));
     expect(file.people.high).toBe(crowdSize(hub, "high", city));
@@ -49,7 +49,7 @@ describe("the hub's budget", () => {
 });
 
 describe("the junction", () => {
-  test("[R-CITY-013] given the hub's stage, when it is read, then the flyover runs across it in two rows of spans the map data's gap apart, pier to pier, with danfos and a keke at the kerb under it and a stall beneath it", () => {
+  test("[city:ojuelegba-is-the-hub] given the hub's stage, when it is read, then the flyover runs across it in two rows of spans the map data's gap apart, pier to pier, with danfos and a keke at the kerb under it and a stall beneath it", () => {
     const spans = at("bld_flyover-span.glb");
     const rows = [...new Set(spans.map(([, z]) => z))].sort((one, two) => one - two);
     expect(rows).toHaveLength(2);
@@ -72,7 +72,7 @@ describe("the junction", () => {
     expect(stage.roads.some((road) => road.colour === "drain")).toBe(true);
   });
 
-  test("[R-CITY-024] given the shop row standing twice, when its copies are lettered, then each copy has its own sign keys and no key shows on two copies", () => {
+  test("[city:place-words-are-text-keys] given the shop row standing twice, when its copies are lettered, then each copy has its own sign keys and no key shows on two copies", () => {
     const row = stage.models.find((model) => model.file.endsWith("bld_shop-row.glb"));
     expect(row?.signs).toHaveLength(row?.at.length ?? 0);
     const keys = (row?.signs ?? []).flat();
@@ -80,7 +80,7 @@ describe("the junction", () => {
     expect(keys.every((key) => /^place\.ojuelegba\.sign\.\d+$/.test(key))).toBe(true);
   });
 
-  test("[R-CITY-014] given the hub's crowd spots, when the high mode's sample stands, then there are spots for all of it, the low mode's first spots are at the loading point and the stall, and two stand on the road edge", () => {
+  test("[city:crowd-sample-capped] given the hub's crowd spots, when the high mode's sample stands, then there are spots for all of it, the low mode's first spots are at the loading point and the stall, and two stand on the road edge", () => {
     const high = crowdSize(hub, "high", city);
     const low = crowdSize(hub, "low", city);
     expect(stage.people.length).toBeGreaterThanOrEqual(high);
@@ -94,7 +94,7 @@ describe("the junction", () => {
     for (const indices of Object.values(stage.prefer ?? {})) for (const index of indices) expect(index).toBeLessThan(high);
   });
 
-  test("[R-CITY-014] given the hub's acts, when the sample stands, then a man calls at the danfo's door, a man sits on a parked okada, and people cross the bay and Ojuelegba Road", () => {
+  test("[city:crowd-sample-capped] given the hub's acts, when the sample stands, then a man calls at the danfo's door, a man sits on a parked okada, and people cross the bay and Ojuelegba Road", () => {
     const acts = stage.acts ?? [];
     const low = crowdSize(hub, "low", city);
     const conductor = acts.find((act) => act.pose === "cheer" || act.pose === "sell");
@@ -117,12 +117,12 @@ describe("the junction", () => {
     for (const act of acts) expect(act.spot).toBeLessThan(crowdSize(hub, "high", city));
   });
 
-  test("[R-CITY-016] given the hub's sample, when its outfits are read, then no one at the bus stop wears a crop top and denim shorts", () => {
+  test("[city:dress-mix-by-place] given the hub's sample, when its outfits are read, then no one at the bus stop wears a crop top and denim shorts", () => {
     expect(file.people.sample).not.toContain("shared/chr/chr_tolani.glb");
     expect(file.people.sample.every((path) => personOf(path) !== null)).toBe(true);
   });
 
-  test("[R-CITY-034] given the phone's first view, when the line from the camera through the player's indicator runs on, then it passes clear of every danfo's roof load", () => {
+  test("[city:players-carry-name-tags] given the phone's first view, when the line from the camera through the player's indicator runs on, then it passes clear of every danfo's roof load", () => {
     const [x, z, heading] = stage.start;
     const { position } = cameraAim({ x, z }, heading, 0, 412 / 915);
     const indicator = [x, 1.98, z] as const;
@@ -139,7 +139,7 @@ describe("the junction", () => {
     }
   });
 
-  test("[R-CITY-013] given the phone's first view, when the near pavement is read, then a parked okada stands between the camera and the player inside the frame, so the lower frame is not bare", () => {
+  test("[city:ojuelegba-is-the-hub] given the phone's first view, when the near pavement is read, then a parked okada stands between the camera and the player inside the frame, so the lower frame is not bare", () => {
     const [x, z, heading] = stage.start;
     const { position } = cameraAim({ x, z }, heading, 0, 412 / 915);
     const near = at("veh_okada.glb").filter(([okadaX, okadaZ]) => {

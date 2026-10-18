@@ -35,13 +35,13 @@ function header(view: PlayerView): number {
 }
 
 describe("one count for months", () => {
-  test("[R-TURN-001] given a new life at month 0, then the header counts it as month 1, and the month whose end is stamped 1 is month 1 too", () => {
+  test("[turn:new-character-full-bank] given a new life at month 0, then the header counts it as month 1, and the month whose end is stamped 1 is month 1 too", () => {
     expect(playerMonth(0)).toBe(1);
     expect(monthEnding(1)).toBe(1);
     expect(monthEnding(1)).toBe(playerMonth(0));
   });
 
-  test("[R-OFFER-005] given an offer that lapses when this month ends, then it says to answer this month, with no month number, and after the month it is gone", async () => {
+  test("[offer:lapsed-offer-removed] given an offer that lapses when this month ends, then it says to answer this month, with no month number, and after the month it is gone", async () => {
     const game = newGame("scenario.ada");
     const offer = openOffer(game, "offer.nepa-bill");
     const view = game.view();
@@ -52,7 +52,7 @@ describe("one count for months", () => {
     expect(game.view().offers.some((open) => open.id === offer.id)).toBe(false);
   });
 
-  test("[R-DOCUMENT-002] given a passport applied for, then the month it is said to be ready is the month whose report brings it", async () => {
+  test("[document:due-document-issued] given a passport applied for, then the month it is said to be ready is the month whose report brings it", async () => {
     const game = newGame("scenario.ada");
     game.endTurn([{ activity: "activity.get-passport", param: null }]);
     const pending = game.view().documents.find((paper) => paper.id === PASSPORT && paper.state === "pending");
@@ -60,7 +60,7 @@ describe("one count for months", () => {
     const view = game.view();
     await openPapers(view);
     const promised = monthEnding(pending.readyMonth);
-    // The phone says it as months away from now (R-WORLD-002): one for each month's end from the header's month to the
+    // The phone says it as months away from now (world:top-band-is-lively-pill): one for each month's end from the header's month to the
     // promised one, so a paper the end of this month brings is ready "next month".
     expect(paperState(PASSPORT)).toBe(say("phone.papers.pending", { when: inMonths(pending.readyMonth, view.month) }));
     expect(promised - header(view) + 1).toBe(pending.readyMonth - view.month);
@@ -76,7 +76,7 @@ describe("one count for months", () => {
     expect(report === null ? null : monthEnding(report.month)).toBe(promised);
   });
 
-  test("[R-DOCUMENT-003] given a held paper, then the month it is valid until is the last month the header shows it counting", async () => {
+  test("[document:expired-document-not-held] given a held paper, then the month it is valid until is the last month the header shows it counting", async () => {
     const view = richView();
     const held = view.documents.find((paper) => paper.state === "held" && paper.expiresMonth !== null);
     if (held === undefined || held.expiresMonth === null) throw new Error("No held paper that runs out.");
@@ -84,17 +84,17 @@ describe("one count for months", () => {
     // It stops counting from the start of the month after `expiresMonth` months played: the header's next number.
     const last = monthEnding(held.expiresMonth);
     expect(playerMonth(held.expiresMonth)).toBe(last + 1);
-    // The phone says it as how long it holds (R-WORLD-002): one for each month's end from the header's month to `last`.
+    // The phone says it as how long it holds (world:top-band-is-lively-pill): one for each month's end from the header's month to `last`.
     expect(paperState(held.id)).toBe(say("phone.papers.valid", { when: forMonths(held.expiresMonth, view.month) }));
     expect(last - header(view) + 1).toBe(held.expiresMonth - view.month);
   });
 
-  test("[R-TURN-008] [R-GOAL-001] given a goal done as a month ended, then it is dated with the month of the report it was done in", async () => {
+  test("[turn:turn-stores-a-report] [goal:goals-open-and-complete] given a goal done as a month ended, then it is dated with the month of the report it was done in", async () => {
     const view = richAbroadView();
     const done = view.goals.done[0];
     if (done === undefined) throw new Error("No goal done in the view.");
     const report = { month: done.month, lines: [], japacityBefore: null, japacityAfter: null, attention: false };
-    // Japa's goals. The world shows no month number (R-WORLD-002), so the date
+    // Japa's goals. The world shows no month number (world:top-band-is-lively-pill), so the date
     // is said as months ago, counted from the report's own month: a goal done as the report's month ended reads as its
     // report does, "this month" when the report is this month's, and so on back.
     await renderWithView(<Japa />, { ...view, report });
@@ -108,7 +108,7 @@ describe("one count for months", () => {
     expect(requirementSentence({ type: "month/min", value })).toBe(say("ui.req.month-min", { value: value + 1 }));
   });
 
-  test("[R-DOCUMENT-001] given a line that names the month something comes, then the month is the one whose end brings it", () => {
+  test("[document:request-starts-pending] given a line that names the month something comes, then the month is the one whose end brings it", () => {
     expect(words("line.document.requested", { document: PASSPORT, month: 5 })).toContain(`month ${String(monthEnding(5))}`);
     expect(content.document[PASSPORT]).toBeDefined();
   });

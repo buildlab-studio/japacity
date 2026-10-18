@@ -1,4 +1,4 @@
-// The send-off's beats as pictures (docs/rules/chapter.md R-CHAPTER-012 (j) and (k)): people at one scale, the lane at
+// The send-off's beats as pictures (chapter:send-off-scene-in-beats (j) and (k)): people at one scale, the lane at
 // the foot clear of every person, bubbles and chips clear of faces, the band's place never cut, each ride inside its
 // own staple with the friend's ping to fit it, and the person at the stop matching the label in every city. The beats
 // are drawn here with their words handed in, as the scene hands them.
@@ -38,7 +38,7 @@ function yourBox(): { left: number; top: number } {
 }
 
 describe("the send-off's beats, laid out", () => {
-  test("[R-CHAPTER-012] given the hall, then the queue's three stand at one size with the character the queue's last, the clerks behind the counters smaller by distance, and each tap moves her up one place to the counter", () => {
+  test("[chapter:send-off-scene-in-beats] given the hall, then the queue's three stand at one size with the character the queue's last, the clerks behind the counters smaller by distance, and each tap moves her up one place to the counter", () => {
     const sizes = new Set(HALL.places.map((place) => place.width));
     expect(sizes.size).toBe(1);
     for (const clerk of HALL.clerks) {
@@ -60,7 +60,7 @@ describe("the send-off's beats, laid out", () => {
     expect(at(3)).toEqual({ left: HALL.places[0].left, top: HALL.places[0].top });
   });
 
-  test("[R-CHAPTER-012] given the hall, the counter and the gate, then every person stands clear of the lane at the foot, and Step forward, Take the stub, Board the plane and Not yet stand in it", () => {
+  test("[chapter:send-off-scene-in-beats] given the hall, the counter and the gate, then every person stands clear of the lane at the foot, and Step forward, Take the stub, Board the plane and Not yet stand in it", () => {
     const people = [...HALL.places, ...Object.values(HALL.family), COUNTER.you, ...Object.values(GATE.family), GATE.you];
     for (const person of people) expect(footOf(person)).toBeLessThanOrEqual(LANE_TOP);
     const css = readFileSync(join(import.meta.dirname, "sendoff.css"), "utf8");
@@ -79,7 +79,7 @@ describe("the send-off's beats, laid out", () => {
     }
   });
 
-  test.each(Object.keys(STOP_PEOPLE))("[R-CHAPTER-012] given the landing in %s, then the character, her bag and the person at the stop stand clear of the lane at the foot, the button stands in it, and the stop's line hangs above her head", (country) => {
+  test.each(Object.keys(STOP_PEOPLE))("[chapter:send-off-scene-in-beats] given the landing in %s, then the character, her bag and the person at the stop stand clear of the lane at the foot, the button stands in it, and the stop's line hangs above her head", (country) => {
     // Get on the bus never stands over the character's feet or her bag.
     for (const person of [LANDING.you, LANDING.stop]) expect(footOf(person)).toBeLessThanOrEqual(LANE_TOP);
     expect(LANDING.bag.top + LANDING.bag.width).toBeLessThanOrEqual(LANE_TOP);
@@ -89,7 +89,7 @@ describe("the send-off's beats, laid out", () => {
     expect(document.querySelector<HTMLElement>("[data-so-beat='landing'] .so-lane")?.style.top).toBe(`${String(LANE_TOP)}px`);
   });
 
-  test("[R-CHAPTER-012] given the counter, then the officer behind it is smaller than the character and his head no higher than hers, and the Window and Aisle chips stand above his head", async () => {
+  test("[chapter:send-off-scene-in-beats] given the counter, then the officer behind it is smaller than the character and his head no higher than hers, and the Window and Aisle chips stand above his head", async () => {
     expect(COUNTER.clerk.width).toBeLessThan(COUNTER.you.width);
     expect(COUNTER.clerk.top).toBeGreaterThanOrEqual(COUNTER.you.top);
     expect(COUNTER.seats.top + COUNTER.seats.height).toBeLessThan(COUNTER.clerk.top);
@@ -100,7 +100,7 @@ describe("the send-off's beats, laid out", () => {
     expect(document.querySelector<HTMLElement>("[data-so-seats]")?.style.top).toBe(`${String(COUNTER.seats.top)}px`);
   });
 
-  test("[R-CHAPTER-012] given the gate, then Papa's bubble hangs above the family's raised hands, its tail over Papa, and clear of the middle figure's head", () => {
+  test("[chapter:send-off-scene-in-beats] given the gate, then Papa's bubble hangs above the family's raised hands, its tail over Papa, and clear of the middle figure's head", () => {
     const foot = 844 - GATE.papa.bottom;
     // The tail reaches nine pixels under the bubble; the raised hands are the top of the cheer picture.
     expect(foot + 9).toBeLessThan(GATE.family.dad.top);
@@ -113,7 +113,7 @@ describe("the send-off's beats, laid out", () => {
     expect(tail + 16).toBeLessThanOrEqual(GATE.papa.width);
   });
 
-  test("[R-CHAPTER-012] given the band on any beat, then its place line is never cut: the place wraps to a second line and no ellipsis is drawn", () => {
+  test("[chapter:send-off-scene-in-beats] given the band on any beat, then its place line is never cut: the place wraps to a second line and no ellipsis is drawn", () => {
     const css = readFileSync(join(import.meta.dirname, "sendoff.css"), "utf8");
     const rule = /\.so-band \.who > span \{([^}]*)\}/.exec(css)?.[1] ?? "";
     expect(rule).not.toBe("");
@@ -121,7 +121,7 @@ describe("the send-off's beats, laid out", () => {
     expect(css).not.toMatch(/\.so-band[^{]*\{[^}]*text-overflow/);
   });
 
-  test.each(["country.uk", "country.canada", "country.uae", "country.italy"] as const)("[R-CHAPTER-012] given the first ride in %s, then the inside is the staple's own, the friend's ping fits it, the pings and the card saved stand clear of the character, and every ping is whole", (country) => {
+  test.each(["country.uk", "country.canada", "country.uae", "country.italy"] as const)("[chapter:send-off-scene-in-beats] given the first ride in %s, then the inside is the staple's own, the friend's ping fits it, the pings and the card saved stand clear of the character, and every ping is whole", (country) => {
     const landing = landingOf(country)!;
     const pings = firstPings("scenario.ada", landing.staple).map((ping) => ({ from: ping.from, words: sendOffWords(ping.key) }));
     render(<Ride dress={dress} landing={landing} place="Rye Lane, London" marker="Rye Lane" pings={pings} saved="Send-off card saved" onRing={none} />);
@@ -143,7 +143,7 @@ describe("the send-off's beats, laid out", () => {
     expect(/\.so-ping \.words \{([^}]*)\}/.exec(css)?.[1]).not.toMatch(/line-clamp|overflow:\s*hidden/);
   });
 
-  test.each(Object.keys(STOP_PEOPLE))("[R-CHAPTER-012] given the landing in %s, then the person at the stop is that city's own look, of the sex the label names, never the character's own", async (country) => {
+  test.each(Object.keys(STOP_PEOPLE))("[chapter:send-off-scene-in-beats] given the landing in %s, then the person at the stop is that city's own look, of the sex the label names, never the character's own", async (country) => {
     const landing = landingOf(country as `country.${string}`)!;
     const people = STOP_PEOPLE[country]!;
     const label = sendOffWords(`sendoff.landing.by.${country}`);

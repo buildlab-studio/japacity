@@ -43,14 +43,14 @@ function run(seconds: number, seed = "place.ojuelegba"): Run {
 const tenMinutes = run(600);
 
 describe("people strolling between spots", () => {
-  test("[R-CITY-036] given the hub's crowd, when strolling begins, then those at spots kept for a role or an act stay and everyone else may stroll", () => {
+  test("[city:players-shown-present-not-tracked] given the hub's crowd, when strolling begins, then those at spots kept for a role or an act stay and everyone else may stroll", () => {
     const { strolls } = tenMinutes;
     expect(strolls.strollers.length).toBeGreaterThan(0);
     for (const stroller of strolls.strollers) expect(kept.has(placed[stroller.slot]?.index ?? -1)).toBe(false);
     for (const index of strolls.open) expect(kept.has(index)).toBe(false);
   });
 
-  test("[R-CITY-036] given ten minutes of the hub's clock, when the crowd strolls, then no two ever hold one spot and no one ever holds a kept spot", () => {
+  test("[city:players-shown-present-not-tracked] given ten minutes of the hub's clock, when the crowd strolls, then no two ever hold one spot and no one ever holds a kept spot", () => {
     for (const frame of tenMinutes.frames) {
       const spots = frame.map((person) => person.spot);
       expect(new Set(spots).size).toBe(spots.length);
@@ -58,7 +58,7 @@ describe("people strolling between spots", () => {
     }
   });
 
-  test("[R-CITY-036] given ten minutes of the hub's clock, when the crowd strolls, then everyone strolls now and then, after first standing at their spot, and idles at each spot at least the shortest idle", () => {
+  test("[city:players-shown-present-not-tracked] given ten minutes of the hub's clock, when the crowd strolls, then everyone strolls now and then, after first standing at their spot, and idles at each spot at least the shortest idle", () => {
     const { frames } = tenMinutes;
     const slots = frames[0]?.map((person) => person.slot) ?? [];
     for (const [column, slot] of slots.entries()) {
@@ -81,7 +81,7 @@ describe("people strolling between spots", () => {
     }
   });
 
-  test("[R-CITY-036] given ten minutes of the hub's clock, when the crowd strolls, then everyone walks at walking pace and never through a model or off the walkable ground", () => {
+  test("[city:players-shown-present-not-tracked] given ten minutes of the hub's clock, when the crowd strolls, then everyone walks at walking pace and never through a model or off the walkable ground", () => {
     const { frames } = tenMinutes;
     for (let frame = 1; frame < frames.length; frame += 1) {
       for (const [column, person] of (frames[frame] ?? []).entries()) {
@@ -93,14 +93,14 @@ describe("people strolling between spots", () => {
     }
   });
 
-  test("[R-CITY-036] given the same place and clock on two screens, when the crowd strolls, then both show the same walk, and another place walks its people another way", () => {
+  test("[city:players-shown-present-not-tracked] given the same place and clock on two screens, when the crowd strolls, then both show the same walk, and another place walks its people another way", () => {
     const again = run(120);
     expect(again.frames).toEqual(tenMinutes.frames.slice(0, again.frames.length));
     const elsewhere = run(120, "place.bode-thomas");
     expect(elsewhere.frames).not.toEqual(again.frames);
   });
 
-  test("[R-CITY-036] given a person arriving at a spot, when they turn to look the way it looks, then they turn the short way and stop there", () => {
+  test("[city:players-shown-present-not-tracked] given a person arriving at a spot, when they turn to look the way it looks, then they turn the short way and stop there", () => {
     expect(turnToward(0, 1, 0.3)).toBeCloseTo(0.3);
     expect(turnToward(3, -3, 0.1)).toBeCloseTo(3.1);
     expect(turnToward(1, 1.1, 0.3)).toBe(1.1);

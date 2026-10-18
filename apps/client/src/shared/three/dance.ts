@@ -1,4 +1,4 @@
-// The party room's two dance loops, written in code by bone name (city.md R-CITY-037; after the
+// The party room's two dance loops, written in code by bone name (city:party-room-sets-the-bar; after the
 // prototype's `twoStep` and `shuffle`): a two-step with a shoulder
 // bounce, and the low legwork shuffle. Each is a pose of the loop's share, read off the one shared
 // clock in the scene's one frame loop; no dancer keeps a clock or a loop of its own.

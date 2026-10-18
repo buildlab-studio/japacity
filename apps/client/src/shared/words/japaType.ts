@@ -1,4 +1,4 @@
-// The japa type (decision 0024; docs/rules/share.md R-SHARE-001, R-SHARE-004): one of six labels read
+// The japa type (decision 0024; share:cards-due-at-set-moments, share:card-contents): one of six labels read
 // from the view when the send-off card is due, never a number and never money as a sum. It changes
 // nothing in the simulation; it is a label for the stub, the type card and the data page.
 import { content, type JapaType } from "@japacity/content";
@@ -31,7 +31,7 @@ function isStudy(id: Id<"activity">): boolean {
   return adds.some((quality) => STUDY_QUALITIES.has(quality)) && !adds.includes("quality.network");
 }
 
-/** The top band of a quality's range, as the screen's band words cut it (quarters, R-TEXT-005). */
+/** The top band of a quality's range, as the screen's band words cut it (quarters, text:bands-not-figures). */
 function inTopBand(quality: Id<"quality">, value: number): boolean {
   const entry = content.quality[quality];
   if (entry === undefined) return false;
@@ -46,7 +46,7 @@ function keptMost(kept: number, months: number): boolean {
 
 /**
  * The risks taken, each counted once (decision 0024: the road's pitch, agents paid, the kiosk). The road
- * is never in the routes view (R-ROAD-001), so its pitch shows only as a return from the road.
+ * is never in the routes view (road:road-route-has-no-figure), so its pitch shows only as a return from the road.
  */
 function risksTaken(view: PlayerView, most: readonly Id<"activity">[]): number {
   const road = view.place.returns.some((back) => back.country === null);

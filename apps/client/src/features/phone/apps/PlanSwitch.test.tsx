@@ -1,4 +1,4 @@
-// A way out's page with the switch (docs/rules/chapter.md R-CHAPTER-009): on another way's page, what making
+// A way out's page with the switch (chapter:chapters-follow-lean-route): on another way's page, what making
 // it the plan does to japacity, Keep mine, and Make this the plan, which looks into it when only heard of
 // and records the choice the chapters follow from the next close.
 import { text } from "@japacity/content";
@@ -48,7 +48,7 @@ function percentOf(game: Game, route: Id<"route">): number {
 }
 
 describe("the switch on another way's page", () => {
-  test("[R-CHAPTER-009] given the nurse on care, when the master's page is read, then the switch says the fall in japacity against care work, with Keep mine and Make this the plan", async () => {
+  test("[chapter:chapters-follow-lean-route] given the nurse on care, when the master's page is read, then the switch says the fall in japacity against care work, with Keep mine and Make this the plan", async () => {
     const game = nurseOnCare();
     const change = percentOf(game, UK) - percentOf(game, CARE);
     expect(change).toBeLessThan(0);
@@ -61,7 +61,7 @@ describe("the switch on another way's page", () => {
     expect(block?.querySelector("[data-plan-make]")?.textContent).toBe("Make this the plan");
   });
 
-  test("[R-CHAPTER-009] given the plan's own page, when it is read, then it says this is your plan and offers no switch", async () => {
+  test("[chapter:chapters-follow-lean-route] given the plan's own page, when it is read, then it says this is your plan and offers no switch", async () => {
     const game = nurseOnCare();
     expect(switchOf(game.view(), CARE)).toBeNull();
     await showPage(game, CARE);
@@ -69,7 +69,7 @@ describe("the switch on another way's page", () => {
     expect(document.querySelector("[data-plan-mine]")?.textContent).toContain(say("route.plan.mine"));
   });
 
-  test("[R-CHAPTER-009] given the switch, when Keep mine is tapped, then the page closes and nothing is sent", async () => {
+  test("[chapter:chapters-follow-lean-route] given the switch, when Keep mine is tapped, then the page closes and nothing is sent", async () => {
     const game = nurseOnCare();
     let closed = 0;
     const { sent } = await showPage(game, UK, () => (closed += 1));
@@ -78,7 +78,7 @@ describe("the switch on another way's page", () => {
     expect(sent).toEqual([]);
   });
 
-  test("[R-CHAPTER-009] [R-ACTIVITY-015] given the master's only heard of, when Make this the plan is tapped, then the lean moves to the master's, its page is read at once, and the page says it is the plan", async () => {
+  test("[chapter:chapters-follow-lean-route] [activity:now-acts-and-month-acts] given the master's only heard of, when Make this the plan is tapped, then the lean moves to the master's, its page is read at once, and the page says it is the plan", async () => {
     const game = nurseOnCare();
     const { store, sent } = await showPage(game, UK);
     await act(async () => {
@@ -86,7 +86,7 @@ describe("the switch on another way's page", () => {
       // The command's reply, then the page planned after it.
       await new Promise((settle) => setTimeout(settle, 0));
     });
-    // R-ACTIVITY-015: the official page is read now, never planned, so its command follows the lean.
+    // activity:now-acts-and-month-acts: the official page is read now, never planned, so its command follows the lean.
     expect(sent.map((command) => command.type)).toEqual(["chapter/lean", "activity/now"]);
     expect(sent.at(-1)).toMatchObject({ activity: LOOK, param: UK });
     expect(game.state.chapter.chosen).toBe(UK);
@@ -98,7 +98,7 @@ describe("the switch on another way's page", () => {
     expect(switchOf(store.getState().view!, CARE)).toEqual({ plan: UK, change: percentOf(game, CARE) - percentOf(game, UK) });
   });
 
-  test("[R-CHAPTER-009] given a way with the same figure as the plan, when its switch is read, then it says the same japacity, not a sign on nought", () => {
+  test("[chapter:chapters-follow-lean-route] given a way with the same figure as the plan, when its switch is read, then it says the same japacity, not a sign on nought", () => {
     const game = nurseOnCare();
     const view = game.view();
     const same = { ...view, plan: { ...view.plan, ways: view.plan.ways.map((way) => ({ ...way, percent: 30 })) } };
@@ -106,7 +106,7 @@ describe("the switch on another way's page", () => {
     expect(say("route.plan.same", { plan: "care work" })).toBe("Instead of care work: the same japacity");
   });
 
-  test("[R-CHAPTER-009] given the switch's words and each way's short name, when they are read, then a person says them: no exclamation mark, no dash", () => {
+  test("[chapter:chapters-follow-lean-route] given the switch's words and each way's short name, when they are read, then a person says them: no exclamation mark, no dash", () => {
     const keys = Object.keys(text).filter((key) => key.startsWith("route.plan.") || key.endsWith(".short") || /^route\.[\w-]+\.file$/.test(key));
     expect(keys.length).toBeGreaterThanOrEqual(15);
     for (const key of keys) expect(text[key]).not.toMatch(/[!\u2013\u2014]/);

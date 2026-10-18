@@ -1,4 +1,4 @@
-// R-CLOCK-019: the new world is fetched at `nextTickAt` plus a random wait of
+// clock:world-fetch-is-jittered: the new world is fetched at `nextTickAt` plus a random wait of
 // up to 60 seconds drawn on the device, so a tick is not one burst of requests.
 import type { RandomBelow } from "./random";
 

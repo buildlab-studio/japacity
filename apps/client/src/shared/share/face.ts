@@ -1,5 +1,5 @@
 // What is on a share card, as words, read from the view's card alone
-// (docs/rules/share.md R-SHARE-004 to R-SHARE-008, R-SHARE-011). The screen's
+// (share:card-contents, share:card-carries-no-money, share:card-never-looks-official, share:card-art-shows-no-face, share:card-shows-only-own-character, share:card-never-stored). The screen's
 // card and the drawn image both read this, so they never say different things.
 import { content, type ShareKind } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
@@ -11,13 +11,13 @@ export type ShareCard = NonNullable<PlayerView["card"]>;
 
 export interface CardFace {
   kind: ShareKind;
-  /** False for the ending: it is shown, never shared (R-SHARE-002). */
+  /** False for the ending: it is shown, never shared (share:no-card-for-harm). */
   shareable: boolean;
   kicker: string;
   title: string;
   /** The chapter a chapter card closes, by name. */
   chapter: string | null;
-  /** The character's first name, never the account's (R-SHARE-008). */
+  /** The character's first name, never the account's (share:card-shows-only-own-character). */
   name: string | null;
   route: string | null;
   percent: number | null;
@@ -27,15 +27,15 @@ export interface CardFace {
   mostLabel: string;
   /**
    * The time played as years and months, and how home sees the character as its band, never a
-   * figure (docs/rules/text.md R-TEXT-005). Null where the moment has no figures to show: the road's two cards.
+   * figure (text:bands-not-figures). Null where the moment has no figures to show: the road's two cards.
    */
   stats: { months: string; standing: string } | null;
   /** The things done most, as words, at most three. */
   most: string[];
   body: string | null;
-  /** The credits for the journalism behind the road, on the real-story card on screen only (R-ROAD-011). */
+  /** The credits for the journalism behind the road, on the real-story card on screen only (road:real-story-card-after-chain). */
   credits: string[];
-  /** The composition drawn behind the words (R-SHARE-007). */
+  /** The composition drawn behind the words (share:card-art-shows-no-face). */
   art: string;
   sender: string;
   address: string;
@@ -80,7 +80,7 @@ export function cardWords(key: string): string {
 
 /**
  * The japacity figure is how ready the move is, so a card for a moment after the flight carries none
- * (R-SHARE-004, "where the moment has them"): the first pay abroad, a status
+ * (share:card-contents, "where the moment has them"): the first pay abroad, a status
  * secured, the December visit, and the landing's chapter or one after it.
  */
 function afterTheFlight(card: ShareCard): boolean {
@@ -97,7 +97,7 @@ function artOf(card: ShareCard): string {
 }
 
 /**
- * The character's name as the band says it (share.md R-SHARE-004), the one source for the card, the
+ * The character's name as the band says it (share:card-contents), the one source for the card, the
  * stub, the image that travels and the send-off scene: the name given at the door, else the first
  * word of the life's own name ("Adaeze"), else the scenario's `share.first-name`. Null with no life.
  */
@@ -141,7 +141,7 @@ function bodyOf(card: ShareCard): string | null {
 }
 
 /**
- * R-ROAD-011 puts the credits on the real-story card, and R-SHARE-006 bars a
+ * road:real-story-card-after-chain puts the credits on the real-story card, and share:card-never-looks-official bars a
  * real institution's name from any card, so the card on screen lists the
  * credits and the image that travels leaves them off.
  */
@@ -180,7 +180,7 @@ export function cardFace(card: ShareCard, scenario: Id<"scenario"> | null): Card
   };
 }
 
-/** The link a shared card travels with: the game's address and the kind, nothing about the player (R-SHARE-010, R-SHARE-011). */
+/** The link a shared card travels with: the game's address and the kind, nothing about the player (share:card-link-has-fixed-preview, share:card-never-stored). */
 export function cardLink(kind: ShareKind): string {
   return `https://${say("share.address")}/?card=${kind}`;
 }

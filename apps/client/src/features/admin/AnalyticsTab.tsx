@@ -1,6 +1,6 @@
-// The dashboard's data (R-ANALYTICS-009 to 011): the daily series and
+// The dashboard's data (analytics:dashboard-shows-fixed-list, analytics:small-counts-shown-as-fewer and analytics:day-one-and-seven-return): the daily series and
 // the sign-up weeks as tables beside the reference lines. A count the server
-// hid under `minShown` shows only as "fewer than" (R-ANALYTICS-010).
+// hid under `minShown` shows only as "fewer than" (analytics:small-counts-shown-as-fewer).
 import { useState } from "react";
 
 import { Button } from "../../shared/ui/Button";

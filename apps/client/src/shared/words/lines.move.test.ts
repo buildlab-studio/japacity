@@ -1,4 +1,4 @@
-// The move to Makoko told once, with its rent (docs/rules/home.md R-HOME-002, world.md R-WORLD-008): never
+// The move to Makoko told once, with its rent (home:move-home-once-a-month, world:month-end-results-sheet): never
 // "Living costs: ₦25,000." for the move and again at the month's end on the results and the Bank, and never News
 // with only "Home is Makoko now."
 import { content } from "@japacity/content";
@@ -23,7 +23,7 @@ function told(lines: readonly ReportLine[]): string[] {
 }
 
 describe("the move to Makoko, told once", () => {
-  test("[R-HOME-002] [R-WORLD-008] given Tunde moves to Makoko from the phone, when the month ends, then the results' money says the move once with its rent, no living costs come again at the month's end, and News says the same line once", () => {
+  test("[home:move-home-once-a-month] [world:month-end-results-sheet] given Tunde moves to Makoko from the phone, when the month ends, then the results' money says the move once with its rent, no living costs come again at the month's end, and News says the same line once", () => {
     const game = newGame("scenario.tunde");
     const mid = game.accept({ type: "home/move", to: MAKOKO }).lines;
     const end = game.endTurn().lines;
@@ -35,7 +35,7 @@ describe("the move to Makoko, told once", () => {
     expect(news.join(" ")).not.toContain("line.obligation");
   });
 
-  test("[R-HOME-002] [R-HOME-004] given a guest's where-next answered makoko, when the month's lines are told, then the rent the answer paid is the move's line", () => {
+  test("[home:move-home-once-a-month] [home:taken-in-after-eviction] given a guest's where-next answered makoko, when the month's lines are told, then the rent the answer paid is the move's line", () => {
     const game = newGame("scenario.tunde");
     applyEffects(game, [{ type: "offer/open", offer: "offer.where-next" }]);
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.where-next");
@@ -44,7 +44,7 @@ describe("the move to Makoko, told once", () => {
     expect(told(mid)).toEqual([`- ${MOVED}`]);
   });
 
-  test("[R-HOME-002] given Tunde in Makoko moving back to the family house, when the lines are told, then the move says only where home is: no money moved", () => {
+  test("[home:move-home-once-a-month] given Tunde in Makoko moving back to the family house, when the lines are told, then the move says only where home is: no money moved", () => {
     const game = newGame("scenario.tunde");
     game.accept({ type: "home/move", to: MAKOKO });
     game.endTurn();

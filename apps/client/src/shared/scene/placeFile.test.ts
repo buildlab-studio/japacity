@@ -1,5 +1,5 @@
-// A place dressed while an offer it stages is open (city.md R-CITY-011), or for the person whose room it is (world.md
-// R-WORLD-020): a dressing names an offer or a person. A small file of its own, so each way of
+// A place dressed while an offer it stages is open (city:set-piece-shown-where-staged), or for the person whose room it is (world.md
+// world:nobody-picked-from-list): a dressing names an offer or a person. A small file of its own, so each way of
 // dressing is read apart from any shipped place.
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -29,7 +29,7 @@ const ROOM: PlaceFile = {
 };
 
 describe("a dressing for the person whose room it is", () => {
-  test("[R-WORLD-020] [R-CITY-011] given a room with a dressing for Tobi, when it opens for his bond, then his props join the room's, his spots replace its own, he stands in it, its things stay, and nobody else: its crowd is none", () => {
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] given a room with a dressing for Tobi, when it opens for his bond, then his props join the room's, his spots replace its own, he stands in it, its things stay, and nobody else: its crowd is none", () => {
     const { file, crowd } = dressPlace(ROOM, [], TOBI);
     const stage = stageOf(file);
     expect(stage.models.map((model) => model.file)).toEqual(["shared/prop/prop_bed.glb", "shared/prop/prop_dining-table.glb"]);
@@ -41,13 +41,13 @@ describe("a dressing for the person whose room it is", () => {
     expect(filesOf(file, [])).toContain(PARTNER.file);
   });
 
-  test("[R-WORLD-020] [R-CITY-011] given the same room, when it opens for nobody's bond or for a person it has no dressing for, then it is the plain room, the same file", () => {
+  test("[world:nobody-picked-from-list] [city:set-piece-shown-where-staged] given the same room, when it opens for nobody's bond or for a person it has no dressing for, then it is the plain room, the same file", () => {
     expect(dressPlace(ROOM, [], null)).toEqual({ file: ROOM, crowd: null });
     expect(dressPlace(ROOM, [], "person.amaka-nurse").file).toBe(ROOM);
     expect(dressPlace(ROOM, [TOBI]).file).toBe(ROOM);
   });
 
-  test("[R-CITY-011] [R-WORLD-020] given an open offer the place stages and a person's dressing, when both could dress it, then the offer's does, with its guests' crowd", () => {
+  test("[city:set-piece-shown-where-staged] [world:nobody-picked-from-list] given an open offer the place stages and a person's dressing, when both could dress it, then the offer's does, with its guests' crowd", () => {
     const { file, crowd } = dressPlace(ROOM, [PARTY], TOBI);
     expect(stageOf(file).models.map((model) => model.file)).toEqual(["shared/prop/prop_bed.glb", "shared/prop/prop_lantern.glb"]);
     expect(stageOf(file).standing).toBeUndefined();

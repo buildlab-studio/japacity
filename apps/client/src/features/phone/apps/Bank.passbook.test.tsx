@@ -1,7 +1,7 @@
-// The Bank as the passbook (docs/rules/wallet.md R-WALLET-021 to R-WALLET-024): its first page is the
+// The Bank as the passbook (wallet:passbook-against-plan-cost, wallet:savings-stamps, wallet:saving-pace and wallet:roads-to-the-target): its first page is the
 // money held for the road against the plan's whole cost, the stamps as stickers, last month in and out as chips, the roads
 // as cards with one tap each and the pace line under the figure, every figure the view's own (PlayerView.passbook).
-// These tests cite the Bank's rule, R-WORLD-019, and the moments' rules for the stamp's card. Played on the real
+// These tests cite the Bank's rule, world:phone-holds-what-phones-hold, and the moments' rules for the stamp's card. Played on the real
 // engine and content.
 import { content, uiPassbookText } from "@japacity/content";
 import type { Effect, PlayerView } from "@japacity/sim";
@@ -42,7 +42,7 @@ function text(selector: string): string {
 }
 
 describe("the Bank's first page, the passbook", () => {
-  test("[R-WALLET-023] [R-WORLD-019] given the nurse a month into her care plan, when the Bank opens, then it leads with what is held against the road's whole cost, the bar and the pace line the view gives, the best road beside it", async () => {
+  test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given the nurse a month into her care plan, when the Bank opens, then it leads with what is held against the road's whole cost, the bar and the pace line the view gives, the best road beside it", async () => {
     const view = nurse().view();
     const book = passbookOf(view);
     expect(book.months).toBeGreaterThan(1);
@@ -61,7 +61,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(order.slice(1).every((element, index) => (order[index]!.compareDocumentPosition(element!) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0)).toBe(true);
   });
 
-  test("[R-WALLET-023] [R-WORLD-019] given no plan, or a plan only heard of, when the Bank opens, then the pace line says what sets the road's cost and no target is drawn", async () => {
+  test("[wallet:saving-pace] [world:phone-holds-what-phones-hold] given no plan, or a plan only heard of, when the Bank opens, then the pace line says what sets the road's cost and no target is drawn", async () => {
     await renderWithView(<Bank />, newGame("scenario.ngozi").view());
     expect(text("[data-pace]")).toBe(say("passbook.pace.no-plan"));
     expect(document.querySelector("[data-passbook-target]")).toBeNull();
@@ -71,7 +71,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(document.querySelectorAll("[data-pace]")[1]?.textContent).toBe(say("passbook.pace.unread", { route: runningName(CARE) }));
   });
 
-  test("[R-WALLET-022] [R-WORLD-019] given the stamps the view carries, when the Bank opens, then each is a round sticker with its short sum, the reached ones filled with their month and the road's own last", async () => {
+  test("[wallet:savings-stamps] [world:phone-holds-what-phones-hold] given the stamps the view carries, when the Bank opens, then each is a round sticker with its short sum, the reached ones filled with their month and the road's own last", async () => {
     const game = nurse();
     viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 50_000_000, reason: "gift" }]);
     game.endTurn();
@@ -86,7 +86,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(stamps[0]?.textContent).toContain(say("passbook.stamp.heard"));
   });
 
-  test("[R-WALLET-021] [R-WORLD-019] given last month's money, when the Bank opens, then it shows as chips, in before out, each the month's total in its money", async () => {
+  test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given last month's money, when the Bank opens, then it shows as chips, in before out, each the month's total in its money", async () => {
     const view = nurse().view();
     await renderWithView(<Bank />, view);
     const money = moneyLines(view.report!.lines);
@@ -99,7 +99,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(chips.map((chip) => chip.textContent)).toEqual([say("passbook.in", { amount: formatMoney(sum(1), "NGN") }), say("passbook.out", { amount: formatMoney(sum(-1), "NGN") })]);
   });
 
-  test("[R-WALLET-024] [R-WORLD-019] given the nurse's roads, when the Bank opens, then each is a card with its state and the view's months, and a job's road opens the Jobs app", async () => {
+  test("[wallet:roads-to-the-target] [world:phone-holds-what-phones-hold] given the nurse's roads, when the Bank opens, then each is a card with its state and the view's months, and a job's road opens the Jobs app", async () => {
     const view = nurse().view();
     const book = passbookOf(view);
     const openApp = vi.fn();
@@ -125,7 +125,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(openApp).toHaveBeenCalledWith("jobs");
   });
 
-  test("[R-WALLET-024] [R-WORLD-019] given Papa's loan as a road, when it is tapped, then the call's card asks Papa; once he offers, its card takes the loan and the money is held", async () => {
+  test("[wallet:roads-to-the-target] [world:phone-holds-what-phones-hold] given Papa's loan as a road, when it is tapped, then the call's card asks Papa; once he offers, its card takes the loan and the money is held", async () => {
     const game = nurse();
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
@@ -150,7 +150,7 @@ describe("the Bank's first page, the passbook", () => {
     await waitFor(() => expect(document.querySelector('[data-road="family"]')?.getAttribute("data-road-state")).toBe("shut"));
   });
 
-  test("[R-WALLET-024] [R-WORLD-019] given a road that waits, when it is tapped, then it shakes and nothing is sent", async () => {
+  test("[wallet:roads-to-the-target] [world:phone-holds-what-phones-hold] given a road that waits, when it is tapped, then it shakes and nothing is sent", async () => {
     const game = nurse();
     const authority = gameAuthority(game);
     const store = createGameStore(authority);
@@ -169,7 +169,7 @@ describe("the Bank's first page, the passbook", () => {
     expect(authority.sent.length).toBe(sent);
   });
 
-  test("[R-WALLET-021] [R-WORLD-019] given the passbook's words on the screen, when they are read, then none says slots, a turn, banked, pages, days left or a percentage", async () => {
+  test("[wallet:passbook-against-plan-cost] [world:phone-holds-what-phones-hold] given the passbook's words on the screen, when they are read, then none says slots, a turn, banked, pages, days left or a percentage", async () => {
     await renderWithView(<Bank />, nurse(2).view());
     const said = [...document.querySelectorAll("[data-passbook], [data-stamps], [data-last-month], [data-roads]")].map((part) => part.textContent ?? "").join(" ");
     expect(said).not.toMatch(/\bslots?\b|\bturns?\b|\bbanked\b|\bpages?\b|days left|%/i);
@@ -178,7 +178,7 @@ describe("the Bank's first page, the passbook", () => {
 });
 
 describe("a stamp as a moment", () => {
-  test("[R-WALLET-022] [R-MOMENT-008] [R-MOMENT-001] given a month whose close reached stamps, when its lines are read, then the highest is the one card, the sum held as its figure", () => {
+  test("[wallet:savings-stamps] [moment:new-moments-join-same-way] [moment:outcomes-that-are-moments] given a month whose close reached stamps, when its lines are read, then the highest is the one card, the sum held as its figure", () => {
     const game = nurse();
     viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 250_000_000, reason: "gift" }]);
     const lines = game.endTurn().lines;
@@ -190,7 +190,7 @@ describe("a stamp as a moment", () => {
     expect(face.figure).toEqual({ value: passbookOf(view).stamps.at(-1)!.at, unit: { kind: "money", currency: "NGN" }, caption: expect.any(String) as string });
   });
 
-  test("[R-WALLET-022] [R-MOMENT-004] [R-MOMENT-005] given a fixed stamp's card, when its words are read, then it names Mama hearing and nothing that reads as a bank alert", () => {
+  test("[wallet:savings-stamps] [moment:card-never-looks-official] [moment:words-in-game-voice] given a fixed stamp's card, when its words are read, then it names Mama hearing and nothing that reads as a bank alert", () => {
     const game = nurse();
     viewAfter(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 40_000_000, reason: "gift" }]);
     const lines = game.endTurn().lines;

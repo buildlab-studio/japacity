@@ -1,4 +1,4 @@
-// The door's second screen, Your life so far (prologue.md R-PROLOGUE-009, 010, 013): each
+// The door's second screen, Your life so far (prologue:front-door-builds-a-person, prologue:archetype-presets-answers, prologue:front-door-three-screens): each
 // life a big sticker card swiped sideways with pager dots, the life's own thing big on it with your face sticker, its
 // tag as a tilted chip, the name, the life in a few words, what it was and its savings; the ways it opens as picture
 // chips under the deck; and the age as a stepper card. A card swiped to the middle is the life picked, as a tap on it is.

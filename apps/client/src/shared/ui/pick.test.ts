@@ -1,4 +1,4 @@
-// The chosen row's own tokens (world.md R-WORLD-021): a list's pick is a role,
+// The chosen row's own tokens (world:colours-are-role-tokens): a list's pick is a role,
 // `--pick`, `--on-pick` and `--pick-mark`, set in both paints, never a colour written in a component.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -14,7 +14,7 @@ function block(selector: string): string {
 }
 
 describe("the pick tokens", () => {
-  test("[R-WORLD-021] given both paints, then each sets the pick, the words on it and the mark on it as role tokens, and Tailwind names them as colours", () => {
+  test("[world:colours-are-role-tokens] given both paints, then each sets the pick, the words on it and the mark on it as role tokens, and Tailwind names them as colours", () => {
     for (const selector of [":root", '[data-paint="night"]']) {
       for (const token of ["--pick", "--on-pick", "--pick-mark"]) expect({ selector, token, set: new RegExp(`${token}:\\s*[^;]+;`).test(block(selector)) }).toEqual({ selector, token, set: true });
     }

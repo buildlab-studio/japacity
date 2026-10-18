@@ -1,4 +1,4 @@
-// The ready lives behind Settings (prologue.md R-PROLOGUE-013): the door never offers them. Settings' "Start from a
+// The ready lives behind Settings (prologue:front-door-three-screens): the door never offers them. Settings' "Start from a
 // ready life" asks the next door to open on their list, once, and a test asks the same way.
 import { browserStorage, READY_ASK_KEY } from "../kept/storage";
 

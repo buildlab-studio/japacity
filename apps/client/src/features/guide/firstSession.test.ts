@@ -24,7 +24,7 @@ function everyFirstSession(): FirstSession[] {
 }
 
 describe("the first session", () => {
-  test("[R-GUIDE-014] given every starting life, when its first three months are played as the next step suggests, then each has an early win by the third", () => {
+  test("[guide:early-win-in-three-turns] given every starting life, when its first three months are played as the next step suggests, then each has an early win by the third", () => {
     expect(FIRST_SESSION_MONTHS).toBe(3);
     const sessions = everyFirstSession();
     const scenarios = new Set(sessions.map((session) => session.life.scenario));
@@ -38,7 +38,7 @@ describe("the first session", () => {
     for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_MONTHS);
   }, 120000);
 
-  test("[R-GUIDE-014] [R-TEXT-007] given a life whose months are all left to rest, when its first three are played, then a route heard on the radio says the radio as its source and is not an early win", () => {
+  test("[guide:early-win-in-three-turns] [text:voice-by-surface] given a life whose months are all left to rest, when its first three are played, then a route heard on the radio says the radio as its source and is not an early win", () => {
     const session = playFirstSession({ name: "resting", scenario: "scenario.ada", answers: {} }, content, { nextStep: () => [] });
     const heard = session.months.flatMap((month) => month.lines).filter((found) => found.key === "line.route.heard");
     expect(heard.length).toBeGreaterThan(0);
@@ -46,13 +46,13 @@ describe("the first session", () => {
     expect(session.earlyWin).toBeNull();
   });
 
-  test("[R-GUIDE-014] given a new life at home, when the next step is read, then it works toward the chapter's first unmet items", () => {
+  test("[guide:early-win-in-three-turns] given a new life at home, when the next step is read, then it works toward the chapter's first unmet items", () => {
     const session = playFirstSession({ name: "ada", scenario: "scenario.ada", answers: {} }, content, { nextStep: chapterNextStep });
     expect(session.months[0]?.slots.map((slot) => slot.activity)).toEqual(["activity.job-hunt", "activity.meetup"]);
     expect(chapterNextStep).toBeTypeOf("function");
   });
 
-  test("[R-GUIDE-014] given report lines, when the early win is looked for, then only a good line from pay, a chapter or goal, or a route heard by a choice counts", () => {
+  test("[guide:early-win-in-three-turns] given report lines, when the early win is looked for, then only a good line from pay, a chapter or goal, or a route heard by a choice counts", () => {
     expect(isEarlyWin(line("line.activity.salary"), [])).toBe(true);
     expect(isEarlyWin(line("line.activity.gig"), [])).toBe(true);
     expect(isEarlyWin(line("line.chapter.closed"), [])).toBe(true);

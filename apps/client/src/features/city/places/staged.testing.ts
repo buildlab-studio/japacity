@@ -21,7 +21,7 @@ const PLACES = Object.values(content.place);
 export function stagedPlaceTests(raw: unknown, id: Id<"place">): void {
   const { file, stage, entry } = staged(raw, id);
 
-  test(`[R-ASSET-007] given ${id}'s shipped files measured as the build check measures them, when its place is counted, then both modes fit the exterior row`, async () => {
+  test(`[assets:assets-and-places-within-budget] given ${id}'s shipped files measured as the build check measures them, when its place is counted, then both modes fit the exterior row`, async () => {
     const { totals, missing } = placeTotals(raw as CheckedPlace, await measuredFiles(file));
     expect(missing).toEqual([]);
     for (const mode of ["low", "high"] as const) {
@@ -31,7 +31,7 @@ export function stagedPlaceTests(raw: unknown, id: Id<"place">): void {
     expect(totals.bytes).toBeLessThanOrEqual(budgets.place.exterior.bytes);
   });
 
-  test(`[R-ASSET-007] given ${id}'s file, when its counts are read, then every model's copies are the instances counted, the crowd is the sample each mode shows, the floor is one draw call and every colour is a palette name`, () => {
+  test(`[assets:assets-and-places-within-budget] given ${id}'s file, when its counts are read, then every model's copies are the instances counted, the crowd is the sample each mode shows, the floor is one draw call and every colour is a palette name`, () => {
     expect(file.scope).toBe(entry.scope);
     expect(file.instances).toEqual(stage.models.map((model) => ({ file: model.file, count: model.at.length })));
     expect(file.people.low).toBe(crowdSize(entry, "low", city));
@@ -43,7 +43,7 @@ export function stagedPlaceTests(raw: unknown, id: Id<"place">): void {
     expect([...file.instances.map((instance) => instance.file), ...file.people.sample].filter((path) => !rows.has(path))).toEqual([]);
   });
 
-  test(`[R-CITY-014] given ${id}'s crowd spots, when the high mode's sample stands, then there is a spot for everyone, no spot is kept past it, no one stands where the player starts, and every person in the pool is a person of the city`, () => {
+  test(`[city:crowd-sample-capped] given ${id}'s crowd spots, when the high mode's sample stands, then there is a spot for everyone, no spot is kept past it, no one stands where the player starts, and every person in the pool is a person of the city`, () => {
     const high = crowdSize(entry, "high", city);
     expect(stage.people.length).toBeGreaterThanOrEqual(high);
     for (const indices of Object.values(stage.prefer ?? {})) for (const index of indices) expect(index).toBeLessThan(high);
@@ -53,7 +53,7 @@ export function stagedPlaceTests(raw: unknown, id: Id<"place">): void {
     expect(file.people.sample.length).toBeGreaterThan(high);
   });
 
-  test(`[R-CITY-024] given ${id}'s buildings standing more than once, when their copies are lettered, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
+  test(`[city:place-words-are-text-keys] given ${id}'s buildings standing more than once, when their copies are lettered, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
     const sizes = await measuredFiles(file);
     const keys: string[] = [];
     for (const model of stage.models.filter((candidate) => candidate.signs !== undefined)) {
@@ -67,7 +67,7 @@ export function stagedPlaceTests(raw: unknown, id: Id<"place">): void {
     expect(keys.filter((key) => !key.startsWith(`${id}.sign.`) || (text[key] ?? "").trim() === "")).toEqual([]);
   });
 
-  test(`[R-CITY-011] given what ${id} stages, when the city looks for where each id is shown at home, then it is shown here`, () => {
+  test(`[city:set-piece-shown-where-staged] given what ${id} stages, when the city looks for where each id is shown at home, then it is shown here`, () => {
     for (const staged of entry.stages) expect(stagedAt(staged, { where: "home", country: null }, PLACES)).toBe(id);
   });
 }

@@ -1,4 +1,4 @@
-// The front door in three screens with everything chosen (prologue.md R-PROLOGUE-009, 013), in its lively dress:
+// The front door in three screens with everything chosen (prologue:front-door-builds-a-person, prologue:front-door-three-screens), in its lively dress:
 // You (a name filled from the pool for the look's sex, a dice, the look strip as face stickers), Your life so far (the
 // lives as cards, the first chosen, with the age under them) and Where you live (the homes as postcards, with the strip
 // of who you are so far at the top, the look as its face), then Begin; the page prints after Begin. Next, Next, Begin
@@ -51,7 +51,7 @@ const board = (): string => document.querySelector("[data-door-board]")?.textCon
 const lookButton = (id: string): HTMLElement => document.querySelector<HTMLElement>(`[role="radio"][data-look="${id}"]`)!;
 
 describe("the run through the front door", () => {
-  test("[R-PROLOGUE-013] given a new player who changes nothing, when they press Next, Next and Begin, then the first screen has a name from the pool for the look's sex and the look strip, the second the first tile chosen with the age under it, the page prints them all, and Begin starts that tile's life", async () => {
+  test("[prologue:front-door-three-screens] given a new player who changes nothing, when they press Next, Next and Begin, then the first screen has a name from the pool for the look's sex and the look strip, the second the first tile chosen with the age under it, the page prints them all, and Begin starts that tile's life", async () => {
     const store = door();
     expect(stage()).toBe("you");
     const look = lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!;
@@ -77,7 +77,7 @@ describe("the run through the front door", () => {
     expect(board()).toContain(say(`prologue.archetype.${first.id}.name`));
     expect(board()).toContain(say("prologue.page.age.years", { years: startYearFor(first, 0) }));
     expect(document.querySelector("[data-door-board] [data-face-sticker]")?.getAttribute("data-face-sticker")).toBe(look.id);
-    // Nothing is printed before it is true: the page prints after Begin (R-PROLOGUE-014).
+    // Nothing is printed before it is true: the page prints after Begin (prologue:printed-page-hands-over).
     expect(document.querySelector("[data-page]")).toBeNull();
     // Nothing is begun before Begin: the person is kept only then.
     expect(readPerson()).toBeNull();
@@ -87,7 +87,7 @@ describe("the run through the front door", () => {
     expect(readPerson()).toEqual({ look: look.id, name: filled, archetype: first.id });
   });
 
-  test("[R-PROLOGUE-013] given the first screen, when a look of the other sex is tapped, the dice rolled or a name typed, then a filled name follows the look's sex, the dice gives another from the pool, typing keeps the name through a new look, and a name that fails the checks is refused in words", () => {
+  test("[prologue:front-door-three-screens] given the first screen, when a look of the other sex is tapped, the dice rolled or a name typed, then a filled name follows the look's sex, the dice gives another from the pool, typing keeps the name through a new look, and a name that fails the checks is refused in words", () => {
     door();
     const sexOf = (): "f" | "m" => lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))!.sex;
     const mine = sexOf();
@@ -126,7 +126,7 @@ describe("the run through the front door", () => {
     expect(stage()).toBe("life");
   });
 
-  test("[R-PROLOGUE-013] given the first two screens, then Skip goes straight to Where you live with everything chosen, and Shuffle picks a look, a filled name and a tile; Where you live has neither", () => {
+  test("[prologue:front-door-three-screens] given the first two screens, then Skip goes straight to Where you live with everything chosen, and Shuffle picks a look, a filled name and a tile; Where you live has neither", () => {
     door();
     fireEvent.click(screen.getByRole("button", { name: say("ui.door.skip") }));
     expect(stage()).toBe("page");
@@ -156,7 +156,7 @@ describe("the run through the front door", () => {
     expect(seen.names.size).toBeGreaterThan(5);
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given a reload at any screen, then the door comes back to that screen with what was answered", () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a reload at any screen, then the door comes back to that screen with what was answered", () => {
     door();
     fireEvent.click(lookButton("chr_femi"));
     fireEvent.change(nameBox(), { target: { value: "Emeka" } });
@@ -183,7 +183,7 @@ describe("the run through the front door", () => {
     expect(localStorage.getItem(DOOR_KEY)).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to Where you live, and Begin starts that life, stamping nothing, with its own age printed", async () => {
+  test("[prologue:front-door-three-screens] given the door, then no ready life is on it; given a run Settings asked for, then it opens on the ready lives, the name a screen back, a pick goes to Where you live, and Begin starts that life, stamping nothing, with its own age printed", async () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     expect(document.querySelector("[data-ready], [data-ready-life]")).toBeNull();
@@ -207,7 +207,7 @@ describe("the run through the front door", () => {
     expect(board()).toContain(say("prologue.page.age.years", { years: yearsOf(readyMonths("scenario.tunde")) }));
     expect(yearsOf(readyMonths("scenario.tunde"))).toBe(28);
     fireEvent.click(next(say("ui.door.begin")));
-    // Begin stamps nothing: the page takes no stamp before a visa (R-PROLOGUE-014).
+    // Begin stamps nothing: the page takes no stamp before a visa (prologue:printed-page-hands-over).
     expect(document.querySelector("[data-stamp]")).toBeNull();
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.tunde"), { timeout: 4000 });
     expect(readPerson()?.name).toBe("Bayo");
@@ -216,7 +216,7 @@ describe("the run through the front door", () => {
 
   // Nothing such as "Funmi, The developer · 23 years old" stands over the ready lives before a pick, and a ready life's
   // page strip names its district, never "<<28Y<<<" alone.
-  test("[R-PROLOGUE-013] [R-PROLOGUE-009] given a run Settings asked for, then the ready lives name nothing beside the name before a pick, and a ready life's Where you live names its home and district, as a tile's does", () => {
+  test("[prologue:front-door-three-screens] [prologue:front-door-builds-a-person] given a run Settings asked for, then the ready lives name nothing beside the name before a pick, and a ready life's Where you live names its home and district, as a tile's does", () => {
     askReadyLives();
     door();
     expect(stage()).toBe("ready");
@@ -237,7 +237,7 @@ describe("the run through the front door", () => {
     expect(board()).toMatch(/28 yrs/);
   });
 
-  test("[R-PROLOGUE-013] given a screen past the first, then a back button returns to the screen before with its answers kept", () => {
+  test("[prologue:front-door-three-screens] given a screen past the first, then a back button returns to the screen before with its answers kept", () => {
     door();
     fireEvent.change(nameBox(), { target: { value: "Kemi" } });
     fireEvent.click(next(say("ui.door.next")));
@@ -253,7 +253,7 @@ describe("the run through the front door", () => {
     expect(screen.queryByRole("button", { name: say("ui.door.back") })).toBeNull();
   });
 
-  test("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, names Canada's age points only for a tile whose ways out count them, and Where you live says it as the page prints it", () => {
+  test("[prologue:age-advances-with-steps] [prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given a tile, then the age under it is never typed: it starts at the year its path reaches, steps a year at a time up to three older inside 18 to 29, says what each step does, names Canada's age points only for a tile whose ways out count them, and Where you live says it as the page prints it", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.shop-worker.name") }));
@@ -294,7 +294,7 @@ describe("the run through the front door", () => {
     expect(board()).toContain(say("prologue.page.age.years", { years: lowest + Math.max(...open) }));
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] given the door's screens, then you stand whole on a photo card as a sticker with your name stuck on it, never on a turntable, the lives carry your face, Where you live heads itself with it, and no scene is drawn behind any of them", () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given the door's screens, then you stand whole on a photo card as a sticker with your name stuck on it, never on a turntable, the lives carry your face, Where you live heads itself with it, and no scene is drawn behind any of them", () => {
     door();
     const name = nameBox().value;
     const look = document.querySelector("[data-gate]")?.getAttribute("data-look") ?? "";
@@ -305,7 +305,7 @@ describe("the run through the front door", () => {
     for (const gone of ["canvas", "[data-turntable]", "[data-front-scene]", "[data-backdrop]", "[data-scrim]", "[data-stand-drag]"]) expect({ gone, there: document.querySelector(gone) !== null }).toEqual({ gone, there: false });
     expect(screen.queryByText(say("prologue.door.drag"))).toBeNull();
     // The question is the screen's one heading. Offline the screen opens with the start screen's hook and three steps
-    // under it, a line and not a second heading, and no sentence about the game (R-TEXT-006).
+    // under it, a line and not a second heading, and no sentence about the game (text:hook-not-explanation).
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(say("ui.life.title"));
     expect(document.querySelector("[data-door-intro] p[data-start-hook]")).not.toBeNull();
     expect(document.querySelector("[data-door-intro] [data-start-steps]")).not.toBeNull();
@@ -320,9 +320,9 @@ describe("the run through the front door", () => {
     expect(document.querySelector("canvas, [data-front-scene]")).toBeNull();
   });
 
-  test("[R-PROLOGUE-013] given each tile, then Where you live after the age offers a room of your own in Ojuelegba, a hostel room in Yaba and the family house in Surulere, in that order, for every tile, a room on the water in Makoko for the child of the water alone, each with the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; the one picked in front as a postcard naming it and its place, with its line and its costs a month under it; the right one chosen for the tile; then the self-contain, always on the row, locked as the goal with its figure, saying \"reached\" beside the lock for a tile whose savings already reach it and never leaving; a home picked is kept through another tile while it can be paid", () => {
+  test("[prologue:front-door-three-screens] given each tile, then Where you live after the age offers a room of your own in Ojuelegba, a hostel room in Yaba and the family house in Surulere, in that order, for every tile, a room on the water in Makoko for the child of the water alone, each with the money the life starts with after moving in, as the band will show it, \"about\" where it is drawn, or for the room the figure still needed; the one picked in front as a postcard naming it and its place, with its line and its costs a month under it; the right one chosen for the tile; then the self-contain, always on the row, locked as the goal with its figure, saying \"reached\" beside the lock for a tile whose savings already reach it and never leaving; a home picked is kept through another tile while it can be paid", () => {
     const monthly = { "family-house": 9500000, "compound-room": 5000000, "hostel-room": 0, makoko: 2500000 } as const;
-    // The room takes its year and the fees at once (R-HOME-010): ₦350,000 and a fifth of it; the hostel nothing, as Makoko.
+    // The room takes its year and the fees at once (home:compound-room-is-a-home): ₦350,000 and a fifth of it; the hostel nothing, as Makoko.
     const now = { "family-house": 0, "compound-room": 42000000, "hostel-room": 0, makoko: 0 } as const;
     const rent = { "family-house": 0, "compound-room": content.tuning.home.compound.rentYear, "hostel-room": content.tuning.home.hostelRentKobo, makoko: 0 } as const;
     const costsOf = (id: keyof typeof monthly): string => say(`ui.door.home.costs.${id}`, { amount: formatMoney(monthly[id], "NGN"), rent: formatMoney(rent[id], "NGN"), movein: formatMoney(now[id], "NGN") });
@@ -369,7 +369,7 @@ describe("the run through the front door", () => {
         expect(home.getAttribute("aria-description")).toBe(say(open ? "ui.door.home.said.start" : "ui.door.home.said.needed", { amount: open ? figure : formatMoney(-left, "NGN"), monthly: formatMoney(monthly[id], "NGN") }));
         if (!open) continue;
         // Picked, it stands in front: its name and place on the postcard, its line in its own words and its costs with
-        // the room's move-in, as chips (R-PROLOGUE-013).
+        // the room's move-in, as chips (prologue:front-door-three-screens).
         fireEvent.click(home);
         expect(row.querySelector("[data-home-stack] [data-front] [data-home-name]")?.textContent).toBe(`${say(`ui.door.home.${id}`)} · ${say(`ui.door.home.where.${id}`)}`);
         expect(row.querySelector(`[data-home-detail='${id}'] [data-home-line]`)?.textContent).toBe(say(`ui.door.home.line.${id}`));
@@ -425,13 +425,13 @@ describe("the run through the front door", () => {
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "trader", home: "compound-room", homePicked: true });
   });
 
-  test("[R-PROLOGUE-013] given the writer, whose savings at her own age cover the room's year, its fees and a month of living with a little to spare, then the room is open with what she starts with over \"to start\", a year older starts with more, and the pick holds when she steps back to her own age", () => {
+  test("[prologue:front-door-three-screens] given the writer, whose savings at her own age cover the room's year, its fees and a month of living with a little to spare, then the room is open with what she starts with over \"to start\", a year older starts with more, and the pick holds when she steps back to her own age", () => {
     door();
     fireEvent.click(next(say("ui.door.next")));
     fireEvent.click(screen.getByRole("radio", { name: say("prologue.archetype.writer.name") }));
     fireEvent.click(next(say("ui.door.next")));
     const writer = archetypeOf("writer")!;
-    // The year and the fees (R-HOME-010) and the first month of living in the room, from the tile's savings.
+    // The year and the fees (home:compound-room-is-a-home) and the first month of living in the room, from the tile's savings.
     const left = savingsOf(writer) - (42000000 + 5000000);
     expect(left).toBeGreaterThan(0);
     const room = () => document.querySelector<HTMLButtonElement>("[data-home='compound-room']")!;
@@ -453,7 +453,7 @@ describe("the run through the front door", () => {
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).toMatchObject({ archetype: "writer", home: "compound-room", homePicked: true });
   });
 
-  test("[R-PROLOGUE-013] given a tile whose savings cannot cover the family house, then that home says the shortfall over \"short\" with a lock and cannot be picked, the room says what is still needed, and the home goes to the one the life can pay for", () => {
+  test("[prologue:front-door-three-screens] given a tile whose savings cannot cover the family house, then that home says the shortfall over \"short\" with a lock and cannot be picked, the room says what is still needed, and the home goes to the one the life can pay for", () => {
     // Makoko is the child of the water's alone, so her tile carries the case.
     const key = "prologue.archetype.water.savings";
     const kept = text[key];

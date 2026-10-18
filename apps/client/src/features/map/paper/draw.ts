@@ -1,4 +1,4 @@
-// The painted map's lines as SVG path data (docs/rules/world.md R-WORLD-015), built once from the drawing and the
+// The painted map's lines as SVG path data (world:map-is-painted-lagos), built once from the drawing and the
 // seeded layout and shared by every view of the map: the strip, the cards and the open map draw the same strings at
 // their own zoom. A few long paths rather than thousands of elements, so a card swipes and the map unfolds smoothly.
 import { content } from "@japacity/content";
@@ -19,7 +19,7 @@ export function groundOf(): Ground {
   const names: Clear[] = LABELS.map((label) => [label.at[0], label.at[1] - 3, Math.round((label.size * label.key.length) / 9) + 4]);
   const landmarks: Clear[] = Object.values(LANDMARKS).map(([x, y]) => [x, y, 16]);
   const decor: Clear[] = DECOR.map((item) => [item.at[0], item.at[1], Math.round(item.size / 2) + 2]);
-  // R-WORLD-036: no wave is drawn over the lantern canoe.
+  // world:lantern-canoe-on-map: no wave is drawn over the lantern canoe.
   const canoe: Clear = [LANTERN_CANOE.at[0], LANTERN_CANOE.at[1], LANTERN_CANOE_CLEAR];
   return {
     land: Object.values(LAND),
@@ -140,7 +140,7 @@ function cellsOf(scattered: Scattered): Cell[] {
 }
 
 /**
- * What a painted city's drawing is made from (world.md R-WORLD-015, R-WORLD-038): its land, its beach, its roads and
+ * What a painted city's drawing is made from (world:map-is-painted-lagos, world:painted-maps-abroad): its land, its beach, its roads and
  * bridges, its railways, the ferry's line and the bridge's name where it has them, its palms, and the ground its grain
  * is scattered over. An empty line draws nothing.
  */

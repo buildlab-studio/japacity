@@ -1,7 +1,7 @@
 // One bond: its stage, who it is with and how they are marked, what is known
 // of them, the proposals both ways, the joint and
 // its consents, the stand-in, and ending it with its cost said first
-// (docs/rules/person.md R-PEOPLE-013 to 018, 021, 035 to 045, 051). Dressed as the lively layer's cards (design page 13
+// (person:courting-opens-a-bond, person:time-together-is-an-act, person:talking-adds-moments, person:proposing-a-step, person:agreed-partner-and-marriage, person:one-partner-at-a-time, person:joint-application-proposed, person:either-side-ends-a-bond, person:joint-collapses-with-bond, person:ender-pays-in-standing, person:one-left-keeps-own-gains, person:ended-bond-record-kept, person:leaving-player-ends-bonds, person:gossip-when-two-timing, person:computer-partner-drifts, person:stand-in-after-absence, person:stand-in-acts-narrowly, person:computers-need-no-stand-in, person:view-shows-people). Dressed as the lively layer's cards (design page 13
 // section 2): the person's face sticker over what is known of them, the mark and the facts as sticker chips, white cards
 // for what waits, the pressed yellow button for the one action and ghost buttons for the rest.
 import { content } from "@japacity/content";
@@ -23,7 +23,7 @@ import { inMonths, nameOf, runningName, say, sayCount } from "../../shared/words
 
 const MONTHS_PER_YEAR = 12;
 
-/** The quiet mark beside a name: who the other side is (R-PEOPLE-051, R-PEOPLE-054), as a small sticker chip. */
+/** The quiet mark beside a name: who the other side is (person:view-shows-people, person:computer-mark-is-quiet), as a small sticker chip. */
 export function Mark({ label }: { label: BondView["label"] }) {
   return (
     <span title={label === "computer" ? say("ui.people.mark.computer.long") : undefined} data-mark-label={label}>
@@ -174,12 +174,12 @@ function JointForm({ bond, onSent }: { bond: BondView; onSent: (lines: ReportLin
   );
 }
 
-/** Moments still needed before the partner step may be asked (R-PEOPLE-016). */
+/** Moments still needed before the partner step may be asked (person:proposing-a-step). */
 export function momentsLeft(bond: BondView): number {
   return Math.max(0, content.tuning.people.partnerMoments - (bond.moments?.length ?? 0));
 }
 
-/** The month a declined question may be asked again, while it is still ahead (R-PEOPLE-016, decision 0002). */
+/** The month a declined question may be asked again, while it is still ahead (person:proposing-a-step, decision 0002). */
 function coolingUntil(view: PlayerView, bond: BondView): number | null {
   return bond.cooldownUntil !== null && view.month < bond.cooldownUntil ? bond.cooldownUntil : null;
 }
@@ -243,7 +243,7 @@ export function Proposals({ bond, onSent }: { bond: BondView; onSent: (lines: Re
   );
 }
 
-/** The joint resting on this bond, its scores, and what it may count of this life (R-PEOPLE-004, R-PEOPLE-030, R-PEOPLE-044). */
+/** The joint resting on this bond, its scores, and what it may count of this life (person:money-counted-never-moved, person:canada-spouse-points, person:stand-in-acts-narrowly). */
 export function Joint({ bond }: { bond: BondView }) {
   const { people } = useView();
   const send = useGame((state) => state.send);
@@ -302,7 +302,7 @@ function Segment({ options, busy }: { options: readonly { on: boolean; words: st
   );
 }
 
-/** Ending the bond, its cost said first; `asked` opens on the cost, for a row that already said "End it" (R-WORLD-006). */
+/** Ending the bond, its cost said first; `asked` opens on the cost, for a row that already said "End it" (world:one-action-one-sheet). */
 export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: boolean; onKeep?: () => void }) {
   const view = useView();
   const send = useGame((state) => state.send);
@@ -343,7 +343,7 @@ export function End({ bond, asked = false, onKeep }: { bond: BondView; asked?: b
   );
 }
 
-/** The warnings that stand on a bond: the stand-in, gossip while partnered, a computer drifting (R-PEOPLE-041 to 043). */
+/** The warnings that stand on a bond: the stand-in, gossip while partnered, a computer drifting (person:gossip-when-two-timing, person:computer-partner-drifts and person:stand-in-after-absence). */
 export function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
   const warnings: string[] = [];
   if (bond.standIn !== null) warnings.push(say(`ui.people.stand-in.${bond.standIn}`, { piece: interviewName() }));
@@ -373,7 +373,7 @@ export function Warnings({ bond, view }: { bond: BondView; view: PlayerView }) {
 
 const DECLINED = "line.people.declined";
 
-/** What the last proposal did, with the cooldown said when they said no (R-PEOPLE-016). */
+/** What the last proposal did, with the cooldown said when they said no (person:proposing-a-step). */
 export function Answered({ lines }: { lines: ReportLine[] }) {
   if (lines.length === 0) return null;
   const declined = lines.some((line) => line.key === DECLINED);

@@ -1,4 +1,4 @@
-// The street kiosk online (docs/rules/lottery.md R-LOTTERY-001; world.md R-WORLD-005, R-WORLD-006): while the world
+// The street kiosk online (lottery:draw-runs-online-only; world:things-are-tappable-models, world:one-action-one-sheet): while the world
 // runs the Friday draw, a tap on the kiosk in the world opens this sheet in place of the offline slip. Its face holds
 // the jackpot standing and whether it rolled over, the close counting down, the price and the cap, the tickets held,
 // how many to buy, and one button that says the act and sends `lottery/buy`. The odds, the draw's seal and the last
@@ -19,7 +19,7 @@ import { DrawPage } from "./DrawPage";
 import { LastDraw } from "./LastDraw";
 import { Close, Count, Grows, Held, Jackpot, Odds, SealDetails, useClock } from "./LotteryView";
 
-/** A row that says its name and one figure on a line that never wraps; what else there is folds behind a tap on it (R-WORLD-006). */
+/** A row that says its name and one figure on a line that never wraps; what else there is folds behind a tap on it (world:one-action-one-sheet). */
 function Fold({ mark, name, figure, children }: { mark: string; name: string; figure: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
@@ -34,14 +34,14 @@ function Fold({ mark, name, figure, children }: { mark: string; name: string; fi
   );
 }
 
-/** The odds row's figure: the jackpot's chance, the first of the chances the kiosk says (R-LOTTERY-023). */
+/** The odds row's figure: the jackpot's chance, the first of the chances the kiosk says (lottery:screen-states-odds-plainly). */
 function oddsFigure(lottery: Lottery): string {
   const jackpot = chancesOf(lottery.odds, lottery.jackpot).find((chance) => chance.tier === "jackpot");
   if (jackpot === undefined) return "";
   return say(jackpot.exact ? "ui.lottery.kiosk.row.odds-figure" : "ui.lottery.kiosk.row.odds-figure-about", { every: jackpot.every });
 }
 
-/** The last draw, and its public check worked out on the device under it once asked for (R-LOTTERY-015). */
+/** The last draw, and its public check worked out on the device under it once asked for (lottery:result-published-in-tick-row). */
 function Last({ lottery, load }: { lottery: Lottery; load: LoadDraw | null }) {
   const [checking, setChecking] = useState(false);
   const last = lottery.last;
@@ -54,7 +54,7 @@ function Last({ lottery, load }: { lottery: Lottery; load: LoadDraw | null }) {
   );
 }
 
-/** Why the button is shut, said once on the sheet (R-WORLD-006): sales closed, or the most tickets a draw allows held. */
+/** Why the button is shut, said once on the sheet (world:one-action-one-sheet): sales closed, or the most tickets a draw allows held. */
 function shutBy(lottery: Lottery, closed: boolean): string | null {
   if (closed) return say("ui.lottery.closed-buy");
   if (lottery.tickets >= lottery.maxTickets) return say("ui.lottery.full");
@@ -82,9 +82,9 @@ export function KioskSheet({ open, onClose, label, load }: KioskSheetProps) {
   if (lottery === null) return null;
 
   const bank = pockets.NGN.bank;
-  // The band's naira, bank and cash together, before and after the tickets (R-WORLD-006); the tickets come out of the bank.
+  // The band's naira, bank and cash together, before and after the tickets (world:one-action-one-sheet); the tickets come out of the bank.
   const held = pockets.NGN.bank + pockets.NGN.cash;
-  // R-WALLET-020, R-LOTTERY-018: tickets are paid from the bank, and only from naira earned in the game.
+  // wallet:top-ups-are-marked, lottery:tickets-bought-with-earned-naira: tickets are paid from the bank, and only from naira earned in the game.
   const most = canBuy(lottery, Math.min(bank, earnedNaira(view)));
   const count = Math.min(Math.max(1, wanted), Math.max(1, most));
   const cost = count * lottery.ticket;
@@ -104,7 +104,7 @@ export function KioskSheet({ open, onClose, label, load }: KioskSheetProps) {
       </button>
     ) : (
       <>
-        {/* R-WORLD-006: the button says the act and its price; under it the balance before, struck, and after. Short, it says how much. */}
+        {/* world:one-action-one-sheet: the button says the act and its price; under it the balance before, struck, and after. Short, it says how much. */}
         <button type="button" className="btn-main" style={short === null ? CENTRED : undefined} onClick={buy} disabled={busy || short !== null} data-kiosk-buy={count} data-short={short === null ? undefined : "true"}>
           <span className="leading-tight">{pricedLabel(sayCount("ui.lottery.kiosk.buy", count, { count }), formatMoney(cost, "NGN"))}</span>
           {short === null ? null : <span className="text-[13px] leading-snug font-semibold opacity-80">{say("ui.world.short", { amount: formatMoney(short, "NGN") })}</span>}

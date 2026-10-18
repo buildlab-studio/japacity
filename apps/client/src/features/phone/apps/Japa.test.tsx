@@ -1,6 +1,6 @@
-// The official page from the phone (docs/rules/advice.md R-ADVICE-002): Japa offers it whenever it
+// The official page from the phone (advice:official-page-shows-checklist): Japa offers it whenever it
 // can be read, a route only heard of included, says it is free, and plans it; and the
-// papers' dates read as months away (docs/rules/world.md R-WORLD-002).
+// papers' dates read as months away (world:top-band-is-lively-pill).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
@@ -32,7 +32,7 @@ function adaHeard(): PlayerView {
 }
 
 describe("the official page in Japa", () => {
-  test("[R-ADVICE-002] [R-TEXT-008] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with its own line and a Free tag, and a tap plans it", async () => {
+  test("[advice:official-page-shows-checklist] [text:show-then-tell] given a route only heard of and no plan yet, when Japa opens, then the official page is offered for it with its own line and a Free tag, and a tap plans it", async () => {
     const { store, authority } = await openJapa(adaHeard());
     const button = document.querySelector<HTMLButtonElement>("[data-official-page]");
     expect(button?.getAttribute("data-official-page")).toBe(UK);
@@ -42,20 +42,20 @@ describe("the official page in Japa", () => {
     expect(button?.querySelector("[data-official-free]")?.textContent).toBe("Free");
     expect(say("phone.japa.official", { route: runningName(UK) })).not.toMatch(/\./);
     fireEvent.click(button!);
-    // R-ACTIVITY-015: the official page is read at once: the command goes now, nothing is planned, and
+    // activity:now-acts-and-month-acts: the official page is read at once: the command goes now, nothing is planned, and
     // the phone says the page's line.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: OFFICIAL, param: UK }));
     expect(store.getState().plan).not.toContainEqual({ activity: OFFICIAL, param: UK });
     expect(await screen.findByText(nowSaid(OFFICIAL, UK))).toBeTruthy();
   });
 
-  test("[R-ADVICE-002] given no route heard of, when Japa opens, then no official page is offered", async () => {
+  test("[advice:official-page-shows-checklist] given no route heard of, when Japa opens, then no official page is offered", async () => {
     await openJapa(newGame("scenario.ada").view());
     expect(document.querySelector("[data-official-page]")).toBeNull();
   });
 
-  test("[R-ADVICE-002] [R-ACTIVITY-015] given every slot already planned, when the official page is tapped, then it is read all the same, since it fills no slot, and nothing is planned", async () => {
-    // R-ACTIVITY-015: the page is an act done at once, never a slot pick refused with "the month is full".
+  test("[advice:official-page-shows-checklist] [activity:now-acts-and-month-acts] given every slot already planned, when the official page is tapped, then it is read all the same, since it fills no slot, and nothing is planned", async () => {
+    // activity:now-acts-and-month-acts: the page is an act done at once, never a slot pick refused with "the month is full".
     const view = adaHeard();
     const { store, authority } = await openJapa(view);
     act(() => {
@@ -67,7 +67,7 @@ describe("the official page in Japa", () => {
     expect(screen.queryByText(say("ui.world.full"))).toBeNull();
   });
 
-  test("[R-WORLD-002] given a held paper that runs out, when the Papers app opens, then it says how long it is valid, with no month number", async () => {
+  test("[world:top-band-is-lively-pill] given a held paper that runs out, when the Papers app opens, then it says how long it is valid, with no month number", async () => {
     // The papers are an app of their own, not a screen inside Japa.
     const view = richView();
     const held = view.documents.find((paper) => paper.state === "held" && paper.expiresMonth !== null);
@@ -82,7 +82,7 @@ describe("the official page in Japa", () => {
 });
 
 describe("Japa's reminders, from the one coming list", () => {
-  test("[R-WORLD-002] [R-WORLD-019] [R-TEXT-008] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, each a few words with when said once, and no ask, birthday or past date", () => {
+  test("[world:top-band-is-lively-pill] [world:phone-holds-what-phones-hold] [text:show-then-tell] given a paper due before a visa decision and an ask open, when the reminders are read, then they are the coming list's paper and visa in its order, soonest first, each a few words with when said once, and no ask, birthday or past date", () => {
     const base = richView();
     const view: PlayerView = {
       ...base,
@@ -101,7 +101,7 @@ describe("Japa's reminders, from the one coming list", () => {
 });
 
 describe("a paper being renewed in Japa", () => {
-  test("[R-DOCUMENT-008] given a held passport with a new copy requested, when Japa opens, then the reminders say when it comes and the Papers app says it is on its way, with no warning that it runs out", async () => {
+  test("[document:paper-on-its-way] given a held passport with a new copy requested, when Japa opens, then the reminders say when it comes and the Papers app says it is on its way, with no warning that it runs out", async () => {
     const view = viewAfter(newGame("scenario.tunde"), [{ type: "document/request", document: "document.passport" }]);
     const passport = view.documents.find((paper) => paper.id === "document.passport");
     if (passport?.state !== "held" || passport.onItsWay === null) throw new Error("Tunde's passport is not being renewed.");
@@ -115,13 +115,13 @@ describe("a paper being renewed in Japa", () => {
   });
 });
 
-// Japa after the grant and after the flight (docs/rules/world.md R-WORLD-019): once granted it names
+// Japa after the grant and after the flight (world:phone-holds-what-phones-hold): once granted it names
 // the next step; once flown it shows the visa held, what it lets you do,
 // and the landing chapter's steps, never "Ready to go".
 describe("Japa after the grant and the flight", () => {
   const LANDING = "chapter.landing";
 
-  test("[R-WORLD-019] given Ada's visa granted and the plane not yet boarded, when Japa opens, then the plan still stands at its percent and the next step is to board the plane", async () => {
+  test("[world:phone-holds-what-phones-hold] given Ada's visa granted and the plane not yet boarded, when Japa opens, then the plan still stands at its percent and the next step is to board the plane", async () => {
     const view = recordedGame("ada-careful", 1).view();
     expect(view.routes.find((route) => route.id === UK)?.state).toBe("granted");
     await openJapa(view);
@@ -131,7 +131,7 @@ describe("Japa after the grant and the flight", () => {
     expect(app?.querySelector("[data-japa-visa]")).toBeNull();
   });
 
-  test("[R-WORLD-019] given Ada just landed in London, when Japa opens, then it shows the visa she holds, what it lets her do, the months left and the way up, with the landing's steps to come, and no percent or Ready to go", async () => {
+  test("[world:phone-holds-what-phones-hold] given Ada just landed in London, when Japa opens, then it shows the visa she holds, what it lets her do, the months left and the way up, with the landing's steps to come, and no percent or Ready to go", async () => {
     const view = abroadView();
     const held = view.status;
     if (held === null) throw new Error("Ada landed with no status.");
@@ -152,7 +152,7 @@ describe("Japa after the grant and the flight", () => {
     expect(app?.querySelector("[data-japa-next]")).toBeNull();
   });
 
-  test("[R-WORLD-019] given Ada a month into life abroad, when Japa opens, then the landing's steps carry what is done, and the next is its first step not done", async () => {
+  test("[world:phone-holds-what-phones-hold] given Ada a month into life abroad, when Japa opens, then the landing's steps carry what is done, and the next is its first step not done", async () => {
     const view = abroadView(1);
     expect(view.chapter.current).toBe(LANDING);
     const next = view.chapter.items.find((item) => !item.met);
@@ -169,7 +169,7 @@ describe("Japa after the grant and the flight", () => {
 
 // One name for the readiness figure, Japacity, glossed where the figure shows.
 describe("the figure's one name", () => {
-  test("[R-WORLD-019] [R-TEXT-005] given a life with no way out yet, when Japa opens, then its head names the figure Japacity and never says ready to go", async () => {
+  test("[world:phone-holds-what-phones-hold] [text:bands-not-figures] given a life with no way out yet, when Japa opens, then its head names the figure Japacity and never says ready to go", async () => {
     const view = newGame("scenario.ada").view();
     expect(view.japacity.route).toBeNull();
     await openJapa(view);
@@ -179,7 +179,7 @@ describe("the figure's one name", () => {
     expect(head?.textContent).not.toMatch(/ready/i);
   });
 
-  test("[R-WORLD-019] [R-TEXT-005] given a route in play with its figure, when Japa opens, then the head names it Japacity with a one-line gloss, and the cards call it Japacity too", async () => {
+  test("[world:phone-holds-what-phones-hold] [text:bands-not-figures] given a route in play with its figure, when Japa opens, then the head names it Japacity with a one-line gloss, and the cards call it Japacity too", async () => {
     const view = richView();
     expect(view.japacity.percent).not.toBeNull();
     await openJapa(view);

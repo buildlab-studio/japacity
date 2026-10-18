@@ -1,8 +1,8 @@
-// The December visit (R-RETURN-005) as a scene of its own: the whole screen,
+// The December visit (return:december-visit-set-piece) as a scene of its own: the whole screen,
 // one question at a time, each answer with its price in the country's
 // currency, the free answer first, and an answer the view does not allow
 // greyed, still visible, with the words of the rejection the engine would
-// give and the price it needs (R-SETPIECE-003).
+// give and the price it needs (route:set-piece-answers-in-order).
 // It waits for the staged wins, the report and the card, and can be set aside
 // to look at the money first; the month cannot end until it is answered.
 import { Dialog } from "@base-ui/react/dialog";

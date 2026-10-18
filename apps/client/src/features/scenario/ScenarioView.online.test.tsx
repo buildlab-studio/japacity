@@ -1,4 +1,4 @@
-// The front door online (prologue.md R-PROLOGUE-010, 011, 014; server.md R-SERVER-001): the life is the server's,
+// The front door online (prologue:archetype-presets-answers, prologue:tile-path-open-from-start, prologue:printed-page-hands-over; server:commands-only-through-route): the life is the server's,
 // faked here as online.spec fakes it, every command played through the real game. A tile and an age picked at the
 // door reach the world as they were picked, and the page as the years go by never names another life.
 import type { ClockView, PresetRequest } from "@japacity/api";
@@ -50,7 +50,7 @@ function onlineServer(seed: string) {
     const result = game().send(command);
     return Promise.resolve(result.ok ? reply(game(), result.lines) : { status: 409, body: result });
   });
-  // R-SERVER-046: Begin sends the preset once, and the server plays every year as the commands it logs.
+  // server:server-plays-prologue-preset: Begin sends the preset once, and the server plays every year as the commands it logs.
   server.answer("POST /api/prologue/preset", () => Promise.resolve({ body: playPresetOn(game(), server.sent.at(-1)?.body as PresetRequest, CLOCK, held.sent) }));
   return { server, held, game };
 }
@@ -62,7 +62,7 @@ function pagePath(): string | null {
 }
 
 describe("the front door online", () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-014] [R-SERVER-001] given the nurse's tile three years older at the door and a server whose life keeps her path, when Begin is pressed, then every year goes to the server as a command, the page never names a trade while the years go by, and the life reaches the world as a nurse of 26", async () => {
+  test("[prologue:archetype-presets-answers] [prologue:printed-page-hands-over] [server:commands-only-through-route] given the nurse's tile three years older at the door and a server whose life keeps her path, when Begin is pressed, then every year goes to the server as a command, the page never names a trade while the years go by, and the life reaches the world as a nurse of 26", async () => {
     const { server, held, game } = onlineServer("online-nurse");
     const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wait: () => Promise.resolve() });
     const store = createGameStore(remote, { life: remote, lifeAgain: false, choosingLife: true });

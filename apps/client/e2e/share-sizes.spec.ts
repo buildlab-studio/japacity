@@ -1,7 +1,7 @@
 // Every share card drawn in a real browser, on the canvas and encoder the game
-// uses (docs/rules/share.md R-SHARE-009): each kind and each chapter's art is
+// uses (share:card-drawn-on-device): each kind and each chapter's art is
 // encoded at the first quality tried, under the limit with room to spare, with
-// the marks of R-SHARE-006 drawn on. The send-off's ticket stub too, for every
+// the marks of share:card-never-looks-official drawn on. The send-off's ticket stub too, for every
 // country a way out flies to and every japa type.
 import { expect, test } from "@playwright/test";
 
@@ -23,7 +23,7 @@ interface Drawn {
   quality: number;
 }
 
-test("[R-SHARE-009] [R-SHARE-006] every card kind, every chapter's art and every ticket stub is encoded with the marks at the first quality, well under the card limit", async ({ page }) => {
+test("[share:card-drawn-on-device] [share:card-never-looks-official] every card kind, every chapter's art and every ticket stub is encoded with the marks at the first quality, well under the card limit", async ({ page }) => {
   test.setTimeout(120_000);
   // Any address serves the game's modules; the cards are drawn by them, not by a page.
   await page.goto("/");

@@ -4,25 +4,25 @@
 import type { DayPart } from "@japacity/sim";
 import type { ReactNode } from "react";
 
-/** What a tap on a thing does (R-WORLD-005). */
+/** What a tap on a thing does (world:things-are-tappable-models). */
 type ActKind =
   /** Happens at once with no sheet: sit, turn on, look. */
   | "plain"
   /** Opens the sheet of the entry it stages: an activity, an offer, a set piece. */
   | "sheet"
-  /** Opens the ride sheet (R-WORLD-017). */
+  /** Opens the ride sheet (world:ride-sheet-shows-fares). */
   | "ride"
-  /** Cuts into the building's room (R-WORLD-013). */
+  /** Cuts into the building's room (world:entering-is-a-cut). */
   | "enter"
   /** Cuts back out of the room. */
   | "out"
-  /** Ends the month from the bed at home: the same as the band's End month (R-WORLD-025). */
+  /** Ends the month from the bed at home: the same as the band's End month (world:sleep-ends-the-month). */
   | "end"
-  /** Happens at once and fills a free slot of the month with the entry it stages, no sheet: rest on the bed (R-WORLD-005). */
+  /** Happens at once and fills a free slot of the month with the entry it stages, no sheet: rest on the bed (world:things-are-tappable-models). */
   | "do"
-  /** Opens a card for a player command the world sends on its own: the school's deposit at the bank (R-ROUTE-008). */
+  /** Opens a card for a player command the world sends on its own: the school's deposit at the bank (route:deposit-secures-school). */
   | "command"
-  /** Opens the phone on one of its apps: the papers box opens Papers (R-WORLD-019). */
+  /** Opens the phone on one of its apps: the papers box opens Papers (world:phone-holds-what-phones-hold). */
   | "app";
 
 export interface Act {
@@ -33,24 +33,24 @@ export interface Act {
   kind: ActKind;
   /** For `sheet`: the entry the act stages (`activity.play-lotto`, `offer.nepa-bill`). */
   stages?: string;
-  /** For `sheet`: the choice inside the staged entry that the thing itself makes, as a board names its job: the kiosk's one ticket (R-WORLD-005). */
+  /** For `sheet`: the choice inside the staged entry that the thing itself makes, as a board names its job: the kiosk's one ticket (world:things-are-tappable-models). */
   param?: string;
-  /** For `sheet`: more entries listed on the same sheet, since a thing offers at most two acts and a third goes on a sheet (R-WORLD-005). */
+  /** For `sheet`: more entries listed on the same sheet, since a thing offers at most two acts and a third goes on a sheet (world:things-are-tappable-models). */
   more?: string[];
   /** For `plain`: the entries whose acts stand in its place; it shows only while none of them can open (the agent at an empty desk). */
   unless?: string[];
   /**
    * For `sheet`: the act shown in its place while none of its entries can open, so a thing still offers two acts at most:
-   * the bed's Lie down while no nap can be had (at night, spent, abroad; R-WORLD-005, R-WORLD-025).
+   * the bed's Lie down while no nap can be had (at night, spent, abroad; world:things-are-tappable-models, world:sleep-ends-the-month).
    */
   otherwise?: Act;
   /** For `app`: the phone app it opens, by its id on the phone (`papers`). */
   app?: string;
   /** For `command`: which command the card sends; `return/home` is the bag's Go home in the room abroad (return.md). */
   command?: "route/pay-deposit" | "route/depart" | "obligation/pay" | "people/court" | "return/home";
-  /** For `command` `people/court`: the computer partner the card courts, set by the city from who stands at the thing (R-WORLD-020). */
+  /** For `command` `people/court`: the computer partner the card courts, set by the city from who stands at the thing (world:nobody-picked-from-list). */
   with?: string;
-  /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (R-WORLD-005). */
+  /** The pose the character takes on the thing once the act lands: sitting on it, lying on it (world:things-are-tappable-models). */
   pose?: "sit" | "lie";
   /** Where the character is placed for the pose: on the seat or the bed, `[x, z, facing]` in the place's metres. */
   seat?: [number, number, number];
@@ -58,10 +58,10 @@ export interface Act {
   top?: number;
   /** Set by the shell: the act is already in this month's plan and planning it again does nothing, so its button says Planned and is shut. */
   planned?: boolean;
-  /** R-ACTIVITY-020: the act takes effort and the body is spent: its chip says so where its button was. */
+  /** activity:spent-body-refuses-acts: the act takes effort and the body is spent: its chip says so where its button was. */
   spent?: boolean;
   /**
-   * The parts of the world's day the act is open in (clock.md R-CLOCK-033, world.md R-WORLD-005): the viewing centre from the
+   * The parts of the world's day the act is open in (clock:game-day-on-real-time, world:things-are-tappable-models): the viewing centre from the
    * evening, the joint in the evening and at night. Open at every part when not given.
    */
   parts?: DayPart[];
@@ -82,11 +82,11 @@ export interface Thing {
   /** Where the character walks to for it, or the copy's spot when absent. */
   at?: [number, number];
   acts: Act[];
-  /** The quiet mark beside the name of a person the game plays: `computer` (person.md R-PEOPLE-009, R-PEOPLE-054). */
+  /** The quiet mark beside the name of a person the game plays: `computer` (person:computer-candidates-labelled, person:computer-mark-is-quiet). */
   mark?: "computer";
 }
 
-/** The place's camera (R-WORLD-009): what the whole view looks at and how it may move. */
+/** The place's camera (world:camera-always-raised): what the whole view looks at and how it may move. */
 export interface Shot {
   centre: [number, number, number];
   /** Metres from the centre for the whole view and the close view. */
@@ -101,24 +101,24 @@ export interface Shot {
   yaw?: number;
   /** Metres across that the whole view must show, whatever the screen's shape. */
   width?: number;
-  /** The whole view's lens in degrees, when it is not the scene's own: a wide home is seen whole on a longer lens, so the people at its back stand as tall as those at its front (world.md R-WORLD-029). */
+  /** The whole view's lens in degrees, when it is not the scene's own: a wide home is seen whole on a longer lens, so the people at its back stand as tall as those at its front (world:room-seen-down-its-length). */
   fov?: number;
 }
 
-/** What the scene reports to the shell after a tap (R-WORLD-005). */
+/** What the scene reports to the shell after a tap (world:things-are-tappable-models). */
 export type Picked =
   | { kind: "thing"; thing: Thing }
   | { kind: "act"; thing: Thing; act: Act }
   | { kind: "person"; slot: number }
   | { kind: "own" };
 
-/** The nudge (R-WORLD-003): one words key with its params, or null. */
+/** The nudge (world:nudge-says-one-thing): one words key with its params, or null. */
 export interface Nudge {
   key: string;
   params?: Record<string, string | number>;
 }
 
-/** A sheet's content (R-WORLD-006): the shell renders it in the form it names. */
+/** A sheet's content (world:one-action-one-sheet): the shell renders it in the form it names. */
 export interface Ask {
   form: "card" | "slip";
   /** An icon name from the shared icon set. */
@@ -141,25 +141,25 @@ export interface Ask {
   rows?: { label: string; value: string; strong?: boolean }[];
   /** "now" when the act happens at once (a ride, the deposit, the plane); the default counts when the month ends. */
   when?: "now" | "month";
-  /** The month's free time the act takes, in words ("A morning", "A day"), for an act done at once (R-ACTIVITY-018). */
+  /** The month's free time the act takes, in words ("A morning", "A day"), for an act done at once (activity:now-acts-spend-half-days). */
   time?: string;
-  /** What the act does, in words, on one line ("Fills you, lifts you"), from its effects (R-WORLD-006). */
+  /** What the act does, in words, on one line ("Fills you, lifts you"), from its effects (world:one-action-one-sheet). */
   does?: string;
-  /** An act with a price: the main button says the act and its price ("Indomie and egg · ₦1,500"), R-WORLD-006. */
+  /** An act with a price: the main button says the act and its price ("Indomie and egg · ₦1,500"), world:one-action-one-sheet. */
   priced?: true;
-  /** A reason the act cannot happen yet, in words; the main button is shut and says it (R-WORLD-006). */
+  /** A reason the act cannot happen yet, in words; the main button is shut and says it (world:one-action-one-sheet). */
   blocked?: string;
   /** A second line for the main button in place of what is left after, when the cost does not come from the pockets. */
   note?: string;
-  /** R-ACTIVITY-020: the body is spent; these words stand where the main button was, and there is no button. */
+  /** activity:spent-body-refuses-acts: the body is spent; these words stand where the main button was, and there is no button. */
   spent?: string;
   /** What the act means, a few words each, as chips under the line: the bag's Go home says what ends and what waits (return.md). */
   facts?: string[];
-  /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (R-RETURN-006). */
+  /** False when the act ends the month's dues, so the button warns of none: the way home closes the bills abroad (return:return-reopens-home-charges). */
   dues?: false;
 }
 
-/** A pin on the map (R-WORLD-015). */
+/** A pin on the map (world:map-is-painted-lagos). */
 export type PinState = "here" | "home" | "been" | "can" | "not";
 
 export interface Pin {
@@ -180,27 +180,27 @@ export interface CountryChoice {
   locked: string | null;
 }
 
-/** A way to travel (R-WORLD-017), with its fare in the wallet's smallest unit and the minutes. */
+/** A way to travel (world:ride-sheet-shows-fares), with its fare in the wallet's smallest unit and the minutes. */
 export interface RideChoice {
-  /** `drive`: the life's own car, offered while it stands at home. `bus`, `train` and `taxi`: the ways abroad (R-PLACE-010). */
+  /** `drive`: the life's own car, offered while it stands at home. `bus`, `train` and `taxi`: the ways abroad (place:rides-between-city-places). */
   id: "danfo" | "keke" | "okada" | "walk" | "drive" | "bus" | "train" | "taxi";
   label: string;
   /** In the smallest unit of the money the ride is paid in: naira at home, the country's money abroad. */
   fare: number;
   minutes: number;
-  /** Why the way cannot be taken: too far on foot (R-WORLD-017). */
+  /** Why the way cannot be taken: too far on foot (world:ride-sheet-shows-fares). */
   shut?: "far";
-  /** A walk home past the walking limit: open all the same, played long and with no Skip (R-WORLD-017). */
+  /** A walk home past the walking limit: open all the same, played long and with no Skip (world:ride-sheet-shows-fares). */
   long?: true;
-  /** The bus in a month the bus pass is bought: it asks nothing, and the sheet says so (R-PLACE-012). */
+  /** The bus in a month the bus pass is bought: it asks nothing, and the sheet says so (place:country-pass-covers-ways). */
   passed?: true;
-  /** The bus to or from a stop the employer's shuttle serves: it asks nothing in any month (R-PLACE-013). */
+  /** The bus to or from a stop the employer's shuttle serves: it asks nothing in any month (place:employer-shuttle-rides-free). */
   shuttle?: true;
   /** What the fare's pill says where the ride asks nothing for the country's pass or its shuttle ("C$0, transit pass", "AED 0, site bus"). */
   pill?: string;
 }
 
-/** An app on the phone (R-WORLD-018). */
+/** An app on the phone (world:phone-rises-over-scene). */
 export interface PhoneApp {
   id: string;
   /** The app's name, a words key. */

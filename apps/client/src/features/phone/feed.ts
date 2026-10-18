@@ -1,5 +1,5 @@
-// The family group as the phone's Chats shows it (docs/rules/world.md R-WORLD-019; text.md
-// R-TEXT-003): at most `familyFeed.perMonth` posts a month from `familyPosts`, the posts any month
+// The family group as the phone's Chats shows it (world:phone-holds-what-phones-hold; text.md
+// text:family-group-feed): at most `familyFeed.perMonth` posts a month from `familyPosts`, the posts any month
 // may carry turning by a hash of the life and the month, so a month reads the same twice. A post
 // keyed to a report line waits until the view shows that line has happened.
 // The view has no feed of its own, so what has happened is read from the view as it stands now.

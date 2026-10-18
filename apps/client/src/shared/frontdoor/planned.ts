@@ -1,4 +1,4 @@
-// The years a tile's life will pass (prologue.md R-PROLOGUE-014): the page after Begin lists them not yet lived and
+// The years a tile's life will pass (prologue:printed-page-hands-over): the page after Begin lists them not yet lived and
 // fills each as the years go by, so the page never prints a year that is not yet true.
 import { content } from "@japacity/content";
 import { Award, BookOpen, Flag, GraduationCap, Hammer, Store } from "lucide-react";
@@ -7,7 +7,7 @@ import type { FactChipProps } from "../ui/FactChip";
 import { say, words } from "../words/text";
 import { type Archetype, throughUniversity } from "./archetypes";
 
-/** The years a tile's life will pass, as chips not yet lived: the page fills them as the years go by (R-PROLOGUE-014). */
+/** The years a tile's life will pass, as chips not yet lived: the page fills them as the years go by (prologue:printed-page-hands-over). */
 export function plannedYears(archetype: Archetype): (FactChipProps & { id: string })[] {
   const first = (step: string): string => archetype.preset[step]?.[0] ?? "";
   const waec = { id: "waec", icon: Award, label: say("ui.page.year.waec"), note: words(`prologue.subjects.answer.${first("subjects")}`), state: "waiting" as const };

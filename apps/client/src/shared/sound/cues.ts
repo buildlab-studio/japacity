@@ -1,4 +1,4 @@
-// The interface's small sounds (docs/rules/world.md R-WORLD-022). Muted, no audio context is created.
+// The interface's small sounds (world:interface-sounds-made-live). Muted, no audio context is created.
 // The spoken lines and their wake-up in sound.ts are untouched; the cues keep their own small context,
 // made inside the first tap that plays one.
 import { soundStore } from "./sound";

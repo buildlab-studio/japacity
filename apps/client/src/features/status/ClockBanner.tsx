@@ -1,4 +1,4 @@
-// The status clock (docs/rules/status.md R-STATUS-003): when the job is gone and the clock runs, it is the loudest
+// The status clock (status:lost-job-starts-clock): when the job is gone and the clock runs, it is the loudest
 // thing on the screen, a banner in big type on the phone's home and above every app (the shell's warnings).
 import { AlarmClock } from "lucide-react";
 

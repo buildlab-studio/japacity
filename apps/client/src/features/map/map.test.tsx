@@ -32,7 +32,7 @@ const BUILT = new Set(
     .filter((id): id is NonNullable<typeof id> => id !== undefined),
 );
 const HOME = "place.family-house";
-/** The simulation's metres for a thousandth of a degree of latitude, the same everywhere (R-PLACE-010). */
+/** The simulation's metres for a thousandth of a degree of latitude, the same everywhere (place:rides-between-city-places). */
 const LAT_METRES_PER_E3 = metresApart({ latE3: 0, lonE3: 0 }, { latE3: 1, lonE3: 0 });
 const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 
@@ -47,7 +47,7 @@ const LAGOS: CountryChoice = { id: "lagos", name: "Lagos", locked: null };
 const COUNTRIES: CountryChoice[] = [LAGOS, { id: "country.uk", name: "United Kingdom", locked: "No visa yet" }];
 
 describe("the city as the map", () => {
-  test("[R-WORLD-015] given the view at home, the kept list and the built places, when the pins are read, then only built places stand, each here, home, been, can go or not yet", () => {
+  test("[world:map-is-painted-lagos] given the view at home, the kept list and the built places, when the pins are read, then only built places stand, each here, home, been, can go or not yet", () => {
     const pins = lagosPins(["place.bode-thomas"], new Set([...BUILT].filter((id) => id !== "place.airport-lagos")));
     const state = (id: string): string | undefined => pins.find((pin) => pin.id === id)?.state;
     expect(state("place.ojuelegba")).toBe("here");
@@ -63,7 +63,7 @@ describe("the city as the map", () => {
     expect(pins.find((pin) => pin.id === HOME)?.position).toEqual(HOME_SPOT);
   });
 
-  test("[R-WORLD-015] given the pins, when the map opens, then the stops stand in a list for a screen reader, each with its state, and the home shows as home", async () => {
+  test("[world:map-is-painted-lagos] given the pins, when the map opens, then the stops stand in a list for a screen reader, each with its state, and the home shows as home", async () => {
     await renderWithView(<Map pins={lagosPins(["place.bode-thomas"])} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} />, engineView());
     const stops = within(screen.getByRole("list", { name: mapWords("map.stops") }));
     const stop = (id: string): HTMLElement => {
@@ -81,7 +81,7 @@ describe("the city as the map", () => {
 });
 
 describe("the rented homes on the map", () => {
-  test("[R-HOME-010] [R-HOME-002] given the rented room and the hostel, when the map reads them, then each stands only as the home lived in and never as a stop to visit, while the family house keeps its place", () => {
+  test("[home:compound-room-is-a-home] [home:move-home-once-a-month] given the rented room and the hostel, when the map reads them, then each stands only as the home lived in and never as a stop to visit, while the family house keeps its place", () => {
     for (const id of ["place.compound-room", "place.hostel-room"]) {
       expect(onMap(id, "place.family-house")).toBe(false);
       expect(onMap(id, null)).toBe(false);
@@ -98,7 +98,7 @@ describe("the rented homes on the map", () => {
 });
 
 describe("one country at a time", () => {
-  test("[R-WORLD-016] given a locked country in the dropdown, when it is tapped, then it shakes and stays shut, and the country shown stays the button", () => {
+  test("[world:one-country-at-a-time] given a locked country in the dropdown, when it is tapped, then it shakes and stays shut, and the country shown stays the button", () => {
     const onCountry = vi.fn();
     render(<Countries country={LAGOS} countries={COUNTRIES} onCountry={onCountry} />);
     const button = screen.getByRole("button", { name: /Lagos/ });
@@ -116,7 +116,7 @@ describe("one country at a time", () => {
 });
 
 describe("the ride", () => {
-  test("[R-WORLD-017] [R-WORLD-003] given a stop in walking distance and no fare held, when the ride sheet opens, then it opens on Walk; with the fare held on the danfo, and a tapped vehicle keeps its own way", () => {
+  test("[world:ride-sheet-shows-fares] [world:nudge-says-one-thing] given a stop in walking distance and no fare held, when the ride sheet opens, then it opens on Walk; with the fare held on the danfo, and a tapped vehicle keeps its own way", () => {
     const from = { latE3: 6490, lonE3: 3355 };
     const near = rideChoices(from, { latE3: 6507, lonE3: 3359 });
     const fare = near[0]!.fare;
@@ -130,7 +130,7 @@ describe("the ride", () => {
     expect(firstWay(far, 0)).toBe("danfo");
   });
 
-  test("[R-WORLD-017] [R-PLACE-010] given the month's fare factor from the view, when the ways are priced, then each vehicle's fare is that share of its flat figure and walking stays free", () => {
+  test("[world:ride-sheet-shows-fares] [place:rides-between-city-places] given the month's fare factor from the view, when the ways are priced, then each vehicle's fare is that share of its flat figure and walking stays free", () => {
     const from = { latE3: 6511, lonE3: 3362 };
     const to = { latE3: 6594, lonE3: 3340 };
     const plain = rideChoices(from, to);
@@ -139,7 +139,7 @@ describe("the ride", () => {
     expect(dear.find((way) => way.id === "walk")?.fare).toBe(0);
   });
 
-  test("[R-WORLD-017] given two places, when the ways are priced, then there are a danfo, a keke, an okada and on foot, the vehicles each with a fare in fifties of naira and minutes, the okada quickest, on foot free and slowest", () => {
+  test("[world:ride-sheet-shows-fares] given two places, when the ways are priced, then there are a danfo, a keke, an okada and on foot, the vehicles each with a fare in fifties of naira and minutes, the okada quickest, on foot free and slowest", () => {
     const from = { latE3: 6511, lonE3: 3362 };
     const to = { latE3: 6594, lonE3: 3340 };
     const ways = rideChoices(from, to);
@@ -158,7 +158,7 @@ describe("the ride", () => {
     expect(walk.label).toBe(mapWords("map.way.walk"));
   });
 
-  test("[R-WORLD-017] given a country abroad, when the ways are priced, then there is one way named for the country at no fare, and the sheet says so", async () => {
+  test("[world:ride-sheet-shows-fares] given a country abroad, when the ways are priced, then there is one way named for the country at no fare, and the sheet says so", async () => {
     const ways = rideChoices({ latE3: 51473, lonE3: -70 }, { latE3: 51480, lonE3: -60 }, "country.uk");
     expect(ways).toHaveLength(1);
     expect(ways[0]).toMatchObject({ label: mapWords("map.way.abroad.country.uk"), fare: 0 });
@@ -177,7 +177,7 @@ describe("the ride", () => {
     expect(sheet.querySelector("[data-ride-main]")?.textContent).not.toContain(say("ui.world.left", { amount: "" }).trim());
   });
 
-  test("[R-WORLD-017] [R-WORLD-006] given a stop picked, when the ride sheet shows, then it names the place, gives each way's fare and minutes, and the main button says the ride and its fare over the balance before, struck, and after", async () => {
+  test("[world:ride-sheet-shows-fares] [world:one-action-one-sheet] given a stop picked, when the ride sheet shows, then it names the place, gives each way's fare and minutes, and the main button says the ride and its fare over the balance before, struck, and after", async () => {
     const view = engineView();
     const pins = lagosPins();
     const onRide = vi.fn();
@@ -193,10 +193,10 @@ describe("the ride", () => {
     for (const way of ways) {
       const radio = radios.find((candidate) => candidate.dataset.way === way.id);
       expect(radio?.textContent).toContain(way.fare === 0 ? say("ui.world.free") : formatMoney(way.fare, "NGN"));
-      // A walk past walking distance is shut and says so in place of its minutes (R-WORLD-017).
+      // A walk past walking distance is shut and says so in place of its minutes (world:ride-sheet-shows-fares).
       expect(radio?.textContent).toContain(way.shut === "far" ? mapWords("map.way.walk-far") : mapWords("map.way.minutes", { minutes: way.minutes }));
     }
-    // All the naira pay the fare, cash first (R-PLACE-010).
+    // All the naira pay the fare, cash first (place:rides-between-city-places).
     const cash = view.pockets.NGN.cash + view.pockets.NGN.bank;
     const main = (): HTMLElement => sheet.querySelector("[data-ride-main]") as HTMLElement;
     const danfo = ways[0] as RideChoice;
@@ -212,7 +212,7 @@ describe("the ride", () => {
     expect(screen.getByText(mapWords("map.ride.to", { way: "Keke", place: headingOf(nameOf("place.bode-thomas")) }))).toBeTruthy();
   });
 
-  test("[R-WORLD-017] given too little money for a way, when the sheet shows, then the main button is shut and says how much is short", async () => {
+  test("[world:ride-sheet-shows-fares] given too little money for a way, when the sheet shows, then the main button is shut and says how much is short", async () => {
     const view = engineView();
     const poor = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 10_000, bank: 0 } } };
     await renderWithView(<Map pins={lagosPins()} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} />, poor);
@@ -222,7 +222,7 @@ describe("the ride", () => {
     expect(main.textContent).toContain(mapWords("map.short", { amount: "" }).trim());
   });
 
-  test("[R-WORLD-002] [R-TEXT-008] given a ride to a place with a long name, when its band shows, then the title says the whole name, wrapping to a second line rather than cut", () => {
+  test("[world:top-band-is-lively-pill] [text:show-then-tell] given a ride to a place with a long name, when its band shows, then the title says the whole name, wrapping to a second line rather than cut", () => {
     render(<Ride way="danfo" place="Murtala Muhammed International Airport" drawing={false} onDone={() => undefined} />);
     const title = document.querySelector<HTMLElement>("[data-ride-title]");
     expect(title?.textContent).toBe("Danfo to Murtala Muhammed International Airport");
@@ -230,7 +230,7 @@ describe("the ride", () => {
     expect(title?.className).toContain("line-clamp-2");
   });
 
-  test("[R-WORLD-017] given a ride, when it plays, then it lasts about six seconds and ends once, with the way and the place in its band", async () => {
+  test("[world:ride-sheet-shows-fares] given a ride, when it plays, then it lasts about six seconds and ends once, with the way and the place in its band", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     render(<Ride way="danfo" place="Bode Thomas Street" drawing={false} onDone={onDone} />);
@@ -248,7 +248,7 @@ describe("the ride", () => {
     expect(RIDE_MS).toBeLessThanOrEqual(7000);
   });
 
-  test("[R-WORLD-017] given a ride playing, when Skip is tapped, then it ends at once and not again", async () => {
+  test("[world:ride-sheet-shows-fares] given a ride playing, when Skip is tapped, then it ends at once and not again", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     render(<Ride way="okada" place="Tejuosho Market" drawing={false} onDone={onDone} />);
@@ -263,7 +263,7 @@ describe("the ride", () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-017] given the stop the character stands at, when Stay here is tapped on its sheet, then the map closes with it, back to the place", async () => {
+  test("[world:ride-sheet-shows-fares] given the stop the character stands at, when Stay here is tapped on its sheet, then the map closes with it, back to the place", async () => {
     const onClose = vi.fn();
     const pins = lagosPins();
     const here = pins.find((pin) => pin.state === "here");
@@ -276,7 +276,7 @@ describe("the ride", () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-017] given a stop past walking distance, when the ride sheet shows, then the walk is shut and says it is too far, is never the chosen way, and a near stop keeps it open", async () => {
+  test("[world:ride-sheet-shows-fares] given a stop past walking distance, when the ride sheet shows, then the walk is shut and says it is too far, is never the chosen way, and a near stop keeps it open", async () => {
     const pins = lagosPins();
     const here = pins.find((pin) => pin.state === "here");
     if (here === undefined) throw new Error("No here");
@@ -296,7 +296,7 @@ describe("the ride", () => {
     expect(walk.getAttribute("aria-checked")).toBe("false");
   });
 
-  test("[R-WORLD-017] given stops at the edge of walking distance, when the ride sheet's ways are read, then the walk is open or shut exactly where the simulation accepts or refuses it (R-PLACE-010)", () => {
+  test("[world:ride-sheet-shows-fares] given stops at the edge of walking distance, when the ride sheet's ways are read, then the walk is open or shut exactly where the simulation accepts or refuses it (place:rides-between-city-places)", () => {
     const here = lagosPins().find((pin) => pin.state === "here");
     if (here === undefined) throw new Error("No here");
     const { walkMetres, lonMetresPerE3 } = content.tuning.city.ride;
@@ -312,7 +312,7 @@ describe("the ride", () => {
     expect(rideChoices(here.position, across).find((way) => way.id === "walk")?.shut).toBe("far");
   });
 
-  test("[R-WORLD-017] given home past walking distance and no fare held, when its ride sheet shows, then Walk home is open and chosen, never Too far to walk, while another stop as far keeps the limit", async () => {
+  test("[world:ride-sheet-shows-fares] given home past walking distance and no fare held, when its ride sheet shows, then Walk home is open and chosen, never Too far to walk, while another stop as far keeps the limit", async () => {
     const pins = lagosPins();
     const here = pins.find((pin) => pin.state === "here");
     if (here === undefined) throw new Error("No here");
@@ -343,7 +343,7 @@ describe("the ride", () => {
     expect(other.textContent).toContain(mapWords("map.way.walk-far"));
   });
 
-  test("[R-WORLD-017] given a walk home past walking distance, when it plays, then it runs longer than a ride, has no Skip, and ends once by itself; a walk within reach keeps the ride's six seconds and its Skip", async () => {
+  test("[world:ride-sheet-shows-fares] given a walk home past walking distance, when it plays, then it runs longer than a ride, has no Skip, and ends once by itself; a walk within reach keeps the ride's six seconds and its Skip", async () => {
     vi.useFakeTimers();
     expect(LONG_WALK_MS).toBeGreaterThan(RIDE_MS);
     const onRide = vi.fn();
@@ -382,7 +382,7 @@ describe("the ride", () => {
     expect(screen.getByRole("button", { name: mapWords("map.ride.skip") })).toBeTruthy();
   });
 
-  test("[R-WORLD-017] given a walk, short or the long walk home, when it sets off, then the card says it sets off on foot from the place left, never that it pulls out; a ride still pulls out", async () => {
+  test("[world:ride-sheet-shows-fares] given a walk, short or the long walk home, when it sets off, then the card says it sets off on foot from the place left, never that it pulls out; a ride still pulls out", async () => {
     expect(alongOf(0, 1, "walk")).toEqual({ key: "map.ride.along.start.walk", needs: "from" });
     expect(alongOf(0, 1, "danfo").key).toBe("map.ride.along.start");
     expect(mapWords("map.ride.along.start.walk", { from: "Computer Village" })).toBe("Setting off from Computer Village on foot.");
@@ -398,7 +398,7 @@ describe("the ride", () => {
     }
   });
 
-  test("[R-WORLD-017] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {
+  test("[world:ride-sheet-shows-fares] given a ride with the place it left, when it plays, then the card says where you are on the ride's own clock: pulling out, a road line, the stop near the end", async () => {
     vi.useFakeTimers();
     render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={1} onDone={() => undefined} />);
     expect(alongOf(0, 1, "danfo")).toEqual({ key: "map.ride.along.start", needs: "from" });
@@ -418,7 +418,7 @@ describe("the ride", () => {
     expect(screen.getByText(mapWords("map.ride.along.near", { to: "Bode Thomas Street" }))).toBeTruthy();
   });
 
-  test("[R-WORLD-017] given a ride playing, when Turn back is tapped, then the ride ends once by turning back and never arrives; without a way back there is no such button", async () => {
+  test("[world:ride-sheet-shows-fares] given a ride playing, when Turn back is tapped, then the ride ends once by turning back and never arrives; without a way back there is no such button", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     const onTurnBack = vi.fn();
@@ -439,7 +439,7 @@ describe("the ride", () => {
     expect(screen.queryByRole("button", { name: mapWords("map.ride.turn-back") })).toBeNull();
   });
 
-  test("[R-WORLD-017] given the map with a way back, when a ride's Turn back is tapped, then the map says where the walk goes back to, and nothing arrives", async () => {
+  test("[world:ride-sheet-shows-fares] given the map with a way back, when a ride's Turn back is tapped, then the map says where the walk goes back to, and nothing arrives", async () => {
     vi.useFakeTimers();
     const onGo = vi.fn();
     const onTurnBack = vi.fn();
@@ -457,7 +457,7 @@ describe("the ride", () => {
     expect(onGo).not.toHaveBeenCalled();
   });
 
-  test("[R-WORLD-017] given the city refusing the fare, when a way is chosen, then no ride plays and the sheet closes", async () => {
+  test("[world:ride-sheet-shows-fares] given the city refusing the fare, when a way is chosen, then no ride plays and the sheet closes", async () => {
     const onRide = vi.fn(() => Promise.resolve(false));
     await renderWithView(<Map pins={lagosPins()} country={LAGOS} countries={COUNTRIES} drawing={false} onGo={() => undefined} onClose={() => undefined} onRide={onRide} />, engineView());
     fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === "place.bode-thomas") as HTMLElement);
@@ -471,7 +471,7 @@ describe("the ride", () => {
     expect(screen.queryByText(mapWords("map.ride.to", { way: "Danfo", place: headingOf(nameOf("place.bode-thomas")) }))).toBeNull();
   });
 
-  test("[R-WORLD-017] given a ride already chosen from a danfo in the place, when the map opens, then the same ride plays and the place opens at its end", async () => {
+  test("[world:ride-sheet-shows-fares] given a ride already chosen from a danfo in the place, when the map opens, then the same ride plays and the place opens at its end", async () => {
     const onGo = vi.fn();
     const onRide = vi.fn();
     await renderWithView(<Map pins={lagosPins()} country={LAGOS} countries={COUNTRIES} drawing={false} diveTo="place.tejuosho-market" onGo={onGo} onClose={() => undefined} onRide={onRide} />, engineView());
@@ -497,7 +497,7 @@ describe("the ride carries people", () => {
     return probe;
   }
 
-  test("[R-WORLD-017] given each speaker, when his lines are read, then there are six, each in the words with no dash, and the seed picks one", () => {
+  test("[world:ride-sheet-shows-fares] given each speaker, when his lines are read, then there are six, each in the words with no dash, and the seed picks one", () => {
     expect(LINES).toBe(6);
     for (const way of ["okada", "keke", "danfo"] as const) {
       const seen = new Set<string>();
@@ -516,7 +516,7 @@ describe("the ride carries people", () => {
     expect(lineOf("walk", 3)).toBeNull();
   });
 
-  test("[R-WORLD-017] given an okada ride, when it plays, then the pre-roll shows the rider's line, the rider and the character are on the bike throughout, and the line goes with the pre-roll", async () => {
+  test("[world:ride-sheet-shows-fares] given an okada ride, when it plays, then the pre-roll shows the rider's line, the rider and the character are on the bike throughout, and the line goes with the pre-roll", async () => {
     const probe = await ride("okada", 4);
     const key = lineOf("okada", 4) ?? "";
     expect(screen.getByText(mapWords(key))).toBeTruthy();
@@ -532,7 +532,7 @@ describe("the ride carries people", () => {
     expect([...probe.figures].sort()).toEqual(["own", "rider"]);
   });
 
-  test("[R-WORLD-017] given a danfo ride, when it plays, then the pre-roll shows the conductor's line with the character and the driver in the cab, and from above nothing is drawn inside", async () => {
+  test("[world:ride-sheet-shows-fares] given a danfo ride, when it plays, then the pre-roll shows the conductor's line with the character and the driver in the cab, and from above nothing is drawn inside", async () => {
     const probe = await ride("danfo", 2);
     const key = lineOf("danfo", 2) ?? "";
     expect(key.startsWith("map.ride.line.danfo.")).toBe(true);
@@ -546,13 +546,13 @@ describe("the ride carries people", () => {
     expect(document.querySelector("[data-ride-line]")).toBeNull();
   });
 
-  test("[R-WORLD-017] given a keke ride, when it plays, then the driver's line shows with the driver in front and the character on the back bench", async () => {
+  test("[world:ride-sheet-shows-fares] given a keke ride, when it plays, then the driver's line shows with the driver in front and the character on the back bench", async () => {
     const probe = await ride("keke", 0);
     expect(screen.getByText(mapWords(lineOf("keke", 0) ?? ""))).toBeTruthy();
     expect([...probe.figures].sort()).toEqual(["driver", "own"]);
   });
 
-  test("[R-WORLD-017] given a ride on foot, when it plays, then there is no pre-roll and no line, and the character walks", async () => {
+  test("[world:ride-sheet-shows-fares] given a ride on foot, when it plays, then there is no pre-roll and no line, and the character walks", async () => {
     const probe = await ride("walk", 5);
     expect(probe.phase).toBe("ride");
     expect(probe.preMs).toBe(0);
@@ -561,7 +561,7 @@ describe("the ride carries people", () => {
     expect(probe.figures).toEqual(["own"]);
   });
 
-  test("[R-WORLD-017] given each way's scene before its people load, when either part plays, then it costs no more draw calls than the ride did before people, seven, so the people add only their own", () => {
+  test("[world:ride-sheet-shows-fares] given each way's scene before its people load, when either part plays, then it costs no more draw calls than the ride did before people, seven, so the people add only their own", () => {
     for (const way of ["danfo", "keke", "okada", "walk"] as const) {
       const scene = buildRide(way);
       for (const phase of ["pre", "ride"] as const) {
@@ -573,7 +573,7 @@ describe("the ride carries people", () => {
     }
   });
 
-  test("[R-WORLD-017] given an okada's pre-roll cut short mid-climb, when the ride plays, then the character sits behind the rider facing ahead", () => {
+  test("[world:ride-sheet-shows-fares] given an okada's pre-roll cut short mid-climb, when the ride plays, then the character sits behind the rider facing ahead", () => {
     const scene = buildRide("okada");
     scene.setPerson("rider", new Group());
     scene.setPerson("own", new Group());
@@ -590,7 +590,7 @@ describe("the ride carries people", () => {
     scene.dispose();
   });
 
-  test("[R-WORLD-017] given an okada ride, when it plays out, then the pre-roll is at most a second and a half and counts inside the six seconds", async () => {
+  test("[world:ride-sheet-shows-fares] given an okada ride, when it plays out, then the pre-roll is at most a second and a half and counts inside the six seconds", async () => {
     const onDone = vi.fn();
     await ride("okada", 1, onDone);
     expect(PRE_MS).toBeLessThanOrEqual(1500);
@@ -606,7 +606,7 @@ describe("the ride carries people", () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-017] given the okada's pre-roll, when Skip is tapped, then the pre-roll and the ride end at once and not again", async () => {
+  test("[world:ride-sheet-shows-fares] given the okada's pre-roll, when Skip is tapped, then the pre-roll and the ride end at once and not again", async () => {
     const onDone = vi.fn();
     await ride("okada", 3, onDone);
     expect(document.querySelector("[data-ride-line]")).not.toBeNull();
@@ -641,7 +641,7 @@ describe("the ride cuts between its angles by itself", () => {
     return { at: new Vector3(-at.x, at.y, -at.z), facing: new Vector3(-facing.x, facing.y, -facing.z) };
   }
 
-  test("[R-WORLD-032] given a danfo ride, when its clock is read at each moment, then it is outside at the stop for the pre-roll, then above, then the window, then the seat, each once and each for a share of the six seconds", () => {
+  test("[world:ride-cuts-between-angles] given a danfo ride, when its clock is read at each moment, then it is outside at the stop for the pre-roll, then above, then the window, then the seat, each once and each for a share of the six seconds", () => {
     const seen = seenOn("danfo");
     expect(seen.map((part) => part.angle)).toEqual(["outside", "above", "window", "seat"]);
     expect(seen[0]?.to).toBeLessThan(PRE_MS);
@@ -652,7 +652,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(anglesOf("danfo").map((part) => part.angle)).toEqual(["outside", "above", "window", "seat"]);
   });
 
-  test("[R-WORLD-032] given an okada ride and a keke ride, when the clock is read at each moment, then each is outside at the stop for the pre-roll, then above, then the rider ahead and the open street; on foot it is above throughout", () => {
+  test("[world:ride-cuts-between-angles] given an okada ride and a keke ride, when the clock is read at each moment, then each is outside at the stop for the pre-roll, then above, then the rider ahead and the open street; on foot it is above throughout", () => {
     for (const way of ["okada", "keke"] as const) {
       const seen = seenOn(way);
       expect(seen.map((part) => part.angle)).toEqual(["outside", "above", "ahead"]);
@@ -662,7 +662,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(seenOn("walk").map((part) => part.angle)).toEqual(["above"]);
   });
 
-  test("[R-WORLD-032] [R-WORLD-013] given each cut of a ride, when the dark is read across it, then the screen is fully dark at the cut, clear between cuts, and dark for under half a second each time", () => {
+  test("[world:ride-cuts-between-angles] [world:entering-is-a-cut] given each cut of a ride, when the dark is read across it, then the screen is fully dark at the cut, clear between cuts, and dark for under half a second each time", () => {
     for (const way of ["danfo", "okada", "keke"] as const) {
       const cuts = anglesOf(way).slice(1).map((part) => part.from);
       for (const cut of cuts) {
@@ -682,7 +682,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(darkAt("walk", 3000)).toBe(0);
   });
 
-  test("[R-WORLD-032] given a danfo's scene, when each angle is framed, then the stop is seen from outside, above from high over the street, the window from the aisle out to the road with the cab's pillars drawn, and the seat from a back seat facing the road with the row in front", () => {
+  test("[world:ride-cuts-between-angles] given a danfo's scene, when each angle is framed, then the stop is seen from outside, above from high over the street, the window from the aisle out to the road with the cab's pillars drawn, and the seat from a back seat facing the road with the row in front", () => {
     const scene = buildRide("danfo");
     scene.setPerson("own", new Group());
     scene.setPerson("driver", new Group());
@@ -726,7 +726,7 @@ describe("the ride cuts between its angles by itself", () => {
 
   // The keke's last angle is its window out of the open side, tested in
   // rideScene.keke.test.ts; the okada keeps the character's own seat behind the rider.
-  test("[R-WORLD-032] given an okada's scene, when the last angle is framed, then the camera sits where the character sits, behind the rider, facing the open street ahead with him in view", () => {
+  test("[world:ride-cuts-between-angles] given an okada's scene, when the last angle is framed, then the camera sits where the character sits, behind the rider, facing the open street ahead with him in view", () => {
     for (const way of ["okada"] as const) {
       const scene = buildRide(way);
       const carrier = way === "okada" ? "rider" : "driver";
@@ -750,7 +750,7 @@ describe("the ride cuts between its angles by itself", () => {
     }
   });
 
-  test("[R-WORLD-032] given each way's scene before its people load, when each angle plays, then it costs no more draw calls than the ride did, seven", () => {
+  test("[world:ride-cuts-between-angles] given each way's scene before its people load, when each angle plays, then it costs no more draw calls than the ride did, seven", () => {
     for (const way of ["danfo", "keke", "okada", "walk"] as const) {
       const scene = buildRide(way);
       for (const part of anglesOf(way)) {
@@ -761,7 +761,7 @@ describe("the ride cuts between its angles by itself", () => {
     }
   });
 
-  test("[R-WORLD-032] given the ride's clock, when a frame comes late, then the step is clamped and the clock never passes the ride's end", () => {
+  test("[world:ride-cuts-between-angles] given the ride's clock, when a frame comes late, then the step is clamped and the clock never passes the ride's end", () => {
     expect(stepClock(0, 16)).toBe(16);
     // A slow but steady frame counts whole (a device at two frames a second keeps the ride's pace); a stall moves one step only.
     expect(stepClock(1000, 500)).toBe(1500);
@@ -771,7 +771,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(STEP_MS).toBeLessThanOrEqual(100);
   });
 
-  test("[R-WORLD-032] given a danfo ride playing, when a slow frame of three seconds comes, then the ride does not jump ahead: the angle, the card's line and the end keep the ride's own clock", async () => {
+  test("[world:ride-cuts-between-angles] given a danfo ride playing, when a slow frame of three seconds comes, then the ride does not jump ahead: the angle, the card's line and the end keep the ride's own clock", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={1} onDone={onDone} />);
@@ -798,7 +798,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-032] given a danfo ride, when it plays out, then the probe says each angle once in order, the card's buttons are only Turn back and Skip, and no view switch shows", async () => {
+  test("[world:ride-cuts-between-angles] given a danfo ride, when it plays out, then the probe says each angle once in order, the card's buttons are only Turn back and Skip, and no view switch shows", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     render(<Ride way="danfo" place="Bode Thomas Street" from="Ojuelegba" drawing={false} seed={2} onDone={onDone} onTurnBack={() => undefined} />);
@@ -820,7 +820,7 @@ describe("the ride cuts between its angles by itself", () => {
     expect(onDone).not.toHaveBeenCalled();
   });
 
-  test("[R-WORLD-032] given a danfo ride in each of its angles, when Skip is tapped, then it ends at once and not again", async () => {
+  test("[world:ride-cuts-between-angles] given a danfo ride in each of its angles, when Skip is tapped, then it ends at once and not again", async () => {
     for (const part of anglesOf("danfo")) {
       vi.useFakeTimers();
       const onDone = vi.fn();
@@ -840,7 +840,7 @@ describe("the ride cuts between its angles by itself", () => {
     }
   });
 
-  test("[R-WORLD-032] given an okada ride, when Turn back is tapped from the rider-ahead angle, then the ride turns back once and never arrives", async () => {
+  test("[world:ride-cuts-between-angles] given an okada ride, when Turn back is tapped from the rider-ahead angle, then the ride turns back once and never arrives", async () => {
     vi.useFakeTimers();
     const onDone = vi.fn();
     const onTurnBack = vi.fn();

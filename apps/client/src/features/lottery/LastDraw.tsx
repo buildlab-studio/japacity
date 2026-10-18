@@ -1,4 +1,4 @@
-// The last draw's result under the kiosk (R-LOTTERY-006, R-LOTTERY-023): the
+// The last draw's result under the kiosk (lottery:view-shows-draw-state, lottery:screen-states-odds-plainly): the
 // tickets sold, whether the jackpot was hit or rolled over, and how many
 // tickets won each prize. Tickets are numbers, never names.
 import type { LotteryResult } from "@japacity/sim";

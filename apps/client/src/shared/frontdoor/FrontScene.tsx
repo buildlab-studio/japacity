@@ -1,8 +1,8 @@
-// The front door's scene (prologue.md R-PROLOGUE-009): the family compound as the city draws it, with
+// The front door's scene (prologue:front-door-builds-a-person): the family compound as the city draws it, with
 // the character on a plinth at the gate, seen from the street. One fixed raised camera, low mode, no crowd:
 // the sheet covers the bottom of the screen, so the camera keeps the character in the top part. A look
 // tapped on the sheet is put on the same character at once; the figure turns slowly and a finger drags it
-// round. The figure wears the player's own colours (R-PROLOGUE-015), painted once a
+// round. The figure wears the player's own colours (prologue:player-colours-on-looks), painted once a
 // pick, and tells the first screen what it read of the look. Loaded only where WebGL exists; nothing here sends a command.
 import { content, text } from "@japacity/content";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
@@ -151,7 +151,7 @@ function Compound({ file, look, spin, style, onShown }: FrontSceneProps & { file
   });
 
   const stage = stageOf(file);
-  // No canvas background: the gate's own band shows through the sky, so the door wears the theme (R-WORLD-021).
+  // No canvas background: the gate's own band shows through the sky, so the door wears the theme (world:colours-are-role-tokens).
   const { sky, fog } = skyColours(stage.light.sky, stage.light.ground, settings.haze);
   return (
     <>

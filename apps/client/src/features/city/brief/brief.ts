@@ -13,7 +13,7 @@ import { itemWayOf, STEP_ACTIVITY } from "../nudge/nudge";
 
 /** How long the chip stands under the band after Let's go, before it slides into the Phone thumb. */
 export const TUCK_MS = 2000;
-/** How long the slide into the Phone thumb takes: under half a second (R-WORLD-023). */
+/** How long the slide into the Phone thumb takes: under half a second (world:motions-under-half-second). */
 export const TUCK_SLIDE_MS = 420;
 /** How long a done thing's toast rides under the chip. */
 export const DONE_TOAST_MS = 3000;
@@ -52,7 +52,7 @@ export interface Brief {
   picture: string;
 }
 
-/** The base chapter whose words a chapter takes: a variant's base, else itself (R-CHAPTER-009). */
+/** The base chapter whose words a chapter takes: a variant's base, else itself (chapter:chapters-follow-lean-route). */
 export function baseOf(chapter: string): string {
   return content.chapter[chapter as Id<"chapter">]?.variantOf ?? chapter;
 }
@@ -103,7 +103,7 @@ function itemPicture(chapter: string, item: string): string {
   return STEP_ACTIVITY[`${chapter}.${item}`] ?? itemWayOf(chapter, item)?.go ?? "place.ojuelegba";
 }
 
-/** The brief after a chapter: the next base chapter by order, never a variant (R-CHAPTER-009). */
+/** The brief after a chapter: the next base chapter by order, never a variant (chapter:chapters-follow-lean-route). */
 export function nextBase(chapter: string): string | null {
   const order = content.chapter[baseOf(chapter) as Id<"chapter">]?.order ?? Infinity;
   const later = Object.values(content.chapter)

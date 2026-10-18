@@ -1,4 +1,4 @@
-// What an act says once it lands (docs/rules/world.md R-WORLD-005; text.md R-TEXT-008).
+// What an act says once it lands (world:things-are-tappable-models; text:show-then-tell).
 // A person at the thing speaks in their own voice over their head (`<act>.says`, named by `<act>.who`
 // or the thing's own name), and what that does to the world may follow in the corner (`<act>.done`). A thing that
 // is not a person tells one short line in the corner (`<act>.done`). An act the scene shows (sit, lie down, cook,
@@ -25,11 +25,11 @@ function wordsFor(key: string): string | null {
   return found === key ? null : found;
 }
 
-/** A person's own line named by a thing's act: a colleague at the tea point (world.md R-WORLD-039). */
+/** A person's own line named by a thing's act: a colleague at the tea point (world:ride-abroad-and-workplace). */
 const PERSON_LINE = "city.line.";
 
 /**
- * A line told in turn (R-WORLD-039): a key ending `.1` names the first of a set, `.2`, `.3` and on while they have words,
+ * A line told in turn (world:ride-abroad-and-workplace): a key ending `.1` names the first of a set, `.2`, `.3` and on while they have words,
  * and the `nth` tap tells the next of them, round again after the last. Any other key is itself.
  */
 export function inTurn(key: string, nth: number): string {
@@ -61,7 +61,7 @@ export function doActLine(added: boolean): ActLine {
 }
 
 /**
- * The state a thing's name carries while one of its acts carries on in the plan (R-WORLD-005, R-WORLD-007, R-TEXT-008):
+ * The state a thing's name carries while one of its acts carries on in the plan (world:things-are-tappable-models, world:month-acts-carry-on, text:show-then-tell):
  * "Ongoing", shown beside the name whenever the name shows.
  */
 export function plannedMarks(things: readonly Pick<Thing, "id" | "acts">[], planned: ReadonlySet<string>): Record<string, string> {
@@ -74,7 +74,7 @@ export function plannedMarks(things: readonly Pick<Thing, "id" | "acts">[], plan
 }
 
 /**
- * The light bill paid where Mama sits (R-WORLD-005): she says "God bless you. Light
+ * The light bill paid where Mama sits (world:things-are-tappable-models): she says "God bless you. Light
  * is back." over her head, the corner tells the bill paid, and a moment later the next compound is heard. Null when the
  * lines hold no bill paid or Mama is not in the place.
  */
@@ -85,7 +85,7 @@ export function lightBack(lines: readonly { key: string; params: Record<string, 
   return { who: mama.id, name: cityWords(mama.label), words: cityWords("city.say.light-back"), told: cityWords("city.told.light-paid"), heard: cityWords("city.heard.up-nepa") };
 }
 
-/** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (R-WORLD-005). */
+/** The acts the scene shows (the pot steams, the drum fills): the place says no line for them (world:things-are-tappable-models). */
 export const SHOWN_BY_SCENE: ReadonlySet<string> = new Set(["activity.cook-at-home", "activity.cook-own", "activity.cook-own-uk", "activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it", "activity.fetch-water", "activity.fill-drum"]);
 
 /** Gist with Mama, and the big pot bought for the house: her own words over her head. */
@@ -98,7 +98,7 @@ function spoken(words: string): string {
 }
 
 /**
- * Where an act done at once lands its line (R-WORLD-005; decision 0012: acts that repeat): Mama's gist over her head, as
+ * Where an act done at once lands its line (world:things-are-tappable-models; decision 0012: acts that repeat): Mama's gist over her head, as
  * her words; any other act that repeats in the corner, every time it is done, since a repeat act is never done for the
  * month; null for the rest, which answer in their sheet, and for what the scene shows, which says nothing.
  */

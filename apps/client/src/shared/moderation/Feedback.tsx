@@ -1,7 +1,7 @@
-// The team's corner of the game (moderation.md): the feedback box (R-MODERATION-020), and, when the team has acted on
-// this account or decided one of its reports, the notice with its one appeal per action (R-MODERATION-007,
-// R-MODERATION-016). In the world they are two rows in the phone's Settings, the game's menu now; the broken screen's
-// Tell us opens the same box (analytics.md R-ANALYTICS-002).
+// The team's corner of the game (moderation.md): the feedback box (moderation:feedback-box-in-settings), and, when the team has acted on
+// this account or decided one of its reports, the notice with its one appeal per action (moderation:reporter-told-outcome-only,
+// moderation:actioned-player-told-and-appeals). In the world they are two rows in the phone's Settings, the game's menu now; the broken screen's
+// Tell us opens the same box (analytics:client-sends-interface-counts).
 import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
 import { BellDot, MessageSquareText } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -27,7 +27,7 @@ function useScreenName(): string {
   });
 }
 
-/** `initial`: words already in the box, as the broken screen's Tell us writes them in (R-ANALYTICS-002). */
+/** `initial`: words already in the box, as the broken screen's Tell us writes them in (analytics:client-sends-interface-counts). */
 export function FeedbackForm({ moderation, screen, max, initial = "" }: { moderation: ModerationApi; screen: string; max: number; initial?: string }) {
   const [text, setText] = useState(initial);
   const [busy, setBusy] = useState(false);
@@ -98,7 +98,7 @@ function appealWords(appeal: NonNullable<Standing["actions"][number]["appeal"]>)
   return words(appeal.outcome === "overturned" ? "ui.notice.appeal.overturned" : "ui.notice.appeal.upheld");
 }
 
-/** R-MODERATION-007, R-MODERATION-016: what the team did about this account and its reports, and the appeal. */
+/** moderation:reporter-told-outcome-only, moderation:actioned-player-told-and-appeals: what the team did about this account and its reports, and the appeal. */
 export function NoticeView({ moderation, standing, onChange }: { moderation: ModerationApi; standing: Standing; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);

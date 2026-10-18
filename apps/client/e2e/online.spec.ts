@@ -34,7 +34,7 @@ const POSTER = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"
 
 /**
  * The world as an online life opens it, with nothing standing over the place: the chapter's opening words passed, the
- * home's teach card put away (R-HOME-008), and the place drawn.
+ * home's teach card put away (home:moves-carry-cost-and-reason), and the place drawn.
  */
 async function intoTheWorld(page: Page): Promise<void> {
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
@@ -80,7 +80,7 @@ function friendGame(): Game {
   return game;
 }
 
-test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the full screen and no way in", async ({ page }, info) => {
+test("[server:signups-off-shows-full] while sign-ups are switched off, a new visitor sees the full screen and no way in", async ({ page }, info) => {
   await fakeServer(page, {
     "GET /api/view": SIGNED_OUT,
     "GET /api/age": { status: 503, body: { ok: false, code: "switched-off", detail: "Sign-ups are closed for now.", retryAfter: 30 } },
@@ -93,7 +93,7 @@ test("[R-SERVER-032] while sign-ups are switched off, a new visitor sees the ful
   await shootAtSize(page, "full", info.project.name);
 });
 
-test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before sign-up, with its report control, then the age screen, the username with the guest line under it, and the ways back in", async ({ page }, info) => {
+test("[pair:invite-link-single-use] [account:start-screen-over-live-city] an invite link shows the friend's card before sign-up, with its report control, then the age screen, the username with the guest line under it, and the ways back in", async ({ page }, info) => {
   await fakeServer(page, {
     "GET /api/view": SIGNED_OUT,
     [`GET /api/invite/${CODE}`]: {
@@ -119,10 +119,10 @@ test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before
   await page.getByRole("combobox", { name: "Day" }).selectOption("12");
   await page.getByRole("combobox", { name: "Month" }).selectOption({ label: "March" });
   await page.getByRole("combobox", { name: "Year" }).selectOption("1994");
-  // The bot check runs unseen (R-ACCOUNT-029).
+  // The bot check runs unseen (account:start-screen-over-live-city).
   await expect(page.getByText("Check passed")).toHaveCount(0);
   await page.getByRole("button", { name: "Continue" }).click();
-  // R-ACCOUNT-021, 013: the card makes the life here, so the username stands under the age screen, the check unseen; a friend who kept a life goes to the ways back in.
+  // account:guest-and-secured-states, account:bot-check-on-guest-creation: the card makes the life here, so the username stands under the age screen, the check unseen; a friend who kept a life goes to the ways back in.
   await expect(page.getByLabel("Username")).toBeVisible();
   await expect(page.getByText("This life lives only on this phone until you keep it.")).toHaveCount(1);
   await expect(page.getByText("Check passed")).toHaveCount(0);
@@ -132,7 +132,7 @@ test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before
   await shootAtSize(page, "invite-ways-in", info.project.name);
 });
 
-test("[R-MODERATION-003] a friend's conversation carries block and report, and a report offers a block ticked", async ({ page }, info) => {
+test("[moderation:report-from-every-surface] a friend's conversation carries block and report, and a report offers a block ticked", async ({ page }, info) => {
   const game = friendGame();
   await fakeServer(page, {
     "GET /api/view": { body: viewReply(game, CLOCK.tick) },
@@ -151,7 +151,7 @@ test("[R-MODERATION-003] a friend's conversation carries block and report, and a
   });
   test.setTimeout(150_000);
   await intoTheWorld(page);
-  // The friend's conversation is in the phone's Chats, under the bond's head (R-WORLD-018).
+  // The friend's conversation is in the phone's Chats, under the bond's head (world:phone-rises-over-scene).
   const bond = game.view().people.bonds.find((one) => one.pair === PAIR)?.id ?? "";
   const chats = await openApp(page, "chats");
   await chats.locator(`[data-chat-row="${bond}"]`).click();
@@ -170,7 +170,7 @@ test("[R-MODERATION-003] a friend's conversation carries block and report, and a
   await shootAtSize(page, "conversation-report", info.project.name);
 });
 
-test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the game's own label, and its card can be reported", async ({ page }, info) => {
+test("[advert:slots-capped-per-place] the phone tile shows the hour's sponsored tile with the game's own label, and its card can be reported", async ({ page }, info) => {
   const game = start({ scenario: "scenario.tunde", content });
   game.grant(1);
   game.endTurn([]);
@@ -191,7 +191,7 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
   });
   test.setTimeout(150_000);
   await intoTheWorld(page);
-  // The sponsored tile stands on the phone's home among its tiles (R-ADVERT-002), one at most.
+  // The sponsored tile stands on the phone's home among its tiles (advert:slots-capped-per-place), one at most.
   await page.locator('[data-thumb="phone"]').click();
   const tile = page.locator("[data-phone] [data-advert-slot='advert.phone-tile']");
   await expect(tile).toBeVisible({ timeout: 20_000 });
@@ -227,7 +227,7 @@ function drawGame(): Game {
 }
 
 test.describe("the street kiosk while the world runs the Friday draw", () => {
-  test("[R-LOTTERY-001] [R-WORLD-005] [R-WORLD-006] the kiosk on Bode Thomas Street opens the Friday draw's sheet, and one ticket is bought from it in the world", async ({ page }, info) => {
+  test("[lottery:draw-runs-online-only] [world:things-are-tappable-models] [world:one-action-one-sheet] the kiosk on Bode Thomas Street opens the Friday draw's sheet, and one ticket is bought from it in the world", async ({ page }, info) => {
     test.setTimeout(300_000);
     const game = drawGame();
     const sent: Command[] = [];
@@ -241,7 +241,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
         return result.ok ? { body: { ok: true, view: game.view(), lines: result.lines, clock: CLOCK } } : { status: 409, body: result };
       },
     });
-    // The life stands on Bode Thomas Street, where the kiosk is (city.md R-CITY-013: the last place stood in opens).
+    // The life stands on Bode Thomas Street, where the kiosk is (city:ojuelegba-is-the-hub: the last place stood in opens).
     await page.addInitScript(() => {
       window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.bode-thomas"]));
       window.localStorage.setItem("japacity.city.graphics", "high");
@@ -261,7 +261,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     if (await teach.isVisible().catch(() => false)) await teach.click();
 
     // The kiosk keeps its name and its act; the tap opens the draw's sheet, never the offline slip.
-    // The kiosk's fan (R-WORLD-034), its button or the small sheet's where the fan has no room.
+    // The kiosk's fan (world:fan-of-sticker-buttons), its button or the small sheet's where the fan has no room.
     await page.locator('[data-mark="kiosk"]').click();
     const act = page.locator('[data-fan="kiosk"] [data-fan-act] button, [data-fan-sheet="kiosk"] [data-fan-act] button').first();
     await expect(act).toBeVisible();
@@ -273,7 +273,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     await expect(sheet.locator("[data-lottery-close]")).toBeVisible();
     await expect(sheet.locator("[data-lottery-odds]")).toHaveCount(0);
 
-    // Two picked: the button says the act and its price, and under it the balance before, struck, and after (R-WORLD-006,
+    // Two picked: the button says the act and its price, and under it the balance before, struck, and after (world:one-action-one-sheet,
     // as decision 0011 put the price on the button in place of "paid now").
     await sheet.getByRole("button", { name: "One more ticket" }).click();
     const buy = page.locator("[data-kiosk-buy]");
@@ -284,7 +284,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     await expect(page.locator("[data-balance-before]")).toBeVisible();
     await expect(page.locator("[data-balance-after]")).toBeVisible();
     await shootAtSize(page, "kiosk-online", info.project.name);
-    // The odds fold behind their row (R-WORLD-006).
+    // The odds fold behind their row (world:one-action-one-sheet).
     await sheet.locator('[data-kiosk-fold="odds"] button').click();
     await expect(sheet.locator("[data-lottery-odds]")).toBeVisible();
     await sheet.locator('[data-kiosk-fold="odds"]').scrollIntoViewIfNeeded();
@@ -300,7 +300,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
   });
 });
 
-test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
+test("[world:nobody-picked-from-list] [person:computer-candidates-labelled] [person:courting-opens-a-bond] in the world on a phone, Tobi stands in the family house's parlour with the computer mark; his card's button courts him, and his thread in Chats opens with the bond's head", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The world is checked at phone size.");
   test.setTimeout(120_000);
   const TOBI = "person.tobi-bank";
@@ -333,7 +333,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await page.goto("/");
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await passOpeningWords(page);
-  // The home's teach card, once in a life (R-HOME-008), is put away so the parlour is clear.
+  // The home's teach card, once in a life (home:moves-carry-cost-and-reason), is put away so the parlour is clear.
   const teach = page.locator("[data-home-teach-ok]");
   if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
   await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean } }).__city?.ready === true, null, { timeout: 90_000 });
@@ -341,15 +341,15 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await page.waitForFunction(() => (window as unknown as { __city?: { ready?: boolean; place?: string } }).__city?.ready === true, null, { timeout: 90_000 });
   const mark = page.locator('[data-mark="after-service"]');
   await expect(mark).toBeVisible({ timeout: 30_000 });
-  // The names every thing shows on a first entry fade before the picture (R-WORLD-005).
+  // The names every thing shows on a first entry fade before the picture (world:things-are-tappable-models).
   await page.waitForTimeout(2600);
   // A friend of the family visiting stands there too.
   await expect(page.locator('[data-mark="friend-guest"]')).toHaveCount(1);
   await mark.click();
-  // His fan (R-WORLD-034): his name in the pill over him, with the mark's word beside it.
+  // His fan (world:fan-of-sticker-buttons): his name in the pill over him, with the mark's word beside it.
   const chip = page.locator('[data-fan="after-service"]');
   await expect(chip.locator("[data-fan-title]")).toContainText("Tobi");
-  // The mark's word (R-PEOPLE-009).
+  // The mark's word (person:computer-candidates-labelled).
   await expect(chip.locator("[data-fan-title] [data-person-mark]")).toHaveText("Not a player");
   await page.waitForTimeout(400);
   await shootAtSize(page, "parlour-tobi", info.project.name);
@@ -378,7 +378,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   await page.waitForTimeout(800);
   await shootAtSize(page, "thread-head", info.project.name);
 
-  // The thread's one way back, the app's Back, returns to the chats (R-WORLD-018).
+  // The thread's one way back, the app's Back, returns to the chats (world:phone-rises-over-scene).
   await page.locator("[data-phone-back]").click();
   await page.locator('[data-chat-row="people"]').click();
   const slots = page.locator("[data-people-slots]");

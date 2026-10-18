@@ -1,5 +1,5 @@
 // The Third Mainland Bridge rebuilt as one frontage (city.md place.third-mainland-bridge, world.md
-// R-WORLD-011, streets.md R-STREET-004): the shore under one span, the deck overhead, mats on pallets
+// world:place-is-one-screen, streets:sleeping-under-the-bridge): the shore under one span, the deck overhead, mats on pallets
 // where people sleep, a drum fire, the lagoon's edge, and a danfo on the service road.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -22,7 +22,7 @@ const NIGHT = ["offer.bridge-night", "offer.bridge-theft", "offer.bridge-mosquit
 describe("the Third Mainland Bridge", () => {
   frontageTests(raw, ID);
 
-  test("[R-STREET-004] given the mats under the bridge, when their acts are read, then sleeping rough is done on the spot lying on a mat, and the night's three blows open from the same mats on one sheet", () => {
+  test("[streets:sleeping-under-the-bridge] given the mats under the bridge, when their acts are read, then sleeping rough is done on the spot lying on a mat, and the night's three blows open from the same mats on one sheet", () => {
     const mats = thing("mats");
     const [sleep, night] = mats.acts;
     expect(sleep?.kind).toBe("do");
@@ -33,7 +33,7 @@ describe("the Third Mainland Bridge", () => {
     expect(mats.acts.map((act) => cityWords(act.label))).toEqual(["Sleep here", "The night"]);
   });
 
-  test("[R-STREET-004] given the sleeping spot, when it is read against the pallets and the deck, then it lies on a mat on a pallet and under the span's girder", () => {
+  test("[streets:sleeping-under-the-bridge] given the sleeping spot, when it is read against the pallets and the deck, then it lies on a mat on a pallet and under the span's girder", () => {
     const seat = thing("mats").acts[0]?.seat;
     if (seat === undefined) throw new Error("No seat");
     const pallets = stage.roads.filter((road) => road.colour === "wood");
@@ -48,19 +48,19 @@ describe("the Third Mainland Bridge", () => {
     expect(BRIDGE.top - girderDepth(t)).toBeGreaterThan(2);
   });
 
-  test("[R-CITY-011] given what the bridge stages, when the city looks for where each is shown at home, then sleeping rough and the night's blows are shown here", () => {
+  test("[city:set-piece-shown-where-staged] given what the bridge stages, when the city looks for where each is shown at home, then sleeping rough and the night's blows are shown here", () => {
     const places = Object.values(content.place);
     for (const id of ["activity.sleep-rough", ...NIGHT]) expect(stagedAt(id, { where: "home", country: null }, places)).toBe(ID);
   });
 
-  test("[R-WORLD-017] given the danfo on the service road, when it is tapped, then it opens the ride sheet for the danfo", () => {
+  test("[world:ride-sheet-shows-fares] given the danfo on the service road, when it is tapped, then it opens the ride sheet for the danfo", () => {
     const danfo = thing("danfo");
     expect(danfo.acts.map((act) => act.kind)).toEqual(["ride"]);
     expect(vehicleOf(danfo)).toBe("danfo");
     expect(thingSpot(stage, danfo)).not.toBeNull();
   });
 
-  test("[R-WORLD-005] given the drum fire, when its act is read, then warming your hands is a plain act that says what happened, and its smoke rises from it", () => {
+  test("[world:things-are-tappable-models] given the drum fire, when its act is read, then warming your hands is a plain act that says what happened, and its smoke rises from it", () => {
     const fire = thing("drum-fire");
     expect(fire.acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(cityWords("city.act.warm-hands.done")).not.toBe("city.act.warm-hands.done");
@@ -70,7 +70,7 @@ describe("the Third Mainland Bridge", () => {
     expect(Math.hypot(smoke.at[0] - spot[0], smoke.at[2] - spot[1])).toBeLessThan(0.5);
   });
 
-  test("[R-CITY-026] given the lagoon's edge, when the place is read, then one water grid in the lagoon's colour lies beside the shore and nobody stands in it", () => {
+  test("[city:motion-in-vertex-shader] given the lagoon's edge, when the place is read, then one water grid in the lagoon's colour lies beside the shore and nobody stands in it", () => {
     const water = stage.motion.filter((motion) => motion.kind === "water");
     expect(water).toHaveLength(1);
     const [grid] = water;

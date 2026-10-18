@@ -11,7 +11,7 @@ import { OfferView } from "./OfferView";
 const health = content.tuning.health;
 
 describe("illness and the days lost, before the choice", () => {
-  test("[R-HEALTH-007] [R-HEALTH-002] given the illness offer from the engine, then both prices are in its words and on its buttons before the choice", async () => {
+  test("[health:view-shows-health-warning] [health:illness-rolls-when-run-down] given the illness offer from the engine, then both prices are in its words and on its buttons before the choice", async () => {
     const game = newGame();
     const offer = openOffer(game, "offer.illness");
     await renderWithView(<OfferView />, game.view());
@@ -25,7 +25,7 @@ describe("illness and the days lost, before the choice", () => {
     expect(screen.getByRole("button", { name: say("ui.offer.choice-cost", { choice: text["offer.illness.choice.ignore"]!, amount: thisMonth }) })).toBeDefined();
   });
 
-  test("[R-HEALTH-006] given a court date abroad, then its one choice says it holds a slot this month", async () => {
+  test("[health:forced-months-warned-ahead] given a court date abroad, then its one choice says it holds a slot this month", async () => {
     // Ada's long life abroad, a year before its end: sponsored in the UK, where a court date can come (her careful life's cut now ends a student month with a parcel of offers waiting, and lapses soon after).
     const game = recordedGame("ada-abroad", 12);
     expect(game.view().place.where).toBe("abroad");

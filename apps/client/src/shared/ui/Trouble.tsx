@@ -1,4 +1,4 @@
-// R-ENGINE-015: the card for a request that brought no answer the game can read. It says what happened in a person's
+// engine:browser-authority-for-dev-only: the card for a request that brought no answer the game can read. It says what happened in a person's
 // words, by the failure's kind, over whatever sent it: the loading screen, the door's Begin, or the sheet whose choice
 // is kept. Retry sends the same again; a login wall or an ended session also offers Reload, which opens the game anew.
 // The game's card dress, never red text: the line in the game's voice, a plain

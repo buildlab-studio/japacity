@@ -1,8 +1,8 @@
-// The send-off as a scene (docs/rules/chapter.md R-CHAPTER-012): six beats, seen once per life, from the airport's gate
+// The send-off as a scene (chapter:send-off-scene-in-beats): six beats, seen once per life, from the airport's gate
 // to the first ride abroad. Its own chunk, fetched when the gate's act is
-// picked, never on a first visit (engine.md R-ENGINE-020). Beats 1 and 2 change nothing in the life; "Board the plane"
+// picked, never on a first visit (engine:first-download-has-budget). Beats 1 and 2 change nothing in the life; "Board the plane"
 // at beat 3 sends `route/depart` once; beats 4 to 6 run on the client over the view after the
-// reply, and the simulation knows nothing of them. The scene counts nothing of its own (R-ANALYTICS-002).
+// reply, and the simulation knows nothing of them. The scene counts nothing of its own (analytics:client-sends-interface-counts).
 import "./sendoff.css";
 
 import { content, text } from "@japacity/content";
@@ -21,7 +21,7 @@ import { sendOffWords } from "../sendOff.words";
 import { Counter, Departures, type Dress, Gate, LandingBeat, Plane, Ride, useStageScale } from "./beats";
 import { blindName, castFor, firstPings, flightCost, FRONT_MS, GATE_LINE, landingOf, PLANE_MS, queueLine, speakerName, stopLookFor } from "./plan";
 
-/** The city the plane's sticker names, by the hub's city in content (world.md R-WORLD-037). */
+/** The city the plane's sticker names, by the hub's city in content (world:plane-cut-at-send-off). */
 function planeCity(city: string): string {
   return sendOffWords(`sendoff.plane.city.${city}`);
 }
@@ -40,7 +40,7 @@ interface SendOffYou {
 
 /**
  * The game as the city holds it, handed in: the scene's chunk imports nothing of the store, so the first visit's chunks
- * keep their shape (engine.md R-ENGINE-020).
+ * keep their shape (engine:first-download-has-budget).
  */
 interface SendOffGame {
   view: PlayerView;
@@ -54,11 +54,11 @@ interface SendOffGame {
 export interface SendOffSceneProps {
   you: SendOffYou;
   game: SendOffGame;
-  /** The map's plane cut, handed in by the shell (world.md R-WORLD-037); without it beat 4 is the night colour alone. */
+  /** The map's plane cut, handed in by the shell (world:plane-cut-at-send-off); without it beat 4 is the night colour alone. */
   planeCut?: (slot: PlaneCutSlot) => ReactNode;
 }
 
-/** The seat's words, as the stub carries them (share.md R-SHARE-015). */
+/** The seat's words, as the stub carries them (share:send-off-card-kept). */
 function seatWords(seat: string): string {
   return text[`share.stub.seat.${seat}`] ?? seat;
 }
@@ -77,13 +77,13 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
     const timer = window.setTimeout(() => sendOff.getState().to("counter"), FRONT_MS);
     return () => window.clearTimeout(timer);
   }, [beat, step]);
-  // The plane's cut lasts about three seconds, moving or still, then the landing (R-WORLD-037).
+  // The plane's cut lasts about three seconds, moving or still, then the landing (world:plane-cut-at-send-off).
   useEffect(() => {
     if (beat !== "plane") return;
     const timer = window.setTimeout(() => sendOff.getState().to("landing"), PLANE_MS);
     return () => window.clearTimeout(timer);
   }, [beat]);
-  // The first ride says the card is saved (share.md R-SHARE-015): from here the card is kept where the phone keeps cards.
+  // The first ride says the card is saved (share:send-off-card-kept): from here the card is kept where the phone keeps cards.
   useEffect(() => {
     if (beat === "ride") sendOff.getState().save();
   }, [beat]);
@@ -95,7 +95,7 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
   const landing = landingOf(scene.country);
   const ageMonths = qualityIn(view, "quality.age-months");
   const age = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
-  // Before the plane the band counts the naira; after it, the landing country's own money (R-WORLD-002 abroad).
+  // Before the plane the band counts the naira; after it, the landing country's own money (world:top-band-is-lively-pill abroad).
   const abroad = scene.beat === "plane" || scene.beat === "landing" || scene.beat === "ride";
   const currency = abroad ? (content.country[scene.country]?.currency ?? "NGN") : "NGN";
   const pocket = view.pockets[currency];
@@ -163,7 +163,7 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
               </div>
             }
             onBoard={() => {
-              // The one act of the scene that changes the life (R-CHAPTER-012 beat 3): sent once, the scene moving on only on its yes.
+              // The one act of the scene that changes the life (chapter:send-off-scene-in-beats beat 3): sent once, the scene moving on only on its yes.
               void send({ type: "route/depart", route: scene.route }).then((accepted) => {
                 if (accepted) {
                   cue("whoosh");

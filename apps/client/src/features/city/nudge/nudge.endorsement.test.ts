@@ -1,4 +1,4 @@
-// The nudge after the endorsement is refused (docs/rules/world.md R-WORLD-003, route-gates R-ENDORSE-002): a step
+// The nudge after the endorsement is refused (world:nudge-says-one-thing, route-gates route-gates:endorsement-decided-by-draw): a step
 // waiting out a refusal names the wait, read from the route's refusal in the view, never "Apply for the endorsement"
 // over a sheet that says it can be asked for again in six months. Real content, a real
 // refusal: the talent route known, the endorsement asked for, the body sure to say no.
@@ -44,7 +44,7 @@ function cooledFrom(view: PlayerView): number {
 }
 
 describe("the nudge after a refusal", () => {
-  test("[R-WORLD-003] [R-ENDORSE-002] given the endorsement refused, when the nudge is read while the wait runs, then it says when it can be asked for again in words, never the act again; once the wait is out it names the act", () => {
+  test("[world:nudge-says-one-thing] [route-gates:endorsement-decided-by-draw] given the endorsement refused, when the nudge is read while the wait runs, then it says when it can be asked for again in words, never the act again; once the wait is out it names the act", () => {
     const game = talentLife();
     game.accept({ type: "activity/now", activity: APPLY_ENDORSEMENT, param: null });
     const ready = game.state.document["document.endorsement"]?.readyMonth ?? 0;
@@ -61,7 +61,7 @@ describe("the nudge after a refusal", () => {
     expect(nudgeOf(inTheFile(game.view())).key).not.toBe(`${OWN}.wait`);
   });
 
-  test("[R-WORLD-003] given the wait's words, when the longest wait is said, then the nudge is one sentence of at most eight words", () => {
+  test("[world:nudge-says-one-thing] given the wait's words, when the longest wait is said, then the nudge is one sentence of at most eight words", () => {
     const longest = content.route[TALENT]?.endorsement?.cooldown ?? 0;
     expect(text[`${OWN}.wait`]).toContain("{when}");
     const said = say(`${OWN}.wait`, { when: inMonths(longest, 0) });

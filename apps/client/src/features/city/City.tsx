@@ -1,7 +1,7 @@
 // The city (docs/rules/city.md): a full-screen scene under the panels, brought in front of them by
 // "Look around". It reads the view and never changes it: entering a place, walking and tapping are
-// this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
-// only where WebGL exists, so the panels never wait for it (R-CITY-018).
+// this screen's own state, and nothing here sends a command (city:places-change-no-state). The 3D scene is loaded
+// only where WebGL exists, so the panels never wait for it (city:places-load-on-entry).
 import { content, text } from "@japacity/content";
 import { type Id, metresApart, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
@@ -97,7 +97,7 @@ import { LoadingNote } from "./LoadingNote";
 import { COURT, courtedTold, DECEMBER, makeRoom, roomFor, roomNear, roomOpen, roomPartner, standingAsThemselves, standingAt, talkAsk, THEIR_ROOM, withMeetings, withStanding } from "./meetings";
 import { browserStorage, CITY_BEEN_KEY, CITY_LAST_KEY } from "../../shared/kept/storage";
 
-/** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (R-CLOCK-032). */
+/** Nudges that name a wait with nothing to do but end months: the English result on its way, or sealed until the morning (clock:envelopes-show-real-waits). */
 const WAIT_ONLY: ReadonlySet<string> = new Set(["chapter.build-the-file.item.english.started", MORNING]);
 /**
  * The nudges that stand under the band whatever the place: someone waiting on the player (a question, an
@@ -108,11 +108,11 @@ const STANDING_NUDGES: ReadonlySet<string> = new Set(["setpiece", "offer", "dues
 
 const CityScene = lazy(() => import("./scene/CityScene"));
 const Bag = lazy(() => import("./Bag"));
-// The send-off as a scene (chapter.md R-CHAPTER-012): its own chunk, fetched only when the gate's act is picked (R-ENGINE-020).
+// The send-off as a scene (chapter:send-off-scene-in-beats): its own chunk, fetched only when the gate's act is picked (engine:first-download-has-budget).
 const SendOffScene = lazy(() => import("./sendoff/SendOffScene"));
 /**
- * The route the airport's gate boards (R-CHAPTER-006): a granted visa's, else a route into the country of a status kept
- * from a return with papers, the one flown before first (return.md R-RETURN-004).
+ * The route the airport's gate boards (chapter:send-off-card-on-close): a granted visa's, else a route into the country of a status kept
+ * from a return with papers, the one flown before first (return:papers-return-keeps-status).
  */
 function departRoute(view: Pick<PlayerView, "routes" | "place">): Id<"route"> | null {
   const granted = view.routes.find((route) => route.state === "granted");
@@ -124,14 +124,14 @@ function departRoute(view: Pick<PlayerView, "routes" | "place">): Id<"route"> | 
   return (into.find((route) => route.state === "departed") ?? into[0])?.id ?? null;
 }
 /**
- * Who the character is in the send-off scene (R-CHAPTER-012): the band's name (the one given at the door, else the life's
- * own), the first name the stub carries, the look and the figure in their own colours (R-PROLOGUE-015). Read here, where
+ * Who the character is in the send-off scene (chapter:send-off-scene-in-beats): the band's name (the one given at the door, else the life's
+ * own), the first name the stub carries, the look and the figure in their own colours (prologue:player-colours-on-looks). Read here, where
  * the person kept beside the save is read already, so the scene's own chunk stays apart from the first visit's.
  */
 function sendOffYou(view: { scenario: string }) {
   const kept = readPerson();
   const look = lookOf(kept?.look)?.id ?? lookOf(`chr_${view.scenario.slice("scenario.".length)}`)?.id ?? "chr_ada";
-  // One name everywhere, the band's (share.md R-SHARE-004), read from the card's own source.
+  // One name everywhere, the band's (share:card-contents), read from the card's own source.
   const name = characterName(view.scenario) ?? "";
   return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
 }
@@ -153,23 +153,23 @@ function minutesBetween(from: { latE3: number; lonE3: number }, to: { latE3: num
   return 8 + Math.round(metresApart(from, to, city.ride.lonMetresPerE3) / 120);
 }
 // tuning.city.roam is false, so nothing roams.
-/** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world.md R-WORLD-010). */
+/** The street camera, the hold-to-plan view, routed walks and strolling people, switched off (world:nothing-roams). */
 const ROAM = (city as Partial<Record<"roam", boolean>>).roam ?? false;
 /** The home of each where when the view names none: the family house, then the room abroad. */
 const HOMES: Record<string, string> = { home: "place.family-house", abroad: "place.the-room" };
-/** Where the character lives (home.md R-HOME-006, R-HOME-010): the room in Makoko or in the compound while they live there, else the where's home. */
+/** Where the character lives (home:home-is-the-home-point, home:compound-room-is-a-home): the room in Makoko or in the compound while they live there, else the where's home. */
 function homeOf(view: PlayerView): string | null {
   const lived = view.place.where === "home" ? view.home.place : null;
   return lived ?? HOMES[view.place.where] ?? null;
 }
 /**
- * Places whose files are kept switched off (R-WORLD-024) until each is rebuilt as a world-first place: the map shows
+ * Places whose files are kept switched off (world:no-classic-view-kept) until each is rebuilt as a world-first place: the map shows
  * only built places, and nothing with nothing to do. Empty while every place is built.
  */
 const OLD_FILES = new Set<string>();
 
 /**
- * The first chapter's opening words for this life (R-WORLD-001): the
+ * The first chapter's opening words for this life (world:world-fills-the-screen): the
  * scenario's own line when content has one, the prologue's by its path (a degree or a trade), else the
  * chapter's line.
  */
@@ -177,7 +177,7 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
   const chapter = view.chapter.current ?? "";
   const slug = view.scenario.replace(/^scenario\./, "");
   if (slug === "prologue") {
-    // The child of the water has her own opening (R-PROLOGUE-012): her path is the shop counter's, her words are not.
+    // The child of the water has her own opening (prologue:makoko-start-never-a-trap): her path is the shop counter's, her words are not.
     const water = `${chapter}.open.prologue.water`;
     if (readPerson()?.archetype === "water" && hasWords(water)) return water;
     // The path the prologue built: a degree, a trade, or a trade with the master's settlement in hand.
@@ -186,11 +186,11 @@ function openingKey(view: Pick<PlayerView, "chapter" | "scenario" | "qualities" 
   } else if (hasWords(`${chapter}.open.${slug}`)) return `${chapter}.open.${slug}`;
   return `${chapter}.open`;
 }
-/** The first chapter by order (R-CHAPTER-001): its opening is a title over the world, never a card (R-CHAPTER-011). */
+/** The first chapter by order (chapter:first-chapter-starts-current): its opening is a title over the world, never a card (chapter:first-chapter-mission-card). */
 const FIRST_CHAPTER = Object.values(content.chapter).reduce<{ id: string; order: number } | null>((first, entry) => (first === null || entry.order < first.order ? { id: entry.id, order: entry.order } : first), null)?.id ?? null;
-/** How long every name shows over its mark on a place's first entry in a life, before the names fade (R-WORLD-005). */
+/** How long every name shows over its mark on a place's first entry in a life, before the names fade (world:things-are-tappable-models). */
 const TEACH_MS = 2000;
-/** The beat in the room after the month ends, before the scene goes dark for the results (R-WORLD-025): short, never a wait. */
+/** The beat in the room after the month ends, before the scene goes dark for the results (world:sleep-ends-the-month): short, never a wait. */
 export const RESULTS_BEAT_MS = 300;
 
 /**
@@ -208,13 +208,13 @@ function closedBrief(chapter: string, view: Pick<PlayerView, "chapter">): Brief 
   return briefOf({ chapter: { current: chapter as Id<"chapter">, items: entry.items.map((item) => ({ id: item.id, met: true })), done: view.chapter.done, closes: true, next: view.chapter.current } }, hasWords(`${chapter}.close`) ? words(`${chapter}.close`) : "");
 }
 
-/** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (R-WORLD-013). */
+/** A room that is a place of its own on the map, and the street its door opens onto: the hub's file names it as its inside (world:entering-is-a-cut). */
 const OUTSIDE_OF: Record<string, string> = { "place.yaba": "place.ojuelegba" };
-/** How long a big line leads the corner before the next is told, since the world shows no moment cards (R-WORLD-008). */
+/** How long a big line leads the corner before the next is told, since the world shows no moment cards (world:month-end-results-sheet). */
 const MOMENT_MS = 2600;
-/** Home's send-off, and the party set its yard is dressed with once the party is the answer (R-CHAPTER-008). */
+/** Home's send-off, and the party set its yard is dressed with once the party is the answer (chapter:family-marks-the-grant). */
 const SEND_OFF = "offer.family-send-off";
-/** The family house's one party set and its guests, which its file keys to a party offer (R-CITY-011). */
+/** The family house's one party set and its guests, which its file keys to a party offer (city:set-piece-shown-where-staged). */
 const PARTY_SET = "offer.send-off-party";
 /** The party's own line, told over the full yard. */
 const PARTY_SAID = `${SEND_OFF}.said.party`;
@@ -229,7 +229,7 @@ export const ARRIVE_QUIET_MS = 3000;
 const UP_NEPA_MS = 2200;
 
 /**
- * The band's chip names the nudge's own wait (R-WORLD-002, R-WORLD-003): the nudge "Ask for the endorsement
+ * The band's chip names the nudge's own wait (world:top-band-is-lively-pill, world:nudge-says-one-thing): the nudge "Ask for the endorsement
  * again in 6 months" over the chip "You can ask for the endorsement again, in 6 months". A step's wait carries its `when`;
  * a chip for something to wait on in that same month is the same wait, so the row peeks with the nudge alone.
  */
@@ -262,7 +262,7 @@ function areaSpot(area: string): { latE3: number; lonE3: number } | null {
 }
 /** The family house stands on a made-up street (city.md), so the map gives it a spot in Surulere near the hub. */
 const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
-/** R-WORLD-014: the family house keeps its place on the map while the character lives in a room elsewhere in Lagos, a little from the home spot. */
+/** world:opens-where-last-stopped: the family house keeps its place on the map while the character lives in a room elsewhere in Lagos, a little from the home spot. */
 const FAMILY_SPOT = { latE3: 6511, lonE3: 3353 };
 const FAMILY_HOUSE = "place.family-house";
 /** The countries the map can show, with why the others are shut, until the view says more. */
@@ -287,7 +287,7 @@ function keep(key: string, value: string[]): void {
 }
 
 /**
- * The band's place line for a home (R-WORLD-002): what the home is, in few words, so a
+ * The band's place line for a home (world:top-band-is-lively-pill): what the home is, in few words, so a
  * room drawn alone is never read as a whole compound: "Your room, Ojuelegba", "The family house", "The
  * room on the water", abroad "The shared room, Peckham". Makoko is the room on the water only for a life that lives
  * there. Null for any other place, which keeps its own name.
@@ -302,7 +302,7 @@ export function homeLine(shown: string, view: Pick<PlayerView, "place" | "home">
       return view.place.where === "home" && view.home.place === "place.makoko" ? cityWords("city.home.makoko") : null;
     case "place.the-room": {
       // Calgary's basement room, the bed space at the camp, the shared flat on the Domitiana: the room per country (world.md
-      // R-WORLD-038), said short enough for the band beside the age; London keeps its line by the hub's name.
+      // world:painted-maps-abroad), said short enough for the band beside the age; London keeps its line by the hub's name.
       const own = `city.home.the-room.${view.place.country ?? ""}`;
       if (view.place.where === "abroad" && cityWords(own) !== own) return cityWords(own);
       const hub = PLACES.find((place) => place.hub === true && place.country === view.place.country);
@@ -321,7 +321,7 @@ function bandName(name: string): string {
 
 /**
  * Where the player last stopped, when it is a place they can still enter (rule 7) and the world's day is still the one
- * they stopped on; once the sky has turned since, they start at home (R-CLOCK-033): coming back resumes at
+ * they stopped on; once the sky has turned since, they start at home (clock:game-day-on-real-time): coming back resumes at
  * whatever time the world is at.
  * With no home that can be entered, the hub.
  */
@@ -334,7 +334,7 @@ function lastPlace(here: ViewPlace, home: string | null, day: number | null): st
 }
 
 // The online store keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
-/** The presence sample the online store keeps (R-CITY-015), with those seen today (R-CITY-036) once the store has them; absent offline. */
+/** The presence sample the online store keeps (city:players-fill-the-crowd), with those seen today (city:players-shown-present-not-tracked) once the store has them; absent offline. */
 interface PresenceSample {
   place: string;
   others: { name: string; look: string }[];
@@ -359,7 +359,7 @@ function device(): Device {
   };
 }
 
-/** The player's own look: the one built at the front door (R-PROLOGUE-009), else the starting life's person where one is shipped. */
+/** The player's own look: the one built at the front door (prologue:front-door-builds-a-person), else the starting life's person where one is shipped. */
 export function ownFile(scenario: string, kept: string | null = keptLookFile()): string {
   return (kept === null ? null : personOf(kept)?.file) ?? personOfLook(`chr_${scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
 }
@@ -368,7 +368,7 @@ function entryOf(id: string): PlaceEntry | null {
   return content.place[id as Id<"place">] ?? null;
 }
 
-/** A room's file by its folder under places/, fetched when the place outside it is entered (R-WORLD-013); null while unknown or missing. */
+/** A room's file by its folder under places/, fetched when the place outside it is entered (world:entering-is-a-cut); null while unknown or missing. */
 function useRoomFile(folder: string | null, drawing: boolean): PlaceFile | null {
   const [file, setFile] = useState<{ folder: string; file: PlaceFile } | null>(null);
   useEffect(() => {
@@ -387,7 +387,7 @@ function useRoomFile(folder: string | null, drawing: boolean): PlaceFile | null 
   return file !== null && file.folder === folder ? file.file : null;
 }
 
-/** A place's file, fetched by its hashed name when the place is entered (R-CITY-018). */
+/** A place's file, fetched by its hashed name when the place is entered (city:places-load-on-entry). */
 function usePlaceFile(place: PlaceEntry | null, drawing: boolean): PlaceFile | null {
   const [file, setFile] = useState<{ place: string; file: PlaceFile } | null>(null);
   useEffect(() => {
@@ -431,13 +431,13 @@ export interface CityMapSlot {
   onClose: () => void;
   /** The home of the country shown, so it stays a house when the player stands there. */
   home: string | null;
-  /** A way chosen: the fare goes through `place/ride`, and the answer says whether the ride plays (R-PLACE-010). */
+  /** A way chosen: the fare goes through `place/ride`, and the answer says whether the ride plays (place:rides-between-city-places). */
   onRide?: (choice: RideChoice, to: string) => Promise<boolean>;
-  /** Turn back on a ride: the walk back to `from`, the fare gone (R-WORLD-017). */
+  /** Turn back on a ride: the walk back to `from`, the fare gone (world:ride-sheet-shows-fares). */
   onTurnBack?: (from: string, to: string) => void;
-  /** The way to choose first on the ride sheet: the vehicle tapped in the place (R-WORLD-017). */
+  /** The way to choose first on the ride sheet: the vehicle tapped in the place (world:ride-sheet-shows-fares). */
   by?: RideChoice["id"];
-  /** A stop to open picked: the nudge's step elsewhere (R-WORLD-003). */
+  /** A stop to open picked: the nudge's step elsewhere (world:nudge-says-one-thing). */
   pickFirst?: string | null;
   /** The place the live step points to: the map opens on its neighbourhood with its sticker ringed and named. */
   step?: string | null;
@@ -458,34 +458,34 @@ export function City({
   kiosk,
   planeCut,
 }: {
-  /** `adverts`: the shell's advert slots for the place on screen (R-ADVERT-001), placed beside what is said there. */
+  /** `adverts`: the shell's advert slots for the place on screen (advert:adverts-only-in-slots), placed beside what is said there. */
   adverts?: (place: string) => ReactNode;
   /** The world mode: the place fills the screen under a see-through bar, with the painted map as its map. */
   world?: boolean;
   /** The world mode's sheet for the actions a tapped thing stages. */
   actions?: (ids: string[]) => ReactNode;
-  /** The world mode's results sheet when a month ends (R-WORLD-008), given the name of where the player is. */
+  /** The world mode's results sheet when a month ends (world:month-end-results-sheet), given the name of where the player is. */
   results?: (place: string) => ReactNode;
-  /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (R-WORLD-003). A list shows one at a time, with Next (R-WORLD-006). */
+  /** The world mode's sheet for what the nudge names and waits on the player: the set piece's question, the offers (world:nudge-says-one-thing). A list shows one at a time, with Next (world:one-action-one-sheet). */
   asks?: ReactNode | ReactNode[];
-  /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (R-WORLD-006). */
+  /** For each ask, the place it must be answered at, or null: away from it the sheet shows who waits and a way there (world:one-action-one-sheet). */
   asksAt?: (string | null)[];
   /** True while an ask still says its last line after what it asked has closed (the officer's close): the sheet that holds it stays open. */
   asksHold?: boolean;
   /**
-   * The world mode's phone (R-WORLD-018), handed in by the shell: the handset over the place named `area`. `toMap` puts
-   * it away onto the map with a stop picked: a paper's visit in Papers (R-WORLD-019).
+   * The world mode's phone (world:phone-rises-over-scene), handed in by the shell: the handset over the place named `area`. `toMap` puts
+   * it away onto the map with a stop picked: a paper's visit in Papers (world:phone-holds-what-phones-hold).
    */
   phone?: (close: () => void, area: string, app?: string | null, toMap?: (stop: string) => void, here?: string) => ReactNode;
-  /** A dot on the Phone button: an app has something new (R-WORLD-004). */
+  /** A dot on the Phone button: an app has something new (world:thumb-buttons-carry-dots). */
   phoneWaiting?: boolean;
   /** The icon for an ask card's corner, by the ask's icon name, from the shell's icon set. */
   askIcon?: (name: string) => ReactNode;
-  /** The world mode's map (R-WORLD-015 to 017), handed in by the shell; without it the map button opens nothing. */
+  /** The world mode's map (world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares), handed in by the shell; without it the map button opens nothing. */
   cityMap?: (props: CityMapSlot) => ReactNode;
-  /** The street kiosk's sheet while the world runs the Friday draw (lottery.md R-LOTTERY-001), handed in by the shell, over the place named `label`. */
+  /** The street kiosk's sheet while the world runs the Friday draw (lottery:draw-runs-online-only), handed in by the shell, over the place named `label`. */
   kiosk?: (close: () => void, label: string) => ReactNode;
-  /** The send-off's plane cut over the painted map at night (world.md R-WORLD-037), handed in by the shell. */
+  /** The send-off's plane cut over the painted map at night (world:plane-cut-at-send-off), handed in by the shell. */
   planeCut?: (slot: PlaneCutSlot) => ReactNode;
 } = {}) {
   const view = useView();
@@ -505,8 +505,8 @@ export function City({
   const endMonth = useGame((state) => state.endMonth);
   const stopPick = useGame((state) => state.stopPick);
   const beganAt = useGame((state) => state.beganAt);
-  // R-WORLD-002: the band's clock is the character's age, with the month's name beside it and the world's part of the day
-  // (R-CLOCK-033), moving on the device each minute; the simulation still counts months.
+  // world:top-band-is-lively-pill: the band's clock is the character's age, with the month's name beside it and the world's part of the day
+  // (clock:game-day-on-real-time), moving on the device each minute; the simulation still counts months.
   const dayClock = useDayClock();
   const ageMonths = qualityIn(view, "quality.age-months");
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
@@ -523,17 +523,17 @@ export function City({
   // The count is the asks still waiting: one left says no count at all.
   const header = askList === null ? null : askHeader({ left: askCount, index: askIndex, setpiece: onSetpiece });
   const askLabel = header === null ? null : say("ui.world.ask-of", header);
-  // R-WORLD-008: the results are up from the month's end until the player goes back to the place; the staged wins come first.
+  // world:month-end-results-sheet: the results are up from the month's end until the player goes back to the place; the staged wins come first.
   const resultsOpen = useGame((state) => state.reportOpen && state.moments.length === 0) && world && view.report !== null;
   const reportOpen = useGame((state) => state.reportOpen);
-  // R-WORLD-008: no full-screen moment over the world; a big line (the flight, a win) is told in the corner and passes.
+  // world:month-end-results-sheet: no full-screen moment over the world; a big line (the flight, a win) is told in the corner and passes.
   const moments = useGame((state) => state.moments);
   const nextMoment = useGame((state) => state.nextMoment);
   const momentCards = useGame((state) => state.momentCards);
   useEffect(() => {
     if (!world || moments.length === 0) return;
     const line = moments[0];
-    // A big line its moment card tells is not told again in the corner, and does not hold the card back (R-MOMENT-006).
+    // A big line its moment card tells is not told again in the corner, and does not hold the card back (moment:card-shows-when-outcome-lands).
     if (line !== undefined && momentCards.some((card) => sameLine(card.line, line))) {
       nextMoment();
       return;
@@ -544,31 +544,31 @@ export function City({
     return () => window.clearTimeout(timer);
     // The corner is the city's; the next big line is told once the last has led a while.
   }, [world, moments, nextMoment, momentCards]);
-  // R-WORLD-025: the scene goes dark, then the results sheet (which reads the report's state itself).
+  // world:sleep-ends-the-month: the scene goes dark, then the results sheet (which reads the report's state itself).
   const [resultsShown, setResultsShown] = useState(false);
   useEffect(() => {
     if (!world || !reportOpen) {
       setResultsShown(false);
       return;
     }
-    // R-WORLD-002: a short beat in the room first, then the cut and the results.
+    // world:top-band-is-lively-pill: a short beat in the room first, then the cut and the results.
     const timer = window.setTimeout(() => cutTo(() => setResultsShown(true)), RESULTS_BEAT_MS);
     return () => window.clearTimeout(timer);
     // The cut runs once as the report opens.
   }, [world, reportOpen]);
   const [zoomed, setZoomed] = useState(false);
   const [diveTo, setDiveTo] = useState<string | null>(null);
-  // The stop the map opens on when the nudge sends the player somewhere (R-WORLD-003).
+  // The stop the map opens on when the nudge sends the player somewhere (world:nudge-says-one-thing).
   const [mapPick, setMapPick] = useState<string | null>(null);
-  // The chapter's opening stands over the world once, before the first month is played (R-WORLD-001): the first
+  // The chapter's opening stands over the world once, before the first month is played (world:world-fills-the-screen): the first
   // chapter's title for a moment, once per life, kept beside the save so a reload never shows it again; a later
-  // chapter's card with Go (R-CHAPTER-011).
+  // chapter's card with Go (chapter:first-chapter-mission-card).
   const [openingSeen, setOpeningSeen] = useState(() => view.chapter.current !== null && view.chapter.current === FIRST_CHAPTER && wasTaught("title", view.scenario));
-  // Nothing lectures before play (R-WORLD-033): the thumbs carry a word until each is tapped once.
+  // Nothing lectures before play (world:no-walkthrough-before-play): the thumbs carry a word until each is tapped once.
   const firstUse = useFirstUse(view.report !== null, map);
   // The app the phone opens on when the nudge sends the player to it (the month's news).
   const [phoneApp, setPhoneApp] = useState<string | null>(null);
-  // An interview with a question still to answer holds the month as a set piece does (R-INTERVIEW-004); a life over ends nothing.
+  // An interview with a question still to answer holds the month as a set piece does (interview:answers-taken-in-order); a life over ends nothing.
   const endBlocked = view.ended ? words("reject.ended") : view.setpiece !== null || (view.interview?.question ?? null) !== null ? words("reject.setpiece-open") : null;
   /** The phone on the Calendar app: on its coming list, or on the month as it is. */
   const openCalendar = (opening: "coming" | null): void => {
@@ -576,7 +576,7 @@ export function City({
     setPhone(true);
   };
   /**
-   * Sleep is a timed act from the bed, at any hour of the world's day (R-WORLD-025), with a fixed
+   * Sleep is a timed act from the bed, at any hour of the world's day (world:sleep-ends-the-month), with a fixed
    * time the player can wake out of: the figure lies on the bed under a soft dark wash with a chip under the band,
    * and the month turns only when the sleep runs out (`due`). Held while a question waits, with the reason told in the
    * corner. `bed` is the thing slept on, for the scene's pose and its sleep mark.
@@ -595,7 +595,7 @@ export function City({
     setAsleep({ bed, at: Date.now(), ms: sleepMsOf(typeof location === "undefined" ? "" : location.search), due: false });
   };
   /**
-   * Waking before the sleep runs out makes it a nap (R-WORLD-025): no month turns, the nap is sent when the view allows
+   * Waking before the sleep runs out makes it a nap (world:sleep-ends-the-month): no month turns, the nap is sent when the view allows
    * one, the wash lifts, the figure gets up and the corner says the night is still yours.
    */
   const wake = (): void => {
@@ -620,7 +620,7 @@ export function City({
     const timer = window.setTimeout(() => setAsleep((held) => (held === null || held.at !== asleepAt ? held : { ...held, due: true })), Math.max(0, asleepAt + ms - Date.now()));
     return () => window.clearTimeout(timer);
   }, [asleepAt]);
-  // The sleep ran out: the month turns (R-WORLD-025), the same command the band once sent. Never under the phone or the
+  // The sleep ran out: the month turns (world:sleep-ends-the-month), the same command the band once sent. Never under the phone or the
   // map the player opened meanwhile: the turn waits for them to be put away, since nothing opens by itself over them.
   const turning = useRef(false);
   const sleepDue = asleep?.due === true;
@@ -644,18 +644,18 @@ export function City({
   useEffect(() => {
     if (resultsShown || (!reportOpen && !turning.current && asleepNow.current?.due === true)) setAsleep(null);
   }, [resultsShown, reportOpen]);
-  // R-WORLD-025: the first time a life sleeps, one small card says what a night is, once per life, before the first sleep;
+  // world:sleep-ends-the-month: the first time a life sleeps, one small card says what a night is, once per life, before the first sleep;
   // it holds the bed it was opened at.
   const [nightTeach, setNightTeach] = useState<string | null>(null);
-  /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (R-WORLD-017). */
+  /** The way a vehicle in the place was tapped for, chosen on the ride sheet when the map opens from it (world:ride-sheet-shows-fares). */
   const [rideBy, setRideBy] = useState<RideChoice["id"] | null>(null);
-  // How many times each plain act has been tapped in each place: a colleague's lines go round in turn (R-WORLD-039).
+  // How many times each plain act has been tapped in each place: a colleague's lines go round in turn (world:ride-abroad-and-workplace).
   const tapsHere = useRef(new Map<string, number>());
   const [shipped, setShipped] = useState<Set<string> | null>(null);
   const [menu, setMenu] = useState(false);
   const [credits, setCredits] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
-  // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (R-WORLD-010).
+  // The act a fan's button chose, handed to the scene to walk for, and the entry walked to until its act lands (world:nothing-roams).
   const [fanAct, setFanAct] = useState<{ thing: Thing; act: Act; at: number } | null>(null);
   const fanGoing = useRef<{ thing: string; activity: string; param: string | null } | null>(null);
   // While a fan's button is pressed the band's counter shows what would be left (design page 13 section 2).
@@ -663,9 +663,9 @@ export function City({
   const [fanGoingId, setFanGoingId] = useState<string | null>(null);
   // The fan's act last sent and when: the scene may report the walk's arrival twice under load, and the second must not open the act's card over an act already done.
   const fanSent = useRef<{ thing: string; activity: string; at: number } | null>(null);
-  // The thing whose fan found no room beside it: its acts stand as a small sheet instead (R-WORLD-034).
+  // The thing whose fan found no room beside it: its acts stand as a small sheet instead (world:fan-of-sticker-buttons).
   const [fanSheet, setFanSheet] = useState<string | null>(null);
-  // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (R-PEOPLE-013).
+  // Lines the corner tells once it shows again: a courted partner's answer waits for the home's card to be put away (person:courting-opens-a-bond).
   const [toTell, setToTell] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ loaded: number; total: number } | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
@@ -678,7 +678,7 @@ export function City({
   const where = view.place.where;
   const country = view.place.country;
   const here = useMemo(() => ({ where, country }), [where, country]);
-  // Each country's words ride their own chunk (engine.md R-ENGINE-020): fetched once the life is in that country (London,
+  // Each country's words ride their own chunk (engine:first-download-has-budget): fetched once the life is in that country (London,
   // Calgary, Dubai, Castel Volturno), and the city drawn again once they are in, so its things' names and its people's
   // lines read in words.
   const [, setLateWords] = useState(0);
@@ -692,10 +692,10 @@ export function City({
       live = false;
     };
   }, [where, country]);
-  // The game opens where the character lives (R-HOME-006): a start in Makoko opens on the water.
+  // The game opens where the character lives (home:home-is-the-home-point): a start in Makoko opens on the water.
   const home = homeOf(view);
   const [placeId, setPlaceId] = useState<string>(() => (world ? lastPlace(here, home, dayClock.served ? dayClock.day : null) : openingPlace(here, PLACES)));
-  // A new where (home, abroad, the road) opens its own hub (R-CITY-012, R-CITY-013).
+  // A new where (home, abroad, the road) opens its own hub (city:enterable-places-follow-view, city:ojuelegba-is-the-hub).
   useEffect(() => {
     setPlaceId(world ? lastPlace(here, home, dayClock.served ? dayClock.day : null) : openingPlace(here, PLACES));
     // The home changes only with the where or a move; a move is the player's own and keeps the place they stand in.
@@ -723,17 +723,17 @@ export function City({
       alive = false;
     };
   }, [world, drawing]);
-  // An open set piece is shown where it is staged (R-CITY-011); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride (R-WORLD-006).
+  // An open set piece is shown where it is staged (city:set-piece-shown-where-staged); staged elsewhere, it waits there and the nudge says so, since the city never moves the player without a ride (world:one-action-one-sheet).
   const scene = openScene(view, PLACES);
   const sceneAt = scene?.place ?? null;
   // The city off the world (the road's) still shows the set piece where it is staged (it has no rides to get there).
   useEffect(() => {
     if (!world && sceneAt !== null) setPlaceId(sceneAt);
   }, [world, sceneAt]);
-  // The place the effect below last saw: a reload opens in the room it was kept in (R-WORLD-014), and only a move to
+  // The place the effect below last saw: a reload opens in the room it was kept in (world:opens-where-last-stopped), and only a move to
   // another place steps back outside.
   const placeSeen = useRef(placeId);
-  // A ride taken from the map while asleep leaves the bed: the sleep is cut short as a tap on the chip cuts it (R-WORLD-025).
+  // A ride taken from the map while asleep leaves the bed: the sleep is cut short as a tap on the chip cuts it (world:sleep-ends-the-month).
   useEffect(() => {
     if (asleepNow.current !== null && !asleepNow.current.due) wake();
     // Only a move to another place or room wakes the sleeper.
@@ -759,8 +759,8 @@ export function City({
   const monthLines = useGame((state) => state.monthLines);
   const partied = world && partyThrown(monthLines);
   const openKey = dressedBy(offers, partied ? monthLines : []).join("|");
-  // An open offer the place stages dresses it (R-CITY-011): the party set and its guests at the family house. Their room is
-  // dressed for the person whose room it is, who stands in it (R-WORLD-020); with no such bond it is the plain room.
+  // An open offer the place stages dresses it (city:set-piece-shown-where-staged): the party set and its guests at the family house. Their room is
+  // dressed for the person whose room it is, who stands in it (world:nobody-picked-from-list); with no such bond it is the plain room.
   const roomPerson = entry?.id === THEIR_ROOM ? roomPartner(view) : null;
   // A home's car spot holds the life's car while it has one: the market's used car standing at the
   // home lived in, or a car on finance abroad.
@@ -778,13 +778,13 @@ export function City({
   const arranging = world && buyModeAt(placeId, home, standingKey === "" ? [] : standingKey.split("|"));
   const outsideFile = dressed?.file ?? null;
   // Inside, the scene is the room the place's door opens into: the file's `inside` names its folder under
-  // places/, fetched with the place so the cut is quick (R-WORLD-013); the room's own file names the entry
+  // places/, fetched with the place so the cut is quick (world:entering-is-a-cut); the room's own file names the entry
   // it belongs to (the hub's room is place.yaba, the parlour the family house). A place that names no room
   // has one cut from its own file.
   const insideId = insideOf(outsideFile);
   const insideFile = useRoomFile(insideId, drawing);
   const insideEntry = insideId === null ? null : (entryOf(insideFile?.place ?? "") ?? PLACES.find((place) => place.assets === insideId) ?? entryOf(insideId) ?? entry);
-  // The room's models are fetched and decoded while the player still stands outside, so the cut into it stays short (R-WORLD-013).
+  // The room's models are fetched and decoded while the player still stands outside, so the cut into it stays short (world:entering-is-a-cut).
   useEffect(() => {
     if (insideFile === null || inside || !drawing) return;
     void loadManifest()
@@ -801,12 +801,12 @@ export function City({
     const fresh = here.filter((id) => !been.includes(id));
     if (fresh.length > 0) keep(CITY_BEEN_KEY, [...been, ...fresh]);
   }, [world, placeId, inside, insideEntry]);
-  // R-WORLD-029: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
-  // the pot steaming once cooked and the drum full once fetched (R-OBLIGATION-014).
+  // world:room-seen-down-its-length: a choice for the month is seen on its thing: what carries on in the plan, and what was done this month,
+  // the pot steaming once cooked and the drum full once fetched (obligation:cooking-and-fetching-water).
   const plannedKey = plan.flatMap((pick) => (pick === null ? [] : [pick.activity])).join("|");
-  // An act that repeats is never done for the month (R-ACTIVITY-019, decision 0012), so the month's own answers say it was done.
+  // An act that repeats is never done for the month (activity:acts-may-repeat-in-month, decision 0012), so the month's own answers say it was done.
   const doneKey = [...new Set([...view.activities.flatMap((option) => (option.done ? [option.id] : [])), ...nowActsIn(monthLines)])].join("|");
-  // R-WORLD-020, R-PEOPLE-009, R-PEOPLE-013: a computer partner the view lists stands at their thing in the place content
+  // world:nobody-picked-from-list, person:computer-candidates-labelled, person:courting-opens-a-bond: a computer partner the view lists stands at their thing in the place content
   // meets them in, one met only in December only while it is December; nobody else stands there.
   const december = useGame((state) => worldVar(state, DECEMBER)) === 1;
   const meetPlace = inside && insideEntry !== null ? insideEntry.id : placeId;
@@ -834,20 +834,20 @@ export function City({
   const settings = modeSettings(mode, device(), city);
   const others = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? presence.others : []), [presence, placeId]);
   const today = useMemo<Other[]>(() => (presence !== null && presence.place === placeId ? (presence.today ?? []) : []), [presence, placeId]);
-  // The look is read once a life, not on every frame of the city (R-PROLOGUE-009).
+  // The look is read once a life, not on every frame of the city (prologue:front-door-builds-a-person).
   const own = useMemo(() => ownFile(view.scenario), [view.scenario]);
   // No resident wears the player's own outfit or a dancer's.
-  // In the world a place shows at most the crowd its scope allows in the mode; the party keeps its ten (R-WORLD-011).
+  // In the world a place shows at most the crowd its scope allows in the mode; the party keeps its ten (world:place-is-one-screen).
   const crowdEntry = inside && insideEntry !== null ? insideEntry : entry;
   const dressedCrowd = inside ? null : (dressed?.crowd ?? null);
   const sample = useMemo(() => {
     if (crowdEntry === null || file === null) return null;
     const stage = stageOf(file);
     const standers = (stage.standing ?? []).map((stander) => stander.file);
-    // The spots kept for a part keep their residents: the trader at her stall, the secretary at her desk (R-CITY-032).
+    // The spots kept for a part keep their residents: the trader at her stall, the secretary at her desk (city:residents-fill-to-target).
     const parts = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
     const drawn = sampleCrowd({ ...crowdEntry, crowd: dressedCrowd ?? crowdEntry.crowd }, poolOf(file.people.sample), date, mode, world ? crowdTuning(city, file.scope, dressedCrowd !== null) : city, others, today, [own, ...(stage.dancers ?? []).map((dancer) => dancer.file), ...standers], parts);
-    // Someone standing at a thing of their own takes a resident's place where the room would hold more than its scope allows (R-WORLD-011).
+    // Someone standing at a thing of their own takes a resident's place where the room would hold more than its scope allows (world:place-is-one-screen).
     return { ...drawn, people: makeRoom(drawn.people, roomFor(drawn.people.length, standers.length, WORLD_LIMITS.people[file.scope][mode])) };
   }, [crowdEntry, file, dressedCrowd, date, mode, others, today, own, world]);
   const places = enterable(here, PLACES);
@@ -905,13 +905,13 @@ export function City({
     }
   };
 
-  // The things here and the acts the view allows now: an activity's act only while the view offers it here (R-WORLD-005).
-  // A school's offer waiting makes the deposit payable (R-ROUTE-008): the bank's act shows while one does.
+  // The things here and the acts the view allows now: an activity's act only while the view offers it here (world:things-are-tappable-models).
+  // A school's offer waiting makes the deposit payable (route:deposit-secures-school): the bank's act shows while one does.
   const depositDue = view.routes.filter((route) => route.school === null && route.depositPaid === 0).flatMap((route) => route.schools.filter((school) => school.state === "offer").map((school) => ({ route: route.id, school: school.id })))[0] ?? null;
   // A visa granted, or a status kept from a return with papers, makes the flight boardable at the airport's gate
-  // (R-CHAPTER-006, R-RETURN-004, route/depart).
+  // (chapter:send-off-card-on-close, return:papers-return-keeps-status, route/depart).
   const departDue = departRoute(view);
-  // R-CHAPTER-012: the gate's act opens the send-off scene in place of the card the flight was; the scene's third beat sends
+  // chapter:send-off-scene-in-beats: the gate's act opens the send-off scene in place of the card the flight was; the scene's third beat sends
   // `route/depart`, so picking the act changes nothing in the life.
   useEffect(() => {
     if (!world || picked?.kind !== "command" || picked.command !== "route/depart") return;
@@ -923,43 +923,43 @@ export function City({
   }, [world, picked, departDue]);
   const sendOffShowing = useSendOffShowing();
   const busy = useGame((state) => state.busy);
-  // R-WORLD-005: a job on a place's board or stall is an act whenever the hunt can ask for it.
+  // world:things-are-tappable-models: a job on a place's board or stall is an act whenever the hunt can ask for it.
   const hunt = view.activities.find((option) => option.id === "activity.job-hunt");
   // The board stays while a job is held: the hunt's jobs show, and the card says why it is shut.
   const jobIds = hunt?.params ?? [];
-  // Held funds still open are paid back at the counter through a command act (R-ROUTE-008).
+  // Held funds still open are paid back at the counter through a command act (route:deposit-secures-school).
   const heldDue = view.obligations.find((owed) => content.obligation[owed.entry]?.type === "held-funds") ?? null;
   // An activity shut only by a paper not yet held (the English test before the passport) still stands in the world, shut with its reason;
-  // a now-act done this month is gone from its thing until the next (R-ACTIVITY-015).
-  // R-LOTTERY-001: while the world runs the Friday draw the kiosk's act stays, and opens the draw's sheet.
+  // a now-act done this month is gone from its thing until the next (activity:now-acts-and-month-acts).
+  // lottery:draw-runs-online-only: while the world runs the Friday draw the kiosk's act stays, and opens the draw's sheet.
   const activityKey = [...withKiosk(actsOffered(view), view), ...(heldDue === null ? [] : ["command:obligation/pay"]), ...(depositDue === null ? [] : ["command:route/pay-deposit"]), ...(departDue === null ? [] : ["command:route/depart"]), ...(goHomeOffered(view) ? [`command:${GO_HOME}`] : []), ...(view.ended ? [] : [`command:${COURT}`])].join("|");
   const chapterNow = view.chapter.current;
   const heldJob = view.job.id;
   const offersKey = view.offers.map((offer) => offer.entry).join("|");
   const setpieceEntry = view.setpiece?.entry ?? null;
-  // The world's part of the day decides which things are open (R-CLOCK-033): the viewing centre and the joint from the evening.
+  // The world's part of the day decides which things are open (clock:game-day-on-real-time): the viewing centre and the joint from the evening.
   const dayPart = dayClock.served ? dayClock.part : "afternoon";
   const things = useMemo(() => {
     if (!world || file === null) return undefined;
     const offered = new Set(activityKey.split("|"));
     const staged = new Set<string>([...(entry?.stages ?? []), ...(insideEntry?.stages ?? []), ...homeStagesAt(placeId, home, here, PLACES), ...byHandAt(placeId, home, here, content.activity)]);
-    // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (R-PEOPLE-054).
-    // A job held abroad is held at its thing: the job's act there becomes the shift, its label On shift (R-WORLD-039).
+    // Someone standing as themselves (their room's partner) has no act, so is kept past the acts' filter: a tap shows their name (person:computer-mark-is-quiet).
+    // A job held abroad is held at its thing: the job's act there becomes the shift, its label On shift (world:ride-abroad-and-workplace).
     const held = onShift(withMoreAt(withMeetings(thingsOf(stageOf(file)), meetPlace, standing), meetPlace), heldJob, here.where === "abroad");
     return [...thingsNow(held, stagedNow(offered, staged, new Set(offersKey.split("|")), setpieceEntry, chapterNow), dayPart), ...standingAsThemselves(stageOf(file))];
   }, [world, file, activityKey, entry, insideEntry, placeId, offersKey, setpieceEntry, chapterNow, home, here, meetPlace, standing, dayPart, heldJob]);
   // The chosen thing's acts already in this month's plan say Planned and are shut.
   const pickedThing = picked?.kind === "thing" ? picked.thing : null;
-  // R-ACTIVITY-020: an act done at once that waits for sleep says so on its fan button.
+  // activity:spent-body-refuses-acts: an act done at once that waits for sleep says so on its fan button.
   const chosenThing = useMemo(() => (pickedThing === null ? null : withSpent(withPlanned(pickedThing, plan, view), view)), [pickedThing, plan, view]);
-  // Every thing fans its acts out of itself (R-WORLD-034): the simulation's acts done at once and every other act alike.
+  // Every thing fans its acts out of itself (world:fan-of-sticker-buttons): the simulation's acts done at once and every other act alike.
   const fanEntries = useMemo(() => (!world || chosenThing === null ? null : fanEntriesOf(chosenThing)), [world, chosenThing]);
   const fanned = fanEntries === null ? null : chosenThing;
   // What the scene reports: a thing chosen shows its acts; an act becomes the sheet, the ride, the cut in or the cut out it stands for.
-  // An act lands once the character has walked to its thing (R-WORLD-010); one that lands under a sheet, the phone, the map or the results is dropped.
+  // An act lands once the character has walked to its thing (world:nothing-roams); one that lands under a sheet, the phone, the map or the results is dropped.
   const readPick = (scenePick: ScenePick): void => {
     // A tap on the player's own figure opens nothing: it only puts away a fan,
-    // as any tap outside one does, so the nudge stays (R-WORLD-003).
+    // as any tap outside one does, so the nudge stays (world:nudge-says-one-thing).
     if (scenePick.kind === "own") {
       setPicked(null);
       return;
@@ -1003,12 +1003,12 @@ export function City({
           setPhone(true);
           return;
         }
-        // A job's act opens the hunt's card with that job chosen (R-WORLD-005).
+        // A job's act opens the hunt's card with that job chosen (world:things-are-tappable-models).
         if (act.stages !== undefined && jobIds.includes(act.stages)) {
           setPicked({ kind: "action", activity: "activity.job-hunt", param: act.stages });
           return;
         }
-        // The thing's own choice inside the entry (the kiosk's one ticket) rides along, so the act's slip opens rather than the picker (R-WORLD-005).
+        // The thing's own choice inside the entry (the kiosk's one ticket) rides along, so the act's slip opens rather than the picker (world:things-are-tappable-models).
         setPicked(
           act.stages === undefined
             ? null
@@ -1016,10 +1016,10 @@ export function City({
         );
         return;
       case "ride": {
-        // R-WORLD-017: the vehicle's act opens the same ride sheet as the map, with its way chosen.
+        // world:ride-sheet-shows-fares: the vehicle's act opens the same ride sheet as the map, with its way chosen.
         const vehicle = vehicleOf(thing) ?? "danfo";
         setPicked(null);
-        // Abroad the stop is the bus's and the platform the train's (R-WORLD-039); in Lagos the vehicle tapped.
+        // Abroad the stop is the bus's and the platform the train's (world:ride-abroad-and-workplace); in Lagos the vehicle tapped.
         setRideBy(where === "abroad" ? (act.id === "train" ? "train" : "bus") : vehicle === "keke" || vehicle === "okada" ? vehicle : "danfo");
         setMap(true);
         return;
@@ -1030,7 +1030,7 @@ export function City({
       case "out":
         setPicked({ kind: "out" });
         return;
-      // R-WORLD-025: the bed's Sleep is a timed act, at any hour of the world's day; the month turns when it runs out. A
+      // world:sleep-ends-the-month: the bed's Sleep is a timed act, at any hour of the world's day; the month turns when it runs out. A
       // life's first night is told once first: a life with a month behind it has slept before.
       case "end":
         setPicked(null);
@@ -1045,7 +1045,7 @@ export function City({
         setPicked(null);
         // A person at the thing speaks over their head and what follows is told in the corner; a thing tells its line;
         // an act the scene shows (sit) says nothing.
-        // A colleague says the next of their lines at each tap (R-WORLD-039), counted by place for as long as the game is open.
+        // A colleague says the next of their lines at each tap (world:ride-abroad-and-workplace), counted by place for as long as the game is open.
         const tapKey = `${placeId}:${thing.id}:${act.id}`;
         const told = tapsHere.current.get(tapKey) ?? 0;
         tapsHere.current.set(tapKey, told + 1);
@@ -1057,27 +1057,27 @@ export function City({
         } else if (line?.kind === "tell") tell(line.words);
         return;
       }
-      // R-ROUTE-008: the school's deposit is paid at the bank through a card the world sends itself.
+      // route:deposit-secures-school: the school's deposit is paid at the bank through a card the world sends itself.
       case "command":
         setPicked(act.command === undefined ? null : { kind: "command", command: act.command, ...(act.with === undefined ? {} : { with: act.with }) });
         return;
-      // R-WORLD-019: the papers box opens the phone's Papers app, the one place the papers are told.
+      // world:phone-holds-what-phones-hold: the papers box opens the phone's Papers app, the one place the papers are told.
       case "app":
         setPicked(null);
         setPhoneApp(act.app ?? null);
         setPhone(true);
         return;
-      // R-WORLD-005: a free act that fills a slot happens at once, seen on the thing, with no line: its label says it is planned.
+      // world:things-are-tappable-models: a free act that fills a slot happens at once, seen on the thing, with no line: its label says it is planned.
       case "do": {
         setPicked(null);
         const option = act.stages === undefined ? undefined : view.activities.find((candidate) => candidate.id === act.stages);
         if (option === undefined) return;
-        // R-ACTIVITY-020: the body is spent; the act waits for sleep, and nothing is sent.
+        // activity:spent-body-refuses-acts: the body is spent; the act waits for sleep, and nothing is sent.
         if (option.spent === true) {
           tell(say("ui.act.spent"));
           return;
         }
-        // R-ACTIVITY-015: an act done at once (a post from the laptop) is sent now, and the place's answer opens.
+        // activity:now-acts-and-month-acts: an act done at once (a post from the laptop) is sent now, and the place's answer opens.
         if (answersNow(option.id)) {
           void actOnCard({ activity: option.id, param: option.params?.[0] ?? null }, { send, addToPlan }).then((acted) => cue(acted === "answered" ? "done" : "tap"));
           return;
@@ -1094,12 +1094,12 @@ export function City({
       }
     }
   };
-  // A fan's button that can be had: the scene walks to the thing, and the act lands in readPick once it is there (R-WORLD-010).
+  // A fan's button that can be had: the scene walks to the thing, and the act lands in readPick once it is there (world:nothing-roams).
   // Only the simulation's acts done at once are matched on arrival and sent as their sheet's button sends them; every other
   // act lands as the thing's act it is and takes readPick's way for its kind (a pose, Sleep, a card, a command, the map).
   const fanTap = (entry: FanEntry): void => {
     if (fanned === null) return;
-    // A stop takes an act carrying on out of the plan, where the thing stands; its button opens again (R-WORLD-007).
+    // A stop takes an act carrying on out of the plan, where the thing stands; its button opens again (world:month-acts-carry-on).
     if (entry.kind === "stop") {
       if (entry.act.stages === undefined) return;
       cue("close");
@@ -1143,7 +1143,7 @@ export function City({
     }
     if (picked?.kind === "out") {
       setPicked(null);
-      // R-WORLD-013: the door cuts out to the street. A room reached from the map (the hub in Yaba) steps out to the place whose door opens into it.
+      // world:entering-is-a-cut: the door cuts out to the street. A room reached from the map (the hub in Yaba) steps out to the place whose door opens into it.
       const outside = OUTSIDE_OF[placeId];
       if (inside) cutTo(() => setInside(false));
       else if (outside !== undefined) cutTo(() => setPlaceId(outside));
@@ -1159,10 +1159,10 @@ export function City({
     const spotted = new Map<string, number>();
     const spotOf = (place: PlaceEntry): { latE3: number; lonE3: number } => {
       if (place.position !== null) return place.position;
-      // The room abroad sits off its country's hub (R-WORLD-038), never at Lagos's home spot.
+      // The room abroad sits off its country's hub (world:painted-maps-abroad), never at Lagos's home spot.
       if (place.id === home) return (where === "abroad" ? roomSpot(country, PLACES, content.country) : null) ?? HOME_SPOT;
       if (place.id === FAMILY_HOUSE && where === "home") return FAMILY_SPOT;
-      // Their room has no address of its own: it sits a little off the place it is near, or off home for one who is home only for December (R-WORLD-020).
+      // Their room has no address of its own: it sits a little off the place it is near, or off home for one who is home only for December (world:nobody-picked-from-list).
       if (place.id === THEIR_ROOM) {
         const near = content.place[(roomNear(view) ?? "") as Id<"place">]?.position ?? HOME_SPOT;
         return { latE3: near.latE3 + 2, lonE3: near.lonE3 + 2 };
@@ -1173,20 +1173,20 @@ export function City({
       const middle = areaSpot(area) ?? HOME_SPOT;
       return { latE3: middle.latE3 + (index % 2 === 0 ? 2 : -2) * Math.ceil(index / 2), lonE3: middle.lonE3 + 3 * index };
     };
-    // A life's own first step opens its place before the chapter does (prologue.md R-PROLOGUE-010).
+    // A life's own first step opens its place before the chapter does (prologue:archetype-presets-answers).
     const early = earlyStops(view);
     return places
-      // R-WORLD-020: their room opens only once a bond is courting.
-      // R-WORLD-014: the family house stays on the map for every life in Nigeria, home or not (the people met there, R-WORLD-020).
-      // R-HOME-010, R-HOME-002: a rented room or the hostel stands on the map only as the home lived in, never as a stop to visit.
+      // world:nobody-picked-from-list: their room opens only once a bond is courting.
+      // world:opens-where-last-stopped: the family house stays on the map for every life in Nigeria, home or not (the people met there, world:nobody-picked-from-list).
+      // home:compound-room-is-a-home, home:move-home-once-a-month: a rented room or the hostel stands on the map only as the home lived in, never as a stop to visit.
       .filter((place) => onMap(place.id, home))
-      // R-CITY-010, R-WORLD-038: a place serving every country gives way to the country's own where they stage its entries.
+      // city:places-stage-their-acts, world:painted-maps-abroad: a place serving every country gives way to the country's own where they stage its entries.
       .filter((place) => place.id === home || servesHere(place, here, PLACES, content.activity))
       .filter((place) => (place.id === THEIR_ROOM ? roomOpen(view) && shipped?.has(place.id) === true : place.position !== null || place.id === home || (place.id === FAMILY_HOUSE && where === "home") || (place.area !== null && shipped?.has(place.id) === true)) && (shipped === null || shipped.has(place.id) || place.id === home || (place.id === FAMILY_HOUSE && where === "home")))
       .map((place) => {
         const reached = stopReached(view.chapter, where, place.id, early);
         const state: PinState = place.id === placeId ? "here" : place.id === home ? "home" : been.includes(place.id) ? "been" : !reached ? "not" : shipped === null || shipped.has(place.id) ? "can" : "not";
-        // The room abroad by its country's name on the map and its sheet (R-WORLD-038), said short as the band says it,
+        // The room abroad by its country's name on the map and its sheet (world:painted-maps-abroad), said short as the band says it,
         // since content's whole name ("the room in a shared flat on the Domitiana") runs off a sticker's label on a phone.
         const roomShort = `city.home.the-room.${country ?? ""}`;
         const name = place.id === "place.yaba" ? say("ui.inside.hub") : place.id === home && where === "abroad" && cityWords(roomShort) !== roomShort ? cityWords(roomShort) : placeName(place.id);
@@ -1202,9 +1202,9 @@ export function City({
 
   // Where the character stands, for the free step when nothing can be paid.
   const nudge = world ? nudgeOf(view, undefined, plan.flatMap((pick) => (pick === null ? [] : [pick.activity])), newsRead(view), { here: placeId, home, stops: pins }) : null;
-  // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (R-WORLD-001).
+  // A question or an offer waiting on the player opens from the nudge; nothing else is on screen to open it (world:world-fills-the-screen).
   const nudgeOpens = asks !== undefined && (nudge?.about === "setpiece" || nudge?.about === "offer");
-  // The chapter's step opens its way (R-WORLD-003): the thing's acts when it stands here, the map at its stop
+  // The chapter's step opens its way (world:nudge-says-one-thing): the thing's acts when it stands here, the map at its stop
   // when it is elsewhere in the city, and the Month sheet when the step is the month's end.
   // A step short of money sends the player to the jobs board, where the money is; the funds step keeps the bank.
   const shortOfMoney = nudge?.about === "step" && (nudge.key.endsWith(".short") || nudge.key === "ui.nudge.hunt-planned") && !nudge.key.startsWith("chapter.decision-day.item.held");
@@ -1216,7 +1216,7 @@ export function City({
   // A result on its way is only waited for: its nudge says when it comes and opens nothing.
   // The nudge as it reads here: a step's place is not named while the player stands in it.
   const sceneAway = sceneAt !== null && sceneAt !== placeId && !(inside && insideEntry?.id === sceneAt);
-  // At the world's night the nudge sends the player to bed, unless a question or a person waits (R-CLOCK-033, R-WORLD-025).
+  // At the world's night the nudge sends the player to bed, unless a question or a person waits (clock:game-day-on-real-time, world:sleep-ends-the-month).
   const shownNudge = atNight(
     nudge?.about === "setpiece" && sceneAway && scene !== null
       ? { key: "ui.nudge.setpiece-away", params: { what: nameOf(scene.setpiece), place: placeName(sceneAt) }, about: "setpiece" as const }
@@ -1248,7 +1248,7 @@ export function City({
       case "month":
         openCalendar(null);
         return;
-      // A paper asked for by a call or a message opens Papers on its card (R-WORLD-019).
+      // A paper asked for by a call or a message opens Papers on its card (world:phone-holds-what-phones-hold).
       case "app":
         setPhoneApp(opens.act === null ? opens.app : `${opens.app}:${opens.act}`);
         setPhone(true);
@@ -1263,7 +1263,7 @@ export function City({
       }
     }
   };
-  // R-WORLD-002: the band's second row opens from its handle and peeks for a few seconds when its words change.
+  // world:top-band-is-lively-pill: the band's second row opens from its handle and peeks for a few seconds when its words change.
   const [bandOpen, setBandOpen] = useState(false);
   const [peek, setPeek] = useState(true);
   const nudgeKey = nudge?.key ?? "";
@@ -1274,30 +1274,30 @@ export function City({
     const timer = window.setTimeout(() => setPeek(false), PEEK_MS);
     return () => window.clearTimeout(timer);
   }, [nudgeKey, comingKey, view.month]);
-  // R-ACTIVITY-015: an act done at once is answered in the place: the latest command's lines carry the speaker's line.
+  // activity:now-acts-and-month-acts: an act done at once is answered in the place: the latest command's lines carry the speaker's line.
   const lastLines = useGame((state) => state.lines);
   const linesSeen = useRef(lastLines);
   const [answer, setAnswer] = useState<ReportLine | null>(null);
   const thingsNowHere = useRef(things);
   thingsNowHere.current = things;
-  // The act done at once that landed last, so the scene plays its answer where it was done (R-WORLD-005).
+  // The act done at once that landed last, so the scene plays its answer where it was done (world:things-are-tappable-models).
   const [acted, setActed] = useState<{ activity: string; at: number } | null>(null);
-  // The world's clock the last reply carried, for the scene's sun and sky (R-CLOCK-033).
+  // The world's clock the last reply carried, for the scene's sun and sky (clock:game-day-on-real-time).
   const worldClock = useGame((state) => state.clock?.world ?? null);
   useEffect(() => {
     if (linesSeen.current === lastLines) return;
     linesSeen.current = lastLines;
     const said = nowLineIn(lastLines);
-    // A sleep cut short lands as a nap (R-WORLD-025): the corner has said the player is up, so the nap's own line is not told over it.
+    // A sleep cut short lands as a nap (world:sleep-ends-the-month): the corner has said the player is up, so the nap's own line is not told over it.
     if (said !== null && wokeNap.current && nowActOf(said) === NAP) {
       wokeNap.current = false;
       return;
     }
     // An act done from the phone is said on the phone; the sheet answers an act done in the place.
     if (!world || phone || said === null) return;
-    // The scene plays the act's answer where it was done (R-WORLD-005).
+    // The scene plays the act's answer where it was done (world:things-are-tappable-models).
     setActed({ activity: nowActOf(said), at: Date.now() });
-    // R-WORLD-005: an act that repeats lands its line every time, Mama's gist over her head and the rest in the corner,
+    // world:things-are-tappable-models: an act that repeats lands its line every time, Mama's gist over her head and the rest in the corner,
     // and its sheet goes; what the scene shows (the pot steaming, the drum full) says nothing and closes its sheet, so
     // the answer is seen on the thing.
     const lands = nowLands(said, thingsNowHere.current ?? []);
@@ -1330,7 +1330,7 @@ export function City({
         dismiss: () => setPicked(null),
       });
     }
-    // R-WORLD-020, R-PEOPLE-013: talking to a person met here opens their card; its one button courts them.
+    // world:nobody-picked-from-list, person:courting-opens-a-bond: talking to a person met here opens their card; its one button courts them.
     if (world && picked?.kind === "command" && picked.command === COURT && picked.with !== undefined) {
       const person = picked.with;
       const partnered = (partner: string | null, name: string): string => say("ui.people.court.partnered", { partner: partner === null ? say("ui.people.who.player") : nameOf(partner), name });
@@ -1338,7 +1338,7 @@ export function City({
         send: (who) => {
           void send({ type: "people/court", with: who }).then((reply) => {
             cue(reply?.ok === true ? "done" : "tap");
-            // R-PEOPLE-013: their answer in their own words, then R-PEOPLE-054's one plain line, told in the corner once it shows.
+            // person:courting-opens-a-bond: their answer in their own words, then person:computer-mark-is-quiet's one plain line, told in the corner once it shows.
             if (reply?.ok === true) {
               const told = courtedTold(who, { name: nameOf, answer: (one) => (hasWords(`${one}.courted`) ? say(`${one}.courted`) : null), said: (name, line) => say("ui.people.courted.said", { name, line }), chosen: (name) => say("ui.people.chosen", { name }) });
               setToTell((held) => [...held, ...told]);
@@ -1395,7 +1395,7 @@ export function City({
         dismiss: () => setPicked(null),
       };
     }
-    // The cargo office's act opens the waybill, a paper slip (R-WORLD-006); Collect it answers the parcel.
+    // The cargo office's act opens the waybill, a paper slip (world:one-action-one-sheet); Collect it answers the parcel.
     if (world && picked?.kind === "action" && picked.activity === PARCEL) {
       return parcelAsk(view, {
         formatMoney: (amount, currency) => formatMoney(amount, currency as "NGN"),
@@ -1410,16 +1410,16 @@ export function City({
       });
     }
     if (!world || picked?.kind !== "action" || picked.more !== undefined) return null;
-    // R-LOTTERY-001: online the kiosk's tap opens the Friday draw's own sheet, never the offline slip.
+    // lottery:draw-runs-online-only: online the kiosk's tap opens the Friday draw's own sheet, never the offline slip.
     if (opensKiosk(picked.activity, view)) return null;
     const activity = picked.activity;
     const option = view.activities.find((candidate) => candidate.id === activity);
     if (option === undefined) return null;
     // A choice inside the activity (which job to hunt, which school) is the player's: the picker shows it, not a card that takes the first,
-    // unless the thing tapped made the choice (a job on a board), when the card names it (R-WORLD-005).
+    // unless the thing tapped made the choice (a job on a board), when the card names it (world:things-are-tappable-models).
     const chosen = picked.param !== undefined && option.params?.includes(picked.param) === true ? picked.param : null;
     if (option.params !== null && (option.params.length > 1 || content.activity[activity as keyof typeof content.activity]?.param === "job") && chosen === null) return null;
-    // R-WORLD-006: on a long shot the English test's sheet is the picker, which carries the study act beside the test.
+    // world:one-action-one-sheet: on a long shot the English test's sheet is the picker, which carries the study act beside the test.
     const chance = activity === ENGLISH_TEST ? testChance(view) : null;
     if (chance !== null && chance.study !== null) return null;
     const shut = plannedShut(plan, { activity: option.id, param: chosen ?? option.params?.[0] ?? null });
@@ -1454,29 +1454,29 @@ export function City({
               ? [blurbOf(activity), chance.words].filter((part): part is string => part !== null).join(" ")
               : school !== null
                 ? schoolSheetLine(view, school)
-                : // R-LUCK-005: past the month's ceiling the kiosk says it before it sells again.
+                : // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk says it before it sells again.
                   activity === "activity.play-lotto" && kioskCapReached(monthLines)
                   ? words(KIOSK_CAP)
-                  : // R-ACTIVITY-013: the card says what the act counts toward.
+                  : // activity:waiting-months-build-profile: the card says what the act counts toward.
                     [blurbOf(activity), countsWords(activity)].filter((part): part is string => part !== null).join(" "),
       cost: cost === null ? null : { amount: cost.amount, currency: cost.currency },
       button: shut ? say("ui.activity.planned") : chosen !== null && hasWords(`${chosen}.act`) ? say(`${chosen}.act`) : nameOf(activity),
-      // R-ACTIVITY-015: an act done at once says "Now" under its button; a month-act counts when the month ends.
-      // R-ACTIVITY-018: an act done at once says the time it takes in words.
+      // activity:now-acts-and-month-acts: an act done at once says "Now" under its button; a month-act counts when the month ends.
+      // activity:now-acts-spend-half-days: an act done at once says the time it takes in words.
       ...(answersNow(activity) ? { when: "now" as const } : {}),
       ...(time === null ? {} : { time }),
       ...(does === null ? {} : { does }),
-      // R-WORLD-006: the act's button says the act and its price.
+      // world:one-action-one-sheet: the act's button says the act and its price.
       ...(cost === null ? {} : { priced: true as const }),
       ...(paper ? { reference: clock.toUpperCase() } : {}),
       ...(option.allowed ? {} : { blocked: needsWords(option.missing) }),
-      // R-WALLET-020: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.
+      // wallet:top-ups-are-marked: a slip is paid from earned naira only; with only topped-up naira to pay it, the kiosk is shut with its words.
       ...(activity === KIOSK && cost !== null && earnedShort(view, cost.amount) ? { blocked: say("ui.lottery.earned-only") } : {}),
-      // R-LUCK-005: past the month's ceiling the kiosk's button is shut with the kiosk man's line.
+      // luck:kiosk-sells-lotto-tickets: past the month's ceiling the kiosk's button is shut with the kiosk man's line.
       ...(activity === "activity.play-lotto" && kioskCapReached(monthLines) ? { blocked: words(KIOSK_CAP) } : {}),
       // An act already in this month's plan that planning again does nothing for is shut until the month ends.
       ...(shut ? { blocked: say("ui.needs.planned") } : {}),
-      // R-ACTIVITY-020: the body is spent; the sheet says so where its button was.
+      // activity:spent-body-refuses-acts: the body is spent; the sheet says so where its button was.
       ...(option.spent === true ? { spent: say("ui.act.spent") } : {}),
       act: () => {
         const pick = { activity: option.id, param: chosen ?? option.params?.[0] ?? null };
@@ -1492,7 +1492,7 @@ export function City({
     };
   })();
 
-  // R-CHAPTER-008: the party answered, the sheet closes and the scene cuts to the full yard with the party's line over it, for a beat.
+  // chapter:family-marks-the-grant: the party answered, the sheet closes and the scene cuts to the full yard with the party's line over it, for a beat.
   const [partyBeat, setPartyBeat] = useState(false);
   const wasPartied = useRef(partied);
   useEffect(() => {
@@ -1520,7 +1520,7 @@ export function City({
     if (reportOpen) setPicked(null);
   }, [reportOpen]);
   // A thing's fan, and a person's or a shopfront's card, close on a tap anywhere outside them, or on Escape (Back), so
-  // the nudge they hide comes back by itself, never waiting on a tap on the floor (R-WORLD-003, R-WORLD-005).
+  // the nudge they hide comes back by itself, never waiting on a tap on the floor (world:nudge-says-one-thing, world:things-are-tappable-models).
   // The scene reads taps on itself: another thing chooses that thing, open ground puts it away.
   const personCard = world && (picked?.kind === "person" || picked?.kind === "model");
   const chipOpen = (world && picked?.kind === "thing") || personCard;
@@ -1542,7 +1542,7 @@ export function City({
       document.removeEventListener("keydown", back);
     };
   }, [chipOpen]);
-  // A pick added from the picker's sheet closes the sheet, as the ask card does (R-WORLD-006); its thing's label says it is planned.
+  // A pick added from the picker's sheet closes the sheet, as the ask card does (world:one-action-one-sheet); its thing's label says it is planned.
   const lastPlan = useRef(plan);
   useEffect(() => {
     const before = lastPlan.current;
@@ -1560,19 +1560,19 @@ export function City({
   useEffect(() => {
     if (setpieceOver && picked?.kind === "action" && picked.activity.startsWith("setpiece.")) setPicked(null);
   }, [setpieceOver, picked]);
-  // R-WORLD-022: a sheet, the phone or the map opening over the world, and closing back to it.
-  // The kiosk's sheet while the world runs the Friday draw (R-LOTTERY-001, R-WORLD-005).
+  // world:interface-sounds-made-live: a sheet, the phone or the map opening over the world, and closing back to it.
+  // The kiosk's sheet while the world runs the Friday draw (lottery:draw-runs-online-only, world:things-are-tappable-models).
   const kioskUp = world && picked?.kind === "action" && opensKiosk(picked.activity, view);
   const covered = world && (asksOpen || ask !== null || kioskUp || picked?.kind === "ride" || phone || map);
   // A share card up over the world (a chapter's card) keeps the street talk away from its foot.
   const cardsTurn = useCardsTurn();
   const cardClosed = useGame((state) => state.cardClosed);
-  // A moment card covers the world as a share card does: the corner, the bubble and the rise wait for it (R-MOMENT-006, R-WORLD-026).
+  // A moment card covers the world as a share card does: the corner, the bubble and the rise wait for it (moment:card-shows-when-outcome-lands, world:street-talk-budget).
   const cardUp = world && ((cardsTurn && cardKey(view.card) !== null && cardClosed !== cardKey(view.card)) || momentCards.length > 0);
-  // Japacity shown two ways (R-WORLD-029): the rise flies and the bag by the door grows once nothing covers the world, so both are seen together.
+  // Japacity shown two ways (world:room-seen-down-its-length): the rise flies and the bag by the door grows once nothing covers the world, so both are seen together.
   const openingUp = !openingSeen && view.report === null && view.chapter.current !== null && !view.ended;
   const japa = useJapaRise(view.japacity.percent, world && looking && !covered && !resultsOpen && !map && !cardUp && !openingUp);
-  // R-WORLD-005: the first time a place is entered in a life, every name shows over its mark for two seconds and fades;
+  // world:things-are-tappable-models: the first time a place is entered in a life, every name shows over its mark for two seconds and fades;
   // once per place per life, kept beside the save. It waits for the place to be drawn and the opening title to go.
   const [teaching, setTeaching] = useState(false);
   const hasThings = things !== undefined && things.length > 0;
@@ -1590,7 +1590,7 @@ export function City({
   }, [world, ready, openingUp, hasThings, hereId, view.scenario]);
   // The names are due as this render commits, before the effect above has begun teaching them: the street waits for them too.
   const teachDue = world && ready && !openingUp && hasThings && !wasTaught(`place:${hereId}`, view.scenario);
-  // R-HOME-008: the first entry into a home in a life shows what the home is, its blurb,
+  // home:moves-carry-cost-and-reason: the first entry into a home in a life shows what the home is, its blurb,
   // once, as a small card the player dismisses; kept beside the save, so it never shows again in this life.
   const homeHere = home !== null && (placeId === home || hereId === home) ? home : null;
   const [homeTeach, setHomeTeach] = useState<string | null>(null);
@@ -1599,7 +1599,7 @@ export function City({
     setHomeTeach(homeHere);
   }, [world, homeHere, openingUp, view.scenario]);
   const homeTeachShown = homeTeach !== null && homeTeach === homeHere && !covered && !resultsOpen && !cardUp && asleep === null && blurbOf(homeTeach) !== null;
-  // R-WORLD-026: the corner and the bubble show only while nothing covers the world; the street's talk comes only then.
+  // world:street-talk-budget: the corner and the bubble show only while nothing covers the world; the street's talk comes only then.
   const worldFree = world && looking && !covered && !resultsOpen && !cardUp && !beatShown;
   // What waits to be told goes to the corner once it shows: nothing covers the world and the home's card is put away.
   useEffect(() => {
@@ -1643,7 +1643,7 @@ export function City({
     const timer = window.setTimeout(() => setToast(null), DONE_TOAST_MS);
     return () => window.clearTimeout(timer);
   }, [toast]);
-  // R-INTERVIEW-004: the last answer in, the asks leave and the officer says so in a toast under the band, in plain English.
+  // interview:answers-taken-in-order: the last answer in, the asks leave and the officer says so in a toast under the band, in plain English.
   const [said, setSaid] = useState<Said | null>(null);
   const interviewAsking = (view.interview?.question ?? null) !== null;
   const wasAsking = useRef(interviewAsking);
@@ -1707,14 +1707,14 @@ export function City({
     if (entry === null) return null;
     const heardNow = overheard(view, entry.id, date, heardNth.current);
     heardNth.current += 1;
-    // A line one person plainly says names them, over their own figure where they stand in the place (R-WORLD-026).
+    // A line one person plainly says names them, over their own figure where they stand in the place (world:street-talk-budget).
     return heardNow === null ? null : { text: heardWords(heardNow.key, heardNow.params), ...speakerOf(heardNow, thingsHere.current ?? [], (key) => cityWords(key)) };
     // The street waits while a place's names are taught on its first entry, and while the brief's card stands: names and words
     // never share the scene.
   }, worldFree && settled && callouts.bubble && !homeTeachShown && !teaching && !teachDue && !briefUp, home !== null && placeId === home ? say("ui.talk.home") : undefined);
   // A person speaks only in the place they stand in: going elsewhere takes their words down.
   useEffect(() => hush(), [placeId, inside]);
-  // R-WORLD-005: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
+  // world:things-are-tappable-models: the light bill paid at home, Mama says so over her head, the corner tells the bill paid, and a moment later the next compound is heard.
   const lightSeen = useRef(lastLines);
   useEffect(() => {
     if (lightSeen.current === lastLines) return;
@@ -1727,7 +1727,7 @@ export function City({
     const timer = window.setTimeout(() => murmur(heard), UP_NEPA_MS);
     return () => window.clearTimeout(timer);
   }, [lastLines, world]);
-  // The thing's label says what of it is planned this month (R-WORLD-005).
+  // The thing's label says what of it is planned this month (world:things-are-tappable-models).
   const marks = useMemo(() => (things === undefined ? {} : { ...plannedMarks(things, new Set(plannedKey.split("|"))), ...shiftMarks(things, cityWords("city.thing.on-shift")) }), [things, plannedKey]);
   const wasCovered = useRef(covered);
   useEffect(() => {
@@ -1751,7 +1751,7 @@ export function City({
               own={own}
               settings={settings}
               looking={looking && !map}
-              // The opening words stand alone over the dimmed world (R-WORLD-001): no thing label shows through the chapter's caption.
+              // The opening words stand alone over the dimmed world (world:world-fills-the-screen): no thing label shows through the chapter's caption.
               labelsHidden={openingUp}
               text={(key) => text[key]}
               onProgress={(loaded, total) => setProgress({ loaded, total })}
@@ -1762,7 +1762,7 @@ export function City({
                     overview: true,
                     roam: ROAM,
                     ...(things === undefined ? {} : { things, marks, named: namedThings(things, stepThing), nudged: stepThing, teaching }),
-                    // The fan's buttons hand their acts to walk for (R-WORLD-034).
+                    // The fan's buttons hand their acts to walk for (world:fan-of-sticker-buttons).
                     actOn: fanAct,
                     onClear: () => setPicked(null),
                     zoomed,
@@ -1811,7 +1811,7 @@ export function City({
             pins,
             country: shownCountry,
             countries,
-            // The ride's scene draws at home and in a country whose ways are drawn (R-WORLD-015, R-WORLD-039).
+            // The ride's scene draws at home and in a country whose ways are drawn (world:map-is-painted-lagos, world:ride-abroad-and-workplace).
             drawing: drawing && (where === "home" || (where === "abroad" && (view.place.ways ?? []).length > 0)),
             diveTo,
             pickFirst: mapPick,
@@ -1832,14 +1832,14 @@ export function City({
               setRideBy(null);
               setMapPick(null);
             },
-            // R-PLACE-010: the fare leaves cash through the command, and the ride plays only once it is
+            // place:rides-between-city-places: the fare leaves cash through the command, and the ride plays only once it is
             // accepted, at home and in a country that lists its ways; a country with none asks no fare.
             onRide: async (choice, to) => {
               if (view.place.where === "road" || (view.place.where === "abroad" && (view.place.ways ?? []).length === 0)) return true;
               const reply = await send({ type: "place/ride", from: placeId as Id<"place">, to: to as Id<"place">, way: choice.id });
               return reply?.ok === true;
             },
-            // Turn back (R-WORLD-017): the first fare is gone and the character stays where they were; the simulation never moved them, so nothing more is sent.
+            // Turn back (world:ride-sheet-shows-fares): the first fare is gone and the character stays where they were; the simulation never moved them, so nothing more is sent.
             onTurnBack: () => {
               setMap(false);
               setDiveTo(null);
@@ -1852,7 +1852,7 @@ export function City({
 
       {world && looking ? (
         <>
-          {/* The room dims a little while the player sleeps (R-WORLD-025): a soft dark wash over the world, on opacity alone; it
+          {/* The room dims a little while the player sleeps (world:sleep-ends-the-month): a soft dark wash over the world, on opacity alone; it
               takes the taps meant for the room, since a sleeper does nothing until they wake. */}
           <div aria-hidden className={`fixed inset-0 z-[36] bg-device/35 transition-opacity duration-200 ease-out ${asleep === null ? "pointer-events-none opacity-0" : "pointer-events-auto opacity-100"}`} data-sleep-wash={asleep === null ? "off" : "on"} />
           <Band
@@ -1862,13 +1862,13 @@ export function City({
             month={bandMonth(view, beganAt, dayClock)}
             sky={dayClock.served ? dayClock.part : "afternoon"}
             preview={fanned === null ? null : bandPreview}
-            // R-QUALITY-007: the body's word beside the age, only when it complains.
+            // quality:body-belly-and-energy: the body's word beside the age, only when it complains.
             body={bodyWords(view)}
             onMonth={() => {
               cue("tap");
               openCalendar(null);
             }}
-            // The band stays through the beat before the results, and steps back once they are up (R-WORLD-002).
+            // The band stays through the beat before the results, and steps back once they are up (world:top-band-is-lively-pill).
             hidden={map || (resultsOpen && resultsShown)}
             open={bandOpen}
             {...(coming === null ? {} : { onToggle: () => setBandOpen((open) => !open) })}
@@ -1915,12 +1915,12 @@ export function City({
               <PersonCard picked={picked} words={cardWords()} onClose={() => setPicked(null)} />
             </div>
           ) : null}
-          {/* A sleeper hears nothing: the corner keeps its lines until they wake (R-WORLD-025), and leaves Wake up clear. */}
+          {/* A sleeper hears nothing: the corner keeps its lines until they wake (world:sleep-ends-the-month), and leaves Wake up clear. */}
           {/* An open fan keeps the corner clear: the fan's buttons may run down to the thumbs (docs/design/13-the-lively-layer.md section 5). */}
           <Corner hidden={!worldFree || homeTeachShown || nightTeach !== null || asleep !== null || fanned !== null} />
           {asleep !== null && !asleep.due ? (
             <>
-              {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (R-WORLD-025). */}
+              {/* The sleep's chip under the band, with a thin bar running down over the sleep's length; a tap on it wakes (world:sleep-ends-the-month). */}
               <div className="pointer-events-none fixed inset-x-0 top-[calc(max(10px,env(safe-area-inset-top))+80px)] z-[38] flex justify-center px-3">
                 <button type="button" onClick={wake} className="brief-chip drop press pointer-events-auto relative inline-flex items-center gap-2 overflow-hidden py-1.5 pr-4 pl-1.5 text-[15px] font-bold" data-asleep>
                   <span className="chip-pic flex size-8 items-center justify-center bg-tint-body text-[17px]" aria-hidden>
@@ -2011,9 +2011,9 @@ export function City({
             </button>
           ) : null}
           <Cut cutting={cutting} />
-          {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; R-CHAPTER-011 as the hand
+          {/* The chapter's brief is handed as a mission card by its person (design page 13 section 4; chapter:first-chapter-mission-card as the hand
               redraws it): the first chapter's once in a life, a later chapter's until a month is played. Let's go carries it. */}
-          {/* The card's wait for the first frame is marked, so the keep-this-life ask (R-ACCOUNT-023) and the suite's helpers wait with it. */}
+          {/* The card's wait for the first frame is marked, so the keep-this-life ask (account:guest-secures-the-life) and the suite's helpers wait with it. */}
           {openingUp && brief !== null && !briefUp ? <span data-brief-pending hidden /> : null}
           {briefUp && brief !== null ? (
             <MissionCard
@@ -2060,11 +2060,11 @@ export function City({
           )}
 
           {/* In the world the band (shared/world/Band, 12 px from the top, a 52 px pill and its toggle) stands over this lane, so
-              the lane starts under it: a place loading is a note the player can see, never one behind the band (R-CITY-018). */}
+              the lane starts under it: a place loading is a note the player can see, never one behind the band (city:places-load-on-entry). */}
           <div className={`flex flex-col gap-2 lg:max-w-md ${world ? "mt-[72px]" : ""}`} data-notes-lane>
             {loading ? <LoadingNote place={name} percent={percent} /> : null}
             {failed === null ? null : <p className="pointer-events-auto rounded-md bg-sheet/90 px-3 py-2 text-sm text-bad">{cityWords("city.failed", { place: name })}</p>}
-            {/* In the world only the band, the nudge and the two thumb buttons stand over the place (R-WORLD-001): the question, the offers and the month's lines open from the nudge, the results and the phone. */}
+            {/* In the world only the band, the nudge and the two thumb buttons stand over the place (world:world-fills-the-screen): the question, the offers and the month's lines open from the nudge, the results and the phone. */}
             {!world && scene !== null && scene.place === placeId ? (
               <div className="pointer-events-auto flex flex-col gap-2 rounded-md border border-accent bg-sheet-2 p-4 shadow-lg" data-scene={scene.setpiece}>
                 <p className="text-sm text-text-2">{cityWords("city.scene.at", { place: name })}</p>

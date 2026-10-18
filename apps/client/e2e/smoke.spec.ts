@@ -4,7 +4,7 @@ import { start } from "@japacity/sim/testing";
 import { expect, test, type Page } from "@playwright/test";
 
 // The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
-// world (docs/rules/world.md R-WORLD-025, R-WORLD-030): acts on the home's things, the bed's Sleep turning it, the results
+// world (world:sleep-ends-the-month, world:month-passes-as-lived): acts on the home's things, the bed's Sleep turning it, the results
 // over the scene.
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
@@ -27,7 +27,7 @@ async function shownText(page: Page): Promise<string> {
   });
 }
 
-/** The band's age, "23 yrs 2 mo": the clock a month lived moves on (R-WORLD-002). */
+/** The band's age, "23 yrs 2 mo": the clock a month lived moves on (world:top-band-is-lively-pill). */
 async function bandAge(page: Page): Promise<string> {
   const said = (await page.locator("[data-band]").textContent()) ?? "";
   return /\d+ yrs \d+ mo/.exec(said)?.[0] ?? "";
@@ -40,7 +40,7 @@ function aMonthOn(age: string): string {
   return `${String(Math.floor(next / 12))} yrs ${String(next % 12)} mo`;
 }
 
-/** An act whose sheet opens over the place (R-WORLD-005): the thing's act, then the sheet's own button for the act chosen. */
+/** An act whose sheet opens over the place (world:things-are-tappable-models): the thing's act, then the sheet's own button for the act chosen. */
 async function actBySheet(page: Page, thing: string, act: string, button: RegExp): Promise<void> {
   await doAct(page, thing, act);
   const sheet = page.getByRole("dialog");
@@ -49,7 +49,7 @@ async function actBySheet(page: Page, thing: string, act: string, button: RegExp
 }
 
 /**
- * A now-act from the fan (R-WORLD-034): it is done at once, or, when the act asks first, its card opens once the character
+ * A now-act from the fan (world:fan-of-sticker-buttons): it is done at once, or, when the act asks first, its card opens once the character
  * has walked to the thing and its own button (the act's name) does it. Either way the fan closes and no sheet is left.
  */
 async function fanActDone(page: Page, thing: string, activity: string, button: RegExp): Promise<void> {
@@ -109,7 +109,7 @@ test("a new player picks a life, lives a month and reads its results", async ({ 
   await expect(page.locator("[data-band]")).toContainText(aMonthOn(age));
 });
 
-test("[R-WORLD-034] three months of play, acts from the fan and from the things' sheets, show no kobo, raw object, missing value or bare key", async ({ page }, info) => {
+test("[world:fan-of-sticker-buttons] three months of play, acts from the fan and from the things' sheets, show no kobo, raw object, missing value or bare key", async ({ page }, info) => {
   test.skip(info.project.name !== "Pixel 7", "The month's acts are tapped at phone size");
   test.setTimeout(300_000);
   await page.goto(`/${LIVED}`);
@@ -119,7 +119,7 @@ test("[R-WORLD-034] three months of play, acts from the fan and from the things'
   await expectNothingBroken(page, "at the start", BROKEN, shownText);
   await intoTheRoom(page);
 
-  // Each month, acts on the home's things: from the fan (R-WORLD-034) and from a thing's sheet (R-WORLD-005).
+  // Each month, acts on the home's things: from the fan (world:fan-of-sticker-buttons) and from a thing's sheet (world:things-are-tappable-models).
   const months: ((page: Page) => Promise<void>)[] = [
     async (here) => {
       await fanActDone(here, "cooking", "activity.cook-at-home", /^Food from the pot/);
@@ -142,7 +142,7 @@ test("[R-WORLD-034] three months of play, acts from the fan and from the things'
     await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
     await expectNothingBroken(page, `in the results of month ${String(month)}`, BROKEN, shownText);
     await backFromResults(page);
-    // What was started carries on into the next month by itself (R-WORLD-007): the Calendar says it, with no Same again.
+    // What was started carries on into the next month by itself (world:month-acts-carry-on): the Calendar says it, with no Same again.
     await page.locator("[data-band-month]").click();
     const calendar = page.locator("[data-app-screen='calendar']");
     await expect(calendar.locator("[data-calendar]").first()).toBeVisible();
@@ -153,21 +153,21 @@ test("[R-WORLD-034] three months of play, acts from the fan and from the things'
   }
 });
 
-test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on it, and opens the world on Go", async ({ page }) => {
+test("[prologue:printed-page-hands-over] a life from sixteen fills its page with no card, waits on it, and opens the world on Go", async ({ page }) => {
   await page.goto(`/${LIVED}`);
   await startArchetype(page, "The developer", 30_000, true);
 
-  // The years go by on the page with no card (prologue.md R-PROLOGUE-010, 014).
+  // The years go by on the page with no card (prologue:archetype-presets-answers, prologue:printed-page-hands-over).
   const handover = page.locator("[data-gate='handover']");
   await expect(handover).toBeVisible();
   await expect(page.locator("[data-prologue-card]")).toHaveCount(0);
   await expect(handover.locator("[data-family='turned']")).toBeVisible();
   await expect(handover.locator("[data-years] [data-fact]").first()).toBeVisible();
-  // The page prints the family it drew and takes no stamp: none lands before a visa (R-PROLOGUE-009, 014).
+  // The page prints the family it drew and takes no stamp: none lands before a visa (prologue:front-door-builds-a-person, prologue:printed-page-hands-over).
   await expect(handover.locator("[data-page] [data-field='family']")).not.toContainText("· · ·");
   await expect(handover.locator("[data-page] [data-stamp]")).toHaveCount(0);
   await expectNothingBroken(page, "on the page", BROKEN, shownText);
-  // The page waits for the player (R-PROLOGUE-014): still there seconds later, until Go.
+  // The page waits for the player (prologue:printed-page-hands-over): still there seconds later, until Go.
   await page.waitForTimeout(4_000);
   await expect(handover).toBeVisible();
   await handover.getByRole("button", { name: "Go", exact: true }).click();
@@ -176,12 +176,12 @@ test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on
   await expectNothingBroken(page, "in the world", BROKEN, shownText);
 });
 
-/** The send-off card opens on no screen of its own once the flight's moment is closed (R-SHARE-015): the phone keeps it. */
+/** The send-off card opens on no screen of its own once the flight's moment is closed (share:send-off-card-kept): the phone keeps it. */
 async function noSendOffScreen(page: Page): Promise<void> {
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
 }
 
-/** At the airport's departures, the send-off scene and its Board the plane (R-CHAPTER-012, route/depart): the landing takes the whole screen after it. */
+/** At the airport's departures, the send-off scene and its Board the plane (chapter:send-off-scene-in-beats, route/depart): the landing takes the whole screen after it. */
 async function boardThePlane(page: Page): Promise<void> {
   await closeGranted(page);
   await placeReady(page);
@@ -240,7 +240,7 @@ test("a recorded life boards the plane, the landing gets the whole screen, and l
   await expectNothingBroken(page, "on landing", BROKEN, shownText);
   await putPhoneAway(page);
 
-  // The life abroad survives a reload; the card closed before it stays closed, since the month's memory keeps that (R-WORLD-008).
+  // The life abroad survives a reload; the card closed before it stays closed, since the month's memory keeps that (world:month-end-results-sheet).
   await page.reload();
   await placeReady(page);
   await expect(page.locator("[data-share-card]")).toHaveCount(0);
@@ -291,7 +291,7 @@ test("a life abroad answers the December visit and changes money", async ({ page
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.locator("[data-december-tile]")).toHaveCount(0);
 
-  // Dollars into naira at the bank (R-WALLET-005), the money held at home for the fare back.
+  // Dollars into naira at the bank (wallet:monthly-fx-allowance), the money held at home for the fare back.
   const bank = await openApp(page, "bank");
   const naira = async () => Number(((await bank.locator("[data-held='NGN']").textContent()) ?? "").replace(/[^\d]/g, ""));
   const dollars = async () => Number(((await bank.locator("[data-held='USD']").textContent()) ?? "").replace(/[^\d]/g, ""));
@@ -309,7 +309,7 @@ test("a life abroad answers the December visit and changes money", async ({ page
 /** The japacity figure in the Japa app: its face and size as the browser draws it. */
 async function japaFigure(page: Page): Promise<{ family: string; size: number }> {
   const japa = await openApp(page, "japa");
-  // How ready you are is a bar, never a figure (R-WORLD-019); the way's name is the figure said large.
+  // How ready you are is a bar, never a figure (world:phone-holds-what-phones-hold); the way's name is the figure said large.
   const figure = japa.locator("[data-japa-plan]");
   await expect(figure).toBeVisible();
   return figure.evaluate((element) => {
@@ -331,7 +331,7 @@ for (const [where, viewport] of [["a 390 px phone", { width: 390, height: 844 }]
       expect(family).not.toMatch(/Danfo/);
       expect(family).toMatch(/Rubik/);
       expect(size).toBeGreaterThanOrEqual(24);
-      // No page header names the game over the world (R-WORLD-001), and the app says Japacity once, over its figure.
+      // No page header names the game over the world (world:world-fills-the-screen), and the app says Japacity once, over its figure.
       await expect(page.locator("header h1")).toHaveCount(0);
       const head = await page.locator("[data-app-screen='japa'] [data-japa-head]").textContent();
       expect(head?.match(/japacity/gi) ?? []).toHaveLength(1);

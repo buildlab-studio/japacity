@@ -55,7 +55,7 @@ function shownView(): PlayerView {
 }
 
 describe("an advert slot", () => {
-  test("[R-ADVERT-003] given a view whose adverts are off, as in a noAdverts chapter, on the road or in a set piece, when every slot is drawn, then none renders", async () => {
+  test("[advert:no-adverts-on-protected-screens] given a view whose adverts are off, as in a noAdverts chapter, on the road or in a set piece, when every slot is drawn, then none renders", async () => {
     const quiet: PlayerView[] = [
       { ...shownView(), adverts: false },
       { ...shownView(), place: { ...shownView().place, where: "road" } },
@@ -69,7 +69,7 @@ describe("an advert slot", () => {
     }
   });
 
-  test("[R-ADVERT-003] given the current chapter marked noAdverts in content, when a view still says adverts may show, then every slot hides", async () => {
+  test("[advert:no-adverts-on-protected-screens] given the current chapter marked noAdverts in content, when a view still says adverts may show, then every slot hides", async () => {
     const view = shownView();
     const id = view.chapter.current;
     const entry = id === null ? undefined : content.chapter[id];
@@ -86,7 +86,7 @@ describe("an advert slot", () => {
     }
   });
 
-  test("[R-ADVERT-004] given an advert for the slot, when it is drawn, then the image shows at its size with the game's own Advert label; with none, the slot's empty board shows", async () => {
+  test("[advert:one-labelled-still-image] given an advert for the slot, when it is drawn, then the image shows at its size with the game's own Advert label; with none, the slot's empty board shows", async () => {
     await renderWithView(
       <>
         <AdvertSlot slot="advert.road-billboard" served={SERVED} baseUrl="https://game.test" />
@@ -104,7 +104,7 @@ describe("an advert slot", () => {
     expect(empty.getAttribute("aria-label")).toBe(say("advert.empty"));
   });
 
-  test("[R-ADVERT-005] [R-ADVERT-007] given an advert, when it is tapped and its link followed, then the game's card shows first, the leaving notice next, and nothing opens or is sent to the game by itself", async () => {
+  test("[advert:tap-opens-advert-card] [advert:adverts-change-no-simulation] given an advert, when it is tapped and its link followed, then the game's card shows first, the leaving notice next, and nothing opens or is sent to the game by itself", async () => {
     const opened = vi.fn();
     vi.stubGlobal("open", opened);
     const { authority } = await renderWithView(<AdvertSlot slot="advert.road-billboard" served={SERVED} />, shownView());
@@ -122,7 +122,7 @@ describe("an advert slot", () => {
     expect(authority.sent).toEqual([]);
   });
 
-  test("[R-ADVERT-022] given an advert on screen, when it stays at least half visible for the impression time, then one impression counts, once per slot in the session; less than half, or less time, counts nothing", async () => {
+  test("[advert:impression-counted-when-seen] given an advert on screen, when it stays at least half visible for the impression time, then one impression counts, once per slot in the session; less than half, or less time, counts nothing", async () => {
     const count = vi.fn<CountAdvert>();
     const { impressionMs } = content.tuning.advert;
     await renderWithView(<AdvertSlot slot="advert.road-billboard" served={SERVED} onCount={count} />, shownView());
@@ -143,7 +143,7 @@ describe("an advert slot", () => {
     expect(count.mock.calls.at(-1)).toEqual([ADVERT_COUNTERS.tap, "advert.road-billboard"]);
   });
 
-  test("[R-ADVERT-022] given a slot already counted this session, when it is shown again, then no second impression counts", async () => {
+  test("[advert:impression-counted-when-seen] given a slot already counted this session, when it is shown again, then no second impression counts", async () => {
     const count = vi.fn<CountAdvert>();
     const { impressionMs } = content.tuning.advert;
     for (let round = 0; round < 2; round += 1) {

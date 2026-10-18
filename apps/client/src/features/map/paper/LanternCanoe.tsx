@@ -1,19 +1,19 @@
-// The lantern canoe (docs/rules/world.md R-WORLD-036): on the open map of Lagos, one canoe moored on the open lagoon
+// The lantern canoe (world:lantern-canoe-on-map): on the open map of Lagos, one canoe moored on the open lagoon
 // north-east of the bridge with a lantern
 // at its prow. By day one more canoe of the water with a warm dot; at night the one light on that water, its glow drawn
-// over the night's paint so it never goes out. Once the account's own light is lit (account.md R-ACCOUNT-033) a second
+// over the night's paint so it never goes out. Once the account's own light is lit (account:name-a-light-for-yours) a second
 // lantern hangs at its stern. A tap opens the dedication page and folds nothing; a screen reader hears "A canoe with a
 // lantern". It is not a stop: no board, no name, no ride.
 //
 // It stands on the paper like a sticker, the same size on the screen at every zoom, so its hit area stays 44 px. The
-// glow is the fill the shell hands in (the two lights' one glow, R-WORLD-021), on a layer that breathes by opacity
-// alone in CSS (paper.css `paper-canoe-breath`), still under reduced motion (R-WORLD-023).
+// glow is the fill the shell hands in (the two lights' one glow, world:colours-are-role-tokens), on a layer that breathes by opacity
+// alone in CSS (paper.css `paper-canoe-breath`), still under reduced motion (world:motions-under-half-second).
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 
 import { say } from "../../../shared/words/text";
 import type { Point } from "./fit";
 
-/** R-WORLD-036: the hit area, in screen pixels: at least 44 each way. */
+/** world:lantern-canoe-on-map: the hit area, in screen pixels: at least 44 each way. */
 export const CANOE_HIT = 44;
 
 /** The canoe's drawing, in its own units (56 by 34), shown at 38 by 23 screen pixels, a little low in the hit area. */

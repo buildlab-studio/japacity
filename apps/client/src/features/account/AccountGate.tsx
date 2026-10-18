@@ -1,14 +1,14 @@
 // What a signed-out player sees online. The start screen first, over the compound with no title and the two lights hung over
-// it (R-ACCOUNT-029, R-ACCOUNT-031): Play goes to
-// the age screen (R-ACCOUNT-012) and on to the door, where Begin on the page makes the guest life (R-ACCOUNT-021)
+// it (account:start-screen-over-live-city, account:two-lights-and-wink-lines): Play goes to
+// the age screen (account:age-screen-refuses-minors) and on to the door, where Begin on the page makes the guest life (account:guest-and-secured-states)
 // with the username filled in from the name and the bot check run unseen (GuestStart.tsx); "I already have a life
 // here" goes straight to the ways back in. No sign-in method is asked for at the door, and none of the ways back in
-// makes an account. A refusal is said plainly and nothing else is offered (R-ACCOUNT-011, R-ACCOUNT-012). While
-// sign-ups are switched off, the full screen instead, which asks again once the server's wait is over (R-SERVER-032).
+// makes an account. A refusal is said plainly and nothing else is offered (account:sign-up-open-everywhere, account:age-screen-refuses-minors). While
+// sign-ups are switched off, the full screen instead, which asks again once the server's wait is over (server:signups-off-shows-full).
 // Inside the invite page the card is the start, so the gate begins at the age screen there, and the username stands
 // under it (the card makes the life, not the door). A notice the last screen left ("You have signed out.") shows on
 // the first screen here and goes as soon as the player moves on: to the age screen, to the ways back in, back to the
-// start, or into a life (R-ACCOUNT-021).
+// start, or into a life (account:guest-and-secured-states).
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
@@ -47,7 +47,7 @@ function shownOf(standing: Standing, step: Step, embedded: boolean): Shown {
   return standing === "unasked" ? "age" : "door";
 }
 
-/** The counter key of a screen (R-ANALYTICS-002); the start screen has none in content's list yet. */
+/** The counter key of a screen (analytics:client-sends-interface-counts); the start screen has none in content's list yet. */
 function counted(shown: Shown, embedded: boolean): string | null {
   if (shown === "age") return "age";
   if (shown === "door" && !embedded) return "scenario";
@@ -68,11 +68,11 @@ export interface AccountGateProps {
   door?: ((guest: GuestDoor) => ReactNode) | null;
   /** A seam for tests: how long Begin waits for the unseen check's token. */
   botWaitMs?: number;
-  /** What stands behind the start screen and the ways in, drawn by the shell: the live city (R-ACCOUNT-029); the compound when left out. */
+  /** What stands behind the start screen and the ways in, drawn by the shell: the live city (account:start-screen-over-live-city); the compound when left out. */
   behind?: ReactNode;
 }
 
-/** The two lights over the start screen, edge to edge from the very top (R-ACCOUNT-031). */
+/** The two lights over the start screen, edge to edge from the very top (account:two-lights-and-wink-lines). */
 function StartLights() {
   const shown = useLights();
   return (
@@ -108,7 +108,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     if (key !== null) counting().count("screen/opened", key);
   }, [key, shown]);
 
-  // A trip to Google that found no life comes back here with the reason (R-ACCOUNT-021). One that went through opens
+  // A trip to Google that found no life comes back here with the reason (account:guest-and-secured-states). One that went through opens
   // the life instead, where the shell tells it (Secure.tsx), so it never lands here.
   useEffect(() => {
     const failed = account?.returnedFromGoogle() ?? null;
@@ -146,7 +146,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const toStart = embedded ? null : () => go("start");
   const enter = async (api: AccountApi, by: SignedInBy | null = null): Promise<void> => {
     setMoved(true);
-    // R-ACCOUNT-023: the sheet closes as the life opens, and the world says which way it was.
+    // account:guest-secures-the-life: the sheet closes as the life opens, and the world says which way it was.
     if (by !== null) tellWay(api, `in.${by}`);
     void refreshAccount(api);
     await signedIn();
@@ -230,7 +230,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       <Wordmark ground="dark" />
     </div>
   );
-  // Over the start screen alone hang the two lights (R-ACCOUNT-031); the account screens carry the wordmark instead.
+  // Over the start screen alone hang the two lights (account:two-lights-and-wink-lines); the account screens carry the wordmark instead.
   const over = marked ? top : shown === "start" ? <StartLights /> : null;
   return (
     <Gate mark="start" {...(over === null ? {} : { over })} {...(behind === undefined ? {} : { scene: behind })}>

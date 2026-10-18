@@ -2,7 +2,7 @@ import { start } from "@japacity/sim/testing";
 
 import { expect, test } from "@playwright/test";
 
-// The boards (docs/rules/city.md R-CITY-039, R-CITY-040) on the client built
+// The boards (city:boards-switch-when-and-who, city:board-line-and-ranking) on the client built
 // against a server, every /api route faked here in the shapes
 // apps/client/src/features/boards/boards.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
@@ -16,7 +16,7 @@ import { shoot } from "./support/preview";
 test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 const CLOCK = clockAt(3);
-// R-CITY-040: every board names each line by the account's username, friends too.
+// city:board-line-and-ranking: every board names each line by the account's username, friends too.
 const USERNAMES = ["zainab_b", "tunde_k", "ngozi_o", "ada_ikeja", "tunde_99", "zee_lagos", "ngozi_writes", "ada_o", "tk_surulere", "ngo_yaba"];
 
 type Row = { rank: number; username: string | null; figure: number; me: boolean };
@@ -49,7 +49,7 @@ const BOARDS: Record<string, Answer> = {
   "GET /api/boards/joined-week": { status: 503, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } },
 };
 
-test("[R-CITY-039] the four boards behind the two pickers, each with the player's own line, and the joined-week board unseen while it is off", async ({ page }, info) => {
+test("[city:boards-switch-when-and-who] the four boards behind the two pickers, each with the player's own line, and the joined-week board unseen while it is off", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "pictures at phone size only");
   const game = start({ scenario: "scenario.ada", content });
   game.grant(1);
@@ -76,7 +76,7 @@ test("[R-CITY-039] the four boards behind the two pickers, each with the player'
       const list = page.locator(`[data-board="${when}.${who}"]`);
       await expect(list).toBeVisible();
       await expect(list.locator("[data-me]")).toHaveCount(1);
-      // R-CITY-040: the player's own line names the username on every board, and nothing else names it.
+      // city:board-line-and-ranking: the player's own line names the username on every board, and nothing else names it.
       await expect(list.locator("[data-me] [data-board-name]")).toHaveText("ada_from_yaba");
       await expect(list.locator("[data-me]")).not.toContainText("Ada");
       await boards.scrollIntoViewIfNeeded();

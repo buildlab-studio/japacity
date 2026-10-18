@@ -1,4 +1,4 @@
-// The first chapter's opening as the hand draws it (docs/rules/chapter.md R-CHAPTER-011; world.md R-WORLD-001; design page 13
+// The first chapter's opening as the hand draws it (chapter:first-chapter-mission-card; world:world-fills-the-screen; design page 13
 // section 4): the first brief is a mission card handed by a person at the hub, in their voice,
 // with its things, the place of each and one button, Let's go; once carried, its chip stands under the band for a moment,
 // then slides into the Phone thumb, whose Japa app takes a dot. A later chapter's card is the same mission card.
@@ -15,7 +15,7 @@ import { City } from "./City";
 const world = () => <City world results={(place) => <p data-results-for={place} />} />;
 
 describe("the first brief", () => {
-  test("[R-CHAPTER-011] [R-WORLD-001] given a life that has not played a month, in the first chapter, when the world opens, then the first brief is a mission card from a person at the hub with its things and Let's go; carried, its chip stands under the band, then tucks into the phone and the Japa app takes a dot", async () => {
+  test("[chapter:first-chapter-mission-card] [world:world-fills-the-screen] given a life that has not played a month, in the first chapter, when the world opens, then the first brief is a mission card from a person at the hub with its things and Let's go; carried, its chip stands under the band, then tucks into the phone and the Japa app takes a dot", async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     try {
       const view = engineView();
@@ -48,7 +48,7 @@ describe("the first brief", () => {
     }
   });
 
-  test("[R-CHAPTER-011] given a life that has not played a month in a later chapter, when the world opens, then its brief is the same mission card, in the giver's words, with Let's go", async () => {
+  test("[chapter:first-chapter-mission-card] given a life that has not played a month in a later chapter, when the world opens, then its brief is the same mission card, in the giver's words, with Let's go", async () => {
     const base = engineView();
     const view = { ...base, chapter: { ...base.chapter, current: "chapter.build-the-file" as const, done: ["chapter.find-your-feet" as const] } };
     await renderWithView(world(), view);

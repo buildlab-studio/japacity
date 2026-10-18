@@ -26,7 +26,7 @@ let walked: World[] = [];
 
 /**
  * The stand-in world, with UK care work open to applicants from abroad from the first month when `open`: the window
- * the director opens some time in a life (R-SPONSOR-005), opened here so a test reaches the sponsor in its own months.
+ * the director opens some time in a life (route-gates:care-route-needs-verification), opened here so a test reaches the sponsor in its own months.
  */
 function worldAt(open: boolean): ((tick: number) => World) | undefined {
   if (!open) return undefined;

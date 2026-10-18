@@ -1,4 +1,4 @@
-// The room abroad at its length (docs/rules/world.md R-WORLD-011): the room abroad is about 16 by 9 metres, so seen down its length it fills a phone held upright. The homes at
+// The room abroad at its length (world:place-is-one-screen): the room abroad is about 16 by 9 metres, so seen down its length it fills a phone held upright. The homes at
 // home are wide floors (homes.test.ts). Refurnished so nothing floats: every piece
 // stands on the floor between the walls, what stood against a wall still does, and both modes stay inside the
 // indoor row's budget. Read from the shipped files, measured as the build check measures them, and passed through
@@ -38,7 +38,7 @@ async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1:
 }
 
 describe("the room at its new length", () => {
-  test("[R-WORLD-011] [R-HOME-010] given the parlour, the room abroad and the room in a compound, when their shells are read and measured, then the parlour and the room abroad are 16 by 9 metres inside and the room in a compound 4 by 3.5, each with its long side along x, the way the camera looks down it", async () => {
+  test("[world:place-is-one-screen] [home:compound-room-is-a-home] given the parlour, the room abroad and the room in a compound, when their shells are read and measured, then the parlour and the room abroad are 16 by 9 metres inside and the room in a compound 4 by 3.5, each with its long side along x, the way the camera looks down it", async () => {
     for (const { name, file, shell, size } of ROOMS_HERE) {
       const [LENGTH, WIDTH] = size;
       expect({ name, size: shell.size }).toEqual({ name, size: [LENGTH, WIDTH] });
@@ -51,7 +51,7 @@ describe("the room at its new length", () => {
     }
   });
 
-  test("[R-WORLD-011] given each room's ground and walkable floor, when the place check reads them, then the floor runs as its shell does, about 16 by 9 metres or 4 by 3.5, and the check passes, as it does a bare 16 by 9 room; a hall of 20 by 20 still fails", () => {
+  test("[world:place-is-one-screen] given each room's ground and walkable floor, when the place check reads them, then the floor runs as its shell does, about 16 by 9 metres or 4 by 3.5, and the check passes, as it does a bare 16 by 9 room; a hall of 20 by 20 still fails", () => {
     for (const { name, file, size } of ROOMS_HERE) {
       const [LENGTH, WIDTH] = size;
       const stage = stageOf(file);
@@ -66,7 +66,7 @@ describe("the room at its new length", () => {
     expect(checkLimits(bare([[-10, -10], [10, -10], [10, 10], [-10, 10]]))[0]).toMatch(/is a room of 20.0 by 20.0 m/);
   });
 
-  test("[R-WORLD-011] [R-WORLD-029] given every piece in each room, when its footprint is placed, then it stands on the floor between the walls, what stood against the back wall still does, and the door is on the side wall", async () => {
+  test("[world:place-is-one-screen] [world:room-seen-down-its-length] given every piece in each room, when its footprint is placed, then it stands on the floor between the walls, what stood against the back wall still does, and the door is on the side wall", async () => {
     for (const { name, file, side, against, size } of ROOMS_HERE) {
       const [LENGTH, WIDTH] = size;
       const pieces = await extents(file);
@@ -84,7 +84,7 @@ describe("the room at its new length", () => {
     }
   });
 
-  test("[R-WORLD-011] given each room at its new length, when it is counted as the build check counts it, then both modes stay inside the indoor row's budget", async () => {
+  test("[world:place-is-one-screen] given each room at its new length, when it is counted as the build check counts it, then both modes stay inside the indoor row's budget", async () => {
     for (const { file } of ROOMS_HERE) {
       const totals = await totalsOf(file);
       for (const mode of ["low", "high"] as const) {

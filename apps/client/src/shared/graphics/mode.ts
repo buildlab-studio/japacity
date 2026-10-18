@@ -1,7 +1,7 @@
-// The city's graphics mode (city.md R-CITY-019), kept where any screen may
+// The city's graphics mode (city:two-graphics-modes), kept where any screen may
 // read it: the city writes it each time its mode changes, and the feedback
-// form sends it (R-MODERATION-020). Nothing is kept on the device here. A
-// mode the player chooses in the city's settings is counted (R-ANALYTICS-002).
+// form sends it (moderation:feedback-box-in-settings). Nothing is kept on the device here. A
+// mode the player chooses in the city's settings is counted (analytics:client-sends-interface-counts).
 import { counting } from "../analytics/start";
 
 export type GraphicsMode = "low" | "high";
@@ -20,7 +20,7 @@ export function graphicsMode(): GraphicsMode {
   return current;
 }
 
-/** R-ANALYTICS-002: the player changed the graphics setting. The city's own drop to low is not a choice and is not counted. */
+/** analytics:client-sends-interface-counts: the player changed the graphics setting. The city's own drop to low is not a choice and is not counted. */
 export function chooseGraphics(choice: GraphicsChoice): void {
   counting().count("settings/graphics", choice);
 }

@@ -1,5 +1,5 @@
 // The guide pages (docs/rules/guide.md): plain pages built at build time that load without the
-// game, need no sign-in and link into it (R-GUIDE-005). Every word comes from the content's text
+// game, need no sign-in and link into it (guide:guides-are-open-pages). Every word comes from the content's text
 // table passed in, so a page is the content's words, never a copy of them.
 import { inline, readRulePage, type RulePage } from "@japacity/content";
 import type { Content, Id } from "@japacity/sim";
@@ -9,7 +9,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { fill } from "../../shared/words/text";
 import { GUIDES_ROOT, guidePath, MADE_PATH, numbersPath } from "./paths";
 
-/** credits.json as tools/assets/credits.ts writes it (city.md R-CITY-021). */
+/** credits.json as tools/assets/credits.ts writes it (city:credits-screen-attributions). */
 export interface CreditsFile {
   mapData: { text: string; link: string; sources: string[] }[];
   assets: { file: string; attribution: string }[];
@@ -20,7 +20,7 @@ export interface CreditsFile {
 export interface SiteInput {
   content: Content;
   text: Record<string, string>;
-  /** `YYYY-MM-DD`: the build's date, for the stale notice (R-GUIDE-004). */
+  /** `YYYY-MM-DD`: the build's date, for the stale notice (guide:guides-show-checked-date). */
   today: string;
   /** Guide ids not checked for `tuning.guide.staleMonths` months on `today`. */
   stale: readonly string[];

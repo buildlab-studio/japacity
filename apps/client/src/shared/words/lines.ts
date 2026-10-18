@@ -30,15 +30,15 @@ export function forYou(line: ReportLine): boolean {
 const SAID_BETTER: readonly [better: string, plain: string][] = [
   ["line.activity.salary", "line.wallet.salary"],
   ["line.activity.gig", "line.wallet.gig"],
-  // R-ADVICE-009: the scam names the agent and says the fee is gone; the wallet's fee line is the same money.
+  // advice:bad-news-told-straight: the scam names the agent and says the fee is gone; the wallet's fee line is the same money.
   ["line.offer.agent-scam", "line.wallet.fee-agent"],
-  // R-LUCK-009: the circle's pot lands as a gift in the wallet; the pot's own line says whose money it is.
+  // luck:savings-circle-holds-pot: the circle's pot lands as a gift in the wallet; the pot's own line says whose money it is.
   ["line.obligation.pot", "line.wallet.gift"],
 ];
 
 /**
  * Wallet lines whose money never reaches the naira the player sees: held funds sit locked from the
- * day they land to the day they go back (R-OBLIGATION-007), so neither end is kept or lost.
+ * day they land to the day they go back (obligation:missed-interest-recalls-held-funds), so neither end is kept or lost.
  */
 const LOCKED_ONLY: ReadonlySet<string> = new Set(["line.wallet.held-funds", "line.wallet.held-funds-return"]);
 
@@ -76,7 +76,7 @@ const SAVINGS_BEFORE = "ui.line.savings-before";
  * True for a line that tells money moving: the wallet's own lines, which tell every payment in or
  * out, and the lines that say one of them better. Any other line with an amount (a bill missed, a
  * debt in default) tells of money without moving it, and neither does money that only sits locked
- * or was saved in the years before the first month (R-WORLD-008).
+ * or was saved in the years before the first month (world:month-end-results-sheet).
  */
 export function movesMoney(line: ReportLine): boolean {
   if (LOCKED_ONLY.has(line.key)) return false;
@@ -146,7 +146,7 @@ function dropRetold(lines: readonly ReportLine[]): ReportLine[] {
   return lines.filter((_, index) => !dropped.has(index));
 }
 
-/** Where content has an offer's own words for one answer, `<offer>.said.<choice>` (R-CHAPTER-008). */
+/** Where content has an offer's own words for one answer, `<offer>.said.<choice>` (chapter:family-marks-the-grant). */
 const SAID = ".said.";
 
 /** True for an answer to an offer told in the offer's own words. */
@@ -164,8 +164,8 @@ function saidFor(line: ReportLine): string | null {
 }
 
 /**
- * A paper asked for whose answer is still to be judged (the endorsement, R-ENDORSE-002) is told in its own words,
- * `<document>.requested`, who answers and when, never "should be ready" (R-WORLD-008).
+ * A paper asked for whose answer is still to be judged (the endorsement, route-gates:endorsement-decided-by-draw) is told in its own words,
+ * `<document>.requested`, who answers and when, never "should be ready" (world:month-end-results-sheet).
  */
 function requestedFor(line: ReportLine): string | null {
   const { document } = line.params;
@@ -289,12 +289,12 @@ function unpaidCost(obligation: string): string {
   const mood = takes.has("quality.wellbeing");
   const quality = standing && mood ? "standing-mood" : standing ? "standing" : mood ? "mood" : null;
   if (entry.reportsToCredit === true) return quality === "standing-mood" ? "credit-standing-mood" : "credit";
-  // A missed instalment costs nothing at once; the next one missed withdraws the student (R-STATUS-011).
+  // A missed instalment costs nothing at once; the next one missed withdraws the student (status:course-passed-or-withdrawn).
   if (quality === null && entry.onDefault.some((effect) => effect.type === "status/lose")) return "withdraw";
   return quality ?? "plain";
 }
 
-/** A charge that fell due and could not be paid: no money moved, but the month went wrong (R-WORLD-008). */
+/** A charge that fell due and could not be paid: no money moved, but the month went wrong (world:month-end-results-sheet). */
 const UNPAID: ReadonlySet<string> = new Set(["line.obligation.missed", "line.obligation.missed-part", "line.obligation.car-notice", "line.obligation.group-visit", "line.obligation.group-covered"]);
 
 export function isUnpaid(line: ReportLine): boolean {
@@ -302,7 +302,7 @@ export function isUnpaid(line: ReportLine): boolean {
 }
 
 /**
- * A bill missed, told with its figure and what the miss cost (R-WORLD-008): the generic "standing and mood"
+ * A bill missed, told with its figure and what the miss cost (world:month-end-results-sheet): the generic "standing and mood"
  * line is false for a tuition instalment, whose miss costs nothing at once.
  * The results and the News app tell it the same way.
  */
@@ -330,7 +330,7 @@ const PIECES = "quality.portfolio";
 const TOLD_BY_OWN_LINE: ReadonlySet<string> = new Set(["rest", "activity.rest", "activity.conference-talk"]);
 
 /**
- * What an act did to the person, told once (R-TEXT-005): the moves a line's `source` caused
+ * What an act did to the person, told once (text:bands-not-figures): the moves a line's `source` caused
  * are one line in the act's own words where content has them (`line.quality.from.<source>`: "You know more people at
  * the hub now" for the meetup's network and wellbeing), and none at all where the act's own line already says it (an
  * offer answered in its own words, the rest taken, the talk). Any other move is told by its quality (text.ts, `words`).
@@ -355,7 +355,7 @@ function toldMoves(lines: readonly ReportLine[]): ReportLine[] {
   });
 }
 
-/** A slot played, and a now-act done at once (R-ACTIVITY-015): each comes just before the money it spent. */
+/** A slot played, and a now-act done at once (activity:now-acts-and-month-acts): each comes just before the money it spent. */
 const PLAYED: ReadonlySet<string> = new Set(["line.activity.played", "line.activity.played-now"]);
 
 /**
@@ -405,11 +405,11 @@ function upkeepMoved(lines: readonly ReportLine[]): ReportLine[] {
   return lines.map((line, index) => (index === at ? { ...line, key: told } : line));
 }
 
-/** The room's first charge met by the rent paid on the move (home.md R-HOME-002): the move's line told it already. */
+/** The room's first charge met by the rent paid on the move (home:move-home-once-a-month): the move's line told it already. */
 const MOVE_PAID = "line.obligation.relief.move";
 
 /**
- * A move to a home with rent is one line with the rent it paid (R-HOME-002): "Home is Makoko
+ * A move to a home with rent is one line with the rent it paid (home:move-home-once-a-month): "Home is Makoko
  * now: ₦25,000 a month." in the money, in place of the move's own line and a "Living costs" beside it. The rent comes
  * just after the move made from the phone, or just before it when an answer paid it. The month's end says nothing
  * more of it: that charge was met on the move.
@@ -484,7 +484,7 @@ function remitLanded(line: ReportLine): ReportLine {
 }
 
 /**
- * An endorsement judged the month it is issued (R-ENDORSE-002) tells four lines at once: ready, the body's
+ * An endorsement judged the month it is issued (route-gates:endorsement-decided-by-draw) tells four lines at once: ready, the body's
  * refusal, a visa refused for a route never applied for, and the letter voided. One story is enough: the
  * body's refusal stands; the ready line, the refusal noted on the route and the voiding go.
  */

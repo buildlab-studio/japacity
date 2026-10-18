@@ -1,5 +1,5 @@
-// The month's lines that can read wrong (docs/rules/world.md R-WORLD-008, R-WORLD-016;
-// text.md R-TEXT-005): each payment named for what it paid, one line where two said one thing, and
+// The month's lines that can read wrong (world:month-end-results-sheet, world:one-country-at-a-time;
+// text:bands-not-figures): each payment named for what it paid, one line where two said one thing, and
 // the living costs' rise told with its reason. Played on the real engine where a few commands get there.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -23,7 +23,7 @@ function takes(offer: string, choice: string): number {
 }
 
 describe("an answer's money, named for it", () => {
-  test("[R-WORLD-008] [R-WORLD-016] given fuel scarcity, when the fares are paid, then the line says fuel scarcity and fares, never living costs", () => {
+  test("[world:month-end-results-sheet] [world:one-country-at-a-time] given fuel scarcity, when the fares are paid, then the line says fuel scarcity and fares, never living costs", () => {
     const game = newGame("scenario.ada");
     const fuel = openOffer(game, "offer.fuel-scarcity");
     const result = game.accept({ type: "offer/choose", offer: fuel.id, choice: "pay" });
@@ -33,7 +33,7 @@ describe("an answer's money, named for it", () => {
     expect(shown.filter((said) => said.startsWith("Living costs"))).toEqual([]);
   });
 
-  test("[R-TEXT-005] given any offer answered, when its line is read, then the offer's name never runs into the middle of a sentence", () => {
+  test("[text:bands-not-figures] given any offer answered, when its line is read, then the offer's name never runs into the middle of a sentence", () => {
     expect(words("line.offer.taken", { offer: "offer.nepa-bill" })).toBe(`Answered: ${words("offer.nepa-bill.name")}.`);
     for (const choice of ["pay", "leave"]) {
       const fresh = newGame("scenario.ada");
@@ -44,10 +44,10 @@ describe("an answer's money, named for it", () => {
     }
   });
 
-  test("[R-WORLD-008] [R-TEXT-005] given a meetup played, when the month's lines are read, then its spending is named the meetup, not going out", () => {
+  test("[world:month-end-results-sheet] [text:bands-not-figures] given a meetup played, when the month's lines are read, then its spending is named the meetup, not going out", () => {
     const game = newGame("scenario.ada");
-    // R-ACTIVITY-015: the meetup is an act done at once, so its spending is in its own lines, which the
-    // month's results show with the month's (R-WORLD-008).
+    // activity:now-acts-and-month-acts: the meetup is an act done at once, so its spending is in its own lines, which the
+    // month's results show with the month's (world:month-end-results-sheet).
     const shown = read(game.accept({ type: "activity/now", activity: "activity.meetup", param: null }).lines);
     const cost = content.activity["activity.meetup"]?.cost.find((each) => each.currency === "NGN")?.amount;
     if (typeof cost !== "number") throw new Error("The meetup has no naira cost.");
@@ -57,14 +57,14 @@ describe("an answer's money, named for it", () => {
 });
 
 describe("one line for one thing", () => {
-  test("[R-WORLD-008] given a goal opened and reached in the same month, when the lines are read, then only the goal reached is told", () => {
+  test("[world:month-end-results-sheet] given a goal opened and reached in the same month, when the lines are read, then only the goal reached is told", () => {
     const shown = read([line("line.goal.opened", { goal: "goal.send-well" }, "good"), line("line.goal.done", { goal: "goal.send-well" }, "good")]);
     expect(shown).toEqual([words("line.goal.done", { goal: "goal.send-well" })]);
     // A goal opened alone, or one opened beside another reached, is still told.
     expect(read([line("line.goal.opened", { goal: "goal.send-well" }, "good"), line("line.goal.done", { goal: "goal.first-car" }, "good")])).toHaveLength(2);
   });
 
-  test("[R-WORLD-008] given the flight's month, when the job held at home ends with it, then the results tell it with the plane, not only News", () => {
+  test("[world:month-end-results-sheet] given the flight's month, when the job held at home ends with it, then the results tell it with the plane, not only News", () => {
     const lines = [
       line("line.route.departed", { route: "route.uk-masters" }, "good"),
       line("line.place.arrived", { country: "country.uk" }, "good"),
@@ -84,7 +84,7 @@ describe("one line for one thing", () => {
 /** Ada's months on the subsidy's world until it comes into force: that month's lines, and the month before's as read. */
 function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before: string[] } {
   // A world where the subsidy comes into force within the first year and a half (the probe's seed: in force at tick 16
-  // since the one-chance story joined the pool and moved every world's draws, wallet.md R-WALLET-019).
+  // since the one-chance story joined the pool and moved every world's draws, wallet:cash-pile-warning).
   const game = start({ scenario: "scenario.ada", seed: "s", worldSeed: "w-1", content: on });
   applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500_000_000, reason: "gift" }]);
   let risen: ReportLine[] | null = null;
@@ -100,8 +100,8 @@ function toSubsidyGone(on: typeof content): { risen: ReportLine[] | null; before
 }
 
 describe("living costs that rise", () => {
-  test("[R-WORLD-008] given the fuel subsidy in force, when the month's living costs are charged at the new figure, then the results say living costs are up to it a month, and why", () => {
-    // Decision 0013 (R-HOME-012): at home nothing of the living is charged as the month turns, so the month the subsidy
+  test("[world:month-end-results-sheet] given the fuel subsidy in force, when the month's living costs are charged at the new figure, then the results say living costs are up to it a month, and why", () => {
+    // Decision 0013 (home:living-by-hand): at home nothing of the living is charged as the month turns, so the month the subsidy
     // goes tells no living costs at all, neither the rise nor the charge.
     const lived = toSubsidyGone(content);
     if (lived.risen === null) throw new Error("The fuel subsidy never came into force.");

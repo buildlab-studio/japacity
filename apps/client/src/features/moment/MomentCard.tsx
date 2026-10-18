@@ -2,8 +2,8 @@
 // a player posts. A panel: a band head with the icon tile, the kicker and the title; one line large
 // enough to read in a cropped screenshot; the figure that makes it land; and the game's small mark with its address
 // in the corner, so every screenshot carries the game's name. A win is drawn light, a loss dark. One tap anywhere, or
-// Close, dismisses it, and the sheet under it is as it was (R-MOMENT-006). It is no share card: nothing is drawn to an
-// image, offered or sent (R-MOMENT-007).
+// Close, dismisses it, and the sheet under it is as it was (moment:card-shows-when-outcome-lands). It is no share card: nothing is drawn to an
+// image, offered or sent (moment:moment-is-not-share-card).
 import { Dialog } from "@base-ui/react/dialog";
 import { BanknoteX, BookMarked, Bus, FileX, Luggage, PhoneOff, PiggyBank, PlaneLanding, Ticket, X, type LucideIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -31,7 +31,7 @@ const ICONS: Record<MomentIcon, LucideIcon> = {
 export { markFile };
 
 /**
- * R-MOMENT-003: the figure's size by its length, so the longest sum still sits on one line inside the card at a
+ * moment:card-reads-when-cropped: the figure's size by its length, so the longest sum still sits on one line inside the card at a
  * phone's width, and a short one stands as large as a headline.
  */
 export function figureSize(shown: string): number {
@@ -50,7 +50,7 @@ function Figure({ face }: { face: MomentFace }) {
   return (
     <div className="flex flex-col items-start" data-moment-figure={face.figure.value}>
       <span className="block leading-[0.95] tracking-[-0.03em]" style={{ fontSize: size }} data-moment-size={size}>
-        {/* A frame's clock may start a hair before the count does: the figure never shows under nothing, so never a sign (R-MOMENT-004). */}
+        {/* A frame's clock may start a hair before the count does: the figure never shows under nothing, so never a sign (moment:card-never-looks-official). */}
         <Counter value={value} format={(shown) => figureWords(face.figure, Math.max(0, shown))} />
       </span>
       <span aria-hidden className="mt-2.5 h-1.5 w-14 rounded-[1px] bg-signal" />
@@ -104,18 +104,18 @@ function MomentFaceView({ face }: { face: MomentFace }) {
 }
 
 /**
- * The moment card when its turn comes (R-MOMENT-006). `over`: the results sheet it opens over at a month's end (it
+ * The moment card when its turn comes (moment:card-shows-when-outcome-lands). `over`: the results sheet it opens over at a month's end (it
  * sits in that sheet's tree, so a tap on it never reaches the sheet), or the world after an act or the draw's letter.
  */
 export function MomentCard({ over }: { over: "results" | "world" }) {
   const screens = useGame((state) => state.momentScreen);
-  // The store keeps the moments only while a screen stands to show them (R-MOMENT-006).
+  // The store keeps the moments only while a screen stands to show them (moment:card-shows-when-outcome-lands).
   useEffect(() => screens(), [screens]);
   const head = useGame((state) => state.momentCards[0] ?? null);
   const next = useGame((state) => state.nextMomentCard);
   const reportOpen = useGame((state) => state.reportOpen);
   const staged = useGame((state) => state.moments.length);
-  // The send-off scene covers the world from the gate to the first ride (chapter.md R-CHAPTER-012): the landing's card waits for it.
+  // The send-off scene covers the world from the gate to the first ride (chapter:send-off-scene-in-beats): the landing's card waits for it.
   const scene = useSendOffShowing();
   // Over the world the staged wins told in the corner pass first; over the results the sheet is already up.
   const turn = scene ? false : over === "results" ? reportOpen : !reportOpen && staged === 0;
@@ -138,7 +138,7 @@ function MomentDialog({ shot, open, onClose }: { shot: MomentShot; open: boolean
       <Dialog.Portal>
         {/* Over the results sheet the card is a nested dialog, whose backdrop shows only when forced: the sheet dims under it too. */}
         <Dialog.Backdrop forceRender className="motion-scrim fixed inset-0 z-[70] bg-device/85 data-closed:pointer-events-none data-ending-style:pointer-events-none" />
-        {/* R-MOMENT-006: one tap anywhere dismisses it, the card as much as the dimmed world around it. */}
+        {/* moment:card-shows-when-outcome-lands: one tap anywhere dismisses it, the card as much as the dimmed world around it. */}
         <Dialog.Popup
           className="motion-card fixed inset-0 z-[71] flex items-center justify-center overflow-y-auto px-4 pt-[max(24px,env(safe-area-inset-top))] pb-[max(24px,env(safe-area-inset-bottom))] outline-hidden data-closed:pointer-events-none data-ending-style:pointer-events-none"
           onClick={onClose}

@@ -1,6 +1,6 @@
-// The credits screen (city.md R-CITY-021, guide.md R-GUIDE-008 to R-GUIDE-010): the map data
+// The credits screen (city:credits-screen-attributions, guide:credits-screen-in-game, guide:credits-carry-map-line and guide:credits-state-licences): the map data
 // credit with its link, each register row's attribution, the fonts, where generated media is used,
-// all from credits.json, and the game's own licences with the way to the full list the build ships beside the page (licenses.txt, R-GUIDE-010).
+// all from credits.json, and the game's own licences with the way to the full list the build ships beside the page (licenses.txt, guide:credits-state-licences).
 // Reached from the city's menu and, through the shell, from the phone's Settings (CreditsRow), online or not.
 import { LICENCES_PATH } from "@japacity/content";
 import { ArrowRight } from "lucide-react";
@@ -101,7 +101,7 @@ export function CreditsSheet({ open, onOpenChange }: { open: boolean; onOpenChan
   );
 }
 
-/** The Credits row the shell places in the phone's Settings, beside the ready lives: the same sheet as the city's menu opens (R-CITY-021). */
+/** The Credits row the shell places in the phone's Settings, beside the ready lives: the same sheet as the city's menu opens (city:credits-screen-attributions). */
 export function CreditsRow() {
   const [open, setOpen] = useState(false);
   return (

@@ -1,4 +1,4 @@
-// The goals and the figure in Japa (docs/rules/world.md R-WORLD-019; goal.md, the view rule): each open goal as a card
+// The goals and the figure in Japa (world:phone-holds-what-phones-hold; goal.md, the view rule): each open goal as a card
 // with its steps met or not, the done ones with their month, and how ready the life is as a bar that fills, never a
 // number with a percent sign, each assertion against the phone's own element.
 import { content } from "@japacity/content";
@@ -26,7 +26,7 @@ describe("life goals in Japa", () => {
     expect(open.closest("li")?.getAttribute("data-met")).toBe("false");
   });
 
-  test("given a goal done, then the done list names it with its month, said as months ago (R-WORLD-002)", async () => {
+  test("given a goal done, then the done list names it with its month, said as months ago (world:top-band-is-lively-pill)", async () => {
     const view = richAbroadView();
     await renderWithView(<Japa />, view);
     expect(screen.getByText(say("phone.japa.goal.done", { goal: nameOf("goal.first-car"), when: agoWords(41, view.month) }))).toBeDefined();

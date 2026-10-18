@@ -1,4 +1,4 @@
-// The plane cut (docs/rules/world.md R-WORLD-037): the painted map at night, one layer over it with the plane on its
+// The plane cut (world:plane-cut-at-send-off): the painted map at night, one layer over it with the plane on its
 // dashed line and the city's sticker; the plane moves by transform alone for the cut's time, and stands still at the
 // line's end under reduced motion. Nothing but the plane and the line is drawn over the paper the map already has.
 import { render } from "@testing-library/react";
@@ -21,7 +21,7 @@ function motion(reduced: boolean): void {
 const SLOT = { country: "country.uk", city: "London", small: "One way from Lagos", line: "The plane lifts off. Lagos gets small.", ms: 3000 };
 
 describe("the plane cut", () => {
-  test("[R-WORLD-037] given reduced motion, then the night paper, the dashed line, the plane standing still at the line's end and the city's sticker show, with no animation", () => {
+  test("[world:plane-cut-at-send-off] given reduced motion, then the night paper, the dashed line, the plane standing still at the line's end and the city's sticker show, with no animation", () => {
     motion(true);
     const animate = vi.fn();
     Object.defineProperty(HTMLElement.prototype, "animate", { configurable: true, value: animate });
@@ -38,7 +38,7 @@ describe("the plane cut", () => {
     expect(at[1]).toBeLessThan(844 / 2);
   });
 
-  test("[R-WORLD-037] given motion, then the plane lifts along the line once, for the cut's time, by transform keyframes alone", () => {
+  test("[world:plane-cut-at-send-off] given motion, then the plane lifts along the line once, for the cut's time, by transform keyframes alone", () => {
     motion(false);
     const animate = vi.fn(() => ({ cancel: () => undefined }));
     Object.defineProperty(HTMLElement.prototype, "animate", { configurable: true, value: animate });
@@ -51,7 +51,7 @@ describe("the plane cut", () => {
     expect(timing.duration).toBe(SLOT.ms);
   });
 
-  test("[R-WORLD-037] given each country, then the line leaves the airport and runs off the top of the screen, leaning the way the country lies", () => {
+  test("[world:plane-cut-at-send-off] given each country, then the line leaves the airport and runs off the top of the screen, leaning the way the country lies", () => {
     for (const country of ["country.uk", "country.canada", "country.uae", "country.italy"]) {
       const path = planePath(country);
       expect(path.from[1]).toBeGreaterThan(path.to[1]);

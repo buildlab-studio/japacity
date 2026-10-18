@@ -1,4 +1,4 @@
-// R-ACCOUNT-023: the in-app browsers where Google refuses its sign-in
+// account:guest-secures-the-life: the in-app browsers where Google refuses its sign-in
 // (WhatsApp, X, Instagram, TikTok, and Facebook's, which shares Instagram's).
 // There the ways back in and the securing sheet offer the emailed code and a way
 // out to the phone's own browser instead of a Google button that cannot work.

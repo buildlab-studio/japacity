@@ -1,4 +1,4 @@
-// The boards (docs/rules/city.md R-CITY-039, R-CITY-040): two pickers, when
+// The boards (city:boards-switch-when-and-who, city:board-line-and-ranking): two pickers, when
 // and who, over four boards that each have their own switch on the server.
 // A board's lines are loaded only after the server answers with one; a board
 // switched off is a quiet note, and its screen is never fetched. Dressed as
@@ -76,7 +76,7 @@ function Note({ children, action }: { children: string; action?: { label: string
 /** What a refusal says on the screen: a pause, the ask to secure, or a retry. */
 function Refused({ answer, again }: { answer: Exclude<BoardAnswer, { ok: true }>; again: () => void }) {
   if (answer.code === "switched-off") return <Note>{say("ui.boards.paused")}</Note>;
-  // R-ACCOUNT-022: a guest is refused `guest-only`, and the screen asks for the life to be secured, never a dead end.
+  // account:social-needs-secured-account: a guest is refused `guest-only`, and the screen asks for the life to be secured, never a dead end.
   if (answer.code === "guest-only") return <Note>{say("ui.boards.secure")}</Note>;
   return <Note action={{ label: say("ui.boards.retry"), run: again }}>{say("ui.boards.failed")}</Note>;
 }

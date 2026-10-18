@@ -1,4 +1,4 @@
-// The data page in the game (prologue.md R-PROLOGUE-009): the band's name with the age opens it, and it stays with
+// The data page in the game (prologue:front-door-builds-a-person): the band's name with the age opens it, and it stays with
 // the character: the name, the photo, the age kept current, what the life was, how ready, and a red stamp for each
 // step taken toward leaving, all read from the view as it stands. A close returns to the world.
 import type { PlayerView } from "@japacity/sim";
@@ -32,7 +32,7 @@ function nameOf(person: KeptPerson | null, view: Pick<PlayerView, "scenario">): 
 }
 
 /**
- * The years as lived where they went another way than the tile's (R-PROLOGUE-011, 014), else null: the tile's own.
+ * The years as lived where they went another way than the tile's (prologue:tile-path-open-from-start, prologue:printed-page-hands-over), else null: the tile's own.
  * While the years still go by the life has lived none of its path, so the page names the tile until they close: read as
  * lived, a nurse at sixteen would be a trade.
  */
@@ -69,12 +69,12 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
     path: archetype === null ? (hasWords(kind) ? say(kind) : "") : lived === null ? say(`prologue.archetype.${archetype.id}.name`) : say(`ui.page.lived.${lived}`),
     ...(archetype === null ? {} : { was: lived === null ? say(`prologue.archetype.${archetype.id}.was`) : say(`prologue.page.lived.${lived}`) }),
     ...(draw === null ? {} : { family: familyCard(draw, archetype?.id === "water").means }),
-    // Where the life is from, kept in the view after the prologue closes (R-PROLOGUE-009).
+    // Where the life is from, kept in the view after the prologue closes (prologue:front-door-builds-a-person).
     ...(view.hometown === null ? {} : { from: hometownWords(view.hometown) }),
     ready: readyWords(percent),
     strip: { district: districtOf(view), years: yearsOf(months), percent },
     photo: lookOf(gateLook(person?.look))?.picture ?? "",
-    // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (R-PROLOGUE-015).
+    // The player's own colours, or the look as made, and the photo drawn in them, kept with the person (prologue:player-colours-on-looks).
     ...(person === null ? {} : { wear: { look: person.look, ...(person.style === undefined ? {} : { style: person.style }), ...(person.photo === undefined ? {} : { photo: person.photo }), ...(person.photoPx === undefined ? {} : { photoPx: person.photoPx }) } }),
     stamps: stampsOf(view),
   };
@@ -108,7 +108,7 @@ export function PageSheet({ view, onClose }: { view: PlayerView; onClose: () => 
   );
 }
 
-/** The body's word, only when it complains (R-QUALITY-007): "Hungry", "Tired", never a number; a sticker chip in the body's tint. */
+/** The body's word, only when it complains (quality:body-belly-and-energy): "Hungry", "Tired", never a number; a sticker chip in the body's tint. */
 function Body({ body }: { body: string | null | undefined }) {
   if (body === null || body === undefined) return null;
   return (
@@ -118,7 +118,7 @@ function Body({ body }: { body: string | null | undefined }) {
   );
 }
 
-/** The band's second line: the age, then the place small beside it, the band's heading (R-WORLD-002). */
+/** The band's second line: the age, then the place small beside it, the band's heading (world:top-band-is-lively-pill). */
 function Under({ age, place }: { age: ReactNode; place: string }) {
   return (
     <div className="mt-0.5 flex min-w-0 items-baseline gap-1 text-[11px] leading-tight text-text-2">
@@ -152,7 +152,7 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
   return (
     <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,auto)_auto_1fr] items-center gap-x-1.5 leading-none" data-band-person>
       {/* The lively band: the name with the part of the day beside it, the age and the place small under it. The name and the
-          age open the page; the place's name does nothing (R-WORLD-002, R-PROLOGUE-009). The age comes before the part of
+          age open the page; the place's name does nothing (world:top-band-is-lively-pill, prologue:front-door-builds-a-person). The age comes before the part of
           the day to a screen reader and the keyboard, as before; the grid lays them out. */}
       {name === "" ? null : (
         <button type="button" tabIndex={-1} aria-hidden className="col-start-1 row-start-1 min-w-0 truncate text-left text-[16px] leading-tight font-bold" onClick={show}>
@@ -179,7 +179,7 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
 }
 
 /**
- * The band's clock and place (R-WORLD-002, R-PROLOGUE-009): in a game, the name with the place over the age, the
+ * The band's clock and place (world:top-band-is-lively-pill, prologue:front-door-builds-a-person): in a game, the name with the place over the age, the
  * name and the age opening the page; outside one, the age over the place's name.
  */
 export function BandPerson({ when, place, body = null, part = null }: { when: string; place: string; body?: string | null; part?: ReactNode }) {

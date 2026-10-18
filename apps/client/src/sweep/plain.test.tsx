@@ -22,7 +22,7 @@ function line(key: string, params: ReportLine["params"], attention = false): Rep
 }
 
 describe("words that mislead", () => {
-  test("[R-LUCK-005] given the kiosk, when tickets are picked, then the picker and the plan say 1 ticket to 5 tickets, never a bare key", async () => {
+  test("[luck:kiosk-sells-lotto-tickets] given the kiosk, when tickets are picked, then the picker and the plan say 1 ticket to 5 tickets, never a bare key", async () => {
     const base = engineView();
     const kiosk = base.activities.find((option) => option.id === LOTTO);
     if (kiosk === undefined) throw new Error("No kiosk in a new life.");
@@ -36,14 +36,14 @@ describe("words that mislead", () => {
     expect(document.body.textContent).not.toMatch(/\d\.name/);
     fireEvent.change(picker, { target: { value: "3" } });
     fireEvent.click(screen.getByRole("button", { name: `${text[`${LOTTO}.name`] ?? LOTTO}` }));
-    // R-ACTIVITY-015: the kiosk sells at once, so the count picked goes with the command sent now and the
+    // activity:now-acts-and-month-acts: the kiosk sells at once, so the count picked goes with the command sent now and the
     // month's plan holds no ticket; the count is said in words where it is picked.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: LOTTO, param: "3" }));
     expect(store.getState().plan.some((pick) => pick?.activity === LOTTO)).toBe(false);
     expect(paramWords("3")).toBe("3 tickets");
   });
 
-  test("[R-ROUTE-019] given a refusal for the sponsor, the agent or the endorsement, then each reason is said in words", async () => {
+  test("[route:refusal-reasons-recorded] given a refusal for the sponsor, the agent or the endorsement, then each reason is said in words", async () => {
     const base = richView();
     const reasons = ["sponsor", "agent", "endorsement"];
     const routes = base.routes.map((route) => (route.lastRefusal === null ? route : { ...route, lastRefusal: { ...route.lastRefusal, reasons } }));
@@ -57,8 +57,8 @@ describe("words that mislead", () => {
     }
   });
 
-  test("[R-OBLIGATION-003] given a count of one in a line or a panel, then it reads 1 month, 1 question and 1 payment, never 1 months", async () => {
-    // The journey, not the wait (text.md R-TEXT-007): the questions are to answer, never waiting.
+  test("[obligation:miss-applies-its-effects] given a count of one in a line or a panel, then it reads 1 month, 1 question and 1 payment, never 1 months", async () => {
+    // The journey, not the wait (text:voice-by-surface): the questions are to answer, never waiting.
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 1 })).toContain("1 question to answer");
     expect(words("line.setpiece.opened", { setpiece: "setpiece.road-truth", questions: 2 })).toContain("2 questions to answer");
     expect(words("line.status.clock-ran", { months: 1 })).toBe("1 month left on the clock.");
@@ -79,7 +79,7 @@ describe("words that mislead", () => {
 
   // The month's report shows in the world's results and its lines in the road's, the offers' and the prologue's lists
   // (ReportLines); whether a month needs an answer is the one test the world's nudge reads (nudge.ts, asksAttention).
-  test("[R-NEWS-005] [R-TURN-008] given a month whose only marked line is a story for you, then its line is tagged for you and nothing says it needs an answer", async () => {
+  test("[news:for-you-when-touching-route] [turn:turn-stores-a-report] given a month whose only marked line is a story for you, then its line is tagged for you and nothing says it needs an answer", async () => {
     const base = engineView();
     const story = line("line.news.delivered", { story: "news.era-calm", stage: "announced", forYou: 1 }, true);
     const report = { month: 1, lines: [story], japacityBefore: null, japacityAfter: null, attention: true };
@@ -89,7 +89,7 @@ describe("words that mislead", () => {
     expect(screen.getByText(say("ui.news.for-you"))).toBeDefined();
   });
 
-  test("[R-TURN-008] given a set piece open and last month's lines asking nothing, then nothing says something needs an answer", () => {
+  test("[turn:turn-stores-a-report] given a set piece open and last month's lines asking nothing, then nothing says something needs an answer", () => {
     const base = engineView();
     const played = line("line.activity.played", { activity: "activity.rest" }, false);
     const report = { month: 1, lines: [played], japacityBefore: null, japacityAfter: null, attention: false };
@@ -98,7 +98,7 @@ describe("words that mislead", () => {
     expect(nudgeOf({ ...base, report, setpiece, chapter: { ...base.chapter, current: null }, offers: [] } satisfies PlayerView).key).not.toBe("ui.nudge.report");
   });
 
-  test("[R-TURN-008] given a month where an offer opened, then the report still says something needs an answer", () => {
+  test("[turn:turn-stores-a-report] given a month where an offer opened, then the report still says something needs an answer", () => {
     const base = engineView();
     const opened = line("line.offer.opened", { offer: "offer.roof" }, true);
     const report = { month: 1, lines: [opened], japacityBefore: null, japacityAfter: null, attention: true };
@@ -108,7 +108,7 @@ describe("words that mislead", () => {
 
   // There is no month bar; the world says the engine's words where the month would turn, at the bed
   // (app/world.interview.test.tsx holds the December visit and the road's night there).
-  test("[R-SETPIECE-002] given the interface's own words, then it says interview only of a refusal", () => {
+  test("[route:open-set-piece-holds-month] given the interface's own words, then it says interview only of a refusal", () => {
     const own = Object.entries(uiText).filter(([key, value]) => /interview/i.test(value) && !key.startsWith("ui.refusal."));
     expect(own).toEqual([]);
   });

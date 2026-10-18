@@ -1,5 +1,5 @@
-// The sponsor step reads the care window (docs/rules/world.md R-WORLD-003; route-gates.md
-// R-SPONSOR-005): while no sponsor can take a nurse from abroad, the nudge never says "Find a sponsor with a licence".
+// The sponsor step reads the care window (world:nudge-says-one-thing; route-gates.md
+// route-gates:care-route-needs-verification): while no sponsor can take a nurse from abroad, the nudge never says "Find a sponsor with a licence".
 // Real content, the ready nurse played through `step`.
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -45,7 +45,7 @@ function standing(view: PlayerView, unmet: readonly string[], acts: Record<strin
 describe("the sponsor step while the care window is shut", () => {
   const view = atTheSponsor();
 
-  test("[R-WORLD-003] [R-SPONSOR-005] given the ready nurse at the sponsor step with care work shut to applicants abroad, when the nudge is read, then it says sponsors are closed and to keep the file ready, in one sentence of at most eight words, never to find a sponsor", () => {
+  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the ready nurse at the sponsor step with care work shut to applicants abroad, when the nudge is read, then it says sponsors are closed and to keep the file ready, in one sentence of at most eight words, never to find a sponsor", () => {
     expect(view.routes.find((route) => route.id === CARE)?.window).toBe("closed");
     expect(view.chapter.items.find((item) => !item.met)?.id).toBe("sponsor");
     const nudge = nudgeOf(view);
@@ -59,11 +59,11 @@ describe("the sponsor step while the care window is shut", () => {
     expect(nudge.way).toEqual(stepWayOf(view));
   });
 
-  test("[R-WORLD-003] [R-WORLD-015] [R-SPONSOR-005] given the shut sponsor step with the English test still to sit, when its tap is followed, then it goes to the test centre; with the file's own papers in hand it goes to the certification's card while she can pay it, else to the month's end, never to the decision day's papers, and every stop it names is open on the map", () => {
+  test("[world:nudge-says-one-thing] [world:map-is-painted-lagos] [route-gates:care-route-needs-verification] given the shut sponsor step with the English test still to sit, when its tap is followed, then it goes to the test centre; with the file's own papers in hand it goes to the certification's card while she can pay it, else to the month's end, never to the decision day's papers, and every stop it names is open on the map", () => {
     const allowed = { allowed: true, affordable: true };
     const english = standing(view, ["sponsor", "salary", "tb", "applied", "police", "certificate", "english"], { [ENGLISH]: allowed, [POLICE]: allowed, [CERTIFY]: allowed });
     expect(nudgeOf(english)).toMatchObject({ key: SHUT, way: { go: "place.english-test-centre" } });
-    // The police paper and the TB test run out and wait for the decision day's visa centre (R-WORLD-015).
+    // The police paper and the TB test run out and wait for the decision day's visa centre (world:map-is-painted-lagos).
     const certify = standing(view, ["sponsor", "salary", "tb", "applied", "police", "certificate"], { [POLICE]: allowed, [CERTIFY]: allowed });
     expect(nudgeOf(certify)).toEqual({ key: SHUT, about: "step", way: MEANWHILE_WAYS["nurse-certification"] });
     for (const shown of [english, certify]) {
@@ -79,7 +79,7 @@ describe("the sponsor step while the care window is shut", () => {
     expect(nudgeOf(english, undefined, [ENGLISH]).way).toEqual(MEANWHILE_WAYS["nurse-certification"]);
   });
 
-  test("[R-WORLD-003] [R-SPONSOR-005] given the shut sponsor step, when the window opens, then the sponsor step reads as it did: find a sponsor at the hub's desk", () => {
+  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the shut sponsor step, when the window opens, then the sponsor step reads as it did: find a sponsor at the hub's desk", () => {
     const open: PlayerView = { ...view, routes: view.routes.map((route) => (route.id === CARE ? { ...route, window: "open" as const } : route)) };
     expect(nudgeOf(open).key).toBe(`${FILE}.item.sponsor.nudge`);
     expect(stepWayOf(open)).toMatchObject({ go: "place.yaba", at: ["place.yaba:desk", "place.ojuelegba:hub"] });
@@ -87,7 +87,7 @@ describe("the sponsor step while the care window is shut", () => {
 });
 
 describe("the ready nurse's months at the shut sponsor step", () => {
-  test("[R-WORLD-003] [R-SPONSOR-005] given the ready nurse at the sponsor step with care work shut, when twelve more months are played, then no month's nudge says to find a sponsor", () => {
+  test("[world:nudge-says-one-thing] [route-gates:care-route-needs-verification] given the ready nurse at the sponsor step with care work shut, when twelve more months are played, then no month's nudge says to find a sponsor", () => {
     const game = readyNurse("sponsor-window");
     hearCare(game);
     readCare(game);

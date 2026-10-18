@@ -1,5 +1,5 @@
-// The top band (docs/rules/world.md R-WORLD-002): the age and the place's name, the month's name with the world's part of
-// the day (clock.md R-CLOCK-033), and the money as a counter. Nothing else. It hides while riding and while the results
+// The top band (world:top-band-is-lively-pill): the age and the place's name, the month's name with the world's part of
+// the day (clock:game-day-on-real-time), and the money as a counter. Nothing else. It hides while riding and while the results
 // show. The month turns when the life sleeps (decision 0011), so the band carries no Next month and no count of anything.
 import { text } from "@japacity/content";
 import type { DayPart, PlayerView } from "@japacity/sim";
@@ -14,10 +14,10 @@ import { dayPartWords, monthNameOf } from "../words/monthName";
 import { say } from "../words/text";
 import { localCurrency } from "../words/wayHome";
 
-/** How long the money takes to count to its new value: under half a second (R-WORLD-023). */
+/** How long the money takes to count to its new value: under half a second (world:motions-under-half-second). */
 export const COUNT_MS = 450;
 
-/** A number that counts toward its new value over about half a second (R-WORLD-023). */
+/** A number that counts toward its new value over about half a second (world:motions-under-half-second). */
 export function Counter({ value, format, className = "" }: { value: number; format: (value: number) => string; className?: string }) {
   const [shown, setShown] = useState(value);
   const from = useRef(value);
@@ -25,7 +25,7 @@ export function Counter({ value, format, className = "" }: { value: number; form
     const start = from.current;
     const change = value - start;
     if (change === 0) return;
-    // Reduced motion: the number lands at once (R-WORLD-023).
+    // Reduced motion: the number lands at once (world:motions-under-half-second).
     if (motionReduced()) {
       from.current = value;
       setShown(value);
@@ -51,7 +51,7 @@ export function Counter({ value, format, className = "" }: { value: number; form
 }
 
 /**
- * The money the band counts (R-WORLD-002): the money the character lives on where they are, bank and
+ * The money the band counts (world:top-band-is-lively-pill): the money the character lives on where they are, bank and
  * cash together. At home the naira; abroad the country's own, so the naira left at home shows only in
  * the Bank app.
  */
@@ -62,7 +62,7 @@ export function bandMoney(view: Pick<PlayerView, "place" | "pockets">): Pick<Ban
 }
 
 /**
- * The month as the band says it (R-WORLD-002, R-CLOCK-033): the month of the year by when the life began, and the world's
+ * The month as the band says it (world:top-band-is-lively-pill, clock:game-day-on-real-time): the month of the year by when the life began, and the world's
  * part of the day in words, from the world's clock, never the month's time.
  */
 export function bandMonth(view: Pick<PlayerView, "month">, beganAt: number, clock: { part: DayPart }): BandMonth {
@@ -85,7 +85,7 @@ export interface BandProps {
   formatMoney: (value: number) => string;
   /** The month's name and the part of the day, a small chip beside the age; none outside a game. */
   month?: BandMonth;
-  /** The body's word beside the age, only when it complains (R-QUALITY-007): "Hungry", "Tired", "Hungry, tired". */
+  /** The body's word beside the age, only when it complains (quality:body-belly-and-energy): "Hungry", "Tired", "Hungry, tired". */
   body?: string | null;
   /** A tap on the month opens the phone's Calendar. */
   onMonth?: () => void;
@@ -94,7 +94,7 @@ export interface BandProps {
   /** While a fan's button is pressed, what the money would be after it (docs/design/13-the-lively-layer.md section 2). */
   preview?: number | null;
   hidden?: boolean;
-  /** The second row (the nudge, what is coming), shown while the band is open or peeking; the handle under the band opens it (R-WORLD-002). */
+  /** The second row (the nudge, what is coming), shown while the band is open or peeking; the handle under the band opens it (world:top-band-is-lively-pill). */
   more?: ReactNode;
   open?: boolean;
   onToggle?: () => void;
@@ -120,7 +120,7 @@ export function bandPlace(name: string): string {
 }
 
 /**
- * The month on the band (R-WORLD-002, R-CLOCK-033): the world's part of the day beside the name, "· Morning", as the
+ * The month on the band (world:top-band-is-lively-pill, clock:game-day-on-real-time): the world's part of the day beside the name, "· Morning", as the
  * lively band draws it (docs/design/13-the-lively-layer.md); the month's name rides in it for a
  * screen reader and the Calendar it opens shows it whole. A new part of the day fades in, short and on opacity alone.
  */
@@ -139,7 +139,7 @@ function MonthChip({ month, onMonth }: { month: BandMonth; onMonth?: (() => void
 const SKY_PICTURES: Readonly<Record<DayPart, string>> = { morning: "🌤️", afternoon: "☀️", evening: "🌇", night: "🌙" };
 
 /**
- * The band (R-WORLD-002) as the lively layer draws it: a white pill by day and a navy one at night, the sky's picture,
+ * The band (world:top-band-is-lively-pill) as the lively layer draws it: a white pill by day and a navy one at night, the sky's picture,
  * the name with the part of the day beside it and the age and the place small under it, the body's word as a chip when
  * it complains, and the money in green. No pattern on it (decision 0025). A handle under it opens the second row;
  * closed, that row peeks for a few seconds whenever its words change. On a laptop it stands in the centred column.

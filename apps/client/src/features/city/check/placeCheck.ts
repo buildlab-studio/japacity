@@ -1,4 +1,4 @@
-// What the place check's page draws for a place in a mode (city.md R-CITY-027, R-CITY-038): the
+// What the place check's page draws for a place in a mode (city:no-script-loop-per-sheet, city:places-meet-party-room-bar): the
 // stage, the crowd the city samples on the check's day without the player's own figure, and the
 // mode's settings on the check's device. Pure, so the page and its test read the same run.
 import type { PlaceEntry } from "@japacity/sim";
@@ -52,7 +52,7 @@ export function runOf(input: CheckInput): PlaceRun {
 const TAP_MARGIN = 2;
 
 /**
- * The check's taps on a place (city.md R-CITY-030): `count` points anywhere over its walkable ground
+ * The check's taps on a place (city:tap-to-walk): `count` points anywhere over its walkable ground
  * and a little past it, drawn from a hash of the place and the tap, so every run taps the same places.
  */
 export function tapsOf(stage: Pick<Stage, "ground" | "walkable">, place: string, count: number): Point[] {

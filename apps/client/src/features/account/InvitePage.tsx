@@ -1,10 +1,10 @@
-// The invite link's page, `/invite/<code>` (pair.md R-PAIR-007, R-PAIR-008):
+// The invite link's page, `/invite/<code>` (pair:invite-card-contents, pair:invite-link-single-use):
 // the card the link carries, read before sign-up; then the age screen and the
 // guest start or a sign-in; a guest keeps the life first, since only a secured
-// account may be invited (account.md R-ACCOUNT-022); then the card taken for
+// account may be invited (account:social-needs-secured-account); then the card taken for
 // the slot it was made for. A partner link
 // needs a grown-up life, the friend's own or a new one; a sibling link always
-// starts a new life (R-PEOPLE-011). No advert shows here (R-ADVERT-003).
+// starts a new life (person:real-sibling-shares-family-draw). No advert shows here (advert:no-adverts-on-protected-screens).
 import type { AcceptReply, AcceptRequest, InviteShown, InviteShownReply, ServerRejection } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -29,7 +29,7 @@ export function inviteCodeOf(path: string): string | null {
   return found?.[1] === undefined ? null : decodeURIComponent(found[1]);
 }
 
-/** A partner's new life starts grown up: the prologue's life starts at sixteen (R-PEOPLE-008). */
+/** A partner's new life starts grown up: the prologue's life starts at sixteen (person:three-ways-to-fill-slots). */
 const GROWN_UP = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => id !== FROM_SIXTEEN);
 
 type Stage = { kind: "loading" } | { kind: "refused"; why: string } | { kind: "card"; shown: InviteShown } | { kind: "taken"; shown: InviteShown };
@@ -125,7 +125,7 @@ function Accept({ server, code, shown, onTaken }: { server: Api; code: string; s
   );
 }
 
-/** R-ACCOUNT-022: a guest keeps its life before it can take a friend's card. */
+/** account:social-needs-secured-account: a guest keeps its life before it can take a friend's card. */
 function KeepFirst() {
   const account = useGame((state) => state.account);
   const [open, setOpen] = useState(false);
@@ -188,7 +188,7 @@ export function InvitePage({ code, server: given, onDone, ...gate }: InvitePageP
       <h1 className="text-2xl font-bold">{say("ui.invite.title")}</h1>
       <CardFace shown={stage.shown} />
       <p className="text-sm text-text-2">{say("ui.invite.days", { days: content.tuning.pair.inviteDays })}</p>
-      {/* R-MODERATION-003: a card is something the game did not write. */}
+      {/* moderation:report-from-every-surface: a card is something the game did not write. */}
       <BlockReport who={{ name: text[stage.shown.card.name] ?? say("ui.invite.someone") }} cites={{ card: code }} surface="invite-card" />
       {stage.kind === "taken" ? (
         <section className="flex flex-col gap-3">

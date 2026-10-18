@@ -1,4 +1,4 @@
-// The page's photo in the player's own colours (prologue.md R-PROLOGUE-015): the figure rendered in its colours and
+// The page's photo in the player's own colours (prologue:player-colours-on-looks): the figure rendered in its colours and
 // kept with the person, falling back to the look's picture as made or where WebGL is missing.
 import { render } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
@@ -22,7 +22,7 @@ const PHOTO = "data:image/webp;base64,UklGRg==";
 const photo = (): string | null => document.querySelector("[data-photo] img")?.getAttribute("src") ?? null;
 
 describe("the page's photo", () => {
-  test("[R-PROLOGUE-015] given a person kept in a style with its photo, when the page is shown in the world, then the photo is the one drawn in the player's colours", async () => {
+  test("[prologue:player-colours-on-looks] given a person kept in a style with its photo, when the page is shown in the world, then the photo is the one drawn in the player's colours", async () => {
     keepPerson({ look: "chr_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO });
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
     const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
@@ -38,7 +38,7 @@ describe("the page's photo", () => {
     expect(document.querySelector("[data-photo-made]")).not.toBeNull();
   });
 
-  test("[R-PROLOGUE-015] given WebGL missing, as made or in a style, then the photo is the look's own picture, and only there", () => {
+  test("[prologue:player-colours-on-looks] given WebGL missing, as made or in a style, then the photo is the look's own picture, and only there", () => {
     const picture = lookOf("chr_tunde")!.picture;
     const fields = { name: "Kola", age: "", path: "", ready: "", photo: picture };
     const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "chr_tunde" } }} />);
@@ -54,7 +54,7 @@ describe("the page's photo", () => {
 });
 
 describe("the photo's size", () => {
-  test("[R-PROLOGUE-015] given a screen's pixel ratio, when the photo is drawn, then it is the box's displayed 98 by 128 px times the ratio held to 2 to 3, so a Pixel 7 at 2.625 gets 258 by 337", () => {
+  test("[prologue:player-colours-on-looks] given a screen's pixel ratio, when the photo is drawn, then it is the box's displayed 98 by 128 px times the ratio held to 2 to 3, so a Pixel 7 at 2.625 gets 258 by 337", () => {
     expect(PHOTO_BOX).toEqual({ width: 98, height: 128 });
     expect([1, 2, 2.5, 2.625, 3, 4].map(photoWidth)).toEqual([196, 196, 245, 258, 294, 294]);
     expect(photoWidth(Number.NaN)).toBe(PHOTO_MIN_PX);
@@ -62,7 +62,7 @@ describe("the photo's size", () => {
     expect([196, 258, 294].map(photoHeight)).toEqual([256, 337, 384]);
   });
 
-  test("[R-PROLOGUE-015] given a photo kept without its width, or narrower than the screen wants, then it is drawn again; one as wide is kept", () => {
+  test("[prologue:player-colours-on-looks] given a photo kept without its width, or narrower than the screen wants, then it is drawn again; one as wide is kept", () => {
     expect(sharpEnough(undefined, 2)).toBe(false);
     expect(sharpEnough(172, 2)).toBe(false);
     expect(sharpEnough(196, 3)).toBe(false);
@@ -72,7 +72,7 @@ describe("the photo's size", () => {
     expect(sharpEnough(480, 3)).toBe(true);
   });
 
-  test("[R-PROLOGUE-015] given a person kept with a photo and its width, when the person is read and the page is made, then the width goes with the photo; a width with no photo is dropped", async () => {
+  test("[prologue:player-colours-on-looks] given a person kept with a photo and its width, when the person is read and the page is made, then the width goes with the photo; a width with no photo is dropped", async () => {
     keepPerson({ look: "chr_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
     expect(readPerson()?.photoPx).toBe(480);
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });

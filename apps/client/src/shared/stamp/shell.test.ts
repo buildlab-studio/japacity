@@ -1,4 +1,4 @@
-// R-SERVER-038: no stale shell. The page is always asked about again, the hashed files are kept for a year, the
+// server:production-and-staging: no stale shell. The page is always asked about again, the hashed files are kept for a year, the
 // service worker keeps nothing, and every build says which it is.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -64,20 +64,20 @@ function served(all: Rule[], path: string): Map<string, string> {
 
 const YEAR = "public, max-age=31536000, immutable";
 
-describe("the shell is never stale (R-SERVER-038)", () => {
+describe("the shell is never stale (server:production-and-staging)", () => {
   const headers = rules(readFileSync(join(PUBLIC, "_headers"), "utf8"));
   const cacheOf = (path: string) => served(headers, path).get("cache-control");
 
-  test("[R-SERVER-038] given the page at / and /index.html and any path the page answers for, then each is served no-cache, always asked about again", () => {
+  test("[server:production-and-staging] given the page at / and /index.html and any path the page answers for, then each is served no-cache, always asked about again", () => {
     for (const path of ["/", "/index.html", "/invite/4f1e2d3c4b5a69788796a5b4", "/privacy", "/notify.sw.js", "/guides/sources/"]) expect({ path, cache: cacheOf(path) }).toEqual({ path, cache: "no-cache" });
   });
 
-  test("[R-SERVER-038] given the build's hashed files under /assets/, then each is kept a year untouched; the models' manifest, the one name with no hash, is asked about every time", () => {
+  test("[server:production-and-staging] given the build's hashed files under /assets/, then each is kept a year untouched; the models' manifest, the one name with no hash, is asked about every time", () => {
     for (const path of ["/assets/index-B3x9_aQz.js", "/assets/index-D1v2c3.css", "/assets/places/makoko/place.eef5138d7c1f.json", "/assets/shared/veh/veh_keke.0123456789ab.glb"]) expect({ path, cache: cacheOf(path) }).toEqual({ path, cache: YEAR });
     expect(cacheOf("/assets/manifest.json")).toBe("no-cache");
   });
 
-  test("[R-SERVER-038] given the security headers on every path, then the cache rules leave them standing", () => {
+  test("[server:production-and-staging] given the security headers on every path, then the cache rules leave them standing", () => {
     for (const path of ["/", "/assets/index-B3x9_aQz.js", "/assets/manifest.json"]) {
       const all = served(headers, path);
       expect(all.get("x-content-type-options")).toBe("nosniff");
@@ -85,7 +85,7 @@ describe("the shell is never stale (R-SERVER-038)", () => {
     }
   });
 
-  test("[R-SERVER-038] the notice's service worker keeps no cache and answers no fetch, and says so", () => {
+  test("[server:production-and-staging] the notice's service worker keeps no cache and answers no fetch, and says so", () => {
     const worker = readFileSync(join(PUBLIC, "notify.sw.js"), "utf8");
     const code = worker
       .split("\n")
@@ -98,7 +98,7 @@ describe("the shell is never stale (R-SERVER-038)", () => {
     expect(code).not.toMatch(/addEventListener\(\s*["']install["']/);
   });
 
-  test("[R-SERVER-038] a build carries its commit in index.html, and the page says it once in the console", () => {
+  test("[server:production-and-staging] a build carries its commit in index.html, and the page says it once in the console", () => {
     const plugin = buildStamp("2211239e4a1b");
     const hook = plugin.transformIndexHtml as () => { tag: string; attrs: Record<string, string>; injectTo: string }[];
     expect(hook()).toEqual([{ tag: "meta", attrs: { name: STAMP_META, content: "2211239e4a1b" }, injectTo: "head" }]);
@@ -111,7 +111,7 @@ describe("the shell is never stale (R-SERVER-038)", () => {
     expect(lines).toEqual(["Japacity build 2211239e4a1b"]);
   });
 
-  test("[R-SERVER-038] the build's commit is the checkout's, marked when the tree has changes", () => {
+  test("[server:production-and-staging] the build's commit is the checkout's, marked when the tree has changes", () => {
     const clean = (args: string[]) => (args[0] === "rev-parse" ? "2211239e4a1b\n" : "");
     const changed = (args: string[]) => (args[0] === "rev-parse" ? "2211239e4a1b\n" : " M apps/client/src/app/App.tsx\n");
     const before = process.env.JAPACITY_BUILD;
@@ -145,7 +145,7 @@ describe("the security.txt", () => {
     expect(file).not.toMatch(/BEGIN PGP|Policy:|Encryption:/);
   });
 
-  test("[R-SERVER-038] given the file's path, then it is served no-cache like every unhashed file, never kept a year, with the security headers standing", () => {
+  test("[server:production-and-staging] given the file's path, then it is served no-cache like every unhashed file, never kept a year, with the security headers standing", () => {
     const all = served(headers, "/.well-known/security.txt");
     expect(all.get("cache-control")).toBe("no-cache");
     expect(all.get("x-content-type-options")).toBe("nosniff");

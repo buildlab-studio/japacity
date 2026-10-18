@@ -1,5 +1,5 @@
-// The player's words never count the engine (text.md R-TEXT-005,
-// R-TEXT-007): no slots, a turn of the engine, banked months, months as pages, days left, a day count or a
+// The player's words never count the engine (text:bands-not-figures,
+// text:voice-by-surface): no slots, a turn of the engine, banked months, months as pages, days left, a day count or a
 // percentage; "chapter" never said to the player; no em or en dash. The phone's apps are scanned by their own
 // tests; this walks every words table a player reads, then renders the world's sheets, the results and the map.
 import { content, text } from "@japacity/content";
@@ -26,7 +26,7 @@ function said(line: string): string | null {
 }
 
 describe("the player's words never count the engine", () => {
-  test("[R-TEXT-005] [R-TEXT-007] given every words table a player reads, when each line is read without its params, then none says slots, a turn, banked, pages, days left, a day count, a percentage or chapter, and none has a dash", () => {
+  test("[text:bands-not-figures] [text:voice-by-surface] given every words table a player reads, when each line is read without its params, then none says slots, a turn, banked, pages, days left, a day count, a percentage or chapter, and none has a dash", () => {
     const found = Object.entries(TABLES).flatMap(([table, lines]) =>
       Object.entries(lines).flatMap(([key, line]) => {
         const hit = typeof line === "string" ? said(line) : null;
@@ -36,7 +36,7 @@ describe("the player's words never count the engine", () => {
     expect(found).toEqual([]);
   });
 
-  test("[R-TEXT-005] given these lines, when they are said, then each says the life's words: the brief, not the chapter; months, not pages or turns; a figure in words", () => {
+  test("[text:bands-not-figures] given these lines, when they are said, then each says the life's words: the brief, not the chapter; months, not pages or turns; a figure in words", () => {
     expect(text["line.chapter.closed"]).toBe("Done: {chapter}.");
     expect(text["moment.chapter.kicker"]).toBe("Brief done");
     expect(text["share.chapter.kicker"]).toBe("Brief done");
@@ -47,7 +47,7 @@ describe("the player's words never count the engine", () => {
     expect(text["offer.gulf-agent.sign.pay-today"]).toBe("He says someone else takes it if you do not pay today.");
   });
 
-  test("[R-TEXT-005] [R-WORLD-008] given a lived month's results opened whole, when they are read, then nothing counts the engine", async () => {
+  test("[text:bands-not-figures] [world:month-end-results-sheet] given a lived month's results opened whole, when they are read, then nothing counts the engine", async () => {
     const view = recordedGame("tunde-borrower").view();
     expect(view.report).not.toBeNull();
     await renderWithView(<Results place="Ojuelegba" />, view);
@@ -56,7 +56,7 @@ describe("the player's words never count the engine", () => {
     expect(said(document.body.textContent ?? "")).toBeNull();
   });
 
-  test("[R-TEXT-005] [R-WORLD-006] given the asks of a life in the middle of its months, when the sheet is read, then nothing counts the engine and no line says a percentage", async () => {
+  test("[text:bands-not-figures] [world:one-action-one-sheet] given the asks of a life in the middle of its months, when the sheet is read, then nothing counts the engine and no line says a percentage", async () => {
     const game = recordedGame("ada-careful", 290 - 93);
     const view = game.view();
     expect(view.offers.map((offer) => offer.entry)).toContain("offer.salary-loan");
@@ -64,7 +64,7 @@ describe("the player's words never count the engine", () => {
     expect(said(document.body.textContent ?? "")).toBeNull();
   });
 
-  test("[R-TEXT-005] [R-WORLD-015] given the painted map open on a neighbourhood and unfolded, when it is read, then nothing counts the engine", async () => {
+  test("[text:bands-not-figures] [world:map-is-painted-lagos] given the painted map open on a neighbourhood and unfolded, when it is read, then nothing counts the engine", async () => {
     const places = Object.values(content.place).filter((place) => place.where === "home");
     const pins = mapPins({ places, here: "place.ojuelegba", home: "place.family-house", homeSpot: { latE3: 6507, lonE3: 3359 }, been: [], built: new Set(places.map((place) => place.id)), name: nameOf });
     const lagos = { id: "lagos", name: "Lagos", locked: null };

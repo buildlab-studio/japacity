@@ -1,4 +1,4 @@
-// The device's own random waits (R-CLOCK-019, R-CLOCK-023). They spread
+// The device's own random waits (clock:world-fetch-is-jittered, clock:sockets-reconnect-with-backoff). They spread
 // requests out and touch nothing in the game, so they come from the browser.
 
 /** A whole number from 0 up to but not including `below`. */

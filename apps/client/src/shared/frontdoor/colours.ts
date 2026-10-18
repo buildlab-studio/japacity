@@ -1,4 +1,4 @@
-// A look made the player's own (prologue.md R-PROLOGUE-015), on the shipped model and no other: the people are
+// A look made the player's own (prologue:player-colours-on-looks), on the shipped model and no other: the people are
 // painted a palette colour a vertex, so a part is found once through the skeleton and its vertices are given another
 // palette colour. The hands' colour that the head shares is the skin (a bag in the hand is commoner there than the
 // hand); the head's commonest dark colour that is not skin is the hair, the eyes kept as they are; the chest's and
@@ -27,7 +27,7 @@ import {
 
 import { type Fabric, isMade, type LookStyle, type OwnColours, type Part, styleKey } from "./style";
 
-/** The material a shipped person's one print is drawn with (R-ASSET-005). */
+/** The material a shipped person's one print is drawn with (assets:flat-and-smooth-shading). */
 const PRINT = "pattern";
 const HANDS = new Set(["handL", "handR"]);
 const HEAD = "head";

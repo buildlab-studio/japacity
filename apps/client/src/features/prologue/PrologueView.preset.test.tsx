@@ -1,5 +1,5 @@
-// The prologue's preset played by the server in one request (prologue.md R-PROLOGUE-010, server.md
-// R-SERVER-046, decision 0008): online, Begin sends the tile, the age step and the home once, and the page fills from the
+// The prologue's preset played by the server in one request (prologue:archetype-presets-answers, server.md
+// server:server-plays-prologue-preset, decision 0008): online, Begin sends the tile, the age step and the home once, and the page fills from the
 // reply's trail, its chips coming on one after another over about two seconds; offline each answer still goes at once,
 // from the same content function.
 import type { ClockView, PresetRequest } from "@japacity/api";
@@ -62,7 +62,7 @@ function onlineLife(seed: string, played = true) {
 const posted = (server: ReturnType<typeof fakeServer>, path: string) => server.sent.filter((request) => request.method === "POST" && request.path === path);
 
 describe("the preset online", () => {
-  test("[R-PROLOGUE-010] [R-SERVER-046] [R-SERVER-025] given a new life online, when Begin starts its years, then the whole preset leaves as one request with the tile, the age step, the home and the version held, no command goes one by one, and the page is the handover filled from the reply's trail", async () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] [server:per-account-rate-limits] given a new life online, when Begin starts its years, then the whole preset leaves as one request with the tile, the age step, the home and the version held, no command goes one by one, and the page is the handover filled from the reply's trail", async () => {
     begun();
     const { game, server, store } = onlineLife("preset-online");
     await store.getState().refresh();
@@ -82,7 +82,7 @@ describe("the preset online", () => {
     expect(trail.draw).toEqual(game.state.prologue.draw);
   });
 
-  test("[R-SERVER-046] [R-ENGINE-003] given the preset played, when the next command is sent, then it is based on the version the reply brought", async () => {
+  test("[server:server-plays-prologue-preset] [engine:stale-commands-rejected] given the preset played, when the next command is sent, then it is based on the version the reply brought", async () => {
     begun(0, "family-house");
     const { game, server, store } = onlineLife("preset-version");
     await store.getState().refresh();
@@ -95,7 +95,7 @@ describe("the preset online", () => {
     expect(posted(server, "/api/command").map((request) => (request.body as { basedOn: number }).basedOn)).toEqual([after]);
   });
 
-  test("[R-SERVER-046] [R-PROLOGUE-010] given an answer refused after some steps, when the reply comes, then the steps before it stand, the card shows with the refusal, and the preset is not sent again", async () => {
+  test("[server:server-plays-prologue-preset] [prologue:archetype-presets-answers] given an answer refused after some steps, when the reply comes, then the steps before it stand, the card shows with the refusal, and the preset is not sent again", async () => {
     begun();
     const { store, server } = onlineLife("preset-refused", false);
     // The server stops after three steps, refusing the fourth.
@@ -119,7 +119,7 @@ describe("the preset online", () => {
 });
 
 describe("the preset offline", () => {
-  test("[R-PROLOGUE-010] given a new life offline, when its years go by, then each answer goes at once as a command, each the one content's presetAnswer gives at its card, and no preset request is made", async () => {
+  test("[prologue:archetype-presets-answers] given a new life offline, when its years go by, then each answer goes at once as a command, each the one content's presetAnswer gives at its card, and no preset request is made", async () => {
     begun(2, "compound-room");
     const game = newGame(PROLOGUE, "preset-offline");
     const shadow = newGame(PROLOGUE, "preset-offline");
@@ -140,7 +140,7 @@ describe("the preset offline", () => {
 });
 
 describe("the page while the server plays the years", () => {
-  test("[R-PROLOGUE-014] [R-ENGINE-015] given Begin online and the preset's reply not yet in, then the page is the splash's wait in its own frame: Drawing your family with the running bar under it and no chips, until the reply lands and the handover fills", async () => {
+  test("[prologue:printed-page-hands-over] [engine:browser-authority-for-dev-only] given Begin online and the preset's reply not yet in, then the page is the splash's wait in its own frame: Drawing your family with the running bar under it and no chips, until the reply lands and the handover fills", async () => {
     begun();
     const { game, server, store, commands } = onlineLife("preset-waiting", false);
     let release: (() => void) | null = null;
@@ -169,7 +169,7 @@ describe("the page while the server plays the years", () => {
 });
 
 describe("the page filled from the reply", () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-014] given the trail the server played in one request, when the handover opens, then its years come on a chip after another over about two seconds, and the family turns over only after the last", async () => {
+  test("[prologue:archetype-presets-answers] [prologue:printed-page-hands-over] given the trail the server played in one request, when the handover opens, then its years come on a chip after another over about two seconds, and the family turns over only after the last", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
     const game = newGame(PROLOGUE, "preset-reveal");
     const reply = playPresetOn(game, { archetype: "developer", age: 0, home: "family-house", basedOn: 0 }, CLOCK);
@@ -200,7 +200,7 @@ describe("the page filled from the reply", () => {
     expect(readTrail().fresh).toBeUndefined();
   });
 
-  test("[R-PROLOGUE-014] given a trail with nothing fresh (offline, or the page shown before), when the handover opens, then every chip is there at once and the family turns", async () => {
+  test("[prologue:printed-page-hands-over] given a trail with nothing fresh (offline, or the page shown before), when the handover opens, then every chip is there at once and the family turns", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
     const game = newGame(PROLOGUE, "preset-plain");
     const reply = playPresetOn(game, { archetype: "developer", age: 0, home: "family-house", basedOn: 0 }, CLOCK);

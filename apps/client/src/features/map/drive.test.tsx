@@ -1,4 +1,4 @@
-// The car of your own on the map (R-PLACE-010, R-WORLD-017): while the life's car stands
+// The car of your own on the map (place:rides-between-city-places, world:ride-sheet-shows-fares): while the life's car stands
 // at home the ride sheet offers Drive, its fuel the fare by distance as the simulation takes it, dearer than the danfo and
 // cheaper than the okada, with no wait at a stop; the button says Drive there; the ride is in the car, alone at the wheel.
 import { content } from "@japacity/content";
@@ -18,8 +18,8 @@ const FROM = "place.ojuelegba";
 const TO = "place.yaba";
 const at = (id: string) => content.place[id as keyof typeof content.place]!.position!;
 
-describe("Drive on the ride sheet (R-WORLD-017)", () => {
-  test("[R-PLACE-010] [R-WORLD-017] given no car at home, when the ways are read, then Drive is not among them; with the car, Drive comes first at the simulation's own fuel fare, between the danfo's and the okada's, with no wait", () => {
+describe("Drive on the ride sheet (world:ride-sheet-shows-fares)", () => {
+  test("[place:rides-between-city-places] [world:ride-sheet-shows-fares] given no car at home, when the ways are read, then Drive is not among them; with the car, Drive comes first at the simulation's own fuel fare, between the danfo's and the okada's, with no wait", () => {
     const plain = rideChoices(at(FROM), at(TO), null, 10000, false, { from: FROM, to: TO });
     expect(plain.map((way) => way.id)).toEqual(["danfo", "keke", "okada", "walk"]);
     const ways = rideChoices(at(FROM), at(TO), null, 10000, false, { from: FROM, to: TO }, true);
@@ -34,7 +34,7 @@ describe("Drive on the ride sheet (R-WORLD-017)", () => {
     expect(rideChoices(at(FROM), at(TO), null, 20000, false, { from: FROM, to: TO }, true)[0]!.fare).toBe(rideFare(content, at(FROM), at(TO), "drive", 20000));
   });
 
-  test("[R-WORLD-017] given Drive picked on the sheet, when it is read, then its tile is the car, the button says Drive there with the fare, the balance before and after shows, and the route hears the way picked", () => {
+  test("[world:ride-sheet-shows-fares] given Drive picked on the sheet, when it is read, then its tile is the car, the button says Drive there with the fare, the balance before and after shows, and the route hears the way picked", () => {
     const pin: MapPin = { id: TO, name: "Yaba", state: "can", position: at(TO), things: 2 };
     const ways = rideChoices(at(FROM), at(TO), null, 10000, false, { from: FROM, to: TO }, true);
     const heard: string[] = [];
@@ -54,7 +54,7 @@ describe("Drive on the ride sheet (R-WORLD-017)", () => {
     expect(chosen).toEqual(["drive"]);
   });
 
-  test("[R-WORLD-032] given a drive, when the ride is built, then it is the car, you alone at the wheel, seen at the kerb then from above, and the boy who parks you out has his own lines", () => {
+  test("[world:ride-cuts-between-angles] given a drive, when the ride is built, then it is the car, you alone at the wheel, seen at the kerb then from above, and the boy who parks you out has his own lines", () => {
     expect(vehicleFile("drive")).toBe("shared/veh/veh_car.glb");
     expect(vehicleFile("danfo")).toBe("shared/veh/veh_danfo.glb");
     expect(peopleOf("drive", "shared/chr/chr_ada.glb")).toEqual({ own: "shared/chr/chr_ada.glb" });

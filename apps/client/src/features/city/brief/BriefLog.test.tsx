@@ -20,7 +20,7 @@ function secondCarried(): PlayerView {
 }
 
 describe("the road's log", () => {
-  test("[R-WORLD-019] [R-WORLD-003] given the second brief carried with one thing in and the first done, when the log is read, then the carried brief leads with its things ticked as the world ticks them, the first stands stamped in its giver's closing words, and the next is faint", async () => {
+  test("[world:phone-holds-what-phones-hold] [world:nudge-says-one-thing] given the second brief carried with one thing in and the first done, when the log is read, then the carried brief leads with its things ticked as the world ticks them, the first stands stamped in its giver's closing words, and the next is faint", async () => {
     const view = secondCarried();
     const log = briefLog(view);
     expect(log.carried?.chapter).toBe(SECOND);
@@ -45,7 +45,7 @@ describe("the road's log", () => {
     expect(document.querySelector("[data-brief-log-list]")?.textContent).not.toMatch(/\b(step|item|task|chapter)\b/i);
   });
 
-  test("[R-WORLD-019] given the first brief carried, when the log shows, then it carries that brief and the next, and nothing stamped", async () => {
+  test("[world:phone-holds-what-phones-hold] given the first brief carried, when the log shows, then it carries that brief and the next, and nothing stamped", async () => {
     const view = engineView();
     await renderWithView(<BriefLog />, view);
     const cards = [...document.querySelectorAll<HTMLElement>("[data-brief-log]")];
@@ -53,7 +53,7 @@ describe("the road's log", () => {
     expect(cards[0]?.getAttribute("data-brief-log-chapter")).toBe(view.chapter.current);
   });
 
-  test("[R-WORLD-019] given no brief carried and none done, when the log shows, then it shows nothing", async () => {
+  test("[world:phone-holds-what-phones-hold] given no brief carried and none done, when the log shows, then it shows nothing", async () => {
     const view = engineView();
     await renderWithView(<BriefLog />, { ...view, chapter: { current: null, items: [], done: [], closes: false, next: null } });
     expect(document.querySelector("[data-brief-log-list]")).toBeNull();

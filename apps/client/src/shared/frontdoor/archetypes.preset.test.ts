@@ -1,4 +1,4 @@
-// The door's answer is content's (prologue.md R-PROLOGUE-010, server.md R-SERVER-046): the tile
+// The door's answer is content's (prologue:archetype-presets-answers, server:server-plays-prologue-preset): the tile
 // with the door's age and home answers every card as content's `presetAnswer` does, the function the server plays; what
 // the door offers is what the server takes; and the longest preset fits in one request.
 import { presetAges, presetAnswer, presetHomes, presetOffered } from "@japacity/content";
@@ -13,7 +13,7 @@ const SEEDS = 6;
 const PRESET_STEPS = 20;
 
 describe("the door's answer from content", () => {
-  test("[R-PROLOGUE-009] [R-PROLOGUE-013] [R-SERVER-046] given every tile, then the age steps and homes the door offers are the ones content's preset offers, and the server's check passes each of them", () => {
+  test("[prologue:front-door-builds-a-person] [prologue:front-door-three-screens] [server:server-plays-prologue-preset] given every tile, then the age steps and homes the door offers are the ones content's preset offers, and the server's check passes each of them", () => {
     for (const archetype of ARCHETYPES) {
       expect(stepsOpen(archetype)).toEqual(presetAges(archetype.preset));
       expect(homesFor(archetype)).toEqual(presetHomes(archetype.preset));
@@ -21,7 +21,7 @@ describe("the door's answer from content", () => {
     }
   });
 
-  test("[R-PROLOGUE-010] [R-SERVER-046] given every tile, age step and home over many seeds, when its years are played, then content's presetAnswer gives the door's answer at every card, and the longest preset fits in one request", { timeout: 60_000 }, () => {
+  test("[prologue:archetype-presets-answers] [server:server-plays-prologue-preset] given every tile, age step and home over many seeds, when its years are played, then content's presetAnswer gives the door's answer at every card, and the longest preset fits in one request", { timeout: 60_000 }, () => {
     let longest = 0;
     for (const base of ARCHETYPES) {
       for (const home of homesFor(base)) {

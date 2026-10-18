@@ -1,7 +1,7 @@
-// The shell. Once a life is playing, the world is the game (docs/rules/world.md R-WORLD-001): the
+// The shell. Once a life is playing, the world is the game (world:world-fills-the-screen): the
 // place fills the screen, the support pages live in the phone, and the month plans and ends from
 // sheets over the scene. The prologue, the life chooser, the road, the ending and the invite page
-// keep their own screens. The admin page is its own chunk, fetched only at /admin (R-MODERATION-012).
+// keep their own screens. The admin page is its own chunk, fetched only at /admin (moderation:admin-view-for-admin-list).
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { bootGame } from "../authority/boot";
@@ -63,7 +63,7 @@ import { usePaint } from "../shared/world/paint";
 import { useScreenCount } from "../shared/analytics/useScreenCount";
 
 const StartCity = lazy(() => import("../features/map/StartCity"));
-/** The send-off's plane cut over the painted map (world.md R-WORLD-037), fetched with the scene that shows it. */
+/** The send-off's plane cut over the painted map (world:plane-cut-at-send-off), fetched with the scene that shows it. */
 const PlaneCut = lazy(() => import("../features/map/paper/PlaneCut"));
 
 /** Whether WebGL draws here, asked once: each ask makes a context. */
@@ -73,7 +73,7 @@ function draws(): boolean {
   return drawsHere;
 }
 
-/** The live city behind the start screen (account.md R-ACCOUNT-029), loaded apart from the first screen's code. */
+/** The live city behind the start screen (account:start-screen-over-live-city), loaded apart from the first screen's code. */
 function StartCityBehind() {
   return (
     <Suspense fallback={null}>
@@ -82,7 +82,7 @@ function StartCityBehind() {
   );
 }
 
-/** R-MODERATION-012: the admin page, its own chunk, fetched only at /admin, so a player never downloads it. */
+/** moderation:admin-view-for-admin-list: the admin page, its own chunk, fetched only at /admin, so a player never downloads it. */
 const AdminRoute = lazy(() => import("../features/admin/AdminRoute").then((admin) => ({ default: admin.AdminRoute })));
 
 /** Anywhere but /admin the game as it is; at /admin the admin chunk is fetched, and it shows the game to anyone off the admin list. */
@@ -96,7 +96,7 @@ function AdminGate({ children }: { children: ReactNode }) {
   );
 }
 
-/** The warnings that stand, above every app on the phone: the status clock abroad (R-STATUS-003) and being run down (R-HEALTH-007). */
+/** The warnings that stand, above every app on the phone: the status clock abroad (status:lost-job-starts-clock) and being run down (health:view-shows-health-warning). */
 function PhoneWarnings() {
   return (
     <>
@@ -107,8 +107,8 @@ function PhoneWarnings() {
 }
 
 /**
- * What the map is handed for the lantern canoe (world.md R-WORLD-036): the dedication page, fetched on its first opening
- * (account.md R-ACCOUNT-032), and the two lights' one glow for the lantern (R-WORLD-021).
+ * What the map is handed for the lantern canoe (world:lantern-canoe-on-map): the dedication page, fetched on its first opening
+ * (account:dedication-page-and-its-doors), and the two lights' one glow for the lantern (world:colours-are-role-tokens).
  */
 const MAP_DEDICATION: MapDedication = { page: (open, onClose) => <DedicationLater open={open} onClose={onClose} />, glow: glowFill };
 
@@ -130,7 +130,7 @@ function WorldPlaying() {
       <City
         world
         adverts={(place) => <PlaceAdverts place={place} />}
-        // A thing's act opens the sheet of what it stages (R-WORLD-005): an activity's card, an open offer, the set piece's question, or the chapter's steps.
+        // A thing's act opens the sheet of what it stages (world:things-are-tappable-models): an activity's card, an open offer, the set piece's question, or the chapter's steps.
         actions={(ids) => {
           const [first] = ids;
           if (first?.startsWith("offer.") === true) return <AgentSheets ids={ids} others={(only) => <OfferView only={only} />} />;
@@ -138,17 +138,17 @@ function WorldPlaying() {
           if (first?.startsWith("chapter.") === true) return <ChapterView />;
           return <ActivityPicker only={ids} />;
         }}
-        // R-MOMENT-006: a moment of the month stands over the results sheet, inside its tree, and is dismissed back to it.
+        // moment:card-shows-when-outcome-lands: a moment of the month stands over the results sheet, inside its tree, and is dismissed back to it.
         results={(place) => <Results place={place} foot={<><GuestReminder afterFirstChapter /><MomentCard over="results" /></>} />}
-        // R-WORLD-006: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
+        // world:one-action-one-sheet: one ask at a time: the set piece's question, the interview's, then each open offer on its own.
         asks={[
           ...(view.setpiece === null && !closing ? [] : [<SetpieceView key="setpiece" />]),
           ...((view.interview?.question ?? null) === null ? [] : [<InterviewView key="interview" />]),
           ...[...view.offers].sort((a, b) => a.expiresMonth - b.expiresMonth).map((offer) =>
-            // The parcel is collected through its waybill wherever it is asked for (R-STREET-010).
+            // The parcel is collected through its waybill wherever it is asked for (streets:parcels-shipped-home).
             offer.entry === PARCEL ? <ParcelWaybill key={offer.id} onClose={() => undefined} /> : <AgentSheets key={offer.id} ids={[offer.entry]} others={(only) => <OfferView only={(candidate) => candidate.id === offer.id && only(candidate)} />} />),
         ]}
-        // An ask that belongs at home (the family's send-off, R-CHAPTER-008) is answered there: away from it the sheet says who waits and offers the way (R-WORLD-006).
+        // An ask that belongs at home (the family's send-off, chapter:family-marks-the-grant) is answered there: away from it the sheet says who waits and offers the way (world:one-action-one-sheet).
         asksAt={[
           ...(view.setpiece === null && !closing ? [] : [null]),
           ...((view.interview?.question ?? null) === null ? [] : [null]),
@@ -164,9 +164,9 @@ function WorldPlaying() {
         phoneWaiting={phoneWaiting}
         askIcon={iconFor}
         cityMap={(props) => <Map {...props} dedication={MAP_DEDICATION} />}
-        // R-LOTTERY-001: online the street kiosk sells the Friday draw from its own sheet.
+        // lottery:draw-runs-online-only: online the street kiosk sells the Friday draw from its own sheet.
         kiosk={(close, label) => <KioskSheet open onClose={close} label={label} />}
-        // R-CHAPTER-012 beat 4: the send-off's plane cut, the map's own layer, handed to the scene.
+        // chapter:send-off-scene-in-beats beat 4: the send-off's plane cut, the map's own layer, handed to the scene.
         planeCut={(slot) => (
           <Suspense fallback={null}>
             <PlaneCut {...slot} />
@@ -179,27 +179,27 @@ function WorldPlaying() {
           <CardView />
         </HeldShareCard>
       </div>
-      {/* R-MOMENT-006: a moment an act or the draw's letter brings stands over the world. */}
+      {/* moment:card-shows-when-outcome-lands: a moment an act or the draw's letter brings stands over the world. */}
       <MomentCard over="world" />
       <SecureAsk />
-      {/* R-GUIDE-015: the notice is asked once, after the early win's good moment. */}
+      {/* guide:nothing-asked-before-early-win: the notice is asked once, after the early win's good moment. */}
       <NotifyAsk />
     </div>
   );
 }
 
-/** R-ENGINE-015: the loading screen says it is still at it after this long. */
+/** engine:browser-authority-for-dev-only: the loading screen says it is still at it after this long. */
 export const SLOW_MS = 5_000;
 
 /**
- * The splash (R-ENGINE-015) with "Opening your life..." under the game's name and the bar under it, a second line under
+ * The splash (engine:browser-authority-for-dev-only) with "Opening your life..." under the game's name and the bar under it, a second line under
  * the bar once it takes long, and the card under the mark in the words' place when the view could not be read.
  * Online, for a visitor this device has no life for, the start screen's frame instead: never "Opening your life" for
- * someone with no life, and with the server down the card stands in its sheet, naming the game (R-ENGINE-015).
+ * someone with no life, and with the server down the card stands in its sheet, naming the game (engine:browser-authority-for-dev-only).
  */
 function Opening() {
   const trouble = useGame((state) => state.trouble);
-  // R-SERVER-003: a life the server must check is refused before it opens; its sheet, with Retry, stands in the loading screen's place.
+  // server:log-rows-hash-state: a life the server must check is refused before it opens; its sheet, with Retry, stands in the loading screen's place.
   const diverged = useGame((state) => state.rejection?.code === "diverged");
   const online = useGame((state) => state.account !== null);
   const [lifeKept] = useState(() => readPerson() !== null);
@@ -260,7 +260,7 @@ function Screen() {
         </div>
       </Splash>
     );
-  // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (R-ACCOUNT-029).
+  // Online and signed out: the start screen, the age screen, then the door, whose Begin makes the guest life (account:start-screen-over-live-city).
   // The live city stands behind it where WebGL draws; the compound comes back at the door.
   if (signedOut) return <AccountGate door={(guest) => <ScenarioView guest={guest} />} {...(draws() ? { behind: <StartCityBehind /> } : {})} />;
   if (choosingLife) return <ScenarioView />;
@@ -276,7 +276,7 @@ function Screen() {
 /** `path`: the page's path, for tests; the browser's own otherwise. */
 export function App({ store: given, path }: { store?: GameStore; path?: string }) {
   const [store] = useState(() => given ?? bootGame());
-  // R-PAIR-008: a friend's invite link opens its own page before the game.
+  // pair:invite-link-single-use: a friend's invite link opens its own page before the game.
   const [invite, setInvite] = useState(() => inviteCodeOf(path ?? (typeof location === "undefined" ? "/" : location.pathname)));
   useEffect(() => {
     void store.getState().refresh();

@@ -1,4 +1,4 @@
-// The first-use labels (docs/rules/world.md R-WORLD-033): a map only ever opened by the nudge
+// The first-use labels (world:no-walkthrough-before-play): a map only ever opened by the nudge
 // never leaves "Go places" standing at the Map's thumb. The map open, however it was opened, counts.
 import { renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 describe("the map's first-use label", () => {
-  test("[R-WORLD-033] given a device that has not played, when the map opens by the nudge, then the map counts as found and its label goes; the phone's stays until its thumb is tapped", () => {
+  test("[world:no-walkthrough-before-play] given a device that has not played, when the map opens by the nudge, then the map counts as found and its label goes; the phone's stays until its thumb is tapped", () => {
     const { result, rerender } = renderHook(({ open }: { open: boolean }) => useFirstUse(false, open), { initialProps: { open: false } });
     expect(result.current.tapped.size).toBe(0);
     rerender({ open: true });

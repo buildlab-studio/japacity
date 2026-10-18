@@ -5,7 +5,7 @@ import { start, type Game } from "@japacity/sim/testing";
 
 import { expect, test, type Page, type Route } from "@playwright/test";
 
-// The online start that never dies (docs/rules/engine.md R-ENGINE-015, account.md R-ACCOUNT-006): a reload at each
+// The online start that never dies (engine:browser-authority-for-dev-only, account:session-is-secure-cookie): a reload at each
 // step of the door comes back where the run or the life stands; a request with no answer shows the card, never the
 // browser's own words; a login wall reloads the page once and then shows the card with Reload. Played against a faked
 // server that runs the simulation itself, as newlife.spec.ts does.
@@ -55,13 +55,13 @@ async function fakeServer(page: Page, commandDelayMs = 0): Promise<Faked> {
       if (asked === "POST /api/command" && game !== null) {
         if (commandDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, commandDelayMs));
         const { command } = request.postDataJSON() as { command: Command };
-        // R-ENGINE-003: a command on an older version is refused stale, as the server does.
+        // engine:stale-commands-rejected: a command on an older version is refused stale, as the server does.
         if (command.basedOn !== game.view().v) return route.fulfill(json({ ok: false, code: "stale", detail: "The state moved on." }, 409));
         const result = game.send(command);
         if (!result.ok) return route.fulfill(json({ ok: false, code: result.code, detail: result.detail }, 409));
         return route.fulfill(json({ ...viewReply(game), lines: result.lines }));
       }
-      // R-SERVER-046: Begin sends the new life's preset once, played here as the server plays it, after the same delay a command takes.
+      // server:server-plays-prologue-preset: Begin sends the new life's preset once, played here as the server plays it, after the same delay a command takes.
       if (asked === "POST /api/prologue/preset" && game !== null) {
         if (commandDelayMs > 0) await new Promise((resolve) => setTimeout(resolve, commandDelayMs));
         return route.fulfill(json(playPresetOn(game, request.postDataJSON() as PresetRequest, { ...clockAt(game.tick), morningAt: 0, world: worldClockAt(game.tick) })));
@@ -84,7 +84,7 @@ async function noBrowserWords(page: Page): Promise<void> {
   expect(shown).not.toContain("could not start");
 }
 
-test("[R-ENGINE-015] a reload at each step of the door comes back to that step filled in; after Begin a reload mid-years opens the life where it stands and the years go on to the world", async ({ page }, info) => {
+test("[engine:browser-authority-for-dev-only] a reload at each step of the door comes back to that step filled in; after Begin a reload mid-years opens the life where it stands and the years go on to the world", async ({ page }, info) => {
   const faked = await fakeServer(page, 350);
   await page.goto("/");
 
@@ -110,7 +110,7 @@ test("[R-ENGINE-015] a reload at each step of the door comes back to that step f
 
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page.locator("[data-gate='years']")).toBeVisible({ timeout: 30_000 });
-  // The years are in (the preset played by the server in one request, R-SERVER-046): the server holds the life, and the page is reloaded while its chips still come in.
+  // The years are in (the preset played by the server in one request, server:server-plays-prologue-preset): the server holds the life, and the page is reloaded while its chips still come in.
   await expect.poll(() => faked.sent.filter((asked) => asked === "POST /api/prologue/preset").length, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
   await shootPhone(page, "resume-04-years-before-reload", info.project.name);
   await page.reload();
@@ -129,7 +129,7 @@ test("[R-ENGINE-015] a reload at each step of the door comes back to that step f
   await noBrowserWords(page);
 });
 
-test("[R-ENGINE-015] Begin with no answer shows the card over the door, a reload keeps the page filled in, and Retry begins the life", async ({ page }, info) => {
+test("[engine:browser-authority-for-dev-only] Begin with no answer shows the card over the door, a reload keeps the page filled in, and Retry begins the life", async ({ page }, info) => {
   const faked = await fakeServer(page);
   let broken = true;
   faked.hold.set("POST /api/character", async (route) => {
@@ -160,9 +160,9 @@ test("[R-ENGINE-015] Begin with no answer shows the card over the door, a reload
   expect(faked.scenarios).toHaveLength(1);
 });
 
-test("[R-ENGINE-015] a slow start for a player whose life is kept on this device says Still opening, and a view that never comes shows the card with Retry", async ({ page }, info) => {
+test("[engine:browser-authority-for-dev-only] a slow start for a player whose life is kept on this device says Still opening, and a view that never comes shows the card with Retry", async ({ page }, info) => {
   const faked = await fakeServer(page);
-  // "Opening your life" and its "Still opening..." are for a player this device keeps a life for (R-ENGINE-015);
+  // "Opening your life" and its "Still opening..." are for a player this device keeps a life for (engine:browser-authority-for-dev-only);
   // a new visitor sees the start screen's frame instead, as the next test proves.
   await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
   let slow = true;
@@ -185,7 +185,7 @@ test("[R-ENGINE-015] a slow start for a player whose life is kept on this device
   await expect(page.locator("#door-name")).toBeVisible({ timeout: 30_000 });
 });
 
-test("[R-ENGINE-015] a new visitor with no life on this device never sees Opening your life while the view is slow: the start screen's frame stands, and the card comes in it with Retry", async ({ page }) => {
+test("[engine:browser-authority-for-dev-only] a new visitor with no life on this device never sees Opening your life while the view is slow: the start screen's frame stands, and the card comes in it with Retry", async ({ page }) => {
   const faked = await fakeServer(page);
   let slow = true;
   faked.hold.set("GET /api/view", async (route) => {
@@ -206,7 +206,7 @@ test("[R-ENGINE-015] a new visitor with no life on this device never sees Openin
   await expect(page.locator("#door-name")).toBeVisible({ timeout: 30_000 });
 });
 
-test("[R-ACCOUNT-006] a login wall in front of /api reloads the page once; a second wall within a minute shows the card with Reload instead", async ({ page }, info) => {
+test("[account:session-is-secure-cookie] a login wall in front of /api reloads the page once; a second wall within a minute shows the card with Reload instead", async ({ page }, info) => {
   const faked = await fakeServer(page);
   let navigations = 0;
   page.on("framenavigated", (frame) => {

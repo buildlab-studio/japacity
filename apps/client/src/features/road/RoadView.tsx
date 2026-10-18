@@ -1,5 +1,5 @@
 // On the road there is one panel: the chain's card and the exit, and nothing
-// else (road.md R-ROAD-010). No japacity, no share card, no tabs, no advert
+// else (road:road-earns-nothing). No japacity, no share card, no tabs, no advert
 // slot, no family request and no news from home. The months pass while you
 // wait; the exit the cards promise is a control beside waiting a month.
 import { content } from "@japacity/content";
@@ -14,10 +14,10 @@ import { Rejection } from "../../shared/ui/Rejection";
 import { ReportLines } from "../../shared/ui/ReportLines";
 import { nameOf, say, words } from "../../shared/words/text";
 
-/** Answers that leave the chain: turning back before the truth, the exit after it (R-ROAD-004, 007). */
+/** Answers that leave the chain: turning back before the truth, the exit after it (road:road-night-allows-turn-back, road:exit-is-assisted-return). */
 const EXITS = new Set(["exit", "turn-back"]);
 
-/** The offer that lets the player ask to be taken home, and the choice that asks (R-ROAD-007). */
+/** The offer that lets the player ask to be taken home, and the choice that asks (road:exit-is-assisted-return). */
 export const EXIT_OFFER = "offer.road-exit";
 export const ASK = "ask";
 
@@ -132,7 +132,7 @@ function Wait() {
 
 /**
  * `offers` draws the offer panel for the offers it is given: the shell hands in the offer screen.
- * The city behind the road's panel comes from the shell as an element (R-CITY-012): a feature never imports another.
+ * The city behind the road's panel comes from the shell as an element (city:enterable-places-follow-view): a feature never imports another.
  */
 export function RoadView({ offers = null, city = null }: { offers?: ((only: (offer: OfferView) => boolean) => ReactNode) | null; city?: ReactNode }) {
   const view = useView();

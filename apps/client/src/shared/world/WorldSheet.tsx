@@ -1,4 +1,4 @@
-// A sheet over the world (docs/rules/world.md R-WORLD-001, 006, 023) for what is not one ask: the
+// A sheet over the world (world:world-fills-the-screen, world:one-action-one-sheet, world:motions-under-half-second) for what is not one ask: the
 // Month sheet, the results, the set piece's question. The same frame as AskSheet's card: a panel that
 // rises from the bottom under a band head with a small label and a title, the scene still in view
 // above it. Its body scrolls inside the sheet; its foot holds the one main button.
@@ -9,7 +9,7 @@ import { createContext, type ReactNode, useSyncExternalStore } from "react";
 import { useGameStoreIfAny } from "../../authority/GameProvider";
 import { say } from "../words/text";
 
-/** The sheet's own close, for a sheet inside it (the parcel's slip) whose Not now lowers the whole sheet (R-WORLD-006). */
+/** The sheet's own close, for a sheet inside it (the parcel's slip) whose Not now lowers the whole sheet (world:one-action-one-sheet). */
 export const SheetClose = createContext<() => void>(() => undefined);
 
 export interface WorldSheetProps {
@@ -28,7 +28,7 @@ export interface WorldSheetProps {
 const NOTHING = (): void => undefined;
 
 /**
- * True while a moment card stands over the sheets (moment.md R-MOMENT-006): over the results once they are up, over
+ * True while a moment card stands over the sheets (moment:card-shows-when-outcome-lands): over the results once they are up, over
  * the world once the corner's staged lines have passed. Outside a game, never.
  */
 function useMomentStanding(): boolean {

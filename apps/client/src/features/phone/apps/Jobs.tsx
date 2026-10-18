@@ -1,4 +1,4 @@
-// Jobs (docs/rules/world.md R-WORLD-018): the job held and the job offers the view lists. Quitting
+// Jobs (world:phone-rises-over-scene): the job held and the job offers the view lists. Quitting
 // and taking each open their own card; the commands are the ones the month page sent. In the lively dress
 // (design page 13, section 2): each job a card with its picture, the pay as a green chip and the time to
 // answer as a word in a pill, the offer picked ringed in yellow, and one yellow button at the foot that repeats the pick.
@@ -19,8 +19,8 @@ import { jobOffers } from "../seen";
 import { GhostButton, MoneyChip, PicCard, PicTile, WordChip } from "../ui";
 
 /**
- * A job's pay a month as words: the view's figure as the wallet will book it (R-WALLET-016), or null when the view
- * reads none. A side job paid by level adds what lifts it next (R-ACTIVITY-014).
+ * A job's pay a month as words: the view's figure as the wallet will book it (wallet:view-carries-month-pay), or null when the view
+ * reads none. A side job paid by level adds what lifts it next (activity:side-jobs-pay-by-tier).
  */
 function payWords(job: Id<"activity">, pay: OfferView["pay"] | PlayerView["job"]["pay"], view: Pick<PlayerView, "qualities">): string | null {
   const said = payLine(pay);
@@ -29,7 +29,7 @@ function payWords(job: Id<"activity">, pay: OfferView["pay"] | PlayerView["job"]
 }
 
 /**
- * The held job's pay with the raise from being noticed, and when it came: "Raised last month" (R-ACTIVITY-013).
+ * The held job's pay with the raise from being noticed, and when it came: "Raised last month" (activity:waiting-months-build-profile).
  * Null words when the job has no raise.
  */
 function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
@@ -39,7 +39,7 @@ function raiseWords(view: Pick<PlayerView, "job" | "month">): string | null {
 }
 
 const HUNT = "activity.job-hunt";
-/** The line a job asked for this month leaves, with the job as its `param` (R-ACTIVITY-015). */
+/** The line a job asked for this month leaves, with the job as its `param` (activity:now-acts-and-month-acts). */
 const APPLIED_LINE = "line.activity.job-hunt.now";
 
 /**
@@ -75,7 +75,7 @@ function boardPlace(): Id<"place"> | null {
   return Object.values(content.place).find((entry) => entry.where === "home" && entry.stages.includes(HUNT))?.id ?? null;
 }
 
-/** While no offer waits: the board where jobs go up, and the way to it on the map (R-WORLD-019: a visit opens the map). */
+/** While no offer waits: the board where jobs go up, and the way to it on the map (world:phone-holds-what-phones-hold: a visit opens the map). */
 function Board() {
   const nav = use(PhoneNav);
   const place = boardPlace();

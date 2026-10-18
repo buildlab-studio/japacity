@@ -39,7 +39,7 @@ function Job() {
   const send = useGame((state) => state.send);
   const [confirming, setConfirming] = useState(false);
   const job = view.job.id;
-  // R-WALLET-016: the month's pay as the wallet will book it, from the view; never content's written figure.
+  // wallet:view-carries-month-pay: the month's pay as the wallet will book it, from the view; never content's written figure.
   const pay = payLine(view.job.pay);
 
   return (
@@ -95,7 +95,7 @@ function SideJob() {
   const [confirming, setConfirming] = useState(false);
   const side = view.job.side;
   if (side === null && !view.locks.some((lock) => lock.why === SIDE_JOB_LOCK)) return null;
-  // R-ACTIVITY-014, R-WALLET-016: the side job's pay at its level now from the view, and what lifts it next.
+  // activity:side-jobs-pay-by-tier, wallet:view-carries-month-pay: the side job's pay at its level now from the view, and what lifts it next.
   const pay = side === null ? null : payLine(view.job.sidePay);
   return (
     <Card data-side-job>
@@ -140,7 +140,7 @@ function SideJob() {
   );
 }
 
-/** Slots held by something this month, why, and for how long (R-TURN-009, R-HEALTH-007). */
+/** Slots held by something this month, why, and for how long (turn:slots-can-be-locked, health:view-shows-health-warning). */
 function Locks() {
   const { locks, month } = useView();
   if (locks.length === 0) return null;
@@ -158,7 +158,7 @@ function Locks() {
 
 function pickWords(pick: SlotPick, view: PlayerView): string {
   const named = pick.param === null ? nameOf(pick.activity) : `${nameOf(pick.activity)}: ${paramWords(pick.param)}`;
-  // Time with someone names the bond it goes to (R-PEOPLE-014).
+  // Time with someone names the bond it goes to (person:time-together-is-an-act).
   const bond = timeWith(view, pick.activity);
   return bond === null ? named : `${named} ${say("ui.people.time-with", { name: bondName(bond) })}`;
 }
@@ -219,7 +219,7 @@ function noSchoolReasons(view: PlayerView): string[] {
 
 /**
  * A cost in another money than the one lived on, more than is held of it: what it needs in that money,
- * or null. When the naira cannot buy it at the bank now (its queue holds foreign money back, R-WALLET-009),
+ * or null. When the naira cannot buy it at the bank now (its queue holds foreign money back, wallet:foreign-fee-payment-order),
  * the card says the money and the way, never only that it cannot be paid.
  */
 function foreignNeed(view: PlayerView, option: ActivityOption): { amount: number; currency: Currency; held: number } | null {
@@ -241,7 +241,7 @@ function foreignWords(need: { amount: number; currency: Currency; held: number }
 
 /**
  * Which figure is short when an allowed activity cannot be paid for: the same figure the button
- * says, counting what the month's plan already pays for (R-WORLD-006). With nothing short by the
+ * says, counting what the month's plan already pays for (world:one-action-one-sheet). With nothing short by the
  * screen's count but the engine still saying no, it says so plainly and names no figure.
  */
 function cannotPayWords(view: PlayerView, option: ActivityOption, planned: readonly Money[], paying: AfterPaying | null): string {
@@ -271,7 +271,7 @@ function nothingToPickWords(option: ActivityOption): string {
 }
 
 /**
- * The button's second line, one reason and never two that disagree (R-WORLD-006): what it needs
+ * The button's second line, one reason and never two that disagree (world:one-action-one-sheet): what it needs
  * first when it is not allowed, how much is short when it cannot be paid, the engine's no when the
  * screen sees no gap, else what is left after.
  */
@@ -285,7 +285,7 @@ function buttonLine(option: ActivityOption, paying: AfterPaying | null, view: Pl
     const foreign = foreignNeed(view, option);
     return { words: foreign === null ? say("ui.needs.money") : say("ui.needs.foreign", { currency: moneyName(foreign.currency) }), kind: "short" };
   }
-  // What is left after stands under the button as the balance before and after (R-WORLD-006), not on the button.
+  // What is left after stands under the button as the balance before and after (world:one-action-one-sheet), not on the button.
   return null;
 }
 
@@ -303,12 +303,12 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   // Chips earn their place (design page 13 section 2): the time only past a morning, at most two effects, Free only on a meal.
   const time = chipTimeOf(option.id, option.halfDays);
   const does = chipEffectsLine(option.id);
-  // R-TURN-006: an activity that fills no slot can be planned however full the month is.
-  // R-ACTIVITY-015: an act done at once fills no slot either, so a full month never shuts it.
+  // turn:free-slots-per-month: an activity that fills no slot can be planned however full the month is.
+  // activity:now-acts-and-month-acts: an act done at once fills no slot either, so a full month never shuts it.
   const now = answersNow(option.id);
   const full = !now && content.activity[option.id]?.slot !== "none" && !plan.includes(null);
   const needsParam = option.params !== null;
-  // A job to hunt is picked from a list of rows with pay and chance, the likely and best paid first (R-WORLD-006).
+  // A job to hunt is picked from a list of rows with pay and chance, the likely and best paid first (world:one-action-one-sheet).
   const jobs = content.activity[option.id]?.param === "job" ? huntOrder(view, option.params ?? []) : null;
   // A route is picked from a list too; with more than one, nothing is picked for the player.
   const kind = content.activity[option.id]?.param;
@@ -317,7 +317,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const betterJob = jobs === null ? null : firstJob(view, jobs);
   const firstParam = routes !== null && routes.length > 1 ? "" : (betterJob ?? (jobs ?? option.params)?.[0] ?? "");
   const chosenParam = needsParam ? (option.params?.includes(param) === true ? param : firstParam) : "";
-  // R-WORLD-006: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
+  // world:one-action-one-sheet: what is left after, counting what the month already pays for; a cost that cannot be paid shuts the button.
   const planned = plannedCosts(view, plan);
   const paying = option.cost.length === 0 ? null : afterPaying(view, planned, option.cost);
   const already = plannedShut(plan, { activity: option.id, param: chosenParam === "" ? null : chosenParam });
@@ -326,9 +326,9 @@ function ActivityCard({ option }: { option: ActivityOption }) {
   const line = unpicked ? { words: say("routes.pick-first"), kind: "needs" as const } : buttonLine(option, paying, view, already);
   const cannotPay = option.allowed && !already && (!option.affordable || (paying !== null && paying.short !== null));
   const selectId = `param-${option.id}`;
-  // R-WORLD-006: the English test says its chance of the band the route needs before the fee is paid.
+  // world:one-action-one-sheet: the English test says its chance of the band the route needs before the fee is paid.
   const chance = option.id === ENGLISH_TEST ? testChance(view) : null;
-  // A job picked from the list: one main button in the action colour that repeats the pick (R-WORLD-006, R-WORLD-021).
+  // A job picked from the list: one main button in the action colour that repeats the pick (world:one-action-one-sheet, world:colours-are-role-tokens).
   const applying = jobs !== null && chosenParam !== "" && !(full && option.allowed);
 
   return (
@@ -359,7 +359,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
                   })}
                 </span>
               )}
-              {/* R-ACTIVITY-018: an act done at once says the time it takes in words, never a number of days. */}
+              {/* activity:now-acts-spend-half-days: an act done at once says the time it takes in words, never a number of days. */}
               {time === null ? null : (
                 <span className="sticker-chip bg-tint-study" style={{ rotate: "1.5deg" }} data-time>
                   {time}
@@ -440,7 +440,7 @@ function ActivityCard({ option }: { option: ActivityOption }) {
         ) : null}
 
         <div className="mt-auto pt-1">
-          {/* R-ACTIVITY-020: a spent body says so where the button was, and there is no button. */}
+          {/* activity:spent-body-refuses-acts: a spent body says so where the button was, and there is no button. */}
           {option.spent === true ? (
             <p className="rounded-[6px] bg-sheet-muted px-3 py-2.5 text-center text-[14px] font-bold" data-act-spent={option.id}>
               {say("ui.act.spent")}
@@ -468,11 +468,11 @@ function ActivityCard({ option }: { option: ActivityOption }) {
             )}
           </PressButton>
           )}
-          {/* R-WORLD-006: under a priced act's button, the balance before struck and the balance after; nothing moves until the tap. */}
+          {/* world:one-action-one-sheet: under a priced act's button, the balance before struck and the balance after; nothing moves until the tap. */}
           {option.spent === true || paying === null || paying.short !== null || !canAdd ? null : (
             <Balance className="mt-2 justify-start" before={{ amount: paying.before.amount, words: formatMoney(paying.before.amount, paying.before.currency) }} after={{ amount: paying.left.amount, words: formatMoney(paying.left.amount, paying.left.currency) }} />
           )}
-          {/* An act done at once fills no slot (R-ACTIVITY-015), so it never claims the month's free time. */}
+          {/* An act done at once fills no slot (activity:now-acts-and-month-acts), so it never claims the month's free time. */}
           {content.activity[option.id]?.slot === "free" && !applying && !now ? <p className="mt-1 text-[12px] text-text-2">{say("ui.activity.uses-free")}</p> : null}
         </div>
       </div>
@@ -490,7 +490,7 @@ export function ActivityView() {
   const view = useView();
   const atHome = view.place.where === "home";
   // Allowed first, so the cards a player can use now are the ones they see first.
-  // R-TURN-006: rest is never a card to pick; an empty slot already rests.
+  // turn:free-slots-per-month: rest is never a card to pick; an empty slot already rests.
   const sorted = pickable(view.activities).sort((a, b) => Number(b.allowed) - Number(a.allowed));
   const later = atHome ? sorted.filter(forAbroad) : [];
   const options = atHome ? sorted.filter((option) => !forAbroad(option)) : sorted;
@@ -531,7 +531,7 @@ export function ActivityView() {
 /** The world mode's sheet (docs/design/11, rule 12): only the activities `only` names, as the cards above show them. */
 export function ActivityPicker({ only }: { only: readonly string[] }) {
   const view = useView();
-  // On a long shot the test's sheet carries the study act too, so studying first is one tap away (R-WORLD-006).
+  // On a long shot the test's sheet carries the study act too, so studying first is one tap away (world:one-action-one-sheet).
   const studyFirst = only.includes(ENGLISH_TEST) && !only.includes(STUDY_ENGLISH) && testChance(view).study !== null;
   const shown = studyFirst ? [...only, STUDY_ENGLISH] : only;
   const options = pickable(view.activities)

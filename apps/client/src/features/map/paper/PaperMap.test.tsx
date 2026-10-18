@@ -1,4 +1,4 @@
-// The folding map on the screen (docs/rules/world.md R-WORLD-015, R-WORLD-017): it opens on the right card, the strip
+// The folding map on the screen (world:map-is-painted-lagos, world:ride-sheet-shows-fares): it opens on the right card, the strip
 // unfolds it, a pin of the open map folds it back on that pin's card, a sticker picks its stop, and the route takes its
 // channel.
 import { readdirSync, readFileSync } from "node:fs";
@@ -52,7 +52,7 @@ const current = (): string | undefined => document.querySelector<HTMLElement>('[
 const phase = (): string | undefined => document.querySelector<HTMLElement>("[data-paper-map]")?.dataset.fold;
 
 describe("the folding map", () => {
-  test("[R-WORLD-015] given the player in Ojuelegba, when the map opens, then it opens folded on Ojuelegba's card, the strip at the top with the pager under the cards; with a step live it opens on the step's neighbourhood", async () => {
+  test("[world:map-is-painted-lagos] given the player in Ojuelegba, when the map opens, then it opens folded on Ojuelegba's card, the strip at the top with the pager under the cards; with a step live it opens on the step's neighbourhood", async () => {
     await open();
     expect(phase()).toBe("folded");
     expect(current()).toBe("ojuelegba");
@@ -63,7 +63,7 @@ describe("the folding map", () => {
     expect(document.querySelector("[data-strip-step]")).toBeNull();
   });
 
-  test("[R-WORLD-015] given a step live at the passport office, when the map opens, then it opens on the island's card, the step's sticker ringed and named, and the strip carries the step's yellow dot", async () => {
+  test("[world:map-is-painted-lagos] given a step live at the passport office, when the map opens, then it opens on the island's card, the step's sticker ringed and named, and the strip carries the step's yellow dot", async () => {
     await open({ step: "place.passport-office" });
     expect(current()).toBe("island");
     expect(document.querySelector("[data-strip-step]")).not.toBeNull();
@@ -72,7 +72,7 @@ describe("the folding map", () => {
     expect(sticker?.querySelector("[data-name]")?.getAttribute("data-name")).toBe("step");
   });
 
-  test("[R-WORLD-015] [R-WORLD-017] given a sticker on the card, when it is tapped, then its stop is picked with the ride sheet at the foot; in the same neighbourhood the route draws on the card", async () => {
+  test("[world:map-is-painted-lagos] [world:ride-sheet-shows-fares] given a sticker on the card, when it is tapped, then its stop is picked with the ride sheet at the foot; in the same neighbourhood the route draws on the card", async () => {
     await open({ here: "place.family-house" });
     expect(current()).toBe("surulere");
     fireEvent.click(document.querySelector('[data-card="surulere"] [data-pin="place.national-stadium"]') as HTMLElement);
@@ -88,7 +88,7 @@ describe("the folding map", () => {
     expect(document.querySelector("[data-strip] [data-route-line]")).not.toBeNull();
   });
 
-  test("[R-WORLD-015] [R-WORLD-017] given the nudge's step elsewhere, when the map opens with that stop picked, then it opens on the stop's card with its sheet, and the route across the city draws on the strip", async () => {
+  test("[world:map-is-painted-lagos] [world:ride-sheet-shows-fares] given the nudge's step elsewhere, when the map opens with that stop picked, then it opens on the stop's card with its sheet, and the route across the city draws on the strip", async () => {
     await open({ pickFirst: "place.passport-office" });
     expect(current()).toBe("island");
     expect(document.querySelector('[data-ride-sheet="place.passport-office"]')).not.toBeNull();
@@ -97,7 +97,7 @@ describe("the folding map", () => {
     expect(document.querySelector('[data-card="island"] [data-route-line]')).toBeNull();
   });
 
-  test("[R-WORLD-015] given the map folded, when the strip is tapped, then the map unfolds and settles open within the fold's time, with the cards out of the way; a pin of the open map folds it back on that pin's card with the stop picked", async () => {
+  test("[world:map-is-painted-lagos] given the map folded, when the strip is tapped, then the map unfolds and settles open within the fold's time, with the cards out of the way; a pin of the open map folds it back on that pin's card with the stop picked", async () => {
     vi.useFakeTimers();
     await open();
     fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
@@ -126,7 +126,7 @@ describe("the folding map", () => {
     expect(window.__map?.channel).toBe("strip");
   });
 
-  test("[R-WORLD-015] given the map open with a stop picked across the city, when the route's channel is read, then it draws on the open map", async () => {
+  test("[world:map-is-painted-lagos] given the map open with a stop picked across the city, when the route's channel is read, then it draws on the open map", async () => {
     vi.useFakeTimers();
     await open({ pickFirst: "place.passport-office" });
     fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);
@@ -138,7 +138,7 @@ describe("the folding map", () => {
     expect(document.querySelector("[data-open-map] [data-route-danfo]")).not.toBeNull();
   });
 
-  test("[R-WORLD-015] given the map folded, when the strip is dragged down short and let go, then it folds back; dragged far, it opens", async () => {
+  test("[world:map-is-painted-lagos] given the map folded, when the strip is dragged down short and let go, then it folds back; dragged far, it opens", async () => {
     await open();
     const strip = document.querySelector("[data-strip]") as HTMLElement;
     fireEvent.pointerDown(strip, { pointerId: 1, clientY: 40 });
@@ -153,21 +153,21 @@ describe("the folding map", () => {
     expect(phase()).toBe("opening");
   });
 
-  test("[R-WORLD-015] given the stops, when the map shows them, then each stands once as its own sticker on its card, with no pole or board, and a screen reader has them as a list", async () => {
+  test("[world:map-is-painted-lagos] given the stops, when the map shows them, then each stands once as its own sticker on its card, with no pole or board, and a screen reader has them as a list", async () => {
     await open();
     expect(document.querySelectorAll('[data-card="ojuelegba"] [data-pin="place.ojuelegba"]')).toHaveLength(1);
     expect(screen.getByRole("list", { name: "Stops" })).toBeTruthy();
     expect(document.querySelector('[data-pin="place.ojuelegba"]')?.getAttribute("aria-label")).toBe("Ojuelegba");
   });
 
-  test("[R-WORLD-015] given the passport office and Ojuelegba, when their stickers stand on the map, then each has a picture of its own: a counter with the flag flying behind it, and the flyover", async () => {
+  test("[world:map-is-painted-lagos] given the passport office and Ojuelegba, when their stickers stand on the map, then each has a picture of its own: a counter with the flag flying behind it, and the flyover", async () => {
     expect(tileOf("place.passport-office")).toEqual({ model: "prop_bank-counter" });
     expect(tileOf("place.ojuelegba")).toEqual({ model: "bld_flyover-span" });
     await open({ step: "place.passport-office" });
     expect(document.querySelector('[data-card="island"] [data-pin="place.passport-office"] [data-picture]')?.getAttribute("data-picture")).toBe("prop_bank-counter+flag");
   });
 
-  test("[R-WORLD-015] given the map folded at the start of a life, when the card and the open map show their names, then the card names at most a few places never visited and the open map none", async () => {
+  test("[world:map-is-painted-lagos] given the map folded at the start of a life, when the card and the open map show their names, then the card names at most a few places never visited and the open map none", async () => {
     vi.useFakeTimers();
     await open();
     const card = document.querySelectorAll('[data-card="ojuelegba"] [data-name="new"]');
@@ -182,13 +182,13 @@ describe("the folding map", () => {
     expect(document.querySelector('[data-open-map] [data-name="home"]')).not.toBeNull();
   });
 
-  test("[R-WORLD-015] given the strip, when it is drawn, then it reads as the whole city folded: the theatre's hat, the island's and Victoria Island's towers standing on it, and its folds", async () => {
+  test("[world:map-is-painted-lagos] given the strip, when it is drawn, then it reads as the whole city folded: the theatre's hat, the island's and Victoria Island's towers standing on it, and its folds", async () => {
     await open();
     const marks = [...document.querySelectorAll<HTMLElement>("[data-strip] [data-strip-landmark]")].map((mark) => mark.dataset.stripLandmark);
     expect(marks).toEqual(["theatre", "towers", "towers-vi", "tower"]);
     expect(document.querySelector("[data-strip] .paper-folds")).not.toBeNull();
   });
-  test("[R-WORLD-015] given a place visited, when a card draws its sticker, then the sticker carries its name; the open map names no place visited", async () => {
+  test("[world:map-is-painted-lagos] given a place visited, when a card draws its sticker, then the sticker carries its name; the open map names no place visited", async () => {
     vi.useFakeTimers();
     await open({ here: "place.national-stadium", been: ["place.bode-thomas"] });
     // The card shown draws at once and its neighbours a moment later.
@@ -205,7 +205,7 @@ describe("the folding map", () => {
     expect(document.querySelector('[data-open-map] [data-pin="place.bode-thomas"] [data-name]')).toBeNull();
   });
 
-  test("[R-WORLD-016] given the map folded, then the country menu at its foot opens its list upward; unfolded, the open map's menu at the top opens its list downward, and it is the only menu", async () => {
+  test("[world:one-country-at-a-time] given the map folded, then the country menu at its foot opens its list upward; unfolded, the open map's menu at the top opens its list downward, and it is the only menu", async () => {
     vi.useFakeTimers();
     await open();
     const menus = () => [...document.querySelectorAll<HTMLElement>("[data-country-menu]")];
@@ -226,7 +226,7 @@ describe("the folding map", () => {
     expect(list?.className).not.toContain("bottom-full");
   });
 
-  test("[R-WORLD-015] given the strip tapped, when the unfolding moves, then the head row and the stickers fade in over its last part, ending with the fold's motion, so the open map stands whole at the motion's end however late it settles", async () => {
+  test("[world:map-is-painted-lagos] given the strip tapped, when the unfolding moves, then the head row and the stickers fade in over its last part, ending with the fold's motion, so the open map stands whole at the motion's end however late it settles", async () => {
     vi.useFakeTimers();
     await open();
     fireEvent.click(document.querySelector("[data-strip]") as HTMLElement);

@@ -6,7 +6,7 @@ import { CALLOUTS_MAX, calloutsShown } from "../../../shared/world/callouts";
 import { EMOTE_PICTURES, emotesFor, EMOTES_MAX } from "./emotes";
 
 describe("the callout budget", () => {
-  test("[R-WORLD-026] given the fan, the chip, the marker and a bubble all wanting the screen, when the budget is read, then three show and the bubble waits; with fewer, all show", () => {
+  test("[world:street-talk-budget] given the fan, the chip, the marker and a bubble all wanting the screen, when the budget is read, then three show and the bubble waits; with fewer, all show", () => {
     expect(CALLOUTS_MAX).toBe(3);
     expect(calloutsShown({ fan: true, chip: true, marker: true, bubble: true })).toEqual({ fan: true, chip: true, marker: true, bubble: false });
     expect(calloutsShown({ fan: false, chip: true, marker: true, bubble: true })).toEqual({ fan: false, chip: true, marker: true, bubble: true });
@@ -23,7 +23,7 @@ describe("the emotes", () => {
     { slot: 3, kind: "resident" as const, person: { role: "rider" as const } },
   ];
 
-  test("[R-WORLD-026] given a crowd, when its emotes are read, then at most two residents show a picture of what they do, never a player, and the pair moves on with each turn", () => {
+  test("[world:street-talk-budget] given a crowd, when its emotes are read, then at most two residents show a picture of what they do, never a player, and the pair moves on with each turn", () => {
     expect(EMOTES_MAX).toBe(2);
     const first = emotesFor(people, 0);
     expect(first).toHaveLength(2);

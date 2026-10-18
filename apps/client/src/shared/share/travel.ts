@@ -1,5 +1,5 @@
-// How a drawn card leaves the device (docs/rules/share.md R-SHARE-003,
-// R-SHARE-009, R-SHARE-011): the Web Share API when it takes the file, a
+// How a drawn card leaves the device (share:card-offered-never-sent,
+// share:card-drawn-on-device, share:card-never-stored): the Web Share API when it takes the file, a
 // download when it does not. Only ever after the player's tap.
 import type { ShareKind } from "@japacity/content";
 

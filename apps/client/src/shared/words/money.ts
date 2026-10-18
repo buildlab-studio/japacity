@@ -1,4 +1,4 @@
-// The month's money lines (docs/rules/world.md R-WORLD-008 and R-WORLD-019): every line in or out with its
+// The month's money lines (world:month-end-results-sheet and world:phone-holds-what-phones-hold): every line in or out with its
 // sign, one line for each payment as the report reads them. One source for the results sheet and the
 // Bank's Lately, so the two never differ.
 import { content } from "@japacity/content";
@@ -35,7 +35,7 @@ export function chargeShown(amount: number, currency: Currency): boolean {
 
 /**
  * What a change at the bank took in, from its charge. The wallet's line for a change tells only what
- * came in; the charge just before it is R-WALLET-004's share of what was paid in, rounded down, so it
+ * came in; the charge just before it is wallet:bank-converts-at-official-rate's share of what was paid in, rounded down, so it
  * pins that to within one unit. A whole figure, as the Bank's chips send, is taken when one fits.
  */
 function paidIn(charge: number): number {
@@ -52,13 +52,13 @@ export const CHANGED_OUT = "ui.results.changed-out";
 export const CHANGE_CHARGE = "ui.results.change-charge";
 
 /**
- * A change of money at the bank, counted as the band moves in every money it touched (R-WALLET-004,
- * R-WORLD-008). The side that came in counts as money in, in
+ * A change of money at the bank, counted as the band moves in every money it touched (wallet:bank-converts-at-official-rate,
+ * world:month-end-results-sheet). The side that came in counts as money in, in
  * its own money; the side paid in counts as money out, in its own money, so Kept shows every currency
  * that moved and each matches its band. The bank's charge is told once, on its own line as money out, and the change's
  * paid side is what went at the rate, the charge not in it (with the charge
  * inside it while Kept took the charge off again, Kept plus the change would miss the band by the charge). A charge too small to show as a figure gets no line of its own ("£0"): it rides on the
- * change's line and Kept still counts it, as the wallet does (R-WALLET-015).
+ * change's line and Kept still counts it, as the wallet does (wallet:months-kept-counted).
  */
 function bankChange(line: ReportLine, chargeLine: ReportLine, charge: MoneyParam, paidLine: ReportLine | undefined): MoneyLine[] {
   const gained = moneyParam("amount", line.params, line.key);
@@ -87,8 +87,8 @@ export const CHANGED_QUEUED = "ui.results.changed-queued";
 const QUEUED = "line.wallet.queued";
 
 /**
- * A change with the FX man (R-WALLET-007): no charge, the side paid in just before what came in. Both
- * count, each in its own money, as the wallet counts them (R-WORLD-008, R-WALLET-015), so the naira
+ * A change with the FX man (wallet:aboki-trades-at-street-rate): no charge, the side paid in just before what came in. Both
+ * count, each in its own money, as the wallet counts them (world:month-end-results-sheet, wallet:months-kept-counted), so the naira
  * that left for pounds is on a line too.
  */
 function streetChange(line: ReportLine, paidLine: ReportLine): MoneyLine[] {
@@ -153,7 +153,7 @@ export const LOTTO_TICKETS = "ui.results.lotto-tickets";
  * Each of the month's lines (already tidied) as the money tells it: the money lines it stands for, none when another
  * line's telling took it up or it moved nothing to tell (a charge of nothing), or null when it is no money line at all
  * and is told as itself. A good line with an amount is money in, a bad one money out; a change counts both sides,
- * each in its own money (R-WORLD-008), at the bank or with the FX man, and a side paid in while the bank's queue
+ * each in its own money (world:month-end-results-sheet), at the bank or with the FX man, and a side paid in while the bank's queue
  * holds the other back counts the month it leaves. Any other plain line (a move between pockets) moves nothing the
  * player keeps or loses. Only a line that tells money moving counts: a bill that could not be paid, or a scam told
  * after its fee, is not money gone twice. News reads this to tell the month in the results' words.
@@ -185,7 +185,7 @@ export function moneyTold(tidy: readonly ReportLine[]): (MoneyLine[] | null)[] {
 
 /**
  * The lines in or out, in the simulation's order, one line for each payment as the report reads them (`moneyTold`).
- * In or out is the line's tone, which the wallet takes from the money moving (docs/rules/wallet.md R-WALLET-017).
+ * In or out is the line's tone, which the wallet takes from the money moving (wallet:tone-follows-money-direction).
  */
 export function moneyLines(lines: readonly ReportLine[]): MoneyLine[] {
   // The prologue's years are not this month: their money is what the character starts with.

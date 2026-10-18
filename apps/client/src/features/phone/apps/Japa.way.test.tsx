@@ -1,6 +1,6 @@
-// Japa names the way out the nudge reads (docs/rules/world.md R-WORLD-019): a route heard of is a way
+// Japa names the way out the nudge reads (world:phone-holds-what-phones-hold): a route heard of is a way
 // out, so the header never says "No way out yet" beside a nudge to read its official page. And the
-// figure the results save toward is broken down here (docs/rules/route.md R-ROUTE-009): the tuition
+// figure the results save toward is broken down here (route:funds-required): the tuition
 // still to pay, the living money to show, and beside them the flight.
 import { content } from "@japacity/content";
 import { toKnown } from "@japacity/sim/testing";
@@ -15,7 +15,7 @@ import { Japa, moveCosts } from "./Japa";
 const UK = "route.uk-masters";
 
 describe("the way out in Japa", () => {
-  test("[R-WORLD-019] given a route only heard of and no plan, when Japa shows, then its header names that route, not no way out", async () => {
+  test("[world:phone-holds-what-phones-hold] given a route only heard of and no plan, when Japa shows, then its header names that route, not no way out", async () => {
     const view = viewAfter(newGame("scenario.ada"), [{ type: "route/hear", route: UK, via: "test" }]);
     expect(view.japacity.route).toBeNull();
     await renderWithView(<Japa />, view);
@@ -25,12 +25,12 @@ describe("the way out in Japa", () => {
     expect(document.body.textContent).not.toContain(say("phone.japa.none"));
   });
 
-  test("[R-WORLD-019] given no route heard of, when Japa shows, then it says there is no way out yet", async () => {
+  test("[world:phone-holds-what-phones-hold] given no route heard of, when Japa shows, then it says there is no way out yet", async () => {
     await renderWithView(<Japa />, newGame("scenario.ada").view());
     expect(document.querySelector("[data-japa-route]")?.textContent).toBe(say("phone.japa.none"));
   });
 
-  test("[R-WORLD-019] [R-ROUTE-009] given the UK master's looked into, when Japa shows, then the funds to show are broken down into the tuition and the living money, with the flight beside them", async () => {
+  test("[world:phone-holds-what-phones-hold] [route:funds-required] given the UK master's looked into, when Japa shows, then the funds to show are broken down into the tuition and the living money, with the flight beside them", async () => {
     const game = newGame("scenario.ada");
     toKnown(game);
     const view = game.view();
@@ -55,7 +55,7 @@ describe("the way out in Japa", () => {
 });
 
 describe("the official page follows its route", () => {
-  test("[R-ADVICE-002] [R-WORLD-019] given the UK master's looked into and Canada only heard of, when Japa shows, then Canada's page stands under its own heading after the UK's costs and names Canada, never under the UK", async () => {
+  test("[advice:official-page-shows-checklist] [world:phone-holds-what-phones-hold] given the UK master's looked into and Canada only heard of, when Japa shows, then Canada's page stands under its own heading after the UK's costs and names Canada, never under the UK", async () => {
     const game = newGame("scenario.ada");
     toKnown(game);
     const canada = Object.keys(content.route).find((id) => content.route[id as keyof typeof content.route]?.country === "country.canada");

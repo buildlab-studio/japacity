@@ -1,4 +1,4 @@
-// The send-off scene's words (docs/rules/chapter.md R-CHAPTER-012, world.md R-WORLD-037): content's text first, then the
+// The send-off scene's words (chapter:send-off-scene-in-beats, world:plane-cut-at-send-off): content's text first, then the
 // scene's own table (content's ui/ui.sendOff.text.ts), which rides the scene's chunk, then a country's late words.
 import { text } from "@japacity/content";
 import { uiSendOffText } from "@japacity/content/ui/send-off";

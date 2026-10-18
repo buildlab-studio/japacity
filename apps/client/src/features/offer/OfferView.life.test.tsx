@@ -11,7 +11,7 @@ import { moneyTerms, offerParams } from "./terms";
 
 /**
  * How far back in Ada's recorded life a school's offer is held while the study window is open. With its
- * now-acts sent at once (R-ACTIVITY-015), the offer is held 103 to 121 commands back; the middle is taken.
+ * now-acts sent at once (activity:now-acts-and-month-acts), the offer is held 103 to 121 commands back; the middle is taken.
  */
 /** The first cut of the recording, counted from its end, at which the scholarship round can open with a school's offer held: found, since the recording moves as content does. */
 function scholarshipDrop(): number {
@@ -39,7 +39,7 @@ function expectClean(card: HTMLElement): void {
 }
 
 describe("the luck offers and the offers abroad, from the engine", () => {
-  test("[R-LUCK-002] given the whip-round opened for Ada, then its words and both choices show, and what it pays is money in naira", async () => {
+  test("[luck:whip-round-once-per-life] given the whip-round opened for Ada, then its words and both choices show, and what it pays is money in naira", async () => {
     const game = newGame();
     const offer = openOffer(game, "offer.whip-round");
     expect(moneyTerms("offer.whip-round").get("rescue")).toBe("NGN");
@@ -52,7 +52,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     expectClean(card);
   });
 
-  test("[R-LUCK-007] given the telco promo, then claiming it shows the fee it takes and never the prize, and its signs are content's words", async () => {
+  test("[luck:telco-promo-may-be-fraud] given the telco promo, then claiming it shows the fee it takes and never the prize, and its signs are content's words", async () => {
     const game = newGame();
     const offer = openOffer(game, "offer.telco-promo");
     await renderWithView(<OfferView />, game.view());
@@ -64,7 +64,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
   });
 
   // A yellow main button on a possible scam is the one quick hands press, so such an ask has none.
-  test("[R-ADVICE-006] [R-WORLD-006] given an ask that may be a scam (the cousin's pitch, the prize message), then no answer is the main button, and the answer that costs nothing comes first; an honest ask keeps its main button", async () => {
+  test("[advice:scams-show-their-tells] [world:one-action-one-sheet] given an ask that may be a scam (the cousin's pitch, the prize message), then no answer is the main button, and the answer that costs nothing comes first; an honest ask keeps its main button", async () => {
     for (const [entry, no, pay] of [["offer.road-cousin", "ignore", "take"], ["offer.telco-promo", "ignore", "claim"]] as const) {
       const game = newGame();
       openOffer(game, entry);
@@ -82,7 +82,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     expect(within(cardOf("offer.roof")).getAllByRole("button")[0]!.hasAttribute("data-reply-main")).toBe(true);
   });
 
-  test("[R-LUCK-010] given the scholarship round on Ada's life with a school's offer held, then it shows in content's words with nothing to pay", async () => {
+  test("[luck:japa-luck-in-existing-systems] given the scholarship round on Ada's life with a school's offer held, then it shows in content's words with nothing to pay", async () => {
     const game = recordedGame("ada-careful", SCHOLARSHIP_DROP);
     const offer = openOffer(game, "offer.scholarship-round");
     await renderWithView(<OfferView />, game.view());
@@ -92,7 +92,7 @@ describe("the luck offers and the offers abroad, from the engine", () => {
     expectClean(card);
   });
 
-  test("[R-ABROAD-007] given a family request opened abroad, then {cost} fills from the item's own terms, scaled for a relative abroad, in naira", async () => {
+  test("[abroad-money:family-asks-more-abroad] given a family request opened abroad, then {cost} fills from the item's own terms, scaled for a relative abroad, in naira", async () => {
     const game = recordedGame("ada-careful");
     const offer = openOffer(game, "offer.roof");
     const home = content.offer["offer.roof"]!.terms.cost as number;

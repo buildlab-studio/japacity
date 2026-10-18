@@ -1,4 +1,4 @@
-// The age the data page prints before a life begins (prologue.md R-PROLOGUE-004, R-PROLOGUE-009; decision 0023): the
+// The age the data page prints before a life begins (prologue:age-advances-with-steps, prologue:front-door-builds-a-person; decision 0023): the
 // year picked for a tile, which is the year the life starts at, and a ready life's own from its scenario. A true number:
 // the life is between that birthday and the next.
 import { content } from "@japacity/content";

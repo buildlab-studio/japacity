@@ -1,7 +1,7 @@
-// The room in a compound in Ojuelegba (docs/rules/home.md R-HOME-010, R-HOME-006; world.md R-WORLD-029): your
+// The room in a compound in Ojuelegba (home:compound-room-is-a-home, home:home-is-the-home-point; world:room-seen-down-its-length): your
 // room in a wide floor with its bathroom and nook behind it and the compound's yard through your door,
 // the home's five things, the mattress, the stove, the drum by the door, the papers box and the bag, each with the act
-// the family house's has. It stages nothing of its own (R-CITY-010): while the character lives there the city opens the
+// the family house's has. It stages nothing of its own (city:places-stage-their-acts): while the character lives there the city opens the
 // family house's acts on its things.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -28,7 +28,7 @@ function thingOf(id: string) {
   return thingIn(stage.things, id);
 }
 
-/** Ada's view living in the room: moved in through the game, so her upkeep is the room's own (R-HOME-010). */
+/** Ada's view living in the room: moved in through the game, so her upkeep is the room's own (home:compound-room-is-a-home). */
 function livingThere(): PlayerView {
   const game = newGame("scenario.ada");
   setPockets(game, { NGN: 5_000_000_00 });
@@ -45,15 +45,15 @@ function actsNow(view: PlayerView, home: string | null): Record<string, string[]
 }
 
 describe("the room in a compound", () => {
-  test("[R-HOME-010] [R-WORLD-029] given the room's file, when it is read, then it is the room's own interior, nobody else lives in it, the neighbours keep to the compound's yard, and its five home things carry the family house's acts in the room's own words", () => {
+  test("[home:compound-room-is-a-home] [world:room-seen-down-its-length] given the room's file, when it is read, then it is the room's own interior, nobody else lives in it, the neighbours keep to the compound's yard, and its five home things carry the family house's acts in the room's own words", () => {
     expect(file.place).toBe(ID);
     expect(file.scope).toBe("interior");
     expect(content.place[ID]).toMatchObject({ scope: "interior", assets: "home-room-house", stages: [] });
     // Your room ends at its door's wall (x 0.475); everyone else stands in the yard beyond it.
     expect(stage.people.filter(([x]) => x < 0.475)).toEqual([]);
     const acts = (id: string) => thingOf(id).acts.map((act) => [act.kind, act.stages ?? act.command ?? null]);
-    // The mattress naps on its sheet and sleeps (decision 0012, R-ACTIVITY-019); while no nap can be had its act is Lie
-    // down, done at once with the lying pose; an empty slot rests (R-TURN-006).
+    // The mattress naps on its sheet and sleeps (decision 0012, activity:acts-may-repeat-in-month); while no nap can be had its act is Lie
+    // down, done at once with the lying pose; an empty slot rests (turn:free-slots-per-month).
     expect(acts("bed")).toEqual([
       ["sheet", "activity.nap"],
       ["end", null],
@@ -65,7 +65,7 @@ describe("the room in a compound", () => {
     // The drum is filled free from the yard's tap: its own act, not the water seller's; the bath on its sheet.
     expect(acts("drum")).toEqual([["sheet", "activity.fill-drum"]]);
     expect(thingOf("drum").acts[0]?.more).toEqual(["activity.bucket-bath"]);
-    // The box opens the phone's Papers (R-WORLD-019), where the papers' acts are.
+    // The box opens the phone's Papers (world:phone-holds-what-phones-hold), where the papers' acts are.
     expect(acts("papers-box")).toEqual([["app", null]]);
     expect(thingOf("papers-box").acts[0]?.app).toBe("papers");
     expect(acts("bag")).toEqual([["command", "route/depart"]]);
@@ -79,7 +79,7 @@ describe("the room in a compound", () => {
     }
   });
 
-  test("[R-HOME-006] [R-HOME-010] [R-ACTIVITY-019] given Ada living in the room, when its acts are read for now, then the mattress naps, the stove cooks, the drum fetches water and the papers box opens Papers, staged by the family house and the acts lived by hand; for a life living elsewhere the room opens none of them", () => {
+  test("[home:home-is-the-home-point] [home:compound-room-is-a-home] [activity:acts-may-repeat-in-month] given Ada living in the room, when its acts are read for now, then the mattress naps, the stove cooks, the drum fetches water and the papers box opens Papers, staged by the family house and the acts lived by hand; for a life living elsewhere the room opens none of them", () => {
     const view = livingThere();
     const now = actsNow(view, ID);
     expect(now["bed"]).toEqual(["nap", "end-month"]);
@@ -96,7 +96,7 @@ describe("the room in a compound", () => {
     expect(elsewhere["drum"]).toBeUndefined();
   });
 
-  test("[R-HOME-010] [R-WORLD-029] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 5 in a hundred of the screen's height in the whole view, where the room of 16 by 9 metres gave it 3, and over 7 eased in on your room", () => {
+  test("[home:compound-room-is-a-home] [world:room-seen-down-its-length] given the room in a compound as a wide floor, about 5 by 5 metres of your own in a house of about 9 by 8, when it opens whole on a phone held upright, then its five things stand within a few steps of the character at the door, and the character reads at a phone's size: over 5 in a hundred of the screen's height in the whole view, where the room of 16 by 9 metres gave it 3, and over 7 eased in on your room", () => {
     const [x, z] = stage.start;
     for (const id of ["bed", "papers-box", "cooking", "drum", "bag"]) {
       const spot = thingSpot(stage, thingOf(id));
@@ -115,7 +115,7 @@ describe("the room in a compound", () => {
     expect(tall(0)).toBeGreaterThan(0.07);
   });
 
-  test("[R-HOME-006] given a life living in Makoko, when Makoko's room is read, then the family house's acts are staged on the water too", () => {
+  test("[home:home-is-the-home-point] given a life living in Makoko, when Makoko's room is read, then the family house's acts are staged on the water too", () => {
     expect(homeStagesAt("place.makoko", "place.makoko", HOME, PLACES)).toContain("activity.cook-at-home");
   });
 });

@@ -1,7 +1,7 @@
 // Two walks over the interface. Every surface where a player meets another
 // player or something the game did not write carries the block and report
-// control (R-MODERATION-003). No advert slot shows on a card, a guide, the
-// report or block screens, or the sign-up and age screens (R-ADVERT-003).
+// control (moderation:report-from-every-surface). No advert slot shows on a card, a guide, the
+// report or block screens, or the sign-up and age screens (advert:no-adverts-on-protected-screens).
 import type { ServedAdvert } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { ConversationRow, PlayerView } from "@japacity/sim";
@@ -101,7 +101,7 @@ async function storeOf(view: PlayerView): Promise<GameStore> {
 
 const advertsOn = (): PlayerView => ({ ...engineView("scenario.tunde"), adverts: true });
 
-/** Each surface of R-MODERATION-003, opened the way a player reaches it. */
+/** Each surface of moderation:report-from-every-surface, opened the way a player reaches it. */
 const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) => Promise<void>> = {
   pair: friendThread,
   conversation: async (server) => OPEN.pair(server),
@@ -117,7 +117,7 @@ const OPEN: Record<(typeof MODERATION_SURFACES)[number], (server: FakeServer) =>
 };
 
 describe("the block and report control on every surface", () => {
-  test.each(MODERATION_SURFACES.map((surface) => [surface]))("[R-MODERATION-003] given the %s surface online, when a player reaches it, then the report control is there", async (surface) => {
+  test.each(MODERATION_SURFACES.map((surface) => [surface]))("[moderation:report-from-every-surface] given the %s surface online, when a player reaches it, then the report control is there", async (surface) => {
     await OPEN[surface](everything());
     const control = await waitFor(() => {
       const found = document.querySelector<HTMLElement>(`[data-moderation="${surface}"]`);
@@ -133,12 +133,12 @@ const slots = (within: ParentNode = document) => within.querySelectorAll("[data-
 describe("where no advert shows", () => {
   // The world draws no advert slot of its own (City.tsx shows the place's adverts only off the world), so the phone tile and
   // the guides are walked as the components they are, under the same providers.
-  test("[R-ADVERT-003] given every slot filled, when the phone tile shows, then it is there to be found, so the walks below are not empty", async () => {
+  test("[advert:no-adverts-on-protected-screens] given every slot filled, when the phone tile shows, then it is there to be found, so the walks below are not empty", async () => {
     render(<GameProvider store={await storeOf(advertsOn())}>{providers(everything(), <PhoneTile />)}</GameProvider>);
     await waitFor(() => expect(slots()).toHaveLength(1));
   });
 
-  test("[R-ADVERT-003] given every slot filled, when the guides open, then the guide holds no advert", async () => {
+  test("[advert:no-adverts-on-protected-screens] given every slot filled, when the guides open, then the guide holds no advert", async () => {
     render(
       <GameProvider store={await storeOf(advertsOn())}>
         {providers(
@@ -155,7 +155,7 @@ describe("where no advert shows", () => {
     expect(slots(await screen.findByRole("dialog"))).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled, when the advert's report screen opens, then it holds no advert", async () => {
+  test("[advert:no-adverts-on-protected-screens] given every slot filled, when the advert's report screen opens, then it holds no advert", async () => {
     render(<GameProvider store={await storeOf(advertsOn())}>{providers(everything(), <PhoneTile />)}</GameProvider>);
     fireEvent.click(await screen.findByRole("button", { name: `${say("advert.label")}: Mama Put Kitchen` }));
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: words("ui.report") }));
@@ -163,7 +163,7 @@ describe("where no advert shows", () => {
     expect(slots(report)).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled and a friend's bond, when block and report are reached, then neither holds an advert", async () => {
+  test("[advert:no-adverts-on-protected-screens] given every slot filled and a friend's bond, when block and report are reached, then neither holds an advert", async () => {
     await friendThread(everything());
     const control = await waitFor(() => document.querySelector<HTMLElement>('[data-moderation="pair"]')!);
     fireEvent.click(within(control).getByRole("button", { name: words("ui.block") }));
@@ -173,11 +173,11 @@ describe("where no advert shows", () => {
     expect(slots(await screen.findByRole("dialog"))).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled, when a share card is due, then the card holds no advert", async () => {
-    // A card that opens on its own when due: the send-off does not (share.md R-SHARE-015), the granted card does.
+  test("[advert:no-adverts-on-protected-screens] given every slot filled, when a share card is due, then the card holds no advert", async () => {
+    // A card that opens on its own when due: the send-off does not (share:send-off-card-kept), the granted card does.
     const card = { kind: "granted" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
     const store = await storeOf({ ...advertsOn(), card });
-    // A grant comes long after the early win, which the share card waits for (R-GUIDE-015).
+    // A grant comes long after the early win, which the share card waits for (guide:nothing-asked-before-early-win).
     store.setState({ earlyWin: true });
     render(providers(everything(), <App store={store} />));
     const sheet = await screen.findByRole("dialog");
@@ -185,7 +185,7 @@ describe("where no advert shows", () => {
     expect(slots(sheet)).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled, when a signed-out player meets the start screen, the age screen, the door's page with the username and the ways back in, then none holds an advert", async () => {
+  test("[advert:no-adverts-on-protected-screens] given every slot filled, when a signed-out player meets the start screen, the age screen, the door's page with the username and the ways back in, then none holds an advert", async () => {
     const account = {
       ageStatus: () => Promise.resolve("unasked"),
       declareAge: () => Promise.resolve("passed"),
@@ -213,7 +213,7 @@ describe("where no advert shows", () => {
     expect(slots()).toHaveLength(0);
   });
 
-  test("[R-ADVERT-003] given every slot filled, when the invite link's sign-up page shows, then it holds no advert", async () => {
+  test("[advert:no-adverts-on-protected-screens] given every slot filled, when the invite link's sign-up page shows, then it holds no advert", async () => {
     render(<GameProvider store={await storeOf(advertsOn())}>{providers(everything(), <InvitePage code={CODE} />)}</GameProvider>);
     await screen.findByRole("figure");
     expect(slots()).toHaveLength(0);

@@ -54,7 +54,7 @@ export interface CheckStandIn {
 
 /**
  * Cloudflare's widget as its always-pass test key behaves: it passes with the dummy token, and with `interaction-only`
- * it draws nothing, as the real one does when no tap is needed (R-ACCOUNT-029).
+ * it draws nothing, as the real one does when no tap is needed (account:start-screen-over-live-city).
  */
 export async function fakeTurnstile(page: Page, { afterMs = 0, drawn = false }: CheckStandIn = {}): Promise<void> {
   const widget = `window.turnstile = {

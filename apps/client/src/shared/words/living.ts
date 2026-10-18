@@ -1,5 +1,5 @@
-// The month's living where a life starts, as the page says it (prologue.md R-PROLOGUE-013, R-PROLOGUE-014; home.md
-// R-HOME-012, decision 0013): what is taken next month for it, or, where all of it is lived by hand, that it is bought
+// The month's living where a life starts, as the page says it (prologue:front-door-three-screens, prologue:printed-page-hands-over; home.md
+// home:living-by-hand, decision 0013): what is taken next month for it, or, where all of it is lived by hand, that it is bought
 // as you go. The share lived by hand is content's, so the line follows the tuning.
 import { content } from "@japacity/content";
 import { int } from "@japacity/sim";

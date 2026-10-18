@@ -1,5 +1,5 @@
-// The room abroad (docs/rules/world.md R-WORLD-003, R-WORLD-005): the phone by the bed calls home. Money home is not
-// the room's (R-CITY-010, design page 15), since every country stages it at a counter of its own (Rye Lane's transfer
+// The room abroad (world:nudge-says-one-thing, world:things-are-tappable-models): the phone by the bed calls home. Money home is not
+// the room's (city:places-stage-their-acts, design page 15), since every country stages it at a counter of its own (Rye Lane's transfer
 // shop, the strip mall's transfer counter, Deira's exchange house, Castel Volturno's call shop), so the landing's first request from home has a thing to do it at in each country.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -20,7 +20,7 @@ const stage = stageOf(raw as unknown as PlaceFile);
 const entry = content.place["place.the-room"];
 
 describe("the room abroad", () => {
-  test("[R-WORLD-005] [R-WORLD-003] given the phone by the bed, when its acts are read, then it calls home, staged in the room and open to Ada just landed, and sends no money, which the room no longer stages", () => {
+  test("[world:things-are-tappable-models] [world:nudge-says-one-thing] given the phone by the bed, when its acts are read, then it calls home, staged in the room and open to Ada just landed, and sends no money, which the room no longer stages", () => {
     const phone = (stage.things ?? []).find((thing) => thing.id === "phone");
     expect(phone?.acts.map((act) => [act.kind, act.stages, cityWords(act.label)])).toEqual([["sheet", "activity.call-home", "Call home"]]);
     expect(entry?.stages).not.toContain("activity.send-money");
@@ -31,7 +31,7 @@ describe("the room abroad", () => {
     expect(now.find((thing) => thing.id === "phone")?.acts.map((act) => act.stages)).toEqual(["activity.call-home"]);
   });
 
-  test("[R-WORLD-005] [R-CITY-010] [R-WORLD-003] given each country abroad, when money home is looked for, then it is staged at the country's own counter and a thing there opens it", () => {
+  test("[world:things-are-tappable-models] [city:places-stage-their-acts] [world:nudge-says-one-thing] given each country abroad, when money home is looked for, then it is staged at the country's own counter and a thing there opens it", () => {
     const counters: [Id<"country">, Id<"place">, unknown, string][] = [
       ["country.uk", "place.rye-lane", ryeLane, "transfer"],
       ["country.canada", "place.calgary-north-east", calgary, "transfer"],

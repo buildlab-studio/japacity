@@ -1,4 +1,4 @@
-// The chapter sheet shows the variant that stands in for a base (docs/rules/chapter.md R-CHAPTER-009).
+// The chapter sheet shows the variant that stands in for a base (chapter:chapters-follow-lean-route).
 import { text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { screen } from "@testing-library/react";
@@ -9,7 +9,7 @@ import { renderWithView } from "../../shared/testing/render";
 import { ChapterView } from "./ChapterView";
 
 describe("the chapter sheet on a way out's file", () => {
-  test("[R-CHAPTER-009] given the Gulf file with the medical held, when the sheet shows, then its opening line and items are the Gulf's words, the medical ticked and the rest open", async () => {
+  test("[chapter:chapters-follow-lean-route] given the Gulf file with the medical held, when the sheet shows, then its opening line and items are the Gulf's words, the medical ticked and the rest open", async () => {
     const base = engineView();
     const view: PlayerView = {
       ...base,

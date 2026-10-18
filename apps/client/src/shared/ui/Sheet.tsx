@@ -1,7 +1,7 @@
 // A sheet: from the bottom on a phone, from the right on a desktop. Built on
 // Base UI's dialog for the focus trap and the escape key. It rises in and goes
 // back the way it came by a short transition on transform and opacity
-// (index.css .motion-sheet and .motion-scrim, world.md R-WORLD-023), and Base UI
+// (index.css .motion-sheet and .motion-scrim, world:motions-under-half-second), and Base UI
 // unmounts it once that ends. Until then the closing backdrop still covers the
 // page, so a closing sheet lets clicks through at once.
 import { Dialog } from "@base-ui/react/dialog";

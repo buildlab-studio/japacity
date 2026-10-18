@@ -1,4 +1,4 @@
-// The keepsake's place (docs/rules/share.md R-SHARE-015): the send-off card is no screen of its own. It is kept with
+// The keepsake's place (share:send-off-card-kept): the send-off card is no screen of its own. It is kept with
 // the seat the counter gave once the first ride says it is saved (at once when no scene shows, a life reopened after
 // the plane), and until its time ends it is reached from the tile on the phone's home, with Open the card, the share
 // unchanged and the stub carrying the seat in words.
@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 describe("the keepsake's place", () => {
-  test("[R-SHARE-015] given Ada just flown with no scene showing, then the card opens on no screen of its own and is kept at once with the seat the counter gave", async () => {
+  test("[share:send-off-card-kept] given Ada just flown with no scene showing, then the card opens on no screen of its own and is kept at once with the seat the counter gave", async () => {
     act(() => sendOff.getState().choose("aisle"));
     const view = adaFlown();
     await renderWithView(<CardView />, view);
@@ -40,7 +40,7 @@ describe("the keepsake's place", () => {
     expect(gallery.getState().kept.map((entry) => [entry.card.kind, entry.seat])).toEqual([["send-off", "aisle"]]);
   });
 
-  test("[R-SHARE-015] given the scene still showing before the first ride, then the card is neither kept nor offered; once the ride says it is saved, it is kept", async () => {
+  test("[share:send-off-card-kept] given the scene still showing before the first ride, then the card is neither kept nor offered; once the ride says it is saved, it is kept", async () => {
     const view = adaFlown();
     act(() => sendOff.getState().open({ route: view.card!.route!, country: "country.uk" }));
     await renderWithView(
@@ -57,7 +57,7 @@ describe("the keepsake's place", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  test("[R-SHARE-015] given the card's time, then the phone's tile opens it with the share unchanged and the stub carrying the seat in words; after the first month abroad, no tile", async () => {
+  test("[share:send-off-card-kept] given the card's time, then the phone's tile opens it with the share unchanged and the stub carrying the seat in words; after the first month abroad, no tile", async () => {
     act(() => sendOff.getState().choose("aisle"));
     const view = adaFlown();
     const { store } = await renderWithView(<Keepsake />, view);
@@ -73,7 +73,7 @@ describe("the keepsake's place", () => {
     expect(document.querySelector("[data-keepsake]")).toBeNull();
   });
 
-  test("[R-SHARE-015] [R-SHARE-006] given a seat, then the drawn stub keeps its landscape shape and carries the seat in words under the place, never a number, and no word of a ticket's machinery", () => {
+  test("[share:send-off-card-kept] [share:card-never-looks-official] given a seat, then the drawn stub keeps its landscape shape and carries the seat in words under the place, never a number, and no word of a ticket's machinery", () => {
     const card = adaFlown().card!;
     const measure = (words: string, size: number) => Math.round(words.length * size * 0.55);
     const ticket = /airline|airways|barcode|boarding|\bseat\b|\bgate\b|flight|booking|\d/i;

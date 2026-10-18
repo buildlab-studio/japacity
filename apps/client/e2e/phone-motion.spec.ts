@@ -1,4 +1,4 @@
-// The phone's grow, shrink and putting away in a real browser at phone size (docs/rules/world.md R-WORLD-018, R-WORLD-023),
+// The phone's grow, shrink and putting away in a real browser at phone size (world:phone-rises-over-scene, world:motions-under-half-second),
 // so each reads as one smooth expand. Each is one move of transform and opacity: the handset is laid out once at its new size and never again in flight, the band and the scene under it
 // never move, and the frame's middle and size go one way only from start to end, so nothing zig-zags. With PREVIEW_DIR
 // set, each motion is also saved as frames every 40 ms, held still on the motion's own clock, and as one strip of them.
@@ -15,7 +15,7 @@ const FRAMES_MS = [0, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400];
 const AWAY_FRAMES_MS = [0, 40, 80, 120, 160, 200];
 /** The frame's flight on the real clock (Phone.tsx GROW_MS). */
 const GROW_MS = 250;
-/** What a motion may change (R-WORLD-023). */
+/** What a motion may change (world:motions-under-half-second). */
 const COMPOSITOR = ["opacity", "transform"];
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
@@ -152,7 +152,7 @@ async function openPhone(page: Page): Promise<Sample> {
   return world;
 }
 
-test("[R-WORLD-018] [R-WORLD-023] the phone grows and shrinks as one transform: only transform and opacity move, it is laid out once, the band and the scene stay put, and its middle and size go one way", async ({ page }, info) => {
+test("[world:phone-rises-over-scene] [world:motions-under-half-second] the phone grows and shrinks as one transform: only transform and opacity move, it is laid out once, the band and the scene stay put, and its middle and size go one way", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "phone size only");
   test.setTimeout(150_000);
   await openPhone(page);
@@ -202,7 +202,7 @@ test("[R-WORLD-018] [R-WORLD-023] the phone grows and shrinks as one transform: 
   expect(rest.laid).toEqual(before.laid);
 });
 
-test("[R-WORLD-023] the phone is put away by transform and opacity only, and the band and the scene stay put", async ({ page }, info) => {
+test("[world:motions-under-half-second] the phone is put away by transform and opacity only, and the band and the scene stay put", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "phone size only");
   test.setTimeout(150_000);
   const world = await openPhone(page);

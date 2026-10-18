@@ -1,4 +1,4 @@
-// The world's own clock on the device (docs/rules/clock.md R-CLOCK-033; decision 0011): the game's day, the same moment
+// The world's own clock on the device (clock:game-day-on-real-time; decision 0011): the game's day, the same moment
 // for everyone, read from the authority's last reply and between replies from the device's time with the same pure
 // function. The band says its part of the day in words and the night asks for bed; never a time with digits.
 import { type DayPart, type WorldClock, worldClockAt } from "@japacity/sim";
@@ -42,7 +42,7 @@ function useServed(store: GameStore | null): WorldClock | null {
 }
 
 /**
- * The world's clock, moving on the device every minute (R-CLOCK-033): a reply's reading wins as it lands, and the
+ * The world's clock, moving on the device every minute (clock:game-day-on-real-time): a reply's reading wins as it lands, and the
  * device's own reading takes over at the next minute.
  */
 export function useDayClock(): WorldClock & { served: boolean } {

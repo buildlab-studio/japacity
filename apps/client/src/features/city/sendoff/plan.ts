@@ -1,5 +1,5 @@
-// What the send-off scene says and shows, read from content alone (docs/rules/chapter.md R-CHAPTER-012, world.md
-// R-WORLD-037): the queue's lines from the airport's own talk, Papa's at the gate, each country's hub, its staple and its
+// What the send-off scene says and shows, read from content alone (chapter:send-off-scene-in-beats, world.md
+// world:plane-cut-at-send-off): the queue's lines from the airport's own talk, Papa's at the gate, each country's hub, its staple and its
 // first line, the plane's city, and the family's first messages from the senders the game has. Plain data, so each beat
 // is a picture of these and every rule is tested here without a screen.
 import { content, familyNames, text } from "@japacity/content";
@@ -30,7 +30,7 @@ const QUEUE_LINES: readonly QueueLine[] = [
   { at: 3, key: `${AIRPORT}.overheard.5`, who: "you" },
 ];
 
-/** The one line added for the scene: Papa's at the gate (beat 3), with its speaker beside it in content (R-CITY-024). */
+/** The one line added for the scene: Papa's at the gate (beat 3), with its speaker beside it in content (city:place-words-are-text-keys). */
 export const GATE_LINE = `${AIRPORT}.overheard.6`;
 
 /** The line said after `step` taps. */
@@ -40,7 +40,7 @@ export function queueLine(step: number): QueueLine {
 
 /** How long the character's line stands before the counter comes, after the third tap. */
 export const FRONT_MS = 1400;
-/** How long the plane's cut lasts (R-WORLD-037: about three seconds), moving or still. */
+/** How long the plane's cut lasts (world:plane-cut-at-send-off: about three seconds), moving or still. */
 export const PLANE_MS = 3000;
 
 /** The family's names as the game has them (story.text.ts, family.text.ts): Mama, Papa and the life's cousin by name. */
@@ -63,14 +63,14 @@ export function speakerName(who: Speaker, scenario: Id<"scenario">, you: string)
   }
 }
 
-/** The flight's chip at the counter (beat 2): its amount from the tuning (route.md R-ROUTE-020), or none when the employer pays. */
+/** The flight's chip at the counter (beat 2): its amount from the tuning (route:departure-pays-flight), or none when the employer pays. */
 export function flightCost(route: Id<"route">): { amount: number; currency: Currency } | null {
   const flight = content.tuning.route.flight;
   if (content.route[route]?.flightPaidByEmployer === true || typeof flight.amount !== "number") return null;
   return { amount: flight.amount, currency: flight.currency };
 }
 
-/** Each country's staple: what pulls in at the stop and what the first ride is (R-CHAPTER-012 beats 5 and 6). */
+/** Each country's staple: what pulls in at the stop and what the first ride is (chapter:send-off-scene-in-beats beats 5 and 6). */
 export type Staple = "double-decker" | "pickup" | "taxi" | "domitiana-bus";
 
 const STAPLES: Readonly<Record<string, Staple>> = {
@@ -84,7 +84,7 @@ export interface Landing {
   country: Id<"country">;
   /** The country's hub place in content: the route's first neighbourhood. */
   hub: Id<"place">;
-  /** The hub place's city in content, the plane's sticker (R-WORLD-037). */
+  /** The hub place's city in content, the plane's sticker (world:plane-cut-at-send-off). */
   city: string;
   staple: Staple;
   /** The hub's first overheard line, said at the stop. */
@@ -118,7 +118,7 @@ export interface Ping {
 const FRIEND_LANDED = "chats.friend.landed.text";
 
 /**
- * The friend's line on the ride, by the staple she rides (R-CHAPTER-012 (k)): content's own for a bus, and content's
+ * The friend's line on the ride, by the staple she rides (chapter:send-off-scene-in-beats (k)): content's own for a bus, and content's
  * line for the taxi or the truck (`chats.friend.landed.text.<staple>`), so the ping fits the ride it pings in and the
  * words have one home.
  */
@@ -147,7 +147,7 @@ export function firstPings(scenario: Id<"scenario">, staple: Staple = "double-de
 }
 
 /**
- * Who stands at the stop on the landing (R-CHAPTER-012 (j)), each city its own person from the published looks, and of
+ * Who stands at the stop on the landing (chapter:send-off-scene-in-beats (j)), each city its own person from the published looks, and of
  * the sex the stop's label names: an aunty in London, a neighbour in Calgary, a man at the corner in Dubai, a brother
  * at Castel Volturno. The second look stands in when the first is the character's own.
  */

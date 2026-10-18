@@ -1,4 +1,4 @@
-// The manifest of published files (city.md R-CITY-018): every shipped file under a name carrying the
+// The manifest of published files (city:places-load-on-entry): every shipped file under a name carrying the
 // hash of its contents, written by tools/assets/publish.ts. Kept apart from the model loader so a
 // screen can read a JSON file without pulling three.js into the first chunk.
 

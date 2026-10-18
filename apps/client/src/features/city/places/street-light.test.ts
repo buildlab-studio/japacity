@@ -1,6 +1,6 @@
 // The layer's light and dressing in the Lagos streets and offices: the night
 // keeps its bulbs and lanterns as the home's real point lights where a place has a lamp, a few to a place so the
-// phone's frame holds, and each place stands more of life from the kit (assets.md R-ASSET-006; city.md R-CITY-019).
+// phone's frame holds, and each place stands more of life from the kit (assets:lighting-set-by-place; city:two-graphics-modes).
 import { describe, expect, test } from "vitest";
 
 import agentRaw from "../../../../public/assets/places/agent-office/place.json";
@@ -40,7 +40,7 @@ const DRESSING = ["prop_poster-board", "prop_cooler-stand", "prop_mat", "prop_of
 const MOST_LIGHTS = 2;
 
 describe("the streets' and offices' light and dressing", () => {
-  test.each(PLACES)("[R-ASSET-006] [R-CLOCK-033] given %s, when its lamps are read, then every lamp carries a real light of some strength and reach, and it carries at most two", (_, raw) => {
+  test.each(PLACES)("[assets:lighting-set-by-place] [clock:game-day-on-real-time] given %s, when its lamps are read, then every lamp carries a real light of some strength and reach, and it carries at most two", (_, raw) => {
     const file = raw as PlaceFile;
     const lamps = stageOf(file).light.lamps ?? [];
     expect(lamps.length).toBeGreaterThan(0);
@@ -51,12 +51,12 @@ describe("the streets' and offices' light and dressing", () => {
     }
   });
 
-  test.each(PLACES)("[R-ASSET-006] given %s, when its light is read, then it is lit as a street or an office, never as a home's rooms", (_, raw) => {
+  test.each(PLACES)("[assets:lighting-set-by-place] given %s, when its light is read, then it is lit as a street or an office, never as a home's rooms", (_, raw) => {
     const file = raw as PlaceFile;
     expect(lightKindOf({ scope: file.scope, stage: stageOf(file) })).toBe(file.scope === "interior" ? "office" : "street");
   });
 
-  test.each(PLACES)("[R-WORLD-011] given %s, when its models are read, then it stands at least one piece of the kit's street or office dressing", (_, raw) => {
+  test.each(PLACES)("[world:place-is-one-screen] given %s, when its models are read, then it stands at least one piece of the kit's street or office dressing", (_, raw) => {
     const files = stageOf(raw as PlaceFile).models.map((model) => model.file);
     expect(files.some((path) => DRESSING.includes(path))).toBe(true);
   });

@@ -1,4 +1,4 @@
-// "Start a new life" in Settings (account.md R-ACCOUNT-030): one sheet names the character and their age and says
+// "Start a new life" in Settings (account:start-a-new-life): one sheet names the character and their age and says
 // plainly that the life ends and cannot be brought back; Cancel comes first, and the ending button ends the life only
 // when held. A local end clears the save and the kept person, and the front door opens.
 import type { PlayerView } from "@japacity/sim";
@@ -70,7 +70,7 @@ function hold(ms: number, release: boolean): void {
 }
 
 describe("start a new life", () => {
-  test("[R-ACCOUNT-030] given a life, when Start a new life is opened, then one sheet names the character and their age, says the life ends and cannot be brought back, and offers Keep this life before the button held to end it", async () => {
+  test("[account:start-a-new-life] given a life, when Start a new life is opened, then one sheet names the character and their age, says the life ends and cannot be brought back, and offers Keep this life before the button held to end it", async () => {
     const { store } = await localLife();
     const view = store.getState().view as PlayerView;
     openSettings(store);
@@ -91,7 +91,7 @@ describe("start a new life", () => {
     expect(localStorage.getItem(SAVE_KEY)).not.toBeNull();
   });
 
-  test("[R-ACCOUNT-030] given the sheet, when the ending button is let go before the hold is done or only clicked, then the life goes on", async () => {
+  test("[account:start-a-new-life] given the sheet, when the ending button is let go before the hold is done or only clicked, then the life goes on", async () => {
     const { store } = await localLife();
     openSettings(store);
     openSheet();
@@ -104,7 +104,7 @@ describe("start a new life", () => {
     expect(localStorage.getItem(PERSON_KEY)).not.toBeNull();
   });
 
-  test("[R-ACCOUNT-030] given a local life, when the ending button is held, then the save and the kept person are cleared and the front door opens", async () => {
+  test("[account:start-a-new-life] given a local life, when the ending button is held, then the save and the kept person are cleared and the front door opens", async () => {
     const { store, afresh } = await localLife();
     openSettings(store);
     openSheet();
@@ -121,7 +121,7 @@ describe("start a new life", () => {
     expect(await screen.findByRole("heading", { name: say("ui.life.title") })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-030] given the sheet, when Enter is held on the ending button, then the life ends as by a finger", async () => {
+  test("[account:start-a-new-life] given the sheet, when Enter is held on the ending button, then the life ends as by a finger", async () => {
     const { store } = await localLife();
     openSettings(store);
     openSheet();
@@ -134,7 +134,7 @@ describe("start a new life", () => {
     await waitFor(() => expect(store.getState().view).toBeNull());
   });
 
-  test("[R-ACCOUNT-030] given a real partner joined to the life, then the sheet says they are told; given an authority that refuses, then the life stays and the sheet says it did not end", async () => {
+  test("[account:start-a-new-life] given a real partner joined to the life, then the sheet says they are told; given an authority that refuses, then the life stays and the sheet says it did not end", async () => {
     const base = engineView();
     const view: PlayerView = { ...base, people: { ...base.people, bonds: [...base.people.bonds, { ...(base.people.bonds[0] ?? ({} as PlayerView["people"]["bonds"][number])), id: "bond.real", role: "partner", stage: "partner", label: "player", person: null, pair: "pair-1" }] } };
     const authority = fakeAuthority(view);
@@ -150,7 +150,7 @@ describe("start a new life", () => {
     expect(store.getState().view).not.toBeNull();
   });
 
-  test("[R-ACCOUNT-030] given an authority that cannot end a life, then Settings offers no new life", async () => {
+  test("[account:start-a-new-life] given an authority that cannot end a life, then Settings offers no new life", async () => {
     const authority = fakeAuthority(engineView());
     const store = createGameStore(authority);
     await store.getState().refresh();

@@ -12,7 +12,7 @@ const UK = { where: "abroad", country: "country.uk" } as const;
 const ROAD = { where: "road", country: null } as const;
 
 describe("which places can be entered", () => {
-  test("[R-CITY-012] given the character at home, abroad or on the road, when the places are listed, then only that where's places are, and no other country's", () => {
+  test("[city:enterable-places-follow-view] given the character at home, abroad or on the road, when the places are listed, then only that where's places are, and no other country's", () => {
     expect(enterable(HOME, places).every((place) => place.where === "home")).toBe(true);
     expect(enterable(HOME, places).map((place) => place.id)).toContain("place.ojuelegba");
     const uk = enterable(UK, places);
@@ -23,7 +23,7 @@ describe("which places can be entered", () => {
     expect(enterable(ROAD, places).length).toBeGreaterThan(0);
   });
 
-  test("[R-CITY-013] given a new life at home or a life arrived abroad, when the city opens, then it opens at the hub", () => {
+  test("[city:ojuelegba-is-the-hub] given a new life at home or a life arrived abroad, when the city opens, then it opens at the hub", () => {
     expect(openingPlace(HOME, places)).toBe("place.ojuelegba");
     expect(openingPlace(UK, places)).toBe("place.peckham");
     expect(openingPlace({ where: "abroad", country: "country.uae" }, places)).toBe("place.deira");
@@ -33,27 +33,27 @@ describe("which places can be entered", () => {
 });
 
 describe("staging", () => {
-  test("[R-CITY-011] given a set piece open, when the city looks for it, then it is at the place that stages it, with its question", () => {
+  test("[city:set-piece-shown-where-staged] given a set piece open, when the city looks for it, then it is at the place that stages it, with its question", () => {
     const view = richView();
     const scene = openScene(view, places);
     expect(scene).toEqual({ place: "place.visa-centre", setpiece: "setpiece.credibility-interview", question: "setpiece.credibility-interview.q.who-pays" });
     expect(openScene(engineView(), places)).toBeNull();
   });
 
-  test("[R-CITY-011] given a month's report, when a line names an activity, then it is shown only at the place that stages that activity", () => {
+  test("[city:set-piece-shown-where-staged] given a month's report, when a line names an activity, then it is shown only at the place that stages that activity", () => {
     const line: ReportLine = { key: "line.activity.played", params: { activity: "activity.play-lotto" }, tone: "plain", attention: false, counts: [] };
     const view: Pick<PlayerView, "report" | "place"> = { place: engineView().place, report: { month: 1, lines: [line], japacityBefore: null, japacityAfter: null, attention: false } };
     expect(reportHere(view, "place.bode-thomas", places)).toEqual([line]);
     expect(reportHere(view, "place.ojuelegba", places)).toEqual([]);
   });
 
-  test("[R-CITY-010] given an id staged nowhere for where the character is, when its place is looked up, then the default place for that where is used", () => {
+  test("[city:places-stage-their-acts] given an id staged nowhere for where the character is, when its place is looked up, then the default place for that where is used", () => {
     expect(stagedAt("activity.rest", HOME, places)).toBe("place.family-house");
     expect(stagedAt("activity.nothing-stages-this", UK, places)).toBe("place.the-room");
     expect(stagedAt("activity.send-money", UK, places)).toBe("place.rye-lane");
   });
 
-  test("[R-CITY-010] given overtime staged on the rota board of every workplace in London, when the city looks for it from each, then it is shown at the workplace in hand, and from elsewhere at the first of them", () => {
+  test("[city:places-stage-their-acts] given overtime staged on the rota board of every workplace in London, when the city looks for it from each, then it is shown at the workplace in hand, and from elsewhere at the first of them", () => {
     const workplaces: Id<"place">[] = ["place.care-home-uk", "place.ward-uk", "place.warehouse-uk", "place.big-shop-uk"];
     for (const id of workplaces) {
       expect(content.place[id]?.stages).toContain("activity.overtime");
@@ -70,8 +70,8 @@ describe("staging", () => {
   });
 
   // No country-less test centre or workplace is in content: every job and test abroad is staged at a place of its own
-  // country (R-CITY-010, design page 15).
-  test("[R-CITY-010] [R-WORLD-038] given the places serving every country, when each country's map is read, then the country-less test centre and workplace are no longer places, the room stands everywhere, and each country's own places stand on its map", () => {
+  // country (city:places-stage-their-acts, design page 15).
+  test("[city:places-stage-their-acts] [world:painted-maps-abroad] given the places serving every country, when each country's map is read, then the country-less test centre and workplace are no longer places, the room stands everywhere, and each country's own places stand on its map", () => {
     const of = (id: Id<"place">) => {
       const place = content.place[id];
       if (place === undefined) throw new Error(id);
@@ -93,19 +93,19 @@ describe("staging", () => {
     expect(servesHere(of("place.family-house"), HOME, places, content.activity)).toBe(true);
   });
 
-  test("[R-WORLD-038] given the room abroad with no address of its own, when its spot on the map is read, then in London it is the design's home spot off Choumert Road, near the hub", () => {
+  test("[world:painted-maps-abroad] given the room abroad with no address of its own, when its spot on the map is read, then in London it is the design's home spot off Choumert Road, near the hub", () => {
     expect(roomSpot("country.uk", places)).toEqual({ latE3: 51471, lonE3: -73 });
     expect(roomSpot(null, places)).toBeNull();
   });
 
-  test("[R-WORLD-038] given the three countries' home spots in content, when the room's spot is read, then it is each country's own, north-east Calgary, the camp east of Dubai and the Domitiana, and London's stays off Choumert Road", () => {
+  test("[world:painted-maps-abroad] given the three countries' home spots in content, when the room's spot is read, then it is each country's own, north-east Calgary, the camp east of Dubai and the Domitiana, and London's stays off Choumert Road", () => {
     expect(roomSpot("country.canada", places, content.country)).toEqual({ latE3: 51088, lonE3: -113955 });
     expect(roomSpot("country.uae", places, content.country)).toEqual({ latE3: 25270, lonE3: 55395 });
     expect(roomSpot("country.italy", places, content.country)).toEqual({ latE3: 40950, lonE3: 14010 });
     expect(roomSpot("country.uk", places, content.country)).toEqual({ latE3: 51471, lonE3: -73 });
   });
 
-  test("[R-CITY-002] given open offers, when a place lists what waits there, then it names each offer by its entry only and nothing the view does not hold", () => {
+  test("[city:place-shows-only-the-view] given open offers, when a place lists what waits there, then it names each offer by its entry only and nothing the view does not hold", () => {
     const view = richView();
     const all = places.flatMap((place) => offersHere(view, place.id, places));
     expect(all.sort()).toEqual(view.offers.map((offer) => offer.entry).sort());
@@ -114,7 +114,7 @@ describe("staging", () => {
 });
 
 describe("tap to walk", () => {
-  test("[R-CITY-001] given a tap on the ground, when time passes, then the character walks there in a straight line at walking pace and stops", () => {
+  test("[city:places-change-no-state] given a tap on the ground, when time passes, then the character walks there in a straight line at walking pace and stops", () => {
     let walker = walkTo(standAt(0, 0, 0), 3, 4);
     walker = stepWalk(walker, 1);
     expect(Math.hypot(walker.x, walker.z)).toBeCloseTo(WALK_SPEED);
@@ -126,7 +126,7 @@ describe("tap to walk", () => {
 });
 
 describe("the acts lived by hand at home", () => {
-  test("[R-ACTIVITY-019] [R-CITY-010] given the acts that repeat, when the family house or the character's own home is read at home, then each is staged there, the study a hub or a centre also stages among them; elsewhere, abroad or in another life's room none is", () => {
+  test("[activity:acts-may-repeat-in-month] [city:places-stage-their-acts] given the acts that repeat, when the family house or the character's own home is read at home, then each is staged there, the study a hub or a centre also stages among them; elsewhere, abroad or in another life's room none is", () => {
     const repeats = Object.values(content.activity).filter((entry) => entry.repeat === true).map((entry) => entry.id as string);
     expect(repeats).toEqual(expect.arrayContaining(["activity.cook-at-home", "activity.cook-jollof", "activity.nap", "activity.bucket-bath", "activity.watch-tv", "activity.family-time", "activity.help-shop", "activity.study-english", "activity.learn-tech", "activity.build-portfolio"]));
     expect([...byHandAt("place.family-house", "place.family-house", HOME, content.activity)].sort()).toEqual([...repeats].sort());

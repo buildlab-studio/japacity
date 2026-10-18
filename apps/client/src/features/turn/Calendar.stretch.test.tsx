@@ -1,4 +1,4 @@
-// The Calendar says when the plan stretches the character (docs/rules/world.md R-WORLD-030): a
+// The Calendar says when the plan stretches the character (world:month-passes-as-lived): a
 // job with a commitment and a side job, or a job with two commitments beside it; one line, no figure.
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
@@ -15,7 +15,7 @@ import { restores, stretchedWords } from "../../shared/days/stretch";
 
 const TEACHER = "activity.job-teacher" as Id<"activity">;
 const TUTORING = "activity.weekend-tutoring" as Id<"activity">;
-// Decision 0012 (R-ACTIVITY-019): the coding class and the portfolio now answer at once and carry nothing on, so the
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding class and the portfolio now answer at once and carry nothing on, so the
 // commitments that stretch the day are a master's at home and open source.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 const PORTFOLIO = "activity.open-source" as Id<"activity">;
@@ -38,7 +38,7 @@ function stretchedLine(): string | null {
 }
 
 describe("the stretched line", () => {
-  test("[R-WORLD-030] given work, a side job and a master's course carrying on, when the Calendar shows, then its foot says the day runs work, the reading, then the tutoring", async () => {
+  test("[world:month-passes-as-lived] given work, a side job and a master's course carrying on, when the Calendar shows, then its foot says the day runs work, the reading, then the tutoring", async () => {
     // Decision 0012: the line reads the commitments that carry on; the class done act by act is not one, so it is never planned.
     const view = adaWorking([TEACHER, TUTORING]);
     expect(view.job).toMatchObject({ id: TEACHER, side: TUTORING });
@@ -57,7 +57,7 @@ describe("the stretched line", () => {
     expect(stretchedLine()).not.toMatch(/\d/);
   });
 
-  test("[R-WORLD-030] given work and two month-acts beside it, when the plan is read, then it stretches; with one, or with rest as the second, it does not", () => {
+  test("[world:month-passes-as-lived] given work and two month-acts beside it, when the plan is read, then it stretches; with one, or with rest as the second, it does not", () => {
     const view = adaWorking([TEACHER]);
     // Decision 0012: two commitments that carry on stretch the day; the class and the project done act by act do not.
     expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: PORTFOLIO, param: null }])).toBe("Work, then the reading, then open source. You will be tired.");
@@ -67,17 +67,17 @@ describe("the stretched line", () => {
     expect(stretchedWords(view, [{ activity: "activity.family-time", param: null }, { activity: "activity.morning-run", param: null }])).toBeNull();
   });
 
-  test("[R-WORLD-030] given no job, when a side job and two classes are planned, then nothing is said: the stretch is work and two things beside it", () => {
+  test("[world:month-passes-as-lived] given no job, when a side job and two classes are planned, then nothing is said: the stretch is work and two things beside it", () => {
     const view = adaWorking([TUTORING]);
     expect(view.job.id).toBeNull();
     expect(stretchedWords(view, [{ activity: COURSE, param: null }, { activity: PORTFOLIO, param: null }])).toBeNull();
   });
 
-  test("[R-WORLD-030] given a job and a side job and nothing else planned, when the plan is read, then it does not stretch", () => {
+  test("[world:month-passes-as-lived] given a job and a side job and nothing else planned, when the plan is read, then it does not stretch", () => {
     expect(stretchedWords(adaWorking([TEACHER, TUTORING]), [null])).toBeNull();
   });
 
-  test("[R-WORLD-030] given every month-act that tires, when the stretched line names it, then it has a short name of its own", () => {
+  test("[world:month-passes-as-lived] given every month-act that tires, when the stretched line names it, then it has a short name of its own", () => {
     const tiring = Object.values(content.activity).filter((entry) => (entry.slot === "free" || entry.slot === "side") && isMonthAct(entry.id) && !restores(entry.id));
     expect(tiring.length).toBeGreaterThan(10);
     expect(tiring.filter((entry) => say(`ui.days.short.${entry.id}`) === `ui.days.short.${entry.id}`).map((entry) => entry.id)).toEqual([]);

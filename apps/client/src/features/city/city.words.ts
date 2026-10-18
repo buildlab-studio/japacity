@@ -1,5 +1,5 @@
 // The city's words, read from content's ui/ui.city.text.ts and, for place names, blurbs, signs and talk overheard,
-// place/place.text.ts (city.md R-CITY-024); and the names of the people who live in the city.
+// place/place.text.ts (city:place-words-are-text-keys); and the names of the people who live in the city.
 import { text } from "@japacity/content";
 
 import { nameOf, readerOf, runningName, words } from "../../shared/words/text";
@@ -25,7 +25,7 @@ export function roleWords(role: Role): string {
 /** Words for a city key: content's, else a country's late words. */
 export const cityWords = readerOf();
 
-/** A place's name as content gives it (R-CITY-024). */
+/** A place's name as content gives it (city:place-words-are-text-keys). */
 export function placeName(id: string): string {
   return nameOf(id);
 }

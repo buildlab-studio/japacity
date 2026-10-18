@@ -1,4 +1,4 @@
-// The place in the world on a phone (docs/rules/world.md R-WORLD-005, 009 to 013): every built place
+// The place in the world on a phone (world:things-are-tappable-models, world:camera-always-raised, world:nothing-roams, world:place-is-one-screen, world:faces-never-share-height and world:entering-is-a-cut): every built place
 // opens whole, the pinch rests whole or close and nowhere between, a tap on a thing floats its acts
 // over it and the act follows the walk, the crowd and the moving sheets stay inside the limits in
 // both modes, the cut into the house is dark for under half a second, and a wide home turns a quarter at a time with
@@ -45,7 +45,7 @@ const probe = (page: Page) => page.evaluate(() => {
 /** The places built with models that a new life at home can reach, by id. */
 const BUILT_AT_HOME = ["place.family-house", "place.ojuelegba", "place.bode-thomas", "place.tejuosho-market", "place.computer-village", "place.national-stadium", "place.third-mainland-bridge", "place.makoko", "place.airport-lagos"];
 
-/** The people a place may show besides the player's own character (R-WORLD-011). */
+/** The people a place may show besides the player's own character (world:place-is-one-screen). */
 const CROWD = { exterior: { low: 6, high: 10 }, interior: { low: 4, high: 6 } } as const;
 
 async function waitPlace(page: Page, place: string | null): Promise<void> {
@@ -82,9 +82,9 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
   }
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await waitPlace(page, null);
-  // The first brief's card stands on the drawn place, dimmed, until its Let's go (R-CHAPTER-011).
+  // The first brief's card stands on the drawn place, dimmed, until its Let's go (chapter:first-chapter-mission-card).
   await passCards(page);
-  // The home says what it is once, on its first entry in a life (R-HOME-008); dismissed, the place is clear.
+  // The home says what it is once, on its first entry in a life (home:moves-carry-cost-and-reason); dismissed, the place is clear.
   const teach = page.locator("[data-home-teach-ok]");
   if (await teach.waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false)) await teach.click();
   await passCards(page);
@@ -94,11 +94,11 @@ async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<vo
 async function goTo(page: Page, id: string): Promise<boolean> {
   const current = await probe(page);
   if (current?.place === id) return true;
-  // The map, a stop picked, the ride sheet's first way (R-WORLD-015, R-WORLD-017).
+  // The map, a stop picked, the ride sheet's first way (world:map-is-painted-lagos, world:ride-sheet-shows-fares).
   await page.locator('[data-thumb="map"]').click();
   await page.waitForSelector("[data-map]");
   await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
-  // A stop not yet open to this life (R-WORLD-015: the story opens the map's stops) cannot be reached.
+  // A stop not yet open to this life (world:map-is-painted-lagos: the story opens the map's stops) cannot be reached.
   const state = await page.evaluate((stop) => (window as unknown as { __map?: { stops: { id: string; state: string }[] } }).__map?.stops.find((candidate) => candidate.id === stop)?.state ?? null, id);
   if (state === null || state === "not") {
     await page.locator("[data-map-close]").click();
@@ -108,7 +108,7 @@ async function goTo(page: Page, id: string): Promise<boolean> {
   await page.evaluate((stop) => document.querySelector<HTMLButtonElement>(`[data-stop="${stop}"]`)?.click(), id);
   const sheet = page.locator(`[data-ride-sheet="${id}"]`);
   await sheet.waitFor({ state: "visible", timeout: 10_000 });
-  // The sheet's main button: "Go by danfo" for a stop, "Home by danfo" or "Walk home" for the home (R-WORLD-017).
+  // The sheet's main button: "Go by danfo" for a stop, "Home by danfo" or "Walk home" for the home (world:ride-sheet-shows-fares).
   await sheet.locator("[data-ride-main]").click();
   await waitPlace(page, id);
   return true;
@@ -147,7 +147,7 @@ async function restingZoom(page: Page): Promise<number> {
   return (await probe(page))?.zoom ?? -1;
 }
 
-test("[R-WORLD-009] given each built place a new life can reach, when it is entered on a phone, then the whole of it shows: its width end to end and every thing on screen, from a raised view", async ({ page }) => {
+test("[world:camera-always-raised] given each built place a new life can reach, when it is entered on a phone, then the whole of it shows: its width end to end and every thing on screen, from a raised view", async ({ page }) => {
   test.setTimeout(600_000);
   await startWorld(page);
   let reached = 0;
@@ -162,7 +162,7 @@ test("[R-WORLD-009] given each built place a new life can reach, when it is ente
   expect(reached).toBeGreaterThanOrEqual(6);
 });
 
-test("[R-WORLD-009] given Bode Thomas whole, when a pinch is released at any gap, then the view rests whole or close and nowhere between, and when close a chip offers the whole place back", async ({ page }) => {
+test("[world:camera-always-raised] given Bode Thomas whole, when a pinch is released at any gap, then the view rests whole or close and nowhere between, and when close a chip offers the whole place back", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
   await goTo(page, "place.bode-thomas");
@@ -192,7 +192,7 @@ async function restingTurn(page: Page, turn: number): Promise<void> {
   await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
 }
 
-test("[R-WORLD-009] [R-WORLD-029] given the family house whole, when the round button is tapped and a finger turns the house sideways, then the view eases round a quarter at a time with the far pair of walls full, a released turn rests on the nearest quarter, the house and its things stay on screen, and a reload opens the house as it was left", async ({ page }) => {
+test("[world:camera-always-raised] [world:room-seen-down-its-length] given the family house whole, when the round button is tapped and a finger turns the house sideways, then the view eases round a quarter at a time with the far pair of walls full, a released turn rests on the nearest quarter, the house and its things stay on screen, and a reload opens the house as it was left", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
   await goTo(page, "place.family-house");
@@ -225,7 +225,7 @@ test("[R-WORLD-009] [R-WORLD-029] given the family house whole, when the round b
   expect((await probe(page))?.walls).toBe(0);
 });
 
-test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet mark is tapped, then its name and its acts float over it, and the act's sheet follows once the character has walked to it", async ({ page }) => {
+test("[world:things-are-tappable-models] [world:colours-are-role-tokens] given Bode Thomas, when a thing or its quiet mark is tapped, then its name and its acts float over it, and the act's sheet follows once the character has walked to it", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
   await goTo(page, "place.bode-thomas");
@@ -237,7 +237,7 @@ test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet m
   await expect(mark.locator("[data-mark-dot]")).toBeVisible();
   await expect(mark.locator("[data-mark-name]")).toBeHidden({ timeout: 6000 });
   await mark.click();
-  // Its fan (R-WORLD-034): the name in a pill over the kiosk, and its act beside it.
+  // Its fan (world:fan-of-sticker-buttons): the name in a pill over the kiosk, and its act beside it.
   const fan = page.locator('[data-fan="kiosk"]');
   const name = fan.locator("[data-fan-title]");
   await expect(name).toBeVisible();
@@ -271,7 +271,7 @@ test("[R-WORLD-005] [R-WORLD-021] given Bode Thomas, when a thing or its quiet m
 });
 
 // The family house opens whole, so the room behind a door is the hub's at Ojuelegba.
-test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the screen is dark for under half a second and the room opens as its own scene with the door to step outside", async ({ page }) => {
+test("[world:entering-is-a-cut] given Ojuelegba, when the hub's Go in is chosen, then the screen is dark for under half a second and the room opens as its own scene with the door to step outside", async ({ page }) => {
   test.setTimeout(300_000);
   await startWorld(page);
   await goTo(page, "place.ojuelegba");
@@ -299,7 +299,7 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
     };
     requestAnimationFrame(watch);
   });
-  // The hub may carry the step's marker in its mark's place (R-WORLD-003): the thing is tapped as
+  // The hub may carry the step's marker in its mark's place (world:nudge-says-one-thing): the thing is tapped as
   // live.ts taps any thing, and its chip's Go in chosen.
   await doAct(page, "hub", "enter");
   await page.waitForFunction(() => (window as unknown as { __cut: { ended: number } }).__cut.ended > 0, null, { timeout: 60_000 });
@@ -325,13 +325,13 @@ test("[R-WORLD-013] given Ojuelegba, when the hub's Go in is chosen, then the sc
   expect(room?.fits).toEqual({ width: true, offScreen: [] });
   await doAct(page, "door", "out");
   // Back outside: the hub stands again, its mark drawn (hidden under the step's marker when the step points at it,
-  // R-WORLD-003), and the room's door is gone.
+  // world:nudge-says-one-thing), and the room's door is gone.
   await expect(page.locator('[data-mark="hub"]')).toBeAttached({ timeout: 60_000 });
   await expect(page.locator('[data-mark="door"]')).toHaveCount(0);
 });
 
 for (const mode of ["low", "high"] as const) {
-  test(`[R-WORLD-011] given the ${mode} mode, when Bode Thomas and the family house are drawn, then each shows no more people than its scope allows and at most ${mode === "low" ? "no" : "one"} moving sheet, its shadow kept to the place`, async ({ page }) => {
+  test(`[world:place-is-one-screen] given the ${mode} mode, when Bode Thomas and the family house are drawn, then each shows no more people than its scope allows and at most ${mode === "low" ? "no" : "one"} moving sheet, its shadow kept to the place`, async ({ page }) => {
     test.setTimeout(300_000);
     await startWorld(page, mode);
     for (const [id, scope] of [["place.bode-thomas", "exterior"], ["place.family-house", "exterior"]] as const) {
@@ -341,7 +341,7 @@ for (const mode of ["low", "high"] as const) {
       expect((seen?.people ?? 99) - 1, id).toBeLessThanOrEqual(CROWD[scope][mode]);
       expect(seen?.sheets, id).toBeLessThanOrEqual(mode === "low" ? 0 : 1);
       expect(seen?.drawCalls ?? Infinity, id).toBeLessThanOrEqual(budgets.place[scope].drawCalls);
-      // R-WORLD-012: the shadow carries a bias and a normal bias and reaches over the place's width, not the city's.
+      // world:faces-never-share-height: the shadow carries a bias and a normal bias and reaches over the place's width, not the city's.
       expect(seen?.shadow?.bias ?? 0, id).toBeLessThan(0);
       expect(seen?.shadow?.normalBias ?? 0, id).toBeGreaterThan(0);
       // A place narrower than 16 m keeps the scene's least reach of 8 m either side (CityScene.tsx),

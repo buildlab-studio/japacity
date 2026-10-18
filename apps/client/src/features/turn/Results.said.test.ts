@@ -1,4 +1,4 @@
-// What came of an answer, on the results (docs/rules/world.md R-WORLD-008), so a recruiter's take-home task taken is
+// What came of an answer, on the results (world:month-end-results-sheet), so a recruiter's take-home task taken is
 // never left without a line of what came of it. An answer whose choice moves a quality
 // is told in its offer's own words among the month's story. Real content, the offer opened and answered through step.
 import { text } from "@japacity/content";
@@ -9,7 +9,7 @@ import { words } from "../../shared/words/text";
 import { storyLines, toldOnResults } from "./month.results";
 
 describe("the recruiter's task on the results", () => {
-  test("[R-WORLD-008] given the recruiter's take-home task done, when the month ends, then the results tell what came of it in its own words", () => {
+  test("[world:month-end-results-sheet] given the recruiter's take-home task done, when the month ends, then the results tell what came of it in its own words", () => {
     const game = newGame("scenario.zainab");
     const offer = openOffer(game, "offer.recruiter-message");
     const answered = game.accept({ type: "offer/choose", offer: offer.id, choice: "do-it" });

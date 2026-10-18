@@ -1,9 +1,9 @@
-// Settings (docs/rules/world.md R-WORLD-018, 022): the sound (the existing mute: muted fetches nothing), the city's
+// Settings (world:phone-rises-over-scene, world:interface-sounds-made-live): the sound (the existing mute: muted fetches nothing), the city's
 // graphics choice, and
 // the account, which the shell hands in so this folder never imports the account feature. Last,
-// "Start a new life" (account.md R-ACCOUNT-030): one sheet that names the character and their age,
+// "Start a new life" (account:start-a-new-life): one sheet that names the character and their age,
 // Cancel first, and the end held to confirm, with nothing to type. At the foot, the version line (city.md
-// R-CITY-021): five taps on it open the dedication page (account.md R-ACCOUNT-032), which the
+// city:credits-screen-attributions): five taps on it open the dedication page (account:dedication-page-and-its-doors), which the
 // shell hands in, and nothing else happens.
 import { RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -44,7 +44,7 @@ function keepGraphics(choice: GraphicsChoice): void {
   }
 }
 
-/** The dedication page as the shell hands it in: drawn open or closed, with the way to close it (account.md R-ACCOUNT-032). */
+/** The dedication page as the shell hands it in: drawn open or closed, with the way to close it (account:dedication-page-and-its-doors). */
 export type DedicationScreen = (open: boolean, onClose: () => void) => ReactNode;
 
 export function Settings({ account = null, about = null, dedication = null }: { account?: ReactNode; about?: ReactNode; dedication?: DedicationScreen | null }) {
@@ -52,7 +52,7 @@ export function Settings({ account = null, about = null, dedication = null }: { 
   const muted = useSound((state) => state.muted);
   return (
     <div data-phone-app="settings">
-      {/* The account first, as one full row (R-ACCOUNT-027): a small icon there reads as a heading. */}
+      {/* The account first, as one full row (account:guest-reminded-to-secure): a small icon there reads as a heading. */}
       {account === null ? null : <div data-account>{account}</div>}
       {/* The sound and the city's graphics in one card: each a name with its icon and one
           segmented pill. */}
@@ -90,7 +90,7 @@ export function Settings({ account = null, about = null, dedication = null }: { 
       <p className="text-[13px] text-text-2">{say("phone.settings.graphics.when")}</p>
       </div>
 
-      {/* R-MODERATION-020, R-MODERATION-016: the feedback box and the team's notice, in the game's menu. */}
+      {/* moderation:feedback-box-in-settings, moderation:actioned-player-told-and-appeals: the feedback box and the team's notice, in the game's menu. */}
       <ModerationRows />
       {about === null ? null : (
         <>
@@ -105,11 +105,11 @@ export function Settings({ account = null, about = null, dedication = null }: { 
   );
 }
 
-/** R-CITY-021: the taps on the version line that open the dedication, and the time they fall within. */
+/** city:credits-screen-attributions: the taps on the version line that open the dedication, and the time they fall within. */
 export const DEDICATION_TAPS = 5;
 export const DEDICATION_WINDOW_MS = 5000;
 
-/** The build as the version line says it: the short commit of the page's stamp (R-SERVER-038), or null with none. */
+/** The build as the version line says it: the short commit of the page's stamp (server:production-and-staging), or null with none. */
 export function versionOf(stamp: string | null): string | null {
   const commit = stamp?.split("+")[0] ?? "";
   if (commit === "" || commit === "unknown") return null;
@@ -118,7 +118,7 @@ export function versionOf(stamp: string | null): string | null {
 
 /**
  * The version line, last in Settings: "Version" and the build, quiet. Five taps within about five
- * seconds open the dedication page (R-CITY-021, account.md R-ACCOUNT-032); nothing else happens:
+ * seconds open the dedication page (city:credits-screen-attributions, account:dedication-page-and-its-doors); nothing else happens:
  * no sound, no line, no link, and a sixth tap changes nothing. A tap anywhere else starts the count again, and so does
  * closing the page. Nothing of it is counted or sent.
  */
@@ -161,7 +161,7 @@ function VersionLine({ dedication }: { dedication: DedicationScreen | null }) {
   );
 }
 
-/** R-ACCOUNT-030: how long the ending button is held before the life ends. */
+/** account:start-a-new-life: how long the ending button is held before the life ends. */
 export const HOLD_MS = 1500;
 
 /** The ending button: it ends only when held for HOLD_MS, by a finger, a mouse, or Enter or Space; letting go sooner does nothing. */
@@ -225,10 +225,10 @@ function NewLife() {
   const [failed, setFailed] = useState(false);
   if (endLife === null || view === null) return null;
   const page = pageOf(view);
-  // The age as the band's clock says it: the page's own is years only (R-PROLOGUE-009).
+  // The age as the band's clock says it: the page's own is years only (prologue:front-door-builds-a-person).
   const age = clockWords(view.qualities);
   const who = page.name === "" ? age : say("ui.life.end.who", { name: page.name, age });
-  // A real partner or sibling joined to this life hears that it ended (R-ACCOUNT-030).
+  // A real partner or sibling joined to this life hears that it ended (account:start-a-new-life).
   const linked = view.people.bonds.some((bond) => bond.pair !== null && bond.stage !== "ended");
   const end = async (): Promise<void> => {
     setEnding(true);

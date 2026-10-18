@@ -7,7 +7,7 @@ import type { Id, PlayerView } from "@japacity/sim";
 
 import type { Api } from "../../shared/net/http";
 
-/** The interface counters an advert sends (analytics.md R-ANALYTICS-002), keyed by the slot's id. */
+/** The interface counters an advert sends (analytics:client-sends-interface-counts), keyed by the slot's id. */
 export const ADVERT_COUNTERS = { impression: "advert/impression", tap: "advert/tap" } as const;
 
 type AdvertCounter = (typeof ADVERT_COUNTERS)[keyof typeof ADVERT_COUNTERS];
@@ -16,7 +16,7 @@ type AdvertCounter = (typeof ADVERT_COUNTERS)[keyof typeof ADVERT_COUNTERS];
 export type CountAdvert = (name: AdvertCounter, key: Id<"advert">) => void;
 
 /**
- * R-ADVERT-003: whether any slot may show for this view. The view's flag
+ * advert:no-adverts-on-protected-screens: whether any slot may show for this view. The view's flag
  * decides; an open set piece or a `noAdverts` chapter hides slots even if a
  * view arrived without it.
  */
@@ -36,7 +36,7 @@ export async function fetchAdverts(api: Api, region: string): Promise<AdvertsRep
   }
 }
 
-/** R-ADVERT-022: an impression counts at most once per slot in a session, a session being this page's life. */
+/** advert:impression-counted-when-seen: an impression counts at most once per slot in a session, a session being this page's life. */
 const seenThisSession = new Set<string>();
 
 /** Counts the slot's impression unless it was counted already; returns whether it counted. */

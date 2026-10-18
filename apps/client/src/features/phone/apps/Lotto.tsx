@@ -1,4 +1,4 @@
-// Lotto (docs/rules/world.md R-WORLD-018): the next draw, the tickets held, the last result, from
+// Lotto (world:phone-rises-over-scene): the next draw, the tickets held, the last result, from
 // the lottery view. Buying stays at the kiosk in the street; the phone only tells. Offline the kiosk
 // runs its own draw: the app says where the kiosk is, the month's tickets and the last draw's result
 // from the results' lines.
@@ -16,7 +16,7 @@ import { PhoneNav } from "../../../shared/phone/nav";
 import { Head } from "../act";
 import { GhostButton, MoneyChip, PicCard, PicTile } from "../ui";
 
-/** The street kiosk's draw told in the month's results: one ticket or more, and whether one came in (R-LUCK-005). */
+/** The street kiosk's draw told in the month's results: one ticket or more, and whether one came in (luck:kiosk-sells-lotto-tickets). */
 const KIOSK_DRAW: ReadonlySet<string> = new Set(["line.activity.lotto-won", "line.activity.lotto-lost"]);
 const KIOSK_ACT = "activity.play-lotto";
 
@@ -31,7 +31,7 @@ export function kioskStreet(): string | null {
   return place === null ? null : nameOf(place);
 }
 
-/** The way to the kiosk on the map, where the phone can open it (R-WORLD-019: a visit opens the map). */
+/** The way to the kiosk on the map, where the phone can open it (world:phone-holds-what-phones-hold: a visit opens the map). */
 function ToKiosk() {
   const nav = use(PhoneNav);
   const place = kioskPlace();
@@ -49,7 +49,7 @@ export function kioskDrawLine(lines: readonly ReportLine[]): ReportLine | null {
   return lines.find((line) => KIOSK_DRAW.has(line.key)) ?? null;
 }
 
-/** What this month's tickets cost (R-LUCK-005): the month's lines, so the kiosk and the app agree. */
+/** What this month's tickets cost (luck:kiosk-sells-lotto-tickets): the month's lines, so the kiosk and the app agree. */
 function ThisMonth() {
   const { tickets, spent } = lottoMonth(useGame((state) => state.monthLines));
   if (spent === null) return null;

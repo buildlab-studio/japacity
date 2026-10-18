@@ -1,4 +1,4 @@
-// The price and the balance on a priced act (docs/rules/world.md R-WORLD-006; decision 0013): the button says the act and
+// The price and the balance on a priced act (world:one-action-one-sheet; decision 0013): the button says the act and
 // its price, and under it the balance before stands struck through beside the balance after, as a price tag shows a
 // discount. Nothing moves until the tap. When the money is short, the button says how much instead, the one exception.
 import type { CSSProperties } from "react";
@@ -21,7 +21,7 @@ export interface BalanceProps {
   className?: string;
 }
 
-/** The balance before, struck, then the balance after (R-WORLD-006). */
+/** The balance before, struck, then the balance after (world:one-action-one-sheet). */
 export function Balance({ before, after, className = "" }: BalanceProps) {
   return (
     <p className={`flex items-baseline gap-2 text-[15px] leading-none ${className}`} aria-label={say("ui.act.balance", { before: before.words, after: after.words })} data-balance>

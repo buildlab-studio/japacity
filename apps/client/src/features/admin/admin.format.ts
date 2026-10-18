@@ -22,7 +22,7 @@ export function duration(ms: number): string {
   return parts.length === 0 ? "under a minute" : parts.slice(0, 2).join(" ");
 }
 
-/** R-ANALYTICS-010: a hidden count says only the floor it is under. */
+/** analytics:small-counts-shown-as-fewer: a hidden count says only the floor it is under. */
 export function shownCount(count: Shown): string {
   return typeof count === "number" ? formatNumber(count) : words("admin.analytics.fewer", { count: count.fewerThan });
 }

@@ -1,4 +1,4 @@
-// The data page stays with the character (prologue.md R-PROLOGUE-009): the name over the age in the band opens it; it
+// The data page stays with the character (prologue:front-door-builds-a-person): the name over the age in the band opens it; it
 // shows the age kept current, how ready they are and a stamp for each step taken toward leaving; a close returns.
 import type { PlayerView } from "@japacity/sim";
 import { qualityIn } from "@japacity/sim";
@@ -49,7 +49,7 @@ function band(store: GameStore, when = "23 yrs 4 mo") {
 const opener = () => screen.getByRole("button", { name: say("prologue.page.open") });
 
 describe("the page from the band", () => {
-  test("[R-PROLOGUE-009] given a send-off card kept with its japa type, when the page opens, then the type stands on it by its name; before the send-off there is no such row (decision 0024)", async () => {
+  test("[prologue:front-door-builds-a-person] given a send-off card kept with its japa type, when the page opens, then the type stands on it by its name; before the send-off there is no such row (decision 0024)", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
@@ -65,7 +65,7 @@ describe("the page from the band", () => {
   });
 
 
-  test("[R-PROLOGUE-009] given a life with its person kept, then the band shows the name over the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
+  test("[prologue:front-door-builds-a-person] given a life with its person kept, then the band shows the name over the age, and a tap opens the page with the name, the photo, the age now, what the life was and how ready", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     const view = store.getState().view!;
     band(store, clockWords(view.qualities));
@@ -74,7 +74,7 @@ describe("the page from the band", () => {
     expect(person.textContent.indexOf("Morenike")).toBeGreaterThanOrEqual(0);
     expect(person.textContent.indexOf("Morenike")).toBeLessThan(person.textContent.indexOf(clockWords(view.qualities)));
     expect(opener().textContent).toBe(clockWords(view.qualities));
-    // The place's name stays the band's heading, and a tap on it does nothing (R-WORLD-002).
+    // The place's name stays the band's heading, and a tap on it does nothing (world:top-band-is-lively-pill).
     expect(screen.getByRole("heading", { name: "The family house" })).toBeDefined();
     fireEvent.click(opener());
     const sheet = screen.getByRole("dialog", { name: say("prologue.door.page.title") });
@@ -94,7 +94,7 @@ describe("the page from the band", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  test("[R-PROLOGUE-009] given the view moving on, then the open page keeps the age current, takes no stamp for the passport, and the visa's round stamp once it is granted", async () => {
+  test("[prologue:front-door-builds-a-person] given the view moving on, then the open page keeps the age current, takes no stamp for the passport, and the visa's round stamp once it is granted", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
@@ -119,7 +119,7 @@ describe("the page from the band", () => {
     expect(page.textContent).toContain(say("ui.page.stamps.some"));
   });
 
-  test("[R-PROLOGUE-009] given a life from a tile, then the page says the tile's name as the path and its one line as what the life was so far", async () => {
+  test("[prologue:front-door-builds-a-person] given a life from a tile, then the page says the tile's name as the path and its one line as what the life was so far", async () => {
     const store = await life("scenario.prologue", { look: "chr_tobi", name: "Dayo", archetype: "trader" });
     band(store);
     fireEvent.click(opener());
@@ -127,14 +127,14 @@ describe("the page from the band", () => {
     expect(screen.getByRole("dialog").querySelector("[data-field='was']")?.textContent).toContain(say("prologue.archetype.trader.was"));
   });
 
-  test("[R-PROLOGUE-009] given the family the prologue drew kept on the device, then the band's page prints its means on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
+  test("[prologue:front-door-builds-a-person] given the family the prologue drew kept on the device, then the band's page prints its means on the FAMILY line and the strip carries the name, the home's district, the age and how ready", async () => {
     localStorage.setItem(TRAIL_KEY, JSON.stringify({ draw: { familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, steps: [] }));
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     band(store);
     fireEvent.click(opener());
     const view = store.getState().view!;
     const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
-    // R-PROLOGUE-009: the card's title says where the family is; the FAMILY line keeps its means.
+    // prologue:front-door-builds-a-person: the card's title says where the family is; the FAMILY line keeps its means.
     expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).means);
     const months = qualityIn(view, "quality.age-months");
     const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: yearsOf(months), percent: view.japacity.percent ?? 0 });
@@ -143,7 +143,7 @@ describe("the page from the band", () => {
     expect(lines[1]).toMatch(/^SURULERE<</);
   });
 
-  test("[R-PROLOGUE-009] [R-PROLOGUE-002] given a ready life from Enugu, when its page opens from the band, then FROM prints Enugu before FAMILY, as a passport names a place of birth", async () => {
+  test("[prologue:front-door-builds-a-person] [prologue:family-draw-on-first-answer] given a ready life from Enugu, when its page opens from the band, then FROM prints Enugu before FAMILY, as a passport names a place of birth", async () => {
     const store = await life("scenario.ada", { look: "chr_kemi", name: "Morenike", archetype: null });
     expect(store.getState().view?.hometown).toBe("hometown.enugu");
     band(store);
@@ -153,7 +153,7 @@ describe("the page from the band", () => {
     expect(say("ui.page.field.from")).toBe("From");
   });
 
-  test("[R-PROLOGUE-009] given no game around the band, then it shows the age alone, with nothing to open", () => {
+  test("[prologue:front-door-builds-a-person] given no game around the band, then it shows the age alone, with nothing to open", () => {
     render(<Band when="Month 6" name="Home" money={0} formatMoney={String} />);
     expect(screen.getByText("Month 6")).toBeDefined();
     expect(screen.queryByRole("button", { name: say("prologue.page.open") })).toBeNull();

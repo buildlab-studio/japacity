@@ -1,6 +1,6 @@
 // The boards screen against a faked server, in the shapes boards.ts copies
 // from apps/server/src/boards/board.ts. Every board names each line by the
-// account's username, friends too, with no first name (R-CITY-040).
+// account's username, friends too, with no first name (city:board-line-and-ranking).
 import type { BoardName, BoardReply, BoardRow } from "@japacity/api";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -52,7 +52,7 @@ function pick(group: string, option: string): void {
 }
 
 describe("the boards screen", () => {
-  test("[R-CITY-039] given the boards as shipped, when the screen opens, then this week for everyone shows, and each picker asks the server for its own board", async () => {
+  test("[city:boards-switch-when-and-who] given the boards as shipped, when the screen opens, then this week for everyone shows, and each picker asks the server for its own board", async () => {
     const server = launched();
     show(server);
     await waitFor(() => expect(lines()).toEqual(["1zainab_b+12", "2ada_lagosYou+5"]));
@@ -71,7 +71,7 @@ describe("the boards screen", () => {
     expect(server.sent.map((sent) => sent.path).filter((path) => path !== "/api/boards/joined-week")).toEqual(["/api/boards/this-week/everyone", "/api/boards/all-time/everyone", "/api/boards/all-time/friends", "/api/boards/this-week/friends"]);
   });
 
-  test("[R-CITY-040] given the player ranked below the top lines, when all time is shown, then the player's own line shows under them with its rank", async () => {
+  test("[city:board-line-and-ranking] given the player ranked below the top lines, when all time is shown, then the player's own line shows under them with its rank", async () => {
     show(launched());
     pick("ui.boards.when", "ui.boards.when.all-time");
     const own = await waitFor(() => {
@@ -83,7 +83,7 @@ describe("the boards screen", () => {
     expect(own.querySelector("[data-me]")?.textContent).toBe("51ada_lagosYou10");
   });
 
-  test("[R-CITY-040] given the everyone board, when it shows, then each line and the player's own name the account's username alone; a line whose account is gone says so quietly, never a raw key", async () => {
+  test("[city:board-line-and-ranking] given the everyone board, when it shows, then each line and the player's own name the account's username alone; a line whose account is gone says so quietly, never a raw key", async () => {
     show(launched({ "GET /api/boards/this-week/everyone": [board("this-week.everyone", [line(1, 12, { username: "zainab_b" }), line(2, 9, { username: null }), line(3, 5, { username: "ada_lagos", me: true })])] }));
     await waitFor(() => expect(lines()).toHaveLength(3));
     const names = Array.from(document.querySelectorAll("[data-board-lines] [data-board-name]")).map((name) => name.textContent);
@@ -93,12 +93,12 @@ describe("the boards screen", () => {
     expect(lines()).toEqual(["1zainab_b+12", `2${say("ui.boards.someone")}+9`, "3ada_lagosYou+5"]);
   });
 
-  test("[R-CITY-040] given a player with no route yet, when a board is shown, then the own line says so instead of a rank", async () => {
+  test("[city:board-line-and-ranking] given a player with no route yet, when a board is shown, then the own line says so instead of a rank", async () => {
     show(launched({ "GET /api/boards/this-week/everyone": [board("this-week.everyone", [line(1, 12)], null)] }));
     await waitFor(() => expect(screen.getByText(say("ui.boards.no-route"))).toBeTruthy());
   });
 
-  test("[R-CITY-039] given a board switched off, when it is picked, then a quiet note says it is paused and the other boards still show", async () => {
+  test("[city:boards-switch-when-and-who] given a board switched off, when it is picked, then a quiet note says it is paused and the other boards still show", async () => {
     show(launched({ "GET /api/boards/all-time/everyone": [PAUSED] }));
     await waitFor(() => expect(lines()).toHaveLength(2));
     pick("ui.boards.when", "ui.boards.when.all-time");
@@ -108,13 +108,13 @@ describe("the boards screen", () => {
     await waitFor(() => expect(lines()).toHaveLength(2));
   });
 
-  test("[R-ACCOUNT-022] given a guest, when a board is asked for, then the screen asks the player to secure the life", async () => {
-    // The server refuses a guest `guest-only`, as R-ACCOUNT-022 names it.
+  test("[account:social-needs-secured-account] given a guest, when a board is asked for, then the screen asks the player to secure the life", async () => {
+    // The server refuses a guest `guest-only`, as account:social-needs-secured-account names it.
     show(launched({ "GET /api/boards/this-week/everyone": [{ status: 403, body: { ok: false, code: "guest-only", detail: "Secure this life with Google or an email code to be on the boards." } }] }));
     await waitFor(() => expect(screen.getByText(say("ui.boards.secure"))).toBeTruthy());
   });
 
-  test("[R-CITY-039] given the joined-week board switched off, when the screen opens, then nothing of it shows; switched on, then it shows under the pickers", async () => {
+  test("[city:boards-switch-when-and-who] given the joined-week board switched off, when the screen opens, then nothing of it shows; switched on, then it shows under the pickers", async () => {
     show(launched());
     await waitFor(() => expect(lines()).toHaveLength(2));
     expect(document.querySelector("[data-joined-week]")).toBeNull();
@@ -125,7 +125,7 @@ describe("the boards screen", () => {
     expect(screen.getByText(say("ui.boards.joined-week"))).toBeTruthy();
   });
 
-  test("[R-CITY-039] given a board that fails to load, when the player tries again, then it is asked for again", async () => {
+  test("[city:boards-switch-when-and-who] given a board that fails to load, when the player tries again, then it is asked for again", async () => {
     show(launched({ "GET /api/boards/this-week/everyone": [{ status: 500, body: { ok: false, code: "diverged", detail: "broken" } }, board("this-week.everyone", [line(1, 3)])] }));
     fireEvent.click(await screen.findByRole("button", { name: say("ui.boards.retry") }));
     await waitFor(() => expect(lines()).toEqual(["1tunde_k+3"]));

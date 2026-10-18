@@ -1,4 +1,4 @@
-// The Bank's "Saved for the move" for the plan's own way (docs/rules/world.md R-WORLD-019): a developer whose plan is
+// The Bank's "Saved for the move" for the plan's own way (world:phone-holds-what-phones-hold): a developer whose plan is
 // the UK talent visa sees a figure, as the master's plan does, never "No figure to save toward yet" all year. The
 // figure comes from the plan's route whatever its gate: the funds its decision day asks
 // for and the fees still ahead on it, as the engine prices them now. Played on the real engine and content.
@@ -49,7 +49,7 @@ function poundsOf(view: ReturnType<ReturnType<typeof newGame>["view"]>, activity
 }
 
 describe("Saved for the move, on the plan's own way", () => {
-  test("[R-WORLD-019] given the developer whose plan is the talent visa, when the Bank opens, then the figure is the endorsement's fee and the visa's fee and surcharge, in pounds, against the funds he shows", async () => {
+  test("[world:phone-holds-what-phones-hold] given the developer whose plan is the talent visa, when the Bank opens, then the figure is the endorsement's fee and the visa's fee and surcharge, in pounds, against the funds he shows", async () => {
     const view = talentPlan().view();
     const endorsement = poundsOf(view, "activity.apply-endorsement");
     const visa = poundsOf(view, "activity.apply-uk-talent");
@@ -68,7 +68,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(document.body.textContent).not.toContain(say("phone.bank.savings.none"));
   });
 
-  test("[R-WORLD-019] given the endorsement asked for, when the Bank opens, then its fee is no longer ahead and only the visa's remain", () => {
+  test("[world:phone-holds-what-phones-hold] given the endorsement asked for, when the Bank opens, then its fee is no longer ahead and only the visa's remain", () => {
     const game = talentPlan();
     const before = savingsOf(game.view())!;
     viewAfter(game, [{ type: "document/request", document: "document.endorsement" }]);
@@ -77,7 +77,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(savingsOf(view)?.required).toBe(before.required - poundsOf(view, "activity.apply-endorsement"));
   });
 
-  test("[R-WORLD-019] given Ada's master's plan, when the Bank opens, then the figure is still the funds her checklist counts", () => {
+  test("[world:phone-holds-what-phones-hold] given Ada's master's plan, when the Bank opens, then the figure is still the funds her checklist counts", () => {
     const view = recordedGame("ada-careful", 40).view();
     const route = view.routes.find((each) => each.id === "route.uk-masters")!;
     const funds = route.checklist.find((item) => item.id === "funds");
@@ -85,21 +85,21 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(savingsOf(view)).toEqual({ shown: funds?.have, required: funds?.need, currency: "GBP" });
   });
 
-  test("[R-WORLD-019] given a nurse whose plan is care work, when the Bank opens, then the figure is the care visa's fee, in pounds", () => {
+  test("[world:phone-holds-what-phones-hold] given a nurse whose plan is care work, when the Bank opens, then the figure is the care visa's fee, in pounds", () => {
     const view = planOn(newGame("scenario.ngozi"), "route.uk-care").view();
     expect(savingsOf(view)).toMatchObject({ currency: "GBP", required: content.var["var.uk-care-visa-fee"]!.start });
   });
 
-  test("[R-WORLD-019] given the Gulf as the plan, whose employer pays and whose content asks no funds, when the Bank opens, then no figure is made up", async () => {
+  test("[world:phone-holds-what-phones-hold] given the Gulf as the plan, whose employer pays and whose content asks no funds, when the Bank opens, then no figure is made up", async () => {
     const view = planOn(newGame("scenario.ngozi"), "route.gulf-contract").view();
     expect(savingsOf(view)).toBeNull();
     await renderWithView(<Bank />, view);
     expect(document.body.textContent).toContain(say("phone.bank.savings.paid"));
   });
 
-  // R-WORLD-019: the figure shows from the month the plan is set, as the results show it, without waiting for the
+  // world:phone-holds-what-phones-hold: the figure shows from the month the plan is set, as the results show it, without waiting for the
   // official page.
-  test("[R-WORLD-019] given a way only heard of as the plan's lean, when the Bank opens, then its figure shows at once, the shared figure the results read, and still once the way is looked into", async () => {
+  test("[world:phone-holds-what-phones-hold] given a way only heard of as the plan's lean, when the Bank opens, then its figure shows at once, the shared figure the results read, and still once the way is looked into", async () => {
     const game = newGame("scenario.ngozi");
     viewAfter(game, [{ type: "route/hear", route: "route.uk-care", via: "meetup" }]);
     const heard = game.view();
@@ -116,7 +116,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(document.querySelectorAll("[data-savings]").length).toBeGreaterThan(0);
   });
 
-  test("[R-WORLD-019] given the master's only heard of, with nothing to count yet, when the Bank opens, then one line says there is no plan yet, as the results show no figure", async () => {
+  test("[world:phone-holds-what-phones-hold] given the master's only heard of, with nothing to count yet, when the Bank opens, then one line says there is no plan yet, as the results show no figure", async () => {
     const game = newGame("scenario.ada");
     viewAfter(game, [{ type: "route/hear", route: "route.uk-masters", via: "meetup" }]);
     const view = game.view();
@@ -127,7 +127,7 @@ describe("Saved for the move, on the plan's own way", () => {
     expect(document.querySelector("[data-savings-none]")?.textContent).toBe("No plan yet.");
   });
 
-  test("[R-WORLD-019] given a new life with no way heard of, when the Bank opens, then one line says there is no plan yet", async () => {
+  test("[world:phone-holds-what-phones-hold] given a new life with no way heard of, when the Bank opens, then one line says there is no plan yet", async () => {
     const view = newGame("scenario.ada").view();
     expect(view.plan.route).toBeNull();
     await renderWithView(<Bank />, view);

@@ -1,4 +1,4 @@
-// The Market (docs/rules/home.md R-HOME-013): the things for the home as a grid of
+// The Market (home:things-a-life-owns): the things for the home as a grid of
 // sticker tiles of the very models that land in the room, each with one line of what it does and its price on the
 // yellow pill. A card picked is ringed; the foot says the balance before struck through and after, and one yellow button
 // buys it: "Delivered at once: a rider at the gate, a slip", the coin, and the thing stands in the room when the phone

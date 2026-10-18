@@ -35,7 +35,7 @@ const PIXELS = { phone: { width: 780, height: 1688 }, wide: { width: 1920, heigh
 const TALL_CROP = "crop=1170:2080:0:226,scale=1080:1920:flags=lanczos";
 /**
  * The world alone: every surface over the scene hidden while a wide shot rolls, so the shot is the city and its people.
- * The fan's mode keeps a thing's fan of acts (R-WORLD-034) over the scene, and nothing else.
+ * The fan's mode keeps a thing's fan of acts (world:fan-of-sticker-buttons) over the scene, and nothing else.
  */
 const CLEAN = [
   "html[data-teaser-clean] body * { visibility: hidden !important; }",
@@ -46,7 +46,7 @@ const FFMPEG = process.env.FFMPEG ?? "ffmpeg";
 /**
  * The lives the front door makes, each by its name typed and its tile picked: the nurse every shot of the family house
  * starts from (the plane's flight in the teaser goes to London), and the child of the water, whose life starts in Makoko
- * (R-PROLOGUE-012).
+ * (prologue:makoko-start-never-a-trap).
  */
 const LIVES = {
   nurse: { name: "Ada", tile: "The nurse", kept: "kept.json" },
@@ -115,7 +115,7 @@ async function passCards(page: Page): Promise<void> {
   }
 }
 
-/** Waits until no line floats over anybody (R-WORLD-026), so the shot starts on a quiet house. */
+/** Waits until no line floats over anybody (world:street-talk-budget), so the shot starts on a quiet house. */
 async function quiet(page: Page): Promise<void> {
   await page.locator("[data-speech]").first().waitFor({ state: "detached", timeout: 20_000 }).catch(() => undefined);
   await page.waitForTimeout(500);
@@ -156,7 +156,7 @@ async function session(browser: Browser, base: string, name: string, kept: Kept 
       document.head.append(style);
     });
   }, CLEAN);
-  // The device marked as played, so the first-use labels at the thumbs stay out of the picture (R-WORLD-033).
+  // The device marked as played, so the first-use labels at the thumbs stay out of the picture (world:no-walkthrough-before-play).
   await context.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   if (kept !== null) {
     await context.addInitScript((stored) => {

@@ -45,15 +45,15 @@ export type PlayerCommand = Command extends infer C
 export interface StoreAuthority {
   view(): Promise<PlayerView>;
   send(command: Command): Promise<Reply | ServerRejection>;
-  /** R-SERVER-046: the prologue's preset played in one request, for an authority that plays it (the remote one). */
+  /** server:server-plays-prologue-preset: the prologue's preset played in one request, for an authority that plays it (the remote one). */
   preset?(request: Omit<PresetRequest, "basedOn">): Promise<PresetReply>;
-  /** The month's clock as this authority keeps it, for one that reports no clock through events (the local one): when the next month comes (R-WORLD-027). */
+  /** The month's clock as this authority keeps it, for one that reports no clock through events (the local one): when the next month comes (world:no-months-left-count). */
   clock?(): ClockView | null;
-  /** The world's numbers at this tick, for one whose world is not fetched (the local one): the season the meetings read (R-WORLD-020). */
+  /** The world's numbers at this tick, for one whose world is not fetched (the local one): the season the meetings read (world:nobody-picked-from-list). */
   vars?(): Readonly<Record<string, number>>;
-  /** R-CLOCK-032: the envelopes whose morning has come, each given once, for one that keeps them (the local one). */
+  /** clock:envelopes-show-real-waits: the envelopes whose morning has come, each given once, for one that keeps them (the local one). */
   morning?(): Envelope[];
-  /** The real time the life began, for one that keeps it (the local one): the band names the month of the year by it (R-WORLD-002). */
+  /** The real time the life began, for one that keeps it (the local one): the band names the month of the year by it (world:top-band-is-lively-pill). */
   beganAt?(): number;
 }
 
@@ -68,12 +68,12 @@ export interface Shown {
 /** What the store needs beyond the contract to start a life, and to end one. */
 interface LifeControls {
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
-  /** R-ACCOUNT-030: ends the life for good; false when the authority refused. */
+  /** account:start-a-new-life: ends the life for good; false when the authority refused. */
   endLife?(): Promise<boolean>;
 }
 
 /**
- * R-ENGINE-015: a request that brought no answer the game can read, by its kind, and what it was for: the view, a
+ * engine:browser-authority-for-dev-only: a request that brought no answer the game can read, by its kind, and what it was for: the view, a
  * command (kept, and sent again on Retry), or the life Begin starts. Shown as a card over the screen.
  */
 export interface Trouble {
@@ -81,32 +81,32 @@ export interface Trouble {
   during: "view" | "command" | "life";
 }
 
-/** R-ENGINE-015: a failed view refresh tries again by itself after each of these pauses, then the card shows. */
+/** engine:browser-authority-for-dev-only: a failed view refresh tries again by itself after each of these pauses, then the card shows. */
 export const VIEW_RETRY_MS: readonly number[] = [1_000, 3_000];
 
 export interface GameState {
   view: PlayerView | null;
   /** Why the game could not go on, in the player's words, for a failure that is no request's (a fault in the game itself). */
   failed: string | null;
-  /** R-ENGINE-015: the request that failed, until Retry brings its answer. */
+  /** engine:browser-authority-for-dev-only: the request that failed, until Retry brings its answer. */
   trouble: Trouble | null;
   busy: boolean;
   /** The last rejection, until the player sends something else or dismisses it. */
   rejection: Shown | null;
   /** The lines of the last accepted command. */
   lines: ReportLine[];
-  /** The lines of what was done mid-month (an ask paid, an offer taken), kept for the month's results (R-WORLD-008). */
+  /** The lines of what was done mid-month (an ask paid, an offer taken), kept for the month's results (world:month-end-results-sheet). */
   monthLines: ReportLine[];
   /** The month just ended's mid-month lines, shown with its report. */
   lastMonthLines: ReportLine[];
   /**
-   * R-CLOCK-032: the results whose morning has come, given once by the authority, kept until the lock screen has told
+   * clock:envelopes-show-real-waits: the results whose morning has come, given once by the authority, kept until the lock screen has told
    * them. Their lines join `monthLines` as they come, so each is told once with the month's.
    */
   opened: Envelope[];
   /**
-   * One entry per free slot, null for an empty one, which rests (R-TURN-006). Only month-acts are planned: a now-act is
-   * done at once and rest is what an empty slot does. The plan carries on across the month's end (R-WORLD-007).
+   * One entry per free slot, null for an empty one, which rests (turn:free-slots-per-month). Only month-acts are planned: a now-act is
+   * done at once and rest is what an empty slot does. The plan carries on across the month's end (world:month-acts-carry-on).
    */
   plan: (SlotPick | null)[];
   /** True right after a month ends, so the report opens. */
@@ -117,7 +117,7 @@ export interface GameState {
    */
   moments: ReportLine[];
   /**
-   * The screenshot moments still to show (docs/rules/moment.md R-MOMENT-001, 006): at most one card for each batch of
+   * The screenshot moments still to show (moment:outcomes-that-are-moments, moment:card-shows-when-outcome-lands): at most one card for each batch of
    * lines, each with the view it came with, so its figure is read from the life as it stood.
    */
   momentCards: MomentShot[];
@@ -125,19 +125,19 @@ export interface GameState {
   momentScreens: number;
   /** The share card the player has closed, by `cardKey`, so the scenes after it know it has had its turn. */
   cardClosed: string | null;
-  /** The chapter's share card a moment card told instead, by `cardKey` (R-MOMENT-006): kept in the gallery, never opened. */
+  /** The chapter's share card a moment card told instead, by `cardKey` (moment:card-shows-when-outcome-lands): kept in the gallery, never opened. */
   cardTold: string | null;
   /** True when the player should pick who to be: a new life, or one that replaced a lost save. */
   choosingLife: boolean;
   /** Why a life was replaced, as a words key, when it was. */
   notice: string | null;
-  /** The server's clock from the last reply, or null for the local authority (R-CLOCK-003). Shown, never kept. */
+  /** The server's clock from the last reply, or null for the local authority (clock:reply-carries-the-clock). Shown, never kept. */
   clock: ClockView | null;
-  /** The world of the current tick, fetched on the schedule of R-CLOCK-019. */
+  /** The world of the current tick, fetched on the schedule of clock:world-fetch-is-jittered. */
   world: WorldReply | null;
   /** The local authority's world numbers at its tick, or null online, where `world` carries them. */
   vars: Readonly<Record<string, number>> | null;
-  /** Who else is in the character's place, a sample (R-CLOCK-028). */
+  /** Who else is in the character's place, a sample (clock:presence-is-a-sample). */
   presence: PresenceReply | null;
   /** Signing in, the age screen and deletion, or null for the local authority. */
   account: AccountApi | null;
@@ -146,34 +146,34 @@ export interface GameState {
   /** Why the player is at the sign-in screen, as a words key, when there is a reason to say. */
   accountNotice: string | null;
   /**
-   * True once a month's report has shown the early win (R-GUIDE-014), or a chapter or goal is done.
-   * Every ask (a sign-in method, notifications, feedback, an invite, a share) waits for it (R-GUIDE-015).
+   * True once a month's report has shown the early win (guide:early-win-in-three-turns), or a chapter or goal is done.
+   * Every ask (a sign-in method, notifications, feedback, an invite, a share) waits for it (guide:nothing-asked-before-early-win).
    */
   earlyWin: boolean;
-  /** Counts the `messages` nudges heard, so an open conversation fetches what is new (R-PAIR-011). */
+  /** Counts the `messages` nudges heard, so an open conversation fetches what is new (pair:conversation-phrases-stored). */
   messageNudges: number;
   /**
-   * The real time the life began (R-WORLD-002): month 0 of the life is that month of the year, so the band names the month.
+   * The real time the life began (world:top-band-is-lively-pill): month 0 of the life is that month of the year, so the band names the month.
    * Read from the authority as the life loads or starts; an authority that keeps none (online, until the account carries
    * it) leaves the time the game loaded.
    */
   beganAt: number;
 
   refresh: () => Promise<void>;
-  /** R-CLOCK-032: the lock screen has told the opened results; they are let go. */
+  /** clock:envelopes-show-real-waits: the lock screen has told the opened results; they are let go. */
   morningShown: () => void;
-  /** R-ENGINE-015: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
+  /** engine:browser-authority-for-dev-only: sends again what failed (the view, the command kept, or the life); its first caller gets the answer. */
   retry: () => Promise<void>;
   send: (command: PlayerCommand) => Promise<Reply | ServerRejection | null>;
   /**
-   * R-SERVER-046, R-PROLOGUE-010: the prologue's preset sent as one request, its reply applied as a command's; `keep` is
+   * server:server-plays-prologue-preset, prologue:archetype-presets-answers: the prologue's preset sent as one request, its reply applied as a command's; `keep` is
    * handed the trail before the view lands, so the page reads it as it opens. Null where the authority plays no preset
    * (offline, where each answer goes as a command).
    */
   preset: ((request: Omit<PresetRequest, "basedOn">, keep?: (trail: PresetStep[]) => void) => Promise<PresetReply | null>) | null;
   /**
-   * Ends the month with the commitments that carry on (R-WORLD-007), and the results open in the room. `rest`: the bed's
-   * Sleep, the month's time left rested (R-TURN-010). The command does not carry it yet: the contract's `turn/end` has
+   * Ends the month with the commitments that carry on (world:month-acts-carry-on), and the results open in the room. `rest`: the bed's
+   * Sleep, the month's time left rested (turn:month-lived-in-half-days). The command does not carry it yet: the contract's `turn/end` has
    * no `rest` field, and the simulation gates nothing on the time spent (decision 0011), so the plain command is sent;
    * the bed's Sleep passes it already so the flag reaches the wire once the contract takes it.
    */
@@ -181,18 +181,18 @@ export interface GameState {
   setSlot: (index: number, pick: SlotPick | null) => void;
   /** Puts a month-act in the first empty slot. False when every slot is full, or the pick is not one to plan. */
   addToPlan: (pick: SlotPick) => boolean;
-  /** Stops a commitment: every pick of the activity (with this param, when given) leaves the plan (R-WORLD-007). */
+  /** Stops a commitment: every pick of the activity (with this param, when given) leaves the plan (world:month-acts-carry-on). */
   stopPick: (pick: SlotPick) => void;
   clearPlan: () => void;
   dismissRejection: () => void;
   /**
-   * R-SERVER-003: the Retry of a `diverged` sheet. Fetches the view again and clears the sheet when it comes; while the
+   * server:log-rows-hash-state: the Retry of a `diverged` sheet. Fetches the view again and clears the sheet when it comes; while the
    * life still needs checking the sheet stays. Nothing for any other rejection.
    */
   recheck: () => Promise<void>;
   /** Moves on from the moment on screen to the next, or to the report. */
   nextMoment: () => void;
-  /** Dismisses the moment card on screen (R-MOMENT-006). */
+  /** Dismisses the moment card on screen (moment:card-shows-when-outcome-lands). */
   nextMomentCard: () => void;
   /** A moment card screen stands up; the function it returns takes it down. */
   momentScreen: () => () => void;
@@ -202,7 +202,7 @@ export interface GameState {
   /** Null when this authority cannot start a life over from the chooser, as online, where the server holds the life. */
   openLifeChooser: (() => void) | null;
   /**
-   * R-ACCOUNT-030: "Start a new life". Ends this life for good through the authority, drops what the device kept of
+   * account:start-a-new-life: "Start a new life". Ends this life for good through the authority, drops what the device kept of
    * it, and opens the front door. False when it did not end. Null where the authority cannot end a life.
    */
   endLife: (() => Promise<boolean>) | null;
@@ -221,16 +221,16 @@ export type GameStore = StoreApi<GameState>;
 
 export interface GameStoreOptions {
   life?: LifeControls;
-  /** False when a life may be started only once, as online (R-ACCOUNT-015). */
+  /** False when a life may be started only once, as online (account:one-character-per-account). */
   lifeAgain?: boolean;
   choosingLife?: boolean;
   notice?: string | null;
   account?: AccountApi | null;
   /** True for the browser's own game: the month's plan and lines are kept across loads. */
   rememberMonth?: boolean;
-  /** After a life has ended and the door is open (R-ACCOUNT-030): the browser's game loads afresh, so nothing held in memory outlives the life. */
+  /** After a life has ended and the door is open (account:start-a-new-life): the browser's game loads afresh, so nothing held in memory outlives the life. */
   afterLifeEnded?: () => void;
-  /** Waits before a failed view is asked for again (R-ENGINE-015). A test's own clock; the browser's otherwise. */
+  /** Waits before a failed view is asked for again (engine:browser-authority-for-dev-only). A test's own clock; the browser's otherwise. */
   wait?: (ms: number) => Promise<void>;
 }
 
@@ -239,7 +239,7 @@ export function rejectionWords(code: ServerCode): string {
   return text[key] ?? code;
 }
 
-/** R-ENGINE-015: the failure in the player's words, by its kind, never the browser's own text; a fault that is no request's is said as ours. */
+/** engine:browser-authority-for-dev-only: the failure in the player's words, by its kind, never the browser's own text; a fault that is no request's is said as ours. */
 export function failureWords(error: unknown): string {
   return say(`ui.failed.why.${failureOf(error) ?? "server"}`);
 }
@@ -249,7 +249,7 @@ const realWait = (ms: number) =>
     setTimeout(resolve, ms);
   });
 
-/** A screenshot moment waiting its turn: its line, the view the line came with, and the one before it (R-MOMENT-002). */
+/** A screenshot moment waiting its turn: its line, the view the line came with, and the one before it (moment:moment-card-contents). */
 export interface MomentShot {
   line: ReportLine;
   view: PlayerView;
@@ -259,7 +259,7 @@ export interface MomentShot {
 }
 
 /**
- * The cards so far, with this batch's moment card after them, if the batch has one (R-MOMENT-001). `earlier`: the
+ * The cards so far, with this batch's moment card after them, if the batch has one (moment:outcomes-that-are-moments). `earlier`: the
  * month's lines told before the batch.
  */
 function withMoment(cards: readonly MomentShot[], lines: readonly ReportLine[], view: PlayerView | null, before: PlayerView | null, earlier: readonly ReportLine[] = []): MomentShot[] {
@@ -270,7 +270,7 @@ function withMoment(cards: readonly MomentShot[], lines: readonly ReportLine[], 
 const CHAPTER_CLOSED = "line.chapter.closed";
 
 /**
- * R-MOMENT-006: a chapter's close is told once. When a moment card was queued for a
+ * moment:card-shows-when-outcome-lands: a chapter's close is told once. When a moment card was queued for a
  * chapter closing and the view's share card is that chapter's, the share card is put aside as closed: the results line
  * and the moment card tell it, and the card goes to the gallery (`CardView`) without opening.
  */
@@ -285,18 +285,18 @@ function bigLines(lines: readonly ReportLine[]): ReportLine[] {
   return tidyLines(lines).filter((line) => line.big === true || isSaid(line));
 }
 
-/** R-GUIDE-014: the view or the lines just shown hold the early win. */
+/** guide:early-win-in-three-turns: the view or the lines just shown hold the early win. */
 function wonEarly(view: PlayerView, lines: readonly ReportLine[], picks: readonly SlotPick[]): boolean {
   return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, picks) !== null;
 }
 
-/** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (R-TURN-006). */
+/** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (turn:free-slots-per-month). */
 function takesSlot(pick: SlotPick): boolean {
   return content.activity[pick.activity]?.slot !== "none";
 }
 
 /**
- * True when the pick is already in the plan, a commitment that carries on (R-WORLD-007): its chip reads "Ongoing" with
+ * True when the pick is already in the plan, a commitment that carries on (world:month-acts-carry-on): its chip reads "Ongoing" with
  * a stop, and its card's button is shut, since planning it again would only take more of the free time.
  */
 export function plannedShut(plan: readonly (SlotPick | null)[], pick: SlotPick): boolean {
@@ -311,7 +311,7 @@ function slotted(plan: readonly (SlotPick | null)[]): (SlotPick | null)[] {
 
 /**
  * Keeps the month-acts that still fit, and pads with empty slots up to the count. A now-act or rest kept from before
- * is dropped: neither is ever planned (R-TURN-006, R-ACTIVITY-015).
+ * is dropped: neither is ever planned (turn:free-slots-per-month, activity:now-acts-and-month-acts).
  */
 function fitPlan(plan: readonly (SlotPick | null)[], slots: number): (SlotPick | null)[] {
   const kept = plan.filter((pick) => pick === null || plannable(pick.activity)).slice(0, slots);
@@ -327,7 +327,7 @@ interface MonthMemory {
   monthLines: ReportLine[];
   lastMonthLines: ReportLine[];
   cardClosed: string | null;
-  /** The results opened and not yet told on the lock screen (R-CLOCK-032): the authority gives each once. */
+  /** The results opened and not yet told on the lock screen (clock:envelopes-show-real-waits): the authority gives each once. */
   opened?: Envelope[];
 }
 
@@ -373,14 +373,14 @@ function rememberedMonth(view: PlayerView): Partial<GameState> {
 
 export function createGameStore(authority: StoreAuthority, options: GameStoreOptions = {}): GameStore {
   const store = makeStore(authority, options);
-  // R-WORLD-007, R-WORLD-008: a reload keeps the month's plan and what was done in it.
+  // world:month-acts-carry-on, world:month-end-results-sheet: a reload keeps the month's plan and what was done in it.
   if (options.rememberMonth === true) store.subscribe((state, before) => {
     if (state.view === null) return;
     if (state.view.v === before.view?.v && state.plan === before.plan && state.monthLines === before.monthLines && state.lastMonthLines === before.lastMonthLines && state.cardClosed === before.cardClosed && state.opened === before.opened) return;
     writeMonth({ v: state.view.v, scenario: state.view.scenario, plan: state.plan, monthLines: state.monthLines, lastMonthLines: state.lastMonthLines, cardClosed: state.cardClosed, opened: state.opened });
   });
-  // R-WORLD-002: the words tell a stamped month as months away from the view's month, kept beside them; and
-  // R-PROLOGUE-002: a line's `{hometown}` names where this life is from.
+  // world:top-band-is-lively-pill: the words tell a stamped month as months away from the view's month, kept beside them; and
+  // prologue:family-draw-on-first-answer: a line's `{hometown}` names where this life is from.
   store.subscribe((state, before) => {
     if (state.view !== before.view) setNow(state.view?.month ?? null, state.view?.hometown ?? null, swapsFor(playerName(state.view)));
   });
@@ -396,10 +396,10 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
     let refreshing: Promise<boolean> | null = null;
 
     /**
-     * R-ENGINE-015: shows the card for a failed request and keeps it to send again. The promise settles with the
+     * engine:browser-authority-for-dev-only: shows the card for a failed request and keeps it to send again. The promise settles with the
      * answer Retry brings, so whoever sent the first (a sheet, Begin) waits on with the player's choice intact. A failed
      * view never takes the place of a command or a life waiting to be sent again. A wall the page is already reloading
-     * for (R-ACCOUNT-006) shows nothing and settles never: the page is going, and the login comes next.
+     * for (account:session-is-secure-cookie) shows nothing and settles never: the page is going, and the login comes next.
      */
     function held<T>(kind: FailureKind, during: Trouble["during"], retry: () => Promise<T>, error?: unknown): Promise<T> {
       if (isReloading(error)) return new Promise<T>(() => undefined);
@@ -463,7 +463,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           set({
             earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, picksOf(command)),
             view: reply.view,
-            // R-WORLD-007: the commitments carry on into the next month.
+            // world:month-acts-carry-on: the commitments carry on into the next month.
             plan: fitPlan(ended ? carriedPlan(get().plan, reply.view) : get().plan, reply.view.freeSlots),
             lines: reply.lines,
             moments: bigLines(reply.lines),
@@ -485,12 +485,12 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         broke(error);
         return null;
       } finally {
-        // The month turns only when the life sleeps (R-WORLD-025; decision 0011): a spent month falls to night, never to a turn.
+        // The month turns only when the life sleeps (world:sleep-ends-the-month; decision 0011): a spent month falls to night, never to a turn.
         set({ busy: false });
       }
     }
 
-    /** R-SERVER-046: the preset in one request; a retry after a lost answer that comes back stale most likely landed, and refuses nothing. */
+    /** server:server-plays-prologue-preset: the preset in one request; a retry after a lost answer that comes back stale most likely landed, and refuses nothing. */
     async function playPreset(request: Omit<PresetRequest, "basedOn">, keep?: (trail: PresetStep[]) => void, retried = false): Promise<PresetReply | null> {
       const { view, busy } = get();
       if (authority.preset === undefined || view === null || busy) return null;
@@ -530,19 +530,19 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
     }
 
     /**
-     * R-CLOCK-032: the results whose morning has come, from an authority that keeps them (the remote one keeps none).
+     * clock:envelopes-show-real-waits: the results whose morning has come, from an authority that keeps them (the remote one keeps none).
      * Kept until the lock screen tells them; their lines join the month's, so each is told once.
      */
     function takeMorning(): void {
       if (!("morning" in authority) || typeof authority.morning !== "function" || get().view === null) return;
       const opened = authority.morning();
       if (opened.length === 0) return;
-      // The lock screen tells the result as the office's notice; the month's report and News tell its line once, as any line (R-CLOCK-032).
+      // The lock screen tells the result as the office's notice; the month's report and News tell its line once, as any line (clock:envelopes-show-real-waits).
       set({ opened: [...get().opened, ...opened] });
     }
 
     /**
-     * R-ENGINE-015: the view, asked for again twice with a pause before the card; a fault that is no request's replaces
+     * engine:browser-authority-for-dev-only: the view, asked for again twice with a pause before the card; a fault that is no request's replaces
      * the screen. True when a view came.
      */
     async function fetchView(): Promise<boolean> {
@@ -692,13 +692,13 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
         try {
           view = await options.life.newLife(scenario);
         } catch (error) {
-          // R-ENGINE-015: Begin is one request; until it is answered the door keeps the run and Retry sends it again.
+          // engine:browser-authority-for-dev-only: Begin is one request; until it is answered the door keeps the run and Retry sends it again.
           const kind = failureOf(error);
           if (kind === null) throw error;
           return held(kind, "life", () => get().chooseLife(scenario), error);
         }
         forgetMonth();
-        // A new life is taught afresh: its first chapter's title, its places' labels, its home (R-CHAPTER-011).
+        // A new life is taught afresh: its first chapter's title, its places' labels, its home (chapter:first-chapter-mission-card).
         forgetTaught();
         // A new life's rooms stand as their files set them.
         forgetArranged();
@@ -751,7 +751,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             set({ rejection: { code: "rate-limited", words: sayCount("ui.online.wait", event.retryAfter, { seconds: event.retryAfter }) } });
             return;
           case "diverged":
-            // R-SERVER-003: its own words and a Retry, never the line for a failure of the server's.
+            // server:log-rows-hash-state: its own words and a Retry, never the line for a failure of the server's.
             set({ rejection: { code: "diverged", words: rejectionWords("diverged") } });
             return;
           case "lines":

@@ -1,4 +1,4 @@
-// The lively layer's motion (docs/design/13-the-lively-layer.md, section 7; world.md R-WORLD-023): every tappable thing
+// The lively layer's motion (docs/design/13-the-lively-layer.md, section 7; world:motions-under-half-second): every tappable thing
 // squashes on press, a sticker wobbles in, a chip pops, a refusal shakes three times; each on transform and opacity
 // alone, under 300 ms, and a fade under reduced motion.
 import { readFileSync } from "node:fs";
@@ -34,12 +34,12 @@ function keyframeProperties(name: string): string[] {
 }
 
 describe("the lively motion", () => {
-  test.each(LIVELY)("[R-WORLD-023] given .%s, then it lasts under 300 ms and moves transform and opacity alone", (name) => {
+  test.each(LIVELY)("[world:motions-under-half-second] given .%s, then it lasts under 300 ms and moves transform and opacity alone", (name) => {
     expect(durationOf(name)).toBeLessThan(300);
     for (const property of keyframeProperties(name)) expect({ name, property, ok: property === "transform" || property === "opacity" }).toEqual({ name, property, ok: true });
   });
 
-  test("[R-WORLD-023] given a refusal, then the shake goes sideways three times and comes back", () => {
+  test("[world:motions-under-half-second] given a refusal, then the shake goes sideways three times and comes back", () => {
     const at = CSS.indexOf("@keyframes shake {");
     const body = CSS.slice(at, CSS.indexOf("\n}", at));
     const lefts = [...body.matchAll(/translateX\(-\d+px\)/g)].length;
@@ -48,12 +48,12 @@ describe("the lively motion", () => {
     expect(rights).toBe(3);
   });
 
-  test("[R-WORLD-023] given anything tappable with .press, when it is held, then it squashes to 0.96 and springs back in a short transition on its scale", () => {
+  test("[world:motions-under-half-second] given anything tappable with .press, when it is held, then it squashes to 0.96 and springs back in a short transition on its scale", () => {
     expect(CSS).toMatch(/\n {2}\.press \{ transition-property: scale; transition-duration: 1\d\dms;[^}]*\}/);
     expect(CSS).toMatch(/\n {2}\.press:active \{ scale: 0\.96; \}/);
   });
 
-  test("[R-WORLD-023] given reduced motion, then the wobble, the pop and the shake are each the fade", () => {
+  test("[world:motions-under-half-second] given reduced motion, then the wobble, the pop and the shake are each the fade", () => {
     const line = /\n {2}([^\n{]*) \{ animation: fade ([\d.]+)s ease both !important; \}/.exec(CSS);
     const classes = (line?.[1] ?? "").split(",").map((each) => each.trim());
     for (const name of LIVELY) expect(classes).toContain(`.${name}`);

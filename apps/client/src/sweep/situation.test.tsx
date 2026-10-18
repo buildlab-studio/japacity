@@ -23,7 +23,7 @@ function firstAnswer(): ReportLine[] {
 }
 
 describe("the situation in plain words", () => {
-  test("[R-TURN-009] [R-ACTIVITY-010] given a side job's lock, when its lines are read, then they name the side job in words, never its key", () => {
+  test("[turn:slots-can-be-locked] [activity:side-job-holds-a-slot] given a side job's lock, when its lines are read, then they name the side job in words, never its key", () => {
     const locked = words("line.turn.locked", { slots: 1, why: "side-job" });
     const unlocked = words("line.turn.unlocked", { why: "side-job" });
     expect(locked).toBe("Your side job has taken some of your time this month.");
@@ -31,7 +31,7 @@ describe("the situation in plain words", () => {
     for (const said of [locked, unlocked]) expect(said).not.toContain("side-job");
   });
 
-  test("[R-PROLOGUE-002] [R-PROLOGUE-008] given the prologue's draw, when its first lines are read, then each quality is told by its band in a sentence, never as a figure", () => {
+  test("[prologue:family-draw-on-first-answer] [prologue:view-shows-step-card] given the prologue's draw, when its first lines are read, then each quality is told by its band in a sentence, never as a figure", () => {
     const lines = firstAnswer().filter((line) => line.key === "line.quality.gain");
     expect(lines.length).toBeGreaterThan(0);
     for (const line of lines) {
@@ -45,7 +45,7 @@ describe("the situation in plain words", () => {
     expect(["Your family has nothing spare.", "Your family gets by.", "Your family has a little behind it.", "Your family is comfortable."]).toContain(words(means?.key ?? "", means?.params));
   });
 
-  test("[R-PROLOGUE-008] given a quality with bands, when its value is shown, then the band is said at each edge and no figure shows", () => {
+  test("[prologue:view-shows-step-card] given a quality with bands, when its value is shown, then the band is said at each edge and no figure shows", () => {
     const { min, max } = content.quality["quality.family-means"] ?? { min: 0, max: 100 };
     expect(valueWords("quality.family-means", min)).toBe(say("ui.band.quality.family-means.0"));
     expect(valueWords("quality.family-means", 25)).toBe(say("ui.band.quality.family-means.0"));
@@ -55,7 +55,7 @@ describe("the situation in plain words", () => {
     expect(valueWords("quality.edu-grade", 4)).toBe(text["quality.edu-grade.value.4"]);
   });
 
-  test("[R-WORLD-007] given the month's words, then none says free slots or upkeep, and a quiet month and the job hunt say the time in things to do", () => {
+  test("[world:month-acts-carry-on] given the month's words, then none says free slots or upkeep, and a quiet month and the job hunt say the time in things to do", () => {
     const shown = [say("ui.job.none"), say("ui.month.no-slots"), words("line.activity.rested", { slots: 2 }), text["obligation.upkeep.name"] ?? ""];
     for (const said of shown) {
       expect(said).not.toMatch(/free slot/i);
@@ -68,7 +68,7 @@ describe("the situation in plain words", () => {
     expect(words(rested[0]?.key ?? "", rested[0]?.params)).not.toMatch(/\d/);
   });
 
-  test("[R-TEXT-005] given the share card's labels, then they say what a person would: the figure's one name with what it means, and how home sees you", () => {
+  test("[text:bands-not-figures] given the share card's labels, then they say what a person would: the figure's one name with what it means, and how home sees you", () => {
     expect(say("share.japacity")).toBe("Japacity, how ready you are to go");
     expect(say("share.standing")).toBe("How home sees you");
     expect(Object.values(uiText).some((said) => /Japacity so far/.test(said))).toBe(false);
@@ -78,7 +78,7 @@ describe("the situation in plain words", () => {
   // where the door is the first screen, it opens with the start screen's hook in two rows and the three steps.
   // No lights hang on the door, so it carries the one hook that
   // stands without them, smaller than the start screen's so the looks stay in view; the steps are a label strip, not chips.
-  test("[R-TEXT-006] given the first screen offline, then under Who are you? the door opens with the hook that needs no lights, in two smaller rows, and the three steps as a label strip, and no sentence about the game", async () => {
+  test("[text:hook-not-explanation] given the first screen offline, then under Who are you? the door opens with the hook that needs no lights, in two smaller rows, and the three steps as a label strip, and no sentence about the game", async () => {
     await renderWithView(<ScenarioView />, newGame("scenario.ada").view());
     expect(screen.getByRole("heading", { name: say("ui.life.title") })).toBeDefined();
     const hook = document.querySelector("[data-door-intro] [data-start-hook]");

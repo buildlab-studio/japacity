@@ -51,7 +51,7 @@ export function buildModerationApi(): ModerationApi | null {
 }
 
 /**
- * R-MODERATION-020: the build number, set at build time from `VITE_BUILD`
+ * moderation:feedback-box-in-settings: the build number, set at build time from `VITE_BUILD`
  * (`VITE_BUILD=$(git rev-parse --short HEAD) pnpm build`); a dev build says so.
  */
 export function buildNumber(): string {

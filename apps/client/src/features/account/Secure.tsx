@@ -1,9 +1,9 @@
-// Keeping a guest life (R-ACCOUNT-021 to 023, 027). The securing sheet: Google
+// Keeping a guest life (account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:guest-reminded-to-secure). The securing sheet: Google
 // first, then a code by email; inside an in-app browser no Google, and a way
 // out to the phone's own browser. The asks that open it: after the first
 // chapter, before the visa decision (the decision-day chapter), and at every
 // `guest-only` refusal; never at the door and never before the early win
-// (guide.md R-GUIDE-015). And the quiet lines, on the settings and on the
+// (guide:nothing-asked-before-early-win). And the quiet lines, on the settings and on the
 // month results after the first chapter, each saying plainly that the life
 // lives only on this phone; the page at the door says it when the life starts
 // (GuestStart.tsx). Once kept, by the code here or by the trip to Google and back, the sheet says so in its kept
@@ -73,7 +73,7 @@ export interface SecureSheetProps {
 }
 
 /**
- * R-ACCOUNT-023: Google first, on Google's own button, then the emailed code; a passkey waits for the settings once the
+ * account:guest-secures-the-life: Google first, on Google's own button, then the emailed code; a passkey waits for the settings once the
  * life is kept. Once kept, the sheet says only that: the kept heading, the one line and its close, with no reason, no
  * ways to keep and no Not now.
  */
@@ -153,7 +153,7 @@ export function SecureSheet({ account, open, onOpenChange, reason, problem: give
   );
 }
 
-/** The staged moments of R-ACCOUNT-023 the view is at, if any. */
+/** The staged moments of account:guest-secures-the-life the view is at, if any. */
 export type AskMoment = "first-chapter" | "visa";
 
 const DECISION_DAY = "chapter.decision-day";
@@ -170,7 +170,7 @@ const CLEAR_EVERY_MS = 500;
 
 /**
  * Another sheet or card is up (a chapter's opening, an ask, the results), or the first brief's card is still waiting for
- * the place's first frame (its pending mark, R-CHAPTER-011): a staged ask waits for it to close.
+ * the place's first frame (its pending mark, chapter:first-chapter-mission-card): a staged ask waits for it to close.
  */
 function otherSheetUp(): boolean {
   return typeof document !== "undefined" && document.querySelector('[role="dialog"][data-open], [data-brief-pending]') !== null;
@@ -241,7 +241,7 @@ export function SecureAsk() {
     }
     setReason(null);
     if (back === "kept") {
-      // R-ACCOUNT-023: the guest's life came back kept from Google; the sheet opens kept, as the emailed code's does.
+      // account:guest-secures-the-life: the guest's life came back kept from Google; the sheet opens kept, as the emailed code's does.
       setProblem(null);
       setKept("google");
       setOpen(true);
@@ -285,7 +285,7 @@ export function SecureAsk() {
   );
 }
 
-/** R-ACCOUNT-027: the quiet reminder, a line and a way to keep the life. Nothing for a secured account or offline. */
+/** account:guest-reminded-to-secure: the quiet reminder, a line and a way to keep the life. Nothing for a secured account or offline. */
 export function GuestReminder({ afterFirstChapter = false }: { afterFirstChapter?: boolean }) {
   const account = useGame((state) => state.account);
   const firstDone = useGame((state) => (state.view?.chapter.done.length ?? 0) > 0);

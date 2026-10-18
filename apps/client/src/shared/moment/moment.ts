@@ -19,16 +19,16 @@ export interface MomentEntry {
   kind: MomentKind;
   key: string;
   icon: MomentIcon;
-  /** A win is drawn light, a loss dark (R-MOMENT-002). */
+  /** A win is drawn light, a loss dark (moment:moment-card-contents). */
   tone: "good" | "bad";
-  /** Narrows the key: a draw is a moment only when it is staged as a big win (R-LUCK-008). */
+  /** Narrows the key: a draw is a moment only when it is staged as a big win (luck:big-wins-are-staged). */
   is?: (line: ReportLine) => boolean;
 }
 
 const bigWin = (line: ReportLine): boolean => line.big === true;
 
 /**
- * R-MOMENT-001: the outcomes that are moments, most telling first. A batch of lines (a month's report, a command's
+ * moment:outcomes-that-are-moments: the outcomes that are moments, most telling first. A batch of lines (a month's report, a command's
  * answer, the authority's own lines) gives at most one card: the first entry here that one of its lines makes. The
  * flight's line is the landing, so the chapter closed beside it, or the decision day closed beside the grant, never
  * stacks a second card on the first. The endorsement refused is a refusal: its own line tells it, since
@@ -56,8 +56,8 @@ function entryFor(line: ReportLine): MomentEntry | null {
 }
 
 /**
- * R-MOMENT-001: the one line of a batch that becomes a card, or null. Nothing on the road chain is a moment (road.md
- * R-ROAD-010), and an ended life has its own card. Of several chapters closed at once, the last is the one told.
+ * moment:outcomes-that-are-moments: the one line of a batch that becomes a card, or null. Nothing on the road chain is a moment (road.md
+ * road:road-earns-nothing), and an ended life has its own card. Of several chapters closed at once, the last is the one told.
  * `earlier`: the month's lines told before the batch, where the deposit a pitch took was paid; a deposit's line whose
  * deposit is not among them makes no card, since a card never stands without its figure.
  */
@@ -77,7 +77,7 @@ const WALLET = "line.wallet.";
 const DEPOSIT_PAID = "line.wallet.fee-agent";
 const TAKEN = "line.offer.taken";
 
-/** A road pitch (road.md R-ROAD-002): an offer of the road's group whose taking pays a deposit. */
+/** A road pitch (road:pitch-rises-with-pressure): an offer of the road's group whose taking pays a deposit. */
 function isPitch(offer: unknown): offer is Id<"offer"> {
   const entry = typeof offer === "string" ? content.offer[offer as Id<"offer">] : undefined;
   return entry?.group === "road" && entry.terms.deposit !== undefined;
@@ -85,7 +85,7 @@ function isPitch(offer: unknown): offer is Id<"offer"> {
 
 /**
  * The deposit the last road pitch taken was paid, and the pitch: the wallet's lines told just before its answer (the
- * deposit leaves the naira by its size, so from one pocket or two, R-ROAD-003). Null when the lines hold none.
+ * deposit leaves the naira by its size, so from one pocket or two, road:taking-pitch-pays-deposit). Null when the lines hold none.
  */
 function depositPaid(lines: readonly ReportLine[]): { offer: Id<"offer">; amount: { currency: Currency; amount: number } } | null {
   for (let at = lines.length - 1; at >= 0; at -= 1) {
@@ -110,7 +110,7 @@ export function sameLine(a: ReportLine, b: ReportLine): boolean {
   return a.key === b.key && JSON.stringify(a.params) === JSON.stringify(b.params);
 }
 
-/** The figure that makes the moment land: a whole number and how it is said, with its caption (R-MOMENT-002). */
+/** The figure that makes the moment land: a whole number and how it is said, with its caption (moment:moment-card-contents). */
 export interface MomentFigure {
   value: number;
   /** Money in whole units of its currency, a share as a whole percent, or a count. */
@@ -118,7 +118,7 @@ export interface MomentFigure {
   caption: string;
 }
 
-/** What a card holds (R-MOMENT-002): every string is content's words, formatted. */
+/** What a card holds (moment:moment-card-contents): every string is content's words, formatted. */
 export interface MomentFace {
   kind: MomentKind;
   tone: "good" | "bad";
@@ -164,7 +164,7 @@ function moneyParamOf(line: ReportLine, name: string): { currency: Currency; amo
   return typeof value === "object" ? value : null;
 }
 
-/** How long the life has been at it: the months played, the figure the share cards carry too (R-SHARE-004). */
+/** How long the life has been at it: the months played, the figure the share cards carry too (share:card-contents). */
 function monthsFigure(view: Pick<PlayerView, "month">, caption: string): MomentFigure {
   return { value: view.month, unit: { kind: "count" }, caption: sayCount(caption, view.month) };
 }
@@ -173,7 +173,7 @@ function moneyFigure(money: { currency: Currency; amount: number }, caption: str
   return { value: money.amount, unit: { kind: "money", currency: money.currency }, caption: say(caption) };
 }
 
-/** R-ROUTE-013, R-ROUTE-019: the untraced share as a whole percent, when it is what the letter refused on. */
+/** route:unexplained-share-of-funds, route:refusal-reasons-recorded: the untraced share as a whole percent, when it is what the letter refused on. */
 function untracedShare(route: PlayerView["routes"][number] | undefined): number | null {
   if (route === undefined || route.unexplainedBp < content.tuning.route.fundsReasonBp) return null;
   return Math.floor(route.unexplainedBp / 100);
@@ -189,7 +189,7 @@ function granted(line: ReportLine, view: PlayerView): Built {
   return { title: nameOf(route), line: say(variant("moment.granted.line", route)), figure: monthsFigure(view, "moment.granted.caption"), chip: null };
 }
 
-/** The endorsing body's refusal (R-ENDORSE-002): told by its own line, the route's refusal noted beside it folded away. */
+/** The endorsing body's refusal (route-gates:endorsement-decided-by-draw): told by its own line, the route's refusal noted beside it folded away. */
 const ENDORSEMENT_REFUSED = "line.route.endorsement-refused";
 
 function refused(line: ReportLine, view: PlayerView, before: PlayerView | null): Built {
@@ -211,7 +211,7 @@ function agent(line: ReportLine): Built {
   return { title: who === undefined ? "" : formatParam("agent", who, line.params, line.key), line: say("moment.agent.line"), figure: moneyFigure(amount, "moment.agent.caption"), chip: null };
 }
 
-/** R-MOMENT-002: the deposit a road pitch took and the pitch's own name; the figure the deposit gone. */
+/** moment:moment-card-contents: the deposit a road pitch took and the pitch's own name; the figure the deposit gone. */
 function deposit(earlier: readonly ReportLine[]): Built | null {
   const paid = depositPaid(earlier);
   if (paid === null) return null;
@@ -244,7 +244,7 @@ function landed(line: ReportLine, view: PlayerView): Built {
 
 function chapter(line: ReportLine, view: PlayerView): Built {
   const id = stringParam(line, "chapter") ?? "";
-  // Japacity is how ready the move is, so it is the figure only at home; after the flight the months are (R-SHARE-004).
+  // Japacity is how ready the move is, so it is the figure only at home; after the flight the months are (share:card-contents).
   const percent = view.place.where === "home" ? view.japacity.percent : null;
   const figure: MomentFigure = percent === null ? monthsFigure(view, "moment.chapter.caption") : { value: percent, unit: { kind: "percent" }, caption: say("moment.chapter.caption.japacity") };
   return { title: say(`${id}.title`), line: say(`${id}.close`), figure, chip: null };
@@ -288,7 +288,7 @@ function built(entry: MomentEntry, line: ReportLine, view: PlayerView, before: P
 }
 
 /**
- * R-MOMENT-002: the card for a moment's line, read from the view the line came with (and, for a refusal, the view
+ * moment:moment-card-contents: the card for a moment's line, read from the view the line came with (and, for a refusal, the view
  * before it, while the file was being decided). `earlier` holds the month's lines up to and with the moment's own, where
  * a deposit was paid. Null for a line that is no moment, or one whose figure the lines do not hold.
  */

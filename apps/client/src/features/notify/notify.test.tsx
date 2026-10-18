@@ -105,14 +105,14 @@ async function moment(store: GameStore, lines: ReportLine[]) {
 const askTitle = () => screen.queryByText(say("ui.notify.ask.title"));
 
 describe("when the notice may be asked for", () => {
-  test("[R-CLOCK-031] given good lines that are big or ask for attention, and plain, bad or quiet good ones, when they are read, then only the first are a good moment", () => {
+  test("[clock:full-bank-push-notification] given good lines that are big or ask for attention, and plain, bad or quiet good ones, when they are read, then only the first are a good moment", () => {
     expect(isGoodMoment([line("plain"), SALARY])).toBe(true);
     expect(isGoodMoment([line("good", { attention: true })])).toBe(true);
     expect(isGoodMoment([line("good"), line("bad", { big: true }), line("plain", { attention: true })])).toBe(false);
     expect(isGoodMoment([])).toBe(false);
   });
 
-  test("[R-CLOCK-031] given a dismissal, when the ask is weighed one ms and one day short of reaskDays and at it, then only at it may it come again", () => {
+  test("[clock:full-bank-push-notification] given a dismissal, when the ask is weighed one ms and one day short of reaskDays and at it, then only at it may it come again", () => {
     const terms = { permission: "default" as const, key: KEY, dismissedAt: START, reaskDays: REASK_DAYS };
     expect(mayAsk({ ...terms, now: START + REASK_DAYS * time.DAY_MS - time.DAY_MS })).toBe(false);
     expect(mayAsk({ ...terms, now: START + REASK_DAYS * time.DAY_MS - 1 })).toBe(false);
@@ -120,7 +120,7 @@ describe("when the notice may be asked for", () => {
     expect(mayAsk({ ...terms, dismissedAt: null, now: START })).toBe(true);
   });
 
-  test("[R-CLOCK-031] given the browser's refusal, a browser without notices, or a deployment with no key, when the ask is weighed, then it never comes", () => {
+  test("[clock:full-bank-push-notification] given the browser's refusal, a browser without notices, or a deployment with no key, when the ask is weighed, then it never comes", () => {
     const terms = { key: KEY, dismissedAt: null, now: START, reaskDays: REASK_DAYS };
     expect(mayAsk({ ...terms, permission: "denied" })).toBe(false);
     expect(mayAsk({ ...terms, permission: "unsupported" })).toBe(false);
@@ -130,7 +130,7 @@ describe("when the notice may be asked for", () => {
 });
 
 describe("the ask", () => {
-  test("[R-CLOCK-031] given a big good line already held when the screen loads, when nothing else happens, then nothing is asked", async () => {
+  test("[clock:full-bank-push-notification] given a big good line already held when the screen loads, when nothing else happens, then nothing is asked", async () => {
     const server = fakeServer();
     await askScreen({ lines: [SALARY], api: server.api });
     await act(() => Promise.resolve());
@@ -139,7 +139,7 @@ describe("the ask", () => {
     expect(server.calls).toEqual([]);
   });
 
-  test("[R-CLOCK-031] given a big good line, when its moment is on screen and then closed, then the ask comes only after it, once, and is counted as after the early win", async () => {
+  test("[clock:full-bank-push-notification] given a big good line, when its moment is on screen and then closed, then the ask comes only after it, once, and is counted as after the early win", async () => {
     const { store, counted } = await askScreen();
     await act(async () => {
       store.setState({ lines: [SALARY], moments: [SALARY] });
@@ -155,7 +155,7 @@ describe("the ask", () => {
     expect(counted).toEqual(["ask/shown:notify:after"]);
   });
 
-  test("[R-CLOCK-031] given plain and bad lines, when their month closes, then nothing is asked", async () => {
+  test("[clock:full-bank-push-notification] given plain and bad lines, when their month closes, then nothing is asked", async () => {
     const server = fakeServer();
     const { store } = await askScreen({ api: server.api });
     await moment(store, [line("plain"), line("bad", { big: true })]);
@@ -164,7 +164,7 @@ describe("the ask", () => {
     expect(server.calls).toEqual([]);
   });
 
-  test("[R-GUIDE-015] given a good moment before the early win, when it closes, then nothing is asked", async () => {
+  test("[guide:nothing-asked-before-early-win] given a good moment before the early win, when it closes, then nothing is asked", async () => {
     const server = fakeServer();
     const { store } = await askScreen({ api: server.api, earlyWin: () => false });
     await moment(store, [SALARY]);
@@ -173,7 +173,7 @@ describe("the ask", () => {
     expect(server.calls).toEqual([]);
   });
 
-  test("[R-GUIDE-015] given the store's early-win flag not yet set, when a good moment closes, then nothing is asked; once the flag is set, the next good moment asks", async () => {
+  test("[guide:nothing-asked-before-early-win] given the store's early-win flag not yet set, when a good moment closes, then nothing is asked; once the flag is set, the next good moment asks", async () => {
     const server = fakeServer();
     const { store } = await askScreen({ api: server.api, storeWin: false });
     await moment(store, [SALARY]);
@@ -183,7 +183,7 @@ describe("the ask", () => {
     await waitFor(() => expect(askTitle()).not.toBeNull());
   });
 
-  test("[R-CLOCK-031] given the ask, when the player says not now, then it is kept on the device and the next good moment one day short of reaskDays asks nothing, and the one at reaskDays asks again", async () => {
+  test("[clock:full-bank-push-notification] given the ask, when the player says not now, then it is kept on the device and the next good moment one day short of reaskDays asks nothing, and the one at reaskDays asks again", async () => {
     const { device, state } = fakeDevice();
     const { store } = await askScreen({ device });
     await moment(store, [SALARY]);
@@ -202,7 +202,7 @@ describe("the ask", () => {
     await waitFor(() => expect(askTitle()).not.toBeNull());
   });
 
-  test("[R-CLOCK-031] given the ask, when the player agrees and the browser allows it, then this device is kept on the server and the yes is counted", async () => {
+  test("[clock:full-bank-push-notification] given the ask, when the player agrees and the browser allows it, then this device is kept on the server and the yes is counted", async () => {
     const server = fakeServer();
     const { device, state } = fakeDevice();
     const { store, counted } = await askScreen({ api: server.api, device });
@@ -217,7 +217,7 @@ describe("the ask", () => {
     await waitFor(() => expect(askTitle()).toBeNull());
   });
 
-  test("[R-CLOCK-031] given the ask, when the player agrees and the browser refuses, then nothing is kept and no later good moment asks again", async () => {
+  test("[clock:full-bank-push-notification] given the ask, when the player agrees and the browser refuses, then nothing is kept and no later good moment asks again", async () => {
     const server = fakeServer();
     const { device, state } = fakeDevice("default", "denied");
     const { store } = await askScreen({ api: server.api, device });
@@ -237,7 +237,7 @@ describe("the ask", () => {
 });
 
 describe("the setting", () => {
-  test("[R-CLOCK-031] given the setting off, when the player turns it on and then off, then this device is kept and then every device is forgotten", async () => {
+  test("[clock:full-bank-push-notification] given the setting off, when the player turns it on and then off, then this device is kept and then every device is forgotten", async () => {
     const server = fakeServer();
     const { device, state } = fakeDevice();
     render(<NotifySetting api={server.api} device={device} />);
@@ -254,7 +254,7 @@ describe("the setting", () => {
     expect(state.unsubscribed).toBe(1);
   });
 
-  test("[R-CLOCK-031] given a browser that refused, when the setting shows, then it cannot be turned on and says why", async () => {
+  test("[clock:full-bank-push-notification] given a browser that refused, when the setting shows, then it cannot be turned on and says why", async () => {
     const { device } = fakeDevice("denied");
     render(<NotifySetting api={fakeServer().api} device={device} />);
 
@@ -262,7 +262,7 @@ describe("the setting", () => {
     expect(screen.getByText(say("ui.notify.blocked"))).not.toBeNull();
   });
 
-  test("[R-CLOCK-031] given a deployment with no key, or no server, when the settings open, then the switch is not shown", async () => {
+  test("[clock:full-bank-push-notification] given a deployment with no key, or no server, when the settings open, then the switch is not shown", async () => {
     const server = fakeServer({ key: null });
     render(<NotifySetting api={server.api} device={fakeDevice().device} />);
     await waitFor(() => expect(server.calls).toEqual(["status"]));
@@ -274,7 +274,7 @@ describe("the setting", () => {
 });
 
 describe("the notice's routes from the client", () => {
-  test("[R-CLOCK-031] given the server, when the status, a device and the setting off are sent, then each goes to its route with the session", async () => {
+  test("[clock:full-bank-push-notification] given the server, when the status, a device and the setting off are sent, then each goes to its route with the session", async () => {
     const asked: { url: string; init?: RequestInit }[] = [];
     const answers: Record<string, unknown> = {
       "GET https://api.example.test/api/notify": { ok: true, on: true, reaskDays: REASK_DAYS },
@@ -290,7 +290,7 @@ describe("the notice's routes from the client", () => {
     expect(await api.status()).toEqual({ on: true, reaskDays: REASK_DAYS, key: KEY });
     expect(await api.subscribe(DEVICE)).toBe(true);
     expect(await api.turnOff()).toBe(false);
-    // R-ENGINE-015: every call goes through the one request function, same-origin.
+    // engine:browser-authority-for-dev-only: every call goes through the one request function, same-origin.
     expect(asked.every((each) => each.init?.credentials === "same-origin")).toBe(true);
     expect(JSON.parse(asked.at(-2)?.init?.body as string)).toEqual({ subscription: DEVICE });
   });

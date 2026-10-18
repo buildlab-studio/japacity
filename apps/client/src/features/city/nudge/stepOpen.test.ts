@@ -1,4 +1,4 @@
-// The nudge's Go opens what it names (docs/rules/world.md R-WORLD-003, R-WORLD-006):
+// The nudge's Go opens what it names (world:nudge-says-one-thing, world:one-action-one-sheet):
 // "Apply to schools from the hub" at the hub opens the application's own card, the school chooser, in one
 // tap; the desk's chip keeps its list for a player who browses.
 import { describe, expect, test } from "vitest";
@@ -20,7 +20,7 @@ const APPLY = "activity.apply-to-school";
 const offerStep = { current: "chapter.build-the-file" as const, items: [{ id: "passport", met: true }, { id: "transcript", met: true }, { id: "english", met: true }, { id: "offer", met: false }], done: [], closes: false, next: null };
 
 describe("the nudge's Go on the application", () => {
-  test("[R-WORLD-003] [R-WORLD-006] given the offer step and the player at the hub, when the nudge is followed, then the application's own card opens, not the desk's chip", () => {
+  test("[world:nudge-says-one-thing] [world:one-action-one-sheet] given the offer step and the player at the hub, when the nudge is followed, then the application's own card opens, not the desk's chip", () => {
     const way = stepWayOf({ chapter: offerStep });
     if (way === null) throw new Error("The offer step has no way.");
     const thing = stepThingHere(way, "place.yaba", things);
@@ -31,20 +31,20 @@ describe("the nudge's Go on the application", () => {
     expect(desk?.acts.some((act) => act.stages === APPLY || (act.more ?? []).includes(APPLY))).toBe(true);
   });
 
-  test("[R-WORLD-003] given the offer step away from the hub, when the nudge is followed, then the map opens with the hub picked; given the application not offered, the desk's chip opens", () => {
+  test("[world:nudge-says-one-thing] given the offer step away from the hub, when the nudge is followed, then the map opens with the hub picked; given the application not offered, the desk's chip opens", () => {
     const way = stepWayOf({ chapter: offerStep });
     if (way === null) throw new Error("The offer step has no way.");
     expect(stepOpen(way, null, [APPLY], "place.family-house")).toEqual({ kind: "map", stop: "place.yaba" });
     expect(stepOpen(way, "desk", [], "place.yaba")).toEqual({ kind: "thing", thing: "desk" });
   });
 
-  test("[R-WORLD-003] [R-CHAPTER-009] given a way that opens a card with a choice made, when its thing stands here and the card is offered, then the act carries the choice", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given a way that opens a card with a choice made, when its thing stands here and the card is offered, then the act carries the choice", () => {
     const way = { go: "place.yaba", at: ["place.yaba:desk"], opens: "activity.look-into-route", param: "route.uk-care" };
     expect(stepOpen(way, "desk", ["activity.look-into-route"], "place.yaba")).toEqual({ kind: "act", activity: "activity.look-into-route", param: "route.uk-care" });
     expect(stepOpen(way, "desk", [], "place.yaba")).toEqual({ kind: "thing", thing: "desk" });
   });
 
-  test("[R-WORLD-003] given a step done by ending the month, or a step whose thing stands here with no card of its own, when the nudge is followed, then the Month sheet or the thing opens", () => {
+  test("[world:nudge-says-one-thing] given a step done by ending the month, or a step whose thing stands here with no card of its own, when the nudge is followed, then the Month sheet or the thing opens", () => {
     const monthEnd = stepWayOf({ chapter: { current: "chapter.find-your-feet", items: [{ id: "pay", met: false }], done: [], closes: false, next: null } });
     if (monthEnd === null) throw new Error("No way for the month's end.");
     expect(stepOpen(monthEnd, null, [], "place.yaba")).toEqual({ kind: "month" });
@@ -60,7 +60,7 @@ describe("the nudge's Go on the application", () => {
 describe("the nudge where the player stands", () => {
   const cases = [
     { chapter: "chapter.find-your-feet", step: "job", file: raw, place: "place.yaba", names: /hub|Yaba/ },
-    // The passport is a visit to Immigration (R-WORLD-019): the passport office stands in the visa centre's hall.
+    // The passport is a visit to Immigration (world:phone-holds-what-phones-hold): the passport office stands in the visa centre's hall.
     { chapter: "chapter.build-the-file", step: "passport", file: visaCentre, place: "place.passport-office", names: /Ikoyi/ },
     { chapter: "chapter.build-the-file", step: "english", file: testCentre, place: "place.english-test-centre", names: /centre/ },
     { chapter: "chapter.build-the-file", step: "offer", file: raw, place: "place.yaba", names: /hub/ },
@@ -70,7 +70,7 @@ describe("the nudge where the player stands", () => {
     { chapter: "chapter.send-off", step: "departed", file: airport, place: "place.airport-lagos", names: /airport/ },
   ] as const;
 
-  test("[R-WORLD-003] given each step whose nudge names a place, when the player stands where its thing is, then the nudge drops the place, in one sentence of at most eight words", () => {
+  test("[world:nudge-says-one-thing] given each step whose nudge names a place, when the player stands where its thing is, then the nudge drops the place, in one sentence of at most eight words", () => {
     for (const { chapter, step, file, place, names } of cases) {
       const way = stepWayOf({ chapter: { current: chapter, items: [{ id: step, met: false }], done: [], closes: false, next: null } });
       if (way === null) throw new Error(`${chapter}.${step} has no way.`);

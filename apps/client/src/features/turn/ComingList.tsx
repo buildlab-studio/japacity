@@ -1,4 +1,4 @@
-// The Coming up list, in the Calendar app (docs/rules/world.md R-WORLD-002, text.md R-TEXT-008): each row a card with a box of
+// The Coming up list, in the Calendar app (world:top-band-is-lively-pill, text:show-then-tell): each row a card with a box of
 // how many months away and the months label once, the thing, and a note of two or three words where it adds one.
 // The box says the months, so the line beside it never says them again.
 import type { PlayerView } from "@japacity/sim";
@@ -20,7 +20,7 @@ const NOTES: Readonly<Record<Coming["kind"], string | null>> = {
 
 export interface ComingListProps {
   view: Parameters<typeof comingOf>[0] & Pick<PlayerView, "month">;
-  /** What a tap on a row does, or null for a row that opens nothing (R-WORLD-002: each item tappable in the Calendar). */
+  /** What a tap on a row does, or null for a row that opens nothing (world:top-band-is-lively-pill: each item tappable in the Calendar). */
   onPick?: (item: Coming) => (() => void) | null;
   /** A row's own note in place of its kind's: where a dated thing is answered. */
   noteOf?: (item: Coming) => string | null;

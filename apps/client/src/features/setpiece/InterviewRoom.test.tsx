@@ -256,7 +256,7 @@ describe("the scene completes whatever sound does", () => {
 });
 
 describe("what the officer says", () => {
-  test("[R-SETPIECE-008] [R-SETPIECE-005] given a sponsor as the answer, then a neutral reaction drawn from the four is shown, then the follow-up marked as one, counted in the total", async () => {
+  test("[route:answer-may-ask-follow-up] [route:view-shows-progress-not-score] given a sponsor as the answer, then a neutral reaction drawn from the four is shown, then the follow-up marked as one, counted in the total", async () => {
     await open({ supported: false });
     await enter();
     fireEvent.click(within(room()).getByRole("button", { name: new RegExp(text[`${VOICED}.a.who-pays.sponsor`]!) }));
@@ -268,7 +268,7 @@ describe("what the officer says", () => {
     expect(within(room()).getByText(`Question 2 of ${String(entry.ask + 1)}`)).toBeDefined();
   });
 
-  test("[R-SETPIECE-005] given the random draw at each of four values, when a reaction is drawn, then each of the four is said: the draw reads no score", () => {
+  test("[route:view-shows-progress-not-score] given the random draw at each of four values, when a reaction is drawn, then each of the four is said: the draw reads no score", () => {
     const seen = new Set<string>();
     const spy = vi.spyOn(crypto, "getRandomValues");
     for (let index = 0; index < 4; index += 1) {

@@ -1,4 +1,4 @@
-// The places on the painted map (docs/rules/world.md R-WORLD-015): each built place stands on the paper as its own
+// The places on the painted map (world:map-is-painted-lagos): each built place stands on the paper as its own
 // sticker, and the sticker is the pin. Where it stands comes from content's position through the one fit; places a
 // few hundred metres apart are eased apart by a fixed, ordered spread so neither hides the other. One rule for rings
 // and names in every zoom: a ring only where the player stands, on the stop picked and on the step's place; a name on
@@ -8,7 +8,7 @@ import type { PinState } from "../../../shared/world/contract";
 import { cardOf } from "./districts";
 import { type Point, type Position, toPaper } from "./fit";
 
-/** How a painted city stands its stops: its fit, its districts, and any stop it stands somewhere of its own (R-WORLD-038). */
+/** How a painted city stands its stops: its fit, its districts, and any stop it stands somewhere of its own (world:painted-maps-abroad). */
 export interface Placer {
   toPaper: (position: Position) => Point;
   cardOf: (position: Position) => string;

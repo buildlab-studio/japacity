@@ -1,4 +1,4 @@
-// "Make it yours" on the door's first screen (prologue.md R-PROLOGUE-015): under the look strip, opened on a tap,
+// "Make it yours" on the door's first screen (prologue:player-colours-on-looks): under the look strip, opened on a tap,
 // swatches for the skin, the hair and the top, and a printed top's fabric, each starting as the look
 // was made, with the way back to as made. The style is kept with the person beside the save, the page prints the look in it, and none of it reaches the
 // simulation.
@@ -46,7 +46,7 @@ const chosen = (part: string): string | null => document.querySelector(`[data-sw
 const SENATOR: OwnColours = { skin: "skin4", hair: "hair", top: "cream", fabric: null };
 
 describe("Make it yours", () => {
-  test("[R-PROLOGUE-015] given the first screen, \"Make it yours\" opened and the figure read, then under the look strip are the skin, the hair and the top, each with the look's own colour chosen, and no fabric for a plain top", () => {
+  test("[prologue:player-colours-on-looks] given the first screen, \"Make it yours\" opened and the figure read, then under the look strip are the skin, the hair and the top, each with the look's own colour chosen, and no fabric for a plain top", () => {
     door();
     expect(document.querySelector("[data-yours]")).toBeNull();
     // Shut until it is opened: the figure read alone shows no rows.
@@ -70,7 +70,7 @@ describe("Make it yours", () => {
     expect(document.querySelector("[data-yours-made]")).toBeNull();
   });
 
-  test("[R-PROLOGUE-015] given a head with no hair to read and a printed top, then there is no hair row and the fabric row starts at the look's own print", () => {
+  test("[prologue:player-colours-on-looks] given a head with no hair to read and a printed top, then there is no hair row and the fabric row starts at the look's own print", () => {
     door();
     openYours();
     act(() => reportOwn(lookShown(), { skin: "skin3", hair: null, top: "indigo", fabric: "ankara" }));
@@ -84,7 +84,7 @@ describe("Make it yours", () => {
     expect(readDoor()?.style).toBeUndefined();
   });
 
-  test("[R-PROLOGUE-015] given picks, then each is kept with the run, picking the look's own colour takes that part back, and Back to as made takes all of them back", () => {
+  test("[prologue:player-colours-on-looks] given picks, then each is kept with the run, picking the look's own colour takes that part back, and Back to as made takes all of them back", () => {
     door();
     openYours();
     act(() => reportOwn(lookShown(), SENATOR));
@@ -103,7 +103,7 @@ describe("Make it yours", () => {
     expect(JSON.parse(localStorage.getItem(DOOR_KEY) ?? "{}")).not.toHaveProperty("style");
   });
 
-  test("[R-PROLOGUE-015] [R-PROLOGUE-009] given a style, when Begin starts the life, then the style is kept with the look and the name beside the save, and the save and the simulation hold none of it", async () => {
+  test("[prologue:player-colours-on-looks] [prologue:front-door-builds-a-person] given a style, when Begin starts the life, then the style is kept with the look and the name beside the save, and the save and the simulation hold none of it", async () => {
     const save = memoryStorage();
     const store = door(save);
     const look = lookShown();

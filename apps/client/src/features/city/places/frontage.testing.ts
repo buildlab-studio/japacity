@@ -1,4 +1,4 @@
-// The checks every rebuilt frontage passes (docs/rules/world.md R-WORLD-005, 009, 011, 012): its
+// The checks every rebuilt frontage passes (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height): its
 // file measured as the build check measures it against the exterior row, its counts, its crowd under
 // the world's caps, its floors a centimetre apart, its boards, and its things' words resolving
 // through the scene's own. Each place's test calls these and adds what that place must show.
@@ -30,7 +30,7 @@ function cappedCrowd(id: Id<"place">, mode: "low" | "high"): number {
 /** Every entry a place's things open, as their acts list them. */
 export function actEntries(raw: unknown, id: Id<"place">): string[] {
   const { stage } = staged(raw, id);
-  // The things as the game reads them: the file's own, with the entries the client's table adds to the desks' sheets (R-CHAPTER-009).
+  // The things as the game reads them: the file's own, with the entries the client's table adds to the desks' sheets (chapter:chapters-follow-lean-route).
   return withMoreAt(stage.things ?? [], id).flatMap((thing) => thing.acts.flatMap((act) => [...(act.stages === undefined ? [] : [act.stages]), ...(act.more ?? [])]));
 }
 
@@ -42,7 +42,7 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
   const { file, stage, entry } = staged(raw, id);
   const models = [...new Set(stage.models.map((model) => model.file))];
 
-  test(`[R-ASSET-007] given ${id}'s shipped files measured as the build check measures them, when the frontage is counted, then both modes fit the exterior row and its download fits the row's bytes`, async () => {
+  test(`[assets:assets-and-places-within-budget] given ${id}'s shipped files measured as the build check measures them, when the frontage is counted, then both modes fit the exterior row and its download fits the row's bytes`, async () => {
     expect(file.scope).toBe("exterior");
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
@@ -52,7 +52,7 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
     expect(totals.bytes).toBeLessThanOrEqual(budgets.place.exterior.bytes);
   });
 
-  test(`[R-ASSET-007] given ${id}'s file, when its counts are read, then the instances are the copies staged, the crowd is the world's in each mode, the floor is one draw call of the triangles drawn, and every colour is a palette name`, () => {
+  test(`[assets:assets-and-places-within-budget] given ${id}'s file, when its counts are read, then the instances are the copies staged, the crowd is the world's in each mode, the floor is one draw call of the triangles drawn, and every colour is a palette name`, () => {
     expect(file.scope).toBe(entry.scope);
     expect(file.instances).toEqual(instancesOf(stage));
     expect(file.people.low).toBe(cappedCrowd(id, "low"));
@@ -63,7 +63,7 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
     expect(allPalette(stage)).toBe(true);
   });
 
-  test(`[R-WORLD-011] given ${id}'s file, when its limits are read, then it is one outdoor frontage of about 24 metres with at most 6 people in low mode and 10 in high and at most one moving sheet`, () => {
+  test(`[world:place-is-one-screen] given ${id}'s file, when its limits are read, then it is one outdoor frontage of about 24 metres with at most 6 people in low mode and 10 in high and at most one moving sheet`, () => {
     expect(checkLimits(file)).toEqual([]);
     expect(stage.shot?.width).toBeGreaterThanOrEqual(WORLD_LIMITS.frontage / WORLD_LIMITS.slack);
     expect(stage.shot?.width).toBeLessThanOrEqual(WORLD_LIMITS.frontage * WORLD_LIMITS.slack);
@@ -72,7 +72,7 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
     expect(stage.motion.filter((motion) => SHEET_KINDS.has(motion.kind)).length).toBeLessThanOrEqual(WORLD_LIMITS.sheets.high);
   });
 
-  test(`[R-WORLD-009] given ${id}'s file, when its camera is read, then it declares a whole view and a close view raised between eye level and straight down, a turn limit, its facing and the width the whole view must show`, () => {
+  test(`[world:camera-always-raised] given ${id}'s file, when its camera is read, then it declares a whole view and a close view raised between eye level and straight down, a turn limit, its facing and the width the whole view must show`, () => {
     const shot = stage.shot;
     if (shot === undefined) throw new Error(`${id} declares no shot`);
     expect(shot.far).toBeGreaterThan(shot.near);
@@ -86,12 +86,12 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
     expect(shot.width).toBeDefined();
   });
 
-  test(`[R-WORLD-012] given ${id}'s strips and the floors of its models, when its faces are read, then no two overlap within a centimetre of the same height`, async () => {
+  test(`[world:faces-never-share-height] given ${id}'s strips and the floors of its models, when its faces are read, then no two overlap within a centimetre of the same height`, async () => {
     const floors = new Map<string, readonly ModelFace[]>(await Promise.all(models.map(async (path) => [path, (await measured(path)).floors ?? []] as const)));
     expect(checkFaces(id, stage, (path) => floors.get(path) ?? [])).toEqual([]);
   });
 
-  test(`[R-CITY-014] given ${id}'s crowd spots, when the high mode's crowd stands, then there is a spot for everyone on walkable ground clear of every footprint, none where the player starts, every kept spot within the crowd, and everyone in the sample a person of the city`, async () => {
+  test(`[city:crowd-sample-capped] given ${id}'s crowd spots, when the high mode's crowd stands, then there is a spot for everyone on walkable ground clear of every footprint, none where the player starts, every kept spot within the crowd, and everyone in the sample a person of the city`, async () => {
     const high = cappedCrowd(id, "high");
     expect(stage.people.length).toBeGreaterThanOrEqual(high);
     const footprints = new Map<string, Footprint>();
@@ -108,12 +108,12 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
   });
 
   if (!boards) {
-    test(`[R-CITY-024] given ${id}'s models, which carry no sign, when their boards are read, then none is lettered and no key is named`, async () => {
+    test(`[city:place-words-are-text-keys] given ${id}'s models, which carry no sign, when their boards are read, then none is lettered and no key is named`, async () => {
       for (const model of stage.models) expect([model.file, (await measured(model.file)).signs, model.signs]).toEqual([model.file, 0, undefined]);
     });
   }
 
-  if (boards) test(`[R-CITY-024] given ${id}'s lettered models, when their boards are read, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
+  if (boards) test(`[city:place-words-are-text-keys] given ${id}'s lettered models, when their boards are read, then every copy has a key for each of its boards, no key shows twice, and every key has words of the place`, async () => {
     for (const model of stage.models.filter((candidate) => candidate.signs !== undefined)) {
       const boards = (await measured(model.file)).signs;
       expect(model.signs).toHaveLength(model.at.length);
@@ -125,7 +125,7 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
     expect(keys.filter((key) => !key.startsWith(`${id}.sign.`) || wordsOf(key).trim() === "")).toEqual([]);
   });
 
-  test(`[R-WORLD-005] given ${id}'s things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve through the scene's words, and a plain act says what happened unless the scene shows it`, () => {
+  test(`[world:things-are-tappable-models] given ${id}'s things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve through the scene's words, and a plain act says what happened unless the scene shows it`, () => {
     const things = stage.things ?? [];
     expect(things.length).toBeGreaterThanOrEqual(3);
     expect(new Set(things.map((thing) => thing.id)).size).toBe(things.length);
@@ -139,13 +139,13 @@ export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: 
       for (const act of thing.acts) {
         expect(cityWords(act.label), `${thing.id} ${act.id}`).not.toBe(act.label);
         if (act.kind === "sheet") expect(act.stages, `${thing.id} ${act.id}`).toBeDefined();
-        // A plain act tells its line or a person speaks; one with a pose is seen, and says nothing (R-WORLD-005, R-TEXT-008).
+        // A plain act tells its line or a person speaks; one with a pose is seen, and says nothing (world:things-are-tappable-models, text:show-then-tell).
         if (act.kind === "plain") expect(plainActLine(thing, act) === null, `${thing.id} ${act.id}`).toBe(act.pose !== undefined);
       }
     }
   });
 
-  test(`[R-WORLD-005] given what ${id} stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there`, () => {
+  test(`[world:things-are-tappable-models] given what ${id} stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there`, () => {
     const opened = new Set(actEntries(raw, id));
     expect(entry.stages.filter((staged) => !opened.has(staged))).toEqual([]);
   });

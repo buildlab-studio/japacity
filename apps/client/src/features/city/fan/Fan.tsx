@@ -1,4 +1,4 @@
-// The fan (docs/design/13-the-lively-layer.md section 3; world.md R-WORLD-034): every thing's acts fanned out of the thing
+// The fan (docs/design/13-the-lively-layer.md section 3; world:fan-of-sticker-buttons): every thing's acts fanned out of the thing
 // itself, the thing's name in a pill over it, round sticker buttons on a curve into the larger free side, a name pill
 // outside the curve, the yellow price pill where a price stands, or what stands in the way. The scene's frame loop moves
 // the fan with its thing every frame (CityScene, `[data-fan]`, as the marks and the speech bubble); the layout is read once
@@ -21,7 +21,7 @@ export interface FanProps {
   thing: string;
   /** The thing's name: the pill over it and the group's label. */
   title: string;
-  /** The quiet mark of a person the game plays, beside the name as on every screen (person.md R-PEOPLE-009, R-PEOPLE-054). */
+  /** The quiet mark of a person the game plays, beside the name as on every screen (person:computer-candidates-labelled, person:computer-mark-is-quiet). */
   mark?: Thing["mark"];
   entries: readonly FanEntry[];
   /** A button tapped that can be had: the caller walks to the thing and sends its act. */
@@ -123,7 +123,7 @@ export function Fan({ thing, title, mark, entries, onAct, onFallback, going = nu
 
   // Until the scene says where the thing stands, the fan is an empty anchor it can find; with no room beside the thing, nothing.
   if (layout === null) return <div aria-hidden className="fan pointer-events-none fixed top-0 left-0 z-[37]" data-fan={thing} />;
-  // The thing's name over it, with a person's quiet mark beside it (R-WORLD-005: a tap shows the thing's name and its acts).
+  // The thing's name over it, with a person's quiet mark beside it (world:things-are-tappable-models: a tap shows the thing's name and its acts).
   const name = (
     <span ref={titleRef} className="fan-title" data-fan-title style={titleShift === null ? undefined : { left: `${String(titleShift.x)}px`, top: `${String(titleShift.y)}px` }}>
       {title}

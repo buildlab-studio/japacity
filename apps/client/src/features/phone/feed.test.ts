@@ -1,4 +1,4 @@
-// The family group feed as the phone reads it (docs/rules/text.md R-TEXT-003): a small feed, at most one post a
+// The family group feed as the phone reads it (text:family-group-feed): a small feed, at most one post a
 // month, never a post keyed to bad news, the billing only once the family knows, each fixed life's aunt and cousin
 // named from its own family. Every fixed life is read from the real engine and the real content.
 import { badNews, content, familyNames, familyPosts, text, travelKnown } from "@japacity/content";
@@ -18,7 +18,7 @@ function at(scenario: Id<"scenario">, month: number): PlayerView {
 const postOf = (id: string) => familyPosts.find((post) => post.id === id)!;
 
 describe("the family group feed", () => {
-  test("[R-TEXT-003] given every fixed life over five years, when the feed is read each month, then no month carries more than one post, and the same month reads the same twice", () => {
+  test("[text:family-group-feed] given every fixed life over five years, when the feed is read each month, then no month carries more than one post, and the same month reads the same twice", () => {
     expect(FIXED.length).toBeGreaterThan(0);
     for (const scenario of FIXED) {
       for (const month of MONTHS) {
@@ -30,14 +30,14 @@ describe("the family group feed", () => {
     }
   });
 
-  test("[R-TEXT-003] given every post keyed to a moment, when the moment is read, then it is a report line with words and never bad news", () => {
+  test("[text:family-group-feed] given every post keyed to a moment, when the moment is read, then it is a report line with words and never bad news", () => {
     const keyed = familyPosts.filter((post) => post.after !== null);
     expect(keyed.length).toBeGreaterThan(0);
     expect(keyed.filter((post) => text[post.after!] === undefined).map((post) => post.after)).toEqual([]);
     expect(keyed.filter((post) => badNews(post.after!, text[post.after!] ?? "")).map((post) => post.after)).toEqual([]);
   });
 
-  test("[R-TEXT-003] given a fixed life that has told no one it is travelling, when the feed is read in every month, then no billing post is in it; once the visa is granted, then billing is", () => {
+  test("[text:family-group-feed] given a fixed life that has told no one it is travelling, when the feed is read in every month, then no billing post is in it; once the visa is granted, then billing is", () => {
     for (const scenario of FIXED) {
       for (const month of MONTHS) {
         const billing = familyFeedLines(at(scenario, month)).filter((line) => postOf(line.id).kind === "billing");
@@ -51,7 +51,7 @@ describe("the family group feed", () => {
     for (const post of familyPosts.filter((each) => each.kind === "billing")) expect(travelKnown).toContain(post.after);
   });
 
-  test("[R-TEXT-003] given every fixed life, when its aunt's and its cousin's posts are read, then each is sent under the name of the life's own aunt and cousin", () => {
+  test("[text:family-group-feed] given every fixed life, when its aunt's and its cousin's posts are read, then each is sent under the name of the life's own aunt and cousin", () => {
     for (const scenario of FIXED) {
       const names = familyNames[scenario]!;
       const senders = new Map<string, Set<string>>();

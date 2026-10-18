@@ -1,7 +1,7 @@
 // The main journey: the current chapter's title, opening line and items, in the life's own words. An
 // item that any one of several paths meets lists them as "one of" (chapter 6,
 // Secure). Once every chapter is done the long game takes the chapter's place:
-// the open goals, each with how many of its items are met (R-CHAPTER-007).
+// the open goals, each with how many of its items are met (chapter:long-game-after-last-chapter).
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
 import { Check, Circle } from "lucide-react";

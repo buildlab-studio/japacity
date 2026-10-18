@@ -1,4 +1,4 @@
-// The send-off's ticket stub (docs/rules/share.md R-SHARE-001, R-SHARE-004 to R-SHARE-006, R-SHARE-009;
+// The send-off's ticket stub (share:cards-due-at-set-moments, share:card-contents, share:card-carries-no-money, share:card-never-looks-official, share:card-drawn-on-device;
 // decision 0024): a landscape card in the game's drawn hand with FROM, TO, MONTHS and JAPACITY, the type
 // badge and the first name, and nothing a real ticket carries: no airline, no barcode, no airport code.
 import { content, japaTypes, shareKinds, text, type JapaType } from "@japacity/content";
@@ -50,7 +50,7 @@ afterEach(() => {
 });
 
 describe("the ticket stub's face", () => {
-  test("[R-SHARE-004] given Ada's send-off, when her stub is laid out, then it shows FROM Lagos, TO the country, MONTHS as the cards say them, JAPACITY, her type and her first name", () => {
+  test("[share:card-contents] given Ada's send-off, when her stub is laid out, then it shows FROM Lagos, TO the country, MONTHS as the cards say them, JAPACITY, her type and her first name", () => {
     const view = adaSendOff();
     const card = view.card!;
     const type = japaTypeOf(view)!;
@@ -63,7 +63,7 @@ describe("the ticket stub's face", () => {
     expect(role(steps, "type-label")).toEqual([text["share.stub.badge"]!.toUpperCase()]);
     expect(role(steps, "type-name").join(" ")).toBe(text[`share.type.${type}.name`]);
     expect(role(steps, "type-line").join(" ")).toBe(text[`share.type.${type}.line`]);
-    // R-SHARE-004: the name the band says, the first word of the life's own name.
+    // share:card-contents: the name the band says, the first word of the life's own name.
     expect(role(steps, "name")).toEqual([(text["scenario.ada.name"] ?? "").split(/\s+/)[0]]);
     expect(role(steps, "sender")).toEqual(["Japacity"]);
     expect(role(steps, "official")).toEqual(["Official accounts: japacity.app/official"]);
@@ -74,14 +74,14 @@ describe("the ticket stub's face", () => {
     expect(disclaimer.size).toBeGreaterThanOrEqual(address.size);
   });
 
-  test("[R-SHARE-004] given a send-off with no type read yet, when laid out, then the stub keeps its fields and draws no badge", () => {
+  test("[share:card-contents] given a send-off with no type read yet, when laid out, then the stub keeps its fields and draws no badge", () => {
     const steps = stubSteps(stubFace(adaSendOff().card!, "scenario.ada", null)!, SIZE, measure);
     expect(role(steps, "stub-label")).toHaveLength(4);
     expect(role(steps, "type-name")).toEqual([]);
     expect(role(steps, "type-line")).toEqual([]);
   });
 
-  test("[R-SHARE-001] given every kind but the send-off, or a send-off with no country to name, then there is no stub", () => {
+  test("[share:cards-due-at-set-moments] given every kind but the send-off, or a send-off with no country to name, then there is no stub", () => {
     const card = adaSendOff().card!;
     for (const kind of shareKinds.filter((each) => each !== "send-off")) expect(stubFace({ ...card, kind }, "scenario.ada", "careful-saver")).toBeNull();
     expect(stubFace({ ...card, route: "route.road" }, "scenario.ada", "careful-saver")).toBeNull();
@@ -89,7 +89,7 @@ describe("the ticket stub's face", () => {
     expect(stubFace(card, "scenario.ada", "careful-saver")).not.toBeNull();
   });
 
-  test("[R-SHARE-006] given every type and every country, when the stub is laid out, then no word drawn names an airline, a barcode, a seat, a booking or an airport's code, and the art is palette shapes alone", () => {
+  test("[share:card-never-looks-official] given every type and every country, when the stub is laid out, then no word drawn names an airline, a barcode, a seat, a booking or an airport's code, and the art is palette shapes alone", () => {
     for (const { label, steps } of everyStub()) {
       for (const words of drawnWords(steps)) {
         expect([label, words, TICKET.test(words)]).toEqual([label, words, false]);
@@ -101,7 +101,7 @@ describe("the ticket stub's face", () => {
     expect(artShapes(text["share.send-off.art"]!, { x: 0, y: 0, w: SIZE.width, h: SIZE.height })?.length).toBeGreaterThan(4);
   });
 
-  test("[R-SHARE-005] given every type and figures at their edges, when the stub is laid out, then no sum of money is drawn and the only numbers are the figure and the time played", () => {
+  test("[share:card-carries-no-money] given every type and figures at their edges, when the stub is laid out, then no sum of money is drawn and the only numbers are the figure and the time played", () => {
     const card = adaSendOff().card!;
     for (const type of [...japaTypes, null] as (JapaType | null)[]) {
       for (const [percent, months] of [
@@ -119,7 +119,7 @@ describe("the ticket stub's face", () => {
     }
   });
 
-  test("[R-SHARE-006] given every stub, when laid out, then it carries the watermark under its words, the corner badge clear of them, and the branding with the address at the foot", () => {
+  test("[share:card-never-looks-official] given every stub, when laid out, then it carries the watermark under its words, the corner badge clear of them, and the branding with the address at the foot", () => {
     for (const { label, steps } of everyStub()) {
       const marks = steps.filter((step): step is MarkStep => step.op === "mark");
       const watermark = marks.filter((mark) => mark.role === "watermark");
@@ -141,12 +141,12 @@ describe("the ticket stub's face", () => {
 });
 
 describe("the ticket stub's size", () => {
-  test("[R-SHARE-009] given the tuning's card size, then the stub is the same card turned on its side: landscape, a ticket's shape", () => {
+  test("[share:card-drawn-on-device] given the tuning's card size, then the stub is the same card turned on its side: landscape, a ticket's shape", () => {
     expect(SIZE).toEqual({ width: tuning.height, height: tuning.width });
     expect(SIZE.width).toBeGreaterThan(SIZE.height);
   });
 
-  test("[R-SHARE-009] given every stub, when laid out, then every word sits inside the picture and the fields end above the foot", () => {
+  test("[share:card-drawn-on-device] given every stub, when laid out, then every word sits inside the picture and the fields end above the foot", () => {
     for (const { label, steps } of everyStub()) {
       const foot = Math.min(...texts(steps).filter((step) => ["sender", "disclaimer", "address", "official"].includes(step.role)).map((step) => step.y - step.size));
       for (const step of texts(steps)) {
@@ -159,7 +159,7 @@ describe("the ticket stub's size", () => {
     }
   });
 
-  test("[R-SHARE-009] given a canvas, when the stub is drawn, then it is a landscape JPEG under the limit, and refused when no quality fits", async () => {
+  test("[share:card-drawn-on-device] given a canvas, when the stub is drawn, then it is a landscape JPEG under the limit, and refused when no quality fits", async () => {
     const card: Card = adaSendOff().card!;
     const face = stubFace(card, "scenario.ada", "careful-saver")!;
     const drawn = fakeCanvas((quality) => (quality > QUALITIES[1] ? tuning.maxBytes : tuning.maxBytes - 1));

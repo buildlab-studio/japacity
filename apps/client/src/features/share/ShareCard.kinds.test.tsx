@@ -40,10 +40,10 @@ afterEach(() => {
 });
 
 describe("a card for every moment", () => {
-  test("[R-SHARE-001] [R-SHARE-015] given each kind of card the view carries, when it is due, then it opens with the kind's title and a tile names it, the send-off from its tile", async () => {
+  test("[share:cards-due-at-set-moments] [share:send-off-card-kept] given each kind of card the view carries, when it is due, then it opens with the kind's title and a tile names it, the send-off from its tile", async () => {
     for (const kind of shareKinds) {
       const { store } = await renderWithView(<CardView />, adaWith(kind));
-      // R-SHARE-015: the send-off opens from its tile (that it never opens on its own is ShareCard.keepsake.test.tsx's).
+      // share:send-off-card-kept: the send-off opens from its tile (that it never opens on its own is ShareCard.keepsake.test.tsx's).
       if (kind === "send-off") fireEvent.click(screen.getByRole("button", { name: say("ui.card.open") }));
       const sheet = await screen.findByRole("dialog");
       const face = sheet.querySelector(`[data-share-card='${kind}']`) as HTMLElement;
@@ -56,7 +56,7 @@ describe("a card for every moment", () => {
     }
   });
 
-  test("[R-SHARE-002] given the ending card, when it shows, then it has no share button and says it is for the player alone", async () => {
+  test("[share:no-card-for-harm] given the ending card, when it shows, then it has no share button and says it is for the player alone", async () => {
     await renderWithView(<CardView />, adaWith("lost"));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).queryByRole("button", { name: say("share.button.share") })).toBeNull();
@@ -64,7 +64,7 @@ describe("a card for every moment", () => {
     expect(within(sheet).getByText(say("share.not-shareable"))).toBeDefined();
   });
 
-  test("[R-SHARE-003] given a card due on a phone, when it opens, then nothing is shared until the player taps, and one tap shares it once", async () => {
+  test("[share:card-offered-never-sent] given a card due on a phone, when it opens, then nothing is shared until the player taps, and one tap shares it once", async () => {
     const share = phoneShare();
     fakeCanvas(() => 1000);
     await renderWithView(<CardView />, adaWith("granted"));
@@ -78,7 +78,7 @@ describe("a card for every moment", () => {
     expect(await within(sheet).findByText(say("share.done.shared"))).toBeDefined();
   });
 
-  test("[R-SHARE-009] given a browser with no share sheet, when the player taps, then the card is saved as a file", async () => {
+  test("[share:card-drawn-on-device] given a browser with no share sheet, when the player taps, then the card is saved as a file", async () => {
     fakeCanvas(() => 1000);
     const clicked = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
     Object.defineProperty(URL, "createObjectURL", { configurable: true, value: () => "blob:card" });
@@ -89,7 +89,7 @@ describe("a card for every moment", () => {
     expect(clicked).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-SHARE-009] given a card the renderer refuses, when the player taps, then the card is not sent and a screenshot is suggested", async () => {
+  test("[share:card-drawn-on-device] given a card the renderer refuses, when the player taps, then the card is not sent and a screenshot is suggested", async () => {
     const share = phoneShare();
     fakeCanvas(() => Number.MAX_SAFE_INTEGER);
     await renderWithView(<CardView />, adaWith("secured"));
@@ -99,7 +99,7 @@ describe("a card for every moment", () => {
     expect(share).not.toHaveBeenCalled();
   });
 
-  test("[R-SHARE-011] given a card closed, when its month has passed, then it is kept on this device in the gallery, nothing is fetched, and it opens again from there", async () => {
+  test("[share:card-never-stored] given a card closed, when its month has passed, then it is kept on this device in the gallery, nothing is fetched, and it opens again from there", async () => {
     const fetched = vi.spyOn(globalThis, "fetch");
     const view = adaWith("first-pay-abroad");
     const { store } = await renderWithView(<CardView />, view);
@@ -114,17 +114,17 @@ describe("a card for every moment", () => {
     expect(fetched).not.toHaveBeenCalled();
   });
 
-  test("[R-SHARE-011] given the same card closed twice, then the gallery keeps it once", async () => {
+  test("[share:card-never-stored] given the same card closed twice, then the gallery keeps it once", async () => {
     const view = adaWith("send-off");
     await renderWithView(<CardView />, view);
-    // R-SHARE-015: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
+    // share:send-off-card-kept: the send-off is no screen of its own; it opens from the tile where the phone keeps it.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.card.open") }));
     fireEvent.click(within(await screen.findByRole("dialog")).getByRole("button", { name: say("ui.report.close") }));
     gallery.getState().keep(view.scenario, view.card!);
     expect(gallery.getState().kept).toHaveLength(1);
   });
 
-  test("[R-SHARE-014] given any card on screen, then it points to the official accounts page", async () => {
+  test("[share:everything-links-to-official] given any card on screen, then it points to the official accounts page", async () => {
     await renderWithView(<CardView />, adaWith("draw-win"));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText("Official accounts: japacity.app/official")).toBeDefined();
@@ -132,7 +132,7 @@ describe("a card for every moment", () => {
 });
 
 describe("the official accounts page", () => {
-  test("[R-SHARE-012] given the page at /official, then it is the page built from content's words, listing every claimed account and nothing else", () => {
+  test("[share:official-accounts-page] given the page at /official, then it is the page built from content's words, listing every claimed account and nothing else", () => {
     expect(pageFile).toBe(officialPage());
     const page = new DOMParser().parseFromString(pageFile, "text/html");
     const listed = [...page.querySelectorAll("[data-accounts] a")].map((link) => link.textContent);
@@ -142,7 +142,7 @@ describe("the official accounts page", () => {
     expect(page.querySelectorAll("script, img, iframe, form")).toHaveLength(0);
   });
 
-  test("[R-SHARE-013] given the page, then it says what the game never does and where to report an account pretending to be it", () => {
+  test("[share:official-page-warns-plainly] given the page, then it says what the game never does and where to report an account pretending to be it", () => {
     const page = new DOMParser().parseFromString(pageFile, "text/html");
     const never = [...page.querySelectorAll("[data-never] li")].map((item) => item.textContent);
     expect(never).toEqual(["money", "turns", "prize", "advert", "agents"].map((item) => text[`share.official.never.${item}`]));

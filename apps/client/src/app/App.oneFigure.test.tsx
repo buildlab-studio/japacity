@@ -32,7 +32,7 @@ function developer(): ReturnType<typeof newGame> {
 }
 
 describe("Saved for the move on the results and the Bank", () => {
-  test("[R-WORLD-019] given the developer who hears of the talent visa at the meetup in his first month, when the month's results and the Bank are read before the official page, then both say the same figure toward the move", async () => {
+  test("[world:phone-holds-what-phones-hold] given the developer who hears of the talent visa at the meetup in his first month, when the month's results and the Bank are read before the official page, then both say the same figure toward the move", async () => {
     const game = developer();
     game.accept({ type: "activity/now", activity: "activity.meetup", param: null });
     game.endTurn([]);
@@ -48,7 +48,7 @@ describe("Saved for the move on the results and the Bank", () => {
 });
 
 describe("the sure first hunt that lands another job", () => {
-  test("[R-ACTIVITY-005] [R-WORLD-008] given the developer's application for the junior developer's job with the month full, when the draw misses, then the results and News say the junior developer's job came to nothing before the offer the sure hunt landed", async () => {
+  test("[activity:job-hunt-lands-offer] [world:month-end-results-sheet] given the developer's application for the junior developer's job with the month full, when the draw misses, then the results and News say the junior developer's job came to nothing before the offer the sure hunt landed", async () => {
     const tile = archetypeOf("developer")!;
     // The first seed of a handful whose draw misses: the sure hunt then lands customer service.
     for (let at = 0; at < 12; at += 1) {

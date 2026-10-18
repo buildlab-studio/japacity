@@ -1,5 +1,5 @@
 // A job a way out depends on: the UK care route needs twenty-four months as a nurse
-// before the council's verification (R-SPONSOR-005). A life on that way is never nudged off that job, and a
+// before the council's verification (route-gates:care-route-needs-verification). A life on that way is never nudged off that job, and a
 // job offer says what taking it ends.
 import type { Id, PlayerView } from "@japacity/sim";
 

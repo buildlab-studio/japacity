@@ -25,14 +25,14 @@ const addButtonIn = (id: string) => within(cardOf(id)).getByRole("button", { nam
 
 describe("the month plan", () => {
   // The picker lists every act of the life with its card; reading each by role takes time under load.
-  test("[R-TURN-006] given a new life, then every free-slot activity shows its name and blurb from content, but rest, which an empty slot already is", { timeout: 30_000 }, async () => {
+  test("[turn:free-slots-per-month] given a new life, then every free-slot activity shows its name and blurb from content, but rest, which an empty slot already is", { timeout: 30_000 }, async () => {
     const view = engineView();
     await renderWithView(<ActivityView />, view);
     // Each act is read within its own card, since several countries' acts
     // share a name ("The weekly shop", "A meal of your own", "A fresh cut").
     for (const option of view.activities.filter((candidate) => candidate.id !== "activity.rest")) {
       expect(within(cardOf(option.id)).getByRole("heading", { name: text[`${option.id}.name`]! })).toBeDefined();
-      // The blurb as the screen says it, its `{hometown}` filled (R-PROLOGUE-002).
+      // The blurb as the screen says it, its `{hometown}` filled (prologue:family-draw-on-first-answer).
       expect(within(cardOf(option.id)).getByText(blurbOf(option.id) ?? "")).toBeDefined();
     }
     expect(screen.queryByRole("heading", { name: text["activity.rest.name"]! })).toBeNull();
@@ -59,7 +59,7 @@ describe("the month plan", () => {
   test("given activities added to the plan, when the plan fills, then adding stops and taking one out frees a slot", async () => {
     const view = engineView();
     const { store } = await renderWithView(<ActivityView />, view);
-    // Rest is never planned, and a thing started is planned once (R-TURN-006, R-WORLD-007).
+    // Rest is never planned, and a thing started is planned once (turn:free-slots-per-month, world:month-acts-carry-on).
     const free = view.activities.filter((option) => option.allowed && option.affordable && option.params === null && option.cost.length === 0 && plannable(option.id) && content.activity[option.id]?.where !== "abroad").map((option) => option.id);
     const picks = free.slice(0, view.freeSlots);
     expect(picks).toHaveLength(view.freeSlots);
@@ -88,7 +88,7 @@ describe("the month plan", () => {
     fireEvent.change(screen.getByLabelText(say("ui.activity.pick")), { target: { value: "school.ashby" } });
     expect(screen.getByRole("option", { name: text["school.ashby.name"]! })).toBeDefined();
     fireEvent.click(addButton("activity.apply-to-school"));
-    // R-ACTIVITY-015: an application is an act done at once, so the param picked goes with the command
+    // activity:now-acts-and-month-acts: an application is an act done at once, so the param picked goes with the command
     // sent now, and the month's plan is left as it was.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: "activity.apply-to-school", param: "school.ashby" }));
     expect(store.getState().plan.some((pick) => pick?.activity === "activity.apply-to-school")).toBe(false);
@@ -161,7 +161,7 @@ describe("the month plan", () => {
     expect(screen.queryByText(say("ui.activity.why-not"))).toBeNull();
   });
 
-  test("[R-WALLET-016] given a job held one month, then the card shows the view's pay, never content's written figure, and says one month", async () => {
+  test("[wallet:view-carries-month-pay] given a job held one month, then the card shows the view's pay, never content's written figure, and says one month", async () => {
     const base = engineView("scenario.tunde");
     const job = base.job.id ?? "activity.rest";
     const written = content.activity[job]?.pay;

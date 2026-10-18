@@ -1,4 +1,4 @@
-// The Numbers tab (analytics.md R-ANALYTICS-009, 012, 13): the live numbers from the admin's stats
+// The Numbers tab (analytics:dashboard-shows-fixed-list, analytics:admin-stats-for-admins-only, analytics:session-split-by-command-gaps): the live numbers from the admin's stats
 // route, laid out as the server made them, every small count only "fewer than", every hidden share "hidden".
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -34,11 +34,11 @@ const rowOf = (caption: string, first: string) => {
 };
 
 describe("the Numbers tab", () => {
-  test("[R-ANALYTICS-009] given the admin page, when its tabs are read, then Numbers sits beside Analytics", () => {
+  test("[analytics:dashboard-shows-fixed-list] given the admin page, when its tabs are read, then Numbers sits beside Analytics", () => {
     expect(ADMIN_TABS.slice(ADMIN_TABS.indexOf("analytics"), ADMIN_TABS.indexOf("analytics") + 2)).toEqual(["analytics", "numbers"]);
   });
 
-  test("[R-ANALYTICS-012] [R-ANALYTICS-010] given the stats route's answer, when the tab opens, then online now, the periods, the funnel in order and the economy show, a small count only as fewer than and a hidden share as hidden, from the stats route alone", async () => {
+  test("[analytics:admin-stats-for-admins-only] [analytics:small-counts-shown-as-fewer] given the stats route's answer, when the tab opens, then online now, the periods, the funnel in order and the economy show, a small count only as fewer than and a hidden share as hidden, from the stats route alone", async () => {
     const paths = numbersTab();
     await screen.findByText(words("admin.numbers.read", { at: "2026-10-08 12:00 UTC", to: "2026-10-07" }));
     expect(paths.filter((path) => path !== "/api/account")).toEqual(["/api/admin/stats"]);
@@ -54,7 +54,7 @@ describe("the Numbers tab", () => {
     expect(cells(rowOf(words("admin.numbers.economy", { day: "2026-10-07" }), "1-3"))).toEqual(["1-3", words("admin.analytics.fewer", { count: 10 }), "140", words("admin.analytics.fewer", { count: 10 }), words("admin.analytics.fewer", { count: 10 })]);
   });
 
-  test("[R-ANALYTICS-012] given the page's copy of the reply, when its sections are read, then they are the server's eleven, in its order", () => {
+  test("[analytics:admin-stats-for-admins-only] given the page's copy of the reply, when its sections are read, then they are the server's eleven, in its order", () => {
     expect(STATS.ok && Object.keys(STATS.stats)).toEqual(["now", "today", "last7", "last30", "totals", "funnel", "retention", "sessions", "shares", "adverts", "economy"]);
   });
 });

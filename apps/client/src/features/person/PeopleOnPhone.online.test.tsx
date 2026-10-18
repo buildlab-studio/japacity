@@ -1,4 +1,4 @@
-// The invite link on Chats' People row online (docs/rules/pair.md R-PAIR-008, R-PAIR-018): the server's route faked here
+// The invite link on Chats' People row online (pair:invite-link-single-use, pair:everyone-meets-by-invite): the server's route faked here
 // in the shapes of @japacity/api, each assertion against the slot the phone shows.
 import { content } from "@japacity/content";
 import { act, fireEvent, screen } from "@testing-library/react";
@@ -23,14 +23,14 @@ async function online(server: FakeServer, game = peopleGame()) {
 }
 
 describe("the invite link", () => {
-  test("[R-PAIR-008] given a card out online, when the player gets the link, then the server's single-use code becomes the link, with the days it lasts", async () => {
+  test("[pair:invite-link-single-use] given a card out online, when the player gets the link, then the server's single-use code becomes the link, with the days it lasts", async () => {
     const game = peopleGame();
     game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
     const server = fakeServer();
     server.answer("POST /api/invite", { body: { ok: true, code: "K7Q2", slot: "partner", expires: 9_000, card: {} } });
     const { store } = await online(server, game);
     act(() => store.setState({ earlyWin: false }));
-    // R-GUIDE-015: the link is an ask, so it waits for the early win.
+    // guide:nothing-asked-before-early-win: the link is an ask, so it waits for the early win.
     expect(screen.queryByRole("button", { name: say("ui.people.invite.link-get") })).toBeNull();
     act(() => store.setState({ earlyWin: true }));
     expect(screen.queryByText(say("ui.people.invite.offline"))).toBeNull();
@@ -40,7 +40,7 @@ describe("the invite link", () => {
     expect(screen.getByText(say("ui.people.invite.link-days", { days: content.tuning.pair.inviteDays }))).toBeDefined();
   });
 
-  test.each([["too-many", 429]])("[R-PAIR-008] given the server refusing the link as %s with %i, then the client reads the refusal from the body and says it in words", async (code, status) => {
+  test.each([["too-many", 429]])("[pair:invite-link-single-use] given the server refusing the link as %s with %i, then the client reads the refusal from the body and says it in words", async (code, status) => {
     const game = peopleGame();
     game.accept({ type: "people/invite", slot: "partner", looking: "partner", fill: "who-codes" });
     const server = fakeServer();

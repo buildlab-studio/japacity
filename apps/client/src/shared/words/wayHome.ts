@@ -1,5 +1,5 @@
 // The money the character lives on, and the way home as the engine forecasts it before the player commits
-// (docs/rules/place.md R-PLACE-011): the view carries the fare, where it comes from, the shape and the standing.
+// (place:view-carries-way-home): the view carries the fare, where it comes from, the shape and the standing.
 import { content } from "@japacity/content";
 import { placeCurrency, type Currency, type PlayerView } from "@japacity/sim";
 
@@ -8,7 +8,7 @@ export function localCurrency(view: Pick<PlayerView, "place">): Currency {
   return placeCurrency(view.place, content);
 }
 
-/** The way home from where the character is today, as the engine forecasts it (R-PLACE-011), or null when not abroad. */
+/** The way home from where the character is today, as the engine forecasts it (place:view-carries-way-home), or null when not abroad. */
 export function wayHome(view: Pick<PlayerView, "place">): PlayerView["place"]["wayHome"] {
   return view.place.wayHome;
 }

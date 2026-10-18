@@ -1,4 +1,4 @@
-// The standard for state changes (docs/rules/world.md R-WORLD-023): what opens, closes,
+// The standard for state changes (world:motions-under-half-second): what opens, closes,
 // appears or expands moves by a plain CSS transition on transform and opacity only, 150 to 250 ms, never on a layout
 // property; the shared sheets and cards carry it, so every screen built on them does.
 import { readFileSync } from "node:fs";
@@ -49,8 +49,8 @@ function motionClasses(file: string): string[] {
   return [...new Set([...source.matchAll(/\b(motion-[a-z-]+)\b/g)].map((match) => match[1] ?? ""))].filter((name) => name !== "" && name !== "motion-ts");
 }
 
-describe("state changes move on the compositor (R-WORLD-023)", () => {
-  test("[R-WORLD-023] given every motion class in index.css, when its transition is read, then it names transform or opacity only and lasts 150 to 250 ms", () => {
+describe("state changes move on the compositor (world:motions-under-half-second)", () => {
+  test("[world:motions-under-half-second] given every motion class in index.css, when its transition is read, then it names transform or opacity only and lasts 150 to 250 ms", () => {
     const names = [...new Set([...CSS.matchAll(/\.(motion-[a-z-]+)/g)].map((match) => match[1] ?? ""))];
     expect(names.length).toBeGreaterThanOrEqual(8);
     const wrong: string[] = [];
@@ -65,7 +65,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-023] given the folded rows, when their transition is read, then it is on transform and opacity only, from just above, in 150 to 250 ms", () => {
+  test("[world:motions-under-half-second] given the folded rows, when their transition is read, then it is on transform and opacity only, from just above, in 150 to 250 ms", () => {
     const rule = /\ndetails > :not\(summary\) \{([^}]*)\}/.exec(CSS)?.[1] ?? "";
     const transition = transitionOf(rule);
     expect(transition?.properties).toEqual(["transform", "opacity"]);
@@ -74,7 +74,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(CSS).toContain("@starting-style { details[open] > :not(summary)");
   });
 
-  test.each(SHARED)("[R-WORLD-023] given %s, when its classes are read, then every transition it declares is a motion class on transform or opacity, and none animates a layout property", (file) => {
+  test.each(SHARED)("[world:motions-under-half-second] given %s, when its classes are read, then every transition it declares is a motion class on transform or opacity, and none animates a layout property", (file) => {
     // The code only: comments say "transition" in words.
     const source = readFileSync(join(SRC, file), "utf8")
       .replace(/\/\*[\s\S]*?\*\//g, "")
@@ -87,7 +87,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(listed.filter((property) => !COMPOSITOR.has(property))).toEqual([]);
   });
 
-  test("[R-WORLD-023] given the shared sheet open, then its backdrop fades and its panel rises by the motion classes, and Base UI marks their first frame", () => {
+  test("[world:motions-under-half-second] given the shared sheet open, then its backdrop fades and its panel rises by the motion classes, and Base UI marks their first frame", () => {
     render(
       <Sheet open onOpenChange={() => undefined} title="A sheet">
         <p>Body</p>
@@ -98,7 +98,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(document.querySelector(".motion-scrim")).not.toBeNull();
   });
 
-  test("[R-WORLD-023] given a world sheet and a full-screen card open, then each carries its motion class: the world sheet sinks back, the full screen fades", () => {
+  test("[world:motions-under-half-second] given a world sheet and a full-screen card open, then each carries its motion class: the world sheet sinks back, the full screen fades", () => {
     render(
       <WorldSheet open onClose={() => undefined} label="Label" title="Title" mark="test">
         <p>Body</p>
@@ -114,7 +114,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(screen.getByRole("dialog").className).toContain("motion-scrim");
   });
 
-  test("[R-WORLD-023] given reduced motion, then nothing waits on a motion: the page says none is drawn, and every transition is cut", () => {
+  test("[world:motions-under-half-second] given reduced motion, then nothing waits on a motion: the page says none is drawn, and every transition is cut", () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query, addEventListener: () => undefined, removeEventListener: () => undefined }));
     expect(motionOn()).toBe(false);
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: false, media: query, addEventListener: () => undefined, removeEventListener: () => undefined }));
@@ -122,7 +122,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(CSS).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{\s*transition: none !important;/);
   });
 
-  test("[R-WORLD-023] given the phone's reduced-motion setting, when the helper reads it, then it says so; where the page cannot answer it says no, so the camera's own ease goes on", () => {
+  test("[world:motions-under-half-second] given the phone's reduced-motion setting, when the helper reads it, then it says so; where the page cannot answer it says no, so the camera's own ease goes on", () => {
     stubReducedMotion(true);
     expect(motionReduced()).toBe(true);
     expect(motionOn()).toBe(false);
@@ -134,7 +134,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(motionOn()).toBe(false);
   });
 
-  test("[R-WORLD-023] given the game open, when the player turns reduced motion on and off in their phone's settings, then the frame loop's reading follows at once", () => {
+  test("[world:motions-under-half-second] given the game open, when the player turns reduced motion on and off in their phone's settings, then the frame loop's reading follows at once", () => {
     const setting = stubReducedMotion(false);
     const seen: { current: boolean | null } = { current: null };
     function Reader() {
@@ -152,7 +152,7 @@ describe("state changes move on the compositor (R-WORLD-023)", () => {
     expect(seen.current).toBe(false);
   });
 
-  test("[R-WORLD-018] [R-WORLD-023] given a box laid out where another stood, when it is inverted, then the transform draws it back over the first box, turned as it stood, in the functions the resting transforms use", () => {
+  test("[world:phone-rises-over-scene] [world:motions-under-half-second] given a box laid out where another stood, when it is inverted, then the transform draws it back over the first box, turned as it stood, in the functions the resting transforms use", () => {
     const first = { x: 36, y: 227, width: 340, height: 600 };
     const last = { x: 8, y: 8, width: 396, height: 823 };
     expect(invertedTransform(first, last, -2)).toBe(`translate(0px, ${String(227 + 300 - (8 + 411.5))}px) rotate(-2deg) scale(${String(340 / 396)}, ${String(600 / 823)})`);

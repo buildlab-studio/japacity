@@ -1,5 +1,5 @@
-// The team's two rows in the phone's Settings, the game's menu in the world (docs/rules/moderation.md R-MODERATION-016,
-// R-MODERATION-020).
+// The team's two rows in the phone's Settings, the game's menu in the world (moderation:actioned-player-told-and-appeals,
+// moderation:feedback-box-in-settings).
 import type { Standing } from "@japacity/api";
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -23,7 +23,7 @@ describe("the team's rows in Settings", () => {
     reports: [{ id: "report.9", at: Date.UTC(2026, 9, 2), status: "decided", outcome: "no-action" }],
   };
 
-  test("[R-MODERATION-020] [R-MODERATION-016] given the game online, when the phone's Settings shows, then the feedback row is there, and the notice only once the team has decided something", async () => {
+  test("[moderation:feedback-box-in-settings] [moderation:actioned-player-told-and-appeals] given the game online, when the phone's Settings shows, then the feedback row is there, and the notice only once the team has decided something", async () => {
     const quiet = fakeModeration();
     await renderWithView(
       <ModerationProvider api={quiet}>
@@ -41,7 +41,7 @@ describe("the team's rows in Settings", () => {
     expect(await screen.findByRole("dialog", { name: words("ui.feedback.title") })).toBeTruthy();
   });
 
-  test("[R-MODERATION-016] given an action on the account, when the phone's Settings shows, then the notice row opens it", async () => {
+  test("[moderation:actioned-player-told-and-appeals] given an action on the account, when the phone's Settings shows, then the notice row opens it", async () => {
     await renderWithView(
       <ModerationProvider api={fakeModeration({ standing: () => Promise.resolve({ ok: true, standing }) })}>
         <Settings />

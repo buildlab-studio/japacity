@@ -1,4 +1,4 @@
-// No street talk over a share card (docs/rules/world.md R-WORLD-026, R-WORLD-001): the chatter's
+// No street talk over a share card (world:street-talk-budget, world:world-fills-the-screen): the chatter's
 // bubble stays off a chapter's card, whose "Take a screenshot to share it." it would run into.
 import { act, fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
@@ -16,7 +16,7 @@ function chatter(): HTMLElement | null {
 }
 
 describe("street talk and a share card", () => {
-  test("[R-WORLD-026] given the street's line floating over the resident nearest, when a chapter's card comes up over the world, then it hides until the card is closed", async () => {
+  test("[world:street-talk-budget] given the street's line floating over the resident nearest, when a chapter's card comes up over the world, then it hides until the card is closed", async () => {
     vi.useFakeTimers();
     const view = engineView();
     const { store } = await renderWithView(<City world results={() => <p />} />, view);

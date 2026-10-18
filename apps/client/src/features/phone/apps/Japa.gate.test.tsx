@@ -1,4 +1,4 @@
-// The gate on each way, in Japa's way files (docs/rules/route-gates.md, world.md R-WORLD-019): the points against the
+// The gate on each way, in Japa's way files (docs/rules/route-gates.md, world:phone-holds-what-phones-hold): the points against the
 // cut-off and the pool, the sponsor and the salary bar, the endorsement and its wait, the agent and the job, the partner
 // a way rests on, and the road never shown, each assertion against the phone's own element.
 import type { PlayerView, RouteGateView, RouteView } from "@japacity/sim";
@@ -21,7 +21,7 @@ function withRoute(id: RouteView["id"], gate: RouteGateView | null, base: Player
 }
 
 describe("the gate on each way in Japa", () => {
-  test("[R-POINTS-001] given the Canadian route looked into and no profile in the pool (set on the view), then the engine's score shows against the cut-off and the care cut-off", async () => {
+  test("[route-gates:points-score-from-table] given the Canadian route looked into and no profile in the pool (set on the view), then the engine's score shows against the cut-off and the care cut-off", async () => {
     const engine = withRoute("route.canada-points", null).routes[0]!.gate;
     if (engine?.gate !== "points") throw new Error("The Canadian route has no points gate.");
     const gate = { ...engine, poolMonth: null, profileEndsMonth: null, invitedMonth: null };
@@ -34,26 +34,26 @@ describe("the gate on each way in Japa", () => {
     expect(screen.getByText(say("ui.gate.points.no-pool"))).toBeDefined();
   });
 
-  test("[R-POINTS-006] given a carer under the general cut-off but at the care cut-off, when the gate shows, then it says she is at the cut-off for care workers, not short", async () => {
+  test("[route-gates:points-view-carries-invites] given a carer under the general cut-off but at the care cut-off, when the gate shows, then it says she is at the cut-off for care workers, not short", async () => {
     await renderWithView(<Japa />, withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, invites: true, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null }));
     expect(screen.getByText(say("ui.gate.points.over-care"))).toBeDefined();
     expect(screen.queryByText(say("ui.gate.points.short", { short: formatNumber(40) }))).toBeNull();
   });
 
-  test("[R-POINTS-006] given the same score without the care to count, when the gate shows, then it is short of the general cut-off", async () => {
+  test("[route-gates:points-view-carries-invites] given the same score without the care to count, when the gate shows, then it is short of the general cut-off", async () => {
     await renderWithView(<Japa />, withRoute("route.canada-points", { gate: "points", points: 480, cutoff: 520, careCutoff: 475, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null }));
     expect(screen.getByText(say("ui.gate.points.short", { short: formatNumber(40) }))).toBeDefined();
   });
 
-  test("[R-POINTS-002] given a profile in the pool, then the month it entered and the month it lapses show", async () => {
+  test("[route-gates:entering-the-pool] given a profile in the pool, then the month it entered and the month it lapses show", async () => {
     const view = withRoute("route.canada-points", { gate: "points", points: 470, cutoff: 520, careCutoff: 475, invites: false, poolMonth: 30, profileEndsMonth: 42, invitedMonth: null });
     await renderWithView(<Japa />, view);
-    // Said as months ago and away (R-WORLD-002): in the pool since the end of month 30, lapsing as month 42 ends.
+    // Said as months ago and away (world:top-band-is-lively-pill): in the pool since the end of month 30, lapsing as month 42 ends.
     expect(screen.getByText(say("phone.japa.pool", { since: agoWords(30, view.month), ends: inMonths(42, view.month) }))).toBeDefined();
     expect(document.querySelector('[data-gate="points"]')?.textContent).not.toMatch(/month \d+/i);
   });
 
-  test("[R-SPONSOR-006] given a sponsor paying under the bar, then the screen says it cannot be used", async () => {
+  test("[route-gates:skilled-route-needs-degree] given a sponsor paying under the bar, then the screen says it cannot be used", async () => {
     await renderWithView(<Japa />, withRoute("route.uk-skilled", { gate: "sponsor", employer: "tech-firm", salary: 3_900_000, underBar: true }));
     expect(screen.getByText(say("ui.gate.sponsor.who", { employer: say("ui.gate.employer.tech-firm") }))).toBeDefined();
     expect(screen.getByText(say("ui.gate.sponsor.salary", { salary: formatMoney(3_900_000, "GBP") }))).toBeDefined();
@@ -61,29 +61,29 @@ describe("the gate on each way in Japa", () => {
     expect(screen.getByText(say("ui.gate.sponsor.under-why"))).toBeDefined();
   });
 
-  test("[R-SPONSOR-002] given no sponsor yet, then the gate says how one is found", async () => {
+  test("[route-gates:taking-sponsor-records-it] given no sponsor yet, then the gate says how one is found", async () => {
     await renderWithView(<Japa />, withRoute("route.uk-skilled", null));
     expect(screen.getByText(say("ui.gate.sponsor.none"))).toBeDefined();
   });
 
-  test("[R-ENDORSE-002] given an endorsement refused, then the month and the end of the cooldown show", async () => {
+  test("[route-gates:endorsement-decided-by-draw] given an endorsement refused, then the month and the end of the cooldown show", async () => {
     const view = withRoute("route.uk-talent", { gate: "endorsement", refusedMonth: 30, cooledFromMonth: 42 });
     await renderWithView(<Japa />, view);
-    // Said as months ago and away (R-WORLD-002). The refusal is stamped as month 30 ends; asking again is judged while
+    // Said as months ago and away (world:top-band-is-lively-pill). The refusal is stamped as month 30 ends; asking again is judged while
     // planning, so from 42 months played, the month the header calls 43.
     expect(screen.getByText(say("phone.japa.endorsement.refused", { when: agoWords(30, view.month) }))).toBeDefined();
     expect(screen.getByText(say("phone.japa.endorsement.again", { when: inMonths(42, view.month) }))).toBeDefined();
     expect(document.querySelector('[data-gate="endorsement"]')?.textContent).not.toMatch(/month \d+/i);
   });
 
-  test("[R-CONTRACT-002] given an agent recorded, then the role and the monthly pay show in dirhams", async () => {
+  test("[route-gates:gulf-agent-offer] given an agent recorded, then the role and the monthly pay show in dirhams", async () => {
     await renderWithView(<Japa />, withRoute("route.gulf-contract", { gate: "contract", employer: "gulf-agent", salary: 220_000, role: "guard" }));
     expect(screen.getByText(say("ui.gate.contract.role", { role: say("ui.gate.role.guard") }))).toBeDefined();
     // The dirham's sign is followed by a non-breaking space, which the text matcher would fold.
     expect(document.body.textContent).toContain(say("ui.gate.contract.salary", { salary: formatMoney(220_000, "AED") }));
   });
 
-  test("[R-ROAD-001] given the road among the routes, then it never shows", async () => {
+  test("[road:road-route-has-no-figure] given the road among the routes, then it never shows", async () => {
     const base = richView();
     const view: PlayerView = { ...base, routes: [...base.routes, { ...base.routes[0]!, id: "route.road", state: "applying", gate: { gate: "road", step: "desert", monthsHere: 1 } }] };
     await renderWithView(<Japa />, view);
@@ -92,7 +92,7 @@ describe("the gate on each way in Japa", () => {
     expect(document.body.textContent).not.toContain(nameOf("route.road"));
   });
 
-  test("[R-PEOPLE-026] given the partner gate resting on a bond, then the route names who it rests on and how their side stands", async () => {
+  test("[person:partner-gate-needs] given the partner gate resting on a bond, then the route names who it rests on and how their side stands", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI);
     await renderWithView(<Japa />, withRoute("route.uk-partner", { gate: "partner", bond, lead: "applying" }, game.view()));
@@ -101,7 +101,7 @@ describe("the gate on each way in Japa", () => {
     expect(screen.getByText(say("ui.gate.lead.state", { state: say("ui.route.state.applying").toLowerCase() }))).toBeDefined();
   });
 
-  test("[R-PEOPLE-022] given the dependant gate with no bond, then it says a partner and an agreement are needed", async () => {
+  test("[person:dependant-gate-needs] given the dependant gate with no bond, then it says a partner and an agreement are needed", async () => {
     const game = peopleGame();
     await renderWithView(<Japa />, withRoute("route.uk-dependant", { gate: "dependant", bond: null, lead: null }, game.view()));
     expect(screen.getByText(say("ui.gate.dependant.title"))).toBeDefined();

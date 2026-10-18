@@ -2,7 +2,7 @@
 // link, the pair record and its conversation; block and report go through the
 // shared moderation control. Only online: the local authority has no second
 // player, so offline the screens get null and hide what needs the server
-// (R-PAIR-014 "wired to the server routes when online and hidden offline").
+// (pair:block-and-report-one-tap "wired to the server routes when online and hidden offline").
 import type { ConversationReply, InviteReply, PairReply, SayReply } from "@japacity/api";
 import type { Id } from "@japacity/sim";
 import { createContext, createElement, use, useMemo, type ReactNode } from "react";
@@ -12,7 +12,7 @@ import { api, type Api, type Fetch } from "../../shared/net/http";
 
 export interface PairApi {
   invite(slot: string): Promise<InviteReply>;
-  /** The record as this side reads it: who the other side is, for telling rows apart (R-PAIR-006). */
+  /** The record as this side reads it: who the other side is, for telling rows apart (pair:who-may-read-a-record). */
   pair(pair: string): Promise<PairReply>;
   conversation(pair: string, after: string | null): Promise<ConversationReply>;
   say(pair: string, phrase: Id<"phrase">, fill: string | null): Promise<SayReply>;

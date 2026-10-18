@@ -1,4 +1,4 @@
-// The graduate's first three months, played as a player who follows the nudge (docs/rules/world.md R-WORLD-003):
+// The graduate's first three months, played as a player who follows the nudge (world:nudge-says-one-thing):
 // each month the nudge's step is planned as the board or the act offers it, a job offer is taken,
 // any other ask is left to lapse, and the month is ended. The ready life must not run dry before the job step is met.
 import { content } from "@japacity/content";
@@ -21,7 +21,7 @@ function actFor(view: PlayerView, key: string): SlotPick | null {
   if (step.length < 2 || step[1] !== "nudge") return null;
   const option = (id: string) => view.activities.find((each) => each.id === id && each.allowed);
   if (step[0] === "job") {
-    // The job the sheet opens on (R-WORLD-006, the jobs list; R-ACTIVITY-005: the life's own trade first).
+    // The job the sheet opens on (world:one-action-one-sheet, the jobs list; activity:job-hunt-lands-offer: the life's own trade first).
     const first = firstJob(view, huntOrder(view, option(HUNT)?.params ?? [])) ?? undefined;
     return first === undefined ? null : { activity: HUNT, param: first };
   }
@@ -38,7 +38,7 @@ function naira(view: PlayerView): number {
 }
 
 describe("the graduate who follows the nudge", () => {
-  test("[R-WORLD-003] given Ada, the ready life, on forty seeds, when the nudge is followed for three months, then she never reaches ₦0 and holds a job that covers her living costs by the third month's end on at least thirty", () => {
+  test("[world:nudge-says-one-thing] given Ada, the ready life, on forty seeds, when the nudge is followed for three months, then she never reaches ₦0 and holds a job that covers her living costs by the third month's end on at least thirty", () => {
     const upkeep = content.scenario["scenario.ada"]?.obligations.find((owed) => owed.obligation === "obligation.upkeep")?.amount ?? 0;
     expect(upkeep).toBeGreaterThan(0);
     let hired = 0;

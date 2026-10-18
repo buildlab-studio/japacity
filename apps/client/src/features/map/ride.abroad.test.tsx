@@ -1,4 +1,4 @@
-// The ride abroad (docs/rules/world.md R-WORLD-039; place.md R-PLACE-010 and R-PLACE-012): the
+// The ride abroad (world:ride-abroad-and-workplace; place:rides-between-city-places and place:country-pass-covers-ways): the
 // ride sheet in London reads the view's ways and prices them with the simulation's own fare, the bus asks nothing in a
 // month the pass is bought and says so, and the ride plays in London's red bus and its train.
 import { content } from "@japacity/content";
@@ -50,7 +50,7 @@ function from(view: PlayerView, to: string) {
 const pin = (id: string, state: MapPin["state"]): MapPin => ({ id, name: nameOf(id), state, position: id === ROOM ? HOME_SPOT : positionOf(content, id), things: 2 });
 
 describe("the ways in London", () => {
-  test("[R-WORLD-039] [R-PLACE-010] given Ada landed in London, when the ways from Peckham are read, then they are the bus at its flat £1.75, the train by distance (£3.20 to the office) and on foot, priced by the simulation's own fare, all in pounds", () => {
+  test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given Ada landed in London, when the ways from Peckham are read, then they are the bus at its flat £1.75, the train by distance (£3.20 to the office) and on foot, priced by the simulation's own fare, all in pounds", () => {
     const view = londonView();
     expect(view.place.ways?.map((way) => [way.way, way.currency])).toEqual([
       ["bus", "GBP"],
@@ -75,7 +75,7 @@ describe("the ways in London", () => {
     expect(train?.minutes).toBeLessThan(bus?.minutes ?? 0);
   });
 
-  test("[R-WORLD-039] [R-PLACE-010] given the walking limit, when a walk from Peckham is read, then Rye Lane and the ward are within reach, the office and the test centre are too far, and the room, the home there, is always walkable", () => {
+  test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given the walking limit, when a walk from Peckham is read, then Rye Lane and the ward are within reach, the office and the test centre are too far, and the room, the home there, is always walkable", () => {
     const view = londonView();
     const walkTo = (to: string) => from(view, to).find((way) => way.id === "walk");
     expect(walkTo("place.rye-lane")?.shut).toBeUndefined();
@@ -89,7 +89,7 @@ describe("the ways in London", () => {
     expect(Math.max(...home.map((way) => way.minutes))).toBeLessThan(60);
   });
 
-  test("[R-PLACE-012] [R-WORLD-039] given the bus pass bought this month, when the ways are read, then the bus asks nothing and its pill says £0, bus pass, while the train still asks its fare", () => {
+  test("[place:country-pass-covers-ways] [world:ride-abroad-and-workplace] given the bus pass bought this month, when the ways are read, then the bus asks nothing and its pill says £0, bus pass, while the train still asks its fare", () => {
     const view = londonView(true);
     const [bus, train] = from(view, "place.office-uk");
     expect(bus).toMatchObject({ id: "bus", fare: 0, passed: true });
@@ -103,7 +103,7 @@ describe("the ways in London", () => {
     expect(fareTile(unpassed as NonNullable<typeof unpassed>, pounds, (amount) => fareWords(amount, "GBP"))).toBe("£1.75");
   });
 
-  test("[R-WORLD-017] [R-PLACE-010] given a life at home, when the view's ways are priced by the simulation's fare, then each is the fare the sheet has always said, to the kobo", () => {
+  test("[world:ride-sheet-shows-fares] [place:rides-between-city-places] given a life at home, when the view's ways are priced by the simulation's fare, then each is the fare the sheet has always said, to the kobo", () => {
     const view = engineView();
     const at = { from: positionOf(content, "place.ojuelegba"), to: positionOf(content, "place.bode-thomas") };
     const sheet = rideChoices(at.from, at.to, null, view.place.fareBp, false, { from: "place.ojuelegba", to: "place.bode-thomas" });
@@ -116,7 +116,7 @@ describe("the ways in London", () => {
 });
 
 describe("the ride sheet in London", () => {
-  test("[R-WORLD-039] [R-PLACE-012] given Ada in London in a pass month, when she picks the office on the map, then the sheet offers the bus at £0, bus pass, the train at £3.20 and the walk too far, the money held in pounds, and Go says the bus", async () => {
+  test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] given Ada in London in a pass month, when she picks the office on the map, then the sheet offers the bus at £0, bus pass, the train at £3.20 and the walk too far, the money held in pounds, and Go says the bus", async () => {
     const view = londonView(true);
     const pins = [pin(PECKHAM, "here"), pin("place.office-uk", "can"), pin(ROOM, "home")];
     await renderWithView(<Map pins={pins} country={UK} countries={[UK]} drawing={false} home={ROOM} onGo={() => undefined} onClose={() => undefined} />, view);
@@ -138,7 +138,7 @@ describe("the ride sheet in London", () => {
     expect(sheet.querySelector("[data-ride-main]")?.textContent).toContain("£3.20");
   });
 
-  test("[R-WORLD-039] [R-PLACE-010] given a London way chosen, when Go is pressed, then the city is asked for the ride with that way, and the ride plays in that vehicle with its fare as a pill", async () => {
+  test("[world:ride-abroad-and-workplace] [place:rides-between-city-places] given a London way chosen, when Go is pressed, then the city is asked for the ride with that way, and the ride plays in that vehicle with its fare as a pill", async () => {
     const view = londonView();
     const pins = [pin(PECKHAM, "here"), pin("place.office-uk", "can"), pin(ROOM, "home")];
     const asked: string[] = [];
@@ -161,7 +161,7 @@ describe("the ride sheet in London", () => {
 });
 
 describe("the ride in London", () => {
-  test("[R-WORLD-039] [R-WORLD-032] given the bus and the train, when their cuts are read, then each cuts as the danfo does: the stop, above, the window and the seat, on the ride's own clock", () => {
+  test("[world:ride-abroad-and-workplace] [world:ride-cuts-between-angles] given the bus and the train, when their cuts are read, then each cuts as the danfo does: the stop, above, the window and the seat, on the ride's own clock", () => {
     for (const way of ["bus", "train"] as const) {
       expect(anglesOf(way)).toEqual(anglesOf("danfo"));
       expect(anglesOf(way).at(-1)?.from).toBeLessThan(RIDE_MS);
@@ -171,7 +171,7 @@ describe("the ride in London", () => {
     expect([WAY_MODEL.bus, WAY_MODEL.train]).toEqual(["veh_london-bus", "veh_train-carriage"]);
   });
 
-  test("[R-WORLD-039] given London's red bus, when its window is shown, then the bus keeps the left lane and the top deck's window looks out of its kerb side, the side its doors are on, at the pavement and the shops", () => {
+  test("[world:ride-abroad-and-workplace] given London's red bus, when its window is shown, then the bus keeps the left lane and the top deck's window looks out of its kerb side, the side its doors are on, at the pavement and the shops", () => {
     const ride = buildRide("bus");
     const windowAt = anglesOf("bus").find((part) => part.angle === "window")?.from ?? 0;
     ride.frame(windowAt + 10, 0.46);
@@ -184,7 +184,7 @@ describe("the ride in London", () => {
     ride.dispose();
   });
 
-  test("[R-WORLD-039] given the train, when its window is shown, then the eye sits at x 0.55 in the carriage, in from the window so its posts frame the view, and looks out of the window", () => {
+  test("[world:ride-abroad-and-workplace] given the train, when its window is shown, then the eye sits at x 0.55 in the carriage, in from the window so its posts frame the view, and looks out of the window", () => {
     expect(LONDON_SEAT.train.eye[0]).toBe(0.55);
     const ride = buildRide("train");
     const windowAt = anglesOf("train").find((part) => part.angle === "window")?.from ?? 0;
@@ -195,7 +195,7 @@ describe("the ride in London", () => {
     ride.dispose();
   });
 
-  test("[R-WORLD-039] given London's ways, when the pre-roll's lines and the road's are read, then the bus and the train each say six of their own and their own road, plain words with no dash", () => {
+  test("[world:ride-abroad-and-workplace] given London's ways, when the pre-roll's lines and the road's are read, then the bus and the train each say six of their own and their own road, plain words with no dash", () => {
     for (const way of ["bus", "train"] as const) {
       const said = Array.from({ length: LINES }, (_, seed) => lineOf(way, seed)).map((key) => mapWords(key ?? ""));
       expect(new Set(said).size).toBe(LINES);

@@ -1,4 +1,4 @@
-// The page's photo in the player's own colours (prologue.md R-PROLOGUE-015): the figure rendered once to a small
+// The page's photo in the player's own colours (prologue:player-colours-on-looks): the figure rendered once to a small
 // image when the page prints, and kept with the person, so the page in the world shows the same face. As made it is
 // drawn too, since the look's own picture is a small whole-figure render and blurs on a phone cropped to the face;
 // only where WebGL is missing does the picture stand. The drawing is loaded only when needed.

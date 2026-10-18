@@ -1,4 +1,4 @@
-// The moment card over the month's results (docs/rules/moment.md R-MOMENT-006): the sheet and the card are two
+// The moment card over the month's results (moment:card-shows-when-outcome-lands): the sheet and the card are two
 // features, put together by the shell as App.tsx does, so the test that sees both lives beside the shell.
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -35,7 +35,7 @@ function reportedView(): PlayerView {
 }
 
 describe("the moment card over the results", () => {
-  test("[R-MOMENT-006] given a month whose report holds a refusal, when the results sheet is up, then the card stands over it, and one tap on it leaves the sheet as it was", async () => {
+  test("[moment:card-shows-when-outcome-lands] given a month whose report holds a refusal, when the results sheet is up, then the card stands over it, and one tap on it leaves the sheet as it was", async () => {
     const { store, authority } = await renderWithView(
       <>
         <Results place="the family house" foot={<MomentCard over="results" />} />
@@ -56,7 +56,7 @@ describe("the moment card over the results", () => {
 
 
   // A chapter's close is told once: by the results line and the moment card, never again by its share card.
-  test("[R-MOMENT-006] [R-SHARE-001] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
+  test("[moment:card-shows-when-outcome-lands] [share:cards-due-at-set-moments] given Ada's month that closes a chapter (her recorded life), when the moment card has told it over the results, then the chapter's share card never opens after it, and it is kept in the gallery", async () => {
     const save = recordedSave("ada-careful");
     const game = recordedGame("ada-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));
@@ -90,7 +90,7 @@ describe("the moment card over the results", () => {
     expect(gallery.getState().kept.some((kept) => kept.key === key)).toBe(true);
   });
 
-  test("[R-MOMENT-006] given the same close where no moment card stands, then the chapter's share card opens", async () => {
+  test("[moment:card-shows-when-outcome-lands] given the same close where no moment card stands, then the chapter's share card opens", async () => {
     const save = recordedSave("ada-careful");
     const game = recordedGame("ada-careful", save.commands.length - CLOSE);
     const store = createGameStore(gameAuthority(game));

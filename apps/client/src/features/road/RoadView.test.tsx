@@ -58,13 +58,13 @@ function road(view: PlayerView, city: ReactNode = null) {
 }
 
 describe("the road's one panel", () => {
-  test("[R-WORLD-002] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
+  test("[world:top-band-is-lively-pill] given the month's report on the road, when the screen is read, then its heading names the month on the road and no running month number shows", async () => {
     await road(onTheRoad([offer("offer-9", EXIT_OFFER, [ASK])]));
     expect(screen.getByRole("heading", { name: say("ui.road.month-done") })).toBeDefined();
     expect(document.body.textContent).not.toMatch(/Month \d+/);
   });
 
-  test("[R-ROAD-007] given the exit offer open, when the player asks to be let go, then offer/choose is sent with ask, beside waiting a month", async () => {
+  test("[road:exit-is-assisted-return] given the exit offer open, when the player asks to be let go, then offer/choose is sent with ask, beside waiting a month", async () => {
     const { authority } = await road(onTheRoad([offer("offer-9", EXIT_OFFER, [ASK])]));
     const exit = document.querySelector<HTMLElement>("[data-road-exit]");
     if (exit === null) throw new Error("No exit panel.");
@@ -74,20 +74,20 @@ describe("the road's one panel", () => {
     expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-9", choice: ASK });
   });
 
-  test("[R-ROAD-007] given no exit offer yet, when a road offer that can be answered by asking is open, then that offer is the exit", async () => {
+  test("[road:exit-is-assisted-return] given no exit offer yet, when a road offer that can be answered by asking is open, then that offer is the exit", async () => {
     const { authority } = await road(onTheRoad([offer("offer-10", "offer.road-ransom-call", ["pay", "cannot", ASK])]));
     fireEvent.click(screen.getByRole("button", { name: say("ui.road.ask") }));
     expect(authority.sent.at(-1)).toMatchObject({ type: "offer/choose", offer: "offer-10", choice: ASK });
   });
 
-  test("[R-ROAD-007] given nothing on the road to ask, then the exit is told in words and only waiting is offered", async () => {
+  test("[road:exit-is-assisted-return] given nothing on the road to ask, then the exit is told in words and only waiting is offered", async () => {
     await road(onTheRoad([RANSOM]));
     expect(screen.queryByRole("button", { name: say("ui.road.ask") })).toBeNull();
     expect(screen.getByRole("button", { name: say("ui.road.wait") })).toBeDefined();
     expect(screen.getByText(say("ui.road.exit-help"))).toBeDefined();
   });
 
-  test("[R-ROAD-010] given a family request, Lagos news and talk of routes in the month, then on the road only the chain's own lines and offers show", async () => {
+  test("[road:road-earns-nothing] given a family request, Lagos news and talk of routes in the month, then on the road only the chain's own lines and offers show", async () => {
     await road(onTheRoad([RANSOM, FAMILY]));
     expect(screen.getByRole("heading", { name: words("offer.road-ransom-call.title") })).toBeDefined();
     expect(screen.queryByRole("heading", { name: words("offer.mum-shop.title") })).toBeNull();
@@ -100,7 +100,7 @@ describe("the road's one panel", () => {
 });
 
 describe("the city behind the road", () => {
-  test("[R-CITY-012] given the character on the road, when the road screen shows, then the city the shell hands in stands behind its panel", async () => {
+  test("[city:enterable-places-follow-view] given the character on the road, when the road screen shows, then the city the shell hands in stands behind its panel", async () => {
     await road(onTheRoad([RANSOM]), <div data-city="place.motor-park" />);
     expect(document.querySelector("[data-road] [data-city]")).not.toBeNull();
   });

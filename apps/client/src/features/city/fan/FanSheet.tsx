@@ -1,4 +1,4 @@
-// The fan's acts as a small sheet (docs/design/13-the-lively-layer.md section 3; world.md R-WORLD-034): when the free side
+// The fan's acts as a small sheet (docs/design/13-the-lively-layer.md section 3; world:fan-of-sticker-buttons): when the free side
 // of the screen cannot hold a thing's fan, or its acts are a long list, the same buttons open as a sheet of sticker cards,
 // each the tap the fan's button is: the same picture, the same name, the same price pill or refusal, the same act on
 // arrival. A thing whose acts are all the simulation's own opens their activity sheet instead (City's fallback).

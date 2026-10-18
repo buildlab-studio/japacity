@@ -1,5 +1,5 @@
-// The raise from being noticed in the Bank's Lately (docs/rules/activity.md R-ACTIVITY-013, docs/rules/world.md
-// R-WORLD-019), played on the real engine: the month after the manager noticed, the
+// The raise from being noticed in the Bank's Lately (activity:waiting-months-build-profile, docs/rules/world.md
+// world:phone-holds-what-phones-hold), played on the real engine: the month after the manager noticed, the
 // salary Lately lists is the raised pay, as the results' line said it would be.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
@@ -23,7 +23,7 @@ function raisingSeed(): string {
 }
 
 describe("the raise in the Bank", () => {
-  test("[R-ACTIVITY-013] [R-WORLD-019] given the manager noticed this month, when the next month ends, then Lately lists the salary at the raised pay", () => {
+  test("[activity:waiting-months-build-profile] [world:phone-holds-what-phones-hold] given the manager noticed this month, when the next month ends, then Lately lists the salary at the raised pay", () => {
     const game = newGame("scenario.tunde", raisingSeed());
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;

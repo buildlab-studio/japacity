@@ -1,6 +1,6 @@
-// R-MODERATION-001 to 007, R-PAIR-014 to 016: the block and report control,
+// moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only, pair:block-and-report-one-tap, pair:block-ends-every-bond and pair:report-holds-conversation: the block and report control,
 // one per place another player or an advert appears, shared by every screen
-// that shows one (R-MODERATION-003). One tap blocks. Two report: one opens the
+// that shows one (moderation:report-from-every-surface). One tap blocks. Two report: one opens the
 // reasons, one picks a reason and sends, with a block ticked beside it. The
 // control sends what the surface knows as the cites; no typed text.
 import { type BlockRequest, REPORT_REASONS, type ReportCite, type ReportReason } from "@japacity/api";
@@ -20,12 +20,12 @@ import { reasonWords, words } from "./moderation.words";
  */
 export type Someone = { pair: string; name: string } | { campaign: string; name: string } | { name: string };
 
-/** R-MODERATION-003: every surface the interface shows the control on, for the test that walks them. */
+/** moderation:report-from-every-surface: every surface the interface shows the control on, for the test that walks them. */
 export const MODERATION_SURFACES = ["pair", "conversation", "invite-card", "advert"] as const;
 
 /**
- * No screen shows a phrase said in a place (R-PAIR-012 has no client) or a
- * player seen in one (presence carries no id and R-MODERATION-004 names no cite
+ * No screen shows a phrase said in a place (pair:place-phrases-not-stored has no client) or a
+ * player seen in one (presence carries no id and moderation:report-carries-subject-and-reason names no cite
  * for it); the control takes the place cite all the same.
  */
 export type Surface = (typeof MODERATION_SURFACES)[number] | "place-phrase";
@@ -123,13 +123,13 @@ function ReportSheet({
   onOpenChange: (open: boolean) => void;
   name: string;
   canBlock: boolean;
-  /** R-MODERATION-004: `advert` is a reason for adverts only. */
+  /** moderation:report-carries-subject-and-reason: `advert` is a reason for adverts only. */
   advert: boolean;
   busy: boolean;
   onSend: (reason: ReportReason, alsoBlock: boolean) => void;
 }) {
   const reasons = REPORT_REASONS.filter((reason) => advert || reason !== "advert");
-  // R-MODERATION-006: offered in the same step, ticked by default.
+  // moderation:report-offers-block: offered in the same step, ticked by default.
   const [alsoBlock, setAlsoBlock] = useState(true);
   return (
     <Sheet open={open} onOpenChange={onOpenChange} title={words("ui.report.title", { name })} description={words("ui.report.intro")}>

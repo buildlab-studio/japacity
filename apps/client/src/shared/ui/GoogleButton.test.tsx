@@ -1,4 +1,4 @@
-// Google's sign-in button to Google's branding guidelines (docs/rules/account.md R-ACCOUNT-023;
+// Google's sign-in button to Google's branding guidelines (account:guest-secures-the-life;
 // developers.google.com/identity/branding-guidelines, read 11 Oct 2026): the G as Google gives it, the light and dark
 // themes' colours, the sizes and the face, and only Google's own texts on it.
 import { readFileSync } from "node:fs";
@@ -24,7 +24,7 @@ function ruleOf(selector: string): string {
 }
 
 describe("Google's own button", () => {
-  test("[R-ACCOUNT-023] given the button, when it is drawn, then it holds the G at its left and the words, and a tap goes through", () => {
+  test("[account:guest-secures-the-life] given the button, when it is drawn, then it holds the G at its left and the words, and a tap goes through", () => {
     const tap = vi.fn();
     render(<GoogleButton label={say("ui.secure.google")} onClick={tap} />);
     const button = screen.getByRole("button", { name: "Continue with Google" });
@@ -34,11 +34,11 @@ describe("Google's own button", () => {
     expect(tap).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-ACCOUNT-023] given every place Google is offered, then its words are one of Google's own texts", () => {
+  test("[account:guest-secures-the-life] given every place Google is offered, then its words are one of Google's own texts", () => {
     for (const key of ["ui.secure.google", "ui.account.google"]) expect(GOOGLE_TEXTS).toContain(say(key));
   });
 
-  test("[R-ACCOUNT-023] given the G, then it is Google's mark from Google's assets, unchanged, in its 20 by 20 box, with no boundary of its own", () => {
+  test("[account:guest-secures-the-life] given the G, then it is Google's mark from Google's assets, unchanged, in its 20 by 20 box, with no boundary of its own", () => {
     expect(MARK).toContain('viewBox="10 10 20 20"');
     // The G's own outline and the gradient of colours Google draws it with.
     expect(MARK).toContain("M29.3987 18.1814H19.9849V22.0445H25.3598");
@@ -46,7 +46,7 @@ describe("Google's own button", () => {
     expect(MARK).not.toContain("M4 0.5H36");
   });
 
-  test("[R-ACCOUNT-023] given the button's style, then it keeps the guidelines' numbers: 40 px tall, a 1 px stroke, 12 px before the G, a 20 px G, 10 px after it, Google Sans Medium 14/20, light and dark in Google's colours", () => {
+  test("[account:guest-secures-the-life] given the button's style, then it keeps the guidelines' numbers: 40 px tall, a 1 px stroke, 12 px before the G, a 20 px G, 10 px after it, Google Sans Medium 14/20, light and dark in Google's colours", () => {
     const rule = ruleOf(".google-button");
     expect(rule).toContain("min-height: 40px;");
     expect(rule).toContain("padding: 0 12px;");

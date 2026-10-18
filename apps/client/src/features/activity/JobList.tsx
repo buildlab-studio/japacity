@@ -1,7 +1,7 @@
-// The hunt's jobs as a list (docs/rules/world.md R-WORLD-006): each job the hunt can
+// The hunt's jobs as a list (world:one-action-one-sheet): each job the hunt can
 // ask for is a row with its pay a month and its chance in words, and the jobs at home still out of reach are listed
 // apart with what each still needs. A row is picked by a tap. The rows sit straight
-// on the sheet, divided by hairlines; the chosen row fills with the pick colour (R-WORLD-021), and the chance is a
+// on the sheet, divided by hairlines; the chosen row fills with the pick colour (world:colours-are-role-tokens), and the chance is a
 // small three-step gauge beside its word.
 import { content } from "@japacity/content";
 import { ChevronDown } from "lucide-react";
@@ -23,15 +23,15 @@ function payRank(id: string): number {
   return pay.currency === "NGN" ? pay.amount : Number.MAX_SAFE_INTEGER;
 }
 
-// As good as certain orders with the likely, so the racks lead only where the character lives by them (R-ACTIVITY-017).
+// As good as certain orders with the likely, so the racks lead only where the character lives by them (activity:fish-racks-at-makoko).
 const BAND_RANK: Record<ChanceBand, number> = { certain: 0, likely: 0, fair: 1, long: 2 };
 
-/** The fish racks at Makoko: work at hand for a life living there (R-ACTIVITY-017). */
+/** The fish racks at Makoko: work at hand for a life living there (activity:fish-racks-at-makoko). */
 const RACKS = "activity.job-fish-racks";
 
 /**
  * The jobs in the order the list shows them: the likely first, then the fair chances, then the long shots, the best paid
- * first in each. While the character lives in Makoko the racks lead the list, as the nudge names them (R-ACTIVITY-017).
+ * first in each. While the character lives in Makoko the racks lead the list, as the nudge names them (activity:fish-racks-at-makoko).
  */
 export function huntOrder(view: PlayerView, jobs: readonly string[]): string[] {
   const atHand = view.home.place === "place.makoko" ? RACKS : null;
@@ -52,10 +52,10 @@ function ofATrade(id: string): boolean {
 }
 
 /**
- * The job the board opens on (R-ACTIVITY-005): the life's own trade
+ * The job the board opens on (activity:job-hunt-lands-offer): the life's own trade
  * first, the first job of a trade in the board's order, before a job any school leaver may ask for; with a job held, the
  * first of them that pays more than it. While the racks lead the board in Makoko, they are the
- * pick (R-ACTIVITY-017). Null when nothing listed pays more than the job held.
+ * pick (activity:fish-racks-at-makoko). Null when nothing listed pays more than the job held.
  */
 export function firstJob(view: PlayerView, ordered: readonly string[]): string | null {
   if (ordered[0] === RACKS && view.home.place === "place.makoko") return RACKS;
@@ -72,7 +72,7 @@ function metNow(view: PlayerView, requirement: Requirement): boolean {
   return false;
 }
 
-/** Whether a job can be held where the character is: the hunt's own reading of R-PLACE-003. */
+/** Whether a job can be held where the character is: the hunt's own reading of place:entries-legal-by-where. */
 function appliesHere(entry: ActivityEntry, view: PlayerView): boolean {
   const where = entry.where ?? "home";
   if (where === "any") return true;

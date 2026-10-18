@@ -1,5 +1,5 @@
 // A place's `place.json` under public/assets/places/<folder>/: which shared and own assets it shows
-// (counted by the build check, R-ASSET-007) and, in `stage`, where the city puts them, where the
+// (counted by the build check, assets:assets-and-places-within-budget) and, in `stage`, where the city puts them, where the
 // crowd stands, the light, and what moves. A place with no file, or no `stage`, is drawn as open
 // ground with its crowd, so every place can be entered before its models are built.
 import type { PaletteName, WalkablePolygon } from "@japacity/assets";
@@ -10,7 +10,7 @@ import type { Shot, Thing } from "../world/contract";
 import type { Shown } from "./crowd";
 import { personOf, type Role } from "./roster";
 
-/** x, z and the turn about +Y in radians. Models face +Z (R-ASSET-003). */
+/** x, z and the turn about +Y in radians. Models face +Z (assets:metre-units-and-origin). */
 export type Spot = [number, number, number];
 export type Vec3 = [number, number, number];
 
@@ -62,7 +62,7 @@ export interface Act {
   sex?: "f" | "m";
   /**
    * Someone who works the place or speaks for it (the officer, the teller, the invigilator, the family at home): a part
-   * of the scene a resident keeps (city.md R-CITY-032). A seat left unmarked is a visitor's, and players take it first.
+   * of the scene a resident keeps (city:residents-fill-to-target). A seat left unmarked is a visitor's, and players take it first.
    */
   staff?: true;
   /** x and z in metres. */
@@ -75,19 +75,19 @@ export interface Stage {
   /** Strips of road, pavement, kerb and gutter, drawn after the ground and over it in list order. */
   roads: Strip[];
   /**
-   * One sun and one sky light, set by the place (R-ASSET-006) and turned and tinted by the world's clock (R-CLOCK-033);
+   * One sun and one sky light, set by the place (assets:lighting-set-by-place) and turned and tinted by the world's clock (clock:game-day-on-real-time);
    * `lamps` are the warm points that glow as the light goes: the bulb, the lantern, the street's few lights.
    */
   light: { sun: Vec3; sky: PaletteName; ground: PaletteName; lamps?: Lamp[]; room?: boolean };
   /** Where the player's character stands on entering, and which way it faces. */
   start: Spot;
-  /** The ground people may walk on, as polygons of [x, z] in metres (assets.md R-ASSET-030); the whole ground when absent. */
+  /** The ground people may walk on, as polygons of [x, z] in metres (assets:models-record-their-footprint); the whole ground when absent. */
   walkable?: WalkablePolygon[];
   /**
    * Every model and where each copy stands. `signs`, for a building whose file carries only its sign
    * anchors, gives each copy its own text keys in the anchors' order, so two copies never show the same boards.
    * `bob` rides the copies on the water; `glide`, in metres, also sends each along its own length and
-   * back on the shared clock (a canoe paddled along the channel, R-CITY-027).
+   * back on the shared clock (a canoe paddled along the channel, city:no-script-loop-per-sheet).
    */
   models: { file: string; at: Spot[]; signs?: string[][]; bob?: boolean; glide?: number; owned?: string }[];
   /** Where people of the crowd stand, in order of use: the low mode's sample takes the first spots. At least the high mode's crowd. */
@@ -100,18 +100,18 @@ export interface Stage {
   dancers?: Dancer[];
   /**
    * People who stand still at a thing of their own, apart from the sampled crowd: a computer partner met in this place
-   * (world.md R-WORLD-020). The city keeps only those standing now (`features/city/meetings.ts`).
+   * (world:nobody-picked-from-list). The city keeps only those standing now (`features/city/meetings.ts`).
    */
   standing?: Stander[];
   /** How the place is dressed while an offer it stages is open. */
   dressings?: Dressing[];
-  /** What a room shows of a choice the month's plan holds (world.md R-WORLD-029): the pot steaming, the drum filled. */
+  /** What a room shows of a choice the month's plan holds (world:room-seen-down-its-length): the pot steaming, the drum filled. */
   shows?: Show[];
-  /** The place's camera (world.md R-WORLD-009); a default from the start when absent. */
+  /** The place's camera (world:camera-always-raised); a default from the start when absent. */
   shot?: Shot;
-  /** The things the player can tap and what each does (world.md R-WORLD-005). */
+  /** The things the player can tap and what each does (world:things-are-tappable-models). */
   things?: Thing[];
-  /** The place a door here opens into, as a place id (world.md R-WORLD-013): a room is just another place. */
+  /** The place a door here opens into, as a place id (world:entering-is-a-cut): a room is just another place. */
   inside?: string;
   /** A home's car spot, in its yard or by its gate: the car stands there while the life has one, else it is empty. */
   car?: Spot;
@@ -135,7 +135,7 @@ export interface OwnedSpot {
 }
 
 /**
- * One room of a wide home (world.md R-WORLD-029): the floor it covers, as the corners
+ * One room of a wide home (world:room-seen-down-its-length): the floor it covers, as the corners
  * x0, z0, x1, z1 in metres, and the view eased in on it: where it looks, how many metres across it shows and how steeply
  * it looks down, in degrees, at the rooms' distance.
  */
@@ -147,7 +147,7 @@ export interface Room {
   pitch: number;
 }
 
-/** A warm point of light the place shows as the day goes (R-CLOCK-033): where, how wide its halo, and whether a bulb hangs there. */
+/** A warm point of light the place shows as the day goes (clock:game-day-on-real-time): where, how wide its halo, and whether a bulb hangs there. */
 export interface Lamp {
   at: Vec3;
   /** The halo's width in metres. */
@@ -169,7 +169,7 @@ interface Stander {
   at: Spot;
 }
 
-/** The party room's two dance loops, written in code (R-CITY-037). */
+/** The party room's two dance loops, written in code (city:party-room-sets-the-bar). */
 export type DanceName = "twoStep" | "shuffle";
 
 /** Someone a dressing puts on the floor: who, where, and which loop. */
@@ -180,8 +180,8 @@ interface Dancer {
 }
 
 /**
- * A place dressed while an offer it stages is open (R-CITY-011), or for the person whose room it is (world.md
- * R-WORLD-020): its models and motion join the stage's, the files in `hide` leave it, its spots and crowd figures replace the
+ * A place dressed while an offer it stages is open (city:set-piece-shown-where-staged), or for the person whose room it is (world.md
+ * world:nobody-picked-from-list): its models and motion join the stage's, the files in `hide` leave it, its spots and crowd figures replace the
  * place's own (a person's room shows no crowd, only the partner), its dancers take the floor and
  * who it stands at a thing joins those the stage stands. A dressing names an offer or a person, never both.
  */
@@ -197,14 +197,14 @@ export interface Dressing {
   dancers: Dancer[];
   /** Who stands still in the dressed place: the partner in their own room, at a thing of their own. */
   standing?: Stander[];
-  /** The guests' sample, in place of the entry's figures (R-CITY-014); none in a person's room. */
+  /** The guests' sample, in place of the entry's figures (city:crowd-sample-capped); none in a person's room. */
   crowd: { low: number; high: number; target: number };
 }
 
 /**
- * A choice made this month, seen on its thing (world.md R-WORLD-029): while the month's plan holds the
+ * A choice made this month, seen on its thing (world:room-seen-down-its-length): while the month's plan holds the
  * activity, its models and motion join the stage's. Nothing is hidden and no one moves. A show with `seconds` is the
- * answer of an act done at once instead (R-WORLD-005): its motion plays that long where the act was done, each time the
+ * answer of an act done at once instead (world:things-are-tappable-models): its motion plays that long where the act was done, each time the
  * act lands, and goes.
  */
 export interface Show {
@@ -250,7 +250,7 @@ export const OPEN_STAGE: Stage = {
 };
 
 /**
- * Where a place's stage file is read (R-CITY-018; world.md R-WORLD-039): a country's entry abroad
+ * Where a place's stage file is read (city:places-load-on-entry; world:ride-abroad-and-workplace): a country's entry abroad
  * on a scene London keeps (the superstore, the hypermarket and the discount supermarket on the big shop, Calgary's
  * warehouse, care home and office, the church hall and Castel Volturno's church) reads its own file, named for its id
  * beside the shared models (`places/<id's slug>/place.json`), where one is shipped, so its acts, its looks and its
@@ -274,7 +274,7 @@ export function filesOf(file: PlaceFile, people: readonly string[]): string[] {
 }
 
 /**
- * A place file as the open offers dress it, or else as the person whose room it is dresses it (R-WORLD-020), with the
+ * A place file as the open offers dress it, or else as the person whose room it is dresses it (world:nobody-picked-from-list), with the
  * crowd figures its dressing sets, or null for the entry's own. No dressing for either: the plain place.
  */
 export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<"person"> | null = null): { file: PlaceFile; crowd: Dressing["crowd"] | null } {
@@ -320,7 +320,7 @@ export function parkCar(file: PlaceFile, owns: boolean): PlaceFile {
 }
 
 /**
- * The place as the month's plan shows it (R-WORLD-029): the models and motion of every show whose
+ * The place as the month's plan shows it (world:room-seen-down-its-length): the models and motion of every show whose
  * activity is planned join the stage. The same file when the plan shows nothing here, so the scene
  * is rebuilt only when what it shows changes.
  */
@@ -334,7 +334,7 @@ export function showPlanned(file: PlaceFile, planned: readonly string[]): PlaceF
   };
 }
 
-/** What an act done at once shows where it was done, each time it lands (R-WORLD-005): its shows that play for a while. */
+/** What an act done at once shows where it was done, each time it lands (world:things-are-tappable-models): its shows that play for a while. */
 export function showsFor(stage: Pick<Stage, "shows">, activity: string): Show[] {
   return (stage.shows ?? []).filter((show) => show.seconds !== undefined && show.activity === activity);
 }
@@ -342,7 +342,7 @@ export function showsFor(stage: Pick<Stage, "shows">, activity: string): Show[] 
 /** A dancer's slot, after every slot a sample can have, so a tap on one is told from a tap on the crowd. */
 export const DANCER_SLOT = 1000;
 
-/** The dancer a tapped slot names, as a resident of the city (R-CITY-033), or undefined. */
+/** The dancer a tapped slot names, as a resident of the city (city:residents-carry-no-tag), or undefined. */
 export function dancerShown(stage: Stage, slot: number): Shown | undefined {
   const dancer = stage.dancers?.[slot - DANCER_SLOT];
   const person = dancer === undefined ? null : personOf(dancer.file);

@@ -1,4 +1,4 @@
-// The client shows neither the months held nor a countdown to the next (docs/rules/clock.md R-CLOCK-007): the month
+// The client shows neither the months held nor a countdown to the next (clock:no-month-countdown-shown): the month
 // turns when it is lived (decision 0011). The server's clock runs; nothing a player reads counts the months held or the
 // time to the next, online or off.
 import { worldClockAt } from "@japacity/sim";
@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 describe("the months held, never shown", () => {
-  test("[R-CLOCK-007] given the server's clock with a month due soon, then neither the phone's home, its Calendar nor any app shows the months held or a countdown to the next", async () => {
+  test("[clock:no-month-countdown-shown] given the server's clock with a month due soon, then neither the phone's home, its Calendar nor any app shows the months held or a countdown to the next", async () => {
     const view = engineView();
     const store = createGameStore({ view: () => Promise.resolve(view), send: () => Promise.reject(new Error("unused")) });
     await store.getState().refresh();

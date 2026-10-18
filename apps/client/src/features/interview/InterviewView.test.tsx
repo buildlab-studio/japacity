@@ -12,7 +12,7 @@ import { INTERVIEW_DESK, InterviewView } from "./InterviewView";
 const ENTRY = "interview.genuineness";
 
 describe("the interview", () => {
-  test("[R-INTERVIEW-004] given an interview open, then one question shows with its options in words, and each answer goes to the engine in order", async () => {
+  test("[interview:answers-taken-in-order] given an interview open, then one question shows with its options in words, and each answer goes to the engine in order", async () => {
     const game = interviewGame();
     const { authority } = await renderWithGame(<InterviewView />, game);
     const section = screen.getByRole("region", { name: nameOf(ENTRY) });
@@ -27,7 +27,7 @@ describe("the interview", () => {
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "interview/answer", question: "partner-home", option: "town" }));
   });
 
-  test("[R-INTERVIEW-004] given an interview open, then it wears the ask's dress: the officer's pill and the desk's tile at the head, the question as the title, content's own line under it, the options as the ask's replies, and no rule name on screen", async () => {
+  test("[interview:answers-taken-in-order] given an interview open, then it wears the ask's dress: the officer's pill and the desk's tile at the head, the question as the title, content's own line under it, the options as the ask's replies, and no rule name on screen", async () => {
     const game = interviewGame();
     await renderWithGame(<InterviewView />, game);
     const section = screen.getByRole("region", { name: nameOf(ENTRY) });
@@ -44,7 +44,7 @@ describe("the interview", () => {
     expect(section.textContent).not.toContain(nameOf(ENTRY));
   });
 
-  test("[R-INTERVIEW-011] given every answer in and the partner not yet done, then the interview says it waits for them and asks nothing more", async () => {
+  test("[interview:players-answer-at-own-pace] given every answer in and the partner not yet done, then the interview says it waits for them and asks nothing more", async () => {
     const game = interviewGame();
     game.accept({ type: "interview/answer", question: "times-met", option: "not-yet" });
     game.accept({ type: "interview/answer", question: "partner-home", option: "city" });
@@ -53,7 +53,7 @@ describe("the interview", () => {
     expect(screen.queryByRole("button", { name: optionWords("times-met", "not-yet") })).toBeNull();
   });
 
-  test("[R-INTERVIEW-005] given the interview scored, then the result and the count that agreed show, never which answers or a score", async () => {
+  test("[interview:one-question-at-a-time] given the interview scored, then the result and the count that agreed show, never which answers or a score", async () => {
     const game = interviewGame();
     game.accept({ type: "interview/answer", question: "times-met", option: "not-yet" });
     game.accept({ type: "interview/answer", question: "partner-home", option: "city" });
@@ -69,14 +69,14 @@ describe("the interview", () => {
     expect(document.body.textContent).not.toMatch(/%|town|city|not-yet/i);
   });
 
-  test("[R-INTERVIEW-008] given a stand-in answering for the partner, then the interview says so", async () => {
+  test("[interview:stand-in-answers-when-absent] given a stand-in answering for the partner, then the interview says so", async () => {
     const game = interviewGame();
     const view: PlayerView = { ...game.view(), interview: { ...game.view().interview!, question: null, waiting: true, standIn: true } };
     await renderWithView(<InterviewView />, view);
     expect(screen.getByText(say("ui.interview.stand-in"))).toBeDefined();
   });
 
-  test("[R-INTERVIEW-005] given no interview, or one whose application is decided, then nothing shows in the month plan", async () => {
+  test("[interview:one-question-at-a-time] given no interview, or one whose application is decided, then nothing shows in the month plan", async () => {
     const game = interviewGame();
     const view = game.view();
     await renderWithView(<InterviewView />, { ...view, interview: null });

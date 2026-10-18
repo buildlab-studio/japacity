@@ -1,4 +1,4 @@
-// The page as the handover waits for the player (prologue.md R-PROLOGUE-014): the family turns over, no stamp lands, and the world opens only when Go is tapped, or the page; never on a
+// The page as the handover waits for the player (prologue:printed-page-hands-over): the family turns over, no stamp lands, and the world opens only when Go is tapped, or the page; never on a
 // timer, since ten facts are not read in three seconds.
 import { act, fireEvent, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -16,14 +16,14 @@ afterEach(() => {
 });
 
 describe("the page as the handover", () => {
-  test("[R-PROLOGUE-014] given the page after Begin, when a minute passes with no tap, then the family has turned, no stamp has landed and the world has not opened; Go opens it once", async () => {
+  test("[prologue:printed-page-hands-over] given the page after Begin, when a minute passes with no tap, then the family has turned, no stamp has landed and the world has not opened; Go opens it once", async () => {
     const done = vi.fn();
     vi.useFakeTimers({ shouldAdvanceTime: true });
     await renderWithView(<PageHandover onDone={done} />, engineView());
     act(() => {
       vi.advanceTimersByTime(TURN_MS + 60_000);
     });
-    // The family has turned over and no stamp has landed: the page takes none before a visa (R-PROLOGUE-009, 014).
+    // The family has turned over and no stamp has landed: the page takes none before a visa (prologue:front-door-builds-a-person, prologue:printed-page-hands-over).
     expect(document.querySelector("[data-family]")).not.toBeNull();
     expect(document.querySelector("[data-page] [data-stamp]")).toBeNull();
     expect(done).not.toHaveBeenCalled();
@@ -33,7 +33,7 @@ describe("the page as the handover", () => {
 });
 
 describe("the page while the years go by", () => {
-  test("[R-PROLOGUE-014] given a tile's life whose years are going by, then the page stands at the top of the door's sky under its heading, with you cheering beside it and nothing over it, the years the tile will pass listed not yet lived, and no money or japacity figure printed before the handover", async () => {
+  test("[prologue:printed-page-hands-over] given a tile's life whose years are going by, then the page stands at the top of the door's sky under its heading, with you cheering beside it and nothing over it, the years the tile will pass listed not yet lived, and no money or japacity figure printed before the handover", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: "developer" });
     await renderWithView(<PrologueView />, newGame("scenario.prologue").view());
     expect(document.querySelector("[data-page-running]")).not.toBeNull();
@@ -50,7 +50,7 @@ describe("the page while the years go by", () => {
     expect(document.querySelector("[data-stat]")).toBeNull();
   });
 
-  test("[R-PROLOGUE-014] given a life with no years yet and no tile kept, when the page shows, then no years heading stands over nothing", async () => {
+  test("[prologue:printed-page-hands-over] given a life with no years yet and no tile kept, when the page shows, then no years heading stands over nothing", async () => {
     keepPerson({ look: "chr_ada", name: "Ada", archetype: null });
     await renderWithView(<PrologueView />, newGame("scenario.prologue").view());
     expect(document.querySelector("[data-years]")).toBeNull();
@@ -59,7 +59,7 @@ describe("the page while the years go by", () => {
     expect(headings).not.toContain(say("ui.page.years"));
   });
 
-  test("[R-PROLOGUE-014] given the handover, then the page stands at the top under its heading, with the money and japacity printed", async () => {
+  test("[prologue:printed-page-hands-over] given the handover, then the page stands at the top under its heading, with the money and japacity printed", async () => {
     await renderWithView(<PageHandover onDone={() => undefined} />, engineView());
     expect(document.querySelector("[data-gate='handover'] [data-door-body] [data-page]")).not.toBeNull();
     // A fixed life with no name of its own is headed by the prologue's closing line; a named one by "Your page, printed".
@@ -68,7 +68,7 @@ describe("the page while the years go by", () => {
     expect([...document.querySelectorAll("[data-stat]")].map((stat) => stat.getAttribute("data-stat"))).toEqual(["money", "ready"]);
   });
 
-  test("[R-PROLOGUE-014] given a tile's life handed over, then the page is headed \"Your page, printed\" with the name, the life's thing is slapped on it, you cheer beside where you start, and where the life can lead stands as picture chips", async () => {
+  test("[prologue:printed-page-hands-over] given a tile's life handed over, then the page is headed \"Your page, printed\" with the name, the life's thing is slapped on it, you cheer beside where you start, and where the life can lead stands as picture chips", async () => {
     keepPerson({ look: "chr_tunde", name: "Bayo", archetype: "nurse" });
     await renderWithView(<PageHandover onDone={() => undefined} />, engineView());
     expect(document.querySelector("[data-gate='handover'] h1")?.textContent).toBe(say("ui.door.page.printed"));

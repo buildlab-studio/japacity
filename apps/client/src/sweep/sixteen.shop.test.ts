@@ -46,9 +46,9 @@ function fairSettlement(): number {
 }
 
 describe("the trader's way to her own shop", () => {
-  test("[R-ACTIVITY-016] [R-PROLOGUE-011] given a trader from the tile with the settlement, when the living costs take her under the settlement and she has heard of a way out and read up on it, then she is still a trader with a shop's capital, and her own way to a job is the shop's act at her stall", () => {
+  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] given a trader from the tile with the settlement, when the living costs take her under the settlement and she has heard of a way out and read up on it, then she is still a trader with a shop's capital, and her own way to a job is the shop's act at her stall", () => {
     const game = settledTrader();
-    // Decision 0013 (R-HOME-012): the living is not charged as the month turns but paid at the act, so it is a meal
+    // Decision 0013 (home:living-by-hand): the living is not charged as the month turns but paid at the act, so it is a meal
     // cooked at home that takes her under the settlement: at the family house the pot is free, so it is the big pot's
     // foodstuff bought for the house.
     game.accept({ type: "activity/now", activity: "activity.cook-jollof", param: null });
@@ -75,7 +75,7 @@ describe("the trader's way to her own shop", () => {
     expect(ownWayOf(view)).toBeNull();
   });
 
-  test("[R-ACTIVITY-016] [R-PROLOGUE-011] [R-CHAPTER-005] given a trader with the settlement, when her first chapter is read, then its opening and every item are in her words and none says the service year; a graduate's read as before", () => {
+  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] [chapter:items-are-live-requirements] given a trader with the settlement, when her first chapter is read, then its opening and every item are in her words and none says the service year; a graduate's read as before", () => {
     const view = settledTrader().view();
     expect(view.chapter.current).toBe(FIRST_CHAPTER);
     expect(text[openingKey(view)]).toBe(text[`${FIRST_CHAPTER}.open.prologue.capital`]);
@@ -91,7 +91,7 @@ describe("the trader's way to her own shop", () => {
     expect(openingKey(graduate)).toBe(`${FIRST_CHAPTER}.open.ada`);
   });
 
-  test("[R-ACTIVITY-016] [R-PROLOGUE-011] given a shop worker from the tile, with no settlement, when her first chapter is read, then it never says the service year and never offers a shop", () => {
+  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] given a shop worker from the tile, with no settlement, when her first chapter is read, then it never says the service year and never offers a shop", () => {
     const view = play(archetypeOf("shop-worker")!, "shop-worker-0").view();
     expect(sixteenPath(view)).toBe("trade");
     expect(text[openingKey(view)]).not.toMatch(SERVICE_YEAR);

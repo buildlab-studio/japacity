@@ -38,15 +38,15 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given the fetch throws as Safari does on a login wall's cross-origin redirect (Load failed), then the request fails as network and carries the kind, not the browser's words", async () => {
+describe("every request fails loudly and in kind (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given the fetch throws as Safari does on a login wall's cross-origin redirect (Load failed), then the request fails as network and carries the kind, not the browser's words", async () => {
     const error: unknown = await api({ baseUrl: BASE, fetch: () => Promise.reject(new TypeError("Load failed")), wall: noWall })
       .get("/api/view")
       .catch((caught: unknown) => caught);
     expect(failureOf(error)).toBe("network");
   });
 
-  test("[R-ENGINE-015] given a read with no answer, then it fails as network at 8 seconds and not before", async () => {
+  test("[engine:browser-authority-for-dev-only] given a read with no answer, then it fails as network at 8 seconds and not before", async () => {
     vi.useFakeTimers();
     let aborted = false;
     const hanging: Fetch = (_input, init) =>
@@ -64,7 +64,7 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(READ_TIMEOUT_MS).toBe(8_000);
   });
 
-  test("[R-ENGINE-015] given a command with no answer, then it fails as network at 15 seconds and not before", async () => {
+  test("[engine:browser-authority-for-dev-only] given a command with no answer, then it fails as network at 15 seconds and not before", async () => {
     vi.useFakeTimers();
     let aborted = false;
     const hanging: Fetch = (_input, init) =>
@@ -82,7 +82,7 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(COMMAND_TIMEOUT_MS).toBe(15_000);
   });
 
-  test("[R-ENGINE-015] given any request, then it goes same-origin with the cookie, never follows a redirect, and carries a signal for its clock", async () => {
+  test("[engine:browser-authority-for-dev-only] given any request, then it goes same-origin with the cookie, never follows a redirect, and carries a signal for its clock", async () => {
     const seen: RequestInit[] = [];
     const fetch: Fetch = (_input, init) => {
       seen.push(init ?? {});
@@ -98,7 +98,7 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     }
   });
 
-  test("[R-ENGINE-015] [R-ACCOUNT-006] given the Access login wall's answers to a fetch (an opaque redirect, a 302 to its login, its 401 page), then each is a wall", async () => {
+  test("[engine:browser-authority-for-dev-only] [account:session-is-secure-cookie] given the Access login wall's answers to a fetch (an opaque redirect, a 302 to its login, its 401 page), then each is a wall", async () => {
     expect(await kindOf(() => Promise.resolve(answered(0, "", { type: "opaqueredirect" })))).toBe("wall");
     const toLogin = { ...answered(302, ""), headers: new Headers({ location: "https://example-team.cloudflareaccess.com/cdn-cgi/access/login/staging.japacity.app?redirect_url=%2Fapi%2Fview" }) } as Response;
     expect(classify(toLogin, "")).toEqual({ kind: "wall", detail: "redirected to the Access login (302)" });
@@ -107,23 +107,23 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(await kindOf(() => Promise.resolve(answered(200, ACCESS_PAGE, { redirected: true, contentType: HTML_TYPE })))).toBe("wall");
   });
 
-  test("[R-ENGINE-015] [R-ACCOUNT-006] given a 401 or 403 with no JSON of the server's, or a page where JSON was expected, then it is a wall", async () => {
+  test("[engine:browser-authority-for-dev-only] [account:session-is-secure-cookie] given a 401 or 403 with no JSON of the server's, or a page where JSON was expected, then it is a wall", async () => {
     expect(await kindOf(() => Promise.resolve(answered(401, "")))).toBe("wall");
     expect(await kindOf(() => Promise.resolve(answered(403, "Forbidden", { contentType: "text/plain" })))).toBe("wall");
     expect(await kindOf(() => Promise.resolve(answered(200, ACCESS_PAGE, { contentType: HTML_TYPE })))).toBe("wall");
   });
 
-  test("[R-ACCOUNT-006] given a 403 with a JSON body (only the game's Worker answers in JSON: the auth library's refusal of a passkey, R-ACCOUNT-003), then it is the server's answer, never a wall that would reload the page", () => {
+  test("[account:session-is-secure-cookie] given a 403 with a JSON body (only the game's Worker answers in JSON: the auth library's refusal of a passkey, account:passkey-needs-signed-in-session), then it is the server's answer, never a wall that would reload the page", () => {
     const refused = JSON.stringify({ code: "PASSKEY_FIRST", message: "Use a passkey session." });
     expect(classify(answered(403, refused, { contentType: JSON_TYPE }), refused)).toEqual({ kind: "rejected", body: { code: "PASSKEY_FIRST", message: "Use a passkey session." } });
   });
 
-  test("[R-ACCOUNT-006] given the game's own 401 with signed-out in its body, then it is the game's refusal, not a wall: the account screens take it", async () => {
+  test("[account:session-is-secure-cookie] given the game's own 401 with signed-out in its body, then it is the game's refusal, not a wall: the account screens take it", async () => {
     const signedOut = JSON.stringify({ ok: false, code: "signed-out", detail: "Sign in to play." });
     expect(await kindOf(() => Promise.resolve(answered(401, signedOut, { contentType: JSON_TYPE })))).toBe("rejected");
   });
 
-  test("[R-ENGINE-015] given a 5xx with no refusal of the game's, then it is server; the game's own 503 (switched-off) stays its refusal", async () => {
+  test("[engine:browser-authority-for-dev-only] given a 5xx with no refusal of the game's, then it is server; the game's own 503 (switched-off) stays its refusal", async () => {
     expect(await kindOf(() => Promise.resolve(answered(500, "")))).toBe("server");
     expect(await kindOf(() => Promise.resolve(answered(502, "<html>Bad gateway</html>", { contentType: HTML_TYPE })))).toBe("server");
     expect(await kindOf(() => Promise.resolve(answered(500, JSON.stringify({ error: "boom" }), { contentType: JSON_TYPE })))).toBe("server");
@@ -131,7 +131,7 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(await kindOf(() => Promise.resolve(answered(503, off, { contentType: JSON_TYPE })))).toBe("rejected");
   });
 
-  test("[R-ENGINE-015] [R-SERVER-043] given the server's own failure (unavailable) with a 503 and its wait, or with a 500, then it is server, never a refusal the game would show as one", async () => {
+  test("[engine:browser-authority-for-dev-only] [server:no-platform-error-page] given the server's own failure (unavailable) with a 503 and its wait, or with a 500, then it is server, never a refusal the game would show as one", async () => {
     const down = JSON.stringify({ ok: false, code: "unavailable", detail: "The game's server could not reach its database. Try again shortly.", retryAfter: 5 });
     const broke = JSON.stringify({ ok: false, code: "unavailable", detail: "Something broke on the game's server." });
     const reply503 = { ...answered(503, down, { contentType: JSON_TYPE }), headers: new Headers({ "content-type": JSON_TYPE, "Retry-After": "5" }) } as Response;
@@ -140,19 +140,19 @@ describe("every request fails loudly and in kind (R-ENGINE-015)", () => {
     expect(await kindOf(() => Promise.resolve(answered(500, broke, { contentType: JSON_TYPE })))).toBe("server");
   });
 
-  test("[R-ENGINE-015] given the game's own 409 with its code, then it is rejected and the body comes back as the server sent it", async () => {
+  test("[engine:browser-authority-for-dev-only] given the game's own 409 with its code, then it is rejected and the body comes back as the server sent it", async () => {
     const stale = { ok: false, code: "stale", detail: "The state moved on." };
     const body = await api({ baseUrl: BASE, fetch: () => Promise.resolve(answered(409, JSON.stringify(stale), { contentType: JSON_TYPE })), wall: noWall }).post("/api/command", {});
     expect(body).toEqual(stale);
     expect(classify(answered(409, JSON.stringify(stale), { contentType: JSON_TYPE }), JSON.stringify(stale))).toEqual({ kind: "rejected", body: stale });
   });
 
-  test("[R-ENGINE-015] given a bare 429 from the platform's limiter, then it reads as the game's rate-limited refusal with its wait", () => {
+  test("[engine:browser-authority-for-dev-only] given a bare 429 from the platform's limiter, then it reads as the game's rate-limited refusal with its wait", () => {
     const limited = { ...answered(429, ""), headers: new Headers({ "Retry-After": "7" }) } as Response;
     expect(classify(limited, "")).toEqual({ kind: "rejected", body: { ok: false, code: "rate-limited", detail: "Too many requests.", retryAfter: 7 } });
   });
 
-  test("[R-ENGINE-015] given a 200 with the game's JSON, then it is ok", async () => {
+  test("[engine:browser-authority-for-dev-only] given a 200 with the game's JSON, then it is ok", async () => {
     expect(await kindOf(() => Promise.resolve(answered(200, JSON.stringify({ ok: true, view: {} }), { contentType: JSON_TYPE })))).toBe("ok");
   });
 });
@@ -167,12 +167,12 @@ function tab() {
   return { guard, items, reloads: () => reloads, advance: (ms: number) => (time += ms) };
 }
 
-describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
+describe("the login wall reloads the page once (account:session-is-secure-cookie)", () => {
   const opaque: Fetch = () => Promise.resolve(answered(0, "", { type: "opaqueredirect" }));
   const fine: Fetch = () => Promise.resolve(answered(200, JSON.stringify({ ok: true }), { contentType: JSON_TYPE }));
   const get = (fetch: Fetch, wall: WallGuard) => api({ baseUrl: BASE, fetch, wall }).get("/api/view").catch((caught: unknown) => caught);
 
-  test("[R-ACCOUNT-006] given an /api reply that is an opaque redirect, then the page reloads once so the Access login shows, and the failure says it is reloading", async () => {
+  test("[account:session-is-secure-cookie] given an /api reply that is an opaque redirect, then the page reloads once so the Access login shows, and the failure says it is reloading", async () => {
     const { guard, reloads, items } = tab();
     const error = await get(opaque, guard);
     expect(failureOf(error)).toBe("wall");
@@ -181,7 +181,7 @@ describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
     expect(items.has(WALL_KEY)).toBe(true);
   });
 
-  test("[R-ACCOUNT-006] given a second wall within a minute of the reload, then nothing reloads again: the card with Reload says it", async () => {
+  test("[account:session-is-secure-cookie] given a second wall within a minute of the reload, then nothing reloads again: the card with Reload says it", async () => {
     const { guard, reloads, advance } = tab();
     await get(opaque, guard);
     advance(WALL_AGAIN_MS - 1);
@@ -194,7 +194,7 @@ describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
     expect(reloads()).toBe(2);
   });
 
-  test("[R-ACCOUNT-006] given a route that answers within 3 seconds of the reload beside one that is walled (a host walled in part), then the mark stands and the page never reloads in a loop", async () => {
+  test("[account:session-is-secure-cookie] given a route that answers within 3 seconds of the reload beside one that is walled (a host walled in part), then the mark stands and the page never reloads in a loop", async () => {
     const { guard, reloads, items, advance } = tab();
     await get(opaque, guard);
     advance(WALL_SETTLE_MS - 1);
@@ -204,7 +204,7 @@ describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
     expect(reloads()).toBe(1);
   });
 
-  test("[R-ACCOUNT-006] given the game answers 3 seconds or more after the reload, then the mark is cleared and a later wall reloads once again", async () => {
+  test("[account:session-is-secure-cookie] given the game answers 3 seconds or more after the reload, then the mark is cleared and a later wall reloads once again", async () => {
     const { guard, reloads, items, advance } = tab();
     await get(opaque, guard);
     advance(WALL_SETTLE_MS);
@@ -214,7 +214,7 @@ describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
     expect(reloads()).toBe(2);
   });
 
-  test("[R-ACCOUNT-006] given no session storage to mark the reload in, then nothing reloads: a loop cannot be told from a first time, and the card says it", async () => {
+  test("[account:session-is-secure-cookie] given no session storage to mark the reload in, then nothing reloads: a loop cannot be told from a first time, and the card says it", async () => {
     let reloads = 0;
     const guard = wallGuard({ storage: () => null, now: () => 0, reload: () => (reloads += 1) });
     const error = await get(opaque, guard);
@@ -222,7 +222,7 @@ describe("the login wall reloads the page once (R-ACCOUNT-006)", () => {
     expect(reloads).toBe(0);
   });
 
-  test("[R-ENGINE-015] given a network or server failure, then nothing reloads", async () => {
+  test("[engine:browser-authority-for-dev-only] given a network or server failure, then nothing reloads", async () => {
     const { guard, reloads } = tab();
     await get(() => Promise.reject(new TypeError("Load failed")), guard);
     await get(() => Promise.resolve(answered(500, "")), guard);

@@ -1,9 +1,9 @@
-// The month's acts telling of themselves on the phone (docs/rules/world.md R-WORLD-030): on the
+// The month's acts telling of themselves on the phone (world:month-passes-as-lived): on the
 // wallpaper, as notifications, once the character is home (the house or the room), newest first,
 // and told as soon as they show; away from home only that something waits, never the lines. The
 // lines stay on the phone for the rest of the month. A paper that landed or moved is told above
 // them wherever the phone is opened, a message from the office, and a tap opens Papers; it waits
-// there until Papers is opened, and nothing opens by itself. A result whose morning has come (clock.md R-CLOCK-032)
+// there until Papers is opened, and nothing opens by itself. A result whose morning has come (clock:envelopes-show-real-waits)
 // is told first of all, a notice from its office, once. Nothing here sends a command.
 import type { Envelope, PlayerView } from "@japacity/sim";
 import { FolderOpen } from "lucide-react";
@@ -34,7 +34,7 @@ export function useSignalsWaiting(): boolean {
   return useSignals().waiting.length > 0;
 }
 
-/** An opened result's office and what it says (R-CLOCK-032): the test centre's band, the endorsing body, the visa centre's decision, told straight. */
+/** An opened result's office and what it says (clock:envelopes-show-real-waits): the test centre's band, the endorsing body, the visa centre's decision, told straight. */
 function envelopeWords(envelope: Envelope, view: Pick<PlayerView, "routes">): { from: string | null; words: string } {
   if (envelope.kind === "route") {
     const refused = envelope.held.some((line) => line.key.startsWith("line.route.refused")) || view.routes.find((route) => route.id === envelope.id)?.state === "refused";
@@ -60,7 +60,7 @@ function envelopePicture(envelope: Envelope): string {
 }
 
 /**
- * The results whose morning has come, first on the wallpaper, each a notice from its office (R-CLOCK-032):
+ * The results whose morning has come, first on the wallpaper, each a notice from its office (clock:envelopes-show-real-waits):
  * the first a white card with its picture, its office and what it says, large; any others under
  * "Also this morning", smaller. The best thing leads; nothing is louder than it.
  */
@@ -103,7 +103,7 @@ function MorningNotices({ told }: { told: readonly Envelope[] }) {
 }
 
 /**
- * The month's papers that landed or moved, while Papers has not been opened since (R-WORLD-030): each a tap into Papers.
+ * The month's papers that landed or moved, while Papers has not been opened since (world:month-passes-as-lived): each a tap into Papers.
  * A paper a morning notice tells is not told again here.
  */
 function PaperNotices({ skip }: { skip: ReadonlySet<string> }) {

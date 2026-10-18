@@ -1,7 +1,7 @@
 // The remote authority: the server holds the state and the seed, and this
-// only carries commands there and views back (R-SERVER-001, R-ENGINE-015).
+// only carries commands there and views back (server:commands-only-through-route, engine:browser-authority-for-dev-only).
 // It keeps the last view's version and the clock beside it, never a state, a
-// seed or a world it was not sent, and predicts nothing (R-SERVER-019).
+// seed or a world it was not sent, and predicts nothing (server:client-never-predicts).
 import type {
   ClockView,
   CommandRequest,
@@ -27,9 +27,9 @@ export type AuthorityEvent =
   | { kind: "signed-out" }
   | { kind: "no-character" }
   | { kind: "rate-limited"; retryAfter: number }
-  /** R-SERVER-003: the life replays to another hash on the server and waits for the rollback tool; the view is refused too. */
+  /** server:log-rows-hash-state: the life replays to another hash on the server and waits for the rollback tool; the view is refused too. */
   | { kind: "diverged" }
-  /** The authority's lines since the view the client held, from a fetched view (R-LOTTERY-013): an away winner's letter. */
+  /** The authority's lines since the view the client held, from a fetched view (lottery:winners-paid-by-authority): an away winner's letter. */
   | { kind: "lines"; lines: ReportLine[] };
 
 type AuthorityListener = (event: AuthorityEvent) => void;
@@ -40,22 +40,22 @@ export interface RemoteAuthorityOptions {
   /** Milliseconds since 1970 on the device. Only for holding off after `rate-limited`, never for the game's clock. */
   now?: () => number;
   wait?: (ms: number) => Promise<void>;
-  /** What a login wall sets off (R-ACCOUNT-006): the page's reload guard, or a test's. */
+  /** What a login wall sets off (account:session-is-secure-cookie): the page's reload guard, or a test's. */
   wall?: WallGuard;
 }
 
 export interface RemoteAuthority {
   view(): Promise<PlayerView>;
   send(command: Command): Promise<Reply | ServerRejection>;
-  /** `POST /api/prologue/preset` (R-SERVER-046): the prologue's preset played by the server in one request, on the version held. */
+  /** `POST /api/prologue/preset` (server:server-plays-prologue-preset): the prologue's preset played by the server in one request, on the version held. */
   preset(request: Omit<PresetRequest, "basedOn">): Promise<PresetReply>;
-  /** `POST /api/character`: the account's one character (R-ACCOUNT-015). */
+  /** `POST /api/character`: the account's one character (account:one-character-per-account). */
   newLife(scenario: Id<"scenario">): Promise<PlayerView>;
-  /** `POST /api/character/end`: the account's character ended for good, so another may start (R-ACCOUNT-030). False when it was refused. */
+  /** `POST /api/character/end`: the account's character ended for good, so another may start (account:start-a-new-life). False when it was refused. */
   endLife(): Promise<boolean>;
   /** The version of the last view the server sent, or null before the first. */
   held(): number | null;
-  /** The clock of the last reply, or null before the first (R-CLOCK-003). */
+  /** The clock of the last reply, or null before the first (clock:reply-carries-the-clock). */
   clock(): ClockView | null;
   world(): Promise<WorldReply>;
   presence(place: string): Promise<PresenceReply>;
@@ -73,7 +73,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
   const now = options.now ?? (() => Date.now());
   const wait = options.wait ?? realWait;
   const listeners = new Set<AuthorityListener>();
-  /** R-SERVER-025: every request on the server's command limit leaves through this, at most eight in ten seconds. */
+  /** server:per-account-rate-limits: every request on the server's command limit leaves through this, at most eight in ten seconds. */
   const pace = pacer(now, wait);
 
   let version: number | null = null;
@@ -99,7 +99,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     if (left > 0) await wait(left);
   }
 
-  /** R-SERVER-025: tells the store how long to wait, then waits it. */
+  /** server:per-account-rate-limits: tells the store how long to wait, then waits it. */
   async function limited(rejection: ServerRejection): Promise<void> {
     const ms = retryAfterMs(rejection);
     heldUntil = now() + ms;
@@ -181,7 +181,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
       const reply = await http.post<ServerReply>("/api/command", request);
       if (reply.ok) return { ok: true, view: keep(reply), lines: reply.lines };
       if (reply.code === "stale") {
-        // R-ENGINE-003: the state moved on. Fetch it once so the player can look again.
+        // engine:stale-commands-rejected: the state moved on. Fetch it once so the player can look again.
         fresh = await fetchView();
       } else if (reply.code === "rate-limited") {
         await limited(reply);
@@ -194,7 +194,7 @@ export function remoteAuthority(options: RemoteAuthorityOptions): RemoteAuthorit
     async preset(request) {
       fresh = null;
       await holdOff();
-      // R-SERVER-025: the whole preset is one request on the command limit.
+      // server:per-account-rate-limits: the whole preset is one request on the command limit.
       await pace.take();
       const body: PresetRequest = { ...request, basedOn: version ?? 0 };
       const reply = await http.post<PresetReply>("/api/prologue/preset", body);

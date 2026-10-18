@@ -66,13 +66,13 @@ function length(from: Point, route: readonly Point[]): number {
 }
 
 describe("the route map", () => {
-  test("[R-CITY-030] given the route map, when its figures are read, then cells are 25 cm, the clearance is the tuning's stop-short distance and the pace its walking pace", () => {
+  test("[city:tap-to-walk] given the route map, when its figures are read, then cells are 25 cm, the clearance is the tuning's stop-short distance and the pace its walking pace", () => {
     expect(CELL).toBe(0.25);
     expect(CLEARANCE * 1000).toBe(content.tuning.city.stopShortMm);
     expect(WALK_SPEED * 1000).toBe(content.tuning.city.walkMmPerS);
   });
 
-  test("[R-CITY-030] given a yard with a wall and a stall, when the map is built, then the wall is hard, the band within the clearance is not free, open ground is free and off the walkable ground is hard", () => {
+  test("[city:tap-to-walk] given a yard with a wall and a stall, when the map is built, then the wall is hard, the band within the clearance is not free, open ground is free and off the walkable ground is hard", () => {
     expect(groundAt(yardMap, -4, 0)).toBe(HARD);
     expect(groundAt(yardMap, -4, 0.35)).not.toBe(FREE);
     expect(groundAt(yardMap, -4, 0.6)).toBe(FREE);
@@ -84,11 +84,11 @@ describe("the route map", () => {
 });
 
 describe("tap to walk", () => {
-  test("[R-CITY-030] given open ground between the character and the tap, when the tap is routed, then it is one straight leg to the tap", () => {
+  test("[city:tap-to-walk] given open ground between the character and the tap, when the tap is routed, then it is one straight leg to the tap", () => {
     expect(findRoute(yardMap, { x: 0, z: 8 }, { x: 4, z: 5 })).toEqual([{ x: 4, z: 5 }]);
   });
 
-  test("[R-CITY-030] given a wall between the character and the tap, when the tap is routed, then the route goes round its end, keeps the clearance and ends at the tap", () => {
+  test("[city:tap-to-walk] given a wall between the character and the tap, when the tap is routed, then the route goes round its end, keeps the clearance and ends at the tap", () => {
     const from = { x: -4, z: 6 };
     const to = { x: -4, z: -6 };
     const route = findRoute(yardMap, from, to);
@@ -98,7 +98,7 @@ describe("tap to walk", () => {
     for (const point of along(from, route)) expect(wall.some((box) => inBox(box, point.x, point.z, CLEARANCE - CELL))).toBe(false);
   });
 
-  test("[R-CITY-030] given a tap on the stall itself, when it is routed, then the character stops at the nearest free ground, the clearance short of it", () => {
+  test("[city:tap-to-walk] given a tap on the stall itself, when it is routed, then the character stops at the nearest free ground, the clearance short of it", () => {
     const route = findRoute(yardMap, { x: 6, z: 6 }, { x: 6, z: 0.5 });
     const end = route[route.length - 1] ?? { x: 0, z: 0 };
     expect(groundAt(yardMap, end.x, end.z)).toBe(FREE);
@@ -106,7 +106,7 @@ describe("tap to walk", () => {
     expect(end.z).toBeLessThan(1 + CLEARANCE + CELL + 0.01);
   });
 
-  test("[R-CITY-030] given a spot beside the stall inside its clearance, when a tap and a stroll are routed to it, then the tap stops short of the stall and the stroll ends on the spot", () => {
+  test("[city:tap-to-walk] given a spot beside the stall inside its clearance, when a tap and a stroll are routed to it, then the tap stops short of the stall and the stroll ends on the spot", () => {
     const spot = { x: 6, z: 1.15 };
     const tap = findRoute(yardMap, { x: 6, z: 6 }, spot);
     expect(tap[tap.length - 1]).not.toEqual(spot);
@@ -114,7 +114,7 @@ describe("tap to walk", () => {
     expect(stroll[stroll.length - 1]).toEqual(spot);
   });
 
-  test("[R-CITY-030] given a tap off the walkable ground or on ground the character cannot reach, when it is routed, then the walk ends on the character's own part of the ground", () => {
+  test("[city:tap-to-walk] given a tap off the walkable ground or on ground the character cannot reach, when it is routed, then the walk ends on the character's own part of the ground", () => {
     for (const to of [{ x: 15, z: 1 }, { x: 21, z: 1 }]) {
       const route = findRoute(yardMap, { x: 0, z: 8 }, to);
       const end = route[route.length - 1] ?? { x: 0, z: 0 };
@@ -123,7 +123,7 @@ describe("tap to walk", () => {
     }
   });
 
-  test("[R-CITY-030] given the hub's route map and 300 taps anywhere on and around its ground one after another from the start, when each is routed, then no route passes through a danfo or leaves the walkable ground", () => {
+  test("[city:tap-to-walk] given the hub's route map and 300 taps anywhere on and around its ground one after another from the start, when each is routed, then no route passes through a danfo or leaves the walkable ground", () => {
     let at: Point = { x: hub.start[0], z: hub.start[1] };
     for (let tap = 0; tap < 300; tap += 1) {
       const to = { x: -26 + (hash(`hub|${String(tap)}|x`) % 5000) / 100, z: -28 + (hash(`hub|${String(tap)}|z`) % 4400) / 100 };
@@ -135,7 +135,7 @@ describe("tap to walk", () => {
     }
   });
 
-  test("[R-CITY-030] given the hub, when the character on the pavement is sent across the bay behind a danfo, then the route goes round them rather than through", () => {
+  test("[city:tap-to-walk] given the hub, when the character on the pavement is sent across the bay behind a danfo, then the route goes round them rather than through", () => {
     const from = { x: 1.6, z: 6.2 };
     const to = { x: 1.6, z: 1.4 };
     const through = [from, to];

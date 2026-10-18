@@ -1,4 +1,4 @@
-// A short fact with its state (docs/rules/text.md R-TEXT-008): a mark that differs in shape and colour, then two or
+// A short fact with its state (text:show-then-tell): a mark that differs in shape and colour, then two or
 // three words, as a tag that sits in a row of others. The mark carries its word for a screen reader.
 import type { ReactNode } from "react";
 

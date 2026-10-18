@@ -1,4 +1,4 @@
-// The reduced-motion setting for a test (world.md R-WORLD-023): the page's media query stubbed to answer as asked, and
+// The reduced-motion setting for a test (world:motions-under-half-second): the page's media query stubbed to answer as asked, and
 // turned while the screen is open, as a player changing it in their phone's settings would. Undo with
 // `vi.unstubAllGlobals()`.
 import { vi } from "vitest";

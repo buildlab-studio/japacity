@@ -1,4 +1,4 @@
-// The bed's sleep (docs/rules/world.md R-WORLD-025, R-WORLD-005; decision 0011): a timed act on the bed, at any hour of the world's day. The month turns only
+// The bed's sleep (world:sleep-ends-the-month, world:things-are-tappable-models; decision 0011): a timed act on the bed, at any hour of the world's day. The month turns only
 // when the sleep runs out; waking first makes it a nap, and the night goes on.
 import type { DayPart, Id } from "@japacity/sim";
 
@@ -44,7 +44,7 @@ export function wokeWords(part: DayPart): "ui.sleep.woke" | "ui.sleep.woke.day" 
 }
 
 /**
- * The small sleep mark over the bed while the sleep runs (R-WORLD-025): three "z" in the game's own type, each growing in
+ * The small sleep mark over the bed while the sleep runs (world:sleep-ends-the-month): three "z" in the game's own type, each growing in
  * and fading out in turn, on scale and opacity alone. Built in the DOM box beside the canvas, which the frame loop moves
  * over the bed as it moves the things' marks.
  */
@@ -67,7 +67,7 @@ export function sleepMarkNode(): HTMLDivElement {
 }
 
 /**
- * Eyes closed (R-WORLD-025), since the family standing round the bed while you sleep looks wrong: while the sleep runs, the others in the place, the crowd, the dancers and those standing at a thing of their
+ * Eyes closed (world:sleep-ends-the-month), since the family standing round the bed while you sleep looks wrong: while the sleep runs, the others in the place, the crowd, the dancers and those standing at a thing of their
  * own, are not seen, under the wash; the sleeper alone stays. Waking, or the sleep running out, brings them back.
  */
 export function othersSeen(world: Pick<World, "crowd" | "dancers" | "standers">, seen: boolean): void {

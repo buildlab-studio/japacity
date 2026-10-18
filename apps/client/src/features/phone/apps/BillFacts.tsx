@@ -1,6 +1,6 @@
-// What a bill of its own kind carries in Bills (docs/rules/world.md R-WORLD-019): the car on finance (car.md R-CAR-007)
+// What a bill of its own kind carries in Bills (world:phone-holds-what-phones-hold): the car on finance (car:view-shows-car-terms)
 // with what is paid against the third and the half, the final payment, the interest a month, the notice or the court
-// date, and handing it back once half is paid (R-CAR-004); the sponsor's undertaking (undertaking.md R-UNDERTAKING-012)
+// date, and handing it back once half is paid (car:car-handed-back-after-half); the sponsor's undertaking (undertaking:view-lists-undertaking)
 // with the months left of the promise, the months charged and what is owed now. Small lines and chips on the bill's card.
 import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
@@ -30,7 +30,7 @@ export interface CarFigures {
   courtMonthsLeft: number;
 }
 
-/** The car's figures from the view's `car` part (R-CAR-007), with the currency from its entry. Null for anything that is not a car. */
+/** The car's figures from the view's `car` part (car:view-shows-car-terms), with the currency from its entry. Null for anything that is not a car. */
 export function carFigures(owed: Owed, month: number): CarFigures | null {
   const entry = content.obligation[owed.entry];
   const car = owed.car;

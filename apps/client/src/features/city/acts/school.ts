@@ -1,5 +1,5 @@
-// The sheet that sends papers to one university (docs/rules/world.md R-WORLD-006; route.md R-ROUTE-006,
-// R-ROUTE-007): it named no university, no deposit and no chance, and its corner
+// The sheet that sends papers to one university (world:one-action-one-sheet; route:applying-to-a-school,
+// route:school-answers-by-grade): it named no university, no deposit and no chance, and its corner
 // showed a gear. It now names the school, the deposit it asks if it says yes, and the chance of an offer,
 // in the jobs' chance words, under a building.
 import { content } from "@japacity/content";
@@ -15,7 +15,7 @@ export const APPLY_TO_SCHOOL = "activity.apply-to-school";
 export const SCHOOL_ICON = "landmark";
 const GRADE = "quality.edu-grade";
 
-/** The chance of an offer from this school at the character's grade, as the school's answer draws it (R-ROUTE-007). */
+/** The chance of an offer from this school at the character's grade, as the school's answer draws it (route:school-answers-by-grade). */
 export function offerChance(view: Pick<PlayerView, "qualities">, school: string): number {
   const entry = (content.school as Record<string, (typeof content.school)[keyof typeof content.school] | undefined>)[school];
   if (entry === undefined) return 0;

@@ -1,6 +1,6 @@
-// The phone's apps on the real view (docs/rules/world.md R-WORLD-018, 019), composed for the
+// The phone's apps on the real view (world:phone-rises-over-scene, world:phone-holds-what-phones-hold), composed for the
 // shell: `usePhoneApps` gives the contract's `PhoneApp` list, `usePhoneWaiting` the dot for the
-// Phone button (R-WORLD-004), and `PhoneApps` the whole handset with its apps. What the phone needs
+// Phone button (world:thumb-buttons-carry-dots), and `PhoneApps` the whole handset with its apps. What the phone needs
 // from other features (the account's settings, the pair routes) the shell hands in.
 import { content } from "@japacity/content";
 import type { ReactNode } from "react";
@@ -43,7 +43,7 @@ const ICON: Record<AppId, string> = {
   settings: "settings",
 };
 
-/** R-ANALYTICS-002: each opening of an app counts its screen once, keyed by the feature that leads it. */
+/** analytics:client-sends-interface-counts: each opening of an app counts its screen once, keyed by the feature that leads it. */
 const APP_SCREEN: Record<AppId, string> = {
   calendar: "turn",
   bank: "wallet",
@@ -61,22 +61,22 @@ const APP_SCREEN: Record<AppId, string> = {
 
 /**
  * What an app opens on: the Bank on its send chooser (`bank:send`); the Calendar on its coming list
- * or its teach card; Papers on an act's card (`papers:activity.get-transcript`, the nudge's step, R-WORLD-003).
+ * or its teach card; Papers on an act's card (`papers:activity.get-transcript`, the nudge's step, world:nudge-says-one-thing).
  */
 type Opening = string | null;
 
-/** The Calendar's screen, handed in by the shell with what it opens on (R-WORLD-002), so the phone knows nothing of the month. */
+/** The Calendar's screen, handed in by the shell with what it opens on (world:top-band-is-lively-pill), so the phone knows nothing of the month. */
 type CalendarScreen = (opening: string | null) => ReactNode;
 
 /** What the shell hands the phone: the Calendar's screen and the acts' cards, so the phone imports no other feature. */
 interface Handed {
   calendar: CalendarScreen | null;
   cards: PaperCards | null;
-  /** The road's log for Japa (R-WORLD-019): the briefs handed so far, from the shell. */
+  /** The road's log for Japa (world:phone-holds-what-phones-hold): the briefs handed so far, from the shell. */
   briefs: ReactNode;
   /** The place the world shows, for the Market: it sells only at home. */
   here: string | null;
-  /** The dedication page the version line's five taps open, from the shell (account.md R-ACCOUNT-032). */
+  /** The dedication page the version line's five taps open, from the shell (account:dedication-page-and-its-doors). */
   dedication: DedicationScreen | null;
 }
 
@@ -130,19 +130,19 @@ function usePhoneApps({ account = null, about = null, opening = null, calendar =
       </>
     ),
     waiting: waiting[id],
-    // Jobs, Lotto, Bills and Bank say what is there now beside their name (R-WORLD-018).
+    // Jobs, Lotto, Bills and Bank say what is there now beside their name (world:phone-rises-over-scene).
     context: appContext(id, view),
   }));
 }
 
-/** True when any app has something the player has not seen, or a line of the month waits (R-WORLD-030): the dot on the Phone button. */
+/** True when any app has something the player has not seen, or a line of the month waits (world:month-passes-as-lived): the dot on the Phone button. */
 export function usePhoneWaiting(): boolean {
   const view = useView();
   // A brief handed changes no view, so its mark is read as it is kept.
   useJapaMark(view.scenario);
   const waiting = waitingOf(marksOf(view), useSeen());
   const signals = useSignalsWaiting();
-  // A result whose morning has come waits on the lock screen (R-CLOCK-032).
+  // A result whose morning has come waits on the lock screen (clock:envelopes-show-real-waits).
   const morning = useGame((state) => state.opened.length > 0);
   return signals || morning || APP_IDS.some((id) => waiting[id]);
 }
@@ -153,35 +153,35 @@ export interface PhoneAppsProps {
   area: string;
   /** The account's settings, for the Settings app. */
   account?: ReactNode;
-  /** About the game, under its own heading at the foot of Settings: the Credits row (city.md R-CITY-021). */
+  /** About the game, under its own heading at the foot of Settings: the Credits row (city:credits-screen-attributions). */
   about?: ReactNode;
   /** The pair routes online, or null offline, for Chats. */
   talk?: PairTalk | null;
-  /** The people feature's screens for Chats, from the shell: a bond's head and the slots (R-WORLD-020). */
+  /** The people feature's screens for Chats, from the shell: a bond's head and the slots (world:nobody-picked-from-list). */
   people?: PhonePeopleScreens | null;
   now?: () => Date;
   /** An app to open on; `bank:send` opens the Bank on its send chooser, `calendar:coming` the Calendar on what is coming. */
   start?: string | null;
-  /** The Calendar's screen, from the shell (R-WORLD-002). */
+  /** The Calendar's screen, from the shell (world:top-band-is-lively-pill). */
   calendar?: CalendarScreen | null;
-  /** An act's card, from the shell, for Papers (R-WORLD-019). */
+  /** An act's card, from the shell, for Papers (world:phone-holds-what-phones-hold). */
   cards?: PaperCards | null;
-  /** Puts the phone away onto the map at a stop, from the shell: a paper's visit (R-WORLD-019). */
+  /** Puts the phone away onto the map at a stop, from the shell: a paper's visit (world:phone-holds-what-phones-hold). */
   onMap?: (stop: string) => void;
-  /** The road's log for Japa, from the shell (R-WORLD-019). */
+  /** The road's log for Japa, from the shell (world:phone-holds-what-phones-hold). */
   briefs?: ReactNode;
   /**
-   * The warnings that stand, from the shell: the status clock abroad (status.md R-STATUS-003) and being run down
-   * (health.md R-HEALTH-007), above every app whichever is open and on the phone's home above its notices.
+   * The warnings that stand, from the shell: the status clock abroad (status:lost-job-starts-clock) and being run down
+   * (health:view-shows-health-warning), above every app whichever is open and on the phone's home above its notices.
    */
   warnings?: ReactNode;
-  /** The phone's one sponsored tile, from the shell, standing among the tiles when the hour fills it (advert.md R-ADVERT-002). */
+  /** The phone's one sponsored tile, from the shell, standing among the tiles when the hour fills it (advert:slots-capped-per-place). */
   advert?: ReactNode;
   /** The place the world shows, by id, for the Market. */
   here?: string | null;
-  /** The dedication page, from the shell, which the five taps on Settings' version line open (account.md R-ACCOUNT-032). */
+  /** The dedication page, from the shell, which the five taps on Settings' version line open (account:dedication-page-and-its-doors). */
   dedication?: DedicationScreen | null;
-  /** The send-off card where the phone keeps the cards, from the shell (share.md R-SHARE-015): a tile on the home among the notices. */
+  /** The send-off card where the phone keeps the cards, from the shell (share:send-off-card-kept): a tile on the home among the notices. */
   keepsake?: ReactNode;
 }
 
@@ -216,7 +216,7 @@ export function PhoneApps({ onClose, area, account = null, about = null, talk = 
               )}
               {keepsake}
               <Notices />
-              {/* The phone's one sponsored tile among its tiles, when the hour fills it online (advert.md R-ADVERT-002). */}
+              {/* The phone's one sponsored tile among its tiles, when the hour fills it online (advert:slots-capped-per-place). */}
               {advert === null ? null : (
                 <div className="mt-4 flex justify-center px-4 empty:hidden" data-phone-advert>
                   {advert}

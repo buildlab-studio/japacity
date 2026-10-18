@@ -11,7 +11,7 @@ import { Japa } from "./Japa";
 const UK = "route.uk-masters";
 
 describe("one naming of the way out", () => {
-  test("[R-WORLD-019] given the UK master's looked into, when Japa shows its figure, then the route is named in the header and not again under the figure", async () => {
+  test("[world:phone-holds-what-phones-hold] given the UK master's looked into, when Japa shows its figure, then the route is named in the header and not again under the figure", async () => {
     const game = newGame("scenario.ada");
     toKnown(game);
     const view = game.view();

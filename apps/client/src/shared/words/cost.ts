@@ -2,7 +2,7 @@
 // shown before the player commits. The engine still decides; these figures
 // only say which number is short. A foreign fee is paid from that currency's
 // pockets first and the rest is bought from the naira bank at the bank rate,
-// plus the bank's charge (docs/rules/wallet.md, R-WALLET-009).
+// plus the bank's charge (docs/rules/wallet.md, wallet:foreign-fee-payment-order).
 import { content } from "@japacity/content";
 import { int, type Currency, type ForeignCurrency, type MoneyParam, type PlayerView, type SlotPick } from "@japacity/sim";
 
@@ -61,11 +61,11 @@ export function plannedCosts(view: Pick<PlayerView, "activities">, plan: readonl
  */
 export type AfterPaying = { left: Money; short: null; due: Money | null; before: Money } | { left: null; short: Money };
 
-/** What the view says of pay: the jobs held and the offers open (docs/rules/wallet.md R-WALLET-016). */
+/** What the view says of pay: the jobs held and the offers open (wallet:view-carries-month-pay). */
 export type PayView = Pick<PlayerView, "job" | "offers">;
 
 /**
- * A job's pay a month as the wallet will book it, net of tax, from the view (R-WALLET-016): the job held, the side
+ * A job's pay a month as the wallet will book it, net of tax, from the view (wallet:view-carries-month-pay): the job held, the side
  * job, or the job an open offer names. Null when the view carries no figure for it.
  */
 export function monthlyPayOf(view: PayView, job: string): MoneyParam | null {
@@ -105,7 +105,7 @@ function dueOver(left: Money, dues: MonthDues | null): Money | null {
 
 /**
  * What paying these costs leaves, after what the month already plans, or how much is short, so
- * a main button can say what is left after and stay shut when it cannot be paid (R-WORLD-006).
+ * a main button can say what is left after and stay shut when it cannot be paid (world:one-action-one-sheet).
  * A cost in one foreign currency held in its own pockets is told in that currency; anything that
  * needs naira is told in naira, as `shortfall` counts it. With `dues`, what is left is held against
  * what the month's end takes, so the card can warn before a bill goes unpaid.
@@ -119,7 +119,7 @@ export function afterPaying(view: Pockets, planned: readonly Money[], costs: rea
     const need = all.filter((cost) => cost.currency === only).reduce((sum, cost) => sum + cost.amount, 0);
     if (pocket.bank + pocket.cash >= need) {
       const left = { currency: only, amount: pocket.bank + pocket.cash - need };
-      // The balance before: what the pockets hold less what the month's plan already pays for (R-WORLD-006).
+      // The balance before: what the pockets hold less what the month's plan already pays for (world:one-action-one-sheet).
       const planned = plannedIn(all, costs, only);
       return { left, short: null, due: dueOver(left, dues), before: { currency: only, amount: pocket.bank + pocket.cash - planned } };
     }
@@ -145,7 +145,7 @@ export function afterHaving(have: number, cost: Money): AfterPaying {
 }
 
 /**
- * What a change of money gives, worked as the wallet works it (R-WALLET-004, R-WALLET-007), so the
+ * What a change of money gives, worked as the wallet works it (wallet:bank-converts-at-official-rate, wallet:aboki-trades-at-street-rate), so the
  * Change money card can say "You get £8,436" before it is confirmed. At the
  * bank: the charge comes off what is paid in and the rest goes at the official rate. With the FX man:
  * the street rate, less his spread on a sale; his count can still come up short. The engine decides.

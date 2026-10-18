@@ -1,8 +1,8 @@
-// The ways back in for a player who kept a life (R-ACCOUNT-001), in R-ACCOUNT-023's order: Google first, then a
-// code by email, then a passkey, which only signs in: it is added from the settings (R-ACCOUNT-003). Inside an
+// The ways back in for a player who kept a life (account:sign-in-without-secret), in account:guest-secures-the-life's order: Google first, then a
+// code by email, then a passkey, which only signs in: it is added from the settings (account:passkey-needs-signed-in-session). Inside an
 // in-app browser where Google is blocked, Google is not shown and the code is offered with a way out to the phone's
-// own browser. None of them makes an account: a life starts as a guest (R-ACCOUNT-021), so a sign-in that finds no
-// life says so. Signing in again needs no bot check (R-ACCOUNT-013).
+// own browser. None of them makes an account: a life starts as a guest (account:guest-and-secured-states), so a sign-in that finds no
+// life says so. Signing in again needs no bot check (account:bot-check-on-guest-creation).
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 
@@ -13,7 +13,7 @@ import { say } from "../../shared/words/text";
 import { CodeForm, failureWords } from "./CodeForm";
 import { browserLink, inAppBrowser } from "./inApp";
 
-/** The way a sign-in on this sheet went through, for the welcome that names it (R-ACCOUNT-023); Google's comes back by its own trip. */
+/** The way a sign-in on this sheet went through, for the welcome that names it (account:guest-secures-the-life); Google's comes back by its own trip. */
 export type SignedInBy = "email" | "passkey";
 
 export interface SignInProps {

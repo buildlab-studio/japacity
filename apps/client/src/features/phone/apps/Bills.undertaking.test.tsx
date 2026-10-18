@@ -1,4 +1,4 @@
-// The sponsor's undertaking in Bills (docs/rules/undertaking.md R-UNDERTAKING-012, R-UNDERTAKING-008), each assertion
+// The sponsor's undertaking in Bills (undertaking:view-lists-undertaking, undertaking:missed-charges-lead-to-default), each assertion
 // against the bill's card.
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -41,7 +41,7 @@ async function showing(owed: Owed) {
 const card = () => document.querySelector<HTMLElement>('[data-bill="obligation-50"]')!;
 
 describe("the undertaking, in Bills", () => {
-  test("[R-UNDERTAKING-012] given an undertaking running with nothing owed, then the obligation list shows the months left, the months charged and that nothing is owed, with the assistance line", async () => {
+  test("[undertaking:view-lists-undertaking] given an undertaking running with nothing owed, then the obligation list shows the months left, the months charged and that nothing is owed, with the assistance line", async () => {
     await showing(undertaking());
     const shown = within(card());
     expect(card().querySelector("[data-undertaking]")).not.toBeNull();
@@ -53,7 +53,7 @@ describe("the undertaking, in Bills", () => {
     expect(shown.queryByRole("button")).toBeNull();
   });
 
-  test("[R-UNDERTAKING-008] given a charge missed and owed, then what is owed shows in Canadian dollars, the misses are counted, and paying it sends the whole sum", async () => {
+  test("[undertaking:missed-charges-lead-to-default] given a charge missed and owed, then what is owed shows in Canadian dollars, the misses are counted, and paying it sends the whole sum", async () => {
     const { authority } = await showing(undertaking({ state: "grace", outstanding: 73_300, missed: 1, monthsLeft: 1, charged: 0 }));
     const shown = within(card());
     expect(shown.getByText(say("ui.undertaking.owed", { amount: formatMoney(73_300, "CAD") }))).toBeDefined();

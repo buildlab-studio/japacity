@@ -1,4 +1,4 @@
-// The folding map of Lagos (docs/rules/world.md R-WORLD-015, R-WORLD-017): one painted map at two
+// The folding map of Lagos (world:map-is-painted-lagos, world:ride-sheet-shows-fares): one painted map at two
 // zooms with the strip as the hinge. Folded, the strip sits at the top and the neighbourhood cards swipe sideways
 // beneath it with pager dots; a tap on the strip or a drag down unfolds the whole map (the strip's frame grows to the
 // screen while the card slides down and fades, transform and opacity only, under 300 ms; a fade under reduced motion);
@@ -35,7 +35,7 @@ export interface MapProbe {
   stops: { id: string; state: string; card: string; at: Point }[];
   route: Point[] | null;
   channel: Channel | null;
-  /** R-WORLD-036: the lantern canoe's point on the paper, when the open map draws it; never one of the stops. */
+  /** world:lantern-canoe-on-map: the lantern canoe's point on the paper, when the open map draws it; never one of the stops. */
   canoe: Point | null;
 }
 
@@ -118,9 +118,9 @@ export interface PaperMapProps {
   close: ReactNode;
   /** Whether a ride sheet is up at the foot. */
   sheetUp: boolean;
-  /** R-WORLD-036: the lantern canoe's glow and what its tap opens, from the shell; none, no canoe. */
+  /** world:lantern-canoe-on-map: the lantern canoe's glow and what its tap opens, from the shell; none, no canoe. */
   canoe?: (CanoeFill & { onOpen: () => void }) | null;
-  /** The painted city drawn: Lagos, or London abroad (R-WORLD-038). */
+  /** The painted city drawn: Lagos, or London abroad (world:painted-maps-abroad). */
   city?: PaperCity;
 }
 
@@ -146,7 +146,7 @@ function CityMap({ pins, home, picked, step, names, onPick, country, close, shee
   const stepStop = step === null ? null : (byId.get(step) ?? null);
   const marks: Marks = useMemo(() => ({ home, picked, step }), [home, picked, step]);
   const homeStop = home === null ? null : (byId.get(home) ?? null);
-  // R-WORLD-036: the canoe's second lantern once the account's own light is lit.
+  // world:lantern-canoe-on-map: the canoe's second lantern once the account's own light is lit.
   const mine = useMineLit();
   const canoe: Canoe | null = useMemo(() => (handed === null ? null : { glow: handed.glow, onOpen: handed.onOpen, mine }), [handed, mine]);
 

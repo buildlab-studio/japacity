@@ -1,4 +1,4 @@
-// The Dubai agent asks for the passport (docs/rules/advice.md R-ADVICE-006, route-gates.md): he never takes "₦1,300,000
+// The Dubai agent asks for the passport (advice:scams-show-their-tells, route-gates.md): he never takes "₦1,300,000
 // and your passport" from a trader who holds none while Japa ticks "An agent with a real contract". Paying him needs the passport in hand; until then the ask says it is still
 // needed and the route's agent step stays unticked. Real content.
 import { content } from "@japacity/content";
@@ -32,7 +32,7 @@ function noPassport(): Game {
 }
 
 describe("the Dubai agent and the passport", () => {
-  test("[R-ADVICE-006] given a life holding no passport with the Dubai agent's ask open, when it is read, then paying him is shut, the ask says the passport is still needed, and the agent step stays unticked; once the passport is held, paying him opens", async () => {
+  test("[advice:scams-show-their-tells] given a life holding no passport with the Dubai agent's ask open, when it is read, then paying him is shut, the ask says the passport is still needed, and the agent step stays unticked; once the passport is held, paying him opens", async () => {
     const game = noPassport();
     expect(game.view().documents.some((paper) => paper.id === PASSPORT && paper.state === "held")).toBe(false);
     const offer = openOffer(game, AGENT);

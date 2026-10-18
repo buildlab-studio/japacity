@@ -1,8 +1,8 @@
 // The moderation queue in the server's order, reason weight then age
-// (R-MODERATION-010, R-MODERATION-011), what each item shows (R-MODERATION-013),
-// the actions it may be closed with (R-MODERATION-014), appeals (R-MODERATION-016),
-// the dedication lights awaiting a look with Approve and Refuse (R-MODERATION-021)
-// and the log, read by item or account (R-MODERATION-015), which has no edit.
+// (moderation:one-queue-by-reason-weight, moderation:reports-decided-within-target), what each item shows (moderation:queue-item-shows-context),
+// the actions it may be closed with (moderation:fixed-admin-actions), appeals (moderation:actioned-player-told-and-appeals),
+// the dedication lights awaiting a look with Approve and Refuse (moderation:dedication-lights-await-approval)
+// and the log, read by item or account (moderation:admin-actions-logged-append-only), which has no edit.
 import {
   ACTION_MAX_DAYS,
   type AccountSummary,
@@ -64,7 +64,7 @@ function Briefs({ title, list }: { title: string; list: AccountSummary["made"] }
   );
 }
 
-/** R-MODERATION-013: one account's standing. Never an email, a seed or a character's state. */
+/** moderation:queue-item-shows-context: one account's standing. Never an email, a seed or a character's state. */
 function Standing({ role, summary }: { role: string; summary: AccountSummary }) {
   return (
     <div data-account={summary.account} className="flex flex-col gap-2 rounded-md border border-sheet-line p-3 text-sm">
@@ -283,7 +283,7 @@ function yearsWords({ from, to }: PendingLight["years"]): string {
   return words("admin.lights.no-years");
 }
 
-/** R-MODERATION-021: one light awaiting a look, its name, years and account, with Approve and Refuse. */
+/** moderation:dedication-lights-await-approval: one light awaiting a look, its name, years and account, with Approve and Refuse. */
 function LightItem({ api, light, onDone }: { api: AdminApi; light: PendingLight; onDone: (answer: ReactNode) => void }) {
   const at = utcTime(light.litAt);
   const done = (reply: { entry: string }) => <p>{words("admin.close.done", { entry: reply.entry })}</p>;
@@ -315,7 +315,7 @@ function LightItem({ api, light, onDone }: { api: AdminApi; light: PendingLight;
   );
 }
 
-/** R-MODERATION-021: the dedication lights whose names await a look, oldest first. */
+/** moderation:dedication-lights-await-approval: the dedication lights whose names await a look, oldest first. */
 function LightsView({ api }: { api: AdminApi }) {
   const pending = useLoad(() => api.pendingLights());
   const [answer, setAnswer] = useState<ReactNode>(null);

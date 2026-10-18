@@ -1,4 +1,4 @@
-// The share cards (docs/rules/share.md, chapter.md R-CHAPTER-006, road.md):
+// The share cards (docs/rules/share.md, chapter:send-off-card-on-close, road.md):
 // one for each moment the view carries. On screen the card is type and colour;
 // the image that travels adds the kind's composed art (shared/share). Every card
 // says in plain sight that Japacity is a game, is sent by the game itself, and
@@ -155,7 +155,7 @@ function StubField({ label, children }: { label: string; children: ReactNode }) 
   );
 }
 
-/** The send-off's ticket stub on screen (R-SHARE-004): the same words the drawn stub carries, laid out as a ticket. */
+/** The send-off's ticket stub on screen (share:card-contents): the same words the drawn stub carries, laid out as a ticket. */
 function StubCardFace({ face }: { face: StubFace }) {
   return (
     <article data-share-card="stub" className="flex w-[min(calc(100vw-2rem),36rem)] flex-col gap-3 rounded-md bg-accent p-3 text-accent-ink shadow-2xl">
@@ -204,7 +204,7 @@ const STATUS_WORDS: Record<Exclude<Status, "idle" | "cancelled">, string> = {
 };
 
 /**
- * The share button under a card (R-SHARE-003, R-SHARE-009): hands the drawn
+ * The share button under a card (share:card-offered-never-sent, share:card-drawn-on-device): hands the drawn
  * image to the share sheet, or saves it where there is none. Where there is a
  * share sheet the image is drawn as the card opens, because the sheet must be
  * called while the tap still counts.
@@ -225,7 +225,7 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
   const label = sheet ? say("share.button.share") : say("share.button.save");
   const go = async () => {
     setStatus("making");
-    // R-ANALYTICS-002: pressed, and completed once the card was shared or saved.
+    // analytics:client-sends-interface-counts: pressed, and completed once the card was shared or saved.
     counting().count("share/pressed", card.kind);
     try {
       const made = await (drawn.current ?? render());
@@ -251,7 +251,7 @@ export function ShareButton({ card, scenario, stub = null, device = browserDevic
 }
 
 /**
- * The card named as the band names the character (share.md R-SHARE-004), read from the card's face (`bandName`), the
+ * The card named as the band names the character (share:card-contents), read from the card's face (`bandName`), the
  * one source the send-off scene reads too, so the band and the card never name her two ways ("Adaeze" and "Ada").
  */
 function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
@@ -262,7 +262,7 @@ function bandNamed(card: ShareCard, scenario: Id<"scenario">): ShareCard {
 
 /**
  * A card with its share button; at the send-off, the card and the ticket stub side by side to pick from
- * (R-SHARE-001: the stub is due beside the send-off card, and the player picks which to share). Given a `foot` (the
+ * (share:cards-due-at-set-moments: the stub is due beside the send-off card, and the player picks which to share). Given a `foot` (the
  * screenshot's hint and Close over the dimmed world), the share button stands with it on a ground of its own, never
  * printed over what lies under the dim, such as the phone's icons.
  */
@@ -368,7 +368,7 @@ export function CardView() {
   const seat = useSeat();
   const scene = useSendOffShowing();
   const saved = useSendOffSaved();
-  // R-SHARE-015: the send-off card is no screen of its own. It is saved as the first ride says so, or at once when no scene
+  // share:send-off-card-kept: the send-off card is no screen of its own. It is saved as the first ride says so, or at once when no scene
   // shows it (a life reopened after the plane), and from then it is reached where the phone keeps the cards (Keepsake).
   const sendOff = card?.kind === "send-off";
   useEffect(() => {
@@ -376,7 +376,7 @@ export function CardView() {
     closeCard(key);
     gallery.getState().keep(scenario, card, type, seat);
   }, [sendOff, card, key, closed, scene, saved, scenario, type, seat, closeCard]);
-  // R-MOMENT-006: a chapter's close its moment card told is not told a third time;
+  // moment:card-shows-when-outcome-lands: a chapter's close its moment card told is not told a third time;
   // its card goes to the gallery as a closed one does, without opening.
   useEffect(() => {
     if (card !== null && key !== null && told === key) gallery.getState().keep(scenario, card, type);
@@ -420,7 +420,7 @@ function keptSeat(kept: readonly Kept[], key: string): Seat | null {
 function CardScreen({ open, onClose, card, scenario, type, seat }: { open: boolean; onClose: () => void; card: ShareCard; scenario: Id<"scenario">; type: JapaType | null; seat: Seat | null }) {
   return (
     <FullScreen open={open} onClose={onClose} title={say(`share.${card.kind}.ready`)} tone="over">
-      {/* R-WORLD-001: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
+      {/* world:world-fills-the-screen: one tap on the dimmed world dismisses the moment; the face and its buttons keep their taps. */}
       <button type="button" aria-label={say("ui.card.dismiss")} onClick={onClose} className="absolute inset-0 cursor-default" data-card-scrim />
       {/* The face, its picker and its foot scroll inside the screen's height, so on a short screen nothing stands above the
           top edge out of reach, the foot held at the bottom. */}
@@ -445,8 +445,8 @@ function CardScreen({ open, onClose, card, scenario, type, seat }: { open: boole
 }
 
 /**
- * The send-off card where the phone keeps the player's cards (share.md R-SHARE-015): from the first ride until the card's
- * time ends (the first month abroad), a tile on the phone's home with Open the card, the share of R-SHARE-009 unchanged and
+ * The send-off card where the phone keeps the player's cards (share:send-off-card-kept): from the first ride until the card's
+ * time ends (the first month abroad), a tile on the phone's home with Open the card, the share of share:card-drawn-on-device unchanged and
  * the stub carrying the seat the counter gave. Nothing while the scene still shows, or before the card is due.
  */
 export function Keepsake() {

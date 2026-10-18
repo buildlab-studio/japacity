@@ -1,6 +1,6 @@
-// A thing's quiet mark (docs/rules/world.md R-WORLD-005, R-WORLD-021): things show no
+// A thing's quiet mark (world:things-are-tappable-models, world:colours-are-role-tokens): things show no
 // label by default. Each interactive thing carries a small still dot at its anchor, the theme's signal colour at about
-// 60%; the thing the nudge points at pulses gently (R-WORLD-003). A tap on the mark, as on the thing, opens its fan.
+// 60%; the thing the nudge points at pulses gently (world:nudge-says-one-thing). A tap on the mark, as on the thing, opens its fan.
 // The name shows over the dot only while it is named: a person who holds an ask or is the nudge's target, or every
 // thing for two seconds the first time a place is entered in a life. Built in the DOM box beside the canvas, which the
 // frame loop moves over the thing.
@@ -69,7 +69,7 @@ export function showMark(node: HTMLElement, shown: MarkShown): void {
   else delete node.dataset.nudged;
 }
 
-/** The things that are people, by their name's words: they speak over their heads and may hold an ask (R-WORLD-005). */
+/** The things that are people, by their name's words: they speak over their heads and may hold an ask (world:things-are-tappable-models). */
 const PEOPLE: ReadonlySet<string> = new Set(["city.thing.mama", "city.thing.papa", "city.thing.mummy", "city.thing.clerk"]);
 
 /** True when the thing is a person at their spot, not a thing. */
@@ -78,7 +78,7 @@ export function isPerson(thing: Pick<Thing, "label">): boolean {
 }
 
 /**
- * The things whose name shows over their mark (R-WORLD-005): a person who holds an ask (an act
+ * The things whose name shows over their mark (world:things-are-tappable-models): a person who holds an ask (an act
  * that opens an open offer or the set piece's question), or the person the nudge points at. Every other thing, and every
  * other person, is a dot until it is tapped.
  */
@@ -90,7 +90,7 @@ export function namedThings(things: readonly Pick<Thing, "id" | "label" | "acts"
 
 /**
  * The small `computer` tag beside a person's name, in the words the people's cards use: quiet, in the case a person
- * writes it, never shouted in capitals (text.md R-TEXT-005, person.md R-PEOPLE-009).
+ * writes it, never shouted in capitals (text:bands-not-figures, person:computer-candidates-labelled).
  */
 export function markTag(mark: NonNullable<Thing["mark"]>): HTMLSpanElement {
   const tag = document.createElement("span");

@@ -1,4 +1,4 @@
-// Lines from home name where the life is from (prologue.md R-PROLOGUE-002): content's `{hometown}` is filled from the view of the life on screen, so one line serves every hometown, and
+// Lines from home name where the life is from (prologue:family-draw-on-first-answer): content's `{hometown}` is filled from the view of the life on screen, so one line serves every hometown, and
 // no line ever shows its brace.
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
@@ -23,7 +23,7 @@ function hometownKeys(): string[] {
 }
 
 describe("lines from home", () => {
-  test("[R-PROLOGUE-002] given a life from Enugu on screen, when the wider family's asks, the sibling who stayed and the opening card are said, then each names Enugu, while Mama's own asks and the parents stay at home in Lagos; an explicit town wins; with no life on screen they say your hometown", () => {
+  test("[prologue:family-draw-on-first-answer] given a life from Enugu on screen, when the wider family's asks, the sibling who stayed and the opening card are said, then each names Enugu, while Mama's own asks and the parents stay at home in Lagos; an explicit town wins; with no life on screen they say your hometown", () => {
     setNow(4, "hometown.enugu");
     expect(hometownWords()).toBe("Enugu");
     // Who asks stands in the ask's name pill, and the line is theirs alone.
@@ -51,7 +51,7 @@ describe("lines from home", () => {
     expect(nameOf("person.sib-home")).toBe("Your sibling in your hometown");
   });
 
-  test("[R-PROLOGUE-002] given every line that names where the life is from, when it is said for every hometown in content, then no brace is left and the town's own name stands in it, in the lines content holds", () => {
+  test("[prologue:family-draw-on-first-answer] given every line that names where the life is from, when it is said for every hometown in content, then no brace is left and the town's own name stands in it, in the lines content holds", () => {
     const keys = hometownKeys();
     expect(keys).toEqual(
       [
@@ -78,7 +78,7 @@ describe("lines from home", () => {
     }
   });
 
-  test("[R-PROLOGUE-002] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, and no brace shows", async () => {
+  test("[prologue:family-draw-on-first-answer] given Ada's life, from Enugu, on the People screen, then her mother and father are at home in Lagos, and no brace shows", async () => {
     const view = engineView("scenario.ada");
     expect(view.hometown).toBe("hometown.enugu");
     // Chats' People row, the slots.

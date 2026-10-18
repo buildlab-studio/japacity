@@ -1,4 +1,4 @@
-// How an app acts (docs/rules/world.md R-WORLD-006, R-WORLD-018): every act that costs or decides
+// How an app acts (world:one-action-one-sheet, world:phone-rises-over-scene): every act that costs or decides
 // opens the shared sheet with its own card; the main button sends the act's command, and the corner
 // tells it is done. A refusal shows in the app, in content's words.
 import type { Currency } from "@japacity/sim";
@@ -13,11 +13,11 @@ import type { Ask } from "../../shared/world/contract";
 import { iconFor } from "./PhoneIcon";
 import { say } from "../../shared/words/text";
 
-/** The phone's told line: an app says what happened, the corner over the handset shows it (R-WORLD-026). */
+/** The phone's told line: an app says what happened, the corner over the handset shows it (world:street-talk-budget). */
 export const PhoneSaid = createContext<(words: string) => void>(() => undefined);
 
 /**
- * The app's one way back (R-WORLD-018): an app on an inner screen of its own (a Chats thread, the People slots) hands the
+ * The app's one way back (world:phone-rises-over-scene): an app on an inner screen of its own (a Chats thread, the People slots) hands the
  * handset its way back to its first screen, and the head's Back takes it; on its first screen Back returns to the grid.
  * Two ways back stacked, the head's arrow and a link of the app's own under it, read as the same thing twice.
  */
@@ -48,7 +48,7 @@ export interface AskSpec {
    * itself and holds what is left against the month's dues, so the card warns before a bill goes unpaid.
    */
   have?: number;
-  /** "now" when the act happens at once; the default counts when the month ends (R-WORLD-006). */
+  /** "now" when the act happens at once; the default counts when the month ends (world:one-action-one-sheet). */
   when?: Ask["when"];
   command: PlayerCommand;
   /** The line told in the corner once it is done. */

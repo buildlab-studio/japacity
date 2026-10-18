@@ -1,5 +1,5 @@
-// The market's things in the homes (world.md R-WORLD-035, R-WORLD-005,
-// R-WORLD-029): each home's place file gives every thing it may hold a set spot (your corner at the family house; the
+// The market's things in the homes (world:room-things-and-buy-mode, world:things-are-tappable-models,
+// world:room-seen-down-its-length): each home's place file gives every thing it may hold a set spot (your corner at the family house; the
 // room, the kitchenette and the yard in a home of your own), each spot fitting the floor rule buy mode uses with every
 // other thing owned standing too, and the room's budgets held with everything owned in view.
 import { type Footprint, isFootprint } from "@japacity/assets";
@@ -46,12 +46,12 @@ async function footprintsOf(files: readonly string[]): Promise<Map<string, Footp
 }
 
 describe("the market's things in the homes", () => {
-  test.each(HOMES.map((home) => [home.id, home] as const))("[R-WORLD-035] [R-WORLD-029] given %s, when its set spots are read, then every thing the home may hold has exactly one, and none is for a thing it may not hold", (_id, home) => {
+  test.each(HOMES.map((home) => [home.id, home] as const))("[world:room-things-and-buy-mode] [world:room-seen-down-its-length] given %s, when its set spots are read, then every thing the home may hold has exactly one, and none is for a thing it may not hold", (_id, home) => {
     const spots = stageOf(home.raw as PlaceFile).owned ?? [];
     expect(spots.map((spot) => spot.thing).sort()).toEqual(heldAt(home.id).sort());
   });
 
-  test.each(HOMES.map((home) => [home.id, home] as const))("[R-WORLD-035] [R-WORLD-005] given %s with everything it may hold owned, when each thing stands at its set spot, then each fits the floor rule with all the others standing", async (_id, home) => {
+  test.each(HOMES.map((home) => [home.id, home] as const))("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given %s with everything it may hold owned, when each thing stands at its set spot, then each fits the floor rule with all the others standing", async (_id, home) => {
     const file = showOwned(home.raw as PlaceFile, heldAt(home.id));
     const stage = stageOf(file);
     const footprints = await footprintsOf(stage.models.map((model) => model.file));
@@ -62,13 +62,13 @@ describe("the market's things in the homes", () => {
     expect(problems).toEqual([]);
   });
 
-  test.each(HOMES.map((home) => [home.id, home] as const))("[R-WORLD-035] [R-WORLD-005] given %s, when its owned models are read against its own, then none shares a file with a model the home already stands, so each thing is its own to lift", (_id, home) => {
+  test.each(HOMES.map((home) => [home.id, home] as const))("[world:room-things-and-buy-mode] [world:things-are-tappable-models] given %s, when its owned models are read against its own, then none shares a file with a model the home already stands, so each thing is its own to lift", (_id, home) => {
     const stage = stageOf(home.raw as PlaceFile);
     const own = new Set(stage.models.map((model) => model.file));
     expect((stage.owned ?? []).filter((spot) => own.has(spot.file) && spot.hides !== spot.file).map((spot) => spot.thing)).toEqual([]);
   });
 
-  test.each(HOMES.map((home) => [home.id, home] as const))("[R-WORLD-035] [R-WORLD-029] given %s with everything it may hold owned and the car at its spot, when it is counted as the build check counts it, then it stays inside its scope's budgets", async (_id, home) => {
+  test.each(HOMES.map((home) => [home.id, home] as const))("[world:room-things-and-buy-mode] [world:room-seen-down-its-length] given %s with everything it may hold owned and the car at its spot, when it is counted as the build check counts it, then it stays inside its scope's budgets", async (_id, home) => {
     const plain = home.raw as PlaceFile;
     const file = parkCar(showOwned(plain, heldAt(home.id)), true);
     const files = new Map<string, number>();

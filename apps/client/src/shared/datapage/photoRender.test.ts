@@ -1,4 +1,4 @@
-// The stills drawn of the figure (prologue.md R-PROLOGUE-015): the door's figure in your colours comes back as an object
+// The stills drawn of the figure (prologue:player-colours-on-looks): the door's figure in your colours comes back as an object
 // address from an encoding that runs off the main thread, and every still is drawn on one renderer made once, so the
 // figure's shaders compile once a visit, not on every colour (a renderer per colour held the main thread about
 // 110 ms under 4x CPU throttling, the encoding and the compile most of it). The page's photo is kept with the person, so it
@@ -69,7 +69,7 @@ afterEach(() => {
 });
 
 describe("the stills of the figure", () => {
-  test("[R-PROLOGUE-015] given the figure drawn in two colours and the page's photo, then each figure is an object address encoded as webp off the main thread, the photo a data address, all on one renderer made once", async () => {
+  test("[prologue:player-colours-on-looks] given the figure drawn in two colours and the page's photo, then each figure is an object address encoded as webp off the main thread, the photo a data address, all on one renderer made once", async () => {
     const before = made.renderers;
     const first = renderFigure("shared/chr/chr_ada.glb", { skin: "skin2" }, "figure");
     const second = renderFigure("shared/chr/chr_ada.glb", { skin: "skin3" }, "cheer");
@@ -89,7 +89,7 @@ describe("the stills of the figure", () => {
     expect(made.renderers - before).toBe(1);
   });
 
-  test("[R-PROLOGUE-015] given the renderer's context taken back by the phone, when the next still is drawn, then a new renderer draws it", async () => {
+  test("[prologue:player-colours-on-looks] given the renderer's context taken back by the phone, when the next still is drawn, then a new renderer draws it", async () => {
     await renderFigure("shared/chr/chr_ada.glb", { skin: "skin4" }, "figure");
     const before = made.renderers;
     made.lost = true;

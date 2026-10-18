@@ -1,4 +1,4 @@
-// The scene behind the panels (city.md R-CITY-029). The canvas is replaced by one that keeps its frame loop and renders only
+// The scene behind the panels (city:hidden-scene-idles). The canvas is replaced by one that keeps its frame loop and renders only
 // the scene's idle timer, so the test reads how often the scene asks for a frame without WebGL.
 import { content } from "@japacity/content";
 import { act, cleanup, render } from "@testing-library/react";
@@ -49,7 +49,7 @@ afterEach(() => {
 });
 
 describe("the scene behind the panels", () => {
-  test("[R-CITY-029] given the panels or the map stand in front of the city, when time passes, then the scene draws on demand and asks for one frame a second", () => {
+  test("[city:hidden-scene-idles] given the panels or the map stand in front of the city, when time passes, then the scene draws on demand and asks for one frame a second", () => {
     const { container } = render(<CityScene {...scene(false)} />);
     expect(container.querySelector("[data-frameloop]")?.getAttribute("data-frameloop")).toBe("demand");
     act(() => {
@@ -66,7 +66,7 @@ describe("the scene behind the panels", () => {
     expect(invalidate).toHaveBeenCalledTimes(5);
   });
 
-  test("[R-CITY-029] given the city in front, when time passes, then it draws every frame and the idle timer asks for none", () => {
+  test("[city:hidden-scene-idles] given the city in front, when time passes, then it draws every frame and the idle timer asks for none", () => {
     const { container, rerender } = render(<CityScene {...scene(false)} />);
     rerender(<CityScene {...scene(true)} />);
     expect(container.querySelector("[data-frameloop]")?.getAttribute("data-frameloop")).toBe("always");

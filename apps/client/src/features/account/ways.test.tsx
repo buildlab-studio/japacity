@@ -1,4 +1,4 @@
-// The kept life says so, and how it is kept (R-ACCOUNT-023, R-ACCOUNT-024, R-ACCOUNT-027): the keeping sheet's kept
+// The kept life says so, and how it is kept (account:guest-secures-the-life, account:username-and-unconfirmed-email, account:guest-reminded-to-secure): the keeping sheet's kept
 // state after the trip to Google, the short line over the world naming the way, the account's row at the head of the
 // phone's Settings, and its sheet's rows for each shape of the ways back in.
 import type { AccountView } from "@japacity/api";
@@ -68,8 +68,8 @@ async function mount(account: AccountApi, ui: React.ReactElement, view: PlayerVi
 
 const toast = () => document.querySelector<HTMLElement>("[data-way-toast]");
 
-describe("the kept life says so (R-ACCOUNT-023)", () => {
-  test("[R-ACCOUNT-023] given the trip to Google came back having kept the guest's life, then the keeping sheet opens in its kept state, the account is read again, and as it closes the world says Kept with Google", async () => {
+describe("the kept life says so (account:guest-secures-the-life)", () => {
+  test("[account:guest-secures-the-life] given the trip to Google came back having kept the guest's life, then the keeping sheet opens in its kept state, the account is read again, and as it closes the world says Kept with Google", async () => {
     const account = fakeAccount(me("secured", { google: "ada@example.com", email: "ada@example.com", passkeys: 0 }), { returnedFromGoogle: () => "kept" });
     await mount(account, <SecureAsk />);
     const sheet = await screen.findByRole("dialog", { name: say("ui.secure.done.title") });
@@ -83,14 +83,14 @@ describe("the kept life says so (R-ACCOUNT-023)", () => {
     expect(say("ui.account.toast.kept.google")).toBe("Kept with Google");
   });
 
-  test("[R-ACCOUNT-023] given the trip to Google came back signed in to a kept life, then nothing opens and the world says Signed in with Google", async () => {
+  test("[account:guest-secures-the-life] given the trip to Google came back signed in to a kept life, then nothing opens and the world says Signed in with Google", async () => {
     const account = fakeAccount(me("secured"), { returnedFromGoogle: () => "signed-in" });
     await mount(account, <SecureAsk />);
     await waitFor(() => expect(toast()?.textContent).toBe(say("ui.account.toast.in.google")));
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  test("[R-ACCOUNT-023] given a guest keeping the life, when Google is tapped, then the trip leaves marked as keeping; and an emailed code that keeps it says Kept with your email as the sheet closes", async () => {
+  test("[account:guest-secures-the-life] given a guest keeping the life, when Google is tapped, then the trip leaves marked as keeping; and an emailed code that keeps it says Kept with your email as the sheet closes", async () => {
     const account = fakeAccount(me("guest"));
     function Held() {
       return (
@@ -112,15 +112,15 @@ describe("the kept life says so (R-ACCOUNT-023)", () => {
     await waitFor(() => expect(toast()?.textContent).toBe(say("ui.account.toast.kept.email")));
   });
 
-  test("[R-ACCOUNT-023] given Google on an address whose life was kept by a code, which the library would not join, then the player is pointed to the code in the game's words, never the library's", () => {
+  test("[account:guest-secures-the-life] given Google on an address whose life was kept by a code, which the library would not join, then the player is pointed to the code in the game's words, never the library's", () => {
     const words = failureWords({ ok: false, why: "not-linked" }) ?? "";
     expect(words).toContain("code");
     expect(words).not.toMatch(/account_not_linked|linked|account/i);
   });
 });
 
-describe("Settings names the ways in (R-ACCOUNT-027, R-ACCOUNT-024)", () => {
-  test("[R-ACCOUNT-027] given each shape of the ways back in, then the account's sheet says it plainly: Google by its address, the email by its address, the passkeys held; a guest the reminder and no ways", async () => {
+describe("Settings names the ways in (account:guest-reminded-to-secure, account:username-and-unconfirmed-email)", () => {
+  test("[account:guest-reminded-to-secure] given each shape of the ways back in, then the account's sheet says it plainly: Google by its address, the email by its address, the passkeys held; a guest the reminder and no ways", async () => {
     const shapes: [AccountView, string[], string[]][] = [
       [me("guest"), [say("ui.guest.reminder")], [say("ui.account.passkeys.zero")]],
       [me("secured", { google: null, email: "ada@example.com", passkeys: 0 }), ["Kept with your email as ada@example.com", "Passkey: none yet"], ["Kept with Google as ada@example.com", say("ui.guest.reminder")]],
@@ -138,7 +138,7 @@ describe("Settings names the ways in (R-ACCOUNT-027, R-ACCOUNT-024)", () => {
     }
   });
 
-  test("[R-ACCOUNT-024] given a life with a name, then the account's sheet shows the username and the name as two labelled rows", async () => {
+  test("[account:username-and-unconfirmed-email] given a life with a name, then the account's sheet shows the username and the name as two labelled rows", async () => {
     const view = engineView();
     const name = pageOf(view).name;
     expect(name).not.toBe("");
@@ -151,7 +151,7 @@ describe("Settings names the ways in (R-ACCOUNT-027, R-ACCOUNT-024)", () => {
     expect(say("ui.account.person.label")).toBe("Name");
   });
 
-  test("[R-ACCOUNT-003] [R-ACCOUNT-027] given a kept life, when a passkey is added, then the sheet says so and the passkeys held are read again", async () => {
+  test("[account:passkey-needs-signed-in-session] [account:guest-reminded-to-secure] given a kept life, when a passkey is added, then the sheet says so and the passkeys held are read again", async () => {
     const account = fakeAccount(me("secured"));
     await mount(account, <AccountSettings account={account} />);
     expect(await screen.findByText("Passkey: none yet")).toBeDefined();
@@ -163,7 +163,7 @@ describe("Settings names the ways in (R-ACCOUNT-027, R-ACCOUNT-024)", () => {
 });
 
 describe("the account's row at the head of Settings", () => {
-  test("[R-ACCOUNT-024] [R-ACCOUNT-027] given a kept life, then the account is one button whose name holds the name, the username and the way it is kept, and a tap opens the account's sheet", async () => {
+  test("[account:username-and-unconfirmed-email] [account:guest-reminded-to-secure] given a kept life, then the account is one button whose name holds the name, the username and the way it is kept, and a tap opens the account's sheet", async () => {
     const view = engineView();
     const name = pageOf(view).name;
     const account = fakeAccount(me("secured", { google: "ada.g@example.com", email: "ada.g@example.com", passkeys: 0 }));
@@ -175,7 +175,7 @@ describe("the account's row at the head of Settings", () => {
     expect(within(sheet).getByText("Kept with Google as ada.g@example.com")).toBeDefined();
   });
 
-  test("[R-ACCOUNT-027] given a guest, then the row says the life is only on this phone until kept; a life kept by a code says Kept with your email", async () => {
+  test("[account:guest-reminded-to-secure] given a guest, then the row says the life is only on this phone until kept; a life kept by a code says Kept with your email", async () => {
     const guest = fakeAccount(me("guest"));
     await mount(guest, <AccountButton />);
     expect(await screen.findByRole("button", { name: /@ada_lagos.*Only on this phone until kept/ })).toBeDefined();

@@ -1,4 +1,4 @@
-// The joined-the-same-week board (docs/rules/city.md R-CITY-039): kept in the
+// The joined-the-same-week board (city:boards-switch-when-and-who): kept in the
 // code and switched off (`boards.joined-week`). Loaded only once the server answers it.
 
 import type { BoardReply } from "@japacity/api";

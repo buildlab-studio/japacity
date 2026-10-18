@@ -16,7 +16,7 @@ const at = (name: string) => copiesOf(stage, name);
 describe("the airport", () => {
   stagedPlaceTests(raw, ID);
 
-  test("[R-CITY-011] given the send-off staged here, when the low mode's few stand, then they are the family round a loaded trolley under the canopy, the elder's spot among them", () => {
+  test("[city:set-piece-shown-where-staged] given the send-off staged here, when the low mode's few stand, then they are the family round a loaded trolley under the canopy, the elder's spot among them", () => {
     expect(entry.stages).toContain("chapter.send-off");
     const trolleys = at("prop_trolley.glb");
     const family = stage.people.slice(0, 5);
@@ -27,7 +27,7 @@ describe("the airport", () => {
     for (const index of stage.prefer?.elder ?? []) expect(index).toBeLessThan(5);
   });
 
-  test("[R-CITY-026] given the kerb, when the place is read, then a flag flies from the top of its mast, pinned at the mast, and taxis wait at the kerb outside the canopy", () => {
+  test("[city:motion-in-vertex-shader] given the kerb, when the place is read, then a flag flies from the top of its mast, pinned at the mast, and taxis wait at the kerb outside the canopy", () => {
     const [mast] = at("prop_flagpole.glb");
     if (mast === undefined) throw new Error("No mast");
     const flag = stage.motion.find((motion) => motion.kind === "flag");

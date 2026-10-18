@@ -15,7 +15,7 @@ const SHOP = "activity.job-uk-retail-part" as Id<"activity">;
 const HUNT = "activity.job-hunt";
 
 describe("the jobs list abroad", () => {
-  test("[R-WORLD-006] given Ada in the UK with the part-time shop job open to the hunt, when the jobs list shows, then its row says the pay a month and never the year's figure", async () => {
+  test("[world:one-action-one-sheet] given Ada in the UK with the part-time shop job open to the hunt, when the jobs list shows, then its row says the pay a month and never the year's figure", async () => {
     const view = abroadView();
     expect(view.activities.find((option) => option.id === HUNT)?.params).toContain(SHOP);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
@@ -28,7 +28,7 @@ describe("the jobs list abroad", () => {
 });
 
 describe("a job named by a board or a notice", () => {
-  test("[R-WORLD-006] given Ada in the UK and the shop job on Peckham's notice, when the hunt's card names it, then its words say the pay a month and the chance, as the list's row does", () => {
+  test("[world:one-action-one-sheet] given Ada in the UK and the shop job on Peckham's notice, when the hunt's card names it, then its words say the pay a month and the chance, as the list's row does", () => {
     const view = abroadView();
     const month = payAMonth(SHOP);
     if (month === null) throw new Error("The shop job has no pay");

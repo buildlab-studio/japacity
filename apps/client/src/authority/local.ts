@@ -18,7 +18,7 @@ type LifeStart =
   | { kind: "new" }
   | { kind: "replaced"; why: "other-content" | "unreadable" };
 
-/** What the authority keeps the save in; `removeItem` lets a life end (R-ACCOUNT-030). */
+/** What the authority keeps the save in; `removeItem` lets a life end (account:start-a-new-life). */
 type LocalStorage = Pick<Storage, "getItem" | "setItem"> & Partial<Pick<Storage, "removeItem">>;
 
 export interface LocalAuthorityOptions {
@@ -37,31 +37,31 @@ export interface LocalAuthorityOptions {
 
 export interface LocalAuthority extends Authority {
   readonly start: LifeStart;
-  /** When the next month comes, from the refill's anchor (R-WORLD-027); null while the bank is full. */
+  /** When the next month comes, from the refill's anchor (world:no-months-left-count); null while the bank is full. */
   clock(): ClockView;
-  /** The stand-in world's numbers at this tick: the season the meetings read (R-WORLD-020). */
+  /** The stand-in world's numbers at this tick: the season the meetings read (world:nobody-picked-from-list). */
   vars(): Readonly<Record<string, number>>;
   /**
    * Throws the current life away and starts another, on the named seed when one is given. Without one, a life from
-   * sixteen through a tile kept beside the save starts on the front door's seed for that tile (R-PROLOGUE-011).
+   * sixteen through a tile kept beside the save starts on the front door's seed for that tile (prologue:tile-path-open-from-start).
    * Local only: online, the server holds the life.
    */
   newLife(scenario: Id<"scenario">, seed?: string): Promise<PlayerView>;
   /**
-   * R-CLOCK-032: the envelopes whose morning has come, with the lines they held, each given once and then let go.
+   * clock:envelopes-show-real-waits: the envelopes whose morning has come, with the lines they held, each given once and then let go.
    * The client shows them on the lock screen and tells their lines.
    */
   morning(): Envelope[];
-  /** The real time this life began, so the band can name the month of the year the life is in (R-WORLD-002). */
+  /** The real time this life began, so the band can name the month of the year the life is in (world:top-band-is-lively-pill). */
   beganAt(): number;
   /**
-   * R-ACCOUNT-030: ends this life for good. The save and the person kept beside it are cleared, and nothing is
+   * account:start-a-new-life: ends this life for good. The save and the person kept beside it are cleared, and nothing is
    * written again until a new life is chosen, so a reload opens the front door.
    */
   endLife(): Promise<boolean>;
 }
 
-/** What is kept under SAVE_KEY: the save, when real time last earned a turn, and the results sealed until their morning (R-CLOCK-032). */
+/** What is kept under SAVE_KEY: the save, when real time last earned a turn, and the results sealed until their morning (clock:envelopes-show-real-waits). */
 interface Stored {
   save: Save;
   clock: { anchor: number; beganAt?: number };
@@ -118,7 +118,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   let anchor: number;
   /** When this life began, in real time: month 0 is that month of the year. */
   let began: number;
-  /** The results sealed until their morning (R-CLOCK-032). */
+  /** The results sealed until their morning (clock:envelopes-show-real-waits). */
   let envelopes: Envelope[] = [];
 
   /** The moment the envelopes are read at: the dev switch opens them all at once. */
@@ -130,7 +130,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   const worldAt = (at: number): World => standInWorld(worldSeed, at, content);
 
   /**
-   * R-PROLOGUE-011: a life from sixteen through a tile kept beside the save starts on the first of a few seeds named
+   * prologue:tile-path-open-from-start: a life from sixteen through a tile kept beside the save starts on the first of a few seeds named
    * from the drawn one whose draw keeps the tile's path open, since here a life may be started over. A ready life,
    * a life with no tile, and the full prologue keep the drawn seed.
    */
@@ -140,7 +140,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
     return archetype === null ? drawn : tileSeed(archetype, drawn, worldAt(0), content);
   }
 
-  // A life not yet chosen is never written: the front door comes back after a reload instead of the first scenario's life (R-PROLOGUE-009).
+  // A life not yet chosen is never written: the front door comes back after a reload instead of the first scenario's life (prologue:front-door-builds-a-person).
   let chosen = false;
 
   /** False when the save was not written: a full or blocked storage loses it on reload, but play goes on. */
@@ -255,7 +255,7 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
   }
 
   const currentView = (): PlayerView => viewFor({ state, world: worldAt(tick), content });
-  /** The view as the player may see it now: sealed results read as they did before they landed (R-CLOCK-032). */
+  /** The view as the player may see it now: sealed results read as they did before they landed (clock:envelopes-show-real-waits). */
   const shownView = (): PlayerView => withhold(currentView(), envelopes, morningNow()).view;
 
   const start = load();
@@ -286,11 +286,11 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       return { tick, nextTickAt: next, nextTurnAt: state.turn.banked >= cap ? null : next, morningAt: nextGameMorning(now()), world: worldClockAt(now()) };
     },
     send(command): Promise<Reply> {
-      // A player may not grant turns: the engine rejects it as not-yours (R-TURN-005).
+      // A player may not grant turns: the engine rejects it as not-yours (turn:only-authority-grants-turns).
       const before = command.type === "turn/end" ? currentView() : null;
       const result = apply(command, "player");
       if (!result.ok) return Promise.resolve(result);
-      // R-CLOCK-032: a result real life makes you wait for is sealed until the next morning in Lagos.
+      // clock:envelopes-show-real-waits: a result real life makes you wait for is sealed until the next morning in Lagos.
       // Decision 0011: a sealed result opens with the world's next morning, at most one game day away.
       if (before !== null) envelopes = [...envelopes, ...sealFrom(before, currentView(), result.lines, nextGameMorning(now()))];
       earnTurns();

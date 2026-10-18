@@ -1,4 +1,4 @@
-// The context pill in the app heads (docs/rules/world.md R-WORLD-018):
+// The context pill in the app heads (world:phone-rises-over-scene):
 // the phone's contract carries a few words of what is there now, drawn as a pill beside the app's name; Jobs, Lotto, Bills
 // and Bank fill it from the view, and nothing counts days.
 import type { PlayerView } from "@japacity/sim";
@@ -31,7 +31,7 @@ function owed(entry: string, more: Partial<Owed> = {}): Owed {
 const DAYS = /\bdays?\b/i;
 
 describe("the context pill's words", () => {
-  test("[R-WORLD-018] given the hunt's open jobs and an offer waiting, when Jobs' pill is read, then the offer comes first, else the jobs open", () => {
+  test("[world:phone-rises-over-scene] given the hunt's open jobs and an offer waiting, when Jobs' pill is read, then the offer comes first, else the jobs open", () => {
     const base = engineView();
     const hunt = { id: "activity.job-hunt", allowed: true, params: ["activity.job-a", "activity.job-b", "activity.job-c", "activity.job-d", "activity.job-e"] } as unknown as PlayerView["activities"][number];
     const open: PlayerView = { ...base, activities: [hunt], offers: [] };
@@ -42,7 +42,7 @@ describe("the context pill's words", () => {
     expect(appContext("jobs", { ...open, activities: [] })).toBeNull();
   });
 
-  test("[R-WORLD-018] given jobs open on the board and no offer, when Jobs opens, then its screen counts the same jobs the pill counts and never says there is nothing", async () => {
+  test("[world:phone-rises-over-scene] given jobs open on the board and no offer, when Jobs opens, then its screen counts the same jobs the pill counts and never says there is nothing", async () => {
     // The trap: the pill saying "8 open" over "No job offers right now."
     const base = engineView();
     const hunt = { id: "activity.job-hunt", allowed: true, params: ["activity.job-a", "activity.job-b", "activity.job-c"] } as unknown as PlayerView["activities"][number];
@@ -56,13 +56,13 @@ describe("the context pill's words", () => {
     expect(document.body.textContent).not.toContain(say("phone.jobs.offers.none"));
   });
 
-  test("[R-WORLD-018] [R-LUCK-005] given a life in Lagos, when Lotto's pill is read, then it says the draw is on Friday; abroad with no online draw it says nothing", () => {
+  test("[world:phone-rises-over-scene] [luck:kiosk-sells-lotto-tickets] given a life in Lagos, when Lotto's pill is read, then it says the draw is on Friday; abroad with no online draw it says nothing", () => {
     expect(appContext("lotto", engineView())).toBe("Draw on Friday");
     const abroad = abroadView();
     expect(appContext("lotto", { ...abroad, lottery: null })).toBeNull();
   });
 
-  test("[R-WORLD-018] [R-OBLIGATION-015] given bills, when Bills' pill is read, then what is due now is counted, else the next rent is said in months", () => {
+  test("[world:phone-rises-over-scene] [obligation:prepaid-entries-skip-first-charge] given bills, when Bills' pill is read, then what is due now is counted, else the next rent is said in months", () => {
     const base = engineView();
     expect(appContext("bills", { ...base, obligations: [owed("obligation.upkeep", { due: 1 }), owed("obligation.salary-loan", { due: 2 })] })).toBe("2 to pay");
     expect(appContext("bills", { ...base, obligations: [owed("obligation.upkeep", { due: 1 })] })).toBe("1 to pay");
@@ -72,7 +72,7 @@ describe("the context pill's words", () => {
     expect(appContext("bills", { ...base, obligations: [] })).toBeNull();
   });
 
-  test("[R-WORLD-018] [R-WALLET-021] given the passbook, when Bank's pill is read, then it names the next stamp, the target last, and all in once every stamp is reached", () => {
+  test("[world:phone-rises-over-scene] [wallet:passbook-against-plan-cost] given the passbook, when Bank's pill is read, then it names the next stamp, the target last, and all in once every stamp is reached", () => {
     const base = engineView();
     const book = (stamps: { at: number; month: number | null; target: boolean }[]): PlayerView => ({ ...base, passbook: { held: 0, target: null, stamps, pace: null, months: null, roads: [], best: null } });
     expect(appContext("bank", book([{ at: 100_000_000, month: 3, target: false }, { at: 250_000_000, month: null, target: false }]))).toBe(`Next stamp ${shortNaira(250_000_000)}`);
@@ -81,7 +81,7 @@ describe("the context pill's words", () => {
     expect(appContext("bank", { ...base, passbook: null })).toBeNull();
   });
 
-  test("[R-WORLD-018] given every app on a rich life and a new one, when the pills are read, then only Jobs, Lotto, Bills and Bank have one, and none counts days", () => {
+  test("[world:phone-rises-over-scene] given every app on a rich life and a new one, when the pills are read, then only Jobs, Lotto, Bills and Bank have one, and none counts days", () => {
     for (const view of [engineView(), richView()]) {
       for (const id of APP_IDS) {
         const said = appContext(id, view);
@@ -95,7 +95,7 @@ describe("the context pill's words", () => {
 });
 
 describe("the pill in the app's head", () => {
-  test("[R-WORLD-018] given the phone open on a rich life, when Lotto and Bills open, then the pill stands beside the app's name with the view's words, and an app with nothing to say has none", async () => {
+  test("[world:phone-rises-over-scene] given the phone open on a rich life, when Lotto and Bills open, then the pill stands beside the app's name with the view's words, and an app with nothing to say has none", async () => {
     const view = richView();
     await renderWithView(<PhoneApps onClose={() => undefined} area="Ojuelegba" calendar={() => <div data-phone-app="calendar" />} onMap={() => undefined} />, view);
     for (const id of ["lotto", "bills", "chats"]) {

@@ -1,4 +1,4 @@
-// The month passes as the player moves (docs/rules/world.md R-WORLD-030, for the lived month): the day is
+// The month passes as the player moves (world:month-passes-as-lived, for the lived month): the day is
 // read from the view's halfDays, the share of the month's free time the acts have spent, never past the month, and
 // the lines each month-act says of itself, on the real content and the real engine through the real store.
 import { activitySignals, content } from "@japacity/content";
@@ -12,7 +12,7 @@ import { atHome } from "./standing";
 import { currentDays, forgetDays, tellSignals, watchDays } from "./days.store";
 import { CITY_LAST_KEY } from "../kept/storage";
 
-/** The month-acts of docs/rules/activity.md R-ACTIVITY-015 beside every job and side job. */
+/** The month-acts of activity:now-acts-and-month-acts beside every job and side job. */
 const MONTH_ACTS_FREE = [
   "activity.apprentice-repair",
   "activity.study-english",
@@ -35,7 +35,7 @@ const MONTH_ACTS_FREE = [
   "activity.overtime",
 ];
 
-// Decision 0012 (R-ACTIVITY-019): the coding course answers at once and repeats, so it is never planned; the course
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course answers at once and repeats, so it is never planned; the course
 // that carries on as a commitment is a master's at home, whose lines come in its first and third weeks as the course's did.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** A nap: an act that spends a morning of the month's free time and costs nothing. */
@@ -86,7 +86,7 @@ afterEach(() => {
 });
 
 describe("the lines each month-act says of itself", () => {
-  test("[R-WORLD-030] given every job, side job and month-act in content, when its lines are looked up, then it has one or two, each with a week of the month", () => {
+  test("[world:month-passes-as-lived] given every job, side job and month-act in content, when its lines are looked up, then it has one or two, each with a week of the month", () => {
     const acts = [...Object.values(content.activity).filter((entry) => entry.slot === "main" || entry.slot === "side").map((entry) => entry.id as string), ...MONTH_ACTS_FREE];
     expect(acts.length).toBeGreaterThan(40);
     const wrong = acts.filter((id) => {
@@ -97,7 +97,7 @@ describe("the lines each month-act says of itself", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-030] given every line in content, when its key is read, then it names an activity in content, its words are short, and they carry no figure in braces", () => {
+  test("[world:month-passes-as-lived] given every line in content, when its key is read, then it names an activity in content, its words are short, and they carry no figure in braces", () => {
     const wrong = Object.entries(activitySignals).filter(([key, signal]) => {
       const found = /^(activity\.[a-z-]+)\.signal\.([12])$/.exec(key);
       return found === null || !(found[1]! in content.activity) || /[{}]/.test(signal.words) || signal.words.length > 100;
@@ -105,15 +105,15 @@ describe("the lines each month-act says of itself", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-030] given a now-act, when it is asked whether it tells of itself, then it does not: the kiosk, asking around and the job hunt answer at once", () => {
+  test("[world:month-passes-as-lived] given a now-act, when it is asked whether it tells of itself, then it does not: the kiosk, asking around and the job hunt answer at once", () => {
     const nowActs = ["activity.play-lotto", "activity.ask-around", "activity.job-hunt", "activity.get-passport", "activity.meetup"];
     expect(nowActs.filter((id) => isMonthAct(id) || signalsOf(id).length > 0)).toEqual([]);
   });
 });
 
 describe("the days of the month", () => {
-  test("[R-WORLD-030] given a new month, when a ride is accepted or a course planned, then the days do not move; when acts spend the month's free time, the day is the share of it spent", async () => {
-    // Decision 0011, with R-WORLD-030 for the lived month: the day is read from the view's
+  test("[world:month-passes-as-lived] given a new month, when a ride is accepted or a course planned, then the days do not move; when acts spend the month's free time, the day is the share of it spent", async () => {
+    // Decision 0011, with world:month-passes-as-lived for the lived month: the day is read from the view's
     // halfDays; a ride and a plan spend none of it, the acts that answer at once do.
     const store = await adaStore();
     const stop = watchDays(store);
@@ -134,8 +134,8 @@ describe("the days of the month", () => {
     stop();
   });
 
-  test("[R-WORLD-030] given acts that spend the whole month's free time and more, when the days are counted, then they stop at four weeks and never pass the month", async () => {
-    // Decision 0011, with R-WORLD-030: the days are the view's time spent, so it is acts, not
+  test("[world:month-passes-as-lived] given acts that spend the whole month's free time and more, when the days are counted, then they stop at four weeks and never pass the month", async () => {
+    // Decision 0011, with world:month-passes-as-lived: the days are the view's time spent, so it is acts, not
     // rides, that fill them; once the free time is spent the night falls and the month waits for Sleep (decision 0011).
     const free = (await adaStore()).getState().view!.halfDays.free;
     expect(dayOfView({ halfDays: { spent: free, free } })).toBe(DAYS_IN_MONTH);
@@ -159,10 +159,10 @@ describe("the days of the month", () => {
     stop();
   });
 
-  test("[R-WORLD-030] given days gone this month, when the page is turned, then the next month starts at its first day", async () => {
+  test("[world:month-passes-as-lived] given days gone this month, when the page is turned, then the next month starts at its first day", async () => {
     const store = await adaStore();
     const stop = watchDays(store);
-    // Decision 0011, with R-WORLD-030: the days go as the acts spend the month's time.
+    // Decision 0011, with world:month-passes-as-lived: the days go as the acts spend the month's time.
     await liveUntil(store, 2);
     expect(day()).toBe(2);
     const month = store.getState().view!.month;
@@ -173,8 +173,8 @@ describe("the days of the month", () => {
     stop();
   });
 
-  test("[R-WORLD-030] given the days counted, when the store is watched twice, then each move still counts once", async () => {
-    // Decision 0011, with R-WORLD-030: the day is the view's share of the time spent, so two
+  test("[world:month-passes-as-lived] given the days counted, when the store is watched twice, then each move still counts once", async () => {
+    // Decision 0011, with world:month-passes-as-lived: the day is the view's share of the time spent, so two
     // watches read the same day, and with no watch left nothing is kept.
     const store = await adaStore();
     const first = watchDays(store);
@@ -191,9 +191,9 @@ describe("the days of the month", () => {
 });
 
 describe("a planned course tells of itself on its day, at home", () => {
-  test("[R-WORLD-030] given a master's course planned, when the days pass, then its first line comes the day after and its second in its third week", async () => {
+  test("[world:month-passes-as-lived] given a master's course planned, when the days pass, then its first line comes the day after and its second in its third week", async () => {
     // Decision 0012: the course that carries on is the master's at home; the days pass as the acts spend the month's
-    // time (R-WORLD-030, decision 0011), so planning takes no day and a ride passes none.
+    // time (world:month-passes-as-lived, decision 0011), so planning takes no day and a ride passes none.
     const store = await adaStore();
     const stop = watchDays(store);
     const [house, other] = twoStops();
@@ -218,7 +218,7 @@ describe("a planned course tells of itself on its day, at home", () => {
     stop();
   });
 
-  test("[R-WORLD-030] given a line due, when the character stands on the street, at the house's door or inside it, then only home counts as home", async () => {
+  test("[world:month-passes-as-lived] given a line due, when the character stands on the street, at the house's door or inside it, then only home counts as home", async () => {
     const store = await adaStore();
     const view: PlayerView = store.getState().view!;
     stand("place.ojuelegba");
@@ -228,16 +228,16 @@ describe("a planned course tells of itself on its day, at home", () => {
     stand("place.family-house", true);
     expect(atHome(view)).toBe(true);
     localStorage.removeItem(CITY_LAST_KEY);
-    // The game opens at home when it knows no place (R-WORLD-014).
+    // The game opens at home when it knows no place (world:opens-where-last-stopped).
     expect(atHome(view)).toBe(true);
   });
 
-  test("[R-WORLD-030] given lines waiting, when they are told, then they wait no longer, and the next month they come again on their days", async () => {
+  test("[world:month-passes-as-lived] given lines waiting, when they are told, then they wait no longer, and the next month they come again on their days", async () => {
     const store = await adaStore();
     const stop = watchDays(store);
     const [house, other] = twoStops();
     store.getState().addToPlan({ activity: COURSE, param: null });
-    // Decision 0011, with R-WORLD-030: a day passes as the acts spend the month's time.
+    // Decision 0011, with world:month-passes-as-lived: a day passes as the acts spend the month's time.
     await liveUntil(store, 1);
     const view = store.getState().view!;
     const waiting = waitingSignals(currentDays()!, view, store.getState().plan);
@@ -245,7 +245,7 @@ describe("a planned course tells of itself on its day, at home", () => {
     tellSignals(waiting.map((signal) => signal.key));
     expect(waitingSignals(currentDays()!, view, store.getState().plan)).toEqual([]);
     await store.getState().endMonth();
-    // The course carries on into the next month without being started again (R-WORLD-007).
+    // The course carries on into the next month without being started again (world:month-acts-carry-on).
     expect(store.getState().plan).toContainEqual({ activity: COURSE, param: null });
     expect(waitingSignals(currentDays()!, store.getState().view!, store.getState().plan)).toEqual([]);
     await ride(store, house, other);

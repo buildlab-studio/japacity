@@ -1,5 +1,5 @@
-// The Bank's change of money at home (docs/rules/wallet.md R-WALLET-005, R-WALLET-012; world.md R-WORLD-006,
-// R-WORLD-019). The bank sells foreign money only up to the month's limit, so the chips offer only what it will take,
+// The Bank's change of money at home (wallet:monthly-fx-allowance, wallet:amounts-whole-and-positive; world:one-action-one-sheet,
+// world:phone-holds-what-phones-hold). The bank sells foreign money only up to the month's limit, so the chips offer only what it will take,
 // the limit's remainder first, the limit is said before the button, and any refusal shows beside the button, never
 // "That amount will not work" at the top of the phone, scrolled away. Played on the real engine.
 import { content, text } from "@japacity/content";
@@ -31,7 +31,7 @@ function chips(): string[] {
 }
 
 describe("the Bank's change at home, within the month's limit", () => {
-  test("[R-WALLET-005] given the month's limit, when the most the Bank offers is changed, then the bank takes it, and one naira more is refused", () => {
+  test("[wallet:monthly-fx-allowance] given the month's limit, when the most the Bank offers is changed, then the bank takes it, and one naira more is refused", () => {
     const game = heldAtHome();
     const limit = bankLimit(game.view(), "NGN", "GBP");
     expect(limit).not.toBeNull();
@@ -44,13 +44,13 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(bankLimit(game.view(), "NGN", "GBP")).toBe(0);
   });
 
-  test("[R-WALLET-005] given money changed abroad, for naira, or with the FX man, when the limit is read, then none binds", () => {
+  test("[wallet:monthly-fx-allowance] given money changed abroad, for naira, or with the FX man, when the limit is read, then none binds", () => {
     const view = heldAtHome().view();
     expect(bankLimit(view, "GBP", "NGN")).toBeNull();
     expect(bankLimit({ ...view, bankAllowanceLeft: null }, "NGN", "GBP")).toBeNull();
   });
 
-  test("[R-WALLET-005] [R-WORLD-019] given ₦2,110,450 in the bank, when naira into pounds at the bank is chosen, then the limit is the first chip and the one picked, a quarter and a half the bank would refuse are not offered, and the limit is said in plain words before the button", async () => {
+  test("[wallet:monthly-fx-allowance] [world:phone-holds-what-phones-hold] given ₦2,110,450 in the bank, when naira into pounds at the bank is chosen, then the limit is the first chip and the one picked, a quarter and a half the bank would refuse are not offered, and the limit is said in plain words before the button", async () => {
     // A month the dollar squeeze has cut the bank's limit (the news's own figure).
     const squeeze = Math.min(
       ...Object.values(content.news)
@@ -73,7 +73,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(go.textContent).toBe(say("phone.bank.go", { amount: formatMoney(limit, "NGN") }));
   });
 
-  test("[R-WALLET-005] given a pocket whose quarter fits the limit, when the change opens, then the limit comes first, the quarter stays the one picked, and only shares under the limit are offered", async () => {
+  test("[wallet:monthly-fx-allowance] given a pocket whose quarter fits the limit, when the change opens, then the limit comes first, the quarter stays the one picked, and only shares under the limit are offered", async () => {
     const game = newGame("scenario.tunde");
     const limit = bankLimit(game.view(), "NGN", "GBP")!;
     // A pocket three times the limit: a quarter fits, a half and all of it do not.
@@ -83,7 +83,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(screen.getByRole("radio", { name: say("phone.bank.quarter") }).getAttribute("aria-checked")).toBe("true");
   });
 
-  test("[R-WALLET-007] given the FX man, when the change opens, then no limit is said and every share is offered", async () => {
+  test("[wallet:aboki-trades-at-street-rate] given the FX man, when the change opens, then no limit is said and every share is offered", async () => {
     const game = newGame("scenario.tunde");
     setPockets(game, { NGN: 211_045_000 });
     game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_000, to: "cash" });
@@ -93,7 +93,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(document.querySelector("[data-bank-limit]")).toBeNull();
   });
 
-  test("[R-WALLET-005] [R-WORLD-019] given a month whose limit has only cents left, too few to buy one whole pound, when the change opens at the bank, then the limit counts as spent: no chip, the FX man's way said, never a change for nothing", async () => {
+  test("[wallet:monthly-fx-allowance] [world:phone-holds-what-phones-hold] given a month whose limit has only cents left, too few to buy one whole pound, when the change opens at the bank, then the limit counts as spent: no chip, the FX man's way said, never a change for nothing", async () => {
     // Twelve US cents of the allowance left: ₦191 that would buy nine pence.
     const view = { ...heldAtHome().view(), bankAllowanceLeft: 12 };
     expect(bankLimit(view, "NGN", "GBP")).toBe(0);
@@ -102,7 +102,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(document.querySelector('[data-go="change"]')).toBeNull();
   });
 
-  test("[R-WALLET-005] given a limit left that buys more than one whole pound, when it is read, then the bank still offers it, and the line says what is left this month", async () => {
+  test("[wallet:monthly-fx-allowance] given a limit left that buys more than one whole pound, when it is read, then the bank still offers it, and the line says what is left this month", async () => {
     const base = heldAtHome().view();
     // The cents one pound costs at the bank, its charge on top: the smallest remainder still worth a change.
     const pound = int.convertMinor(100, "GBP", "USD", { GBP: base.rates.GBP.official, USD: base.rates.USD.official, CAD: base.rates.CAD.official, AED: base.rates.AED.official, EUR: base.rates.EUR.official });
@@ -113,7 +113,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(document.querySelector("[data-bank-limit]")?.textContent).toBe(say("phone.bank.limit.line", { amount: formatMoney(limit, "NGN") }));
   });
 
-  test("[R-WORLD-006] given the bank's limit spent this month, when the change opens at the bank, then it says so and the FX man's way, with no button", async () => {
+  test("[world:one-action-one-sheet] given the bank's limit spent this month, when the change opens at the bank, then it says so and the FX man's way, with no button", async () => {
     const game = heldAtHome();
     game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: bankLimit(game.view(), "NGN", "GBP")!, via: "bank" });
     await renderWithView(<Bank opening="change" />, game.view());
@@ -121,7 +121,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(document.querySelector('[data-go="change"]')).toBeNull();
   });
 
-  test("[R-WORLD-006] [R-WALLET-012] given a change the engine refuses, when Change it is tapped, then the refusal shows beside the button in the chooser, not at the top of the phone", async () => {
+  test("[world:one-action-one-sheet] [wallet:amounts-whole-and-positive] given a change the engine refuses, when Change it is tapped, then the refusal shows beside the button in the chooser, not at the top of the phone", async () => {
     const view: PlayerView = heldAtHome().view();
     const { authority } = await renderWithView(<PhoneApps onClose={() => undefined} area="Yaba" now={() => new Date(2026, 9, 10, 6, 30)} talk={null} />, view);
     fireEvent.click(document.querySelector<HTMLElement>('[data-app="bank"]')!);
@@ -142,7 +142,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     expect(chooser.querySelector("[data-refused]")).toBeNull();
   });
 
-  test("[R-WORLD-006] given Move money, bank out as cash, when its card opens, then the button says it happens now and the line says the cash is in hand now, and the cash is spendable at once", async () => {
+  test("[world:one-action-one-sheet] given Move money, bank out as cash, when its card opens, then the button says it happens now and the line says the cash is in hand now, and the cash is spendable at once", async () => {
     const game = heldAtHome();
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();
@@ -166,7 +166,7 @@ describe("the Bank's change at home, within the month's limit", () => {
     await waitFor(() => expect(store.getState().view?.pockets.NGN.cash).toBe(cashBefore + quarter));
   });
 
-  test("[R-WORLD-019] [R-WALLET-007] given naira changed into pounds with the FX man this month, when Lately is read, then it shows the pounds in and the naira out, each in its own money, as the results do", () => {
+  test("[world:phone-holds-what-phones-hold] [wallet:aboki-trades-at-street-rate] given naira changed into pounds with the FX man this month, when Lately is read, then it shows the pounds in and the naira out, each in its own money, as the results do", () => {
     const game = heldAtHome();
     game.accept({ type: "wallet/move", currency: "NGN", amount: 100_000_000, to: "cash" });
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 100_000_000, via: "aboki" });

@@ -1,6 +1,6 @@
-// The family the game drew, as the page prints it (prologue.md R-PROLOGUE-002, 009, 014): a two-line card for the
+// The family the game drew, as the page prints it (prologue:family-draw-on-first-answer, prologue:front-door-builds-a-person, prologue:printed-page-hands-over): a two-line card for the
 // handover, and its means on the data page's FAMILY line beside where it is from. The view keeps no prologue once it
-// closes (R-PROLOGUE-006), so the draw is read back from the years' trail the prologue keeps on the device under
+// closes (prologue:closing-opens-home-charges), so the draw is read back from the years' trail the prologue keeps on the device under
 // `TRAIL_KEY`; where the life is from stays in the view (`hometown`).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -32,10 +32,10 @@ function comfortableFrom(): number {
 const MEANS_TONE: Record<"low" | "middle" | "high", Tone> = { low: "down", middle: "plain", high: "up" };
 
 /**
- * The family the game drew (R-PROLOGUE-002) as a two-line card: where it is from as the title, "Family from Enugu"
+ * The family the game drew (prologue:family-draw-on-first-answer) as a two-line card: where it is from as the title, "Family from Enugu"
  * (the place of origin, never where the parents live), with its means and its ups and downs as small tags.
  * `hometown` is the view's (`hometown.<slug>`); where none is known yet the means stand as the title. The child of the
- * water grew up on the lagoon (R-PROLOGUE-012): its own title in place of the town and the means.
+ * water grew up on the lagoon (prologue:makoko-start-never-a-trap): its own title in place of the town and the means.
  */
 export function familyCard(draw: Draw, water: boolean, hometown: string | null = null): FamilyCard {
   const means = draw.familyMeans < content.tuning.prologue.waecStrain.under ? "low" : draw.familyMeans < comfortableFrom() ? "middle" : "high";

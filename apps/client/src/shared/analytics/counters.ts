@@ -1,4 +1,4 @@
-// The interface counters (analytics.md R-ANALYTICS-002, 003, 006, 011). Held
+// The interface counters (analytics:client-sends-interface-counts, analytics:client-batches-counters, analytics:player-can-stop-usage-counts, analytics:day-one-and-seven-return). Held
 // in memory only and sent as batches of `{ name, key, count }`: nothing is
 // written to the device, and only names and keys on the fixed list are ever
 // counted, so no typed text can reach a batch.
@@ -12,9 +12,9 @@ export type AskOutcome = "shown" | "accepted";
 export interface Counters {
   /** Adds to a counter the list names for the client; anything else is ignored. */
   count: (name: string, key: string, by?: number) => void;
-  /** R-ANALYTICS-011: an ask, keyed by whether the early win had been shown. */
+  /** analytics:day-one-and-seven-return: an ask, keyed by whether the early win had been shown. */
   ask: (kind: AskKind, outcome: AskOutcome, afterEarlyWin: boolean) => void;
-  /** R-ANALYTICS-006: off drops what is held and counts nothing more. */
+  /** analytics:player-can-stop-usage-counts: off drops what is held and counts nothing more. */
   setEnabled: (on: boolean) => void;
   /** Sends what is held, as few batches as fit, and forgets it. */
   flush: () => void;
@@ -39,7 +39,7 @@ function allowed(def: CounterDef, key: string): boolean {
   return def.keys === "id" && ENTRY_ID.test(key);
 }
 
-/** Rows of at most `maxCount` each (R-ANALYTICS-004). */
+/** Rows of at most `maxCount` each (analytics:server-checks-every-batch). */
 function rowsOf(held: ReadonlyMap<string, CounterRow>, maxCount: number): CounterRow[] {
   const rows: CounterRow[] = [];
   for (const { name, key, count } of held.values()) {
@@ -48,7 +48,7 @@ function rowsOf(held: ReadonlyMap<string, CounterRow>, maxCount: number): Counte
   return rows;
 }
 
-/** R-ANALYTICS-003: the rows packed into bodies of at most `maxBytes` each, in order. */
+/** analytics:client-batches-counters: the rows packed into bodies of at most `maxBytes` each, in order. */
 export function packBatches(rows: readonly CounterRow[], maxBytes: number): string[] {
   const frame = bytes(HEAD) + bytes(TAIL);
   const bodies: string[] = [];
@@ -99,7 +99,7 @@ export function makeCounters({ send, list = content.analytics.counters, tuning =
   };
 }
 
-/** R-ANALYTICS-002: a load's time in bands, never in milliseconds. */
+/** analytics:client-sends-interface-counts: a load's time in bands, never in milliseconds. */
 export function loadBand(ms: number): string {
   if (ms < 1000) return "under-1s";
   if (ms < 3000) return "1s-3s";

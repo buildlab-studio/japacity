@@ -1,4 +1,4 @@
-// The ride's scene (docs/rules/world.md R-WORLD-017, R-WORLD-032): the street, the vehicle and the people
+// The ride's scene (world:ride-sheet-shows-fares, world:ride-cuts-between-angles): the street, the vehicle and the people
 // on it, with the pre-roll and the angles the rules give. Everything here is plain three.js with no
 // renderer, so a test can read the scene it builds.
 import { palette } from "@japacity/assets";
@@ -42,11 +42,11 @@ function sequence(seed: number): () => number {
 
 export type Way = RideChoice["id"];
 
-/** How long a ride plays, pre-roll and all: about six seconds (R-WORLD-017). */
+/** How long a ride plays, pre-roll and all: about six seconds (world:ride-sheet-shows-fares). */
 export const RIDE_MS = 6000;
-/** The pre-roll before a ride by danfo, keke or okada: at most a second and a half (R-WORLD-017). */
+/** The pre-roll before a ride by danfo, keke or okada: at most a second and a half (world:ride-sheet-shows-fares). */
 export const PRE_MS = 1400;
-/** A walk home past the walking limit plays this long, twice a ride, and cannot be skipped: the long walk is its cost (R-WORLD-017). */
+/** A walk home past the walking limit plays this long, twice a ride, and cannot be skipped: the long walk is its cost (world:ride-sheet-shows-fares). */
 export const LONG_WALK_MS = 12000;
 
 /** The pre-roll's length for a way: none on foot. */
@@ -61,12 +61,12 @@ export type Role = "own" | "rider" | "driver";
 export type Phase = "pre" | "ride";
 
 /**
- * Where the ride is watched from (R-WORLD-032): outside at the stop, from above, the danfo's window
+ * Where the ride is watched from (world:ride-cuts-between-angles): outside at the stop, from above, the danfo's window
  * and seat, and on a keke or an okada the rider ahead. The ride picks them on its own clock.
  */
 export type Angle = "outside" | "above" | "window" | "seat" | "ahead";
 
-/** The most the ride's clock moves on a stalled frame, so a stall never jumps the ride ahead (R-WORLD-032). */
+/** The most the ride's clock moves on a stalled frame, so a stall never jumps the ride ahead (world:ride-cuts-between-angles). */
 export const STEP_MS = 100;
 /** A frame longer than this is a stall (the tab hidden, the device busy); a slow but steady device's frames count whole. */
 const STALL_MS = 1000;
@@ -85,7 +85,7 @@ export function stepClock(ms: number, dt: number, length: number = RIDE_MS): num
 export function anglesOf(way: Way): readonly { angle: Angle; from: number }[] {
   const rest = RIDE_MS - PRE_MS;
   switch (way) {
-    // The buses, trains and taxis abroad cut as the danfo does (R-WORLD-039): the stop, above, the window, the seat.
+    // The buses, trains and taxis abroad cut as the danfo does (world:ride-abroad-and-workplace): the stop, above, the window, the seat.
     case "danfo":
     case "bus":
     case "train":
@@ -128,7 +128,7 @@ export function angleAt(way: Way, ms: number): Angle {
 /** How long the screen holds fully dark at a cut, and how long it takes to darken and to clear either side. */
 const CUT_HOLD_MS = 80;
 const CUT_FADE_MS = 120;
-/** A cut's whole dark, darkening, held and clearing: under half a second, as R-WORLD-013's cut. */
+/** A cut's whole dark, darkening, held and clearing: under half a second, as world:entering-is-a-cut's cut. */
 export const CUT_DARK_MS = CUT_HOLD_MS + 2 * CUT_FADE_MS;
 
 /** How dark the screen is `ms` after the ride began, 0 clear to 1 dark: dark only around a cut between angles. */
@@ -273,7 +273,7 @@ export interface RideScene {
   /** The vehicle's model is in; the stand-in goes. */
   setVehicle: (model: Object3D) => void;
   /** A person's model is in: their figure takes their seat. */
-  /** `style`: the player's own colours for the own seat (R-PROLOGUE-015); the others ride as made. */
+  /** `style`: the player's own colours for the own seat (prologue:player-colours-on-looks); the others ride as made. */
   setPerson: (role: Role, model: Object3D, style?: LookStyle) => void;
   /** Shows the scene as the part's first angle shows it, until a frame says otherwise. */
   setPhase: (phase: Phase) => void;
@@ -393,7 +393,7 @@ function turnBone(figure: Figure, name: string, x: number, y: number, z: number)
   bone.rotation.z += z;
 }
 
-/** Each country's street abroad (R-WORLD-039): its sky, its ground, its two walls and its trees. */
+/** Each country's street abroad (world:ride-abroad-and-workplace): its sky, its ground, its two walls and its trees. */
 const LANDS: Readonly<Record<RideLand, { air: number; ground: number; walls: readonly [number, number]; trees: number }>> = {
   // Calgary in winter: a grey-blue sky, grey concrete, cream and grey blocks, the trees white with snow.
   cold: { air: palette.wallSky, ground: palette.concrete, walls: [palette.wallCream, palette.concreteWorn], trees: palette.white },
@@ -411,7 +411,7 @@ export function buildRide(way: Way, length: number = RIDE_MS, kind: AbroadVehicl
   const scene = new Scene();
   const abroad = kind === null ? null : VEHICLES[kind];
   const land = abroad === null ? null : LANDS[abroad.land];
-  // London's street under London's sky: a cooler sky, grey pavements and brick (R-WORLD-039); Lagos keeps its own.
+  // London's street under London's sky: a cooler sky, grey pavements and brick (world:ride-abroad-and-workplace); Lagos keeps its own.
   const london = abroad === null && onTheLeft(way);
   // The rail abroad runs on its ballast, as London's train does.
   const rail = abroad === null ? way === "train" : abroad.rail;
@@ -512,7 +512,7 @@ export function buildRide(way: Way, length: number = RIDE_MS, kind: AbroadVehicl
 
   const pre = preMsOf(way);
   const rideMs = length - pre;
-  // The long walk home covers its longer clock at the same stride (R-WORLD-017).
+  // The long walk home covers its longer clock at the same stride (world:ride-sheet-shows-fares).
   const travel = way === "walk" ? (WALK_TRAVEL * length) / RIDE_MS : (TRAVEL * rideMs) / RIDE_MS;
   /** Where the pre-roll leaves the vehicle: the danfo has pulled away, the rest stand at the kerb. */
   const pulled = way === "danfo" ? (PULL * (pre / 1000) ** 2) / 2 : 0;
@@ -630,7 +630,7 @@ export function buildRide(way: Way, length: number = RIDE_MS, kind: AbroadVehicl
         camera.fov = 62;
         camera.near = 0.05;
         // London: from the top deck's seat out of the side glass at the pavement and the shops, or from the carriage's
-        // window seat out at the line's side (R-WORLD-039).
+        // window seat out at the line's side (world:ride-abroad-and-workplace).
         if (abroad !== null) aimFrom([...abroad.seat.eye], [...abroad.seat.window]);
         else if (way === "bus" || way === "train") aimFrom(LONDON_SEAT[way].eye, LONDON_SEAT[way].window);
         else aimFrom([-0.7, 1.5, -0.8], [3, 1.05, -0.6]);
@@ -704,7 +704,7 @@ export function buildRide(way: Way, length: number = RIDE_MS, kind: AbroadVehicl
       const seat = seatOf(role);
       if (seat === undefined || seat.figure !== null) return;
       const figure = figureOf(model, seat.pose, role === "own" ? 0.4 : 1.7);
-      // The character rides in the player's own colours, painted once as the seat is taken (R-PROLOGUE-015).
+      // The character rides in the player's own colours, painted once as the seat is taken (prologue:player-colours-on-looks).
       if (role === "own") wear(figure.root, style);
       seat.figure = figure;
       seat.group.add(figure.root);

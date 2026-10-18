@@ -1,5 +1,5 @@
-// The words of each country abroad fetched in a chunk of its own (engine.md R-ENGINE-020; world.md R-WORLD-038,
-// R-WORLD-039) and added to the late table once the life is in that country: London's, Calgary's, Dubai's and Castel
+// The words of each country abroad fetched in a chunk of its own (engine:first-download-has-budget; world:painted-maps-abroad,
+// world:ride-abroad-and-workplace) and added to the late table once the life is in that country: London's, Calgary's, Dubai's and Castel
 // Volturno's, each content's ui/ui.<city>.text.ts. The imports sit with the city's other chunks, so the first visit's
 // shared words carry only the late table's few lines (shared/words/late.ts).
 import { addLateWords } from "../../shared/words/late";

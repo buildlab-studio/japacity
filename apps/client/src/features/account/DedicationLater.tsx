@@ -1,4 +1,4 @@
-// The dedication page fetched only when it is first opened (docs/rules/account.md R-ACCOUNT-032; engine.md R-ENGINE-020,
+// The dedication page fetched only when it is first opened (account:dedication-page-and-its-doors; engine:first-download-has-budget,
 // the first visit's size): the third light and the version line's five taps stay on the first visit, small, and the
 // page with its sheet comes in its own chunk on the first tap. Until then nothing of it is drawn.
 import { lazy, Suspense, useState } from "react";

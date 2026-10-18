@@ -24,7 +24,7 @@ function one(selector: string): HTMLElement {
 }
 
 describe("the sticker", () => {
-  test("[R-WORLD-021] given a picture, when the sticker draws, then it shows the picture cut with the white edge, tilted, named for a screen reader", () => {
+  test("[world:colours-are-role-tokens] given a picture, when the sticker draws, then it shows the picture cut with the white edge, tilted, named for a screen reader", () => {
     render(<Sticker src="/assets/tiles/prop_cooking-fire.png" alt="The cooking fire" className="extra" />);
     const sticker = one("[data-sticker]");
     const picture = screen.getByRole("img", { name: "The cooking fire" });
@@ -35,7 +35,7 @@ describe("the sticker", () => {
     expect(one("[data-sticker-cut]").style.rotate).toMatch(/^-?\d+deg$/);
   });
 
-  test("[R-WORLD-021] given no picture yet, when the sticker draws, then an emoji stands in and says so; a tint by kind puts a soft tile behind it", () => {
+  test("[world:colours-are-role-tokens] given no picture yet, when the sticker draws, then an emoji stands in and says so; a tint by kind puts a soft tile behind it", () => {
     render(<Sticker emoji="🍜" alt="Indomie" tint="food" tilt={4} />);
     const sticker = one("[data-sticker]");
     expect(sticker.getAttribute("data-stand-in")).toBe("");
@@ -45,14 +45,14 @@ describe("the sticker", () => {
     expect(one("[data-sticker-cut]").style.rotate).toBe("4deg");
   });
 
-  test("[R-WORLD-021] given every kind, then each has its tint class, and the plain kind is the sheet's", () => {
+  test("[world:colours-are-role-tokens] given every kind, then each has its tint class, and the plain kind is the sheet's", () => {
     expect(Object.keys(TINTS).sort()).toEqual(["body", "food", "money", "people", "plain", "study"]);
     for (const [kind, name] of Object.entries(TINTS)) expect(name).toBe(`bg-tint-${kind}`);
   });
 });
 
 describe("the sticker chip", () => {
-  test("[R-WORLD-021] given words and a kind, when the chip draws, then it is a tilted pill with the cut edge in its tint", () => {
+  test("[world:colours-are-role-tokens] given words and a kind, when the chip draws, then it is a tilted pill with the cut edge in its tint", () => {
     render(
       <StickerChip tint="money" className="extra">
         +Belly
@@ -67,7 +67,7 @@ describe("the sticker chip", () => {
     expect(chip.style.rotate).toMatch(/^-?\d+deg$/);
   });
 
-  test("[R-WORLD-021] given no kind, when the chip draws, then it is white", () => {
+  test("[world:colours-are-role-tokens] given no kind, when the chip draws, then it is white", () => {
     render(<StickerChip>A morning</StickerChip>);
     expect(one("[data-sticker-chip]").className).toContain("bg-sheet-2");
     expect(one("[data-sticker-chip]").hasAttribute("data-tint")).toBe(false);
@@ -75,7 +75,7 @@ describe("the sticker chip", () => {
 });
 
 describe("the pressed action", () => {
-  test("[R-WORLD-021] given the one action, when it is pressed, then it is the yellow button with the navy underside and it acts", () => {
+  test("[world:colours-are-role-tokens] given the one action, when it is pressed, then it is the yellow button with the navy underside and it acts", () => {
     const act = vi.fn();
     render(
       <PressButton onClick={act} className="extra">
@@ -91,7 +91,7 @@ describe("the pressed action", () => {
     expect(act).toHaveBeenCalledTimes(1);
   });
 
-  test("[R-WORLD-021] given a refused action, when it is disabled, then a tap does nothing", () => {
+  test("[world:colours-are-role-tokens] given a refused action, when it is disabled, then a tap does nothing", () => {
     const act = vi.fn();
     render(
       <PressButton onClick={act} disabled>
@@ -104,7 +104,7 @@ describe("the pressed action", () => {
 });
 
 describe("the pill and the card", () => {
-  test("[R-WORLD-021] given words, when the pill draws, then it is white with the navy edge", () => {
+  test("[world:colours-are-role-tokens] given words, when the pill draws, then it is white with the navy edge", () => {
     render(<Pill className="extra">5 things</Pill>);
     const pill = one("[data-pill]");
     expect(pill.textContent).toBe("5 things");
@@ -112,7 +112,7 @@ describe("the pill and the card", () => {
     expect(pill.className).toContain("extra");
   });
 
-  test("[R-WORLD-021] given content, when the card draws, then it is the white card with the 20 px radius and the edge, and passes its attributes on", () => {
+  test("[world:colours-are-role-tokens] given content, when the card draws, then it is the white card with the 20 px radius and the edge, and passes its attributes on", () => {
     render(
       <LivelyCard className="extra" data-job="job.developer">
         Junior developer
@@ -127,7 +127,7 @@ describe("the pill and the card", () => {
 });
 
 describe("the sheet", () => {
-  test("[R-WORLD-021] given an open sheet, when it draws, then it rises in the sheet colour with its handle, its title and its line, and the handle closes it", () => {
+  test("[world:colours-are-role-tokens] given an open sheet, when it draws, then it rises in the sheet colour with its handle, its title and its line, and the handle closes it", () => {
     const change = vi.fn();
     render(
       <LivelySheet open onOpenChange={change} title="Your study table" line="One leg shorter. Still works." picture={<Sticker emoji="📚" alt="Books" />} className="extra">
@@ -146,7 +146,7 @@ describe("the sheet", () => {
     expect(change).toHaveBeenCalledWith(false, expect.anything());
   });
 
-  test("[R-WORLD-021] given a closed sheet, then nothing of it is drawn", () => {
+  test("[world:colours-are-role-tokens] given a closed sheet, then nothing of it is drawn", () => {
     render(
       <LivelySheet open={false} onOpenChange={() => undefined} title="Hidden">
         <p>Inside</p>
@@ -157,7 +157,7 @@ describe("the sheet", () => {
 });
 
 describe("the face", () => {
-  test("[R-WORLD-021] given a person, when the face draws, then it is the name pill with a flat mark carrying the initial, never a picture", () => {
+  test("[world:colours-are-role-tokens] given a person, when the face draws, then it is the name pill with a flat mark carrying the initial, never a picture", () => {
     render(<Face name="Mama" className="extra" />);
     const face = one("[data-face]");
     expect(face.getAttribute("data-face")).toBe("Mama");
@@ -169,7 +169,7 @@ describe("the face", () => {
     expect(face.textContent).toBe("MMama");
   });
 
-  test("[R-WORLD-021] given the same name, then the mark's colour is always the same, and a name with an accent keeps its letter", () => {
+  test("[world:colours-are-role-tokens] given the same name, then the mark's colour is always the same, and a name with an accent keeps its letter", () => {
     expect(faceMark("Ọlá")).toEqual(faceMark("Ọlá"));
     expect(faceMark("Ọlá").initial).toBe("Ọ");
     expect(faceMark("tunde").initial).toBe("T");
@@ -178,7 +178,7 @@ describe("the face", () => {
 });
 
 describe("the centred column", () => {
-  test("[R-WORLD-021] given anything inside, when the column draws, then it is phone width at most and centred, and takes a className", () => {
+  test("[world:colours-are-role-tokens] given anything inside, when the column draws, then it is phone width at most and centred, and takes a className", () => {
     render(
       <CentredColumn className="extra">
         <span>Inside</span>

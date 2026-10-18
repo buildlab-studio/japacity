@@ -1,4 +1,4 @@
-// The first-use labels (docs/rules/world.md R-WORLD-033): nothing lectures before play. On a device that has not
+// The first-use labels (world:no-walkthrough-before-play): nothing lectures before play. On a device that has not
 // played, the Map and Phone thumbs carry their word until each is tapped once; the device keeps it under the
 // walkthrough's old key, and a device that saw the walkthrough, or a life with a month behind it, shows none.
 import { fireEvent, screen } from "@testing-library/react";
@@ -26,7 +26,7 @@ function tapThumb(id: "map" | "phone"): void {
 }
 
 describe("the first-use labels", () => {
-  test("[R-WORLD-033] given the first play on a new device, when the world opens, then no pointer or card lectures, the first brief is handed by its person, and once it is carried the Map and Phone thumbs each carry their word, and each word goes once its thumb is tapped", async () => {
+  test("[world:no-walkthrough-before-play] given the first play on a new device, when the world opens, then no pointer or card lectures, the first brief is handed by its person, and once it is carried the Map and Phone thumbs each carry their word, and each word goes once its thumb is tapped", async () => {
     localStorage.removeItem(WALK_KEY);
     await renderWithView(world(), engineView());
     expect(document.querySelector("[data-walkthrough], [data-walk-card]")).toBeNull();
@@ -50,7 +50,7 @@ describe("the first-use labels", () => {
     expect(walkSeen()).toBe(true);
   });
 
-  test("[R-WORLD-033] given a thumb tapped on this device, when another life is played, then only the other thumb carries its word, and once both were tapped no word shows again", async () => {
+  test("[world:no-walkthrough-before-play] given a thumb tapped on this device, when another life is played, then only the other thumb carries its word, and once both were tapped no word shows again", async () => {
     localStorage.removeItem(WALK_KEY);
     await renderWithView(world(), engineView());
     tapThumb("phone");
@@ -65,7 +65,7 @@ describe("the first-use labels", () => {
     expect(labels()).toEqual([]);
   });
 
-  test("[R-WORLD-033] given the walkthrough seen on this device before, or a life with a month behind it on a new one, when the world opens, then no word shows", async () => {
+  test("[world:no-walkthrough-before-play] given the walkthrough seen on this device before, or a life with a month behind it on a new one, when the world opens, then no word shows", async () => {
     localStorage.setItem(WALK_KEY, "1");
     await renderWithView(world(), engineView());
     expect(labels()).toEqual([]);

@@ -1,4 +1,4 @@
-// What each app has that the player has not seen (docs/rules/world.md R-WORLD-018): a short mark of
+// What each app has that the player has not seen (world:phone-rises-over-scene): a short mark of
 // what is in the app now, and the mark seen last, kept on the device under one key. An app whose
 // mark is not empty and differs from the one seen carries a dot. Opening the app sees it.
 import { content } from "@japacity/content";
@@ -12,8 +12,8 @@ import { papersMarkOf } from "./papers";
 import { browserStorage, SEEN_KEY } from "../../shared/kept/storage";
 import { listeners } from "../../shared/listeners/listeners";
 
-// The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002). Papers sits beside Japa: the
-// plan's papers, held and on their way (R-WORLD-019).
+// The Calendar sits first among the apps: the month lives on the phone (world:top-band-is-lively-pill). Papers sits beside Japa: the
+// plan's papers, held and on their way (world:phone-holds-what-phones-hold).
 export const APP_IDS = ["calendar", "bank", "chats", "japa", "papers", "jobs", "market", "lotto", "bills", "news", "settings"] as const;
 export type AppId = (typeof APP_IDS)[number];
 
@@ -42,7 +42,7 @@ export function marksOf(view: PlayerView): Record<AppId, string> {
     chats,
     // The brief last handed (design page 13 section 4): the dot until Japa is opened.
     japa: japaMark(view.scenario),
-    // A paper that landed or moved this month (R-WORLD-030): the dot until Papers is opened.
+    // A paper that landed or moved this month (world:month-passes-as-lived): the dot until Papers is opened.
     papers: papersMarkOf(view),
     jobs: jobOffers(view).map((offer) => offer.id).join(","),
     // The Market carries no dot: what it sells is always there.

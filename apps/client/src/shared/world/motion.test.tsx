@@ -37,16 +37,16 @@ function reducedBlock(): string {
 }
 
 describe("every shell motion is under half a second", () => {
-  test.each(MOTIONS)("[R-WORLD-023] given the .%s class, when its animation is read, then it lasts under 500 ms", (motion) => {
+  test.each(MOTIONS)("[world:motions-under-half-second] given the .%s class, when its animation is read, then it lasts under 500 ms", (motion) => {
     expect(durationOf(motion)).toBeLessThan(HALF_SECOND_MS);
   });
 
-  test("[R-WORLD-023] given the money counter and the cut, then each takes under 500 ms", () => {
+  test("[world:motions-under-half-second] given the money counter and the cut, then each takes under 500 ms", () => {
     expect(COUNT_MS).toBeLessThan(HALF_SECOND_MS);
     expect(CUT_MS).toBeLessThan(HALF_SECOND_MS);
   });
 
-  test("[R-WORLD-023] given the shell's own components, when their transition durations are read, then none reaches 500 ms", () => {
+  test("[world:motions-under-half-second] given the shell's own components, when their transition durations are read, then none reaches 500 ms", () => {
     const folders = [join(SRC, "shared", "world"), join(SRC, "features", "turn")];
     const files = folders.flatMap((folder) => readdirSync(folder).filter((name) => name.endsWith(".tsx") && !name.includes(".test.")).map((name) => join(folder, name)));
     const durations = files.flatMap((file) => [...readFileSync(file, "utf8").matchAll(/duration-(\d+)/g)].map((match) => ({ file, ms: Number(match[1]) })));
@@ -56,7 +56,7 @@ describe("every shell motion is under half a second", () => {
 });
 
 describe("reduced motion cuts to a fade", () => {
-  test.each(MOTIONS)("[R-WORLD-023] given reduced motion, when .%s runs, then it is the fade, under 500 ms, and wins over the rule that stops every animation", (motion) => {
+  test.each(MOTIONS)("[world:motions-under-half-second] given reduced motion, when .%s runs, then it is the fade, under 500 ms, and wins over the rule that stops every animation", (motion) => {
     const block = reducedBlock();
     const rule = /\{ animation: fade ([\d.]+)s ease both !important; \}/.exec(block);
     expect(block).toContain(`.${motion}`);
@@ -64,7 +64,7 @@ describe("reduced motion cuts to a fade", () => {
     expect(Math.round(Number(rule?.[1]) * 1000)).toBeLessThan(HALF_SECOND_MS);
   });
 
-  test("[R-WORLD-023] given reduced motion, when the money changes, then the counter lands on the new figure at once", () => {
+  test("[world:motions-under-half-second] given reduced motion, when the money changes, then the counter lands on the new figure at once", () => {
     vi.stubGlobal("matchMedia", (query: string) => ({ matches: query.includes("reduce"), media: query, addEventListener: () => undefined, removeEventListener: () => undefined }));
     const format = (value: number): string => `N${String(value)}`;
     const { rerender } = render(<Counter value={100} format={format} />);

@@ -5,7 +5,7 @@
 // stand-ins are listed by `pnpm exec tsx apps/client/src/shared/tiles/missing.ts`.
 
 /**
- * The acts that are no activity of the simulation (R-WORLD-034): a pose, the bed's Sleep, a bill, the papers, the bag, the
+ * The acts that are no activity of the simulation (world:fan-of-sticker-buttons): a pose, the bed's Sleep, a bill, the papers, the bag, the
  * way out and in, a word with someone, a look, a ride, the way home, a stop and a shut thing. Each is a small glyph drawn as
  * the layer's sticker (Glyph.tsx), keyed `act.<glyph>`; it is drawn, so it stands in for nothing.
  */
@@ -128,7 +128,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.december-home-uk": "prop_flight-board",
   "activity.december-home-ca": "prop_flight-board",
   "activity.december-home-uae": "prop_flight-board",
-  // London by hand (streets.md R-STREET-012, place.md R-PLACE-012): each act shows the thing it is done at.
+  // London by hand (streets:london-life-by-hand, place:country-pass-covers-ways): each act shows the thing it is done at.
   "activity.bus-pass-uk": "prop_ticket-machine",
   "activity.weekly-shop-uk": "prop_trolley-bay",
   "activity.chicken-shop": "bld_rye-lane-terrace_c",
@@ -137,7 +137,7 @@ export const TILE_TABLE: Readonly<Record<string, TileRow>> = {
   "activity.barber-uk": "bld_rye-lane-terrace_c",
   "activity.buy-clothes-uk": "bld_rye-lane-terrace_d",
   "activity.overtime": "prop_rota-board",
-  // Calgary, Dubai and Castel Volturno by hand (streets.md R-STREET-013 to R-STREET-015, place.md R-PLACE-012):
+  // Calgary, Dubai and Castel Volturno by hand (streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand, place:country-pass-covers-ways):
   // each act shows the thing it is done at; Naif's tailor and laundry stand on Deira's arcades.
   "activity.transit-pass-ca": "prop_ticket-machine",
   "activity.transit-pass-uae": "prop_nol-machine",

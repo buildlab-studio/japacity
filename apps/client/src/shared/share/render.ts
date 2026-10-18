@@ -1,5 +1,5 @@
 // A card drawn to a JPEG on the player's own device (docs/rules/share.md
-// R-SHARE-009 to R-SHARE-011): from the view's card alone, nothing fetched,
+// share:card-drawn-on-device, share:card-link-has-fixed-preview and share:card-never-stored): from the view's card alone, nothing fetched,
 // nothing sent anywhere until the player chooses to share it.
 import { content } from "@japacity/content";
 import type { Content } from "@japacity/sim";
@@ -36,7 +36,7 @@ export async function renderPreview(face: Parameters<typeof previewSteps>[0], tu
   return draw(size, (measure) => previewSteps(face, size, measure), tuning.previewMaxBytes);
 }
 
-/** The send-off's ticket stub, landscape, under the same `maxBytes` as every card (R-SHARE-009). */
+/** The send-off's ticket stub, landscape, under the same `maxBytes` as every card (share:card-drawn-on-device). */
 export async function renderStub(face: StubFace, tuning: ShareTuning = content.tuning.share): Promise<Encoded> {
   const size = stubSize(tuning);
   await fontsReady([Math.round((84 * size.width) / 1920), Math.round((56 * size.width) / 1920)]);

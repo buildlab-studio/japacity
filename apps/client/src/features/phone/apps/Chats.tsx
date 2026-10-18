@@ -1,8 +1,8 @@
-// Chats (docs/rules/world.md R-WORLD-019, R-WORLD-020): the family group as bubbles, the month's
+// Chats (world:phone-holds-what-phones-hold, world:nobody-picked-from-list): the family group as bubbles, the month's
 // people lines, and the partner's and a friend's messages when the view has a pair. Sending is a
-// preset phrase the pair rules allow (R-PAIR-010), picked from chips: nobody types. Once courting, a
+// preset phrase the pair rules allow (pair:preset-phrases-only), picked from chips: nobody types. Once courting, a
 // bond lives in its thread, whose head carries its stage and choices; the People row at the top opens
-// the slots of this life with the invite card (R-WORLD-020, person.md R-PEOPLE-010). Both are the people
+// the slots of this life with the invite card (world:nobody-picked-from-list, person:invite-fills-a-slot). Both are the people
 // feature's own screens, handed in by the shell.
 import type { ConversationReply, PairReply, SayReply, ServerRejection } from "@japacity/api";
 import { content } from "@japacity/content";
@@ -44,13 +44,13 @@ const PHRASES = conversationPhrases();
 
 /**
  * The people a chat is open with: a player on the other side of a pair, or a computer partner. A bond that ended keeps
- * its thread through the month it ended in, its head saying so, and then it goes (person.md R-PEOPLE-042).
+ * its thread through the month it ended in, its head saying so, and then it goes (person:computer-partner-drifts).
  */
 function chatPeople(view: ReturnType<typeof useView>): BondView[] {
   return view.people.bonds.filter((bond) => (bond.stage !== "ended" || endStillTold(view, bond)) && (bond.pair !== null || (bond.role === "partner" && bond.person !== null)));
 }
 
-/** A computer partner's answer once courted, the first message of their thread (R-PEOPLE-013), or null when content has none. */
+/** A computer partner's answer once courted, the first message of their thread (person:courting-opens-a-bond), or null when content has none. */
 function courtedLine(person: string | null): string | null {
   const key = `${person ?? ""}.courted`;
   return person !== null && hasWords(key) ? say(key) : null;
@@ -69,7 +69,7 @@ function NamePill({ name }: { name: string }) {
 
 /**
  * A message: who said it as a name pill with their mark, the words in a white
- * bubble; yours in navy. A pair's row carries its read state (pair.md R-PAIR-011): yours says read once read, theirs
+ * bubble; yours in navy. A pair's row carries its read state (pair:conversation-phrases-stored): yours says read once read, theirs
  * is marked new while unread.
  */
 function Bubble({ from, mine = false, courted = false, row, read, children }: { from: string | null; mine?: boolean; courted?: boolean; row?: string; read?: boolean; children: string }) {
@@ -94,7 +94,7 @@ function Bubble({ from, mine = false, courted = false, row, read, children }: { 
 
 const SAY_REFUSALS: readonly string[] = ["not-possible", "blocked", "too-many", "not-here", "wrong-place", "bad-fill"] satisfies readonly SayRefusal[];
 
-/** Why a phrase did not go, from the check the code names, and never about the other side's settings (pair.md R-PAIR-013). */
+/** Why a phrase did not go, from the check the code names, and never about the other side's settings (pair:phrase-checks-before-send). */
 function refusalWords(reply: ServerRejection): string {
   if (reply.code === "rate-limited") return reply.retryAfter === undefined ? say("ui.talk.failed.too-many") : sayCount("ui.online.wait", reply.retryAfter, { seconds: reply.retryAfter });
   if (SAY_REFUSALS.includes(reply.code) && hasWords(`ui.talk.failed.${reply.code}`)) return say(`ui.talk.failed.${reply.code}`);
@@ -138,7 +138,7 @@ function Family() {
 }
 
 /**
- * A computer partner: no messages of their own beyond their answer when courted, which opens the thread (R-PEOPLE-013);
+ * A computer partner: no messages of their own beyond their answer when courted, which opens the thread (person:courting-opens-a-bond);
  * the moments together arrive after it. A thread kept for the month a bond ended in shows the same, read only.
  */
 function Computer({ bond, name }: { bond: BondView; name: string }) {
@@ -165,7 +165,7 @@ function Computer({ bond, name }: { bond: BondView; name: string }) {
   );
 }
 
-/** A pair's thread (R-PAIR-010, R-PAIR-011): the server's rows, and a phrase from chips. */
+/** A pair's thread (pair:preset-phrases-only, pair:conversation-phrases-stored): the server's rows, and a phrase from chips. */
 function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: string }) {
   const view = useView();
   const nudges = useGame((state) => state.messageNudges);
@@ -212,7 +212,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
   useEffect(() => {
     last.current = rows.at(-1)?.id ?? null;
   }, [rows]);
-  // R-PAIR-011: the server nudged that a row is new; fetch from where the thread left off.
+  // pair:conversation-phrases-stored: the server nudged that a row is new; fetch from where the thread left off.
   useEffect(() => {
     if (nudges > 0) void fetchAfter(last.current);
   }, [nudges, fetchAfter]);
@@ -289,7 +289,7 @@ function Thread({ talk, pair, name }: { talk: PairTalk; pair: string; name: stri
           {refusal}
         </p>
       )}
-      {/* Block and report on the conversation itself, citing their messages (moderation.md R-MODERATION-003). */}
+      {/* Block and report on the conversation itself, citing their messages (moderation:report-from-every-surface). */}
       <div className="mt-3">
         <BlockReport who={{ pair, name }} cites={theirs.length > 0 ? { messages: theirs } : { pair }} surface="conversation" />
       </div>
@@ -305,7 +305,7 @@ export function Chats() {
   const people = chatPeople(view);
   const bond = people.find((candidate) => candidate.id === open) ?? null;
   const groupName = say("family.group.name");
-  // A thread or the People slots is an inner screen: the head's Back returns to the chats, the one way back (R-WORLD-018).
+  // A thread or the People slots is an inner screen: the head's Back returns to the chats, the one way back (world:phone-rises-over-scene).
   useInnerBack(open === null ? null : () => setOpen(null));
 
   if (open === SLOTS && screens !== null) {
@@ -323,7 +323,7 @@ export function Chats() {
       <div data-phone-app="chats">
         <h3 className="mb-3 flex items-center gap-2 text-[20px] font-bold">
           {name}
-          {/* The quiet mark a person the game plays carries on every screen (person.md R-PEOPLE-009, R-PEOPLE-054), and a stand-in's (R-PEOPLE-044). */}
+          {/* The quiet mark a person the game plays carries on every screen (person:computer-candidates-labelled, person:computer-mark-is-quiet), and a stand-in's (person:stand-in-acts-narrowly). */}
           {bond !== null && bond.label !== "player" ? (
             <span className="sticker-chip bg-sheet-2 text-text-2" style={{ rotate: "-2deg" }} data-person-mark={bond.label}>
               {say(`ui.people.mark.${bond.label}`)}

@@ -1,4 +1,4 @@
-// The phone in a real browser at phone size (docs/rules/world.md R-WORLD-018): it rises over the
+// The phone in a real browser at phone size (world:phone-rises-over-scene): it rises over the
 // world with the wallpaper and the apps, the Calendar first, grows and comes back, opens Bank, Chats, Japa and Papers,
 // and still fits a small phone of 360 by 640. With PREVIEW_DIR set, each step is saved as a picture.
 import { expect, test, type Page } from "@playwright/test";
@@ -9,7 +9,7 @@ import { shoot } from "./support/preview";
 
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
-/** Every motion of the interface has finished (each is under half a second: R-WORLD-023). */
+/** Every motion of the interface has finished (each is under half a second: world:motions-under-half-second). */
 async function settled(page: Page): Promise<void> {
   await page.waitForFunction(() => document.getAnimations().every((animation) => animation.playState !== "running"), null, { timeout: 5_000 });
 }
@@ -29,7 +29,7 @@ async function expectInside(page: Page): Promise<void> {
   }
 }
 
-test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and comes back, opens Bank, Chats, Japa and Papers, and fits 360 by 640", async ({ page }, info) => {
+test("[world:phone-rises-over-scene] [world:phone-holds-what-phones-hold] the phone rises over the world, grows and comes back, opens Bank, Chats, Japa and Papers, and fits 360 by 640", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "phone size only");
   test.setTimeout(150_000);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -44,7 +44,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
 
   await page.locator('[data-thumb="phone"]').click();
   await expect(page.locator("[data-phone]")).toBeVisible();
-  // The Calendar sits first among the apps since the month lives on the phone (R-WORLD-018), and the Market stands with
+  // The Calendar sits first among the apps since the month lives on the phone (world:phone-rises-over-scene), and the Market stands with
   // them for the things a life owns (decision 0019), so eleven.
   await expect(page.locator("[data-app]")).toHaveCount(11);
   await expect(page.locator('[data-app="market"]')).toHaveCount(1);
@@ -70,7 +70,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.waitForTimeout(400);
   await shoot(page, "phone-04-bank-card");
   await page.locator("[data-ask-main]").click();
-  // The phone's act is told in the corner over the handset, and goes after about seven seconds (R-WORLD-026).
+  // The phone's act is told in the corner over the handset, and goes after about seven seconds (world:street-talk-budget).
   await expect(page.locator("[data-phone] [data-told]")).toHaveText("Money changed");
   await expect(page.locator("[data-phone] [data-told]")).toHaveCount(0, { timeout: 9_000 });
   await page.getByRole("button", { name: "Back" }).click();
@@ -79,7 +79,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.locator('[data-chat-row="family"]').click();
   await expect(page.locator("[data-feed] li").first()).toBeVisible();
   await shoot(page, "phone-05-chats");
-  // One way back from the thread (R-WORLD-018): Back returns to the chats, then to the grid.
+  // One way back from the thread (world:phone-rises-over-scene): Back returns to the chats, then to the grid.
   await page.getByRole("button", { name: "Back" }).click();
   await expect(page.locator('[data-chat-row="family"]')).toBeVisible();
   await page.getByRole("button", { name: "Back" }).click();
@@ -87,7 +87,7 @@ test("[R-WORLD-018] [R-WORLD-019] the phone rises over the world, grows and come
   await page.locator('[data-app="japa"]').click();
   await expect(page.locator('[data-phone-app="japa"]')).toBeVisible();
   await shoot(page, "phone-06-japa");
-  // The Papers app (R-WORLD-019): Japa's papers step opens Papers, the box under the bed on the phone.
+  // The Papers app (world:phone-holds-what-phones-hold): Japa's papers step opens Papers, the box under the bed on the phone.
   await page.locator("[data-open-papers]").click();
   await expect(page.locator('[data-app-screen="papers"]')).toBeVisible();
   await expect(page.getByText("The box under the bed", { exact: true })).toBeVisible();

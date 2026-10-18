@@ -1,5 +1,5 @@
 // The life from sixteen after its handover. The view keeps no prologue once it
-// closes (R-PROLOGUE-006), so the path it built is read from the life as it stands: a degree from the
+// closes (prologue:closing-opens-home-charges), so the path it built is read from the life as it stands: a degree from the
 // level of schooling, a shop's capital from the money a trade could only hold after a settlement, or the
 // shop it opened with it.
 import { content } from "@japacity/content";
@@ -84,7 +84,7 @@ export interface OwnWay {
 const CLINIC_WAY: OwnWay = { step: "job", key: "clinic", place: "place.tb-clinic", thing: "jobs-notice", activity: NURSE_JOB };
 /** A trade's first step: asking around at the motor park in Ojuelegba, where the Gulf is heard. */
 const MOTOR_PARK_WAY: OwnWay = { step: "heard", key: "motor-park", place: "place.ojuelegba", thing: "motor-park", activity: "activity.ask-around" };
-/** A trade that heard of the Gulf (from the drivers at the send-off) looks it into by asking around at the same park (R-CHAPTER-009's reading; decision 0001). */
+/** A trade that heard of the Gulf (from the drivers at the send-off) looks it into by asking around at the same park (chapter:chapters-follow-lean-route's reading; decision 0001). */
 const MOTOR_PARK_LOOK: OwnWay = { ...MOTOR_PARK_WAY, step: "known" };
 
 /** A trader's job: her own shop, opened at her stall in the market with the settlement. */
@@ -122,7 +122,7 @@ export function ownWords(view: Life & Pick<PlayerView, "chapter">, key: string, 
 }
 
 /**
- * The current chapter's opening words for this life (R-WORLD-001): the scenario's own
+ * The current chapter's opening words for this life (world:world-fills-the-screen): the scenario's own
  * line when content has one, the prologue's by its path (a degree, a trade, a trade with the settlement), else the
  * chapter's line, so a trader's chapter never opens on the service year.
  */
@@ -135,7 +135,7 @@ export function openingKey(view: Life & Pick<PlayerView, "chapter">, has: (key: 
 
 /**
  * The way out a life's own profile fits, once heard of: a trade's is the Gulf (the motor park), and a degree's is the
- * first of the first meetup's fits whose bar it clears (R-GUIDE-016: care work for a nurse, the talent visa for a developer).
+ * first of the first meetup's fits whose bar it clears (guide:first-meetup-hears-fitting-route: care work for a nurse, the talent visa for a developer).
  * Null for a life whose way is the master's, the chapters' default, or whose own way is not yet heard of.
  */
 export function ownRouteOf(view: Life & Held): Id<"route"> | null {
@@ -149,7 +149,7 @@ const CARE_WORK = "route.uk-care";
 const TENURE = "tenure";
 
 /**
- * The months on the ward a chapter counts, and how many it needs (the care file's council rule, R-SPONSOR-005), from the
+ * The months on the ward a chapter counts, and how many it needs (the care file's council rule, route-gates:care-route-needs-verification), from the
  * chapter's own item; null for a chapter that counts none (Japa and the nudge count them).
  */
 export function wardMonths(view: Pick<PlayerView, "chapter"> & Partial<Pick<PlayerView, "job">>): { done: number; need: number } | null {
@@ -169,13 +169,13 @@ export function earlyStops(life: Life & Held & Partial<Pick<PlayerView, "plan" |
   return sixteenNurse(life) || careFile ? [CLINIC_WAY.place] : [];
 }
 
-/** The fish racks at Makoko, the child of the water's work at hand (R-ACTIVITY-017). */
+/** The fish racks at Makoko, the child of the water's work at hand (activity:fish-racks-at-makoko). */
 export const RACKS = "activity.job-fish-racks";
 /** The first chapter's words for the racks: the band's nudge and the handover's first step say the same. */
 export const RACKS_STEP = `${FIRST_CHAPTER}.item.job.nudge.racks`;
 
 /**
- * The racks are the work at hand (R-ACTIVITY-017): the first chapter, no job held, its job step undone and the racks on
+ * The racks are the work at hand (activity:fish-racks-at-makoko): the first chapter, no job held, its job step undone and the racks on
  * the board, as they are for a life in Makoko's room. Then the racks come before the life's own way out, at the
  * handover as on the band, and the motor park comes after.
  */

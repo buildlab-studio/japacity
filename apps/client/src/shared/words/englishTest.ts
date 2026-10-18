@@ -1,4 +1,4 @@
-// The English test's words (docs/rules/world.md R-WORLD-006, R-WORLD-008): the chance of the band the route
+// The English test's words (world:one-action-one-sheet, world:month-end-results-sheet): the chance of the band the route
 // needs before the fee is paid, and a result that says it fell short and what next. Beside jobs.ts, whose
 // chance words it shares, so the card and the results read one band of words.
 import { content } from "@japacity/content";
@@ -52,7 +52,7 @@ export function bandNeeded(view: BandView = {}): number {
   return Math.min(...(asked.length > 0 ? asked : Object.values(content.school).map((school) => school.minBand)));
 }
 
-/** The band a sitting gives at one draw of the noise, as the simulation sets it (R-DOCUMENT-005). */
+/** The band a sitting gives at one draw of the noise, as the simulation sets it (document:english-test-band-value). */
 function bandAt(english: number, numbers: Tuning["english"], steps: number): number {
   const raw = numbers.base + int.mulDiv(numbers.perHundred, english, ENGLISH_PER) + steps * numbers.bandStep;
   return int.clamp(int.roundDownTo(raw, numbers.bandStep), numbers.min, numbers.max);
@@ -98,7 +98,7 @@ export function testChance(view: { qualities: readonly { id: string; value: numb
 }
 
 /**
- * The English result as the results say it (R-WORLD-008): a band under the one the route needs says so
+ * The English result as the results say it (world:month-end-results-sheet): a band under the one the route needs says so
  * and what next, in content's words; a band that reaches it says it meets the route's band.
  */
 export function bandResultLine(line: ReportLine, needed: number = bandNeeded()): ReportLine {

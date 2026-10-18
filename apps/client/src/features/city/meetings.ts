@@ -1,7 +1,7 @@
-// The computer partners met in a place (docs/rules/world.md R-WORLD-020; person.md R-PEOPLE-009, R-PEOPLE-013): nobody
+// The computer partners met in a place (world:nobody-picked-from-list; person:computer-candidates-labelled, person:courting-opens-a-bond): nobody
 // is picked from a list. Each row of content's meetings (`person.meet.data.ts`) is a person standing at a thing of the
 // place it names, while the view's `candidates` lists them and, for one met only in December, while
-// `var.season-december` is 1. The thing's one act talks to them; its sheet sends `people/court` (R-CITY-001: the sheet
+// `var.season-december` is 1. The thing's one act talks to them; its sheet sends `people/court` (city:places-change-no-state: the sheet
 // sends it, never the scene). Pure: it reads the view's list, the season and the place files, and nothing else.
 import { meetingThings, partnerMeetings, text, type PartnerMeeting } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
@@ -11,7 +11,7 @@ import type { PlaceFile, Stage } from "../../shared/scene/placeFile";
 
 export const COURT = "people/court";
 export const DECEMBER: Id<"var"> = "var.season-december";
-/** The place the city opens on map once a bond is courting: one room dressed per person (R-WORLD-020, R-PEOPLE-014). */
+/** The place the city opens on map once a bond is courting: one room dressed per person (world:nobody-picked-from-list, person:time-together-is-an-act). */
 export const THEIR_ROOM = "place.their-room";
 
 /** The ids of the things a person stands as at a place. */
@@ -26,7 +26,7 @@ export interface Standing {
 }
 
 /**
- * Who stands in this place now (R-PEOPLE-009, R-PEOPLE-013): each meeting staged here whose person the view lists as a
+ * Who stands in this place now (person:computer-candidates-labelled, person:courting-opens-a-bond): each meeting staged here whose person the view lists as a
  * candidate, one met only in December only while it is December. Two meetings share a thing (after the service, a
  * friend of the family): one person stands at a thing at a time, and the one met only in December comes first, since a
  * December passes and the other stays.
@@ -71,15 +71,15 @@ export function withStanding(file: PlaceFile, standing: readonly Standing[]): Pl
   return { ...file, stage: next };
 }
 
-/** How many residents give up their places so the crowd and those standing at a thing stay within `cap` (R-WORLD-011). */
+/** How many residents give up their places so the crowd and those standing at a thing stay within `cap` (world:place-is-one-screen). */
 export function roomFor(crowd: number, standing: number, cap: number): number {
   return Math.max(0, Math.min(crowd, crowd + standing - cap));
 }
 
 /**
- * The crowd with `count` people fewer, so those standing at a thing take their places (R-WORLD-011): residents
+ * The crowd with `count` people fewer, so those standing at a thing take their places (world:place-is-one-screen): residents
  * with no part first, then players, the last first each time. A resident at a part goes only once no one else is
- * left to go, the highest spot first, so the scope's cap always holds (R-CITY-032).
+ * left to go, the highest spot first, so the scope's cap always holds (city:residents-fill-to-target).
  */
 export function makeRoom<T extends { kind: "resident" | "player"; part?: number }>(people: readonly T[], count: number): T[] {
   const filler = people.filter((shown) => shown.kind === "resident" && shown.part === undefined);
@@ -89,21 +89,21 @@ export function makeRoom<T extends { kind: "resident" | "player"; part?: number 
   return people.filter((shown) => !gone.has(shown));
 }
 
-/** The bonds courting now, as `people/court` counts them against `tuning.people.maxCourting` (R-PEOPLE-013). */
+/** The bonds courting now, as `people/court` counts them against `tuning.people.maxCourting` (person:courting-opens-a-bond). */
 function courtingNow(view: Pick<PlayerView, "people">): number {
   return view.people.bonds.filter((bond) => bond.stage === "courting").length;
 }
 
-/** The stages of a bond from courting on: their room is open (R-WORLD-020). */
+/** The stages of a bond from courting on: their room is open (world:nobody-picked-from-list). */
 const COURTED: ReadonlySet<string> = new Set(["courting", "partner", "married"]);
 
-/** True while a bond with a partner is courting or later: their room is on the map (R-WORLD-020). */
+/** True while a bond with a partner is courting or later: their room is on the map (world:nobody-picked-from-list). */
 export function roomOpen(view: Pick<PlayerView, "people">): boolean {
   return view.people.bonds.some((bond) => bond.role === "partner" && COURTED.has(bond.stage));
 }
 
 /**
- * Whose room their room is now (R-WORLD-020): the computer partner of a bond courting or later, the one whose home the
+ * Whose room their room is now (world:nobody-picked-from-list): the computer partner of a bond courting or later, the one whose home the
  * room sits near on the map when there is one (`roomNear`), else the first; null for none, or a bond with a player,
  * and the room is plain.
  */
@@ -114,9 +114,9 @@ export function roomPartner(view: Pick<PlayerView, "people">, meetings: readonly
 }
 
 /**
- * The people a dressing stands in a place as themselves, at no thing of its file: their room's partner (R-WORLD-020). Each
- * is a thing with their name and the `computer` mark (R-PEOPLE-054) and no act of its own, since the bond's choices
- * live in Chats and the visit on the room's chair (R-PEOPLE-014).
+ * The people a dressing stands in a place as themselves, at no thing of its file: their room's partner (world:nobody-picked-from-list). Each
+ * is a thing with their name and the `computer` mark (person:computer-mark-is-quiet) and no act of its own, since the bond's choices
+ * live in Chats and the visit on the room's chair (person:time-together-is-an-act).
  */
 export function standingAsThemselves(stage: Pick<Stage, "standing" | "things">): Thing[] {
   const declared = new Set((stage.things ?? []).map((thing) => thing.id));
@@ -140,36 +140,36 @@ export interface TalkWords {
   full: (count: number) => string;
   notYet: string;
   computer: string;
-  /** The cost of seeing someone new beside a partner (R-PEOPLE-041), given the partner's person id (null for a friend) and the new name. */
+  /** The cost of seeing someone new beside a partner (person:gossip-when-two-timing), given the partner's person id (null for a friend) and the new name. */
   partnered: (partner: string | null, name: string) => string;
 }
 
-/** The bonds together now: partner or married, where gossip about anyone else courted follows (R-PEOPLE-018, R-PEOPLE-041). */
+/** The bonds together now: partner or married, where gossip about anyone else courted follows (person:one-partner-at-a-time, person:gossip-when-two-timing). */
 const TOGETHER: ReadonlySet<string> = new Set(["partner", "married"]);
 
-/** The bond at partner or married, which hears of anyone else courted (R-PEOPLE-041), or null. */
+/** The bond at partner or married, which hears of anyone else courted (person:gossip-when-two-timing), or null. */
 function togetherBond(view: Pick<PlayerView, "people">): PlayerView["people"]["bonds"][number] | null {
   return view.people.bonds.find((bond) => bond.role === "partner" && TOGETHER.has(bond.stage)) ?? null;
 }
 
 /**
- * The talk sheet (R-WORLD-006): a card marked `computer`, with the person's meeting line in their own voice and one button, court them,
+ * The talk sheet (world:one-action-one-sheet): a card marked `computer`, with the person's meeting line in their own voice and one button, court them,
  * which sends `people/court` with the person. While `maxCourting` bonds already court, the button is shut, says
- * "Not yet", and the reason stands once on the card (R-PEOPLE-013). Beside a partner, the button's second line says
- * what it costs if word gets out (R-PEOPLE-041).
+ * "Not yet", and the reason stands once on the card (person:courting-opens-a-bond). Beside a partner, the button's second line says
+ * what it costs if word gets out (person:gossip-when-two-timing).
  */
 export function talkAsk(person: string, view: Pick<PlayerView, "people">, maxCourting: number, said: TalkWords, act: { send: (person: string) => void; dismiss: () => void }): Ask {
   const name = said.name(person);
   const courting = courtingNow(view);
   const blocked = courting >= maxCourting ? said.full(courting) : null;
-  // R-PEOPLE-041: beside a partner, seeing someone new is talked about; the button's second line says so before the tap.
+  // person:gossip-when-two-timing: beside a partner, seeing someone new is talked about; the button's second line says so before the tap.
   // Courting beside courting costs nothing in the rules, so then the card says nothing more.
   const together = togetherBond(view);
   const note = blocked === null && together !== null ? said.partnered(together.person, name) : null;
   return {
     form: "card",
     icon: "message-circle",
-    // The quiet mark the card carries (R-PEOPLE-054): who it is, over their name.
+    // The quiet mark the card carries (person:computer-mark-is-quiet): who it is, over their name.
     who: said.computer,
     title: name,
     line: text[`${person}.met`] ?? "",
@@ -184,9 +184,9 @@ export function talkAsk(person: string, view: Pick<PlayerView, "people">, maxCou
 }
 
 /**
- * What the corner tells once a computer partner is courted (R-PEOPLE-013): their
+ * What the corner tells once a computer partner is courted (person:courting-opens-a-bond): their
  * answer in their own words, `<person>.courted`, said as theirs ("Tobi: ..."), then the one plain line that they live
- * in the game (R-PEOPLE-054). Their answer is left out where content has none.
+ * in the game (person:computer-mark-is-quiet). Their answer is left out where content has none.
  */
 export function courtedTold(person: string, said: { name: (person: string) => string; answer: (person: string) => string | null; said: (name: string, line: string) => string; chosen: (name: string) => string }): string[] {
   const name = said.name(person);

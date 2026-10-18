@@ -1,4 +1,4 @@
-// The app's error boundary (analytics.md R-ANALYTICS-002, 003): a screen that throws while it
+// The app's error boundary (analytics:client-sends-interface-counts, analytics:client-batches-counters): a screen that throws while it
 // draws is replaced by a plain line, Reload, and Tell us. Each catch is counted once as `client/error` keyed `render`,
 // and said in the console with the error's name, message and component stack and the build it ran on, so a broken
 // screen says why to whoever looks. Nothing of the error is counted or sent; Tell us opens the feedback box with the
@@ -24,7 +24,7 @@ interface BoundaryState {
   broken: string | null;
 }
 
-/** R-ANALYTICS-002: the one kind of `client/error` a render error counts as. */
+/** analytics:client-sends-interface-counts: the one kind of `client/error` a render error counts as. */
 const RENDER = "render";
 
 /** The screen feedback says it was sent from: the boundary stands above every screen, so it names itself. */
@@ -37,7 +37,7 @@ export function nameOf(error: unknown): string {
   return plain === "" ? "Error" : plain;
 }
 
-/** The build the page says it is (`<meta name="japacity-build">`, R-SERVER-038), or "unknown". */
+/** The build the page says it is (`<meta name="japacity-build">`, server:production-and-staging), or "unknown". */
 function stampOf(): string {
   return typeof document === "undefined" ? "unknown" : (buildOf(document) ?? "unknown");
 }
@@ -57,7 +57,7 @@ export class CountedBoundary extends Component<BoundaryProps, BoundaryState> {
 
   override componentDidCatch(error: unknown, info: ErrorInfo): void {
     counting().count("client/error", RENDER);
-    // The error itself, so the console prints its name and message (never read here: R-ENGINE-015), then where it broke.
+    // The error itself, so the console prints its name and message (never read here: engine:browser-authority-for-dev-only), then where it broke.
     console.error(brokenLine(error, stampOf()), error, info.componentStack ?? "");
   }
 

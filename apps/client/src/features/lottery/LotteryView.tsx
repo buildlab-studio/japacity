@@ -1,10 +1,9 @@
-// The Friday draw's kiosk, online only (docs/rules/lottery.md R-LOTTERY-003,
-// 006, 012, 023): the jackpot standing and whether it rolled over, the odds in
+// The Friday draw's kiosk, online only (lottery:ticket-buying-capped, lottery:view-shows-draw-state, lottery:jackpot-rolls-over, lottery:screen-states-odds-plainly): the jackpot standing and whether it rolled over, the odds in
 // plain words, the price and the cap, the character's tickets, the close as a
 // real time counting down, the fingerprint and the public round, and the last
 // draw with a way to check it.
 // Offline `World.lottery` is null, the view's `lottery` with it, and the
-// luck kiosk among the month's activities plays instead (R-LOTTERY-001).
+// luck kiosk among the month's activities plays instead (lottery:draw-runs-online-only).
 // The world's street kiosk's sheet (KioskSheet.tsx) is built from the pieces
 // exported here.
 import { Minus, Plus, ShieldCheck, Ticket } from "lucide-react";
@@ -44,7 +43,7 @@ export function useClock(): { tick: number; nextTickAt: number } | null {
   return world === null ? null : { tick: world.tick, nextTickAt: world.nextTickAt };
 }
 
-/** R-LOTTERY-002, R-LOTTERY-006: the close as a real time, counting down. */
+/** lottery:draw-sells-between-ticks, lottery:view-shows-draw-state: the close as a real time, counting down. */
 export function Close({ lottery }: { lottery: Lottery }) {
   const at = closesAt(lottery, useClock());
   const now = useNow(at !== null);
@@ -58,14 +57,14 @@ export function Close({ lottery }: { lottery: Lottery }) {
   );
 }
 
-/** How the jackpot grows while nobody wins it, and its cap (R-LOTTERY-012); nothing when it does not grow. */
+/** How the jackpot grows while nobody wins it, and its cap (lottery:jackpot-rolls-over); nothing when it does not grow. */
 export function Grows({ lottery }: { lottery: Lottery }) {
   const { odds } = lottery;
   if (odds.jackpotGrowthBp <= 0) return null;
   return <p className="text-sm text-text-2">{say("ui.lottery.grows", { share: formatBp(odds.jackpotGrowthBp), cap: formatMoney(odds.jackpotCap, "NGN") })}</p>;
 }
 
-/** R-LOTTERY-012, R-LOTTERY-023: the jackpot standing, and whether it rolled over from the last draw or starts again; with how it grows unless `grows` is false. */
+/** lottery:jackpot-rolls-over, lottery:screen-states-odds-plainly: the jackpot standing, and whether it rolled over from the last draw or starts again; with how it grows unless `grows` is false. */
 export function Jackpot({ lottery, grows = true }: { lottery: Lottery; grows?: boolean }) {
   const since = lottery.rolledOver ? say("ui.lottery.rolled") : lottery.last === null ? null : say("ui.lottery.restarted");
   return (
@@ -78,7 +77,7 @@ export function Jackpot({ lottery, grows = true }: { lottery: Lottery; grows?: b
   );
 }
 
-/** R-LOTTERY-023: the odds as plain chances, with how a shared jackpot and a forced win go. */
+/** lottery:screen-states-odds-plainly: the odds as plain chances, with how a shared jackpot and a forced win go. */
 export function Odds({ lottery }: { lottery: Lottery }) {
   const weeks = lottery.odds.forcedWinWeeks;
   return (
@@ -95,7 +94,7 @@ export function Odds({ lottery }: { lottery: Lottery }) {
   );
 }
 
-/** The character's tickets in the draw on sale, one box for each the cap allows, and their numbers once the draw has closed (R-LOTTERY-005, 006). */
+/** The character's tickets in the draw on sale, one box for each the cap allows, and their numbers once the draw has closed (lottery:tickets-numbered-by-commit, lottery:view-shows-draw-state). */
 export function Held({ lottery }: { lottery: Lottery }) {
   return (
     <>
@@ -176,7 +175,7 @@ function Tickets({ lottery }: { lottery: Lottery }) {
   );
 }
 
-/** R-LOTTERY-007: the draw's fingerprint in full, the public round when the world names it, and why it is published. */
+/** lottery:fingerprint-commits-secret: the draw's fingerprint in full, the public round when the world names it, and why it is published. */
 export function SealDetails({ lottery }: { lottery: Lottery }) {
   const world = useGame((state) => state.world?.world.lottery ?? null);
   const round = world !== null && world.draw === lottery.draw ? world.beaconRound : null;

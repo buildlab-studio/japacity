@@ -1,8 +1,8 @@
-// The rise (japacity.md R-JAPACITY-003): every rise of the figure
+// The rise (japacity:best-open-route-is-japacity): every rise of the figure
 // flies up as "+9" in the band's colours toward the band and fades, while the bag by the door grows.
 // One at a time, never a queue: a new rise takes the place of one still flying. A fall shows nothing
 // but the bag shrinking. While a sheet covers the world the figure waits, so the player sees the rise
-// and the bag's growth together once it closes. Each motion is under half a second (R-WORLD-023): it
+// and the bag's growth together once it closes. Each motion is under half a second (world:motions-under-half-second): it
 // pops in, holds still, then flies; reduced motion leaves the fade.
 import { useEffect, useRef, useState } from "react";
 

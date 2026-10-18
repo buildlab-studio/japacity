@@ -223,7 +223,7 @@ export function decemberAbroadGame(): Game {
   return game;
 }
 
-/** R-CAR-007's figures as the sim's view would carry them for this car item, so fixtures and tests agree with the engine. */
+/** car:view-shows-car-terms's figures as the sim's view would carry them for this car item, so fixtures and tests agree with the engine. */
 export function carViewOf(owed: Omit<PlayerView["obligations"][number], "car">, month: number): NonNullable<PlayerView["obligations"][number]["car"]> {
   const entry = content.obligation[owed.entry];
   const car = entry?.car;
@@ -318,7 +318,7 @@ export function newGame(scenario: Id<"scenario"> = "scenario.ada", seed?: string
 }
 
 /**
- * The content with the living at home charged whole as the month turns, as it was before decision 0013 (R-HOME-012
+ * The content with the living at home charged whole as the month turns, as it was before decision 0013 (home:living-by-hand
  * leaves it all to be lived by hand). For the screens that tell such a charge, its relief or its miss, which still
  * stand for whatever is charged; the simulation's own relief tests charge it the same way.
  */
@@ -377,7 +377,7 @@ export function gameAuthority(game: Game): Authority & { sent: Command[] } {
 }
 
 /**
- * An account as `GET /api/account` answers its owner (R-ACCOUNT-021, R-ACCOUNT-027): a kept account with its email as
+ * An account as `GET /api/account` answers its owner (account:guest-and-secured-states, account:guest-reminded-to-secure): a kept account with its email as
  * the way back in, or a guest with none. A test overrides what it is about.
  */
 export function accountView(over: Partial<AccountView> = {}): AccountView {

@@ -1,4 +1,4 @@
-// The plan follows the grant (docs/rules/chapter.md R-CHAPTER-009): once the skilled worker's visa is
+// The plan follows the grant (chapter:chapters-follow-lean-route): once the skilled worker's visa is
 // granted, Japa's "Your plan" names it and the Papers app counts toward it, though the route has no file of its own,
 // and nothing on either screen falls back to a raw words key.
 import { content } from "@japacity/content";
@@ -30,7 +30,7 @@ function grantedSkilled(): PlayerView {
 }
 
 describe("the plan once a route with no file is granted", () => {
-  test("[R-CHAPTER-009] given the skilled worker's visa granted to a life that leaned to the master's, when Japa opens, then Your plan names the skilled route with no file line, and no raw words key shows", async () => {
+  test("[chapter:chapters-follow-lean-route] given the skilled worker's visa granted to a life that leaned to the master's, when Japa opens, then Your plan names the skilled route with no file line, and no raw words key shows", async () => {
     const view = grantedSkilled();
     expect(view.plan.route).toBe(SKILLED);
     expect(hasWords(`${SKILLED}.file`)).toBe(false);
@@ -43,7 +43,7 @@ describe("the plan once a route with no file is granted", () => {
     expect(document.querySelector('[data-phone-app="japa"]')?.textContent).not.toMatch(RAW_KEY);
   });
 
-  test("[R-CHAPTER-009] given the same life, when the Papers app opens, then a paper counts toward the skilled route first and no raw words key shows", async () => {
+  test("[chapter:chapters-follow-lean-route] given the same life, when the Papers app opens, then a paper counts toward the skilled route first and no raw words key shows", async () => {
     await openJapa(grantedSkilled());
     fireEvent.click(document.querySelector<HTMLElement>("[data-open-papers]")!);
     const papers = document.querySelector("[data-papers]");

@@ -42,7 +42,7 @@ function shippedStages(): { file: PlaceFile; stage: NonNullable<PlaceFile["stage
 }
 
 describe("the sample's size and band", () => {
-  test("[R-CITY-014] given every place, when its sample is drawn in each mode, then it is at most the mode's figure and the place's own", () => {
+  test("[city:crowd-sample-capped] given every place, when its sample is drawn in each mode, then it is at most the mode's figure and the place's own", () => {
     for (const place of places) {
       expect(sampleCrowd(place, pool, THURSDAY, "low", city).people.length).toBe(Math.min(place.crowd.target, city.crowdLow, place.crowd.low));
       expect(sampleCrowd(place, pool, THURSDAY, "high", city).people.length).toBe(Math.min(place.crowd.target, city.crowdHigh, place.crowd.high));
@@ -52,7 +52,7 @@ describe("the sample's size and band", () => {
     expect(crowdSize(wide, "high", city)).toBe(city.crowdHigh);
   });
 
-  test("[R-CITY-014] given a sample against the place's target, when it is shown, then only a band is said: packed at the target, busy from half of it, quiet under half", () => {
+  test("[city:crowd-sample-capped] given a sample against the place's target, when it is shown, then only a band is said: packed at the target, busy from half of it, quiet under half", () => {
     const target = hub.crowd.target;
     const half = Math.ceil(target / 2);
     expect(bandOf(target + 1, target)).toBe("packed");
@@ -63,7 +63,7 @@ describe("the sample's size and band", () => {
     expect(bandOf(0, target)).toBe("quiet");
   });
 
-  test("[R-CITY-014] given the hub in both modes, when the band is read, then the fuller high mode never says less than the low mode", () => {
+  test("[city:crowd-sample-capped] given the hub in both modes, when the band is read, then the fuller high mode never says less than the low mode", () => {
     const rank = { quiet: 0, busy: 1, packed: 2 } as const;
     const low = sampleCrowd(hub, pool, THURSDAY, "low", city);
     const high = sampleCrowd(hub, pool, THURSDAY, "high", city);
@@ -78,24 +78,24 @@ describe("players in the sample", () => {
   const size = crowdSize(hub, "high", city);
   const others = Array.from({ length: size + 2 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
 
-  test("[R-CITY-015] [R-CITY-032] given more players present than the sample has slots and no part to keep, when the sample is drawn, then every slot is a player and its size stays the place's", () => {
+  test("[city:players-fill-the-crowd] [city:residents-fill-to-target] given more players present than the sample has slots and no part to keep, when the sample is drawn, then every slot is a player and its size stays the place's", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others);
     expect(sample.people.filter((shown) => shown.kind === "player")).toHaveLength(size);
     expect(sample.people).toHaveLength(size);
   });
 
-  test("[R-CITY-015] given players in the presence sample, when the sample is drawn, then every player carries the display name the server sent, and no resident has a tag", () => {
+  test("[city:players-fill-the-crowd] given players in the presence sample, when the sample is drawn, then every player carries the display name the server sent, and no resident has a tag", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, others.slice(0, 3));
     const players = sample.people.filter((shown) => shown.kind === "player");
     expect(players.map((shown) => shown.tag).reverse()).toEqual(others.slice(0, 3).map((other) => other.name));
     expect(sample.people.filter((shown) => shown.kind === "resident" && shown.tag !== null)).toEqual([]);
   });
 
-  test("[R-CITY-015] given no presence, when the sample is drawn, then everyone in it is a computer person", () => {
+  test("[city:players-fill-the-crowd] given no presence, when the sample is drawn, then everyone in it is a computer person", () => {
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city).people.every((shown) => shown.kind === "resident")).toBe(true);
   });
 
-  test("[R-CITY-015] given players present at Makoko, a public neighbourhood scene with a home on its walk, when its sample is drawn, then players show there as at any public place", () => {
+  test("[city:players-fill-the-crowd] given players present at Makoko, a public neighbourhood scene with a home on its walk, when its sample is drawn, then players show there as at any public place", () => {
     const makoko = content.place["place.makoko"];
     if (makoko === undefined) throw new Error("Makoko is not in content");
     expect(PRIVATE_PLACES.has(makoko.id)).toBe(false);
@@ -105,7 +105,7 @@ describe("players in the sample", () => {
     }
   });
 
-  test("[R-CITY-015] given players here now and seen today, when a home's sample is drawn (each home a life lives in, the room abroad, their room), then no player is in it", () => {
+  test("[city:players-fill-the-crowd] given players here now and seen today, when a home's sample is drawn (each home a life lives in, the room abroad, their room), then no player is in it", () => {
     expect([...PRIVATE_PLACES].sort()).toEqual(["place.compound-room", "place.family-house", "place.hostel-room", "place.the-room", "place.their-room"]);
     for (const id of PRIVATE_PLACES) {
       const home = content.place[id];
@@ -124,7 +124,7 @@ describe("players seen today", () => {
   const live = [{ look: "chr_tunde", name: "here1" }];
   const today = Array.from({ length: size + 1 }, (_, index) => ({ look: "chr_tunde", name: `today${String(index)}` }));
 
-  test("[R-CITY-036] given a player here now and players seen today, when the sample is drawn, then those seen today stand in the slots after the live one, tagged with the server's names", () => {
+  test("[city:players-shown-present-not-tracked] given a player here now and players seen today, when the sample is drawn, then those seen today stand in the slots after the live one, tagged with the server's names", () => {
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, live, today);
     const players = sample.people.filter((shown) => shown.kind === "player");
 
@@ -132,7 +132,7 @@ describe("players seen today", () => {
     expect(sample.people).toHaveLength(size);
   });
 
-  test("[R-CITY-036] [R-CITY-015] given live players filling every slot, when the sample is drawn, then no one seen today is shown", () => {
+  test("[city:players-shown-present-not-tracked] [city:players-fill-the-crowd] given live players filling every slot, when the sample is drawn, then no one seen today is shown", () => {
     const full = Array.from({ length: size }, (_, index) => ({ look: "chr_tunde", name: `here${String(index)}` }));
     const sample = sampleCrowd(hub, pool, THURSDAY, "high", city, full, today);
 
@@ -147,7 +147,7 @@ describe("the dress mix", () => {
     return { kept: men.length, of: people.length };
   };
 
-  test("[R-CITY-016] given a place's traditional share, when a year of samples is drawn, then the share in traditional cloth is near it", () => {
+  test("[city:dress-mix-by-place] given a place's traditional share, when a year of samples is drawn, then the share in traditional cloth is near it", () => {
     for (const traditionalBp of [2000, 6000]) {
       const place = { ...hub, traditionalBp };
       const people = YEAR.flatMap((date) => Array.from({ length: 4 }, (_, slot) => resident(place, pool, date, slot, { ...city, fridayBp: 0, saturdayBp: 0 })));
@@ -156,7 +156,7 @@ describe("the dress mix", () => {
     }
   });
 
-  test("[R-CITY-016] given a Friday, when fridayBp is all or none, then every man or no one wears jalamia; on a Thursday no one does", () => {
+  test("[city:dress-mix-by-place] given a Friday, when fridayBp is all or none, then every man or no one wears jalamia; on a Thursday no one does", () => {
     const jalamia = (file: string): boolean => ROSTER.some((person) => person.file === file && person.wear === "jalamia");
     const all = { ...city, fridayBp: 10000 };
     const men = Array.from({ length: 64 }, (_, slot) => resident(hub, pool, FRIDAY, slot, all));
@@ -169,7 +169,7 @@ describe("the dress mix", () => {
     expect(weekday(FRIDAY)).toBe(5);
   });
 
-  test("[R-CITY-016] given a Saturday, when the place has occasion true or false, then saturdayBp of the sample wears occasion dress only where it is true", () => {
+  test("[city:dress-mix-by-place] given a Saturday, when the place has occasion true or false, then saturdayBp of the sample wears occasion dress only where it is true", () => {
     const occasion = (file: string): boolean => ROSTER.some((person) => person.file === file && person.wear === "occasion");
     const all = { ...city, saturdayBp: 10000 };
     const party = { ...hub, occasion: true };
@@ -181,7 +181,7 @@ describe("the dress mix", () => {
 });
 
 describe("the same people on the same day", () => {
-  test("[R-CITY-017] given the same place, date and slot, when the sample is drawn twice, then it is the same, and Math.random is never called", () => {
+  test("[city:sample-seeded-by-date] given the same place, date and slot, when the sample is drawn twice, then it is the same, and Math.random is never called", () => {
     const random = vi.spyOn(Math, "random");
     const first = sampleCrowd(hub, pool, THURSDAY, "high", city);
     const second = sampleCrowd(hub, pool, THURSDAY, "high", city);
@@ -189,7 +189,7 @@ describe("the same people on the same day", () => {
     expect(random).not.toHaveBeenCalled();
   });
 
-  test("[R-CITY-017] given another day or another place, when the sample is drawn, then the people change", () => {
+  test("[city:sample-seeded-by-date] given another day or another place, when the sample is drawn, then the people change", () => {
     const files = (date: string, place: PlaceEntry = hub): string[] => sampleCrowd(place, pool, date, "high", city).people.map((shown) => shown.person.file);
     expect(files(FRIDAY)).not.toEqual(files(THURSDAY));
     const other = content.place["place.oshodi"];
@@ -201,7 +201,7 @@ describe("the same people on the same day", () => {
 });
 
 describe("the roster", () => {
-  test("[R-CITY-016] given every person the crowd may show, when the roster is read against the people's data, then each is shipped and a man or a woman as built", async () => {
+  test("[city:dress-mix-by-place] given every person the crowd may show, when the roster is read against the people's data, then each is shipped and a man or a woman as built", async () => {
     const { ALL_PEOPLE } = await import("@japacity/assets-src/people/people.data");
     const wrong = ROSTER.filter((person) => !ALL_PEOPLE.some((built) => `shared/chr/${built.name}.glb` === person.file && built.body.startsWith(person.sex)));
     expect(wrong.map((person) => person.file)).toEqual([]);
@@ -210,12 +210,12 @@ describe("the roster", () => {
 });
 
 describe("the target headcount", () => {
-  test("[R-CITY-032] given the hub's target, when its sample is drawn, then it shows min(target, the mode's figure) in each mode", () => {
+  test("[city:residents-fill-to-target] given the hub's target, when its sample is drawn, then it shows min(target, the mode's figure) in each mode", () => {
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city).people).toHaveLength(Math.min(hub.crowd.target, city.crowdHigh));
     expect(sampleCrowd(hub, pool, THURSDAY, "low", city).people).toHaveLength(Math.min(hub.crowd.target, city.crowdLow));
   });
 
-  test("[R-CITY-032] given a target at, under and over the mode's figure, when the size is read, then the smaller of the two is shown", () => {
+  test("[city:residents-fill-to-target] given a target at, under and over the mode's figure, when the size is read, then the smaller of the two is shown", () => {
     for (const target of [city.crowdLow - 1, city.crowdLow, city.crowdLow + 1, city.crowdHigh, city.crowdHigh + 1]) {
       const place = { ...hub, crowd: { low: city.crowdLow, high: city.crowdHigh, target } };
       expect(crowdSize(place, "low", city)).toBe(Math.min(target, city.crowdLow));
@@ -223,7 +223,7 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] [R-CITY-015] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot, each staff seat among them, keeps the resident it has with no one online and players take every other slot but in a home, where residents keep them all", () => {
+  test("[city:residents-fill-to-target] [city:players-fill-the-crowd] given every shipped place and more players present than its residents' slots, when the crowd stands, then every part spot, each staff seat among them, keeps the resident it has with no one online and players take every other slot but in a home, where residents keep them all", () => {
     let parts = 0;
     let staff = 0;
     for (const { file, stage } of shippedStages()) {
@@ -256,7 +256,7 @@ describe("the target headcount", () => {
     expect(staff).toBeGreaterThan(0);
   });
 
-  test("[R-CITY-032] given the English test centre and more players present than its slots, when the crowd stands, then the invigilator keeps her desk and players sit at every candidate's desk shown", () => {
+  test("[city:residents-fill-to-target] given the English test centre and more players present than its slots, when the crowd stands, then the invigilator keeps her desk and players sit at every candidate's desk shown", () => {
     const stage = (testCentreFile as unknown as PlaceFile).stage;
     const entry = content.place["place.english-test-centre"];
     if (stage === undefined || entry === undefined) throw new Error("The English test centre is missing");
@@ -275,7 +275,7 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given every shipped place in each mode, alone and with more players present than its slots, when its crowd stands, then every staff seat, every spot kept for a man or a woman and every role's spot is drawn with a resident, and never more spots than the mode's count", () => {
+  test("[city:residents-fill-to-target] given every shipped place in each mode, alone and with more players present than its slots, when its crowd stands, then every staff seat, every spot kept for a man or a woman and every role's spot is drawn with a resident, and never more spots than the mode's count", () => {
     const many = Array.from({ length: city.crowdHigh }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
     let drawnParts = 0;
     for (const { file, stage } of shippedStages()) {
@@ -301,7 +301,7 @@ describe("the target headcount", () => {
     expect(drawnParts).toBeGreaterThan(0);
   });
 
-  test("[R-CITY-032] given the English test centre and the ward in the low mode, when the crowd stands, then the invigilator's desk and both nurses' seats at the station are drawn", () => {
+  test("[city:residents-fill-to-target] given the English test centre and the ward in the low mode, when the crowd stands, then the invigilator's desk and both nurses' seats at the station are drawn", () => {
     for (const name of ["english-test-centre", "ward-uk"]) {
       const found = shippedStages().find(({ file }) => file.place === `place.${name}`);
       if (found === undefined) throw new Error(`${name} is missing`);
@@ -317,7 +317,7 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given the office in London and in Calgary and more players present than its slots, when the crowd stands, then the manager in the glass office and the colleague at the tea point keep their seats and players sit at the desks", () => {
+  test("[city:residents-fill-to-target] given the office in London and in Calgary and more players present than its slots, when the crowd stands, then the manager in the glass office and the colleague at the tea point keep their seats and players sit at the desks", () => {
     for (const name of ["office-uk", "office-ca"]) {
       const found = shippedStages().find(({ file }) => file.place === `place.${name}`);
       const entry = content.place[`place.${name}`];
@@ -341,7 +341,7 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given every shipped place and no one online, when its crowd stands with its parts marked, then everyone stands where they stood unmarked", () => {
+  test("[city:residents-fill-to-target] given every shipped place and no one online, when its crowd stands with its parts marked, then everyone stands where they stood unmarked", () => {
     for (const { file, stage } of shippedStages()) {
       const kept = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
       const figure = Math.min(stage.people.length, city.crowdHigh);
@@ -354,12 +354,12 @@ describe("the target headcount", () => {
     }
   });
 
-  test("[R-CITY-032] given a place's spots, when the parts are read, then a spot named for a role, kept for a sex or marked staff is one, and a seat only posed or a crossing is not", () => {
+  test("[city:residents-fill-to-target] given a place's spots, when the parts are read, then a spot named for a role, kept for a sex or marked staff is one, and a seat only posed or a crossing is not", () => {
     expect([...partSpots({ prefer: { trader: [0], hawker: [4] }, acts: [{ spot: 1, pose: "sit" }, { spot: 2, to: [0, 1] }, { spot: 3, sex: "f" }, { spot: 5, pose: "sit", staff: true }] })].sort()).toEqual([0, 3, 4, 5]);
     expect(partSpots({}).size).toBe(0);
   });
 
-  test("[R-CITY-014] given players taking slots of the sample, when the band is read, then it follows the sample's whole count against the target, players included", () => {
+  test("[city:crowd-sample-capped] given players taking slots of the sample, when the band is read, then it follows the sample's whole count against the target, players included", () => {
     const others = Array.from({ length: 4 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
     expect(sampleCrowd(hub, pool, THURSDAY, "high", city, others).band).toBe(bandOf(crowdSize(hub, "high", city), hub.crowd.target));
     expect(sampleCrowd(hub, pool, THURSDAY, "low", city, others).band).toBe(bandOf(crowdSize(hub, "low", city), hub.crowd.target));
@@ -369,7 +369,7 @@ describe("the target headcount", () => {
 describe("one sample, many outfits", () => {
   const plain = { ...city, fridayBp: 0, saturdayBp: 0 };
 
-  test("[R-CITY-016] given the hub's traditional share, when a hundred days of samples are drawn in each mode, then every sample holds that share to the nearest person", () => {
+  test("[city:dress-mix-by-place] given the hub's traditional share, when a hundred days of samples are drawn in each mode, then every sample holds that share to the nearest person", () => {
     for (const mode of ["low", "high"] as const) {
       let traditional = 0;
       let all = 0;
@@ -388,7 +388,7 @@ describe("one sample, many outfits", () => {
     expect(traditionalCount(8, 10000)).toBe(8);
   });
 
-  test("[R-CITY-016] given a hundred days of the hub, Fridays and Saturdays included, when each sample is drawn, then no two people in it wear one outfit", () => {
+  test("[city:dress-mix-by-place] given a hundred days of the hub, Fridays and Saturdays included, when each sample is drawn, then no two people in it wear one outfit", () => {
     for (const date of HUNDRED) {
       for (const mode of ["low", "high"] as const) {
         const files = sampleCrowd(hub, pool, date, mode, city).people.map((shown) => shown.person.file);
@@ -397,7 +397,7 @@ describe("one sample, many outfits", () => {
     }
   });
 
-  test("[R-CITY-016] given every person the crowd may show, when their clothes are read from the people's data, then no two wear the same outfit", async () => {
+  test("[city:dress-mix-by-place] given every person the crowd may show, when their clothes are read from the people's data, then no two wear the same outfit", async () => {
     const { ALL_PEOPLE } = await import("@japacity/assets-src/people/people.data");
     const outfit = (file: string): string => {
       const built = ALL_PEOPLE.find((spec) => `shared/chr/${spec.name}.glb` === file);
@@ -407,7 +407,7 @@ describe("one sample, many outfits", () => {
     expect(new Set(outfits).size).toBe(outfits.length);
   });
 
-  test("[R-CITY-016] given a pool smaller than the sample, when it is drawn, then everyone is used once before anyone is shown twice", () => {
+  test("[city:dress-mix-by-place] given a pool smaller than the sample, when it is drawn, then everyone is used once before anyone is shown twice", () => {
     const small = pool.slice(0, 5);
     const people = residents(hub, small, THURSDAY, 8, plain);
     expect(new Set(people.slice(0, 5).map((person) => person.file)).size).toBe(5);
@@ -421,7 +421,7 @@ describe("where the crowd stands", () => {
       return { slot, person, kind: "resident", tag: null };
     });
 
-  test("[R-CITY-014] given spots kept for a hawker and a trader, when the sample stands, then the hawker and the trader take them and everyone else fills the first spots in slot order", () => {
+  test("[city:crowd-sample-capped] given spots kept for a hawker and a trader, when the sample stands, then the hawker and the trader take them and everyone else fills the first spots in slot order", () => {
     const people = shown(["chr_tunde", "chr_hawker_a", "chr_ada", "chr_iya"]);
     const spots = ["a", "b", "c", "d", "e"];
     const placed = placeCrowd(people, spots, { hawker: [3], trader: [0] });
@@ -433,13 +433,13 @@ describe("where the crowd stands", () => {
     ]);
   });
 
-  test("[R-CITY-014] [R-CITY-032] given a kept spot past the sample's size with no one of its role, when the sample stands, then it is still drawn ahead of a plain spot, and no more spots than the sample are used", () => {
+  test("[city:crowd-sample-capped] [city:residents-fill-to-target] given a kept spot past the sample's size with no one of its role, when the sample stands, then it is still drawn ahead of a plain spot, and no more spots than the sample are used", () => {
     const people = shown(["chr_tunde", "chr_ada"]);
     expect(placeCrowd(people, ["a", "b", "c"], { hawker: [0], trader: [2] }).map(({ spot }) => spot)).toEqual(["a", "c"]);
     expect(placeCrowd(people, ["a"], {}).map(({ shown: one }) => one.slot)).toEqual([0]);
   });
 
-  test("[R-CITY-014] given a spot an act keeps for a man, when the sample stands, then the first man in a plain stand takes it and everyone else fills the rest in slot order", () => {
+  test("[city:crowd-sample-capped] given a spot an act keeps for a man, when the sample stands, then the first man in a plain stand takes it and everyone else fills the rest in slot order", () => {
     const people = shown(["chr_ada", "chr_hawker_b", "chr_tunde", "chr_ngozi"]);
     const placed = placeCrowd(people, ["a", "b", "c", "d"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
     expect(placed.map(({ shown: one, spot, index }) => [index, spot, one.person.file])).toEqual([
@@ -450,7 +450,7 @@ describe("where the crowd stands", () => {
     ]);
   });
 
-  test("[R-CITY-014] [R-CITY-032] given a spot kept for a role and an act on it, when the sample stands, then the role keeps it; an act with no one of its sex is filled by whoever is left, and an act past the sample's size is still drawn", () => {
+  test("[city:crowd-sample-capped] [city:residents-fill-to-target] given a spot kept for a role and an act on it, when the sample stands, then the role keeps it; an act with no one of its sex is filled by whoever is left, and an act past the sample's size is still drawn", () => {
     const people = shown(["chr_ada", "chr_rider", "chr_ngozi"]);
     const kept = placeCrowd(people, ["a", "b", "c"], { rider: [2] }, [{ spot: 2, sex: "m", pose: "ride" }]);
     expect(kept.find(({ index }) => index === 2)?.shown.person.file).toBe("shared/chr/chr_rider.glb");
@@ -459,21 +459,21 @@ describe("where the crowd stands", () => {
     expect(placeCrowd(women, ["a", "b", "c"], {}, [{ spot: 2, sex: "f" }]).map(({ index }) => index)).toEqual([0, 2]);
   });
 
-  test("[R-CITY-014] given another player in the sample, when an act keeps a spot for their sex, then a resident takes it and the player is never given a part", () => {
+  test("[city:crowd-sample-capped] given another player in the sample, when an act keeps a spot for their sex, then a resident takes it and the player is never given a part", () => {
     const people = shown(["chr_tunde", "chr_kunle"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
     const placed = placeCrowd(people, ["a", "b"], {}, [{ spot: 0, sex: "m", pose: "cheer" }]);
     expect(placed[0]?.shown.kind).toBe("resident");
     expect(placed[1]?.shown.kind).toBe("player");
   });
 
-  test("[R-CITY-032] given another player whose look is a hawker, when a spot is kept for a hawker, then a resident hawker takes it and the player never does", () => {
+  test("[city:residents-fill-to-target] given another player whose look is a hawker, when a spot is kept for a hawker, then a resident hawker takes it and the player never does", () => {
     const people = shown(["chr_hawker_a", "chr_tunde", "chr_hawker_b"]).map((one, slot): Shown => (slot === 0 ? { ...one, kind: "player", tag: "Femi" } : one));
     const placed = placeCrowd(people, ["a", "b", "c"], { hawker: [1] });
     expect(placed.find(({ index }) => index === 1)?.shown.person.file).toBe("shared/chr/chr_hawker_b.glb");
     expect(placed.find(({ index }) => index === 1)?.shown.kind).toBe("resident");
   });
 
-  test("[R-CITY-038] given an act's pose, when a person idles at its spot, then one in a plain stand takes it and a hawker keeps her tray, a trader his sale", () => {
+  test("[city:places-meet-party-room-bar] given an act's pose, when a person idles at its spot, then one in a plain stand takes it and a hawker keeps her tray, a trader his sale", () => {
     const of = (file: string): Person => ROSTER.find((row) => row.file === `shared/chr/${file}.glb`) as Person;
     expect(actPose(of("chr_tunde"), { pose: "cheer" })).toBe("cheer");
     expect(actPose(of("chr_zainab"), { pose: "cheer" })).toBe("cheer");
@@ -484,7 +484,7 @@ describe("where the crowd stands", () => {
     expect(actPose(of("chr_tobi"), undefined)).toBe("hip");
   });
 
-  test("[R-CITY-038] given someone crossing, when they walk, then a hawker walks steadying her tray and everyone else swings both arms", () => {
+  test("[city:places-meet-party-room-bar] given someone crossing, when they walk, then a hawker walks steadying her tray and everyone else swings both arms", () => {
     for (const row of ROSTER) expect(walkPose(row)).toBe(row.pose === "tray" ? "trayWalk" : "walk");
     expect(walkPose({ pose: "tray" })).toBe("trayWalk");
     expect(walkPose({ pose: "stand" })).toBe("walk");

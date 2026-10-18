@@ -1,4 +1,4 @@
-// The acts' glyphs (R-WORLD-034, the fan for every thing): an act that is no activity of the simulation (a pose, the bed's
+// The acts' glyphs (world:fan-of-sticker-buttons, the fan for every thing): an act that is no activity of the simulation (a pose, the bed's
 // Sleep, a bill, the papers, the bag, the door, a word with someone) still carries a picture on its fan button. Each is a
 // small drawing in the layer's sticker manner (docs/design/13-the-lively-layer.md section 2): flat shapes in the system's
 // colours with a navy edge, the white cut and the tilt added by the Sticker round it. The colours are the drawing's own, so

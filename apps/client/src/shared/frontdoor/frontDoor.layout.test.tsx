@@ -1,4 +1,4 @@
-// The second screen as a first-time player meets it (prologue.md R-PROLOGUE-010, 013), as the
+// The second screen as a first-time player meets it (prologue:archetype-presets-answers, prologue:front-door-three-screens), as the
 // door draws it: the lives as big sticker cards with the first chosen, each with its tag as a tilted
 // chip, its thing and your face, its name, the life in a few words, the one line of what it was and its savings, and
 // under the cards the chosen life's routes as picture chips; the full line of what it opens and the age it starts at
@@ -17,7 +17,7 @@ import "../testing/render";
 import { memoryStorage } from "../testing/storage";
 
 describe("Your life so far", () => {
-  test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the second screen, then no ready life is on it, the tiles come first with the first chosen, each tile says its tag, what it was, the routes it opens and the age it hands over from, and the age stands under them", async () => {
+  test("[prologue:archetype-presets-answers] [prologue:front-door-three-screens] given the second screen, then no ready life is on it, the tiles come first with the first chosen, each tile says its tag, what it was, the routes it opens and the age it hands over from, and the age stands under them", async () => {
     render(<App store={bootGame({ storage: memoryStorage(), fastClock: true, makeSeed: () => "front-door-layout" })} />);
     await toTheArchetypes();
     expect(document.querySelector("[data-ready-card], [data-ready], [data-ready-entry]")).toBeNull();
@@ -40,7 +40,7 @@ describe("Your life so far", () => {
       // The card says those and nothing else; its thing and your face are pictures.
       expect(tile.textContent).toBe(`${say(`ui.door.tag.${archetype.id}`)}${say(`prologue.archetype.${archetype.id}.name`)}${say(`prologue.archetype.${archetype.id}.life`)}${say(`prologue.archetype.${archetype.id}.was`)}${say("ui.door.tile.savings", { amount: formatMoney(savingsOf(archetype), "NGN") })}`);
       expect(opensChips(archetype.id).length).toBeGreaterThan(0);
-      // The age its path reaches with no setback (R-PROLOGUE-004): a true number, never "about", read out with the card.
+      // The age its path reaches with no setback (prologue:age-advances-with-steps): a true number, never "about", read out with the card.
       expect(tile.getAttribute("aria-description")).toBe(say(`prologue.archetype.${archetype.id}.opens`));
       expect(tile.getAttribute("aria-description")).toMatch(/Opens: .+Starts at \d+, or older$/);
     }

@@ -1,10 +1,10 @@
-// Castel Volturno as a painted city (docs/rules/world.md R-WORLD-038; design page 15 sections 2 and 6): the
+// Castel Volturno as a painted city (world:painted-maps-abroad; design page 15 sections 2 and 6): the
 // coast on paper, the sea along the west, the Domitiana running the length of the paper by the pinewood, the Volturno
 // across the top, the fields inland, three neighbourhood cards, every built place of Italy as its sticker, the home
 // sticker at the country's home spot from content, and Naples airport on an inset in the paper's south-east corner with
 // its plane, since it lies far inland. Its own chunk, loaded only when the map shows Italy, so a first visit at home
 // carries none of it. Authored in the thousandths of a degree content keeps positions in, laid on the paper through the
-// coast's own fit; rough on purpose, as the positions are (city.md R-CITY-008).
+// coast's own fit; rough on purpose, as the positions are (city:positions-rough-on-purpose).
 import { content } from "@japacity/content";
 
 import { castelMapWords } from "./paper.words";
@@ -20,7 +20,7 @@ export const ITALY = "country.italy";
 /**
  * The coast's fit: north up, a thousandth of a degree eight paper units south and six east, so the paper keeps the
  * coast's true shape (a thousandth of a degree of longitude is about 84 m at 41 degrees north against 111 m of latitude,
- * R-PLACE-010). The paper runs from 13.905 to 14.050 east and from 41.062 down to 40.905 north.
+ * place:rides-between-city-places). The paper runs from 13.905 to 14.050 east and from 41.062 down to 40.905 north.
  */
 export const CASTEL_FIT: Fit = { xLon: 6, xLat: 0, x0: -83430, yLon: 0, yLat: -8, y0: 328496 };
 export const CASTEL_PAPER = { width: 870, height: 1256 } as const;
@@ -139,7 +139,7 @@ const DECOR: readonly Decor[] = [
 const STRIP_LANDMARKS: readonly StripMark[] = [];
 
 /**
- * Naples airport's inset (R-WORLD-038): a framed panel in the paper's south-east corner with the runway and
+ * Naples airport's inset (world:painted-maps-abroad): a framed panel in the paper's south-east corner with the runway and
  * the plane, the airport's sticker standing in it, and a dashed arrow off its east side, since the airport lies inland.
  */
 export const NAPLES = "place.naples-airport";

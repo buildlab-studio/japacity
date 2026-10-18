@@ -18,7 +18,7 @@ function control(moderation: ModerationApi | null, props: Partial<BlockReportPro
 }
 
 describe("the block and report control", () => {
-  test("[R-PAIR-014] [R-MODERATION-001] [R-MODERATION-002] given another player, when block is tapped once, then they are blocked by their pair at once; tapping again lifts it", async () => {
+  test("[pair:block-and-report-one-tap] [moderation:block-refuses-both-ways] [moderation:block-ends-pair-records] given another player, when block is tapped once, then they are blocked by their pair at once; tapping again lifts it", async () => {
     const moderation = fakeModeration();
     control(moderation);
 
@@ -31,7 +31,7 @@ describe("the block and report control", () => {
     expect(moderation.calls).toEqual(['block({"pair":"pair-1"})', 'unblock({"pair":"pair-1"})']);
   });
 
-  test("[R-PAIR-016] [R-MODERATION-004] [R-MODERATION-006] [R-MODERATION-007] given a conversation, when report is tapped and a reason picked, then one request cites the pair and the messages and blocks in the same step as ticked, and says it was received", async () => {
+  test("[pair:report-holds-conversation] [moderation:report-carries-subject-and-reason] [moderation:report-offers-block] [moderation:reporter-told-outcome-only] given a conversation, when report is tapped and a reason picked, then one request cites the pair and the messages and blocks in the same step as ticked, and says it was received", async () => {
     const moderation = fakeModeration();
     let blocked = 0;
     control(moderation, { onBlocked: () => (blocked += 1) });
@@ -49,7 +49,7 @@ describe("the block and report control", () => {
     expect(blocked).toBe(1);
   });
 
-  test("[R-MODERATION-006] given the block unticked on a pair record, when a report is sent, then it cites the pair with no messages and no block", async () => {
+  test("[moderation:report-offers-block] given the block unticked on a pair record, when a report is sent, then it cites the pair with no messages and no block", async () => {
     const moderation = fakeModeration();
     control(moderation, { cites: { pair: "pair-1" }, surface: "pair" });
 
@@ -61,7 +61,7 @@ describe("the block and report control", () => {
     await waitFor(() => expect(moderation.calls).toEqual(['report({"pair":"pair-1","reason":"scam","block":false})']));
   });
 
-  test("[R-MODERATION-005] given a phrase heard in a place, when it is reported, then it cites the place, the phrase and the time, and offers no block", async () => {
+  test("[moderation:spoken-phrases-not-stored] given a phrase heard in a place, when it is reported, then it cites the place, the phrase and the time, and offers no block", async () => {
     const moderation = fakeModeration();
     control(moderation, { who: { name: "Ada" }, cites: { place: "place.ojuelegba", phrase: "phrase.hello", at: 1_700 }, surface: "place-phrase" });
 
@@ -74,7 +74,7 @@ describe("the block and report control", () => {
     await waitFor(() => expect(moderation.calls).toEqual(['report({"reason":"scam","cites":{"place":"place.ojuelegba","phrase":"phrase.hello","at":1700}})']));
   });
 
-  test("[R-MODERATION-004] given an advert, when its control is shown, then it reports the campaign and offers no block", async () => {
+  test("[moderation:report-carries-subject-and-reason] given an advert, when its control is shown, then it reports the campaign and offers no block", async () => {
     const moderation = fakeModeration();
     control(moderation, { who: { campaign: "campaign.1", name: "This advert" }, cites: { campaign: "campaign.1", slot: "advert.phone-tile" }, surface: "advert" });
 
@@ -87,7 +87,7 @@ describe("the block and report control", () => {
     await waitFor(() => expect(moderation.calls).toEqual(['report({"subject":{"campaign":"campaign.1"},"reason":"advert","cites":{"campaign":"campaign.1","slot":"advert.phone-tile"}})']));
   });
 
-  test("[R-MODERATION-007] given a report the server refuses, when it is sent, then the player is told it did not go and nothing is blocked", async () => {
+  test("[moderation:reporter-told-outcome-only] given a report the server refuses, when it is sent, then the player is told it did not go and nothing is blocked", async () => {
     const refusal: ServerRejection = { ok: false, code: "rate-limited", detail: "Too many.", retryAfter: 60 };
     const moderation = fakeModeration({ report: () => Promise.resolve(refusal) });
     control(moderation);
@@ -106,7 +106,7 @@ describe("the block and report control", () => {
 });
 
 describe("the report route's cite form", () => {
-  test("[R-MODERATION-004] given a card or a phrase heard in a place, when it is reported, then the body names no subject for the server to find; an advert names its campaign", () => {
+  test("[moderation:report-carries-subject-and-reason] given a card or a phrase heard in a place, when it is reported, then the body names no subject for the server to find; an advert names its campaign", () => {
     expect(reportBody({ name: "Tunde" }, { card: "4f1e2d3c" }, "scam", false)).toEqual({ reason: "scam", cites: { card: "4f1e2d3c" } });
     const heard = { place: "place.ojuelegba", phrase: "phrase.hello", at: 5 };
     expect(reportBody({ name: "Someone" }, heard, "harassment", false)).toEqual({ reason: "harassment", cites: heard });

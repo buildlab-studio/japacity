@@ -18,7 +18,7 @@ export function jobWords(job: string): string {
 /** Words for a person's id when content names it, else null. */
 function personName(id: string): string | null {
   const name = text[`${id}.name`];
-  // A computer person never carries the player's own first name (R-PEOPLE-061).
+  // A computer person never carries the player's own first name (person:one-mixed-name-pool).
   return name === undefined ? null : swapped(`${id}.name`, name);
 }
 

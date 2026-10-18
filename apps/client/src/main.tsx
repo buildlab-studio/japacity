@@ -17,7 +17,7 @@ if (container === null) {
   throw new Error("Missing #root element in index.html");
 }
 
-// The build this page is, once in the console, so a page a cache kept can be told from a new one (R-SERVER-038).
+// The build this page is, once in the console, so a page a cache kept can be told from a new one (server:production-and-staging).
 sayBuild(document);
 // The first tap anywhere wakes sound silently, so a scene that speaks never waits on the browser (audio page, section 7).
 installSoundWake(document);

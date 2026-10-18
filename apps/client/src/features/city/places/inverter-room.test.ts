@@ -1,5 +1,5 @@
 // The Inverter Room (place.yaba-hub): the desks-by-the-day room in Yaba, with its own file so its things are its own
-// and not the hub's, which it showed with every act hidden (docs/rules/world.md R-WORLD-005, 009, 011, 012). The
+// and not the hub's, which it showed with every act hidden (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height). The
 // checks the rebuilt frontages pass, read against the interior row.
 import { type Footprint, isFootprint } from "@japacity/assets";
 import { content } from "@japacity/content";
@@ -29,13 +29,13 @@ const things = stage.things ?? [];
 const thing = (id: string) => things.find((candidate) => candidate.id === id);
 
 describe("the Inverter Room's file", () => {
-  test("[R-WORLD-011] given the Inverter Room in content, when its folder is read, then it is its own file for its own entry, not the hub's", () => {
+  test("[world:place-is-one-screen] given the Inverter Room in content, when its folder is read, then it is its own file for its own entry, not the hub's", () => {
     expect(entry.assets).toBe("inverter-room");
     expect(file.place).toBe(ID);
     expect(content.place["place.yaba"]?.assets).not.toBe(entry.assets);
   });
 
-  test("[R-WORLD-011] given the hub and the Inverter Room, when their dressings are read, then they are two pictures: the inverter with its batteries, the laptop desks and the fan are the room's alone, the hub's long table and meetup corner are not in it, and their floors differ", () => {
+  test("[world:place-is-one-screen] given the hub and the Inverter Room, when their dressings are read, then they are two pictures: the inverter with its batteries, the laptop desks and the fan are the room's alone, the hub's long table and meetup corner are not in it, and their floors differ", () => {
     const hub = staged(hubFile, "place.yaba").stage;
     const hubModels = new Set(hub.models.map((model) => model.file));
     for (const own of ["shared/prop/prop_inverter.glb", "shared/prop/prop_laptop-desk.glb", "shared/prop/prop_fan.glb"]) {
@@ -51,7 +51,7 @@ describe("the Inverter Room's file", () => {
     expect(thing("laptops")?.file).toBe("shared/prop/prop_laptop-desk.glb");
   });
 
-  test("[R-ASSET-007] given the room's shipped files measured as the build check measures them, when it is counted, then both modes fit the interior row and its download fits the row's bytes", async () => {
+  test("[assets:assets-and-places-within-budget] given the room's shipped files measured as the build check measures them, when it is counted, then both modes fit the interior row and its download fits the row's bytes", async () => {
     expect(file.scope).toBe("interior");
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
@@ -61,7 +61,7 @@ describe("the Inverter Room's file", () => {
     expect(totals.bytes).toBeLessThanOrEqual(budgets.place.interior.bytes);
   });
 
-  test("[R-ASSET-007] given the room's file, when its counts are read, then the instances are the copies staged, the crowd is the world's indoor figure in each mode, the floor is one draw call of the triangles drawn, and every colour is a palette name", () => {
+  test("[assets:assets-and-places-within-budget] given the room's file, when its counts are read, then the instances are the copies staged, the crowd is the world's indoor figure in each mode, the floor is one draw call of the triangles drawn, and every colour is a palette name", () => {
     expect(file.scope).toBe(entry.scope);
     expect(file.instances).toEqual(instancesOf(stage));
     expect(file.people.low).toBe(crowd("low"));
@@ -71,14 +71,14 @@ describe("the Inverter Room's file", () => {
     expect(allPalette(stage)).toBe(true);
   });
 
-  test("[R-WORLD-011] given the room's file, when its limits are read, then it is one room of about 12 by 10 metres with at most 4 people in low mode and 6 in high and no moving sheet", () => {
+  test("[world:place-is-one-screen] given the room's file, when its limits are read, then it is one room of about 12 by 10 metres with at most 4 people in low mode and 6 in high and no moving sheet", () => {
     expect(checkLimits(file)).toEqual([]);
     expect(file.people.low).toBeLessThanOrEqual(WORLD_LIMITS.people.interior.low);
     expect(file.people.high).toBeLessThanOrEqual(WORLD_LIMITS.people.interior.high);
     expect(stage.motion.filter((motion) => SHEET_KINDS.has(motion.kind))).toEqual([]);
   });
 
-  test("[R-WORLD-009] given the room's file, when its camera is read, then it declares a whole view and a close view raised between eye level and straight down, a turn limit, its facing and the width the whole view must show", () => {
+  test("[world:camera-always-raised] given the room's file, when its camera is read, then it declares a whole view and a close view raised between eye level and straight down, a turn limit, its facing and the width the whole view must show", () => {
     const shot = stage.shot;
     if (shot === undefined) throw new Error("The Inverter Room declares no shot");
     expect(shot.far).toBeGreaterThan(shot.near);
@@ -92,12 +92,12 @@ describe("the Inverter Room's file", () => {
     expect(shot.width).toBeDefined();
   });
 
-  test("[R-WORLD-012] given the room's models, when their faces are read, then no two overlap within a centimetre of the same height", async () => {
+  test("[world:faces-never-share-height] given the room's models, when their faces are read, then no two overlap within a centimetre of the same height", async () => {
     const floors = new Map<string, readonly ModelFace[]>(await Promise.all(models.map(async (path) => [path, (await measured(path)).floors ?? []] as const)));
     expect(checkFaces(ID, stage, (path) => floors.get(path) ?? [])).toEqual([]);
   });
 
-  test("[R-CITY-014] given the room's crowd spots, when the high mode's crowd stands, then there is a spot for everyone on walkable ground clear of every footprint, none where the player starts, and everyone in the sample a person of the city", async () => {
+  test("[city:crowd-sample-capped] given the room's crowd spots, when the high mode's crowd stands, then there is a spot for everyone on walkable ground clear of every footprint, none where the player starts, and everyone in the sample a person of the city", async () => {
     expect(stage.people.length).toBeGreaterThanOrEqual(crowd("high"));
     const footprints = new Map<string, Footprint>();
     for (const path of models) {
@@ -113,7 +113,7 @@ describe("the Inverter Room's file", () => {
 });
 
 describe("the Inverter Room's things", () => {
-  test("[R-WORLD-005] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve, and a plain act says what happened unless the scene shows it", () => {
+  test("[world:things-are-tappable-models] given the room's things, when their names and acts are read, then each stands at a copy of a staged model, offers one or two acts, its name and every act's label resolve, and a plain act says what happened unless the scene shows it", () => {
     expect(things.length).toBeGreaterThanOrEqual(4);
     expect(new Set(things.map((one) => one.id)).size).toBe(things.length);
     const wrong: string[] = [];
@@ -136,7 +136,7 @@ describe("the Inverter Room's things", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-WORLD-005] given the inverter, a chair and the notices, when their acts are read, then the inverter offers a look, the chair a seat the character takes, and the notices a line, each happening at once with no sheet", () => {
+  test("[world:things-are-tappable-models] given the inverter, a chair and the notices, when their acts are read, then the inverter offers a look, the chair a seat the character takes, and the notices a line, each happening at once with no sheet", () => {
     const inverter = thing("inverter");
     const chair = thing("chair");
     const notices = thing("notices");
@@ -150,12 +150,12 @@ describe("the Inverter Room's things", () => {
     for (const act of [...(inverter?.acts ?? []), ...(notices?.acts ?? [])]) expect(cityWords(`${act.label}.done`).length).toBeGreaterThan(20);
   });
 
-  test("[R-WORLD-005] given a month where the view offers nothing, when the room's things are read for now, then the inverter, the chair, the notices and the door keep their acts, so the room is never a door alone", () => {
+  test("[world:things-are-tappable-models] given a month where the view offers nothing, when the room's things are read for now, then the inverter, the chair, the notices and the door keep their acts, so the room is never a door alone", () => {
     const now = thingsNow(thingsOf(stage), () => false);
     expect(now.filter((one) => one.acts.length > 0).map((one) => one.id).sort()).toEqual(["chair", "door", "inverter", "notices"]);
   });
 
-  test("[R-WORLD-005] given what the room stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there", () => {
+  test("[world:things-are-tappable-models] given what the room stages in content, when its things' acts are read, then every staged entry opens from an act of a thing there", () => {
     const opened = new Set(actEntries(placeFile, ID));
     expect(entry.stages.filter((staged) => !opened.has(staged))).toEqual([]);
   });

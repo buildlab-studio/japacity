@@ -1,4 +1,4 @@
-// What the painted cities abroad share (docs/rules/world.md R-WORLD-038): the pen that lays a position in thousandths of a
+// What the painted cities abroad share (world:painted-maps-abroad): the pen that lays a position in thousandths of a
 // degree on a country's paper through its fit, and the city built from its drawing, so each country's file holds only
 // what is its own. The room abroad has no position of its own and stands at the country's home spot; a place far off the
 // fit (Heathrow, Naples' airport) stands on an inset in a corner of the paper. Imported only by the four countries'

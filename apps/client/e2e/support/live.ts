@@ -1,6 +1,6 @@
-// The month lived by hand in a browser test (docs/rules/world.md R-WORLD-025, R-WORLD-030; decision 0011): the bed's
+// The month lived by hand in a browser test (world:sleep-ends-the-month, world:month-passes-as-lived; decision 0011): the bed's
 // Sleep turns the month, the results open over the scene, and Back returns to the place. The address's `?sleep=<seconds>`
-// shortens the sleep and `?morning=now` opens every sealed result at once (R-CLOCK-032), both read by a development build
+// shortens the sleep and `?morning=now` opens every sealed result at once (clock:envelopes-show-real-waits), both read by a development build
 // only, which the suite's server is. The phone's apps are opened from the Phone thumb.
 import { expect, type Page } from "@playwright/test";
 
@@ -24,14 +24,14 @@ export async function placeNow(page: Page): Promise<string> {
   return page.evaluate(() => (window as unknown as { __city?: CityProbe }).__city?.place ?? "");
 }
 
-/** The home's teach card, shown once on the first entry into the home in a life (R-HOME-008), dismissed so the place is clear. */
+/** The home's teach card, shown once on the first entry into the home in a life (home:moves-carry-cost-and-reason), dismissed so the place is clear. */
 export async function passHomeTeach(page: Page, timeout = 4000): Promise<void> {
   const teach = page.locator("[data-home-teach-ok]");
   if (await teach.waitFor({ state: "visible", timeout }).then(() => true, () => false)) await teach.click();
 }
 
 /**
- * A tap on a thing: on its quiet mark, or, where the step's marker stands on it in the mark's place (R-WORLD-003),
+ * A tap on a thing: on its quiet mark, or, where the step's marker stands on it in the mark's place (world:nudge-says-one-thing),
  * on the thing itself where the scene draws it.
  */
 async function tapThing(page: Page, thing: string): Promise<void> {
@@ -49,7 +49,7 @@ async function tapThing(page: Page, thing: string): Promise<void> {
     await mark.click({ timeout: 10_000, force: true });
     return;
   }
-  // The step's marker over the thing takes the tap (R-WORLD-003), so nobody standing in front of it does.
+  // The step's marker over the thing takes the tap (world:nudge-says-one-thing), so nobody standing in front of it does.
   const markerTap = page.locator(`[data-marker-tap="${thing}"]`);
   if (await markerTap.isVisible().catch(() => false)) {
     await markerTap.click({ force: true });
@@ -71,7 +71,7 @@ async function tapThing(page: Page, thing: string): Promise<void> {
 }
 
 /**
- * A thing's act from the fan that opens out of it once it is tapped (R-WORLD-034), by the act's id or the entry its button
+ * A thing's act from the fan that opens out of it once it is tapped (world:fan-of-sticker-buttons), by the act's id or the entry its button
  * stages; where the free side of the screen cannot hold the fan, from the small sheet of the same buttons. The step's own
  * thing under its marker takes the step's act in one tap: the character walks there and the
  * act's card opens, with no fan; that card is then the act's.
@@ -95,7 +95,7 @@ export async function doAct(page: Page, thing: string, act: string): Promise<voi
   await button.click({ timeout: 10_000 });
 }
 
-/** One of the simulation's acts done at once, from the fan that opens out of its thing (R-WORLD-034), by the activity it sends. */
+/** One of the simulation's acts done at once, from the fan that opens out of its thing (world:fan-of-sticker-buttons), by the activity it sends. */
 export async function fanAct(page: Page, thing: string, activity: string): Promise<void> {
   const fan = page.locator(`[data-fan="${thing}"]`);
   // The fan's box is the point it opens from, with no size of its own: its buttons are what show.
@@ -119,7 +119,7 @@ export async function bedThing(page: Page): Promise<string> {
 
 /**
  * To the home's bed: a wide home is seen whole, so the bed stands in view (decision 0018); an older place with a yard and a
- * house door (R-WORLD-013) is entered first. Nothing when the bed already shows.
+ * house door (world:entering-is-a-cut) is entered first. Nothing when the bed already shows.
  */
 export async function intoTheRoom(page: Page): Promise<void> {
   if ((await page.locator(BED_MARKS).count()) > 0) return;
@@ -129,7 +129,7 @@ export async function intoTheRoom(page: Page): Promise<void> {
 }
 
 /**
- * The cards that stand over the world or over the results, each passed by its own button: a moment card (R-MOMENT-006: a
+ * The cards that stand over the world or over the results, each passed by its own button: a moment card (moment:card-shows-when-outcome-lands: a
  * landing, a chapter done, a staged win) by its Close, a brief handed or a chapter closed by its Let's go (design page 13
  * section 4). True when one was passed.
  */
@@ -153,12 +153,12 @@ export async function passMomentCard(page: Page, seen?: () => Promise<void>): Pr
 
 /** Every card standing over the world passed, until none is left. */
 export async function passCards(page: Page, seen?: () => Promise<void>): Promise<void> {
-  // The first brief's card may still be coming (R-CHAPTER-011): wait for it before looking.
+  // The first brief's card may still be coming (chapter:first-chapter-mission-card): wait for it before looking.
   await cardsSettled(page);
   for (let passed = 0; passed < 6 && (await passMomentCard(page, seen)); passed += 1) await page.waitForTimeout(300);
 }
 
-/** The staged moments that come before the results (R-WORLD-008), each passed in turn, until the results stand. */
+/** The staged moments that come before the results (world:month-end-results-sheet), each passed in turn, until the results stand. */
 export async function passMoments(page: Page, timeout = 30_000, seen?: () => Promise<void>): Promise<void> {
   const results = page.locator("[data-world-sheet='results']");
   const ends = Date.now() + timeout;
@@ -168,7 +168,7 @@ export async function passMoments(page: Page, timeout = 30_000, seen?: () => Pro
 }
 
 /**
- * The bed's Sleep (R-WORLD-025): the first night's card says what sleep does once and is passed with its own Sleep; the
+ * The bed's Sleep (world:sleep-ends-the-month): the first night's card says what sleep does once and is passed with its own Sleep; the
  * chip and Wake up stand while the sleep runs; when it runs out the month turns, and once the staged moments are passed
  * the results stand over the scene. `seen` looks at each card before it is passed. Returns the results sheet.
  */
@@ -181,13 +181,13 @@ export async function sleepTheMonth(page: Page, seen?: () => Promise<void>) {
   await passMoments(page, 30_000, seen);
   const results = page.locator("[data-world-sheet='results']");
   await expect(results).toBeVisible();
-  // A moment card may come over the results a beat after them (R-MOMENT-006); passed, the results are read.
+  // A moment card may come over the results a beat after them (moment:card-shows-when-outcome-lands); passed, the results are read.
   await page.waitForTimeout(800);
   await passCards(page, seen);
   return results;
 }
 
-/** Back from the results to the place (R-WORLD-008), past any moment card that came over them, and the band again. */
+/** Back from the results to the place (world:month-end-results-sheet), past any moment card that came over them, and the band again. */
 export async function backFromResults(page: Page): Promise<void> {
   const back = page.locator("[data-results-back]");
   for (let tries = 0; tries < 6 && (await back.count()) > 0; tries += 1) {
@@ -199,7 +199,7 @@ export async function backFromResults(page: Page): Promise<void> {
   await expect(page.locator("[data-band]")).toHaveAttribute("aria-hidden", "false");
 }
 
-/** The phone from its thumb, on an app (R-WORLD-018); the app's screen is returned. */
+/** The phone from its thumb, on an app (world:phone-rises-over-scene); the app's screen is returned. */
 export async function openApp(page: Page, app: string) {
   if ((await page.locator("[data-phone]").count()) === 0) await page.locator('[data-thumb="phone"]').click();
   const back = page.locator("[data-phone-back]");
@@ -224,12 +224,12 @@ export async function seedSave(page: Page, stored: string): Promise<void> {
       sessionStorage.setItem("seeded", "1");
     }
   }, stored);
-  // The device marked as played (R-WORLD-033), so no first-use label stands at the thumbs.
+  // The device marked as played (world:no-walkthrough-before-play), so no first-use label stands at the thumbs.
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
 }
 
 /**
- * R-SHARE-001: a recorded life loaded in the month after its decision day still owes the granted card, which opens over
+ * share:cards-due-at-set-moments: a recorded life loaded in the month after its decision day still owes the granted card, which opens over
  * the world first; it is closed.
  */
 export async function closeGranted(page: Page): Promise<void> {
@@ -240,7 +240,7 @@ export async function closeGranted(page: Page): Promise<void> {
   await expect(page.getByRole("dialog")).toHaveCount(0);
 }
 
-/** The ride to a stop the map holds open (R-WORLD-015, R-WORLD-017), by the stop's button beside the painted map. */
+/** The ride to a stop the map holds open (world:map-is-painted-lagos, world:ride-sheet-shows-fares), by the stop's button beside the painted map. */
 export async function rideTo(page: Page, id: string): Promise<void> {
   await page.locator('[data-thumb="map"]').click();
   await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
@@ -253,7 +253,7 @@ export async function rideTo(page: Page, id: string): Promise<void> {
 }
 
 /**
- * The send-off as a scene (chapter.md R-CHAPTER-012), once the gate's act has opened it: three taps of Step forward, the
+ * The send-off as a scene (chapter:send-off-scene-in-beats), once the gate's act has opened it: three taps of Step forward, the
  * stub taken, Board the plane, the plane's cut, the landing's staple, then Ring the bell into the room abroad.
  */
 export async function boardThroughTheScene(page: Page): Promise<void> {

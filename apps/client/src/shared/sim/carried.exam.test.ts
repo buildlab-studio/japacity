@@ -1,4 +1,4 @@
-// An exam is one sitting (docs/rules/world.md R-WORLD-007 and activity.md R-ACTIVITY-013): an act with an exam on its
+// An exam is one sitting (world:month-acts-carry-on and activity:waiting-months-build-profile): an act with an exam on its
 // entry leaves the plan the month it runs, pass or fail, so a failed certification is never left "Ongoing", charging
 // its ₦120,000 again the next month with no tap.
 import { content } from "@japacity/content";
@@ -13,7 +13,7 @@ const CERTIFY = "activity.nurse-certification" as Id<"activity">;
 const FEE = "fee-test" as const;
 
 describe("an exam leaves the plan the month it runs", () => {
-  test("[R-WORLD-007] [R-ACTIVITY-013] given the ready nurse who failed the certification exam, when the month ends, then it is not in the next month's plan and nothing more is charged for it, though a new tap can sit it again", () => {
+  test("[world:month-acts-carry-on] [activity:waiting-months-build-profile] given the ready nurse who failed the certification exam, when the month ends, then it is not in the next month's plan and nothing more is charged for it, though a new tap can sit it again", () => {
     const game = readyNurse("exam-once");
     const plan: SlotPick[] = [{ activity: CERTIFY, param: null }];
     game.endTurn(plan);
@@ -41,7 +41,7 @@ describe("an exam leaves the plan the month it runs", () => {
     expect(game.view().activities.find((option) => option.id === CERTIFY)?.allowed).toBe(true);
   });
 
-  test("[R-WORLD-007] [R-ACTIVITY-013] given every activity in content marked once, when its month ends with it still open and paid for, then each with an exam on its entry leaves the plan and every other carries on", () => {
+  test("[world:month-acts-carry-on] [activity:waiting-months-build-profile] given every activity in content marked once, when its month ends with it still open and paid for, then each with an exam on its entry leaves the plan and every other carries on", () => {
     const onceActs = Object.values(content.activity).filter((entry) => entry.once === true && plannable(entry.id));
     const exams = onceActs.filter((entry) => entry.exam !== undefined).map((entry) => entry.id);
     const others = onceActs.filter((entry) => entry.exam === undefined).map((entry) => entry.id);

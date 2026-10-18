@@ -1,4 +1,4 @@
-// The boards in the lively dress on Chats' people page (docs/rules/city.md R-CITY-039, R-CITY-040; design page 13
+// The boards in the lively dress on Chats' people page (city:boards-switch-when-and-who, city:board-line-and-ranking; design page 13
 // section 2): the two pickers as segmented pills, each line a card with a face sticker, the name and the figure as a
 // chip, this week's rise in green, the player's own line ringed; no look travels on a board, so another player's face
 // is picked from the name the line shows, and the player's own is the look they built at the door.
@@ -36,7 +36,7 @@ function show(rows: BoardRow[], allTime: BoardRow[] = rows) {
 const lineCards = () => Array.from(document.querySelectorAll<HTMLElement>("[data-board-lines] > li"));
 
 describe("the boards in the lively dress", () => {
-  test("[R-CITY-039] given the boards, when they show, then each picker is one segmented pill with its choice lit, and a pick moves the light", async () => {
+  test("[city:boards-switch-when-and-who] given the boards, when they show, then each picker is one segmented pill with its choice lit, and a pick moves the light", async () => {
     show([row(1, "zainab_b", 12), row(2, "ada_lagos", 5, true)], [row(1, "zainab_b", 80), row(2, "ada_lagos", 70, true)]);
     await waitFor(() => expect(lineCards()).toHaveLength(2));
     const groups = screen.getAllByRole("radiogroup");
@@ -51,7 +51,7 @@ describe("the boards in the lively dress", () => {
     expect(within(when).getByRole("radio", { name: say("ui.boards.when.this-week") }).className).not.toContain("phone-segment-on");
   });
 
-  test("[R-CITY-040] given this week's board, when it shows, then each line is a card with a face sticker and the name, a rise is a green chip, and the player's own line is ringed", async () => {
+  test("[city:board-line-and-ranking] given this week's board, when it shows, then each line is a card with a face sticker and the name, a rise is a green chip, and the player's own line is ringed", async () => {
     show([row(1, "zainab_b", 12), row(2, "tunde_k", 0), row(3, "ada_lagos", 5, true)]);
     await waitFor(() => expect(lineCards()).toHaveLength(3));
     for (const card of lineCards()) {
@@ -68,7 +68,7 @@ describe("the boards in the lively dress", () => {
     expect(mine?.querySelector("[data-board-you]")?.textContent).toBe(say("ui.boards.you"));
   });
 
-  test("[R-CITY-040] given no look on a board line, when faces are shown, then another player's face follows the name shown, the same name the same face, and the player's own line wears the look kept from the door", async () => {
+  test("[city:board-line-and-ranking] given no look on a board line, when faces are shown, then another player's face follows the name shown, the same name the same face, and the player's own line wears the look kept from the door", async () => {
     expect([...BOARD_FACES].sort()).toEqual(LOOKS.map((look) => look.id).sort());
     expect(boardFace("zainab_b", false)).toBe(boardFace("zainab_b", false));
     expect(LOOKS.map((look) => look.id)).toContain(boardFace("zainab_b", false));

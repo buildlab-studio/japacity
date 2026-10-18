@@ -1,4 +1,4 @@
-// The admin page (R-MODERATION-012): one tab per area of the server's admin
+// The admin page (moderation:admin-view-for-admin-list): one tab per area of the server's admin
 // routes. It reads and acts only through those routes; nothing on it reaches
 // the simulation or the game's store.
 import { useEffect, useState, type ReactNode } from "react";

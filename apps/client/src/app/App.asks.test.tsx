@@ -1,5 +1,5 @@
 // Nothing is asked of the player before the early win (docs/rules/guide.md
-// R-GUIDE-015): the share card and its button wait in the world's shell until
+// guide:nothing-asked-before-early-win): the share card and its button wait in the world's shell until
 // the store's flag is up, and then show as they always did. The card's tile
 // has no place in the world (App.tsx keeps it hidden), so the tile's own test
 // renders the held card as the shell mounts it.
@@ -51,7 +51,7 @@ async function playing(view: PlayerView, earlyWin: boolean): Promise<GameStore> 
   await store.getState().refresh();
   store.setState({ earlyWin });
   render(<App store={store} />);
-  // The world is the game (R-WORLD-001): the shell is in once its band is.
+  // The world is the game (world:world-fills-the-screen): the shell is in once its band is.
   await waitFor(() => expect(document.querySelector("[data-band]")).not.toBeNull());
   return store;
 }
@@ -60,7 +60,7 @@ const shareButtons = () => document.querySelectorAll("[data-share-button]");
 const cardTiles = () => document.querySelectorAll("[data-card-tile]");
 
 describe("the share card waits for the early win", () => {
-  test("[R-GUIDE-015] given a card due before the early win, when the shell shows, then neither the card, its tile nor its share button is on screen, and no ask is counted", async () => {
+  test("[guide:nothing-asked-before-early-win] given a card due before the early win, when the shell shows, then neither the card, its tile nor its share button is on screen, and no ask is counted", async () => {
     const store = await playing(withCard(), false);
     expect(store.getState().earlyWin).toBe(false);
     expect(cardTiles()).toHaveLength(0);
@@ -69,12 +69,12 @@ describe("the share card waits for the early win", () => {
     expect(sent().filter((row) => row.name.startsWith("ask/"))).toEqual([]);
   });
 
-  test("[R-GUIDE-015] given a card held back, then it is put aside as closed, so a scene after it is not kept waiting", async () => {
+  test("[guide:nothing-asked-before-early-win] given a card held back, then it is put aside as closed, so a scene after it is not kept waiting", async () => {
     const store = await playing(withCard(), false);
     await waitFor(() => expect(store.getState().cardClosed).toBe(cardKey(DRAW_WIN)));
   });
 
-  test("[R-GUIDE-015] given a card held back, when the early win is shown, then its tile shows and opens the card with its share button", async () => {
+  test("[guide:nothing-asked-before-early-win] given a card held back, when the early win is shown, then its tile shows and opens the card with its share button", async () => {
     const { store } = await renderWithView(
       <HeldShareCard>
         <CardView />
@@ -91,7 +91,7 @@ describe("the share card waits for the early win", () => {
     await waitFor(() => expect(shareButtons()).toHaveLength(1));
   });
 
-  test("[R-GUIDE-015] given the early win already shown, when a card is due, then it opens on its own with its share button", async () => {
+  test("[guide:nothing-asked-before-early-win] given the early win already shown, when a card is due, then it opens on its own with its share button", async () => {
     await playing(withCard(), true);
     await waitFor(() => expect(shareButtons()).toHaveLength(1));
   });

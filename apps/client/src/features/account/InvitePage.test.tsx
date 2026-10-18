@@ -100,14 +100,14 @@ async function comeIn() {
 }
 
 describe("the invite link's page", () => {
-  test("[R-PAIR-008] given the path /invite/<code>, then the code is read from it; any other path is the game", () => {
+  test("[pair:invite-link-single-use] given the path /invite/<code>, then the code is read from it; any other path is the game", () => {
     expect(inviteCodeOf(`/invite/${CODE}`)).toBe(CODE);
     expect(inviteCodeOf(`/invite/${CODE}/`)).toBe(CODE);
     expect(inviteCodeOf("/")).toBeNull();
     expect(inviteCodeOf("/invite/")).toBeNull();
   });
 
-  test("[R-PAIR-007] [R-PAIR-008] [R-MODERATION-003] given a partner link, when it is opened signed out, then the card shows before sign-up with its report control, then the age screen, sign-in, a grown-up life and the card taken for its slot", async () => {
+  test("[pair:invite-card-contents] [pair:invite-link-single-use] [moderation:report-from-every-surface] given a partner link, when it is opened signed out, then the card shows before sign-up with its report control, then the age screen, sign-in, a grown-up life and the card taken for its slot", async () => {
     const server = cardServer();
     const friend = account("passed", () => {
       server.answer("GET /api/view", NO_CHARACTER);
@@ -137,7 +137,7 @@ describe("the invite link's page", () => {
     expect(store.getState().choosingLife).toBe(false);
   });
 
-  test("[R-ACCOUNT-029] [R-PAIR-008] given the invite's page, then the wordmark tops it once, its words the game's name, and stays once through the age screen and the ways in", async () => {
+  test("[account:start-screen-over-live-city] [pair:invite-link-single-use] given the invite's page, then the wordmark tops it once, its words the game's name, and stays once through the age screen and the ways in", async () => {
     openLink(cardServer(), account());
     await screen.findByRole("figure");
     const once = () => {
@@ -153,7 +153,7 @@ describe("the invite link's page", () => {
     once();
   });
 
-  test("[R-PAIR-008] [R-PEOPLE-011] given a sibling link and an account signed in, then the card is taken as a new life with no scenario asked", async () => {
+  test("[pair:invite-link-single-use] [person:real-sibling-shares-family-draw] given a sibling link and an account signed in, then the card is taken as a new life with no scenario asked", async () => {
     const server = cardServer("sibling", NO_CHARACTER);
     server.answer(`POST /api/invite/${CODE}/accept`, { body: { ok: true, pair: "pair-2", character: "c-sib", view: null } });
     openLink(server, account());
@@ -162,7 +162,7 @@ describe("the invite link's page", () => {
     expect(server.sent.find((request) => request.path.endsWith("/accept"))?.body).toEqual({ slot: "sibling-1" });
   });
 
-  test("[R-ACCOUNT-022] [R-PAIR-008] given a new friend who starts as a guest, then the card waits while the page asks to keep the life first, and nothing is accepted", async () => {
+  test("[account:social-needs-secured-account] [pair:invite-link-single-use] given a new friend who starts as a guest, then the card waits while the page asks to keep the life first, and nothing is accepted", async () => {
     const server = cardServer();
     openLink(server, account("passed", () => server.answer("GET /api/view", NO_CHARACTER), "guest"));
     await answerAge("1990-05-01");
@@ -173,7 +173,7 @@ describe("the invite link's page", () => {
     expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(false);
   });
 
-  test("[R-PAIR-008] given a browser that does not pass the age screen, then no way in shows and nothing is accepted", async () => {
+  test("[pair:invite-link-single-use] given a browser that does not pass the age screen, then no way in shows and nothing is accepted", async () => {
     const server = cardServer();
     openLink(server, account("refused"));
     await answerAge("2015-01-01");
@@ -182,7 +182,7 @@ describe("the invite link's page", () => {
     expect(server.sent.some((request) => request.path.endsWith("/accept"))).toBe(false);
   });
 
-  test("[R-PAIR-008] given a link already used, then the page says so plainly and offers nothing", async () => {
+  test("[pair:invite-link-single-use] given a link already used, then the page says so plainly and offers nothing", async () => {
     const server = fakeServer();
     server.answer(`GET /api/invite/${CODE}`, { body: { ok: false, code: "used", detail: "This link has been used." } });
     const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
@@ -198,7 +198,7 @@ describe("the invite link's page", () => {
   test.each([
     ["used", 409],
     ["expired", 403],
-  ])("[R-PAIR-008] given the server refusing the link as %s with %i, then the page reads the refusal from the body and says it in words", async (code, status) => {
+  ])("[pair:invite-link-single-use] given the server refusing the link as %s with %i, then the page reads the refusal from the body and says it in words", async (code, status) => {
     const server = fakeServer();
     server.answer(`GET /api/invite/${CODE}`, { status, body: { ok: false, code, detail: "Refused." } });
     const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
@@ -212,7 +212,7 @@ describe("the invite link's page", () => {
     expect(screen.queryByText(say("ui.account.fail.unreachable"))).toBeNull();
   });
 
-  test("[R-PAIR-008] given a card shown, when taking it is refused as expired with 403, then the page reads the refusal from the body and says it in words", async () => {
+  test("[pair:invite-link-single-use] given a card shown, when taking it is refused as expired with 403, then the page reads the refusal from the body and says it in words", async () => {
     const server = cardServer("sibling", NO_CHARACTER);
     server.answer(`POST /api/invite/${CODE}/accept`, { status: 403, body: { ok: false, code: "expired", detail: "The link cannot be used: expired." } });
     openLink(server, account());

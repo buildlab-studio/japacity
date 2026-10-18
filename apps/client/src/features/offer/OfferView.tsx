@@ -43,7 +43,7 @@ function choiceCost(offer: Offer, choice: string): string | null {
   return [...paid].map(([currency, amount]) => formatMoney(amount, currency)).join(" + ");
 }
 
-/** The slots a choice holds, from its own `turn/lock` effects, said before it is taken (R-HEALTH-007). */
+/** The slots a choice holds, from its own `turn/lock` effects, said before it is taken (health:view-shows-health-warning). */
 function choiceLock(offer: Offer, choice: string): string | null {
   const entry = content.offer[offer.entry];
   const effects: Effect[] = entry?.choices.find((candidate) => candidate.id === choice)?.effects ?? [];
@@ -124,7 +124,7 @@ function AmountPicker({ min, max, value, onChange }: { min: number; max: number;
 /**
  * An ask that may be a scam (an entry with a fraud share: the road's pitch, the message that says you have won, a sponsor
  * that may not be one) has no main button: every answer is plain, so the player reads before choosing, and the answers
- * that cost nothing come first, the way to say no before the way to pay (advice.md R-ADVICE-006, world.md R-WORLD-006):
+ * that cost nothing come first, the way to say no before the way to pay (advice:scams-show-their-tells, world:one-action-one-sheet):
  * a quick hand never pays a deposit from a yellow button.
  */
 function mayBeScam(offer: Pick<Offer, "entry">): boolean {
@@ -279,7 +279,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
             key={choice.id}
             offer={offer}
             choice={choice}
-            // An honest ask keeps its main answer, the first; an ask that may be a scam has none (R-ADVICE-006).
+            // An honest ask keeps its main answer, the first; an ask that may be a scam has none (advice:scams-show-their-tells).
             main={index === 0 && !scam}
             // "Free" only where another answer has a price, so it says something (design page 13 section 2).
             freeShown={offer.choices.some((other) => other.pick !== null || (choiceMoney(offer, other.id)?.amount ?? 0) > 0)}
@@ -296,7 +296,7 @@ function OfferCard({ offer, onChosen }: { offer: Offer; onChosen: (lines: Report
           />
         ))}
       </div>
-      {/* A shut answer says why, where content gives the reason (the taken-in friend, home.md R-HOME-004). */}
+      {/* A shut answer says why, where content gives the reason (the taken-in friend, home:taken-in-after-eviction). */}
       {offer.choices
         .filter((choice) => !choice.allowed && hasWords(`${offer.entry}.choice.${choice.id}.shut`))
         .map((choice) => (
@@ -323,7 +323,7 @@ function Outcome({ lines, onClose }: { lines: ReportLine[]; onClose: () => void 
   );
 }
 
-/** `only` keeps the offers a screen shows; the road shows its own and nothing from home (R-ROAD-010). */
+/** `only` keeps the offers a screen shows; the road shows its own and nothing from home (road:road-earns-nothing). */
 export function OfferView({ only }: { only?: (offer: Offer) => boolean } = {}) {
   const view = useView();
   const offers = only === undefined ? view.offers : view.offers.filter(only);

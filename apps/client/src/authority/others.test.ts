@@ -1,4 +1,4 @@
-// A computer person never carries the player's name (prologue.md R-PROLOGUE-009, person.md R-PEOPLE-061),
+// A computer person never carries the player's name (prologue:front-door-builds-a-person, person:one-mixed-name-pool),
 // so "Hauwa, Not a player" never stands beside the player Hauwa in the family house.
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 import { afterEach, describe, expect, test } from "vitest";
@@ -19,7 +19,7 @@ const FRIEND = "person.amaka-nurse";
 const TAKEN = new Set([...namedPeople, ...Object.values(lifePeople)].map((person) => person.name));
 
 describe("a computer person never carries the player's name", () => {
-  test("[R-PEOPLE-061] [R-PROLOGUE-009] given the player named Hauwa, when the friend of the family is named, then she is another Hausa-Fulani woman of the pool, the same every time, and nobody else's name", () => {
+  test("[person:one-mixed-name-pool] [prologue:front-door-builds-a-person] given the player named Hauwa, when the friend of the family is named, then she is another Hausa-Fulani woman of the pool, the same every time, and nobody else's name", () => {
     expect(text[`${FRIEND}.name`]).toBe("Hauwa");
     setNow(4, null, swapsFor("Hauwa"));
     const other = nameOf(FRIEND);
@@ -37,7 +37,7 @@ describe("a computer person never carries the player's name", () => {
     expect(words("line.people.courted", { who: FRIEND })).toBe(`You started seeing ${other}.`);
   });
 
-  test("[R-PEOPLE-061] given a player whose name a line carries inside it, when the line is said, then the person in it goes by the other name, and the player's own words keep the player's", () => {
+  test("[person:one-mixed-name-pool] given a player whose name a line carries inside it, when the line is said, then the person in it goes by the other name, and the player's own words keep the player's", () => {
     const terna = namedPeople.find((person) => person.name === "Terna")!;
     setNow(4, null, swapsFor("Terna"));
     for (const key of terna.keys) expect(say(key)).not.toMatch(/\bTerna\b/);
@@ -49,7 +49,7 @@ describe("a computer person never carries the player's name", () => {
     expect(say("share.first-name.scenario.ada")).toBe(text["share.first-name.scenario.ada"]);
   });
 
-  test("[R-PEOPLE-061] given a player of another name, or no life on screen, then every person keeps the name content gives", () => {
+  test("[person:one-mixed-name-pool] given a player of another name, or no life on screen, then every person keeps the name content gives", () => {
     setNow(4, null, swapsFor("Kemi"));
     expect(nameOf(FRIEND)).toBe("Hauwa");
     setNow(null);
@@ -57,7 +57,7 @@ describe("a computer person never carries the player's name", () => {
     expect(words("line.people.courted", { who: FRIEND })).toBe("You started seeing Hauwa.");
   });
 
-  test("[R-PROLOGUE-009] given a life named Hauwa at the door, when its view comes, then the words know the player's name from the person kept beside the save", async () => {
+  test("[prologue:front-door-builds-a-person] given a life named Hauwa at the door, when its view comes, then the words know the player's name from the person kept beside the save", async () => {
     keepPerson({ look: "chr_ada", name: "Hauwa", archetype: "developer" });
     const store = createGameStore(fakeAuthority(engineView()));
     await store.getState().refresh();

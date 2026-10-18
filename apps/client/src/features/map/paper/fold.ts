@@ -1,8 +1,8 @@
-// The fold (docs/rules/world.md R-WORLD-015): one map at two zooms with the strip as the hinge. The
+// The fold (world:map-is-painted-lagos): one map at two zooms with the strip as the hinge. The
 // strip is the whole map folded at the top; a tap on it, or a drag down far enough, unfolds it into the open map while
 // the card slides away; a tap on a district or a pin of the open map folds it back while that neighbourhood's card
 // rises; folded, the cards swipe sideways. Plain states and events, whole numbers, so every step is tested. A card is
-// named by its id, whichever painted city it belongs to (R-WORLD-038).
+// named by its id, whichever painted city it belongs to (world:painted-maps-abroad).
 type CardId = string;
 
 export type Phase = "folded" | "opening" | "open" | "closing";
@@ -27,7 +27,7 @@ export type FoldEvent =
 export const DRAG_FULL = 320;
 /** Let go past this much of the pull, the map opens; short of it, it folds back. */
 export const PULL_OPENS = 25;
-/** The fold's motion, in milliseconds: under 300 (R-WORLD-023). */
+/** The fold's motion, in milliseconds: under 300 (world:motions-under-half-second). */
 export const FOLD_MS = 280;
 
 export function folded(card: CardId): FoldState {

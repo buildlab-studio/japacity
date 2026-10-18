@@ -1,13 +1,13 @@
-// The account settings: the username and its change (R-ACCOUNT-024), the
-// reminder and the way to keep a guest life (R-ACCOUNT-027), a passkey once
-// the life is kept (R-ACCOUNT-003, 023), any setting the shell places in it,
-// sign out, and delete the account (R-ACCOUNT-016) through the server's
+// The account settings: the username and its change (account:username-and-unconfirmed-email), the
+// reminder and the way to keep a guest life (account:guest-reminded-to-secure), a passkey once
+// the life is kept (account:passkey-needs-signed-in-session, account:guest-secures-the-life), any setting the shell places in it,
+// sign out, and delete the account (account:player-deletes-account) through the server's
 // `DELETE /api/account`. Deleting needs a session signed in within the last 10
 // minutes; when the server says it is older, the player signs in again or
 // sends the code the server's email carries along with the deletion. A guest
 // has no other way in, so its own session confirms it. The account opens from its own row at the head of the phone's
 // Settings: the name's initial, the name, the username and the way the life is kept, the whole row one tap; its sheet names the username and the name as two plain rows, then the way in and the passkeys
-// (R-ACCOUNT-024, R-ACCOUNT-027).
+// (account:username-and-unconfirmed-email, account:guest-reminded-to-secure).
 import type { AccountView } from "@japacity/api";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
@@ -26,7 +26,7 @@ import { GuestReminder } from "./Secure";
 import { refreshAccount, useAccountView } from "./standing";
 
 /**
- * R-ANALYTICS-006: "Send usage counts", stored on the account and on by
+ * analytics:player-can-stop-usage-counts: "Send usage counts", stored on the account and on by
  * default. Off stops the interface counters at once; the server's own game
  * counters go on, as the rule says.
  */
@@ -74,7 +74,7 @@ export function UsageCounts({ account }: { account: AccountApi }) {
   );
 }
 
-/** A guest's ways back in: none but its own session (R-ACCOUNT-021). */
+/** A guest's ways back in: none but its own session (account:guest-and-secured-states). */
 const NO_WAYS: AccountView["ways"] = { google: null, email: null, passkeys: 0 };
 
 /** The account's ways back in; none from a server older than `ways`. */
@@ -83,7 +83,7 @@ function waysOf(view: AccountView): AccountView["ways"] {
 }
 
 /**
- * The way the life is kept, in one line (R-ACCOUNT-023, 027): Google by its address where Google is linked, else the
+ * The way the life is kept, in one line (account:guest-secures-the-life, account:guest-reminded-to-secure): Google by its address where Google is linked, else the
  * email. `full`: the email's address too, as the sheet says it; the row says it short. A guest's life is on this phone.
  */
 function keptLine(view: AccountView, full: boolean): string {
@@ -110,7 +110,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** R-ACCOUNT-024: the username, and its change: the first free, then one after each wait the server sets. */
+/** account:username-and-unconfirmed-email: the username, and its change: the first free, then one after each wait the server sets. */
 function Username({ account }: { account: AccountApi }) {
   const me = useAccountView();
   const [editing, setEditing] = useState(false);
@@ -194,7 +194,7 @@ function LifeName() {
   );
 }
 
-/** The ways in of a kept life (R-ACCOUNT-027): the way it is kept with its address, and the passkeys held. */
+/** The ways in of a kept life (account:guest-reminded-to-secure): the way it is kept with its address, and the passkeys held. */
 function WaysIn({ view }: { view: AccountView }) {
   if (view.state === "guest") return null;
   const { passkeys } = waysOf(view);
@@ -283,7 +283,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
         </Button>
         </div>
         )}
-        {/* R-ACCOUNT-021: a guest's session is its only way back, so signing out of it is said plainly first. */}
+        {/* account:guest-and-secured-states: a guest's session is its only way back, so signing out of it is said plainly first. */}
         {guest && !leaving ? (
           <Button disabled={busy} onClick={() => setLeaving(true)}>
             {say("ui.account.sign-out")}
@@ -302,7 +302,7 @@ export function AccountSettings({ account, more = null }: { account: AccountApi;
 
       {more}
 
-      {/* Each step of leaving settles in where the last stood (R-WORLD-023). */}
+      {/* Each step of leaving settles in where the last stood (world:motions-under-half-second). */}
       <div key={step} className={`flex flex-col gap-3 border-t border-sheet-line pt-4 ${step === "idle" ? "" : "motion-reveal"}`}>
         {step === "idle" ? (
           <div>

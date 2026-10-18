@@ -1,4 +1,4 @@
-// A shut button says the real reason (docs/rules/world.md R-WORLD-006), on the real content: what it
+// A shut button says the real reason (world:one-action-one-sheet), on the real content: what it
 // needs first when it is not allowed, the short figure when it cannot be paid, counted the same way
 // on the button and on the line above it, and never a figure left over a button that is shut.
 import type { ActivityOption } from "@japacity/sim";
@@ -29,8 +29,8 @@ function cost(option: ActivityOption | undefined): number {
 }
 
 describe("a shut button's reason", () => {
-  test("[R-WORLD-006] given the passport and the transcript on one sheet and the transcript asked for this month, when the passport is short, then its line and its button say the same short figure", async () => {
-    // R-ACTIVITY-015: the transcript is asked for at once and paid then, so the passport is short by what is left after it.
+  test("[world:one-action-one-sheet] given the passport and the transcript on one sheet and the transcript asked for this month, when the passport is short, then its line and its button say the same short figure", async () => {
+    // activity:now-acts-and-month-acts: the transcript is asked for at once and paid then, so the passport is short by what is left after it.
     const game = newGame("scenario.ada");
     setPockets(game, { NGN: 8_940_000 });
     const transcript = cost(game.view().activities.find((option) => option.id === TRANSCRIPT));
@@ -51,7 +51,7 @@ describe("a shut button's reason", () => {
     expect(buttonLine(TRANSCRIPT) ?? "").not.toMatch(/left/);
   });
 
-  test("[R-WORLD-006] given no passport, when the English test's card shows, then its button is shut and says it needs the passport first", async () => {
+  test("[world:one-action-one-sheet] given no passport, when the English test's card shows, then its button is shut and says it needs the passport first", async () => {
     const view = newGame("scenario.ada").view();
     const sitting = view.activities.find((option) => option.id === ENGLISH_TEST);
     expect(sitting?.missing).toEqual([{ type: "document/held", document: "document.passport" }]);
@@ -65,7 +65,7 @@ describe("a shut button's reason", () => {
     expect(card).not.toContain(say("ui.needs.document", { document: runningName("document.passport") }));
   });
 
-  test("[R-WORLD-006] given no route heard of, when the adviser's and the official page's cards show, then each card says once that it needs a route you have heard of and its button is shut, never what is left", async () => {
+  test("[world:one-action-one-sheet] given no route heard of, when the adviser's and the official page's cards show, then each card says once that it needs a route you have heard of and its button is shut, never what is left", async () => {
     const view = newGame("scenario.ada").view();
     await renderWithView(<ActivityPicker only={[ADVISER, OFFICIAL]} />, view);
     for (const id of [ADVISER, OFFICIAL]) {
@@ -81,7 +81,7 @@ describe("a shut button's reason", () => {
     expect(document.body.textContent).not.toContain(say("ui.activity.cannot-pay"));
   });
 
-  test("[R-WORLD-006] given the engine says a cost cannot be paid though the pockets cover it, when the card shows, then the button is shut with no figure left over it", async () => {
+  test("[world:one-action-one-sheet] given the engine says a cost cannot be paid though the pockets cover it, when the card shows, then the button is shut with no figure left over it", async () => {
     const view = newGame("scenario.ada").view();
     const adviser: ActivityOption = { id: ADVISER, allowed: true, missing: [], params: null, cost: [{ currency: "NGN", amount: 8_000_000 }], affordable: false, when: "now", done: false };
     await renderWithView(<ActivityPicker only={[ADVISER]} />, { ...view, activities: [adviser] });

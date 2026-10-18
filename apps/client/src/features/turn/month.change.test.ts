@@ -1,8 +1,8 @@
-// A change of money on the results (docs/rules/world.md R-WORLD-008, wallet.md R-WALLET-004): in Ada's second month
+// A change of money on the results (world:month-end-results-sheet, wallet:bank-converts-at-official-rate): in Ada's second month
 // abroad the dollars she changes into pounds are on the results, and the pounds that come in never read as money kept.
 // The change is one line with both sides in its words. A change counts for nothing in what was kept, either way
 // (decision 0024): changing money is a move, not spending, and only the bank's charge stays money out, as the wallet
-// counts the month (R-WALLET-015). The charge is told once, on its own line, and the change's paid side is what went at the rate, so Kept plus the change
+// counts the month (wallet:months-kept-counted). The charge is told once, on its own line, and the change's paid side is what went at the rate, so Kept plus the change
 // is the band's move.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -31,7 +31,7 @@ function changedAbroad(amount: (dollars: number) => number): { lines: ReportLine
 }
 
 describe("a change of money on the results", () => {
-  test("[R-WORLD-008] [R-WALLET-004] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given a quarter of Ada's dollars changed into pounds at the bank, when the month's money is read, then the change is one line that says what went at the rate and what came in, counted as the pounds that came in, and the bank's charge is one line of its own in the money it was taken in", () => {
     const { lines, paid, charge, received } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const money = moneyLines(lines);
     const changes = money.filter((entry) => entry.line.key === CHANGED);
@@ -49,7 +49,7 @@ describe("a change of money on the results", () => {
     expect(money.some((entry) => entry.line.key === "line.wallet.bank-charge" || entry.line.key === "line.wallet.converted")).toBe(false);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] [R-WALLET-015] given the change, when what was kept is counted, then the pounds kept are the band's move over the month after the change, the pounds that came in not counted, and only the bank's charge shows as gone from the dollars", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] [wallet:months-kept-counted] given the change, when what was kept is counted, then the pounds kept are the band's move over the month after the change, the pounds that came in not counted, and only the bank's charge shows as gone from the dollars", () => {
     const { lines, paid, charge, band } = changedAbroad((dollars) => Math.floor(dollars / 4 / 100) * 100);
     const nets = kept(moneyLines(lines));
     expect(nets.find((net) => net.currency === "USD")?.amount).toBe(-charge);
@@ -61,7 +61,7 @@ describe("a change of money on the results", () => {
     expect(dollarsOut).toBe(paid);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] given all the dollars changed, a figure no chip rounds, when the change is read, then what went at the rate and the bank's charge add up to the whole dollars it was, to the cent", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] given all the dollars changed, a figure no chip rounds, when the change is read, then what went at the rate and the bank's charge add up to the whole dollars it was, to the cent", () => {
     const { lines, paid, charge } = changedAbroad((dollars) => dollars);
     const money = moneyLines(lines);
     const change = money.find((entry) => entry.line.key === CHANGED);
@@ -73,13 +73,13 @@ describe("a change of money on the results", () => {
     expect(out.amount + charge).toBe(paid);
   });
 
-  test("[R-WORLD-008] given a change with no bank's charge before it, when the month's money is read, then what came in still shows, as money in, and counts for nothing in what was kept", () => {
+  test("[world:month-end-results-sheet] given a change with no bank's charge before it, when the month's money is read, then what came in still shows, as money in, and counts for nothing in what was kept", () => {
     const line: ReportLine = { key: "line.wallet.converted", params: { amount: { currency: "GBP", amount: 50_000 } }, tone: "plain", attention: false, counts: [] };
     expect(moneyLines([line])).toEqual([{ line, sign: 1, currency: "GBP", amount: 50_000 }]);
     expect(kept(moneyLines([line]))).toEqual([]);
   });
 
-  test("[R-WORLD-008] [R-WALLET-004] [R-WALLET-015] given naira changed into pounds at the bank at home, when what was kept is counted, then the naira count only the bank's charge as gone, and the pounds that came in are told on their own line and kept as nothing", () => {
+  test("[world:month-end-results-sheet] [wallet:bank-converts-at-official-rate] [wallet:months-kept-counted] given naira changed into pounds at the bank at home, when what was kept is counted, then the naira count only the bank's charge as gone, and the pounds that came in are told on their own line and kept as nothing", () => {
     const game = newGame("scenario.tunde");
     const naira = (): number => game.view().pockets.NGN.bank + game.view().pockets.NGN.cash;
     const before = naira();
@@ -102,11 +102,11 @@ describe("a change of money on the results", () => {
     expect(-charge - (change?.paid.amount ?? 0)).toBe(changed - before);
   });
 
-  test("[R-WORLD-008] [R-WALLET-015] given a month with the band down ₦952,722, ₦1,037,389 paid in at the bank for £561 with a charge of ₦15,331, the month's other lines adding to +₦84,667, when what was kept and the change are read, then Kept is +₦69,336, the change says ₦1,022,058 into £561, the charge is one line, and Kept plus the change is the band's move", () => {
+  test("[world:month-end-results-sheet] [wallet:months-kept-counted] given a month with the band down ₦952,722, ₦1,037,389 paid in at the bank for £561 with a charge of ₦15,331, the month's other lines adding to +₦84,667, when what was kept and the change are read, then Kept is +₦69,336, the change says ₦1,022,058 into £561, the charge is one line, and Kept plus the change is the band's move", () => {
     const naira = (amount: number) => ({ currency: "NGN" as const, amount: amount * 100 });
     const pounds = (amount: number) => ({ currency: "GBP" as const, amount: amount * 100 });
     const line = (key: string, amount: { currency: "NGN" | "GBP"; amount: number }, tone: ReportLine["tone"]): ReportLine => ({ key, params: { amount }, tone, attention: false, counts: [] });
-    // As the wallet tells a foreign fee paid from the naira bank (R-WALLET-009): the side changed, the charge, what came in, the fee.
+    // As the wallet tells a foreign fee paid from the naira bank (wallet:foreign-fee-payment-order): the side changed, the charge, what came in, the fee.
     const lines: ReportLine[] = [
       line("line.wallet.convert-paid", naira(1_022_058), "plain"),
       line("line.wallet.bank-charge", naira(15_331), "bad"),
@@ -128,7 +128,7 @@ describe("a change of money on the results", () => {
     expect(money.filter((entry) => entry.currency === "NGN").reduce((sum, entry) => sum + entry.sign * entry.amount, 0)).toBe(-naira(952_722).amount);
   });
 
-  test("[R-WALLET-015] [R-WORLD-008] given a month abroad with a change at the bank, and a month at home with one, when each month closes, then the results' kept figure in the money of the place is the net the wallet counts the month by", () => {
+  test("[wallet:months-kept-counted] [world:month-end-results-sheet] given a month abroad with a change at the bank, and a month at home with one, when each month closes, then the results' kept figure in the money of the place is the net the wallet counts the month by", () => {
     const abroad = recordedGame("ada-careful");
     const local = (game: ReturnType<typeof newGame>): "GBP" | "NGN" => (game.state.place.where === "abroad" ? "GBP" : "NGN");
     const home = newGame("scenario.tunde");
@@ -147,7 +147,7 @@ describe("a change of money on the results", () => {
     }
   });
 
-  test("[R-WORLD-008] [R-ABROAD-006] given pounds sent home by app, when the month's money is read, then the pounds count as money out and the naira as landed at home, never both as sent", () => {
+  test("[world:month-end-results-sheet] [abroad-money:remit-sends-money-home] given pounds sent home by app, when the month's money is read, then the pounds count as money out and the naira as landed at home, never both as sent", () => {
     const game = recordedGame("ada-careful");
     const pounds = game.view().pockets.GBP.bank;
     const sent = Math.floor(pounds / 2 / 100) * 100;

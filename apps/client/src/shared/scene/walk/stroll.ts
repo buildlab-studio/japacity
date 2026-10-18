@@ -1,4 +1,4 @@
-// Strolling (city.md R-CITY-036). Spots kept for a role or an act (the trader at
+// Strolling (city:players-shown-present-not-tracked). Spots kept for a role or an act (the trader at
 // her stall, the conductor at his door, the crossers) keep their people. The times and the spots come
 // from a hash of the place, the slot and the stroll, never from Math.random.
 import { hash } from "../crowd";

@@ -1,4 +1,4 @@
-// The painted map's pure parts (docs/rules/world.md R-WORLD-015): the one fit from positions to the paper, the seeded
+// The painted map's pure parts (world:map-is-painted-lagos): the one fit from positions to the paper, the seeded
 // layout, which card a place belongs to, the spread of close places, the ring and name rule, the fold's states, the
 // route along the roads and its channel.
 import { readdirSync, readFileSync } from "node:fs";
@@ -30,7 +30,7 @@ const onLand = (point: readonly [number, number]): boolean => Object.values(LAND
 const CARD = { width: 350, height: 614 };
 
 describe("the painted map's fit", () => {
-  test("[R-WORLD-015] given a position, when it is laid on the paper, then the one affine fit gives whole numbers, north up, the paper's corners at its edges, and undoing it gives the position back", () => {
+  test("[world:map-is-painted-lagos] given a position, when it is laid on the paper, then the one affine fit gives whole numbers, north up, the paper's corners at its edges, and undoing it gives the position back", () => {
     expect(toPaper({ latE3: 6625, lonE3: 3290 })).toEqual([0, 0]);
     expect(toPaper({ latE3: 6395, lonE3: 3480 })).toEqual([PAPER.width, PAPER.height]);
     for (const place of BUILT) {
@@ -48,7 +48,7 @@ describe("the painted map's fit", () => {
     expect(ikejaX).toBeLessThan(ojuelegbaX);
   });
 
-  test("[R-WORLD-015] given every built place of Lagos, when the fit lays it on the drawing, then each stands on land, but Makoko's stilts and the bridge stand on the lagoon, and the landmarks are where Lagos has them", () => {
+  test("[world:map-is-painted-lagos] given every built place of Lagos, when the fit lays it on the drawing, then each stands on land, but Makoko's stilts and the bridge stand on the lagoon, and the landmarks are where Lagos has them", () => {
     const water = new Set(["place.makoko", "place.third-mainland-bridge"]);
     for (const place of BUILT) {
       const point = toPaper(place.position ?? { latE3: 0, lonE3: 0 });
@@ -64,7 +64,7 @@ describe("the painted map's fit", () => {
     expect(piece("place.visa-centre")).toBe("coast");
   });
 
-  test("[R-WORLD-015] given a new place with a position, when it is placed, then it falls in its district's card by itself, and every built place shows on its own card", () => {
+  test("[world:map-is-painted-lagos] given a new place with a position, when it is placed, then it falls in its district's card by itself, and every built place shows on its own card", () => {
     expect(cardOf({ latE3: 6452, lonE3: 3428 })).toBe("island");
     expect(cardOf({ latE3: 6430, lonE3: 3426 })).toBe("island");
     expect(cardOf({ latE3: 6595, lonE3: 3345 })).toBe("ikeja");
@@ -91,7 +91,7 @@ describe("the painted map's fit", () => {
 });
 
 describe("the seeded layout", () => {
-  test("[R-WORLD-015] given the same ground and seed, when the houses, trees and waves are placed twice, then they are the same, in whole numbers, and another seed gives another city", () => {
+  test("[world:map-is-painted-lagos] given the same ground and seed, when the houses, trees and waves are placed twice, then they are the same, in whole numbers, and another seed gives another city", () => {
     const ground = groundOf();
     const first = scatter(ground);
     const second = scatter(ground);
@@ -110,7 +110,7 @@ describe("the seeded layout", () => {
     expect(drawn.every((value) => whole(value) && value >= 0 && value < 10)).toBe(true);
   });
 
-  test("[R-WORLD-015] given the layout, when it is read, then every house and tree stands on land clear of the coast, the roads and the places, and every wave is on open water", () => {
+  test("[world:map-is-painted-lagos] given the layout, when it is read, then every house and tree stands on land clear of the coast, the roads and the places, and every wave is on open water", () => {
     const ground = groundOf();
     const { houses, trees, waves, closeHouses, closeTrees } = scatter(ground);
     const grain: (readonly [number, number])[] = [...houses.map((house) => [house.x, house.y] as const), ...trees, ...closeHouses.map((house) => [house.x, house.y] as const), ...closeTrees];
@@ -122,7 +122,7 @@ describe("the seeded layout", () => {
     for (const point of waves) expect(onLand(point)).toBe(false);
   });
 
-  test("[R-WORLD-015] given the drawing's lines, when they are softened into curves, then every number in the path is whole", () => {
+  test("[world:map-is-painted-lagos] given the drawing's lines, when they are softened into curves, then every number in the path is whole", () => {
     const paths = [...Object.values(LAND).map(loop), ...ROADS.map((road) => curve(road.points))];
     for (const d of paths) expect(d).not.toMatch(/\d\.\d/);
     expect(near([0, 5], [-10, 0], [10, 0], 5)).toBe(true);
@@ -131,7 +131,7 @@ describe("the seeded layout", () => {
 });
 
 describe("the stickers, the rings and the names", () => {
-  test("[R-WORLD-015] given places a few hundred metres apart, when they are spread, then the spread is the same each time, in whole numbers, leaves each near its own point and no two closer than the stickers need", () => {
+  test("[world:map-is-painted-lagos] given places a few hundred metres apart, when they are spread, then the spread is the same each time, in whole numbers, leaves each near its own point and no two closer than the stickers need", () => {
     const points = BUILT.map((place) => ({ id: place.id, at: toPaper(place.position ?? { latE3: 0, lonE3: 0 }) }));
     const once = spread(points);
     expect(spread([...points].reverse())).toEqual(once);
@@ -150,7 +150,7 @@ describe("the stickers, the rings and the names", () => {
     }
   });
 
-  test("[R-WORLD-015] given the stops, when the ring and the name are read, then a ring is only where the player stands, on the stop picked and on the step's place, and a name is on those, on home and on a place never visited", () => {
+  test("[world:map-is-painted-lagos] given the stops, when the ring and the name are read, then a ring is only where the player stands, on the stop picked and on the step's place, and a name is on those, on home and on a place never visited", () => {
     const marks = { home: "place.family-house", picked: "place.passport-office", step: "place.visa-centre" };
     expect(ringOf({ id: "place.ojuelegba", state: "here" }, marks)).toBe("here");
     expect(ringOf({ id: "place.passport-office", state: "can" }, marks)).toBe("picked");
@@ -166,14 +166,14 @@ describe("the stickers, the rings and the names", () => {
     expect(nameOf({ id: "place.airport-lagos", state: "not" }, marks)).toBeNull();
   });
 
-  test("[R-WORLD-015] given names that would cover each other, when the names to show are chosen, then every name that matters shows and a never-visited place's name shows only where it covers none", () => {
+  test("[world:map-is-painted-lagos] given names that would cover each other, when the names to show are chosen, then every name that matters shows and a never-visited place's name shows only where it covers none", () => {
     const box = (id: string, x: number, y: number, name: "here" | "home" | "picked" | "step" | "new") => ({ id, x, y, width: 80, height: 20, name });
     const shown = namesShown([box("here", 100, 100, "here"), box("home", 110, 104, "home"), box("covered", 120, 98, "new"), box("clear", 300, 300, "new"), box("second", 305, 302, "new")]);
     // Of two never-visited names on each other, the one nearer the foot of the screen shows.
     expect([...shown].sort()).toEqual(["here", "home", "second"]);
   });
 
-  test("[R-WORLD-015] given many places never visited, when a card chooses its names, then only a few show, the nearest the card's middle first and only those on the part seen, and the open map shows none of them", () => {
+  test("[world:map-is-painted-lagos] given many places never visited, when a card chooses its names, then only a few show, the nearest the card's middle first and only those on the part seen, and the open map shows none of them", () => {
     const box = (id: string, x: number, y: number, name: NameBox["name"] = "new"): NameBox => ({ id, x, y, width: 60, height: 18, name });
     const quiet = [box("a", 100, 100), box("b", 100, 300), box("c", 100, 500), box("d", 300, 100), box("e", 300, 300), box("f", 300, 500), box("off", 900, 300)];
     const card = placeNames([box("here", 200, 300, "here"), ...quiet], { newest: 3, centre: [200, 300], seen: [0, 0, 400, 600] });
@@ -187,7 +187,7 @@ describe("the stickers, the rings and the names", () => {
     expect([...open.keys()].sort()).toEqual(["here", "home"]);
   });
 
-  test("[R-WORLD-015] given here, home and the hub's names meeting where districts meet, when the names are placed, then every one shows and each moves clear so no two cover each other", () => {
+  test("[world:map-is-painted-lagos] given here, home and the hub's names meeting where districts meet, when the names are placed, then every one shows and each moves clear so no two cover each other", () => {
     const box = (id: string, x: number, y: number, name: NameBox["name"]): NameBox => ({ id, x, y, width: 90, height: 22, name });
     const boxes = [box("here", 200, 200, "here"), box("home", 206, 204, "home"), box("hub", 196, 198, "picked")];
     const placed = placeNames(boxes);
@@ -209,7 +209,7 @@ describe("the stickers, the rings and the names", () => {
 });
 
 describe("the names on a card", () => {
-  test("[R-WORLD-015] given a place already visited, when a card shows its sticker, then it carries its name like every other sticker there; on the open map and the strip it carries none", () => {
+  test("[world:map-is-painted-lagos] given a place already visited, when a card shows its sticker, then it carries its name like every other sticker there; on the open map and the strip it carries none", () => {
     const marks = { home: "place.family-house", picked: null, step: null };
     expect(nameOf({ id: "place.bode-thomas", state: "been" }, marks, true)).toBe("been");
     expect(nameOf({ id: "place.bode-thomas", state: "been" }, marks)).toBeNull();
@@ -224,7 +224,7 @@ describe("the names on a card", () => {
     expect(placed.get("been")).not.toEqual([0, 0]);
   });
 
-  test("[R-WORLD-015] given each neighbourhood's card at phone size, when its district names are painted, then each stands whole on the card and clear of the card's title pill: Ojuelegba's name no longer runs under the Surulere card's pill", () => {
+  test("[world:map-is-painted-lagos] given each neighbourhood's card at phone size, when its district names are painted, then each stands whole on the card and clear of the card's title pill: Ojuelegba's name no longer runs under the Surulere card's pill", () => {
     for (const [width, height] of [
       [412, 839],
       [390, 844],
@@ -253,7 +253,7 @@ describe("the names on a card", () => {
 });
 
 describe("the fold", () => {
-  test("[R-WORLD-015] given the map folded on a card, when the strip is tapped, then it opens and settles open; a tap on a district folds it back on that district's card and it settles folded", () => {
+  test("[world:map-is-painted-lagos] given the map folded on a card, when the strip is tapped, then it opens and settles open; a tap on a district folds it back on that district's card and it settles folded", () => {
     let state = folded("ojuelegba");
     expect(unfolded(state)).toBe(false);
     state = fold(state, { type: "tap-strip" });
@@ -270,7 +270,7 @@ describe("the fold", () => {
     expect(fold(state, { type: "swipe", card: "lekki" }).card).toBe("lekki");
   });
 
-  test("[R-WORLD-015] given a drag down on the strip, when it is let go, then past the pull that opens it the map opens, and short of it the map folds back, the pull in whole numbers", () => {
+  test("[world:map-is-painted-lagos] given a drag down on the strip, when it is let go, then past the pull that opens it the map opens, and short of it the map folds back, the pull in whole numbers", () => {
     const start = folded("yaba");
     const short = fold(start, { type: "drag", dy: Math.floor((DRAG_FULL * (PULL_OPENS - 1)) / 100) });
     expect(short.pull).toBe(PULL_OPENS - 1);
@@ -283,7 +283,7 @@ describe("the fold", () => {
     expect(fold(start, { type: "drag", dy: -40 }).pull).toBe(0);
   });
 
-  test("[R-WORLD-015] given what is live, when the map opens, then it opens on the stop picked, else the step's neighbourhood, else where the player stands", () => {
+  test("[world:map-is-painted-lagos] given what is live, when the map opens, then it opens on the stop picked, else the step's neighbourhood, else where the player stands", () => {
     expect(openingCard({ picked: "island", step: "yaba", here: "surulere", fallback: "ojuelegba" })).toBe("island");
     expect(openingCard({ picked: null, step: "yaba", here: "surulere", fallback: "ojuelegba" })).toBe("yaba");
     expect(openingCard({ picked: null, step: null, here: "surulere", fallback: "ojuelegba" })).toBe("surulere");
@@ -295,7 +295,7 @@ describe("the route", () => {
   const graph = buildGraph();
   const spot = (id: string): readonly [number, number] => toPaper(content.place[id as keyof typeof content.place]?.position ?? { latE3: 0, lonE3: 0 });
 
-  test("[R-WORLD-015] [R-WORLD-017] given a stop across the water, when the route is found, then it runs from the player's stop along the roads and over a bridge to the stop, every leg a road's own", () => {
+  test("[world:map-is-painted-lagos] [world:ride-sheet-shows-fares] given a stop across the water, when the route is found, then it runs from the player's stop along the roads and over a bridge to the stop, every leg a road's own", () => {
     const route = routeBetween(graph, spot("place.ojuelegba"), spot("place.passport-office"));
     expect(route[0]).toEqual(spot("place.ojuelegba"));
     expect(route[route.length - 1]).toEqual(spot("place.passport-office"));
@@ -312,7 +312,7 @@ describe("the route", () => {
     expect(midway(route).at.every(whole)).toBe(true);
   });
 
-  test("[R-WORLD-015] given a stop picked, when the route's channel is read, then it is the card within the neighbourhood, the strip across the city, and the open map whenever it is open or on a laptop", () => {
+  test("[world:map-is-painted-lagos] given a stop picked, when the route's channel is read, then it is the card within the neighbourhood, the strip across the city, and the open map whenever it is open or on a laptop", () => {
     expect(routeChannel({ open: false, wide: false, sameCard: true })).toBe("card");
     expect(routeChannel({ open: false, wide: false, sameCard: false })).toBe("strip");
     expect(routeChannel({ open: true, wide: false, sameCard: true })).toBe("open");
@@ -322,7 +322,7 @@ describe("the route", () => {
 });
 
 describe("the night paint", () => {
-  test("[R-WORLD-015] given the night paint, when the map's colours are read, then the paper darkens, the windows light and the stickers glow", () => {
+  test("[world:map-is-painted-lagos] given the night paint, when the map's colours are read, then the paper darkens, the windows light and the stickers glow", () => {
     const css = readFileSync(join(import.meta.dirname, "paper.css"), "utf8");
     const night = css.slice(css.indexOf('[data-paint="night"] .paper,'), css.indexOf("}", css.indexOf('[data-paint="night"] .paper,')));
     expect(night).toContain("--map-paper: #223056");

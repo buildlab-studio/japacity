@@ -1,6 +1,6 @@
-// Where the life is in Papers (docs/rules/place.md R-PLACE-009, R-PLACE-004; return.md R-RETURN-001): the country and
+// Where the life is in Papers (place:view-shows-place-and-returns, place:return-home-paid-or-assisted; return:return-record-in-words): the country and
 // the months here, the fare home as the view gives it with what it takes, and the times
-// the life came home, newest first, in words with no month number (world.md R-WORLD-002). The way home itself is the
+// the life came home, newest first, in words with no month number (world:top-band-is-lively-pill). The way home itself is the
 // bag's Go home (features/city/acts/goHome.place.test.ts).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
@@ -23,7 +23,7 @@ function placeCard(): HTMLElement {
 }
 
 describe("where you are, in Papers", () => {
-  test("[R-PLACE-009] given Ada just landed, then the country and the months here show and no return is on record", async () => {
+  test("[place:view-shows-place-and-returns] given Ada just landed, then the country and the months here show and no return is on record", async () => {
     const view = abroadView();
     await openPapers(view, "London");
     const card = within(placeCard());
@@ -32,13 +32,13 @@ describe("where you are, in Papers", () => {
     expect(card.queryByRole("list", { name: say("ui.place.returns") })).toBeNull();
   });
 
-  test("[R-PLACE-009] given a new life at home with nothing on record, then Papers shows no place", async () => {
+  test("[place:view-shows-place-and-returns] given a new life at home with nothing on record, then Papers shows no place", async () => {
     await openPapers(engineView(), "London");
     expect(document.querySelector("[data-papers]")).not.toBeNull();
     expect(document.querySelector("[data-papers-place]")).toBeNull();
   });
 
-  test("[R-PLACE-004] given Ada abroad with no pounds and naira enough, then the fare shows with what it takes from naira", async () => {
+  test("[place:return-home-paid-or-assisted] given Ada abroad with no pounds and naira enough, then the fare shows with what it takes from naira", async () => {
     const game = abroadGame();
     setPockets(game, { NGN: 500_000_000 });
     const view = game.view();
@@ -49,7 +49,7 @@ describe("where you are, in Papers", () => {
     expect(fare.getByText(say("ui.place.fare-naira", { naira: formatMoney(nairaForFee(view, "GBP", UK.fare), "NGN") }))).toBeDefined();
   });
 
-  test("[R-PLACE-004] given Ada landed with dollars but neither pounds nor naira enough for the fare, then she is told to change money first", async () => {
+  test("[place:return-home-paid-or-assisted] given Ada landed with dollars but neither pounds nor naira enough for the fare, then she is told to change money first", async () => {
     const game = abroadGame();
     setPockets(game, { NGN: 0, GBP: 0, USD: 500000 });
     const view = game.view();
@@ -58,7 +58,7 @@ describe("where you are, in Papers", () => {
     expect(within(placeCard()).getByText(say("ui.place.fare-short", { fare: formatMoney(UK.fare, "GBP"), naira: formatMoney(nairaForFee(view, "GBP", UK.fare), "NGN") }))).toBeDefined();
   });
 
-  test("[R-PLACE-009] given December abroad, then the fare shown is the view's, the December factor in it, with the off-peak fare beside it", async () => {
+  test("[place:view-shows-place-and-returns] given December abroad, then the fare shown is the view's, the December factor in it, with the off-peak fare beside it", async () => {
     // The journey calendar makes the month of the flight a December, whichever month the recorded life flies in.
     const view = decemberAbroadGame().view();
     expect(view.place.fareHome!.amount).toBeGreaterThan(UK.fare);
@@ -68,7 +68,7 @@ describe("where you are, in Papers", () => {
     expect(card.getByText(say("ui.place.fare-december-now", { fare: formatMoney(UK.fare, "GBP") }))).toBeDefined();
   });
 
-  test("[R-RETURN-001] given two returns on record, then each reads in words, newest first, with no month number", async () => {
+  test("[return:return-record-in-words] given two returns on record, then each reads in words, newest first, with no month number", async () => {
     const view: PlayerView = {
       ...engineView(),
       month: 60,
@@ -94,7 +94,7 @@ describe("where you are, in Papers", () => {
     expect(within(placeCard()).getByText(say("ui.place.token", { status: nameOf("status.uk-settled") }))).toBeDefined();
   });
 
-  test("[R-PLACE-009] given a return from the road on record, then it reads as from the road", async () => {
+  test("[place:view-shows-place-and-returns] given a return from the road on record, then it reads as from the road", async () => {
     const base = abroadView();
     const view: PlayerView = { ...base, place: { ...base.place, returns: [{ month: 20, shape: "assisted", country: null }] } };
     await openPapers(view, "London");

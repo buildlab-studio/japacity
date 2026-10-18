@@ -1,4 +1,4 @@
-// The landing chapter's steps in each country abroad (world.md R-WORLD-003, R-WORLD-039): the nudge's way goes
+// The landing chapter's steps in each country abroad (world:nudge-says-one-thing, world:ride-abroad-and-workplace): the nudge's way goes
 // to the country's own doors, the strip mall's notice and Calgary's workplaces, the site's post and trolley, the vans at
 // the roundabout and the gangmaster's table, and money home to each country's counter.
 import { describe, expect, test } from "vitest";
@@ -20,7 +20,7 @@ function landing(step: "job" | "request", country: "country.uk" | "country.canad
 }
 
 describe("the landing's steps abroad", () => {
-  test("[R-WORLD-003] [R-WORLD-039] given the landing's job step in each country, when its way is read, then it goes to the country's own stop and names its doors there", () => {
+  test("[world:nudge-says-one-thing] [world:ride-abroad-and-workplace] given the landing's job step in each country, when its way is read, then it goes to the country's own stop and names its doors there", () => {
     expect(landing("job", "country.uk")?.go).toBe("place.peckham");
     expect(landing("job", "country.canada")?.go).toBe("place.calgary-north-east");
     expect(landing("job", "country.uae")?.go).toBe("place.site-uae");
@@ -29,7 +29,7 @@ describe("the landing's steps abroad", () => {
     for (const door of ["place.calgary-north-east:jobs-notice", "place.warehouse-ca:clock-in", "place.care-home-ca:reception", "place.office-ca:desk", "place.site-uae:guard-post", "place.site-uae:cleaner-trolley", "place.castel-volturno:roundabout", "place.farm-it:table"]) expect(at).toContain(door);
   });
 
-  test("[R-WORLD-003] [R-WORLD-039] given the landing's money step in each country, when its way is read, then it goes to the country's counter, and every door it names is a thing of that place's file", () => {
+  test("[world:nudge-says-one-thing] [world:ride-abroad-and-workplace] given the landing's money step in each country, when its way is read, then it goes to the country's counter, and every door it names is a thing of that place's file", () => {
     expect(landing("request", "country.uk")?.go).toBe("place.rye-lane");
     expect(landing("request", "country.canada")?.go).toBe("place.calgary-north-east");
     expect(landing("request", "country.uae")?.go).toBe("place.deira");

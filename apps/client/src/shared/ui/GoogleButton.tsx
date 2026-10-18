@@ -1,4 +1,4 @@
-// Google's own sign-in button (docs/rules/account.md R-ACCOUNT-023): the standard button Google's
+// Google's own sign-in button (account:guest-secures-the-life): the standard button Google's
 // branding guidelines describe, so a player knows it at once and Google's review finds it as the guidelines ask. The G
 // is Google's asset, unchanged (public/brand/google-g.svg); the colours, the sizes and the face are the guidelines'
 // (index.css `.google-button`, the `--google-*` tokens: light on a light sheet, dark on a dark one). Nothing is added

@@ -1,5 +1,5 @@
-// The car on finance in Bills (docs/rules/car.md R-CAR-007, R-CAR-003, R-CAR-004), each assertion against the bill's
-// card. The rate is said as the interest a month in money, never a percentage (R-CAR-007).
+// The car on finance in Bills (car:view-shows-car-terms, car:missed-payments-take-the-car, car:car-handed-back-after-half), each assertion against the bill's
+// card. The rate is said as the interest a month in money, never a percentage (car:view-shows-car-terms).
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
@@ -36,7 +36,7 @@ function card(owed: PlayerView["obligations"][number]): HTMLElement {
 }
 
 describe("the car on finance, in Bills", () => {
-  test("[R-CAR-007] given a car with two payments missed, then the price paid, the third and half marks, the final payment, the rate and the notice show", async () => {
+  test("[car:view-shows-car-terms] given a car with two payments missed, then the price paid, the third and half marks, the final payment, the rate and the notice show", async () => {
     const view = richAbroadView();
     const owed = car(view);
     const figures = carFigures(owed, view.month)!;
@@ -57,7 +57,7 @@ describe("the car on finance, in Bills", () => {
     expect(shown.getByRole<HTMLButtonElement>("button", { name: say("ui.car.hand-back") }).disabled).toBe(true);
   });
 
-  test("[R-CAR-003] given a third paid and a third miss, then the court date shows and clearing the arrears pays exactly what is due", async () => {
+  test("[car:missed-payments-take-the-car] given a third paid and a third miss, then the court date shows and clearing the arrears pays exactly what is due", async () => {
     const view = withCar({ missed: CAR.grace + 1 });
     const owed = car(view);
     const { authority } = await renderWithView(<Bills />, view);
@@ -69,7 +69,7 @@ describe("the car on finance, in Bills", () => {
     await waitFor(() => expect(authority.sent).toEqual([{ type: "obligation/pay", obligation: owed.id, amount: owed.due, basedOn: view.v }]));
   });
 
-  test("[R-CAR-004] given half the price paid, when the car is handed back, then obligation/pay is sent with the amount 0", async () => {
+  test("[car:car-handed-back-after-half] given half the price paid, when the car is handed back, then obligation/pay is sent with the amount 0", async () => {
     const half = Math.floor((terms.price * terms.handBackBp) / 10000);
     const view = withCar({ outstanding: terms.price - half, missed: 0, state: "active" });
     const owed = car(view);

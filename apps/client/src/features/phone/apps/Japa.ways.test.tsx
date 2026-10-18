@@ -1,4 +1,4 @@
-// The ways out in Japa (docs/rules/world.md R-WORLD-019; route.md): the plan's steps in content's words, a step done
+// The ways out in Japa (world:phone-holds-what-phones-hold; route.md): the plan's steps in content's words, a step done
 // struck through and a slow one with a bar; each way looked into as a card with its window, its universities with what
 // they ask and cost, its funds against what is needed and its record with the refusals in words, each assertion against
 // the phone's own element.
@@ -48,7 +48,7 @@ describe("the ways out in Japa", () => {
     expect(screen.queryByText(/1 times/)).toBeNull();
     expect(screen.getByText(say("ui.refusal.funds"))).toBeDefined();
     expect(screen.getByText(nameOf("school.northgate"))).toBeDefined();
-    // The answer's month as months away (R-WORLD-002): the school answers as month 13 ends.
+    // The answer's month as months away (world:top-band-is-lively-pill): the school answers as month 13 ends.
     expect(screen.getByText(say("phone.japa.school.pending", { when: byMonths(13, richView().month) }))).toBeDefined();
     expect(document.querySelector("[data-way-file]")?.textContent).not.toMatch(/month \d+/i);
   });

@@ -1,4 +1,4 @@
-// The keke's window (docs/rules/world.md R-WORLD-032): the camera sits on the bench, clear of everyone the ride seats, so
+// The keke's window (world:ride-cuts-between-angles): the camera sits on the bench, clear of everyone the ride seats, so
 // no head comes through it and the canopy's underside never fills the cut. It looks out of
 // the keke's open side on the road's side, between its pillars and under its canopy, as the danfo's window looks out
 // from the aisle. Positions are the ride scene's own: its seats and the keke's frame as the model builds it.
@@ -27,7 +27,7 @@ function cameraIn(scene: ReturnType<typeof buildRide>): { at: Vector3; facing: V
 }
 
 describe("the keke's window", () => {
-  test("[R-WORLD-032] given a keke's scene, when its last angle is framed, then the camera sits under the canopy clear of every seated person, looks out of the open side on the road's side between the pillars, and no one stands in front of it", () => {
+  test("[world:ride-cuts-between-angles] given a keke's scene, when its last angle is framed, then the camera sits under the canopy clear of every seated person, looks out of the open side on the road's side between the pillars, and no one stands in front of it", () => {
     const scene = buildRide("keke");
     scene.setPerson("own", new Group());
     scene.setPerson("driver", new Group());

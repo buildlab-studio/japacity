@@ -1,6 +1,6 @@
 // What each thing's fan holds, and what each button of the fan says (docs/design/13-the-lively-layer.md section 3; docs/rules/world.md
-// R-WORLD-005, R-WORLD-006, R-WORLD-034). Every thing fans its acts. The room's and the street's acts done at once (decision
-// 0012, R-STREET-011) are the simulation's own buttons: priced, balanced, refused as their sheet would, and sent on arrival.
+// world:things-are-tappable-models, world:one-action-one-sheet, world:fan-of-sticker-buttons). Every thing fans its acts. The room's and the street's acts done at once (decision
+// 0012, streets:lagos-street-spending) are the simulation's own buttons: priced, balanced, refused as their sheet would, and sent on arrival.
 // Every other act (a pose, the bed's Sleep, a sheet that opens a card, a command, the way out, the papers, a word with
 // someone) is a button with the act's own label and a picture, no price, and on arrival it does what its kind does.
 import { content } from "@japacity/content";
@@ -25,7 +25,7 @@ const SEND_MONEY = "activity.send-money";
 export const MOST_FANNED = 8;
 
 /**
- * True when an entry is one of the room's or the street's acts: done at once (R-ACTIVITY-015), outside the month's free
+ * True when an entry is one of the room's or the street's acts: done at once (activity:now-acts-and-month-acts), outside the month's free
  * time (`slot: "none"`, decision 0011), with no choice inside it, and neither a paper slip nor the Bank's.
  */
 export function fanEntry(stages: string): boolean {
@@ -37,7 +37,7 @@ export function fanEntry(stages: string): boolean {
 /**
  * What a button does: `now`, one of the simulation's acts done at once, sent on arrival as its sheet's button sends it;
  * `act`, any other act of the thing, handed to the walk and done on arrival as its kind does (a pose, Sleep, a card, a
- * command, the map, the phone); `stop`, an act carrying on in the plan taken out of it (R-WORLD-007).
+ * command, the map, the phone); `stop`, an act carrying on in the plan taken out of it (world:month-acts-carry-on).
  */
 type FanKind = "now" | "act" | "stop";
 
@@ -132,7 +132,7 @@ export function pictureOf(act: Pick<Act, "id" | "kind" | "pose" | "stages" | "co
 /** The soft tint of a glyph's button: a pose or a sleep the body's, money paid money's, a word people's, else the sheet's. */
 const GLYPH_TINTS: Readonly<Partial<Record<ActGlyph, FanTint>>> = { sit: "body", lie: "body", sleep: "body", pay: "money", talk: "people" };
 
-/** The groups of quality a skill or a proof counts in (R-QUALITY-007). */
+/** The groups of quality a skill or a proof counts in (quality:body-belly-and-energy). */
 const STUDY_GROUPS: ReadonlySet<string> = new Set(["skills", "proof"]);
 const PEOPLE_QUALITIES: ReadonlySet<string> = new Set(["quality.standing", "quality.network"]);
 const BODY_QUALITIES: ReadonlySet<string> = new Set(["quality.energy", "quality.wellbeing"]);
@@ -154,9 +154,9 @@ export function tintOf(activity: string): FanTint {
   return "plain";
 }
 
-/** Why a button cannot be had, in the words the sheet would use (R-WORLD-006, R-ACTIVITY-020). */
+/** Why a button cannot be had, in the words the sheet would use (world:one-action-one-sheet, activity:spent-body-refuses-acts). */
 interface FanRefusal {
-  /** `planned`: the act carries on in the plan, so its button is shut and the stop beside it takes it out (R-WORLD-007). */
+  /** `planned`: the act carries on in the plan, so its button is shut and the stop beside it takes it out (world:month-acts-carry-on). */
   kind: "spent" | "short" | "locked" | "planned";
   words: string;
 }

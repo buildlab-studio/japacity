@@ -29,24 +29,24 @@ function setUp(held: number | null = 5) {
 }
 
 describe("the reconnect wait", () => {
-  test("[R-CLOCK-023] given no random part, then the waits run 1, 2, 4, 8, 16, 32 seconds and stop at 60", () => {
+  test("[clock:sockets-reconnect-with-backoff] given no random part, then the waits run 1, 2, 4, 8, 16, 32 seconds and stop at 60", () => {
     expect(Array.from({ length: 9 }, (_, attempt) => reconnectWait(attempt, none))).toEqual([1000, 2000, 4000, 8000, 16000, 32000, 60000, 60000, 60000]);
   });
 
-  test("[R-CLOCK-023] given the random part, then it is drawn up to half the wait and never more", () => {
+  test("[clock:sockets-reconnect-with-backoff] given the random part, then it is drawn up to half the wait and never more", () => {
     const asked: number[] = [];
     const most = (below: number) => (asked.push(below), below - 1);
     expect([0, 1, 6, 20].map((attempt) => reconnectWait(attempt, most))).toEqual([1500, 3000, 90000, 90000]);
     expect(asked).toEqual([501, 1001, 30001, 30001]);
   });
 
-  test("[R-CLOCK-023] given the numbers on clock.md, then the client mirrors them", () => {
+  test("[clock:sockets-reconnect-with-backoff] given the numbers on clock.md, then the client mirrors them", () => {
     expect(SOCKET_NUMBERS).toEqual({ reconnectFirstMs: 1000, reconnectMaxMs: 60000, pingMs: 30000 });
   });
 });
 
 describe("the nudge socket", () => {
-  test("[R-CLOCK-023] given the socket connects, then the view is fetched once", () => {
+  test("[clock:sockets-reconnect-with-backoff] given the socket connects, then the view is fetched once", () => {
     const { opened, counts } = setUp();
     expect(opened).toHaveLength(1);
     expect(opened[0]?.url).toBe("wss://play.test/api/place/home/socket");
@@ -54,7 +54,7 @@ describe("the nudge socket", () => {
     expect(counts.view).toBe(1);
   });
 
-  test("[R-CLOCK-023] given the socket drops again and again, then it reconnects after 1, 2 and 4 seconds and fetches the view on each connect", () => {
+  test("[clock:sockets-reconnect-with-backoff] given the socket drops again and again, then it reconnects after 1, 2 and 4 seconds and fetches the view on each connect", () => {
     const { opened, counts } = setUp();
     opened[0]?.drop();
     vi.advanceTimersByTime(999);
@@ -73,7 +73,7 @@ describe("the nudge socket", () => {
     expect(counts.view).toBe(1);
   });
 
-  test("[R-CLOCK-023] given a connection that opened, when it drops, then the wait starts again from 1 second", () => {
+  test("[clock:sockets-reconnect-with-backoff] given a connection that opened, when it drops, then the wait starts again from 1 second", () => {
     const { opened } = setUp();
     opened[0]?.drop();
     vi.advanceTimersByTime(1000);
@@ -85,7 +85,7 @@ describe("the nudge socket", () => {
     expect(opened).toHaveLength(4);
   });
 
-  test("[R-CLOCK-021] given the client holds version 5, then a view nudge at 5 or below is ignored and one at 6 fetches the view", () => {
+  test("[clock:nudge-triggers-ordinary-fetch] given the client holds version 5, then a view nudge at 5 or below is ignored and one at 6 fetches the view", () => {
     const { opened, counts } = setUp(5);
     const socket = opened[0]!;
     socket.accept();
@@ -96,13 +96,13 @@ describe("the nudge socket", () => {
     expect(counts.view).toBe(2);
   });
 
-  test("[R-CLOCK-021] given a presence nudge, then presence is fetched and the view is not", () => {
+  test("[clock:nudge-triggers-ordinary-fetch] given a presence nudge, then presence is fetched and the view is not", () => {
     const { opened, counts } = setUp();
     opened[0]?.push({ nudge: "presence" });
     expect(counts).toEqual({ view: 0, presence: 1 });
   });
 
-  test("[R-CLOCK-020] given a message that is not a nudge, then nothing happens", () => {
+  test("[clock:socket-only-nudges] given a message that is not a nudge, then nothing happens", () => {
     const { opened, counts } = setUp();
     opened[0]?.push("pong");
     opened[0]?.push({ nudge: "view" });
@@ -110,7 +110,7 @@ describe("the nudge socket", () => {
     expect(counts).toEqual({ view: 0, presence: 0 });
   });
 
-  test("[R-CLOCK-024] given an open socket for 95 seconds of nudges, then the only messages sent are three pings, one every 30 seconds", () => {
+  test("[clock:client-sends-only-pings] given an open socket for 95 seconds of nudges, then the only messages sent are three pings, one every 30 seconds", () => {
     const { opened } = setUp();
     const socket = opened[0]!;
     socket.accept();
@@ -122,7 +122,7 @@ describe("the nudge socket", () => {
     expect(socket.outgoing).toEqual([PING, PING, PING]);
   });
 
-  test("[R-CLOCK-024] given the socket closed by the client, then it sends nothing more and does not reconnect", () => {
+  test("[clock:client-sends-only-pings] given the socket closed by the client, then it sends nothing more and does not reconnect", () => {
     const { socket, opened } = setUp();
     opened[0]?.accept();
     socket.close();

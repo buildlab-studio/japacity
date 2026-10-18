@@ -1,4 +1,4 @@
-// What still waits on the player once an ask answered at its place is done (docs/rules/world.md R-WORLD-006):
+// What still waits on the player once an ask answered at its place is done (world:one-action-one-sheet):
 // the asks still open, by name, and one button to them.
 import type { PlayerView } from "@japacity/sim";
 

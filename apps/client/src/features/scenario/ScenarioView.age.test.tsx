@@ -1,4 +1,4 @@
-// The age the door prints (prologue.md R-PROLOGUE-004, R-PROLOGUE-009; decision 0023): the
+// The age the door prints (prologue:age-advances-with-steps, prologue:front-door-builds-a-person; decision 0023): the
 // age picked is the age the life starts at, to the year. The door shows the tile's own year, the year its path reaches
 // with no setback, and the page prints the same true number; a retake or a strike costs years of work before that
 // age, never the age.
@@ -53,7 +53,7 @@ function handedOver(id: string, older: number, seed: string): { months: number; 
 const passed = (life: { trail: { step: string }[] }, step: string): boolean => life.trail.some((one) => one.step === step);
 
 describe("the door's age and the page's", () => {
-  test.each(ARCHETYPES.map((archetype) => archetype.id))("[R-PROLOGUE-004] [R-PROLOGUE-009] [R-PROLOGUE-013] given the %s's tile with the age under it, when the age shows and Where you live says it as the page prints it, then both say the year its path reaches with no setback, the year its tile says, and never \"about\"", (id) => {
+  test.each(ARCHETYPES.map((archetype) => archetype.id))("[prologue:age-advances-with-steps] [prologue:front-door-builds-a-person] [prologue:front-door-three-screens] given the %s's tile with the age under it, when the age shows and Where you live says it as the page prints it, then both say the year its path reaches with no setback, the year its tile says, and never \"about\"", (id) => {
     door();
     fireEvent.change(screen.getByRole("textbox", { name: say("prologue.door.name.title") }), { target: { value: "Bola" } });
     fireEvent.click(next(say("ui.door.next")));
@@ -69,7 +69,7 @@ describe("the door's age and the page's", () => {
     expect(document.querySelector("[data-door-board]")?.textContent).not.toMatch(/about/i);
   });
 
-  test("[R-PROLOGUE-004] [R-PROLOGUE-009] given nurses stepped two years older on the door, when some retake the exam and some pass, then every one of them starts in the year picked, and at her own year none retakes", () => {
+  test("[prologue:age-advances-with-steps] [prologue:front-door-builds-a-person] given nurses stepped two years older on the door, when some retake the exam and some pass, then every one of them starts in the year picked, and at her own year none retakes", () => {
     const picked = startYearFor(archetypeOf("nurse")!, 2);
     const lives = Array.from({ length: 40 }, (_, at) => handedOver("nurse", 2, `nurse-age-${String(at)}`));
     expect(lives.some((life) => passed(life, "retake"))).toBe(true);

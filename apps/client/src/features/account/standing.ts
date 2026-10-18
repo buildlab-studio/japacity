@@ -1,6 +1,6 @@
 // The account as the server last said it (`GET /api/account`), shared by the
-// screens that change with it: whether the life is a guest's (R-ACCOUNT-021),
-// the username (R-ACCOUNT-024). One store for each account seam, read again
+// screens that change with it: whether the life is a guest's (account:guest-and-secured-states),
+// the username (account:username-and-unconfirmed-email). One store for each account seam, read again
 // whenever something changes it.
 import type { AccountView } from "@japacity/api";
 import { useEffect } from "react";
@@ -48,7 +48,7 @@ export function useAccountView(): AccountView | null {
   return view;
 }
 
-/** R-ACCOUNT-021: true while the life is a guest's. */
+/** account:guest-and-secured-states: true while the life is a guest's. */
 export function useGuest(): boolean {
   return useAccountView()?.state === "guest";
 }

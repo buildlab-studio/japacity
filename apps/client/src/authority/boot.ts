@@ -28,13 +28,13 @@ export function bootGame(options: Partial<LocalAuthorityOptions> = {}): GameStor
   }
 }
 
-/** R-ACCOUNT-030: once a life has ended, the page loads afresh on the door, so nothing the old life held in memory stays. */
+/** account:start-a-new-life: once a life has ended, the page loads afresh on the door, so nothing the old life held in memory stays. */
 function loadAfresh(): void {
   location.reload();
 }
 
 /**
- * R-CLOCK-032, development only: `?morning=now` on the address opens every sealed result at once and `?morning=off`
+ * clock:envelopes-show-real-waits, development only: `?morning=now` on the address opens every sealed result at once and `?morning=off`
  * lets them wait for seven in Lagos again, so a tester on a phone needs no console.
  */
 function takeMorningSwitch(): void {
@@ -66,7 +66,7 @@ function bootLocal(options: Partial<LocalAuthorityOptions>): GameStore {
 }
 
 /**
- * R-CLOCK-032: back on the tab, from another app or a night's sleep, the view is read again and with it the results
+ * clock:envelopes-show-real-waits: back on the tab, from another app or a night's sleep, the view is read again and with it the results
  * whose morning has come. Online, `goOnline` reads the view on the same signs.
  */
 function followMorning(store: GameStore): void {
@@ -81,11 +81,11 @@ function followMorning(store: GameStore): void {
 
 function bootRemote(baseUrl: string): GameStore {
   const remote = remoteAuthority({ baseUrl });
-  // One life per account online (R-ACCOUNT-015): the chooser opens only when the server says there is none.
+  // One life per account online (account:one-character-per-account): the chooser opens only when the server says there is none.
   const store = createGameStore(remote, { life: remote, lifeAgain: false, rememberMonth: true, afterLifeEnded: loadAfresh, account: betterAuthApi({ baseUrl }) });
   goOnline({ store, remote });
   startCounting({ baseUrl });
-  // R-ANALYTICS-006: an account that turned the counters off stays off from the first screen.
+  // analytics:player-can-stop-usage-counts: an account that turned the counters off stays off from the first screen.
   void readAccount(remote.api).then((reply) => {
     if (reply.ok && reply.account.sendUsageCounts === false) setUsageCounts(false);
   });

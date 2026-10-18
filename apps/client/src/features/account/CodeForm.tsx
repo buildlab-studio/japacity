@@ -1,5 +1,5 @@
-// Signing in by a code sent to an email address (R-ACCOUNT-002): the address,
-// then the 6 digits. Used to come in, and to confirm deleting (R-ACCOUNT-016),
+// Signing in by a code sent to an email address (account:email-code-is-short-lived): the address,
+// then the 6 digits. Used to come in, and to confirm deleting (account:player-deletes-account),
 // where the code goes to the server with the deletion instead of signing in.
 import { useState, type FormEvent } from "react";
 
@@ -13,7 +13,7 @@ export const failureWords = (result: AuthResult): string | null => (result.ok ? 
 
 export interface CodeFormProps {
   account: AccountApi;
-  /** The bot check's token, sent where an account could be made (R-ACCOUNT-013). */
+  /** The bot check's token, sent where an account could be made (account:bot-check-on-guest-creation). */
   bot?: string | null;
   /** Called after any request that spent the token. */
   spentBot?: () => void;

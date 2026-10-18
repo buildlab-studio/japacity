@@ -1,5 +1,5 @@
-// Calgary, Dubai and Castel Volturno on the mold (docs/design/15-the-three-countries-on-the-mold.md; world.md R-WORLD-039
-//, streets.md R-STREET-013 to R-STREET-015, place.md R-PLACE-012): each country's frontages with
+// Calgary, Dubai and Castel Volturno on the mold (docs/design/15-the-three-countries-on-the-mold.md; world:ride-abroad-and-workplace
+//, streets:calgary-life-by-hand, streets:dubai-life-by-hand and streets:castel-volturno-by-hand, place:country-pass-covers-ways): each country's frontages with
 // their things, its workplaces with a door, the interiors it shares with London under its own entry and its own stage
 // file, its colleagues' lines in turn and the talk overheard in every place.
 import { readFileSync } from "node:fs";
@@ -87,7 +87,7 @@ describe.each(FRONTAGES)("%s", (id, raw) => {
 });
 
 describe("Calgary's strip mall and its station", () => {
-  test("[R-STREET-013] [R-WORLD-005] given the strip mall, when its things are read, then the notice opens the hunt, the coffee shop, the African store and the barber their acts, the transfer counter money home and the bench the find, each staged here for Canada", () => {
+  test("[streets:calgary-life-by-hand] [world:things-are-tappable-models] given the strip mall, when its things are read, then the notice opens the hunt, the coffee shop, the African store and the barber their acts, the transfer counter money home and the bench the find, each staged here for Canada", () => {
     const acts: Record<string, string> = {
       "jobs-notice": "activity.job-hunt",
       "coffee-shop": "activity.coffee-ca",
@@ -103,20 +103,20 @@ describe("Calgary's strip mall and its station", () => {
     expect(cityWords(thingIn(calgary, "transfer").label)).toBe("Money transfer");
   });
 
-  test("[R-CITY-013] given the hubs of Calgary and Castel Volturno, when their files are read, then each entry is its country's hub and its file is not the first download", () => {
+  test("[city:ojuelegba-is-the-hub] given the hubs of Calgary and Castel Volturno, when their files are read, then each entry is its country's hub and its file is not the first download", () => {
     for (const [id, raw] of [["place.calgary-north-east", calgary], ["place.castel-volturno", castel]] as const) {
       const { file, entry } = staged(raw, id);
       expect([id, entry.hub, file.hub]).toEqual([id, true, false]);
     }
   });
 
-  test("[R-WORLD-039] [R-WORLD-005] given the African store and its transfer counter on one unit, when their things are placed, then each is marked at its own spot", () => {
+  test("[world:ride-abroad-and-workplace] [world:things-are-tappable-models] given the African store and its transfer counter on one unit, when their things are placed, then each is marked at its own spot", () => {
     const stage = stageOf(calgary as unknown as PlaceFile);
     const spots = ["naija-shop", "transfer"].map((id) => thingSpot(stage, thingIn(calgary, id))?.join(","));
     expect(new Set(spots).size).toBe(2);
   });
 
-  test("[R-PLACE-012] [R-WORLD-005] given the CTrain station and Union station, when their machines are read, then each sells its country's month's pass, Transit pass and Zone pass, and the platform rides", () => {
+  test("[place:country-pass-covers-ways] [world:things-are-tappable-models] given the CTrain station and Union station, when their machines are read, then each sells its country's month's pass, Transit pass and Zone pass, and the platform rides", () => {
     expect(opens(ctrain, "ticket-machine")).toEqual(["activity.transit-pass-ca"]);
     expect(stagedAt("activity.transit-pass-ca", CANADA, PLACES)).toBe("place.ctrain-station-ca");
     expect(opens(metro, "nol-machine")).toEqual(["activity.transit-pass-uae"]);
@@ -126,7 +126,7 @@ describe("Calgary's strip mall and its station", () => {
 });
 
 describe("Naif", () => {
-  test("[R-STREET-014] [R-STREET-005] [R-WORLD-005] given Naif's souq frontage on Deira's arcades, when its things are read, then the stall opens the souq's shopping, the tailor the tailor and the laundry the laundry, each staged there for the UAE, under Naif's own boards", () => {
+  test("[streets:dubai-life-by-hand] [streets:street-shopping-abroad] [world:things-are-tappable-models] given Naif's souq frontage on Deira's arcades, when its things are read, then the stall opens the souq's shopping, the tailor the tailor and the laundry the laundry, each staged there for the UAE, under Naif's own boards", () => {
     const acts: Record<string, string> = { "spice-stall": "activity.street-shopping-uae", tailor: "activity.buy-clothes-uae", laundry: "activity.laundry-uae" };
     for (const [thing, act] of Object.entries(acts)) {
       expect([thing, opens(naif, thing)]).toEqual([thing, [act]]);
@@ -139,7 +139,7 @@ describe("Naif", () => {
 });
 
 describe("the coast", () => {
-  test("[R-STREET-015] [R-WORLD-005] given the roundabout and the Domitiana, when their things are read, then the roundabout opens the hunt, the bar the coffee, the African shop its act, the call shop money home; the pickup point overtime, the Nigerian shop the evening, the barber and the stall their acts, each staged there for Italy", () => {
+  test("[streets:castel-volturno-by-hand] [world:things-are-tappable-models] given the roundabout and the Domitiana, when their things are read, then the roundabout opens the hunt, the bar the coffee, the African shop its act, the call shop money home; the pickup point overtime, the Nigerian shop the evening, the barber and the stall their acts, each staged there for Italy", () => {
     const at: [unknown, string, string, Id<"place">][] = [
       [castel, "roundabout", "activity.job-hunt", "place.castel-volturno"],
       [castel, "bar", "activity.coffee-it", "place.castel-volturno"],
@@ -173,7 +173,7 @@ const INTERIORS = [
 ] as const;
 
 describe("the interiors with a door", () => {
-  test.each(INTERIORS.map(([id]) => id))("[R-WORLD-005] [R-WORLD-039] given %s's things, when they are read, then each name and act label has words, a plain act says a line unless the figure shows it, the door leads out, every entry content stages there opens from a thing, and its crowd is the entry's under the indoor caps", (id) => {
+  test.each(INTERIORS.map(([id]) => id))("[world:things-are-tappable-models] [world:ride-abroad-and-workplace] given %s's things, when they are read, then each name and act label has words, a plain act says a line unless the figure shows it, the door leads out, every entry content stages there opens from a thing, and its crowd is the entry's under the indoor caps", (id) => {
     const raw = INTERIORS.find(([one]) => one === id)?.[1];
     const { file, stage, entry } = staged(raw, id);
     const things = stage.things ?? [];
@@ -192,7 +192,7 @@ describe("the interiors with a door", () => {
     for (const mode of ["low", "high"] as const) expect(file.people[mode]).toBe(crowdSize(entry, mode, crowdTuning(city, "interior", false)));
   });
 
-  test("[R-WORLD-039] [R-STREET-013] given the shared big shop in each country, when its things are read, then the trolley opens that country's weekly shop, Calgary's back aisle its winter clothes, and the tills and the staff notice are looked at, since no country but the UK holds a job there", () => {
+  test("[world:ride-abroad-and-workplace] [streets:calgary-life-by-hand] given the shared big shop in each country, when its things are read, then the trolley opens that country's weekly shop, Calgary's back aisle its winter clothes, and the tills and the staff notice are looked at, since no country but the UK holds a job there", () => {
     const shops: [unknown, string][] = [
       [bigShopCa, "activity.weekly-shop-ca"],
       [bigShopUae, "activity.weekly-shop-uae"],
@@ -208,7 +208,7 @@ describe("the interiors with a door", () => {
     expect(cityWords(thingIn(bigShopCa, "clothes").label)).toBe("Winter clothes");
   });
 
-  test("[R-WORLD-039] [R-CITY-010] given Calgary's workplaces and the site, when their doors are read, then each opens its job staged there for its country, the rota board opens overtime with a reader once it is done, the care home's manager's door is looked at with no senior rung, and the office's desks and glass office open the professional's and the developer's jobs", () => {
+  test("[world:ride-abroad-and-workplace] [city:places-stage-their-acts] given Calgary's workplaces and the site, when their doors are read, then each opens its job staged there for its country, the rota board opens overtime with a reader once it is done, the care home's manager's door is looked at with no senior rung, and the office's desks and glass office open the professional's and the developer's jobs", () => {
     const doors: [unknown, string, string, Id<"place">, typeof CANADA | typeof UAE][] = [
       [warehouseCa, "clock-in", "activity.job-ca-warehouse", "place.warehouse-ca", CANADA],
       [careHomeCa, "reception", "activity.job-ca-care-aide", "place.care-home-ca", CANADA],
@@ -233,7 +233,7 @@ describe("the interiors with a door", () => {
     expect(stagedAt("activity.job-it-farm-cash", ITALY, PLACES)).toBe("place.farm-it");
   });
 
-  test("[R-WORLD-039] [R-WORLD-038] given a country's entry on a scene London keeps, when its stage file is looked for, then it is its own file beside the shared models where one is shipped, its models London's, and a place at home or one with no own file reads its assets folder's", () => {
+  test("[world:ride-abroad-and-workplace] [world:painted-maps-abroad] given a country's entry on a scene London keeps, when its stage file is looked for, then it is its own file beside the shared models where one is shipped, its models London's, and a place at home or one with no own file reads its assets folder's", () => {
     const shipped = (path: string) => ["places/big-shop-ca/place.json", "places/ojuelegba/place.json"].includes(path);
     const of = (id: Id<"place">) => {
       const entry = content.place[id];
@@ -244,7 +244,7 @@ describe("the interiors with a door", () => {
     expect(stageFilePath(of("place.big-shop-ca"), shipped)).toBe("places/big-shop-ca/place.json");
     expect(stageFilePath(of("place.big-shop-uk"), shipped)).toBe("places/big-shop-uk/place.json");
     expect(stageFilePath(of("place.big-shop-uae"), shipped)).toBe("places/big-shop-uk/place.json");
-    // A place at home whose folder of the same name is an old file keeps its assets folder's (R-CITY-018).
+    // A place at home whose folder of the same name is an old file keeps its assets folder's (city:places-load-on-entry).
     expect(stageFilePath(of("place.ojuelegba"), shipped)).toBe(`places/${of("place.ojuelegba").assets}/place.json`);
     // The shared interiors stand London's models: the same files, the same spots.
     expect(stageOf(bigShopCa as unknown as PlaceFile).models.map((model) => model.file)).toEqual(stageOf(bigShopUk as unknown as PlaceFile).models.map((model) => model.file));
@@ -260,7 +260,7 @@ const COLLEAGUES = [
 ] as const;
 
 describe("the colleagues", () => {
-  test.each(COLLEAGUES.map(([id]) => id))("[R-WORLD-039] [R-WORLD-005] given the colleague at %s, when they are talked to four times, then they say their three lines in turn over their own head, eight words or fewer, and the fourth is the first again", (id) => {
+  test.each(COLLEAGUES.map(([id]) => id))("[world:ride-abroad-and-workplace] [world:things-are-tappable-models] given the colleague at %s, when they are talked to four times, then they say their three lines in turn over their own head, eight words or fewer, and the fourth is the first again", (id) => {
     const [, raw, thing] = COLLEAGUES.find(([one]) => one === id) ?? [];
     const colleague = thingIn(raw, thing ?? "");
     const talk = colleague.acts.find((act) => act.id === "talk");
@@ -279,7 +279,7 @@ describe("the colleagues", () => {
 });
 
 describe("a job held at its door abroad", () => {
-  test("[R-WORLD-039] [R-WORLD-005] given a contract life in Dubai who holds the guard's job from the first morning, when the site's things are read, then the guard's post says On shift with the shift's act, and the cleaner's trolley keeps its look", () => {
+  test("[world:ride-abroad-and-workplace] [world:things-are-tappable-models] given a contract life in Dubai who holds the guard's job from the first morning, when the site's things are read, then the guard's post says On shift with the shift's act, and the cleaner's trolley keeps its look", () => {
     const view = viewAfter(landedGame("country.uae"), [{ type: "activity/start-job", job: "activity.job-gulf-guard" }]);
     expect(view.job.id).toBe("activity.job-gulf-guard");
     const { stage, entry } = staged(site, "place.site-uae");
@@ -292,7 +292,7 @@ describe("a job held at its door abroad", () => {
 });
 
 describe("talk overheard in the three countries", () => {
-  test("[R-WORLD-039] [R-CITY-003] given each new place of Calgary, Dubai and Castel Volturno, when its talk is read, then there are at least four lines of its own, each in words, none Lagos rumour, and the city's own float whole", () => {
+  test("[world:ride-abroad-and-workplace] [city:overheard-talk-from-view] given each new place of Calgary, Dubai and Castel Volturno, when its talk is read, then there are at least four lines of its own, each in words, none Lagos rumour, and the city's own float whole", () => {
     const view = viewAfter(landedGame("country.canada"), []);
     const ids: Id<"place">[] = [
       "place.calgary-north-east",

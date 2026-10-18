@@ -52,16 +52,16 @@ async function playing(view: PlayerView = engineView("scenario.tunde")) {
 }
 
 describe("the interface counters", () => {
-  test("[R-ANALYTICS-002] given the world, when the phone's apps are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {
+  test("[analytics:client-sends-interface-counts] given the world, when the phone's apps are opened, then each opening counts its screen once, keyed by the feature that leads it", async () => {
     await playing();
-    // The world is the game (R-WORLD-001): the life's screens are the phone's apps (R-WORLD-018).
+    // The world is the game (world:world-fills-the-screen): the life's screens are the phone's apps (world:phone-rises-over-scene).
     const phoneThumb = await waitFor(() => found("[data-thumb='phone']"), { timeout: 10_000 });
     const openApp = async (id: string) => {
       fireEvent.click(await waitFor(() => found(`[data-app="${id}"]`)));
       fireEvent.click(await screen.findByRole("button", { name: say("phone.back") }));
     };
     fireEvent.click(phoneThumb);
-    // The month's plan is the Calendar app (R-WORLD-018).
+    // The month's plan is the Calendar app (world:phone-rises-over-scene).
     await openApp("calendar");
     await openApp("chats");
     await openApp("bank");
@@ -76,7 +76,7 @@ describe("the interface counters", () => {
     );
   });
 
-  test("[R-ANALYTICS-002] given a card to share, when the share button is pressed and the card goes, then share/pressed and share/completed count for its kind", async () => {
+  test("[analytics:client-sends-interface-counts] given a card to share, when the share button is pressed and the card goes, then share/pressed and share/completed count for its kind", async () => {
     const card = { kind: "send-off" as const, route: "route.uk-masters" as const, percent: 82, months: 35, standing: 61, topActivities: [], chapter: null, name: null };
     const saved: File[] = [];
     render(<ShareButton card={card} scenario="scenario.tunde" device={{ canShare: undefined, share: undefined, save: (file) => saved.push(file) }} />);
@@ -88,7 +88,7 @@ describe("the interface counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-011] given the bank-full ask shown and taken after the early win, then the interface counters hold notify:after for each", () => {
+  test("[analytics:day-one-and-seven-return] given the bank-full ask shown and taken after the early win, then the interface counters hold notify:after for each", () => {
     countAsk("ask/shown", "notify", "after");
     countAsk("ask/accepted", "notify", "after");
     expect(sent()).toEqual([
@@ -97,7 +97,7 @@ describe("the interface counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-006] given the account's usage counts on, when the player turns them off, then the account keeps it and the counters drop what they hold and count nothing more", async () => {
+  test("[analytics:player-can-stop-usage-counts] given the account's usage counts on, when the player turns them off, then the account keeps it and the counters drop what they hold and count nothing more", async () => {
     const kept: boolean[] = [];
     const account = { usageCounts: () => Promise.resolve(true), setUsageCounts: (on: boolean) => (kept.push(on), Promise.resolve(true)) } as unknown as AccountApi;
     render(<UsageCounts account={account} />);
@@ -112,7 +112,7 @@ describe("the interface counters", () => {
     expect(sent()).toEqual([]);
   });
 
-  test("[R-ANALYTICS-006] given an account that turned the counters off, when its settings open, then the switch shows off and nothing is counted", async () => {
+  test("[analytics:player-can-stop-usage-counts] given an account that turned the counters off, when its settings open, then the switch shows off and nothing is counted", async () => {
     const account = { usageCounts: () => Promise.resolve(false), setUsageCounts: () => Promise.resolve(true) } as unknown as AccountApi;
     render(<UsageCounts account={account} />);
     await waitFor(() => expect(screen.getByRole("checkbox", { name: say("ui.account.usage") })).toHaveProperty("checked", false));
@@ -122,7 +122,7 @@ describe("the interface counters", () => {
 });
 
 describe("the settings and error counters", () => {
-  test("[R-ANALYTICS-002] [R-ANALYTICS-003] given the city's settings, when the player chooses low, then high, then auto, then settings/graphics counts each choice by its key", async () => {
+  test("[analytics:client-sends-interface-counts] [analytics:client-batches-counters] given the city's settings, when the player chooses low, then high, then auto, then settings/graphics counts each choice by its key", async () => {
     await renderWithView(<City />, engineView("scenario.tunde"));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.menu") }));
@@ -134,13 +134,13 @@ describe("the settings and error counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-002] given the city on screen, when it picks its own starting mode, then nothing is counted as a setting changed", async () => {
+  test("[analytics:client-sends-interface-counts] given the city on screen, when it picks its own starting mode, then nothing is counted as a setting changed", async () => {
     await renderWithView(<City />, engineView("scenario.tunde"));
     fireEvent.click(screen.getByRole("button", { name: cityWords("city.look") }));
     expect(sent().filter((row) => row.name === "settings/graphics")).toEqual([]);
   });
 
-  test("[R-ANALYTICS-002] given the graphics and sound settings, when each is changed, then only the keys on content's list are counted", () => {
+  test("[analytics:client-sends-interface-counts] given the graphics and sound settings, when each is changed, then only the keys on content's list are counted", () => {
     chooseGraphics("high");
     countSound(false);
     countSound(true);
@@ -152,7 +152,7 @@ describe("the settings and error counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-002] [R-ANALYTICS-003] given a screen that throws while it draws, when the app's boundary catches it, then the player sees a way to reload and client/error counts render once", async () => {
+  test("[analytics:client-sends-interface-counts] [analytics:client-batches-counters] given a screen that throws while it draws, when the app's boundary catches it, then the player sees a way to reload and client/error counts render once", async () => {
     const quiet = vi.spyOn(console, "error").mockImplementation(() => undefined);
     try {
       const broken = { ...engineView("scenario.tunde"), qualities: null } as unknown as PlayerView;
@@ -167,7 +167,7 @@ describe("the settings and error counters", () => {
 });
 
 describe("the graphics mode", () => {
-  test("[R-MODERATION-020] given the city on screen, then the mode it runs in is the one feedback reads", async () => {
+  test("[moderation:feedback-box-in-settings] given the city on screen, then the mode it runs in is the one feedback reads", async () => {
     setGraphicsMode("high");
     await playing(abroadView());
     await act(async () => {
@@ -179,7 +179,7 @@ describe("the graphics mode", () => {
 });
 
 describe("the city behind the road", () => {
-  test("[R-CITY-012] given the character on the road, when the shell shows the road screen, then the city stands behind its panel at a stylised place", async () => {
+  test("[city:enterable-places-follow-view] given the character on the road, when the shell shows the road screen, then the city stands behind its panel at a stylised place", async () => {
     const base = engineView("scenario.tunde");
     await playing({ ...base, place: { ...base.place, where: "road" } });
     const city = document.querySelector<HTMLElement>("[data-road] [data-city]");

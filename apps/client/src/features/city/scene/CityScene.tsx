@@ -1,11 +1,11 @@
 // The 3D scene of a place, loaded only where WebGL exists. One sun and one sky light set by the
-// place (R-ASSET-006), fog near or far by mode, and one frame loop that moves the clock, the crowd's
+// place (assets:lighting-set-by-place), fog near or far by mode, and one frame loop that moves the clock, the crowd's
 // idling, the walk and the camera. In the world (docs/rules/world.md) the camera is the place's
 // raised shot, turned by one finger and zoomed by the pinch to the whole place or close on the
-// character (R-WORLD-009); the things carry quiet marks, and a tap on one walks the character straight
-// to it and floats its name and acts over it (R-WORLD-005, 010). The street camera at a person's eyes, the plan
+// character (world:camera-always-raised); the things carry quiet marks, and a tap on one walks the character straight
+// to it and floats its name and acts over it (world:things-are-tappable-models, world:nothing-roams). The street camera at a person's eyes, the plan
 // view while the screen is held and the routed walks stay for the city behind the panels and for
-// `tuning.city.roam`. Nothing here sends a command (city.md R-CITY-001).
+// `tuning.city.roam`. Nothing here sends a command (city:places-change-no-state).
 import { type Footprint, footprintOf, onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -69,15 +69,15 @@ const BACK_DEPTH = 0.12;
 const LIE_LENGTH = 1.6;
 /** The fan's hinge stands on the thing's body, under its label (docs/design/13-the-lively-layer.md section 3). */
 const FAN_Y = 0.9;
-/** How high over the bed the sleep mark floats, clear of the lying figure (R-WORLD-025). */
+/** How high over the bed the sleep mark floats, clear of the lying figure (world:sleep-ends-the-month). */
 const SLEEP_MARK_Y = 1.5;
 /** The sun's shadow covers the place's width and this much round it, in metres. */
 const SHADOW_MARGIN = 4;
 const SHADOW_BIAS = -0.0005;
 const SHADOW_NORMAL_BIAS = 0.04;
-/** How quickly the day's light eases to a new look, a share a second: about 600 ms to settle when the part changes (R-CLOCK-033). */
+/** How quickly the day's light eases to a new look, a share a second: about 600 ms to settle when the part changes (clock:game-day-on-real-time). */
 const DAY_EASE = 5;
-/** How long an act's answer takes to grow in where it stands, and to go: short, on its scale alone (R-WORLD-005). */
+/** How long an act's answer takes to grow in where it stands, and to go: short, on its scale alone (world:things-are-tappable-models). */
 const FX_MS = 200;
 
 /** Whether two looks of the day stand close enough to stop easing. */
@@ -129,7 +129,7 @@ function hitOf(object: Object3D | null): Hit | null {
   return null;
 }
 
-/** The view the player has made with the pinch and one finger (R-WORLD-009), shared by the gestures and the frame loop. */
+/** The view the player has made with the pinch and one finger (world:camera-always-raised), shared by the gestures and the frame loop. */
 interface Rig {
   /** 1 the whole place, 0 close on the character; between while a pinch is held. */
   zoom: number;
@@ -145,7 +145,7 @@ interface Rig {
   /** A finger is turning or tilting a wide home's view live: it follows the finger and eases nowhere until it lifts. */
   turning: boolean;
   pinching: boolean;
-  /** A wide home's room the view eases in on (R-WORLD-029); null for the room the character stands in. */
+  /** A wide home's room the view eases in on (world:room-seen-down-its-length); null for the room the character stands in. */
   room: string | null;
 }
 
@@ -176,7 +176,7 @@ function roomInView(rooms: readonly Room[], asked: string | null, at: { x: numbe
 export const NEAR_M = 7;
 
 /**
- * Where a thing that speaks has its words: over it; but a line overheard (`ambient`, R-WORLD-026) floats over a named
+ * Where a thing that speaks has its words: over it; but a line overheard (`ambient`, world:street-talk-budget) floats over a named
  * speaker who stands as a thing (Mama, the grocer) only while that thing is within NEAR_M of the player's figure, as the
  * talk budget holds every voice; null holds the words back until the player comes near.
  */
@@ -242,7 +242,7 @@ function lens(camera: Camera, fov: number, near: number): void {
 interface WalkState {
   walker: Walker;
   pending: { thing: Thing; act: Act } | null;
-  /** The start of the stage they stand on: a place dressed or shown anew keeps its start, so they keep their spot (R-WORLD-029). */
+  /** The start of the stage they stand on: a place dressed or shown anew keeps its start, so they keep their spot (world:room-seen-down-its-length). */
   standing: Spot | null;
   /** The character sat down on a plain act and stays so until they walk. */
   sitting: boolean;
@@ -250,11 +250,11 @@ interface WalkState {
   lying: boolean;
   /** How high the lying figure's middle stands: its back on the top of what it lies on. */
   lieY: number;
-  /** The pace of the walk in hand: whatever the distance, a walk to a thing takes about WALK_SECONDS (R-WORLD-010). */
+  /** The pace of the walk in hand: whatever the distance, a walk to a thing takes about WALK_SECONDS (world:nothing-roams). */
   speed: number;
 }
 
-/** A walk to a thing takes about this long whatever the distance; a second tap ends it at once (R-WORLD-010). */
+/** A walk to a thing takes about this long whatever the distance; a second tap ends it at once (world:nothing-roams). */
 const WALK_SECONDS = 1;
 
 interface PlaceProps extends SceneProps {
@@ -264,14 +264,14 @@ interface PlaceProps extends SceneProps {
   plan: number;
   /** The raised view's state, moved by the gestures. */
   rig: MutableRefObject<Rig>;
-  /** The character's walk and the act waiting on it, held outside the canvas so a remount keeps them (R-WORLD-010). */
+  /** The character's walk and the act waiting on it, held outside the canvas so a remount keeps them (world:nothing-roams). */
   walk: MutableRefObject<WalkState>;
   /** The place's shot. */
   shot: Shot;
   /** True when the view is the raised shot; false for the street camera. */
   raised: boolean;
   takeTap: () => boolean;
-  /** The part of the world's day and its minute, which set the sun and the sky (R-CLOCK-033). */
+  /** The part of the world's day and its minute, which set the sun and the sky (clock:game-day-on-real-time). */
   day: Pick<WorldClock, "part" | "minute">;
 }
 
@@ -292,14 +292,14 @@ function Place(props: PlaceProps) {
   const [world, setWorld] = useState<World | null>(null);
   const { walk } = props;
   const planShare = useRef(0);
-  // The camera's own moves change at once when the phone asks for reduced motion (R-WORLD-023).
+  // The camera's own moves change at once when the phone asks for reduced motion (world:motions-under-half-second).
   const still = useMotionReduced();
   const sun = useRef<DirectionalLight>(null);
   const skyLight = useRef<HemisphereLight>(null);
   const frames = useRef<number[]>([]);
   /** The quarter whose wall pair a wide home's shell shows now, for the world it was shown in. */
   const wallsShown = useRef<{ world: World | null; quarter: number }>({ world: null, quarter: 0 });
-  /** An act chosen while the character still walks to its thing: it follows on arrival (R-WORLD-010). */
+  /** An act chosen while the character still walks to its thing: it follows on arrival (world:nothing-roams). */
   const labels = useRef<{ thing: Thing; node: HTMLButtonElement }[]>([]);
   /** The bubble's spot the last frame chose, for the bubble it was chosen for, so it stays put while it stays clear. */
   const lastBubble = useRef<{ node: HTMLElement; spot: BubbleSpot } | null>(null);
@@ -310,10 +310,10 @@ function Place(props: PlaceProps) {
   const size = useThree((state) => state.size);
   const plain = stageOf(file);
   const level = settings.mesh === "fine" ? "high" : "low";
-  // The moving sheets a mode may draw, the cheapest kept (R-WORLD-011); the roaming city draws them all.
+  // The moving sheets a mode may draw, the cheapest kept (world:place-is-one-screen); the roaming city draws them all.
   const stage: Stage = useMemo(() => (roam ? plain : { ...plain, motion: limitMotion(plain.motion, level) }), [plain, roam, level]);
   const peopleKey = people.map((shown) => `${shown.person.file}:${String(shown.tag)}`).join("|");
-  // The day's look by the world's clock, and the look the lights stand at now, easing toward it (R-CLOCK-033).
+  // The day's look by the world's clock, and the look the lights stand at now, easing toward it (clock:game-day-on-real-time).
   const { part, minute } = props.day;
   // The layer's light: a home's rooms, an office or a street, each warmed by day under a pale, cool sky.
   const kind = lightKindOf({ scope: file.scope, stage });
@@ -352,7 +352,7 @@ function Place(props: PlaceProps) {
     walk.current.lying = false;
     pick.current({ kind: "thing", thing });
   };
-  // A wide home's rooms (R-WORLD-029): a thing chosen from the whole house, or in
+  // A wide home's rooms (world:room-seen-down-its-length): a thing chosen from the whole house, or in
   // another room, eases the camera in on its room first, and its fan opens once the camera is there.
   const rooms = useMemo(() => (raised ? (stage.rooms ?? []) : []), [raised, stage.rooms]);
   const deferred = useRef<Thing | null>(null);
@@ -379,7 +379,7 @@ function Place(props: PlaceProps) {
   const pickRef = useRef(pickThing);
   pickRef.current = pickThing;
 
-  // The marks live in the DOM box beside the canvas, one over each thing; the frame loop moves them (R-WORLD-005).
+  // The marks live in the DOM box beside the canvas, one over each thing; the frame loop moves them (world:things-are-tappable-models).
   useEffect(() => {
     if (markBox === null) return;
     const made = things.map((thing) => ({ thing, node: markNode(thing, () => pickRef.current(thing)) }));
@@ -397,10 +397,10 @@ function Place(props: PlaceProps) {
     for (const { thing, node } of labels.current) showMark(node, { named: names.has(thing.id), teaching, pulse: nudged === thing.id, state: marks?.[thing.id] });
   }, [things, markBox, namedKey, nudged, teaching, marks]);
 
-  /** An act chosen on a thing's fan: it follows once the character has walked to the thing (R-WORLD-010). */
+  /** An act chosen on a thing's fan: it follows once the character has walked to the thing (world:nothing-roams). */
   const actFor = (thing: Thing, act: Act): void => {
     const pending = walk.current.pending;
-    // Tapping an act again ends the walk at once (R-WORLD-010).
+    // Tapping an act again ends the walk at once (world:nothing-roams).
     if (pending !== null && pending.thing.id === thing.id && pending.act.id === act.id && pending.act.stages === act.stages && walk.current.walker.target !== null) walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
     // Acts opened for a thing the character was not sent to (the nudge's way) still wait for the walk: the words start at the thing.
     else if (walk.current.walker.target === null) walkForRef.current(thing);
@@ -432,7 +432,7 @@ function Place(props: PlaceProps) {
       await loadGrids(stage.motion.map((motion) => motion.kind), settings.mesh, (path) => loadModel(manifest, path, text));
       if (!alive) return;
       // A new place starts the character at its door. A rebuild of the same place (the crowd or the
-      // mode changed) keeps where they stand and the act they are walking to (R-WORLD-010).
+      // mode changed) keeps where they stand and the act they are walking to (world:nothing-roams).
       if (walk.current.standing !== stage.start) {
         const [x, z, facing] = stage.start;
         walk.current.walker = standAt(x, z, facing);
@@ -441,7 +441,7 @@ function Place(props: PlaceProps) {
       }
       const built = buildWorld(stage, models, people, own, settings, text, place, roam);
       modelsRef.current = models;
-      // The character wears the player's own colours (R-PROLOGUE-015): painted once, as the place is built.
+      // The character wears the player's own colours (prologue:player-colours-on-looks): painted once, as the place is built.
       wear(built.own.root, keptStyleOf(own));
       setWorld(built);
     })().catch((error: unknown) => {
@@ -615,7 +615,7 @@ function Place(props: PlaceProps) {
     // Rebuilt with each new room; the things, the camera and the canvas are read as they stand then.
   }, [markBox, world, arranging, file]);
 
-  // The place's lamps glow as the light goes: the bulb, the lantern, the street's few lights (R-CLOCK-033).
+  // The place's lamps glow as the light goes: the bulb, the lantern, the street's few lights (clock:game-day-on-real-time).
   useEffect(() => {
     if (world === null) return;
     const made = lampsOf(stage.light.lamps ?? []);
@@ -645,7 +645,7 @@ function Place(props: PlaceProps) {
   }, [world, stage.light.lamps]);
 
   // While the bed's sleep runs a small sleep mark floats over the bed; when it ends the figure gets up beside the bed
-  // (R-WORLD-025). A sleep that never laid the figure down (a walk cut it short) has nothing to get up from.
+  // (world:sleep-ends-the-month). A sleep that never laid the figure down (a walk cut it short) has nothing to get up from.
   const asleep = props.asleep ?? null;
   const sleepMark = useRef<{ spot: [number, number]; node: HTMLDivElement } | null>(null);
   const sleptOn = useRef<string | null>(null);
@@ -660,7 +660,7 @@ function Place(props: PlaceProps) {
     if (spot !== null) walk.current.walker = standAt(spot[0], spot[1], walk.current.walker.facing);
     // Only the sleep's end gets the figure up; the bed and the stage are read as they stand then.
   }, [asleep]);
-  // Eyes closed: the others in the place are not seen while the sleep runs, and are back when it ends (R-WORLD-025).
+  // Eyes closed: the others in the place are not seen while the sleep runs, and are back when it ends (world:sleep-ends-the-month).
   useEffect(() => {
     if (world === null) return;
     othersSeen(world, asleep === null);
@@ -680,7 +680,7 @@ function Place(props: PlaceProps) {
     };
   }, [asleep, markBox, things, stage]);
 
-  // An act done at once answers where it was done for a while (R-WORLD-005): the jollof's steam, the bath's drops, the
+  // An act done at once answers where it was done for a while (world:things-are-tappable-models): the jollof's steam, the bath's drops, the
   // television's flicker, the lantern turned up. Read from the act's own time, so a place rebuilt meanwhile keeps it.
   const acted = props.acted ?? null;
   useEffect(() => {
@@ -786,11 +786,11 @@ function Place(props: PlaceProps) {
     }
     if (next.target === null) poseFigure(world.own, time, walk.current.sitting ? "sit" : "stand");
     else poseFigure(world.own, time, "walk", strideOf(next));
-    // The act follows once the character has reached its thing; an act with a pose is seen on the thing (R-WORLD-005).
+    // The act follows once the character has reached its thing; an act with a pose is seen on the thing (world:things-are-tappable-models).
     const waiting = walk.current.pending;
     if (waiting !== null && next.target === null) {
       walk.current.pending = null;
-      // The bed's Sleep lies on the bed as its nap does, on the same seat and top (R-WORLD-025).
+      // The bed's Sleep lies on the bed as its nap does, on the same seat and top (world:sleep-ends-the-month).
       const lie = waiting.act.kind === "end" && waiting.act.pose === undefined ? bedLie(waiting.thing) : null;
       const posed = lie === null ? waiting.act : { ...waiting.act, ...lie };
       const pose = posed.pose ?? (posed.kind === "plain" && posed.id === "sit" ? "sit" : null);
@@ -809,7 +809,7 @@ function Place(props: PlaceProps) {
     const room = roomInView(rooms, view.room, next);
     if (raised && room !== undefined) {
       // A quarter turn and the tilt ease as the zoom does, in under 400 ms, once no finger holds them;
-      // under reduced motion each changes at once (R-WORLD-023).
+      // under reduced motion each changes at once (world:motions-under-half-second).
       Object.assign(view, easeRoomView(view, delta, still.current));
       const { position, target, fov } = aimRoom(shot, room, view.zoom, aspect, { turn: view.turn, tilt: view.tilt, ground: stage.ground.size });
       // The walls follow the view: the far pair full, the near pair knee-high, a rising wall always behind the rooms.
@@ -852,7 +852,7 @@ function Place(props: PlaceProps) {
         state.scene.fog.far = settings.fog.far + planShare.current * PLAN_FOG;
       }
     }
-    // The day's light eases toward the clock's look over about 600 ms, colour and strength only (R-CLOCK-033).
+    // The day's light eases toward the clock's look over about 600 ms, colour and strength only (clock:game-day-on-real-time).
     const was = look.current;
     const day = was === null ? target : settled(was, target) ? target : mixLooks(was, target, 1 - Math.exp(-delta * DAY_EASE), ownHeightOf(stage.light.sun));
     look.current = day;
@@ -873,7 +873,7 @@ function Place(props: PlaceProps) {
     }
     const light = sun.current;
     if (light !== null) {
-      // In the world the sun stands over the place's centre, so its shadow covers the place and only the place (R-WORLD-012).
+      // In the world the sun stands over the place's centre, so its shadow covers the place and only the place (world:faces-never-share-height).
       const [cx, , cz] = raised ? shot.centre : [next.x, 0, next.z];
       light.position.set(cx + lit.sun[0], lit.sun[1], cz + lit.sun[2]);
       light.target.position.set(cx, 0, cz);
@@ -901,7 +901,7 @@ function Place(props: PlaceProps) {
       const half = node.offsetWidth / 2 + EDGE_MARGIN;
       return Math.min(Math.max(x, half), Math.max(half, state.size.width - half));
     };
-    // A person's words stand over them as the camera moves (R-WORLD-005): the bubble follows its speaker, whose label gives way to it.
+    // A person's words stand over them as the camera moves (world:things-are-tappable-models): the bubble follows its speaker, whose label gives way to it.
     const bubble = document.querySelector<HTMLElement>("[data-speech]");
     const speaker = bubble === null ? undefined : things.find((thing) => thing.id === bubble.dataset.speech);
     // The street's line is given to the resident nearest the player's figure, and only while one stands near (the talk budget).
@@ -946,13 +946,13 @@ function Place(props: PlaceProps) {
       node.style.visibility = at === null ? "hidden" : "visible";
       if (at !== null) node.style.transform = `translate(${String(node === marker ? within(at.x, node.firstElementChild instanceof HTMLElement ? node.firstElementChild : node) : at.x)}px, ${String(at.y)}px)`;
     }
-    // Each mark's dot stands on its thing, always; only a name shown over it moves (R-WORLD-005).
+    // Each mark's dot stands on its thing, always; only a name shown over it moves (world:things-are-tappable-models).
     const dots: { x: number; y: number }[] = [];
     const names: { name: HTMLElement; x: number; box: LabelBox }[] = [];
     for (const { thing, node } of labels.current) {
       const spot = thingSpot(stage, thing);
       const at = spot === null || fanned?.id === thing.id || marked?.id === thing.id || (voice !== null && speaker?.id === thing.id) ? null : onScreen(state.camera, state.size, spot[0], LABEL_Y, spot[1], 1.05);
-      // No mark while the opening words stand over the world (R-WORLD-001).
+      // No mark while the opening words stand over the world (world:world-fills-the-screen).
       node.style.display = at === null || labelsHidden ? "none" : "";
       if (at === null || labelsHidden) continue;
       node.style.left = `${String(at.x)}px`;
@@ -973,8 +973,8 @@ function Place(props: PlaceProps) {
       name.style.visibility = laid.shown ? "" : "hidden";
       if (laid.shown) clear.push({ left: box.x - box.width / 2, right: box.x + box.width / 2, top: laid.foot - box.height, bottom: laid.foot });
     });
-    // A person's words stand over them as the camera moves (R-WORLD-005), clear of every head, name, mark and the marker in
-    // the scene (R-WORLD-026: no line over a face), the tail leaning down to the speaker.
+    // A person's words stand over them as the camera moves (world:things-are-tappable-models), clear of every head, name, mark and the marker in
+    // the scene (world:street-talk-budget: no line over a face), the tail leaning down to the speaker.
     if (bubble !== null) {
       if (voice === null) bubble.style.visibility = "hidden";
       else {
@@ -1060,7 +1060,7 @@ function Place(props: PlaceProps) {
   });
 
   /**
-   * A tap on a wide home's floor or walls (R-WORLD-029): from the whole house it eases
+   * A tap on a wide home's floor or walls (world:room-seen-down-its-length): from the whole house it eases
    * in on the room tapped; eased in, a tap outside the room eases back out to the whole house. True when the tap was
    * the camera's; a tap inside the room eased in on walks as anywhere.
    */
@@ -1079,13 +1079,13 @@ function Place(props: PlaceProps) {
   const tapped = (event: ThreeEvent<MouseEvent>): void => {
     event.stopPropagation();
     if (!looking || takeTap()) return;
-    // A second tap while an act waits on a walk ends the walk at once (R-WORLD-010).
+    // A second tap while an act waits on a walk ends the walk at once (world:nothing-roams).
     if (walk.current.pending !== null && walk.current.walker.target !== null) {
       walk.current.walker = stepWalk(walk.current.walker, 3600, walk.current.speed);
       return;
     }
     const hit = hitOf(event.object);
-    // A person standing at a thing of their own is that thing (R-WORLD-020).
+    // A person standing at a thing of their own is that thing (world:nobody-picked-from-list).
     if (hit?.kind === "stander") {
       const thing = things.find((candidate) => candidate.id === hit.thing);
       if (thing !== undefined) choose(thing);
@@ -1166,7 +1166,7 @@ function Place(props: PlaceProps) {
   );
 }
 
-/** `children` stand in the scene beside the place: the bag by the door (R-WORLD-029). */
+/** `children` stand in the scene beside the place: the bag by the door (world:room-seen-down-its-length). */
 export default function CityScene(props: SceneProps & { children?: ReactNode }) {
   const [plan, setPlan] = useState(false);
   const pinch = useRef<{ gap: number; zoom: number } | null>(null);
@@ -1177,7 +1177,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const day = useDayClock(props.worldClock ?? null);
   const raised = props.overview === true && props.roam !== true;
   const shot = useMemo(() => roomShot(shotOf(stageOf(file)), stageOf(file), file.scope), [file]);
-  // A wide home's rooms, which the pinch and the wheel ease in on (R-WORLD-029).
+  // A wide home's rooms, which the pinch and the wheel ease in on (world:room-seen-down-its-length).
   const rooms = useMemo(() => (raised ? (stageOf(file).rooms ?? []) : []), [raised, file]);
   // A wide home turns the full circle and opens on the quarter it was left on.
   const round = raised && turnsRound(shot);
@@ -1191,7 +1191,7 @@ export default function CityScene(props: SceneProps & { children?: ReactNode }) 
   const [markBox, setMarkBox] = useState<HTMLDivElement | null>(null);
   const holding = useRef<number | null>(null);
   const held = useRef(false);
-  // Entering a place, or a room, always shows the whole of it (R-WORLD-009); the same place shown anew, dressed or with
+  // Entering a place, or a room, always shows the whole of it (world:camera-always-raised); the same place shown anew, dressed or with
   // what the month's acts show, keeps the view the player made, so a home eased in on stays on its room.
   useEffect(() => {
     rig.current = wholeRig(roundRef.current ? keptTurnRef.current : 0);

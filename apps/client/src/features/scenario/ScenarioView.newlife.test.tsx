@@ -1,4 +1,4 @@
-// After "Start a new life" the door starts clean (account.md R-ACCOUNT-030): no name, look or
+// After "Start a new life" the door starts clean (account:start-a-new-life): no name, look or
 // colours of the life that ended are kept; the door opens as a first visit does.
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("the door after a life ends", () => {
-  test("[R-ACCOUNT-030] given a life begun as Obinna in another look and colours, when it ends, then the door opens on the first screen with a name of its own, the first look and no colours", async () => {
+  test("[account:start-a-new-life] given a life begun as Obinna in another look and colours, when it ends, then the door opens on the first screen with a name of its own, the first look and no colours", async () => {
     let seed = 0;
     const store = bootGame({ storage: localStorage, fastClock: true, makeSeed: () => `clean-${String((seed += 1))}` });
     render(<App store={store} />);

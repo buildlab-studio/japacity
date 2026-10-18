@@ -1,5 +1,5 @@
-// The English test's wait in the nudge and its result in words (docs/rules/world.md R-WORLD-003, R-WORLD-006,
-// R-WORLD-008): while the result is on its way the nudge says when it comes and
+// The English test's wait in the nudge and its result in words (world:nudge-says-one-thing, world:one-action-one-sheet,
+// world:month-end-results-sheet): while the result is on its way the nudge says when it comes and
 // opens nothing; a pass says it meets the route's band; and the study card says it lifts the chance.
 import { fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -17,7 +17,7 @@ const PAPER = "document.english-test" as const;
 
 /** The file's English step open, with the result sat and on its way. */
 function waitingOnResult() {
-  // The waiting months' acts (R-ACTIVITY-013) left out, so the wait's own words can be read.
+  // The waiting months' acts (activity:waiting-months-build-profile) left out, so the wait's own words can be read.
   const bare = engineView();
   const base = { ...bare, activities: bare.activities.filter((option) => !["activity.open-source", "activity.tech-posts", "activity.be-noticed", "activity.nurse-certification"].includes(option.id)), setpiece: null, interview: null, offers: [], report: null, month: 10 };
   return {
@@ -28,11 +28,11 @@ function waitingOnResult() {
 }
 
 describe("the English result on its way", () => {
-  test("[R-WORLD-003] given the test sat and its result pending, when the nudge is chosen, then it says the result comes next month instead of the test again", () => {
+  test("[world:nudge-says-one-thing] given the test sat and its result pending, when the nudge is chosen, then it says the result comes next month instead of the test again", () => {
     const view = waitingOnResult();
     const nudge = nudgeOf(view);
     expect(nudge).toMatchObject({ key: "chapter.build-the-file.item.english.started", params: { when: inMonths(11, 10) }, about: "step" });
-    // The journey, not the wait (text.md R-TEXT-007): the result comes; the player is not told to wait.
+    // The journey, not the wait (text:voice-by-surface): the result comes; the player is not told to wait.
     expect(say(nudge.key, nudge.params)).toBe("Your result comes next month");
     expect(say(nudge.key, nudge.params)).not.toMatch(/Score|test centre/);
     // Planned this month, it says to end the month.
@@ -40,7 +40,7 @@ describe("the English result on its way", () => {
     expect(say(nudgeOf(planned, undefined, ["activity.sit-english-test"]).key)).toBe("Test booked. Live the month.");
   });
 
-  test("[R-WORLD-003] given the result pending, when the world shows, then nothing under the band opens anything: the result comes by itself, and the road shows only the brief's chip for its moment", async () => {
+  test("[world:nudge-says-one-thing] given the result pending, when the world shows, then nothing under the band opens anything: the result comes by itself, and the road shows only the brief's chip for its moment", async () => {
     await renderWithView(<City world results={() => <p />} />, waitingOnResult());
     const go = document.querySelector<HTMLElement>("[data-opening-go]");
     if (go !== null) fireEvent.click(go);
@@ -52,7 +52,7 @@ describe("the English result on its way", () => {
 });
 
 describe("the English result sealed until the morning", () => {
-  test("[R-CLOCK-032] given the test sat and its result sealed, pending in the month it was due, when the nudge is chosen and shown, then it says the result comes tomorrow at seven and opens nothing", async () => {
+  test("[clock:envelopes-show-real-waits] given the test sat and its result sealed, pending in the month it was due, when the nudge is chosen and shown, then it says the result comes tomorrow at seven and opens nothing", async () => {
     const waiting = waitingOnResult();
     const sealed = { ...waiting, documents: waiting.documents.map((paper) => ({ ...paper, readyMonth: waiting.month, onItsWay: waiting.month })) };
     const nudge = nudgeOf(sealed);
@@ -68,7 +68,7 @@ describe("the English result sealed until the morning", () => {
 });
 
 describe("the English test as a long shot", () => {
-  test("[R-WORLD-003] [R-WORLD-006] given the English step open with no result sat and the band a long shot, when the nudge is chosen, then it says to study first, and with study planned it says to end the month; a fair chance names the test", () => {
+  test("[world:nudge-says-one-thing] [world:one-action-one-sheet] given the English step open with no result sat and the band a long shot, when the nudge is chosen, then it says to study first, and with study planned it says to end the month; a fair chance names the test", () => {
     const base = waitingOnResult();
     const english = (value: number) => base.qualities.map((quality) => (quality.id === "quality.english" ? { ...quality, value } : quality));
     const allowed = (id: string) => base.activities.map((option) => (option.id === id ? { ...option, allowed: true } : option));
@@ -83,7 +83,7 @@ describe("the English test as a long shot", () => {
 });
 
 describe("the English result told", () => {
-  test("[R-WORLD-008] given a band that meets the route's, when the result is told, then it says the band and that it meets the route's band", () => {
+  test("[world:month-end-results-sheet] given a band that meets the route's, when the result is told, then it says the band and that it meets the route's band", () => {
     const needed = bandNeeded();
     const [told] = tidyLines([{ key: "line.document.issued-band", params: { document: PAPER, band: needed + 5 }, tone: "good", attention: false, counts: [] }]);
     const plain = words("line.document.issued-band", { document: PAPER, band: needed + 5 });
@@ -91,7 +91,7 @@ describe("the English result told", () => {
     expect(plain).toContain(`Band ${formatBand(needed + 5)}.`);
   });
 
-  test("[R-WORLD-006] given the study card, when its line is read, then it says a month of study lifts the chance at the test", () => {
+  test("[world:one-action-one-sheet] given the study card, when its line is read, then it says a month of study lifts the chance at the test", () => {
     expect(blurbOf("activity.study-english")).toContain("A month of study lifts your chance at the test.");
     expect(richView()).toBeTruthy();
   });

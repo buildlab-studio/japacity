@@ -1,4 +1,4 @@
-// The data page's stamps (prologue.md R-PROLOGUE-009): none until a visa is granted. The visa's
+// The data page's stamps (prologue:front-door-builds-a-person): none until a visa is granted. The visa's
 // is the first, round and red, with the way under it; the flight, the landing and a status secured stamp beneath it.
 // Nothing before the visa stamps the page, and the road, which gives no visa, never does. Read from the view, never kept.
 import type { Id, PlayerView } from "@japacity/sim";
@@ -26,7 +26,7 @@ function routeIn(view: PlayerView, route: Id<"route">, state: PlayerView["routes
 const visa = { words: say("prologue.page.stamp.granted"), under: say(`prologue.page.way.${UK_CARE}`) };
 
 describe("the page's stamps", () => {
-  test("[R-PROLOGUE-009] given every step before a visa (the way looked into, the plan, the passport held, the file built, the visa applied for), then the page carries no stamp", () => {
+  test("[prologue:front-door-builds-a-person] given every step before a visa (the way looked into, the plan, the passport held, the file built, the visa applied for), then the page carries no stamp", () => {
     expect(stampsOf(engineView("scenario.ada"))).toEqual([]);
     const before = life((view) => ({
       documents: [held],
@@ -37,12 +37,12 @@ describe("the page's stamps", () => {
     for (const state of ["heard", "known", "applying", "refused"] as const) expect(stampsOf(life((view) => routeIn(view, UK_CARE, state)))).toEqual([]);
   });
 
-  test("[R-PROLOGUE-009] given the visa granted, then its stamp is the first, with the way under it", () => {
+  test("[prologue:front-door-builds-a-person] given the visa granted, then its stamp is the first, with the way under it", () => {
     expect(stampsOf(life((view) => routeIn(view, UK_CARE, "granted")))).toEqual([visa]);
     expect(visa.under).toBe("care work");
   });
 
-  test("[R-PROLOGUE-009] given the flight out, the landing and a status secured, then each stamps beneath the visa's, in the order a life takes them", () => {
+  test("[prologue:front-door-builds-a-person] given the flight out, the landing and a status secured, then each stamps beneath the visa's, in the order a life takes them", () => {
     const flown = life((view) => routeIn(view, UK_CARE, "departed"));
     expect(stampsOf(flown)).toEqual([visa, { words: say("ui.page.stamp.flight") }]);
     const abroad = abroadView();
@@ -55,11 +55,11 @@ describe("the page's stamps", () => {
     expect(stampsOf(landed).map((one) => one.words)).not.toContain(say("ui.page.stamp.secured"));
   });
 
-  test("[R-PROLOGUE-009] given the road, which gives no visa, then the page takes no stamp, even gone", () => {
+  test("[prologue:front-door-builds-a-person] given the road, which gives no visa, then the page takes no stamp, even gone", () => {
     expect(stampsOf(life((view) => routeIn(view, ROAD, "departed")))).toEqual([]);
   });
 
-  test("[R-PROLOGUE-009] given every way out that can be a plan, then each has its few words for the visa's stamp", () => {
+  test("[prologue:front-door-builds-a-person] given every way out that can be a plan, then each has its few words for the visa's stamp", () => {
     for (const route of engineView("scenario.ada").routes) expect(say(`prologue.page.way.${route.id}`)).not.toBe(`prologue.page.way.${route.id}`);
   });
 });

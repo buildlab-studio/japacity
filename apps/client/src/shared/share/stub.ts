@@ -1,8 +1,8 @@
-// The send-off's ticket stub (docs/rules/share.md R-SHARE-001, R-SHARE-004 to R-SHARE-006, R-SHARE-009;
+// The send-off's ticket stub (share:cards-due-at-set-moments, share:card-contents, share:card-carries-no-money, share:card-never-looks-official, share:card-drawn-on-device;
 // decision 0024): a drawn paper stub over the departure art, with FROM, TO, MONTHS and JAPACITY, the
 // type badge and the first name. Place names and words only: no airline, no barcode, no seat number, no
 // booking, no airport code and no crest, so it never reads as a real ticket. Landscape: the card's own
-// size turned on its side. The seat the send-off's counter gave (share.md R-SHARE-015) is carried in words
+// size turned on its side. The seat the send-off's counter gave (share:send-off-card-kept) is carried in words
 // under the place flown to, "By the window" or "On the aisle", never as a seat's number.
 import { content, type JapaType } from "@japacity/content";
 import type { Content, Id } from "@japacity/sim";
@@ -16,11 +16,11 @@ import { cornerBadge, scaler, sealGround, stripes, TONES, watermark, wrap, type 
 
 export interface StubFace {
   kicker: string;
-  /** The character's first name, as on the send-off card (R-SHARE-008). */
+  /** The character's first name, as on the send-off card (share:card-shows-only-own-character). */
   name: string | null;
   /** The japacity figure is its digits; the layout adds the sign. */
   fields: { from: string; to: string; months: string; japacity: string | null };
-  /** Where the character sat, in words, when the counter gave a seat (R-SHARE-015); null when none was given. */
+  /** Where the character sat, in words, when the counter gave a seat (share:send-off-card-kept); null when none was given. */
   seat: string | null;
   labels: { from: string; to: string; months: string; japacity: string };
   /** The type read at the send-off, or null before it is read. */
@@ -32,7 +32,7 @@ export interface StubFace {
   disclaimer: string;
 }
 
-/** The stub's picture: the card's size turned on its side (R-SHARE-009). */
+/** The stub's picture: the card's size turned on its side (share:card-drawn-on-device). */
 export function stubSize(tuning: Content["tuning"]["share"] = content.tuning.share): Size {
   return { width: tuning.height, height: tuning.width };
 }
@@ -43,7 +43,7 @@ function countryOf(route: Id<"route"> | null): Id<"country"> | null {
   return content.route[route]?.country ?? null;
 }
 
-/** The seat's words on the stub (R-SHARE-015). */
+/** The seat's words on the stub (share:send-off-card-kept). */
 function seatWords(seat: Seat): string {
   return say(`share.stub.seat.${seat}`);
 }
@@ -130,7 +130,7 @@ export function stubSteps(face: StubFace, size: Size, measure: Measure): Step[] 
   shapes.push({ op: "rect", x: unit(380), y: unit(422), w: unit(70), h: unit(14), color: ink });
   shapes.push({ op: "poly", points: [[unit(446), unit(404)], [unit(486), unit(429)], [unit(446), unit(454)]], color: ink });
   const toValueEnd = fitted("stub-value", face.fields.to, second, unit(452), columnEnd - second, unit(64), unit(44), "sans");
-  // The seat under the place flown to, in words, smaller than the place (R-SHARE-015).
+  // The seat under the place flown to, in words, smaller than the place (share:send-off-card-kept).
   const toEnd = face.seat === null ? toValueEnd : fitted("stub-seat", face.seat, second, toValueEnd + unit(56), columnEnd - second, unit(36), unit(28), "sans");
   const row = Math.max(unit(580), Math.max(fromEnd, toEnd) + unit(110));
   put("stub-label", face.labels.months.toUpperCase(), left, row, unit(30), 700, "sans");
@@ -157,7 +157,7 @@ export function stubSteps(face: StubFace, size: Size, measure: Measure): Step[] 
     wrap(face.type.line, badge.x1 - badge.x0, (line) => measure(line, lineSize, "sans", 400)).forEach((line, at) => text.push({ op: "text", role: "type-line", text: line, x: badge.x0, y: unit(560) + at * unit(38), size: lineSize, weight: 400, family: "sans", color: ink, align: "left" }));
   }
 
-  // The foot: the game's name, the address, the disclaimer no smaller than the address, the official page (R-SHARE-004, R-SHARE-014).
+  // The foot: the game's name, the address, the disclaimer no smaller than the address, the official page (share:card-contents, share:everything-links-to-official).
   const footTop = unit(870);
   const foot: Step[] = [{ op: "rect", x: 0, y: footTop, w: size.width, h: size.height - footTop, color: tone.background }, ...stripes(0, footTop, size.width, unit(22), unit(36), tone)];
   const right = size.width - unit(110);
@@ -177,7 +177,7 @@ export function stubSteps(face: StubFace, size: Size, measure: Measure): Step[] 
     { op: "unclip" },
     ...shapes,
     ...foot,
-    // The marks before the words (R-SHARE-006): the watermark over the art and the paper, the badge on the art's corner.
+    // The marks before the words (share:card-never-looks-official): the watermark over the art and the paper, the badge on the art's corner.
     ...watermark(face.sender, size, marks, ink),
     cornerBadge(face.sender, size, marks, "right", { band: ink, ink: tone.background }),
     ...text,

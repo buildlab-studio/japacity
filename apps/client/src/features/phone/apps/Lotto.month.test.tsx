@@ -1,4 +1,4 @@
-// What this month's tickets cost, on the phone (docs/rules/luck.md R-LUCK-005): read from
+// What this month's tickets cost, on the phone (luck:kiosk-sells-lotto-tickets): read from
 // the month's lines, as the kiosk reads them, so the app and the kiosk agree.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
@@ -23,7 +23,7 @@ function bought(visits: number): { lines: ReportLine[]; game: ReturnType<typeof 
 }
 
 describe("the month's lotto", () => {
-  test("[R-LUCK-005] given three tickets bought at the kiosk this month, when the Lotto app opens, then it says three tickets this month and what they cost, from the wallet's social lines", async () => {
+  test("[luck:kiosk-sells-lotto-tickets] given three tickets bought at the kiosk this month, when the Lotto app opens, then it says three tickets this month and what they cost, from the wallet's social lines", async () => {
     const { lines, game } = bought(3);
     expect(lottoMonth(lines)).toEqual({ tickets: 3, spent: { currency: "NGN", amount: ticket * 3 } });
     const { store } = await renderWithView(<Lotto />, game.view());
@@ -33,7 +33,7 @@ describe("the month's lotto", () => {
     expect(fact?.textContent).toContain(say("phone.lotto.month-cost", { amount: formatMoney(ticket * 3, "NGN") }));
   });
 
-  test("[R-LUCK-005] given no ticket bought this month, when the Lotto app opens, then it says no figure", async () => {
+  test("[luck:kiosk-sells-lotto-tickets] given no ticket bought this month, when the Lotto app opens, then it says no figure", async () => {
     const game = newGame("scenario.ada");
     await renderWithView(<Lotto />, game.view());
     expect(document.querySelector("[data-lotto-month]")).toBeNull();

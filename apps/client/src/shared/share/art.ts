@@ -1,4 +1,4 @@
-// The compositions behind a card's words (docs/rules/share.md R-SHARE-007):
+// The compositions behind a card's words (share:card-art-shows-no-face):
 // places, objects and people seen from behind, drawn in code from the asset
 // palette. No face, no logo, no crest, no lettering: a person is a single
 // colour shape with no features, and nothing here draws text.
@@ -169,7 +169,7 @@ const COMPOSITIONS: Record<string, Composer> = {
     pen.circle(230, 520, 110, "danfoYellow");
     pen.rect(0, 560, 1000, 1000, "blue");
     skyline(pen, 600, [40, 70, 30, 90, 50, 60, 40, 80, 30, 50], "charcoal", null);
-    // Fewer, wider ripples: thin lines on the blue cost the JPEG the most (R-SHARE-009).
+    // Fewer, wider ripples: thin lines on the blue cost the JPEG the most (share:card-drawn-on-device).
     for (let row = 660; row < 1000; row += 110) pen.line(60 + (row % 140), row, 360 + (row % 140), row, 6, "marking");
     for (let row = 720; row < 1000; row += 130) pen.line(560 - (row % 120), row, 900 - (row % 120), row, 6, "glass");
     plane(pen, 660, 220, 260, 14, "black", aspect);

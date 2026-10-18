@@ -1,4 +1,4 @@
-// The door draws its figure at the screen's own pixels (prologue.md R-PROLOGUE-009).
+// The door draws its figure at the screen's own pixels (prologue:front-door-builds-a-person).
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { doorPixels } from "./pixels";
 
 describe("the door's pixels", () => {
-  test("[R-PROLOGUE-009] given a phone's pixel ratio, then the door's canvases draw at it up to two to one, with antialiasing, and at one with no screen to read", () => {
+  test("[prologue:front-door-builds-a-person] given a phone's pixel ratio, then the door's canvases draw at it up to two to one, with antialiasing, and at one with no screen to read", () => {
     expect(doorPixels(3)).toBe(2);
     expect(doorPixels(2)).toBe(2);
     expect(doorPixels(1.5)).toBe(1.5);

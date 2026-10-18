@@ -1,4 +1,4 @@
-// The painted maps of Calgary, Dubai and Castel Volturno (docs/rules/world.md R-WORLD-038): each its own fit
+// The painted maps of Calgary, Dubai and Castel Volturno (world:painted-maps-abroad): each its own fit
 // at the country's true shape, its land and water, its cards, every built place of the country as its sticker on its own
 // card, the home sticker at the country's home spot from content, Naples on an inset in Castel Volturno's paper, each
 // its own chunk, and each drawn by the map with the stops kept for a screen reader alone.
@@ -141,7 +141,7 @@ describe.each(COUNTRIES)("$name's paper", (country) => {
   const { city } = country;
   const cardOf = (id: string) => city.cards.find((card) => card.id === id);
 
-  test(`[R-WORLD-038] given ${country.name}'s fit, when a position is laid on its paper, then it keeps the country's true shape in whole numbers, north up, and undoing it gives the position back`, () => {
+  test(`[world:painted-maps-abroad] given ${country.name}'s fit, when a position is laid on its paper, then it keeps the country's true shape in whole numbers, north up, and undoing it gives the position back`, () => {
     expect(country.fit.xLon / -country.fit.yLat).toBeCloseTo(country.lonMetres / 111, 1);
     expect(country.fit.xLat).toBe(0);
     expect(country.fit.yLon).toBe(0);
@@ -156,7 +156,7 @@ describe.each(COUNTRIES)("$name's paper", (country) => {
     expect(city.toPaper(north.position ?? country.home)[1]).toBeLessThan(city.toPaper(south.position ?? country.home)[1]);
   });
 
-  test(`[R-WORLD-038] given every place of ${country.name} with a position, when its map stands them, then each is on the paper, on the land, and shows on its own district's card`, () => {
+  test(`[world:painted-maps-abroad] given every place of ${country.name} with a position, when its map stands them, then each is on the paper, on the land, and shows on its own district's card`, () => {
     const places = placesOf(country);
     expect(places.map((place) => place.id).sort()).toEqual([...Object.keys(country.of), ...country.aside].sort());
     const placed = placeStops(places.map((place) => ({ id: place.id, state: "can", position: place.position ?? country.home })), city);
@@ -171,7 +171,7 @@ describe.each(COUNTRIES)("$name's paper", (country) => {
     }
   });
 
-  test(`[R-WORLD-038] given ${country.name}'s cards, when they are read, then they are in the swipe's order, each named in the paper's own words, and every district name and water name has words`, () => {
+  test(`[world:painted-maps-abroad] given ${country.name}'s cards, when they are read, then they are in the swipe's order, each named in the paper's own words, and every district name and water name has words`, () => {
     expect(city.cards.map((card) => card.id)).toEqual(country.cards);
     expect(city.cards.map((card) => country.words(card.key))).toEqual(country.cardWords);
     for (const label of [...city.labels, ...city.waterLabels]) expect(country.words(label.key)).not.toBe(label.key);
@@ -184,7 +184,7 @@ describe.each(COUNTRIES)("$name's paper", (country) => {
     expect(city.id).toBe(country.id);
   });
 
-  test(`[R-WORLD-038] given the room abroad, which has no position of its own, when ${country.name}'s map stands it however it is handed, then its sticker is at the country's home spot from content, never Lagos's, on its own card`, () => {
+  test(`[world:painted-maps-abroad] given the room abroad, which has no position of its own, when ${country.name}'s map stands it however it is handed, then its sticker is at the country's home spot from content, never Lagos's, on its own card`, () => {
     expect(country.home).toEqual(content.country[country.id]?.homeSpot);
     const [room] = placeStops([{ id: ROOM, state: "home", position: LAGOS_HOME_SPOT }], city);
     expect(room?.at).toEqual(city.toPaper(country.home));
@@ -198,7 +198,7 @@ describe.each(COUNTRIES)("$name's paper", (country) => {
 });
 
 describe("the three papers' land and water", () => {
-  test("[R-WORLD-038] given Calgary's paper, when its drawing is read, then the Bow runs between the north-east and downtown, and the CTrain's line is drawn", () => {
+  test("[world:painted-maps-abroad] given Calgary's paper, when its drawing is read, then the Bow runs between the north-east and downtown, and the CTrain's line is drawn", () => {
     const north = CALGARY.draw.land.north ?? [];
     const south = CALGARY.draw.land.south ?? [];
     const office = content.place["place.office-ca"]?.position;
@@ -212,7 +212,7 @@ describe("the three papers' land and water", () => {
     expect(drawingOf(CALGARY.draw).rails).not.toBe("");
   });
 
-  test("[R-WORLD-038] given Dubai's paper, when its drawing is read, then the creek cuts between Deira and Bur Dubai, the Gulf is water, and the metro's lines are drawn", () => {
+  test("[world:painted-maps-abroad] given Dubai's paper, when its drawing is read, then the creek cuts between Deira and Bur Dubai, the Gulf is water, and the metro's lines are drawn", () => {
     const land = DUBAI.draw.land.dubai ?? [];
     expect(inside(land, DUBAI.toPaper({ latE3: 25273, lonE3: 55305 }))).toBe(true);
     // The creek between the two banks, and the Gulf off the shore.
@@ -221,7 +221,7 @@ describe("the three papers' land and water", () => {
     expect(drawingOf(DUBAI.draw).rails).not.toBe("");
   });
 
-  test("[R-WORLD-038] given Castel Volturno's paper, when its drawing is read, then the sea lies west of the Domitiana, the Volturno runs across the top, and no railway is drawn", () => {
+  test("[world:painted-maps-abroad] given Castel Volturno's paper, when its drawing is read, then the sea lies west of the Domitiana, the Volturno runs across the top, and no railway is drawn", () => {
     const south = CASTEL.draw.land.south ?? [];
     expect(inside(south, CASTEL.toPaper({ latE3: 40990, lonE3: 13930 }))).toBe(false);
     expect(inside(south, CASTEL.toPaper({ latE3: 40990, lonE3: 13990 }))).toBe(true);
@@ -230,7 +230,7 @@ describe("the three papers' land and water", () => {
     expect(drawingOf(CASTEL.draw).rails).toBe("");
   });
 
-  test("[R-WORLD-038] given Naples' airport, far inland for the coast's paper, when Castel Volturno's map stands it, then its sticker is on the inset in the paper's south-east corner, on the Domitiana's card, never where the fit alone would put it", () => {
+  test("[world:painted-maps-abroad] given Naples' airport, far inland for the coast's paper, when Castel Volturno's map stands it, then its sticker is on the inset in the paper's south-east corner, on the Domitiana's card, never where the fit alone would put it", () => {
     const naples = content.place[NAPLES]?.position;
     if (naples === undefined || naples === null) throw new Error("Naples has no position");
     // By the fit alone it would stand far off the paper's east edge.
@@ -250,7 +250,7 @@ describe("the three papers' land and water", () => {
     for (const key of ["map.inset.naples", "map.inset.inland"]) expect(castelMapWords(key)).not.toBe(key);
   });
 
-  test("[R-WORLD-038] given the client's code, when what imports the three papers is read, then only the map's lazy loads do, so each rides a chunk of its own and a first visit at home carries none of them", () => {
+  test("[world:painted-maps-abroad] given the client's code, when what imports the three papers is read, then only the map's lazy loads do, so each rides a chunk of its own and a first visit at home carries none of them", () => {
     const SRC = join(import.meta.dirname, "..", "..", "..");
     const files = (readdirSync(SRC, { recursive: true }) as string[]).filter((path) => /\.(ts|tsx)$/.test(path) && !/\.test\.tsx?$/.test(path));
     const map = readFileSync(join(SRC, "features", "map", "Map.tsx"), "utf8");
@@ -283,7 +283,7 @@ const HUBS: Record<Country["id"], { hub: string; card: string; title: string }> 
 };
 
 describe.each(COUNTRIES)("the map in $name", (country) => {
-  test(`[R-WORLD-038] given a life at ${country.name}'s hub, when the map opens there, then it is the country's painted map folded on the hub's card with the strip and the home, the stops kept as a list for a screen reader alone, and no hint`, async () => {
+  test(`[world:painted-maps-abroad] given a life at ${country.name}'s hub, when the map opens there, then it is the country's painted map folded on the hub's card with the strip and the home, the stops kept as a list for a screen reader alone, and no hint`, async () => {
     const choice: CountryChoice = { id: country.id, name: country.name, locked: null };
     const { hub, card, title } = HUBS[country.id];
     await renderWithView(<Map pins={pinsOf(country, hub)} country={choice} countries={[choice]} drawing={false} onGo={() => undefined} onClose={() => undefined} home={ROOM} />, engineView("scenario.ada"));
@@ -304,7 +304,7 @@ describe.each(COUNTRIES)("the map in $name", (country) => {
 });
 
 describe("Naples on the open map", () => {
-  test("[R-WORLD-038] [R-WORLD-017] given Castel Volturno's open map, when Naples' sticker on the inset is tapped, then its stop is picked with the ride sheet at the foot", async () => {
+  test("[world:painted-maps-abroad] [world:ride-sheet-shows-fares] given Castel Volturno's open map, when Naples' sticker on the inset is tapped, then its stop is picked with the ride sheet at the foot", async () => {
     const italy = COUNTRIES[2];
     if (italy === undefined) throw new Error("No Italy");
     const choice: CountryChoice = { id: italy.id, name: italy.name, locked: null };

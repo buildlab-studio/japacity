@@ -1,4 +1,4 @@
-// The painted map itself (docs/rules/world.md R-WORLD-015, R-WORLD-038): one SVG of the paper, drawn the same in every
+// The painted map itself (world:map-is-painted-lagos, world:painted-maps-abroad): one SVG of the paper, drawn the same in every
 // view. The strip draws it folded (the land, the water, the main roads and the bridges, every line its own width however
 // flat the fold); the open map and the cards draw it whole, the cards with a closer grain of houses. The paint's colours
 // come from the role tokens in paper.css, so the night paint darkens the paper by itself. The city drawn is the one the

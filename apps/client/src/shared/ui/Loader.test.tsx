@@ -1,4 +1,4 @@
-// R-ENGINE-015: every wait takes the splash's look, the words with a thin
+// engine:browser-authority-for-dev-only: every wait takes the splash's look, the words with a thin
 // horizontal bar under them. The bar runs by transform alone when the share is not known, fills to it when it is, and
 // stands still as a full quiet bar under reduced motion. Never a spinner.
 import { readFileSync } from "node:fs";
@@ -21,8 +21,8 @@ function rule(selector: string, within = CSS): string {
   return match[1];
 }
 
-describe("the loader (R-ENGINE-015)", () => {
-  test("[R-ENGINE-015] given no known share, when the loader shows, then it is a progressbar with no value, a short segment running across it by transform alone over two seconds", () => {
+describe("the loader (engine:browser-authority-for-dev-only)", () => {
+  test("[engine:browser-authority-for-dev-only] given no known share, when the loader shows, then it is a progressbar with no value, a short segment running across it by transform alone over two seconds", () => {
     render(<Loader label="Opening your life..." />);
     const bar = screen.getByRole("progressbar", { name: "Opening your life..." });
     expect(bar.hasAttribute("aria-valuenow")).toBe(false);
@@ -35,7 +35,7 @@ describe("the loader (R-ENGINE-015)", () => {
     expect(keyframes).not.toMatch(/rotate/);
   });
 
-  test("[R-ENGINE-015] given a known share, when the loader shows, then the bar is filled to it, held between none and all, and the progressbar carries it", () => {
+  test("[engine:browser-authority-for-dev-only] given a known share, when the loader shows, then the bar is filled to it, held between none and all, and the progressbar carries it", () => {
     const { rerender } = render(<Loader label="Getting Ojuelegba ready" percent={42.4} />);
     const bar = screen.getByRole("progressbar");
     expect(bar.getAttribute("aria-valuenow")).toBe("42");
@@ -48,7 +48,7 @@ describe("the loader (R-ENGINE-015)", () => {
     expect(rule('.loader[data-loader="share"] > span')).toMatch(/transition:\s*transform 200ms/);
   });
 
-  test("[R-ENGINE-015] given reduced motion, then the running segment stands still as a full quiet bar and the filling bar jumps without easing", () => {
+  test("[engine:browser-authority-for-dev-only] given reduced motion, then the running segment stands still as a full quiet bar and the filling bar jumps without easing", () => {
     const reduced = /@media \(prefers-reduced-motion: reduce\) \{\n((?:[^\n]*\n)*?)\}\n/g;
     const blocks = [...CSS.matchAll(reduced)].map((block) => block[1] ?? "").filter((block) => block.includes(".loader"));
     expect(blocks).toHaveLength(1);
@@ -59,7 +59,7 @@ describe("the loader (R-ENGINE-015)", () => {
     expect(rule('.loader[data-loader="share"] > span', `\n${blocks[0] ?? ""}`)).toMatch(/transition:\s*none/);
   });
 
-  test("[R-ENGINE-015] given the bar's colours, then it is the band's ink on the sheet's ground, thin and rounded, and the bar is spans only so it sits inside a line", () => {
+  test("[engine:browser-authority-for-dev-only] given the bar's colours, then it is the band's ink on the sheet's ground, thin and rounded, and the bar is spans only so it sits inside a line", () => {
     expect(rule(".loader")).toMatch(/background:\s*var\(--sheet-line\)/);
     expect(rule(".loader")).toMatch(/height:\s*4px/);
     expect(rule(".loader")).toMatch(/border-radius:\s*999px/);
@@ -71,7 +71,7 @@ describe("the loader (R-ENGINE-015)", () => {
     expect(bar.classList.contains("loader-small")).toBe(true);
   });
 
-  test("[R-ENGINE-015] given the waiting words, then they pulse as the splash's do with the bar right under the first line, and a second line comes under the bar", () => {
+  test("[engine:browser-authority-for-dev-only] given the waiting words, then they pulse as the splash's do with the bar right under the first line, and a second line comes under the bar", () => {
     render(<Waiting words="Opening your life..." more="Still opening..." />);
     const column = document.querySelector("[data-waiting]");
     const parts = [...(column?.children ?? [])].map((part) => part.className);

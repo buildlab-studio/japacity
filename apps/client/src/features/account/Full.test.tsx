@@ -33,7 +33,7 @@ describe("the full screen", () => {
     vi.useRealTimers();
   });
 
-  test("[R-SERVER-032] given sign-ups switched off, when the screen shows, then it says the game is full, offers no sign-in form, and its button waits", () => {
+  test("[server:signups-off-shows-full] given sign-ups switched off, when the screen shows, then it says the game is full, offers no sign-in form, and its button waits", () => {
     render(<Full retryAfter={WAIT_S} check={checker(["full"]).check} onOpen={() => undefined} />);
     expect(screen.getByText(say("server.full"))).toBeDefined();
     expect(say("server.full")).toBe("Japacity is full right now. Try again shortly.");
@@ -42,7 +42,7 @@ describe("the full screen", () => {
     expect(screen.getByRole<HTMLButtonElement>("button", { name: say("ui.full.check") }).disabled).toBe(true);
   });
 
-  test("[R-SERVER-032] given the wait, when a millisecond short of it passes, then nothing is asked; when it ends, then the server is asked once, and again after each wait while it stays full", async () => {
+  test("[server:signups-off-shows-full] given the wait, when a millisecond short of it passes, then nothing is asked; when it ends, then the server is asked once, and again after each wait while it stays full", async () => {
     const { check, asked } = checker(["full"]);
     render(<Full retryAfter={WAIT_S} check={check} onOpen={() => undefined} />);
     await pass(WAIT_S * 1000 - 1);
@@ -55,7 +55,7 @@ describe("the full screen", () => {
     expect(asked()).toBe(2);
   });
 
-  test("[R-SERVER-032] given the server open again, when the wait ends, then the screen hands over once and asks no more", async () => {
+  test("[server:signups-off-shows-full] given the server open again, when the wait ends, then the screen hands over once and asks no more", async () => {
     const { check, asked } = checker(["full", "open"]);
     const onOpen = vi.fn();
     render(<Full retryAfter={WAIT_S} check={check} onOpen={onOpen} />);
@@ -67,7 +67,7 @@ describe("the full screen", () => {
     expect(asked()).toBe(2);
   });
 
-  test("[R-SERVER-032] given the server unreachable when the wait ends, when the visitor presses the button, then it is asked again at once", async () => {
+  test("[server:signups-off-shows-full] given the server unreachable when the wait ends, when the visitor presses the button, then it is asked again at once", async () => {
     const { check, asked } = checker(["down", "open"]);
     const onOpen = vi.fn();
     render(<Full retryAfter={WAIT_S} check={check} onOpen={onOpen} />);

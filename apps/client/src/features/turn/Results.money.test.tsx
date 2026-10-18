@@ -1,6 +1,6 @@
-// The results count only what moved (docs/rules/world.md R-WORLD-008), played on the real engine:
+// The results count only what moved (world:month-end-results-sheet), played on the real engine:
 // a bill that could not be paid is told but not counted as money gone, an agent's fee is counted
-// once though the scam is told after it (docs/rules/advice.md R-ADVICE-009), and neither the
+// once though the scam is told after it (advice:bad-news-told-straight), and neither the
 // prologue's years nor money that only sits locked counts as kept.
 import { content } from "@japacity/content";
 import type { Effect, ReportLine } from "@japacity/sim";
@@ -31,7 +31,7 @@ function scammerGame(): { game: Game; offer: string; fee: number } {
     toKnown(game);
     for (let month = 0; month < 6 && !game.state.chapter.done.includes("chapter.find-your-feet"); month += 1) game.endTurn();
     applyEffects(game, [{ type: "route/hear", route: "route.gulf-contract", via: "test" }]);
-    // R-ACTIVITY-015: going to the stop is an act done at once, so the agent is at the table this month.
+    // activity:now-acts-and-month-acts: going to the stop is an act done at once, so the agent is at the table this month.
     game.accept({ type: "activity/now", activity: "activity.see-agent-stop", param: "route.gulf-contract" });
     const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === "offer.agent-stop");
     if (item === undefined || !item.secret.fraud) continue;
@@ -42,8 +42,8 @@ function scammerGame(): { game: Game; offer: string; fee: number } {
 }
 
 describe("what the results count", () => {
-  test("[R-WORLD-008] given a life with no money for its upkeep, when the month ends, then the missed bill is told but what was kept is what really moved", () => {
-    // Decision 0013 (R-HOME-012): at home the living is charged nothing as the month turns, so a bill to miss is made by
+  test("[world:month-end-results-sheet] given a life with no money for its upkeep, when the month ends, then the missed bill is told but what was kept is what really moved", () => {
+    // Decision 0013 (home:living-by-hand): at home the living is charged nothing as the month turns, so a bill to miss is made by
     // charging it whole, as the simulation's relief tests do.
     const game = chargedLivingGame("scenario.ada");
     const pocket = game.state.wallet.pockets.NGN;
@@ -58,7 +58,7 @@ describe("what the results count", () => {
     expect(keptNaira(lines)).toBe(naira(game) - before);
   });
 
-  test("[R-WORLD-008] [R-ADVICE-009] given a scammer paid mid-month, when the month ends, then his fee is counted once, as the scam, and what was kept is what really moved", () => {
+  test("[world:month-end-results-sheet] [advice:bad-news-told-straight] given a scammer paid mid-month, when the month ends, then his fee is counted once, as the scam, and what was kept is what really moved", () => {
     const { game, offer, fee } = scammerGame();
     const before = naira(game);
     const mid = [...game.accept({ type: "offer/choose", offer, choice: "look-office" }).lines, ...game.accept({ type: "offer/choose", offer, choice: "take" }).lines];
@@ -78,7 +78,7 @@ function effectLines(game: Game, effects: Effect[]): ReportLine[] {
 }
 
 describe("money that never moved the naira", () => {
-  test("[R-WORLD-008] given the life from sixteen, when its first month ends, then the prologue's earnings are not counted as kept, and read as savings from before", () => {
+  test("[world:month-end-results-sheet] given the life from sixteen, when its first month ends, then the prologue's earnings are not counted as kept, and read as savings from before", () => {
     const game = newGame("scenario.prologue");
     const prologue: ReportLine[] = [];
     for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
@@ -102,7 +102,7 @@ describe("money that never moved the naira", () => {
     for (const line of earned) expect(shown).not.toContain(words(line.key, line.params));
   });
 
-  test("[R-WORLD-008] [R-OBLIGATION-007] given held funds taken and returned in one month, when the month ends, then neither the locked money nor its return is counted, and what was kept is what really moved", () => {
+  test("[world:month-end-results-sheet] [obligation:missed-interest-recalls-held-funds] given held funds taken and returned in one month, when the month ends, then neither the locked money nor its return is counted, and what was kept is what really moved", () => {
     const game = newGame("scenario.ada");
     const before = naira(game);
     const taken = effectLines(game, [{ type: "obligation/open", obligation: "obligation.held-funds", principal: 1_119_311_000 }]);
@@ -117,7 +117,7 @@ describe("money that never moved the naira", () => {
     expect(keptNaira(all)).toBe(naira(game) - before);
   });
 
-  test("[R-WORLD-008] given the NEPA bill paid, when the month's lines are read, then its line says the bill, not money sent to family, and it is counted as money out", () => {
+  test("[world:month-end-results-sheet] given the NEPA bill paid, when the month's lines are read, then its line says the bill, not money sent to family, and it is counted as money out", () => {
     const game = newGame("scenario.ada");
     applyEffects(game, [{ type: "offer/open", offer: "offer.nepa-bill" }]);
     const offer = game.view().offers.find((candidate) => candidate.entry === "offer.nepa-bill");
@@ -149,7 +149,7 @@ function decemberAtHome(): Game {
 }
 
 describe("money named for what it was", () => {
-  test("[R-WORLD-008] given a thirteenth month taken mid-month and the month's salary paid at its end, when the month's money is read, then each is told once in its own words, and what was kept is the naira's move over the whole month", () => {
+  test("[world:month-end-results-sheet] given a thirteenth month taken mid-month and the month's salary paid at its end, when the month's money is read, then each is told once in its own words, and what was kept is the naira's move over the whole month", () => {
     const game = decemberAtHome();
     const offer = openOffer(game, "offer.december-bonus");
     const pay = offer.terms["pay"];
@@ -165,7 +165,7 @@ describe("money named for what it was", () => {
     expect(keptNaira([...mid, ...end])).toBe(naira(game) - before);
   });
 
-  test("[R-WORLD-008] [R-WORLD-019] given the savings circle joined, when its months end, then each share reads as the circle, the pot as the circle paying you, and what was kept is what moved", () => {
+  test("[world:month-end-results-sheet] [world:phone-holds-what-phones-hold] given the savings circle joined, when its months end, then each share reads as the circle, the pot as the circle paying you, and what was kept is what moved", () => {
     const game = newGame("scenario.tunde");
     const circle = openOffer(game, "offer.join-ajo");
     game.accept({ type: "offer/choose", offer: circle.id, choice: "join" });

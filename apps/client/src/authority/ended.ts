@@ -1,4 +1,4 @@
-// What a life keeps on the device beside its save (account.md R-ACCOUNT-030): when the life ends, all of it goes
+// What a life keeps on the device beside its save (account:start-a-new-life): when the life ends, all of it goes
 // with it, so the next life starts at the front door filled in as a first visit is, and nothing of the old life
 // (its person, its month, its days, its cards, the place it stood) shows in the new one. The settings of the
 // device (the look, the sound, the graphics) stay.

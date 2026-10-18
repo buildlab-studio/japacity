@@ -1,10 +1,10 @@
-// Dubai as a painted city (docs/rules/world.md R-WORLD-038; design page 15 sections 2 and 6): Deira on paper,
+// Dubai as a painted city (world:painted-maps-abroad; design page 15 sections 2 and 6): Deira on paper,
 // the Gulf along the north-west, the creek cutting in from it to the south-east, the metro's lines, the airport to the
 // south-east, the camp to the east, the site among the towers south across the creek, four neighbourhood cards, every
 // built place of the UAE as its sticker and the home sticker at the country's home spot from content (the bed space at
 // the camp). Its own chunk, loaded only when the map shows the UAE, so a first visit at home carries none of it. Authored
 // in the thousandths of a degree content keeps positions in, laid on the paper through Dubai's own fit; rough on
-// purpose, as the positions are (city.md R-CITY-008): a stylised Dubai, not a survey.
+// purpose, as the positions are (city:positions-rough-on-purpose): a stylised Dubai, not a survey.
 import { content } from "@japacity/content";
 
 import { dubaiMapWords } from "./paper.words";
@@ -21,7 +21,7 @@ export const UAE = "country.uae";
 /**
  * Dubai's fit: north up, a thousandth of a degree seven paper units south and six east, so the paper keeps the city's
  * true shape (a thousandth of a degree of longitude is about 100 m at 25 degrees north against 111 m of latitude,
- * R-PLACE-010). The paper runs from 55.250 to 55.408 east and from 25.290 down to 25.176 north: wider than
+ * place:rides-between-city-places). The paper runs from 55.250 to 55.408 east and from 25.290 down to 25.176 north: wider than
  * tall, since the camp lies east of Deira and the site far to the south-west.
  */
 export const DUBAI_FIT: Fit = { xLon: 6, xLat: 0, x0: -331500, yLon: 0, yLat: -7, y0: 177030 };

@@ -28,7 +28,7 @@ beforeEach(() => {
 });
 
 async function openPhone(view: PlayerView, extra: { talk?: PairTalk; onClose?: () => void } = {}) {
-  // The shell hands the phone its Calendar (R-WORLD-002), as App does; the phone knows only that it is a screen.
+  // The shell hands the phone its Calendar (world:top-band-is-lively-pill), as App does; the phone knows only that it is a screen.
   return renderWithView(<PhoneApps onClose={extra.onClose ?? (() => undefined)} area="Ojuelegba" now={NOON} talk={extra.talk ?? null} calendar={(opening) => <div data-phone-app="calendar" data-opening={opening ?? ""} />} />, view);
 }
 
@@ -76,7 +76,7 @@ function busyView(): PlayerView {
 }
 
 describe("the handset", () => {
-  test("[R-WORLD-018] given the phone opens, when it rises, then the wallpaper shows the time, the month and the area, and the grid holds the apps four across, the Calendar first", async () => {
+  test("[world:phone-rises-over-scene] given the phone opens, when it rises, then the wallpaper shows the time, the month and the area, and the grid holds the apps four across, the Calendar first", async () => {
     await openPhone(engineView());
     expect(document.querySelector("[data-phone-time]")?.textContent).toBe("12:05");
     expect(screen.getByText(todayWords(NOON()))).toBeTruthy();
@@ -86,18 +86,18 @@ describe("the handset", () => {
     expect([...grid.querySelectorAll("[data-app]")].map((app) => app.getAttribute("data-app"))).toEqual([...APP_IDS]);
     expect(APP_IDS[0]).toBe("calendar");
     expect([...grid.querySelectorAll("[data-app]")].map((app) => (app as HTMLElement).style.background)).toEqual(APP_IDS.map((id) => `var(--app-${id})`));
-    // The tilt at rest is a transform, so the grow can carry it away on the compositor (R-WORLD-023).
+    // The tilt at rest is a transform, so the grow can carry it away on the compositor (world:motions-under-half-second).
     expect(document.querySelector("[data-handset]")?.className).toContain("handset-rest");
   });
 
-  test("[R-WORLD-018] given the phone, when the grow button is tapped and tapped again, then it grows to nearly the whole screen and comes back", async () => {
+  test("[world:phone-rises-over-scene] given the phone, when the grow button is tapped and tapped again, then it grows to nearly the whole screen and comes back", async () => {
     await openPhone(engineView());
     const phone = document.querySelector("[data-phone]");
     expect(phone?.getAttribute("data-grown")).toBe("false");
     fireEvent.click(screen.getByRole("button", { name: "Make the phone bigger" }));
     expect(phone?.getAttribute("data-grown")).toBe("true");
     // Grown, the handset is laid out at the screen's width, straight, and gets there by one transform from the box it
-    // left, never by animating its edges (R-WORLD-023). The width is the screen's up to the centred column's
+    // left, never by animating its edges (world:motions-under-half-second). The width is the screen's up to the centred column's
     // (decision 0025), so on a phone the whole screen and on a laptop the
     // column of phone width the band and the thumbs stand in.
     const handset = document.querySelector("[data-handset]");
@@ -112,7 +112,7 @@ describe("the handset", () => {
     expect(document.querySelector("[data-handset]")?.className).toContain("handset-rest");
   });
 
-  test("[R-WORLD-026] [R-WORLD-018] given a line told over the phone, at rest or grown, when it shows, then it stands in a lane of its own above the handset, never inside the glass on an icon or a button", async () => {
+  test("[world:street-talk-budget] [world:phone-rises-over-scene] given a line told over the phone, at rest or grown, when it shows, then it stands in a lane of its own above the handset, never inside the glass on an icon or a button", async () => {
     // The trap: "You quit" sitting on the Jobs and Market icons, or on Send money home.
     await openPhone(engineView());
     act(() => tell("You quit"));
@@ -127,7 +127,7 @@ describe("the handset", () => {
     expect(document.querySelector("[data-handset]")?.className).toContain(TOLD_LANE);
   });
 
-  test("[R-STATUS-003] [R-WORLD-018] given what the wallpaper tells is taller than its room, when the phone's home shows, then the notices stand whole and the grid scrolls under them above the home bar, never out of reach", async () => {
+  test("[status:lost-job-starts-clock] [world:phone-rises-over-scene] given what the wallpaper tells is taller than its room, when the phone's home shows, then the notices stand whole and the grid scrolls under them above the home bar, never out of reach", async () => {
     // The trap: the status clock's banner pushing the last row of apps under the home bar.
     await renderWithView(<PhoneApps onClose={() => undefined} area="Peckham" now={NOON} talk={null} warnings={<div style={{ height: 2000 }} data-tall-notice />} />, engineView());
     const notices = document.querySelector<HTMLElement>("[data-wallpaper-room]")!;
@@ -140,7 +140,7 @@ describe("the handset", () => {
     expect(notices.contains(document.querySelector("[data-home-bar]"))).toBe(false);
   });
 
-  test("[R-WORLD-018] given an app is open, when Back is tapped, then the grid returns, and the home bar puts the phone away", async () => {
+  test("[world:phone-rises-over-scene] given an app is open, when Back is tapped, then the grid returns, and the home bar puts the phone away", async () => {
     const onClose = vi.fn();
     await openPhone(engineView(), { onClose });
     openApp("news");
@@ -157,7 +157,7 @@ describe("the handset", () => {
     ["a life in the middle of an application", richView],
     ["a life with a job offer and a draw result", busyView],
   ] as const) {
-    test(`[R-WORLD-018] given ${name}, when each app opens, then it shows its own one screen from the view`, async () => {
+    test(`[world:phone-rises-over-scene] given ${name}, when each app opens, then it shows its own one screen from the view`, async () => {
       await openPhone(fixture());
       for (const id of APP_IDS) {
         openApp(id);
@@ -169,12 +169,12 @@ describe("the handset", () => {
 });
 
 describe("the dots", () => {
-  test("[R-WORLD-018] given a bill due, a job offer, a draw result and the month's news, when nothing has been seen, then those apps carry a dot and Bank, Japa and Settings do not", () => {
+  test("[world:phone-rises-over-scene] given a bill due, a job offer, a draw result and the month's news, when nothing has been seen, then those apps carry a dot and Bank, Japa and Settings do not", () => {
     const waiting = waitingOf(marksOf(busyView()), {});
     expect(waiting).toMatchObject({ bills: true, jobs: true, lotto: true, news: true, chats: true, bank: false, japa: false, settings: false });
   });
 
-  test("[R-WORLD-018] given an app with a dot, when it is opened, then the dot goes, the device keeps what was seen under one key, and it stays gone after a reload", async () => {
+  test("[world:phone-rises-over-scene] given an app with a dot, when it is opened, then the dot goes, the device keeps what was seen under one key, and it stays gone after a reload", async () => {
     await openPhone(busyView());
     expect(tile("jobs").querySelector("[data-dot]")).not.toBeNull();
     openApp("jobs");
@@ -188,7 +188,7 @@ describe("the dots", () => {
     expect(tile("bills").querySelector("[data-dot]")).not.toBeNull();
   });
 
-  test("[R-WORLD-018] given the job offer seen, when a new offer arrives, then the dot comes back", () => {
+  test("[world:phone-rises-over-scene] given the job offer seen, when a new offer arrives, then the dot comes back", () => {
     const view = busyView();
     const seen = { jobs: marksOf(view).jobs };
     const next = { ...view, offers: [...view.offers, { ...view.offers.at(-1)!, id: "offer-21" }] };
@@ -198,7 +198,7 @@ describe("the dots", () => {
 });
 
 describe("the acts", () => {
-  test("[R-WORLD-018] given Bank, when Change money is chosen and its card confirmed, then the conversion the wallet sends is sent", async () => {
+  test("[world:phone-rises-over-scene] given Bank, when Change money is chosen and its card confirmed, then the conversion the wallet sends is sent", async () => {
     const view = engineView();
     const { authority } = await openPhone(view);
     openApp("bank");
@@ -210,7 +210,7 @@ describe("the acts", () => {
     await waitFor(() => expect(sent(authority)).toEqual([{ type: "wallet/convert", from: "NGN", to: "GBP", amount: quarter, via: "bank" }]));
   });
 
-  test("[R-WORLD-018] given Bank, when Move money is chosen for all the cash and its card confirmed, then the move is sent", async () => {
+  test("[world:phone-rises-over-scene] given Bank, when Move money is chosen for all the cash and its card confirmed, then the move is sent", async () => {
     const view = engineView();
     const { authority } = await openPhone(view);
     openApp("bank");
@@ -222,7 +222,7 @@ describe("the acts", () => {
     expect(await screen.findByText("Money moved")).toBeTruthy();
   });
 
-  test("[R-WORLD-018] given Jobs with a job held and an offer, when quit and take are confirmed on their cards, then the quit and the offer's accept are sent", async () => {
+  test("[world:phone-rises-over-scene] given Jobs with a job held and an offer, when quit and take are confirmed on their cards, then the quit and the offer's accept are sent", async () => {
     const { authority } = await openPhone(busyView());
     openApp("jobs");
     fireEvent.click(screen.getAllByRole("button", { name: "Quit" })[0]!);
@@ -235,7 +235,7 @@ describe("the acts", () => {
     await waitFor(() => expect(sent(authority).at(-1)).toEqual({ type: "offer/choose", offer: "offer-20", choice: "accept" }));
   });
 
-  test("[R-WORLD-019] given Bills with a loan due, when its slip is paid, then this month's part is paid and the upkeep is taken at the month's end", async () => {
+  test("[world:phone-holds-what-phones-hold] given Bills with a loan due, when its slip is paid, then this month's part is paid and the upkeep is taken at the month's end", async () => {
     const view = richView();
     const { authority } = await openPhone(view);
     openApp("bills");
@@ -248,7 +248,7 @@ describe("the acts", () => {
     await waitFor(() => expect(sent(authority)).toEqual([{ type: "obligation/pay", obligation: "obligation-9", amount: 12_400_000 }]));
   });
 
-  test("[R-WORLD-018] given a sheet open in an app, when Not now is tapped, then nothing is sent", async () => {
+  test("[world:phone-rises-over-scene] given a sheet open in an app, when Not now is tapped, then nothing is sent", async () => {
     const { authority } = await openPhone(richView());
     openApp("bills");
     fireEvent.click(document.querySelector<HTMLElement>('[data-pay="obligation-9"]')!);
@@ -259,7 +259,7 @@ describe("the acts", () => {
 });
 
 describe("what the phone carries", () => {
-  test("[R-WORLD-019] given a life, when Chats opens the family group, then the group's posts show as bubbles from their senders, one a month at most", async () => {
+  test("[world:phone-holds-what-phones-hold] given a life, when Chats opens the family group, then the group's posts show as bubbles from their senders, one a month at most", async () => {
     const view = { ...engineView(), month: 3 };
     await openPhone(view);
     openApp("chats");
@@ -270,7 +270,7 @@ describe("what the phone carries", () => {
     for (const line of feed) expect(screen.getAllByText(line.words).length).toBeGreaterThan(0);
   });
 
-  test("[R-WORLD-018] given the family group's thread open in Chats, when the way back is looked for, then there is one, the app's Back: it returns to the chats, and once more to the grid", async () => {
+  test("[world:phone-rises-over-scene] given the family group's thread open in Chats, when the way back is looked for, then there is one, the app's Back: it returns to the chats, and once more to the grid", async () => {
     // The trap: the app's back arrow and a "Chats" link under it, two ways back stacked.
     await openPhone({ ...engineView(), month: 3 });
     openApp("chats");
@@ -284,14 +284,14 @@ describe("what the phone carries", () => {
     expect(document.querySelector("[data-phone-home]")).not.toBeNull();
   });
 
-  test("[R-WORLD-019] given the visa granted, when the feed is read, then the billing that waits for the news has started", () => {
+  test("[world:phone-holds-what-phones-hold] given the visa granted, when the feed is read, then the billing that waits for the news has started", () => {
     const view = richView();
     const granted = { ...view, routes: view.routes.map((route) => ({ ...route, state: "granted" as const })) };
     expect(familyFeedLines(view).some((line) => line.id === "family.roof")).toBe(false);
     expect(familyFeedLines(granted).some((line) => line.id === "family.roof")).toBe(true);
   });
 
-  test("[R-WORLD-019] given a partner online, when their chat opens, then their messages show and a phrase is said from chips, nothing typed", async () => {
+  test("[world:phone-holds-what-phones-hold] given a partner online, when their chat opens, then their messages show and a phrase is said from chips, nothing typed", async () => {
     const base = richView();
     const bond = { id: "bond-1", role: "partner" as const, stage: "partner" as const, label: "player" as const, person: null, pair: "pair-1", lastMomentMonth: null, cooldownUntil: null, partnerMonth: null, consent: null, moments: null, pending: { mine: null, theirs: null }, standIn: null, facts: null };
     const view = { ...base, people: { ...base.people, bonds: [bond] } } as PlayerView;
@@ -311,13 +311,13 @@ describe("what the phone carries", () => {
     await waitFor(() => expect(said).toHaveBeenCalledWith("pair-1", "phrase.hello", null));
   });
 
-  test("[R-WORLD-019] given papers held and on the way, when Japa opens, then the plan shows its percent and steps, and its papers' step opens the Papers app, the box under the bed", async () => {
+  test("[world:phone-holds-what-phones-hold] given papers held and on the way, when Japa opens, then the plan shows its percent and steps, and its papers' step opens the Papers app, the box under the bed", async () => {
     const view = richView();
     await openPhone(view);
     openApp("japa");
     expect(document.querySelector("[data-japa-percent]")?.getAttribute("data-japa-percent")).toBe("64");
     expect(document.querySelectorAll("[data-steps] [data-met]")).toHaveLength(view.routes[0]!.checklist.length);
-    // The reminder says the paper and when, each once (R-TEXT-008).
+    // The reminder says the paper and when, each once (text:show-then-tell).
     const reminder = document.querySelector("[data-reminder='paper']");
     expect(reminder?.textContent).toBe(`${say("phone.japa.paper-ready", { paper: nameOf("document.transcript") })}${inMonths(12, view.month)}`);
     // The step opens the Papers app, one source for the papers.
@@ -328,7 +328,7 @@ describe("what the phone carries", () => {
     expect(view.documents.map((paper) => states.get(paper.id))).toEqual(["held", "held", "coming"]);
   });
 
-  test("[R-WORLD-018] given a draw result, when Lotto opens, then the next draw, the tickets held and the last result show, with the matched ticket lit", async () => {
+  test("[world:phone-rises-over-scene] given a draw result, when Lotto opens, then the next draw, the tickets held and the last result show, with the matched ticket lit", async () => {
     await openPhone(busyView());
     openApp("lotto");
     expect(document.querySelector("[data-next-draw]")?.getAttribute("data-next-draw")).toBe("7");
@@ -337,7 +337,7 @@ describe("what the phone carries", () => {
     expect(screen.getByText("Your ticket 31 won.")).toBeTruthy();
   });
 
-  test("[R-WORLD-008] given a month's report, when News opens, then the report's lines are kept there with the stories", async () => {
+  test("[world:month-end-results-sheet] given a month's report, when News opens, then the report's lines are kept there with the stories", async () => {
     const view = richView();
     await openPhone(view);
     openApp("news");
@@ -347,7 +347,7 @@ describe("what the phone carries", () => {
 });
 
 describe("settings", () => {
-  test("[R-WORLD-021] given Settings, when it opens, then it offers no choice of look: the game has one, painted by the world's clock (decision 0025)", async () => {
+  test("[world:colours-are-role-tokens] given Settings, when it opens, then it offers no choice of look: the game has one, painted by the world's clock (decision 0025)", async () => {
     await openPhone(engineView());
     openApp("settings");
     expect(screen.queryByRole("radio", { name: "Danfo" })).toBeNull();
@@ -356,7 +356,7 @@ describe("settings", () => {
     expect(document.documentElement.dataset.ui).toBeUndefined();
   });
 
-  test("[R-WORLD-022] given Settings, when the sound is turned off and on, then the existing mute follows", async () => {
+  test("[world:interface-sounds-made-live] given Settings, when the sound is turned off and on, then the existing mute follows", async () => {
     await openPhone(engineView());
     openApp("settings");
     fireEvent.click(screen.getByRole("radio", { name: "Off" }));
@@ -365,7 +365,7 @@ describe("settings", () => {
     expect(soundStore.getState().muted).toBe(false);
   });
 
-  test("[R-WORLD-018] given Settings, when a graphics choice is made, then the city's kept choice holds it", async () => {
+  test("[world:phone-rises-over-scene] given Settings, when a graphics choice is made, then the city's kept choice holds it", async () => {
     await openPhone(engineView());
     openApp("settings");
     fireEvent.click(screen.getByRole("radio", { name: "High" }));
@@ -374,7 +374,7 @@ describe("settings", () => {
 });
 
 describe("the brief's dot on Japa", () => {
-  test("[R-WORLD-018] [R-WORLD-004] given a brief handed (design page 13 section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
+  test("[world:phone-rises-over-scene] [world:thumb-buttons-carry-dots] given a brief handed (design page 13 section 4), when the phone's marks are read, then Japa carries a dot until it is opened, and a new brief brings it back", () => {
     const view = engineView();
     expect(waitingOf(marksOf(view), {}).japa).toBe(false);
     handBrief(view.scenario, "chapter.find-your-feet");

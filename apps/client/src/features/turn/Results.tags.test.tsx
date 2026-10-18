@@ -1,6 +1,6 @@
-// The tags under what was kept (docs/rules/text.md R-TEXT-008, world.md R-WORLD-008): the month's lotto is one down
+// The tags under what was kept (text:show-then-tell, world:month-end-results-sheet): the month's lotto is one down
 // tag and one money row, however many visits the tickets were bought on. A change of money is
-// never a tag: it is said by its own line under Kept, both sides as they were (R-WORLD-008, Results.changed.test.tsx).
+// never a tag: it is said by its own line under Kept, both sides as they were (world:month-end-results-sheet, Results.changed.test.tsx).
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
@@ -16,7 +16,7 @@ import { Results } from "./Results";
 const TICKET = content.tuning.luck.ticket;
 
 describe("the tags under what was kept", () => {
-  test("[R-TEXT-008] [R-WORLD-008] [R-LUCK-005] given three tickets bought on three visits, when the month's results show, then the lotto is said once, as a down tag with the three tickets' money, and what was kept still counts each", async () => {
+  test("[text:show-then-tell] [world:month-end-results-sheet] [luck:kiosk-sells-lotto-tickets] given three tickets bought on three visits, when the month's results show, then the lotto is said once, as a down tag with the three tickets' money, and what was kept still counts each", async () => {
     const game = newGame("scenario.ada");
     const now: ReportLine[] = [];
     for (let visit = 0; visit < 3; visit += 1) now.push(...game.accept({ type: "activity/now", activity: "activity.play-lotto", param: "1" }).lines);
@@ -35,7 +35,7 @@ describe("the tags under what was kept", () => {
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(kept(lines).find((net) => net.currency === "NGN")?.amount ?? 0));
   });
 
-  test("[R-TEXT-008] [R-WORLD-008] given naira changed into pounds at the bank, when the tags are read, then no tag says the change, since its own line under Kept says it once with both sides, and no lotto tag", () => {
+  test("[text:show-then-tell] [world:month-end-results-sheet] given naira changed into pounds at the bank, when the tags are read, then no tag says the change, since its own line under Kept says it once with both sides, and no lotto tag", () => {
     const game = newGame("scenario.ada");
     const told = game.accept({ type: "wallet/convert", from: "NGN", to: "GBP", amount: 20_000_000, via: "bank" }).lines;
     const lines = moneyLines(told);

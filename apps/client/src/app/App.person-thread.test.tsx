@@ -1,4 +1,4 @@
-// A bond's Chats thread (docs/rules/person.md, pair.md; world.md R-WORLD-020): the computer partner's thread with its
+// A bond's Chats thread (docs/rules/person.md, pair.md; world:nobody-picked-from-list): the computer partner's thread with its
 // moments under the head, the quiet marks over it, and a friend's conversation online, its rows read and new, its
 // phrases from chips, its refusals said plainly, block and report on the record and on the conversation. Chats as the
 // shell hands it the people feature's screens, each assertion against the element the phone shows. Here beside the
@@ -69,7 +69,7 @@ function sayPhrase(thread: HTMLElement, phrase: string): void {
 }
 
 describe("a computer partner's thread", () => {
-  test("[R-PEOPLE-051] given a computer courted and met, then the thread names them, its head gives the stage and the facts, the moments show in words, and never a sum of their money", async () => {
+  test("[person:view-shows-people] given a computer courted and met, then the thread names them, its head gives the stage and the facts, the moments show in words, and never a sum of their money", async () => {
     const game = peopleGame();
     const bond = courted(game, TOBI, 2);
     const { store } = await renderWithGame(chats(null), game);
@@ -88,7 +88,7 @@ describe("a computer partner's thread", () => {
     expect(within(head(bond)).queryByRole("button", { name: say("ui.people.propose.partner") })).toBeNull();
   });
 
-  test("[R-PEOPLE-044] given the stand-in on for a friend, then the thread's name carries the stand-in mark", async () => {
+  test("[person:stand-in-acts-narrowly] given the stand-in on for a friend, then the thread's name carries the stand-in mark", async () => {
     const game = peopleGame();
     const bond = linkedFriend(game);
     game.accept({ type: "people/stand-in", pair: "pair-1", stage: "on" }, "authority");
@@ -99,7 +99,7 @@ describe("a computer partner's thread", () => {
 });
 
 describe("a friend's conversation", () => {
-  test("[R-PAIR-011] given a thread from the server, then each phrase reads in words, the player's own rows carry the read mark once read, and the other's unread rows are marked new", async () => {
+  test("[pair:conversation-phrases-stored] given a thread from the server, then each phrase reads in words, the player's own rows carry the read mark once read, and the other's unread rows are marked new", async () => {
     const { server, game, bond } = friendServer([row("m1", THEM, "phrase.meet-at", "suya-spot", null), row("m2", ME, "phrase.yes", null, 2_000), row("m3", ME, "phrase.thanks", null, null)]);
     const { thread } = await online(server, game, bond);
     await within(thread).findByText(phraseWords("phrase.meet-at", "suya-spot"));
@@ -110,7 +110,7 @@ describe("a friend's conversation", () => {
     expect(within(thread.querySelector<HTMLElement>('[data-row="m1"]')!).getByText(say("ui.talk.unread"))).toBeDefined();
   });
 
-  test("[R-PAIR-010] given a phrase with a fill-in, when it is said, then only a fill from its fixed list can go, and the row joins the thread", async () => {
+  test("[pair:preset-phrases-only] given a phrase with a fill-in, when it is said, then only a fill from its fixed list can go, and the row joins the thread", async () => {
     const { server, game, bond } = friendServer();
     server.answer(`POST /api/pair/${PAIR}/say`, { body: { ok: true, message: row("m9", ME, "phrase.see-you", "beach", null) } });
     const { thread } = await online(server, game, bond);
@@ -125,7 +125,7 @@ describe("a friend's conversation", () => {
     expect(server.sent.find((sent) => sent.path.endsWith("/say"))?.body).toEqual({ phrase: "phrase.see-you", fill: "beach" });
   });
 
-  test("[R-PAIR-013] given the hour's phrases used up, when one more is said, then the refusal says so plainly and stores nothing", async () => {
+  test("[pair:phrase-checks-before-send] given the hour's phrases used up, when one more is said, then the refusal says so plainly and stores nothing", async () => {
     const { server, game, bond } = friendServer();
     server.answer(`POST /api/pair/${PAIR}/say`, { body: { ok: false, code: "too-many", detail: "The phrase cannot be sent: too-many." } });
     const { thread } = await online(server, game, bond);
@@ -134,7 +134,7 @@ describe("a friend's conversation", () => {
     expect(within(thread).getByText(say("ui.talk.empty"))).toBeDefined();
   });
 
-  test("[R-PAIR-013] given the server's rate limit, then the wait is said in seconds; and a block on the other side is only ever not possible", async () => {
+  test("[pair:phrase-checks-before-send] given the server's rate limit, then the wait is said in seconds; and a block on the other side is only ever not possible", async () => {
     const { server, game, bond } = friendServer();
     server.answer(`POST /api/pair/${PAIR}/say`, { status: 429, body: { ok: false, code: "rate-limited", detail: "slow", retryAfter: 4 } }, { body: { ok: false, code: "not-possible", detail: "That is not possible now." } });
     const { thread } = await online(server, game, bond);
@@ -144,7 +144,7 @@ describe("a friend's conversation", () => {
     expect(await within(thread).findByText(say("ui.talk.failed.not-possible"))).toBeDefined();
   });
 
-  test("[R-PAIR-011] given an open conversation, when the server nudges that a row is new, then the thread fetches after the last row it holds and shows the new one", async () => {
+  test("[pair:conversation-phrases-stored] given an open conversation, when the server nudges that a row is new, then the thread fetches after the last row it holds and shows the new one", async () => {
     const { server, game, bond } = friendServer([row("m1", THEM, "phrase.hello", null, null)]);
     const { thread, store } = await online(server, game, bond);
     await waitFor(() => expect(thread.querySelector('[data-row="m1"]')).not.toBeNull());
@@ -156,7 +156,7 @@ describe("a friend's conversation", () => {
 });
 
 describe("block and report", () => {
-  test("[R-PAIR-014] [R-MODERATION-003] given a friend's bond online, then block and report sit on the pair record and on the conversation; offline neither shows", async () => {
+  test("[pair:block-and-report-one-tap] [moderation:report-from-every-surface] given a friend's bond online, then block and report sit on the pair record and on the conversation; offline neither shows", async () => {
     const { server, game, bond } = friendServer();
     const { thread } = await online(server, game, bond);
     const app = document.querySelector<HTMLElement>('[data-phone-app="chats"]')!;
@@ -170,7 +170,7 @@ describe("block and report", () => {
     expect(screen.queryByRole("button", { name: words("ui.block") })).toBeNull();
   });
 
-  test("[R-PAIR-015] given block tapped on the pair record, then it goes to the server for the pair the view's bond names, and the player is told it is over", async () => {
+  test("[pair:block-ends-every-bond] given block tapped on the pair record, then it goes to the server for the pair the view's bond names, and the player is told it is over", async () => {
     const { server, game, bond } = friendServer();
     server.answer("POST /api/moderation/block", { body: { ok: true } });
     await online(server, game, bond);
@@ -180,7 +180,7 @@ describe("block and report", () => {
     expect(server.sent.find((sent) => sent.path === "/api/moderation/block")?.body).toEqual({ pair: PAIR });
   });
 
-  test("[R-PAIR-016] given a report from the conversation, then it cites the pair and the other side's messages, with a block ticked by default", async () => {
+  test("[pair:report-holds-conversation] given a report from the conversation, then it cites the pair and the other side's messages, with a block ticked by default", async () => {
     const { server, game, bond } = friendServer([row("m1", THEM, "phrase.hello", null, null), row("m2", ME, "phrase.yes", null, null)]);
     server.answer("POST /api/moderation/report", { body: { ok: true, report: "report-1" } });
     const { thread } = await online(server, game, bond);

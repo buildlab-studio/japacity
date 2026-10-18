@@ -1,4 +1,4 @@
-// The nudge line (docs/rules/world.md R-WORLD-003): one sentence under the band saying the next
+// The nudge line (world:nudge-says-one-thing): one sentence under the band saying the next
 // thing to notice. It hides while a sheet, the phone or the map is open. When what it names waits on
 // the player (a question, an offer), `onTap` makes the line open it.
 import { say } from "../words/text";

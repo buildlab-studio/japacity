@@ -1,4 +1,4 @@
-// The nurse's way, from the clinic to the visa, every step reachable (docs/rules/world.md R-WORLD-003, R-WORLD-015):
+// The nurse's way, from the clinic to the visa, every step reachable (world:nudge-says-one-thing, world:map-is-painted-lagos):
 // no step opens a place the map keeps shut, and the visa nudge waits until the file is whole. Real content, both
 // nurses played through `step`: the tile's nurse from school and the ready nurse.
 import { content } from "@japacity/content";
@@ -76,7 +76,7 @@ const ACT_OF: Record<string, string> = {
 /** The act the nudge names this month, if it is one the player can take now: what a player who follows the nudge does. */
 function followed(view: PlayerView): SlotPick[] {
   const key = nudgeOf(view).key.replace(/\.nudge(\.here)?$/, "");
-  // A long shot at the band says to study first: the player studies (R-WORLD-003).
+  // A long shot at the band says to study first: the player studies (world:nudge-says-one-thing).
   if (key.endsWith(".english.study")) return view.activities.find((option) => option.id === "activity.study-english")?.allowed === true ? [{ activity: "activity.study-english", param: null }] : [];
   const act = ACT_OF[key];
   const option = view.activities.find((candidate) => candidate.id === act);
@@ -92,7 +92,7 @@ function followedButLicence(view: PlayerView): SlotPick[] {
 }
 
 describe("the nurse's way never opens a shut place", () => {
-  test("[R-WORLD-015] [R-WORLD-003] [R-WORLD-019] given the ready nurse in her care file, when the nudge asks for the council's verification, then the clinic stays open on the map every month until it is asked, and wherever she stands the tap opens the verification's card in the phone's Papers", () => {
+  test("[world:map-is-painted-lagos] [world:nudge-says-one-thing] [world:phone-holds-what-phones-hold] given the ready nurse in her care file, when the nudge asks for the council's verification, then the clinic stays open on the map every month until it is asked, and wherever she stands the tap opens the verification's card in the phone's Papers", () => {
     // The council is asked by a call, from the phone, not at the clinic's notice.
     const game = readyInTheFile();
     for (let months = 0; months < 7; months += 1) {
@@ -107,7 +107,7 @@ describe("the nurse's way never opens a shut place", () => {
     }
   });
 
-  test("[R-WORLD-015] given the ready nurse before she hears of care work, when the stops are read, then the clinic is not yet; once care work is her plan it is open", () => {
+  test("[world:map-is-painted-lagos] given the ready nurse before she hears of care work, when the stops are read, then the clinic is not yet; once care work is her plan it is open", () => {
     const game = readyNurse();
     expect(reached(game.view(), CLINIC)).toBe(false);
     hearCare(game);
@@ -115,7 +115,7 @@ describe("the nurse's way never opens a shut place", () => {
     expect(reached(game.view(), CLINIC)).toBe(true);
   });
 
-  test("[R-WORLD-003] [R-WORLD-015] given the ready nurse with a sponsor, when the visa is next, then the nudge names each missing thing in the route's order and opens its way, the visa centre opens with the step, and the application is named only once nothing is missing", () => {
+  test("[world:nudge-says-one-thing] [world:map-is-painted-lagos] given the ready nurse with a sponsor, when the visa is next, then the nudge names each missing thing in the route's order and opens its way, the visa centre opens with the step, and the application is named only once nothing is missing", () => {
     const game = readyInTheFile(true);
     const seen: string[] = [];
     const shut: string[] = [];
@@ -148,7 +148,7 @@ describe("the nurse's way never opens a shut place", () => {
     expect(seen.indexOf(`${FILE}.item.applied.nudge`)).toBeGreaterThan(Math.max(...order));
   });
 
-  test("[R-WORLD-003] given the tile's nurse with a sponsor and no passport, English, TB or police paper, when the visa is next, then the nudge names the passport first and never the application while one is missing", () => {
+  test("[world:nudge-says-one-thing] given the tile's nurse with a sponsor and no passport, English, TB or police paper, when the visa is next, then the nudge names the passport first and never the application while one is missing", () => {
     const game = tileNurse("nurse-way-1", true);
     hire(game);
     readCare(game);
@@ -177,7 +177,7 @@ describe("the nurse's way never opens a shut place", () => {
     expect(seen[firstPaper]).toMatch(/^chapter\.build-the-file\.item\.passport/);
   });
 
-  test("[R-WORLD-003] given the care file's new words, when each is said, then it is one sentence in under eight words", () => {
+  test("[world:nudge-says-one-thing] given the care file's new words, when each is said, then it is one sentence in under eight words", () => {
     const keys = ["item.tenure.count", "item.licence.nudge", "item.licence.started", "item.salary.nudge", "item.window.nudge"].map((key) => `${FILE}.${key}`);
     for (const key of keys) {
       expect(hasWords(key)).toBe(true);
@@ -189,7 +189,7 @@ describe("the nurse's way never opens a shut place", () => {
 });
 
 describe("the nurse's nudges point at the chip that holds the act", () => {
-  test("[R-WORLD-003] [R-WORLD-005] [R-WORLD-019] given the ready nurse at the council's step, when the clinic's notice is read, then its chip holds the certification exam alone, named for it, and the council's verification and renewal are on the phone, not at the notice", () => {
+  test("[world:nudge-says-one-thing] [world:things-are-tappable-models] [world:phone-holds-what-phones-hold] given the ready nurse at the council's step, when the clinic's notice is read, then its chip holds the certification exam alone, named for it, and the council's verification and renewal are on the phone, not at the notice", () => {
     // The council's acts are on the phone, not on the clinic's notice.
     const view = readyInTheFile().view();
     const notice = clinicThings(view).find((thing) => thing.id === "jobs-notice");
@@ -203,7 +203,7 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     expect(stepWayOf(view)?.app).toBe("papers");
   });
 
-  test("[R-WORLD-003] [R-CHAPTER-009] given the tile's nurse at work who has heard of care work, when the page is next, then the nudge names the page in Japa in under eight words and its tap opens Japa, where the care page is one tap away", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given the tile's nurse at work who has heard of care work, when the page is next, then the nudge names the page in Japa in under eight words and its tap opens Japa, where the care page is one tap away", () => {
     const game = tileNurse("nurse-page");
     hire(game);
     const view = until(game, (now) => now.chapter.items.find((item) => item.id === "pay")?.met === true, 3);
@@ -220,7 +220,7 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     expect(view.activities.find((option) => option.id === "activity.look-into-route")?.params).toContain(CARE);
   });
 
-  test("[R-WORLD-003] [R-CHAPTER-009] given the tile's nurse at the known step, when the step's way is read, then it is the hub's desk opening the official page on care work, not the life's own way to its first job with no act", () => {
+  test("[world:nudge-says-one-thing] [chapter:chapters-follow-lean-route] given the tile's nurse at the known step, when the step's way is read, then it is the hub's desk opening the official page on care work, not the life's own way to its first job with no act", () => {
     const game = tileNurse("nurse-known-way");
     hire(game);
     const view = until(game, (now) => now.chapter.items.find((item) => item.id === "pay")?.met === true, 3);
@@ -232,7 +232,7 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
     expect(stepOpen(way!, "desk", offered, "place.yaba")).toMatchObject({ kind: "act", activity: "activity.look-into-route", param: CARE });
   });
 
-  test("[R-WORLD-003] [R-ACTIVITY-013] given the tile's nurse months into her job while the council works, when the nudge is read, then it never sends her to the hub's board to get noticed", () => {
+  test("[world:nudge-says-one-thing] [activity:waiting-months-build-profile] given the tile's nurse months into her job while the council works, when the nudge is read, then it never sends her to the hub's board to get noticed", () => {
     const game = tileNurse("nurse-noticed");
     hire(game);
     readCare(game);
@@ -250,7 +250,7 @@ describe("the nurse's nudges point at the chip that holds the act", () => {
 });
 
 describe("the nurse's waiting months and her licence", () => {
-  test("[R-WORLD-003] [R-ACTIVITY-013] given the tile's nurse on the ward, when the nudge is read each month of the twenty-four, then it names one thing of hers to do or counts the months, never keep nursing alone", () => {
+  test("[world:nudge-says-one-thing] [activity:waiting-months-build-profile] given the tile's nurse on the ward, when the nudge is read each month of the twenty-four, then it names one thing of hers to do or counts the months, never keep nursing alone", () => {
     const game = tileNurse("nurse-ward");
     hire(game);
     readCare(game);
@@ -276,7 +276,7 @@ describe("the nurse's waiting months and her licence", () => {
     expect(said.findIndex((line) => line === say("chapter.build-the-file.item.passport.nudge"))).toBeLessThan(said.findIndex((line) => line.startsWith("Keep nursing:")));
   });
 
-  test("[R-WORLD-003] [R-DOCUMENT-004] [R-WORLD-019] given the tile's nurse whose licence runs out in the care file, when the nudge is read, then it names the renewal on her phone, its tap opens the renewal's card in Papers, and once renewed the licence is held and the nudge moves on", () => {
+  test("[world:nudge-says-one-thing] [document:one-pending-copy] [world:phone-holds-what-phones-hold] given the tile's nurse whose licence runs out in the care file, when the nudge is read, then it names the renewal on her phone, its tap opens the renewal's card in Papers, and once renewed the licence is held and the nudge moves on", () => {
     // Care work stays shut to applicants from abroad: no sponsor answers and the file waits.
     const game = tileNurse("nurse-licence");
     hire(game);

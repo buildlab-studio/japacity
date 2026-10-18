@@ -1,4 +1,4 @@
-// How the world talks (docs/rules/world.md R-WORLD-005, R-WORLD-026; the talk budget, docs/design/13-the-lively-layer.md
+// How the world talks (world:things-are-tappable-models, world:street-talk-budget; the talk budget, docs/design/13-the-lively-layer.md
 // section 5). Two channels and nothing more: pictures over the crowd cost no reading, and words over a
 // person come one bubble at a time, at most eight words, for about four seconds, an ambient line then at least twenty of
 // quiet. A longer line never floats whole: its bubble clips it to two lines and a tap opens it in a sheet with their name. The bottom corner
@@ -141,7 +141,7 @@ export function murmur(text: string, now: number = Date.now(), name: string = sa
 }
 
 /**
- * A line the street's talk offers: its words, and, where one person plainly says it, their name (world.md R-WORLD-026,
+ * A line the street's talk offers: its words, and, where one person plainly says it, their name (world:street-talk-budget,
  * `<line>.by`) and the thing they stand at when they stand in the place, so the bubble goes over them.
  */
 export interface TalkLine {
@@ -298,7 +298,7 @@ function shifts(most: number): number[] {
 
 /** What a bubble keeps clear of: `clear` it never covers where any spot in reach is clear of it (every head, a name
  * shown, the marker, the thumbs); `soft` it covers only where nothing clear of it is in reach (a thing's dot, which the
- * bubble hands a tap on through, R-WORLD-005); `last` the spot the last frame chose. */
+ * bubble hands a tap on through, world:things-are-tappable-models); `last` the spot the last frame chose. */
 export interface BubbleKeep {
   clear?: readonly Rect[];
   soft?: readonly Rect[];
@@ -308,7 +308,7 @@ export interface BubbleKeep {
 /**
  * Where the bubble stands on the screen, from the speaker's anchor as the camera projects it (-1 to 1 across and up,
  * `z` under 1 in front of the camera): over the speaker, held inside the screen and under `top` (the band), hidden when
- * the speaker is behind the camera. It stands clear of every head and name in the scene (world.md R-WORLD-026, `keep`):
+ * the speaker is behind the camera. It stands clear of every head and name in the scene (world:street-talk-budget, `keep`):
  * it steps aside to beside the speaker where there is room, else is lifted over the crowd with its tail reaching down to
  * the speaker; where nothing in reach is clear it takes the spot that covers least. The spot the last frame chose is
  * kept while it stays clear, so the bubble does not hop as the crowd idles.
@@ -409,7 +409,7 @@ export function SpeechBubble({ hidden = false, anchored }: { hidden?: boolean; a
           ref={button}
           type="button"
           onClick={(event) => {
-            // A thing's mark or a fan button under the bubble keeps its tap (R-WORLD-005): the bubble hands it on.
+            // A thing's mark or a fan button under the bubble keeps its tap (world:things-are-tappable-models): the bubble hands it on.
             const under = (typeof document.elementsFromPoint === "function" ? document.elementsFromPoint(event.clientX, event.clientY) : []).find((node) => node !== event.currentTarget && !event.currentTarget.contains(node) && node.closest("[data-mark], [data-fan] button") !== null);
             if (under instanceof HTMLElement) {
               under.click();

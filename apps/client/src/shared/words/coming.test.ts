@@ -1,4 +1,4 @@
-// What is coming with a month to it (docs/rules/world.md R-WORLD-002): the whole list soonest first, each
+// What is coming with a month to it (world:top-band-is-lively-pill): the whole list soonest first, each
 // as months away, and only dates the player can act on or waits on.
 import { content } from "@japacity/content";
 import { setPockets } from "@japacity/sim/testing";
@@ -10,7 +10,7 @@ import { nameOf, say } from "./text";
 import { AGE_LIMIT_NEAR, ageMonthsOf, comingOf, RENT_NEAR, soonest } from "./coming";
 
 describe("what is coming", () => {
-  test("[R-CLOCK-032] given the English result sealed until the morning and a passport on its way, when the list is read, then the result comes tomorrow at seven in words and the passport keeps its months", () => {
+  test("[clock:envelopes-show-real-waits] given the English result sealed until the morning and a passport on its way, when the list is read, then the result comes tomorrow at seven in words and the passport keeps its months", () => {
     const base = richView();
     const view = {
       ...base,
@@ -27,7 +27,7 @@ describe("what is coming", () => {
     ]);
   });
 
-  test("[R-WORLD-002] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
+  test("[world:top-band-is-lively-pill] given a new life, when the list is read, then the next birthday is on it as months away, and the chip has nothing to say", () => {
     const view = engineView();
     const age = ageMonthsOf(view);
     const list = comingOf(view);
@@ -37,7 +37,7 @@ describe("what is coming", () => {
     expect(soonest(view)).toBeNull();
   });
 
-  test("[R-WORLD-002] given open asks, a paper on its way and a visa awaited, when the list is read, then each is on it with its month and the list runs soonest first", () => {
+  test("[world:top-band-is-lively-pill] given open asks, a paper on its way and a visa awaited, when the list is read, then each is on it with its month and the list runs soonest first", () => {
     const base = richView();
     const view = {
       ...base,
@@ -56,7 +56,7 @@ describe("what is coming", () => {
     expect(soonest(view)).toEqual(list.find((item) => item.kind !== "birthday" && item.kind !== "age-limit"));
   });
 
-  test("[R-DOCUMENT-008] given a held passport with a new copy requested, when the list is read, then the new copy is on it at the month the engine says it is due", () => {
+  test("[document:paper-on-its-way] given a held passport with a new copy requested, when the list is read, then the new copy is on it at the month the engine says it is due", () => {
     const game = newGame("scenario.tunde");
     const view = viewAfter(game, [{ type: "document/request", document: "document.passport" }]);
     const passport = view.documents.find((paper) => paper.id === "document.passport");
@@ -65,7 +65,7 @@ describe("what is coming", () => {
     expect(comingOf(view).find((item) => item.kind === "paper")).toMatchObject({ what: nameOf("document.passport"), month: passport?.onItsWay });
   });
 
-  test("[R-WORLD-002] given the Gulf heard of and the character near its age limit, when the list is read, then the limit is on it as months away; far from it, or on a route unheard, it is not", () => {
+  test("[world:top-band-is-lively-pill] given the Gulf heard of and the character near its age limit, when the list is read, then the limit is on it as months away; far from it, or on a route unheard, it is not", () => {
     const base = engineView();
     const limit = content.route["route.gulf-contract"]?.contract?.maxAgeMonths;
     if (limit === undefined) throw new Error("The Gulf has no age limit.");
@@ -80,7 +80,7 @@ describe("what is coming", () => {
     expect(comingOf(aged(6, "unknown")).find((item) => item.kind === "age-limit")).toBeUndefined();
   });
 
-  test("[R-HOME-010] given Ada in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
+  test("[home:compound-room-is-a-home] given Ada in the room in a compound, when months pass, then the room's rent joins the list two months before the month it is taken, at that month, and the chip may say it", () => {
     const game = newGame();
     setPockets(game, { NGN: 5_000_000_00 });
     game.accept({ type: "home/move", to: "place.compound-room" });

@@ -1,4 +1,4 @@
-// The story lands on the results (docs/rules/world.md R-WORLD-008), played on the real engine: what
+// The story lands on the results (world:month-end-results-sheet), played on the real engine: what
 // was kept leads, then the month's story (a job found, an offer, a way out heard of), then the money.
 // At most six story lines show; the rest of the month stays in News.
 import { content } from "@japacity/content";
@@ -22,9 +22,9 @@ function line(key: string, params: ReportLine["params"], tone: ReportLine["tone"
 }
 
 describe("the month's story on the results", () => {
-  test("[R-WORLD-008] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
+  test("[world:month-end-results-sheet] given Ada's first month hunting for work, when the results show, then the job found stands under This month as one offer, before what was kept, and the foodstuff bought by hand is not listed again", async () => {
     const game = newGame("scenario.ada");
-    // Decision 0013 (R-HOME-012): no living is charged as the month turns at home, so the money of the month is what was
+    // Decision 0013 (home:living-by-hand): no living is charged as the month turns at home, so the money of the month is what was
     // paid at the act: the big pot's foodstuff bought mid-month (the family house's meals from the pot are free),
     // which the results count with the month's own lines.
     const { lines: meal } = game.accept({ type: "activity/now", activity: "activity.cook-jollof", param: null });
@@ -54,7 +54,7 @@ describe("the month's story on the results", () => {
     expect(document.querySelector("[data-results-kept]")?.getAttribute("data-results-kept")).toBe(String(kept(moneyLines([...meal, ...lines])).find((net) => net.currency === "NGN")?.amount ?? 0));
   });
 
-  test("[R-WORLD-008] given a way out heard of in the month, when the story is read, then it is told, and money and plain news are not", () => {
+  test("[world:month-end-results-sheet] given a way out heard of in the month, when the story is read, then it is told, and money and plain news are not", () => {
     const game = newGame("scenario.ada");
     game.endTurn();
     // On this seed the news brings the UK master's in the second month.
@@ -65,7 +65,7 @@ describe("the month's story on the results", () => {
     expect(keys.some((key) => key.startsWith("line.wallet.") || key.startsWith("line.quality."))).toBe(false);
   });
 
-  test("[R-WORLD-008] given a paper ready, a test band and a deposit that will be asked about, when the story is read, then each is told", () => {
+  test("[world:month-end-results-sheet] given a paper ready, a test band and a deposit that will be asked about, when the story is read, then each is told", () => {
     const lines = [
       line("line.document.issued", { document: "document.passport" }, "good"),
       line("line.document.issued-band", { document: "document.english-test", band: 60 }, "good"),
@@ -77,7 +77,7 @@ describe("the month's story on the results", () => {
     expect(storyLines(lines).map((each) => each.key)).toEqual(["line.document.issued", "line.document.issued-band-met", "line.wallet.flagged", "line.chapter.closed"]);
   });
 
-  test("[R-WORLD-008] given more story than fits, when the results show, then the story holds six, and on the sheet five stand beside Kept, offers and ways out first, and the rest is left to News", async () => {
+  test("[world:month-end-results-sheet] given more story than fits, when the results show, then the story holds six, and on the sheet five stand beside Kept, offers and ways out first, and the rest is left to News", async () => {
     const routes = Object.keys(content.route).slice(0, STORY_MAX);
     const lines = [line("line.chapter.closed", {}, "good"), ...routes.map((route) => line("line.route.heard", { route, via: "news" }, "good")), line("line.offer.opened", { offer: "offer.job" })];
     const shown = storyLines(lines);
@@ -93,12 +93,12 @@ describe("the month's story on the results", () => {
     expect(screen.getByText(turnWords("turn.results.news"))).toBeDefined();
   });
 
-  test("[R-CHAPTER-008] given home's send-off answered with the party, or lapsed into dinner, when the story is read, then each is told in the offer's own words for that answer, and an answer with no words of its own stays plain", () => {
+  test("[chapter:family-marks-the-grant] given home's send-off answered with the party, or lapsed into dinner, when the story is read, then each is told in the offer's own words for that answer, and an answer with no words of its own stays plain", () => {
     const SEND_OFF = "offer.family-send-off";
     const told = storyLines([
       line("line.offer.taken", { offer: SEND_OFF, choice: "party" }),
       line("line.offer.lapsed", { offer: SEND_OFF, choice: "dinner" }),
-      // An answer that moves no quality has no words of its own (the bill paid now tells what came of it, R-WORLD-008).
+      // An answer that moves no quality has no words of its own (the bill paid now tells what came of it, world:month-end-results-sheet).
       line("line.offer.taken", { offer: "offer.recruiter-message", choice: "ignore" }),
     ]);
     expect(told.map((each) => words(each.key, each.params))).toEqual([words(`${SEND_OFF}.said.party`), words(`${SEND_OFF}.said.dinner`)]);
@@ -107,12 +107,12 @@ describe("the month's story on the results", () => {
 });
 
 describe("the adviser's reading and the relative's gift", () => {
-  test("[R-WORLD-008] [R-ADVICE-004] given the adviser's reading beside a way out heard of, when the story is ranked, then her reading leads", () => {
+  test("[world:month-end-results-sheet] [advice:licensed-adviser-is-truthful] given the adviser's reading beside a way out heard of, when the story is ranked, then her reading leads", () => {
     const told = storyLines([line("line.route.heard", { route: "route.uk-masters" }), line("line.activity.adviser-missing", { route: "route.uk-masters", count: 3, months: 4 })]);
     expect(told[0]?.key).toBe("line.activity.adviser-missing");
   });
 
-  test("[R-TEXT-008] [R-ADVICE-004] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
+  test("[text:show-then-tell] [advice:licensed-adviser-is-truthful] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
     // Ada's recorded life once the master's is known: the adviser is paid now and the month ends. Decision 0013: the life
     // was re-recorded with the study done act by act, so the master's is known after its first 28 commands, not 9.
     const game = recordedGame("ada-careful", lifeSaves["ada-careful"]!.commands.length - 28);
@@ -134,14 +134,14 @@ describe("the adviser's reading and the relative's gift", () => {
     expect(months?.querySelector("[data-mark]")?.getAttribute("aria-label")).toBe(markWord("waiting"));
   });
 
-  test("[R-WORLD-008] [R-LUCK-010] given the relative's gift answered, when the story is read, then the wallet's bare flag line is not told beside the answer's own words", () => {
+  test("[world:month-end-results-sheet] [luck:japa-luck-in-existing-systems] given the relative's gift answered, when the story is read, then the wallet's bare flag line is not told beside the answer's own words", () => {
     const flagged = line("line.wallet.flagged", { amount: { currency: "USD", amount: 50_000 } });
     expect(storyLines([flagged]).map((each) => each.key)).toContain("line.wallet.flagged");
     const told = storyLines([flagged, line("line.offer.taken", { offer: "offer.relative-sends", choice: "take" })]);
     expect(told.some((each) => each.key === "line.wallet.flagged")).toBe(false);
   });
 
-  test("[R-WALLET-019] [R-WORLD-008] given a month that closes with more naira cash than the warning line, when the results are read, then Mama's warning is told among the month's story, in her words with no figure, as no money line, and is not left for News", () => {
+  test("[wallet:cash-pile-warning] [world:month-end-results-sheet] given a month that closes with more naira cash than the warning line, when the results are read, then Mama's warning is told among the month's story, in her words with no figure, as no money line, and is not left for News", () => {
     const game = newGame("scenario.tunde");
     const short = content.tuning.wallet.cashWarnAt + 1 - game.view().pockets.NGN.cash;
     game.accept({ type: "wallet/move", currency: "NGN", amount: short, to: "cash" });

@@ -41,7 +41,7 @@ function payWords(id: string): string {
 describe("the chance in words", () => {
   const { likelyBp, fairBp } = { likelyBp: 6000, fairBp: 3000 };
 
-  test("[R-WORLD-006] given a hiring chance at each edge of a band, when it is put in words, then likely starts at 60%, a fair chance at 30%, and below that it is a long shot", () => {
+  test("[world:one-action-one-sheet] given a hiring chance at each edge of a band, when it is put in words, then likely starts at 60%, a fair chance at 30%, and below that it is a long shot", () => {
     expect(chanceBand(likelyBp)).toBe("likely");
     expect(chanceBand(likelyBp - 1)).toBe("fair");
     expect(chanceBand(fairBp)).toBe("fair");
@@ -49,7 +49,7 @@ describe("the chance in words", () => {
     expect(chanceBand(0)).toBe("long");
   });
 
-  test("[R-ACTIVITY-005] given a job and the character's network, when its chance is read, then it is the job's own chance plus the network's share, never over the cap, as the hunt rolls it", () => {
+  test("[activity:job-hunt-lands-offer] given a job and the character's network, when its chance is read, then it is the job's own chance plus the network's share, never over the cap, as the hunt rolls it", () => {
     const { networkHireBp, hireMaxBp } = content.tuning.quality;
     const teacher = entryOf("activity.job-teacher");
     const bank = entryOf("activity.job-bank-officer");
@@ -61,7 +61,7 @@ describe("the chance in words", () => {
 });
 
 describe("the jobs list on the hunt's card", () => {
-  test("[R-WORLD-006] given Ada's first month, when the hunt's card shows, then every job the hunt can ask for is a row with its name, its pay a month and its chance in words, with no bare select", async () => {
+  test("[world:one-action-one-sheet] given Ada's first month, when the hunt's card shows, then every job the hunt can ask for is a row with its name, its pay a month and its chance in words, with no bare select", async () => {
     const view = engineView();
     const jobs = huntOf(view);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
@@ -77,8 +77,8 @@ describe("the jobs list on the hunt's card", () => {
     }
   });
 
-  // R-ACTIVITY-005: the list keeps its order, and the row chosen is the life's own trade, Ada's code, not the first row.
-  test("[R-WORLD-006] [R-ACTIVITY-005] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is her own trade's, the junior developer's", async () => {
+  // activity:job-hunt-lands-offer: the list keeps its order, and the row chosen is the life's own trade, Ada's code, not the first row.
+  test("[world:one-action-one-sheet] [activity:job-hunt-lands-offer] given the teacher's pay under Ada's living costs, when the list is ordered, then the likely jobs come first, the best paid of them on top, and the row chosen is her own trade's, the junior developer's", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     const bands = ordered.map((job) => chanceBand(jobChanceBp(entryOf(job), networkOf(view))));
@@ -92,7 +92,7 @@ describe("the jobs list on the hunt's card", () => {
     expect(checked[0]?.getAttribute("data-job")).toBe("activity.job-junior-dev");
   });
 
-  test("[R-WORLD-006] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {
+  test("[world:one-action-one-sheet] given a row tapped, when the hunt is added to the month, then the slot carries that job", async () => {
     const view = engineView();
     const jobs = huntOf(view);
     const { store, authority } = await renderWithView(<ActivityPicker only={[HUNT]} />, view);
@@ -100,17 +100,17 @@ describe("the jobs list on the hunt's card", () => {
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }));
     expect(screen.getByRole("radio", { name: new RegExp(`^${text[`${last}.name`] ?? last}`) }).getAttribute("aria-checked")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: `${text[`${HUNT}.name`] ?? HUNT}` }));
-    // R-ACTIVITY-015: the hunt is applied for at once, so the job tapped goes with the command sent now and
+    // activity:now-acts-and-month-acts: the hunt is applied for at once, so the job tapped goes with the command sent now and
     // no slot is planned.
     await waitFor(() => expect(authority.sent.at(-1)).toMatchObject({ type: "activity/now", activity: HUNT, param: last }));
     expect(store.getState().plan.some((pick) => pick?.activity === HUNT)).toBe(false);
   });
 
-  test("[R-WORLD-006] given jobs at home the hunt cannot ask for yet, when the card shows, then each is listed apart with its pay and what it still needs, and cannot be picked", async () => {
+  test("[world:one-action-one-sheet] given jobs at home the hunt cannot ask for yet, when the card shows, then each is listed apart with its pay and what it still needs, and cannot be picked", async () => {
     const view = engineView();
     const out = jobsOutOfReach(view, huntOf(view));
     expect(out.map((job) => job.id)).toContain("activity.job-bank-senior");
-    // The staff nurse is hunted (R-PROLOGUE-010), so a life without the care lists it apart with that need.
+    // The staff nurse is hunted (prologue:archetype-presets-answers), so a life without the care lists it apart with that need.
     expect(out.find((job) => job.id === "activity.job-nurse")?.needs).toEqual([requirementSentence({ type: "quality/min", quality: "quality.care", value: 60 }, { routes: view.routes })]);
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const apart = screen.getByRole("list", { name: say("jobs.out-of-reach") });
@@ -132,7 +132,7 @@ describe("the jobs list on the hunt's card", () => {
     expect(senior?.needs).toEqual(entryOf("activity.job-bank-senior").requires.map((requirement) => requirementSentence(requirement)));
   });
 
-  test("[R-WORLD-006] given a need the character already meets, when an out-of-reach job's needs are read, then only what is still missing is named", () => {
+  test("[world:one-action-one-sheet] given a need the character already meets, when an out-of-reach job's needs are read, then only what is still missing is named", () => {
     const view = engineView();
     const mid = jobsOutOfReach(view, huntOf(view)).find((job) => job.id === "activity.job-mid-dev");
     const tech = qualityIn(view, "quality.tech");
@@ -149,7 +149,7 @@ describe("the jobs list as picture cards", () => {
   const nameOfJob = (id: string) => text[`${id}.name`] ?? id;
   const applyButton = () => screen.getByRole("button", { name: `${nameOfJob(HUNT)}` });
 
-  test("[R-WORLD-021] given the hunt's card, when the list shows, then each job is a card with its picture and no radio circle, and only the chosen card is ringed", async () => {
+  test("[world:colours-are-role-tokens] given the hunt's card, when the list shows, then each job is a card with its picture and no radio circle, and only the chosen card is ringed", async () => {
     const view = engineView();
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
     const rows = within(screen.getByRole("radiogroup", { name: say("jobs.pick") })).getAllByRole("radio");
@@ -164,7 +164,7 @@ describe("the jobs list as picture cards", () => {
     expect(rows.filter((row) => row.querySelector(".phone-picked") !== null)).toHaveLength(1);
   });
 
-  test("[R-WORLD-006] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely", async () => {
+  test("[world:one-action-one-sheet] given each job's chance, when its row shows, then a three-step gauge stands beside the word: one step for a long shot, two for a fair chance, three for likely", async () => {
     const view = engineView();
     const steps = { long: "1", fair: "2", likely: "3" } as const;
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
@@ -177,7 +177,7 @@ describe("the jobs list as picture cards", () => {
     }
   });
 
-  test("[R-ACTIVITY-017] given a life living in Makoko, when the board is ordered, then the fish racks lead it; at the family house they take their place by chance and pay", () => {
+  test("[activity:fish-racks-at-makoko] given a life living in Makoko, when the board is ordered, then the fish racks lead it; at the family house they take their place by chance and pay", () => {
     const base = engineView();
     const jobs = [...huntOf(base), "activity.job-fish-racks"];
     const makoko = { ...base, home: { ...base.home, place: "place.makoko" as const } };
@@ -186,11 +186,11 @@ describe("the jobs list as picture cards", () => {
     expect([...huntOrder(makoko, jobs)].sort()).toEqual([...jobs].sort());
   });
 
-  test("[R-WORLD-006] given a row tapped, when the card's one main button shows, then it repeats the pick: Apply and the job's name", async () => {
+  test("[world:one-action-one-sheet] given a row tapped, when the card's one main button shows, then it repeats the pick: Apply and the job's name", async () => {
     const view = engineView();
     const ordered = huntOrder(view, huntOf(view));
     await renderWithView(<ActivityPicker only={[HUNT]} />, view);
-    // R-ACTIVITY-005: the pick the card opens on is the life's own trade.
+    // activity:job-hunt-lands-offer: the pick the card opens on is the life's own trade.
     expect(applyButton().textContent).toBe(`${say("jobs.apply")}${nameOfJob(firstJob(view, ordered) ?? "")}`);
     const last = ordered.at(-1) ?? "";
     fireEvent.click(screen.getByRole("radio", { name: new RegExp(`^${nameOfJob(last)}`) }));
@@ -200,7 +200,7 @@ describe("the jobs list as picture cards", () => {
     expect(document.querySelectorAll("[data-activity-picker] button:not([role='radio']):not([aria-expanded])")).toHaveLength(1);
   });
 
-  test("[R-GUIDE-014] given a starting life's first hunt (the view's hunt marked sure), when a job's card line is read, then it says the hunt lands a job for sure, and without the mark it does not", () => {
+  test("[guide:early-win-in-three-turns] given a starting life's first hunt (the view's hunt marked sure), when a job's card line is read, then it says the hunt lands a job for sure, and without the mark it does not", () => {
     const view = engineView();
     const job = huntOf(view)[0]!;
     expect(view.activities.find((option) => option.id === HUNT)?.sure).toBe(true);

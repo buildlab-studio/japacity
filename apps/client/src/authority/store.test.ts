@@ -13,7 +13,7 @@ import { createGameStore, rejectionWords } from "./store";
 const at = (v: number): PlayerView => ({ ...engineView(), v });
 
 describe("the store online", () => {
-  test("[R-SERVER-019] given a command sent, then it shows as sent and the view stays as it was until the reply arrives", async () => {
+  test("[server:client-never-predicts] given a command sent, then it shows as sent and the view stays as it was until the reply arrives", async () => {
     const reply = deferred<Reply>();
     const store = createGameStore({ view: () => Promise.resolve(at(3)), send: () => reply.promise });
     await store.getState().refresh();
@@ -26,7 +26,7 @@ describe("the store online", () => {
     expect(store.getState().view?.v).toBe(4);
   });
 
-  test("[R-SERVER-019] given a fetch that set out before a command's reply, when it lands after, then the older view is dropped", async () => {
+  test("[server:client-never-predicts] given a fetch that set out before a command's reply, when it lands after, then the older view is dropped", async () => {
     const late = deferred<PlayerView>();
     let calls = 0;
     const store = createGameStore({
@@ -41,14 +41,14 @@ describe("the store online", () => {
     expect(store.getState().view?.v).toBe(4);
   });
 
-  test("[R-CLOCK-003] given the authority reports a clock, then the store keeps it beside the view", () => {
+  test("[clock:reply-carries-the-clock] given the authority reports a clock, then the store keeps it beside the view", () => {
     const store = createGameStore({ view: () => Promise.resolve(at(1)), send: () => Promise.reject(new Error("unused")) });
     const clock = { tick: 2, nextTickAt: 10, nextTurnAt: 5, morningAt: 0, world: worldClockAt(0) };
     store.getState().heard({ kind: "clock", clock });
     expect(store.getState().clock).toEqual(clock);
   });
 
-  test("[R-SERVER-001] given the server says signed-out, then the store goes to the account screens and shows no failure", async () => {
+  test("[server:commands-only-through-route] given the server says signed-out, then the store goes to the account screens and shows no failure", async () => {
     const refusal: ServerRejection = { ok: false, code: "signed-out", detail: "no session" };
     const store = createGameStore({
       view: () => {
@@ -62,13 +62,13 @@ describe("the store online", () => {
     expect(store.getState().failed).toBeNull();
   });
 
-  test("[R-SERVER-025] given the authority reports rate-limited, then the player is told how long to wait", () => {
+  test("[server:per-account-rate-limits] given the authority reports rate-limited, then the player is told how long to wait", () => {
     const store = createGameStore({ view: () => Promise.resolve(at(1)), send: () => Promise.reject(new Error("unused")) });
     store.getState().heard({ kind: "rate-limited", retryAfter: 4 });
     expect(store.getState().rejection).toEqual({ code: "rate-limited", words: sayCount("ui.online.wait", 4, { seconds: 4 }) });
   });
 
-  test("[R-ACCOUNT-015] given no character on the account, then the life chooser opens, and online it never offers a second life", () => {
+  test("[account:one-character-per-account] given no character on the account, then the life chooser opens, and online it never offers a second life", () => {
     const store = createGameStore(
       { view: () => Promise.resolve(at(1)), send: () => Promise.reject(new Error("unused")) },
       { life: { newLife: () => Promise.resolve(at(0)) }, lifeAgain: false },
@@ -84,7 +84,7 @@ describe("the store online", () => {
     }
   });
 
-  test("[R-ACCOUNT-016] given the account left, then the view goes and the reason is kept for the sign-in screen", async () => {
+  test("[account:player-deletes-account] given the account left, then the view goes and the reason is kept for the sign-in screen", async () => {
     const store = createGameStore({ view: () => Promise.resolve(at(1)), send: () => Promise.reject(new Error("unused")) });
     await store.getState().refresh();
     store.getState().leave("ui.account.notice.deleted");
@@ -92,7 +92,7 @@ describe("the store online", () => {
   });
 });
 
-describe("a life the server must check (R-SERVER-003)", () => {
+describe("a life the server must check (server:log-rows-hash-state)", () => {
   const diverged = { status: 409, body: { ok: false, code: "diverged", detail: "This character is being checked. Play resumes once it is mended." } };
   const viewed = (v: number) => ({ body: { ok: true, view: at(v), lines: [], clock: { tick: 1, nextTickAt: 10, nextTurnAt: 5, morningAt: 0, world: worldClockAt(0) } } });
 
@@ -105,7 +105,7 @@ describe("a life the server must check (R-SERVER-003)", () => {
     return { server, store };
   }
 
-  test("[R-SERVER-003] given the view refused as diverged, when the life opens, then the rejection is diverged's own words and no failure of the server's is shown", async () => {
+  test("[server:log-rows-hash-state] given the view refused as diverged, when the life opens, then the rejection is diverged's own words and no failure of the server's is shown", async () => {
     const { server, store } = online();
     server.answer("GET /api/view", diverged);
     await store.getState().refresh();
@@ -116,7 +116,7 @@ describe("a life the server must check (R-SERVER-003)", () => {
     expect(store.getState().view).toBeNull();
   });
 
-  test("[R-SERVER-003] given a command refused as diverged and the view after it too, then the rejection is diverged's, the view held stays, and no failure is shown", async () => {
+  test("[server:log-rows-hash-state] given a command refused as diverged and the view after it too, then the rejection is diverged's, the view held stays, and no failure is shown", async () => {
     const { server, store } = online();
     server.answer("GET /api/view", viewed(3));
     await store.getState().refresh();
@@ -129,7 +129,7 @@ describe("a life the server must check (R-SERVER-003)", () => {
     expect(store.getState().view?.v).toBe(3);
   });
 
-  test("[R-SERVER-003] given the diverged rejection, when Retry is pressed while the life still needs checking, then it stays; when the view comes, then it clears and the life opens", async () => {
+  test("[server:log-rows-hash-state] given the diverged rejection, when Retry is pressed while the life still needs checking, then it stays; when the view comes, then it clears and the life opens", async () => {
     const { server, store } = online();
     server.answer("GET /api/view", diverged, diverged, viewed(7));
     await store.getState().refresh();
@@ -142,7 +142,7 @@ describe("a life the server must check (R-SERVER-003)", () => {
     expect(store.getState().failed).toBeNull();
   });
 
-  test("[R-SERVER-003] given any other rejection on show, when Retry is asked for, then nothing is fetched and the rejection stays", async () => {
+  test("[server:log-rows-hash-state] given any other rejection on show, when Retry is asked for, then nothing is fetched and the rejection stays", async () => {
     let asked = 0;
     const store = createGameStore({
       view: () => {
@@ -163,13 +163,13 @@ describe("a life the server must check (R-SERVER-003)", () => {
 });
 
 describe("the month kept through a reload", () => {
-  test("[R-WORLD-007] [R-WORLD-008] given a plan, lines mid-month and a card closed, when a new store loads the same view, then it has them all; when the view has moved on, then none", async () => {
+  test("[world:month-acts-carry-on] [world:month-end-results-sheet] given a plan, lines mid-month and a card closed, when a new store loads the same view, then it has them all; when the view has moved on, then none", async () => {
     localStorage.clear();
     const line = { key: "line.wallet.social", params: { amount: { currency: "NGN" as const, amount: 100 } }, tone: "bad" as const, attention: false, counts: [] };
     const first = createGameStore({ view: () => Promise.resolve(at(7)), send: () => Promise.resolve({ ok: true, view: at(7), lines: [line] }) }, { rememberMonth: true });
     await first.getState().refresh();
-    // R-TURN-006: rest is never planned, so the plan kept is a month-act. Decision 0012
-    // (R-ACTIVITY-019): the coding course answers at once, so the month-act kept is a master's at home.
+    // turn:free-slots-per-month: rest is never planned, so the plan kept is a month-act. Decision 0012
+    // (activity:acts-may-repeat-in-month): the coding course answers at once, so the month-act kept is a master's at home.
     first.getState().setSlot(0, { activity: "activity.masters-at-home", param: null });
     await first.getState().send({ type: "wallet/move", currency: "NGN", amount: 1, to: "cash" });
     first.getState().closeCard("card-1");

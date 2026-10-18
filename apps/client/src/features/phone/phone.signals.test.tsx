@@ -1,4 +1,4 @@
-// The month's lines on the phone (docs/rules/world.md R-WORLD-030): a planned course tells of itself
+// The month's lines on the phone (world:month-passes-as-lived): a planned course tells of itself
 // as a notification once the character is home, never on the street; the Phone button's dot shows
 // them waiting; nothing in the simulation changes for any of it.
 import { content, text } from "@japacity/content";
@@ -17,7 +17,7 @@ import { PhoneApps, usePhoneWaiting } from "./PhoneApps";
 import { APP_IDS, markSeen, marksOf, reloadSeen } from "./seen";
 import { CITY_LAST_KEY } from "../../shared/kept/storage";
 
-// Decision 0012 (R-ACTIVITY-019): the coding course now answers at once and is never planned, so the course that carries
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course now answers at once and is never planned, so the course that carries
 // on and tells of itself is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** The course's first line, from content. */
@@ -72,7 +72,7 @@ async function courseDue(): Promise<{ store: GameStore; open: () => void; close:
   await act(async () => {
     await store.getState().send({ type: "place/ride", from: "place.family-house", to: other.id, way: "danfo" });
   });
-  // Decision 0011, with R-WORLD-030 for the lived month: the day is the share of the month's
+  // Decision 0011, with world:month-passes-as-lived for the lived month: the day is the share of the month's
   // free time spent, which a ride does not spend, so a day goes as naps spend it.
   await act(async () => {
     while (dayOfView(store.getState().view!) < 1) await store.getState().send({ type: "activity/now", activity: "activity.nap", param: null });
@@ -106,7 +106,7 @@ afterEach(() => {
 });
 
 describe("the month's lines on the phone", () => {
-  test("[R-WORLD-030] given a master's course planned and a day gone, when the phone opens at home, then the course's line shows as a notification and the dot goes", async () => {
+  test("[world:month-passes-as-lived] given a master's course planned and a day gone, when the phone opens at home, then the course's line shows as a notification and the dot goes", async () => {
     const { open, close } = await courseDue();
     stand("place.family-house");
     expect(dot()).toBe(true);
@@ -121,7 +121,7 @@ describe("the month's lines on the phone", () => {
     expect(dot()).toBe(false);
   });
 
-  test("[R-WORLD-030] given the course's line due, when the phone opens on the street, then the line is not shown, the wallpaper says something waits at home, and the dot stays", async () => {
+  test("[world:month-passes-as-lived] given the course's line due, when the phone opens on the street, then the line is not shown, the wallpaper says something waits at home, and the dot stays", async () => {
     const { open, close } = await courseDue();
     stand("place.ojuelegba");
     expect(dot()).toBe(true);
@@ -139,7 +139,7 @@ describe("the month's lines on the phone", () => {
     expect(dot()).toBe(false);
   });
 
-  test("[R-WORLD-030] given nothing planned and no job, when the phone opens at home, then no notification shows and no dot is lit for them", async () => {
+  test("[world:month-passes-as-lived] given nothing planned and no job, when the phone opens at home, then no notification shows and no dot is lit for them", async () => {
     const store = await adaStore();
     render(
       <GameProvider store={store}>
@@ -151,7 +151,7 @@ describe("the month's lines on the phone", () => {
     expect(screen.queryByText(say("ui.days.away.one"))).toBeNull();
   });
 
-  test("[R-WORLD-030] given the lines told and the phone opened at home and on the street, when the view is read, then it is the very same view and the phone sent nothing", async () => {
+  test("[world:month-passes-as-lived] given the lines told and the phone opened at home and on the street, when the view is read, then it is the very same view and the phone sent nothing", async () => {
     const { store, open, close } = await courseDue();
     // Decision 0012: the day that went was three naps of the month's free time, sent as acts before the phone opened.
     const lived: Command["type"][] = ["place/ride", "activity/now", "activity/now", "activity/now"];

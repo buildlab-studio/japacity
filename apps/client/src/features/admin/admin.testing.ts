@@ -122,7 +122,7 @@ const LOG: LogReply = {
   entries: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY_MS, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment", note: "First time." }],
 };
 
-/** R-MODERATION-021: two dedication lights awaiting a look, the older first. */
+/** moderation:dedication-lights-await-approval: two dedication lights awaiting a look, the older first. */
 export const PENDING_LIGHTS: PendingLightsReply = {
   ok: true,
   lights: [
@@ -242,7 +242,7 @@ function period(from: string, to: string, scale: number, players: number): Stats
   };
 }
 
-/** R-ANALYTICS-012: the numbers on the 8th at noon. */
+/** analytics:admin-stats-for-admins-only: the numbers on the 8th at noon. */
 export const STATS: StatsReply = {
   ok: true,
   stats: {

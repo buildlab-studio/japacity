@@ -1,4 +1,4 @@
-// An interview holds the month in the world (docs/rules/interview.md R-INTERVIEW-004; world.md R-WORLD-025, R-WORLD-006): while
+// An interview holds the month in the world (interview:answers-taken-in-order; world:sleep-ends-the-month, world:one-action-one-sheet): while
 // a question waits, the nudge says something waits and opens the asks with the interview, and the bed's sleep turns no month
 // (the corner says why); once the last answer is in, the sleep ends the month as ever. The scene is a stand-in that hands the city the taps a player makes.
 import { act, cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
@@ -19,7 +19,7 @@ import { pressFanAct, pressFanActNow } from "../features/city/fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
 
 
-// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
+// The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (world:fan-of-sticker-buttons).
 vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
@@ -39,7 +39,7 @@ afterEach(() => {
 });
 
 describe("the interview holds the month in the world", () => {
-  test("[R-INTERVIEW-004] given an interview open, then the month cannot end and the nudge marks what waits, until the last answer is in, when the asks leave and the officer says your answers are in", async () => {
+  test("[interview:answers-taken-in-order] given an interview open, then the month cannot end and the nudge marks what waits, until the last answer is in, when the asks leave and the officer says your answers are in", async () => {
     const game = interviewGame();
     const { authority } = await renderWithGame(
       <City world results={(place) => <p data-results-for={place} />} asks={[<InterviewView key="interview" />]} asksAt={[null]} phone={(close) => <button type="button" data-stand-in-phone onClick={close} />} />,
@@ -58,7 +58,7 @@ describe("the interview holds the month in the world", () => {
     await waitFor(() => expect(screen.queryByRole("region", { name: nameOf("interview.genuineness") })).toBeNull());
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
     pressFanActNow("mattress", "end-month");
-    // A life's first night is told once first (R-WORLD-025); its Sleep is the bed's.
+    // A life's first night is told once first (world:sleep-ends-the-month); its Sleep is the bed's.
     fireEvent.click(found("[data-night-teach-ok]"));
     expect([...document.querySelectorAll("[data-corner]")].map((line) => line.textContent)).toContain(words("reject.setpiece-open"));
     await act(async () => {
@@ -87,7 +87,7 @@ describe("the interview holds the month in the world", () => {
   });
 
   // A set piece open holds the month in the engine's words.
-  test("[R-SETPIECE-002] given the December visit or the road's night open, when the bed's sleep is tapped, then the corner says the engine's words and no month turns", async () => {
+  test("[route:open-set-piece-holds-month] given the December visit or the road's night open, when the bed's sleep is tapped, then the corner says the engine's words and no month turns", async () => {
     for (const entry of [DECEMBER, "setpiece.road-night"] as const) {
       window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
       const base = engineView();

@@ -1,4 +1,4 @@
-// The front door's draw on the real content (prologue.md R-PROLOGUE-011): the family's
+// The front door's draw on the real content (prologue:tile-path-open-from-start): the family's
 // draw shut "Learn a trade" for the trader three times in five. Where a life may be started over, the front door
 // tries named seeds in turn until the tile's path is open, so every trader reaches the master's shop and every
 // nurse nursing school.
@@ -31,7 +31,7 @@ function played(archetype: Archetype, seed: string) {
 }
 
 describe("the front door's draw", () => {
-  test("[R-PROLOGUE-011] given the trader's tile over 40 lives started where a life may be started over, when each is played, then every one reaches the master's shop (spare parts) and hands over as a trade, never a degree", () => {
+  test("[prologue:tile-path-open-from-start] given the trader's tile over 40 lives started where a life may be started over, when each is played, then every one reaches the master's shop (spare parts) and hands over as a trade, never a degree", () => {
     const trader = archetypeOf("trader")!;
     const wrong: string[] = [];
     let shutFirst = 0;
@@ -47,7 +47,7 @@ describe("the front door's draw", () => {
     expect(shutFirst).toBeGreaterThan(BASES / 4);
   });
 
-  test("[R-PROLOGUE-011] given the nurse's tile over 40 lives started where a life may be started over, when each is played, then every one reaches nursing school and hands over a nurse with her licence", () => {
+  test("[prologue:tile-path-open-from-start] given the nurse's tile over 40 lives started where a life may be started over, when each is played, then every one reaches nursing school and hands over a nurse with her licence", () => {
     const nurse = archetypeOf("nurse")!;
     const wrong: string[] = [];
     for (let at = 0; at < BASES; at += 1) {
@@ -59,7 +59,7 @@ describe("the front door's draw", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-011] [R-PROLOGUE-012] given the child of the water's tile over 40 lives, when each is played, then the family's draw never shuts its path: the first seed keeps it, and every life closes in Makoko's room", () => {
+  test("[prologue:tile-path-open-from-start] [prologue:makoko-start-never-a-trap] given the child of the water's tile over 40 lives, when each is played, then the family's draw never shuts its path: the first seed keeps it, and every life closes in Makoko's room", () => {
     const water = archetypeOf("water")!;
     const wrong: string[] = [];
     for (let at = 0; at < BASES; at += 1) {
@@ -72,7 +72,7 @@ describe("the front door's draw", () => {
     expect(wrong).toEqual([]);
   });
 
-  test("[R-PROLOGUE-011] given a base whose first seed shuts the trader's trade, when the front door picks the seed, then it tries the next named seeds in turn and takes the first that keeps the trade open", () => {
+  test("[prologue:tile-path-open-from-start] given a base whose first seed shuts the trader's trade, when the front door picks the seed, then it tries the next named seeds in turn and takes the first that keeps the trade open", () => {
     const trader = archetypeOf("trader")!;
     const base = Array.from({ length: BASES }, (_, at) => `trader-door-${String(at)}`).find((one) => !keepsTile(trader, seedNamed(one, 0), world, content));
     if (base === undefined) throw new Error("No base shuts the trade at its first seed.");
@@ -85,7 +85,7 @@ describe("the front door's draw", () => {
     expect(keepsTile(trader, seed, world, content)).toBe(true);
   });
 
-  test("[R-PROLOGUE-011] given a tile no seed of the eight can keep, when the front door picks the seed, then it takes the first named seed, after eight tries", () => {
+  test("[prologue:tile-path-open-from-start] given a tile no seed of the eight can keep, when the front door picks the seed, then it takes the first named seed, after eight tries", () => {
     const trader = archetypeOf("trader")!;
     // An answer no card has: the step always shows, so no seed keeps this tile's path.
     const never: Archetype = { ...trader, preset: { ...trader.preset, master: ["no-such-trade"] } };

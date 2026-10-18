@@ -113,17 +113,17 @@ function yearsAgo(years: number, extraDays = 0): string {
   return isoDay(new Date(Date.UTC(today.getUTCFullYear() - years, today.getUTCMonth(), today.getUTCDate() + extraDays)));
 }
 
-/** Play on the start screen (R-ACCOUNT-029). */
+/** Play on the start screen (account:start-screen-over-live-city). */
 async function play() {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.play") }));
 }
 
-/** "I already have a life here" on the start screen (R-ACCOUNT-029). */
+/** "I already have a life here" on the start screen (account:start-screen-over-live-city). */
 async function returning() {
   fireEvent.click(await screen.findByRole("button", { name: say("ui.account.start.returning") }));
 }
 
-/** The wordmarks on screen: an image whose words are the game's name (R-ACCOUNT-029). */
+/** The wordmarks on screen: an image whose words are the game's name (account:start-screen-over-live-city). */
 const wordmarks = () => screen.queryAllByRole("img", { name: say("ui.game") });
 
 /** The one wordmark on screen, with the game's name as its words and its file for the look and the ground. */
@@ -135,7 +135,7 @@ function oneWordmark(ground: "light" | "dark"): void {
   expect(shown[0]?.getAttribute("src")).toMatch(new RegExp(`brand/japacity-lockup-${ground}\\.svg$`));
 }
 
-/** The start screen's three hooks as a player reads them, row by row (R-TEXT-006, R-ACCOUNT-031). */
+/** The start screen's three hooks as a player reads them, row by row (text:hook-not-explanation, account:two-lights-and-wink-lines). */
 const START_HOOKS = [
   ["Last one out,", "off the light."],
   ["Not going?", "Keep the light on."],
@@ -147,7 +147,7 @@ const ageFields = () => [say("ui.account.age.day"), say("ui.account.age.month"),
 describe("the start screen online", () => {
   // The hook in two rows, the three steps, Play with its second line, and the two lights over the scene, in place of a
   // sentence about the game.
-  test("[R-ACCOUNT-029] [R-TEXT-006] given a new browser, then the first screen is the start screen over the compound: no title over the figure and the lockup at the head of the sheet, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
+  test("[account:start-screen-over-live-city] [text:hook-not-explanation] given a new browser, then the first screen is the start screen over the compound: no title over the figure and the lockup at the head of the sheet, the hook in two rows and the three steps where the sentence was, Play with its second line and I already have a life here, the two lights over the top, and nothing else asked", async () => {
     const account = fakeAccount();
     gate(account);
     const playButton = await screen.findByRole("button", { name: say("ui.account.start.play") });
@@ -175,7 +175,7 @@ describe("the start screen online", () => {
     expect(account.calls).toEqual([]);
   });
 
-  test("[R-ACCOUNT-029] given the shell's city behind, then it stands in the figure's place behind the start screen and the age screen, never dragged, and no compound is drawn", async () => {
+  test("[account:start-screen-over-live-city] given the shell's city behind, then it stands in the figure's place behind the start screen and the age screen, never dragged, and no compound is drawn", async () => {
     const store = signedOutStore(fakeAccount());
     render(
       <GameProvider store={store}>
@@ -191,7 +191,7 @@ describe("the start screen online", () => {
     expect(document.querySelector("[data-gate-scene] [data-test-city]")).not.toBeNull();
   });
 
-  test("[R-ACCOUNT-029] given the start screen, when Play is pressed, then the age screen follows, and its Back returns to the start screen", async () => {
+  test("[account:start-screen-over-live-city] given the start screen, when Play is pressed, then the age screen follows, and its Back returns to the start screen", async () => {
     gate(fakeAccount());
     await play();
     expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
@@ -201,7 +201,7 @@ describe("the start screen online", () => {
     expect(ageFields()).toEqual([null, null, null]);
   });
 
-  test("[R-ACCOUNT-029] given the start screen, when I already have a life here is pressed, then the ways back in show with no age screen and nothing is declared; Back returns to the start", async () => {
+  test("[account:start-screen-over-live-city] given the start screen, when I already have a life here is pressed, then the ways back in show with no age screen and nothing is declared; Back returns to the start", async () => {
     const account = fakeAccount();
     gate(account);
     await returning();
@@ -214,7 +214,7 @@ describe("the start screen online", () => {
     expect(account.calls).toEqual([]);
   });
 
-  test("[R-ACCOUNT-029] given the ways back in, then Google comes first, the code by email next, and the passkey last", async () => {
+  test("[account:start-screen-over-live-city] given the ways back in, then Google comes first, the code by email next, and the passkey last", async () => {
     gate(fakeAccount());
     await returning();
     const google = await screen.findByRole("button", { name: say("ui.account.google") });
@@ -224,7 +224,7 @@ describe("the start screen online", () => {
     expect(email.compareDocumentPosition(passkey) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  test("[R-ACCOUNT-029] given an in-app browser on Android, then Google is not shown, the code is, and the way out opens the phone's own browser", async () => {
+  test("[account:start-screen-over-live-city] given an in-app browser on Android, then Google is not shown, the code is, and the way out opens the phone's own browser", async () => {
     const agent = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Mobile Safari/537.36 WhatsApp/2.24.1";
     gate(fakeAccount(), fakeTurnstile(), agent);
     await returning();
@@ -234,7 +234,7 @@ describe("the start screen online", () => {
     expect(screen.getByRole("link", { name: say("ui.account.in-app.open") }).getAttribute("href")).toBe("intent://japacity.app/#Intent;scheme=https;end");
   });
 
-  test("[R-ACCOUNT-029] given an in-app browser on an iPhone, then Google is not shown and the page's address is offered to copy", async () => {
+  test("[account:start-screen-over-live-city] given an in-app browser on an iPhone, then Google is not shown and the page's address is offered to copy", async () => {
     const agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0";
     const copied: string[] = [];
     Object.defineProperty(navigator, "clipboard", { value: { writeText: (text: string) => (copied.push(text), Promise.resolve()) }, configurable: true });
@@ -246,7 +246,7 @@ describe("the start screen online", () => {
     expect(copied).toEqual(["https://japacity.app/"]);
   });
 
-  test("[R-ACCOUNT-029] given a code for an address that holds no life, when it is typed on the ways back in, then the player is told to go back and Play, and stays signed out", async () => {
+  test("[account:start-screen-over-live-city] given a code for an address that holds no life, when it is typed on the ways back in, then the player is told to go back and Play, and stays signed out", async () => {
     const account = fakeAccount({ signInWithCode: () => Promise.resolve({ ok: false, why: "no-life" }) });
     const { store } = gate(account);
     await returning();
@@ -258,7 +258,7 @@ describe("the start screen online", () => {
     expect(store.getState().signedOut).toBe(true);
   });
 
-  test("[R-ACCOUNT-029] given a player who signed out, then the start screen says so above the line", async () => {
+  test("[account:start-screen-over-live-city] given a player who signed out, then the start screen says so above the line", async () => {
     const account = fakeAccount();
     const store = signedOutStore(account);
     store.getState().leave("ui.account.notice.signed-out");
@@ -271,7 +271,7 @@ describe("the start screen online", () => {
     expect(screen.getByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-029] given the game offline, then there is no start screen: the gate draws nothing and the door is the first screen", () => {
+  test("[account:start-screen-over-live-city] given the game offline, then there is no start screen: the gate draws nothing and the door is the first screen", () => {
     const store = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) });
     const { container } = render(
       <GameProvider store={store}>
@@ -291,13 +291,13 @@ function sheetInLane(mark: string): boolean {
 }
 
 describe("the door's sheets on a desktop", () => {
-  test("[R-ACCOUNT-029] given the sheet column, then it is wider than the thumbs' lane, at a reading width", () => {
+  test("[account:start-screen-over-live-city] given the sheet column, then it is wider than the thumbs' lane, at a reading width", () => {
     expect(SHEET_COLUMN_PX).toBeGreaterThan(COLUMN_PX);
     expect(SHEET_COLUMN_PX).toBeGreaterThanOrEqual(560);
     expect(SHEET_COLUMN_PX).toBeLessThanOrEqual(640);
   });
 
-  test("[R-ACCOUNT-029] given the start screen, then its sheet stands in the sheet column, centred at a reading width, while the scene behind and the two lights over it stay the whole window's", async () => {
+  test("[account:start-screen-over-live-city] given the start screen, then its sheet stands in the sheet column, centred at a reading width, while the scene behind and the two lights over it stay the whole window's", async () => {
     const store = signedOutStore(fakeAccount());
     render(
       <GameProvider store={store}>
@@ -310,7 +310,7 @@ describe("the door's sheets on a desktop", () => {
     expect(document.querySelector("[data-two-lights]")?.closest("[data-sheet-column]")).toBeNull();
   });
 
-  test("[R-ACCOUNT-012] [R-ACCOUNT-029] given the age screen, then its sheet stands in the sheet column with its three fields and Continue inside it", async () => {
+  test("[account:age-screen-refuses-minors] [account:start-screen-over-live-city] given the age screen, then its sheet stands in the sheet column with its three fields and Continue inside it", async () => {
     gate(fakeAccount());
     await play();
     await screen.findByRole("combobox", { name: say("ui.account.age.day") });
@@ -320,27 +320,27 @@ describe("the door's sheets on a desktop", () => {
     expect(form?.querySelectorAll("select")).toHaveLength(3);
   });
 
-  test("[R-ACCOUNT-029] given the ways back in, then its sheet stands in the sheet column", async () => {
+  test("[account:start-screen-over-live-city] given the ways back in, then its sheet stands in the sheet column", async () => {
     gate(fakeAccount());
     await returning();
     await screen.findByRole("heading", { name: say("ui.account.returning.title") });
     expect(sheetInLane("returning")).toBe(true);
   });
 
-  test("[R-SERVER-032] given sign-ups switched off, then the full screen's sheet stands in the sheet column", async () => {
+  test("[server:signups-off-shows-full] given sign-ups switched off, then the full screen's sheet stands in the sheet column", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
     expect(await screen.findByText(say("server.full"))).toBeDefined();
     expect(sheetInLane("other")).toBe(true);
   });
 
-  test("[R-SERVER-043] given the server out of reach for a new visitor, then the start screen's frame keeps its sheet in the sheet column", () => {
+  test("[server:no-platform-error-page] given the server out of reach for a new visitor, then the start screen's frame keeps its sheet in the sheet column", () => {
     render(<StartTrouble trouble={null} />);
     expect(sheetInLane("start-trouble")).toBe(true);
   });
 });
 
 describe("the wordmark on the account screens", () => {
-  test("[R-ACCOUNT-029] given the start screen, and then the age screen, then neither carries a title over the figure, the start screen holds the lockup at the head of its sheet and the age screen none", async () => {
+  test("[account:start-screen-over-live-city] given the start screen, and then the age screen, then neither carries a title over the figure, the start screen holds the lockup at the head of its sheet and the age screen none", async () => {
     gate(fakeAccount());
     await screen.findByRole("button", { name: say("ui.account.start.play") });
     oneWordmark("light");
@@ -351,7 +351,7 @@ describe("the wordmark on the account screens", () => {
     expect(screen.queryByText(say("ui.game"))).toBeNull();
   });
 
-  test("[R-ACCOUNT-029] given the ways back in, then the wordmark tops the screen once over the figure, its words the game's name; Back to the start takes it away", async () => {
+  test("[account:start-screen-over-live-city] given the ways back in, then the wordmark tops the screen once over the figure, its words the game's name; Back to the start takes it away", async () => {
     gate(fakeAccount());
     await returning();
     await screen.findByRole("heading", { name: say("ui.account.returning.title") });
@@ -362,7 +362,7 @@ describe("the wordmark on the account screens", () => {
     oneWordmark("light");
   });
 
-  test("[R-ACCOUNT-029] [R-SERVER-032] given sign-ups switched off, then the full screen carries the wordmark once", async () => {
+  test("[account:start-screen-over-live-city] [server:signups-off-shows-full] given sign-ups switched off, then the full screen carries the wordmark once", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
     expect(await screen.findByText(say("server.full"))).toBeDefined();
     oneWordmark("dark");
@@ -371,7 +371,7 @@ describe("the wordmark on the account screens", () => {
 });
 
 describe("the age screen", () => {
-  test("[R-ACCOUNT-012] given a new browser, when Play is pressed, then the age screen comes before any way in: three fields, none filled in, and no hint of the age needed", async () => {
+  test("[account:age-screen-refuses-minors] given a new browser, when Play is pressed, then the age screen comes before any way in: three fields, none filled in, and no hint of the age needed", async () => {
     gate(fakeAccount());
     await play();
     await screen.findByRole("combobox", { name: say("ui.account.age.day") });
@@ -392,7 +392,7 @@ describe("the age screen", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.passkey") })).toBeNull();
   });
 
-  test("[R-ACCOUNT-012] [R-ACCOUNT-021] given a date of birth exactly 18 years ago today, then the client sends it as typed and the server's answer opens the username, with no sign-in method at the door", async () => {
+  test("[account:age-screen-refuses-minors] [account:guest-and-secured-states] given a date of birth exactly 18 years ago today, then the client sends it as typed and the server's answer opens the username, with no sign-in method at the door", async () => {
     const account = fakeAccount();
     gate(account);
     const birth = yearsAgo(18);
@@ -404,7 +404,7 @@ describe("the age screen", () => {
     expect(account.calls).toEqual([`declareAge(${birth})`]);
   });
 
-  test("[R-ACCOUNT-012] given a date of birth one day short of 18, then the client sends it all the same and shows the server's refusal plainly, with no way in", async () => {
+  test("[account:age-screen-refuses-minors] given a date of birth one day short of 18, then the client sends it all the same and shows the server's refusal plainly, with no way in", async () => {
     const account = fakeAccount();
     gate(account);
     const birth = yearsAgo(18, 1);
@@ -415,7 +415,7 @@ describe("the age screen", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
   });
 
-  test("[R-ACCOUNT-012] given no date picked, or only part of one, then nothing is sent and the player is asked for all three", async () => {
+  test("[account:age-screen-refuses-minors] given no date picked, or only part of one, then nothing is sent and the player is asked for all three", async () => {
     const account = fakeAccount();
     gate(account);
     await play();
@@ -428,7 +428,7 @@ describe("the age screen", () => {
     expect(account.calls).toEqual([]);
   });
 
-  test("[R-ACCOUNT-012] given a browser refused before, then the refusal shows without asking again", async () => {
+  test("[account:age-screen-refuses-minors] given a browser refused before, then the refusal shows without asking again", async () => {
     gate(fakeAccount({ ageStatus: () => Promise.resolve("refused") }));
     expect(await screen.findByText(say("ui.account.age.refused"))).toBeDefined();
     expect(ageFields()).toEqual([null, null, null]);
@@ -436,7 +436,7 @@ describe("the age screen", () => {
     expect(screen.queryByRole("button", { name: say("ui.account.start.returning") })).toBeNull();
   });
 
-  test("[R-ACCOUNT-013] given the age screen, then it shows no bot check: that comes with the username, where the account is made, and its token goes with the guest start", async () => {
+  test("[account:bot-check-on-guest-creation] given the age screen, then it shows no bot check: that comes with the username, where the account is made, and its token goes with the guest start", async () => {
     const account = fakeAccount();
     const { turnstile } = gate(account, fakeTurnstile({ passAtOnce: false }), undefined, true);
     await screen.findByRole("combobox", { name: say("ui.account.age.day") });
@@ -450,7 +450,7 @@ describe("the age screen", () => {
     await waitFor(() => expect(turnstile.resets()).toBe(1));
   });
 
-  test("[R-ACCOUNT-012] given a date the server does not believe, then the player is asked to check it and the screen stays", async () => {
+  test("[account:age-screen-refuses-minors] given a date the server does not believe, then the player is asked to check it and the screen stays", async () => {
     gate(fakeAccount({ declareAge: () => Promise.resolve("bad-date") }));
     await play();
     // The thirty-first of February: three fields can be picked into a date no calendar has.
@@ -459,7 +459,7 @@ describe("the age screen", () => {
     expect(screen.getByRole("combobox", { name: say("ui.account.age.year") })).toBeDefined();
   });
 
-  test("[R-SERVER-032] given sign-ups switched off, then the gate shows the full screen with no form, and once the server's wait is over it asks again and opens the age screen", async () => {
+  test("[server:signups-off-shows-full] given sign-ups switched off, then the gate shows the full screen with no form, and once the server's wait is over it asks again and opens the age screen", async () => {
     let asked = 0;
     gate(fakeAccount({ ageStatus: () => Promise.resolve(asked++ === 0 ? { full: true, retryAfter: 1 } : "unasked") }));
     expect(await screen.findByText(say("server.full"))).toBeDefined();
@@ -472,7 +472,7 @@ describe("the age screen", () => {
     expect(asked).toBe(2);
   });
 
-  test("[R-SERVER-032] given sign-ups switched off when the age is declared, then the full screen shows instead of the username", async () => {
+  test("[server:signups-off-shows-full] given sign-ups switched off when the age is declared, then the full screen shows instead of the username", async () => {
     gate(fakeAccount({ declareAge: () => Promise.resolve({ full: true, retryAfter: 30 }) }));
     await play();
     await answerAge(yearsAgo(30));
@@ -490,7 +490,7 @@ describe("the guest start inside the invite page", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.name.go") }));
   }
 
-  test("[R-ACCOUNT-021] [R-ACCOUNT-027] given the age screen passed, when a username is picked, then the guest line is said once and the guest life starts at once", async () => {
+  test("[account:guest-and-secured-states] [account:guest-reminded-to-secure] given the age screen passed, when a username is picked, then the guest line is said once and the guest life starts at once", async () => {
     const account = passed();
     const { store } = inside(account);
     await screen.findByLabelText(say("ui.account.name.label"));
@@ -500,7 +500,7 @@ describe("the guest start inside the invite page", () => {
     expect(account.calls).toEqual(['startGuest("ada_lagos")']);
   });
 
-  test("[R-ACCOUNT-024] [R-ACCOUNT-025] given each refusal, then the player is told plainly and stays on the screen; no username typed sends nothing", async () => {
+  test("[account:username-and-unconfirmed-email] [account:guest-floods-are-capped] given each refusal, then the player is told plainly and stays on the screen; no username typed sends nothing", async () => {
     const answers = ["taken", "reserved", "blocked", "format", "too-many", "bot-check"] as const;
     let at = 0;
     const account = passed({ startGuest: () => Promise.resolve({ ok: false, why: answers[at++] ?? "refused" }) });
@@ -514,7 +514,7 @@ describe("the guest start inside the invite page", () => {
     expect(store.getState().signedOut).toBe(true);
   });
 
-  test("[R-ACCOUNT-012] given an age answer that ran out, when the username is sent, then the age screen asks again", async () => {
+  test("[account:age-screen-refuses-minors] given an age answer that ran out, when the username is sent, then the age screen asks again", async () => {
     inside(passed({ startGuest: () => Promise.resolve({ ok: false, why: "expired" }) }));
     await pick("ada_lagos");
     expect(await screen.findByRole("combobox", { name: say("ui.account.age.day") })).toBeDefined();
@@ -526,7 +526,7 @@ describe("the ways back in", () => {
 
   const comeBack = returning;
 
-  test("[R-ACCOUNT-001] given a player who kept a life, then Google, a passkey and an email code are offered, and nothing in the feature asks for a secret word", async () => {
+  test("[account:sign-in-without-secret] given a player who kept a life, then Google, a passkey and an email code are offered, and nothing in the feature asks for a secret word", async () => {
     gate(kept());
     await comeBack();
     expect(await screen.findByRole("button", { name: say("ui.account.google") })).toBeDefined();
@@ -540,7 +540,7 @@ describe("the ways back in", () => {
     expect(files.filter((name) => readFileSync(join(folder, name), "utf8").toLowerCase().includes(banned))).toEqual([]);
   });
 
-  test("[R-ACCOUNT-002] given an email, when a code is asked for and the 6 digits typed, then the account signs in and the game comes back", async () => {
+  test("[account:email-code-is-short-lived] given an email, when a code is asked for and the 6 digits typed, then the account signs in and the game comes back", async () => {
     const account = kept();
     const { store } = gate(account);
     await comeBack();
@@ -556,7 +556,7 @@ describe("the ways back in", () => {
     expect(account.calls).toEqual(['sendCode("ada@example.test")', 'signInWithCode("ada@example.test","123456")']);
   });
 
-  test("[R-ACCOUNT-002] given a wrong code, then the player is told and stays signed out", async () => {
+  test("[account:email-code-is-short-lived] given a wrong code, then the player is told and stays signed out", async () => {
     const account = kept({ signInWithCode: () => Promise.resolve({ ok: false, why: "wrong-code" }) });
     const { store } = gate(account);
     await comeBack();
@@ -568,7 +568,7 @@ describe("the ways back in", () => {
     expect(store.getState().signedOut).toBe(true);
   });
 
-  test("[R-ACCOUNT-013] given a returning player, then no bot check shows and no token goes with Google, a passkey or a code", async () => {
+  test("[account:bot-check-on-guest-creation] given a returning player, then no bot check shows and no token goes with Google, a passkey or a code", async () => {
     const account = kept();
     gate(account);
     await comeBack();
@@ -580,7 +580,7 @@ describe("the ways back in", () => {
     expect(account.bots).toEqual([null]);
   });
 
-  test("[R-ACCOUNT-021] given a sign-in that finds no life, then the player is told and can go back to start one", async () => {
+  test("[account:guest-and-secured-states] given a sign-in that finds no life, then the player is told and can go back to start one", async () => {
     gate(kept({ signInWithPasskey: () => Promise.resolve({ ok: false, why: "no-life" }) }));
     await comeBack();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.passkey") }));
@@ -589,13 +589,13 @@ describe("the ways back in", () => {
     expect(await screen.findByRole("button", { name: say("ui.account.start.play") })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-021] given Google came back having found no life, then the ways back in show with the reason", async () => {
+  test("[account:guest-and-secured-states] given Google came back having found no life, then the ways back in show with the reason", async () => {
     gate(kept({ returnedFromGoogle: () => "no-life" }));
     expect(await screen.findByText(say("ui.account.fail.no-life"))).toBeDefined();
     expect(screen.getByRole("button", { name: say("ui.account.google") })).toBeDefined();
   });
 
-  test("[R-ACCOUNT-003] given the ways back in, then none adds a passkey: that is offered only in the settings of a kept account", async () => {
+  test("[account:passkey-needs-signed-in-session] given the ways back in, then none adds a passkey: that is offered only in the settings of a kept account", async () => {
     const account = kept({ view: () => Promise.resolve({ ...SECURED }) });
     gate(account);
     await comeBack();
@@ -609,7 +609,7 @@ describe("the ways back in", () => {
 });
 
 describe("adding a passkey", () => {
-  test("[R-ACCOUNT-003] given an admin on a code session, when a passkey is added in the settings, then the server's refusal is told as: sign in with the passkey first", async () => {
+  test("[account:passkey-needs-signed-in-session] given an admin on a code session, when a passkey is added in the settings, then the server's refusal is told as: sign in with the passkey first", async () => {
     const account = fakeAccount({ addPasskey: () => Promise.resolve({ ok: false, why: "passkey-first" }) });
     cleanUpAndSettings(account);
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.passkey.add") }));
@@ -643,7 +643,7 @@ describe("deleting the account", () => {
     fireEvent.click(screen.getByRole("button", { name: say("ui.account.delete.code.go") }));
   }
 
-  test("[R-ACCOUNT-016] given a fresh session, when deletion is confirmed, then the server deletes it with no code and the player is told at the sign-in screen", async () => {
+  test("[account:player-deletes-account] given a fresh session, when deletion is confirmed, then the server deletes it with no code and the player is told at the sign-in screen", async () => {
     const account = fakeAccount();
     const store = cleanUpAndSettings(account);
     askToDelete();
@@ -652,7 +652,7 @@ describe("deleting the account", () => {
     expect(account.calls).toEqual(["deleteAccount(null)"]);
   });
 
-  test("[R-ACCOUNT-016] given a session older than the server allows, when the code the server's email sends is typed, then it goes with the deletion, never through a sign-in, and the account goes", async () => {
+  test("[account:player-deletes-account] given a session older than the server allows, when the code the server's email sends is typed, then it goes with the deletion, never through a sign-in, and the account goes", async () => {
     const answers: AuthResult[] = [notFresh, OK];
     const account = fakeAccount();
     const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
@@ -666,7 +666,7 @@ describe("deleting the account", () => {
     expect(account.calls).toEqual(["deleteAccount(null)", 'sendCode("ada@example.test")', 'deleteAccount("654321")']);
   });
 
-  test("[R-ACCOUNT-016] given a code the server refuses, then bad-code is said in words, the account stays, and a second code goes through", async () => {
+  test("[account:player-deletes-account] given a code the server refuses, then bad-code is said in words, the account stays, and a second code goes through", async () => {
     const answers: AuthResult[] = [notFresh, { ok: false, why: "bad-code" }, OK];
     const account = fakeAccount();
     const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
@@ -680,7 +680,7 @@ describe("deleting the account", () => {
     expect(account.calls.filter((call) => call.startsWith("deleteAccount"))).toEqual(["deleteAccount(null)", 'deleteAccount("111111")', 'deleteAccount("222222")']);
   });
 
-  test("[R-ACCOUNT-016] given a stale session, then a passkey sign-in makes it fresh and the deletion goes with no code", async () => {
+  test("[account:player-deletes-account] given a stale session, then a passkey sign-in makes it fresh and the deletion goes with no code", async () => {
     const answers: AuthResult[] = [notFresh, OK];
     const account = fakeAccount();
     const store = cleanUpAndSettings({ ...account, deleteAccount: (code) => (account.calls.push(`deleteAccount(${JSON.stringify(code)})`), Promise.resolve(answers.shift() ?? OK)) });
@@ -692,7 +692,7 @@ describe("deleting the account", () => {
 });
 
 describe("the shell online", () => {
-  test("[R-SERVER-001] given the server says no one is signed in, then the app shows the account screens instead of the game", async () => {
+  test("[server:commands-only-through-route] given the server says no one is signed in, then the app shows the account screens instead of the game", async () => {
     const account = fakeAccount();
     const store = createGameStore(
       {
@@ -710,7 +710,7 @@ describe("the shell online", () => {
   });
 });
 
-describe("the signed-out notice goes when the player moves on (R-ACCOUNT-021)", () => {
+describe("the signed-out notice goes when the player moves on (account:guest-and-secured-states)", () => {
   function signedOut(account: AccountApi = fakeAccount()) {
     const store = signedOutStore(account);
     store.getState().leave("ui.account.notice.signed-out");
@@ -724,7 +724,7 @@ describe("the signed-out notice goes when the player moves on (R-ACCOUNT-021)", 
   }
   const notice = () => screen.queryByText(say("ui.account.notice.signed-out"));
 
-  test("[R-ACCOUNT-021] given a player who signed out, when I already have a life here is tapped, then the notice is gone from the ways back in, and stays gone back on the start screen", async () => {
+  test("[account:guest-and-secured-states] given a player who signed out, when I already have a life here is tapped, then the notice is gone from the ways back in, and stays gone back on the start screen", async () => {
     signedOut();
     expect(await screen.findByText(say("ui.account.notice.signed-out"))).toBeDefined();
     await returning();
@@ -735,7 +735,7 @@ describe("the signed-out notice goes when the player moves on (R-ACCOUNT-021)", 
     expect(notice()).toBeNull();
   });
 
-  test("[R-ACCOUNT-021] given a player who signed out, when Play is tapped, then the age screen opens with no notice", async () => {
+  test("[account:guest-and-secured-states] given a player who signed out, when Play is tapped, then the age screen opens with no notice", async () => {
     signedOut();
     expect(await screen.findByText(say("ui.account.notice.signed-out"))).toBeDefined();
     await play();
@@ -743,7 +743,7 @@ describe("the signed-out notice goes when the player moves on (R-ACCOUNT-021)", 
     expect(notice()).toBeNull();
   });
 
-  test("[R-ACCOUNT-021] [R-ACCOUNT-023] given a player who signed out, when a life is opened again by a code, then the notice is gone, the sheet closes into the life and the world says Signed in with your email", async () => {
+  test("[account:guest-and-secured-states] [account:guest-secures-the-life] given a player who signed out, when a life is opened again by a code, then the notice is gone, the sheet closes into the life and the world says Signed in with your email", async () => {
     const account = fakeAccount({ view: () => Promise.resolve(SECURED) });
     const store = signedOut(account);
     await returning();
@@ -757,7 +757,7 @@ describe("the signed-out notice goes when the player moves on (R-ACCOUNT-021)", 
     expect(say("ui.account.toast.in.email")).toBe("Signed in with your email");
   });
 
-  test("[R-ACCOUNT-023] given Google came back because its address was kept by a code, then the ways back in show and point to the code, never the library's code", async () => {
+  test("[account:guest-secures-the-life] given Google came back because its address was kept by a code, then the ways back in show and point to the code, never the library's code", async () => {
     gate(fakeAccount({ returnedFromGoogle: () => "not-linked" }));
     expect(await screen.findByText(say("ui.account.fail.not-linked"))).toBeDefined();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();

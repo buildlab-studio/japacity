@@ -30,7 +30,7 @@ export function Tile({ of, size = 64, className }: { of: string; size?: number; 
   const model = "model" in picture ? picture.model : null;
   const url = useTileUrl(model);
   const box = { width: `${String(size)}px`, height: `${String(size)}px` };
-  // An act's glyph is drawn here, so it fetches nothing and stands in for nothing (R-WORLD-034).
+  // An act's glyph is drawn here, so it fetches nothing and stands in for nothing (world:fan-of-sticker-buttons).
   if ("glyph" in picture) {
     return (
       <span data-tile={of} data-glyph={picture.glyph} aria-hidden="true" className={`inline-block shrink-0 ${className ?? ""}`} style={box}>

@@ -1,4 +1,4 @@
-// The houses, trees and waves of the painted map (docs/rules/world.md R-WORLD-015), placed by a seeded layout so the
+// The houses, trees and waves of the painted map (world:map-is-painted-lagos), placed by a seeded layout so the
 // city is the same every time it opens: candidates drawn from a whole-number sequence, kept only on land (or, for a
 // wave, on open water), clear of the coast, the roads, the places, the names and the landmarks, and a set distance from
 // one another. Whole numbers throughout; nothing here reads the clock or the screen.

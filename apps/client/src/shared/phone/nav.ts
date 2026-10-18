@@ -1,6 +1,6 @@
-// What an app may ask of the handset (docs/rules/world.md R-WORLD-018): open another app, as the Calendar's coming list
+// What an app may ask of the handset (world:phone-rises-over-scene): open another app, as the Calendar's coming list
 // opens Japa or Bills, put the phone away, as the Calendar's Next month does before the page turns, or put it away
-// onto the map at a stop, as a paper's visit does in Papers (R-WORLD-019). The handset provides it; an app handed in by
+// onto the map at a stop, as a paper's visit does in Papers (world:phone-holds-what-phones-hold). The handset provides it; an app handed in by
 // the shell reads it without knowing the handset.
 import { createContext } from "react";
 

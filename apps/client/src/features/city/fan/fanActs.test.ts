@@ -1,5 +1,5 @@
 // What each thing's fan holds and what each button says (docs/design/13-the-lively-layer.md section 3; docs/rules/world.md
-// R-WORLD-005, R-WORLD-006, R-WORLD-034): every thing fans. The room's and the street's acts done at once are each their own
+// world:things-are-tappable-models, world:one-action-one-sheet, world:fan-of-sticker-buttons): every thing fans. The room's and the street's acts done at once are each their own
 // button, priced and balanced as the sheet counts them, or refused as the sheet would; a job, a route, an offer, a paper,
 // a pose, Sleep, a command or the way out is one button with its act's label and picture and no price.
 import { content } from "@japacity/content";
@@ -40,7 +40,7 @@ function kinds(entries: readonly FanEntryOf[]): string[] {
 }
 
 describe("the things that fan", () => {
-  test("[R-WORLD-034] [R-WORLD-005] given the family house's parlour, when its things are read, then the cooking corner fans both meals in the sheet's order, the drum its water and bath, the TV its film, as the simulation's buttons; the bed, Mama, the table, the papers box, the door, the sofa and the bag fan their acts as they stand, with no chip left", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the family house's parlour, when its things are read, then the cooking corner fans both meals in the sheet's order, the drum its water and bath, the TV its film, as the simulation's buttons; the bed, Mama, the table, the papers box, the door, the sofa and the bag fan their acts as they stand, with no chip left", () => {
     expect(kinds(fanEntriesOf(thingAt("home-family-house", "cooking")))).toEqual([`now:${COOK}`, `now:${JOLLOF}`]);
     expect(kinds(fanEntriesOf(thingAt("home-family-house", "drum")))).toEqual(["now:activity.fetch-water", "now:activity.bucket-bath"]);
     expect(kinds(fanEntriesOf(thingAt("home-family-house", "tv")))).toEqual(["now:activity.watch-tv"]);
@@ -53,7 +53,7 @@ describe("the things that fan", () => {
     expect(fanEntriesOf(thingAt("home-family-house", "table")).every((entry) => entry.kind === "act")).toBe(true);
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given the street at Ojuelegba and Bode Thomas, when their things are read, then the suya grill, the mallam's bench, the barber and the joint fan the simulation's buttons; the hub's door, the motor park and the rides fan their acts as single buttons", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the street at Ojuelegba and Bode Thomas, when their things are read, then the suya grill, the mallam's bench, the barber and the joint fan the simulation's buttons; the hub's door, the motor park and the rides fan their acts as single buttons", () => {
     expect(kinds(fanEntriesOf(thingAt("ojuelegba-front", "suya")))).toEqual(["now:activity.buy-suya"]);
     expect(kinds(fanEntriesOf(thingAt("ojuelegba-front", "tea")))).toEqual(["now:activity.mallam-tea", "now:activity.pure-water"]);
     expect(fanEntriesOf(thingAt("bode-thomas-front", "barber")).every((entry) => entry.kind === "now")).toBe(true);
@@ -65,14 +65,14 @@ describe("the things that fan", () => {
     expect(kinds(fanEntriesOf(thingAt("bode-thomas-front", "kiosk")))).toEqual(["act:activity.play-lotto"]);
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given the hub's desks and boards, when their acts are read, then a job, a route, a course and a paper are never the simulation's buttons: a list is a list, one button that opens its sheet", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the hub's desks and boards, when their acts are read, then a job, a route, a course and a paper are never the simulation's buttons: a list is a list, one button that opens its sheet", () => {
     for (const id of ["activity.job-hunt", "activity.job-junior-dev", "activity.look-into-route", "activity.learn-tech", "activity.get-passport", "activity.play-lotto", "activity.send-money", "activity.apply-for-visa"]) expect(fanEntry(id)).toBe(false);
     for (const id of [COOK, JOLLOF, "activity.buy-suya", "activity.pure-water", "activity.nap", "activity.help-shop"]) expect(fanEntry(id)).toBe(true);
     expect(kinds(fanEntriesOf(thingAt("yaba-hub", "desk")))).toEqual(["act:activity.learn-tech", "act:activity.look-into-route"]);
     expect(kinds(fanEntriesOf(thingAt("yaba-hub", "jobs")))).toEqual(["act:activity.job-hunt"]);
   });
 
-  test("[R-WORLD-005] given the mallam's bench, whose act sits the figure on it, when a fan act is made for its water, then it carries the water as its entry and keeps the seat and the pose", () => {
+  test("[world:things-are-tappable-models] given the mallam's bench, whose act sits the figure on it, when a fan act is made for its water, then it carries the water as its entry and keeps the seat and the pose", () => {
     const tea = thingAt("ojuelegba-front", "tea");
     const act = fanActOf(tea, "activity.pure-water");
     expect(act).toMatchObject({ kind: "sheet", stages: "activity.pure-water", pose: "sit" });
@@ -82,7 +82,7 @@ describe("the things that fan", () => {
 });
 
 describe("the acts' pictures", () => {
-  test("[R-WORLD-034] given every kind of act that is no activity of its own, when its button's picture is asked for, then it is its kind's drawn glyph: sit, lie, sleep, pay, papers, pack, out, in, talk, look, ride, home and shut", () => {
+  test("[world:fan-of-sticker-buttons] given every kind of act that is no activity of its own, when its button's picture is asked for, then it is its kind's drawn glyph: sit, lie, sleep, pay, papers, pack, out, in, talk, look, ride, home and shut", () => {
     const glyph = (folder: string, thing: string, act: string): string => {
       const one = thingAt(folder, thing).acts.find((candidate) => candidate.id === act);
       if (one === undefined) throw new Error(`No ${act} on ${thing}.`);
@@ -111,7 +111,7 @@ describe("the acts' pictures", () => {
 });
 
 describe("tints and pictures", () => {
-  test("[R-WORLD-005] given the acts' effects and costs, when each is tinted, then a meal is food, a skill study, a gig money, a nap or a bath body, company people, and an act that changes nothing plain", () => {
+  test("[world:things-are-tappable-models] given the acts' effects and costs, when each is tinted, then a meal is food, a skill study, a gig money, a nap or a bath body, company people, and an act that changes nothing plain", () => {
     expect(tintOf(COOK)).toBe("food");
     expect(tintOf("activity.buy-suya")).toBe("food");
     expect(tintOf("activity.learn-tech")).toBe("study");
@@ -123,7 +123,7 @@ describe("tints and pictures", () => {
     expect(tintOf("activity.fill-drum")).toBe("plain");
   });
 
-  test("[R-WORLD-005] given every act a thing of the world fans, when its picture is asked for, then it is the act's own tile in the table, a model's render or a stand-in of its own", () => {
+  test("[world:things-are-tappable-models] given every act a thing of the world fans, when its picture is asked for, then it is the act's own tile in the table, a model's render or a stand-in of its own", () => {
     const fanned = Object.keys(content.activity).filter(fanEntry);
     expect(fanned.length).toBeGreaterThan(10);
     expect(fanned.filter((id) => TILE_TABLE[id] === undefined)).toEqual([]);
@@ -135,7 +135,7 @@ describe("what a button says", () => {
   // A home of your own's corner, whose meal and pot are bought; the family house's pot is free.
   const cooking = fanEntriesOf(thingAt("home-room-house", "cooking"));
 
-  test("[R-WORLD-006] given the cooking corner and the naira held, when its buttons are made, then each names its meal, its price and the balance before and after, as the sheet counts them", () => {
+  test("[world:one-action-one-sheet] given the cooking corner and the naira held, when its buttons are made, then each names its meal, its price and the balance before and after, as the sheet counts them", () => {
     const entries = fanModel(cooking, view, []);
     expect(entries.map((entry) => entry.id)).toEqual([OWN, OWN_POT]);
     const held = view.pockets.NGN.bank + view.pockets.NGN.cash;
@@ -147,14 +147,14 @@ describe("what a button says", () => {
     expect(entries[0]?.balance?.after.words).toBe(formatMoney(held - price, "NGN"));
   });
 
-  test("[R-WORLD-006] given a free act, when its button is made, then it carries no price and no balance", () => {
+  test("[world:one-action-one-sheet] given a free act, when its button is made, then it carries no price and no balance", () => {
     const drum = fanEntriesOf(thingAt("home-family-house", "drum"));
     const entries = fanModel(drum, view, []);
     expect(entries[0]?.price).toBeNull();
     expect(entries[0]?.balance).toBeNull();
   });
 
-  test("[R-WORLD-006] [R-ACTIVITY-020] given a meal the naira cannot pay, a body spent, and an act shut by a need, when the buttons are made, then each carries the refusal the sheet would say: how much is short, You are spent, and the need", () => {
+  test("[world:one-action-one-sheet] [activity:spent-body-refuses-acts] given a meal the naira cannot pay, a body spent, and an act shut by a need, when the buttons are made, then each carries the refusal the sheet would say: how much is short, You are spent, and the need", () => {
     const broke = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, bank: 0, cash: 100_000 } } };
     const short = fanModel(cooking, broke, [])[0];
     const price = view.activities.find((option) => option.id === OWN)?.cost[0]?.amount ?? 0;
@@ -168,7 +168,7 @@ describe("what a button says", () => {
     expect(locked?.refusal?.words.length).toBeGreaterThan(0);
   });
 
-  test("[R-WORLD-034] [R-WORLD-005] given the sofa, the bed's Sleep and Mama's bill, when their buttons are made, then each names its act as the chip did, carries no price, no balance and no Free, and hands the walk the thing's own act", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the sofa, the bed's Sleep and Mama's bill, when their buttons are made, then each names its act as the chip did, carries no price, no balance and no Free, and hands the walk the thing's own act", () => {
     const sofa = fanModel(fanEntriesOf(thingAt("home-family-house", "sofa")), view, []);
     expect(sofa.map((entry) => [entry.id, entry.name, entry.kind, entry.picture, entry.tint])).toEqual([
       ["sit", "Sit", "act", "act.sit", "body"],

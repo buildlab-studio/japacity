@@ -1,4 +1,4 @@
-// The waybill at the cargo counter on Bode Thomas Street (docs/rules/world.md R-WORLD-006): the
+// The waybill at the cargo counter on Bode Thomas Street (world:one-action-one-sheet): the
 // parcel's sheet takes the form of what it shows, a paper slip. It says who shipped it, to whom,
 // what is in it and the clerk's charge, with the sender's note in their own words, and its one
 // button collects it: the parcel offer answered with the one thing it holds. Pure: the screen

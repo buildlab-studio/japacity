@@ -24,13 +24,13 @@ function inColumn(selector: string): boolean {
 }
 
 describe("the centred column", () => {
-  test("[R-WORLD-002] given the band with its nudge under it, when it draws, then both stand in the column", () => {
+  test("[world:top-band-is-lively-pill] given the band with its nudge under it, when it draws, then both stand in the column", () => {
     render(<Band when="23 yrs" name="The family house" money={0} formatMoney={String} more={<Nudge nudge={{ key: "ui.world.whole" }} />} />);
     expect(inColumn("[data-band] > *")).toBe(true);
     expect(inColumn("[data-nudge]")).toBe(true);
   });
 
-  test("[R-WORLD-004] given the thumbs and their first labels, when they draw, then Map and Phone and their labels stand in the column", () => {
+  test("[world:thumb-buttons-carry-dots] given the thumbs and their first labels, when they draw, then Map and Phone and their labels stand in the column", () => {
     render(
       <>
         <ThumbBar onMap={() => undefined} onPhone={() => undefined} phoneWaiting={false} />
@@ -42,13 +42,13 @@ describe("the centred column", () => {
     expect(inColumn("[data-first-labels] > *")).toBe(true);
   });
 
-  test("[R-WORLD-026] given a line told in the corner, when it shows, then it stands in the column", () => {
+  test("[world:street-talk-budget] given a line told in the corner, when it shows, then it stands in the column", () => {
     render(<Corner />);
     act(() => tell("Money changed"));
     expect(inColumn("[data-corner]")).toBe(true);
   });
 
-  test("[R-WORLD-018] given the phone, when it rises, then its frame stands in the column, at rest and grown", () => {
+  test("[world:phone-rises-over-scene] given the phone, when it rises, then its frame stands in the column, at rest and grown", () => {
     render(<Phone apps={[]} onClose={() => undefined} area="Ojuelegba" when="Month 6" />);
     expect(inColumn("[data-handset]")).toBe(true);
   });

@@ -1,4 +1,4 @@
-// The broken screen (analytics.md R-ANALYTICS-002): what broke goes to the console with the
+// The broken screen (analytics:client-sends-interface-counts): what broke goes to the console with the
 // build, the catch counts once as client/error render, and the screen offers Reload and Tell us, which opens the
 // feedback box with the error's name and the build written in and nothing else of the error.
 import type { CounterRow } from "@japacity/api";
@@ -78,7 +78,7 @@ function broken(moderation: ReturnType<typeof fakeModeration> | null): unknown[]
 }
 
 describe("the broken screen", () => {
-  test("[R-ANALYTICS-002] given a screen that throws while it draws, then the console says the error's name, message and component stack with the build stamp, and client/error counts render once", () => {
+  test("[analytics:client-sends-interface-counts] given a screen that throws while it draws, then the console says the error's name, message and component stack with the build stamp, and client/error counts render once", () => {
     const logged = broken(fakeModeration());
     const ours = logged.find((args) => typeof args[0] === "string" && args[0].startsWith("Japacity build"));
     expect(ours).toBeDefined();
@@ -93,7 +93,7 @@ describe("the broken screen", () => {
     expect(sent().filter((row) => row.name === "client/error")).toEqual([{ name: "client/error", key: "render", count: 1 }]);
   });
 
-  test("[R-ANALYTICS-002] given a broken screen online, then it offers Reload and Tell us in words, and shows nothing of the error itself", () => {
+  test("[analytics:client-sends-interface-counts] given a broken screen online, then it offers Reload and Tell us in words, and shows nothing of the error itself", () => {
     broken(fakeModeration());
     const alert = screen.getByRole("alert");
     expect(alert.textContent).toContain(say("ui.broken"));
@@ -103,7 +103,7 @@ describe("the broken screen", () => {
     expect(document.body.textContent).not.toContain("TypeError");
   });
 
-  test("[R-ANALYTICS-002] [R-MODERATION-020] given Tell us, then the feedback box opens with the error's name and the build written in, never the message or the stack, and sends it from the broken screen", async () => {
+  test("[analytics:client-sends-interface-counts] [moderation:feedback-box-in-settings] given Tell us, then the feedback box opens with the error's name and the build written in, never the message or the stack, and sends it from the broken screen", async () => {
     const moderation = fakeModeration();
     broken(moderation);
     fireEvent.click(screen.getByRole("button", { name: say("ui.broken.tell") }));
@@ -121,13 +121,13 @@ describe("the broken screen", () => {
     expect(moderation.calls[0]).not.toContain(SECRET);
   });
 
-  test("[R-ANALYTICS-002] given a broken screen with no server, where the feedback box does not exist, then it offers Reload alone", () => {
+  test("[analytics:client-sends-interface-counts] given a broken screen with no server, where the feedback box does not exist, then it offers Reload alone", () => {
     broken(null);
     const alert = screen.getByRole("alert");
     expect(within(alert).getAllByRole("button").map((button) => button.textContent)).toEqual([say("ui.broken.reload")]);
   });
 
-  test("[R-ANALYTICS-002] given an error's name, then only a name's characters are kept, and a thrown value that is no error is called Error", () => {
+  test("[analytics:client-sends-interface-counts] given an error's name, then only a name's characters are kept, and a thrown value that is no error is called Error", () => {
     expect(nameOf(new RangeError("x"))).toBe("RangeError");
     expect(nameOf(Object.assign(new Error("x"), { name: "Bad <b>name</b> here" }))).toBe("Badbnamebhere");
     expect(nameOf("a string")).toBe("Error");

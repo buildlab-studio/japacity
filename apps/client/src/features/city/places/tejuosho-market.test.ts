@@ -18,7 +18,7 @@ const at = (name: string) => copiesOf(stage, name);
 describe("Tejuosho Market", () => {
   stagedPlaceTests(raw, ID);
 
-  test("[R-CITY-026] given the market's stage, when its rows are read, then two rows of stalls face each other across the aisle a stall's width apart, and each row's awnings hang one a stall along its roof edge, pinned at the top", () => {
+  test("[city:motion-in-vertex-shader] given the market's stage, when its rows are read, then two rows of stalls face each other across the aisle a stall's width apart, and each row's awnings hang one a stall along its roof edge, pinned at the top", () => {
     const stalls = at("prop_market-stall.glb");
     const left = stalls.filter(([x]) => x < 0);
     const right = stalls.filter(([x]) => x > 0);
@@ -34,7 +34,7 @@ describe("Tejuosho Market", () => {
     expect(stage.motion.some((motion) => motion.kind === "bunting")).toBe(true);
   });
 
-  test("[R-CITY-014] given the market's crowd, when the low mode's few stand, then traders stand behind the stalls' counters and the first spots are in the aisle, where the camera looks", () => {
+  test("[city:crowd-sample-capped] given the market's crowd, when the low mode's few stand, then traders stand behind the stalls' counters and the first spots are in the aisle, where the camera looks", () => {
     const stalls = at("prop_market-stall.glb");
     for (const index of stage.prefer?.trader ?? []) {
       const spot = stage.people[index];
@@ -49,7 +49,7 @@ describe("Tejuosho Market", () => {
 });
 
 describe("Mummy at her stall at Tejuosho", () => {
-  test("[R-WORLD-005] given the market's front with no ask open at the stall, when its things are read, then Mummy stands at the stall with one act to greet her, and it goes while her ask can open", () => {
+  test("[world:things-are-tappable-models] given the market's front with no ask open at the stall, when its things are read, then Mummy stands at the stall with one act to greet her, and it goes while her ask can open", () => {
     const front = staged(frontRaw, "place.tejuosho-market").stage;
     const things = front.things ?? [];
     const stall = things.find((candidate) => candidate.id === "mum-stall");

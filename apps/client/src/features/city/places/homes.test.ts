@@ -1,6 +1,6 @@
 // The homes as wide floors: the family house, the room in a
 // compound and the hostel room, each one house of walled rooms seen whole straight down its length, the near walls cut
-// low (world.md R-WORLD-029), and turned a quarter at a time with its walls following
+// low (world:room-seen-down-its-length), and turned a quarter at a time with its walls following
 // the view. Each is passed through the checks every staged place
 // owes: its file measured as the build check measures it, its limits, its floors, its walkable ground with every spot,
 // the start and each dressing's spots clear of the footprints, its things and their words, its light by the clock.
@@ -77,14 +77,14 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
   const entry = content.place[home.id];
   if (entry === undefined) throw new Error(`${home.id} is missing from content`);
 
-  test(`[R-HOME-006] [R-CITY-004] given ${home.id} in content, when its scene is looked for, then its file is the wide home's, and it is a home of Lagos with no real name`, () => {
+  test(`[home:home-is-the-home-point] [city:place-entry-fields] given ${home.id} in content, when its scene is looked for, then its file is the wide home's, and it is a home of Lagos with no real name`, () => {
     expect(entry.assets).toBe(home.folder);
     expect(file.place).toBe(home.id);
     expect(file.scope).toBe(entry.scope);
     expect(entry).toMatchObject({ where: "home", city: "lagos", nameKind: "stylised", realName: null, sponsor: null });
   });
 
-  test(`[R-ASSET-007] given ${home.id}'s shipped files measured as the build check measures them, when the home is counted with its car at its spot, then both modes fit its row and its download fits the row's bytes`, async () => {
+  test(`[assets:assets-and-places-within-budget] given ${home.id}'s shipped files measured as the build check measures them, when the home is counted with its car at its spot, then both modes fit its row and its download fits the row's bytes`, async () => {
     const totals = await totalsOf(file);
     for (const mode of ["low", "high"] as const) {
       expect(totals[mode].drawCalls).toBeLessThanOrEqual(rowOf(file).drawCalls);
@@ -93,7 +93,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(totals.bytes).toBeLessThanOrEqual(budgets.place[file.scope].bytes);
   });
 
-  test(`[R-ASSET-007] given ${home.id}'s file, when its counts are read, then the instances are the most of every model in view, the car at its spot and every dressing and show included, the floor is one draw call of the triangles drawn, and every colour is a palette name`, () => {
+  test(`[assets:assets-and-places-within-budget] given ${home.id}'s file, when its counts are read, then the instances are the most of every model in view, the car at its spot and every dressing and show included, the floor is one draw call of the triangles drawn, and every colour is a palette name`, () => {
     expect(file.instances).toEqual(instancesOf(stage));
     const floor = (home.raw as { groundRoadSky: { drawCalls: number; triangles: number } }).groundRoadSky;
     expect(floor.drawCalls).toBe(1);
@@ -101,18 +101,18 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(allPalette(stage)).toBe(true);
   });
 
-  test(`[R-WORLD-011] [R-WORLD-005] given ${home.id}'s file, when the place check reads its limits and its things, then it passes: its crowd, its sheets and its size inside the world's numbers, every thing with one or two acts`, () => {
+  test(`[world:place-is-one-screen] [world:things-are-tappable-models] given ${home.id}'s file, when the place check reads its limits and its things, then it passes: its crowd, its sheets and its size inside the world's numbers, every thing with one or two acts`, () => {
     expect(checkLimits(file as unknown as LimitedFile)).toEqual([]);
     expect(checkThings(file as unknown as LimitedFile)).toEqual([]);
   });
 
-  test(`[R-WORLD-012] given ${home.id}'s models, when their floors are read, then no two overlap within a centimetre of the same height`, async () => {
+  test(`[world:faces-never-share-height] given ${home.id}'s models, when their floors are read, then no two overlap within a centimetre of the same height`, async () => {
     const paths = [...new Set([...stage.models.map((model) => model.file), CAR_FILE])];
     const floors = new Map<string, readonly ModelFace[]>(await Promise.all(paths.map(async (path) => [path, (await measured(path)).floors ?? []] as const)));
     expect(checkFaces(home.id, stageOf(parkCar(file, true)), (path) => floors.get(path) ?? [])).toEqual([]);
   });
 
-  test(`[R-ASSET-030] [R-CITY-014] given ${home.id}'s spots, when the place check stands everyone, then the start, every crowd spot and every dressing's spot stand on walkable ground clear of every footprint, the car's included, a spot for everyone the entry shows, none where the player starts, and everyone in the sample a person of the city`, async () => {
+  test(`[assets:models-record-their-footprint] [city:crowd-sample-capped] given ${home.id}'s spots, when the place check stands everyone, then the start, every crowd spot and every dressing's spot stand on walkable ground clear of every footprint, the car's included, a spot for everyone the entry shows, none where the player starts, and everyone in the sample a person of the city`, async () => {
     const files = [...new Set([...stage.models, ...(stage.dressings ?? []).flatMap((dressing) => dressing.models)].map((model) => model.file).concat(CAR_FILE))];
     const footprints = await footprintsOf(files);
     expect(checkWalkable(home.id, stageOf(parkCar(file, true)) as Parameters<typeof checkWalkable>[1], footprints)).toEqual([]);
@@ -123,7 +123,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(file.people.sample.length).toBeGreaterThan(crowdSize(entry, "high", city));
   });
 
-  test(`[R-WORLD-011] [R-WORLD-029] given every piece in ${home.id}, when its footprint is placed, then it stands on the floor inside the house's outer walls`, async () => {
+  test(`[world:place-is-one-screen] [world:room-seen-down-its-length] given every piece in ${home.id}, when its footprint is placed, then it stands on the floor inside the house's outer walls`, async () => {
     const walls = outer(home);
     const footprints = await footprintsOf([...new Set(stage.models.map((model) => model.file))]);
     for (const model of stage.models.filter((one) => !one.file.includes("/bld_home-"))) {
@@ -140,7 +140,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     }
   });
 
-  test(`[R-WORLD-029] [R-ASSET-007] given ${home.id}'s shell, when its walls are read, then each outer side lies on its own edge of the house and stands twice, full height carrying the home's wall things and knee-high on the same line with none, the pair seen at rest the back and the left, and every partition and the wall to the yard cut low with nothing hung on it`, () => {
+  test(`[world:room-seen-down-its-length] [assets:assets-and-places-within-budget] given ${home.id}'s shell, when its walls are read, then each outer side lies on its own edge of the house and stands twice, full height carrying the home's wall things and knee-high on the same line with none, the pair seen at rest the back and the left, and every partition and the wall to the yard cut low with nothing hung on it`, () => {
     const walls = outer(home);
     const edge = { back: (x: number, z: number) => Math.abs(z - walls.z0) < 0.01, left: (x: number) => Math.abs(x - walls.x0) < 0.01, front: (x: number, z: number) => Math.abs(z - walls.z1) < 0.01, right: (x: number) => Math.abs(x - walls.x1) < 0.01 } as const;
     let hung = 0;
@@ -163,7 +163,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     for (const wall of home.shell.walls) expect({ from: wall.from, to: wall.to, low: wall.height <= 1.2, hung: (wall.fittings ?? []).length }).toEqual({ from: wall.from, to: wall.to, low: true, hung: 0 });
   });
 
-  test(`[R-ASSET-007] [R-ASSET-009] given ${home.id}'s shell as shipped, when it is measured as the build check measures it, then it carries the four pairs, its draw calls the body and one wall of each pair, inside a building's budget with one draw call more a pair, and its triangles, both walls of every pair counted, inside a building's`, async () => {
+  test(`[assets:assets-and-places-within-budget] [assets:register-matches-every-file] given ${home.id}'s shell as shipped, when it is measured as the build check measures it, then it carries the four pairs, its draw calls the body and one wall of each pair, inside a building's budget with one draw call more a pair, and its triangles, both walls of every pair counted, inside a building's`, async () => {
     const shell = await measured(`places/${home.folder}/bld_${home.folder}.glb`);
     expect(shell.pairs).toBe(4);
     expect(shell.drawCalls).toBe(1 + 4);
@@ -171,7 +171,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(shell.triangles).toBeLessThanOrEqual(budgets.asset.bld.triangles);
   });
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone held upright, when it opens whole and unturned, then the camera looks straight down its length on a long lens from a raised view, the view free to turn the full circle in quarters, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {
+  test(`[world:room-seen-down-its-length] [world:camera-always-raised] given ${home.id} on a phone held upright, when it opens whole and unturned, then the camera looks straight down its length on a long lens from a raised view, the view free to turn the full circle in quarters, and every corner of the floor and the tops of the back wall stand on screen, the house spanning most of the screen's width`, () => {
     const shot = shotOf(stage);
     expect(shot.yaw).toBe(180);
     expect(shot.turn).toBe(FULL_TURN);
@@ -197,7 +197,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     expect(Math.max(...near) - Math.min(...near)).toBeGreaterThan(1.6);
   });
 
-  test(`[R-CLOCK-033] [R-WORLD-005] given ${home.id}'s light, when it is read, then it takes the rooms' light, a bulb glows as the light goes with a real light at it, every lamp inside the house and every lamp's light reaching a room or two, never the whole street`, () => {
+  test(`[clock:game-day-on-real-time] [world:things-are-tappable-models] given ${home.id}'s light, when it is read, then it takes the rooms' light, a bulb glows as the light goes with a real light at it, every lamp inside the house and every lamp's light reaching a room or two, never the whole street`, () => {
     expect(stage.light.room).toBe(true);
     const lamps = stage.light.lamps ?? [];
     expect(lamps.some((lamp) => lamp.bulb === true && lamp.light !== undefined)).toBe(true);
@@ -206,7 +206,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
       expect(lamp.light?.reach ?? 0).toBeGreaterThan(0);
       expect(lamp.light?.reach ?? 99).toBeLessThanOrEqual(10);
     }
-    // A handful of real lights at most, so a phone keeps its frame (assets.md R-ASSET-007's interiors).
+    // A handful of real lights at most, so a phone keeps its frame (assets:assets-and-places-within-budget's interiors).
     expect(lamps.length).toBeLessThanOrEqual(5);
     const walls = outer(home);
     for (const lamp of lamps) {
@@ -217,7 +217,7 @@ describe.each(HOMES)("$name as a wide floor", (home) => {
     }
   });
 
-  test(`[R-WORLD-005] given ${home.id}'s things, when their names and acts are read, then each stands at a copy of a staged model, its name and every act's label resolve through the scene's words, and the way out opens the map`, () => {
+  test(`[world:things-are-tappable-models] given ${home.id}'s things, when their names and acts are read, then each stands at a copy of a staged model, its name and every act's label resolve through the scene's words, and the way out opens the map`, () => {
     const things = stage.things ?? [];
     expect(new Set(things.map((thing) => thing.id)).size).toBe(things.length);
     for (const thing of things) {
@@ -236,7 +236,7 @@ describe.each(HOMES)("$name's camera", (home) => {
   const shot = shotOf(stage);
   const aspect = SCREENS.phone;
 
-  test(`[R-WORLD-029] given ${home.id}'s rooms, when their floors are read, then they lie inside the house without overlapping and hold every walkable point of it, and every thing and every person's spot stands in one`, () => {
+  test(`[world:room-seen-down-its-length] given ${home.id}'s rooms, when their floors are read, then they lie inside the house without overlapping and hold every walkable point of it, and every thing and every person's spot stands in one`, () => {
     expect(rooms.length).toBeGreaterThanOrEqual(3);
     expect(new Set(rooms.map((room) => room.id)).size).toBe(rooms.length);
     const walls = outer(home);
@@ -256,7 +256,7 @@ describe.each(HOMES)("$name's camera", (home) => {
     for (const spot of stage.people) expect(roomAt(rooms, spot[0], spot[1])).not.toBeNull();
   });
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} eased in on each room on a phone held upright, when the camera stands there, then it looks at the room's middle straight down the house's length on the scene's own lens, the room whole across the screen and over half its width, and the character standing in it reads at a phone's size: over 7 in a hundred of the screen's height`, () => {
+  test(`[world:room-seen-down-its-length] [world:camera-always-raised] given ${home.id} eased in on each room on a phone held upright, when the camera stands there, then it looks at the room's middle straight down the house's length on the scene's own lens, the room whole across the screen and over half its width, and the character standing in it reads at a phone's size: over 7 in a hundred of the screen's height`, () => {
     for (const room of rooms) {
       const aim = aimRoom(shot, room, 0, aspect);
       expect(aim.fov).toBe(SHOT_FOV);
@@ -292,7 +292,7 @@ describe.each(HOMES)("$name's camera", (home) => {
     return Math.abs(dx / length - Math.sin(yaw)) < 1e-6 && Math.abs(dz / length - Math.cos(yaw)) < 1e-6;
   };
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} seen whole at each quarter turn and on the way between, on a phone held upright and a small phone, when the camera stands there, then it looks from the turned side and every corner of the floor stands on screen, and at rest the top of the far wall it faces too; on a laptop every corner stands inside the screen's width`, () => {
+  test(`[world:room-seen-down-its-length] [world:camera-always-raised] given ${home.id} seen whole at each quarter turn and on the way between, on a phone held upright and a small phone, when the camera stands there, then it looks from the turned side and every corner of the floor stands on screen, and at rest the top of the far wall it faces too; on a laptop every corner stands inside the screen's width`, () => {
     const room = rooms[0];
     if (room === undefined) throw new Error("No room");
     const walls = outer(home);
@@ -322,7 +322,7 @@ describe.each(HOMES)("$name's camera", (home) => {
     }
   });
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} eased in on each room at each quarter turn on a phone held upright, when the camera stands there, then it looks at the room's middle from the turned side on the scene's own lens, the room whole across the screen and over half its width, or, a room longer across than the most a turned view fits, its middle with the rest running off the sides, and the character standing in it reads at a phone's size: over 7 in a hundred of the screen's height`, () => {
+  test(`[world:room-seen-down-its-length] [world:camera-always-raised] given ${home.id} eased in on each room at each quarter turn on a phone held upright, when the camera stands there, then it looks at the room's middle from the turned side on the scene's own lens, the room whole across the screen and over half its width, or, a room longer across than the most a turned view fits, its middle with the rest running off the sides, and the character standing in it reads at a phone's size: over 7 in a hundred of the screen's height`, () => {
     for (const turn of QUARTERS) {
       for (const room of rooms) {
         const aim = aimRoom(shot, room, 0, aspect, { turn, ground });
@@ -348,7 +348,7 @@ describe.each(HOMES)("$name's camera", (home) => {
     }
   });
 
-  test(`[R-WORLD-009] [R-WORLD-029] given ${home.id} tilted to the view from above, whole and eased in, at each quarter turn, when the camera stands there, then it looks down from the top view's pitch, raised and never straight down, the whole house's floor still on screen on a phone held upright`, () => {
+  test(`[world:camera-always-raised] [world:room-seen-down-its-length] given ${home.id} tilted to the view from above, whole and eased in, at each quarter turn, when the camera stands there, then it looks down from the top view's pitch, raised and never straight down, the whole house's floor still on screen on a phone held upright`, () => {
     const room = rooms[0];
     if (room === undefined) throw new Error("No room");
     const walls = outer(home);
@@ -369,7 +369,7 @@ describe.each(HOMES)("$name's camera", (home) => {
     }
   });
 
-  test(`[R-WORLD-029] [R-WORLD-009] given ${home.id} on a phone, when the camera eases between the whole house and a room, then it moves from one state to the other, closer and lower on its way in`, () => {
+  test(`[world:room-seen-down-its-length] [world:camera-always-raised] given ${home.id} on a phone, when the camera eases between the whole house and a room, then it moves from one state to the other, closer and lower on its way in`, () => {
     const room = rooms[0];
     if (room === undefined) throw new Error("No room");
     const whole = aimRoom(shot, room, 1, aspect);
@@ -383,7 +383,7 @@ describe.each(HOMES)("$name's camera", (home) => {
     expect(half.fov).toBeLessThan(near.fov);
   });
 
-  test(`[R-WORLD-029] given ${home.id}, when it is tapped, then from the whole house a tap on a room eases in on it and a thing chosen eases in on its room first; eased in, a tap inside the room walks, and a tap outside it, in another room or past the walls, eases back out`, () => {
+  test(`[world:room-seen-down-its-length] given ${home.id}, when it is tapped, then from the whole house a tap on a room eases in on it and a thing chosen eases in on its room first; eased in, a tap inside the room walks, and a tap outside it, in another room or past the walls, eases back out`, () => {
     const [first, second] = rooms;
     if (first === undefined || second === undefined) throw new Error("Two rooms wanted");
     const inside = (room: typeof first): [number, number] => [(room.floor[0] + room.floor[2]) / 2, (room.floor[1] + room.floor[3]) / 2];
@@ -410,7 +410,7 @@ describe("the camera's easing", () => {
     return time;
   }
 
-  test("[R-WORLD-029] [R-WORLD-009] given a wide home's room tapped or pinched, when the camera eases in, then it stands there in under 400 ms with the scene's own easing, where any other place's slower close view takes longer", () => {
+  test("[world:room-seen-down-its-length] [world:camera-always-raised] given a wide home's room tapped or pinched, when the camera eases in, then it stands there in under 400 ms with the scene's own easing, where any other place's slower close view takes longer", () => {
     expect(settleTime(ROOM_EASE, ROOM_SETTLE)).toBeLessThan(0.4);
     expect(settleTime(EASE, SETTLE)).toBeGreaterThan(0.4);
     // The same easing both ways: back out to the whole house as quickly.
@@ -437,7 +437,7 @@ describe("the camera's easing", () => {
     return { frames, view: now };
   }
 
-  test("[R-WORLD-023] [R-WORLD-029] given the phone asks for no reduced motion, when a room is tapped, the round button turns a quarter or the view tilts from above, then the camera eases there over several frames, in under 400 ms, its first frame part of the way", () => {
+  test("[world:motions-under-half-second] [world:room-seen-down-its-length] given the phone asks for no reduced motion, when a room is tapped, the round button turns a quarter or the view tilts from above, then the camera eases there over several frames, in under 400 ms, its first frame part of the way", () => {
     stubReducedMotion(false);
     expect(motionReduced()).toBe(false);
     const asked = resting({ zoomTo: 0, turnTo: 90, tiltTo: 1 });
@@ -452,7 +452,7 @@ describe("the camera's easing", () => {
     expect([view.zoom, view.turn, view.tilt]).toEqual([0, 90, 1]);
   });
 
-  test("[R-WORLD-023] [R-WORLD-029] given the phone asks for reduced motion, when a room is tapped, the round button turns a quarter, the view tilts or eases back out, then the camera stands there on the first frame, with no ease", () => {
+  test("[world:motions-under-half-second] [world:room-seen-down-its-length] given the phone asks for reduced motion, when a room is tapped, the round button turns a quarter, the view tilts or eases back out, then the camera stands there on the first frame, with no ease", () => {
     stubReducedMotion(true);
     expect(motionReduced()).toBe(true);
     const asked = resting({ zoomTo: 0, turnTo: 90, tiltTo: 1 });
@@ -464,7 +464,7 @@ describe("the camera's easing", () => {
     expect(easeZoom(1, 0, 1 / 60, EASE, SETTLE, motionReduced())).toBe(0);
   });
 
-  test("[R-WORLD-023] [R-WORLD-009] given reduced motion, when a finger turns or tilts the view or a pinch holds it, then the view stays under the finger, eased nowhere until it lifts, and the snap on release lands at once", () => {
+  test("[world:motions-under-half-second] [world:camera-always-raised] given reduced motion, when a finger turns or tilts the view or a pinch holds it, then the view stays under the finger, eased nowhere until it lifts, and the snap on release lands at once", () => {
     stubReducedMotion(true);
     const held = resting({ zoom: 0.4, zoomTo: 0, turn: 37, turnTo: 90, tilt: 0.3, tiltTo: 1, pinching: true, turning: true });
     expect(easeRoomView(held, 1 / 60, motionReduced())).toEqual({ zoom: 0.4, turn: 37, tilt: 0.3 });
@@ -473,14 +473,14 @@ describe("the camera's easing", () => {
 });
 
 describe("each home's cooking corner", () => {
-  test("[R-HOME-012] [R-HOME-006] given the homes, when their cooking corners are read, then the family house's offers the pot that is the house's and the big pot for the house, and a home of your own, the room in a compound, the hostel and the room abroad, a meal and a pot of your own at their prices", () => {
+  test("[home:living-by-hand] [home:home-is-the-home-point] given the homes, when their cooking corners are read, then the family house's offers the pot that is the house's and the big pot for the house, and a home of your own, the room in a compound, the hostel and the room abroad, a meal and a pot of your own at their prices", () => {
     const corner = (raw: unknown): [string | undefined, readonly string[] | undefined] => {
       const act = (stageOf(raw as PlaceFile).things ?? []).find((thing) => thing.id === "cooking")?.acts[0];
       return [act?.stages, act?.more];
     };
     expect(corner(familyRaw)).toEqual(["activity.cook-at-home", ["activity.cook-jollof"]]);
     for (const raw of [roomRaw, hostelRaw]) expect(corner(raw)).toEqual(["activity.cook-own", ["activity.cook-own-pot"]]);
-    // The room abroad cooks in the country's money (streets.md R-STREET-012, R-HOME-012): in the UK a meal in pounds; in
+    // The room abroad cooks in the country's money (streets:london-life-by-hand, home:living-by-hand): in the UK a meal in pounds; in
     // Canada, the UAE and Italy a meal in dollars, dirhams or euros, listed on the same sheet, each open only in its country.
     expect(corner(abroadRaw)).toEqual(["activity.cook-own-uk", ["activity.cook-own-ca", "activity.cook-own-uae", "activity.cook-own-it"]]);
     expect(content.activity["activity.cook-at-home"]?.cost).toEqual([]);
@@ -494,7 +494,7 @@ describe("each home's cooking corner", () => {
 });
 
 describe("the car at a home's spot", () => {
-  test("[R-HOME-006] given each home, when the life has no car, then its car spot is empty and the file is shown as shipped; with a car it stands at the spot, in the parents' yard or by the gate", () => {
+  test("[home:home-is-the-home-point] given each home, when the life has no car, then its car spot is empty and the file is shown as shipped; with a car it stands at the spot, in the parents' yard or by the gate", () => {
     for (const home of HOMES.slice(0, 2)) {
       const file = fileOf(home);
       const spot = stageOf(file).car;

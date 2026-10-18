@@ -1,4 +1,4 @@
-// The full screen (docs/rules/server.md R-SERVER-032). Its check runs by itself once the server's wait
+// The full screen (server:signups-off-shows-full). Its check runs by itself once the server's wait
 // is over, and the button checks again only after that wait too, so a crowd waiting here never asks
 // faster than the server allows.
 import { useCallback, useEffect, useState } from "react";
