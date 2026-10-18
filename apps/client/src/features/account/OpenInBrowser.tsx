@@ -47,7 +47,7 @@ export function OpenInBrowser({ agent, href = pageHref() }: { agent: string; hre
           <div>
             <Button onClick={() => void copy()}>{say("ui.account.in-app.copy")}</Button>
           </div>
-          <p role="status" aria-live="polite" className={copied ? "" : "sr-only"}>
+          <p role="status" className={copied ? "" : "sr-only"}>
             {copied ? say("ui.account.in-app.copied") : ""}
           </p>
         </div>
