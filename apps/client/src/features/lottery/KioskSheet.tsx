@@ -10,7 +10,7 @@ import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
 import { Rejection } from "../../shared/ui/Rejection";
 import { formatMoney } from "../../shared/words/format";
-import { earnedNaira } from "../../shared/words/lotto";
+import { earnedNaira } from "../../shared/words/lottoLines";
 import { say, sayCount } from "../../shared/words/text";
 import { Balance, CENTRED, pricedLabel } from "../../shared/world/Balance";
 import { WorldSheet } from "../../shared/world/WorldSheet";

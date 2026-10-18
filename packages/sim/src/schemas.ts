@@ -26,7 +26,7 @@ import { PhraseEntrySchema } from "./pair/phrase.schema";
 import { PersonEntrySchema } from "./people/person.schema";
 import { PlaceEntrySchema } from "./place/place.schema";
 import { ThingEntrySchema } from "./thing/thing.schema";
-import { AdvertSlotEntrySchema, CounterDefSchema, GuideEntrySchema } from "./engine/m5.schema";
+import { AdvertSlotEntrySchema, CounterDefSchema, GuideEntrySchema } from "./engine/service.schema";
 
 export * from "./activity/activity.schema";
 export * from "./chapter/chapter.schema";

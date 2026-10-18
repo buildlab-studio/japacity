@@ -106,7 +106,7 @@ function Link({ api, slot }: { api: PairApi; slot: string }) {
 
 /**
  * An invite is an ask, so it shows only after the early win (R-GUIDE-015). It
- * reads the store's flag as features/notify/held.tsx does; a feature may not
+ * reads the store's flag as features/notify/HeldShareCard.tsx does; a feature may not
  * import another feature, so the two lines live here until that moves to shared/.
  */
 export function AfterEarlyWin({ children }: { children: ReactNode }) {

@@ -56,7 +56,7 @@ describe("the fare abroad", () => {
   test("[R-PLACE-010] given the UK's ways, when their figures are read, then the bus is £1.75 flat at 250 m a minute, the train £2.80 and 10p a kilometre at 600 m a minute, fares in fives of pence, and the pass £95", () => {
     // Decision 0017: the pass covers the bus alone, and on foot is 80 m a minute.
     expect(rides).toEqual({ ways: { bus: { fare: 175, farePerKm: 0, metresPerMinute: 250 }, train: { fare: 280, farePerKm: 10, metresPerMinute: 600 } }, step: 5, pass: 9500, passWays: ["bus"], lonMetresPerE3: 69, walkMetresPerMinute: 80 });
-    // Canada, the UAE and Italy list their ways too (design page 15 section 4; place.ride.three.test.ts).
+    // Canada, the UAE and Italy list their ways too (design page 15 section 4; place.ride.countries.test.ts).
     for (const country of ["country.canada", "country.uae", "country.italy"] as const) expect(Object.keys(content.tuning.city.ride.abroad[country]?.ways ?? {}).length).toBeGreaterThan(0);
     expect(content.tuning.city.ride.abroad["country.uae"]?.step).toBe(25);
   });

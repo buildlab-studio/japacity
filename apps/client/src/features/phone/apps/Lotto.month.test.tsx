@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { newGame } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
-import { lottoMonth } from "../../../shared/words/lotto";
+import { lottoMonth } from "../../../shared/words/lottoLines";
 import { phoneWords } from "../phone.words";
 import { Lotto } from "./Lotto";
 

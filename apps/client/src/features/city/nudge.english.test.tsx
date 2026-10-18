@@ -8,7 +8,7 @@ import { engineView, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatBand } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";
-import { bandNeeded } from "../../shared/words/test";
+import { bandNeeded } from "../../shared/words/englishTest";
 import { blurbOf, inMonths, say, words } from "../../shared/words/text";
 import { City } from "./City";
 import { nudgeOf } from "./nudge";

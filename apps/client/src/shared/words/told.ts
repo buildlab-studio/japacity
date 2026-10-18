@@ -9,7 +9,7 @@ import { countWords } from "./count";
 import { hasWords } from "./text";
 import { afterPrologue, isUnpaid, tidyLines, toldUnpaid } from "./lines";
 import { moneyTold } from "./money";
-import { type BandView, bandResultFor, ISSUED_BAND_MET, ISSUED_BAND_SHORT } from "./test";
+import { type BandView, bandResultFor, ISSUED_BAND_MET, ISSUED_BAND_SHORT } from "./englishTest";
 
 /** A piece added to the portfolio, as the results tell the portfolio's own line. */
 export const PIECE = "line.activity.piece-built";

@@ -10,7 +10,7 @@ import { use } from "react";
 import { useGame, useView } from "../../../authority/GameProvider";
 import { FactChip } from "../../../shared/ui/FactChip";
 import { formatMoney, formatNumber } from "../../../shared/words/format";
-import { lottoMonth } from "../../../shared/words/lotto";
+import { lottoMonth } from "../../../shared/words/lottoLines";
 import { nameOf, say, sayCount, words } from "../../../shared/words/text";
 import { PhoneNav } from "../../../shared/phone/nav";
 import { Head } from "../act";

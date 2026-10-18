@@ -6,7 +6,7 @@ import type { Id, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 
 import { plannedShut } from "../../authority/store";
 import { nowActOf, nowLineWords, pickable } from "../../shared/words/acts";
-import { kioskCapReached } from "../../shared/words/lotto";
+import { kioskCapReached } from "../../shared/words/lottoLines";
 import { nameOf, say } from "../../shared/words/text";
 import type { Ask, Thing } from "../../shared/world/contract";
 

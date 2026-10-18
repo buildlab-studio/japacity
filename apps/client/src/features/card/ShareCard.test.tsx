@@ -53,7 +53,7 @@ describe("the share cards", () => {
   });
 
   test("given a card due, then it opens full screen on its own, and once closed the tile opens it again", async () => {
-    // R-SHARE-015: the send-off does not open on its own (SendOffKeepsake.test.tsx); a granted card still does.
+    // R-SHARE-015: the send-off does not open on its own (ShareCard.keepsake.test.tsx); a granted card still does.
     await renderWithView(<CardView />, withCard({ ...SEND_OFF, kind: "granted" }));
     const sheet = await screen.findByRole("dialog");
     expect(within(sheet).getByText(say("ui.card.how"))).toBeDefined();

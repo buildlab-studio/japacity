@@ -7,7 +7,7 @@
 /**
  * The acts that are no activity of the simulation (R-WORLD-034): a pose, the bed's Sleep, a bill, the papers, the bag, the
  * way out and in, a word with someone, a look, a ride, the way home, a stop and a shut thing. Each is a small glyph drawn as
- * the layer's sticker (glyphs.tsx), keyed `act.<glyph>`; it is drawn, so it stands in for nothing.
+ * the layer's sticker (Glyph.tsx), keyed `act.<glyph>`; it is drawn, so it stands in for nothing.
  */
 export const ACT_GLYPHS = ["sit", "lie", "sleep", "pay", "papers", "pack", "out", "in", "talk", "look", "ride", "home", "stop", "shut"] as const;
 export type ActGlyph = (typeof ACT_GLYPHS)[number];

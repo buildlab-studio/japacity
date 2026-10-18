@@ -13,7 +13,7 @@ import { COLUMN_PX } from "../../shared/ui/lively/CentredColumn";
 import { SHEET_COLUMN_PX } from "../../shared/ui/lively/SheetColumn";
 import "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { AccountGate } from "./AccountGate";
 import { answerAge } from "./age.testing";
 import { YEARS_LISTED } from "./AgeScreen";

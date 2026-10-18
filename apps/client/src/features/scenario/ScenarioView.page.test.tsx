@@ -6,7 +6,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
 import { GameProvider } from "../../authority/GameProvider";
 import { localAuthority } from "../../authority/local";

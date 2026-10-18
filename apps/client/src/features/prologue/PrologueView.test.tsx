@@ -3,7 +3,7 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { gameAuthority, newGame } from "../../shared/testing/fixtures";

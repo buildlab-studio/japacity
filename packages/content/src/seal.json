@@ -1,5 +1,5 @@
 {
   "about": "R-SERVER-048: the content version and the fingerprint of what a replay depends on (the content's data and the simulation's code, comments and layout aside). Written by pnpm content:seal; read by pnpm check:version.",
   "version": "1",
-  "fingerprint": "846357d9c0de09c6885c9933ccb03d218b6db6a6326e51323947aa240c5527c9"
+  "fingerprint": "ba23c5e9d4113781f82a8ac9d04351b742677b14da03ed1832cf3e45166930fb"
 }

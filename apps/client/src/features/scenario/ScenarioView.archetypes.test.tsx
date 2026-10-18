@@ -5,7 +5,7 @@ import { savedCommands } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
 import { SAVE_KEY } from "../../authority/local";
 import { readPerson } from "../../authority/person";

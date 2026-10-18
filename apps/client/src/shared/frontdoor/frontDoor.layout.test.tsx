@@ -6,7 +6,7 @@
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { bootGame } from "../../authority/boot";
 import { formatMoney } from "../words/format";
 import { say } from "../words/text";
