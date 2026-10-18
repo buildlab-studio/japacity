@@ -83,4 +83,22 @@ describe("the deposit and the plane in the world", () => {
     await waitFor(() => found("[data-send-off='plane']"));
     act(() => sendOff.getState().close());
   });
+
+  test("[R-RETURN-004] given a return with papers keeping the settled status and the UK route flown before, when the airport's gate is asked to board, then the send-off scene's Board the plane sends route/depart on that route", async () => {
+    window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.airport-lagos"]));
+    const rich = richView();
+    const view: PlayerView = {
+      ...rich,
+      routes: rich.routes.map((route) => ({ ...route, state: "departed" })),
+      place: { ...rich.place, where: "home", country: null, heldAbroad: "status.uk-settled" },
+    };
+    const { authority } = await renderWithView(<City world />, view);
+    await pressFanAct("gate", "depart");
+    await waitFor(() => found("[data-send-off='departures']"), { timeout: 5000 });
+    for (let tap = 0; tap < 3; tap += 1) fireEvent.click(found("[data-so-go='step']"));
+    fireEvent.click(await waitFor(() => found("[data-so-go='take']"), { timeout: 4000 }));
+    fireEvent.click(found("[data-so-go='board']"));
+    await waitFor(() => expect(authority.sent).toEqual([{ type: "route/depart", route: "route.uk-masters", basedOn: view.v }]));
+    act(() => sendOff.getState().close());
+  });
 });

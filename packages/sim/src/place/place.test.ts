@@ -570,6 +570,40 @@ describe("the token kept abroad", () => {
     expect(game.state.place.heldAbroad).toBeNull();
   });
 
+  const FLIGHT = tuning.route.flight;
+  const paidFor = (result: { events: { type: string }[] }, reason: string) =>
+    result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === reason).map((event) => (event as unknown as { amount: number }).amount);
+
+  test("[R-RETURN-004] given a return with papers keeping the settled token, when route/depart names the UK route flown before, then the flight alone is paid and the character is in the UK on the settled status, the token used and the route as it was", () => {
+    const game = flown(content);
+    applyEffects(game, [{ type: "status/grant", status: SETTLED }]);
+    comeHome(game);
+    playMonths(game, 3);
+    leave(game, 2 * FLIGHT.amount, 0);
+    const route = game.state.route[UK_ROUTE];
+    expect(route?.state).toBe("departed");
+    const result = game.accept({ type: "route/depart", route: UK_ROUTE });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, heldAbroad: null });
+    expect(game.state.status.current?.entry).toBe(SETTLED);
+    expect(paidFor(result, "flight")).toEqual([FLIGHT.amount]);
+    expect(result.events.filter((event) => event.type === "wallet/debited").map((event) => (event as unknown as { reason: string }).reason)).toEqual(["flight"]);
+    expect(game.state.route[UK_ROUTE]).toEqual(route);
+    expect(checkInvariants(game.state, game.content)).toEqual([]);
+  });
+
+  test("[R-RETURN-004] given the settled token, when route/depart names a route into Canada, then it is not legal; after a return by choice with no token, the UK route flown before is not legal either", () => {
+    const settled = flown(content);
+    applyEffects(settled, [{ type: "status/grant", status: SETTLED }]);
+    comeHome(settled);
+    leave(settled, 2 * FLIGHT.amount, 0);
+    settled.expectRejected({ type: "route/depart", route: "route.canada-points" }, "not-legal");
+    const student = flown(content);
+    comeHome(student);
+    expect(student.state.place.heldAbroad).toBeNull();
+    leave(student, 2 * FLIGHT.amount, 0);
+    student.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
+  });
+
   test("[R-RETURN-004] given a Canadian resident's token, when 23 and then 24 months pass at home, then it is kept and then lapses", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: RESIDENT }]);
