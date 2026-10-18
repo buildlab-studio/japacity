@@ -20,14 +20,13 @@ import { turnText } from "../features/turn/turn.words";
 import { engineView, recordedGame } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { nameOf } from "../shared/words/text";
-import { uiText } from "../shared/words/tables/ui.words";
 import "../features/map/paper/PaperMap";
 
 /** What a player must never read: the engine's counting, never the life's. Braces are a line's params, never read. */
 const NEVER = /\b(slots?|banked|days left|chapters?|next turn|end (the )?turn|turns? left|next page|pages? left)\b|\b\d+ days? (left|to go)\b|%|[\u2013\u2014]/i;
 
 /** Every table of words a player can read, by name. */
-const TABLES: Record<string, Record<string, string>> = { content: text, ui: uiText, city: cityText, scene: sceneText, map: mapText, turn: turnText, phone: phoneText, passbook: passbookText, room: roomText };
+const TABLES: Record<string, Record<string, string>> = { content: text, city: cityText, scene: sceneText, map: mapText, turn: turnText, phone: phoneText, passbook: passbookText, room: roomText };
 
 function said(line: string): string | null {
   return NEVER.exec(line.replace(/\{[^}]*\}/g, ""))?.[0] ?? null;
@@ -48,8 +47,8 @@ describe("the player's words never count the engine", () => {
     expect(text["line.chapter.closed"]).toBe("Done: {chapter}.");
     expect(text["moment.chapter.kicker"]).toBe("Brief done");
     expect(text["share.chapter.kicker"]).toBe("Brief done");
-    expect(uiText["ui.secure.ask.first-chapter"]).toMatch(/^You finished your first brief\./);
-    expect(uiText["ui.nudge.chapter-done"]).toBe("That brief is done. Live the month.");
+    expect(text["ui.secure.ask.first-chapter"]).toMatch(/^You finished your first brief\./);
+    expect(text["ui.nudge.chapter-done"]).toBe("That brief is done. Live the month.");
     expect(text["share.official.never.turns"]).toBe("We never sell months to play.");
     expect(text["line.people.linked"]).toBe("A friend took your card, and they are your {slot} now.");
     expect(text["offer.gulf-agent.sign.pay-today"]).toBe("He says someone else takes it if you do not pay today.");

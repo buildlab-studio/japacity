@@ -1,7 +1,5 @@
-// Words for the boards and their two pickers (docs/rules/city.md R-CITY-039,
-// R-CITY-040). In the voice of docs/rules/text.md.
-// ui.words.ts takes them in whole.
-export const boardsText: Record<string, string> = {
+// The boards and their two pickers (docs/rules/city.md R-CITY-039, R-CITY-040), in the voice of docs/rules/text.md.
+export const uiBoardsText: Record<string, string> = {
   "ui.boards.title": "Boards",
   "ui.boards.when": "When",
   "ui.boards.when.this-week": "This week",

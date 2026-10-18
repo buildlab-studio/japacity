@@ -1,5 +1,5 @@
 // Words that could mislead a player, each held to what it should say.
-import { content, text } from "@japacity/content";
+import { content, text, uiText } from "@japacity/content";
 import type { ActivityOption, PlayerView, ReportLine } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -14,7 +14,6 @@ import { renderWithView } from "../shared/testing/render";
 import { ReportLines } from "../shared/ui/ReportLines";
 import { asksAttention, tidyLines } from "../shared/words/lines";
 import { paramWords, say, sayCount, words } from "../shared/words/text";
-import { uiText } from "../shared/words/tables/ui.words";
 
 const LOTTO = "activity.play-lotto";
 

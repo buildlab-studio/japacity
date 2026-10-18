@@ -8,7 +8,6 @@
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 
 import type { NameSwaps } from "../shared/words/now";
-import { uiText } from "../shared/words/tables/ui.words";
 
 /** A pool name's words and who it suits. */
 interface Pooled {
@@ -68,7 +67,7 @@ export function swapsFor(player: string | null): NameSwaps {
     swaps.set(key, [...(swaps.get(key) ?? []), [name, otherName(name, player)]]);
   };
   for (const person of namedPeople) if (same(person.name) === first) for (const key of person.keys) add(key, person.name);
-  for (const [key, line] of Object.entries({ ...uiText, ...text })) if (key.endsWith(".name") && same(line) === first && !swaps.has(key)) add(key, line.trim());
+  for (const [key, line] of Object.entries(text)) if (key.endsWith(".name") && same(line) === first && !swaps.has(key)) add(key, line.trim());
   kept = { player: first, swaps };
   return swaps;
 }

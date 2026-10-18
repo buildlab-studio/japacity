@@ -18,13 +18,10 @@ import { phoneText } from "../features/phone/phone.words";
 import { roomText } from "../features/setpiece/room.words";
 import { turnText } from "../features/turn/turn.words";
 import { soundText } from "../shared/sound/sound.words";
-import { jobsUiText } from "../shared/words/tables/jobs.words";
-import { uiText } from "../shared/words/tables/ui.words";
 // The content check on institutions beside wrongdoing (person.md R-PEOPLE-063), run here over the client's tables too.
 import { institutionProblems } from "../../../../packages/content/src/person/person.names.check";
 
 const clientTables: Record<string, Record<string, string>> = {
-  ui: uiText,
   routes: routesUiText,
   advice: adviceUiText,
   city: cityText,
@@ -42,7 +39,6 @@ const clientTables: Record<string, Record<string, string>> = {
   phone: phoneText,
   room: roomText,
   turn: turnText,
-  jobs: jobsUiText,
   sound: soundText,
 };
 
@@ -69,7 +65,7 @@ describe("the voice: no machine tells anywhere", () => {
   test("[R-TEXT-007] [R-TEXT-005] given the walk, then it reads content's words and every table of the client's", () => {
     expect(every.length).toBeGreaterThan(5000);
     expect(every.filter(({ table }) => table.startsWith("content.")).length).toBe(Object.keys(text).length);
-    expect(Object.keys(clientTables)).toEqual(expect.arrayContaining(["ui", "city", "map", "phone", "turn"]));
+    expect(Object.keys(clientTables)).toEqual(expect.arrayContaining(["city", "map", "phone", "turn"]));
   });
 
   test("[R-TEXT-007] [R-TEXT-005] given every line, then none has an em-dash, an en-dash or an exclamation mark, but for the scam's own shout", () => {

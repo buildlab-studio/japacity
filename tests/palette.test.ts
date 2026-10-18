@@ -26,11 +26,8 @@ function filesUnder(directory: string, keep: (rel: string) => boolean, found: st
 
 const clientFiles = filesUnder(CLIENT, (rel) => /\.(?:tsx?|css)$/.test(rel));
 
-/** The files that hold the player's words: the shell's, each feature's and content's. */
-const wordFiles = [
-  ...filesUnder(CLIENT, (rel) => rel === `${CLIENT}/shared/words/tables/ui.words.ts` || /^apps\/client\/src\/features\/[^/]+\/[^/]+\.words\.ts$/.test(rel)),
-  ...filesUnder("packages/content/src", (rel) => rel.endsWith(".text.ts")),
-];
+/** The files that hold the player's words: content's, the interface's own among them, and the client's readers of them. */
+const wordFiles = [...filesUnder("packages/content/src", (rel) => rel.endsWith(".text.ts")), ...filesUnder(CLIENT, (rel) => rel.endsWith(".words.ts"))];
 
 interface Finding {
   readonly file: string;
@@ -101,8 +98,8 @@ describe("the palette", () => {
   test("[R-WORLD-021] given the walk, then it sees the client's screens, styles and words", () => {
     expect(clientFiles).toContain(`${CLIENT}/index.css`);
     expect(clientFiles).toContain(`${CLIENT}/features/activity/JobList.tsx`);
-    expect(wordFiles).toContain(`${CLIENT}/shared/words/tables/ui.words.ts`);
-    expect(wordFiles.some((file) => file.startsWith("packages/content/src/"))).toBe(true);
+    expect(wordFiles).toContain("packages/content/src/ui/ui.text.ts");
+    expect(wordFiles).toContain(`${CLIENT}/features/phone/phone.words.ts`);
   });
 
   test("[R-WORLD-021] given the client, when its classes are read, then none names the older page palette", () => {

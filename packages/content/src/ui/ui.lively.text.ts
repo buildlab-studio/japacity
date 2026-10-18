@@ -1,7 +1,6 @@
-// The hand's words (docs/design/13-the-lively-layer.md sections 4, 5 and 7):
-// the brief handed by its person, the chip and the marker, the talk, the toasts. In the voice of
-// docs/rules/text.md, each speaker in their own register; content's table wins over these.
-export const livelyText: Record<string, string> = {
+// The hand's words (docs/design/13-the-lively-layer.md sections 4, 5 and 7): the brief handed by its person, the chip
+// and the marker, the talk, the toasts. In the voice of docs/rules/text.md, each speaker in their own register.
+export const uiLivelyText: Record<string, string> = {
   // The brief: a title with a wink, the giver, the rewards as picture chips. Never "chapter", "step", "item" or "task".
   "ui.brief.who": "{name}, {where}",
   "ui.brief.road": "Japa road",

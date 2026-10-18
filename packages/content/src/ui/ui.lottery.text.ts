@@ -1,7 +1,6 @@
-// Words for the Friday draw: the kiosk, the draw page and the front page's
-// line (docs/rules/lottery.md). In the voice of
-// docs/rules/text.md. ui.words.ts takes them in whole.
-export const lotteryUiText: Record<string, string> = {
+// The Friday draw: the kiosk, the draw page and the front page's line (docs/rules/lottery.md), in the voice of
+// docs/rules/text.md.
+export const uiLotteryText: Record<string, string> = {
   // The kiosk (R-LOTTERY-006, R-LOTTERY-023)
   "ui.lottery.title": "The Friday draw",
   "ui.lottery.draw": "Draw {draw}",

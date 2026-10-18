@@ -77,6 +77,17 @@ import { tuning } from "./tuning/tuning.data";
 import { varTable } from "./var/var.data";
 import { varText } from "./var/var.text";
 import { walletText } from "./wallet/wallet.text";
+import { uiText } from "./ui/ui.text";
+import { uiBoardsText } from "./ui/ui.boards.text";
+import { uiColoursText } from "./ui/ui.colours.text";
+import { uiDaysText } from "./ui/ui.days.text";
+import { uiJobsText } from "./ui/ui.jobs.text";
+import { uiLivelyText } from "./ui/ui.lively.text";
+import { uiLotteryText } from "./ui/ui.lottery.text";
+import { uiOnlineText } from "./ui/ui.online.text";
+import { uiPersonText } from "./ui/ui.person.text";
+import { uiProfileText } from "./ui/ui.profile.text";
+import { uiWorldText } from "./ui/ui.world.text";
 
 export { DEDICATION, DEDICATION_NICKNAME, DEDICATION_SHORT } from "./about/about.data";
 export { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, LIGHT_PROBLEMS, lightWords, lightYears } from "./about/about.light";
@@ -205,6 +216,18 @@ export const textTables: Record<string, Record<string, string>> = {
   story: storyText,
   var: varText,
   wallet: walletText,
+  // The interface's own words: labels, headings, sheets and the screens' lines.
+  ui: uiText,
+  uiBoards: uiBoardsText,
+  uiColours: uiColoursText,
+  uiDays: uiDaysText,
+  uiJobs: uiJobsText,
+  uiLively: uiLivelyText,
+  uiLottery: uiLotteryText,
+  uiOnline: uiOnlineText,
+  uiPerson: uiPersonText,
+  uiProfile: uiProfileText,
+  uiWorld: uiWorldText,
 };
 
 /**
@@ -228,6 +251,8 @@ export function mergeText(tables: Record<string, Record<string, string>>): Recor
 }
 
 export const text: Record<string, string> = mergeText(textTables);
+/** The interface's own tables, each also merged into `text`. */
+export { uiBoardsText, uiColoursText, uiDaysText, uiJobsText, uiLivelyText, uiLotteryText, uiOnlineText, uiPersonText, uiProfileText, uiText, uiWorldText };
 
 export { guideChecks, guideForRoute, guideKeys, staleGuides } from "./guide/guide.check";
 export { GUIDE_SECTIONS } from "./guide/guide.data";

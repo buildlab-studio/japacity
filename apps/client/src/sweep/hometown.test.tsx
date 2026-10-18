@@ -9,15 +9,14 @@ import { engineView } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { setNow } from "../shared/words/now";
 import { blurbOf, hometownWords, nameOf, say, words } from "../shared/words/text";
-import { uiText } from "../shared/words/tables/ui.words";
 
 afterEach(() => {
   setNow(null);
 });
 
-/** Every line in content's tables and the interface's own that names where the life is from. */
+/** Every line in content's tables, the interface's own among them, that names where the life is from. */
 function hometownKeys(): string[] {
-  return Object.entries({ ...text, ...uiText })
+  return Object.entries(text)
     .filter(([, line]) => line.includes(`{${HOMETOWN_FILL}}`))
     .map(([key]) => key)
     .sort();

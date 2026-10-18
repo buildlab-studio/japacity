@@ -16,7 +16,6 @@ import { isSaid, tidyLines } from "../shared/words/lines";
 import { cardKey } from "../shared/ui/cardKey";
 import { setNow } from "../shared/words/now";
 import { say, sayCount } from "../shared/words/text";
-import { uiText } from "../shared/words/tables/ui.words";
 import { forgetArranged } from "../shared/world/arranged";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";
@@ -236,7 +235,7 @@ export interface GameStoreOptions {
 
 export function rejectionWords(code: ServerCode): string {
   const key = `reject.${code}`;
-  return text[key] ?? uiText[key] ?? code;
+  return text[key] ?? code;
 }
 
 /** R-ENGINE-015: the failure in the player's words, by its kind, never the browser's own text; a fault that is no request's is said as ours. */

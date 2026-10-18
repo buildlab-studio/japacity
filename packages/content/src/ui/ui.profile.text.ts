@@ -1,8 +1,7 @@
-// The waiting months' words (docs/rules/activity.md R-ACTIVITY-013 and 014): the route each act counts
-// toward as a person says it, the labels of the things that stage the acts, and a side job's pay by level.
-// In the voice of docs/rules/text.md; content's table wins over these. No imports, so the
-// interface's table can join it before anything that reads words is loaded.
-export const profileText: Record<string, string> = {
+// The waiting months' words (docs/rules/activity.md R-ACTIVITY-013 and 014): the route each act counts toward as a
+// person says it, the labels of the things that stage the acts, and a side job's pay by level. In the voice of
+// docs/rules/text.md.
+export const uiProfileText: Record<string, string> = {
   // "Counts toward: the talent route" (R-ACTIVITY-013).
   "ui.counts.toward": "Counts toward: {routes}",
   "ui.counts.and": "and",

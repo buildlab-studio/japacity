@@ -3,19 +3,18 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { uiText } from "../../shared/words/tables/ui.words";
 
 /** The client's source, tests left out, as raw text: its word tables are the `"key": "words"` rows. */
 const sources = import.meta.glob<string>(["../../**/*.ts", "../../**/*.tsx", "!../../**/*.test.ts", "!../../**/*.test.tsx"], { query: "?raw", import: "default", eager: true });
 
 const ROW = /^\s*"([\w.{}-]+)":\s*"((?:[^"\\]|\\.)*)",?\s*$/gm;
 
-/** Every word the player can read, by key, with the file it is written in: content's text wins over the interface's, as on screen. */
+/** Every word the player can read, by key, with the file it is written in: content's text wins, as on screen. */
 function allWords(): { key: string; words: string; file: string }[] {
   const client = Object.entries(sources).flatMap(([file, source]) =>
     [...source.matchAll(ROW)].map((row) => {
       const key = row[1] ?? "";
-      return { key, words: text[key] ?? uiText[key] ?? row[2] ?? "", file };
+      return { key, words: text[key] ?? row[2] ?? "", file };
     }),
   );
   const shared = Object.entries(text).map(([key, words]) => ({ key, words, file: "content" }));

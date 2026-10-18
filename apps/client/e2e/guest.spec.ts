@@ -6,9 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 // The guest start and keeping a guest life (docs/rules/account.md R-ACCOUNT-021
 // to 027), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
-import { content } from "../../../packages/content/src/index";
-import { onlineText } from "../src/shared/words/tables/online.words";
-import { uiText } from "../src/shared/words/tables/ui.words";
+import { content, uiOnlineText, uiText } from "../../../packages/content/src/index";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
@@ -133,7 +131,7 @@ test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked on
   const ask = page.getByRole("dialog", { name: "Keep this life" });
   await expect(ask).toBeVisible({ timeout: 20_000 });
   // Read through the words table, so the line the sheet says is the one the test looks for.
-  await expect(ask.getByText(onlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
+  await expect(ask.getByText(uiOnlineText["ui.secure.ask.first-chapter"] ?? "ui.secure.ask.first-chapter")).toBeVisible();
   // Google's own button, in one of Google's texts (R-ACCOUNT-023).
   await expect(ask.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await shoot(page, "first-chapter-ask", info.project.name);
@@ -231,20 +229,20 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-027] a kept life names its way in on Settings' 
   await expect(row).toContainText("Kept with Google as ada@example.com");
   await shoot(page, "settings-account-row", info.project.name);
   await row.click();
-  const sheet = page.getByRole("dialog", { name: onlineText["ui.account.settings"] ?? "Account" });
+  const sheet = page.getByRole("dialog", { name: uiOnlineText["ui.account.settings"] ?? "Account" });
   await expect(sheet.getByText("Kept with Google as ada@example.com")).toBeVisible();
   await expect(sheet.getByText("Passkey: none yet")).toBeVisible();
   await shoot(page, "settings-account-sheet", info.project.name);
   answers["GET /api/view"] = SIGNED_OUT;
   answers["GET /api/account"] = SIGNED_OUT;
   await sheet.getByRole("button", { name: "Sign out" }).click();
-  const notice = page.getByText(onlineText["ui.account.notice.signed-out"] ?? "You have signed out.");
+  const notice = page.getByText(uiOnlineText["ui.account.notice.signed-out"] ?? "You have signed out.");
   await expect(notice).toBeVisible({ timeout: 20_000 });
   expect(sent).toContain("POST /api/auth/sign-out");
   await page.getByRole("button", { name: "I already have a life here" }).click();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
   await expect(notice).toHaveCount(0);
-  await page.getByRole("button", { name: onlineText["ui.account.back"] ?? "Back" }).click();
+  await page.getByRole("button", { name: uiOnlineText["ui.account.back"] ?? "Back" }).click();
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible();
   await expect(notice).toHaveCount(0);
 });

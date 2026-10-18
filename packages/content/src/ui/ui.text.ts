@@ -1,27 +1,6 @@
-// Words the interface needs that content does not have yet: button labels,
-// tab names, headings, and the sentences that explain a requirement. First
-// drafts in the voice of docs/rules/text.md. Every key here is a candidate to
-// move into content, where it can be rewritten. Numbers go in braces.
-import { boardsText } from "./boards.words";
-import { coloursText } from "./colours.words";
-import { daysText } from "../../days/days.words";
-import { livelyText } from "./lively.words";
-import { lotteryUiText } from "./lottery.words";
-import { onlineText } from "./online.words";
-import { peopleText } from "./person.words";
-import { profileText } from "./profile.words";
-import { worldText } from "./world.words";
-
+// The interface's own words: button labels, tab names, headings, and the sentences that explain a requirement, in
+// the voice of docs/rules/text.md. Numbers go in braces.
 export const uiText: Record<string, string> = {
-  ...onlineText,
-  ...lotteryUiText,
-  ...boardsText,
-  ...peopleText,
-  ...worldText,
-  ...livelyText,
-  ...profileText,
-  ...daysText,
-  ...coloursText,
   "ui.game": "Japacity",
   "ui.loading": "Opening your life...",
   "ui.failed": "The game could not start: {why}",
@@ -60,10 +39,6 @@ export const uiText: Record<string, string> = {
   // The band's month chip, read aloud: it opens the phone's Calendar.
   "ui.month.chip": "{name}, {part}. Open the calendar",
 
-  "ui.notify.ask.title": "Know when your months are full",
-  "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
-  "ui.notify.setting": "Tell me when my months are full",
-
   "ui.world.now": "Now",
   "ui.world.pass": "Bus pass",
   "ui.world.depart-held": "The funds held for you must go back first: Phone, Bills, Pay now.",
@@ -74,7 +49,7 @@ export const uiText: Record<string, string> = {
   "ui.world.ask-away.place.family-house": "Mama is asking for you at home.",
   // R-STREET-010: the parcel waits at the cargo office; the nudge names it from anywhere else in the city.
   "ui.world.ask-away.place.bode-thomas": "Your parcel is at the cargo office on Bode Thomas Street.",
-  // A country as the plane's line names it (features/city/City.tsx, the depart sheet).
+  // A country as the plane's line names it (apps/client/src/features/city/City.tsx, the depart sheet).
   "ui.country.place.country.uk": "the UK",
   "ui.country.place.country.canada": "Canada",
   "ui.country.place.country.uae": "the UAE",
@@ -104,14 +79,14 @@ export const uiText: Record<string, string> = {
   "ui.line.savings-before": "Your savings from before: {amount}.",
   // A move to a home with rent, told once with the rent it paid (home.md R-HOME-002).
   "ui.line.home-moved": "Home is {place} now: {amount} a month.",
-  // The time played on a share card, in years and months (shared/share/face.ts, playedWords).
+  // The time played on a share card, in years and months (apps/client/src/shared/share/face.ts, playedWords).
   "ui.card.played.years": "{count} years",
   "ui.card.played.years.one": "1 year",
   "ui.card.played.months": "{count} months",
   "ui.card.played.months.one": "1 month",
   "ui.card.played.months.zero": "Under a month",
   "ui.card.played.years-months": "{years} and {months}",
-  // The results' own telling of a story line (features/turn/month.results.ts, toldOnResults): a bill
+  // The results' own telling of a story line (apps/client/src/features/turn/month.results.ts, toldOnResults): a bill
   // not paid says its figure and what it cost; a hunt says its answer (R-WORLD-008).
   "ui.results.unpaid-part.standing-mood": "{obligation}: {paid} paid, {short} short. Your standing and your mood took a hit.",
   "ui.results.unpaid-part.standing": "{obligation}: {paid} paid, {short} short. Your standing took a hit.",
@@ -145,14 +120,14 @@ export const uiText: Record<string, string> = {
   "ui.results.hunt-offer-plain": "An offer: {job}.",
   // What the move takes, in the Japa app (the savings toward the move broken down).
   "ui.japa.cost.title": "What the move takes",
-  // The official page offered for a way other than the plan's (features/phone/apps/Japa.tsx).
+  // The official page offered for a way other than the plan's (apps/client/src/features/phone/apps/Japa.tsx).
   "ui.japa.official.other": "Another way out",
   "ui.japa.official.title-route": "The official page on {route}",
   "ui.japa.cost.tuition": "Tuition still to pay",
   "ui.japa.cost.living": "Living money to show",
   "ui.japa.cost.funds": "Funds to show in all",
   "ui.japa.cost.flight": "The flight, paid in naira",
-  // What a family request's money paid for, in place of "Sent to family" (shared/words/lines.ts).
+  // What a family request's money paid for, in place of "Sent to family" (apps/client/src/shared/words/lines.ts).
   "ui.line.family-paid.offer.nepa-bill": "The NEPA bill: {amount}.",
   "ui.line.family-paid.offer.brother-fees": "Your brother's school fees: {amount}.",
   "ui.line.family-paid.offer.mum-shop": "For Mama's shop: {amount}.",
@@ -162,7 +137,7 @@ export const uiText: Record<string, string> = {
   "ui.line.family-paid.offer.uncle-burial": "Toward your uncle's burial: {amount}.",
   "ui.line.family-paid.offer.village-burial": "The burial: {amount}.",
   "ui.line.family-paid.offer.parents-group-debt": "Toward your parents' group debt: {amount}.",
-  // Another answer's money, named for its offer, so it never reads as the month's own salary (shared/words/lines.ts).
+  // Another answer's money, named for its offer, so it never reads as the month's own salary (apps/client/src/shared/words/lines.ts).
   "ui.line.offer-paid.offer.december-bonus": "A thirteenth month's pay: {amount}.",
   "ui.line.offer-paid.offer.parcel-shipped": "The cargo office's handling charge: {amount}.",
   "ui.line.offer-paid.offer.family-send-off": "The send-off: {amount}.",
@@ -177,7 +152,7 @@ export const uiText: Record<string, string> = {
   "ui.line.offer-paid.offer.laptop-fault": "The laptop repair: {amount}.",
   "ui.line.offer-paid.offer.illness": "Treatment for the illness: {amount}.",
   "ui.line.offer-paid.offer.illness-worse": "Treatment for the illness: {amount}.",
-  // An activity's spending, named for it (shared/words/lines.ts, activityPaid).
+  // An activity's spending, named for it (apps/client/src/shared/words/lines.ts, activityPaid).
   "ui.line.activity-paid.activity.meetup": "The meetup: {amount}.",
   "ui.line.activity-paid.activity.play-lotto": "A lotto ticket: {amount}.",
   "ui.line.activity-paid.activity.bet-slip": "A bet slip: {amount}.",
@@ -186,13 +161,13 @@ export const uiText: Record<string, string> = {
   "ui.line.upkeep-down": "Living costs are down to {amount} a month.",
   "ui.line.upkeep-up.news.fuel-subsidy": "Living costs are up to {amount} a month. The fuel subsidy is gone.",
   "ui.line.upkeep-down.news.inflation-eases": "Living costs are down to {amount} a month. Prices are steadying.",
-  // A bill's payment named for the bill where the wallet's reason says it wrong (shared/words/lines.ts).
+  // A bill's payment named for the bill where the wallet's reason says it wrong (apps/client/src/shared/words/lines.ts).
   "ui.line.charged.obligation.ajo": "Savings circle: {amount}.",
   "ui.line.charged.obligation.held-funds": "The proof-of-funds loan's charge: {amount}.",
   "ui.line.charged.obligation.held-funds-agent": "The proof-of-funds loan's charge: {amount}.",
-  // A paper's fee, named for the paper asked for (shared/words/lines.ts).
+  // A paper's fee, named for the paper asked for (apps/client/src/shared/words/lines.ts).
   "ui.line.document-fee": "The {document}'s fee: {amount}.",
-  // A quality's move told by the band it lands in, never its figure (shared/words/text.ts, bandWords).
+  // A quality's move told by the band it lands in, never its figure (apps/client/src/shared/words/text.ts, bandWords).
   "ui.line.quality.start-band": "{band}.",
   // A quality with named levels and no bands, as "Education: Bachelor's degree."
   "ui.line.quality.label": "{quality}: {value}.",
@@ -244,7 +219,7 @@ export const uiText: Record<string, string> = {
   "ui.band.quality.family-stake.1": "The family has put nothing into your leaving yet",
   "ui.band.quality.family-stake.2": "The family has put money into your leaving",
   "ui.band.quality.family-stake.3": "The family has put money into your leaving",
-  // Content's lines at a count of one (shared/words/text.ts, LINE_COUNTS)
+  // Content's lines at a count of one (apps/client/src/shared/words/text.ts, LINE_COUNTS)
   "ui.line.setpiece.opened.one": "{setpiece}: 1 question to answer.",
   "ui.line.activity.lotto-won.one": "1 ticket for {stake}, and it came in: {won}.",
   "ui.line.activity.lotto-lost.one": "Your ticket did not win.",
@@ -323,7 +298,7 @@ export const uiText: Record<string, string> = {
   "ui.wallet.title": "Money",
   "ui.wallet.queued": "On the way",
   "ui.wallet.convert": "Change money",
-  // What a change says before it is confirmed (features/phone/apps/Bank.tsx, changeLine).
+  // What a change says before it is confirmed (apps/client/src/features/phone/apps/Bank.tsx, changeLine).
   "ui.wallet.change.line": "{amount} into {currency}, at today's rate.",
   "ui.wallet.change.get.bank": "You get {got}. The bank's charge is {charge}.",
   "ui.wallet.change.get.bank-small": "You get {got}.",
@@ -743,7 +718,7 @@ export const uiText: Record<string, string> = {
   "ui.req.job-any": "A job",
   "ui.req.job-none": "No job",
   "ui.req.job-is": "Working as {jobs}",
-  // Time in a job as a person says it (shared/words/requirement.ts, timeWords).
+  // Time in a job as a person says it (apps/client/src/shared/words/requirement.ts, timeWords).
   "ui.req.tenure": "{time} as {jobs}",
   "ui.req.tenure-any": "{time} in any job",
   "ui.req.a-job": "a {job}",
@@ -926,7 +901,7 @@ export const uiText: Record<string, string> = {
   "ui.remit.channel.bank": "By bank transfer",
   "ui.remit.channel.informal": "Through someone",
   "ui.remit.arrives": "Arrives: {naira}. Fee: {fee}",
-  // The Bank's send money home abroad (features/phone/apps/Bank.tsx, SendChooser).
+  // The Bank's send money home abroad (apps/client/src/features/phone/apps/Bank.tsx, SendChooser).
   "ui.remit.who": "To your naira account at home. What the family asks for is paid from it.",
   "ui.remit.terms.app": "The app's rate, a little under the bank's, and a fee of {fee}. Lands today in the bank at home.",
   "ui.remit.terms.app.free": "No fee, but the app's rate is a little under the bank's. Lands today in the bank at home.",

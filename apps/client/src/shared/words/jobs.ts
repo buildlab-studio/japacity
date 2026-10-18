@@ -1,5 +1,5 @@
 // The jobs' words and figures the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006): a
-// job's pay a month and its chance in words, read from tables/jobs.words.ts. In shared/ so the city and the activity
+// job's pay a month and its chance in words, read from content's ui/ui.jobs.text.ts. In shared/ so the city and the activity
 // feature both read them without one feature importing another.
 import { content, text } from "@japacity/content";
 import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
@@ -7,17 +7,11 @@ import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
 import { formatMoney } from "./format";
 import { payAMonth } from "./pay";
 import { tierPay, withNextTier } from "./profile";
-import { jobsUiText } from "./tables/jobs.words";
-import { hasWords, say, type Params } from "./text";
+import { say, type Params } from "./text";
 
-/** Words for a jobs key: content's first, then the interface's, then the list's own drafts. */
+/** Words for a jobs key. */
 export function jobsWords(key: string, params: Params = {}): string {
-  if (text[key] !== undefined || hasWords(key)) return say(key, params);
-  const template = jobsUiText[key] ?? key;
-  return template.replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => {
-    const value = params[name];
-    return value === undefined || typeof value === "object" ? whole : String(value);
-  });
+  return say(key, params);
 }
 
 const NETWORK = "quality.network";

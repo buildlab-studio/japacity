@@ -1,8 +1,6 @@
-// Words for playing online: the server's own refusals, the clock, the age
-// screen, signing in and the account settings. In the voice of
-// docs/rules/text.md. Kept apart from ui.words.ts so the
-// online screens can be read in one place; ui.words.ts takes them in whole.
-export const onlineText: Record<string, string> = {
+// Playing online: the server's own refusals, the clock, the age screen, signing in and the account settings, in the
+// voice of docs/rules/text.md.
+export const uiOnlineText: Record<string, string> = {
   // The server's refusals (R-SERVER-025, R-ACCOUNT-011, R-ACCOUNT-015)
   "reject.rate-limited": "Too much at once. Try again now.",
   "reject.signed-out": "You are signed out. Sign in to carry on.",
@@ -260,7 +258,7 @@ export const onlineText: Record<string, string> = {
 
   // The bank-full notice (R-CLOCK-031)
   "ui.notify.ask.title": "Know when your months are full",
-  "ui.notify.ask.body": "Your months build up while you are away. We can tell you on this device when you have banked all the months you can, and nothing else.",
+  "ui.notify.ask.body": "Months to play build up while you are away. We can tell you on this device when you hold all the months you can, and nothing else.",
   "ui.notify.ask.yes": "Tell me",
   "ui.notify.ask.no": "Not now",
   "ui.notify.setting": "Tell me when my months are full",

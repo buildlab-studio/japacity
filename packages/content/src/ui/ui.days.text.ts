@@ -1,7 +1,6 @@
-// The words of the month that tells of itself (docs/rules/world.md R-WORLD-030): the phone's
-// notifications and the Month sheet's stretched line. In the voice of
-// docs/rules/text.md; content's table wins over these, so each key can move into content.
-export const daysText: Record<string, string> = {
+// The words of the month that tells of itself (docs/rules/world.md R-WORLD-030): the phone's notifications and the
+// Month sheet's stretched line, in the voice of docs/rules/text.md.
+export const uiDaysText: Record<string, string> = {
   // The phone's wallpaper, at home: the month's acts telling of themselves.
   "ui.days.notices": "This month so far",
   // The phone's wallpaper, away from home: what waits, never the lines themselves.

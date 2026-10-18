@@ -6,7 +6,6 @@ import { describe, expect, test } from "vitest";
 
 import { markTag } from "../features/city/scene/mark";
 import { say } from "../shared/words/text";
-import { uiText } from "../shared/words/tables/ui.words";
 
 /** Lines that read as the system talking, kept out of every table. */
 const GONE = ["The lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way", "Next page any minute now"];
@@ -16,7 +15,7 @@ describe("a person's words, never the system's", () => {
     expect(say("line.quality.told.quality.wellbeing.drift.above")).toBe("The good mood from last month passed.");
     expect(say("ui.activity.full")).toBe("Your free time is full this month");
     expect(say("route.uk-masters.item.held")).toBe("Funds held a full month, and still there");
-    const all = Object.values({ ...text, ...uiText });
+    const all = Object.values(text);
     for (const old of GONE) expect(all.filter((line) => line.includes(old))).toEqual([]);
   });
 

@@ -15,12 +15,9 @@ import { roomText } from "../features/setpiece/room.words";
 import { turnText } from "../features/turn/turn.words";
 import { moderationText } from "../shared/moderation/moderation.words";
 import { soundText } from "../shared/sound/sound.words";
-import { jobsUiText } from "../shared/words/tables/jobs.words";
-import { uiText } from "../shared/words/tables/ui.words";
 
 // The admin tables are left out: they are the staff's tool, where a report's age in the queue is a measure, not the game's voice.
 const clientTables: Record<string, Record<string, string>> = {
-  ui: uiText,
   routes: routesUiText,
   advice: adviceUiText,
   city: cityText,
@@ -29,7 +26,6 @@ const clientTables: Record<string, Record<string, string>> = {
   phone: phoneText,
   room: roomText,
   turn: turnText,
-  jobs: jobsUiText,
   sound: soundText,
   moderation: moderationText,
 };

@@ -1,7 +1,7 @@
 // The situation in plain words, as a person would say it: no raw
 // key, no "free slots", no quality as a bare figure, and a first screen that says the
 // game is about leaving. On the real content and the real engine.
-import { content, text } from "@japacity/content";
+import { content, text, uiText } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { legalCommands } from "@japacity/sim";
 import { screen } from "@testing-library/react";
@@ -13,7 +13,6 @@ import { renderWithView } from "../shared/testing/render";
 import { tidyLines } from "../shared/words/lines";
 import { valueWords } from "../shared/words/quality";
 import { bandWords, say, words } from "../shared/words/text";
-import { uiText } from "../shared/words/tables/ui.words";
 
 /** The lines of the prologue's first answer: the draw, as the first screen tells it. */
 function firstAnswer(): ReportLine[] {

@@ -1,4 +1,4 @@
-import { content, text } from "@japacity/content";
+import { content, text, uiText } from "@japacity/content";
 import type { Requirement } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -8,7 +8,6 @@ import { jobCardWords, jobsWords } from "./jobs";
 import { valueWords } from "./quality";
 import { requirementSentence } from "./requirement";
 import { LOWER_KINDS, lowerFirst, nameOf, PROPER_WORDS, runningName, say, words } from "./text";
-import { uiText } from "./tables/ui.words";
 
 describe("words", () => {
   test("given naira, then the naira sign is used whatever the locale data", () => {
@@ -44,7 +43,7 @@ describe("words", () => {
   });
 
   test("given the interface's own keys, then none hides a key content already has", () => {
-    expect(Object.keys(uiText).filter((key) => key in text)).toEqual([]);
+    expect(Object.keys(uiText).filter((key) => text[key] !== uiText[key])).toEqual([]);
   });
 });
 

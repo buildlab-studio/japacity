@@ -1,6 +1,5 @@
 // The world's own words (docs/rules/world.md), in the voice of docs/rules/text.md.
-// Content's table wins over these, so each key can move into content.
-export const worldText: Record<string, string> = {
+export const uiWorldText: Record<string, string> = {
   "ui.world.end-month": "Sleep",
   "ui.world.map": "Map",
   "ui.world.phone": "Phone",

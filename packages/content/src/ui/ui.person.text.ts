@@ -1,9 +1,6 @@
-// Words for the people around the character: the slots, the bonds, courting,
-// proposals, the invite card, the stand-in, the interview, the undertaking and
-// the conversation in preset phrases. In the voice of
-// docs/rules/text.md. Kept apart from ui.words.ts so the
-// people screens can be read in one place; ui.words.ts takes them in whole.
-export const peopleText: Record<string, string> = {
+// The people around the character: the slots, the bonds, courting, proposals, the invite card, the stand-in, the
+// interview, the undertaking and the conversation in preset phrases, in the voice of docs/rules/text.md.
+export const uiPersonText: Record<string, string> = {
   "ui.people.intro": "Partner, siblings, parents. A friend who plays can take a place. The game plays anyone a friend has not taken.",
 
   // The slots (R-PEOPLE-007)

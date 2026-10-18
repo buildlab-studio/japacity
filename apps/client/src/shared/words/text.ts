@@ -1,6 +1,6 @@
-// Every word on screen comes through here: content's table first, then the
-// interface's own words. A missing key shows as itself, so a gap in
-// content is visible in play instead of hidden behind a guess.
+// Every word on screen comes through here: content's table, which holds the interface's own words too, then the
+// late words of a country abroad. A missing key shows as itself, so a gap in content is visible in play instead of
+// hidden behind a guess.
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
 import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
 
@@ -8,19 +8,18 @@ import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEndin
 import { nowHometown, nowMonth, swapped } from "./now";
 import { peopleParam } from "./person";
 import { lateWord } from "./late";
-import { uiText } from "./tables/ui.words";
 
 export type Params = Record<string, ReportParam>;
 
 const BRACE = /\{([A-Za-z][\w-]*)\}/g;
 
 export function hasWords(key: string): boolean {
-  return text[key] !== undefined || uiText[key] !== undefined || lateWord(key) !== undefined;
+  return text[key] !== undefined || lateWord(key) !== undefined;
 }
 
 function lookup(key: string): string {
   // A computer person never carries the player's own first name (R-PEOPLE-061).
-  return swapped(key, text[key] ?? uiText[key] ?? lateWord(key) ?? key);
+  return swapped(key, text[key] ?? lateWord(key) ?? key);
 }
 
 /**

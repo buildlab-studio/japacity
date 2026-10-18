@@ -1,6 +1,6 @@
-// The jobs' words the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006), read by jobsWords in
-// shared/words/jobs.ts. In the voice of docs/rules/text.md; content's and the interface's tables win over these.
-export const jobsUiText: Record<string, string> = {
+// The jobs' words the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006), read by the
+// client's jobsWords. In the voice of docs/rules/text.md.
+export const uiJobsText: Record<string, string> = {
   "jobs.pick": "Which job",
   "jobs.apply": "Apply",
   "jobs.pay": "{amount} a month",
