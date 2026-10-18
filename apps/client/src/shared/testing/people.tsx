@@ -4,12 +4,12 @@
 // and the real content through commands, as the rule tests reach them.
 import { content } from "@japacity/content";
 import type { Content, Id, PersonFacts, SlotPick } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { gameAuthority } from "./fixtures";
 import "./render";
 

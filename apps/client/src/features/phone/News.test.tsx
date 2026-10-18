@@ -2,11 +2,11 @@
 // mid-month too: an agent paid, the scam told straight with every tell the player saw
 // (docs/rules/advice.md R-ADVICE-009).
 import { content } from "@japacity/content";
+import type { Game } from "@japacity/sim/testing";
+import { applyEffects, readyLife, toKnown } from "@japacity/sim/testing";
 import { act, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, toKnown } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { abroadGame, abroadView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say, words } from "../../shared/words/text";

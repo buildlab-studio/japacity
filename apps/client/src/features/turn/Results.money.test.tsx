@@ -4,13 +4,10 @@
 // prologue's years nor money that only sits locked counts as kept.
 import { content } from "@japacity/content";
 import type { Effect, ReportLine } from "@japacity/sim";
+import { legalCommands, standInWorld, stepWith } from "@japacity/sim";
+import { applyEffects, readyLife, toKnown, withEffects, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { stepWith } from "../../../../../packages/sim/src/engine/step";
-import { applyEffects, readyLife, toKnown, withEffects } from "../../../../../packages/sim/src/route/route.journey";
-import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
-import { standInWorld } from "@japacity/sim";
 import { chargedLivingGame, newGame, openOffer } from "../../shared/testing/fixtures";
 import { formatMoney } from "../../shared/words/format";
 import { tidyLines } from "../../shared/words/lines";

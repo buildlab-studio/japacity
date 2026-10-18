@@ -2,9 +2,9 @@
 // piece the header counts nothing, since the set piece counts its own questions ("Question 1 of 3"), so the exam never
 // sits under "1 OF 3" or "3 OF 3". Elsewhere the count is what is left, and one ask left says no count.
 import { content } from "@japacity/content";
+import { applyEffects } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../../shared/testing/fixtures";
 import { askHeader } from "./acts";
 

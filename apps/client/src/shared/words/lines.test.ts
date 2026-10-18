@@ -1,10 +1,10 @@
-import type { ReportLine } from "@japacity/sim";
 import { content } from "@japacity/content";
+import type { ReportLine } from "@japacity/sim";
+import { legalCommands } from "@japacity/sim";
+import { slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { formatMoney } from "./format";
-import { slot } from "../../../../../packages/sim/src/route/route.journey";
-import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
 import { newGame } from "../testing/fixtures";
 import { asksAttention, tidyLines } from "./lines";
 import { bandWords, nameOf, runningName, say, words } from "./text";

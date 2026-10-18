@@ -1,4 +1,4 @@
-import type { Content, GuideEntry } from "../packages/sim/src/engine/types";
+import type { Content, GuideEntry } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { content } from "../packages/content/src/index";

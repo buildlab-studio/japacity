@@ -2,7 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { ActivityEntry, Content, Id } from "../engine/types";
-import { applyAs, BOND, CA_SPOUSE, facts, joint, life, readOf, setPeople, UK_PARTNER } from "../route/gates/people.journey";
+import { applyAs, BOND, CA_SPOUSE, facts, joint, life, readOf, setPeople, UK_PARTNER } from "../testing/people.journey";
 import type { Game } from "../testing/play";
 import { barUntilMonth, floorsMet, meetsFloor, ownPayAYear, sponsorCheck } from "./sponsor-checks";
 

@@ -1,16 +1,13 @@
 // Regenerates the golden files from the scripts and says what changed.
 // Usage: pnpm bless. Golden files change only this way (AGENTS.md rule 5).
+import type { Content } from "@japacity/sim";
+import { lifeStart, loadSave, standInWorld } from "@japacity/sim";
+import type { Golden } from "@japacity/sim/testing";
+import { measure, miniContent, goldenScripts } from "@japacity/sim/testing";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { content as realContent } from "../packages/content/src/index";
-import type { Golden } from "../packages/sim/src/engine/golden";
-import { measure } from "../packages/sim/src/engine/golden";
-import { lifeStart, loadSave } from "../packages/sim/src/engine/replay";
-import type { Content } from "../packages/sim/src/engine/types";
-import { miniContent } from "../packages/sim/src/testing/miniContent";
-import { standInWorld } from "../packages/sim/src/world/standIn";
-import { goldenScripts } from "../packages/sim/src/goldens/scripts";
 
 const goldensDir = fileURLToPath(new URL("../packages/sim/src/goldens/", import.meta.url));
 

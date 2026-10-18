@@ -10,10 +10,10 @@
 //
 // The target is a Worker with the accounts mounted (the load Worker has none)
 // and the test server's email stand-in, so no email leaves this machine.
+import { int } from "@japacity/sim";
 import { setTimeout as sleep } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 
-import { divFloor } from "../../packages/sim/src/engine/int";
 import { argument, wholeArgument } from "./http";
 import { config } from "./load.config";
 import { ms, percentile } from "./pass";
@@ -55,7 +55,7 @@ async function sendOne(base: string, index: number): Promise<{ status: number; u
   try {
     const reply = await fetch(`${base}/api/auth/email-otp/send-verification-otp`, {
       method: "POST",
-      headers: { "content-type": "application/json", "cf-connecting-ip": `10.${String(divFloor(index, 65536) % 256)}.${String(divFloor(index, 256) % 256)}.${String(index % 256)}` },
+      headers: { "content-type": "application/json", "cf-connecting-ip": `10.${String(int.divFloor(index, 65536) % 256)}.${String(int.divFloor(index, 256) % 256)}.${String(index % 256)}` },
       body: JSON.stringify({ email: `load-${String(index)}@example.test`, type: "sign-in" }),
     });
     await reply.text();
@@ -71,7 +71,7 @@ export async function runCodes(base: string, rate: number, seconds: number): Pro
   const replies: Promise<{ status: number; us: number }>[] = [];
   const begin = performance.now();
   for (let index = 0; index < target; index += 1) {
-    const due = begin + divFloor(index * 1000, rate);
+    const due = begin + int.divFloor(index * 1000, rate);
     const wait = due - performance.now();
     if (wait > 0) await sleep(wait);
     replies.push(sendOne(base, index));

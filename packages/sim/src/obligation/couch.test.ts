@@ -2,7 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, PersonFacts } from "../engine/types";
-import { applyAs, life, sibling } from "../route/gates/people.journey";
+import { applyAs, life, sibling } from "../testing/people.journey";
 import type { Game } from "../testing/play";
 
 const used = content;

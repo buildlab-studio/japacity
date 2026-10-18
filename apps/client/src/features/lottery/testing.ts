@@ -4,10 +4,9 @@
 import { content } from "@japacity/content";
 import type { Command, LotteryOdds, LotteryResult, PlayerView, Reply, Rejection, World } from "@japacity/sim";
 import { drawResults, drawSeed, fingerprintOf, jackpotHit, listHashOf, rollJackpot, standInWorld, toHex, sha256 } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 
 import type { StoreAuthority } from "../../authority/store";
-// The rule tests' game handle is the sim's own test tool; the package exports only its contract.
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import type { DrawReply } from "./draw";
 
 export type Draw = NonNullable<World["lottery"]>;

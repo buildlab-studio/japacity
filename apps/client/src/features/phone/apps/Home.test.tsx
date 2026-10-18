@@ -2,14 +2,12 @@
 // lives, the monthly charge, the move with its reason when it is shut, and a guest's host. The
 // risk of the water is said once, plainly.
 import { content, text } from "@japacity/content";
-import { int } from "@japacity/sim";
+import { int, applyOverlay } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { applyEffects, start } from "@japacity/sim/testing";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../../packages/sim/src/route/route.journey";
-import { applyOverlay } from "../../../../../../packages/sim/src/engine/overlay";
-import type { Game } from "../../../../../../packages/sim/src/testing/play";
-import { start } from "../../../../../../packages/sim/src/testing/play";
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
 import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixtures";

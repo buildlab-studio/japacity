@@ -3,9 +3,9 @@
 // quiet way, the staff nurse's job taken, the care page read, the council asked, a sponsor looked for.
 import { content } from "@japacity/content";
 import type { Id, PlayerView, SlotPick, World } from "@japacity/sim";
+import { standInWorlds } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
-import { standInWorlds } from "../../../../../packages/sim/src/world/standIn";
 import { answersInOrder, archetypeOf, presetAnswer } from "../frontdoor/archetypes";
 
 export const CARE: Id<"route"> = "route.uk-care";

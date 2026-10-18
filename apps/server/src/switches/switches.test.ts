@@ -1,6 +1,6 @@
 import { content } from "@japacity/content";
 import type { Command, Overlay } from "@japacity/sim";
-import { applyOverlay } from "@japacity/sim";
+import { applyOverlay, AUTHORITY_COMMANDS } from "@japacity/sim";
 import type { SwitchName } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
@@ -14,7 +14,6 @@ import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../draw/beacon";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { ServerRejection, ServerReply } from "../types";
-import { AUTHORITY_COMMANDS } from "../../../../packages/sim/src/engine/step";
 import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget } from "./dials";
 import { rollbackCheck } from "../admin/rollback";
 import { GATED_COMMANDS } from "./gate";

@@ -4,6 +4,7 @@
 import { handles } from "../engine/step";
 import { mulDiv } from "../engine/int";
 import type { Currency, ForeignCurrency, PlayerView, SlotPick } from "../engine/types";
+import { REMIT_CHANNELS } from "../wallet/wallet.logic";
 import type { Loose } from "./play";
 
 function fromTurn(view: PlayerView): Loose[] {
@@ -149,7 +150,7 @@ function fromWallet(view: PlayerView): Loose[] {
   if (view.place.where === "abroad") {
     for (const currency of foreign) {
       if (view.pockets[currency].bank < SMALL_FOREIGN) continue;
-      for (const channel of ["app", "bank", "informal"] as const) commands.push({ type: "wallet/remit", currency, amount: SMALL_FOREIGN, channel });
+      for (const channel of REMIT_CHANNELS) commands.push({ type: "wallet/remit", currency, amount: SMALL_FOREIGN, channel });
     }
   }
   return commands;

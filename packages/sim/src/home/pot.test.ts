@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import type { Accepted, Id } from "../engine/types";
 import type { Game } from "../testing/play";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { WalletEvent } from "../wallet/wallet.events";
 

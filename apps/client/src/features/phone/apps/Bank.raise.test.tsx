@@ -3,10 +3,10 @@
 // salary Lately lists is the raised pay, as the results' line said it would be.
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import { int } from "@japacity/sim";
+import { draw, slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { bp } from "../../../../../../packages/sim/src/engine/int";
-import { draw, slot } from "../../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../../../shared/testing/fixtures";
 import { words } from "../../../shared/words/text";
 import { latelyLines } from "./Bank";
@@ -28,7 +28,7 @@ describe("the raise in the Bank", () => {
     const job = game.state.activity.job!;
     const pay = content.activity[job]!.pay!;
     if (typeof pay.amount !== "number") throw new Error("A fixed pay was expected.");
-    const raised = pay.amount + bp(pay.amount, content.tuning.activity.raiseBp);
+    const raised = pay.amount + int.bp(pay.amount, content.tuning.activity.raiseBp);
     const noticed = game.endTurn([slot(NOTICED)]).lines;
     expect(noticed.some((line) => line.key === "line.activity.raised")).toBe(true);
     if (game.state.turn.banked < 1) game.grant(1);

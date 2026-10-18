@@ -38,8 +38,8 @@ import {
   toOffer,
   uk,
   watchHear,
-} from "./route.journey";
-import type { LifeOptions, Watch } from "./route.journey";
+} from "../testing/route.journey";
+import type { LifeOptions, Watch } from "../testing/route.journey";
 import { FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
 
 const numbers = content.tuning.route;

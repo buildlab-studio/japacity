@@ -4,10 +4,10 @@
 import { content } from "@japacity/content";
 import type { ActivityOption, PlayerView, World } from "@japacity/sim";
 import { standInWorld } from "@japacity/sim";
+import { start } from "@japacity/sim/testing";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { start } from "../../../../../packages/sim/src/testing/play";
 import { setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";

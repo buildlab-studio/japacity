@@ -2,7 +2,8 @@
 // measured values, the machine, the tool and runtime versions, the stores'
 // size before and after, bytes written per command, and the seed. It is
 // written to results/ and pasted into the change that adds or alters the test.
-import { divFloor } from "../../packages/sim/src/engine/int";
+import { int } from "@japacity/sim";
+
 import type { LoadPlan } from "./load.config";
 import { ms, passRule } from "./pass";
 import type { Check, RunResult, Verdict } from "./pass";
@@ -35,13 +36,13 @@ export interface Summary {
 export function summaryOf(input: Omit<Summary, "checks" | "verdict" | "stores"> & { stores: { kind: string; before: Counts; after: Counts } }): Summary {
   const { verdict, checks } = passRule(input.result, input.plan);
   const grown = input.stores.after.rowBytes + input.stores.after.snapshotBytes - input.stores.before.rowBytes - input.stores.before.snapshotBytes;
-  const bytesPerCommand = input.result.accepted === 0 ? 0 : divFloor(grown, input.result.accepted);
+  const bytesPerCommand = input.result.accepted === 0 ? 0 : int.divFloor(grown, input.result.accepted);
   const failedVerification = input.verification !== null && !input.verification.ok;
   return { ...input, checks, verdict: failedVerification && verdict === "pass" ? "fail" : verdict, stores: { ...input.stores, bytesPerCommand } };
 }
 
 const MEGABYTE = 1024 * 1024;
-const megabytes = (bytes: number) => `${String(divFloor(bytes, MEGABYTE))} MB`;
+const megabytes = (bytes: number) => `${String(int.divFloor(bytes, MEGABYTE))} MB`;
 const size = (counts: Counts) => `${megabytes(counts.rowBytes + counts.snapshotBytes)} (${String(counts.rows)} log rows, ${String(counts.snapshots)} snapshots, ${String(counts.characters)} characters)`;
 
 /** R-LOAD-011: the summary as Markdown. */

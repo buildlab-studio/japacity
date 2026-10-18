@@ -8,9 +8,9 @@ import type { Registry } from "../engine/kind";
 import type { ActivityEntry, BaseEvent, Content, Ctx, Id, ReadCtx, ReportLine, StatusEntry } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
 import { registry } from "../kinds";
-import { flown, playMonths } from "../place/place.journey";
-import { applyEffects } from "../route/route.journey";
-import type { LifeOptions } from "../route/route.journey";
+import { flown, playMonths } from "../testing/place.journey";
+import { applyEffects } from "../testing/route.journey";
+import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
 

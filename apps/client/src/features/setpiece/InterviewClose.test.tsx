@@ -1,12 +1,12 @@
 // The interview's close as the world shows it: the officer's last
 // line holds the sheet open with one button, and the sound notice sits in the sheet's header, never over the band.
 import { content, OFFICER_REACTIONS, text } from "@japacity/content";
+import { offerChanceBp } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
 import { act, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "../../../../../packages/sim/src/route/route.journey";
-import { offerChanceBp } from "../../../../../packages/sim/src/route/route.logic";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { useView } from "../../authority/GameProvider";
 import { fakeSound } from "../../shared/sound/fakeSound";
 import { installSoundWake, NOTICE_MS, setSoundBackend } from "../../shared/sound/sound";

@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { bp, convertMinor, divFloor } from "../engine/int";
 import type { ForeignCurrency, PlayerView } from "../engine/types";
-import { NORTHGATE, offeredWith, readyContent, readyLife, seedWhere, slot, toApplied, UK } from "../route/route.journey";
+import { NORTHGATE, offeredWith, readyContent, readyLife, seedWhere, slot, toApplied, UK } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 

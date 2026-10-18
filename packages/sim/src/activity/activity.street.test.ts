@@ -4,7 +4,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Accepted, BaseEvent, Id, Reason } from "../engine/types";
-import { applyEffects, slot } from "../route/route.journey";
+import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { QualityEvent } from "../quality/quality.events";

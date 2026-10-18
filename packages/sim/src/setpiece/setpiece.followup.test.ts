@@ -2,8 +2,8 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, SetpieceAnswer, SetpieceEntry, SetpieceQuestion } from "../engine/types";
-import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "../route/route.journey";
-import type { LifeOptions } from "../route/route.journey";
+import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "../testing/route.journey";
+import type { LifeOptions } from "../testing/route.journey";
 import { offerChanceBp } from "../route/route.logic";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";

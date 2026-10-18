@@ -3,9 +3,9 @@
 // figure the results save toward is broken down here (docs/rules/route.md R-ROUTE-009): the tuition
 // still to pay, the living money to show, and beside them the flight.
 import { content } from "@japacity/content";
+import { toKnown } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { toKnown } from "../../../../../../packages/sim/src/route/route.journey";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";

@@ -10,7 +10,7 @@ import { checkContent } from "../engine/content";
 import { applyOverlay } from "../engine/overlay";
 import type { BaseEvent, Content, Effect, Id, OfferEntry, OfferState, ReadCtx, Requirement } from "../engine/types";
 import { wealthInNaira } from "../place/place.logic";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";

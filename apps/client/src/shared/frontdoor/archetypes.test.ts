@@ -3,12 +3,12 @@
 // is allowed; where a draw has shut it, the open answer that suits the archetype goes instead, and no card shows.
 import { content } from "@japacity/content";
 import { allMet } from "@japacity/sim";
+import { start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import type { KeptPerson } from "../../authority/person";
 import { pageOf } from "../datapage/PageSheet";
 import { chargedLivingContent, newGame } from "../testing/fixtures";
-import { start } from "../../../../../packages/sim/src/testing/play";
 import { say } from "../words/text";
 import { earlyStops, nextStepOf, ownWayOf, sixteenPath } from "../words/sixteen";
 import { agePointsCount, ARCHETYPES, type Archetype, archetypeOf, doorAnswer, lowestYear, ownSteps, presetAnswer, withAge } from "./archetypes";

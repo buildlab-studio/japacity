@@ -1,12 +1,11 @@
 // The first session (R-GUIDE-014): plays the first three months after the prologue of a
 // starting life as the view's next step suggests, and finds the early win.
 import { content as realContent } from "@japacity/content";
-import type { Content, Id, PlayerView, ReportLine, Requirement, SlotPick } from "@japacity/sim";
+import type { Content, Id, Loose, PlayerView, ReportLine, Requirement, SlotPick } from "@japacity/sim";
+import { legalCommands } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 
 import { earlyWinIn } from "../../features/guides/earlyWin";
-// The rule tests' game handle and its legal commands are the sim's own test tools.
-import { legalCommands } from "../../../../../packages/sim/src/testing/legal";
-import { start, type Game, type Loose } from "../../../../../packages/sim/src/testing/play";
 import { ownRouteOf } from "../words/sixteen";
 
 export const FIRST_SESSION_TURNS = 3;

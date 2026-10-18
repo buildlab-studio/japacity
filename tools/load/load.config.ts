@@ -2,7 +2,7 @@
 // not the game's content. `scaled` gives the smaller runs this machine can
 // make before Postgres and k6 are in place, and `planFor` turns a config into
 // the plain numbers the k6 script and the Node driver read.
-import { divCeil, divFloor, mulDiv } from "../../packages/sim/src/engine/int";
+import { int } from "@japacity/sim";
 
 export interface LoadConfig {
   /** R-LOAD-002: test accounts made before the run. */
@@ -69,17 +69,17 @@ export function scaled(load: LoadConfig, divisor: number): LoadConfig {
   if (!Number.isSafeInteger(divisor) || divisor < 1) throw new Error(`A scale divides by a whole number of at least 1, not ${String(divisor)}.`);
   return {
     ...load,
-    accounts: Math.max(1, divFloor(load.accounts, divisor)),
-    commandsPerSecond: Math.max(1, divFloor(load.commandsPerSecond, divisor)),
-    requestsPerSecond: Math.max(1, divFloor(load.requestsPerSecond, divisor)),
+    accounts: Math.max(1, int.divFloor(load.accounts, divisor)),
+    commandsPerSecond: Math.max(1, int.divFloor(load.commandsPerSecond, divisor)),
+    requestsPerSecond: Math.max(1, int.divFloor(load.requestsPerSecond, divisor)),
   };
 }
 
 /** R-LOAD-005: the reads a second added to the commands to reach `requestsPerSecond`. */
 export function readRates(load: LoadConfig): { heartbeats: number; views: number; worlds: number } {
   const rest = Math.max(0, load.requestsPerSecond - load.commandsPerSecond);
-  const heartbeats = mulDiv(rest, DAY.heartbeats, DAY.heartbeats + DAY.reads);
-  const views = divCeil(rest - heartbeats, 2);
+  const heartbeats = int.mulDiv(rest, DAY.heartbeats, DAY.heartbeats + DAY.reads);
+  const views = int.divCeil(rest - heartbeats, 2);
   return { heartbeats, views, worlds: rest - heartbeats - views };
 }
 
@@ -125,15 +125,15 @@ export function planFor(load: LoadConfig, scale: number): LoadPlan {
     minutes: load.minutes,
     staleShareBp: load.staleShareBp,
     mix: MIX.map((entry) => ({ kind: entry.kind, bp: entry.bp })),
-    rampIterations: divFloor(load.commandsPerSecond * RAMP_SECONDS, 2),
+    rampIterations: int.divFloor(load.commandsPerSecond * RAMP_SECONDS, 2),
     target,
     // R-LOAD-009: fewer than 1% of the target dropped.
-    droppedMax: divCeil(target, 100) - 1,
+    droppedMax: int.divCeil(target, 100) - 1,
     p95Ms: load.p95Ms,
     p99Ms: load.p99Ms,
     unexpectedBp: load.unexpectedBp,
     unexpectedFraction: bpFraction(load.unexpectedBp),
-    preAllocatedVUs: Math.max(MIN_VUS, divCeil(load.commandsPerSecond, VUS_PER_RATE_DIVISOR)),
+    preAllocatedVUs: Math.max(MIN_VUS, int.divCeil(load.commandsPerSecond, VUS_PER_RATE_DIVISOR)),
     maxVUs: Math.max(MIN_VUS, load.commandsPerSecond * 2),
   };
 }

@@ -10,7 +10,7 @@ import { checkInvariants } from "../engine/invariants";
 import type { Accepted, BaseEvent, Effect, Id } from "../engine/types";
 import { rideFare } from "../place/place.logic";
 import { stepWith } from "../engine/step";
-import { applyEffects, withEffects } from "../route/route.journey";
+import { applyEffects, withEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { WalletEvent } from "../wallet/wallet.events";

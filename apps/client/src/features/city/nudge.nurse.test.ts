@@ -3,6 +3,7 @@
 // nurses played through `step`: the tile's nurse from school and the ready nurse.
 import { content } from "@japacity/content";
 import type { PlayerView, SlotPick } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import clinic from "../../../public/assets/places/tb-clinic/place.json";
@@ -16,7 +17,6 @@ import { sceneWords } from "./scene.words";
 import { stepOpen } from "./stepOpen";
 import { stagedNow, thingsNow, thingsOf, withMoreAt } from "./things";
 import { stopReached } from "./stops";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 
 const CLINIC = "place.tb-clinic";
 const VISA_CENTRE = "place.visa-centre";

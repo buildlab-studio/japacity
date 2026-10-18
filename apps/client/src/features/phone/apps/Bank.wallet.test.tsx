@@ -3,10 +3,10 @@
 // and the naira the family's requests are paid from are the Bank's, each assertion against the Bank's own element.
 import { content, text } from "@japacity/content";
 import type { ForeignCurrency, PlayerView } from "@japacity/sim";
+import { remitQuote } from "@japacity/sim";
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { remitQuote } from "../../../shared/sim/remit";
 import { abroadView, engineView, richView } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney, formatOne, formatRate } from "../../../shared/words/format";

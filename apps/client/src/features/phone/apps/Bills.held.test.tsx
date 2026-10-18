@@ -2,12 +2,12 @@
 // real engine: the funds go back from the locked pocket, so the slip's
 // "after" is the naira the character keeps, never "₦0 left", and once paid the view (and the band
 // that reads it) counts after the payment.
+import { applyEffects } from "@japacity/sim/testing";
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
-import { applyEffects } from "../../../../../../packages/sim/src/route/route.journey";
 import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";

@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import type { Id, SavedCommand, StepResult } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
-import { slot } from "../route/route.journey";
+import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { chapterCard, grantedRoute, leanRoute } from "./chapter.logic";

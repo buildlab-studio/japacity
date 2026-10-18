@@ -4,11 +4,11 @@
 // on the same screen; and the visa grant leads alone, the asks and the loans after it.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { slot, applyEffects } from "@japacity/sim/testing";
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { slot, applyEffects } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { formatMoney } from "../../shared/words/format";
 import { chargedLivingGame, newGame, recordedGame, abroadGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";

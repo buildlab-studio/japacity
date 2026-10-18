@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { bp, divFloor, mulDiv, valueInKobo } from "../engine/int";
 import type { Accepted, BaseEvent, Content, ForeignCurrency, World } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
-import { applyEffects, draw } from "../route/route.journey";
+import { applyEffects, draw } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";

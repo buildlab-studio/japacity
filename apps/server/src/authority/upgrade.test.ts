@@ -1,9 +1,9 @@
 import { content, olderContents } from "@japacity/content";
 import type { Content, FlatSave, Overlay, State, World } from "@japacity/sim";
 import { applyOverlay, checkInvariants, hashState, newState, offlineCalendar, replay, stepWorld, upgradeState, viewFor } from "@japacity/sim";
+import { lifeSaves } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { lifeSaves } from "../../../../packages/sim/src/goldens/lives.data";
 import { productionConfig } from "../config";
 import { upgradeCharacter } from "./command";
 import { apply, contentNamed } from "./load";

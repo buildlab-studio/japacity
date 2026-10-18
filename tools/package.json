@@ -14,6 +14,7 @@
     "@japacity/assets": "workspace:*",
     "@japacity/assets-src": "workspace:*",
     "@japacity/content": "workspace:*",
+    "@japacity/sim": "workspace:*",
     "eslint": "^10.12.0",
     "meshoptimizer": "1.3.0",
     "three": "0.186.1",

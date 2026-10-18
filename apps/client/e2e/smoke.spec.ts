@@ -1,13 +1,12 @@
+import type { Id } from "@japacity/sim";
+import { standInWorld } from "@japacity/sim";
+import { lifeSaves, start } from "@japacity/sim/testing";
 import { expect, test, type Page } from "@playwright/test";
 
 // The recorded lives are the simulation's own data, replayed here through the client's save. The month is lived in the
 // world (docs/rules/world.md R-WORLD-025, R-WORLD-030): acts on the home's things, the bed's Sleep turning it, the results
 // over the scene.
 import { content } from "../../../packages/content/src/index";
-import type { Id } from "../../../packages/sim/src/engine/types";
-import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
-import { start } from "../../../packages/sim/src/testing/play";
-import { standInWorld } from "../../../packages/sim/src/world/standIn";
 import { startArchetype, startReadyLife } from "./door";
 import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./live";
 

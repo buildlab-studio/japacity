@@ -1,9 +1,9 @@
 // Coming up's rows (docs/rules/world.md R-WORLD-002, text.md R-TEXT-008): the box says how many months once, and the
 // line beside it is the thing with a note of a few words, never "in 2 months" again.
+import { lifeSaves } from "@japacity/sim/testing";
 import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
 import { recordedGame } from "../../shared/testing/fixtures";
 import { comingOf } from "../../shared/words/coming";
 import { inMonths, say, sayCount } from "../../shared/words/text";

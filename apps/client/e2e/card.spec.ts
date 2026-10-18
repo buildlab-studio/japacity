@@ -2,13 +2,13 @@
 // recorded life boards the plane through the send-off scene, the send-off card
 // is opened from the phone (R-SHARE-015), and the player saves it as a file
 // where the browser has no share sheet.
+import { lifeSaves } from "@japacity/sim/testing";
 import { readFileSync } from "node:fs";
 
 import { devices, expect, test, type Page } from "@playwright/test";
 
 // The recorded lives and the tuning are the simulation's and the content's own data.
 import { content } from "../../../packages/content/src/index";
-import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { boardThroughTheScene, closeGranted, doAct, LIVED, placeReady, rideTo } from "./live";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.

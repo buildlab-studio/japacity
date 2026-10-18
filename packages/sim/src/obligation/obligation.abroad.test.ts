@@ -5,8 +5,8 @@ import { check } from "../engine/check";
 import { bp, convertMinor, divCeil } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry, ObligationState, ReportLine } from "../engine/types";
-import { playMonths } from "../place/place.journey";
-import { applyEffects } from "../route/route.journey";
+import { playMonths } from "../testing/place.journey";
+import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { carPaid, carTerms, carView } from "./obligation.logic";
 import {
@@ -30,7 +30,7 @@ import {
   SHORTFALL,
   TUITION,
   UPKEEP,
-} from "./obligation.journey";
+} from "../testing/obligation.journey";
 
 const CREDIT = content.tuning.credit;
 const STANDING: Id<"quality"> = "quality.standing";

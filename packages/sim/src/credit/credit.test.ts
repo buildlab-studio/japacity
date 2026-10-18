@@ -4,9 +4,9 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry } from "../engine/types";
-import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, readOf, setPounds, settledAbroad, UK } from "../obligation/obligation.journey";
-import { playMonths } from "../place/place.journey";
-import { answerFirst, applyEffects } from "../route/route.journey";
+import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, readOf, setPounds, settledAbroad, UK } from "../testing/obligation.journey";
+import { playMonths } from "../testing/place.journey";
+import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { creditKind, rateFor } from "./credit.logic";
 

@@ -1,14 +1,18 @@
 export type * from "./engine/types";
 
 export { newState, upgradeState } from "./engine/state";
-export { step } from "./engine/step";
+export { step, stepWith, AUTHORITY_COMMANDS } from "./engine/step";
 export { check, allMet, unmet } from "./engine/check";
 export { checkContent } from "./engine/content";
 export { applyOverlay, checkOverlay } from "./engine/overlay";
 export type { Overlay } from "./engine/overlay";
 export { checkInvariants } from "./engine/invariants";
-export { FIRST_MEETUP_FITS } from "./route/route.logic";
+export { FIRST_MEETUP_FITS, offerChanceBp } from "./route/route.logic";
+export { topActivities } from "./chapter/chapter.card";
 export { hashState, stableJson } from "./engine/hash";
+// A bounded sample of the commands a view allows: random play and the load test's Worker read it.
+export { legalCommands } from "./testing/legal";
+export type { Loose } from "./testing/play";
 export { replay, newSave, recordCommand, loadSave, isFlatSave, lifeStart, savedCommands, lastSegment, openSegment } from "./engine/replay";
 export { viewFor, hiddenPaths } from "./engine/view";
 export { nextMorning, sealFrom, sealedAt, withhold, withholdLines, REAL_WAIT_DOCUMENTS } from "./engine/envelope";
@@ -17,10 +21,13 @@ export { worldClockAt, nextGameMorning, partOf } from "./engine/worldClock";
 export type { WorldClock, DayPart } from "./engine/worldClock";
 export { drawAt, hashString32 } from "./engine/random";
 export * as int from "./engine/int";
-export { standInWorld } from "./world/standIn";
+export { standInWorld, standInWorlds } from "./world/standIn";
 export { stepWorld, offlineCalendar } from "./world/director";
 export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
+export { remitQuote, REMIT_CHANNELS } from "./wallet/wallet.logic";
+export type { RemitChannel } from "./wallet/wallet.events";
+export { ledgerReport } from "./wallet/report";
 // Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.
 export { pocketFor } from "./wallet/wallet.logic";
 export { rideFare, metresApart } from "./place/place.logic";

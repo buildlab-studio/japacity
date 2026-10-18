@@ -2,9 +2,7 @@
 // R-LOTTERY-007, R-LOTTERY-009): the League of Entropy's `quicknet` beacon,
 // read through drand's HTTP API (https://docs.drand.love/developer/http-api).
 // quicknet's chain info: https://api.drand.sh/v2/beacons/quicknet/info
-import { int } from "@japacity/sim";
-
-import { fromHex, sha256, toHex } from "../../../../packages/sim/src/lottery/lottery.draw";
+import { int, fromHex, sha256, toHex } from "@japacity/sim";
 
 /** A beacon: when its rounds fall, and the randomness of a round once it has been published. */
 export interface Beacon {

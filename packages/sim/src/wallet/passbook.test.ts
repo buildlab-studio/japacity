@@ -11,7 +11,7 @@ import { upgradeState } from "../engine/state";
 import type { BaseEvent, Currency, FlatSave, ForeignCurrency, Id, PlayerView, ReportLine, State } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { lifeSaves } from "../goldens/lives.data";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import { newLifeSaves } from "../sweep/lives.data";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";

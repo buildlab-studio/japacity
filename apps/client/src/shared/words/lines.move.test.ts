@@ -3,9 +3,9 @@
 // with only "Home is Makoko now."
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { applyEffects } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../testing/fixtures";
 import { nowLineWords } from "./acts";
 import { formatMoney } from "./format";

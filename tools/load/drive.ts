@@ -3,9 +3,9 @@
 // what commands.k6.js sends, from the same picks in pick.js, on the same
 // arrival schedule: a linear ramp, then a constant rate that never waits for
 // the server, with an iteration dropped when every user is busy.
+import { int } from "@japacity/sim";
 import { setTimeout as sleep } from "node:timers/promises";
 
-import { divFloor } from "../../packages/sim/src/engine/int";
 import { request } from "./http";
 import type { Target } from "./http";
 import type { LoadPlan } from "./load.config";
@@ -18,12 +18,12 @@ const SECOND_MS = 1000;
 
 /** R-LOAD-003: the ramp's arrival times in milliseconds from the start, rising linearly to the rate. */
 export function rampArrivals(rate: number, seconds: number, count: number): number[] {
-  return Array.from({ length: count }, (_, at) => Math.floor(Math.sqrt(divFloor(2 * seconds * SECOND_MS * SECOND_MS * (at + 1), rate))));
+  return Array.from({ length: count }, (_, at) => Math.floor(Math.sqrt(int.divFloor(2 * seconds * SECOND_MS * SECOND_MS * (at + 1), rate))));
 }
 
 /** R-LOAD-003: a constant rate's arrival times from `startMs` for `count` arrivals. */
 export function steadyArrivals(rate: number, startMs: number, count: number): number[] {
-  return Array.from({ length: count }, (_, at) => startMs + divFloor(at * SECOND_MS, rate));
+  return Array.from({ length: count }, (_, at) => startMs + int.divFloor(at * SECOND_MS, rate));
 }
 
 interface Tally {
@@ -137,7 +137,7 @@ export async function drive(target: Target, plan: LoadPlan, accounts: readonly [
     }
     const running = arrival.run(arrival.index).finally(() => busy.delete(running));
     busy.add(running);
-    const elapsed = divFloor(arrival.at, 60 * SECOND_MS);
+    const elapsed = int.divFloor(arrival.at, 60 * SECOND_MS);
     if (elapsed > shown) {
       shown = elapsed;
       log(`  minute ${String(elapsed)}: ${String(tally.sent)} commands measured, ${String(busy.size)} in flight, ${String(tally.dropped)} dropped.`);

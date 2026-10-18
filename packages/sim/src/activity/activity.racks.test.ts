@@ -5,8 +5,8 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Accepted, BaseEvent, Id } from "../engine/types";
-import { ALWAYS_GRANTED, offeredSeed } from "../place/place.journey";
-import { applyEffects, readyLife, toDecision } from "../route/route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
+import { applyEffects, readyLife, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 

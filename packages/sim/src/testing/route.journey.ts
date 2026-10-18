@@ -6,10 +6,10 @@ import { drawAt, scaleDraw } from "../engine/random";
 import { stepWith } from "../engine/step";
 import type { Cause, Content, Ctx, Effect, Id, Random, RouteState, ScenarioEntry, SlotPick, Stream, Terms, Tuning } from "../engine/types";
 import { registry } from "../kinds";
-import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import type { Game } from "./play";
+import { start } from "./play";
 import { standInWorld } from "../world/standIn";
-import { offerChanceBp } from "./route.logic";
+import { offerChanceBp } from "../route/route.logic";
 
 export const UK: Id<"route"> = "route.uk-masters";
 export const NORTHGATE: Id<"school"> = "school.northgate";

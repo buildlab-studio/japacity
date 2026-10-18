@@ -7,10 +7,10 @@ import { describe, expect, test } from "vitest";
 
 import { divCeil, mulDiv } from "../engine/int";
 import type { Accepted, BaseEvent, CountryRides, Currency, Effect, Id, RideWay } from "../engine/types";
-import { applyEffects } from "../route/route.journey";
+import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { flown } from "./place.journey";
+import { flown } from "../testing/place.journey";
 import { metresApart, rideFare, shuttleRide, withinMetres } from "./place.logic";
 
 const CANADA: Id<"country"> = "country.canada";

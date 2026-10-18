@@ -4,11 +4,10 @@
 // played, a recorded life seeded (packages/sim/src/goldens/lives.data.ts), and the development build's hooks
 // (`window.__city`, `__map`, `__sendOff`, `?clock=`). A screen that cannot be reached is written down as not reached,
 // with why, and the test goes on. Nothing here asserts how a screen should look: the look is the review's.
+import { lifeSaves, start } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
-import { lifeSaves } from "../../../../packages/sim/src/goldens/lives.data";
-import { start } from "../../../../packages/sim/src/testing/play";
 import { ADMIN_GETS } from "../../src/features/admin/admin.fixtures";
 import { type AbroadLife, clear as clearAbroad, lifeIn } from "../abroad";
 import { passOpeningWords, passThePage } from "../door";

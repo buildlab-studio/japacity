@@ -2,10 +2,10 @@
 // job with a commitment and a side job, or a job with two commitments beside it; one line, no figure.
 import { content } from "@japacity/content";
 import type { Id, PlayerView } from "@japacity/sim";
+import { applyEffects } from "@japacity/sim/testing";
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";

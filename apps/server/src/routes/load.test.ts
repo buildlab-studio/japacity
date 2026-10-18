@@ -1,12 +1,11 @@
+import type { Id, Loose, World } from "@japacity/sim";
+import { hashState, newState, step } from "@japacity/sim";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 import { content } from "@japacity/content";
-import { hashState, newState, step } from "@japacity/sim";
-import type { Id, World } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import type { Loose } from "../../../../packages/sim/src/testing/play";
 import { call, held, newLife, testServer } from "../authority/testing";
 import type { TestServer } from "../authority/testing";
 import { productionConfig, testConfig } from "../config";

@@ -3,11 +3,10 @@
 // the living costs' rise told with its reason. Played on the real engine where a few commands get there.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { applyEffects, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { storyLines } from "../../features/turn/month.results";
-import { applyEffects } from "../../../../../packages/sim/src/route/route.journey";
-import { start } from "../../../../../packages/sim/src/testing/play";
 import { chargedLivingContent, newGame, openOffer } from "../testing/fixtures";
 import { formatMoney } from "./format";
 import { tidyLines } from "./lines";

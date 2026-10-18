@@ -8,8 +8,8 @@ import { check } from "../../engine/check";
 import { stepWith } from "../../engine/step";
 import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, Terms, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
-import { answerFirst, applyEffects, readyLife, slot, UK, withEffects } from "../route.journey";
-import type { LifeOptions } from "../route.journey";
+import { answerFirst, applyEffects, readyLife, slot, UK, withEffects } from "../../testing/route.journey";
+import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { contractGate, contractJob } from "./contract";
 

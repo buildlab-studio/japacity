@@ -3,13 +3,13 @@
 // the people and interview slices set as those kinds' events would set them,
 // so a gate test need not play a courtship first; everything else is played
 // through `step`. Nothing in the simulation imports this file.
-import type { Registry } from "../../engine/kind";
-import { stepWith } from "../../engine/step";
-import type { Bond, Cause, Content, Effect, Id, InterviewResult, Moment, PeopleSlice, PersonFacts, ReadCtx, ReportLine, Terms } from "../../engine/types";
-import { registry } from "../../kinds";
-import type { Game } from "../../testing/play";
-import type { LifeOptions } from "../route.journey";
-import { readyLife } from "../route.journey";
+import type { Registry } from "../engine/kind";
+import { stepWith } from "../engine/step";
+import type { Bond, Cause, Content, Effect, Id, InterviewResult, Moment, PeopleSlice, PersonFacts, ReadCtx, ReportLine, Terms } from "../engine/types";
+import { registry } from "../kinds";
+import type { Game } from "./play";
+import type { LifeOptions } from "./route.journey";
+import { readyLife } from "./route.journey";
 
 export const UK_PARTNER: Id<"route"> = "route.uk-partner";
 export const CA_SPOUSE: Id<"route"> = "route.ca-spouse";

@@ -3,8 +3,8 @@
 // Nothing in the simulation imports this file.
 import type { Accepted, Content, Id, SlotPick, World } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
-import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import type { Game } from "./play";
+import { start } from "./play";
 import { standInWorld } from "../world/standIn";
 
 export const SEND_OFF: Id<"chapter"> = "chapter.send-off";

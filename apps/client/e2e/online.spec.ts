@@ -1,3 +1,6 @@
+import type { Command, World } from "@japacity/sim";
+import { standInWorld } from "@japacity/sim";
+import { start, type Game } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
@@ -6,9 +9,6 @@ import { expect, test, type Page } from "@playwright/test";
 // /api route is answered by the page's own route handler, in the shapes
 // apps/client/src/shared/net/contract.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
-import { standInWorld } from "../../../packages/sim/src/index";
-import type { Command, World } from "../../../packages/sim/src/index";
-import { start, type Game } from "../../../packages/sim/src/testing/play";
 import { passOpeningWords } from "./door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./live";
 

@@ -4,12 +4,12 @@
 // by every page, an account lights a light and sees its name, a second account sees one more bare light and no name,
 // the admin approves it on the admin page, the second account then sees the name, and Put it out takes it away. Five
 // taps on Settings' version line open the page offline. Phone only: the design is drawn for a phone.
+import { start } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { type Browser, devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../packages/content/src/index";
-import { start } from "../../../packages/sim/src/testing/play";
 import { ADMIN_GETS } from "../src/features/admin/admin.fixtures";
 import { passOpeningWords, startReadyLife } from "./door";
 import { LIVED, openApp, passCards, passHomeTeach, placeReady } from "./live";

@@ -6,11 +6,9 @@
 import { content } from "@japacity/content";
 import type { Currency, FlatSave, ReportLine, World } from "@japacity/sim";
 import { int, standInWorld } from "@japacity/sim";
+import { lifeSaves, newLifeSaves, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { lifeSaves } from "../../../../../packages/sim/src/goldens/lives.data";
-import { newLifeSaves } from "../../../../../packages/sim/src/sweep/lives.data";
-import { start, type Game } from "../../../../../packages/sim/src/testing/play";
 import { kept, localCurrency } from "../../features/turn/month.results";
 import { newGame } from "../testing/fixtures";
 import { formatMoney } from "./format";

@@ -1,3 +1,5 @@
+import type { Game } from "@japacity/sim/testing";
+import { start } from "@japacity/sim/testing";
 import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
@@ -6,8 +8,6 @@ import { expect, test, type Page } from "@playwright/test";
 // local authority replays them. The people live in the world (docs/rules/world.md R-WORLD-020): met in a place, their
 // threads and the slots in the phone's Chats, a visit at their room, the interview as the ask under the band.
 import { content } from "../../../packages/content/src/index";
-import type { Game } from "../../../packages/sim/src/testing/play";
-import { start } from "../../../packages/sim/src/testing/play";
 import { doAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeReady, putPhoneAway, seedSave, sleepTheMonth, bedThing } from "./live";
 
 test.use({ launchOptions: { args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });

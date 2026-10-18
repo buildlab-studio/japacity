@@ -9,14 +9,14 @@ import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
 import { bp, convertMinor, mulDiv } from "../engine/int";
 import type { Accepted, Content, Currency, ForeignCurrency, Id, PlayerView, State } from "../engine/types";
-import { flownAda } from "../goal/goal.journey";
-import { abroad, closeTypes, markBy, setPounds, settledAbroad } from "../obligation/obligation.journey";
-import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UK, UNIT } from "../route/route.journey";
+import { flownAda } from "../testing/goal.journey";
+import { abroad, closeTypes, markBy, setPounds, settledAbroad } from "../testing/obligation.journey";
+import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UK, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { firstTick, seedWhere as seedWhereStory } from "../testing/world";
 import { standInWorld } from "../world/standIn";
-import { eventsOf, month, owing, replayTo } from "./crossing.journey";
+import { eventsOf, month, owing, replayTo } from "../testing/crossing.journey";
 
 function officialOf(pairs: PlayerView["rates"]): Record<ForeignCurrency, number> {
   const rates = {} as Record<ForeignCurrency, number>;

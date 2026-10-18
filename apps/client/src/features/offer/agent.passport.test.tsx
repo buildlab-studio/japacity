@@ -3,11 +3,11 @@
 // needed and the route's agent step stays unticked. Real content.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
+import { applyEffects, readyLife, slot } from "@japacity/sim/testing";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, slot } from "../../../../../packages/sim/src/route/route.journey";
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import { openOffer } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";

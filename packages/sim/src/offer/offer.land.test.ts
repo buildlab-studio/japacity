@@ -5,7 +5,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, toKnown, UK } from "../route/route.journey";
+import { applyEffects, readyLife, toKnown, UK } from "../testing/route.journey";
 
 const LAND_BUYER = "offer.land-buyer";
 

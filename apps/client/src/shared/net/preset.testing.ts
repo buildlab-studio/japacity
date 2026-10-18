@@ -3,8 +3,8 @@
 // is refused. The real route is tested in apps/server; this holds a faked server to its reply.
 import { presetAnswer } from "@japacity/content";
 import type { Command, ReportLine } from "@japacity/sim";
+import type { Game } from "@japacity/sim/testing";
 
-import type { Game } from "../../../../../packages/sim/src/testing/play";
 import type { ClockView, PresetReply, PresetRequest, PresetStep } from "./contract";
 
 /** The most steps one request plays (apps/server/src/config.ts `limits.presetSteps`). */

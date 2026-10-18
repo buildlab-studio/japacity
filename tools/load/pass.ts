@@ -2,7 +2,8 @@
 // measured at the load generator. Times are whole microseconds so nothing
 // here divides. A run with any connection error on this machine is repeated
 // before it counts (R-LOAD-008).
-import { divCeil, divFloor } from "../../packages/sim/src/engine/int";
+import { int } from "@japacity/sim";
+
 import type { LoadPlan } from "./load.config";
 
 /** One scenario's numbers, from k6's summary or from the Node driver. */
@@ -51,13 +52,13 @@ export type Verdict = "pass" | "fail" | "repeat";
 /** Microseconds as milliseconds with three places, written without dividing. */
 export function ms(us: number): string {
   const whole = Math.round(us);
-  return `${String(divFloor(whole, 1000))}.${String(whole % 1000).padStart(3, "0")} ms`;
+  return `${String(int.divFloor(whole, 1000))}.${String(whole % 1000).padStart(3, "0")} ms`;
 }
 
 /** Nearest-rank percentile of sorted values, `bp` in basis points: 9500 is the 95th. */
 export function percentile(sorted: readonly number[], bp: number): number {
   if (sorted.length === 0) return 0;
-  const rank = Math.max(1, divCeil(sorted.length * bp, 10000));
+  const rank = Math.max(1, int.divCeil(sorted.length * bp, 10000));
   return sorted[rank - 1] ?? 0;
 }
 

@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 
 import { applyOverlay } from "../engine/overlay";
 import type { Accepted, BaseEvent, Content, Effect, Id, OfferEntry, OfferView, SlotPick } from "../engine/types";
-import { applyEffects, draw, seedWhere, slot } from "../route/route.journey";
+import { applyEffects, draw, seedWhere, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { COURSE, COURSE_STEP } from "./health";

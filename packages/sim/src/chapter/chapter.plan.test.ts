@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { checkInvariants } from "../engine/invariants";
 import type { Content, Id, ReadCtx } from "../engine/types";
 import { checklistView, routePercent } from "../japacity/japacity.logic";
-import { applyEffects, slot } from "../route/route.journey";
+import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { leanRoute } from "./chapter.logic";

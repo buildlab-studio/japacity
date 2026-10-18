@@ -10,14 +10,14 @@ import { divFloor } from "../../engine/int";
 import { checkInvariants } from "../../engine/invariants";
 import type { Content, Id, OfferEntry, OfferState, ReadCtx, Requirement, RequirementResult, RouteEntry, RouteGateState, TermSpec } from "../../engine/types";
 import { japacity } from "../../japacity/japacity.logic";
-import { abroad } from "../../obligation/obligation.journey";
+import { abroad } from "../../testing/obligation.journey";
 import { pressureChanceBp } from "../../offer/offer.logic";
 import type { QualityEvent } from "../../quality/quality.events";
 import { freeSlots } from "../../turn/turn.logic";
 import type { Game } from "../../testing/play";
-import type { LifeOptions } from "../route.journey";
-import { ALWAYS_GRANTED, offeredSeed } from "../../place/place.journey";
-import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../route.journey";
+import type { LifeOptions } from "../../testing/route.journey";
+import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
+import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
 
 const ROAD: Id<"route"> = "route.road";

@@ -1,11 +1,11 @@
 // A bill's slip is dated in the game's own time (docs/rules/world.md R-WORLD-019, R-WORLD-002): the
 // character's age in years and months, as the band shows it, never the real calendar.
+import { applyEffects } from "@japacity/sim/testing";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
-import { applyEffects } from "../../../../../../packages/sim/src/route/route.journey";
 import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { clockWords } from "../../../shared/words/quality";

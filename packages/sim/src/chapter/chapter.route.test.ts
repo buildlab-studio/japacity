@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
 import type { ChapterEntry, Content, Id } from "../engine/types";
-import { slot } from "../route/route.journey";
+import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { leanRoute } from "./chapter.logic";

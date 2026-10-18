@@ -6,9 +6,9 @@ import { describe, expect, test } from "vitest";
 import { check } from "../../engine/check";
 import type { Content, Id, ReadCtx, RouteState, ScenarioEntry, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
-import { flown } from "../../place/place.journey";
-import { applyEffects, readyLife, slot, toDecision } from "../route.journey";
-import type { LifeOptions } from "../route.journey";
+import { flown } from "../../testing/place.journey";
+import { applyEffects, readyLife, slot, toDecision } from "../../testing/route.journey";
+import type { LifeOptions } from "../../testing/route.journey";
 import { GATES } from "./index";
 
 const CARE: Id<"route"> = "route.uk-care";

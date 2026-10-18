@@ -3,11 +3,11 @@
 // fingerprint and beacon round, its odds and the jackpot standing, the sales
 // so far, and the latest published result.
 import type { LotteryResult, World } from "@japacity/sim";
+import { jackpotHit } from "@japacity/sim";
 import type { WorldStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import { closesTickOf, drawOn, storedBefore } from "../draw/draw";
-import { jackpotHit } from "../../../../packages/sim/src/lottery/lottery.draw";
 
 /**
  * R-LOTTERY-015: the newest result stored for a draw before `draw`. The row

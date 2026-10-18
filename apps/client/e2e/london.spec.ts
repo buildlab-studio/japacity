@@ -2,9 +2,9 @@
 // R-PLACE-010, R-PLACE-012; streets.md R-STREET-012): Ada's recorded life lands in London, she walks to Peckham Rye,
 // buys the month's bus pass at the ticket machine, rides the bus free to the big shop, does the weekly shop, takes the
 // train to the office at London Bridge for its fare, and walks home to the room, however far.
+import { lifeSaves } from "@japacity/sim/testing";
 import { expect, type Page, test } from "@playwright/test";
 
-import { lifeSaves } from "../../../packages/sim/src/goldens/lives.data";
 import { passOpeningWords } from "./door";
 import { doAct, LIVED, passCards, placeReady, seedSave } from "./live";
 

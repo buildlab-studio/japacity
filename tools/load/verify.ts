@@ -6,17 +6,12 @@
 // from the Worker that stepped the commands.
 //
 // Usage: pnpm tsx tools/load/verify.ts [--base http://127.0.0.1:8787] [--concurrency 32]
+import type { Command, Content, Currency, Id, Sender, State, World } from "@japacity/sim";
+import { checkInvariants, hashState, newState, step, ledgerReport, int } from "@japacity/sim";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 import { content as shipped } from "../../packages/content/src/index";
-import { checkInvariants } from "../../packages/sim/src/engine/invariants";
-import { hashState } from "../../packages/sim/src/engine/hash";
-import { divFloor, mulDiv } from "../../packages/sim/src/engine/int";
-import { newState } from "../../packages/sim/src/engine/state";
-import { step } from "../../packages/sim/src/engine/step";
-import type { Command, Content, Currency, Id, Sender, State, World } from "../../packages/sim/src/engine/types";
-import { ledgerReport } from "../../packages/sim/src/wallet/report";
 import { argument, patient, pool, wholeArgument } from "./http";
 import type { Target } from "./http";
 import type { Manifest } from "./seed";
@@ -133,11 +128,11 @@ export interface Counts {
 export function snapshotShare(before: Counts, after: Counts, every: number): { ok: boolean; measuredBp: number; targetBp: number } {
   const rows = after.rows - before.rows;
   const snapshots = after.snapshots - before.snapshots;
-  const targetBp = divFloor(10000, every);
+  const targetBp = int.divFloor(10000, every);
   if (rows === 0) return { ok: false, measuredBp: 0, targetBp };
   // |snapshots / rows - 1 / every| <= 1%, multiplied through by rows and every.
   const ok = Math.abs(snapshots * 10000 * every - rows * 10000) <= 100 * rows * every;
-  return { ok, measuredBp: mulDiv(snapshots, 10000, rows), targetBp };
+  return { ok, measuredBp: int.mulDiv(snapshots, 10000, rows), targetBp };
 }
 
 export interface Verification {
