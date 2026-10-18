@@ -6,9 +6,9 @@
 // account, a character or a life (R-ANALYTICS-007). Plain functions over plain data.
 import { HELD_BANDS, MONTH_BANDS, SESSION_BANDS, SESSION_GAP_MINUTES } from "@japacity/content";
 import { time } from "@japacity/sim";
-import type { AccountRow, CounterTotal, RegionCount } from "@japacity/store";
+import type { CounterTotal, RegionCount } from "@japacity/store";
 
-import { NO_REGION } from "./list";
+import { regionOf } from "./list";
 import type { DayFacts } from "./nightly";
 import type { Life, Played } from "./replay";
 
@@ -37,8 +37,6 @@ const TOP_UP = "top-up";
 
 /** R-STATUS-007: the grants that secure a life abroad, as the secured card reads them. */
 const SECURING = new Set(["settled", "citizen"]);
-
-const regionOf = (account: AccountRow | null) => (account === null || account.country === "" ? NO_REGION : account.country);
 
 function tally(into: Map<string, CounterTotal>, row: CounterTotal): void {
   if (row.count === 0) return;

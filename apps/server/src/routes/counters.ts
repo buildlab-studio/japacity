@@ -11,7 +11,7 @@ import { advertRegion } from "../advert/campaign";
 import { addAdvertCounters, withinAccountDay } from "../advert/counts";
 import { checkBatch, isDoorRow } from "../analytics/batch";
 import type { DropReason } from "../analytics/list";
-import { NO_REGION } from "../analytics/list";
+import { NO_REGION, regionOf, requestRegion } from "../analytics/list";
 import { batchAllowed } from "../analytics/rate";
 import { usageCountsOn } from "../analytics/usage";
 import type { ServerDeps } from "../deps";
@@ -40,7 +40,7 @@ export function countersRoute(deps: ServerDeps): Hono {
       const door = checked.rows.filter(isDoorRow);
       const refused = checked.rows.length - door.length;
       const country = countryOf(c.req.raw);
-      const region = country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
+      const region = requestRegion(country);
       const dropped = refused > 0 || door.length === 0 ? { ...checked.dropped, "signed-out": 1 } : checked.dropped;
       await deps.stores.counters.add([...door.map((row) => ({ day, region, name: row.name, key: row.key, count: row.count })), ...droppedRows(day, NO_REGION, dropped)]);
       return done();
@@ -52,7 +52,7 @@ export function countersRoute(deps: ServerDeps): Hono {
     }
     // R-ANALYTICS-006: a player who stopped the counters is not counted at all, not even as dropped.
     if (!usageCountsOn(account)) return done();
-    const region = account.country === "" ? NO_REGION : account.country;
+    const region = regionOf(account);
     if (!batchAllowed(deps.stores.counters, session.account, deps.now(), deps.contents.current.tuning.analytics.batchesPerHour)) {
       await deps.stores.counters.add(droppedRows(day, region, { rate: 1 }));
       return done();

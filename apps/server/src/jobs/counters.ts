@@ -7,7 +7,7 @@ import type { DayLog, NumbersLog, RegionCount } from "@japacity/store";
 
 import type { ActiveLife } from "../analytics/nightly";
 import { nightlyTotals } from "../analytics/nightly";
-import { NO_REGION } from "../analytics/list";
+import { regionOf } from "../analytics/list";
 import { numbersTotals } from "../analytics/numbers";
 import { replayLife } from "../analytics/replay";
 import type { ServerDeps } from "../deps";
@@ -33,7 +33,7 @@ async function openReports(deps: ServerDeps): Promise<{ reason: string; region: 
   const found: { reason: string; region: string }[] = [];
   for (const report of open) {
     const reporter = await deps.stores.account.get(report.reporter);
-    found.push({ reason: report.reason, region: reporter === null || reporter.country === "" ? NO_REGION : reporter.country });
+    found.push({ reason: report.reason, region: regionOf(reporter) });
   }
   return found;
 }

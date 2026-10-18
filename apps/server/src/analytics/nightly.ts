@@ -4,7 +4,7 @@
 import { isEarlyWin, picksOf, time } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 
-import { NO_REGION } from "./list";
+import { regionOf } from "./list";
 import type { Life, Played } from "./replay";
 
 /** One active character: its replayed life and its account's row, null once the account is gone. */
@@ -33,8 +33,6 @@ type Counted =
 
 /** R-ANALYTICS-008: the days after sign-up a return is counted on, close enough that the returns make a curve. */
 const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 14: "d14", 30: "d30" };
-
-const regionOf = (account: AccountRow | null) => (account === null || account.country === "" ? NO_REGION : account.country);
 
 /** Adds one to a total, keyed so the same day, region, name and key fold into one row. */
 function tally(into: Map<string, CounterTotal>, row: CounterTotal): void {

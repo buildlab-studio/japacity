@@ -13,7 +13,7 @@ import type { CounterTotal } from "@japacity/store";
 
 import { stateNow } from "../ops/replay";
 import { LIVES_KEYS, LIVES_PLAYING } from "../analytics/lights";
-import { NO_REGION, WHOLE_GAME } from "../analytics/list";
+import { regionOf, WHOLE_GAME } from "../analytics/list";
 import type { ServerDeps } from "../deps";
 
 /** The cron in `wrangler.jsonc` that runs this job, beside the other nightly ones. */
@@ -54,7 +54,7 @@ export async function countLives(deps: Pick<ServerDeps, "contents" | "stores">, 
       }
       const { state } = now.value;
       if (state.turn.ended) continue;
-      const region = account.country === "" ? NO_REGION : account.country;
+      const region = regionOf(account);
       const counts = byRegion.get(region) ?? none();
       counts[state.place.where] += 1;
       byRegion.set(region, counts);

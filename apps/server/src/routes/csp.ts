@@ -13,7 +13,7 @@ import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
-import { NO_REGION } from "../analytics/list";
+import { requestRegion } from "../analytics/list";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
 import { TOO_LARGE_DETAIL } from "../security/body";
@@ -162,7 +162,7 @@ export function cspReportRoute(deps: ServerDeps): Hono {
     if (kept.length > 0) {
       const day = time.dayName(time.utcDay(deps.now()));
       const country = countryOf(c.req.raw);
-      const region = country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
+      const region = requestRegion(country);
       const counts = new Map<CspDirective, number>();
       for (const violation of kept) counts.set(violation.directive, (counts.get(violation.directive) ?? 0) + 1);
       const rows: CounterTotal[] = [...counts].map(([key, count]) => ({ day, region, name: CSP_COUNTER, key, count }));
