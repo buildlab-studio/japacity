@@ -1,4 +1,4 @@
-// People written as code. One skeleton for everyone: the
+// People written as code, ported from the asset experiments. One skeleton for everyone: the
 // same bone names and order, so one set of poses drives every body. A person is plain data
 // (body numbers, skin, hair, clothes, pattern seed) given to this one builder (R-ASSET-014).
 // The output is a skinned mesh as plain arrays (person.types.ts): group 0 is flat palette

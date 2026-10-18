@@ -1,4 +1,4 @@
-// Fabric patterns drawn in code from a seed (R-ASSET-013), ported from the design's patterns.js.
+// Fabric patterns drawn in code from a seed (R-ASSET-013), ported from the asset experiments.
 // Drawn straight into pixels, with no canvas, so the export can run in Node and every pixel
 // is exactly a palette colour: a shape covers a pixel when the pixel's centre is inside it,
 // so there is no antialiasing and no blending. Shapes near an edge are drawn again across

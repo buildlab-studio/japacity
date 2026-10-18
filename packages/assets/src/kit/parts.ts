@@ -1,4 +1,4 @@
-// The kit of parts (R-ASSET-016), ported from the design's city.js and extended with the
+// The kit of parts (R-ASSET-016), ported from the asset experiments and extended with the
 // parts the six examples need. Sizes come from the part table on
 // docs/rules/assets.md; KIT_SIZES holds them so the tests can check every part.
 // Parts fixed to a wall are drawn in the wall's own frame: the face is z = 0 and

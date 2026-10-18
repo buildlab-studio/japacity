@@ -1,4 +1,4 @@
-// The design's market stall (models.js): a table, an umbrella, a basin of tomatoes, peppers, yams and a crate.
+// The design's market stall: a table, an umbrella, a basin of tomatoes, peppers, yams and a crate.
 import { lowBox, setFootprint } from "@japacity/assets";
 import { seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
