@@ -30,6 +30,16 @@ const pending = Object.values(foreignPocketActivityTable);
 const all: ActivityEntry[] = [...abroad, ...pending];
 
 describe("activities abroad", () => {
+  test("[R-ABROAD-003] given every activity that opens an obligation with a deposit, when its cost is read, then it charges that deposit, in the entry's currency, with the reason rent", () => {
+    const opening = Object.values(content.activity).flatMap((activity) =>
+      activity.effects.flatMap((effect) => (effect.type === "obligation/open" && content.obligation[effect.obligation]?.deposit !== undefined ? [{ activity, entry: content.obligation[effect.obligation]! }] : [])),
+    );
+    expect(opening.map(({ activity }) => activity.id).sort()).toEqual(["activity.rent-flat-ca", "activity.rent-flat-uk"]);
+    for (const { activity, entry } of opening) {
+      expect(activity.cost.filter((cost) => cost.reason === "rent")).toEqual([{ currency: entry.currency, amount: entry.deposit, reason: "rent" }]);
+    }
+  });
+
   test("[R-ENGINE-014] given the activities abroad and the ones held for the foreign pockets, when checked against the schema, then each parses and its key is its id", () => {
     expect(abroad.length).toBeGreaterThan(25);
     expect(pending.map((entry) => entry.id)).toEqual([
