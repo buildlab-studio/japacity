@@ -1,4 +1,4 @@
-// The National Stadium rebuilt as one frontage (city.md place.national-stadium, world:place-is-one-screen,
+// The National Stadium as one frontage (city.md place.national-stadium, world:place-is-one-screen,
 // streets:stadium-morning-run): the south gate where the ramp comes down, a stretch of running track
 // before it with a few runners, the road where the danfo stops, and the bowl rising behind.
 import { content } from "@japacity/content";

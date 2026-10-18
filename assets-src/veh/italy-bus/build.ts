@@ -3,13 +3,13 @@
 // with no operator's colours, mark, route number or words (assets:no-real-brands-on-assets). Built to be sat in as London's bus is: the
 // walls, floor and roof are thin slabs with an inner face, the seats stand in pairs facing the front, and the glass
 // is a pane that faces out, so from outside the windows are dark and from a seat the coast road shows through them.
-// Its doors are on the right of its facing, the kerb side in Italy. Built along +x as the design's vehicles are, then
+// Its doors are on the right of its facing, the kerb side in Italy. Built along +x as every vehicle is, then
 // turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 
 /** The bus's numbers, in metres, in the frame it is built in: length along x, the kerb side at +z. */
 export const ITALY_BUS = { length: 12.0, width: 2.55, floor: 0.38, sill: 1.05, head: 2.4, roof: 2.95 } as const;

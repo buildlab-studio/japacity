@@ -27,7 +27,7 @@ function withCard(card: Shared, ended = false): PlayerView {
   return { ...abroadView(), card, ended };
 }
 
-// The send-off and real-story rules are still pending in the rule list until the chapter and road kinds make the card.
+// The cards here are drawn from hand-built views; the send-off card the engine makes is ShareCard.sendOff.test.tsx's.
 describe("the share cards", () => {
   test("given the send-off card, then the route, the japacity figure, the months, the standing and the three things done most show, with the game named as the sender", () => {
     render(<ShareCardFace card={SEND_OFF} />);

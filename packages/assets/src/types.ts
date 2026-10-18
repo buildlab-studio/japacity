@@ -1,7 +1,7 @@
 // The shapes the asset tools, the builders and the city share: docs/rules/assets.md, Contract.
 import type { PaletteName } from "./palette";
 
-/** A person as data, the design's shape made a type (assets:variants-are-numbers-not-code, city:players-fill-the-crowd). */
+/** A person as data (assets:variants-are-numbers-not-code, city:players-fill-the-crowd). */
 export interface CharacterLook {
   body: "f" | "m";
   shape: number;

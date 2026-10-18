@@ -543,8 +543,8 @@ export const placeText: Record<string, string> = {
   "place.hostel-room.overheard.2.by": "Hostel mate",
   "place.hostel-room.overheard.3": "The nook is free. Whoever has gas, the pot is waiting.",
   "place.hostel-room.overheard.3.by": "Hostel mate",
-  // The family's own talk while your send-off is on: no stranger's rumour in the compound that night.
-  // Waiting for overheard.ts to read them during the send-off.
+  // The family's own talk while your send-off is on (apps/client/src/features/city/overheard.ts): no stranger's
+  // rumour in the compound that night.
   "place.family-house.send-off.overheard.1": "Who is carrying the jollof to the back?",
   "place.family-house.send-off.overheard.2": "Your aunty says she will cry at the airport. She has started already.",
   "place.family-house.send-off.overheard.3": "Bring more chairs. Mama Bisi's people have come.",

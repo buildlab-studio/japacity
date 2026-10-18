@@ -20,7 +20,7 @@ function fromStatus(view: PlayerView): Loose[] {
 
 /**
  * car:car-handed-back-after-half: the car handed back with the amount 0 once half its price is
- * paid, which the view's `car` now carries. A car paid off and owned is not
+ * paid, which the view's `car` carries. A car paid off and owned is not
  * listed (car:final-payment-owns-the-car) and cannot be handed back.
  */
 function fromCar(view: PlayerView): Loose[] {

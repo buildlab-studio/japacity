@@ -3,7 +3,7 @@
 // toward the top of the screen in the route's direction, and the city's name arriving on a sticker card. The plane moves
 // by transform alone for about three seconds; under reduced motion the map, the plane at the line's end and the sticker
 // stand still for the same time. It draws nothing the map does not already have but the plane and the line: the same
-// paper (World), no new tiles, no three.js scene, and it costs the map nothing when it is not mounted.
+// paper (World), no tiles of its own, no three.js scene, and it costs the map nothing when it is not mounted.
 import "./paper.css";
 
 import { content } from "@japacity/content";

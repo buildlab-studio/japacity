@@ -76,7 +76,7 @@ export function checkThings(file: Pick<LimitedFile, "place" | "stage">): string[
   );
 }
 
-/** A world-first file declares its camera; older files are drawn by the earlier rules until they are rebuilt. */
+/** A world-first file declares its camera (`stage.shot`); the build check only notes what it finds in a file without one. */
 export function isWorldFile(file: Pick<LimitedFile, "stage">): boolean {
   return file.stage?.shot !== undefined;
 }

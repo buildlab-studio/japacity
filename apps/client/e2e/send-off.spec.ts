@@ -1,6 +1,6 @@
 // The send-off as a scene in a real browser on a phone (chapter:send-off-scene-in-beats, world:plane-cut-at-send-off,
-// share:send-off-card-kept): Ada's recorded life, granted, rides to the airport, and the gate's act opens the six beats in
-// place of the card the flight was. Departures with three taps of Step forward and a line a tap, the counter's stub and
+// share:send-off-card-kept): Ada's recorded life, granted, rides to the airport, and the gate's act opens the six beats.
+// Departures with three taps of Step forward and a line a tap, the counter's stub and
 // Window or aisle, the gate where Board the plane sends the flight once, the plane over the night map, the landing in
 // Peckham with the bus, the top deck with the pings, the card saved and the Phone's badge; Ring the bell and the life
 // stands in the room abroad, the card kept where the phone keeps it.

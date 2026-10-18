@@ -108,7 +108,7 @@ export function start(options: StartOptions = {}): Game {
     endTurn(slots = []) {
       // activity:now-acts-and-month-acts: a now-act fills no slot; it is sent at once as `activity/now`. A month written with one in its
       // slots plays it first, at the same tick, as the recorded lives do, and the month's events and lines carry its own
-      // in front. One that cannot be paid, or done again this month, does not happen, as such a slot failed before.
+      // in front. One that cannot be paid, or done again this month, does not happen, as a slot pick that cannot be paid fails.
       const early: { events: BaseEvent[]; lines: ReportLine[] } = { events: [], lines: [] };
       const month: SlotPick[] = [];
       for (const pick of slots) {
@@ -126,8 +126,8 @@ export function start(options: StartOptions = {}): Game {
           early.lines.push(...result.lines);
         }
       }
-      // An act now that opens a set piece (the visa interview) holds the month until it is answered, as the month after
-      // such a slot was held; the month is then left to the test's next end.
+      // An act now that opens a set piece (the visa interview) holds the month until it is answered; the month is then
+      // left to the test's next end.
       if (early.events.length > 0 && game.state.setpiece.open !== null) return { ok: true, state: game.state, events: early.events, lines: early.lines };
       const result = game.send({ type: "turn/end", slots: month });
       // The pair's interview holds the month the same way (interview:answers-taken-in-order).

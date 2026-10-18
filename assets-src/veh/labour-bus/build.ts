@@ -5,13 +5,13 @@
 // as London's bus is: the walls, the floor and the roof are thin slabs, each
 // small window a pane of glass facing out, so from outside the row is dark glass in a white body and
 // from a seat the road shows through it. Rows of two and two face ahead; the ride sits by a window on
-// the right of the facing, the kerb side. Built along +X as the design built its vehicles, then turned to
+// the right of the facing, the kerb side. Built along +X as every vehicle is, then turned to
 // face +Z.
 import { lowBox, setFootprint } from "@japacity/assets";
 import { part, quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 import type { RideSeat } from "../ride";
 
 /** The bus's numbers in metres, in the frame it is built in: length along x, the kerb side at +z. */

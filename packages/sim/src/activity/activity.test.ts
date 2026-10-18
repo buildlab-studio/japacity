@@ -144,7 +144,7 @@ function kindsWith(pending: { effects: Effect[]; cause: Cause } | null): Registr
   return registry().map((kind) => (kind.kind === "wallet" ? standInWallet : kind.kind === "offer" ? standInOffer(pending) : kind));
 }
 
-interface Lab {
+interface Bench {
   game: Game;
   send(loose: Loose): StepResult;
   end(slots?: SlotPick[]): Accepted;
@@ -153,7 +153,7 @@ interface Lab {
 }
 
 /** A game played through the registry with the stand-in wallet and offer kinds. */
-function lab(scenario: Id<"scenario">, using: Content = content, seed = "seed-1"): Lab {
+function bench(scenario: Id<"scenario">, using: Content = content, seed = "seed-1"): Bench {
   const game = start({ content: using, scenario, seed });
   const run = (kinds: Registry, loose: Loose): StepResult => {
     const command: Command = { ...loose, basedOn: game.state.v };
@@ -200,7 +200,7 @@ function opened(result: Accepted): Opened[] {
   return result.events.filter((event): event is Opened => event.type === "offer/test-opened");
 }
 
-function setQuality(subject: Lab, quality: Id<"quality">, value: number) {
+function setQuality(subject: Bench, quality: Id<"quality">, value: number) {
   subject.apply([{ type: "quality/add", quality, amount: value - subject.game.state.quality[quality]! }]);
   expect(subject.game.state.quality[quality]).toBe(value);
 }
@@ -217,7 +217,7 @@ function job(id: Id<"activity">, extra: Partial<ActivityEntry>): ActivityEntry {
   return { id, slot: "main", requires: [], param: null, cost: [], pay: { currency: "NGN", amount: 5000000 }, hireBp: 0, effects: [], counts: [], ...extra };
 }
 
-const labActivities: ActivityEntry[] = [
+const smallActivities: ActivityEntry[] = [
   free("activity.burn", { effects: [{ type: "quality/add", quality: "quality.tech", amount: -20 }] }),
   free("activity.needs-tech", { requires: [{ type: "quality/min", quality: "quality.tech", value: 25 }], effects: [{ type: "quality/add", quality: "quality.tech", amount: 1 }] }),
   // The plain life holds 200,000 naira in the bank and 20,000 in cash.
@@ -242,13 +242,13 @@ const labActivities: ActivityEntry[] = [
   job("activity.job-dollar", { pay: { currency: "USD", amount: 280000 } }),
 ];
 
-const labContent: Content = {
+const smallContent: Content = {
   ...miniContent,
   quality: {
     ...miniContent.quality,
     "quality.network": { id: "quality.network", group: "people", min: 0, max: 100, shown: true, counts: [] },
   },
-  activity: { ...miniContent.activity, ...Object.fromEntries(labActivities.map((entry) => [entry.id, entry])) },
+  activity: { ...miniContent.activity, ...Object.fromEntries(smallActivities.map((entry) => [entry.id, entry])) },
   offer: { ...miniContent.offer, "offer.job": content.offer["offer.job"]! },
   // So a hunt for a job with a full chance always lands, and one with none never does.
   tuning: { ...miniContent.tuning, quality: { ...miniContent.tuning.quality, hireMaxBp: 10000 } },
@@ -261,7 +261,7 @@ const hunt = (target: Id<"activity">): SlotPick => pick("activity.job-hunt", tar
 
 describe("the job, each month", () => {
   test("[activity:one-job-paid-monthly] given a job, when a month is played, then its pay is credited to the bank as salary, tenure goes up by one, and its effects apply, in that order", () => {
-    const tunde = lab("scenario.tunde");
+    const tunde = bench("scenario.tunde");
     const entry = content.activity["activity.job-bank-officer"]!;
     const result = tunde.end([]);
     expect(ledger(result).filter((line) => line.reason === "salary")).toEqual([
@@ -285,7 +285,7 @@ describe("the job, each month", () => {
   });
 
   test("[activity:one-job-paid-monthly] given a job paid in dollars, when a month is played, then the pay is credited to the dollar bank pocket", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     plain.apply([{ type: "activity/start-job", job: "activity.job-dollar" }]);
     const result = plain.end([]);
     expect(ledger(result).filter((line) => line.reason === "salary")).toEqual([
@@ -295,7 +295,7 @@ describe("the job, each month", () => {
   });
 
   test("[activity:one-job-paid-monthly] given no job, when a month is played, then nothing is paid and no tenure moves", () => {
-    const ada = lab("scenario.ada");
+    const ada = bench("scenario.ada");
     const result = ada.end([]);
     expect(ledger(result)).toEqual([]);
     expect(own(result, "activity/month-worked")).toEqual([]);
@@ -316,7 +316,7 @@ describe("the job, each month", () => {
   });
 
   test("[activity:one-job-paid-monthly] given a job held, when another is started, then only one is held", () => {
-    const tunde = lab("scenario.tunde");
+    const tunde = bench("scenario.tunde");
     tunde.apply([{ type: "activity/start-job", job: "activity.job-teacher" }]);
     expect(tunde.game.state.activity.job).toBe("activity.job-teacher");
     const result = tunde.end([]);
@@ -453,7 +453,7 @@ describe("the params a free activity may take now", () => {
 
 describe("resolving the slots", () => {
   test("[activity:slots-resolve-in-order] given a slot whose requirements an earlier slot broke, when the turn resolves, then it fails, no effect applies and the report says why", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([pick("activity.burn"), pick("activity.needs-tech")]);
     expect(own(result, "activity/slot-failed")).toEqual([
       { type: "activity/slot-failed", slot: 1, activity: "activity.needs-tech", param: null, why: "requirements" },
@@ -463,7 +463,7 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:slots-resolve-in-order] given the same two slots the other way round, when the turn resolves, then both are played, first slot first", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([pick("activity.needs-tech"), pick("activity.burn")]);
     expect(own(result, "activity/slot-played").map((event) => [event.slot, event.activity])).toEqual([
       [0, "activity.needs-tech"],
@@ -474,9 +474,9 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:slots-resolve-in-order] given a cost that cannot be paid, when the slot resolves, then it fails, nothing is paid and no effect applies", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     // The month's upkeep is still charged in the due phase, so the pockets are compared with a month in which every slot rests.
-    const rested = lab("scenario.plain", labContent);
+    const rested = bench("scenario.plain", smallContent);
     rested.end([]);
     const result = plain.end([pick("activity.dear"), pick("activity.needs-tech")]);
     expect(own(result, "activity/slot-failed")).toEqual([{ type: "activity/slot-failed", slot: 0, activity: "activity.dear", param: null, why: "cost" }]);
@@ -487,14 +487,14 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:slots-resolve-in-order] given two costs each payable alone but not together, when the slot resolves, then it fails and neither is paid", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([pick("activity.two-fees")]);
     expect(own(result, "activity/slot-failed").map((event) => event.why)).toEqual(["cost"]);
     expect(ledger(result)).toEqual([]);
   });
 
   test("[activity:slots-resolve-in-order] given a hunt for a job an earlier slot started, when the hunt resolves, then it fails because the param is no longer one it may take", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([pick("activity.start-sure"), hunt("activity.job-sure")]);
     expect(plain.game.state.activity.job).toBe("activity.job-sure");
     expect(own(result, "activity/slot-failed")).toEqual([
@@ -504,7 +504,7 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:costs-paid-bank-or-cash] given a naira cost, when it is paid, then it is paid by transfer, the bank first and cash for the rest, under its own reason (decision 0014)", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const bank = plain.game.state.wallet.pockets.NGN.bank;
     const result = plain.end([pick("activity.split")]);
     expect(ledger(result)).toEqual([
@@ -514,7 +514,7 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:costs-paid-bank-or-cash] given two naira costs with their own reasons, when they are paid, then each is paid under its own reason", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     plain.apply([{ type: "money/add", currency: "NGN", pocket: "bank", amount: 50000000, reason: "gift" }]);
     const result = plain.end([pick("activity.two-fees")]);
     // By transfer the bank covers each cost whole, one line each.
@@ -526,7 +526,7 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:costs-paid-bank-or-cash] given a cost in pounds, when it is paid, then it is paid as a foreign fee under its own reason", () => {
-    const worker = lab("scenario.worker", labContent);
+    const worker = bench("scenario.worker", smallContent);
     const result = worker.end([pick("activity.pounds")]);
     expect(ledger(result).filter((line) => line.type === "wallet/debited")).toEqual([
       { type: "wallet/debited", via: "money/pay-fee", asked: "fee", currency: "GBP", pocket: "bank", amount: 30000, reason: "fee-visa" },
@@ -534,14 +534,14 @@ describe("resolving the slots", () => {
   });
 
   test("[activity:costs-paid-bank-or-cash] given a cost read from the world, when it is paid, then the world's figure is taken", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const fee = plain.game.world().vars["var.mini-fee"]!;
     const result = plain.end([pick("activity.var-fee")]);
     expect(ledger(result).reduce((sum, line) => sum + line.amount, 0)).toBe(fee);
   });
 
   test("[activity:slots-resolve-in-order] given a played slot, when it resolves, then the report says it was done, before its effects", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([pick("activity.study")]);
     const keys = result.lines.map((line) => line.key);
     expect(result.lines).toContainEqual({ key: "line.activity.played", params: { activity: "activity.study" }, tone: "plain", attention: false, counts: [] });
@@ -555,7 +555,7 @@ describe("empty slots", () => {
   const rest = content.tuning.quality.wellbeingRest;
 
   test("[turn:free-slots-per-month] given three free slots and one filled, when the month resolves, then the two empty ones each give rest", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     setQuality(plain, "quality.wellbeing", 30);
     const result = plain.end([hunt("activity.job-never")]);
     expect(own(result, "activity/rested")).toEqual([{ type: "activity/rested", slots: 2 }]);
@@ -564,7 +564,7 @@ describe("empty slots", () => {
   });
 
   test("[turn:free-slots-per-month] given three free slots and none filled, when the month resolves, then all three give rest", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     setQuality(plain, "quality.wellbeing", 30);
     const result = plain.end([]);
     expect(own(result, "activity/rested")).toEqual([{ type: "activity/rested", slots: 3 }]);
@@ -572,7 +572,7 @@ describe("empty slots", () => {
   });
 
   test("[turn:free-slots-per-month] given a job, two free slots and none filled, when the month resolves, then two give rest after the job's own toll", () => {
-    const worker = lab("scenario.worker", labContent);
+    const worker = bench("scenario.worker", smallContent);
     setQuality(worker, "quality.wellbeing", 40);
     const result = worker.end([]);
     expect(own(result, "activity/rested")).toEqual([{ type: "activity/rested", slots: 2 }]);
@@ -580,7 +580,7 @@ describe("empty slots", () => {
   });
 
   test("[turn:free-slots-per-month] given a job and wellbeing under the burnout line, one free slot and none filled, when the month resolves, then one gives rest", () => {
-    const worker = lab("scenario.worker", labContent);
+    const worker = bench("scenario.worker", smallContent);
     const wellbeing = worker.game.state.quality["quality.wellbeing"]!;
     expect(wellbeing).toBeLessThan(content.tuning.quality.burnoutBelow);
     const result = worker.end([]);
@@ -589,7 +589,7 @@ describe("empty slots", () => {
   });
 
   test("[turn:free-slots-per-month] given every free slot filled, when the month resolves, then nothing rests", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([hunt("activity.job-never"), hunt("activity.job-never"), hunt("activity.job-never")]);
     expect(own(result, "activity/rested")).toEqual([]);
   });
@@ -625,7 +625,7 @@ describe("hunting for a job", () => {
   });
 
   test("[activity:job-hunt-lands-offer] given a hunt that lands, when it resolves, then a job offer opens naming the job in its terms", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([hunt("activity.job-sure")]);
     expect(own(result, "activity/hunted")).toEqual([{ type: "activity/hunted", job: "activity.job-sure", hired: true }]);
     expect(opened(result)).toEqual([{ type: "offer/test-opened", offer: "offer.job", source: "activity.job-hunt", terms: { job: "activity.job-sure" } }]);
@@ -634,7 +634,7 @@ describe("hunting for a job", () => {
   });
 
   test("[activity:job-hunt-lands-offer] given a hunt that misses, past the sure first months (guide:early-win-in-three-turns), when it resolves, then no offer opens and the report says so", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     for (let month = 0; month < 3; month += 1) plain.end([]);
     const result = plain.end([hunt("activity.job-never")]);
     expect(own(result, "activity/hunted")).toEqual([{ type: "activity/hunted", job: "activity.job-never", hired: false }]);
@@ -646,7 +646,7 @@ describe("hunting for a job", () => {
   test.prop([fc.string({ minLength: 1, maxLength: 8 })], { numRuns: 30 })(
     "[activity:job-hunt-lands-offer] given any seed, when Ada hunts for the teaching job past the sure first months (guide:early-win-in-three-turns), then it lands exactly when the job stream's first draw falls under her chance",
     (seed) => {
-      const ada = lab("scenario.ada", content, seed);
+      const ada = bench("scenario.ada", content, seed);
       for (let month = 0; month < 3; month += 1) ada.end([]);
       const chance = hireChanceBp(teacher, ada.game.state.quality["quality.network"]!, hireTuning);
       const expected = characterRandom(seed, {}).chance("job", chance);
@@ -661,8 +661,8 @@ describe("hunting for a job", () => {
 });
 
 describe("starting and leaving a job", () => {
-  test("[activity:new-job-replaces-held] given a job held, when another is started, then it replaces the old one at once and the old tenure is kept", () => {
-    const tunde = lab("scenario.tunde");
+  test("[activity:new-job-replaces-held] given a job held, when another is started, then it replaces the job held at once and the tenure of the job left is kept", () => {
+    const tunde = bench("scenario.tunde");
     const result = tunde.apply([{ type: "activity/start-job", job: "activity.job-teacher" }]);
     expect(own(result, "activity/job-started")).toEqual([{ type: "activity/job-started", job: "activity.job-teacher", previous: "activity.job-bank-officer" }]);
     expect(tunde.game.state.activity.job).toBe("activity.job-teacher");
@@ -672,13 +672,13 @@ describe("starting and leaving a job", () => {
   });
 
   test("[activity:new-job-replaces-held] given a job named by a term, when it is started, then the job is read from the terms in hand", () => {
-    const ada = lab("scenario.ada");
+    const ada = bench("scenario.ada");
     ada.apply([{ type: "activity/start-job", job: { term: "job" } }], { terms: { job: "activity.job-junior-dev" } });
     expect(ada.game.state.activity.job).toBe("activity.job-junior-dev");
   });
 
   test("[activity:new-job-replaces-held] given the job already held, when it is started again, then nothing happens", () => {
-    const tunde = lab("scenario.tunde");
+    const tunde = bench("scenario.tunde");
     const result = tunde.apply([{ type: "activity/start-job", job: "activity.job-bank-officer" }]);
     expect(own(result, "activity/job-started")).toEqual([]);
   });
@@ -700,7 +700,7 @@ describe("starting and leaving a job", () => {
   });
 
   test("[activity:new-job-replaces-held] given a job, when an effect ends it, then there is no job, the reason is kept on the event and the report says so", () => {
-    const worker = lab("scenario.worker", labContent);
+    const worker = bench("scenario.worker", smallContent);
     const result = worker.end([pick("activity.walk-out")]);
     expect(own(result, "activity/job-ended")).toEqual([{ type: "activity/job-ended", job: "activity.job-clerk", why: "walked-out" }]);
     expect(worker.game.state.activity.job).toBeNull();
@@ -709,13 +709,13 @@ describe("starting and leaving a job", () => {
   });
 
   test("[activity:new-job-replaces-held] given no job, when an effect ends it, then nothing happens", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const result = plain.end([pick("activity.walk-out")]);
     expect(own(result, "activity/job-ended")).toEqual([]);
   });
 
   test("[activity:new-job-replaces-held] given tenure in several jobs, when activity/tenure is judged, then the listed jobs add up, and an empty list means every job", () => {
-    const tunde = lab("scenario.tunde");
+    const tunde = bench("scenario.tunde");
     tunde.apply([{ type: "activity/start-job", job: "activity.job-teacher" }]);
     tunde.end([]);
     const read = tunde.read();
@@ -730,7 +730,7 @@ describe("starting and leaving a job", () => {
 
 describe("requirements stop mattering once the job is held", () => {
   test("[activity:requirements-judged-at-hunt] given a job whose requirements stop holding, when months pass, then the job is kept and still pays", () => {
-    const worker = lab("scenario.worker", labContent);
+    const worker = bench("scenario.worker", smallContent);
     setQuality(worker, "quality.edu-level", 0);
     expect(check(worker.read(), miniContent.activity["activity.job-clerk"]!.requires[0]!).met).toBe(false);
     const result = worker.end([]);
@@ -773,7 +773,7 @@ describe("requirements stop mattering once the job is held", () => {
 
 describe("side gigs", () => {
   test("[activity:side-gig-pays-a-draw] given a gig, when it resolves, then it pays cash: a draw on the gig stream between its figures, plus its figure for each point of tech", () => {
-    const plain = lab("scenario.plain", labContent, "gig-seed");
+    const plain = bench("scenario.plain", smallContent, "gig-seed");
     const tech = plain.game.state.quality["quality.tech"]!;
     const drawn = characterRandom("gig-seed", {}).between("gig", 100000, 500000);
     const result = plain.end([pick("activity.gig")]);
@@ -785,29 +785,29 @@ describe("side gigs", () => {
   });
 
   test("[activity:side-gig-pays-a-draw] given a gig whose lowest and highest figures are equal, when it resolves, then it pays exactly that plus the tech figure", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const tech = plain.game.state.quality["quality.tech"]!;
     const result = plain.end([pick("activity.fixed-gig")]);
     expect(ledger(result).map((line) => line.amount)).toEqual([200000 + 1000 * tech]);
   });
 
   test("[wallet:money-lands-as-in-lagos] [activity:side-gig-pays-a-draw] given a gig that pays exactly the line for cash, when it resolves, then it lands in cash; with the line one kobo lower, in the bank", () => {
-    const tech = lab("scenario.plain", labContent).game.state.quality["quality.tech"]!;
+    const tech = bench("scenario.plain", smallContent).game.state.quality["quality.tech"]!;
     const pay = 200000 + 1000 * tech;
     const at = (cashUpTo: number): Ledger[] => {
-      const used: Content = { ...labContent, tuning: { ...labContent.tuning, wallet: { ...labContent.tuning.wallet, cashUpTo } } };
-      return ledger(lab("scenario.plain", used).end([pick("activity.fixed-gig")])).filter((line) => line.reason === "gig");
+      const used: Content = { ...smallContent, tuning: { ...smallContent.tuning, wallet: { ...smallContent.tuning.wallet, cashUpTo } } };
+      return ledger(bench("scenario.plain", used).end([pick("activity.fixed-gig")])).filter((line) => line.reason === "gig");
     };
     expect(at(pay).map((line) => [line.pocket, line.amount])).toEqual([["cash", pay]]);
     expect(at(pay - 1).map((line) => [line.pocket, line.amount])).toEqual([["bank", pay]]);
   });
 
   test("[wallet:money-lands-as-in-lagos] given naira cash work, when its month is paid at the line for cash and one kobo over it, then the first lands in cash and the second in the bank, both as cash work; a month's salary lands in the bank however small", () => {
-    const line = labContent.tuning.wallet.cashUpTo;
+    const line = smallContent.tuning.wallet.cashUpTo;
     const paid = (extra: Partial<ActivityEntry>): [string, number, string][] => {
       const work = job("activity.job-hand", extra);
-      const used: Content = { ...labContent, activity: { ...labContent.activity, [work.id]: work } };
-      const subject = lab("scenario.plain", used);
+      const used: Content = { ...smallContent, activity: { ...smallContent.activity, [work.id]: work } };
+      const subject = bench("scenario.plain", used);
       subject.apply([{ type: "activity/start-job", job: work.id }]);
       return ledger(subject.end([]))
         .filter((money) => money.reason === "cash-work" || money.reason === "salary")
@@ -819,7 +819,7 @@ describe("side gigs", () => {
   });
 
   test("[activity:side-gig-pays-a-draw] [wallet:money-lands-as-in-lagos] given the real side gig, when it resolves, then the pay lies between its figures plus the tech figure, in the pocket its size takes", () => {
-    const zainab = lab("scenario.zainab");
+    const zainab = bench("scenario.zainab");
     const tech = zainab.game.state.quality["quality.tech"]!;
     const gig = content.activity["activity.side-gig"]!.effects[0]!;
     if (gig.type !== "activity/gig") throw new Error("The side gig's first effect is the gig.");
@@ -836,7 +836,7 @@ describe("side gigs", () => {
 
 describe("same again", () => {
   test("[activity:last-month-plan-kept] given slots played, when the month ends, then they are stored and shown, and an empty month stores none", () => {
-    const plain = lab("scenario.plain", labContent);
+    const plain = bench("scenario.plain", smallContent);
     const slots = [pick("activity.study"), pick("activity.dear"), hunt("activity.job-never")];
     plain.end(slots);
     expect(plain.game.state.activity.lastSlots).toEqual(slots);
@@ -848,7 +848,7 @@ describe("same again", () => {
 
 describe("months played", () => {
   test("[activity:months-played-counted] given a job and free slots, when months end, then each activity in the slots and the job counts one a month, an activity in two slots counts once, empty slots count nothing, and the view does not show it", () => {
-    const tunde = lab("scenario.tunde");
+    const tunde = bench("scenario.tunde");
     const job = tunde.game.state.activity.job!;
     expect(tunde.game.state.activity.played).toEqual({});
     tunde.end([pick("activity.rest"), pick("activity.rest")]);
@@ -883,7 +883,7 @@ describe("the view of activities", () => {
   });
 
   test("[activity:costs-paid-bank-or-cash] given a cost read from the world, when the view is read, then the cost shows the world's figure", () => {
-    const game = start({ content: labContent, scenario: "scenario.plain" });
+    const game = start({ content: smallContent, scenario: "scenario.plain" });
     const option = game.view().activities.find((item) => item.id === "activity.var-fee")!;
     expect(option.cost).toEqual([{ currency: "NGN", amount: game.world().vars["var.mini-fee"]! }]);
   });

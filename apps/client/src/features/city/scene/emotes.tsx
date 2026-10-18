@@ -12,7 +12,7 @@ const EMOTE_MS = 6000;
 /** The most emotes over the crowd at once: a crowd raises the pictures, never the words. */
 export const EMOTES_MAX = 2;
 
-/** The pictures each kind of resident shows, a stand-in each until the emotes have tiles of their own. */
+/** The pictures each kind of resident shows, a stand-in each, since the emotes have no tiles of their own. */
 export const EMOTE_PICTURES: Readonly<Record<Role, readonly string[]>> = {
   "passer-by": ["📱", "😄", "🚌"],
   hawker: ["🍽️", "💧", "💸"],

@@ -2,7 +2,7 @@
 
 /**
  * A seeded generator in [0, 1): the same seed gives the same building (assets:neighbours-never-identical) and the same motif (assets:fabric-pattern-from-seed)
- * every time. It is the design's, kept so a seed draws what it drew there.
+ * every time. Its sequence never changes, so a seed always draws the same building and motif.
  */
 export function seeded(seed: number): () => number {
   let a = seed >>> 0;

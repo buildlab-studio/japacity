@@ -6,7 +6,7 @@ import { setFootprint } from "@japacity/assets";
 import { beam, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { lump } from "../../veh/lab";
+import { lump } from "../../veh/centred";
 
 /** A stone pine of the coast: a tall bare trunk leaning a little, and a broad flat crown like an umbrella. */
 export function buildPine(): Group {

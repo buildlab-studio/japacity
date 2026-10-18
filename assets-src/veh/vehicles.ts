@@ -1,9 +1,9 @@
-// The design's vehicles, ported to the kit's shapes. Built along +x as drawn,
+// The danfo, the keke and the okada, in the kit's shapes. Built along +x as every vehicle is,
 // then turned to face +z (assets:metre-units-and-origin). Plain colours from the palette; no real company's livery.
 import { lowBox, setFootprint } from "@japacity/assets";
 import { Group } from "three";
 
-import { cbox, ccyl, facePlusZ, lump, profile, wheel } from "./lab";
+import { cbox, ccyl, facePlusZ, lump, profile, wheel } from "./centred";
 
 /** The danfo: a yellow minibus with two black stripes and a loaded roof rack. */
 export function buildDanfo(): Group {

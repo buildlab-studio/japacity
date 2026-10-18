@@ -136,7 +136,7 @@ function playerSamples(state: State, world: World): Record<PlayerCommand, Loose[
   return {
     "turn/end": [{ type: "turn/end", slots: [] }, ...of("turn/end")],
     "activity/quit": [{ type: "activity/quit" }, { type: "activity/quit", side: true }],
-    // activity:now-acts-and-month-acts added the command: the kiosk and the meetup now, a month-act refused, and the legal ones.
+    // activity:now-acts-and-month-acts: the kiosk and the meetup now, a month-act refused, and the legal ones.
     "activity/now": [
       { type: "activity/now", activity: "activity.play-lotto", param: "1" },
       { type: "activity/now", activity: "activity.meetup", param: null },
@@ -281,7 +281,7 @@ describe("the authority's reach", () => {
         const expected = state.turn.ended ? "ended" : state.prologue.open ? "prologue-open" : good ? "accepted" : "bad-amount";
         expect(result.ok ? "accepted" : result.code).toBe(expected);
         const problems = ledgerProblems(state, after, (reason, currency) => reason === "top-up" && currency === "NGN");
-        // wallet:ledger-report-raises-alarms: until the processor's receipts feed the report, any top-up names the account.
+        // wallet:ledger-report-raises-alarms: the report counts nothing a top-up can make, so any top-up names the account.
         expect(problems.filter((problem) => !problem.endsWith("under top-up is over what it can make, 0"))).toEqual([]);
         expect(after.wallet.pockets.NGN.bank - state.wallet.pockets.NGN.bank).toBe(result.ok ? amount : 0);
         expect(after.wallet.pockets.NGN.cash).toBe(state.wallet.pockets.NGN.cash);

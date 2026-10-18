@@ -21,7 +21,7 @@ const PASSPORT = "activity.get-passport" as Id<"activity">;
 const MEETUP = "activity.meetup" as Id<"activity">;
 const HUNT = "activity.job-hunt" as Id<"activity">;
 const LEARN = "activity.learn-tech" as Id<"activity">;
-// Decision 0012 (activity:acts-may-repeat-in-month): the coding course now answers at once and repeats; the course that fills a slot of the
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding course answers at once and repeats; the course that fills a slot of the
 // month is a master's at home.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 

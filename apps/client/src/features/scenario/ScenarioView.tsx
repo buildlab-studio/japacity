@@ -131,8 +131,8 @@ export interface DoorGuest {
 
 /**
  * analytics:client-sends-interface-counts, analytics:nightly-game-counters: the front door's screens as the funnel counts them: the first door,
- * the second (an archetype or a ready life), and the third, Where you live with Begin, still counted as the page it
- * stood in for. Begun is no screen of its own.
+ * the second (an archetype or a ready life), and the third, Where you live with Begin, counted under the key `page`.
+ * Begun is no screen of its own.
  */
 export function doorScreen(stage: DoorStage): "door-1" | "door-2" | "page" | null {
   switch (stage) {

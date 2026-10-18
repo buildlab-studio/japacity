@@ -491,7 +491,7 @@ function OpenLine({ size, opacity }: { size: number; opacity: number }) {
 const TALL_END = { top: 320, height: 1200 } as const;
 
 /**
- * The oldest Lagos joke about leaving, then the seal: its two bulbs click off one after the other, and come back on with the
+ * The oldest Nigerian joke about leaving, then the seal: its two bulbs click off one after the other, and come back on with the
  * name. In the tall frame the card stands stacked: the seal over the name, then Play it, the address, the hook and the last line.
  */
 function LightsOut() {

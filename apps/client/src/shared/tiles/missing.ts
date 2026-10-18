@@ -11,7 +11,7 @@ export function missingListing(): string {
     const kind = id.split(".")[0] ?? "";
     kinds.set(kind, [...(kinds.get(kind) ?? []), `  ${emoji} ${id}`]);
   }
-  const head = `${String(missing.length)} of ${String(Object.keys(TILE_TABLE).length)} pictures stand in for a model not yet made.`;
+  const head = `${String(missing.length)} of ${String(Object.keys(TILE_TABLE).length)} pictures stand in for a model that is not drawn.`;
   return [head, ...[...kinds].flatMap(([kind, lines]) => ["", kind, ...lines])].join("\n");
 }
 

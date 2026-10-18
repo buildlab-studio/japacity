@@ -203,8 +203,8 @@ const PLAYED = {
     road: LEAVE_ROAD,
     prologue: "first",
   },
-  // The broke return (place:return-shape-decided-at-once) needs the fare paid and little else left anywhere. The first fix batch made the
-  // first months abroad survivable, so the borrowers come home with a buffer; this player keeps none abroad.
+  // The broke return (place:return-shape-decided-at-once) needs the fare paid and little else left anywhere. The first months
+  // abroad are survivable, so the borrowers come home with a buffer; this player keeps none abroad.
   spender: {
     englishBeforeTest: 66,
     prep: 20,

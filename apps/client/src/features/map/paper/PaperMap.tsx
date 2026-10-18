@@ -120,7 +120,7 @@ export interface PaperMapProps {
   sheetUp: boolean;
   /** world:lantern-canoe-on-map: the lantern canoe's glow and what its tap opens, from the shell; none, no canoe. */
   canoe?: (CanoeFill & { onOpen: () => void }) | null;
-  /** The painted city drawn: Lagos, or London abroad (world:painted-maps-abroad). */
+  /** The painted city drawn: Lagos, or the city of the country abroad (world:painted-maps-abroad). */
   city?: PaperCity;
 }
 

@@ -36,7 +36,7 @@ export interface RouteMap {
   search: { cost: Float32Array; came: Int32Array; seen: Uint32Array; closed: Uint32Array; round: number; heapCell: number[]; heapCost: number[] };
 }
 
-/** The walkable ground of a stage, or its whole ground for a place staged before walkable ground was recorded. */
+/** The walkable ground of a stage, or its whole ground for a stage that records none. */
 export function walkableOf(stage: Pick<Stage, "ground" | "walkable">): WalkablePolygon[] {
   if (stage.walkable !== undefined && stage.walkable.length > 0) return stage.walkable;
   const [width, depth] = stage.ground.size;

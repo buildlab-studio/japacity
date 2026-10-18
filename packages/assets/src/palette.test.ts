@@ -6,8 +6,8 @@ import { linearToSrgb, nearestPaletteName, palette, paletteNames, paletteRgb, sr
 const page = readFileSync(new URL("../../../docs/rules/assets.md", import.meta.url), "utf8");
 const section = page.slice(page.indexOf("## The palette"), page.indexOf("## Budgets for one asset"));
 const onPage = new Map([...section.matchAll(/`(\w+)`\s*(?:\|\s*)?#([0-9a-f]{6})/g)].map((m) => [m[1] ?? "", parseInt(m[2] ?? "0", 16)]));
-const labPal = JSON.parse(readFileSync(new URL("./__fixtures__/lab-palette.json", import.meta.url), "utf8")) as Record<string, string>;
-const lab = new Map(Object.entries(labPal).map(([name, hex]) => [name, parseInt(hex.slice(1), 16)]));
+const startingHex = JSON.parse(readFileSync(new URL("./__fixtures__/starting-palette.json", import.meta.url), "utf8")) as Record<string, string>;
+const starting = new Map(Object.entries(startingHex).map(([name, hex]) => [name, parseInt(hex.slice(1), 16)]));
 
 describe("the palette", () => {
   test("[assets:colours-from-named-palette] given the palette file, when it is read, then every colour is a named entry of the page's palette and no entry is missing", () => {
@@ -15,9 +15,9 @@ describe("the palette", () => {
     expect(new Map(paletteNames.map((name) => [name, palette[name] as number]))).toEqual(onPage);
   });
 
-  test("[assets:starting-palette-frozen] given the design's PAL, when the palette is read, then every lab entry is kept with its name and value, and the four scene colours are named", () => {
-    expect(lab.size).toBe(37);
-    for (const [name, value] of lab) expect(palette[name as keyof typeof palette]).toBe(value);
+  test("[assets:starting-palette-frozen] given the starting palette, when the palette is read, then every starting entry is kept with its name and value, and the four scene colours are named", () => {
+    expect(starting.size).toBe(37);
+    for (const [name, value] of starting) expect(palette[name as keyof typeof palette]).toBe(value);
     expect([palette.sand, palette.asphalt, palette.marking, palette.sky]).toEqual([0xd9b27c, 0x4a4a4f, 0xe9e3d2, 0xf3d9a4]);
   });
 

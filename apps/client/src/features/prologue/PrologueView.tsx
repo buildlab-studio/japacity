@@ -1,6 +1,6 @@
 // The prologue: sixteen to the end of the service year (prologue:view-shows-step-card), on the door's sky, with no
 // compound and no figure on a plinth. A new life never shows a card: its archetype answers every step
-// (prologue:archetype-presets-answers) while the page over the compound fills as the years go by, and when the last answer is in, the
+// (prologue:archetype-presets-answers) while the page fills as the years go by, and when the last answer is in, the
 // page is the handover (prologue:printed-page-hands-over): the family the game drew turned over, the years before as fact chips, the
 // money as it stands, and the world opens when Go is tapped. A life with no archetype (the setting
 // `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.

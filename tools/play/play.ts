@@ -193,7 +193,7 @@ async function frontDoor(run: Run, button: string): Promise<boolean> {
 
 /**
  * The years before: the page fills as the presets run, with no card (prologue:archetype-presets-answers, prologue:printed-page-hands-over), then waits
- * for Go. A card is a problem now; it is answered with its first answer so the run goes on.
+ * for Go. A card there is a problem; it is answered with its first answer so the run goes on.
  */
 async function yearsBefore(run: Run): Promise<void> {
   const { page } = run;
@@ -658,7 +658,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   const { page } = run;
   // The city's own question may have put the life on the road this month (the night meeting, then the truth).
   if (await shown(page.locator("[data-road]"))) return onTheRoad(run, month);
-  // The month's name and phase stand on the band where Next month was; a tap opens the Calendar, read and put away (world:top-band-is-lively-pill).
+  // The month's name and phase stand on the band; a tap opens the Calendar, read and put away (world:top-band-is-lively-pill).
   const calendar = page.locator("[data-app-screen='calendar']");
   log(run, `month ${String(month)} on the band: ${(await page.locator("[data-band] [data-band-month]").first().getAttribute("aria-label").catch(() => null)) ?? "no month shown"}`);
   if (await tap(run, page.locator("[data-band] [data-band-month]"), "the band's month")) {
@@ -671,8 +671,7 @@ async function endMonth(run: Run, month: number): Promise<boolean> {
   }
   // The month ends from the bed at home (world:sleep-ends-the-month; decision 0011): the band has no Next month. An answer may open a new
   // question that holds the month (the road's deposit opens the night meeting): the nudge is followed again, twice at most.
-  // The automatic turn when the month is lived comes with the next step of the lived month; until then the driver walks
-  // in from the yard when it stands there, and a life away from home ends the run with the reason.
+  // The driver rides home or walks in from the yard first; a month no bed can end stops the run with the reason.
   let ended = await bedEnd(run, month);
   for (let again = 0; again < 2 && !ended && (await shown(page.locator("[data-nudge]"))); again += 1) {
     log(run, `month ${String(month)}: the bed did not end the month; following the nudge again`);

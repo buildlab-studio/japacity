@@ -12,7 +12,7 @@ export const LEGAL_TEMPLATES = [
   { path: "/privacy", file: "privacy.html", template: "privacy.html" },
 ] as const;
 
-/** What the dev server does with a path: serve a page at its clean address, send an old form on to it, or leave it alone. */
+/** What the dev server does with a path: serve a page at its clean address, send its .html form or a trailing slash on to it, or leave it alone. */
 export type LegalRoute = { readonly serve: string } | { readonly redirect: string } | null;
 
 /** `/terms` serves; `/terms.html` and `/terms/` go on to `/terms`, as the platform's html handling does. */

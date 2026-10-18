@@ -3,13 +3,13 @@
 // glass, a grey pod on the roof; no operator's mark, route number or words (assets:no-real-brands-on-assets). Built to be sat in as
 // London's bus is: the walls, the floor and the roof are thin slabs, the glass a pane facing out, so from outside the
 // band is dark and from a seat the street runs past it. Canada drives on the right: the doors and the ride's seat are
-// on the right of its facing, the kerb side. Built along +x as the design's vehicles are, then turned to face +z
+// on the right of its facing, the kerb side. Built along +x as every vehicle is, then turned to face +z
 // (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 import type { RideSeat } from "../ride";
 
 /** The bus's numbers in metres, in the frame it is built in: length along x, the kerb side at +z. */

@@ -1,7 +1,7 @@
 // Draws the page's photo (prologue:player-colours-on-looks): the look standing, in the player's colours, framed from the
 // chest up against nothing, once, on the one renderer every still is drawn on. Loaded only when a photo is drawn.
 // The door's figure in the player's colours is drawn the same way, whole, as the shooter frames the published figure;
-// and the door reads what a look is made of here, for "Make it yours", now that no turntable stands on the door.
+// and the door reads what a look is made of here, for "Make it yours", since the door shows its figure as a still.
 import { text } from "@japacity/content";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import { Box3, Color, DirectionalLight, HemisphereLight, type Object3D, PerspectiveCamera, Scene, type SkinnedMesh, Vector3, WebGLRenderer } from "three";

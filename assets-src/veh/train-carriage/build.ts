@@ -3,12 +3,12 @@
 // operator's colours, mark or words (assets:no-real-brands-on-assets). Built to be sat in: the walls, floor and roof are thin slabs
 // with an inner face, the seats face each other in bays by the windows with yellow poles at the doors, and the
 // glass is a pane that faces out, so from outside the windows are dark and from a seat the line runs past them.
-// Built along +x as the design's vehicles are, then turned to face +z (assets:metre-units-and-origin).
+// Built along +x as every vehicle is, then turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 
 /** The carriage's numbers, in metres: length along x as built, the floor at platform height. */
 export const CARRIAGE = { length: 19.6, width: 2.8, floor: 1.1, sill: 1.85, head: 2.75, roof: 3.3 } as const;

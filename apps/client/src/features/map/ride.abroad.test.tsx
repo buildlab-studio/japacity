@@ -103,7 +103,7 @@ describe("the ways in London", () => {
     expect(fareTile(unpassed as NonNullable<typeof unpassed>, pounds, (amount) => fareWords(amount, "GBP"))).toBe("£1.75");
   });
 
-  test("[world:ride-sheet-shows-fares] [place:rides-between-city-places] given a life at home, when the view's ways are priced by the simulation's fare, then each is the fare the sheet has always said, to the kobo", () => {
+  test("[world:ride-sheet-shows-fares] [place:rides-between-city-places] given a life at home, when the view's ways are priced by the simulation's fare, then each is the fare the sheet says, to the kobo", () => {
     const view = engineView();
     const at = { from: positionOf(content, "place.ojuelegba"), to: positionOf(content, "place.bode-thomas") };
     const sheet = rideChoices(at.from, at.to, null, view.place.fareBp, false, { from: "place.ojuelegba", to: "place.bode-thomas" });

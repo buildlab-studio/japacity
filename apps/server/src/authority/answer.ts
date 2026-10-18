@@ -1,4 +1,4 @@
-// What a route answers: a status and a body of the HTTP contract in types.ts.
+// What a route answers: a status and a body of the HTTP contract (@japacity/api).
 import type { ServerCode, ServerRejection } from "@japacity/api";
 
 /** The statuses the routes use. A simulation's rejection is a game answer and goes out as 200. */

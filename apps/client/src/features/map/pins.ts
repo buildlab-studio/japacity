@@ -41,7 +41,7 @@ export interface PinsInput {
 
 /**
  * The pins of the map: only built places (and the home), each here, home, been, can go or not yet.
- * Until the published models are known every place with a position stands, as the city's list did.
+ * Until the published models are known, every place with a position stands.
  */
 export function mapPins({ places, here, home, homeSpot, been, built, open, name }: PinsInput): MapPin[] {
   return places
@@ -53,7 +53,7 @@ export function mapPins({ places, here, home, homeSpot, been, built, open, name 
     });
 }
 
-/** A ride abroad takes about this long over the wait; the city's distances are not drawn yet. */
+/** A ride abroad by the single way takes about this long over the wait: its distances are not read. */
 const ABROAD_MINUTES = 25;
 
 /**
@@ -65,7 +65,7 @@ const ABROAD_MINUTES = 25;
  */
 export function rideChoices(from: Position, to: Position, country: string | null = null, fareBp = 10000, home = false, ids: { from: string; to: string } | null = null, drive = false): RideChoice[] {
   const { metresPerMinute, waitMinutes, walkMetres, lonMetresPerE3 } = content.tuning.city.ride;
-  // Abroad there is one way, named for the country, at no fare until the tuning carries fares in that country's money (decision 0017).
+  // Abroad, where the view lists no ways, there is one way, named for the country, at no fare (decision 0017).
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresApart(from, to, lonMetresPerE3);
   // The month's fares (the fuel scarcity doubles them, place:rides-between-city-places): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.

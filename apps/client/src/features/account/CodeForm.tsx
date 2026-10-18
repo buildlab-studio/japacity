@@ -1,5 +1,5 @@
 // Signing in by a code sent to an email address (account:email-code-is-short-lived): the address,
-// then the 6 digits. Used to come in, and to confirm deleting (account:player-deletes-account),
+// then the 6 digits. It signs the player in, and confirms deleting (account:player-deletes-account),
 // where the code goes to the server with the deletion instead of signing in.
 import { useState, type FormEvent } from "react";
 

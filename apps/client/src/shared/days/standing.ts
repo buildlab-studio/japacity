@@ -1,6 +1,6 @@
 // Where the character stands, for the month's lines (world:month-passes-as-lived): they are told
 // on the phone only at home, the house or the room, never on the street. The city keeps where the
-// player stopped on the device (features/city/City.tsx, LAST_KEY, rules 5 and 7 of the world mode):
+// player stopped on the device (features/city/City.tsx, CITY_LAST_KEY; world:opens-where-last-stopped):
 // the place's id, with "inside" when in its room. The simulation keeps no place of the city.
 import type { PlayerView } from "@japacity/sim";
 import { CITY_LAST_KEY } from "../kept/storage";

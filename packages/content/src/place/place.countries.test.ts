@@ -64,7 +64,7 @@ describe("the places of Calgary, Dubai and Castel Volturno", () => {
     expect(content.place["place.metro-station-uae"]?.data).toEqual({ source: "osm", licence: "ODbL-1.0", checked: "2026-10-16" });
   });
 
-  test("[city:places-stage-their-acts] given the country-less test centre and workplace, when the table is read, then both are gone with their words, and the room stages only the country-less acts and the four meals", () => {
+  test("[city:places-stage-their-acts] given the place table, when it is read, then it holds no country-less test centre or workplace and no words for one, and the room stages only the country-less acts and the four meals", () => {
     expect(content.place["place.test-centre-abroad"]).toBeUndefined();
     expect(content.place["place.workplace-abroad"]).toBeUndefined();
     expect(Object.keys(text).filter((key) => key.startsWith("place.test-centre-abroad.") || key.startsWith("place.workplace-abroad."))).toEqual([]);

@@ -6,7 +6,7 @@ import { boxesIn, setFootprint } from "@japacity/assets";
 import { box, cylinder, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { facePlusZ, lump } from "../../veh/lab";
+import { facePlusZ, lump } from "../../veh/centred";
 
 export const CANOE = { length: 6.4, beam: 0.9, depth: 0.5 } as const;
 /** Where the free floor a paddler sits on begins and ends along the hull, between the thwarts. */

@@ -1,6 +1,6 @@
-// One name for one thing (text:bands-not-figures, the nearest rule): the
-// results said "The savings circle" where the ask said "Join the ajo", "Something on the street" where it
-// said "A market behind the station", and the mother was "Mama" at home and "Mummy" at her stall.
+// One name for one thing (text:bands-not-figures, the nearest rule): the results name a thing as its ask does
+// ("The savings circle" beside "Join the ajo", "A market behind the station", never "Something on the street"), and
+// the mother is "Mama" at home and at her stall, never "Mummy".
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

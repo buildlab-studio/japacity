@@ -1,6 +1,6 @@
 // "Ask about routes" at the hub's desk (world:things-are-tappable-models, world:one-action-one-sheet, advice:four-ways-to-learn-route): the
 // sheet is about routes, never only "A master's at home", so the act's name holds: the adviser's card leads when the
-// adviser can be seen, and a card shut for now (the word of someone who went, which needs the network) stands with its reason instead of going. Real content, a real life from sixteen.
+// adviser can be seen, and a card still shut (the word of someone who went, which needs the network) stands with its reason instead of going. Real content, a real life from sixteen.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

@@ -8,11 +8,12 @@ const city = content.tuning.city;
 const phone: Device = { finePointer: false, width: 412, pixelRatio: 3 };
 const desktop: Device = { finePointer: true, width: city.desktopMinWidth, pixelRatio: 3 };
 
-/** `good` frames of `goodMs` then the rest of a window at `badMs`, fed after `before` frames of `fillMs`. */
+/** The watch after each of `frames` in turn. */
 function feed(watch: FrameWatch, frames: number[]): FrameWatch {
   return frames.reduce((current, frame) => observeFrame(current, frame, city), watch);
 }
 
+/** A window of `good` frames of `goodMs`, the rest at `badMs`. */
 function windowOf(good: number, goodMs: number, badMs: number): number[] {
   return [...Array.from({ length: good }, () => goodMs), ...Array.from({ length: WINDOW_FRAMES - good }, () => badMs)];
 }

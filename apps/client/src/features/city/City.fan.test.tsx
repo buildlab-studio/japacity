@@ -1,8 +1,8 @@
 // The fan in the city (docs/design/13-the-lively-layer.md section 3; world:things-are-tappable-models, world:one-action-one-sheet,
 // world:nothing-roams, world:fan-of-sticker-buttons): a tap on any thing fans its acts out of the thing; a button of the simulation's acts done at
 // once sends the act the sheet would send, once the walk has reached the thing; a pose, Sleep, a card or a command is
-// handed to the walk and done on arrival as its kind does; a thing with no room beside it opens the sheet; the chip is
-// gone. The place file is the one the game ships; the scene is a stand-in that hands the city the taps, says where the
+// handed to the walk and done on arrival as its kind does; a thing with no room beside it opens the sheet; no chip
+// is drawn. The place file is the one the game ships; the scene is a stand-in that hands the city the taps, says where the
 // fanned thing stands, and walks at once.
 import { act, fireEvent, waitFor } from "@testing-library/react";
 import { setPockets } from "@japacity/sim/testing";
@@ -125,7 +125,7 @@ describe("the cooking corner's fan", () => {
     expect(found("[data-band-money]").dataset.bandPreview).toBe(String(held - price));
     fireEvent.pointerUp(found(`[data-fan-act="${JOLLOF}"] button`));
     expect(found("[data-band-money]").dataset.bandPreview).toBeUndefined();
-    // The chip is gone (world:fan-of-sticker-buttons): nothing but the fan stands over the corner.
+    // No chip (world:fan-of-sticker-buttons): nothing but the fan stands over the corner.
     expect(document.querySelector("[data-thing-chip]")).toBeNull();
     expect(document.querySelector("[data-nudge]")).toBeNull();
     expect(document.querySelector("[role=dialog]")).toBeNull();
@@ -168,7 +168,7 @@ describe("the cooking corner's fan", () => {
     expect(authority.sent.slice(before)).toEqual([]);
   });
 
-  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the cooking corner off the screen as it is tapped, when its acts would fan, then the existing sheet of its two meals opens instead", async () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the cooking corner off the screen as it is tapped, when its acts would fan, then the sheet of its two meals opens instead", async () => {
     await inTheParlour();
     fanTheCookingCorner(null);
     await waitFor(() => expect(document.querySelector("[role=dialog]")).not.toBeNull());

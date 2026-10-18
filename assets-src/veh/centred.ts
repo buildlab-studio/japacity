@@ -1,6 +1,6 @@
-// The design's three shape calls, kept so its vehicles port line for line: a box centred on its
-// position and turned about z, a wheel on an axle along z, and a cylinder along an axis. The kit's
-// shapes sit on their base and turn only about y, so each lab shape is a kit shape in a small frame.
+// Shapes placed by their centre, as the vehicles and the stall are drawn: a box centred on its position and turned
+// about z, a wheel on an axle along z, and a cylinder along an axis. The kit's shapes sit on their base and turn only
+// about y, so each shape here is a kit shape in a small frame.
 import { box, cylinder, extrude, paletteMaterial } from "@japacity/assets/kit";
 import type { PaletteName } from "@japacity/assets";
 import { Group, IcosahedronGeometry, Mesh, type Object3D } from "three";
@@ -48,7 +48,7 @@ export function lump(g: Object3D, r: number, x: number, y: number, z: number, co
 
 /**
  * Wraps a model so it faces +z (assets:metre-units-and-origin), centred on its footprint with its lowest point on y = 0.
- * `fromX` turns a model the design built facing +x.
+ * `fromX` turns a model built facing +x, as every vehicle is.
  */
 export function facePlusZ(inner: Group, name: string, fromX = true): Group {
   const outer = new Group();

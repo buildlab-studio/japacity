@@ -123,8 +123,8 @@ const CEILINGS: Partial<Record<Reason, Ceiling>> = {
 
 /**
  * wallet:ledger-report-raises-alarms: money created and destroyed by reason and currency, and the alarms that name an account as suspect.
- * `topUp` is the ceiling for `top-up` in naira, the processor's receipts for the account (wallet:top-ups-are-marked); until they
- * feed it, it is 0, so any top-up names the account. A top-up in any other currency has no receipts at all.
+ * `topUp` is the ceiling for `top-up` in naira, the processor's receipts for the account (wallet:top-ups-are-marked); with none
+ * fed in it is 0, so any top-up names the account. A top-up in any other currency has no receipts at all.
  */
 export function ledgerReport(state: State, content: Content, topUp = 0): LedgerReport {
   const created = withoutTransfers(state.wallet.totals.in);

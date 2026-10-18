@@ -100,7 +100,7 @@ describe("checkOverlay: numbers only", () => {
 });
 
 describe("checkOverlay: new players are left alone", () => {
-  test("[server:overlays-never-multiply-prices] given an overlay that raises a cost every new character can pay, when checked, then it is refused, and at its old value it may be applied", () => {
+  test("[server:overlays-never-multiply-prices] given an overlay that raises a cost every new character can pay, when checked, then it is refused, and at the content's own value it may be applied", () => {
     const cost = content.activity["activity.meetup"]!.cost[0]!.amount as number;
     const up = overlayAt(content, "dials-up", [[["activity", "activity.meetup", "cost", 0, "amount"], cost + 1]]);
     expect(checkOverlay(content, up)).toEqual([`activity.activity.meetup.cost[0].amount rises from ${String(cost)} to ${String(cost + 1)}: a new character can pay it (server:overlays-never-multiply-prices).`]);

@@ -105,7 +105,7 @@ const wholeLifeRoutes: Record<Id<"route">, RouteEntry> = {
       item("licence", 10, held("document.nursing-licence")),
       item("verification", 14, held("document.nmcn-verification")),
       // The clinic's certification (route-gates:care-route-needs-verification): the checklist's smallest weight,
-      // taken out of the application's as the police paper's was.
+      // taken out of the application's, as the police certificate's is.
       item("certificate", 5, held("document.nurse-certificate")),
       item("passport", 6, held("document.passport")),
       // Band 4.0, B1, held as the band times ten.

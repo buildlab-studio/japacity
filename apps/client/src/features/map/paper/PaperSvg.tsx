@@ -2,7 +2,7 @@
 // view. The strip draws it folded (the land, the water, the main roads and the bridges, every line its own width however
 // flat the fold); the open map and the cards draw it whole, the cards with a closer grain of houses. The paint's colours
 // come from the role tokens in paper.css, so the night paint darkens the paper by itself. The city drawn is the one the
-// map is handed (lagos.tsx's context): Lagos, or London abroad.
+// map is handed (lagos.tsx's context): Lagos, or the city of the country abroad.
 import type { CSSProperties } from "react";
 import { memo } from "react";
 

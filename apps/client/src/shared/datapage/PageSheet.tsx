@@ -153,7 +153,7 @@ function Opener({ store, when, place, body = null, part = null }: { store: GameS
     <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,auto)_auto_1fr] items-center gap-x-1.5 leading-none" data-band-person>
       {/* The lively band: the name with the part of the day beside it, the age and the place small under it. The name and the
           age open the page; the place's name does nothing (world:top-band-is-lively-pill, prologue:front-door-builds-a-person). The age comes before the part of
-          the day to a screen reader and the keyboard, as before; the grid lays them out. */}
+          the day to a screen reader and the keyboard; the grid lays them out. */}
       {name === "" ? null : (
         <button type="button" tabIndex={-1} aria-hidden className="col-start-1 row-start-1 min-w-0 truncate text-left text-[16px] leading-tight font-bold" onClick={show}>
           {name}

@@ -3,14 +3,14 @@
 // falling to the nose; the cabin sits narrower on it (the glasshouse leans in), so from above the roof stands apart from
 // the bonnet and the boot; the windscreen and the rear glass lie on their slopes in dark glass, so the roof reads between
 // two dark bands; the wheels stand a little proud of the body so their tyres show at the four corners; headlamps, grille,
-// bumpers, mirrors, plates and tail lamps finish it. No maker's mark or badge (assets:no-real-brands-on-assets). Built along +x like the design's
-// vehicles, then turned to face +z. The wheels are round, so they are their own part, shaded smooth (assets:flat-and-smooth-shading).
+// bumpers, mirrors, plates and tail lamps finish it. No maker's mark or badge (assets:no-real-brands-on-assets). Built along +x like every
+// vehicle, then turned to face +z. The wheels are round, so they are their own part, shaded smooth (assets:flat-and-smooth-shading).
 import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { paletteMaterial, part } from "@japacity/assets/kit";
 import { Group, Mesh, type Object3D, Vector3 } from "three";
 import { ConvexGeometry } from "three/addons/geometries/ConvexGeometry.js";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 
 type P = readonly [number, number, number];
 

@@ -4,7 +4,7 @@
 import { content, japaTypes, text } from "@japacity/content";
 import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 import { qualityIn, topActivities } from "@japacity/sim";
-import { lifeSaves, newLifeSaves, start } from "@japacity/sim/testing";
+import { lifeSaves, sweepLifeSaves, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { kept, moneyLines } from "../features/turn/month.results";
@@ -12,8 +12,8 @@ import { localCurrency } from "../shared/words/wayHome";
 import { newGame, recordedGame } from "../shared/testing/fixtures";
 import { japaTypeOf, typeWords } from "../shared/words/japaType";
 
-/** Every recorded life: the blessed ones and those recorded since, not yet blessed. */
-const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
+/** Every recorded life: the goldens and the lives the sweep plays beside them. */
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...sweepLifeSaves };
 
 /** A recorded life replayed to its end, from either list. */
 function replayed(name: string): ReturnType<typeof start> {
@@ -43,8 +43,8 @@ function adaDoing(topActivities: Card["topActivities"], change: Partial<PlayerVi
 
 /**
  * Ada at her send-off with her standing brought to the middle and her job alone as the thing done most, so no reading
- * comes before the one each test sets. Decision 0012: study and time with the family are counted each time they are done
- * now, so her re-recorded things done most lead with them; left as they are, they would read before the test's change.
+ * comes before the one each test sets. Study and time with the family are counted each time they are done (decision
+ * 0012), so her things done most lead with them; left as they are, they would read before the test's change.
  */
 function adaPlain(): PlayerView {
   const view = sendOff("ada-careful");
@@ -53,7 +53,7 @@ function adaPlain(): PlayerView {
 
 /**
  * A trader from sixteen (the prologue's tile) who opens her shop with the settlement and runs it a
- * year, with the month's other acts given. The send-off card is the one the engine would make now:
+ * year, with the month's other acts given. The send-off card is made from the view as it stands:
  * a trade's way out takes longer than a test should play.
  */
 function trader(others: SlotPick["activity"][]): PlayerView {
@@ -79,7 +79,8 @@ function trader(others: SlotPick["activity"][]): PlayerView {
 }
 
 describe("the japa type, read at the send-off", () => {
-  test("[world:month-end-results-sheet] given each recorded life, when each month closes, then the months the view counts as kept are those whose results figure, in the money of the place, was above zero", () => {
+  // Every recorded life replayed month by month: about two seconds alone, several times that under the full check's load.
+  test("[world:month-end-results-sheet] given each recorded life, when each month closes, then the months the view counts as kept are those whose results figure, in the money of the place, was above zero", { timeout: 20_000 }, () => {
     for (const [name, save] of Object.entries(SAVES)) {
       const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
       // The month's lines as the results sheet reads them: the commands sent in the month, then the month's end.
@@ -154,7 +155,7 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...kiosk, keptMonths: twoThirds - 1 })).toBe("hustler");
   });
 
-  test("[share:cards-due-at-set-moments] given no send-off due, a chapter card or no card, when the type is read, then there is none yet", () => {
+  test("[share:cards-due-at-set-moments] given no send-off due, a chapter card or no card, when the type is read, then there is none", () => {
     const ada = sendOff("ada-careful");
     expect(japaTypeOf({ ...ada, card: null })).toBeNull();
     expect(japaTypeOf({ ...ada, card: { ...ada.card!, kind: "chapter" } })).toBeNull();
@@ -169,7 +170,7 @@ describe("the japa type, read at the send-off", () => {
     expect(japaTypeOf({ ...ada, place: { ...ada.place, returns: [{ month: 6, shape: "broke", country: "country.uk" }] } })).toBe("long-way-round");
     // The way taken refused once before it was granted.
     expect(japaTypeOf({ ...ada, routes: ada.routes.map((route) => (route.id === ada.card!.route ? { ...route, refusals: 1 } : route)) })).toBe("long-way-round");
-    // A refusal on another way is not the way taken. Decision 0013: Ada's re-recorded life is never refused, so the
+    // A refusal on another way is not the way taken. Ada's recorded life is never refused (decision 0013), so the
     // refusal is set on another way here.
     expect(ada.card!.route).not.toBe("route.uk-talent");
     expect(japaTypeOf({ ...ada, routes: ada.routes.map((route) => (route.id === "route.uk-talent" ? { ...route, refusals: 1 } : route)) })).not.toBe("long-way-round");
@@ -187,7 +188,7 @@ describe("the japa type, read at the send-off", () => {
     // Study first.
     expect(japaTypeOf(adaDoing(["activity.learn-tech", "activity.job-junior-dev"]))).toBe("night-reader");
     expect(japaTypeOf(adaDoing(["activity.job-junior-dev", "activity.study-english"]))).toBe("night-reader");
-    // Ada as she went, plain: decision 0013's re-recorded life kept two thirds of her months and more, and none of the
+    // Ada as she went, plain: her recorded life kept two thirds of her months and more, and none of the
     // readings before holds: the careful saver. One month under two thirds is the hustler, below.
     expect(ada.keptMonths * 3).toBeGreaterThanOrEqual(ada.card!.months * 2);
     expect(japaTypeOf(ada)).toBe("careful-saver");

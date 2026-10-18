@@ -1,4 +1,4 @@
-// Computer Village rebuilt as one frontage (city.md place.computer-village, world:place-is-one-screen):
+// Computer Village as one frontage (city.md place.computer-village, world:place-is-one-screen):
 // the phone plaza and the laptop house across the road, and on the near pavement the repair bench
 // where the laptop's fault and the side gig open, a phone shop where a phone is bought, an accessories stall
 // where the trade is learned and phones are sold (streets:buy-phone-at-computer-village, streets:phone-sales-job and streets:apprentice-learns-repair), a danfo and an okada.

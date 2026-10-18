@@ -3,12 +3,12 @@
 // The back is built to be ridden in: thin walls with plywood to shoulder height inside, a wooden bench down each
 // side, and a small window cut through the wall over each bench, in the back doors and in the bulkhead, so from a
 // bench the camera sits low and the road shows only in those few panes. Its side door is on the right of its
-// facing, the kerb side in Italy. Built along +x as the design's vehicles are, then turned to face +z (assets:metre-units-and-origin).
+// facing, the kerb side in Italy. Built along +x as every vehicle is, then turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad, solid } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-import { cbox, facePlusZ, profile, wheel } from "../lab";
+import { cbox, facePlusZ, profile, wheel } from "../centred";
 
 /** The van's numbers, in metres, in the frame it is built in: length along x, the kerb side at +z. */
 export const VAN = { length: 5.4, width: 2.0, floor: 0.58, roof: 2.45, bulkhead: 1.05, back: -2.7, bench: 0.98, window: [1.34, 1.8] } as const;

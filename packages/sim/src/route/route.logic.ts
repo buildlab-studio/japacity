@@ -323,7 +323,7 @@ function hear(ctx: Ctx, effect: Effect): BaseEvent[] {
   return [moved(entry.id, "heard", effect.via)];
 }
 
-/** advice:four-ways-to-learn-route: the official page is the look-into activity; its line is the one route:looking-into-makes-known always gave. */
+/** advice:four-ways-to-learn-route: the official page is the look-into activity, told by route:looking-into-makes-known's own line. */
 const OFFICIAL_PAGE = "activity.look-into-route";
 
 /**
@@ -898,7 +898,7 @@ function pounds(amount: number): MoneyParam {
   return { currency: FUNDS_CURRENCY, amount };
 }
 
-/** advice:four-ways-to-learn-route: the way a route was looked into, for its line. The official page keeps the line it always had. */
+/** advice:four-ways-to-learn-route: the way a route was looked into, for its line. The official page has the plain looked-into line. */
 function lookedLine(via: string | undefined): string {
   if (via === undefined) return "looked-into";
   if (via === "activity.ask-someone-who-went") return "looked-into-told";

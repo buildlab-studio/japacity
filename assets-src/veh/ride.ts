@@ -1,6 +1,6 @@
 // What the ride abroad needs of a vehicle built to be sat in (world:ride-abroad-and-workplace):
-// a seat's eye and where it looks, carried from the frame the vehicle is built in (its length along +x, the design's
-// way) into the turned model's own frame (facing +z, assets:metre-units-and-origin), through facePlusZ's quarter turn and centring.
+// a seat's eye and where it looks, carried from the frame the vehicle is built in (its length along +x, as every
+// vehicle is) into the turned model's own frame (facing +z, assets:metre-units-and-origin), through facePlusZ's quarter turn and centring.
 import { type Group, Vector3 } from "three";
 
 export type Point = readonly [number, number, number];

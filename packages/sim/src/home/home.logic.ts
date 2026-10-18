@@ -244,8 +244,8 @@ function judgeHost(read: ReadCtx, requirement: Requirement): RequirementResult {
 // ---------------------------------------------------------------------------
 
 /**
- * The move itself, for the command and for an answer that moves. Whatever upkeep and rent the old
- * home charged close. To Makoko: the first month's rent is taken cash first then bank, and
+ * The move itself, for the command and for an answer that moves. Whatever upkeep and rent the home
+ * left behind charged close. To Makoko: the first month's rent is taken cash first then bank, and
  * Makoko's upkeep opens at the tuning's charge. To the room in a compound (home:compound-room-is-a-home): the year's
  * rent and the fees are taken at once under `rent`, the year's rent opens paid for its first year
  * (obligation:prepaid-entries-skip-first-charge), and the room's own upkeep opens. To the family house: the family's upkeep

@@ -31,7 +31,7 @@ describe("the admin routes", () => {
     }
   });
 
-  test("[server:ledger-alarm-lists-suspects] given the production config with no admin account, when the maintainer's own account asks, then the page does not exist", async () => {
+  test("[server:ledger-alarm-lists-suspects] given the production config with no admin account, when the account an admin would use asks, then the page does not exist", async () => {
     const config = testConfig({ testing: { testLogin: true } });
     const app = makeApp(testDeps({ config, session: testSession(config) }));
     expect(productionConfig.admin.accounts).toEqual([]);

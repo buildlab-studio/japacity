@@ -154,8 +154,8 @@ export interface GameState {
   messageNudges: number;
   /**
    * The real time the life began (world:top-band-is-lively-pill): month 0 of the life is that month of the year, so the band names the month.
-   * Read from the authority as the life loads or starts; an authority that keeps none (online, until the account carries
-   * it) leaves the time the game loaded.
+   * Read from the authority as the life loads or starts; an authority that keeps none (online) leaves the time the game
+   * loaded.
    */
   beganAt: number;
 
@@ -173,9 +173,8 @@ export interface GameState {
   preset: ((request: Omit<PresetRequest, "basedOn">, keep?: (trail: PresetStep[]) => void) => Promise<PresetReply | null>) | null;
   /**
    * Ends the month with the commitments that carry on (world:month-acts-carry-on), and the results open in the room. `rest`: the bed's
-   * Sleep, the month's time left rested (turn:month-lived-in-half-days). The command does not carry it yet: the contract's `turn/end` has
-   * no `rest` field, and the simulation gates nothing on the time spent (decision 0011), so the plain command is sent;
-   * the bed's Sleep passes it already so the flag reaches the wire once the contract takes it.
+   * Sleep, the month's time left rested (turn:month-lived-in-half-days). The command does not carry it: the contract's `turn/end` has
+   * no `rest` field, and the simulation gates nothing on the time spent (decision 0011), so the plain command is sent.
    */
   endMonth: (rest?: true) => Promise<Reply | ServerRejection | null>;
   setSlot: (index: number, pick: SlotPick | null) => void;
@@ -631,7 +630,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       },
       send: (command) => send(command),
       preset: authority.preset === undefined ? null : (request, keep) => playPreset(request, keep),
-      // `rest` waits for the contract (see the type above): the plain command is sent until `turn/end` carries it.
+      // The contract's `turn/end` carries no `rest` (see the type above), so the plain command is sent.
       async endMonth() {
         const slots = get().plan.filter((pick): pick is SlotPick => pick !== null);
         const reply = await send({ type: "turn/end", slots });

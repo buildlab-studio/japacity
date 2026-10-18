@@ -1,7 +1,7 @@
-// The city (docs/rules/city.md): a full-screen scene under the panels, brought in front of them by
-// "Look around". It reads the view and never changes it: entering a place, walking and tapping are
-// this screen's own state, and nothing here sends a command (city:places-change-no-state). The 3D scene is loaded
-// only where WebGL exists, so the panels never wait for it (city:places-load-on-entry).
+// The city (docs/rules/city.md): the world's full-screen scene and what stands over it. Entering a place, walking
+// and tapping are this screen's own state and send nothing (city:places-change-no-state); an act picked on a thing
+// sends its command as the act's sheet would. The 3D scene is loaded only where WebGL exists, so nothing else waits
+// for it (city:places-load-on-entry).
 import { content, text } from "@japacity/content";
 import { type Id, metresApart, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
@@ -136,7 +136,7 @@ function sendOffYou(view: { scenario: string }) {
   return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
 }
 
-// Development only: the picture runs open a beat of the send-off straight from the page (a player's build drops it).
+// Development only: the catalog's shots open a beat of the send-off straight from the page (a player's build drops it).
 if (import.meta.env.DEV && typeof window !== "undefined") Object.assign(window, { __sendOff: sendOff });
 
 const city = content.tuning.city;
@@ -163,10 +163,10 @@ function homeOf(view: PlayerView): string | null {
   return lived ?? HOMES[view.place.where] ?? null;
 }
 /**
- * Places whose files are kept switched off (world:no-classic-view-kept) until each is rebuilt as a world-first place: the map shows
- * only built places, and nothing with nothing to do. Empty while every place is built.
+ * Places whose files are kept switched off (world:no-classic-view-kept): the map shows only built places, and nothing
+ * with nothing to do. Empty while every place is built.
  */
-const OLD_FILES = new Set<string>();
+const SWITCHED_OFF = new Set<string>();
 
 /**
  * The first chapter's opening words for this life (world:world-fills-the-screen): the
@@ -265,7 +265,7 @@ const HOME_SPOT = { latE3: 6507, lonE3: 3359 };
 /** world:opens-where-last-stopped: the family house keeps its place on the map while the character lives in a room elsewhere in Lagos, a little from the home spot. */
 const FAMILY_SPOT = { latE3: 6511, lonE3: 3353 };
 const FAMILY_HOUSE = "place.family-house";
-/** The countries the map can show, with why the others are shut, until the view says more. */
+/** The countries the map can show, with why the others are shut. */
 const COUNTRIES = ["country.uk", "country.uae", "country.canada", "country.italy"];
 
 function readKept(key: string): string[] {
@@ -320,7 +320,7 @@ function bandName(name: string): string {
 }
 
 /**
- * Where the player last stopped, when it is a place they can still enter (rule 7) and the world's day is still the one
+ * Where the player last stopped, when it is a place they can still enter (world:opens-where-last-stopped) and the world's day is still the one
  * they stopped on; once the sky has turned since, they start at home (clock:game-day-on-real-time): coming back resumes at
  * whatever time the world is at.
  * With no home that can be entered, the hub.
@@ -620,8 +620,8 @@ export function City({
     const timer = window.setTimeout(() => setAsleep((held) => (held === null || held.at !== asleepAt ? held : { ...held, due: true })), Math.max(0, asleepAt + ms - Date.now()));
     return () => window.clearTimeout(timer);
   }, [asleepAt]);
-  // The sleep ran out: the month turns (world:sleep-ends-the-month), the same command the band once sent. Never under the phone or the
-  // map the player opened meanwhile: the turn waits for them to be put away, since nothing opens by itself over them.
+  // The sleep ran out: the month turns (world:sleep-ends-the-month). Never under the phone or the map the player opened
+  // meanwhile: the turn waits for them to be put away, since nothing opens by itself over them.
   const turning = useRef(false);
   const sleepDue = asleep?.due === true;
   useEffect(() => {
@@ -714,7 +714,7 @@ export function City({
     let alive = true;
     void loadManifest()
       .then((manifest) => {
-        if (alive) setShipped(new Set(PLACES.filter((place) => !OLD_FILES.has(place.id) && assetUrl(manifest, stageFilePath(place, (path) => assetUrl(manifest, path) !== null)) !== null).map((place) => place.id)));
+        if (alive) setShipped(new Set(PLACES.filter((place) => !SWITCHED_OFF.has(place.id) && assetUrl(manifest, stageFilePath(place, (path) => assetUrl(manifest, path) !== null)) !== null).map((place) => place.id)));
       })
       .catch(() => {
         if (alive) setShipped(new Set());
@@ -791,7 +791,7 @@ export function City({
       .then((manifest) => Promise.all(filesOf(insideFile, []).map((path) => loadModel(manifest, path, (key) => text[key]))))
       .catch(() => undefined);
   }, [insideFile, inside, drawing]);
-  // The world mode remembers where the player stopped and where they have been (rules 5 and 7).
+  // The world mode remembers where the player stopped and where they have been (world:opens-where-last-stopped, world:map-is-painted-lagos).
   useEffect(() => {
     if (!world) return;
     // The world's day is kept with the place, so a return after the sky has turned starts at home.
@@ -1110,7 +1110,7 @@ export function City({
     setFanGoingId(entry.id);
     setFanAct({ thing: fanned, act: entry.act, at: Date.now() });
   };
-  // No room beside the thing for its fan (section 3): the simulation's acts open as their own sheet, as before; a thing with
+  // No room beside the thing for its fan (section 3): the simulation's acts open as their own sheet; a thing with
   // any other act opens the same buttons as a small sheet.
   const fanFallback = (): void => {
     const entries = fanEntries ?? [];
@@ -1125,7 +1125,7 @@ export function City({
   };
   // A new pick, or none, forgets the small sheet: the next thing tapped tries its fan first.
   useEffect(() => setFanSheet(null), [picked]);
-  // A ride plays, then the place opens (rule 13).
+  // A ride plays, then the place opens (world:ride-sheet-shows-fares).
   const travel = (id: string): void => {
     cue("whoosh");
     setPicked(null);

@@ -36,7 +36,7 @@ const MONTH_ACTS_FREE = [
 ];
 
 // Decision 0012 (activity:acts-may-repeat-in-month): the coding course answers at once and repeats, so it is never planned; the course
-// that carries on as a commitment is a master's at home, whose lines come in its first and third weeks as the course's did.
+// that carries on as a commitment is a master's at home, whose lines come in its first and third weeks.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 /** A nap: an act that spends a morning of the month's free time and costs nothing. */
 const NAP = "activity.nap" as Id<"activity">;

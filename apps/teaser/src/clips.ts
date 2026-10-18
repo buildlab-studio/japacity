@@ -18,7 +18,7 @@ export interface Clip {
   readonly shape: "wide" | "phone" | "tall";
 }
 
-/** The clips the earlier thirty second cut shows, each one the landscape teaser shows too. */
+/** The clips the thirty second `Teaser` cut shows, each one the landscape lead cut shows too. */
 export const CLIPS: readonly Clip[] = [
   { name: "wide-ride", file: "wide-ride.webm", session: "wide-ride", shape: "wide" },
   { name: "wide-street", file: "wide-street.webm", session: "wide-ride", shape: "wide" },
@@ -28,7 +28,7 @@ export const CLIPS: readonly Clip[] = [
   { name: "wide-night", file: "wide-night.webm", session: "wide-night", shape: "wide" },
 ];
 
-/** The landscape teaser's clips the earlier cut does not show: Makoko, from the life the door starts on the water. */
+/** The landscape lead cut's clips the `Teaser` cut does not show: Makoko, from the life the door starts on the water. */
 export const LEAD_CLIPS: readonly Clip[] = [{ name: "wide-makoko", file: "wide-makoko.webm", session: "wide-makoko", shape: "wide" }];
 
 /** The same sessions on the phone, for the portrait teaser: the world alone in the phone's own frame, full frame. */

@@ -10,7 +10,7 @@ export const offerText: Record<string, string> = {
   // Family requests
 
   // The family's light bill at home, wherever the character is: abroad the same ask comes (abroad-money:family-asks-more-abroad), and "the bill"
-  // alone read as London's.
+  // alone would read as London's.
   "offer.nepa-bill.name": "NEPA has brought the bill at home",
   "offer.nepa-bill.title": "NEPA bill again",
   "offer.nepa-bill.body":

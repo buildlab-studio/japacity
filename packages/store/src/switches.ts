@@ -37,14 +37,14 @@ export type DialChange =
   | { dial: "placeTarget"; place: string; value: number | null }
   | { dial: "computerAfterMonths"; value: number | null };
 
-/** The raffle's top-up dial, retired by decision 0016: only a log line written before it went carries one. */
-export interface RetiredDialChange {
+/** The raffle's top-up dial, which nothing sets under decision 0016: a stored log line that carries one still reads. */
+export interface TopUpDialChange {
   dial: "topUpTickets";
   value: number | null;
 }
 
 /** What one logged change did. */
-export type SettingChange = { switch: SwitchName; on: boolean } | DialChange | RetiredDialChange;
+export type SettingChange = { switch: SwitchName; on: boolean } | DialChange | TopUpDialChange;
 
 /** server:four-off-switches: who changed what, when and why. `n` rises with every change. */
 export interface SwitchLogRow {

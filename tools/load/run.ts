@@ -1,6 +1,6 @@
 // One run of the load test (docs/rules/load.md):
 // the plan, the stores' counts before, the scenario through k6 (or the Node
-// driver before k6 is installed), the counts after, the verification and the
+// driver where k6 is not installed), the counts after, the verification and the
 // summary in results/. run.sh raises the file limit and calls this.
 //
 // Usage: tools/load/run.sh [--scale 10] [--scenario commands|reads] [--tool k6|node] [--minutes 10] [--base http://127.0.0.1:8787] [--no-verify]

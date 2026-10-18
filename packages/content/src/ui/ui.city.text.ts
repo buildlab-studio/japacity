@@ -155,7 +155,7 @@ export const uiCityText: Record<string, string> = {
   "city.act.rent": "Rent",
   "city.act.send-off-chapter": "Leaving",
   "city.act.december-home": "Come home",
-  // Computer Village, Peckham and Deira rebuilt as frontages (world:things-are-tappable-models).
+  // Computer Village, Peckham and Deira as frontages (world:things-are-tappable-models).
   "city.thing.repair-bench": "Repair bench",
   "city.thing.phone-stall": "Phones",
   "city.thing.accessories": "Accessories",

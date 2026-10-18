@@ -2,7 +2,7 @@
 // a name drawn from content's pool by its mix.
 // Pure: one whole number in, one name out, so a resident keeps the same name
 // for as long as the caller keeps the number. The role is never an input, so a
-// name cannot predict who the landlord, the agent or the trader is (names rule 5).
+// name cannot predict who the landlord, the agent or the trader is.
 import { divFloor } from "../engine/int";
 
 /** The share of the mix a draw is out of: basis points. */

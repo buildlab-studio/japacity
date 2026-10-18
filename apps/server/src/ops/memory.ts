@@ -1,7 +1,7 @@
 // A save put into the memory stores the way the command transaction stores
 // it: one log row per accepted command with its hash, a snapshot every
 // `snapshotEvery`, and the stand-in worlds as the stored world rows. For the
-// rollback tool's --memory mode until packages/db exists, and for tests.
+// rollback tool's --memory mode and for tests.
 import type { FlatSave, SavedCommand, State } from "@japacity/sim";
 import { hashState, newState, step, standInWorlds } from "@japacity/sim";
 import type { LogRow, SnapshotRow } from "@japacity/store";

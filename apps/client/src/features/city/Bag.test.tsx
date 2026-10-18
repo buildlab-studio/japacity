@@ -22,7 +22,7 @@ const FRAME = 1 / 60;
 /** Ada's careful life played on, command by command, until `held` says the view has what the test needs. */
 function adaUntil(held: (view: PlayerView) => boolean): PlayerView {
   const save = recordedSave("ada-careful");
-  // Played once from the start, a command at a time, rather than replayed from the start for each step (the lives grew with decision 0012).
+  // Played once from the start, a command at a time, rather than replayed from the start for each step, which a life this long makes slow.
   const game = recordedGame("ada-careful", save.commands.length);
   if (held(game.view())) return game.view();
   for (const entry of save.commands) {

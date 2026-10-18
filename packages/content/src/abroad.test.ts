@@ -9,7 +9,7 @@ function missingWords(keys: string[]): string[] {
 }
 
 describe("words for life abroad", () => {
-  test("[engine:content-checked-before-play] given every country, status, goal and the new entries of the older kinds, when their words are looked up, then each has a name", () => {
+  test("[engine:content-checked-before-play] given every country, status, goal and the abroad entries of the other kinds, when their words are looked up, then each has a name", () => {
     const ids = [
       ...Object.keys(content.country),
       ...Object.keys(content.status),

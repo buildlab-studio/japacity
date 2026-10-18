@@ -127,7 +127,7 @@ async function post(fetch: MailFetch, base: string, to: string, mail: Letter): P
   if (!reply.ok) throw new Error(`Mailpit refused the mail: ${String(reply.status)}`);
 }
 
-/** The binding's error code when it gave one we know the shape of; nothing else of what it threw. */
+/** The binding's error code when it has the known shape; nothing else of what it threw. */
 function errorCode(thrown: unknown): string | null {
   if (typeof thrown !== "object" || thrown === null || !("code" in thrown)) return null;
   const { code } = thrown;

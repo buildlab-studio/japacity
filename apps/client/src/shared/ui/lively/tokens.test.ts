@@ -90,7 +90,7 @@ describe("the night paint", () => {
 });
 
 describe("one look", () => {
-  test("[world:colours-are-role-tokens] given index.css, then the danfo theme and the comparison surfaces are gone", () => {
+  test("[world:colours-are-role-tokens] given index.css, then it holds no danfo theme and no comparison surface", () => {
     expect(CSS).not.toContain('data-ui="danfo"');
     expect(CSS).not.toContain("data-surface");
   });
@@ -109,7 +109,7 @@ describe("one look", () => {
     expect(CSS).toContain("--text-chip: 12px;");
   });
 
-  test("[world:colours-are-role-tokens] given the circle pattern, then the band, its second shade and the sheet heads on them no longer carry it; only the adire class does", () => {
+  test("[world:colours-are-role-tokens] given the circle pattern, then only the adire class and the wall carry it, never the band, its second shade or the sheet heads on them", () => {
     const rules = [...CSS.matchAll(/\n\.([a-z0-9-]+) \{([^}]*)\}/g)].filter((match) => (match[2] ?? "").includes("var(--pattern)")).map((match) => match[1]);
     expect(rules.sort()).toEqual(["adire", "wall"]);
   });

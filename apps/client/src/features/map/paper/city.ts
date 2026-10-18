@@ -1,6 +1,7 @@
 // A painted city (world:map-is-painted-lagos, world:painted-maps-abroad): everything the folding map needs to draw one city
-// on its paper, so the same strip, cards and open map draw Lagos or London. Lagos's lives in lagos.tsx; London's in its
-// own chunk (london.tsx), loaded only when the map shows the UK, so a first visit at home carries none of it.
+// on its paper, so the same strip, cards and open map draw Lagos or a city abroad. Lagos's lives in lagos.tsx; each city
+// abroad's in its own chunk (london.tsx, calgary.tsx, dubai.tsx, castel.tsx), loaded only when the map shows its country,
+// so a first visit at home carries none of it.
 import type { ReactNode } from "react";
 
 import type { Card } from "./districts";

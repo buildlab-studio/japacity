@@ -96,7 +96,6 @@ function judgeHere(read: ReadCtx, requirement: EngineRequirement, terms: Terms, 
   }
 }
 
-/** Judge a requirement with a given registry. Tests use this to swap kinds in. */
 /** Every requirement in a list, the ones under `not` and `any` included beside the `not` and `any` themselves. */
 export function requirementsIn(requirements: readonly Requirement[]): Requirement[] {
   return requirements.flatMap((requirement): Requirement[] => {
@@ -106,6 +105,7 @@ export function requirementsIn(requirements: readonly Requirement[]): Requiremen
   });
 }
 
+/** Judge a requirement with a given registry. Tests use this to swap kinds in. */
 export function checkWith(
   read: ReadCtx,
   requirement: Requirement,

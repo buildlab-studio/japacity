@@ -33,7 +33,7 @@ export { measure } from "../engine/golden";
 export type { Golden } from "../engine/golden";
 export { goldenScripts } from "../goldens/scripts";
 export { lifeSaves } from "../goldens/lives.data";
-export { newLifeSaves } from "../sweep/lives.data";
+export { sweepLifeSaves } from "../sweep/lives.data";
 export { countryLifeSaves } from "../sweep/lives.countries.data";
 export { FLIGHT_WINDOW, MONTHS_ABROAD } from "../sweep/lives.window";
 export { runLife } from "../sweep/players";

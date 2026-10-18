@@ -1,5 +1,5 @@
 // A blow's money named for what it paid (world:month-end-results-sheet): the
-// laptop's repair read "Something went wrong and it cost ₦85,000." on the results.
+// laptop's repair never reads "Something went wrong and it cost ₦85,000." on the results.
 import { describe, expect, test } from "vitest";
 
 import { content } from "@japacity/content";

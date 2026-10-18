@@ -1,6 +1,6 @@
 // The Inverter Room (place.yaba-hub): the desks-by-the-day room in Yaba, with its own file so its things are its own
-// and not the hub's, which it showed with every act hidden (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height). The
-// checks the rebuilt frontages pass, read against the interior row.
+// and not the hub's (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height). The
+// checks the frontages pass, read against the interior row.
 import { type Footprint, isFootprint } from "@japacity/assets";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";

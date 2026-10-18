@@ -20,7 +20,7 @@ afterEach(() => {
 const rows = (keys: readonly [string, string]) => keys.map((key) => say(key));
 
 describe("the lines with a wink", () => {
-  test("[account:two-lights-and-wink-lines] [text:hook-not-explanation] given the start screen's lines, then there are three, two rows each, in the content's words verbatim: the owner's pick, the stayer's answer, and the saying", () => {
+  test("[account:two-lights-and-wink-lines] [text:hook-not-explanation] given the start screen's lines, then there are three, two rows each, in the content's words verbatim: the last one out, the stayer's answer, and the saying", () => {
     expect(WINK_LINES.start).toBe(3);
     expect([1, 2, 3].map((n) => [say(`ui.wink.start.${String(n)}.a`), say(`ui.wink.start.${String(n)}.b`)])).toEqual([
       ["Last one out,", "off the light."],

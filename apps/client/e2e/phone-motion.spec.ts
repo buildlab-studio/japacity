@@ -139,7 +139,7 @@ async function settled(page: Page): Promise<void> {
 /** Opens the phone over a ready life; gives the world's boxes as they stood before it opened. */
 async function openPhone(page: Page): Promise<Sample> {
   await page.setViewportSize({ width: 412, height: 839 });
-  await page.goto("/?world");
+  await page.goto("/");
   await startReadyLife(page);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 30_000 });
   await page.waitForFunction(() => window.__city?.ready === true, null, { timeout: 60_000 }).catch(() => undefined);

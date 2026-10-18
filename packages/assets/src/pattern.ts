@@ -1,4 +1,4 @@
-// Fabric patterns drawn in code from a seed (assets:fabric-pattern-from-seed), ported from the asset experiments.
+// Fabric patterns drawn in code from a seed (assets:fabric-pattern-from-seed).
 // Drawn straight into pixels, with no canvas, so the export can run in Node and every pixel
 // is exactly a palette colour: a shape covers a pixel when the pixel's centre is inside it,
 // so there is no antialiasing and no blending. Shapes near an edge are drawn again across
@@ -110,7 +110,7 @@ function ankara(seed: number, cols: readonly PaletteName[] | undefined, S: numbe
       disc(r, x, y, S * 0.05, c1);
     }
   } else if (motif === 1) {
-    // Scales: overlapping rows of discs. Drawn row by row and clipped, as the design did: the rows repeat, so the edges meet.
+    // Scales: overlapping rows of discs. Drawn row by row and clipped: the rows repeat, so the edges meet.
     const n = 4;
     const step = S / n;
     for (let j = -1; j <= n; j++) {
@@ -163,14 +163,14 @@ function adire(seed: number, S: number): Raster {
   const pale = paletteRgb("cream");
   const mid = paletteRgb("blue");
   const r = blank(S, paletteRgb("indigo"));
-  // Dye that took unevenly. The design blended faint blots; here a blot is a sparse speckle of solid palette
-  // pixels, so the look is kept and every pixel stays a palette colour.
+  // Dye that took unevenly: a blot is a sparse speckle of solid palette pixels, never a faint blend, so every
+  // pixel stays a palette colour.
   for (let i = 0; i < 26; i++) {
     const x = random() * S;
     const y = random() * S;
     const radius = 6 + random() * 16;
     const colour = random() < 0.5 ? mid : paletteRgb("black");
-    // The design drew each blot nine times and drew a colour each time; the extra draws keep the seed's later numbers.
+    // Eight draws thrown away for each blot: dropping them would move every later number and redraw every shipped pattern.
     for (let k = 0; k < 8; k++) random();
     fill(r, x - radius, y - radius, x + radius, y + radius, colour, true, (px, py) => {
       const cx = Math.floor(px);
@@ -234,7 +234,7 @@ function asoOke(seed: number, cols: readonly PaletteName[] | undefined, S: numbe
   return r;
 }
 
-/** The design's sizes: 128 pixels for ankara and adire, 64 for aso oke. Never more than 256 (the tex_ budget). */
+/** The sizes: 128 pixels for ankara and adire, 64 for aso oke. Never more than 256 (the tex_ budget). */
 export function defaultPatternSize(kind: PatternSpec["kind"]): number {
   return kind === "asoOke" ? 64 : 128;
 }

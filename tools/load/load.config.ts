@@ -1,6 +1,6 @@
 // The load test's numbers (docs/rules/load.md, Numbers). They are the tool's,
-// not the game's content. `scaled` gives the smaller runs this machine can
-// make before Postgres and k6 are in place, and `planFor` turns a config into
+// not the game's content. `scaled` gives the smaller runs a machine without
+// Postgres or k6 can make, and `planFor` turns a config into
 // the plain numbers the k6 script and the Node driver read.
 import { int } from "@japacity/sim";
 

@@ -1,6 +1,7 @@
 // The nurse's chapter card (share:card-contents, chapter:chapters-follow-lean-route): her
-// first chapter's card showed two empty bands, since care work, shut to applicants from abroad (route-gates:care-route-needs-verification), gives
-// no japacity figure (japacity:best-open-route-is-japacity). The card names the way out the chapters follow and its own figure.
+// first chapter closes on care work, which is shut to applicants from abroad (route-gates:care-route-needs-verification) and so
+// gives no japacity figure (japacity:best-open-route-is-japacity). The card names the way out the chapters follow and its own
+// figure, never two empty bands.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

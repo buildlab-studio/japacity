@@ -1,5 +1,5 @@
 // `GET /api/admin/stats` (analytics:admin-stats-for-admins-only): the
-// numbers an investor asks for, live, for the admin view's Numbers tab. As
+// game's headline numbers, live, for the admin view's Numbers tab. As
 // with the other admin routes, to anyone not in `config.admin.accounts` it
 // does not exist. No public page reads it.
 import type { StatsReply } from "@japacity/api";

@@ -177,7 +177,7 @@ const HOMES: readonly [string, string][] = [
   ["The family house", "door-home-family"],
 ];
 
-/** A tile of the door picked by its name: the tiles are radios, the older ones buttons. */
+/** A tile of the door picked by its name: a radio where the step draws its tiles as radios, else a button. */
 async function pick(page: Page, name: string): Promise<void> {
   const radio = page.getByRole("radio", { name, exact: true });
   if ((await radio.count()) > 0) await radio.first().click();

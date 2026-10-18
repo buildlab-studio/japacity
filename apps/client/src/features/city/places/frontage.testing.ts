@@ -1,4 +1,4 @@
-// The checks every rebuilt frontage passes (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height): its
+// The checks every frontage passes (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height): its
 // file measured as the build check measures it against the exterior row, its counts, its crowd under
 // the world's caps, its floors a centimetre apart, its boards, and its things' words resolving
 // through the scene's own. Each place's test calls these and adds what that place must show.
@@ -35,7 +35,7 @@ export function actEntries(raw: unknown, id: Id<"place">): string[] {
 }
 
 /**
- * The tests every rebuilt frontage shares; `raw` is the place's file as imported. `boards: false` is for a frontage whose
+ * The tests every frontage shares; `raw` is the place's file as imported. `boards: false` is for a frontage whose
  * models carry no sign at all (the site in Dubai, behind its hoarding): it is held to that instead, no model lettered.
  */
 export function frontageTests(raw: unknown, id: Id<"place">, { boards = true }: { boards?: boolean } = {}): void {

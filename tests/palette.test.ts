@@ -1,33 +1,26 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
-// The game's own colours on every screen (world:colours-are-role-tokens). The client names role tokens only; the older cream page palette and the
-// tells of a machine-made app stay out. Every finding names the file and the line, so a failure says where to look.
+import { filesUnder, REPO_ROOT } from "../tools/repo";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
+// The game's own colours on every screen (world:colours-are-role-tokens). The client names role tokens only: no cream page
+// palette, no surface variants, none of the tells of a machine-made app. Every finding names the file and the line, so a
+// failure says where to look.
+
 const CLIENT = "apps/client/src";
-const SKIPPED = new Set(["node_modules", "dist", "build", "coverage"]);
 
-const toPosix = (path: string) => path.split(sep).join("/");
-
-function filesUnder(directory: string, keep: (rel: string) => boolean, found: string[] = []): string[] {
-  for (const entry of readdirSync(join(root, directory), { withFileTypes: true })) {
-    const rel = `${directory}/${entry.name}`;
-    if (entry.isDirectory()) {
-      if (!SKIPPED.has(entry.name)) filesUnder(rel, keep, found);
-    } else if (entry.isFile() && keep(rel)) {
-      found.push(toPosix(relative(root, join(root, rel))));
-    }
-  }
-  return found;
+/** The files under a folder of the repository that `keep` takes, as paths from the root. */
+function filesIn(directory: string, keep: (path: string) => boolean): string[] {
+  return filesUnder(join(REPO_ROOT, directory))
+    .map((path) => `${directory}/${path}`)
+    .filter(keep);
 }
 
-const clientFiles = filesUnder(CLIENT, (rel) => /\.(?:tsx?|css)$/.test(rel));
+const clientFiles = filesIn(CLIENT, (path) => /\.(?:tsx?|css)$/.test(path));
 
 /** The files that hold the player's words: content's, the interface's own among them, and the client's readers of them. */
-const wordFiles = [...filesUnder("packages/content/src", (rel) => rel.endsWith(".text.ts")), ...filesUnder(CLIENT, (rel) => rel.endsWith(".words.ts"))];
+const wordFiles = [...filesIn("packages/content/src", (path) => path.endsWith(".text.ts")), ...filesIn(CLIENT, (path) => path.endsWith(".words.ts"))];
 
 interface Finding {
   readonly file: string;
@@ -39,7 +32,7 @@ function findAll(files: readonly string[], pattern: RegExp): Finding[] {
   const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
   const found: Finding[] = [];
   for (const file of files) {
-    readFileSync(join(root, file), "utf8")
+    readFileSync(join(REPO_ROOT, file), "utf8")
       .split("\n")
       .forEach((text, at) => {
         for (const match of text.matchAll(new RegExp(pattern.source, flags))) found.push({ file, line: at + 1, found: match[0] });
@@ -50,12 +43,12 @@ function findAll(files: readonly string[], pattern: RegExp): Finding[] {
 
 const show = (findings: readonly Finding[]) => findings.map((finding) => `${finding.file}:${String(finding.line)} ${finding.found}`);
 
-// A colour utility on one of the five retired names, whatever the utility: one on a gone name (text-paper,
-// ring-paper, decoration-line) would draw nothing, so it is caught too.
+// A colour utility on one of five names that are no role token, whatever the utility: text-paper, ring-paper or
+// decoration-line would draw nothing, so each is caught.
 const UTILITY = String.raw`(?:bg|text|border(?:-[xytrbl])?|ring(?:-offset)?|divide|outline|decoration|fill|stroke|from|via|to|shadow|accent|caret|placeholder)`;
-const RETIRED = String.raw`(?:paper|surface|sunk|muted|line)`;
-const OLD_CLASS = new RegExp(String.raw`(?<![\w-])${UTILITY}-${RETIRED}(?![\w-])`);
-const OLD_VARIABLE = new RegExp(String.raw`--(?:color-)?${RETIRED}(?![\w-])`);
+const NOT_TOKENS = String.raw`(?:paper|surface|sunk|muted|line)`;
+const NOT_TOKEN_CLASS = new RegExp(String.raw`(?<![\w-])${UTILITY}-${NOT_TOKENS}(?![\w-])`);
+const NOT_TOKEN_VARIABLE = new RegExp(String.raw`--(?:color-)?${NOT_TOKENS}(?![\w-])`);
 const CREAM = /#(?:f7f1e6|fffaf1|ece2d0|ddd0ba|675e52|fbf9f4|e8e2d4|ece4cf)\b/i;
 
 const GRADIENT_CLASS = /(?<![\w-])bg-(?:gradient|linear|radial|conic)-/;
@@ -102,15 +95,15 @@ describe("the palette", () => {
     expect(wordFiles).toContain(`${CLIENT}/features/map/map.words.ts`);
   });
 
-  test("[world:colours-are-role-tokens] given the client, when its classes are read, then none names the older page palette", () => {
-    expect(show(findAll(clientFiles, OLD_CLASS))).toEqual([]);
+  test("[world:colours-are-role-tokens] given the client, when its classes are read, then none names a colour that is no role token", () => {
+    expect(show(findAll(clientFiles, NOT_TOKEN_CLASS))).toEqual([]);
   });
 
-  test("[world:colours-are-role-tokens] given the client, when its styles are read, then the older palette's variables are gone", () => {
-    expect(show(findAll(clientFiles, OLD_VARIABLE))).toEqual([]);
+  test("[world:colours-are-role-tokens] given the client, when its styles are read, then no variable names a colour that is no role token", () => {
+    expect(show(findAll(clientFiles, NOT_TOKEN_VARIABLE))).toEqual([]);
   });
 
-  test("[world:colours-are-role-tokens] given the client, then no cream or beige of the older palette is written anywhere", () => {
+  test("[world:colours-are-role-tokens] given the client, then none of the cream and beige page colours is written anywhere", () => {
     expect(show(findAll(clientFiles, CREAM))).toEqual([]);
   });
 
@@ -120,7 +113,7 @@ describe("the palette", () => {
   });
 
   test("[world:colours-are-role-tokens] given the drawn map's water, then it is the lagoon tone in the game's one look, by day and by night, never the bands' navy (decision 0025)", () => {
-    const css = readFileSync(join(root, CLIENT, "index.css"), "utf8");
+    const css = readFileSync(join(REPO_ROOT, CLIENT, "index.css"), "utf8");
     expect([...css.matchAll(/--water:\s*([^;]+);/g)].map((found) => found[1])).toEqual(["#5f9fc0"]);
     // The night paint keeps the day's water: it sets no water of its own.
     const night = css.slice(css.indexOf(':root[data-paint="night"]'), css.indexOf("}", css.indexOf(':root[data-paint="night"]')));

@@ -88,13 +88,13 @@ describe("the world-first checks in the build check", () => {
     expect(notes).toEqual([]);
   });
 
-  test("[world:place-is-one-screen] given a file from before the world-first design, with no shot, when the same checks find a problem, then it is a note and not a failure", () => {
+  test("[world:place-is-one-screen] given a place file with no shot, when the same checks find a problem, then it is a note and not a failure", () => {
     const stage = planted.stage;
     if (stage === undefined) throw new Error("The planted file has no stage");
-    const older = { ...stage };
-    delete older.shot;
+    const unshot = { ...stage };
+    delete unshot.shot;
     const notes: string[] = [];
-    expect(worldChecks({ ...planted, stage: older }, slabFloors, notes)).toEqual([]);
+    expect(worldChecks({ ...planted, stage: unshot }, slabFloors, notes)).toEqual([]);
     expect(notes).toHaveLength(1);
     expect(notes[0]).toMatch(/place\.stripes has no stage\.shot yet.*world:faces-never-share-height/);
   });

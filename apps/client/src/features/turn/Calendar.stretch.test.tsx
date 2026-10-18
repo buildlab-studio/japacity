@@ -15,7 +15,7 @@ import { restores, stretchedWords } from "../../shared/days/stretch";
 
 const TEACHER = "activity.job-teacher" as Id<"activity">;
 const TUTORING = "activity.weekend-tutoring" as Id<"activity">;
-// Decision 0012 (activity:acts-may-repeat-in-month): the coding class and the portfolio now answer at once and carry nothing on, so the
+// Decision 0012 (activity:acts-may-repeat-in-month): the coding class and the portfolio answer at once and carry nothing on, so the
 // commitments that stretch the day are a master's at home and open source.
 const COURSE = "activity.masters-at-home" as Id<"activity">;
 const PORTFOLIO = "activity.open-source" as Id<"activity">;

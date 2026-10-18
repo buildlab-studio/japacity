@@ -25,7 +25,7 @@ if (street === undefined) throw new Error("Bode Thomas has no stage");
 const kiosk: Thing = { id: "kiosk", file: "places/x/shop_lotto-kiosk.glb", copy: 0, label: "city.thing.lotto", acts: [{ id: "play-lotto", label: "scene.act.play-lotto", kind: "sheet", stages: "activity.play-lotto" }] };
 
 describe("things in a place", () => {
-  test("[world:things-are-tappable-models] given Bode Thomas's file, which declares no things yet, when its things are read, then the lotto kiosk, the betting shop and the danfo, keke and okada each stand at their model's first copy with one act and a name in words", () => {
+  test("[world:things-are-tappable-models] given Bode Thomas's file, which declares no things, when its things are read, then the lotto kiosk, the betting shop and the danfo, keke and okada each stand at their model's first copy with one act and a name in words", () => {
     const things = thingsOf(street);
     expect(things.map((thing) => thing.id).sort()).toEqual(["bet-slip", "play-lotto", "veh_danfo", "veh_keke", "veh_okada"]);
     for (const thing of things) {

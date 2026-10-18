@@ -35,7 +35,7 @@ describe("the sticker", () => {
     expect(one("[data-sticker-cut]").style.rotate).toMatch(/^-?\d+deg$/);
   });
 
-  test("[world:colours-are-role-tokens] given no picture yet, when the sticker draws, then an emoji stands in and says so; a tint by kind puts a soft tile behind it", () => {
+  test("[world:colours-are-role-tokens] given no picture, when the sticker draws, then an emoji stands in and says so; a tint by kind puts a soft tile behind it", () => {
     render(<Sticker emoji="🍜" alt="Indomie" tint="food" tilt={4} />);
     const sticker = one("[data-sticker]");
     expect(sticker.getAttribute("data-stand-in")).toBe("");

@@ -528,7 +528,7 @@ export function ActivityView() {
   );
 }
 
-/** The world mode's sheet (docs/design/11, rule 12): only the activities `only` names, as the cards above show them. */
+/** The world mode's sheet (docs/design/11-the-world-first.md, point 12: one action, one sheet): only the activities `only` names, as the cards above show them. */
 export function ActivityPicker({ only }: { only: readonly string[] }) {
   const view = useView();
   // On a long shot the test's sheet carries the study act too, so studying first is one tap away (world:one-action-one-sheet).

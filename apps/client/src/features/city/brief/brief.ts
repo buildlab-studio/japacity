@@ -67,7 +67,7 @@ export function briefTitle(chapter: string): string {
   return hasWords(key) ? say(key) : nameOf(chapter);
 }
 
-/** The stand-in pictures of the rewards, by the reward's place in its list, until the rewards have tiles. */
+/** The stand-in pictures of the rewards, by the reward's place in its list, since the rewards have no tiles of their own. */
 const REWARD_PICTURES: Readonly<Record<string, readonly string[]>> = {
   "find-your-feet": ["💰", "🧭"],
   "build-the-file": ["📘"],

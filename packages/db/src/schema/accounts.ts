@@ -18,9 +18,9 @@ export const accounts = pgTable(
     notifyBankFull: boolean("notify_bank_full").notNull().default(false),
     /** analytics:player-can-stop-usage-counts. */
     sendUsageCounts: boolean("send_usage_counts").notNull().default(true),
-    /** account:guest-and-secured-states. The accounts made before the guest start were all secured. */
+    /** account:guest-and-secured-states. A row given no state is secured: only the guest start makes a guest. */
     state: text("state").$type<"guest" | "secured">().notNull().default("secured"),
-    /** account:username-and-unconfirmed-email. The accounts made before it get a generated one. */
+    /** account:username-and-unconfirmed-email. A row given no username gets a generated one. */
     username: text("username")
       .notNull()
       .default(sql`('player_' || substr(md5(random()::text), 1, 12))`),

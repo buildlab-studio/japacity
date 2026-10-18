@@ -18,7 +18,7 @@ describe("the person's own colours, kept", () => {
     expect(keptStyleOf("shared/chr/chr_ada.glb", storage)).toBeUndefined();
   });
 
-  test("[prologue:player-colours-on-looks] given a person kept as made, or kept before colours existed, then it reads back with no style and no photo", () => {
+  test("[prologue:player-colours-on-looks] given a person kept as made, or kept with no colours at all, then it reads back with no style and no photo", () => {
     const storage = memoryStorage();
     storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype: null }));
     expect(readPerson(storage)).toEqual({ look: "chr_ada", name: "Ada", archetype: null });

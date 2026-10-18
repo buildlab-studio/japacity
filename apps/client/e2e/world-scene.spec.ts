@@ -62,7 +62,7 @@ async function waitPlace(page: Page, place: string | null): Promise<void> {
 /** A new life in the world, played through its prologue to the first place, in a graphics mode fixed for the device. */
 async function startWorld(page: Page, mode: "low" | "high" = "high"): Promise<void> {
   await page.addInitScript((chosen) => window.localStorage.setItem("japacity.city.graphics", chosen), mode);
-  await page.goto("/?world");
+  await page.goto("/");
   await startReadyLife(page);
   for (let step = 0; step < 40; step += 1) {
     if ((await page.locator("[data-band]").count()) > 0) break;

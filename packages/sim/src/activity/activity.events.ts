@@ -73,8 +73,10 @@ export type ActivityEvent =
   | { type: "activity/contributed"; first: boolean }
   /** activity:waiting-months-build-profile: a quiz marked, `right` of `asked`; `pass` right answers were needed. A pass's effects follow. */
   | { type: "activity/exam-marked"; activity: Id<"activity">; right: number; asked: number; pass: number; passed: boolean }
-  /** A now-act sent with `activity/now` (activity:now-acts-and-month-acts): kept with the month's other now-acts. Its cost and effects follow. */
-  /** `counted`: a repeat act counts as played at once (activity:acts-may-repeat-in-month); the month counts the others once. */
+  /**
+   * A now-act sent with `activity/now` (activity:now-acts-and-month-acts): kept with the month's other now-acts. Its cost and effects follow.
+   * `counted`: a repeat act counts as played at once (activity:acts-may-repeat-in-month); the month counts the others once.
+   */
   | { type: "activity/now-played"; activity: Id<"activity">; param: string | null; counted?: true }
   /** The place answers a now-act in a person's voice (activity:now-acts-and-month-acts). `ready`: the month a paper asked for is due, else null. Changes nothing. */
   | { type: "activity/now-said"; activity: Id<"activity">; param: string | null; ready: number | null }

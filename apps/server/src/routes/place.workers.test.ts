@@ -90,7 +90,8 @@ describe("the place routes", () => {
     expect((await refusal(fetched)).code).toBe("signed-out");
   });
 
-  test("[clock:presence-is-not-contact] given a signed-in account, when it opens the socket, then it joins the place with its name, look and the server's time", async () => {
+  // The file's first socket starts the place object in the Workers runtime: about two seconds alone, more under load.
+  test("[clock:presence-is-not-contact] given a signed-in account, when it opens the socket, then it joins the place with its name, look and the server's time", { timeout: 30_000 }, async () => {
     const setupped = setup({ "account-1": PLACE });
 
     listenTo(await opened(await socket(setupped, "account-1", "NG")));

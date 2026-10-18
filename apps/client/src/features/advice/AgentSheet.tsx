@@ -278,7 +278,7 @@ const TELL_ICONS: Readonly<Record<string, LucideIcon>> = {
 
 /**
  * A tell as the player notices it (advice:scams-show-their-tells, text:show-then-tell): its icon, a few words and the warning mark, never his
- * whole sentence. A tell with no short words yet keeps the entry's own.
+ * whole sentence. A tell with no short words keeps the entry's own.
  */
 function Tell({ entry, tell, fresh }: { entry: string; tell: string; fresh: boolean }) {
   const short = `advice.tell.${tell}.short`;

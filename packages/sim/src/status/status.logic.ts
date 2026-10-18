@@ -161,7 +161,7 @@ function housing(ctx: Ctx, before: Id<"status"> | null, after: Id<"status"> | nu
   if (wasHoused && !isHoused && room !== null && ctx.state.place.where === "abroad") ctx.apply([{ type: "obligation/open", obligation: room }], cause);
 }
 
-/** status:granting-a-status: the old status, if any, is replaced. */
+/** status:granting-a-status: the status held, if any, is replaced. */
 function grant(
   ctx: Ctx,
   status: Id<"status">,

@@ -1,7 +1,7 @@
 // The journey, not the wait (text:voice-by-surface): a line
 // never narrates the player as idle, in dead time or waited on; it says what they do or what moves. A plain "wait for X"
 // where X is truly on its way is allowed, so the scan looks only for the dead-time shapes, and the
-// reworded lines are pinned so they do not come back.
+// lines nearest to waiting are pinned as they read.
 import { text, textTables } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -21,8 +21,8 @@ const THEIRS: { pattern: RegExp; reason: string }[] = [
 ];
 const theirs = (key: string) => THEIRS.some(({ pattern }) => pattern.test(key));
 
-/** The reworded lines, as they read: none may slide back into waiting. */
-const REWORDED: Record<string, string> = {
+/** The lines nearest to waiting, as they read: none may slide into it. */
+const PINNED: Record<string, string> = {
   "city.act.look-barber.done": "Three on the bench for a cut, and the football on.",
   "city.act.look-typing.done": "Visa, ID and labour papers, typed on the spot.",
   "city.offer.here": "Asked of you here: {offer}",
@@ -150,9 +150,9 @@ describe("the journey, not the wait", () => {
     }
   });
 
-  test("[text:voice-by-surface] given the reworded lines, then each reads as listed", () => {
-    expect(Object.keys(REWORDED).length).toBeGreaterThan(100);
-    expect(Object.entries(REWORDED).filter(([key, line]) => all.get(key) !== line).map(([key]) => key)).toEqual([]);
-    expect(text["activity.get-passport.blurb"]).toBe(REWORDED["activity.get-passport.blurb"]);
+  test("[text:voice-by-surface] given the pinned lines, then each reads as listed", () => {
+    expect(Object.keys(PINNED).length).toBeGreaterThan(100);
+    expect(Object.entries(PINNED).filter(([key, line]) => all.get(key) !== line).map(([key]) => key)).toEqual([]);
+    expect(text["activity.get-passport.blurb"]).toBe(PINNED["activity.get-passport.blurb"]);
   });
 });

@@ -14,7 +14,7 @@ function lockMonthsLeft(lock: SlotLock, month: number): number {
   return Math.max(1, lock.untilMonth - month + 1);
 }
 
-/** Content's reason as words, or the plain fallback for a reason the interface has no words for yet. */
+/** Content's reason as words, or the plain fallback for a reason the interface has no words for. */
 function lockReason(why: string): string {
   return say(hasWords(`ui.locks.why.${why}`) ? `ui.locks.why.${why}` : "ui.locks.why.other");
 }

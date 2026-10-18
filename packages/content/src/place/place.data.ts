@@ -311,7 +311,7 @@ const entries: PlaceEntry[] = [
   unnamed("place.mosque", "institution", "home", "lagos", OWN_AREA, { spot: [6509, 3356], scope: "exterior", crowd: BUSY, traditionalBp: STREET }),
 
   // Lagos: businesses by made-up name. Shopfronts are signs on their street, in place.text.ts.
-  // Its own room, not the hub's: the hub's file with nothing staged here showed only the door (world:things-are-tappable-models).
+  // Its own room, not the hub's: the hub's file with nothing staged here would show only the door (world:things-are-tappable-models).
   // activity:waiting-months-build-profile: the posts are written at the room's long table of laptops.
   unnamed("place.yaba-hub", "business", "home", "lagos", "yaba", { spot: [6509, 3373], assets: "inverter-room", stages: ["activity.tech-posts"], crowd: QUIET, traditionalBp: HUB }),
   unnamed("place.olokun-office", "business", "home", "lagos", "victoria-island", { spot: [6432, 3423], assets: "bank-counter", stages: ["offer.held-funds", "offer.salary-loan"], crowd: FEW, traditionalBp: OFFICE }),
@@ -414,8 +414,8 @@ const entries: PlaceEntry[] = [
   london("place.warehouse-uk", "business", "old-kent-road", 51487, -62, { stages: ["activity.job-uk-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church on the Old Kent Road, the community's place (world:nobody-picked-from-list), shown by plain description.
   london("place.church-uk", "institution", "old-kent-road", 51486, -66, { occasion: true, stages: ["activity.community-uk"], crowd: BUSY, traditionalBp: HUB }),
-  // The UK's test centre at Elephant and Castle, on the English test centre's scene (city:places-stage-their-acts: the country's own place
-  // stages what the country-less one stages).
+  // The UK's test centre at Elephant and Castle, on the English test centre's scene (city:places-stage-their-acts: each
+  // country's tests at a place of its own).
   london("place.test-centre-uk", "institution", "elephant-and-castle", 51494, -100, { assets: "english-test-centre", stages: ["activity.nmc-tests", "activity.driving-test"], crowd: QUIET, traditionalBp: OFFICE }),
   // Calgary on the mold (city.md "Entries: abroad", design page 15 section 3). Made-up spots in the
   // north-east, placed against the airport, the CTrain's north-east line and downtown so the paper reads right.
@@ -442,13 +442,13 @@ const entries: PlaceEntry[] = [
   calgary("place.library-ca", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-ca"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church hall, the community's place (world:nobody-picked-from-list).
   calgary("place.church-ca", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-ca"], crowd: BUSY, traditionalBp: HUB }),
-  // The registry on the English test centre's scene, for Alberta's licence (city:places-stage-their-acts: the country's own place stages
-  // what the country-less test centre staged).
+  // The registry on the English test centre's scene, for Alberta's licence (city:places-stage-their-acts: each
+  // country's tests at a place of its own).
 
   // Dubai on the mold (design page 15 section 3).
   abroad("place.dubai-airport", "country.uae", "dubai", "garhoud", "Dubai International Airport", 25252, 55367, { scope: "interior", crowd: PACKED, traditionalBp: AIRPORT }),
   // The hub: the typing centre where the hunt is sent, the exchange house for money home, the cafeteria, the African foods
-  // shop, the barber, the corner by the creek and the find. The souq moved to Naif and the Gulf's jobs to the site.
+  // shop, the barber, the corner by the creek and the find. The souq is in Naif and the Gulf's jobs at the site.
   abroad("place.deira", "country.uae", "dubai", "deira", "Deira", 25273, 55305, {
     hub: true,
     stages: ["activity.job-hunt", "activity.send-money", "activity.cafeteria-uae", "activity.naija-shop-uae", "activity.barber-uae", "activity.community-uae", "offer.street-find-uae"],

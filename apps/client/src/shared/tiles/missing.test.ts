@@ -9,7 +9,7 @@ describe("the tiles still on stand-ins", () => {
     for (const { id, emoji } of standIns()) expect(listing.split("\n").filter((line) => line.includes(` ${id}`))).toEqual([`  ${emoji} ${id}`]);
     const modelled = Object.entries(TILE_TABLE).flatMap(([id, row]) => (typeof row === "string" ? [id] : []));
     expect(modelled.filter((id) => listing.split("\n").some((line) => line.endsWith(` ${id}`)))).toEqual([]);
-    expect(listing).toMatch(/^\d+ of \d+ pictures stand in for a model not yet made\./);
+    expect(listing).toMatch(/^\d+ of \d+ pictures stand in for a model that is not drawn\./);
     expect(listing).toContain("\nactivity\n");
   });
 });

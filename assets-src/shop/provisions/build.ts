@@ -1,7 +1,7 @@
 // A hand-painted provisions store: one lock-up bay under a shallow zinc lean-to, the goods brought
 // out to a table in front of the door, sacks and crates, a painted board over the shutter and a
-// painted notice by the door. The design's shopfront, with the notice clear of the louvre, the tin
-// drawn as a tin and the goods in front of the walls.
+// painted notice by the door, clear of the louvre; the tin drawn as a tin and the goods in front of
+// the walls.
 import { setFootprint, type SignStyle } from "@japacity/assets";
 import {
   box,

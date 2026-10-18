@@ -222,7 +222,7 @@ describe("the draw's alarm", () => {
 
   /**
    * Draw 0 with `buys` logged and sold, the first buyer paid `paid` for one
-   * jackpot ticket (with the house part an old log would carry, when given),
+   * jackpot ticket (with a house part in the payout, when given),
    * and a result of `count` tickets whose one jackpot ticket was owed `owed`.
    */
   async function drawn(deps: ServerDeps, buys: { character: string; tick: number; tickets: number }[], paid: number | { amount: number; topUp: number }, result: { count: number; owed: number }): Promise<void> {

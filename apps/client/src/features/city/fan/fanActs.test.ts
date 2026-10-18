@@ -40,7 +40,7 @@ function kinds(entries: readonly FanEntryOf[]): string[] {
 }
 
 describe("the things that fan", () => {
-  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the family house's parlour, when its things are read, then the cooking corner fans both meals in the sheet's order, the drum its water and bath, the TV its film, as the simulation's buttons; the bed, Mama, the table, the papers box, the door, the sofa and the bag fan their acts as they stand, with no chip left", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the family house's parlour, when its things are read, then the cooking corner fans both meals in the sheet's order, the drum its water and bath, the TV its film, as the simulation's buttons; the bed, Mama, the table, the papers box, the door, the sofa and the bag fan their acts as they stand, with no chip", () => {
     expect(kinds(fanEntriesOf(thingAt("home-family-house", "cooking")))).toEqual([`now:${COOK}`, `now:${JOLLOF}`]);
     expect(kinds(fanEntriesOf(thingAt("home-family-house", "drum")))).toEqual(["now:activity.fetch-water", "now:activity.bucket-bath"]);
     expect(kinds(fanEntriesOf(thingAt("home-family-house", "tv")))).toEqual(["now:activity.watch-tv"]);
@@ -168,7 +168,7 @@ describe("what a button says", () => {
     expect(locked?.refusal?.words.length).toBeGreaterThan(0);
   });
 
-  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the sofa, the bed's Sleep and Mama's bill, when their buttons are made, then each names its act as the chip did, carries no price, no balance and no Free, and hands the walk the thing's own act", () => {
+  test("[world:fan-of-sticker-buttons] [world:things-are-tappable-models] given the sofa, the bed's Sleep and Mama's bill, when their buttons are made, then each names its act by its own label, carries no price, no balance and no Free, and hands the walk the thing's own act", () => {
     const sofa = fanModel(fanEntriesOf(thingAt("home-family-house", "sofa")), view, []);
     expect(sofa.map((entry) => [entry.id, entry.name, entry.kind, entry.picture, entry.tint])).toEqual([
       ["sit", "Sit", "act", "act.sit", "body"],

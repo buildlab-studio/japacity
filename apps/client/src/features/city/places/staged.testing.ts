@@ -1,4 +1,4 @@
-// The checks every staged place passes, on the hub test's pattern (hub.test.ts): its file measured as
+// The checks every staged place passes (the hub's own are in scene/hub.test.ts): its file measured as
 // the build check measures it against the exterior row, its counts, its crowd's spots, its boards and
 // its staged entries. Each place's own test calls these and adds what that place must show.
 import { isPaletteName } from "@japacity/assets";

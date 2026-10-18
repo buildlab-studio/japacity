@@ -1,5 +1,5 @@
-// Words that explained the system become a person's words (text:bands-not-figures, text:voice-by-surface): "The lift
-// wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way" and the
+// A person's words, never words that explain the system (text:bands-not-figures, text:voice-by-surface): never "The
+// lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way" or the
 // computer mark shouted as "NOT A PLAYER".
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";

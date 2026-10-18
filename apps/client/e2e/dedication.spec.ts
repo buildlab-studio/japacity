@@ -285,19 +285,19 @@ test("[account:dedication-page-and-its-doors] [account:name-a-light-for-yours] [
   await seen.getByRole("button", { name: "Close" }).click();
 
   // The admin approves it on the admin page's moderation tab.
-  const owner = await (await context(browser)).newPage();
-  await admin(owner, kept);
-  await owner.getByRole("tab", { name: "Moderation" }).click();
-  const list = owner.getByRole("list", { name: "Lights awaiting a look" });
+  const moderator = await (await context(browser)).newPage();
+  await admin(moderator, kept);
+  await moderator.getByRole("tab", { name: "Moderation" }).click();
+  const list = moderator.getByRole("list", { name: "Lights awaiting a look" });
   await expect(list).toBeVisible();
   const item = list.locator("[data-light='account.ada']");
   await expect(item).toContainText("Mama Nkechi");
   await expect(item).toContainText("1951 to 2024");
   await item.scrollIntoViewIfNeeded();
-  await shoot(owner, "10-admin-lights");
+  await shoot(moderator, "10-admin-lights");
   await item.getByRole("button", { name: "Approve" }).click();
-  await owner.getByRole("dialog").getByRole("button", { name: "Send" }).click();
-  await expect(owner.getByText("No light awaits a look.")).toBeVisible();
+  await moderator.getByRole("dialog").getByRole("button", { name: "Send" }).click();
+  await expect(moderator.getByText("No light awaits a look.")).toBeVisible();
 
   // The second account now sees the name.
   await bola.getByRole("button", { name: "A canoe with a lantern" }).click();

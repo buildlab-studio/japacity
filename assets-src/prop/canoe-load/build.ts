@@ -8,7 +8,7 @@ import { type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { facePlusZ, lump } from "../../veh/lab";
+import { facePlusZ, lump } from "../../veh/centred";
 import { CANOE, canoeHull } from "../canoe/build";
 
 /** How tall a seated body is from the seat to the shoulders, and its head's radius, for a grown person and a child. */

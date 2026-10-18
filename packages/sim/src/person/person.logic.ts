@@ -88,7 +88,6 @@ function partnerBond(slice: PeopleSlice): [string, Bond] | null {
   return Object.entries(slice.bonds).find(([, bond]) => TOGETHER.includes(bond.stage)) ?? null;
 }
 
-/** The latest bond with a pair: a live one first, else the last ended. */
 /** The slice's own bond named `id`. A name a player sent may be a built-in object key, which is no bond. */
 function ownBond(slice: PeopleSlice, id: string): Bond | undefined {
   return Object.hasOwn(slice.bonds, id) ? slice.bonds[id] : undefined;
@@ -99,6 +98,7 @@ function ownSlot(slice: PeopleSlice, id: string): Slot | undefined {
   return Object.hasOwn(slice.slots, id) ? slice.slots[id] : undefined;
 }
 
+/** The latest bond with a pair: a live one first, else the last ended. */
 function bondByPair(slice: PeopleSlice, pair: string): string | null {
   const ids = Object.entries(slice.bonds).filter(([, bond]) => bond.with.kind === "player" && bond.with.pair === pair);
   const open = ids.find(([, bond]) => live(bond));

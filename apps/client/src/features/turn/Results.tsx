@@ -147,7 +147,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
     >
       <div className="flex flex-col gap-4">
         {birthday ? <p className="text-[14px] font-bold text-strong" data-results-birthday>{turnWords("turn.results.birthday", { years: Math.floor(ageMonths / 12) })}</p> : null}
-        {/* Payday leads, then the rent when it was due: the month's turn in money, each its own line (the shrunk close),
+        {/* Payday leads, then the rent when it was due: the month's turn in money, each its own line,
             unless the month's news is the visa's answer, which leads before any money. */}
         {bigNews ? storySection : null}
         {close.payday.map((entry, index) => (

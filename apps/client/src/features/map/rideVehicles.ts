@@ -38,7 +38,7 @@ const METRO_SEAT: RideSeat = { eye: [-1.05, 2.3, 6.4], window: [-8, 1.9, 7.85], 
 const LABOUR_BUS_SEAT: RideSeat = { eye: [-0.8, 2.1, -0.08], window: [-6, 1.8, 0.6], ahead: [-0.3, 1.9, 8] };
 const TAXI_SEAT: RideSeat = { eye: [-0.42, 1.16, -0.78], window: [-6, 0.95, 0.4], ahead: [0, 1, 8] };
 const ITALY_BUS_SEAT: RideSeat = { eye: [-0.62, 1.62, 2.84], window: [-4.5, 1.0, 9.5], ahead: [-0.3, 1.5, 12] };
-// The van's camera sits low on the road-side bench, looking across at the small window in the kerb-side wall (hand-on m).
+// The van's camera sits low on the road-side bench, looking across at the small window in the kerb-side wall.
 const VAN_SEAT: RideSeat = { eye: [0.72, 1.5, -0.98], window: [-6, 1.75, -0.4], ahead: [-2.16, 1.45, 7.0] };
 
 export const SEATS = { CALGARY_BUS_SEAT, CTRAIN_SEAT, METRO_SEAT, LABOUR_BUS_SEAT, TAXI_SEAT, ITALY_BUS_SEAT, VAN_SEAT } as const;
@@ -53,7 +53,7 @@ export const VEHICLES: Readonly<Record<AbroadVehicle, VehicleSpec>> = {
   "canada-taxi": { file: DUBAI_TAXI, model: "veh_taxi-dubai", seat: TAXI_SEAT, rail: false, size: [2.0, 1.6, 4.7], land: "cold" },
   // Dubai's city bus is a white and red single-decker, as Calgary's is: the same model.
   "dubai-bus": { file: CALGARY_BUS, model: "veh_calgary-bus", seat: CALGARY_BUS_SEAT, rail: false, size: [3.2, 3.3, 12.4], land: "heat" },
-  // The metro car on the viaduct is decor (hand-on l): the ride plays inside this one.
+  // The metro car on the viaduct is decor: the ride plays inside this one.
   "dubai-metro": { file: "shared/veh/veh_dubai-metro.glb", model: "veh_dubai-metro", seat: METRO_SEAT, rail: true, size: [2.9, 3.6, 17.3], land: "heat" },
   "labour-bus": { file: "places/deira/veh_labour-bus.glb", model: "veh_labour-bus", seat: LABOUR_BUS_SEAT, rail: false, size: [2.8, 3.0, 7.5], land: "heat" },
   "dubai-taxi": { file: DUBAI_TAXI, model: "veh_taxi-dubai", seat: TAXI_SEAT, rail: false, size: [2.0, 1.6, 4.7], land: "heat" },

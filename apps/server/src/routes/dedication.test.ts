@@ -243,7 +243,7 @@ describe("PUT and DELETE /api/dedication/light", () => {
     expect((await server.deps.stores.dedication.mine("account.a"))?.name).toBe("Mama Nkechi");
   });
 
-  test("[account:two-lights-and-wink-lines] [server:dedication-routes] given the counts route, then it is still /api/lights and answers the two lights alone", async () => {
+  test("[account:two-lights-and-wink-lines] [server:dedication-routes] given the counts route, then it is /api/lights and answers the two lights alone", async () => {
     const server = await serverWith("account.a");
     await light(server, "account.a", { name: "Mama Nkechi" });
     const counts = await server.app.request("/api/lights", { headers: { "cf-connecting-ip": "203.0.113.9" } });

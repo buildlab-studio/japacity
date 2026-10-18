@@ -1,5 +1,5 @@
 // A bounded sample of legal commands, read from the view alone. One small
-// function per kind; a kind agent extends its own. Random play draws from
+// function per kind; each kind extends its own. Random play draws from
 // this list, so everything here must be accepted by step when the view says so.
 import { handles } from "../engine/step";
 import { mulDiv } from "../engine/int";
@@ -261,7 +261,7 @@ function fromPrologue(view: PlayerView): Loose[] {
 
 /**
  * Quitting, and each now-act the view allows with its first param (activity:now-acts-and-month-acts). Another param only for a free act:
- * the view prices the first param alone, and a now-act that cannot be paid is refused where a slot only failed.
+ * the view prices the first param alone, and a now-act that cannot be paid is refused where a slot pick only fails.
  */
 function fromActivity(view: PlayerView): Loose[] {
   const commands: Loose[] = view.job.id === null ? [] : [{ type: "activity/quit" }];

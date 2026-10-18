@@ -1,4 +1,4 @@
-// People written as code, ported from the asset experiments. One skeleton for everyone: the
+// People written as code. One skeleton for everyone: the
 // same bone names and order, so one set of poses drives every body. A person is plain data
 // (body numbers, skin, hair, clothes, pattern seed) given to this one builder (assets:variants-are-numbers-not-code).
 // The output is a skinned mesh as plain arrays (person.types.ts): group 0 is flat palette
@@ -23,12 +23,12 @@ const ARM_SPLAY = (35 * Math.PI) / 180; // bind pose: arms 35 degrees out from h
 const HC = 1.578; // head centre height; the top of the head is 1.70 m
 
 /**
- * How faces are drawn: today's (a white round a dark eye), or one of the three directions of the
- * face exploration: "a" soft marks, "b" low poly, "c" big and friendly.
+ * How faces are drawn: "ringed" (a white round a dark eye), or one of three other styles: "a" soft marks, "b" low
+ * poly, "c" big and friendly.
  * One switch for every person, so the same people export each way without touching their data.
  */
-export type FaceStyle = "today" | "a" | "b" | "c";
-export const FACE_STYLES: readonly FaceStyle[] = ["today", "a", "b", "c"];
+export type FaceStyle = "ringed" | "a" | "b" | "c";
+export const FACE_STYLES: readonly FaceStyle[] = ["ringed", "a", "b", "c"];
 /** The style the shipped people are built with. */
 export const FACE_STYLE: FaceStyle = "c";
 /** A style named on the command line or in JAPACITY_FACE, or the shipped one when none is named. */
@@ -48,7 +48,7 @@ interface Look {
   footScale: number;
 }
 const LOOKS: Record<FaceStyle, Look> = {
-  today: { style: "today", headScale: 1.18, handScale: 1, footScale: 1 },
+  ringed: { style: "ringed", headScale: 1.18, handScale: 1, footScale: 1 },
   a: { style: "a", headScale: 1.18, handScale: 1, footScale: 1 },
   b: { style: "b", headScale: 1.18, handScale: 1, footScale: 1 },
   c: { style: "c", headScale: 1.25, handScale: 1.2, footScale: 1.12 },
@@ -80,7 +80,7 @@ export type HeadName = "gele" | "fila" | "cap" | "kufi" | "beanie" | "helmet" | 
 
 export interface PersonSpec {
   name: string;
-  /** The name the face is drawn from, where it differs from `name` (an older name). */
+  /** The name the face is seeded from, where it differs from `name`. */
   face?: string;
   body: "m" | "f" | "fx" | "mx";
   build?: number;
@@ -113,7 +113,7 @@ export interface PersonSpec {
   over?: { fab: Fab; trim: PaletteName };
 }
 
-/** The spec with the defaults filled in. */
+/** The spec with its defaults filled in. */
 type Spec = PersonSpec & { build: number; hairColor: PaletteName; shoes: PaletteName; look: Look };
 
 interface Body {
@@ -214,7 +214,7 @@ const smooth = (t: number): number => {
   const c = Math.min(1, Math.max(0, t));
   return c * c * (3 - 2 * c);
 };
-/** The generator for hair lumps, faces and loads, kept so every person looks as drawn. */
+/** A seeded generator (Park and Miller's) for hair lumps, faces and loads, so every person is drawn the same on every export. */
 function rng(seed: number): () => number {
   let s = seed >>> 0 || 1;
   return () => (s = (s * 16807) % 2147483647) / 2147483647;
@@ -920,7 +920,7 @@ function faceOf(s: Spec): Face {
   const f: Face = { ey: 0.014 + j(0.007), ex: 0.036 + j(0.005), ew: 0.02 + j(0.004), eh: 0.026 + j(0.007), nw: 0.022 + j(0.006), nl: 0.03 + j(0.008), mw: 0.038 + j(0.01), my: -0.064 + j(0.006), brow: r() < 0.6 };
   const style = s.look.style;
   switch (style) {
-    case "today":
+    case "ringed":
     case "b":
       return f;
     // Soft marks: the eyes set a little wider apart.
@@ -936,9 +936,9 @@ function faceOf(s: Spec): Face {
   }
 }
 
-// The head as blended shapes: a skull inside the old head's outline (so caps and hair still sit
-// outside it), a jaw and chin, cheeks, a brow, a nose from the face's numbers, and ears.
-function headBlend(f: Face, style: FaceStyle = "today"): Blend {
+// The head as blended shapes: a skull inside the `ringed` head's outline (so caps and hair, fitted to that head, still
+// sit outside it), a jaw and chin, cheeks, a brow, a nose from the face's numbers, and ears.
+function headBlend(f: Face, style: FaceStyle = "ringed"): Blend {
   const at0 = (x: number, y: number, z: number): Vec => [x, HC + y, z];
   const noseY = -0.02 - (f.nl - 0.03) / 2;
   const skull: Shape[] = [
@@ -969,8 +969,7 @@ function headBlend(f: Face, style: FaceStyle = "today"): Blend {
   }
   // Low poly: a brow shelf, high cheekbones and a nose wedge, melted less so their planes stay
   // apart, and a crease for the mouth, cut before thinning so the few faces left fall along it. The
-  // light does the rest. Sockets for the eyes were tried and left out: under a sun from above they
-  // shade as a frown.
+  // light does the rest. No sockets for the eyes: under a sun from above they shade as a frown.
   const solid: Blend = {
     k: 0.014,
     shapes: [
@@ -997,7 +996,7 @@ function headBlend(f: Face, style: FaceStyle = "today"): Blend {
 function frontOf(blend: Blend, x: number, y: number): number {
   return frontAt(blend, x, HC + y, 0.2, -0.1);
 }
-/** How far forward today's face is: the shipped people's marks and shades are placed by it. */
+/** How far forward the "ringed" face is: the shipped people's marks and shades are placed by it. */
 function faceFront(f: Face, x: number, y: number): number {
   return frontOf(headBlend(f), x, y);
 }
@@ -1039,8 +1038,8 @@ function stroke(b: Buf, head: Blend, pts: readonly [number, number][], thick: nu
 /** The mouth in the palette's lip colour, or in wine on the three darkest skins, where lip does not show. */
 const mouthColour = (s: Spec): PaletteName => (["skin1", "skin2", "skin3"] as PaletteName[]).includes(s.skin) ? "wine" : "lip";
 
-// Today's face: a white round a dark eye, so the face reads on the darkest skins too.
-function todayFace(b: Buf, s: Spec, f: Face): void {
+// The "ringed" face: a white round a dark eye, so the face reads on the darkest skins too.
+function ringedFace(b: Buf, s: Spec, f: Face): void {
   for (const sx of [-1, 1]) {
     const x = sx * f.ex;
     const z = faceFront(f, x, f.ey);
@@ -1076,7 +1075,7 @@ function softFace(b: Buf, s: Spec, f: Face, head: Blend, big: boolean): void {
     lens(b, [x + ru * 0.3, HC + f.ey + rv * 0.36, glintZ], glint, glint, 0.0015, "white", 4);
     const by = f.ey + rv + (big ? 0.011 : 0.011);
     const half = big ? ru * 0.95 : ru + 0.004;
-    // Few points and four sides a stroke: the marks cost about what today's lenses did.
+    // Few points and four sides a stroke: the marks cost about what the "ringed" lenses do.
     const brow: [number, number][] = (big ? [-1, 0, 1] : [-1, -1 / 3, 1 / 3, 1]).map((t) => [x + t * half, by + 0.0035 * (1 - t * t) + 0.0012 * t * sx]);
     stroke(b, head, brow, big ? 0.0032 : 0.0022, s.hairColor, 4);
   }
@@ -1098,11 +1097,11 @@ function lowPolyFace(b: Buf, s: Spec, f: Face, head: Blend): void {
 }
 
 /**
- * The bare head's own budget: today's 380 triangles; fewer for the low poly head, so its planes show;
- * 300 for the big head, so its face costs no more than today's and the busiest people stay inside
+ * The bare head's own budget: 380 triangles for "ringed" and "a"; fewer for the low poly head, so its planes show;
+ * 300 for the big head, so its face costs no more than a "ringed" face and the busiest people stay inside
  * 80% of a person's budget.
  */
-export const HEAD_BUDGET: Record<FaceStyle, number> = { today: 380, a: 380, b: 160, c: 300 };
+export const HEAD_BUDGET: Record<FaceStyle, number> = { ringed: 380, a: 380, b: 160, c: 300 };
 
 function buildHead(b: Buf, s: Spec): void {
   const f = faceOf(s);
@@ -1110,9 +1109,9 @@ function buildHead(b: Buf, s: Spec): void {
   const head = headBlend(f, style);
   const skin = { cell: 0.006, budget: HEAD_BUDGET[style], colour: s.skin, w: wHead, mirror: style === "b" };
   switch (style) {
-    case "today":
+    case "ringed":
       blended(b, head, skin);
-      todayFace(b, s, f);
+      ringedFace(b, s, f);
       return;
     case "a":
     case "c":
@@ -1242,8 +1241,8 @@ function buildExtras(b: Buf, s: Spec, J: Joints): void {
   if (s.phone === true) box(b, add(joint(J, "WR"), mul(joint(J, "dR"), 0.075)), [0.014, 0.075, 0.038], "black", [[B.handR, 1]]);
   if (s.shades === true) {
     const f = faceOf(s);
-    // Today's shades keep their height; the other styles' sit on the eyes, wherever those are, in front of any socket.
-    const y = s.look.style === "today" ? 0.014 : f.ey;
+    // The "ringed" shades keep their height; the other styles' sit on the eyes, wherever those are, in front of any socket.
+    const y = s.look.style === "ringed" ? 0.014 : f.ey;
     const solid: Blend = { ...headBlend(f, s.look.style), cut: [] };
     box(b, [0, HC + y, frontOf(solid, f.ex, y) + 0.004], [0.158, 0.034, 0.016], "black", wHead);
   }
@@ -1521,7 +1520,7 @@ export function buildPerson(spec: PersonSpec, face: FaceStyle = FACE_STYLE): Per
     }
     for (let a = 0; a < 3; a++) b.pos[i * 3 + a] = (b.pos[i * 3 + a] ?? 0) * kH;
   }
-  // Feet on the ground (assets:metre-units-and-origin): the soles sit a few millimetres up in the source numbers.
+  // Feet on the ground (assets:metre-units-and-origin): the soles sit a few millimetres up in the body's numbers.
   let minY = Infinity;
   for (let i = 1; i < b.pos.length; i += 3) minY = Math.min(minY, b.pos[i] ?? 0);
   for (let i = 1; i < b.pos.length; i += 3) b.pos[i] = (b.pos[i] ?? 0) - minY;

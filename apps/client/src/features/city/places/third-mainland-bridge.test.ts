@@ -1,4 +1,4 @@
-// The Third Mainland Bridge rebuilt as one frontage (city.md place.third-mainland-bridge, world.md
+// The Third Mainland Bridge as one frontage (city.md place.third-mainland-bridge, world.md
 // world:place-is-one-screen, streets:sleeping-under-the-bridge): the shore under one span, the deck overhead, mats on pallets
 // where people sleep, a drum fire, the lagoon's edge, and a danfo on the service road.
 import { content } from "@japacity/content";

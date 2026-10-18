@@ -132,7 +132,7 @@ function quality(game: Game, id: Id<"quality">): number {
 const OTHERS: { [T in Exclude<CommandType, "prologue/choose" | (typeof AUTHORITY_COMMANDS)[number]>]: Loose } = {
   "turn/end": { type: "turn/end", slots: [] },
   "activity/quit": { type: "activity/quit" },
-  // activity:now-acts-and-month-acts added the command.
+  // The act done at once (activity:now-acts-and-month-acts).
   "activity/now": { type: "activity/now", activity: "activity.meetup", param: null },
   "offer/choose": { type: "offer/choose", offer: "offer-1", choice: "yes" },
   "wallet/convert": { type: "wallet/convert", from: "NGN", to: "USD", amount: 100, via: "aboki" },

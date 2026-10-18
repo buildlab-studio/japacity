@@ -47,7 +47,7 @@ function shownOf(standing: Standing, step: Step, embedded: boolean): Shown {
   return standing === "unasked" ? "age" : "door";
 }
 
-/** The counter key of a screen (analytics:client-sends-interface-counts); the start screen has none in content's list yet. */
+/** The counter key of a screen (analytics:client-sends-interface-counts); the start screen is not in content's list, so it counts nothing. */
 function counted(shown: Shown, embedded: boolean): string | null {
   if (shown === "age") return "age";
   if (shown === "door" && !embedded) return "scenario";

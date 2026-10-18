@@ -1,5 +1,5 @@
-// The school sheet (world:one-action-one-sheet; route:school-answers-by-grade): it
-// said "You send your papers to one university" and named none, and its corner was a gear.
+// The school sheet (world:one-action-one-sheet; route:school-answers-by-grade): it names the university, its
+// deposit and the chance of an offer, and its corner is a building, not the gear the icon set falls back to.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 

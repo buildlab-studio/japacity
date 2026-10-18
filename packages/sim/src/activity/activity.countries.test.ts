@@ -184,7 +184,7 @@ describe("the three upkeeps", () => {
       const game = landed(upkeep.country, 0);
       expect(Object.values(game.state.obligation.items).find((item) => item.entry === upkeep.id)).toMatchObject({ amount: upkeep.amount, state: "active" });
     }
-    // No line of content still names food and transport as an upkeep.
+    // The upkeep is the phone alone, so no line of content names food and transport as one.
     expect(Object.entries(text).filter(([key, words]) => key.startsWith("obligation.") && /food and transport/i.test(words))).toEqual([]);
   });
 });

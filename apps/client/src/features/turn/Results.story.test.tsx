@@ -113,8 +113,8 @@ describe("the adviser's reading and the relative's gift", () => {
   });
 
   test("[text:show-then-tell] [advice:licensed-adviser-is-truthful] given the adviser read a file in the month, when the results show, then her reading names the route in one line and its conditions are tags with marks, never her sentence", async () => {
-    // Ada's recorded life once the master's is known: the adviser is paid now and the month ends. Decision 0013: the life
-    // was re-recorded with the study done act by act, so the master's is known after its first 28 commands, not 9.
+    // Ada's recorded life once the master's is known: the adviser is paid now and the month ends. Under decision 0013 the
+    // life does its study act by act, so the master's is known after its first 28 commands.
     const game = recordedGame("ada-careful", lifeSaves["ada-careful"]!.commands.length - 28);
     const { lines: now } = game.accept({ type: "activity/now", activity: "activity.see-adviser", param: null });
     game.endTurn();

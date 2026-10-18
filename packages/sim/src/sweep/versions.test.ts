@@ -1,5 +1,5 @@
-// The joke versions' guard played through the simulation (idea file 11, comedy
-// guards): no joke is shown in a month told on the road or in a month whose
+// The joke versions' guard played through the simulation: no joke is shown in
+// a month told on the road or in a month whose
 // report carries bad news. The simulation's own tone checks content's list of
 // bad news: a line told as bad that is not money going out must be on it.
 import { badNews, content, reportPlain, spendingLines, text, versionCount, versionKey } from "@japacity/content";

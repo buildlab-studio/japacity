@@ -1,7 +1,7 @@
 // Views for screen tests. The thin ones come from the real engine and the real
-// content, so they follow the kinds as they land. The rich one is built by
-// hand on top of a real view, so the screens for offers, routes and the
-// interview can be exercised before the kinds that fill them exist.
+// content, so they follow the kinds. The rich one is built by hand on top of
+// a real view, so the screens for offers, routes and the interview are
+// exercised without playing a life to an application.
 import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";

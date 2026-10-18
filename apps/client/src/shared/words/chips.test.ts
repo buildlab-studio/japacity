@@ -1,4 +1,4 @@
-// Chips earn their place (docs/design/13-the-lively-layer.md section 2, the amendment): no Free on sleep, a bath or water,
+// Chips earn their place (docs/design/13-the-lively-layer.md section 2): no Free on sleep, a bath or water,
 // Free on a meal; no time chip for a morning; at most two effect chips.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";

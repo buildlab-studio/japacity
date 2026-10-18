@@ -1,4 +1,4 @@
-// The lives recorded after the goldens were blessed (sweep/lives.data.ts),
+// The lives the sweep plays beside the goldens (sweep/lives.data.ts),
 // replayed through the real content with the checks the golden lives carry.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -7,13 +7,13 @@ import { measure } from "../engine/golden";
 import { lifeStart, loadSave, replay, savedCommands } from "../engine/replay";
 import { lifeSaves } from "../goldens/lives.data";
 import { standInWorld } from "../world/standIn";
-import { newLifeSaves } from "./lives.data";
+import { sweepLifeSaves } from "./lives.data";
 import { FLIGHT_WINDOW } from "./lives.window";
 
-const recorded = Object.entries(newLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
+const recorded = Object.entries(sweepLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
-describe("the lives recorded after the goldens", () => {
-  test("[engine:state-is-plain-data] given the recordings beyond the goldens, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
+describe("the lives the sweep plays beside the goldens", () => {
+  test("[engine:state-is-plain-data] given the sweep's recordings, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
     expect(recorded.map((script) => lifeStart(script.save)?.scenario)).toEqual(["scenario.aniekan"]);
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();

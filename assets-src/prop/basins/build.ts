@@ -5,7 +5,7 @@ import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { cylinder, seeded } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-import { facePlusZ, lump } from "../../veh/lab";
+import { facePlusZ, lump } from "../../veh/centred";
 
 /** One basin: a flared bowl on its base at y, closed over so a stack shows each rim as a band. */
 function basin(g: Object3D, r: number, x: number, y: number, z: number, colour: PaletteName): void {

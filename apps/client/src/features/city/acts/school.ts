@@ -1,7 +1,6 @@
 // The sheet that sends papers to one university (world:one-action-one-sheet; route:applying-to-a-school,
-// route:school-answers-by-grade): it named no university, no deposit and no chance, and its corner
-// showed a gear. It now names the school, the deposit it asks if it says yes, and the chance of an offer,
-// in the jobs' chance words, under a building.
+// route:school-answers-by-grade): it names the school, the deposit it asks if it says yes, and the chance
+// of an offer, in the jobs' chance words, under a building.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
 import { int, qualityIn } from "@japacity/sim";

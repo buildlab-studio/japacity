@@ -28,7 +28,7 @@ function gainFrom(english: number, sideJob: boolean): number {
 
 /**
  * The study a month holds: an act that repeats is done a day at a time, and a month of it is the times a slot runs it
- * (activity:acts-may-repeat-in-month, decision 0012: three of them a month give what the month's slot gave); one that fills the month, once.
+ * (activity:acts-may-repeat-in-month, decision 0012: three of them a month give what a month in the slot would); one that fills the month, once.
  */
 function studiesAMonth(): number {
   return content.activity[STUDY_ENGLISH]?.repeat === true ? content.tuning.turn.repeatPerSlot : 1;

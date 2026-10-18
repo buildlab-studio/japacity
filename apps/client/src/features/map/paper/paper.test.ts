@@ -224,7 +224,7 @@ describe("the names on a card", () => {
     expect(placed.get("been")).not.toEqual([0, 0]);
   });
 
-  test("[world:map-is-painted-lagos] given each neighbourhood's card at phone size, when its district names are painted, then each stands whole on the card and clear of the card's title pill: Ojuelegba's name no longer runs under the Surulere card's pill", () => {
+  test("[world:map-is-painted-lagos] given each neighbourhood's card at phone size, when its district names are painted, then each stands whole on the card and clear of the card's title pill: Ojuelegba's name never runs under the Surulere card's pill", () => {
     for (const [width, height] of [
       [412, 839],
       [390, 844],

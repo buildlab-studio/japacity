@@ -1,4 +1,4 @@
-// Peckham rebuilt as one frontage on Rye Lane (city.md place.peckham, world:place-is-one-screen): the
+// Peckham as one frontage on Rye Lane (city.md place.peckham, world:place-is-one-screen): the
 // shops across the road with the grocer's produce out front and the hair shop beside it, and on the
 // near pavement the bus stop and a bench. It is the hub abroad in London; the community act is staged
 // in the room abroad, not here. London is on the Lagos mold (design page 14, world:ride-abroad-and-workplace, streets.md
@@ -121,7 +121,7 @@ describe("Peckham's jobs", () => {
       ["plain", null, "Ask"],
     ]);
     expect(stagedAt("activity.job-hunt", UK, PLACES)).toBe(ID);
-    // The jobs a hunt asks for, as the notice and the agency held them before.
+    // The jobs a hunt asks for each carry a hire chance.
     for (const job of ["activity.job-uk-retail-part", "activity.job-uk-kitchen-cash", "activity.job-uk-senior-care", "activity.job-uk-nurse", "activity.job-uk-warehouse"]) {
       expect(content.activity[job as keyof typeof content.activity]?.hireBp ?? null).not.toBeNull();
     }

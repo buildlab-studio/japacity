@@ -21,7 +21,7 @@ const ILLNESS: Id<"offer"> = "offer.illness";
 const WORSE: Id<"offer"> = "offer.illness-worse";
 const BURIAL: Id<"offer"> = "offer.village-burial";
 const COURT: Id<"offer"> = "offer.court-date";
-/** A month-act for the slots a lock counts; the hunt that was here is now an act done at once (activity:now-acts-and-month-acts) and fills no slot. */
+/** A month-act for the slots a lock counts: the hunt is an act done at once (activity:now-acts-and-month-acts) and fills no slot. */
 const STUDY: SlotPick = slot("activity.learn-tech");
 const CHANCE = 10000;
 

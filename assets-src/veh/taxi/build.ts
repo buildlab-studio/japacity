@@ -1,6 +1,6 @@
 // An airport taxi at the departures kerb (city.md place.airport-lagos): a plain saloon in the
 // city's taxi yellow with a band of black and white checks down each side and a white roof light,
-// no company's name or livery (assets:no-real-brands-on-assets). Built along +x like the design's vehicles, then turned to
+// no company's name or livery (assets:no-real-brands-on-assets). Built along +x like every vehicle, then turned to
 // face +z. The wheels are round, so they are their own part, shaded smooth (assets:flat-and-smooth-shading).
 // Dubai's taxi is the same saloon in cream with a red roof and no checks: the look of the city's
 // cabs, with no operator's name or mark on it. It is built to be sat in for the ride abroad (world.md
@@ -11,7 +11,7 @@ import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, part, solid } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, profile, wheel } from "../lab";
+import { cbox, facePlusZ, profile, wheel } from "../centred";
 import type { RideSeat } from "../ride";
 
 export const TAXI = { length: 4.5, width: 1.74, height: 1.46 } as const;

@@ -102,7 +102,7 @@ export function withHome(archetype: Archetype, home: string | null | undefined):
   return { ...archetype, preset: homedAnswers(archetype.preset, home) };
 }
 
-/** The naira in kobo a tile's life holds at its close, from content's `prologue.archetype.<id>.savings` (whole naira), kept honest by a test. */
+/** The naira in kobo a tile's life holds at its close, from content's `prologue.archetype.<id>.savings` (whole naira), held to it by a test. */
 export function savingsOf(archetype: Pick<Archetype, "id">): number {
   const figure = Number(say(`prologue.archetype.${archetype.id}.savings`));
   return Number.isInteger(figure) ? figure * 100 : 0;

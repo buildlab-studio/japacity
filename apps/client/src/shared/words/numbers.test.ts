@@ -1,6 +1,6 @@
 // No simulation number in a player's words (text:bands-not-figures): a quality is
-// said by its band, never its figure. The talent file read "Tech skill at 75 or more" and the board "₦90,000 at
-// tech 50", while no screen ever shows a tech number. Walked over the real content: every quality, every
+// said by its band, never its figure. No screen shows a tech number, so neither does a file ("Tech skill at 75 or
+// more") or a board ("₦90,000 at tech 50"). Walked over the real content: every quality, every
 // requirement on one, every side job's tier and every route's checklist.
 import { content } from "@japacity/content";
 import type { Requirement } from "@japacity/sim";

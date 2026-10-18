@@ -4,8 +4,8 @@
 // raised shot, turned by one finger and zoomed by the pinch to the whole place or close on the
 // character (world:camera-always-raised); the things carry quiet marks, and a tap on one walks the character straight
 // to it and floats its name and acts over it (world:things-are-tappable-models, world:nothing-roams). The street camera at a person's eyes, the plan
-// view while the screen is held and the routed walks stay for the city behind the panels and for
-// `tuning.city.roam`. Nothing here sends a command (city:places-change-no-state).
+// view while the screen is held and the routed walks serve a scene with no `overview` and `tuning.city.roam`,
+// which the content keeps off. Nothing here sends a command (city:places-change-no-state).
 import { type Footprint, footprintOf, onWalkable } from "@japacity/assets";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -47,7 +47,7 @@ import { failureOf } from "../../../shared/net/http";
 /** How much further the fog stands while looking from above, so the plan is not lost in it. */
 const PLAN_FOG = 90;
 const HOLD_MS = 450;
-/** Behind the panels the scene only idles: a frame a second, so the panels keep the processor. */
+/** Under another screen the scene only idles: a frame a second, so the screen over it keeps the processor. */
 const IDLE_MS = 1000;
 /** A finger that moves further than this before it lifts turned the view; it did not tap. */
 const DRAG_PX = 8;
