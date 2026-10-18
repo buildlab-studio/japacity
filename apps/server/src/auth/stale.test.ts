@@ -126,7 +126,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
 });
 
 describe("the cookies a dead session leaves behind", () => {
-  test("[R-ACCOUNT-021] given a Cookie header with the library's session cookies, secure-named or not and chunked, when they are dropped, then every other cookie is kept as it came", async () => {
+  test("[R-ACCOUNT-021] given a Cookie header with the library's session cookies, secure-named or not and chunked, when they are dropped, then every other cookie is kept as it came, and the header stays when nothing is left", async () => {
     const h = harness();
     const cookie = [
       "__Secure-better-auth.session_token=abc.def%3D",
@@ -141,6 +141,8 @@ describe("the cookies a dead session leaves behind", () => {
     const out = await headersWithoutSession(h.auth, new Headers({ cookie, "x-other": "1" }));
     expect(out.get("cookie")).toBe(`${PASS_COOKIE}=pass.value==; ${DEVICE_COOKIE}=0123abcd; __Secure-better-auth.oauth_state=kept`);
     expect(out.get("x-other")).toBe("1");
-    expect((await headersWithoutSession(h.auth, new Headers({ cookie: "__Secure-better-auth.session_token=abc" }))).has("cookie")).toBe(false);
+    // An empty header is kept, so the library still checks the origin of a write that came with cookies.
+    expect((await headersWithoutSession(h.auth, new Headers({ cookie: "__Secure-better-auth.session_token=abc" }))).get("cookie")).toBe("");
+    expect((await headersWithoutSession(h.auth, new Headers({ "x-other": "1" }))).has("cookie")).toBe(false);
   });
 });
