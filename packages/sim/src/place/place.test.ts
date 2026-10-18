@@ -570,7 +570,10 @@ describe("the token kept abroad", () => {
     expect(game.state.place.heldAbroad).toBeNull();
   });
 
-  const FLIGHT = tuning.route.flight;
+  const FLIGHT = ((flight) => {
+    if (typeof flight.amount !== "number") throw new Error("The flight's tuning names no fixed amount.");
+    return { currency: flight.currency, amount: flight.amount };
+  })(tuning.route.flight);
   const paidFor = (result: { events: { type: string }[] }, reason: string) =>
     result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason === reason).map((event) => (event as unknown as { amount: number }).amount);
 
