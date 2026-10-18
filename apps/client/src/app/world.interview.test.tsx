@@ -6,10 +6,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { PlayerView } from "@japacity/sim";
 
-import { optionWords } from "../shared/sim/people";
+import { optionWords } from "../shared/sim/person";
 import { engineView } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
-import { interviewGame, renderWithGame } from "../shared/testing/people";
+import { interviewGame, renderWithGame } from "../shared/testing/person";
 import { nameOf, say, words } from "../shared/words/text";
 import { InterviewView } from "../features/interview/InterviewView";
 import { DECEMBER } from "../features/setpiece/DecemberScene";

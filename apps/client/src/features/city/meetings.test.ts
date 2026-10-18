@@ -13,7 +13,7 @@ import { describe, expect, test } from "vitest";
 import parlourRaw from "../../../public/assets/places/home-family-house/place.json";
 import theirRoom from "../../../public/assets/places/their-room/place.json";
 import yabaHub from "../../../public/assets/places/yaba-hub/place.json";
-import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/people";
+import { courted, eagerContent, partnered, peopleGame, TOBI } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import { WORLD_LIMITS } from "../../../../../tools/assets/world-check";
 import { actsOffered } from "./acts";

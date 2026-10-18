@@ -5,7 +5,7 @@ import type { Content, Id, Loose, PlayerView, ReportLine, Requirement, SlotPick 
 import { legalCommands } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
-import { earlyWinIn } from "../../features/guides/earlyWin";
+import { earlyWinIn } from "../../features/guide/earlyWin";
 import { ownRouteOf } from "../words/sixteen";
 
 export const FIRST_SESSION_TURNS = 3;

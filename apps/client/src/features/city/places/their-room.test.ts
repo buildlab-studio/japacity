@@ -16,7 +16,7 @@ import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/
 import parlourRaw from "../../../../public/assets/places/home-family-house/place.json";
 import placeFile from "../../../../public/assets/places/their-room/place.json";
 import hubRaw from "../../../../public/assets/places/yaba-hub/place.json";
-import { courted, linkedFriend, peopleGame, TOBI } from "../../../shared/testing/people";
+import { courted, linkedFriend, peopleGame, TOBI } from "../../../shared/testing/person";
 import { crowdSize } from "../crowd";
 import { crowdTuning } from "../limits";
 import { roomPartner, standingAsThemselves, withStanding } from "../meetings";

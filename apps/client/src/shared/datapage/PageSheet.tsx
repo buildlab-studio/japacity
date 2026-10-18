@@ -10,7 +10,7 @@ import { useStore } from "zustand";
 import { useGameStoreIfAny } from "../../authority/GameProvider";
 import { type KeptPerson, readPerson } from "../../authority/person";
 import type { GameStore } from "../../authority/store";
-import { keptTypeOf } from "../card/kept";
+import { keptTypeOf } from "../share/kept";
 import { type Archetype, archetypeOf, throughUniversity } from "../frontdoor/archetypes";
 import { sixteenPath } from "../words/sixteen";
 import { gateLook } from "../frontdoor/Gate";

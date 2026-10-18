@@ -7,7 +7,7 @@ import { act, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { newGame } from "../../shared/testing/fixtures";
-import { renderWithGame } from "../../shared/testing/people";
+import { renderWithGame } from "../../shared/testing/person";
 import { say } from "../../shared/words/text";
 import { turnIn } from "../../shared/world/arranged";
 import type { Thing } from "../../shared/world/contract";

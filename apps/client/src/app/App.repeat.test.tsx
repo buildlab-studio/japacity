@@ -8,7 +8,7 @@ import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { newGame } from "../shared/testing/fixtures";
-import { renderWithGame } from "../shared/testing/people";
+import { renderWithGame } from "../shared/testing/person";
 import { hush, linesNow, resetLines } from "../shared/world/Lines";
 import { nameOf, say } from "../shared/words/text";
 import { ActivityPicker } from "../features/activity/ActivityView";

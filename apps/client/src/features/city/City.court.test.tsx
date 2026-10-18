@@ -6,7 +6,7 @@ import { text } from "@japacity/content";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
+import { peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import { TOLD_MS } from "../../shared/world/Lines";
 import { City } from "./City";

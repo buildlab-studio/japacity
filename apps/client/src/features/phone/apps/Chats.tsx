@@ -11,7 +11,7 @@ import { ChevronRight, UserRound, Users } from "lucide-react";
 import { createContext, Fragment, use, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame, useView } from "../../../authority/GameProvider";
-import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/people";
+import { bondName, conversationPhrases, endStillTold, fillWords, momentWords, phraseWords, type BondView } from "../../../shared/sim/person";
 import { hasWords, monthsAgo, say, sayCount, words } from "../../../shared/words/text";
 import { faceMark } from "../../../shared/ui/lively/Face";
 import { PressButton } from "../../../shared/ui/lively/PressButton";

@@ -12,7 +12,7 @@ import { fakeSound } from "../../shared/sound/sound.testing";
 import { installSoundWake, NOTICE_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { soundText } from "../../shared/sound/sound.words";
-import { renderWithGame } from "../../shared/testing/people";
+import { renderWithGame } from "../../shared/testing/person";
 import { CLOSE, roomStore, VOICED } from "./room.store";
 import { roomText } from "./room.words";
 import { SetpieceView, useClosingOpen } from "./SetpieceView";

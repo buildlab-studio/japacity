@@ -6,7 +6,7 @@ import { content, text } from "@japacity/content";
 import type { Command, Envelope, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
-import { earlyWinIn } from "../features/guides/earlyWin";
+import { earlyWinIn } from "../features/guide/earlyWin";
 import { momentLine } from "../shared/moment/moment";
 import { carriedPlan } from "../features/turn/carried";
 import type { AccountApi } from "../shared/net/auth";

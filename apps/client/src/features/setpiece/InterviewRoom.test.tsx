@@ -9,7 +9,7 @@ import { fakeSound, type FakeSound, type FakeSoundOptions } from "../../shared/s
 import { installSoundWake, MARGIN_MS, NOTICE_MS, READY_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { soundText } from "../../shared/sound/sound.words";
-import { renderWithGame } from "../../shared/testing/people";
+import { renderWithGame } from "../../shared/testing/person";
 import { CLOSE, drawReaction, GREET, roomStore, VOICED } from "./room.store";
 import { roomText } from "./room.words";
 import { SetpieceView } from "./SetpieceView";

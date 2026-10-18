@@ -10,7 +10,7 @@ import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { newGame } from "../../shared/testing/fixtures";
-import { renderWithGame } from "../../shared/testing/people";
+import { renderWithGame } from "../../shared/testing/person";
 import { plannable } from "../../shared/words/acts";
 import { City, RESULTS_BEAT_MS } from "./City";
 import { SLEEP_MS } from "./sleep";

@@ -12,14 +12,14 @@ import { App } from "./App";
 import { createGameStore, type GameStore } from "../authority/store";
 import { makeCounters } from "../shared/analytics/counters";
 import { countInto } from "../shared/analytics/start";
-import { CardView } from "../features/card/ShareCard";
+import { CardView } from "../features/share/ShareCard";
 import { HeldShareCard } from "../features/notify/HeldShareCard";
 import { engineView, fakeAuthority } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { cardKey } from "../shared/ui/stage";
 import { say } from "../shared/words/text";
 
-vi.mock("../shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
+vi.mock("../shared/share/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
 let bodies: string[] = [];
 let counters = makeCounters({ send: (body) => bodies.push(body) });

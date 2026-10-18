@@ -49,7 +49,7 @@ export function cardsAllowed(read: ReadCtx): boolean {
  * `name` is the player's own choice (R-SHARE-008) and nothing in the state
  * holds one; the first name is words (`share.first-name.<scenario>`),
  * which the simulation does not read, so it stays null and the client names
- * the character, as `apps/client/src/shared/card/face.ts` does.
+ * the character, as `apps/client/src/shared/share/face.ts` does.
  */
 export function cardOf(read: ReadCtx, kind: CardKind, moment: { route?: Id<"route"> | null; chapter?: Id<"chapter"> | null } = {}): Card {
   const route = moment.route === undefined ? japacity(read).route : moment.route;

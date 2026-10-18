@@ -3,9 +3,9 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { optionWords } from "../../shared/sim/people";
+import { optionWords } from "../../shared/sim/person";
 import { renderWithView } from "../../shared/testing/render";
-import { interviewGame, QUESTIONS, renderWithGame } from "../../shared/testing/people";
+import { interviewGame, QUESTIONS, renderWithGame } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import { INTERVIEW_DESK, InterviewView } from "./InterviewView";
 

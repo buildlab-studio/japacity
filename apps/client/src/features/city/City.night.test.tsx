@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { GameStore } from "../../authority/store";
 import { newGame } from "../../shared/testing/fixtures";
-import { renderWithGame } from "../../shared/testing/people";
+import { renderWithGame } from "../../shared/testing/person";
 import { say } from "../../shared/words/text";
 import { AskSheet } from "../../shared/world/AskSheet";
 import type { Ask, Thing } from "../../shared/world/contract";

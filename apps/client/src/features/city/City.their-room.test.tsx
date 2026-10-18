@@ -6,7 +6,7 @@ import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import theirRoom from "../../../public/assets/places/their-room/place.json";
-import { courted, peopleGame, renderWithGame, TOBI } from "../../shared/testing/people";
+import { courted, peopleGame, renderWithGame, TOBI } from "../../shared/testing/person";
 import { nameOf, say } from "../../shared/words/text";
 import type { Thing } from "../../shared/world/contract";
 import { City } from "./City";
