@@ -182,7 +182,7 @@ describe("the words a player reads", () => {
 });
 
 describe("how this game was made", () => {
-  test("[guide:generated-media-named-plainly] given the page, when it is read, then it says by kind where generated media is used, that a person approved it, and links the register; no page links a credits page", () => {
+  test("[guide:generated-media-named-plainly] given the page, when it is read, then it says by kind where generated media is used, that a person approved it, and links nothing in the repository; no page links a credits page", () => {
     const made = at(pages, MADE_PATH);
     expect([...made.querySelectorAll("[data-made]")].map((item) => item.getAttribute("data-made"))).toEqual(["images", "clips", "voices", "music"]);
     expect(made.body.textContent).toContain(files.credits.generated);
@@ -194,7 +194,7 @@ describe("how this game was made", () => {
     expect(voices).toContain("Kokoro-82M");
     expect(voices).toContain("every line is also shown as text");
     expect(voices).not.toMatch(/no voice in the game is generated/i);
-    // While the repository is private, the page links no register (guide:generated-media-named-plainly).
+    // The page links nothing in the repository (guide:generated-media-named-plainly).
     expect(made.querySelector('a[href*="github.com"]')).toBeNull();
     // The credits are a screen of the game and the sources a page of the documentation site (guide:one-sources-page, guide:credits-screen-in-game).
     const paths = pages.map((page) => page.path);
