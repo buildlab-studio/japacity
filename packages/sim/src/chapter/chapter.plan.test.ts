@@ -11,10 +11,8 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
 import { leanRoute } from "./chapter.logic";
-import { CANADA_ROUTE, CARE_ROUTE, SKILLED, UK_ROUTE } from "../testing/ids";
+import { CANADA_ROUTE, CARE_ROUTE, FEET, FILE, SKILLED, UK_ROUTE } from "../testing/ids";
 
-const FEET: Id<"chapter"> = "chapter.find-your-feet";
-const FILE: Id<"chapter"> = "chapter.build-the-file";
 const LOOK = "activity.look-into-route";
 
 function life(scenario: Id<"scenario">): Game {

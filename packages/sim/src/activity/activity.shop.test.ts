@@ -9,10 +9,10 @@ import type { Id, Requirement } from "../engine/types";
 import type { Game } from "../testing/play";
 import { playPrologueBy, start } from "../testing/play";
 import { naira, salaries } from "../testing/read";
+import { HUNT } from "../testing/ids";
 
 const OPEN: Id<"activity"> = "activity.open-shop";
 const SHOP: Id<"activity"> = "activity.run-shop";
-const HUNT: Id<"activity"> = "activity.job-hunt";
 const FIRST_CHAPTER = "chapter.find-your-feet";
 /** The trader's tile: commerce at school, the master's yard, spare parts, the six years served, the settlement, and nobody abroad. */
 const TRADER = ["begin", "commercial", "apprentice", "spare-parts", "stay", "settle", "nowhere"];

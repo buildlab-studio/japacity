@@ -11,14 +11,9 @@ import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { closed, eventsOf } from "../testing/read";
 import { grantedRoute, leanRoute } from "./chapter.logic";
-import { CARE_ROUTE, SKILLED, UK_DEPENDANT, UK_PARTNER, UK_ROUTE } from "../testing/ids";
+import { CARE_ROUTE, DECISION, FEET, FILE, LANDING, SEND_OFF, SKILLED, UK_DEPENDANT, UK_PARTNER, UK_ROUTE } from "../testing/ids";
 
-const FEET: Id<"chapter"> = "chapter.find-your-feet";
-const FILE: Id<"chapter"> = "chapter.build-the-file";
 const CARE_FILE: Id<"chapter"> = "chapter.build-the-file-care";
-const DECISION: Id<"chapter"> = "chapter.decision-day";
-const SEND_OFF: Id<"chapter"> = "chapter.send-off";
-const LANDING: Id<"chapter"> = "chapter.landing";
 
 /** Tunde with the master's heard of, the month he looks into it: the first chapter closes on its items at this month's end. */
 function aboutToLookIntoUk(): Game {

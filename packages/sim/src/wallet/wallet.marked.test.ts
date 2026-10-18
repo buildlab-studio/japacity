@@ -14,9 +14,9 @@ import { standInWorld } from "../world/standIn";
 import { ledgerReport } from "./wallet.report";
 import { EARNED_ONLY, earnedNaira } from "./wallet.logic";
 import { rideFare } from "../place/place.logic";
+import { LOTTO } from "../testing/ids";
 
 const TUNDE: Id<"scenario"> = "scenario.tunde";
-const LOTTO: Id<"activity"> = "activity.play-lotto";
 const lottery = content.tuning.lottery;
 const luck = content.tuning.luck;
 const FARE = rideFare(content, content.place["place.ojuelegba"]!.position, content.place["place.bode-thomas"]!.position, "keke");

@@ -17,10 +17,9 @@ import { openOffers, readOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
-import { STANDING, WELLBEING } from "../testing/ids";
+import { STANDING, UK_COUNTRY, WELLBEING } from "../testing/ids";
 
 const ADA: Id<"scenario"> = "scenario.ada";
-const UK: Id<"country"> = "country.uk";
 const CERTAIN = 10000;
 const POUNDS = 100;
 const luck = content.tuning.luck;
@@ -50,7 +49,7 @@ function openOne(game: Game, offer: Id<"offer">): OfferState {
 /** Moves the character abroad to the UK on a student's visa, as the flight does. */
 function flyToUk(game: Game): void {
   applyEffects(game, [
-    { type: "place/move", to: "abroad", country: UK },
+    { type: "place/move", to: "abroad", country: UK_COUNTRY },
     { type: "status/grant", status: "status.uk-student" },
   ]);
 }
@@ -196,7 +195,7 @@ describe("coming home", () => {
     // Off again, and home broke: the fare paid and nothing else left.
     flyToUk(game);
     emptyPockets(game);
-    applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: content.country[UK]!.fare, reason: "gift" }]);
+    applyEffects(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: content.country[UK_COUNTRY]!.fare, reason: "gift" }]);
     game.accept({ type: "return/home" });
     expect(game.state.place.returns.map((back) => back.shape)).toEqual(["by-choice", "broke"]);
     for (const item of Object.values(game.state.offer.items)) game.accept({ type: "offer/choose", offer: item.id, choice: "decline" });

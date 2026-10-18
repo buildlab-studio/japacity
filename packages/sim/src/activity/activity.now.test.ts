@@ -9,14 +9,9 @@ import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
-import { GULF_ROUTE } from "../testing/ids";
+import { ASK_AROUND, BET, BUY_PHONE, GULF_ROUTE, HUNT, LOTTO } from "../testing/ids";
 
-const LOTTO: Id<"activity"> = "activity.play-lotto";
-const BET: Id<"activity"> = "activity.bet-slip";
-const PHONE: Id<"activity"> = "activity.buy-phone";
-const ASK_AROUND: Id<"activity"> = "activity.ask-around";
 const PASSPORT: Id<"activity"> = "activity.get-passport";
-const HUNT: Id<"activity"> = "activity.job-hunt";
 const MEETUP: Id<"activity"> = "activity.meetup";
 const LEARN: Id<"activity"> = "activity.learn-tech";
 const PITCH: Id<"offer"> = "offer.road-park";
@@ -45,7 +40,7 @@ const NOW_ACTS: readonly string[] = [
   "activity.call-someone",
   "activity.family-meeting",
   // buying a phone and the shopping abroad, the cash gig, posting from the phone, the safe ride
-  PHONE,
+  BUY_PHONE,
   "activity.street-shopping-uk",
   "activity.street-shopping-uae",
   "activity.side-gig",
@@ -129,7 +124,7 @@ describe("when an act answers", () => {
     for (const id of MONTH_ACTS) expect({ id, when: content.activity[id as Id<"activity">]?.when }).toEqual({ id, when: "month" });
     for (const entry of entries().filter((candidate) => candidate.slot === "main" || candidate.slot === "side")) expect({ id: entry.id, when: entry.when }).toEqual({ id: entry.id, when: "month" });
     expect(entries().filter((entry) => entry.purchase === true && entry.when !== "now")).toEqual([]);
-    for (const id of [LOTTO, BET, PHONE, "activity.street-shopping-uk", "activity.street-shopping-uae", "activity.pure-water"]) expect({ id, purchase: content.activity[id as Id<"activity">]?.purchase }).toEqual({ id, purchase: true });
+    for (const id of [LOTTO, BET, BUY_PHONE, "activity.street-shopping-uk", "activity.street-shopping-uae", "activity.pure-water"]) expect({ id, purchase: content.activity[id as Id<"activity">]?.purchase }).toEqual({ id, purchase: true });
     for (const id of [ASK_AROUND, PASSPORT, HUNT, MEETUP]) expect(content.activity[id]?.purchase).toBeUndefined();
   });
 

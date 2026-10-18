@@ -15,15 +15,13 @@ import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { GATES } from "./index";
 import { invites, pointsFunds, pointsParts, pointsScore, pointsUnexplainedBp } from "./points";
-import { CANADA_ROUTE } from "../../testing/ids";
+import { CANADA_ROUTE, JUNIOR_DEV, LOOK_INTO } from "../../testing/ids";
 
 const ENTER_POOL: Id<"activity"> = "activity.enter-pool";
-const LOOK_INTO: Id<"activity"> = "activity.look-into-route";
 const ENGLISH: Id<"document"> = "document.english-test";
 const ECA: Id<"document"> = "document.eca";
 const ZAINAB: Id<"scenario"> = "scenario.zainab";
 const ADA: Id<"scenario"> = "scenario.ada";
-const JOB: Id<"activity"> = "activity.job-junior-dev";
 
 const entry = content.route[CANADA_ROUTE]!;
 const block = entry.points!;
@@ -101,7 +99,7 @@ function scoreInputs(base: State, inputs: { months: number; level: number; band:
     ...base,
     quality: { ...base.quality, "quality.age-months": inputs.months, "quality.edu-level": inputs.level },
     document,
-    activity: { ...base.activity, tenure: inputs.work === 0 ? {} : { [JOB]: inputs.work } },
+    activity: { ...base.activity, tenure: inputs.work === 0 ? {} : { [JUNIOR_DEV]: inputs.work } },
   };
 }
 
@@ -242,10 +240,10 @@ describe("the points gate", () => {
       // A first life counts the months the route takes to become known; the second starts that many months short.
       const probe = zainab();
       toKnown(probe);
-      const played = (probe.state.activity.tenure[JOB] ?? 0) - 18;
-      const game = zainab({ change: (used) => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, tenure: { [JOB]: months - played } } } }) });
+      const played = (probe.state.activity.tenure[JUNIOR_DEV] ?? 0) - 18;
+      const game = zainab({ change: (used) => ({ ...used, scenario: { ...used.scenario, [READY]: { ...used.scenario[READY]!, tenure: { [JUNIOR_DEV]: months - played } } } }) });
       toKnown(game);
-      expect(game.state.activity.tenure[JOB]).toBe(months);
+      expect(game.state.activity.tenure[JUNIOR_DEV]).toBe(months);
       expect(game.send({ type: "activity/now", activity: ENTER_POOL, param: null }).ok).toBe(accepted);
       expect(gate(game).poolMonth !== null).toBe(accepted);
     });

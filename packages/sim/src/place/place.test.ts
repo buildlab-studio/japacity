@@ -13,10 +13,7 @@ import { start } from "../testing/play";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
-import { STANDING, UK_ROUTE } from "../testing/ids";
-
-const UK: Id<"country"> = "country.uk";
-const CANADA: Id<"country"> = "country.canada";
+import { CANADA_COUNTRY, STANDING, UK_COUNTRY, UK_ROUTE } from "../testing/ids";
 
 /** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010). */
 function lagosWays(): unknown[] {
@@ -32,14 +29,14 @@ function at(where: State["place"]["where"], country: Id<"country"> | null): Stat
 describe("where an entry applies", () => {
   test("[R-PLACE-003] given entries for home, abroad, one country and anywhere, when the character is at home, abroad in two countries and on the road, then each applies only where its page says", () => {
     const home = at("home", null);
-    const uk = at("abroad", UK);
-    const canada = at("abroad", CANADA);
+    const uk = at("abroad", UK_COUNTRY);
+    const canada = at("abroad", CANADA_COUNTRY);
     const road = at("road", null);
     const homeEntry = { where: "home" as const };
     const unsaid = {};
     const abroadEntry = { where: "abroad" as const };
-    const ukEntry = { where: "abroad" as const, country: UK };
-    const anywhere = { where: "any" as const, country: UK };
+    const ukEntry = { where: "abroad" as const, country: UK_COUNTRY };
+    const anywhere = { where: "any" as const, country: UK_COUNTRY };
     expect([home, uk, canada, road].map((state) => appliesHere(homeEntry, state))).toEqual([true, false, false, false]);
     expect([home, uk, canada, road].map((state) => appliesHere(unsaid, state))).toEqual([true, false, false, false]);
     expect([home, uk, canada, road].map((state) => appliesHere(abroadEntry, state))).toEqual([false, true, true, false]);
@@ -64,7 +61,7 @@ const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR
 const tuning = content.tuning;
 const brokeLine = tuning.place.brokeLine;
 const capitalPer = tuning.return.capitalPer;
-const ukFare = content.country[UK]!.fare;
+const ukFare = content.country[UK_COUNTRY]!.fare;
 
 function placeLines(lines: ReportLine[]): ReportLine[] {
   return lines.filter((line) => line.key.startsWith("line.place."));
@@ -113,7 +110,7 @@ describe("leaving", () => {
   test("[R-PLACE-002] [R-GATE-003] given Ada with a granted visa, when she departs, then she is abroad in the route's country from that month, the home upkeep and support close, with any rent on a room at home, and the country's upkeep and room open", () => {
     const closed: ObligationType[] = [];
     const game = flown(content, { kinds: recordingCloses(closed) });
-    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, movedMonth: game.state.turn.month });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY, movedMonth: game.state.turn.month });
     // R-PLACE-002: a room's rent at home is let go with them (R-HOME-010).
     expect(closed).toEqual(["upkeep", "support", "rent"]);
     const upkeep = content.obligation["obligation.upkeep-uk"]!.amount;
@@ -131,10 +128,10 @@ describe("leaving", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: { refusalMinBp: 0, refusalMaxBp: 0 } });
     toDecision(game);
     const result = game.accept({ type: "route/depart", route: UK_ROUTE });
-    expect(placeLines(result.lines)).toEqual([{ key: "line.place.arrived", params: { country: UK }, tone: "good", attention: true, counts: [] }]);
+    expect(placeLines(result.lines)).toEqual([{ key: "line.place.arrived", params: { country: UK_COUNTRY }, tone: "good", attention: true, counts: [] }]);
     const months = game.state.place.movedMonth;
     playMonths(game, 1);
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }]);
     expect(game.state.place.movedMonth).toBe(months);
   });
 
@@ -301,11 +298,11 @@ describe("coming home", () => {
     const month = game.state.turn.month;
     const back = comeHome(game);
     expect(back.shape).toBe("by-choice");
-    expect(game.state.place.returns).toEqual([{ month, shape: "by-choice", country: UK }]);
+    expect(game.state.place.returns).toEqual([{ month, shape: "by-choice", country: UK_COUNTRY }]);
     expect(game.state.status.current).toBeNull();
     expect(game.state.wallet.totals.out.fare).toEqual({ GBP: ukFare });
     expect(back.lines).toContainEqual({ key: "line.status.closed", params: { status: STUDENT }, tone: "plain", attention: false, counts: [] });
-    expect(placeLines(back.lines)).toEqual([{ key: "line.place.returned-by-choice", params: { country: UK }, tone: "plain", attention: true, counts: [] }]);
+    expect(placeLines(back.lines)).toEqual([{ key: "line.place.returned-by-choice", params: { country: UK_COUNTRY }, tone: "plain", attention: true, counts: [] }]);
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
@@ -338,7 +335,7 @@ describe("coming home", () => {
     const overstay: ReadCtx = { ...read, state: { ...read.state, status: { ...read.state.status, current: null } } };
     expect(returnShape(overstay, false)).toBe("assisted");
     expect(returnShape(overstay, true)).toBe("broke");
-    const removed: ReadCtx = { ...overstay, state: { ...overstay.state, status: { current: null, removals: [{ country: UK, month: game.state.turn.month }] } } };
+    const removed: ReadCtx = { ...overstay, state: { ...overstay.state, status: { current: null, removals: [{ country: UK_COUNTRY, month: game.state.turn.month }] } } };
     expect(returnShape(removed, true)).toBe("removed");
   });
 
@@ -355,7 +352,7 @@ describe("coming home", () => {
 
   test("[R-PLACE-006] given December in the world, when the fare is read, then it is the fare times the December factor", () => {
     const game = flown(content, { vars: () => ({ "var.season-december": 1 }) });
-    expect(fareHome(readOf(game))).toEqual({ currency: "GBP", amount: mulDiv(ukFare, content.country[UK]!.decemberFactorBp, 10000) });
+    expect(fareHome(readOf(game))).toEqual({ currency: "GBP", amount: mulDiv(ukFare, content.country[UK_COUNTRY]!.decemberFactorBp, 10000) });
     expect(fareHome(readOf(readyLife(content)))).toBeNull();
   });
 
@@ -444,10 +441,10 @@ describe("the sampler", () => {
 describe("removal and the ban", () => {
   test("[R-PLACE-008] given a removal from the UK, when the ban is read, then the UK's routes are banned for the removal months from that month and no other country is", () => {
     const game = flown(content);
-    expect(bannedUntil(readOf(game), UK)).toBeNull();
+    expect(bannedUntil(readOf(game), UK_COUNTRY)).toBeNull();
     applyEffects(game, [{ type: "status/remove" }]);
     const month = game.state.turn.month;
-    expect(bannedUntil(readOf(game), UK)).toBe(month + content.status["status.uk-overstayer"]!.banMonths);
+    expect(bannedUntil(readOf(game), UK_COUNTRY)).toBe(month + content.status["status.uk-overstayer"]!.banMonths);
     expect(bannedUntil(readOf(game), "country.canada")).toBeNull();
   });
 
@@ -497,18 +494,18 @@ describe("the view and the record", () => {
   test("[R-PLACE-009] [R-RETURN-001] given two returns, when the view is read, then it shows where, the country, the months since the move and the record newest first", () => {
     const game = flown(content);
     playMonths(game, 2);
-    expect(game.view().place).toMatchObject({ where: "abroad", country: UK, monthsHere: 2, returns: [] });
+    expect(game.view().place).toMatchObject({ where: "abroad", country: UK_COUNTRY, monthsHere: 2, returns: [] });
     comeHome(game);
     const first = game.state.turn.month;
     playMonths(game, 1);
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: STUDENT }, { type: "status/remove" }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }, { type: "status/grant", status: STUDENT }, { type: "status/remove" }]);
     expect(game.view().place).toEqual({
       where: "home",
       country: null,
       monthsHere: 0,
       returns: [
-        { month: first + 1, shape: "removed", country: UK },
-        { month: first, shape: "by-choice", country: UK },
+        { month: first + 1, shape: "removed", country: UK_COUNTRY },
+        { month: first, shape: "by-choice", country: UK_COUNTRY },
       ],
       heldAbroad: null,
       fareHome: null,
@@ -564,7 +561,7 @@ describe("the token kept abroad", () => {
     expect(game.view().place.heldAbroad).toBe(SETTLED);
     playMonths(game, 30);
     expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }]);
     expect(game.state.place.heldAbroad).toBeNull();
   });
 
@@ -584,7 +581,7 @@ describe("the token kept abroad", () => {
     const route = game.state.route[UK_ROUTE];
     expect(route?.state).toBe("departed");
     const result = game.accept({ type: "route/depart", route: UK_ROUTE });
-    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, heldAbroad: null });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY, heldAbroad: null });
     expect(game.state.status.current?.entry).toBe(SETTLED);
     expect(paidFor(result, "flight")).toEqual([FLIGHT.amount]);
     expect(result.events.filter((event) => event.type === "wallet/debited").map((event) => (event as unknown as { reason: string }).reason)).toEqual(["flight"]);
@@ -596,12 +593,12 @@ describe("the token kept abroad", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: SETTLED }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }, { type: "status/grant", status: SETTLED }]);
     comeHome(game);
     expect(game.state.place.heldAbroad?.status).toBe(SETTLED);
     leave(game, 2 * FLIGHT.amount, 0);
     game.accept({ type: "route/depart", route: UK_ROUTE });
-    expect(game.state.place).toMatchObject({ where: "abroad", country: UK, heldAbroad: null });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY, heldAbroad: null });
     expect(game.state.status.current?.entry).toBe(SETTLED);
     expect(game.state.route[UK_ROUTE]?.state).toBe("departed");
     expect(checkInvariants(game.state, game.content)).toEqual([]);
@@ -611,7 +608,7 @@ describe("the token kept abroad", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
     expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA }, { type: "status/grant", status: RESIDENT }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA_COUNTRY }, { type: "status/grant", status: RESIDENT }]);
     leave(game, 2 * FLIGHT.amount, 0);
     game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
@@ -632,7 +629,7 @@ describe("the token kept abroad", () => {
   test("[R-RETURN-004] [R-STATUS-007] given the settled status held three months and kept, and the UK study route granted, when that route is flown, then the status carries on with its three months held", () => {
     const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
     toDecision(game);
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }, { type: "status/grant", status: SETTLED }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }, { type: "status/grant", status: SETTLED }]);
     playMonths(game, 3);
     expect(game.state.status.current?.monthsHeld).toBe(3);
     comeHome(game);
@@ -690,7 +687,7 @@ describe("requirements", () => {
     const game = flown(content);
     const judge = (requirement: Parameters<typeof check>[1]) => check(readOf(game), requirement).met;
     expect(judge({ type: "place/is", where: "abroad" })).toBe(true);
-    expect(judge({ type: "place/is", where: "abroad", country: UK })).toBe(true);
+    expect(judge({ type: "place/is", where: "abroad", country: UK_COUNTRY })).toBe(true);
     expect(judge({ type: "place/is", where: "abroad", country: "country.canada" })).toBe(false);
     playMonths(game, 2);
     expect(judge({ type: "place/months-here", where: "abroad", months: 2 })).toBe(true);

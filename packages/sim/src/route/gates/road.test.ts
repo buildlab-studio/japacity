@@ -20,7 +20,7 @@ import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
 import { cash, quality, readOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
-import { AGE, STANDING, UK_ROUTE, WELLBEING } from "../../testing/ids";
+import { AGE, ASK_AROUND, STANDING, UK_ROUTE, WELLBEING } from "../../testing/ids";
 
 const ROAD: Id<"route"> = "route.road";
 const PARK: Id<"offer"> = "offer.road-park";
@@ -32,7 +32,6 @@ const NIGHT: Id<"setpiece"> = "setpiece.road-night";
 const TRUTH: Id<"setpiece"> = "setpiece.road-truth";
 const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
 const UPKEEP: Id<"obligation"> = "obligation.upkeep";
-const ASK_AROUND: Id<"activity"> = "activity.ask-around";
 const MEANS: Id<"quality"> = "quality.family-means";
 const STAKE: Id<"quality"> = "quality.family-stake";
 

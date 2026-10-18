@@ -28,13 +28,11 @@ import {
 import type { OfferEvent } from "./offer.events";
 import { answerScore } from "../setpiece/setpiece.logic";
 import { cash, naira } from "../testing/read";
-import { GULF_ROUTE, NETWORK, UK_ROUTE } from "../testing/ids";
+import { FEET, GULF_ROUTE, NETWORK, TO_STOP, UK_ROUTE } from "../testing/ids";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
 const OFFICE: Id<"offer"> = "offer.agent-office";
-const TO_STOP: Id<"activity"> = "activity.see-agent-stop";
 const TO_OFFICE: Id<"activity"> = "activity.see-agent-office";
-const FIRST: Id<"chapter"> = "chapter.find-your-feet";
 const advice = content.tuning.advice;
 const stop = content.offer[STOP]!;
 
@@ -44,8 +42,8 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
   const game = readyLife(content, { quiet: true, seed, qualities: { [NETWORK]: network }, change: alone });
   applyEffects(game, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
   toKnown(game);
-  for (let month = 0; month < 6 && !game.state.chapter.done.includes(FIRST); month += 1) game.endTurn();
-  if (!game.state.chapter.done.includes(FIRST)) throw new Error("The first chapter did not close.");
+  for (let month = 0; month < 6 && !game.state.chapter.done.includes(FEET); month += 1) game.endTurn();
+  if (!game.state.chapter.done.includes(FEET)) throw new Error("The first chapter did not close.");
   applyEffects(game, [{ type: "route/hear", route: GULF_ROUTE, via: "test" }]);
   if (game.state.route[GULF_ROUTE]?.state !== "heard") throw new Error("The Gulf route was not heard.");
   return game;
@@ -187,7 +185,7 @@ describe("what the agent's appearance reads", () => {
     expect(Object.values(content.offer).filter(agentReadsMoney)).toEqual([]);
     const planted = (when: OfferEntry["when"]): Content => ({ ...content, offer: { ...content.offer, [STOP]: { ...stop, when } } });
     const money = { type: "money/min", currency: "NGN", amount: 1 } as const;
-    expect(agentProblems(planted([money]))).toEqual([`${STOP}: an agent's when reads money (R-ADVICE-007).`, `${STOP}: an agent's when reads money/min (R-ADVICE-007).`, `${STOP}: opens before ${FIRST} is done (R-ADVICE-012).`]);
+    expect(agentProblems(planted([money]))).toEqual([`${STOP}: an agent's when reads money (R-ADVICE-007).`, `${STOP}: an agent's when reads money/min (R-ADVICE-007).`, `${STOP}: opens before ${FEET} is done (R-ADVICE-012).`]);
     expect(agentReadsMoney({ ...stop, when: [{ type: "not", of: money }] })).toBe(true);
     expect(agentReadsMoney({ ...stop, when: [{ type: "any", of: [{ type: "wallet/total", flow: "out", reason: "remit", currency: "GBP", amount: 1 }] }] })).toBe(true);
     expect(agentProblems(planted([...stop.when, { type: "quality/min", quality: NETWORK, value: 1 }]))).toEqual([`${STOP}: an agent's when reads quality/min (R-ADVICE-007).`]);
@@ -199,7 +197,7 @@ describe("what the agent's appearance reads", () => {
     game.expectRejected({ type: "activity/now", activity: TO_STOP, param: GULF_ROUTE }, "not-legal");
     applyEffects(game, [{ type: "offer/open", offer: STOP }]);
     expect(Object.values(game.state.offer.items).filter((item) => item.entry === STOP)).toEqual([]);
-    expect(stop.when).toContainEqual({ type: "chapter/done", chapter: FIRST });
+    expect(stop.when).toContainEqual({ type: "chapter/done", chapter: FEET });
     expect(text["chapter.find-your-feet.item.known.nudge"]).toMatch(/official page/);
     expect(text["chapter.find-your-feet.item.known.nudge"]).not.toMatch(/agent|adviser/i);
   });

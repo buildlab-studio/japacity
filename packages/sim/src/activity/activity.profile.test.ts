@@ -12,18 +12,14 @@ import { applyEffects, raiseSeed, readyLife, slot, toDecision } from "../testing
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
-import { CANADA_ROUTE, CARE_ROUTE, EDU, NETWORK, PORTFOLIO, STANDING, TALENT, TECH, UK_ROUTE } from "../testing/ids";
+import { CANADA_ROUTE, CARE_ROUTE, EDU, NETWORK, NIGHT_SUPPORT, PORTFOLIO, REST, RIDE, STANDING, TALENT, TECH, TUTORING, UK_ROUTE } from "../testing/ids";
 
-const NIGHT: Id<"activity"> = "activity.night-support";
-const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
-const RIDE: Id<"activity"> = "activity.ride-driving";
 const OPEN_SOURCE: Id<"activity"> = "activity.open-source";
 const POSTS: Id<"activity"> = "activity.tech-posts";
 const TALK: Id<"activity"> = "activity.conference-talk";
 const NOTICED: Id<"activity"> = "activity.be-noticed";
 const CERTIFY: Id<"activity"> = "activity.nurse-certification";
 const MASTERS: Id<"activity"> = "activity.masters-at-home";
-const REST: Id<"activity"> = "activity.rest";
 
 const CARE: Id<"quality"> = "quality.care";
 
@@ -101,10 +97,10 @@ describe("side jobs by level", () => {
   });
 
   test("[R-ACTIVITY-014] given the night shift with two tiers, when both are met, then the highest tier pays, in its own currency to the bank", () => {
-    const tiers = entryOf(NIGHT).tiers ?? [];
+    const tiers = entryOf(NIGHT_SUPPORT).tiers ?? [];
     expect(tiers.length).toBeGreaterThanOrEqual(2);
     const top = tiers.reduce((best, tier) => (figure(tier.pay) > figure(best.pay) ? tier : best));
-    const game = holding("scenario.ada", NIGHT);
+    const game = holding("scenario.ada", NIGHT_SUPPORT);
     for (const tier of tiers) raiseTo(game, tier.min.quality, Math.max(qualityOf(game, tier.min.quality), tier.min.value));
     const paid = credits(month(game, []), "salary");
     expect(paid).toEqual([{ type: "wallet/credited", currency: top.pay.currency, pocket: "bank", amount: figure(top.pay), reason: "salary" }]);

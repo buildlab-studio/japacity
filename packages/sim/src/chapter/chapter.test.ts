@@ -15,10 +15,8 @@ import type { Game, Loose } from "../testing/play";
 import { readOf } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { chapterKind } from "./chapter.logic";
-import { UK_ROUTE } from "../testing/ids";
+import { FEET, FILE, UK_ROUTE } from "../testing/ids";
 
-const FEET: Id<"chapter"> = "chapter.find-your-feet";
-const FILE: Id<"chapter"> = "chapter.build-the-file";
 const ONE: Id<"chapter"> = "chapter.one";
 const TWO: Id<"chapter"> = "chapter.two";
 const cap = miniContent.tuning.turn.cap;

@@ -12,9 +12,8 @@ import type { QualityEvent } from "../quality/quality.events";
 import { debits } from "../testing/read";
 import type { ActivityEvent } from "./activity.events";
 import { hireChanceBp, paramsFor } from "./activity.logic";
-import { EDU, NETWORK, TECH, WELLBEING } from "../testing/ids";
+import { BUY_PHONE, EDU, NETWORK, TECH, WELLBEING } from "../testing/ids";
 
-const PHONE: Id<"activity"> = "activity.buy-phone";
 const SALES: Id<"activity"> = "activity.job-phone-sales";
 const APPRENTICE: Id<"activity"> = "activity.apprentice-repair";
 const ROUGH: Id<"activity"> = "activity.sleep-rough";
@@ -68,15 +67,15 @@ function option(game: Game, id: Id<"activity">) {
 describe("Computer Village: a phone", () => {
   test("[R-STREET-001] given a phone bought, when the month resolves, then it rides with the month in no slot, takes the tuning's price from cash under phone, and lifts wellbeing and network by the tuning's figures", () => {
     const game = ada();
-    expect(content.activity[PHONE]?.slot).toBe("none");
+    expect(content.activity[BUY_PHONE]?.slot).toBe("none");
     setPockets(game, { NGN: { cash: street.phonePrice, bank: 0 } });
-    expect(option(game, PHONE)).toMatchObject({ allowed: true, cost: [{ currency: "NGN", amount: street.phonePrice }], affordable: true });
+    expect(option(game, BUY_PHONE)).toMatchObject({ allowed: true, cost: [{ currency: "NGN", amount: street.phonePrice }], affordable: true });
     const slots = game.view().freeSlots;
     // Every free slot rests and the phone still goes: it fills none.
-    const result = game.endTurn([slot(PHONE)]);
+    const result = game.endTurn([slot(BUY_PHONE)]);
     expect(moved(result, "phone")).toEqual([{ type: "wallet/debited", currency: "NGN", pocket: "cash", amount: street.phonePrice, reason: "phone" }]);
-    expect(changed(result, WELLBEING, PHONE)).toEqual([street.phoneMood]);
-    expect(changed(result, NETWORK, PHONE)).toEqual([street.phoneNetwork]);
+    expect(changed(result, WELLBEING, BUY_PHONE)).toEqual([street.phoneMood]);
+    expect(changed(result, NETWORK, BUY_PHONE)).toEqual([street.phoneNetwork]);
     expect(result.events).toContainEqual({ type: "activity/rested", slots });
   });
 
@@ -84,26 +83,26 @@ describe("Computer Village: a phone", () => {
     const game = ada();
     expect(street.phonePrice).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     setPockets(game, { NGN: { cash: street.phonePrice * 2, bank: street.phonePrice - 1 } });
-    expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: true });
-    const bought = game.endTurn([slot(PHONE)]);
+    expect(option(game, BUY_PHONE)).toMatchObject({ allowed: true, affordable: true });
+    const bought = game.endTurn([slot(BUY_PHONE)]);
     expect(moved(bought, "phone")).toEqual([
       { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: street.phonePrice - 1, reason: "phone" },
       { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: 1, reason: "phone" },
     ]);
     setPockets(game, { NGN: { cash: street.phonePrice - 1, bank: 0 } });
-    expect(option(game, PHONE)).toMatchObject({ allowed: true, affordable: false });
+    expect(option(game, BUY_PHONE)).toMatchObject({ allowed: true, affordable: false });
     // R-ACTIVITY-015: the phone is bought at once, so with the naira short it is refused with cannot-afford
     // and nothing changes (the handle checks the state is untouched), where the slot failed for its cost.
-    expect(game.expectRejected({ type: "activity/now", activity: PHONE, param: null }, "cannot-afford").code).toBe("cannot-afford");
+    expect(game.expectRejected({ type: "activity/now", activity: BUY_PHONE, param: null }, "cannot-afford").code).toBe("cannot-afford");
   });
 
   test("[R-STREET-001] given a phone bought, when another is bought the next month, then it is a new phone: paid and lifted again", () => {
     const game = ada();
     for (let month = 0; month < 2; month += 1) {
       setPockets(game, { NGN: { cash: street.phonePrice, bank: 0 } });
-      const result = game.endTurn([slot(PHONE)]);
+      const result = game.endTurn([slot(BUY_PHONE)]);
       expect(moved(result, "phone")).toHaveLength(1);
-      expect(changed(result, NETWORK, PHONE)).toEqual([street.phoneNetwork]);
+      expect(changed(result, NETWORK, BUY_PHONE)).toEqual([street.phoneNetwork]);
     }
   });
 });

@@ -6,14 +6,14 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import type { Id, PlayerView } from "../engine/types";
 import { viewFor } from "../engine/view";
-import { flownAda, LANDING, monthAbroad, playUntil, SECURE, SEND_OFF } from "../testing/goal.journey";
+import { flownAda, monthAbroad, playUntil } from "../testing/goal.journey";
 import { roadCard } from "../route/gates/road";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { closed, readOf } from "../testing/read";
 import { replayedGame } from "../testing/recorded";
 import { sendOffCard, topActivities } from "./chapter.logic";
-import { STANDING, UK_ROUTE } from "../testing/ids";
+import { LANDING, SECURE, SEND_OFF, STANDING, UK_ROUTE } from "../testing/ids";
 
 const cap = content.tuning.turn.cap;
 

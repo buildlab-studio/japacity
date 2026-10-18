@@ -3,16 +3,15 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Accepted, Id, NewsEntry, ReportLine, World } from "../engine/types";
+import type { Accepted, NewsEntry, ReportLine, World } from "../engine/types";
 import { applyEffects, READY, readyContent, readyLife, slot, toHeard } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import type { ActivityEvent } from "./activity.events";
 import { ADVISER, adviserReading, changedTick, FRIEND, LEFT_TICK, wrongItem } from "./activity.advice";
-import { NETWORK, UK_ROUTE } from "../testing/ids";
+import { LOOK_INTO, NETWORK, UK_ROUTE } from "../testing/ids";
 
-const OFFICIAL: Id<"activity"> = "activity.look-into-route";
 const advice = content.tuning.advice;
 
 function linesOf(result: Accepted, prefix: string): ReportLine[] {
@@ -51,7 +50,7 @@ describe("the official page", () => {
   test("[R-ADVICE-001] [R-ADVICE-002] given a heard route, when the official page is read, then the route is known, one slot is used, nothing is paid, and the line names only the route and says it is the official page", () => {
     const game = heard();
     const cashBefore = game.state.wallet.pockets.NGN.cash;
-    const result = game.endTurn([slot(OFFICIAL, UK_ROUTE)]);
+    const result = game.endTurn([slot(LOOK_INTO, UK_ROUTE)]);
     expect(game.state.route[UK_ROUTE]?.state).toBe("known");
     const line = result.lines.find((candidate) => candidate.key === "line.route.looked-into");
     expect(line?.params).toEqual({ route: UK_ROUTE });
@@ -60,7 +59,7 @@ describe("the official page", () => {
     expect(text["line.route.looked-into"]).toMatch(/official page/);
     expect(text["line.route.looked-into"]).toMatch(/nothing about your own chances/);
     expect(text["activity.look-into-route.blurb"]).toMatch(/nothing about your chances/);
-    expect(content.activity[OFFICIAL]).toMatchObject({ slot: "free", cost: [] });
+    expect(content.activity[LOOK_INTO]).toMatchObject({ slot: "free", cost: [] });
     // Upkeep comes out of cash at month end; the page itself took nothing under a fee.
     expect(result.events.filter((event) => event.type === "wallet/debited" && (event as unknown as { reason: string }).reason.startsWith("fee-"))).toEqual([]);
     expect(game.state.wallet.pockets.NGN.cash).toBeLessThanOrEqual(cashBefore);

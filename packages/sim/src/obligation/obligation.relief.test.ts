@@ -17,11 +17,8 @@ import { start } from "../testing/play";
 import { abroad, owedOf, UPKEEP } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
 import { eventsOf } from "../testing/read";
-import { WELLBEING } from "../testing/ids";
+import { COOK, WELLBEING } from "../testing/ids";
 
-// The meal bought and cooked, at home or abroad: a meal of your own; the family house's pot is free and tested in
-// home/home.pot.test.ts.
-const COOK: Id<"activity"> = "activity.cook-own";
 const COOK_UK: Id<"activity"> = "activity.cook-own-uk";
 const WATER: Id<"activity"> = "activity.fetch-water";
 const DRUM: Id<"activity"> = "activity.fill-drum";

@@ -6,11 +6,8 @@ import { lifeSaves } from "../goldens/lives.data";
 import type { Game } from "./play";
 import { replayedGame } from "./recorded";
 import { standInWorld } from "../world/standIn";
+import { HUNT } from "./ids";
 
-export const SEND_OFF: Id<"chapter"> = "chapter.send-off";
-export const LANDING: Id<"chapter"> = "chapter.landing";
-export const SECURE: Id<"chapter"> = "chapter.secure";
-const HUNT: Id<"activity"> = "activity.job-hunt";
 const JOB_OFFER: Id<"offer"> = "offer.job";
 
 /**

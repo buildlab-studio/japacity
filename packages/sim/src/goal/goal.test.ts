@@ -9,9 +9,9 @@ import { registry } from "../kinds";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { answerOpen, flownAda, monthAbroad, playUntil, SECURE } from "../testing/goal.journey";
+import { answerOpen, flownAda, monthAbroad, playUntil } from "../testing/goal.journey";
 import { goalKind } from "./goal.logic";
-import { STANDING, WELLBEING } from "../testing/ids";
+import { SECURE, STANDING, WELLBEING } from "../testing/ids";
 
 const POUNDS = 100;
 

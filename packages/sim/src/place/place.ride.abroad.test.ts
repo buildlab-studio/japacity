@@ -12,14 +12,14 @@ import { start } from "../testing/play";
 import { flown, positionOf } from "../testing/place.journey";
 import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, withinMetres } from "./place.logic";
+import { UK_COUNTRY } from "../testing/ids";
 
-const UK: Id<"country"> = "country.uk";
 const PECKHAM: Id<"place"> = "place.peckham";
 const RYE_LANE: Id<"place"> = "place.rye-lane";
 const HEATHROW: Id<"place"> = "place.heathrow";
 const ROOM: Id<"place"> = "place.the-room";
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
-const rides = content.tuning.city.ride.abroad[UK]!;
+const rides = content.tuning.city.ride.abroad[UK_COUNTRY]!;
 const bus = rides.ways.bus!;
 const train = rides.ways.train!;
 /** The UK's metres for a thousandth of a degree of longitude (R-PLACE-010). */
@@ -237,7 +237,7 @@ const PASS: Id<"activity"> = "activity.bus-pass-uk";
 
 describe("the bus pass", () => {
   test("[R-PLACE-012] given the bus pass, when its entry is read, then it is a now-act once a month in the UK, costing the UK's pass figure in pounds as a fare, staged at the station's machine", () => {
-    expect(content.activity[PASS]).toMatchObject({ slot: "none", when: "now", halfDays: 0, where: "abroad", country: UK, cost: [{ currency: "GBP", amount: rides.pass, reason: "fare" }], effects: [] });
+    expect(content.activity[PASS]).toMatchObject({ slot: "none", when: "now", halfDays: 0, where: "abroad", country: UK_COUNTRY, cost: [{ currency: "GBP", amount: rides.pass, reason: "fare" }], effects: [] });
     expect(content.activity[PASS]?.repeat).toBeUndefined();
     expect(content.activity[PASS]?.purchase).toBeUndefined();
     expect(Object.values(content.place).filter((place) => (place.stages as readonly string[]).includes(PASS)).map((place) => place.id)).toEqual(["place.peckham-rye-station"]);
@@ -277,7 +277,7 @@ describe("the bus pass", () => {
 
   test("[R-PLACE-012] given a life at home, when the pass is asked for, then it is refused; and given a UK with no pass figure, when the act is played, then the bus still asks its fare", () => {
     start({ content }).expectRejected({ type: "activity/now", activity: PASS, param: null }, "not-legal");
-    const noPass = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...content.tuning.city.ride.abroad, [UK]: { ...rides, pass: null } } } } } };
+    const noPass = { ...content, tuning: { ...content.tuning, city: { ...content.tuning.city, ride: { ...content.tuning.city.ride, abroad: { ...content.tuning.city.ride.abroad, [UK_COUNTRY]: { ...rides, pass: null } } } } } };
     const game = flown(noPass);
     pounds(game, 20000);
     game.accept({ type: "activity/now", activity: PASS, param: null });

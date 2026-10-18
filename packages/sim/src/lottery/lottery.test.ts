@@ -8,12 +8,12 @@ import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
+import { LOTTO } from "../testing/ids";
 
 const tuning = content.tuning.lottery;
 const { odds } = tuning;
 /** Tunde starts with ₦4.2m in the bank and ₦60,000 in cash. */
 const TUNDE: Id<"scenario"> = "scenario.tunde";
-const LOTTO: Id<"activity"> = "activity.play-lotto";
 
 type Draw = NonNullable<World["lottery"]>;
 

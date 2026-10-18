@@ -12,8 +12,7 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
 import { sureHuntJob } from "./activity.logic";
-
-const HUNT: Id<"activity"> = "activity.job-hunt";
+import { HUNT } from "../testing/ids";
 
 function entryOf(id: string): ActivityEntry {
   const entry = content.activity[id as Id<"activity">];

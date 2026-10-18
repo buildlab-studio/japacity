@@ -14,9 +14,8 @@ import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { COOLED, endorsementChanceBp } from "./endorsement";
 import { GATES } from "./index";
-import { TALENT, UK_ROUTE } from "../../testing/ids";
+import { LOOK_INTO, TALENT, UK_ROUTE } from "../../testing/ids";
 
-const LOOK_INTO: Id<"activity"> = "activity.look-into-route";
 const APPLY_ENDORSEMENT: Id<"activity"> = "activity.apply-endorsement";
 const APPLY_VISA: Id<"activity"> = "activity.apply-uk-talent";
 

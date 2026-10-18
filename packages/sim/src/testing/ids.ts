@@ -23,3 +23,29 @@ export const TALENT: Id<"route"> = "route.uk-talent";
 export const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
 export const UK_PARTNER: Id<"route"> = "route.uk-partner";
 export const UK_ROUTE: Id<"route"> = "route.uk-masters";
+
+export const ASK_AROUND: Id<"activity"> = "activity.ask-around";
+export const BET: Id<"activity"> = "activity.bet-slip";
+export const BUY_PHONE: Id<"activity"> = "activity.buy-phone";
+export const COOK: Id<"activity"> = "activity.cook-own";
+export const HUNT: Id<"activity"> = "activity.job-hunt";
+export const JUNIOR_DEV: Id<"activity"> = "activity.job-junior-dev";
+export const LOOK_INTO: Id<"activity"> = "activity.look-into-route";
+export const LOTTO: Id<"activity"> = "activity.play-lotto";
+export const NIGHT_SUPPORT: Id<"activity"> = "activity.night-support";
+export const REST: Id<"activity"> = "activity.rest";
+export const RIDE: Id<"activity"> = "activity.ride-driving";
+export const TO_STOP: Id<"activity"> = "activity.see-agent-stop";
+export const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
+
+export const DECISION: Id<"chapter"> = "chapter.decision-day";
+export const FEET: Id<"chapter"> = "chapter.find-your-feet";
+export const FILE: Id<"chapter"> = "chapter.build-the-file";
+export const LANDING: Id<"chapter"> = "chapter.landing";
+export const SECURE: Id<"chapter"> = "chapter.secure";
+export const SEND_OFF: Id<"chapter"> = "chapter.send-off";
+
+export const CANADA_COUNTRY: Id<"country"> = "country.canada";
+export const ITALY: Id<"country"> = "country.italy";
+export const UAE: Id<"country"> = "country.uae";
+export const UK_COUNTRY: Id<"country"> = "country.uk";

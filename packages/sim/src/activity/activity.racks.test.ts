@@ -10,9 +10,9 @@ import { applyEffects, readyLife, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { playPrologueBy, start } from "../testing/play";
 import { naira, salaries } from "../testing/read";
+import { HUNT } from "../testing/ids";
 
 const RACKS: Id<"activity"> = "activity.job-fish-racks";
-const HUNT: Id<"activity"> = "activity.job-hunt";
 const MAKOKO = "place.makoko";
 /** The child of the water's tile: commerce at school, work after it, the counter's savings, and the room on the lagoon. */
 const WATER = ["begin", "commercial", "work", "save", "makoko"];

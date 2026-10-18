@@ -9,11 +9,9 @@ import { applyEffects, readyLife, READY, READY_PAPERS, toKnown } from "../testin
 import type { Game } from "../testing/play";
 import type { AgentKind, Pitch } from "./offer.agent";
 import { agentProblems, AGENT_KINDS, agentReadsMoney, carriedTells, CHASED, CHASER, feeRange, kindAt, kindOf, KIND_TERM, MONTHS_TERM, PAPER_TERM, PITCH_TERM, pitchAt } from "./offer.agent";
-import { GULF_ROUTE } from "../testing/ids";
+import { FEET, GULF_ROUTE, TO_STOP } from "../testing/ids";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
-const TO_STOP: Id<"activity"> = "activity.see-agent-stop";
-const FIRST: Id<"chapter"> = "chapter.find-your-feet";
 const POLICE: Id<"document"> = "document.police-certificate";
 const TRANSCRIPT: Id<"document"> = "document.transcript";
 const PASSPORT: Id<"document"> = "document.passport";
@@ -31,8 +29,8 @@ function pastChapterOne(seed: string, cash?: number): Game {
   const game = readyLife(content, { quiet: true, seed, documents: NO_TRANSCRIPT, change: withCash });
   applyEffects(game, [{ type: "activity/start-job", job: "activity.job-teacher" }]);
   toKnown(game);
-  for (let month = 0; month < 8 && !game.state.chapter.done.includes(FIRST); month += 1) game.endTurn();
-  if (!game.state.chapter.done.includes(FIRST)) throw new Error("The first chapter did not close.");
+  for (let month = 0; month < 8 && !game.state.chapter.done.includes(FEET); month += 1) game.endTurn();
+  if (!game.state.chapter.done.includes(FEET)) throw new Error("The first chapter did not close.");
   applyEffects(game, [{ type: "route/hear", route: GULF_ROUTE, via: "test" }]);
   return game;
 }
@@ -170,7 +168,7 @@ describe("the chaser a friend puts you onto", () => {
     expect(friend.chanceBp).toBeGreaterThan(0);
     expect(friend.fraudBp).toBe(0);
     expect(agentReadsMoney(friend)).toBe(false);
-    expect(friend.when).toContainEqual({ type: "chapter/done", chapter: FIRST });
+    expect(friend.when).toContainEqual({ type: "chapter/done", chapter: FEET });
     expect(friend.when).toContainEqual({ type: "place/is", where: "home" });
     expect(friend.when).toContainEqual({ type: "any", of: CHASED.map((document) => ({ type: "document/pending", document })) });
   });

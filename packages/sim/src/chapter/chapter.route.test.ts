@@ -8,11 +8,8 @@ import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { leanRoute } from "./chapter.logic";
-import { CANADA_ROUTE, CARE_ROUTE, GULF_ROUTE, SKILLED, TALENT, UK_ROUTE } from "../testing/ids";
+import { CANADA_ROUTE, CARE_ROUTE, DECISION, FEET, FILE, GULF_ROUTE, SKILLED, TALENT, UK_ROUTE } from "../testing/ids";
 
-const FEET: Id<"chapter"> = "chapter.find-your-feet";
-const FILE: Id<"chapter"> = "chapter.build-the-file";
-const DECISION: Id<"chapter"> = "chapter.decision-day";
 const LOOK = "activity.look-into-route";
 
 function life(scenario: Id<"scenario">, used: Content = content): Game {

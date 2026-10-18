@@ -10,12 +10,8 @@ import type { Game } from "../testing/play";
 import { closed } from "../testing/read";
 import { replayedGame } from "../testing/recorded";
 import { chapterCard, grantedRoute, leanRoute } from "./chapter.logic";
-import { CARE_ROUTE, SKILLED, UK_PARTNER, UK_ROUTE } from "../testing/ids";
+import { CARE_ROUTE, DECISION, FILE, LANDING, SEND_OFF, SKILLED, UK_PARTNER, UK_ROUTE } from "../testing/ids";
 
-const FILE: Id<"chapter"> = "chapter.build-the-file";
-const DECISION: Id<"chapter"> = "chapter.decision-day";
-const SEND_OFF: Id<"chapter"> = "chapter.send-off";
-const LANDING: Id<"chapter"> = "chapter.landing";
 const cap = content.tuning.turn.cap;
 
 type Accepted = Extract<StepResult, { ok: true }>;
