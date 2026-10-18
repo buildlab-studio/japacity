@@ -169,18 +169,21 @@ async function request<T>(fetch: Fetch, wall: WallGuard, url: string, init: Requ
   return (await exchange(fetch, wall, url, init, timeoutMs)).body as T;
 }
 
+/** The page's own fetch, read when a request is made, so a test that stubs it is heard. */
+export const pageFetch: Fetch = (input, init) => globalThis.fetch(input, init);
+
 /**
  * The same request as a `fetch` for a library that wants one (the auth library's client): the clock, same origin, no
  * redirect followed, a wall or no answer thrown as a failure of its kind; the server's answer handed back whole.
  */
-export function requestFetch(fetch: Fetch = (input, init) => globalThis.fetch(input, init), wall: WallGuard = pageWall): Fetch {
+export function requestFetch(fetch: Fetch = pageFetch, wall: WallGuard = pageWall): Fetch {
   return async (input, init) => {
     const { response, text } = await exchange(fetch, wall, input, init ?? {}, timeoutOf(init));
     return new Response(text, { status: response.status, statusText: response.statusText, headers: response.headers });
   };
 }
 
-export function api({ baseUrl, fetch = (input, init) => globalThis.fetch(input, init), wall = pageWall }: ApiOptions): Api {
+export function api({ baseUrl, fetch = pageFetch, wall = pageWall }: ApiOptions): Api {
   const base = baseUrl.replace(/\/+$/, "");
   const write = (method: string, body: unknown): RequestInit => ({ method, headers: { accept: "application/json", "content-type": "application/json" }, body: JSON.stringify(body) });
   return {

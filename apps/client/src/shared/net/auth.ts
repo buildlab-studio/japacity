@@ -26,7 +26,7 @@ import { createAuthClient } from "better-auth/client";
 import { emailOTPClient } from "better-auth/client/plugins";
 
 import { forgetAccount, putUsageCounts, readAccount } from "./account";
-import { api, type Fetch, requestFetch } from "./http";
+import { api, type Fetch, pageFetch, requestFetch } from "./http";
 import { pageWall, type WallGuard } from "./wall";
 
 /**
@@ -199,7 +199,7 @@ function isRejection(reply: AgeStatus | ServerRejection): reply is ServerRejecti
  */
 export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: string; fetch?: Fetch; wall?: WallGuard }): AccountApi {
   const base = baseUrl.replace(/\/+$/, "");
-  const send: Fetch = fetch ?? ((input, init) => globalThis.fetch(input, init));
+  const send: Fetch = fetch ?? pageFetch;
   const server = api({ baseUrl: base, fetch: send, wall });
   const classified = requestFetch(send, wall);
   // The server mounts Better Auth at /api/auth, its default base path.

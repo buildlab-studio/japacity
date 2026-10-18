@@ -28,7 +28,8 @@ export function dayClockOf(served: WorldClock | null, device: WorldClock, asked:
   return asked === null ? clock : { ...clock, part: asked };
 }
 
-function search(): string {
+/** The page's query, where development switches are read from; empty outside a page. */
+export function pageSearch(): string {
   return typeof location === "undefined" ? "" : location.search;
 }
 
@@ -57,5 +58,5 @@ export function useDayClock(): WorldClock & { served: boolean } {
   }, []);
   // `served`: a reply has given the world's clock; before one, the device's reading stands in for the sky but nothing
   // that changes what the player is told (the night's nudge) rests on it.
-  return { ...dayClockOf(reading.served, reading.device, devClockPart(search())), served: reading.served !== null || devClockPart(search()) !== null };
+  return { ...dayClockOf(reading.served, reading.device, devClockPart(pageSearch())), served: reading.served !== null || devClockPart(pageSearch()) !== null };
 }

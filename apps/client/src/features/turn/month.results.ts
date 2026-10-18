@@ -9,6 +9,7 @@ import { BANK_CHARGE, CHANGED, CHANGED_OUT, CHANGED_QUEUED, CHANGED_SMALL, CHANG
 import { moneyParam } from "../../shared/words/text";
 import { expiringSoon } from "../../shared/words/expiry";
 import { savingsOf } from "../../shared/words/savings";
+import { sameLine } from "../../shared/moment/moment";
 import { EXAM_MARKED, PIECE, PIECE_MORE, asPiece, toldOnResults } from "../../shared/words/told";
 
 // How a line is told on the results lives in shared/words/told.ts, so News tells the month in the same words (R-WORLD-008).
@@ -302,10 +303,6 @@ export function savings(view: Pick<PlayerView, "routes" | "japacity"> & Partial<
     if (required > 0) return { kind: "funds", shown, required, currency };
   }
   return view.japacity.percent === null ? null : { kind: "percent", percent: view.japacity.percent };
-}
-
-function sameLine(a: ReportLine, b: ReportLine): boolean {
-  return a.key === b.key && JSON.stringify(a.params) === JSON.stringify(b.params);
 }
 
 /** The month's lines that neither the story nor the money tells on the results: these are left for News. */

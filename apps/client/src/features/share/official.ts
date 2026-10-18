@@ -5,13 +5,10 @@
 // to it.
 import { officialAccounts, type OfficialAccount } from "@japacity/content";
 
+import { escapeHtml } from "../../shared/words/html";
 import { say } from "../../shared/words/text";
 
 const NEVER = ["money", "turns", "prize", "advert", "agents"] as const;
-
-function escape(words: string): string {
-  return words.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
 
 /** Where an account's address goes when it is followed. */
 function hrefOf(account: OfficialAccount & { address: string }): string {
@@ -24,23 +21,23 @@ export function listedAccounts(): (OfficialAccount & { address: string })[] {
 }
 
 function link(account: OfficialAccount & { address: string }): string {
-  return `<a href="${escape(hrefOf(account))}">${escape(account.address)}</a>`;
+  return `<a href="${escapeHtml(hrefOf(account))}">${escapeHtml(account.address)}</a>`;
 }
 
 export function officialPage(): string {
   const email = listedAccounts().find((account) => account.platform === "email");
   const report = say("share.official.report", { email: "\u0000" });
-  const [before = "", after = ""] = escape(report).split("\u0000");
+  const [before = "", after = ""] = escapeHtml(report).split("\u0000");
   const rows = listedAccounts().map(
-    (account) => `      <li><span class="platform">${escape(say(`share.official.platform.${account.platform}`))}</span> ${link(account)}</li>`,
+    (account) => `      <li><span class="platform">${escapeHtml(say(`share.official.platform.${account.platform}`))}</span> ${link(account)}</li>`,
   );
-  const never = NEVER.map((item) => `      <li>${escape(say(`share.official.never.${item}`))}</li>`);
+  const never = NEVER.map((item) => `      <li>${escapeHtml(say(`share.official.never.${item}`))}</li>`);
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escape(say("share.official.title"))}</title>
+    <title>${escapeHtml(say("share.official.title"))}</title>
     <style>
       :root { --sheet: #f1f3f9; --text: #131a33; --text-2: #56607e; --sheet-line: rgba(28, 42, 94, 0.12); color-scheme: light; }
       @media (prefers-color-scheme: dark) { :root { --sheet: #18234f; --text: #f3efe6; --text-2: #aab3d6; --sheet-line: rgba(243, 239, 230, 0.13); color-scheme: dark; } }
@@ -56,12 +53,12 @@ export function officialPage(): string {
   </head>
   <body>
     <main>
-      <h1>${escape(say("share.official.title"))}</h1>
-      <p>${escape(say("share.official.intro"))}</p>
+      <h1>${escapeHtml(say("share.official.title"))}</h1>
+      <p>${escapeHtml(say("share.official.intro"))}</p>
       <ul data-accounts>
 ${rows.join("\n")}
       </ul>
-      <h2>${escape(say("share.official.never.heading"))}</h2>
+      <h2>${escapeHtml(say("share.official.never.heading"))}</h2>
       <ul data-never>
 ${never.join("\n")}
       </ul>

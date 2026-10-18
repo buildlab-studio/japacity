@@ -9,6 +9,7 @@ import { join } from "node:path";
 import { OPERATOR, type Operator } from "@japacity/content";
 
 import { LEGAL_TEMPLATES } from "./addresses";
+import { escapeHtml } from "../../shared/words/html";
 
 export { LEGAL_TEMPLATES } from "./addresses";
 
@@ -25,15 +26,11 @@ const TEMPLATE_FOLDER = "src/features/legal";
 
 const FIELD = /\{\{operator\.(\w+)\}\}/g;
 
-function escape(words: string): string {
-  return words.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-}
-
 /** A template with every `{{operator.<field>}}` filled. A field the operator does not have stops the build. */
 export function fillOperator(template: string, operator: Operator = OPERATOR): string {
   return template.replace(FIELD, (_whole, field: string) => {
     if (!Object.hasOwn(operator, field)) throw new Error(`The legal pages ask for operator.${field}, which the operator constant does not have.`);
-    return escape(operator[field as keyof Operator]);
+    return escapeHtml(operator[field as keyof Operator]);
   });
 }
 

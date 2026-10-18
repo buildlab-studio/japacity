@@ -4,7 +4,7 @@
 import type { DayPart } from "@japacity/sim";
 import { useEffect } from "react";
 
-import { useDayClock } from "./dayClock";
+import { pageSearch, useDayClock } from "./dayClock";
 
 export type Paint = "day" | "night";
 
@@ -30,10 +30,6 @@ export function applyPaint(paint: Paint, root: Pick<HTMLElement, "dataset"> = do
   root.dataset.paint = paint;
 }
 
-function search(): string {
-  return typeof location === "undefined" ? "" : location.search;
-}
-
 /**
  * Whether the night paint follows the clock for players (design page 13, section 2, "Night"): the
  * surfaces over the world read in both paints. `?paint=` still stands either paint in, in development.
@@ -43,7 +39,7 @@ export const NIGHT_PAINT_LIVE = true;
 /** Keeps the root's paint with the world's clock while it is mounted; gone, the root goes back to the day's. */
 export function usePaint(live: boolean = NIGHT_PAINT_LIVE): Paint {
   const clock = useDayClock();
-  const paint = devPaint(search()) ?? (live ? paintOf(clock.part) : "day");
+  const paint = devPaint(pageSearch()) ?? (live ? paintOf(clock.part) : "day");
   useEffect(() => {
     applyPaint(paint);
   }, [paint]);
