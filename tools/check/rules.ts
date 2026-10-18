@@ -1,21 +1,23 @@
-// Rule-id traceability: every rule defined in docs/rules has a test that cites
-// it, and every cited id is defined. See docs/design/02-quality-and-testing.md.
+// Rule-name traceability: every rule defined in docs/rules has a test that cites
+// it, and every cited name is defined. See docs/design/02-quality-and-testing.md.
 //
 // Usage: pnpm check:rules [--write-pending]
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { basename, join, relative, sep } from "node:path";
 import ts from "typescript";
 
 import { isMain, readJson, REPO_ROOT, toPosix } from "../repo";
 
-export const RULE_ID = /R-[A-Z][A-Z0-9]*-\d{3}/;
+/** A rule's name: its page's file name, a colon and a kebab slug, such as `city:players-fill-the-crowd`. */
+export const RULE_NAME = /[a-z][a-z0-9]*(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*/;
 
-// A definition is a line like `**R-STATUS-004.** A sponsored worker ...`,
-// optionally inside a block quote or a list item.
-const DEFINITION_LINE = new RegExp(
-  String.raw`^\s*(?:>\s*)*(?:(?:[-*+]|\d+[.)])\s+)?\*\*(${RULE_ID.source})\.\*\*`,
-);
-const CITATION_TAG = new RegExp(String.raw`\[(${RULE_ID.source})\]`, "g");
+// Where a definition may start: a line, optionally inside a block quote or a list item.
+const LINE_START = String.raw`^\s*(?:>\s*)*(?:(?:[-*+]|\d+[.)])\s+)?`;
+// A definition is a line like `**status:expiry-lapses-or-moves-on** A sponsored worker ...`.
+const DEFINITION_LINE = new RegExp(String.raw`${LINE_START}\*\*(${RULE_NAME.source})\*\*(?=\s|$)`);
+// A line that opens like a definition but whose bold is not a well-formed name: `**City:Crowd**`, `**R-CITY-015.**`.
+const MALFORMED_LINE = new RegExp(String.raw`${LINE_START}\*\*([^*\s]*(?::|R-[A-Z])[^*\s]*)\*\*`);
+const CITATION_TAG = new RegExp(String.raw`\[(${RULE_NAME.source})\]`, "g");
 
 const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
 const SKIPPED_DIRECTORIES = new Set(["node_modules", "dist", "build", "coverage", ".git"]);
@@ -31,7 +33,17 @@ export interface Location {
 }
 
 export interface Citation extends Location {
-  readonly id: string;
+  readonly name: string;
+}
+
+/** A line of a rule page that opens like a definition but whose bold is not a well-formed name. */
+export interface Malformed extends Location {
+  readonly text: string;
+}
+
+export interface Definitions {
+  readonly names: Map<string, Location[]>;
+  readonly malformed: readonly Malformed[];
 }
 
 export interface Report {
@@ -42,7 +54,7 @@ export interface Report {
   readonly untested: readonly string[];
 }
 
-function walk(directory: string, visit: (path: string, name: string) => void, skip: (path: string) => boolean): void {
+function walk(directory: string, visit: (path: string, fileName: string) => void, skip: (path: string) => boolean): void {
   if (!existsSync(directory)) return;
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
@@ -54,25 +66,36 @@ function walk(directory: string, visit: (path: string, name: string) => void, sk
   }
 }
 
+/** The page a rule name belongs to: the part before the colon. */
+export function pageOf(name: string): string {
+  return name.slice(0, name.indexOf(":"));
+}
+
 /** Reads every rule definition under `rulesDir`. Files and folders starting with `_` are ignored. */
-export function findDefinitions(rulesDir: string, root: string = rulesDir): Map<string, Location[]> {
-  const definitions = new Map<string, Location[]>();
+export function findDefinitions(rulesDir: string, root: string = rulesDir): Definitions {
+  const names = new Map<string, Location[]>();
+  const malformed: Malformed[] = [];
   walk(
     rulesDir,
-    (path, name) => {
-      if (!name.endsWith(".md") || name.startsWith("_")) return;
+    (path, fileName) => {
+      if (!fileName.endsWith(".md") || fileName.startsWith("_")) return;
+      const file = toPosix(relative(root, path));
       const lines = readFileSync(path, "utf8").split(/\r?\n/);
       lines.forEach((text, index) => {
-        const id = DEFINITION_LINE.exec(text)?.[1];
-        if (id === undefined) return;
-        const found = definitions.get(id) ?? [];
-        found.push({ file: toPosix(relative(root, path)), line: index + 1 });
-        definitions.set(id, found);
+        const name = DEFINITION_LINE.exec(text)?.[1];
+        if (name === undefined) {
+          const bold = MALFORMED_LINE.exec(text)?.[1];
+          if (bold !== undefined) malformed.push({ text: bold, file, line: index + 1 });
+          return;
+        }
+        const found = names.get(name) ?? [];
+        found.push({ file, line: index + 1 });
+        names.set(name, found);
       });
     },
     (path) => (path.split(sep).pop() ?? "").startsWith("_"),
   );
-  return definitions;
+  return { names, malformed };
 }
 
 /** Returns the chain of names in a callee, such as ["test", "prop"], or null if it is not a plain chain. */
@@ -92,7 +115,7 @@ function testTitle(call: ts.CallExpression): string | null {
   if (names === null) return null;
   const [base, ...modifiers] = names;
   if (base !== "test" && base !== "it") return null;
-  if (modifiers.some((name) => NON_RUNNING_MODIFIERS.has(name))) return null;
+  if (modifiers.some((modifier) => NON_RUNNING_MODIFIERS.has(modifier))) return null;
   // test.each(table) itself is not a test; its returned function is.
   if (ts.isPropertyAccessExpression(call.expression) && ["each", "for", "prop"].includes(modifiers.at(-1) ?? "")) {
     return null;
@@ -103,7 +126,7 @@ function testTitle(call: ts.CallExpression): string | null {
   return null;
 }
 
-/** Finds `[R-XXX-000]` tags in test titles. Parsed with the compiler, so comments never count. */
+/** Finds `[page:slug]` tags in test titles. Parsed with the compiler, so comments never count. */
 export function findCitationsInSource(file: string, source: string): Citation[] {
   const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true);
   const citations: Citation[] = [];
@@ -113,8 +136,8 @@ export function findCitationsInSource(file: string, source: string): Citation[] 
       if (title !== null) {
         const line = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
         for (const match of title.matchAll(CITATION_TAG)) {
-          const id = match[1];
-          if (id !== undefined) citations.push({ id, file, line });
+          const name = match[1];
+          if (name !== undefined) citations.push({ name, file, line });
         }
       }
     }
@@ -130,8 +153,8 @@ export function findCitations(root: string, excludes: readonly string[] = DEFAUL
   const citations: Citation[] = [];
   walk(
     root,
-    (path, name) => {
-      if (!TEST_FILE.test(name)) return;
+    (path, fileName) => {
+      if (!TEST_FILE.test(fileName)) return;
       citations.push(...findCitationsInSource(toPosix(relative(root, path)), readFileSync(path, "utf8")));
     },
     (path) => excluded.has(path),
@@ -143,57 +166,62 @@ export function readPending(path: string): string[] {
   if (!existsSync(path)) return [];
   const parsed: unknown = readJson(path);
   if (!Array.isArray(parsed) || !parsed.every((item): item is string => typeof item === "string")) {
-    throw new Error(`${path} must be a JSON array of rule id strings.`);
+    throw new Error(`${path} must be a JSON array of rule name strings.`);
   }
   return parsed;
 }
 
-export function evaluate(
-  definitions: ReadonlyMap<string, readonly Location[]>,
-  citations: readonly Citation[],
-  pending: readonly string[],
-): Report {
+export function evaluate(definitions: Definitions, citations: readonly Citation[], pending: readonly string[]): Report {
   const problems: string[] = [];
   const at = (location: Location) => `${location.file}:${String(location.line)}`;
+  const { names } = definitions;
 
-  for (const [id, locations] of definitions) {
+  for (const bad of definitions.malformed) {
+    problems.push(`${at(bad)} opens with **${bad.text}**, which is not a rule name of the form page:slug`);
+  }
+
+  for (const [name, locations] of names) {
     if (locations.length > 1) {
-      problems.push(`${id} is defined more than once: ${locations.map(at).join(", ")}`);
+      problems.push(`${name} is defined more than once: ${locations.map(at).join(", ")}`);
+    }
+    for (const location of locations) {
+      const page = basename(location.file, ".md");
+      if (page !== pageOf(name)) problems.push(`${name} is defined in ${at(location)}, but its name says ${pageOf(name)}.md`);
     }
   }
 
-  const testedIds = new Set<string>();
+  const testedNames = new Set<string>();
   for (const citation of citations) {
-    if (definitions.has(citation.id)) {
-      testedIds.add(citation.id);
+    if (names.has(citation.name)) {
+      testedNames.add(citation.name);
     } else {
-      problems.push(`${at(citation)} cites ${citation.id}, which is not defined in docs/rules`);
+      problems.push(`${at(citation)} cites ${citation.name}, which is not defined in docs/rules`);
     }
   }
 
   const pendingSet = new Set<string>();
-  for (const id of pending) {
-    if (pendingSet.has(id)) problems.push(`${id} is listed twice in tools/rules-pending.json`);
-    pendingSet.add(id);
-    if (!definitions.has(id)) {
-      problems.push(`${id} is in tools/rules-pending.json but is not defined. Remove it from the list`);
-    } else if (testedIds.has(id)) {
-      problems.push(`${id} now has a test. Remove it from tools/rules-pending.json`);
+  for (const name of pending) {
+    if (pendingSet.has(name)) problems.push(`${name} is listed twice in tools/rules-pending.json`);
+    pendingSet.add(name);
+    if (!names.has(name)) {
+      problems.push(`${name} is in tools/rules-pending.json but is not defined. Remove it from the list`);
+    } else if (testedNames.has(name)) {
+      problems.push(`${name} now has a test. Remove it from tools/rules-pending.json`);
     }
   }
 
-  const untested = [...definitions.keys()].filter((id) => !testedIds.has(id)).sort();
-  for (const id of untested) {
-    if (pendingSet.has(id)) continue;
-    const where = definitions.get(id)?.[0];
-    problems.push(`${id}${where ? ` (${at(where)})` : ""} has no test citing [${id}]`);
+  const untested = [...names.keys()].filter((name) => !testedNames.has(name)).sort();
+  for (const name of untested) {
+    if (pendingSet.has(name)) continue;
+    const where = names.get(name)?.[0];
+    problems.push(`${name}${where ? ` (${at(where)})` : ""} has no test citing [${name}]`);
   }
 
   return {
     problems,
-    defined: definitions.size,
-    tested: testedIds.size,
-    pending: untested.filter((id) => pendingSet.has(id)).length,
+    defined: names.size,
+    tested: testedNames.size,
+    pending: untested.filter((name) => pendingSet.has(name)).length,
     untested,
   };
 }
@@ -207,8 +235,8 @@ export function run(root: string, options: { readonly writePending: boolean }): 
   const definitions = findDefinitions(join(root, "docs", "rules"), root);
   const citations = findCitations(root);
   if (options.writePending) {
-    const tested = new Set(citations.map((citation) => citation.id));
-    const untested = [...definitions.keys()].filter((id) => !tested.has(id)).sort();
+    const tested = new Set(citations.map((citation) => citation.name));
+    const untested = [...definitions.names.keys()].filter((name) => !tested.has(name)).sort();
     writeFileSync(pendingPath, `${JSON.stringify(untested, null, 2)}\n`);
   }
   const report = evaluate(definitions, citations, readPending(pendingPath));

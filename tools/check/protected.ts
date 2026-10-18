@@ -57,19 +57,19 @@ export function protectedReason(path: string): string | null {
 }
 
 /** Ids present in `head` but not in `base`. Either side may be missing (null). */
-export function addedPendingIds(base: string | null, head: string | null): string[] {
+export function addedPendingNames(base: string | null, head: string | null): string[] {
   const parse = (text: string | null): string[] => {
     if (text === null) return [];
     const value: unknown = JSON.parse(text);
     return Array.isArray(value) ? value.map(String) : [];
   };
   const before = new Set(parse(base));
-  return parse(head).filter((id) => !before.has(id));
+  return parse(head).filter((name) => !before.has(name));
 }
 
 /**
  * Picks the changes that need approval. Additions are free, except that new
- * ids in the pending-rules list loosen the traceability check. Removing ids,
+ * names in the pending-rules list loosen the traceability check. Removing names,
  * or deleting the list, only tightens it.
  */
 export function findProtectedChanges(
@@ -80,7 +80,7 @@ export function findProtectedChanges(
   for (const change of changes) {
     const touchesPending = change.from === PENDING_FILE || change.path === PENDING_FILE;
     if (touchesPending && (change.status === "M" || change.status === "A")) {
-      const added = addedPendingIds(readPending("base"), readPending("head"));
+      const added = addedPendingNames(readPending("base"), readPending("head"));
       if (added.length > 0) found.push({ change, reason: `pending rules list gained ${added.join(", ")}` });
       continue;
     }

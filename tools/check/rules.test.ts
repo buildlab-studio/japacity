@@ -4,67 +4,91 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fc, test } from "@fast-check/vitest";
 import { afterEach, describe, expect } from "vitest";
-import { evaluate, findCitations, findCitationsInSource, findDefinitions, run } from "./rules";
+import { evaluate, findCitations, findCitationsInSource, findDefinitions, pageOf, run } from "./rules";
 import { readJson } from "../repo";
 
 const fixtures = fileURLToPath(new URL("../__fixtures__/rules/", import.meta.url));
-const ids = (citations: ReadonlyArray<{ id: string }>) => citations.map((citation) => citation.id);
+const names = (citations: ReadonlyArray<{ name: string }>) => citations.map((citation) => citation.name);
 
 describe("rule definitions", () => {
   test("plain, quoted and list definitions are found and underscore files are ignored", () => {
     const definitions = findDefinitions(join(fixtures, "passing", "docs", "rules"));
-    expect([...definitions.keys()].sort()).toEqual(["R-MONEY-001", "R-MONEY-002", "R-STATUS-001", "R-STATUS-002"]);
-    expect(definitions.get("R-STATUS-002")).toEqual([{ file: "status.md", line: 5 }]);
+    expect([...definitions.names.keys()].sort()).toEqual([
+      "status:listed-rule",
+      "status:numbered-rule",
+      "status:plain-paragraph-rule",
+      "status:quoted-rule",
+    ]);
+    expect(definitions.names.get("status:quoted-rule")).toEqual([{ file: "status.md", line: 5 }]);
+    expect(definitions.malformed).toEqual([]);
+  });
+
+  test("a bold that opens a line like a definition but is no rule name is kept as malformed", () => {
+    const root = join(fixtures, "failing");
+    expect(findDefinitions(join(root, "docs", "rules"), root).malformed).toEqual([
+      { text: "A:Shouting-Name", file: "docs/rules/a.md", line: 7 },
+      { text: "R-OLD-001.", file: "docs/rules/a.md", line: 9 },
+    ]);
   });
 
   test("a missing rules folder has no definitions", () => {
-    expect(findDefinitions(join(fixtures, "does-not-exist")).size).toBe(0);
+    expect(findDefinitions(join(fixtures, "does-not-exist")).names.size).toBe(0);
+  });
+
+  test("a name's page is the part before the colon", () => {
+    expect(pageOf("abroad-money:salary-abroad-taxed-locally")).toBe("abroad-money");
   });
 });
 
 describe("test citations", () => {
   test("only test and it titles count, including property tests, and comments never count", () => {
     const citations = findCitations(join(fixtures, "passing"));
-    expect(ids(citations).sort()).toEqual(["R-MONEY-001", "R-STATUS-001", "R-STATUS-002"]);
+    expect(names(citations).sort()).toEqual(["status:listed-rule", "status:plain-paragraph-rule", "status:quoted-rule"]);
   });
 
-  test("one title may cite several ids", () => {
-    const source = `test("[R-A-001] and [R-B-002] together", () => {});`;
-    expect(ids(findCitationsInSource("x.test.ts", source))).toEqual(["R-A-001", "R-B-002"]);
+  test("one title may cite several names", () => {
+    const source = `test("[a:first-rule] and [b:second-rule] together", () => {});`;
+    expect(names(findCitationsInSource("x.test.ts", source))).toEqual(["a:first-rule", "b:second-rule"]);
+  });
+
+  test("a bracket that holds no well-formed name is not a citation", () => {
+    const source = `test("[A:Upper] [a:] [:slug] [a b:c] [R-A-001] [a:slug-] [route-gates:sponsor-needed] given", () => {});`;
+    expect(names(findCitationsInSource("x.test.ts", source))).toEqual(["route-gates:sponsor-needed"]);
   });
 
   test("skipped, todo and interpolated titles do not count", () => {
     const source = [
-      `test.skip("[R-A-001] skipped", () => {});`,
-      `it.todo("[R-A-002] todo");`,
-      "test(`[R-A-003] ${name}`, () => {});",
-      `test.skipIf(true)("[R-A-004] conditional", () => {});`,
+      `test.skip("[a:first-rule] skipped", () => {});`,
+      `it.todo("[a:second-rule] todo");`,
+      "test(`[a:third-rule] ${name}`, () => {});",
+      `test.skipIf(true)("[a:fourth-rule] conditional", () => {});`,
     ].join("\n");
     expect(findCitationsInSource("x.test.ts", source)).toEqual([]);
   });
 
   test("each, concurrent and curried forms count once with their line", () => {
     const source = [
-      `test.each([1, 2])("[R-A-001] each %i", () => {});`,
-      `it.concurrent("[R-A-002] concurrent", async () => {});`,
-      `test.prop([arb])("[R-A-003] property", () => true);`,
+      `test.each([1, 2])("[a:first-rule] each %i", () => {});`,
+      `it.concurrent("[a:second-rule] concurrent", async () => {});`,
+      `test.prop([arb])("[a:third-rule] property", () => true);`,
     ].join("\n");
     expect(findCitationsInSource("x.test.ts", source)).toEqual([
-      { id: "R-A-001", file: "x.test.ts", line: 1 },
-      { id: "R-A-002", file: "x.test.ts", line: 2 },
-      { id: "R-A-003", file: "x.test.ts", line: 3 },
+      { name: "a:first-rule", file: "x.test.ts", line: 1 },
+      { name: "a:second-rule", file: "x.test.ts", line: 2 },
+      { name: "a:third-rule", file: "x.test.ts", line: 3 },
     ]);
   });
 });
 
-describe("rule id property", () => {
-  const ruleId = fc
-    .tuple(fc.stringMatching(/^[A-Z][A-Z0-9]{0,8}$/), fc.integer({ min: 0, max: 999 }))
-    .map(([kind, number]) => `R-${kind}-${String(number).padStart(3, "0")}`);
+describe("rule name property", () => {
+  const word = fc.stringMatching(/^[a-z0-9]{1,8}$/);
+  const ruleName = fc
+    .tuple(fc.stringMatching(/^[a-z][a-z0-9]{0,8}$/), fc.array(word, { maxLength: 1 }), fc.array(word, { minLength: 1, maxLength: 5 }))
+    .map(([head, rest, slug]) => `${[head, ...rest].join("-")}:${slug.join("-")}`);
 
-  test.prop([ruleId, fc.string(), fc.string()])("any well-formed id in brackets in a title is cited", (id, before, after) => {
-    const title = JSON.stringify(`${before.replaceAll("[", "")} [${id}] ${after.replaceAll("[", "")}`);
-    expect(ids(findCitationsInSource("x.test.ts", `test(${title}, () => {});`))).toEqual([id]);
+  test.prop([ruleName, fc.string(), fc.string()])("any well-formed name in brackets in a title is cited", (name, before, after) => {
+    const title = JSON.stringify(`${before.replaceAll("[", "")} [${name}] ${after.replaceAll("[", "")}`);
+    expect(names(findCitationsInSource("x.test.ts", `test(${title}, () => {});`))).toEqual([name]);
   });
 });
 
@@ -86,17 +110,29 @@ describe("evaluation", () => {
   test("every kind of problem is reported", () => {
     const root = join(fixtures, "failing");
     const report = evaluate(findDefinitions(join(root, "docs", "rules"), root), findCitations(root), [
-      "R-DONE-001",
-      "R-GONE-001",
+      "a:pending-now-tested",
+      "a:gone-from-pages",
     ]);
     expect(report.problems).toEqual([
-      "R-DUP-001 is defined more than once: docs/rules/a.md:1, docs/rules/b.md:1",
-      "src/a.test.ts:7 cites R-MISSING-001, which is not defined in docs/rules",
-      "R-DONE-001 now has a test. Remove it from tools/rules-pending.json",
-      "R-GONE-001 is in tools/rules-pending.json but is not defined. Remove it from the list",
-      "R-UNTESTED-001 (docs/rules/a.md:3) has no test citing [R-UNTESTED-001]",
+      "docs/rules/a.md:7 opens with **A:Shouting-Name**, which is not a rule name of the form page:slug",
+      "docs/rules/a.md:9 opens with **R-OLD-001.**, which is not a rule name of the form page:slug",
+      "a:defined-twice is defined more than once: docs/rules/a.md:1, docs/rules/b.md:1",
+      "a:defined-twice is defined in docs/rules/b.md:1, but its name says a.md",
+      "src/a.test.ts:7 cites a:never-defined, which is not defined in docs/rules",
+      "a:pending-now-tested now has a test. Remove it from tools/rules-pending.json",
+      "a:gone-from-pages is in tools/rules-pending.json but is not defined. Remove it from the list",
+      "a:untested-rule (docs/rules/a.md:3) has no test citing [a:untested-rule]",
     ]);
     expect(run(root, { writePending: false }).code).toBe(1);
+  });
+
+  test("a name listed twice as pending is reported", () => {
+    const root = join(fixtures, "passing");
+    const report = evaluate(findDefinitions(join(root, "docs", "rules"), root), findCitations(root), [
+      "status:numbered-rule",
+      "status:numbered-rule",
+    ]);
+    expect(report.problems).toEqual(["status:numbered-rule is listed twice in tools/rules-pending.json"]);
   });
 });
 
@@ -106,11 +142,11 @@ describe("write pending", () => {
     if (scratch !== undefined) rmSync(scratch, { recursive: true, force: true });
   });
 
-  test("the pending list is rewritten to exactly the untested ids, sorted", () => {
+  test("the pending list is rewritten to exactly the untested names, sorted", () => {
     scratch = mkdtempSync(join(tmpdir(), "check-rules-"));
     cpSync(join(fixtures, "failing"), scratch, { recursive: true });
     const result = run(scratch, { writePending: true });
-    expect(readJson(join(scratch, "tools", "rules-pending.json"))).toEqual(["R-UNTESTED-001"]);
+    expect(readJson(join(scratch, "tools", "rules-pending.json"))).toEqual(["a:untested-rule"]);
     // The duplicate and the undefined citation are still errors after a rewrite.
     expect(result.code).toBe(1);
   });

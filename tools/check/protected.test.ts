@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
-  addedPendingIds,
+  addedPendingNames,
   findProtectedChanges,
   parseNameStatus,
   protectedReason,
@@ -78,18 +78,18 @@ describe("which changes need approval", () => {
 
   test("the pending list may shrink freely but may not grow", () => {
     const change: Change = { status: "M", from: "tools/rules-pending.json", path: "tools/rules-pending.json" };
-    const shrink = (side: "base" | "head") => (side === "base" ? `["R-A-001","R-A-002"]` : `["R-A-001"]`);
-    const grow = (side: "base" | "head") => (side === "base" ? `["R-A-001"]` : `["R-A-001","R-B-001"]`);
+    const shrink = (side: "base" | "head") => (side === "base" ? `["a:first-rule","a:second-rule"]` : `["a:first-rule"]`);
+    const grow = (side: "base" | "head") => (side === "base" ? `["a:first-rule"]` : `["a:first-rule","b:first-rule"]`);
     expect(findProtectedChanges([change], shrink)).toEqual([]);
     expect(findProtectedChanges([change], grow)).toEqual([
-      { change, reason: "pending rules list gained R-B-001" },
+      { change, reason: "pending rules list gained b:first-rule" },
     ]);
     expect(findProtectedChanges([{ ...change, status: "D" }], noPending)).toEqual([]);
   });
 
-  test("added pending ids are found whichever side is missing", () => {
-    expect(addedPendingIds(null, `["R-A-001"]`)).toEqual(["R-A-001"]);
-    expect(addedPendingIds(`["R-A-001"]`, null)).toEqual([]);
-    expect(addedPendingIds(`[]`, `[]`)).toEqual([]);
+  test("added pending names are found whichever side is missing", () => {
+    expect(addedPendingNames(null, `["a:first-rule"]`)).toEqual(["a:first-rule"]);
+    expect(addedPendingNames(`["a:first-rule"]`, null)).toEqual([]);
+    expect(addedPendingNames(`[]`, `[]`)).toEqual([]);
   });
 });
