@@ -11,7 +11,7 @@ import { applyOverlay } from "../engine/overlay";
 import type { Accepted, BaseEvent, Content, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, naira, restMonth } from "../testing/read";
 import { compoundMoveIn } from "./home.logic";
@@ -75,11 +75,7 @@ function inTheRoom(base: Content = QUIET): Game {
 /** A life from sixteen through the shop counter, started three years past its path (three years worked, more saved), its home card answered `answer`. */
 function fromSixteen(answer: string, before: (game: Game) => void = () => undefined): Game {
   const game = start({ content: QUIET, scenario: "scenario.prologue", seed: "seed-1" });
-  for (const choice of ["begin", "commercial", "work", "start-24", "save", "nowhere"]) {
-    const step = game.state.prologue.step;
-    if (step === null) throw new Error(`The prologue closed before ${choice}.`);
-    game.accept({ type: "prologue/choose", step, answer: choice });
-  }
+  answerPrologue(game, ["begin", "commercial", "work", "start-24", "save", "nowhere"]);
   before(game);
   game.accept({ type: "prologue/choose", step: "home", answer });
   return game;

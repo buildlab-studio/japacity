@@ -161,3 +161,24 @@ export function finishPrologue(game: Game): void {
   }
   if (game.state.prologue.open) throw new Error("The prologue did not close in 60 answers.");
 }
+
+/** Answers the prologue's open steps in turn, one answer each. */
+export function answerPrologue(game: Game, answers: readonly string[]): void {
+  for (const answer of answers) {
+    const step = game.state.prologue.step;
+    if (step === null) throw new Error(`The prologue closed before ${answer}.`);
+    game.accept({ type: "prologue/choose", step, answer });
+  }
+}
+
+/** Plays the prologue to its close, taking at each card the first of `preferred` open there, else its first open answer. */
+export function playPrologueBy(game: Game, preferred: readonly string[]): void {
+  for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
+    const card = game.view().prologue;
+    if (card === null) throw new Error("The prologue is open with no card.");
+    const allowed = card.answers.filter((answer) => answer.allowed).map((answer) => answer.id);
+    const answer = preferred.find((id) => allowed.includes(id)) ?? allowed[0];
+    if (answer === undefined) throw new Error(`${card.step} has no open answer.`);
+    game.accept({ type: "prologue/choose", step: card.step, answer });
+  }
+}

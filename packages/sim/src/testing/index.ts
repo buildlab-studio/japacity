@@ -1,7 +1,9 @@
 // The test support other packages reach for, as @japacity/sim/testing: the
 // game handle, the journeys that build a life to a point, the recorded lives
 // and the simulated players. Nothing in the simulation's own code imports it.
-export { start, finishPrologue } from "./play";
+export { answerPrologue, finishPrologue, playPrologueBy, start } from "./play";
+export { replayedGame } from "./recorded";
+export type { Replayed } from "./recorded";
 export type { Game, StartOptions } from "./play";
 export { miniContent } from "./miniContent";
 export { chapterPicks, FIRST_SESSION_MONTHS, playFirstSession, startingLives } from "./firstSession";

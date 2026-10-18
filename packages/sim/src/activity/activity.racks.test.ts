@@ -8,7 +8,7 @@ import type { Id } from "../engine/types";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import { applyEffects, readyLife, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import { playPrologueBy, start } from "../testing/play";
 import { naira, salaries } from "../testing/read";
 
 const RACKS: Id<"activity"> = "activity.job-fish-racks";
@@ -25,14 +25,7 @@ const MOST = 15;
 /** Plays the prologue down `answers` where each is open, else the first open answer. */
 function sixteen(seed: string, answers: readonly string[]): Game {
   const game = start({ content, scenario: "scenario.prologue", seed });
-  for (let guard = 0; guard < 60 && game.state.prologue.open; guard += 1) {
-    const card = game.view().prologue;
-    if (card === null) throw new Error(`${seed}: the prologue is open with no card.`);
-    const allowed = card.answers.filter((answer) => answer.allowed).map((answer) => answer.id);
-    const answer = answers.find((id) => allowed.includes(id)) ?? allowed[0];
-    if (answer === undefined) throw new Error(`${seed}: ${card.step} has no open answer.`);
-    game.accept({ type: "prologue/choose", step: card.step, answer });
-  }
+  playPrologueBy(game, answers);
   return game;
 }
 

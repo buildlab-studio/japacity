@@ -11,7 +11,7 @@ import type { Accepted, BaseEvent, Content, Id, PersonFacts, Tuning, World } fro
 import { homeCharges } from "./home.logic";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
@@ -515,11 +515,7 @@ function familyCardCharge(): number {
 function fromSixteen(home: string, base: Content = content, seed = "seed-1"): Game {
   const game = start({ content: base, scenario: "scenario.prologue", seed });
   // The shop's age card at the year its path reaches (R-PROLOGUE-004).
-  for (const answer of ["begin", "commercial", "work", "start-21", "save", "nowhere", home]) {
-    const step = game.state.prologue.step;
-    if (step === null) throw new Error(`The prologue closed before ${answer}.`);
-    game.accept({ type: "prologue/choose", step, answer });
-  }
+  answerPrologue(game, ["begin", "commercial", "work", "start-21", "save", "nowhere", home]);
   return game;
 }
 

@@ -9,7 +9,7 @@ import { bp, divFloor } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Accepted, Id } from "../engine/types";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
+import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, naira, restMonth } from "../testing/read";
 import { HomePlaceSchema } from "./home.schema";
@@ -130,11 +130,7 @@ describe("the hostel on the door", () => {
     const answer = content.prologue["home"]?.answers.find((one) => one.id === "hostel-room");
     expect(answer?.requires ?? []).toEqual([]);
     const game = start({ content, scenario: "scenario.prologue", seed: "seed-1" });
-    for (const id of ["begin", "commercial", "work", "start-21", "save", "nowhere"]) {
-      const step = game.state.prologue.step;
-      if (step === null) throw new Error(`The prologue closed before ${id}.`);
-      game.accept({ type: "prologue/choose", step, answer: id });
-    }
+    answerPrologue(game, ["begin", "commercial", "work", "start-21", "save", "nowhere"]);
     expect(game.state.prologue.step).toBe("home");
     const before = naira(game);
     game.accept({ type: "prologue/choose", step: "home", answer: "hostel-room" });
