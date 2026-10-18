@@ -9,13 +9,12 @@ import { devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
 import { ADMIN_GETS } from "../../src/features/admin/admin.testing";
+import { NOT_FAKED, ONLINE, quietSocket, SIGNED_OUT, STANDING, viewReply } from "../support/api";
 import { type AbroadLife, clear as clearAbroad, lifeIn } from "../support/abroad";
 import { passOpeningWords, passThePage } from "../support/door";
 import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../support/live";
 import { attempt, missed, shot, shotPages } from "./shoot";
 
-/** The second dev server, whose every /api route is answered here. */
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 /** The day and the night as the development build pins them (`?clock=`), with the sleep cut short and the morning now. */
 const DAY = "?sleep=2&morning=now&clock=afternoon";
 const NIGHT = "?sleep=2&morning=now&clock=night";
@@ -28,11 +27,11 @@ async function signedOut(page: Page): Promise<void> {
       const key = `${route.request().method()} ${new URL(route.request().url()).pathname}`;
       const json = (status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
       if (key === "GET /api/age") return json(200, { refused: false });
-      if (key === "GET /api/view") return json(401, { ok: false, code: "signed-out", detail: "Sign in to play." });
-      return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      if (key === "GET /api/view") return json(401, SIGNED_OUT.body);
+      return json(404, NOT_FAKED);
     },
   );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
+  await quietSocket(page);
   // The bot check as its always-pass test key behaves, drawing nothing.
   await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: "window.turnstile = { render() { return 'widget-1'; }, reset() {}, remove() {} };" }));
 }
@@ -47,7 +46,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
       const json = (status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-      if (new URL(route.request().url()).pathname !== "/api/view") return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      if (new URL(route.request().url()).pathname !== "/api/view") return json(404, NOT_FAKED);
       if (view === "hold") return new Promise<void>(() => undefined);
       if (view === "wall") return route.fulfill({ status: 401, body: "" });
       return json(503, { ok: false, code: "unavailable", detail: "The game's server could not reach its database.", retryAfter: 5 });
@@ -61,8 +60,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
  */
 async function pageWaiting(page: Page): Promise<void> {
   const game = start({ scenario: "scenario.prologue", content });
-  if (game.state.turn.banked === 0) game.grant(1);
-  const view = { ok: true, view: game.view(), lines: [], clock: { tick: game.tick, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null } };
+  const view = viewReply(game);
   await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
@@ -71,7 +69,7 @@ async function pageWaiting(page: Page): Promise<void> {
       const asked = `${route.request().method()} ${new URL(route.request().url()).pathname}`;
       if (asked === "GET /api/view") return json(200, view);
       if (asked === "POST /api/prologue/preset") return new Promise<void>(() => undefined);
-      return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      return json(404, NOT_FAKED);
     },
   );
 }
@@ -1363,15 +1361,14 @@ test("dedication: the page online over a faked server, a light named and lit, an
   game.grant(1);
   game.endTurn([]);
   game.grant(1);
-  const clock = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
       const request = route.request();
       const key = `${request.method()} ${new URL(request.url()).pathname}`;
       const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-      if (key === "GET /api/view") return json({ ok: true, view: game.view(), lines: [], clock });
-      if (key === "GET /api/moderation/standing") return json({ ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } });
+      if (key === "GET /api/view") return json(viewReply(game, 3));
+      if (key === "GET /api/moderation/standing") return json(STANDING);
       if (key === "GET /api/dedication/lights") {
         const ordered = [...kept].sort((a, b) => Number(b.approved) - Number(a.approved) || b.litAt - a.litAt);
         const own = kept.find((light) => light.account === account);
@@ -1383,10 +1380,10 @@ test("dedication: the page online over a faked server, a light named and lit, an
         kept.push(light);
         return json({ ok: true, mine: { id: light.id, name: light.name, years: { from: light.from, to: light.to }, approved: false } });
       }
-      return json({ ok: false, code: "unknown-id", detail: "not faked" }, 404);
+      return json(NOT_FAKED, 404);
     },
   );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
+  await quietSocket(page);
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   const sheet = page.getByRole("dialog", { name: "Dedication" });
   await attempt(page, "dedication-water", async () => {

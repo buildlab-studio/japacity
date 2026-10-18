@@ -10,13 +10,12 @@ import { type Browser, devices, expect, test, type Page } from "@playwright/test
 
 import { content } from "../../../packages/content/src/index";
 import { ADMIN_GETS } from "../src/features/admin/admin.testing";
+import { clockAt, NOT_FAKED, ONLINE, quietSocket, STANDING, viewReply } from "./support/api";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords, startReadyLife } from "./support/door";
 import { LIVED, openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 import { previewDir, shoot } from "./support/preview";
 
-/** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 /** The pictures are taken at the design's 390 by 844, three device pixels to each. */
 const SIZE = previewDir === null ? {} : { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 };
 
@@ -155,7 +154,7 @@ function readOf(kept: readonly Kept[], account: string) {
   };
 }
 
-const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
+const CLOCK = clockAt(3);
 
 /** A page signed in as `account`: the game played through the simulation, the dedication's routes on the shared store. */
 async function online(page: Page, account: string, kept: Kept[]): Promise<void> {
@@ -163,7 +162,7 @@ async function online(page: Page, account: string, kept: Kept[]): Promise<void> 
   game.grant(1);
   game.endTurn([]);
   game.grant(1);
-  const view = () => ({ ok: true, view: game.view(), lines: [], clock: CLOCK });
+  const view = () => viewReply(game, CLOCK.tick);
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
@@ -172,7 +171,7 @@ async function online(page: Page, account: string, kept: Kept[]): Promise<void> 
       const key = `${request.method()} ${path}`;
       const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
       if (key === "GET /api/view") return json(view());
-      if (key === "GET /api/moderation/standing") return json({ ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } });
+      if (key === "GET /api/moderation/standing") return json(STANDING);
       if (key === "GET /api/dedication/lights") return json(readOf(kept, account));
       if (key === "PUT /api/dedication/light") {
         const body = request.postDataJSON() as { name: string; from?: number; to?: number };
@@ -187,10 +186,10 @@ async function online(page: Page, account: string, kept: Kept[]): Promise<void> 
         if (at >= 0) kept.splice(at, 1);
         return json({ ok: true });
       }
-      return json({ ok: false, code: "unknown-id", detail: "not faked" }, 404);
+      return json(NOT_FAKED, 404);
     },
   );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
+  await quietSocket(page);
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto(`${ONLINE}/`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });

@@ -5,6 +5,8 @@
 import { OPERATOR } from "@japacity/content";
 import { devices, expect, test } from "@playwright/test";
 
+import { fakeServer, ONLINE, SIGNED_OUT } from "./support/api";
+
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
 const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
 test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch });
@@ -35,21 +37,9 @@ for (const legal of PAGES) {
   });
 }
 
-/** The online dev server (playwright.config.ts), where the start screen shows to a browser with no session. */
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
-
 test("the start screen's links open both pages at their clean addresses, beside the game", async ({ page, context }) => {
-  await page.route(
-    (url) => url.pathname.startsWith("/api/"),
-    (route) => {
-      const signedOut = new URL(route.request().url()).pathname === "/api/view";
-      return route.fulfill({
-        status: signedOut ? 401 : 404,
-        contentType: "application/json",
-        body: JSON.stringify(signedOut ? { ok: false, code: "signed-out", detail: "Sign in to play." } : { ok: false, code: "unknown-id", detail: "not faked" }),
-      });
-    },
-  );
+  // The online dev server (playwright.config.ts), where the start screen shows to a browser with no session.
+  await fakeServer(page, { "GET /api/view": SIGNED_OUT });
   await page.goto(`${ONLINE}/`);
   await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible({ timeout: 20_000 });
   for (const legal of PAGES) {

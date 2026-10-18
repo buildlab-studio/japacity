@@ -8,13 +8,13 @@ import { expect, test, type Page } from "@playwright/test";
 // /api route is answered by the page's own route handler, in the shapes of
 // @japacity/api.
 import { content } from "../../../packages/content/src/index";
+import { accountView } from "../src/shared/testing/fixtures";
+import { clockAt, fakeServer, ONLINE, SIGNED_OUT, STANDING, viewReply } from "./support/api";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 import { shootAtSize } from "./support/preview";
 
-/** The second dev server, built with VITE_SERVER_URL pointing at itself, so every /api request is same-origin and faked here. */
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 test.use({ baseURL: ONLINE, launchOptions: SOFTWARE_WEBGL });
 
@@ -22,26 +22,7 @@ const CODE = "4f1e2d3c4b5a69788796a5b4";
 const PAIR = "pair-1";
 const THEM = "character-them";
 
-type Answer = { status?: number; body: unknown; type?: string };
-/** An answer worked out from the request's body when it comes: a command played through the game. */
-type Answering = (body: unknown) => Answer;
-
-const SIGNED_OUT: Answer = { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in to play." } };
-const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-
-/** A stand-in for Cloudflare's widget: it passes at once with the dummy token, as the always-pass test key does, and draws nothing when asked to show only for a tap (R-ACCOUNT-029). */
-const TURNSTILE = `window.turnstile = {
-  render(container, options) {
-    const box = document.createElement("div");
-    box.textContent = "Check passed";
-    box.style.cssText = "border:1px solid #bbb;border-radius:6px;padding:10px 12px;font:14px system-ui;width:max-content";
-    if (options.appearance !== "interaction-only") container.append(box);
-    setTimeout(() => options.callback("XXXX.DUMMY.TOKEN.XXXX"), 0);
-    return "widget-1";
-  },
-  reset() {},
-  remove() {},
-};`;
+const CLOCK = clockAt(3);
 
 /** A fictional business's poster, drawn here so the tile has something to show. */
 const POSTER = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
@@ -50,27 +31,6 @@ const POSTER = `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"
   <text x="128" y="126" font-family="Georgia, serif" font-size="30" fill="#fff8e7" text-anchor="middle">Jollof</text>
   <text x="128" y="214" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#2b1d0e" text-anchor="middle">Mama Put Kitchen</text>
 </svg>`;
-
-/** Answers every /api route from `answers`, by method and path; the nudge socket opens and stays quiet. */
-async function fakeServer(page: Page, answers: Record<string, Answer | Answering>): Promise<void> {
-  await page.route(
-    (url) => url.pathname.startsWith("/api/"),
-    (route) => {
-      const request = route.request();
-      const found = answers[`${request.method()} ${new URL(request.url()).pathname}`];
-      const answer = typeof found === "function" ? found(request.postDataJSON()) : found;
-      if (answer === undefined) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ ok: false, code: "unknown-id", detail: "not faked" }) });
-      return route.fulfill({ status: answer.status ?? 200, contentType: answer.type ?? "application/json", body: typeof answer.body === "string" ? answer.body : JSON.stringify(answer.body) });
-    },
-  );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
-  await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: TURNSTILE }));
-}
-
-function viewOf(game: Game): Answer {
-  if (game.state.turn.banked === 0) game.grant(1);
-  return { body: { ok: true, view: game.view(), lines: [], clock: CLOCK } };
-}
 
 /**
  * The world as an online life opens it, with nothing standing over the place: the chapter's opening words passed, the
@@ -175,7 +135,7 @@ test("[R-PAIR-008] [R-ACCOUNT-029] an invite link shows the friend's card before
 test("[R-MODERATION-003] a friend's conversation carries block and report, and a report offers a block ticked", async ({ page }, info) => {
   const game = friendGame();
   await fakeServer(page, {
-    "GET /api/view": viewOf(game),
+    "GET /api/view": { body: viewReply(game, CLOCK.tick) },
     [`GET /api/pair/${PAIR}`]: { body: { ok: true, pair: { id: PAIR, side: "a", them: THEM } } },
     [`GET /api/pair/${PAIR}/conversation`]: {
       body: {
@@ -187,7 +147,7 @@ test("[R-MODERATION-003] a friend's conversation carries block and report, and a
         ],
       },
     },
-    "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
+    "GET /api/moderation/standing": { body: STANDING },
   });
   test.setTimeout(150_000);
   await intoTheWorld(page);
@@ -215,8 +175,8 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
   game.grant(1);
   game.endTurn([]);
   await fakeServer(page, {
-    "GET /api/view": viewOf(game),
-    "GET /api/account": { body: { ok: true, account: { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1" } } },
+    "GET /api/view": { body: viewReply(game, CLOCK.tick) },
+    "GET /api/account": { body: { ok: true, account: accountView() } },
     "GET /api/adverts": {
       body: {
         ok: true,
@@ -227,7 +187,7 @@ test("[R-ADVERT-002] the phone tile shows the hour's sponsored tile with the gam
       },
     },
     "GET /api/adverts/image/creative-1/1": { body: POSTER, type: "image/svg+xml" },
-    "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
+    "GET /api/moderation/standing": { body: STANDING },
   });
   test.setTimeout(150_000);
   await intoTheWorld(page);
@@ -272,7 +232,7 @@ test.describe("the street kiosk while the world runs the Friday draw", () => {
     const game = drawGame();
     const sent: Command[] = [];
     await fakeServer(page, {
-      "GET /api/view": () => viewOf(game),
+      "GET /api/view": () => ({ body: viewReply(game, CLOCK.tick) }),
       "POST /api/command": (body) => {
         const { command } = body as { command: Command };
         sent.push(command);
@@ -347,7 +307,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   const game = start({ scenario: "scenario.tunde", content });
   game.grant(1);
   game.endTurn([]);
-  const before = viewOf(game);
+  const before = { body: viewReply(game, CLOCK.tick) };
   expect(game.view().people.candidates.map((candidate) => candidate.person)).toContain(TOBI);
   const result = game.accept({ type: "people/court", with: TOBI });
   const after = { ok: true, view: game.view(), lines: result.lines, clock: CLOCK };
@@ -356,7 +316,7 @@ test("[R-WORLD-020] [R-PEOPLE-009] [R-PEOPLE-013] in the world on a phone, Tobi 
   let courted = false;
   await fakeServer(page, {
     "GET /api/view": () => (courted ? { body: after } : before),
-    "GET /api/moderation/standing": { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } },
+    "GET /api/moderation/standing": { body: STANDING },
     "POST /api/command": () => {
       courted = true;
       return { body: after };

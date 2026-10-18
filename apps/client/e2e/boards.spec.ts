@@ -1,21 +1,21 @@
 import { start } from "@japacity/sim/testing";
 
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 // The boards (docs/rules/city.md R-CITY-039, R-CITY-040) on the client built
 // against a server, every /api route faked here in the shapes
 // apps/client/src/features/boards/boards.ts copies from the server.
 import { content } from "../../../packages/content/src/index";
+import { type Answer, clockAt, fakeServer, ONLINE, viewReply } from "./support/api";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { openApp, passCards, passHomeTeach, placeReady } from "./support/live";
 import { shoot } from "./support/preview";
 
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 test.use({ baseURL: ONLINE, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
+const CLOCK = clockAt(3);
 // R-CITY-040: every board names each line by the account's username, friends too.
 const USERNAMES = ["zainab_b", "tunde_k", "ngozi_o", "ada_ikeja", "tunde_99", "zee_lagos", "ngozi_writes", "ada_o", "tk_surulere", "ngo_yaba"];
 
@@ -33,7 +33,7 @@ function reply(board: string, lines: Row[], own: Row | null) {
   return { body: { ok: true, board, size: 50, rows: lines, own } };
 }
 
-const BOARDS: Record<string, { body: unknown; status?: number }> = {
+const BOARDS: Record<string, Answer> = {
   "GET /api/boards/this-week/everyone": reply("this-week.everyone", rows([31, 26, 22, 19, 17, 15, 12, 11, 9, 8], null), { rank: 14, username: "ada_from_yaba", figure: 6, me: true }),
   "GET /api/boards/all-time/everyone": reply("all-time.everyone", rows([92, 88, 85, 81, 79, 77, 74, 72, 70, 69], null), { rank: 212, username: "ada_from_yaba", figure: 41, me: true }),
   "GET /api/boards/this-week/friends": reply(
@@ -49,24 +49,11 @@ const BOARDS: Record<string, { body: unknown; status?: number }> = {
   "GET /api/boards/joined-week": { status: 503, body: { ok: false, code: "switched-off", detail: "This board is paused.", retryAfter: 30 } },
 };
 
-async function fakeServer(page: Page, answers: Record<string, { body: unknown; status?: number }>): Promise<void> {
-  await page.route(
-    (url) => url.pathname.startsWith("/api/"),
-    (route) => {
-      const request = route.request();
-      const answer = answers[`${request.method()} ${new URL(request.url()).pathname}`];
-      if (answer === undefined) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ ok: false, code: "unknown-id", detail: "not faked" }) });
-      return route.fulfill({ status: answer.status ?? 200, contentType: "application/json", body: JSON.stringify(answer.body) });
-    },
-  );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
-}
-
 test("[R-CITY-039] the four boards behind the two pickers, each with the player's own line, and the joined-week board unseen while it is off", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("Pixel"), "pictures at phone size only");
   const game = start({ scenario: "scenario.ada", content });
   game.grant(1);
-  await fakeServer(page, { "GET /api/view": { body: { ok: true, view: game.view(), lines: [], clock: CLOCK } }, ...BOARDS });
+  await fakeServer(page, { "GET /api/view": { body: viewReply(game, CLOCK.tick) }, ...BOARDS });
   test.setTimeout(150_000);
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   await page.goto("/");

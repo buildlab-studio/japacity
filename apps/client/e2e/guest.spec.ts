@@ -6,52 +6,23 @@ import { expect, test, type Page } from "@playwright/test";
 // to 027), played against a faked server as online.spec.ts does: every /api
 // route is answered here, in the shapes of @japacity/api.
 import { content, uiOnlineText, uiText } from "../../../packages/content/src/index";
+import { accountView } from "../src/shared/testing/fixtures";
+import { type Answer, clockAt, fakeServer, NO_CHARACTER, ONLINE, SIGNED_OUT, STANDING } from "./support/api";
 import { shootPhone } from "./support/preview";
 
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
 
 /** R-ACCOUNT pictures are phone pictures, taken on the Pixel projects only, at 390 by 844. */
 const PICTURE = { width: 390, height: 844 };
 
-type Answer = { status?: number; body: unknown };
-
-const SIGNED_OUT: Answer = { status: 401, body: { ok: false, code: "signed-out", detail: "Sign in to play." } };
-const NO_CHARACTER: Answer = { status: 404, body: { ok: false, code: "no-character", detail: "No character yet." } };
-const CLOCK = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-const GUEST = { id: "account-guest", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state: "guest", username: "ada_lagos", renameFrom: 0, ways: { google: null, email: null, passkeys: 0 } };
+const CLOCK = clockAt(3);
+const GUEST = accountView({ id: "account-guest", state: "guest" });
 /** The same life once kept with Google: Google's address is the code's address too (GET /api/account's ways). */
 const KEPT_WITH_GOOGLE = { ...GUEST, state: "secured", ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 0 } };
-const STANDING = { body: { ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } } };
 
-const TURNSTILE = `window.turnstile = {
-  render(container, options) {
-    const box = document.createElement("div");
-    box.textContent = "Check passed";
-    box.style.cssText = "border:1px solid #bbb;border-radius:6px;padding:10px 12px;font:14px system-ui;width:max-content";
-    container.append(box);
-    setTimeout(() => options.callback("XXXX.DUMMY.TOKEN.XXXX"), 0);
-    return "widget-1";
-  },
-  reset() {},
-  remove() {},
-};`;
-
-/** Answers every /api route from `answers`, read at each request so a test can change an answer as the server's state moves. */
-async function fakeServer(page: Page, answers: Record<string, Answer>, sent: string[] = []): Promise<void> {
-  await page.route(
-    (url) => url.pathname.startsWith("/api/"),
-    (route) => {
-      const request = route.request();
-      const key = `${request.method()} ${new URL(request.url()).pathname}`;
-      sent.push(key);
-      const answer = answers[key];
-      if (answer === undefined) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ ok: false, code: "unknown-id", detail: "not faked" }) });
-      return route.fulfill({ status: answer.status ?? 200, contentType: "application/json", body: JSON.stringify(answer.body) });
-    },
-  );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
-  await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: TURNSTILE }));
+/** The faked server, every request kept in `sent`; the bot check's box drawn whatever it is asked. */
+async function serve(page: Page, answers: Record<string, Answer>, sent: string[] = []): Promise<void> {
+  await fakeServer(page, answers, { heard: (asked) => sent.push(asked), check: { drawn: true } });
 }
 
 /**
@@ -86,10 +57,10 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age
     "GET /api/age": { body: { refused: false } },
     "POST /api/age": { body: { ok: true } },
     "POST /api/guest": { body: { ok: true, account: GUEST } },
-    "POST /api/character": NO_CHARACTER,
+    "POST /api/character": { status: 404, body: NO_CHARACTER },
     "GET /api/account": { body: { ok: true, account: GUEST } },
   };
-  await fakeServer(page, answers, sent);
+  await serve(page, answers, sent);
   page.on("request", (request) => {
     if (new URL(request.url()).pathname === "/api/guest") bodies.push(request.postDataJSON());
   });
@@ -114,10 +85,10 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-024] [R-GUIDE-015] a new visitor passes the age
 });
 
 test("[R-ACCOUNT-023] [R-ACCOUNT-027] a guest past its first chapter is asked once to keep the life, and the month's line stays after", async ({ page }, info) => {
-  await fakeServer(page, {
+  await serve(page, {
     "GET /api/view": pastFirstChapter(),
     "GET /api/account": { body: { ok: true, account: GUEST } },
-    "GET /api/moderation/standing": STANDING,
+    "GET /api/moderation/standing": { body: STANDING },
   });
   await page.goto("/");
   await pastTheCard(page);
@@ -137,10 +108,10 @@ test.describe("inside a messaging app's browser", () => {
 
   test("[R-ACCOUNT-023] the securing sheet offers the emailed code and the way out to the browser, and no Google", async ({ page }, info) => {
     const view = pastFirstChapter();
-    await fakeServer(page, {
+    await serve(page, {
       "GET /api/view": view,
       "GET /api/account": { body: { ok: true, account: GUEST } },
-      "GET /api/moderation/standing": STANDING,
+      "GET /api/moderation/standing": { body: STANDING },
     });
     await page.goto("/");
     await pastTheCard(page);
@@ -160,11 +131,11 @@ test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email,
   const answers: Record<string, Answer> = {
     "GET /api/view": view,
     "GET /api/account": { body: { ok: true, account: GUEST } },
-    "GET /api/moderation/standing": STANDING,
+    "GET /api/moderation/standing": { body: STANDING },
     "POST /api/auth/email-otp/send-verification-otp": { body: { success: true } },
     "POST /api/auth/sign-in/email-otp": { body: { token: "session-2", user: { id: GUEST.id, email: "ada@example.com", emailVerified: true, name: "", createdAt: "2026-10-10T00:00:00.000Z", updatedAt: "2026-10-10T00:00:00.000Z" } } },
   };
-  await fakeServer(page, answers, sent);
+  await serve(page, answers, sent);
   await page.goto("/");
   await pastTheCard(page);
   const sheet = page.getByRole("dialog", { name: "Keep this life" });
@@ -186,10 +157,10 @@ test("[R-ACCOUNT-023] a guest secures the life later by a code sent to an email,
 });
 
 test("[R-ACCOUNT-023] a guest that comes back from Google with the life kept sees the keeping sheet in its kept state, the address left clean, and the world says Kept with Google as it closes", async ({ page }, info) => {
-  await fakeServer(page, {
+  await serve(page, {
     "GET /api/view": pastFirstChapter(),
     "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
-    "GET /api/moderation/standing": STANDING,
+    "GET /api/moderation/standing": { body: STANDING },
   });
   // Where the library's callback sends the page once Google kept the life (shared/net/auth.ts, GOOGLE_BACK).
   await page.goto("/?google=kept");
@@ -208,11 +179,11 @@ test("[R-ACCOUNT-021] [R-ACCOUNT-027] a kept life names its way in on Settings' 
   const answers: Record<string, Answer> = {
     "GET /api/view": pastFirstChapter(),
     "GET /api/account": { body: { ok: true, account: KEPT_WITH_GOOGLE } },
-    "GET /api/moderation/standing": STANDING,
+    "GET /api/moderation/standing": { body: STANDING },
     "POST /api/auth/sign-out": { body: { success: true } },
     "GET /api/age": { body: { refused: false } },
   };
-  await fakeServer(page, answers, sent);
+  await serve(page, answers, sent);
   await page.goto("/");
   await pastTheCard(page);
   await page.locator('[data-thumb="phone"]').click({ timeout: 30_000 });
