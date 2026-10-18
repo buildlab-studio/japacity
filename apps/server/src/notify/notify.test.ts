@@ -18,7 +18,8 @@ import { fullAtOf } from "./fill";
 import { noticePayload } from "./notice";
 import { notifyText } from "./notify.text";
 import type { PushKeys } from "./webpush";
-import { concat, fromBase64Url, label, pushRequest, recordKeys, toBase64Url } from "./webpush";
+import { fromBase64Url, toBase64Url } from "../bytes";
+import { concat, label, pushRequest, recordKeys } from "./webpush";
 
 const { epoch, turnRefillMs } = productionConfig.clock;
 const cap = content.tuning.turn.cap;

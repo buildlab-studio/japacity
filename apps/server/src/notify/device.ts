@@ -1,7 +1,7 @@
 // R-CLOCK-031: what a browser sends when it agrees, checked before it is kept.
 import type { PushSubscriptionJson } from "@japacity/store";
 
-import { fromBase64Url } from "./webpush";
+import { fromBase64Url } from "../bytes";
 
 const MAX_ENDPOINT = 1024;
 

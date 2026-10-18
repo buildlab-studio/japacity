@@ -4,18 +4,9 @@
 // https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 // https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion
 // https://www.w3.org/TR/webauthn-3/#sctn-none-attestation
+import { fromBase64Url, toBase64Url } from "../bytes";
 import { makeJar, SITE } from "./auth.testing";
 import type { Harness, Jar } from "./auth.testing";
-
-function base64url(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-function fromBase64url(text: string): Uint8Array {
-  return Uint8Array.from(atob(text.replace(/-/g, "+").replace(/_/g, "/")), (char) => char.charCodeAt(0));
-}
 
 async function sha256(bytes: Uint8Array): Promise<Uint8Array> {
   return new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
@@ -70,7 +61,7 @@ export interface SoftwarePasskey {
 export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<SoftwarePasskey> {
   const keys = (await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"])) as CryptoKeyPair;
   const jwk = (await crypto.subtle.exportKey("jwk", keys.publicKey)) as JsonWebKey;
-  const publicKey = coseKey(fromBase64url(jwk.x ?? ""), fromBase64url(jwk.y ?? ""));
+  const publicKey = coseKey(fromBase64Url(jwk.x ?? ""), fromBase64Url(jwk.y ?? ""));
   const rpIdHash = await sha256(new TextEncoder().encode(new URL(SITE).hostname));
   let counter = 0;
 
@@ -87,14 +78,14 @@ export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<So
     const { challenge } = await asked.json<{ challenge: string }>();
     await between?.();
     const clientData = new TextEncoder().encode(JSON.stringify({ type: "webauthn.create", challenge, origin: SITE, crossOrigin: false }));
-    const credential = fromBase64url(id);
+    const credential = fromBase64Url(id);
     const authData = Uint8Array.from([...rpIdHash, FLAGS.register, 0, 0, 0, 0, ...new Uint8Array(16), credential.length >> 8, credential.length & 255, ...credential, ...publicKey]);
     const attestation = Uint8Array.from([0xa3, ...cborText("fmt"), ...cborText("none"), ...cborText("attStmt"), 0xa0, ...cborText("authData"), ...cborBytes(authData)]);
     const response = {
       id,
       rawId: id,
       type: "public-key",
-      response: { clientDataJSON: base64url(clientData), attestationObject: base64url(attestation), transports: ["internal"] },
+      response: { clientDataJSON: toBase64Url(clientData), attestationObject: toBase64Url(attestation), transports: ["internal"] },
       clientExtensionResults: {},
     };
     const reply = await h.call("/api/auth/passkey/verify-registration", { method: "POST", jar, json: { response } });
@@ -113,7 +104,7 @@ export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<So
       id,
       rawId: id,
       type: "public-key",
-      response: { clientDataJSON: base64url(clientData), authenticatorData: base64url(authenticatorData), signature: base64url(signature) },
+      response: { clientDataJSON: toBase64Url(clientData), authenticatorData: toBase64Url(authenticatorData), signature: toBase64Url(signature) },
       clientExtensionResults: {},
     };
     const reply = await h.call("/api/auth/passkey/verify-authentication", { method: "POST", jar, json: { response } });
