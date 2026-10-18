@@ -36,7 +36,7 @@ export interface BuildingSpec {
 
 /**
  * One row of the register (R-ASSET-009). `file` is a path under public/assets for a shipped model or
- * pattern; media made elsewhere (a share card's drawn scene, a link preview, the design's party room) is a
+ * pattern; media made elsewhere (a share card's drawn scene, a link preview) is a
  * path from the repository root, with `#<name>` after it for one piece inside a file of code.
  */
 export interface RegisterRow {

@@ -6,9 +6,8 @@ import { linearToSrgb, nearestPaletteName, palette, paletteNames, paletteRgb, sr
 const page = readFileSync(new URL("../../../docs/rules/assets.md", import.meta.url), "utf8");
 const section = page.slice(page.indexOf("## The palette"), page.indexOf("## Budgets for one asset"));
 const onPage = new Map([...section.matchAll(/`(\w+)`\s*(?:\|\s*)?#([0-9a-f]{6})/g)].map((m) => [m[1] ?? "", parseInt(m[2] ?? "0", 16)]));
-const labPal = readFileSync(new URL("../../../prototypes/asset-lab/models.js", import.meta.url), "utf8");
-const labBlock = labPal.slice(labPal.indexOf("export const PAL = {"), labPal.indexOf("};", labPal.indexOf("export const PAL = {")));
-const lab = new Map([...labBlock.matchAll(/(\w+):\s*0x([0-9a-f]{6})/g)].map((m) => [m[1] ?? "", parseInt(m[2] ?? "0", 16)]));
+const labPal = JSON.parse(readFileSync(new URL("./__fixtures__/lab-palette.json", import.meta.url), "utf8")) as Record<string, string>;
+const lab = new Map(Object.entries(labPal).map(([name, hex]) => [name, parseInt(hex.slice(1), 16)]));
 
 describe("the palette", () => {
   test("[R-ASSET-001] given the palette file, when it is read, then every colour is a named entry of the page's palette and no entry is missing", () => {
