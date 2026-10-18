@@ -13,12 +13,12 @@ import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, naira, openObligations, restMonth } from "../testing/read";
 import { HomePlaceSchema } from "./home.schema";
+import { STANDING } from "../testing/ids";
 
 const FAMILY = "place.family-house" as const;
 const HOSTEL = "place.hostel-room" as const;
 const RENT: Id<"obligation"> = "obligation.upkeep-hostel";
 const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
-const STANDING: Id<"quality"> = "quality.standing";
 const { home } = content.tuning;
 const MONTH = home.hostelRentKobo;
 

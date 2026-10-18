@@ -15,6 +15,7 @@ import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, openObligations, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
+import { STANDING, WELLBEING } from "../testing/ids";
 
 const MAKOKO = "place.makoko" as const;
 const FAMILY = "place.family-house" as const;
@@ -25,8 +26,6 @@ const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 const TAKEN_IN: Id<"offer"> = "offer.taken-in";
 const WHERE_NEXT: Id<"offer"> = "offer.where-next";
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const { home } = content.tuning;
 /** R-HOME-010: what the room in a compound takes on the move, the year's rent and the fees on it. */
 const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);

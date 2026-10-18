@@ -14,6 +14,7 @@ import { setPockets } from "../testing/wallet";
 import { debits, restMonth } from "../testing/read";
 import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
+import { NETWORK, PORTFOLIO, STANDING, TECH, WELLBEING } from "../testing/ids";
 
 /** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
@@ -25,8 +26,6 @@ const SUPPORT: Id<"obligation"> = "obligation.home-support";
 const SALARY_LOAN: Id<"obligation"> = "obligation.salary-loan";
 const QUICK_LOAN: Id<"obligation"> = "obligation.quick-loan";
 const HELD: Id<"obligation"> = "obligation.held-funds";
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const CREDIT: Id<"quality"> = "quality.credit-mark";
 
 function entryOf(id: Id<"obligation">): ObligationEntry {
@@ -523,9 +522,6 @@ describe("random play", () => {
 const GROUP_LOAN: Id<"obligation"> = "obligation.group-loan";
 const GUARANTEE: Id<"obligation"> = "obligation.guarantee";
 const AJO: Id<"obligation"> = "obligation.ajo";
-const NETWORK: Id<"quality"> = "quality.network";
-const TECH: Id<"quality"> = "quality.tech";
-const PORTFOLIO: Id<"quality"> = "quality.portfolio";
 const GROUP = content.tuning.groupLoan;
 /** ₦100,000, the page's example: ₦25,000 in fees and savings. */
 const HUNDRED_THOUSAND = 10000000;

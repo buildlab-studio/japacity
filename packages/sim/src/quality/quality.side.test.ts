@@ -1,12 +1,10 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import { start } from "../testing/play";
 import { appliedAmount } from "./quality.logic";
-
-const TECH: Id<"quality"> = "quality.tech";
+import { TECH } from "../testing/ids";
 
 describe("gains beside a side job", () => {
   test("[R-ACTIVITY-010] given a side job held, when a skill gains, then the gain is halved rounding up, and a quality that is not a skill is not", () => {

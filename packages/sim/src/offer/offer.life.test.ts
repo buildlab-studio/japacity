@@ -17,11 +17,10 @@ import { openOffers, readOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
+import { STANDING, WELLBEING } from "../testing/ids";
 
 const ADA: Id<"scenario"> = "scenario.ada";
 const UK: Id<"country"> = "country.uk";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
 const CERTAIN = 10000;
 const POUNDS = 100;
 const luck = content.tuning.luck;

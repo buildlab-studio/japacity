@@ -10,9 +10,9 @@ import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import type { ActivityEvent } from "./activity.events";
 import { ADVISER, adviserReading, changedTick, FRIEND, LEFT_TICK, wrongItem } from "./activity.advice";
+import { NETWORK } from "../testing/ids";
 
 const OFFICIAL: Id<"activity"> = "activity.look-into-route";
-const NETWORK: Id<"quality"> = "quality.network";
 const advice = content.tuning.advice;
 
 function linesOf(result: Accepted, prefix: string): ReportLine[] {

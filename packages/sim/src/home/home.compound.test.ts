@@ -15,6 +15,7 @@ import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, naira, openObligations, restMonth } from "../testing/read";
 import { compoundMoveIn } from "./home.logic";
+import { STANDING } from "../testing/ids";
 
 const FAMILY = "place.family-house" as const;
 const MAKOKO = "place.makoko" as const;
@@ -22,7 +23,6 @@ const COMPOUND = "place.compound-room" as const;
 const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const RENT: Id<"obligation"> = "obligation.rent-compound";
 const UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
-const STANDING: Id<"quality"> = "quality.standing";
 const { home } = content.tuning;
 const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 /** Ada's family upkeep, from her starting life (scenario.data.ts). */

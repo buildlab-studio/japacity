@@ -17,14 +17,11 @@ import { setPockets } from "../testing/wallet";
 import type { WalletEvent } from "../wallet/wallet.events";
 import { compoundMoveIn } from "../home/home.logic";
 import { eventsOf, naira, quality, restMonth } from "../testing/read";
+import { ENERGY, STANDING, TECH, WELLBEING } from "../testing/ids";
 
 const FAMILY = "place.family-house";
 const COMPOUND = "place.compound-room";
 const HOSTEL = "place.hostel-room";
-const ENERGY: Id<"quality"> = "quality.energy";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
-const TECH: Id<"quality"> = "quality.tech";
 const NAP: Id<"activity"> = "activity.nap";
 
 /** The catalogue of things, in its order. */

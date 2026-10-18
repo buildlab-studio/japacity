@@ -11,15 +11,12 @@ import { answerFirst, applyEffects, readyLife, toApplied, uk, UK, UNIT } from ".
 import type { Game } from "../testing/play";
 import { quality } from "../testing/read";
 import { rollOrder } from "./offer.logic";
+import { NETWORK, STANDING, WELLBEING } from "../testing/ids";
 
 const SEND_OFF: Id<"offer"> = "offer.family-send-off";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
-const NETWORK: Id<"quality"> = "quality.network";
 const entry = content.offer[SEND_OFF];
 if (entry === undefined) throw new Error(`The content has no ${SEND_OFF}.`);
 const COST = content.tuning.chapter.sendOffNaira;
-
 
 /** A ready life applied for, the month before its decision. Never refused. */
 function applied(options: LifeOptions = {}): Game {

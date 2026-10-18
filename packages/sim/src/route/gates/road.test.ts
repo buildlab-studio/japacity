@@ -20,6 +20,7 @@ import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
 import { cash, quality, readOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
+import { AGE, STANDING, WELLBEING } from "../../testing/ids";
 
 const ROAD: Id<"route"> = "route.road";
 const PARK: Id<"offer"> = "offer.road-park";
@@ -32,11 +33,8 @@ const TRUTH: Id<"setpiece"> = "setpiece.road-truth";
 const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
 const UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const ASK_AROUND: Id<"activity"> = "activity.ask-around";
-const STANDING: Id<"quality"> = "quality.standing";
 const MEANS: Id<"quality"> = "quality.family-means";
 const STAKE: Id<"quality"> = "quality.family-stake";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const AGE: Id<"quality"> = "quality.age-months";
 
 const road: RouteEntry = content.route[ROAD]!;
 const chain = road.road!.steps;

@@ -12,6 +12,7 @@ import { applyEffects, raiseSeed, readyLife, slot, toDecision, UK } from "../tes
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
+import { EDU, NETWORK, PORTFOLIO, STANDING, TECH } from "../testing/ids";
 
 const NIGHT: Id<"activity"> = "activity.night-support";
 const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
@@ -27,12 +28,7 @@ const CANADA: Id<"route"> = "route.canada-points";
 const TALENT: Id<"route"> = "route.uk-talent";
 const CARE_ROUTE: Id<"route"> = "route.uk-care";
 
-const TECH: Id<"quality"> = "quality.tech";
-const NETWORK: Id<"quality"> = "quality.network";
-const PORTFOLIO: Id<"quality"> = "quality.portfolio";
-const STANDING: Id<"quality"> = "quality.standing";
 const CARE: Id<"quality"> = "quality.care";
-const EDU: Id<"quality"> = "quality.edu-level";
 
 interface Credit {
   type: string;

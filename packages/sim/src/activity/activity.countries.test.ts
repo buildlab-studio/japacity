@@ -10,13 +10,8 @@ import { applyEffects, middling } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { debits } from "../testing/read";
+import { BELLY, ENERGY, NETWORK, PREP, STANDING, WELLBEING } from "../testing/ids";
 
-const BELLY: Id<"quality"> = "quality.belly";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const ENERGY: Id<"quality"> = "quality.energy";
-const STANDING: Id<"quality"> = "quality.standing";
-const PREP: Id<"quality"> = "quality.interview-prep";
-const NETWORK: Id<"quality"> = "quality.network";
 const body = content.tuning.turn.body;
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 const CANADA: Id<"country"> = "country.canada";

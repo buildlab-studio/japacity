@@ -12,12 +12,12 @@ import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { openOffers } from "../testing/read";
+import { WELLBEING } from "../testing/ids";
 
 const SHOP_UK: Id<"activity"> = "activity.street-shopping-uk";
 const SHOP_UAE: Id<"activity"> = "activity.street-shopping-uae";
 const FIND_UK: Id<"offer"> = "offer.street-find-uk";
 const FIND_UAE: Id<"offer"> = "offer.street-find-uae";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const CERTAIN = 10000;
 const street = content.tuning.street;
 

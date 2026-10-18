@@ -7,14 +7,13 @@ import { partnerGate } from "../route/gates/partner";
 import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { isSponsorUndertaking } from "./obligation.undertaking";
+import { STANDING } from "../testing/ids";
 
 const used = content;
 const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";
 const entry = content.obligation[UNDERTAKING]!;
 const ASSISTANCE = content.var["var.ca-assistance"]!.start;
 const MONTHS = content.tuning.undertaking.months;
-const STANDING: Id<"quality"> = "quality.standing";
-
 
 /**
  * Ada settled in Canada as a resident, sponsoring her spouse: the bond's facts

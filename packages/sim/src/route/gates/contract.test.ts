@@ -13,12 +13,12 @@ import { answerFirst, applyEffects, linesOf, readyLife, slot, UK } from "../../t
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { contractGate, contractJob } from "./contract";
+import { AGE } from "../../testing/ids";
 
 const GULF: Id<"route"> = "route.gulf-contract";
 const APPLY: Id<"activity"> = "activity.apply-gulf-contract";
 const MEDICAL: Id<"document"> = "document.medical";
 const AGENT: Id<"offer"> = "offer.gulf-agent";
-const AGE: Id<"quality"> = "quality.age-months";
 const gulf = content.route[GULF]!;
 const numbers = content.tuning.route;
 const MAX_AGE = gulf.contract!.maxAgeMonths;

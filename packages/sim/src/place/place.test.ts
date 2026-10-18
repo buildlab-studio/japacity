@@ -13,6 +13,7 @@ import { start } from "../testing/play";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
+import { STANDING } from "../testing/ids";
 
 const UK: Id<"country"> = "country.uk";
 const CANADA: Id<"country"> = "country.canada";
@@ -55,7 +56,6 @@ describe("where an entry applies", () => {
   });
 });
 
-const STANDING: Id<"quality"> = "quality.standing";
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
 const SETTLED: Id<"status"> = "status.uk-settled";
 const STUDENT: Id<"status"> = "status.uk-student";

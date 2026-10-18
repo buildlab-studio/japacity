@@ -11,9 +11,8 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { answerOpen, flownAda, monthAbroad, playUntil, SECURE } from "../testing/goal.journey";
 import { goalKind } from "./goal.logic";
+import { STANDING, WELLBEING } from "../testing/ids";
 
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
 const POUNDS = 100;
 
 function goalLines(result: Accepted): ReportLine[] {

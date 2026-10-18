@@ -13,9 +13,9 @@ import type { Game } from "../testing/play";
 import { closed, readOf } from "../testing/read";
 import { replayedGame } from "../testing/recorded";
 import { sendOffCard, topActivities } from "./chapter.logic";
+import { STANDING } from "../testing/ids";
 
 const UK: Id<"route"> = "route.uk-masters";
-const STANDING: Id<"quality"> = "quality.standing";
 const cap = content.tuning.turn.cap;
 
 /** Ada flown and on through Landing, so Secure is the chapter in hand. */

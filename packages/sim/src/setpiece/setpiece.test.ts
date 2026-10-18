@@ -13,10 +13,10 @@ import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 import { flown } from "../testing/place.journey";
 import { readOf } from "../testing/read";
+import { PREP, STANDING } from "../testing/ids";
 
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
-const PREP: Id<"quality"> = "quality.interview-prep";
 const hintPrep = content.tuning.route.hintPrep;
 /** Every question in content order, and those asked of a clean file: the deposit question needs over 30% unexplained, the papers one a transcript that is not genuine. */
 const ALL = entry.questions.map((question) => question.id);
@@ -358,7 +358,6 @@ describe("answers with effects, and set pieces with no route", () => {
 });
 
 const DECEMBER: Id<"setpiece"> = "setpiece.december";
-const STANDING: Id<"quality"> = "quality.standing";
 const SEASON: Id<"var"> = "var.season-december";
 const MONTHS_A_YEAR = 12;
 

@@ -28,13 +28,13 @@ import {
 import type { OfferEvent } from "./offer.events";
 import { answerScore } from "../setpiece/setpiece.logic";
 import { cash, naira } from "../testing/read";
+import { NETWORK } from "../testing/ids";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
 const OFFICE: Id<"offer"> = "offer.agent-office";
 const TO_STOP: Id<"activity"> = "activity.see-agent-stop";
 const TO_OFFICE: Id<"activity"> = "activity.see-agent-office";
 const GULF: Id<"route"> = "route.gulf-contract";
-const NETWORK: Id<"quality"> = "quality.network";
 const FIRST: Id<"chapter"> = "chapter.find-your-feet";
 const advice = content.tuning.advice;
 const stop = content.offer[STOP]!;

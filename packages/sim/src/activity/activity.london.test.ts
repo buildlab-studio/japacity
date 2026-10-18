@@ -10,10 +10,8 @@ import { applyEffects, middling } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { debits } from "../testing/read";
+import { BELLY, ENERGY, WELLBEING } from "../testing/ids";
 
-const BELLY: Id<"quality"> = "quality.belly";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const ENERGY: Id<"quality"> = "quality.energy";
 const body = content.tuning.turn.body;
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 

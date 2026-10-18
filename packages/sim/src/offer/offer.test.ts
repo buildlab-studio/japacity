@@ -31,11 +31,10 @@ import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { openOffers } from "../testing/read";
 import type { OfferEvent } from "./offer.events";
+import { STANDING, WELLBEING } from "../testing/ids";
 
 const ADA: Id<"scenario"> = "scenario.ada";
 const TUNDE: Id<"scenario"> = "scenario.tunde";
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const tuning = content.tuning.offer;
 
 // ---------------------------------------------------------------------------

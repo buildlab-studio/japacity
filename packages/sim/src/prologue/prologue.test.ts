@@ -19,9 +19,9 @@ import { naira } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import type { PrologueEvent } from "./prologue.events";
 import { gradeOf, parentsEducatedBp, pathMonths, PROLOGUE_SOURCE, startYear, WORK } from "./prologue.logic";
+import { AGE } from "../testing/ids";
 
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
-const AGE: Id<"quality"> = "quality.age-months";
 const FIRST = "draw";
 
 /**

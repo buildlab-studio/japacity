@@ -11,13 +11,12 @@ import { applyEffects } from "../testing/route.journey";
 import { start } from "../testing/play";
 import { naira } from "../testing/read";
 import type { WalletEvent } from "../wallet/wallet.events";
+import { BELLY, STANDING } from "../testing/ids";
 
 const POT: Id<"activity"> = "activity.cook-at-home";
 const BIG_POT: Id<"activity"> = "activity.cook-jollof";
 const OWN: Id<"activity"> = "activity.cook-own";
 const OWN_POT: Id<"activity"> = "activity.cook-own-pot";
-const STANDING: Id<"quality"> = "quality.standing";
-const BELLY: Id<"quality"> = "quality.belly";
 
 function quality(game: Game, id: Id<"quality">): number {
   return game.view().qualities.find((one) => one.id === id)?.value ?? 0;

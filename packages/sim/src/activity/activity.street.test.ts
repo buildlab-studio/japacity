@@ -12,16 +12,13 @@ import type { QualityEvent } from "../quality/quality.events";
 import { debits } from "../testing/read";
 import type { ActivityEvent } from "./activity.events";
 import { hireChanceBp, paramsFor } from "./activity.logic";
+import { EDU, NETWORK, TECH, WELLBEING } from "../testing/ids";
 
 const PHONE: Id<"activity"> = "activity.buy-phone";
 const SALES: Id<"activity"> = "activity.job-phone-sales";
 const APPRENTICE: Id<"activity"> = "activity.apprentice-repair";
 const ROUGH: Id<"activity"> = "activity.sleep-rough";
 const RUN: Id<"activity"> = "activity.morning-run";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const NETWORK: Id<"quality"> = "quality.network";
-const TECH: Id<"quality"> = "quality.tech";
-const EDU: Id<"quality"> = "quality.edu-level";
 const { street } = content.tuning;
 const brokeLine = content.tuning.place.brokeLine;
 

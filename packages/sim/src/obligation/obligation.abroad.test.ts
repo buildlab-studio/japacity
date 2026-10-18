@@ -30,10 +30,9 @@ import {
   UPKEEP,
 } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
+import { STANDING, WELLBEING } from "../testing/ids";
 
 const CREDIT = content.tuning.credit;
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const STUDENT: Id<"status"> = "status.uk-student";
 
 function entryOf(id: Id<"obligation">): ObligationEntry {
