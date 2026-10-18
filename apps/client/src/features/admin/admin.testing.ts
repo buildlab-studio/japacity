@@ -17,10 +17,10 @@ import type {
   SwitchesReply,
   SwitchLogReply,
 } from "@japacity/api";
+import { time } from "@japacity/sim";
 
 const NOW = Date.parse("2026-10-08T12:00:00Z");
-const HOUR = 3_600_000;
-const DAY = 86_400_000;
+const { DAY_MS, HOUR_MS } = time;
 /** 7 October 2026 as whole UTC days since 1970. */
 export const YESTERDAY = 20_733;
 
@@ -58,13 +58,13 @@ export const ROLLBACK: RollbackCheck = {
 const ADA = {
   account: "account.ada",
   region: "NG",
-  accountAge: 40 * DAY,
+  accountAge: 40 * DAY_MS,
   made: [],
-  received: [{ id: "report.old", reason: "harassment" as const, at: NOW - 20 * DAY, status: "decided" as const, outcome: "acted" as const }],
-  actions: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY, item: "report.old", action: "warn" as const, params: { account: "account.ada" }, reason: "harassment" }],
+  received: [{ id: "report.old", reason: "harassment" as const, at: NOW - 20 * DAY_MS, status: "decided" as const, outcome: "acted" as const }],
+  actions: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY_MS, item: "report.old", action: "warn" as const, params: { account: "account.ada" }, reason: "harassment" }],
 };
 
-const BOLA = { account: "account.bola", region: "GB", accountAge: 3 * DAY, made: [{ id: "report.1", reason: "scam" as const, at: NOW - 30 * HOUR, status: "open" as const }], received: [], actions: [] };
+const BOLA = { account: "account.bola", region: "GB", accountAge: 3 * DAY_MS, made: [{ id: "report.1", reason: "scam" as const, at: NOW - 30 * HOUR_MS, status: "open" as const }], received: [], actions: [] };
 
 export const QUEUE: QueueReply = {
   ok: true,
@@ -74,15 +74,15 @@ export const QUEUE: QueueReply = {
         kind: "report",
         id: "report.1",
         reason: "scam",
-        at: NOW - 30 * HOUR,
-        age: 30 * HOUR,
+        at: NOW - 30 * HOUR_MS,
+        age: 30 * HOUR_MS,
         subject: { account: "account.ada" },
         cites: { messages: ["message.1", "message.2"] },
         unverified: false,
-        hold: { report: "report.1", messages: ["message.1", "message.2"], pair: "pair.1", until: NOW + 13 * DAY },
+        hold: { report: "report.1", messages: ["message.1", "message.2"], pair: "pair.1", until: NOW + 13 * DAY_MS },
         messages: [
-          { id: "message.1", sender: "account.ada", phrase: "phrase.send-money", words: "Can you send me something small?", fill: null, sentAt: NOW - 31 * HOUR },
-          { id: "message.2", sender: "account.ada", phrase: "phrase.how-much", words: "I need {fill}", fill: "50k", sentAt: NOW - 31 * HOUR + 60_000 },
+          { id: "message.1", sender: "account.ada", phrase: "phrase.send-money", words: "Can you send me something small?", fill: null, sentAt: NOW - 31 * HOUR_MS },
+          { id: "message.2", sender: "account.ada", phrase: "phrase.how-much", words: "I need {fill}", fill: "50k", sentAt: NOW - 31 * HOUR_MS + 60_000 },
         ],
         reporter: BOLA,
         reported: ADA,
@@ -91,43 +91,43 @@ export const QUEUE: QueueReply = {
         kind: "report",
         id: "report.2",
         reason: "other",
-        at: NOW - 2 * HOUR,
-        age: 2 * HOUR,
+        at: NOW - 2 * HOUR_MS,
+        age: 2 * HOUR_MS,
         subject: { account: "account.chidi" },
-        cites: { place: "place.ojuelegba", phrase: "phrase.hello", at: NOW - 2 * HOUR },
+        cites: { place: "place.ojuelegba", phrase: "phrase.hello", at: NOW - 2 * HOUR_MS },
         unverified: true,
         hold: null,
         messages: [],
-        reporter: { account: "account.dayo", region: "NG", accountAge: 9 * DAY, made: [], received: [], actions: [] },
+        reporter: { account: "account.dayo", region: "NG", accountAge: 9 * DAY_MS, made: [], received: [], actions: [] },
         reported: { account: "account.chidi", region: null, accountAge: null, made: [], received: [], actions: [] },
       },
       {
         kind: "appeal",
         id: "appeal.1",
-        at: NOW - 5 * HOUR,
-        age: 5 * HOUR,
-        entry: { id: "log.1", admin: "account.owner", at: NOW - 19 * DAY, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment" },
+        at: NOW - 5 * HOUR_MS,
+        age: 5 * HOUR_MS,
+        entry: { id: "log.1", admin: "account.owner", at: NOW - 19 * DAY_MS, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment" },
         appellant: ADA,
         actedBy: "account.owner",
       },
     ],
-    oldest: 30 * HOUR,
-    target: 24 * HOUR,
+    oldest: 30 * HOUR_MS,
+    target: 24 * HOUR_MS,
     overdue: 1,
   },
 };
 
 const LOG: LogReply = {
   ok: true,
-  entries: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment", note: "First time." }],
+  entries: [{ id: "log.1", admin: "account.owner", at: NOW - 19 * DAY_MS, item: "report.old", action: "warn", params: { account: "account.ada" }, reason: "harassment", note: "First time." }],
 };
 
 /** R-MODERATION-021: two dedication lights awaiting a look, the older first. */
 export const PENDING_LIGHTS: PendingLightsReply = {
   ok: true,
   lights: [
-    { account: "account.ada", id: "light.1a2b", name: "Mama Nkechi", years: { from: 1951, to: 2024 }, username: "ada_lagos", region: "NG", litAt: NOW - 2 * DAY },
-    { account: "account.bola", id: "light.3c4d", name: "Uncle Tunde", years: { from: null, to: null }, username: "bola_b", region: "GB", litAt: NOW - DAY },
+    { account: "account.ada", id: "light.1a2b", name: "Mama Nkechi", years: { from: 1951, to: 2024 }, username: "ada_lagos", region: "NG", litAt: NOW - 2 * DAY_MS },
+    { account: "account.bola", id: "light.3c4d", name: "Uncle Tunde", years: { from: null, to: null }, username: "bola_b", region: "GB", litAt: NOW - DAY_MS },
   ],
 };
 
@@ -162,7 +162,7 @@ export const CAMPAIGNS: CampaignsReply = {
   ok: true,
   campaigns: [
     {
-      campaign: { id: "campaign-a1", advertiser: "advertiser-1", slots: ["advert.park-billboard"], regions: ["NG"], starts: NOW + DAY, ends: NOW + 30 * DAY, status: "pending", category: "education", place: null },
+      campaign: { id: "campaign-a1", advertiser: "advertiser-1", slots: ["advert.park-billboard"], regions: ["NG"], starts: NOW + DAY_MS, ends: NOW + 30 * DAY_MS, status: "pending", category: "education", place: null },
       advertiser: { id: "advertiser-1", businessName: "Brightpath Study Centre", registration: { country: "NG", number: "RC-000123" }, contactName: "Kemi Ade", contactEmail: "kemi@brightpath.example" },
       checks: ["registered-business", "category", "accredited-institution", "no-charging-agent", "no-score-or-visa-promise", "regulator-approval"],
       creatives: [
@@ -172,7 +172,7 @@ export const CAMPAIGNS: CampaignsReply = {
       counts: [],
     },
     {
-      campaign: { id: "campaign-c3", advertiser: "advertiser-2", slots: ["advert.phone-tile"], regions: ["GB"], starts: NOW - DAY, ends: NOW + 6 * DAY, status: "live", category: "general", place: null },
+      campaign: { id: "campaign-c3", advertiser: "advertiser-2", slots: ["advert.phone-tile"], regions: ["GB"], starts: NOW - DAY_MS, ends: NOW + 6 * DAY_MS, status: "live", category: "general", place: null },
       advertiser: { id: "advertiser-2", businessName: "Harbour Tea Room", registration: { country: "GB", number: "09876543" }, contactName: "Sam Lowe", contactEmail: "sam@harbourtea.example" },
       checks: ["registered-business", "category"],
       creatives: [
@@ -180,9 +180,9 @@ export const CAMPAIGNS: CampaignsReply = {
         { id: "creative-d4", campaign: "campaign-c3", file: { format: "webp", width: 320, height: 320, bytes: 20_911 }, text: "Tea and cake by the water.", link: null, version: 2, status: "refused", checks: ["format", "not-game-like", "text"] },
       ],
       reviews: [
-        { creative: "campaign-c3", version: 0, reviewer: "account.owner", at: NOW - 2 * DAY, checks: ["registered-business", "category"], bannedListVersion: "2026-10-08", outcome: "approved", note: "" },
-        { creative: "creative-d4", version: 1, reviewer: "account.owner", at: NOW - 2 * DAY, checks: ["format", "not-game-like", "text"], bannedListVersion: "2026-10-08", outcome: "approved", note: "Clean." },
-        { creative: "creative-d4", version: 2, reviewer: "account.owner", at: NOW - DAY, checks: [], bannedListVersion: "2026-10-08", outcome: "refused", note: "Reads as a prize." },
+        { creative: "campaign-c3", version: 0, reviewer: "account.owner", at: NOW - 2 * DAY_MS, checks: ["registered-business", "category"], bannedListVersion: "2026-10-08", outcome: "approved", note: "" },
+        { creative: "creative-d4", version: 1, reviewer: "account.owner", at: NOW - 2 * DAY_MS, checks: ["format", "not-game-like", "text"], bannedListVersion: "2026-10-08", outcome: "approved", note: "Clean." },
+        { creative: "creative-d4", version: 2, reviewer: "account.owner", at: NOW - DAY_MS, checks: [], bannedListVersion: "2026-10-08", outcome: "refused", note: "Reads as a prize." },
       ],
       counts: [
         { day: YESTERDAY - 1, slot: "advert.phone-tile", campaign: "campaign-c3", region: "GB", impressions: 1_204, taps: 31 },
@@ -213,8 +213,8 @@ export const SWITCHES: SwitchesReply = {
 const SWITCH_LOG: SwitchLogReply = {
   ok: true,
   log: [
-    { n: 1, at: NOW - 3 * HOUR, admin: "account.owner", reason: "Draw audit", change: { switch: "lottery", on: false } },
-    { n: 2, at: NOW - 2 * HOUR, admin: "account.owner", reason: "Busy evening", change: { dial: "placeTarget", place: "place.ojuelegba", value: 40 } },
+    { n: 1, at: NOW - 3 * HOUR_MS, admin: "account.owner", reason: "Draw audit", change: { switch: "lottery", on: false } },
+    { n: 2, at: NOW - 2 * HOUR_MS, admin: "account.owner", reason: "Busy evening", change: { dial: "placeTarget", place: "place.ojuelegba", value: 40 } },
   ],
 };
 
@@ -296,7 +296,7 @@ export const STATS: StatsReply = {
 
 /** Every admin GET this page makes, by path without its query. */
 export const ADMIN_GETS: Record<string, unknown> = {
-  "/api/account": { ok: true, account: { id: "account.owner", country: "NG", age: { passed: true, method: "declared" }, createdAt: NOW - 90 * DAY, character: null, admin: true } },
+  "/api/account": { ok: true, account: { id: "account.owner", country: "NG", age: { passed: true, method: "declared" }, createdAt: NOW - 90 * DAY_MS, character: null, admin: true } },
   "/api/admin/report": REPORT,
   "/api/admin/alarms": ALARMS,
   "/api/admin/rejections": REJECTIONS,

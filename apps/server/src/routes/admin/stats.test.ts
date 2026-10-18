@@ -59,6 +59,6 @@ describe("GET /api/admin/stats", () => {
     expect(body.stats.now.online).toEqual({ all: minShown + 6, regions: { GH: { fewerThan: minShown }, NG: minShown + 4 } });
     expect(body.stats.totals.players).toEqual({ all: 120, regions: { NG: 120 } });
     const now = deps.now();
-    expect(asked).toEqual(expect.arrayContaining([[now - 5 * 60_000, now + 1], [today * 86_400_000, now + 1]]));
+    expect(asked).toEqual(expect.arrayContaining([[now - 5 * 60_000, now + 1], [today * time.DAY_MS, now + 1]]));
   });
 });

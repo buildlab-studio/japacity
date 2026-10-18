@@ -1,5 +1,5 @@
 import type { AccountView } from "@japacity/api";
-import type { Id, PlayerView } from "@japacity/sim";
+import { time, type Id, type PlayerView } from "@japacity/sim";
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -297,7 +297,7 @@ describe("the username in the settings", () => {
   });
 
   test("[R-ACCOUNT-024] given a change made and the wait not over, then no change is offered and the day it opens is said", async () => {
-    const until = Date.now() + 5 * 86_400_000;
+    const until = Date.now() + 5 * time.DAY_MS;
     await mount(fakeAccount(me("secured", { renameFrom: until })), <AccountSettings account={fakeAccount(me("secured", { renameFrom: until }))} />);
     expect(await screen.findByText(/You changed it not long ago/)).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.name.change") })).toBeNull();
