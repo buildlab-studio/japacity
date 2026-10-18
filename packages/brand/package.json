@@ -1,0 +1,14 @@
+{
+  "name": "@japacity/brand",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "The game's role colours, tints, face and wordmark letters as data, for pictures drawn outside the client (the teaser).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

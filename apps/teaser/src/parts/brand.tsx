@@ -1,7 +1,6 @@
 // The seal and the name, drawn as the brand files draw them (apps/client/public/brand), so the two bulbs over the J can
 // glow and the letters can scale to a title; and GitHub's own mark for the end cards' open source line.
-import { NAVY, YELLOW } from "./tokens";
-import { WORDMARK_BOX, WORDMARK_PATH } from "./wordmark";
+import { NAVY, WORDMARK_BOX, WORDMARK_PATH, YELLOW } from "@japacity/brand";
 
 const LINE = "#eaf3fb";
 

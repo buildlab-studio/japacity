@@ -3,7 +3,7 @@
 import { AbsoluteFill, Sequence } from "remotion";
 
 import { PressButton } from "../parts/dress";
-import { FONT, NAVY } from "../parts/tokens";
+import { FONT, NAVY } from "@japacity/brand";
 import { Lead } from "./Lead";
 
 export const POSTER_FRAME = 282;

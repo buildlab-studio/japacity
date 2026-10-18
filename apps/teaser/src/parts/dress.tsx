@@ -6,7 +6,7 @@ import { Img, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from
 
 import { ALL_CLIPS, type ClipName } from "../clips";
 import { land, pop, wobble } from "./motion";
-import { DAY, DEVICE, FONT, NAVY, type Paint, YELLOW } from "./tokens";
+import { DAY, DEVICE, FONT, NAVY, type Paint, YELLOW } from "@japacity/brand";
 
 export function Card({ children, paint = DAY, style }: { children: ReactNode; paint?: Paint; style?: CSSProperties }) {
   return (

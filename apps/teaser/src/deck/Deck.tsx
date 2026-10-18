@@ -11,7 +11,7 @@ import { Seal, Wordmark } from "../parts/brand";
 import { Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
 import { loadRubik } from "../parts/fonts";
 import { land, pop, ramp } from "../parts/motion";
-import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, TINT } from "../parts/tokens";
+import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, TINT } from "@japacity/brand";
 
 export const DECK_FRAMES = 300;
 

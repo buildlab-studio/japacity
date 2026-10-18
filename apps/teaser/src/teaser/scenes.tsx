@@ -10,7 +10,7 @@ import { Seal, Wordmark } from "../parts/brand";
 import { Card, Clip, Phone, Plane, PressButton, Sticker, Title } from "../parts/dress";
 import { useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
-import { CREAM, DAY, FONT, NAVY, NIGHT, type Paint } from "../parts/tokens";
+import { CREAM, DAY, FONT, NAVY, NIGHT, type Paint } from "@japacity/brand";
 import { Piece } from "../parts/zones";
 
 /** A title card: big words on the sky, by day or at night. */

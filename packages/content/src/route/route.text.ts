@@ -194,7 +194,7 @@ export const routeText: Record<string, string> = {
   "road.real-story.credit.2": "The Sun, an undercover Sahara trek, 2009",
   "road.real-story.credit.3": "CNN, migrants auctioned in Libya, 2017",
   "road.real-story.credit.4": "BBC Panorama, the debt behind the journey, 2017",
-  // Each credit's link, where the research found one (docs/research/04, Sources): a credit with no link key is named only.
+  // Each credit's link, where the research found one (docs/research/02, Sources): a credit with no link key is named only.
   "road.real-story.link.1": "https://fij.ng/article/undercover-europe-through-the-sahara-desert-and-the-mediterranean-sea-i/",
   "road.real-story.link.3": "https://undercover.hosting.nyu.edu/s/undercover-reporting/item/14851",
 
