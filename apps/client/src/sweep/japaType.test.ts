@@ -3,7 +3,7 @@
 // risks taken and how home was held. Read from the recorded lives and a trader's tile played into her shop.
 import { content, japaTypes, text } from "@japacity/content";
 import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
-import { topActivities } from "@japacity/sim";
+import { qualityIn, topActivities } from "@japacity/sim";
 import { lifeSaves, newLifeSaves, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
@@ -73,7 +73,7 @@ function trader(others: SlotPick["activity"][]): PlayerView {
   }
   const view = game.view();
   expect(view.job.id).toBe("activity.run-shop");
-  const standing = view.qualities.find((quality) => quality.id === "quality.standing")?.value ?? 0;
+  const standing = qualityIn(view, "quality.standing");
   const card: Card = { kind: "send-off", chapter: "chapter.send-off", route: view.japacity.route, percent: view.japacity.percent, months: view.month, standing, topActivities: topActivities(game.state, content), name: null };
   return { ...view, card };
 }

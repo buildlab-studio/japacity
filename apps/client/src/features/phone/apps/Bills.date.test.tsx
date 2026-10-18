@@ -1,6 +1,7 @@
 // A bill's slip is dated in the game's own time (docs/rules/world.md R-WORLD-019, R-WORLD-002): the
 // character's age in years and months, as the band shows it, never the real calendar.
 import { applyEffects } from "@japacity/sim/testing";
+import { qualityIn } from "@japacity/sim";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -32,7 +33,7 @@ describe("a bill's slip", () => {
     if (pay === null) throw new Error("No bill to pay now.");
     fireEvent.click(pay);
     const slip = [...document.querySelectorAll<HTMLElement>("[role=dialog]")].at(-1)?.textContent ?? "";
-    const age = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    const age = qualityIn(view, "quality.age-months");
     expect(clockWords(view.qualities)).toBe(say("ui.world.clock", { years: Math.floor(age / 12), months: age % 12 }));
     expect(slip).toContain(clockWords(view.qualities).toUpperCase());
     expect(slip).not.toMatch(WEEKDAY);

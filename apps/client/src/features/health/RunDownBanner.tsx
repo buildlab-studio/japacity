@@ -2,6 +2,7 @@
 // above every tab says so, with wellbeing against the line and what helps.
 // Illness comes from staying under the line, so the banner names the line.
 import { content } from "@japacity/content";
+import { qualityIn } from "@japacity/sim";
 import { HeartPulse } from "lucide-react";
 
 import { useView } from "../../authority/GameProvider";
@@ -12,7 +13,7 @@ const WELLBEING = "quality.wellbeing";
 export function RunDownBanner({ className = "" }: { className?: string }) {
   const { runDown, qualities } = useView();
   if (!runDown) return null;
-  const wellbeing = qualities.find((quality) => quality.id === WELLBEING)?.value ?? 0;
+  const wellbeing = qualityIn({ qualities }, WELLBEING);
   return (
     <div role="alert" data-run-down className={`flex items-start gap-3 rounded-md border-2 border-bad bg-sheet-2 p-4 ${className}`}>
       <HeartPulse size={28} className="mt-0.5 shrink-0 text-bad" />

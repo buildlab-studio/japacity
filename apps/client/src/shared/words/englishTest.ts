@@ -3,7 +3,7 @@
 // chance words it shares, so the card and the results read one band of words.
 import { content } from "@japacity/content";
 import type { ReportLine, Tuning } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, qualityIn } from "@japacity/sim";
 
 import { formatBand } from "./format";
 import { chanceBand, type ChanceBand } from "./jobs";
@@ -74,7 +74,7 @@ export function bandChanceBp(english: number, needed: number = bandNeeded()): nu
 
 /** The character's English from the view, 0 when it has none. */
 export function englishOf(view: { qualities: readonly { id: string; value: number }[] }): number {
-  return view.qualities.find((quality) => quality.id === ENGLISH)?.value ?? 0;
+  return qualityIn(view, ENGLISH);
 }
 
 export interface TestChance {

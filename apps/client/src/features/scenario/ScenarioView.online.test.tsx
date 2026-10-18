@@ -4,7 +4,7 @@
 import type { ClockView, PresetRequest } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Id, PlayerView } from "@japacity/sim";
-import { worldClockAt } from "@japacity/sim";
+import { qualityIn, worldClockAt } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
@@ -94,7 +94,7 @@ describe("the front door online", () => {
 
     const view: PlayerView = game().view();
     expect(view.prologue).toBeNull();
-    expect(Math.floor((view.qualities.find((quality) => quality.id === AGE)?.value ?? 0) / 12)).toBe(26);
+    expect(Math.floor(qualityIn(view, AGE) / 12)).toBe(26);
     expect(view.documents.some((paper) => paper.id === "document.nursing-licence" && paper.state === "held")).toBe(true);
     expect(pagePath()).toContain(say("prologue.archetype.nurse.name"));
     expect(store.getState().view?.v).toBe(view.v);

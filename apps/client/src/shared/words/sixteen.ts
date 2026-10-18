@@ -3,7 +3,7 @@
 // level of schooling, a shop's capital from the money a trade could only hold after a settlement, or the
 // shop it opened with it.
 import { content } from "@japacity/content";
-import { FIRST_MEETUP_FITS, type Id, type PlayerView, type Requirement } from "@japacity/sim";
+import { FIRST_MEETUP_FITS, type Id, type PlayerView, qualityIn, type Requirement } from "@japacity/sim";
 
 import { hasWords } from "./text";
 
@@ -45,14 +45,11 @@ function shopCapital(): number {
   return needs.amount;
 }
 
-function qualityOf(life: Pick<PlayerView, "qualities">, id: string): number {
-  return life.qualities.find((quality) => quality.id === id)?.value ?? 0;
-}
 
 /** The path a life from sixteen took, read at its handover and in its first months; null for a fixed life. */
 export function sixteenPath(life: Life): SixteenPath | null {
   if (content.scenario[life.scenario]?.prologue !== true) return null;
-  if (qualityOf(life, EDU_LEVEL) >= DEGREE) return "degree";
+  if (qualityIn(life, EDU_LEVEL) >= DEGREE) return "degree";
   if (life.job?.id === SHOP) return "capital";
   // No trade path without a settlement earns near a shop's capital: the shop counter holds at most ₦500,000.
   return life.pockets.NGN.bank + life.pockets.NGN.cash >= shopCapital() ? "capital" : "trade";
@@ -60,7 +57,7 @@ export function sixteenPath(life: Life): SixteenPath | null {
 
 /** A nurse from sixteen: the nursing course's care and the licence its graduation grants. */
 export function sixteenNurse(life: Life & Held): boolean {
-  return sixteenPath(life) === "degree" && qualityOf(life, CARE) >= NURSE_CARE && (life.documents ?? []).some((paper) => paper.id === LICENCE && paper.state === "held");
+  return sixteenPath(life) === "degree" && qualityIn(life, CARE) >= NURSE_CARE && (life.documents ?? []).some((paper) => paper.id === LICENCE && paper.state === "held");
 }
 
 /** The chapter's next undone step for this life: a trade hears of a way out first, and a trader with capital reads up on it next. */
@@ -143,7 +140,7 @@ export function openingKey(view: Life & Pick<PlayerView, "chapter">, has: (key: 
  */
 export function ownRouteOf(view: Life & Held): Id<"route"> | null {
   const path = sixteenPath(view);
-  const own = path === "trade" || path === "capital" ? (GULF as Id<"route">) : (FIRST_MEETUP_FITS.find((fit) => fit.bar !== null && fit.bar.type === "quality/min" && qualityOf(view, fit.bar.quality) >= fit.bar.value)?.route ?? null);
+  const own = path === "trade" || path === "capital" ? (GULF as Id<"route">) : (FIRST_MEETUP_FITS.find((fit) => fit.bar !== null && fit.bar.type === "quality/min" && qualityIn(view, fit.bar.quality) >= fit.bar.value)?.route ?? null);
   if (own === null || own === MASTERS) return null;
   return routeState(view, own) === "unknown" ? null : own;
 }
@@ -202,5 +199,5 @@ function gradeBar(): number {
 
 /** A degree whose grade is under the master's and the bank's bar. */
 export function gradeShort(life: Life): boolean {
-  return sixteenPath(life) === "degree" && qualityOf(life, GRADE) < gradeBar();
+  return sixteenPath(life) === "degree" && qualityIn(life, GRADE) < gradeBar();
 }

@@ -1,5 +1,6 @@
 import { content, text } from "@japacity/content";
 import type { ActivityEntry, PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -28,7 +29,7 @@ function entryOf(id: string): ActivityEntry {
 }
 
 function networkOf(view: PlayerView): number {
-  return view.qualities.find((quality) => quality.id === NETWORK)?.value ?? 0;
+  return qualityIn(view, NETWORK);
 }
 
 function payWords(id: string): string {
@@ -134,7 +135,7 @@ describe("the jobs list on the hunt's card", () => {
   test("[R-WORLD-006] given a need the character already meets, when an out-of-reach job's needs are read, then only what is still missing is named", () => {
     const view = engineView();
     const mid = jobsOutOfReach(view, huntOf(view)).find((job) => job.id === "activity.job-mid-dev");
-    const tech = view.qualities.find((quality) => quality.id === "quality.tech")?.value ?? 0;
+    const tech = qualityIn(view, "quality.tech");
     expect(tech).toBeLessThan(60);
     expect(mid?.needs).toContain(requirementSentence({ type: "quality/min", quality: "quality.tech", value: 60 }));
     const skilled: PlayerView = { ...view, qualities: view.qualities.map((quality) => (quality.id === "quality.tech" ? { ...quality, value: 90 } : quality)) };

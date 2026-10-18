@@ -1,6 +1,6 @@
 // The world's shell over the place (docs/rules/world.md R-WORLD-001 to 004): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
-import { worldClockAt } from "@japacity/sim";
+import { qualityIn, worldClockAt } from "@japacity/sim";
 import { playPrologueBy } from "@japacity/sim/testing";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
@@ -130,7 +130,7 @@ describe("the band and the thumb buttons", () => {
   test("[R-WORLD-002] [R-CLOCK-033] given a life, when the band renders, then its clock is the character's age in years and months with the month's name and the world's part of the day beside it, and no month number or count", async () => {
     const view = engineView();
     const { store } = await opened(world(), view);
-    const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    const ageMonths = qualityIn(view, "quality.age-months");
     expect(ageMonths).toBeGreaterThan(0);
     const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
     expect(within(band()).getByText(clock)).toBeTruthy();

@@ -6,6 +6,7 @@
 // `prologue.full`, or a fixed life a test starts) shows each card, one at a time, its answers greyed with the reason.
 import { content, presetAges, presetAnswer } from "@japacity/content";
 import type { PlayerView, ReportLine } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { ArrowRight, Dices } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -81,7 +82,7 @@ export function drawSentences(draw: Draw, archetype: Pick<Archetype, "id"> | nul
 }
 
 function ageYears(view: PlayerView): number {
-  return yearsOf(view.qualities.find((quality) => quality.id === AGE)?.value ?? 0);
+  return yearsOf(qualityIn(view, AGE));
 }
 
 /**

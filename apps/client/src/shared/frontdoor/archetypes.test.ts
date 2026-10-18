@@ -2,7 +2,7 @@
 // fresh lives over many seeds, the draws falling as they fall. Every step has the archetype's answer, sent while it
 // is allowed; where a draw has shut it, the open answer that suits the archetype goes instead, and no card shows.
 import { content } from "@japacity/content";
-import { allMet } from "@japacity/sim";
+import { allMet, qualityIn } from "@japacity/sim";
 import { start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
@@ -144,7 +144,7 @@ function barOf(requirements: readonly { type: string; quality?: string; value?: 
 }
 
 function qualityOf(game: ReturnType<typeof newGame>, id: string): number {
-  return game.view().qualities.find((quality) => quality.id === id)?.value ?? 0;
+  return qualityIn(game.view(), id);
 }
 
 function routeState(game: ReturnType<typeof newGame>, id: string): string {

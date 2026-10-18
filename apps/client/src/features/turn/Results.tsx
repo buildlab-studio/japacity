@@ -5,6 +5,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import type { ReportLine } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 
 import { useGame, useView } from "../../authority/GameProvider";
 import { cue } from "../../shared/sound/cues";
@@ -75,7 +76,7 @@ export function Results({ place, foot = null }: { place: string; foot?: ReactNod
   const setReportOpen = useGame((state) => state.setReportOpen);
   const report = view.report;
   // R-WORLD-002: no month number; the character's age stands small beside what was kept, and a birthday is said.
-  const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+  const ageMonths = qualityIn(view, "quality.age-months");
   const clock = say("ui.world.age", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const birthday = ageMonths > 0 && ageMonths % 12 === 0;
   const midMonth = useGame((state) => state.lastMonthLines);

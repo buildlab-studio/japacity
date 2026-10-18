@@ -2,6 +2,7 @@
 // the character: the name, the photo, the age kept current, what the life was, how ready, and a red stamp for each
 // step taken toward leaving, all read from the view as it stands. A close returns to the world.
 import type { PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { X } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -57,7 +58,7 @@ export function pageOf(view: PlayerView, person: KeptPerson | null = readPerson(
   const type = keptTypeOf(view.scenario);
   const lived = archetype === null ? null : livedOtherwise(archetype, view);
   const draw = keptDraw();
-  const months = view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+  const months = qualityIn(view, AGE);
   // READY is Japa's own figure, one source.
   const percent = readyPercent(view) ?? 0;
   return {

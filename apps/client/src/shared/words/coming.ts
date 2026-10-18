@@ -5,6 +5,7 @@
 // city's band and the phone's Japa read one list in one order.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 
 import { formatMoney } from "./format";
 import { sealedTillMorning } from "./morning";
@@ -30,7 +31,7 @@ export const AGE_LIMIT_NEAR = 36;
 export const RENT_NEAR = 2;
 
 export function ageMonthsOf(view: Pick<PlayerView, "qualities">): number {
-  return view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+  return qualityIn(view, AGE);
 }
 
 /** Everything coming with a month to it, soonest first; nothing past. */

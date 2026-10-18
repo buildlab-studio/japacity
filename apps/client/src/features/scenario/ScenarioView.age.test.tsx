@@ -3,6 +3,7 @@
 // with no setback, and the page prints the same true number; a retake or a strike costs years of work before that
 // age, never the age.
 import { fireEvent, render, screen } from "@testing-library/react";
+import { qualityIn } from "@japacity/sim";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
@@ -46,7 +47,7 @@ function handedOver(id: string, older: number, seed: string): { months: number; 
     trail.push({ step: prologue.step, answer });
     game.accept({ type: "prologue/choose", step: prologue.step, answer });
   }
-  return { months: game.view().qualities.find((quality) => quality.id === AGE)?.value ?? 0, trail };
+  return { months: qualityIn(game.view(), AGE), trail };
 }
 
 const passed = (life: { trail: { step: string }[] }, step: string): boolean => life.trail.some((one) => one.step === step);

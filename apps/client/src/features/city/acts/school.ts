@@ -4,7 +4,7 @@
 // in the jobs' chance words, under a building.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, qualityIn } from "@japacity/sim";
 
 import { formatMoney } from "../../../shared/words/format";
 import { chanceBand } from "../../../shared/words/jobs";
@@ -19,7 +19,7 @@ const GRADE = "quality.edu-grade";
 export function offerChance(view: Pick<PlayerView, "qualities">, school: string): number {
   const entry = (content.school as Record<string, (typeof content.school)[keyof typeof content.school] | undefined>)[school];
   if (entry === undefined) return 0;
-  const grade = view.qualities.find((quality) => quality.id === GRADE)?.value ?? 0;
+  const grade = qualityIn(view, GRADE);
   const numbers = content.tuning.route;
   return int.clamp(entry.offerBp + numbers.offerPerGradeBp * (grade - entry.minGrade), 0, numbers.offerMaxBp);
 }

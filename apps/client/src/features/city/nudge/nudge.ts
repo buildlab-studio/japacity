@@ -2,7 +2,7 @@
 // this order: an open set piece or interview question; an open offer; the chapter's next undone step
 // in its own nudge words; a report line waiting on the player; else the month's end.
 import { content } from "@japacity/content";
-import { type DayPart, type Id, type PlayerView, withinMetres } from "@japacity/sim";
+import { type DayPart, type Id, type PlayerView, qualityIn, withinMetres } from "@japacity/sim";
 
 import { everyRouteClosed } from "../../../shared/words/closed";
 import { shortfall as costShortfall } from "../../../shared/words/cost";
@@ -383,9 +383,9 @@ const CERTIFICATION = "nurse-certification";
 type MeanwhileView = Partial<Pick<PlayerView, "activities" | "qualities" | "documents" | "job">>;
 
 const MEANWHILE: readonly { act: string; fits: (view: MeanwhileView) => boolean }[] = [
-  { act: CERTIFICATION, fits: (view) => qualityOf(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
-  { act: "open-source", fits: (view) => qualityOf(view, "quality.tech") >= 40 },
-  { act: "tech-posts", fits: (view) => qualityOf(view, "quality.tech") >= 30 },
+  { act: CERTIFICATION, fits: (view) => qualityIn(view, "quality.care") >= 50 && (view.documents ?? []).some((paper) => paper.id === "document.nursing-licence" && paper.state === "held") },
+  { act: "open-source", fits: (view) => qualityIn(view, "quality.tech") >= 40 },
+  { act: "tech-posts", fits: (view) => qualityIn(view, "quality.tech") >= 30 },
   // Not for the staff nurse: getting noticed counts toward the study visa and Canada's points, never care work, and her
   // ward is the clinic, never the hub's board. The act stays on the hub's board alone (R-CITY-010).
   { act: "be-noticed", fits: (view) => (view.job?.months ?? 0) >= 6 && view.job?.id !== NURSE_JOB },
@@ -400,9 +400,6 @@ export const MEANWHILE_WAYS: Readonly<Record<string, StepWay>> = {
   "be-noticed": { go: "place.yaba", at: ["place.yaba:jobs"] },
 };
 
-function qualityOf(view: MeanwhileView, id: string): number {
-  return view.qualities?.find((quality) => quality.id === id)?.value ?? 0;
-}
 
 /** The short id of the waiting-month act that fits this life and stands open this month, or null. */
 function meanwhileOf(view: MeanwhileView, planned: readonly string[]): string | null {

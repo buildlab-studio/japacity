@@ -1,5 +1,6 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { abroadView } from "../../shared/testing/fixtures";
@@ -32,7 +33,7 @@ describe("a job named by a board or a notice", () => {
     const month = payAMonth(SHOP);
     if (month === null) throw new Error("The shop job has no pay");
     const said = jobCardWords(view, SHOP);
-    expect(said).toBe(`${say("jobs.pay", { amount: formatMoney(month.amount, month.currency) })}. ${say(`jobs.chance.${chanceBand(jobChanceBp(content.activity[SHOP]!, view.qualities.find((quality) => quality.id === "quality.network")?.value ?? 0))}`)}.`);
+    expect(said).toBe(`${say("jobs.pay", { amount: formatMoney(month.amount, month.currency) })}. ${say(`jobs.chance.${chanceBand(jobChanceBp(content.activity[SHOP]!, qualityIn(view, "quality.network")))}`)}.`);
     expect(said).not.toContain(formatMoney(month.amount * 12, month.currency));
   });
 });

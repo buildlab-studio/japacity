@@ -3,7 +3,7 @@
 // this screen's own state, and nothing here sends a command (R-CITY-001). The 3D scene is loaded
 // only where WebGL exists, so the panels never wait for it (R-CITY-018).
 import { content, text } from "@japacity/content";
-import { type Id, metresApart, type PlaceEntry, type PlayerView, type ReportLine } from "@japacity/sim";
+import { type Id, metresApart, type PlaceEntry, type PlayerView, qualityIn, type ReportLine } from "@japacity/sim";
 import { Clock, Map as MapIcon, Settings2, X } from "lucide-react";
 import { isValidElement, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
@@ -508,7 +508,7 @@ export function City({
   // R-WORLD-002: the band's clock is the character's age, with the month's name beside it and the world's part of the day
   // (R-CLOCK-033), moving on the device each minute; the simulation still counts months.
   const dayClock = useDayClock();
-  const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+  const ageMonths = qualityIn(view, "quality.age-months");
   const clock = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   const [asksOpen, setAsksOpen] = useState(false);
   const [askIndex, setAskIndex] = useState(0);

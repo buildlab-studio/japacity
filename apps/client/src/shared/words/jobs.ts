@@ -3,6 +3,7 @@
 // feature both read them without one feature importing another.
 import { content, text } from "@japacity/content";
 import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 
 import { formatMoney } from "./format";
 import { payAMonth } from "./pay";
@@ -35,9 +36,6 @@ export function jobChanceBp(entry: Pick<ActivityEntry, "hireBp">, network: numbe
   return Math.min(hireMaxBp, (entry.hireBp ?? 0) + networkHireBp * network);
 }
 
-function qualityOf(view: PlayerView, id: string): number {
-  return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
-}
 
 /**
  * A job's chance in a hunt as a band: at the bar every hunt stops at (R-ACTIVITY-005, `tuning.quality.hireMaxBp`) it is
@@ -54,7 +52,7 @@ function sureHunt(view: Pick<PlayerView, "activities">): boolean {
 
 export function chanceOf(view: PlayerView, id: string): number {
   const entry = content.activity[id as Id<"activity">];
-  return entry === undefined ? 0 : jobChanceBp(entry, qualityOf(view, NETWORK));
+  return entry === undefined ? 0 : jobChanceBp(entry, qualityIn(view, NETWORK));
 }
 
 /** A job's pay a month in words; with the view, a side job paid by level says the tier it is paid at now (R-ACTIVITY-014). */

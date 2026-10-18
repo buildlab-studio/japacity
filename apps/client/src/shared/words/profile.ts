@@ -2,14 +2,12 @@
 // counts toward, and a side job's pay by level and the band that lifts it. The words are content's ui/ui.profile.text.ts.
 import { content } from "@japacity/content";
 import type { ActivityTier, Id, MoneyParam, PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 
 import { formatMoney } from "./format";
 import { requirementSentence } from "./requirement";
 import { bandOpening, hasWords, lowerFirst, nameOf, say } from "./text";
 
-function qualityOf(view: Pick<PlayerView, "qualities">, id: string): number {
-  return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
-}
 
 function figure(tier: ActivityTier): number {
   return typeof tier.pay.amount === "number" ? tier.pay.amount : 0;
@@ -22,7 +20,7 @@ function figure(tier: ActivityTier): number {
 export function tierPay(view: Pick<PlayerView, "qualities">, job: string): MoneyParam | null {
   const entry = content.activity[job as Id<"activity">];
   if (entry === undefined || entry.pay === null || typeof entry.pay.amount !== "number") return null;
-  const met = (entry.tiers ?? []).filter((tier) => qualityOf(view, tier.min.quality) >= tier.min.value).map(figure);
+  const met = (entry.tiers ?? []).filter((tier) => qualityIn(view, tier.min.quality) >= tier.min.value).map(figure);
   return { currency: entry.pay.currency, amount: Math.max(entry.pay.amount, ...met) };
 }
 
@@ -31,7 +29,7 @@ export function nextTier(view: Pick<PlayerView, "qualities">, job: string): Acti
   const now = tierPay(view, job);
   const entry = content.activity[job as Id<"activity">];
   if (now === null || entry === undefined) return null;
-  const ahead = (entry.tiers ?? []).filter((tier) => qualityOf(view, tier.min.quality) < tier.min.value && figure(tier) > now.amount);
+  const ahead = (entry.tiers ?? []).filter((tier) => qualityIn(view, tier.min.quality) < tier.min.value && figure(tier) > now.amount);
   return ahead.reduce<ActivityTier | null>((best, tier) => (best === null || figure(tier) < figure(best) ? tier : best), null);
 }
 

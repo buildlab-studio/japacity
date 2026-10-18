@@ -1,7 +1,7 @@
 // Every tile's run through the front door, on the real content (prologue.md R-PROLOGUE-010, 013, 014): the typed name,
 // the tile and the page, Begin; then the life from sixteen plays the tile's preset with no card, and the page as the
 // handover names the person, so every run ends in its own life.
-import { savedCommands } from "@japacity/sim";
+import { qualityIn, savedCommands } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -73,7 +73,7 @@ describe("the age set at the door", () => {
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));
     expect(chosen.find((command) => command.step === "age-degree")?.answer).toBe("start-25");
     expect(view.documents.some((paper) => paper.id === "document.passport" && paper.state === "held")).toBe(true);
-    const age = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    const age = qualityIn(view, "quality.age-months");
     // Her path reaches 23 with no setback; two years on, the age picked is the age she starts at (R-PROLOGUE-004).
     expect(Math.floor(age / 12)).toBe(25);
   }, 30000);

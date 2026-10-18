@@ -3,6 +3,7 @@
 // the view; this screen only arranges them.
 import { content } from "@japacity/content";
 import type { ActivityOption, Currency, PlayerView, SlotPick } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { Briefcase, Lock, Plus, X } from "lucide-react";
 import { useState } from "react";
 
@@ -206,7 +207,7 @@ function gradeWords(value: number): string {
 function noSchoolReasons(view: PlayerView): string[] {
   const english = view.documents.find((paper) => paper.id === ENGLISH_RESULT && paper.state === "held");
   const band = english?.value === null || english === undefined ? say("ui.activity.no-band") : say("ui.document.band", { band: formatBand(english.value) }).toLowerCase();
-  const grade = view.qualities.find((quality) => quality.id === GRADE)?.value ?? 0;
+  const grade = qualityIn(view, GRADE);
   const have = `${band}, ${gradeWords(grade)}`;
   const applied = new Set(view.routes.flatMap((route) => route.schools.map((school) => school.id)));
   return Object.values(content.school).map((school) =>

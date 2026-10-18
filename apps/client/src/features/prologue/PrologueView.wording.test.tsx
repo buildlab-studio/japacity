@@ -3,6 +3,7 @@
 // the money as it stands, and the story's facts as chips.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -197,7 +198,7 @@ describe("the handover says the archetype's own first step", () => {
         const prologue = game.view().prologue!;
         game.accept({ type: "prologue/choose", step: prologue.step, answer: loose(prologue.answers.filter((answer) => answer.allowed).map((answer) => answer.id)) });
       }
-      const grade = game.view().qualities.find((quality) => quality.id === "quality.edu-grade")?.value ?? 0;
+      const grade = qualityIn(game.view(), "quality.edu-grade");
       if (grade < bar === low) return `grade-${String(n)}`;
     }
     throw new Error("No seed in 40 lands there.");

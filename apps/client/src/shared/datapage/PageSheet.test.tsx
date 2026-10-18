@@ -1,6 +1,7 @@
 // The data page stays with the character (prologue.md R-PROLOGUE-009): the name over the age in the band opens it; it
 // shows the age kept current, how ready they are and a stamp for each step taken toward leaving; a close returns.
 import type { PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -22,7 +23,7 @@ import { TRAIL_KEY } from "../kept/storage";
 
 /** The age in months the view holds. */
 function ageOf(view: Pick<PlayerView, "qualities">): number {
-  return view.qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+  return qualityIn(view, AGE);
 }
 
 afterEach(() => {
@@ -135,7 +136,7 @@ describe("the page from the band", () => {
     const page = screen.getByRole("dialog").querySelector<HTMLElement>("[data-page]")!;
     // R-PROLOGUE-009: the card's title says where the family is; the FAMILY line keeps its means.
     expect(page.querySelector("[data-field='family']")?.textContent).toContain(familyCard({ familyMeans: 50, town: "city", siblings: 2, parentsEducated: true }, false).means);
-    const months = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+    const months = qualityIn(view, "quality.age-months");
     const lines = stripLines("Morenike", { district: say("ui.door.home.where.family-house"), years: yearsOf(months), percent: view.japacity.percent ?? 0 });
     expect(view.home.place).toBe("place.family-house");
     expect(page.querySelector("[data-page-strip]")?.textContent).toBe(lines.join(""));

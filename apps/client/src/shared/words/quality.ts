@@ -1,6 +1,7 @@
 // A quality's value as the player reads it, wherever it shows: the profile,
 // the prologue's life so far, a requirement.
 import { formatNumber } from "./format";
+import { qualityIn } from "@japacity/sim";
 import { bandWords, hasWords, say } from "./text";
 
 export const AGE = "quality.age-months";
@@ -13,7 +14,7 @@ export function yearsOf(months: number): number {
 
 /** The character's age as the band's clock says it, "23 yrs 4 mo": the game's own time (R-WORLD-002). */
 export function clockWords(qualities: readonly { id: string; value: number }[]): string {
-  const age = qualities.find((quality) => quality.id === AGE)?.value ?? 0;
+  const age = qualityIn({ qualities }, AGE);
   return say("ui.world.clock", { years: yearsOf(age), months: age % MONTHS_IN_YEAR });
 }
 
@@ -23,7 +24,7 @@ export function clockWords(qualities: readonly { id: string; value: number }[]):
  * keeps the clock in years and months (R-WORLD-002).
  */
 export function pageAgeWords(qualities: readonly { id: string; value: number }[]): string {
-  return say("prologue.page.age.years", { years: yearsOf(qualities.find((quality) => quality.id === AGE)?.value ?? 0) });
+  return say("prologue.page.age.years", { years: yearsOf(qualityIn({ qualities }, AGE)) });
 }
 
 /** A value as the player reads it: a named level where content names one, years for age, the band it is in, else the number. */

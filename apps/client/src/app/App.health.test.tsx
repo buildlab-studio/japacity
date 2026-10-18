@@ -1,5 +1,6 @@
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
@@ -37,7 +38,7 @@ describe("the run-down warning", () => {
     await renderWithView(<RunDownBanner />, view);
     const banner = screen.getByRole("alert");
     expect(within(banner).getByText(say("ui.health.run-down"))).toBeDefined();
-    const wellbeing = view.qualities.find((quality) => quality.id === WELLBEING)?.value ?? 0;
+    const wellbeing = qualityIn(view, WELLBEING);
     expect(within(banner).getByText(say("ui.health.run-down-figure", { quality: nameOf(WELLBEING), value: wellbeing, line: health.runDownBelow }))).toBeDefined();
   });
 

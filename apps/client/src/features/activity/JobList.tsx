@@ -7,6 +7,7 @@ import { content } from "@japacity/content";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import type { ActivityEntry, Id, PlayerView, Requirement } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 
 import { requirementSentence } from "../../shared/words/requirement";
 import { Tile } from "../../shared/tiles/Tile";
@@ -63,14 +64,11 @@ export function firstJob(view: PlayerView, ordered: readonly string[]): string |
   return better.find(ofATrade) ?? better[0] ?? null;
 }
 
-function qualityOf(view: PlayerView, id: string): number {
-  return view.qualities.find((quality) => quality.id === id)?.value ?? 0;
-}
 
 /** Whether the view shows a requirement met; one the view cannot judge counts as unmet, so it is named. */
 function metNow(view: PlayerView, requirement: Requirement): boolean {
-  if (requirement.type === "quality/min") return qualityOf(view, requirement.quality) >= requirement.value;
-  if (requirement.type === "quality/max") return qualityOf(view, requirement.quality) <= requirement.value;
+  if (requirement.type === "quality/min") return qualityIn(view, requirement.quality) >= requirement.value;
+  if (requirement.type === "quality/max") return qualityIn(view, requirement.quality) <= requirement.value;
   return false;
 }
 

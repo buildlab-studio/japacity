@@ -7,6 +7,7 @@ import "./sendoff.css";
 
 import { content, text } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import { qualityIn } from "@japacity/sim";
 import type { ReactNode } from "react";
 
 import type { PlayerCommand } from "../../../authority/store";
@@ -92,7 +93,7 @@ export default function SendOffScene({ you, game, planeCut }: SendOffSceneProps)
   }, [beat]);
   if (scene === null) return null;
   const landing = landingOf(scene.country);
-  const ageMonths = view.qualities.find((quality) => quality.id === "quality.age-months")?.value ?? 0;
+  const ageMonths = qualityIn(view, "quality.age-months");
   const age = say("ui.world.clock", { years: Math.floor(ageMonths / 12), months: ageMonths % 12 });
   // Before the plane the band counts the naira; after it, the landing country's own money (R-WORLD-002 abroad).
   const abroad = scene.beat === "plane" || scene.beat === "landing" || scene.beat === "ride";
