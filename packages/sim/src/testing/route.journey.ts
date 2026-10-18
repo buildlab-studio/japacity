@@ -281,6 +281,14 @@ export function applyEffects(game: Game, effects: Effect[], terms: Terms = {}): 
   game.state = result.state;
 }
 
+/** Sets each named quality to the middle, so a lift or a fall is never lost to a bound. */
+export function middling(game: Game, qualities: readonly Id<"quality">[]): void {
+  applyEffects(
+    game,
+    qualities.map((quality): Effect => ({ type: "quality/add", quality, amount: 50 - (game.state.quality[quality] ?? 0) })),
+  );
+}
+
 /** The route's report lines from carrying out effects as an offer's take would. */
 export function linesOf(game: Game, effects: Effect[], terms: Terms): ReportLine[] {
   const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);

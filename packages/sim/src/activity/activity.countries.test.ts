@@ -6,7 +6,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Currency, Effect, Id } from "../engine/types";
-import { applyEffects } from "../testing/route.journey";
+import { applyEffects, middling } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { debits } from "../testing/read";
@@ -84,14 +84,6 @@ function money(game: Game, country: Id<"country">, cash: number): void {
     return held === 0 ? [] : [{ type: "money/take", currency, pocket: "any", amount: held, reason: "mishap" }];
   });
   applyEffects(game, [...takes, ...(cash > 0 ? [{ type: "money/add", currency: currencyOf(country), pocket: "cash", amount: cash, reason: "gift" } as const] : [])]);
-}
-
-/** Sets each named quality to the middle, so a lift or a fall is never lost to a bound. */
-function middling(game: Game, qualities: readonly Id<"quality">[]): void {
-  applyEffects(
-    game,
-    qualities.map((quality): Effect => ({ type: "quality/add", quality, amount: 50 - (game.state.quality[quality] ?? 0) })),
-  );
 }
 
 describe("the three countries lived by hand", () => {
