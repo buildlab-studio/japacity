@@ -3,7 +3,7 @@
 // the card read by anyone with the link, and the accept that makes the record.
 import type { InviteAccepted, InviteMade, InviteShown } from "@japacity/api";
 import type { Id, InviteCard, PairRecord, ReadCtx, State } from "@japacity/sim";
-import { factsOf, inviteCard, inviteExpires, mayOpenInvite, mayPair, newRecord, pairId, pairView, useInvite } from "@japacity/sim";
+import { factsOf, inviteCard, inviteExpires, mayOpenInvite, mayPair, newRecord, pairId, pairView, toHex, useInvite } from "@japacity/sim";
 import type { InviteMilestone, InviteRow } from "@japacity/store";
 
 import { newCharacter } from "../authority/character";
@@ -30,10 +30,6 @@ function unusable(failed: "used" | "expired" | "wrong-slot", detail: string): { 
 const ADULT_MONTHS = 216;
 const AGE: Id<"quality"> = "quality.age-months";
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
-
-function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
 
 function isLooking(looking: string | undefined): looking is "partner" | "sibling" {
   return looking === "partner" || looking === "sibling";
@@ -80,7 +76,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   if (!mayOpenInvite(open.length, tuning)) return refused(429, "too-many", `At most ${String(tuning.maxOpenInvites)} cards may be out at once.`);
   const card = inviteCard(read, slot);
   if (card === null) return refused(400, "not-legal", `The card on ${slot} is off the fixed lists.`);
-  const code = hex(deps.randomBytes(CODE_BYTES));
+  const code = toHex(deps.randomBytes(CODE_BYTES));
   const expires = inviteExpires(now, tuning);
   const made = await deps.stores.invite.create({ code, from: row.character, account, slot, looking: held.invite.looking, fill: held.invite.fill, card, madeAt: now, expires });
   if (!made.ok) throw new Error(`A new link code was refused: ${made.detail}`);

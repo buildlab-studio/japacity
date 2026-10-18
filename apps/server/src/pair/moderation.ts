@@ -4,7 +4,7 @@
 // report holds what it cites and changes nothing in either life.
 import { type Blocked, REPORT_REASONS, type ReportCite, type Reported, type ReportSubject } from "@japacity/api";
 import type { Id, PairRecord } from "@japacity/sim";
-import { pairId, time } from "@japacity/sim";
+import { pairId, time, toHex } from "@japacity/sim";
 import type { ReportReason, ReportRow } from "@japacity/store";
 
 import { characterOf } from "../authority/command";
@@ -19,10 +19,6 @@ import { accountOfCharacter } from "./account";
 import { pairStep, sendTo, sideLive, sideOf, unusual } from "./step";
 
 const REPORT_BYTES = 12;
-
-function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
 
 /** The other character a request names: the other side of `pair`, or `character` itself. */
 async function targetOf(deps: ServerDeps, me: string, body: unknown): Promise<string | null> {
@@ -124,7 +120,7 @@ async function overLimit(deps: ServerDeps, account: string): Promise<PairAnswer<
 }
 
 function reportId(deps: ServerDeps): string {
-  return `report-${hex(deps.randomBytes(REPORT_BYTES))}`;
+  return `report-${toHex(deps.randomBytes(REPORT_BYTES))}`;
 }
 
 /**

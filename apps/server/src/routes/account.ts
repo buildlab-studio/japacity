@@ -10,6 +10,7 @@ import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
+import { toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
@@ -119,7 +120,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     if (pass === null || pass === "") return c.json<NameReply>(rejection("expired", "Answer the age question again first."), 403);
 
     const context = await auth.$context;
-    const device = readCookie(request.headers.get("cookie"), DEVICE_COOKIE) ?? [...deps.randomBytes(16)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+    const device = readCookie(request.headers.get("cookie"), DEVICE_COOKIE) ?? toHex(deps.randomBytes(16));
     setCookie(c, DEVICE_COOKIE, device, { path: "/api/guest", httpOnly: true, secure: true, sameSite: "Lax", maxAge: DEVICE_COOKIE_S });
     const address = request.headers.get("cf-connecting-ip");
     if (await tooManyGuests(deps, context.adapter, device, address)) return c.json<NameReply>(rejection("too-many", "Too many new lives from here today. Come back tomorrow."), 429);

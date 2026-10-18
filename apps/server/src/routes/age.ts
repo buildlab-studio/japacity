@@ -5,6 +5,7 @@
 // routes/account.ts).
 // https://hono.dev/docs/helpers/cookie
 import type { AgeReply, AgeRequest, AgeStatus } from "@japacity/api";
+import { toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
@@ -18,10 +19,6 @@ import { limit } from "../limits/limit";
 /** The guest start, the one route that reads the pass. */
 export const PASS_PATH = "/api/guest";
 const DAY_S = 86_400;
-
-function hex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
 
 export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
@@ -49,7 +46,7 @@ export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv
       return c.json<AgeReply>(rejection("under-age", "This browser cannot sign up."), 403);
     }
 
-    const nonce = hex(deps.randomBytes(16));
+    const nonce = toHex(deps.randomBytes(16));
     const context = await auth.$context;
     await context.internalAdapter.createVerificationValue({ identifier: PASS_PREFIX + nonce, value: String(now), expiresAt: new Date(now + PASS_TTL_MS) });
     setCookie(c, PASS_COOKIE, nonce, { path: PASS_PATH, httpOnly: true, secure: true, sameSite: "Lax", maxAge: Math.floor(PASS_TTL_MS / 1000) });

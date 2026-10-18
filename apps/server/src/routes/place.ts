@@ -4,6 +4,7 @@
 // and the socket carries only nudges, never words between players.
 import type { PresenceReply, ServerCode, ServerRejection } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
+import { toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
@@ -41,10 +42,6 @@ function seedFrom(bytes: Uint8Array): number {
 /** R-CITY-036: a name and a look, so no account id or position can reach the reply. */
 function shown(member: { name: string; look: string }): { name: string; look: string } {
   return { name: member.name, look: member.look };
-}
-
-function hex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 /** `GET /api/place/:place`: a fresh sample of the other players there (R-CLOCK-028), and of some seen there today (R-CITY-036). */
@@ -94,7 +91,7 @@ export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Ho
     if (where !== place) return refuse(c, 409, "not-legal", `the character is in ${where}`);
 
     const member = { account: session.account, name: profile.name, look: profile.look, place, joinedAt: deps.now() };
-    const response = await openSocket(bindings.rooms, place, { kind: "member", socket: hex(deps.randomBytes(16)), member });
+    const response = await openSocket(bindings.rooms, place, { kind: "member", socket: toHex(deps.randomBytes(16)), member });
     if (response.status === 101) return response;
     const detail = await response.text();
     return refuse(c, response.status === STATUS_TOO_LARGE ? 413 : 503, "not-legal", detail);

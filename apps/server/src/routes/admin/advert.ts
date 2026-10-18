@@ -5,6 +5,7 @@
 // account in `config.admin.accounts` may reach these routes; to anyone else
 // they do not exist.
 import type { Id } from "@japacity/sim";
+import { toHex } from "@japacity/sim";
 import type { Campaign, NamedPlace } from "@japacity/store";
 import type { Context } from "hono";
 import { Hono } from "hono";
@@ -41,10 +42,6 @@ async function bodyOf(c: Context): Promise<Body | null> {
   }
 }
 
-function hex(bytes: Uint8Array): string {
-  return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 function fromBase64(value: string): Uint8Array | null {
   try {
     return Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
@@ -76,7 +73,7 @@ const BAD_BODY = { ok: false, code: "bad-body", detail: "The request body is not
 
 export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, init) => fetch(input, init)): Hono<AdminEnv> {
   const admin = new Hono<AdminEnv>();
-  const newId = (prefix: string) => `${prefix}-${hex(deps.randomBytes(8))}`;
+  const newId = (prefix: string) => `${prefix}-${toHex(deps.randomBytes(8))}`;
 
   admin.use("*", adminOnly(deps));
 

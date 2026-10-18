@@ -4,7 +4,7 @@
 // one (R-ACCOUNT-030), so the account may start another.
 import type { ViewReply } from "@japacity/api";
 import type { Id, Save } from "@japacity/sim";
-import { int, newState, viewFor } from "@japacity/sim";
+import { int, newState, toHex, viewFor } from "@japacity/sim";
 
 import { clockView, tickAt } from "../clock/view";
 import type { ServerDeps } from "../deps";
@@ -16,13 +16,9 @@ import { refusal } from "./answer";
 const ID_BYTES = 16;
 const BYTE_BITS = 8;
 
-function hex(bytes: Uint8Array): string {
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 /** R-SERVER-016: the seed of a new character, `server.seedBits` of secure random bytes as hex. */
 function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): string {
-  return hex(deps.randomBytes(int.divFloor(deps.config.server.seedBits, BYTE_BITS)));
+  return toHex(deps.randomBytes(int.divFloor(deps.config.server.seedBits, BYTE_BITS)));
 }
 
 /**
@@ -40,7 +36,7 @@ export async function newCharacter(deps: ServerDeps, account: string, scenario: 
   if (content.scenario[scenario] === undefined) return refusal(400, "unknown-id", `There is no scenario ${scenario}.`);
 
   const seed = newSeed(deps);
-  const id = `character-${hex(deps.randomBytes(ID_BYTES))}`;
+  const id = `character-${toHex(deps.randomBytes(ID_BYTES))}`;
   const at = deps.now();
   const world = (await tickRow(deps, tickAt(deps.config.clock, at))).world;
   const state = family === undefined ? newState(scenario, seed, content) : newState(scenario, seed, content, { family });

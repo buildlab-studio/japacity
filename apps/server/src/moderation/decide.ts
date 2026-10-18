@@ -1,7 +1,8 @@
 // R-MODERATION-008, R-MODERATION-014 to 019: an admin closes a report or
 // decides an appeal; every action is logged first, a close lifts the hold,
 // and a ban bars the sign-in identities and ends every session.
-import { ACTION_MAX_DAYS, REPORT_ACTIONS, TOLD_ACTIONS, REPORT_REASONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
+import { ACTION_MAX_DAYS, REPORT_ACTIONS, REPORT_REASONS, TOLD_ACTIONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
+import { toHex } from "@japacity/sim";
 import type { AppealRow, ModerationLogEntry } from "@japacity/store";
 
 import { requestDeletion } from "../account/deletion";
@@ -39,7 +40,7 @@ function refused(status: 400 | 403 | 404 | 409, code: ServerCode, detail: string
 }
 
 export function newId(deps: Pick<ServerDeps, "randomBytes">, prefix: string): string {
-  return `${prefix}.${[...deps.randomBytes(8)].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+  return `${prefix}.${toHex(deps.randomBytes(8))}`;
 }
 
 interface Common {

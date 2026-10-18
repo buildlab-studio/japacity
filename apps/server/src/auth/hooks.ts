@@ -6,6 +6,7 @@
 // https://better-auth.com/docs/concepts/hooks
 // https://better-auth.com/docs/concepts/rate-limit
 // https://pages.nist.gov/800-63-4/sp800-63b/events/ (4.1.2.1, 4.6)
+import { toHex } from "@japacity/sim";
 import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from "better-auth/api";
 
 import { GUEST_PATH } from "../account/signup";
@@ -66,7 +67,7 @@ export async function accountHash(account: string): Promise<string> {
 
 export async function sha256Hex(text: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return toHex(new Uint8Array(digest));
 }
 
 /**
