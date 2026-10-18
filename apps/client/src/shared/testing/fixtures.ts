@@ -2,6 +2,7 @@
 // content, so they follow the kinds as they land. The rich one is built by
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
+import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
@@ -387,4 +388,14 @@ export function gameAuthority(game: Game): Authority & { sent: Command[] } {
       return Promise.resolve({ ok: true, view: game.view(), lines: result.lines });
     },
   };
+}
+
+/**
+ * An account as `GET /api/account` answers its owner (R-ACCOUNT-021, R-ACCOUNT-027): a kept account with its email as
+ * the way back in, or a guest with none. A test overrides what it is about.
+ */
+export function accountView(over: Partial<AccountView> = {}): AccountView {
+  const state = over.state ?? "secured";
+  const ways = state === "guest" ? { google: null, email: null, passkeys: 0 } : { google: null, email: "ada@example.com", passkeys: 0 };
+  return { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state, username: "ada_lagos", renameFrom: 0, ways, ...over };
 }
