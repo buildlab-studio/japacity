@@ -13,7 +13,7 @@ import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
-import { eventsOf, naira, restMonth } from "../testing/read";
+import { eventsOf, naira, openObligations, restMonth } from "../testing/read";
 import { compoundMoveIn } from "./home.logic";
 
 const FAMILY = "place.family-house" as const;
@@ -56,12 +56,6 @@ function rentMonths(game: Game, last: number): number[] {
 /** Ends months until the year's rent first falls due, the rent held until then. */
 function toRentDue(game: Game): void {
   while (game.state.turn.month < 11) restMonth(game);
-}
-
-function openEntries(game: Game): Id<"obligation">[] {
-  return Object.values(game.state.obligation.items)
-    .map((item) => item.entry)
-    .sort();
 }
 
 /** Ada moved into the room in this month with plenty left. */
@@ -108,7 +102,7 @@ describe("moving into the room", () => {
     const debits = eventsOf(result, "wallet/debited").map((event) => [event["amount"], event["reason"]]);
     expect(debits).toEqual([[MOVE_IN, "rent"]]);
     expect(naira(game)).toBe(5_000_000_00 - MOVE_IN);
-    expect(openEntries(game)).toEqual([RENT, UPKEEP]);
+    expect(openObligations(game)).toEqual([RENT, UPKEEP]);
     expect(game.state.home).toMatchObject({ place: COMPOUND, since: 0, moved: 0, guest: null });
     expect(game.state.quality[STANDING]).toBe(standing);
     expect(result.lines.map((line) => line.key)).toContain("line.home.moved");
@@ -186,7 +180,7 @@ describe("moving back", () => {
     const standing = game.state.quality[STANDING]!;
     const before = naira(game);
     const result = game.accept({ type: "home/move", to: FAMILY });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
     expect(naira(game)).toBe(before);
@@ -199,7 +193,7 @@ describe("moving back", () => {
     const game = inTheRoom();
     restMonth(game);
     game.accept({ type: "home/move", to: MAKOKO });
-    expect(openEntries(game)).toEqual(["obligation.upkeep-makoko"]);
+    expect(openObligations(game)).toEqual(["obligation.upkeep-makoko"]);
     expect(game.state.home.place).toBe(MAKOKO);
   });
 });
@@ -280,7 +274,7 @@ describe("a rent gone bad (R-HOME-011)", () => {
     if (last === null) throw new Error("No month ran.");
     expect(eventsOf(last, "obligation/defaulted").map((event) => event["entry"])).toEqual([RENT]);
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     const moved = eventsOf(last, "home/moved");
     expect(moved).toHaveLength(1);
     expect(moved[0]).toMatchObject({ from: COMPOUND, to: FAMILY, putOut: true });
@@ -298,7 +292,7 @@ describe("a rent gone bad (R-HOME-011)", () => {
     const result = restMonth(game);
     expect(eventsOf(result, "obligation/defaulted")).toEqual([]);
     expect(game.state.home.place).toBe(COMPOUND);
-    expect(openEntries(game)).toEqual([RENT, UPKEEP]);
+    expect(openObligations(game)).toEqual([RENT, UPKEEP]);
   });
 
   test("[R-HOME-011] given the standing cost of a move back, when Ada is put out, then her standing falls by the tuning's figure on top of the misses' own costs", () => {
@@ -323,11 +317,11 @@ describe("a flight lets the room go (R-PLACE-002)", () => {
     const game = inTheRoom();
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
-    expect(openEntries(game).filter((entry) => entry === RENT || entry === UPKEEP || entry === FAMILY_UPKEEP)).toEqual([]);
+    expect(openObligations(game).filter((entry) => entry === RENT || entry === UPKEEP || entry === FAMILY_UPKEEP)).toEqual([]);
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
-    expect(openEntries(game)).toContain(FAMILY_UPKEEP);
-    expect(openEntries(game)).not.toContain(RENT);
+    expect(openObligations(game)).toContain(FAMILY_UPKEEP);
+    expect(openObligations(game)).not.toContain(RENT);
     expect(game.view().home.place).toBe(FAMILY);
     restMonth(game);
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
@@ -345,7 +339,7 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
     expect(naira(game)).toBe(held - MOVE_IN);
     expect(game.state.prologue.open).toBe(false);
     expect(game.state.home).toEqual({ place: COMPOUND, since: 0, guest: null, moved: null, evicted: null, hosting: null });
-    expect(openEntries(game)).toEqual([RENT, UPKEEP]);
+    expect(openObligations(game)).toEqual([RENT, UPKEEP]);
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
     for (let at = 1; at < 12; at += 1) {
       setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });

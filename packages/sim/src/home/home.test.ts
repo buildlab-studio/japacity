@@ -13,7 +13,7 @@ import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
-import { eventsOf, restMonth } from "../testing/read";
+import { eventsOf, openObligations, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 
 const MAKOKO = "place.makoko" as const;
@@ -56,12 +56,6 @@ function upkeepPaid(result: { events: BaseEvent[] }): number {
   return eventsOf(result, "wallet/debited")
     .filter((event) => event["reason"] === "upkeep" && event["currency"] === "NGN")
     .reduce((sum, event) => sum + (event["amount"] as number), 0);
-}
-
-function openEntries(game: Game): Id<"obligation">[] {
-  return Object.values(game.state.obligation.items)
-    .map((item) => item.entry)
-    .sort();
 }
 
 function offerOf(game: Game, entry: Id<"offer">) {
@@ -183,8 +177,8 @@ describe("coming back", () => {
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
-    expect(openEntries(game)).toContain(FAMILY_UPKEEP);
-    expect(openEntries(game)).not.toContain(MAKOKO_UPKEEP);
+    expect(openObligations(game)).toContain(FAMILY_UPKEEP);
+    expect(openObligations(game)).not.toContain(MAKOKO_UPKEEP);
     expect(game.view().home.place).toBe(FAMILY);
     const result = restMonth(game);
     expect(eventsOf(result, "home/taken-back")).toHaveLength(1);
@@ -207,7 +201,7 @@ describe("moving", () => {
       ["bank", bank, "upkeep"],
       ["cash", home.makokoUpkeep - bank, "upkeep"],
     ]);
-    expect(openEntries(game)).toEqual([MAKOKO_UPKEEP]);
+    expect(openObligations(game)).toEqual([MAKOKO_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(home.makokoUpkeep);
     expect(game.state.home).toMatchObject({ place: MAKOKO, since: 0, moved: 0, guest: null });
     expect(result.lines.map((line) => line.key)).toContain("line.home.moved");
@@ -252,7 +246,7 @@ describe("moving", () => {
     restMonth(game);
     const standing = game.state.quality[STANDING]!;
     const result = game.accept({ type: "home/move", to: FAMILY });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
     expect(upkeepPaid(result)).toBe(0);
@@ -339,7 +333,7 @@ describe("eviction", () => {
   test("[R-HOME-003] given Ada in Makoko at a sure eviction chance, when the month ends, then the room is gone, the rent closes with nothing owed, standing does not fall, and the line is told straight", () => {
     const { game, result } = evicted();
     expect(game.state.home).toMatchObject({ place: null, guest: null, evicted: 1, since: 1 });
-    expect(openEntries(game)).toEqual([]);
+    expect(openObligations(game)).toEqual([]);
     const line = result.lines.find((candidate) => candidate.key === "line.home.evicted");
     expect(line).toMatchObject({ tone: "bad", attention: true, params: { lost: { currency: "NGN", amount: home.evictionLossNaira } } });
     expect(eventsOf(result, "quality/changed").filter((event) => event["quality"] === STANDING)).toEqual([]);
@@ -438,7 +432,7 @@ describe("taken in", () => {
     ]);
     choose(game, WHERE_NEXT, "makoko");
     expect(game.state.home).toMatchObject({ place: MAKOKO, guest: null });
-    expect(openEntries(game)).toEqual([MAKOKO_UPKEEP]);
+    expect(openObligations(game)).toEqual([MAKOKO_UPKEEP]);
   });
 
   test("[R-HOME-004] given a guest whose stay ends short of the rent, when where-next is read, then makoko is shut and family stays open", () => {
@@ -457,7 +451,7 @@ describe("taken in", () => {
     const standing = game.state.quality[STANDING]!;
     choose(game, TAKEN_IN, "family");
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
   });
@@ -467,7 +461,7 @@ describe("taken in", () => {
     const result = restMonth(game);
     expect(eventsOf(result, "offer/lapsed").find((event) => event["entry"] === TAKEN_IN)?.["choice"]).toBe("family");
     expect(game.state.home.place).toBe(FAMILY);
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
   });
 });
 
@@ -537,7 +531,7 @@ describe("a life from sixteen", () => {
     restMonth(game);
     const standing = game.state.quality[STANDING]!;
     game.accept({ type: "home/move", to: FAMILY });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
     expect(checkInvariants(game.state, content)).toEqual([]);
@@ -550,7 +544,7 @@ describe("a life from sixteen", () => {
     expect(offerOf(game, TAKEN_IN)).toBeDefined();
     choose(game, TAKEN_IN, "family");
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
   });
 });
@@ -559,9 +553,9 @@ describe("the starting life's charges at home", () => {
   test("[R-HOME-009] [R-PLACE-007] given a life from sixteen at the family house, when it flies abroad and comes home, then the family house's upkeep the home card names is open again and the next month charges it", () => {
     const game = fromSixteen("family-house", CHARGED_NEVER);
     setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
-    expect(openEntries(game)).not.toContain(FAMILY_UPKEEP);
+    expect(openObligations(game)).not.toContain(FAMILY_UPKEEP);
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
     const upkeep = Object.values(game.state.obligation.items).filter((item) => item.entry === FAMILY_UPKEEP);
@@ -643,14 +637,14 @@ describe("a start on the water", () => {
     const game = fromSixteen("makoko", CHARGED_NEVER);
     expect(game.state.prologue.open).toBe(false);
     expect(game.state.home).toEqual({ place: MAKOKO, since: 0, guest: null, moved: null, evicted: null, hosting: null });
-    expect(openEntries(game)).toEqual([MAKOKO_UPKEEP]);
+    expect(openObligations(game)).toEqual([MAKOKO_UPKEEP]);
     expect(game.view().home).toMatchObject({ place: MAKOKO, rent: { currency: "NGN", amount: home.makokoUpkeep }, moved: null });
     expect(checkInvariants(game.state, CHARGED_NEVER)).toEqual([]);
     const result = restMonth(game);
     expect(upkeepPaid(result)).toBe(home.makokoUpkeep);
     // The family house is still there to go back to, at its own charge.
     game.accept({ type: "home/move", to: FAMILY });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(familyCardCharge());
   });
 

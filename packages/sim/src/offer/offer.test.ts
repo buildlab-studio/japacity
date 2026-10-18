@@ -29,6 +29,7 @@ import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
+import { openOffers } from "../testing/read";
 import type { OfferEvent } from "./offer.events";
 
 const ADA: Id<"scenario"> = "scenario.ada";
@@ -142,10 +143,6 @@ function own<T extends OfferEvent["type"]>(result: { events: BaseEvent[] }, type
 
 function opened(result: { events: BaseEvent[] }): OfferState[] {
   return own(result, "offer/opened").map((event) => event.item);
-}
-
-function openEntries(subject: Lab): Id<"offer">[] {
-  return Object.values(subject.game.state.offer.items).map((item) => item.entry);
 }
 
 function qualityChanges(result: { events: BaseEvent[] }, source: string): [string, number][] {
@@ -266,7 +263,7 @@ describe("coming up", () => {
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN, expiresAfter: 3, cooldown: 0 } }, true) });
     expect(opened(subject.end())).toHaveLength(1);
     expect(opened(subject.end())).toEqual([]);
-    expect(openEntries(subject)).toEqual(["offer.fuel-scarcity"]);
+    expect(openOffers(subject.game)).toEqual(["offer.fuel-scarcity"]);
   });
 
   test("[R-OFFER-001] given a cooldown of 3, when the offer opened in month 1, then it does not come up in months 2 and 3, and does in month 4", () => {
@@ -670,7 +667,7 @@ describe("opened by an effect", () => {
     expect(own(result, "offer/replaced")).toEqual([{ type: "offer/replaced", id: first.id, entry: "offer.job" }]);
     expect(second.id).not.toBe(first.id);
     expect(second.terms).toEqual({ job: "activity.job-customer-service" });
-    expect(openEntries(subject)).toEqual(["offer.job"]);
+    expect(openOffers(subject.game)).toEqual(["offer.job"]);
     expect(subject.game.state.offer.items[first.id]).toBeUndefined();
     expect(subject.game.state.offer.timesOpened["offer.job"]).toBe(2);
     expect(result.lines.map((line) => line.key)).toEqual(["line.offer.replaced", "line.offer.opened"]);
@@ -687,7 +684,7 @@ describe("opened by an effect", () => {
     expect(own(result, "offer/replaced")).toHaveLength(1);
     expect(subject.game.state.quality).toEqual(before.quality);
     expect(subject.game.state.wallet).toEqual(before.wallet);
-    expect(openEntries(subject)).toEqual(["offer.nepa-bill"]);
+    expect(openOffers(subject.game)).toEqual(["offer.nepa-bill"]);
   });
 
   test("[R-OFFER-007] given a job hunt that lands, when the month resolves, then a job offer opens naming the job, and accepting it starts the job", () => {

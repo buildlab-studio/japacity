@@ -11,7 +11,7 @@ import type { Accepted, Id } from "../engine/types";
 import type { Game } from "../testing/play";
 import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
-import { eventsOf, naira, restMonth } from "../testing/read";
+import { eventsOf, naira, openObligations, restMonth } from "../testing/read";
 import { HomePlaceSchema } from "./home.schema";
 
 const FAMILY = "place.family-house" as const;
@@ -24,10 +24,6 @@ const MONTH = home.hostelRentKobo;
 
 function ada(): Game {
   return start({ content, scenario: "scenario.ada", seed: "seed-1" });
-}
-
-function openEntries(game: Game): string[] {
-  return Object.values(game.state.obligation.items).map((item) => item.entry as string).sort();
 }
 
 /** Ada moved into the hostel with exactly a month's rent and `spare` more. */
@@ -73,8 +69,8 @@ describe("the hostel as a home", () => {
     expect(eventsOf(result, "wallet/debited").map((event) => [event["reason"], event["amount"]])).toEqual([["rent", MONTH]]);
     expect(naira(game)).toBe(0);
     expect(game.state.home).toMatchObject({ place: HOSTEL, guest: null });
-    expect(openEntries(game)).toEqual([RENT]);
-    expect(openEntries(game)).not.toContain("obligation.rent-compound");
+    expect(openObligations(game)).toEqual([RENT]);
+    expect(openObligations(game)).not.toContain("obligation.rent-compound");
     expect(game.view().home.rent).toEqual({ currency: "NGN", amount: MONTH });
     expect(game.view().home.roomRent).toBeNull();
     expect(checkInvariants(game.state, content)).toEqual([]);
@@ -103,7 +99,7 @@ describe("the hostel as a home", () => {
     if (last === null) throw new Error("No month ran.");
     expect(eventsOf(last, "obligation/defaulted").map((event) => event["entry"])).toEqual([RENT]);
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(eventsOf(last, "home/moved")[0]).toMatchObject({ from: HOSTEL, to: FAMILY, putOut: true });
     expect(last.lines.find((line) => line.key === "line.home.put-out")).toMatchObject({ tone: "bad", attention: true, params: { place: FAMILY } });
     expect(eventsOf(last, "quality/changed").some((event) => event["quality"] === STANDING)).toBe(true);
@@ -115,7 +111,7 @@ describe("the hostel as a home", () => {
     setPockets(game, { NGN: 0 });
     restMonth(game);
     expect(game.state.home.place).toBe(HOSTEL);
-    expect(openEntries(game)).toEqual([RENT]);
+    expect(openObligations(game)).toEqual([RENT]);
   });
 
   test("[R-OBLIGATION-014] given Ada in the hostel, when the water acts are read, then the drum is filled free from the tap and no water is bought", () => {
@@ -136,7 +132,7 @@ describe("the hostel on the door", () => {
     game.accept({ type: "prologue/choose", step: "home", answer: "hostel-room" });
     expect(game.state.home.place).toBe(HOSTEL);
     expect(naira(game)).toBe(before);
-    expect(openEntries(game)).toEqual([RENT]);
+    expect(openObligations(game)).toEqual([RENT]);
     setPockets(game, { NGN: 5_000_000_00 });
     const result = restMonth(game);
     expect(eventsOf(result, "obligation/charged").filter((event) => event["entry"] === RENT).map((event) => event["total"])).toEqual([MONTH]);

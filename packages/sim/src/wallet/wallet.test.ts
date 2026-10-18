@@ -2,17 +2,17 @@ import { fc, test } from "@fast-check/vitest";
 import { badNews, content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
-import { check } from "../engine/check";
 import { bp, convertMinor, mulDiv, mulDivCeil } from "../engine/int";
 import { drawAt, scaleDraw } from "../engine/random";
 import { stepWith } from "../engine/step";
-import type { BaseEvent, Content, Ctx, Currency, Effect, ForeignCurrency, Id, Reason, Rejection, Requirement, StepResult, World } from "../engine/types";
+import type { BaseEvent, Content, Ctx, Currency, Effect, ForeignCurrency, Id, Reason, Rejection, StepResult, World } from "../engine/types";
 import { checkInvariants } from "../engine/invariants";
 import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
+import { judged } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import type { WalletEvent } from "./wallet.events";
 import { pocketFor, REASON_LINE } from "./wallet.logic";
@@ -79,10 +79,6 @@ function walletEvents(result: { events: BaseEvent[] }): WalletEvent[] {
   return result.events.filter((event): event is WalletEvent => event.type.startsWith("wallet/"));
 }
 
-function judge(game: Game, requirement: Requirement) {
-  return check({ state: game.state, world: game.world(), content: game.content }, requirement);
-}
-
 /** Bank plus cash plus locked for each currency, and the ledger's credits less debits. */
 function ledger(game: Game, currency: Currency): { held: number; booked: number } {
   const pocket = game.state.wallet.pockets[currency];
@@ -110,7 +106,7 @@ describe("pockets and debits", () => {
     const over = apply(game, [{ type: "money/take", currency: "NGN", pocket: "cash", amount: cash + 1, reason: "social" }]);
     expect(walletEvents(over)).toEqual([]);
     expect(game.state.wallet.pockets.NGN.cash).toBe(cash);
-    expect(judge(game, { type: "money/can-pay", currency: "NGN", amount: cash + 1 }).met).toBe(true);
+    expect(judged(game, { type: "money/can-pay", currency: "NGN", amount: cash + 1 }).met).toBe(true);
     const exact = apply(game, [{ type: "money/take", currency: "NGN", pocket: "cash", amount: cash, reason: "social" }]);
     expect(walletEvents(exact)).toEqual([{ type: "wallet/debited", currency: "NGN", pocket: "cash", amount: cash, reason: "social" }]);
     expect(game.state.wallet.pockets.NGN.cash).toBe(0);
@@ -121,8 +117,8 @@ describe("pockets and debits", () => {
     const { bank, cash } = game.state.wallet.pockets.NGN;
     const tooMuch = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: bank + cash + 1, reason: "family" }]);
     expect(walletEvents(tooMuch)).toEqual([]);
-    expect(judge(game, { type: "money/can-pay", currency: "NGN", amount: bank + cash + 1 }).met).toBe(false);
-    expect(judge(game, { type: "money/can-pay", currency: "NGN", amount: bank + cash }).met).toBe(true);
+    expect(judged(game, { type: "money/can-pay", currency: "NGN", amount: bank + cash + 1 }).met).toBe(false);
+    expect(judged(game, { type: "money/can-pay", currency: "NGN", amount: bank + cash }).met).toBe(true);
     expect(bank + 500).toBeGreaterThan(tuning.cashUpTo);
     const taken = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: bank + 500, reason: "family" }]);
     expect(walletEvents(taken)).toEqual([
@@ -413,7 +409,7 @@ describe("the bank", () => {
       const { game } = play({ vars: { [ALLOWANCE]: allowance, [QUEUE]: 0 } });
       apply(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 800, reason: "gift" }]);
       const naira = mulDivCeil(55000, ROUND_RATES.GBP.official, 100);
-      expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: 55800 }).met).toBe(true);
+      expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: 55800 }).met).toBe(true);
       const before = game.state.wallet.pockets.NGN.bank;
       apply(game, [{ type: "money/pay-fee", currency: "GBP", amount: 55800, reason: "fee-visa" }]);
       expect(before - game.state.wallet.pockets.NGN.bank).toBe(naira + bp(naira, tuning.bankChargeBp));
@@ -607,7 +603,7 @@ describe("foreign fees", () => {
     const { game } = play();
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "cash", amount: 800, reason: "gift" }]);
     const nairaBefore = game.state.wallet.pockets.NGN.bank;
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(true);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(true);
     apply(game, [{ type: "money/pay-fee", currency: "GBP", amount: fee, reason: "fee-visa" }]);
     const naira = mulDivCeil(fee - 800, ROUND_RATES.GBP.official, 100);
     expect(naira).toBe(110000000);
@@ -622,21 +618,21 @@ describe("foreign fees", () => {
     const { game, live } = play({ vars: { [QUEUE]: 1 } });
     apply(game, [{ type: "money/add", currency: "GBP", pocket: "bank", amount: 800, reason: "gift" }]);
     const before = game.state.wallet;
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(false);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(false);
     const result = apply(game, [{ type: "money/pay-fee", currency: "GBP", amount: fee, reason: "fee-visa" }]);
     expect(walletEvents(result)).toEqual([]);
     expect(game.state.wallet).toEqual(before);
     // With enough pounds of its own, the fee is paid whatever the queue.
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: 800 }).met).toBe(true);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: 800 }).met).toBe(true);
     live.vars = { [QUEUE]: 0 };
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(true);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: fee }).met).toBe(true);
   });
 
   test("[R-WALLET-009] given not enough money anywhere, when the fee is paid, then nothing is paid", () => {
     const { game } = play({ scenario: "scenario.ada" });
     const { bank } = game.state.wallet.pockets.NGN;
     const tooBig = mulDiv(bank, 100, ROUND_RATES.GBP.official) + 1;
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: tooBig }).met).toBe(false);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: tooBig }).met).toBe(false);
     const result = apply(game, [{ type: "money/pay-fee", currency: "GBP", amount: tooBig, reason: "fee-school" }]);
     expect(walletEvents(result)).toEqual([]);
     expect(game.state.wallet.pockets.NGN.bank).toBe(bank);
@@ -649,9 +645,9 @@ describe("foreign fees", () => {
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: needed, reason: "gift" }]);
     const { bank } = game.state.wallet.pockets.NGN;
     apply(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: bank - needed + 1, reason: "mishap" }]);
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: 10000 }).met).toBe(false);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: 10000 }).met).toBe(false);
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 1, reason: "gift" }]);
-    expect(judge(game, { type: "money/can-pay", currency: "GBP", amount: 10000 }).met).toBe(true);
+    expect(judged(game, { type: "money/can-pay", currency: "GBP", amount: 10000 }).met).toBe(true);
     apply(game, [{ type: "money/pay-fee", currency: "GBP", amount: 10000, reason: "fee-school" }]);
     expect(game.state.wallet.pockets.NGN.bank).toBe(0);
   });
@@ -667,7 +663,7 @@ describe("locked money", () => {
     game.expectRejected({ type: "wallet/convert", from: "NGN", to: "USD", amount: bank + 1, via: "bank" }, "cannot-afford");
     const any = apply(game, [{ type: "money/take", currency: "NGN", pocket: "any", amount: bank + game.state.wallet.pockets.NGN.cash + 1, reason: "family" }]);
     expect(walletEvents(any)).toEqual([]);
-    expect(judge(game, { type: "money/min", currency: "NGN", amount: bank + game.state.wallet.pockets.NGN.cash + 1 }).met).toBe(false);
+    expect(judged(game, { type: "money/min", currency: "NGN", amount: bank + game.state.wallet.pockets.NGN.cash + 1 }).met).toBe(false);
     expect(game.state.wallet.pockets.NGN.locked).toBe(500000000);
   });
 
@@ -763,11 +759,11 @@ describe("requirements and view", () => {
     const { game } = play({ scenario: "scenario.ada" });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 900000000, reason: "held-funds", locked: true }]);
     const { bank, cash } = game.state.wallet.pockets.NGN;
-    expect(judge(game, { type: "money/min", currency: "NGN", amount: bank + cash })).toEqual({ met: true, have: bank + cash, need: bank + cash });
-    expect(judge(game, { type: "money/min", currency: "NGN", amount: bank + cash + 1 }).met).toBe(false);
-    expect(judge(game, { type: "money/min", currency: "NGN", amount: cash, pocket: "cash" })).toEqual({ met: true, have: cash, need: cash });
-    expect(judge(game, { type: "money/min", currency: "NGN", amount: cash + 1, pocket: "cash" }).met).toBe(false);
-    expect(judge(game, { type: "money/min", currency: "NGN", amount: { var: ALLOWANCE } }).need).toBe(content.var[ALLOWANCE]!.start);
+    expect(judged(game, { type: "money/min", currency: "NGN", amount: bank + cash })).toEqual({ met: true, have: bank + cash, need: bank + cash });
+    expect(judged(game, { type: "money/min", currency: "NGN", amount: bank + cash + 1 }).met).toBe(false);
+    expect(judged(game, { type: "money/min", currency: "NGN", amount: cash, pocket: "cash" })).toEqual({ met: true, have: cash, need: cash });
+    expect(judged(game, { type: "money/min", currency: "NGN", amount: cash + 1, pocket: "cash" }).met).toBe(false);
+    expect(judged(game, { type: "money/min", currency: "NGN", amount: { var: ALLOWANCE } }).need).toBe(content.var[ALLOWANCE]!.start);
   });
 
   test("[R-WALLET-005] given the world, when the view is read, then it shows the pockets, the queue, the world's rates and the allowance left", () => {
@@ -801,13 +797,13 @@ describe("totals as a requirement", () => {
     const { game } = play({ scenario: TUNDE });
     const opening = game.state.wallet.totals.in.opening?.NGN ?? 0;
     expect(opening).toBeGreaterThan(0);
-    expect(judge(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening })).toEqual({ met: true, have: opening, need: opening });
-    expect(judge(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening + 1 }).met).toBe(false);
-    expect(judge(game, { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 1 })).toEqual({ met: false, have: 0, need: 1 });
+    expect(judged(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening })).toEqual({ met: true, have: opening, need: opening });
+    expect(judged(game, { type: "wallet/total", flow: "in", reason: "opening", currency: "NGN", amount: opening + 1 }).met).toBe(false);
+    expect(judged(game, { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 1 })).toEqual({ met: false, have: 0, need: 1 });
     apply(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 500, reason: "remit" }]);
     apply(game, [{ type: "money/take", currency: "NGN", pocket: "bank", amount: 200, reason: "social" }]);
-    expect(judge(game, { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 500 })).toEqual({ met: true, have: 500, need: 500 });
-    expect(judge(game, { type: "wallet/total", flow: "out", reason: "social", currency: "NGN", amount: 200 })).toEqual({ met: true, have: 200, need: 200 });
-    expect(judge(game, { type: "wallet/total", flow: "out", reason: "social", currency: "GBP", amount: 1 }).met).toBe(false);
+    expect(judged(game, { type: "wallet/total", flow: "in", reason: "remit", currency: "NGN", amount: 500 })).toEqual({ met: true, have: 500, need: 500 });
+    expect(judged(game, { type: "wallet/total", flow: "out", reason: "social", currency: "NGN", amount: 200 })).toEqual({ met: true, have: 200, need: 200 });
+    expect(judged(game, { type: "wallet/total", flow: "out", reason: "social", currency: "GBP", amount: 1 }).met).toBe(false);
   });
 });

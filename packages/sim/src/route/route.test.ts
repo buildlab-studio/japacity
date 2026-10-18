@@ -3,14 +3,13 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { check } from "../engine/check";
 import { convertMinor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { ActivityEntry, Content, Currency, Id, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { readOf } from "../testing/read";
+import { judged, readOf } from "../testing/read";
 import { replayedGame } from "../testing/recorded";
 import { standInWorld } from "../world/standIn";
 import type { RouteKindEvent } from "./route.events";
@@ -59,10 +58,6 @@ const ALWAYS_REFUSED: Partial<typeof numbers> = { refusalMinBp: 10000, refusalMa
 
 /** The first seed whose first Northgate answer is an offer for a grade of second upper. */
 const OFFERED = seedWhere((seed) => draw(seed, "school", 1, 10000) < offerChanceBp(school(NORTHGATE), 4, numbers));
-
-function judge(game: Game, requirement: Requirement) {
-  return check(readOf(game), requirement);
-}
 
 function living(game: Game): number {
   const vars = game.world().vars;
@@ -493,8 +488,8 @@ describe("the deposit", () => {
   test("[R-ROUTE-008] given an offer, when its deposit is paid, then it is paid as a pound fee for the school, the school is the route's, and the confirmation is granted", () => {
     const game = life();
     toOffer(game);
-    expect(judge(game, { type: "route/offer", route: UK }).met).toBe(true);
-    expect(judge(game, { type: "route/deposit", route: UK }).met).toBe(false);
+    expect(judged(game, { type: "route/offer", route: UK }).met).toBe(true);
+    expect(judged(game, { type: "route/deposit", route: UK }).met).toBe(false);
     const before = game.state.wallet.pockets.GBP.bank;
     const result = game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
     const deposit = school(NORTHGATE).deposit;
@@ -502,7 +497,7 @@ describe("the deposit", () => {
     expect(game.state.wallet.totals.out["fee-school"]).toEqual({ GBP: deposit });
     expect(uk(game)).toMatchObject({ school: NORTHGATE, depositPaid: deposit });
     expect(game.state.document[CAS]?.state).toBe("held");
-    expect(judge(game, { type: "route/deposit", route: UK }).met).toBe(true);
+    expect(judged(game, { type: "route/deposit", route: UK }).met).toBe(true);
     expect(routeLines(result.lines)).toEqual([{ key: "line.route.deposit-paid", params: { school: NORTHGATE, amount: { currency: "GBP", amount: deposit } }, tone: "good", attention: false, counts: [] }]);
   });
 
@@ -628,7 +623,7 @@ describe("funds", () => {
     const short = routeLines(game.endTurn().lines).find((line) => line.key.startsWith("line.route.funds"));
     expect(uk(game).funds).toMatchObject({ heldMonths: 0, covered: false });
     expect(short).toMatchObject({ key: "line.route.funds-short", attention: true, tone: "bad" });
-    expect(judge(game, { type: "route/funds", route: UK, heldMonths: 0 })).toEqual({ met: false, have: fundsShown(readOf(game), UK), need: fundsRequired(readOf(game), UK) });
+    expect(judged(game, { type: "route/funds", route: UK, heldMonths: 0 })).toEqual({ met: false, have: fundsShown(readOf(game), UK), need: fundsRequired(readOf(game), UK) });
     game.accept({ type: "wallet/move", currency: "GBP", amount: pounds, to: "bank" });
     game.endTurn();
     expect(uk(game).funds).toMatchObject({ heldMonths: 1, covered: true });
@@ -665,10 +660,10 @@ describe("the visa application", () => {
   test("[R-ROUTE-012] given a deposit paid this month, when the visa is applied for, then it is refused until the funds have been held at a month end", () => {
     const game = life();
     toDeposit(game);
-    expect(judge(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(false);
+    expect(judged(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(false);
     game.expectRejected({ type: "activity/now", activity: "activity.apply-for-visa", param: null }, "not-legal");
     game.endTurn();
-    expect(judge(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(true);
+    expect(judged(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(true);
     const before = game.state.wallet.pockets.GBP.bank;
     game.endTurn([slot("activity.apply-for-visa")]);
     const vars = game.world().vars;
@@ -759,7 +754,7 @@ describe("the visa application", () => {
     const game = life({ documents: READY_PAPERS.filter((paper) => paper.document !== TB) });
     toHeld(game);
     game.expectRejected({ type: "activity/now", activity: "activity.apply-for-visa", param: null }, "not-legal");
-    expect(judge(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(true);
+    expect(judged(game, { type: "route/funds", route: UK, heldMonths: 1 }).met).toBe(true);
     expect(uk(game).state).toBe("known");
   });
 
@@ -773,8 +768,8 @@ describe("the visa application", () => {
     const share = mulDiv(toPence(game, small, "NGN"), 10000, required);
     expect(share).toBeGreaterThan(0);
     expect(unexplainedBp(readOf(game), UK)).toBe(share);
-    expect(judge(game, { type: "route/unexplained-max", route: UK, bp: share })).toEqual({ met: true, have: share, need: share });
-    expect(judge(game, { type: "route/unexplained-max", route: UK, bp: share - 1 }).met).toBe(false);
+    expect(judged(game, { type: "route/unexplained-max", route: UK, bp: share })).toEqual({ met: true, have: share, need: share });
+    expect(judged(game, { type: "route/unexplained-max", route: UK, bp: share - 1 }).met).toBe(false);
     game.accept({ type: "wallet/move", currency: "NGN", amount: 100000000 * UNIT, to: "bank" });
     expect(unexplainedBp(readOf(game), UK)).toBe(10000);
     expect(game.view().routes[0]?.unexplainedBp).toBe(10000);

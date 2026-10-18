@@ -13,7 +13,7 @@ import { wealthInNaira } from "../place/place.logic";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { readOf, restMonth } from "../testing/read";
+import { openOffers, readOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
@@ -39,10 +39,6 @@ function variant(changes: Partial<Record<Id<"offer">, Partial<OfferEntry>>>, onl
 
 function openedIn(result: { events: BaseEvent[] }): OfferState[] {
   return result.events.filter((event) => event.type === "offer/opened").map((event) => (event as unknown as { item: OfferState }).item);
-}
-
-function openEntries(game: Game): Id<"offer">[] {
-  return Object.values(game.state.offer.items).map((item) => item.entry);
 }
 
 function openOne(game: Game, offer: Id<"offer">): OfferState {
@@ -105,7 +101,7 @@ describe("where an offer applies", () => {
     flyToUk(game);
     expect(openedIn(game.endTurn()).map((item) => item.entry)).toEqual(["offer.nepa-bill"]);
     applyEffects(game, [{ type: "offer/open", offer: "offer.fuel-scarcity" }]);
-    expect(openEntries(game)).not.toContain("offer.fuel-scarcity");
+    expect(openOffers(game)).not.toContain("offer.fuel-scarcity");
   });
 
   test("[R-PLACE-003] given an offer of abroad that always holds, when a month comes up at home and then abroad, then it opens only abroad", () => {
@@ -409,7 +405,7 @@ describe("the whip-round", () => {
     }
     expect(Object.values(game.state.obligation.items).some((item) => item.entry === "obligation.quick-loan" && item.state === "defaulted")).toBe(true);
     expect(game.state.turn.month).toBe(12);
-    expect(openEntries(game)).not.toContain(WHIP);
+    expect(openOffers(game)).not.toContain(WHIP);
   });
 
   test("[R-LUCK-002] [R-ENGINE-017] given the whip-round accepted, when it pays, then the tuning's rescue reaches the bank as a flagged gift, and an overlay's figure is the one paid", () => {
@@ -472,7 +468,7 @@ describe("luck native to japa", () => {
     expect(lucky.state.wallet.lots).toContainEqual({ currency: "USD", amount: 50000, month: lucky.state.turn.month, reason: "gift" });
     // At the start no route is known, so the real entry does not open.
     applyEffects(game, [{ type: "offer/open", offer: "offer.relative-sends" }]);
-    expect(openEntries(game)).not.toContain("offer.relative-sends");
+    expect(openOffers(game)).not.toContain("offer.relative-sends");
   });
 });
 
