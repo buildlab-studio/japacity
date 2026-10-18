@@ -19,7 +19,7 @@ function post<B>(server: Parameters<typeof call>[0], path: string, account: stri
 }
 
 describe("block", () => {
-  test("[R-PAIR-015] [R-MODERATION-002] [R-PEOPLE-037] given a married pair, when one blocks the other, then the bond ends as a block in both lives with no standing cost to either, and the blocked side learns only that it ended", async () => {
+  test("[pair:block-ends-every-bond] [moderation:block-ends-pair-records] [person:ender-pays-in-standing] given a married pair, when one blocks the other, then the bond ends as a block in both lives with no standing cost to either, and the blocked side learns only that it ended", async () => {
     const linked = await linkedPair(pairServer(quickWeddings()));
     const { server, a, b, key } = linked;
     await married(linked);
@@ -43,14 +43,14 @@ describe("block", () => {
     expect(await server.deps.stores.moderation.blocked(FRIEND, INVITER)).toBe(true);
   });
 
-  test("[R-MODERATION-001] given a block, when the blocked side says a phrase, then it is refused with the same answer as a lapsed connection", async () => {
+  test("[moderation:block-refuses-both-ways] given a block, when the blocked side says a phrase, then it is refused with the same answer as a lapsed connection", async () => {
     const { server, key } = await linkedPair();
     await post(server, "/api/moderation/block", INVITER, { pair: key });
 
     expect(await sayFrom(server, FRIEND, key)).toEqual({ ok: false, code: "not-possible", detail: "That is not possible now." });
   });
 
-  test("[R-MODERATION-002] [R-PAIR-015] given a block lifted, when nothing else happens the record stays ended, and only a new invite links the two again, keeping their moments", async () => {
+  test("[moderation:block-ends-pair-records] [pair:block-ends-every-bond] given a block lifted, when nothing else happens the record stays ended, and only a new invite links the two again, keeping their moments", async () => {
     const { server, key } = await linkedPair();
     await sayFrom(server, INVITER, key, "phrase.hello");
     await post(server, "/api/moderation/block", INVITER, { pair: key });
@@ -66,7 +66,7 @@ describe("block", () => {
     expect((await recordOf(server.deps, key))?.record).toMatchObject({ stage: "connected", ended: null, moments: [{ kind: "said", what: "phrase.hello" }] });
   });
 
-  test("[R-MODERATION-001] given an unknown player, when a block names them, then it is refused and nothing is stored", async () => {
+  test("[moderation:block-refuses-both-ways] given an unknown player, when a block names them, then it is refused and nothing is stored", async () => {
     const { server } = await linkedPair();
 
     expect((await post(server, "/api/moderation/block", INVITER, { pair: "nobody~somebody" })).status).toBe(404);
@@ -75,7 +75,7 @@ describe("block", () => {
 });
 
 describe("report and hold", () => {
-  test("[R-PAIR-016] [R-MODERATION-004] [R-MODERATION-007] given a conversation, when a message is reported, then the report cites the pair and the message, the record is held, and neither life changes", async () => {
+  test("[pair:report-holds-conversation] [moderation:report-carries-subject-and-reason] [moderation:reporter-told-outcome-only] given a conversation, when a message is reported, then the report cites the pair and the message, the record is held, and neither life changes", async () => {
     const { server, a, b, key } = await linkedPair();
     const said = await sayFrom(server, INVITER, key, "phrase.hello");
     const versions = { a: (await server.deps.stores.player.load(a))?.character.v, b: (await server.deps.stores.player.load(b))?.character.v };
@@ -89,7 +89,7 @@ describe("report and hold", () => {
     expect({ a: (await server.deps.stores.player.load(a))?.character.v, b: (await server.deps.stores.player.load(b))?.character.v }).toEqual(versions);
   });
 
-  test("[R-MODERATION-009] given an open report on a conversation, when the reported side says a phrase, then nothing reaches the reporter, while the reporter may still send", async () => {
+  test("[moderation:open-report-pauses-conversation] given an open report on a conversation, when the reported side says a phrase, then nothing reaches the reporter, while the reporter may still send", async () => {
     const { server, key } = await linkedPair();
     const said = await sayFrom(server, INVITER, key);
     await post(server, "/api/moderation/report", FRIEND, { pair: key, messages: [said.message?.id], reason: "scam" });
@@ -98,7 +98,7 @@ describe("report and hold", () => {
     expect((await sayFrom(server, FRIEND, key)).ok).toBe(true);
   });
 
-  test("[R-MODERATION-008] [R-ACCOUNT-017] given a reported message, when the reported account is deleted and its rows removed, then the held message stays and the rest of its conversation goes", async () => {
+  test("[moderation:reports-hold-cited-records] [account:deleted-data-removed-within-month] given a reported message, when the reported account is deleted and its rows removed, then the held message stays and the rest of its conversation goes", async () => {
     const { server, a, key } = await linkedPair();
     const kept = await sayFrom(server, INVITER, key, "phrase.hello");
     await sayFrom(server, INVITER, key, "phrase.thanks");
@@ -111,7 +111,7 @@ describe("report and hold", () => {
     expect(await server.deps.stores.invite.pairsOf(a)).toEqual([]);
   });
 
-  test("[R-MODERATION-008] [R-ACCOUNT-017] given a reported message and its held record, when the deletion job removes the reported account, then the held message and the held record survive unchanged and the rest of that account's rows go", async () => {
+  test("[moderation:reports-hold-cited-records] [account:deleted-data-removed-within-month] given a reported message and its held record, when the deletion job removes the reported account, then the held message and the held record survive unchanged and the rest of that account's rows go", async () => {
     const { server, a, key } = await linkedPair();
     const kept = await sayFrom(server, INVITER, key, "phrase.hello");
     await sayFrom(server, INVITER, key, "phrase.thanks");
@@ -131,7 +131,7 @@ describe("report and hold", () => {
     expect(await server.deps.stores.invite.pairsOf(a)).toEqual([]);
   });
 
-  test("[R-MODERATION-007] [R-MODERATION-008] given a held record, when the moderator closes its one report, then the record is released and the hold lifted", async () => {
+  test("[moderation:reporter-told-outcome-only] [moderation:reports-hold-cited-records] given a held record, when the moderator closes its one report, then the record is released and the hold lifted", async () => {
     const { server, key } = await linkedPair();
     const reported = await post<Reported>(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" });
 
@@ -142,7 +142,7 @@ describe("report and hold", () => {
     expect(await server.deps.stores.moderation.holds(server.deps.now())).toEqual([]);
   });
 
-  test("[R-MODERATION-006] given a report with the block ticked, when it is sent, then the reporter has also blocked and the bond has ended as a block", async () => {
+  test("[moderation:report-offers-block] given a report with the block ticked, when it is sent, then the reporter has also blocked and the bond has ended as a block", async () => {
     const { server, b, key } = await linkedPair();
 
     await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "scam", block: true });
@@ -152,7 +152,7 @@ describe("report and hold", () => {
     expect(friend.people.bonds[lastBondIn(friend, key)]?.ended?.by).toBe("block");
   });
 
-  test("[R-MODERATION-006] given reportsPerDay reports filed in a day, when one more is sent, then it is refused with rate-limited, and a day after the first it goes", async () => {
+  test("[moderation:report-offers-block] given reportsPerDay reports filed in a day, when one more is sent, then it is refused with rate-limited, and a day after the first it goes", async () => {
     const { server, key } = await linkedPair();
     for (let index = 0; index < server.deps.config.moderation.reportsPerDay; index += 1) {
       expect((await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" })).body).toMatchObject({ ok: true });
@@ -166,7 +166,7 @@ describe("report and hold", () => {
     expect((await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "other" })).body).toMatchObject({ ok: true });
   });
 
-  test("[R-MODERATION-004] given a report, when its reason is off the list or it cites a message of another conversation, then it is refused and nothing is held", async () => {
+  test("[moderation:report-carries-subject-and-reason] given a report, when its reason is off the list or it cites a message of another conversation, then it is refused and nothing is held", async () => {
     const { server, key } = await linkedPair();
 
     expect((await post(server, "/api/moderation/report", FRIEND, { pair: key, reason: "rude" })).status).toBe(400);
@@ -175,7 +175,7 @@ describe("report and hold", () => {
     expect((await recordOf(server.deps, key))?.record.held).toBe(false);
   });
 
-  test("[R-PEOPLE-040] given a linked pair, when one account asks to be deleted, then the other life's bond ends as an absence with no cost, its moments stay as them, and the record blanks the leaving side", async () => {
+  test("[person:leaving-player-ends-bonds] given a linked pair, when one account asks to be deleted, then the other life's bond ends as an absence with no cost, its moments stay as them, and the record blanks the leaving side", async () => {
     const { server, a, b, key } = await linkedPair();
     await sayFrom(server, INVITER, key, "phrase.hello");
     const before = await stateOf(server, b);
@@ -206,7 +206,7 @@ describe("the cite form of a report", () => {
     return server.deps.stores.moderation.get(sent.body.report);
   }
 
-  test("[R-MODERATION-003] [R-MODERATION-004] given an invite card, when a player who saw it reports it citing only the card, then the report names the inviter's account, found from the code, and holds no pair", async () => {
+  test("[moderation:report-from-every-surface] [moderation:report-carries-subject-and-reason] given an invite card, when a player who saw it reports it citing only the card, then the report names the inviter's account, found from the code, and holds no pair", async () => {
     const server = pairServer();
     await newLife(server, INVITER, "scenario.ada");
     const code = await cardOut(server);
@@ -217,7 +217,7 @@ describe("the cite form of a report", () => {
     expect(row).toMatchObject({ reporter: REPORTER, subject: { account: INVITER }, reason: "scam", cites: { card: code }, pair: null, unverified: false, status: "open" });
   });
 
-  test("[R-MODERATION-004] given a card report, when the code is unknown, the inviter reports their own card, or the body names another subject, then an unknown or own card is refused and the inviter is still the subject", async () => {
+  test("[moderation:report-carries-subject-and-reason] given a card report, when the code is unknown, the inviter reports their own card, or the body names another subject, then an unknown or own card is refused and the inviter is still the subject", async () => {
     const server = pairServer();
     await newLife(server, INVITER, "scenario.ada");
     const code = await cardOut(server);
@@ -228,7 +228,7 @@ describe("the cite form of a report", () => {
     expect(await filed(server, { subject: { account: FRIEND }, reason: "scam", cites: { card: code } })).toMatchObject({ subject: { account: INVITER } });
   });
 
-  test("[R-MODERATION-003] [R-MODERATION-004] given an advert running in a slot, when a player reports it, then the report names the campaign and cites the slot; a slot the campaign does not run in, or another campaign as subject, is refused", async () => {
+  test("[moderation:report-from-every-surface] [moderation:report-carries-subject-and-reason] given an advert running in a slot, when a player reports it, then the report names the campaign and cites the slot; a slot the campaign does not run in, or another campaign as subject, is refused", async () => {
     const server = pairServer();
     await server.deps.stores.adverts.addAdvertiser({ id: "advertiser-1", businessName: "Example Bakery", registration: { country: "GB", number: "00000001" }, contactName: "A Baker", contactEmail: "baker@example.test" });
     const added = await server.deps.stores.adverts.addCampaign({ id: "campaign-1", advertiser: "advertiser-1", slots: ["advert.road-billboard"], regions: ["GB"], starts: 0, ends: 1, status: "approved", category: "general", place: null });
@@ -243,7 +243,7 @@ describe("the cite form of a report", () => {
     expect((await post(server, "/api/moderation/report", REPORTER, { subject: { campaign: "campaign-2" }, reason: "advert", cites })).status).toBe(400);
   });
 
-  test("[R-MODERATION-003] [R-MODERATION-004] [R-MODERATION-005] given a phrase heard in a place, when a player reports it, then the report names the place, the phrase and the time, marked unverified; a place or phrase not in the content, a conversation-only phrase or a time after now is refused", async () => {
+  test("[moderation:report-from-every-surface] [moderation:report-carries-subject-and-reason] [moderation:spoken-phrases-not-stored] given a phrase heard in a place, when a player reports it, then the report names the place, the phrase and the time, marked unverified; a place or phrase not in the content, a conversation-only phrase or a time after now is refused", async () => {
     const server = pairServer();
     await signUp(server, REPORTER);
     const at = server.deps.now();
@@ -260,7 +260,7 @@ describe("the cite form of a report", () => {
     expect((await post(server, "/api/moderation/report", REPORTER, { reason: "harassment", cites: { ...cites, at: at + 1 } })).status).toBe(400);
   });
 
-  test("[R-MODERATION-004] [R-PAIR-016] given a pair's conversation, when a message is reported in the cite form, then it is the same report as the pair form's: the other side named and the record held", async () => {
+  test("[moderation:report-carries-subject-and-reason] [pair:report-holds-conversation] given a pair's conversation, when a message is reported in the cite form, then it is the same report as the pair form's: the other side named and the record held", async () => {
     const { server, key } = await linkedPair();
     const said = await sayFrom(server, INVITER, key, "phrase.hello");
     const message = said.message?.id ?? "";
@@ -272,7 +272,7 @@ describe("the cite form of a report", () => {
     expect((await recordOf(server.deps, key))?.record.held).toBe(true);
   });
 
-  test("[R-MODERATION-004] [R-MODERATION-006] given the cite form, when the reason is off the list or the cites name nothing, then it is refused with 400, and over reportsPerDay a day it is refused with rate-limited", async () => {
+  test("[moderation:report-carries-subject-and-reason] [moderation:report-offers-block] given the cite form, when the reason is off the list or the cites name nothing, then it is refused with 400, and over reportsPerDay a day it is refused with rate-limited", async () => {
     const server = pairServer();
     await signUp(server, REPORTER);
     const cites = { place: "place.ojuelegba", phrase: "phrase.hello", at: server.deps.now() };

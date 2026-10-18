@@ -42,7 +42,7 @@ function facts(lives: { life: Life; account: AccountRow | null }[], over: Partia
 const count = (rows: readonly CounterTotal[], name: string, key: string, region = "GB") => rows.find((row) => row.day === NAME && row.name === name && row.key === key && row.region === region)?.count ?? 0;
 
 describe("sessions", () => {
-  test("[R-ANALYTICS-013] given commands with gaps either side of the session gap, when they are split, then a gap of exactly the gap keeps a session and one a minute more starts the next", () => {
+  test("[analytics:session-split-by-command-gaps] given commands with gaps either side of the session gap, when they are split, then a gap of exactly the gap keeps a session and one a minute more starts the next", () => {
     const gap = SESSION_GAP_MINUTES * MIN;
     expect(sessionLengths([START, START + gap])).toEqual([gap]);
     expect(sessionLengths([START, START + gap + MIN])).toEqual([0, 0]);
@@ -50,11 +50,11 @@ describe("sessions", () => {
     expect(sessionLengths([])).toEqual([]);
   });
 
-  test("[R-ANALYTICS-013] given lengths at each band's edge, when they are banded, then a band runs from its start up to the next band's", () => {
+  test("[analytics:session-split-by-command-gaps] given lengths at each band's edge, when they are banded, then a band runs from its start up to the next band's", () => {
     expect([0, 2 * MIN - 1, 2 * MIN, 5 * MIN - 1, 5 * MIN, 15 * MIN - 1, 15 * MIN, 30 * MIN - 1, 30 * MIN, 5 * time.HOUR_MS].map(sessionBand)).toEqual(["under-2", "under-2", "2-5", "2-5", "5-15", "5-15", "15-30", "15-30", "over-30", "over-30"]);
   });
 
-  test("[R-ANALYTICS-013] [R-ANALYTICS-008] given one player's two sessions and a stand-in's months, when the day is counted, then two sessions are counted by region with their lengths, and the stand-in's commands make none", () => {
+  test("[analytics:session-split-by-command-gaps] [analytics:nightly-game-counters] given one player's two sessions and a stand-in's months, when the day is counted, then two sessions are counted by region with their lengths, and the stand-in's commands make none", () => {
     const rows = numbersTotals(
       facts([
         { life: life("account.a", [{ at: START }, { at: START + 4 * MIN }, { at: START + 2 * time.HOUR_MS }, { at: START + 2 * time.HOUR_MS + 20 * MIN }]), account: account("account.a") },
@@ -67,7 +67,7 @@ describe("sessions", () => {
     expect(rows.filter((row) => row.name.startsWith("sessions/")).reduce((sum, row) => sum + (row.name === "sessions/length" ? row.count : 0), 0)).toBe(2);
   });
 
-  test("[R-ANALYTICS-013] given commands either side of the day's edges, when the day is counted, then only the day's own make its sessions", () => {
+  test("[analytics:session-split-by-command-gaps] given commands either side of the day's edges, when the day is counted, then only the day's own make its sessions", () => {
     const rows = numbersTotals(facts([{ life: life("account.a", [{ at: START - 1 }, { at: START + 10 * MIN }, { at: START + time.DAY_MS }]), account: account("account.a") }]));
     expect(count(rows, "sessions/count", "GB")).toBe(1);
     expect(count(rows, "sessions/length", "under-2")).toBe(1);
@@ -75,7 +75,7 @@ describe("sessions", () => {
 });
 
 describe("the funnel's server steps and the lives", () => {
-  test("[R-ANALYTICS-008] given a life that begins, reaches the world, ends its first month and closes its first chapter on the day, when it is counted, then each step and the life started are counted once", () => {
+  test("[analytics:nightly-game-counters] given a life that begins, reaches the world, ends its first month and closes its first chapter on the day, when it is counted, then each step and the life started are counted once", () => {
     const rows = numbersTotals(
       facts([
         {
@@ -93,7 +93,7 @@ describe("the funnel's server steps and the lives", () => {
     expect(count(rows, "lives/started", "GB")).toBe(1);
   });
 
-  test("[R-ANALYTICS-008] given a life whose steps all came on an earlier day, when a later day is counted, then no step is counted again", () => {
+  test("[analytics:nightly-game-counters] given a life whose steps all came on an earlier day, when a later day is counted, then no step is counted again", () => {
     const rows = numbersTotals(
       facts([
         {
@@ -109,7 +109,7 @@ describe("the funnel's server steps and the lives", () => {
     expect(rows.filter((row) => row.name === "funnel/step" || row.name === "lives/started")).toEqual([]);
   });
 
-  test("[R-ANALYTICS-008] given departures, a settlement then citizenship, and a top-up on the day, when it is counted, then each departure, the life secured once, and the top-up's count and kobo are counted", () => {
+  test("[analytics:nightly-game-counters] given departures, a settlement then citizenship, and a top-up on the day, when it is counted, then each departure, the life secured once, and the top-up's count and kobo are counted", () => {
     const rows = numbersTotals(
       facts([
         {
@@ -132,7 +132,7 @@ describe("the funnel's server steps and the lives", () => {
 });
 
 describe("the economy in bands", () => {
-  test("[R-ANALYTICS-008] given naira and months at each band's edge, when they are keyed, then the bands meet where the page puts them", () => {
+  test("[analytics:nightly-game-counters] given naira and months at each band's edge, when they are keyed, then the bands meet where the page puts them", () => {
     expect(heldKey(1, 0)).toBe("1-3:0");
     expect(heldKey(3, 1)).toBe("1-3:under-50k");
     expect(heldKey(4, 4_999_999)).toBe("4-12:under-50k");
@@ -142,7 +142,7 @@ describe("the economy in bands", () => {
     expect(heldKey(2, -100)).toBe("1-3:0");
   });
 
-  test("[R-ANALYTICS-008] [R-ANALYTICS-007] given lives at the day's end, one still in the years before, when the day is counted, then the others are counted by band and no figure for one life is kept", () => {
+  test("[analytics:nightly-game-counters] [analytics:store-holds-nothing-personal] given lives at the day's end, one still in the years before, when the day is counted, then the others are counted by band and no figure for one life is kept", () => {
     const rows = numbersTotals(
       facts([
         { life: life("account.a", [{ at: START }], { prologueOpen: false, months: 0, nairaKobo: 7_654_321 }), account: account("account.a") },
@@ -159,7 +159,7 @@ describe("the economy in bands", () => {
 });
 
 describe("players, accounts and reports by region", () => {
-  test("[R-ANALYTICS-008] given the week's, the month's and every account's counts, new accounts and open reports, when the day is counted, then each is kept on the day by region, every new account a guest", () => {
+  test("[analytics:nightly-game-counters] given the week's, the month's and every account's counts, new accounts and open reports, when the day is counted, then each is kept on the day by region, every new account a guest", () => {
     const rows = numbersTotals(
       facts([], {
         created: [account("account.n", "NG"), account("account.m", "NG"), account("account.g")],
@@ -178,7 +178,7 @@ describe("players, accounts and reports by region", () => {
     expect(count(rows, "moderation/open", "hate")).toBe(1);
   });
 
-  test("[R-ANALYTICS-007] given a day of play by two accounts, when it is counted, then no row names an account or a character", () => {
+  test("[analytics:store-holds-nothing-personal] given a day of play by two accounts, when it is counted, then no row names an account or a character", () => {
     const rows = numbersTotals(
       facts([
         { life: life("account.secret-a", [{ at: START, v: 1 }, { at: START + MIN, events: [{ type: "route/moved", route: "route.uk-student", to: "departed" }] }], { prologueOpen: false, months: 3, nairaKobo: 10 }), account: account("account.secret-a") },

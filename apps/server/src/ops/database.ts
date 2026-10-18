@@ -1,5 +1,5 @@
-// The admin tools' database form (server.md R-SERVER-008, R-SERVER-009 and
-// R-SERVER-047): the game's Postgres reached through packages/db on the
+// The admin tools' database form (server:rollback-check-finds-divergence, server:rollback-apply-one-account and
+// server:snapshot-before-deploy): the game's Postgres reached through packages/db on the
 // migrator's string, `DATABASE_URL_UNPOOLED`, as the migration step reads it,
 // with the contents the Worker bundles, so a segment replays here under the
 // same content it ran under there.
@@ -23,7 +23,7 @@ export interface Database {
 /** Opens the database once a tool has read its arguments; null when no string was given. */
 export type OpenDatabase = (() => Promise<Database>) | null;
 
-/** R-SERVER-023, R-SERVER-024: the Worker's contents, its overlay applied when the deployment has one. */
+/** server:older-contents-bundled, server:overlay-change-opens-segment: the Worker's contents, its overlay applied when the deployment has one. */
 export function workerContents(overlayJson: string | undefined): Contents {
   return withContentBefore(contentsFor(content, overlayJson), overlayJson);
 }

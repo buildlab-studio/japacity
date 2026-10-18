@@ -1,4 +1,4 @@
-// R-MODERATION-012 through the real auth library: an admin session opened by
+// moderation:admin-view-for-admin-list through the real auth library: an admin session opened by
 // email code is refused, one opened with a passkey is let in. The passkey is a
 // software one that signs the WebAuthn assertion a browser would send.
 import { connectPglite } from "@japacity/db/pglite";
@@ -28,7 +28,7 @@ async function admin(h: Harness, email: string) {
 }
 
 describe("the admin passkey rule", () => {
-  test("[R-MODERATION-012] given an admin signed in by email code, when any admin route is asked, then it is refused as not-legal for want of a passkey, and the account reply does not offer the admin page", async () => {
+  test("[moderation:admin-view-for-admin-list] given an admin signed in by email code, when any admin route is asked, then it is refused as not-legal for want of a passkey, and the account reply does not offer the admin page", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar } = await admin(h, "owner@example.com");
     for (const path of ADMIN_ROUTES) {
@@ -39,7 +39,7 @@ describe("the admin passkey rule", () => {
     expect(h.tables.session.map((row) => row["signedInWith"])).toEqual(["email-code"]);
   });
 
-  test("[R-MODERATION-012] given the same admin signed in with a passkey, when the admin routes are asked, then each answers, and the account reply offers the admin page", async () => {
+  test("[moderation:admin-view-for-admin-list] given the same admin signed in with a passkey, when the admin routes are asked, then each answers, and the account reply offers the admin page", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { account } = await admin(h, "owner@example.com");
     const signIn = await storedPasskey(h, account);
@@ -50,7 +50,7 @@ describe("the admin passkey rule", () => {
     expect(h.tables.session.map((row) => row["signedInWith"])).toEqual(["email-code", "passkey"]);
   });
 
-  test("[R-MODERATION-012] given a player off the admin list signed in with a passkey, when an admin route is asked, then it does not exist", async () => {
+  test("[moderation:admin-view-for-admin-list] given a player off the admin list signed in with a passkey, when an admin route is asked, then it does not exist", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { account } = await h.signUp("player@example.com");
     const { jar, status } = await (await storedPasskey(h, account))();
@@ -59,7 +59,7 @@ describe("the admin passkey rule", () => {
     expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { admin: false } });
   });
 
-  test("[R-MODERATION-012] given the auth library on Drizzle's adapter and Postgres, when an admin signs in by code and then with a passkey, then the session row keeps how each was opened and only the passkey one reaches the admin routes", async () => {
+  test("[moderation:admin-view-for-admin-list] given the auth library on Drizzle's adapter and Postgres, when an admin signs in by code and then with a passkey, then the session row keeps how each was opened and only the passkey one reaches the admin routes", async () => {
     const connection = await connectPglite();
     try {
       const h = harness({ config: testConfig({ testing: { captureOtp: true } }), stores: postgresStores(connection), adapter: drizzleAuthAdapter(connection.db) });

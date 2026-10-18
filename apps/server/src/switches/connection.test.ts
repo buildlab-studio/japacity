@@ -27,7 +27,7 @@ function opener(): { open: () => Promise<Pick<Connection, "handle" | "close">>; 
 }
 
 describe("the switch store's handle in the Worker", () => {
-  test("[R-SERVER-031] given reads and a transaction, when each runs, then each opens its own client and closes it, a failed one too", async () => {
+  test("[server:four-off-switches] given reads and a transaction, when each runs, then each opens its own client and closes it, a failed one too", async () => {
     const clients = opener();
     const handle = perCallHandle(clients.open);
 

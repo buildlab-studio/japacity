@@ -1,4 +1,4 @@
-// R-ACCOUNT-013: the bot check, against Turnstile's verify endpoint.
+// account:bot-check-on-guest-creation: the bot check, against Turnstile's verify endpoint.
 // https://developers.cloudflare.com/turnstile/get-started/server-side-validation/
 // https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 
@@ -20,13 +20,13 @@ export interface TurnstileKeys {
   fetch?: typeof fetch;
 }
 
-/** R-ACCOUNT-013: the action the widget is rendered with at the guest start, the one surface it guards. */
+/** account:bot-check-on-guest-creation: the action the widget is rendered with at the guest start, the one surface it guards. */
 export const TURNSTILE_ACTION = "guest";
 
 /** Siteverify's documented longest token; a longer one is refused before the call. */
 export const TOKEN_MAX_LENGTH = 2048;
 
-/** The only hosts where a pass made with Cloudflare's test keys is taken: the local stack's (server.md R-SERVER-038). */
+/** The only hosts where a pass made with Cloudflare's test keys is taken: the local stack's (server:production-and-staging). */
 const LOCAL_SITE_HOSTS: ReadonlySet<string> = new Set(["localhost", "127.0.0.1"]);
 
 export type BotCheck = { ok: true } | { ok: false; reason: string };
@@ -60,7 +60,7 @@ export async function checkTurnstile(keys: TurnstileKeys, token: string | null, 
   type Answer = { success?: unknown; "error-codes"?: unknown; hostname?: unknown; action?: unknown; metadata?: { result_with_testing_key?: unknown } };
   let body: Answer;
   try {
-    // R-ACCOUNT-013: a reply that is not a JSON object fails closed.
+    // account:bot-check-on-guest-creation: a reply that is not a JSON object fails closed.
     const parsed = await reply.json<unknown>();
     if (typeof parsed !== "object" || parsed === null) return { ok: false, reason: "bad-reply" };
     body = parsed;
@@ -68,7 +68,7 @@ export async function checkTurnstile(keys: TurnstileKeys, token: string | null, 
     return { ok: false, reason: "bad-reply" };
   }
   if (body.success === true) {
-    // R-ACCOUNT-013: a test key's pass always says example.com and names no action, so it stands only on the local stack.
+    // account:bot-check-on-guest-creation: a test key's pass always says example.com and names no action, so it stands only on the local stack.
     const testing = body.metadata?.result_with_testing_key === true;
     if (body.hostname !== host && !(testing && LOCAL_SITE_HOSTS.has(host))) return { ok: false, reason: "hostname-mismatch" };
     if (!testing && body.action !== TURNSTILE_ACTION) return { ok: false, reason: "action-mismatch" };

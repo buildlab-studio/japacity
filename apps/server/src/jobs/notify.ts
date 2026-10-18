@@ -1,4 +1,4 @@
-// The bank-full notices' scheduled job (docs/rules/clock.md R-CLOCK-031): on
+// The bank-full notices' scheduled job (clock:full-bank-push-notification): on
 // the five-minute cron, every bank that filled since the last run.
 import type { ServerDeps } from "../deps";
 import type { NoticeRun } from "../notify/notice";

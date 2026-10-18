@@ -39,7 +39,7 @@ async function months(server: TestServer, account: string, count: number): Promi
   }
 }
 
-/** A month whose one act is the life's sure first hunt, sent at once (R-GUIDE-014, R-ACTIVITY-015). */
+/** A month whose one act is the life's sure first hunt, sent at once (guide:early-win-in-three-turns, activity:now-acts-and-month-acts). */
 async function huntMonth(server: TestServer, account: string): Promise<void> {
   const seen = await view(server, account);
   if (!seen.body.ok) throw new Error(seen.body.detail);
@@ -59,7 +59,7 @@ const HUNT: Id<"activity"> = "activity.job-hunt";
 const pick = (rows: readonly CounterTotal[], day: string, name: string, key: string) => rows.find((row) => row.day === day && row.name === name && row.key === key)?.count ?? 0;
 
 describe("the nightly counters job", () => {
-  test("[R-ANALYTICS-008] [R-ANALYTICS-001] given a day of play, when the job counts it, then active and new players, turns ended and the route heard are counted from the log by region", async () => {
+  test("[analytics:nightly-game-counters] [analytics:game-counters-from-server] given a day of play, when the job counts it, then active and new players, turns ended and the route heard are counted from the log by region", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -78,7 +78,7 @@ describe("the nightly counters job", () => {
     for (const row of rows) expect(row.region).toBe("NG");
   });
 
-  test("[R-ANALYTICS-008] given a day counted once, when the job runs for it again, then nothing more is added", async () => {
+  test("[analytics:nightly-game-counters] given a day counted once, when the job runs for it again, then nothing more is added", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -93,7 +93,7 @@ describe("the nightly counters job", () => {
     expect(await totals(server)).toEqual(once);
   });
 
-  test("[R-ANALYTICS-011] [R-ANALYTICS-008] given an account that plays on the day after it signed up and again a week on, when those days are counted, then day-1, day-3 and day-7 returns are kept on the sign-up day", async () => {
+  test("[analytics:day-one-and-seven-return] [analytics:nightly-game-counters] given an account that plays on the day after it signed up and again a week on, when those days are counted, then day-1, day-3 and day-7 returns are kept on the sign-up day", async () => {
     const server = testServer();
     const signUpDay = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -119,7 +119,7 @@ describe("the nightly counters job", () => {
     expect(pick(rows, time.dayName(signUpDay + 3), "players/active", "NG")).toBe(1);
   });
 
-  test("[R-ANALYTICS-011] given a new account that reaches its early win in the third month and one that never plays, when its first day is counted, then the early win is keyed 3 and the other none", async () => {
+  test("[analytics:day-one-and-seven-return] given a new account that reaches its early win in the third month and one that never plays, when its first day is counted, then the early win is keyed 3 and the other none", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -134,7 +134,7 @@ describe("the nightly counters job", () => {
     expect(rows.filter((row) => row.name === "first/early-win").reduce((sum, row) => sum + row.count, 0)).toBe(2);
   });
 
-  test("[R-ANALYTICS-011] [R-GUIDE-014] given a new account that only rests and hears of a route in its third month, when its first day is counted, then the route it never chose is no early win and it is keyed none", async () => {
+  test("[analytics:day-one-and-seven-return] [guide:early-win-in-three-turns] given a new account that only rests and hears of a route in its third month, when its first day is counted, then the route it never chose is no early win and it is keyed none", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -146,7 +146,7 @@ describe("the nightly counters job", () => {
     expect(rows.filter((row) => row.name === "first/early-win").reduce((sum, row) => sum + row.count, 0)).toBe(1);
   });
 
-  test("[R-ANALYTICS-011] [R-GUIDE-014] given a new account whose first month's job hunt lands, when its first day is counted, then the early win is keyed 1", async () => {
+  test("[analytics:day-one-and-seven-return] [guide:early-win-in-three-turns] given a new account whose first month's job hunt lands, when its first day is counted, then the early win is keyed 1", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -156,7 +156,7 @@ describe("the nightly counters job", () => {
     expect(pick(await totals(server), time.dayName(day), "first/early-win", "1")).toBe(1);
   });
 
-  test("[R-ANALYTICS-011] given a new account whose early win comes only after its first day ends, when that day is counted, then it is keyed none", async () => {
+  test("[analytics:day-one-and-seven-return] given a new account whose early win comes only after its first day ends, when that day is counted, then it is keyed none", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -168,7 +168,7 @@ describe("the nightly counters job", () => {
     expect(pick(await totals(server), time.dayName(day), "first/early-win", "none")).toBe(1);
   });
 
-  test("[R-ANALYTICS-008] given the job at midnight, when it runs with the isolate's active list, then it counts the day that has just ended", async () => {
+  test("[analytics:nightly-game-counters] given the job at midnight, when it runs with the isolate's active list, then it counts the day that has just ended", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");

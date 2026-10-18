@@ -1,8 +1,8 @@
-// account.md R-ACCOUNT-031, analytics.md R-ANALYTICS-008: the
+// account:two-lights-and-wink-lines, analytics:nightly-game-counters: the
 // lives being played, counted at 00:00 UTC as the day that has just ended
 // closes, for the two lights. A life is counted when it has not ended
-// (turn.md R-TURN-007) and its account still exists and still names it; it is
-// counted by where it stands (place.md R-PLACE-001), under its account's
+// (turn:finish-ends-the-life) and its account still exists and still names it; it is
+// counted by where it stands (place:new-character-at-home), under its account's
 // region and once more under the whole game's. Every character is read a page
 // at a time from the characters store, its state the latest snapshot and the
 // rows after it. Only counts leave here: no character or account is kept,
@@ -34,7 +34,7 @@ export interface LivesDay {
 
 const none = (): Record<Where, number> => ({ home: 0, abroad: 0, road: 0 });
 
-/** R-ACCOUNT-031: counts the lives being played as `day` ends and adds them once for that day. */
+/** account:two-lights-and-wink-lines: counts the lives being played as `day` ends and adds them once for that day. */
 export async function countLives(deps: Pick<ServerDeps, "contents" | "stores">, day: number): Promise<LivesDay> {
   const byRegion = new Map<string, Record<Where, number>>();
   const whole = none();

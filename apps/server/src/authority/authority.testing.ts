@@ -49,7 +49,7 @@ export function testServer(over: Partial<ServerDeps> = {}): TestServer {
   };
 }
 
-/** R-ACCOUNT-012: the account row sign-up makes; its username is the id unless one is given, secured unless a guest is asked for. */
+/** account:age-screen-refuses-minors: the account row sign-up makes; its username is the id unless one is given, secured unless a guest is asked for. */
 export async function signUp(server: TestServer, account: string, username = account, state: "guest" | "secured" = "secured"): Promise<void> {
   const made = await server.deps.stores.account.create({
     id: account,
@@ -117,7 +117,7 @@ export async function held(server: TestServer, character: string): Promise<Held>
   return found;
 }
 
-/** A month with every free slot resting: legal whatever the character owes (R-ENGINE-011). */
+/** A month with every free slot resting: legal whatever the character owes (engine:player-never-stuck). */
 export function restMonth(state: { v: number }): Command {
   return { type: "turn/end", slots: [], basedOn: state.v };
 }

@@ -1,5 +1,5 @@
 // The switch store's database handle in the Worker. The row is read once per
-// cache period per isolate (R-SERVER-031), so each call opens its own client
+// cache period per isolate (server:four-off-switches), so each call opens its own client
 // and closes it: a client is never held across requests, as Hyperdrive asks.
 import type { Connection, Handle } from "@japacity/db";
 

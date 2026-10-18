@@ -11,7 +11,7 @@ import type { ServerConfig } from "../config";
 
 export type Fetch = (input: string, init: RequestInit) => Promise<Response>;
 
-/** R-CLOCK-031: the deployment's VAPID pair, both base64url: the public point (65 bytes) and the private scalar (32 bytes). */
+/** clock:full-bank-push-notification: the deployment's VAPID pair, both base64url: the public point (65 bytes) and the private scalar (32 bytes). */
 export interface PushKeys {
   publicKey: string;
   privateKey: string;

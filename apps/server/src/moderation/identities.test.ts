@@ -8,12 +8,12 @@ import { memoryReportQueue } from "./reports";
 import { report } from "./moderation.testing";
 
 describe("a ban through the sign-in library", () => {
-  test("[R-MODERATION-014] [R-MODERATION-018] given a signed-in player, when an admin bans them, then their email is barred by its hash, every session of theirs ends, and the admin's does not", async () => {
+  test("[moderation:fixed-admin-actions] [moderation:ban-survives-as-hash] given a signed-in player, when an admin bans them, then their email is barred by its hash, every session of theirs ends, and the admin's does not", async () => {
     const h = harness();
     const player = await h.signUp("Player@Example.test", makeJar());
     const admin = await h.signUp("owner@example.test", makeJar());
     h.deps.config.admin.accounts.push(admin.account);
-    // R-MODERATION-012: the admin routes answer only a session opened with a passkey.
+    // moderation:admin-view-for-admin-list: the admin routes answer only a session opened with a passkey.
     for (const row of h.tables.session) if (row["userId"] === admin.account) row["signedInWith"] = "passkey";
     const identities = authIdentities(h.auth);
     const queue = memoryReportQueue({ reports: [report("report.1", { subject: { account: player.account } })] });

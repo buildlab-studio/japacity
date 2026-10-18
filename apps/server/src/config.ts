@@ -1,14 +1,14 @@
 // The server's config: every number the rule pages put "in config as" and
 // the test switches. The production values are the pages'
 // defaults; a test proves the production config holds no test switch
-// (R-ACCOUNT-005, R-CLOCK-009).
+// (account:stand-ins-test-sign-in, clock:production-has-no-fast-clock).
 import { FEEDBACK_MAX_CHARS } from "@japacity/api";
 import { time } from "@japacity/sim";
 
 export interface ServerConfig {
   /** server.md Numbers. */
   server: { snapshotEvery: number; seedBits: number };
-  /** R-SERVER-025 to 027; the body sizes R-SERVER-036, the command size R-SERVER-037, the preset's steps R-SERVER-046. */
+  /** server:per-account-rate-limits, server:anonymous-limit-by-address and server:noisy-socket-closed; the body sizes server:body-size-limits, the command size server:command-size-limit, the preset's steps server:server-plays-prologue-preset. */
   limits: {
     commandsPer10s: number;
     commandsPer60s: number;
@@ -18,12 +18,12 @@ export interface ServerConfig {
     bodyBytes: number;
     adminBodyBytes: number;
     commandBytes: number;
-    /** R-SERVER-046: the most prologue steps one preset request plays. */
+    /** server:server-plays-prologue-preset: the most prologue steps one preset request plays. */
     presetSteps: number;
   };
-  /** R-CLOCK-001 to 006, 019. `epoch` is a Friday at 18:00 UTC (R-CLOCK-002). */
+  /** clock:server-owns-the-clock, clock:world-tick-length-and-epoch, clock:reply-carries-the-clock, clock:turns-earned-from-refill-time, clock:earned-turns-granted-first, clock:full-bank-earns-nothing, clock:world-fetch-is-jittered. `epoch` is a Friday at 18:00 UTC (clock:world-tick-length-and-epoch). */
   clock: { epoch: number; worldTickMs: number; turnRefillMs: number; worldFetchSpreadMs: number };
-  /** R-CLOCK-026, 028, 029. */
+  /** clock:attachments-rebuild-presence, clock:presence-is-a-sample, clock:busy-place-splits-rooms. */
   presence: { maxPerObject: number; sample: number; nudgeEveryMs: number; attachmentBytes: number; todayMax: number };
   /** account.md Numbers. */
   account: {
@@ -32,41 +32,41 @@ export interface ServerConfig {
     deleteFreshMs: number;
     deleteWithinDays: number;
     maxCharacters: number;
-    /** R-ACCOUNT-024: days between username changes after the free one. */
+    /** account:username-and-unconfirmed-email: days between username changes after the free one. */
     renameDays: number;
-    /** R-ACCOUNT-025: new guest lives from one device cookie, and from one connection, in `guestWindowHours`. */
+    /** account:guest-floods-are-capped: new guest lives from one device cookie, and from one connection, in `guestWindowHours`. */
     guestsPerDevice: number;
     guestsPerConnection: number;
     guestWindowHours: number;
-    /** R-ACCOUNT-026: the clean-up tool's working number of days without play. */
+    /** account:idle-guests-cleaned-by-hand: the clean-up tool's working number of days without play. */
     guestIdleDays: number;
   };
-  /** R-ACCOUNT-002, R-ACCOUNT-014. */
+  /** account:email-code-is-short-lived, account:sign-in-routes-rate-limited. */
   auth: { otp: { length: number; expiresIn: number; attempts: number }; limits: { otpSendPer60s: number; otpSendPerDay: number } };
   /**
-   * R-SERVER-012: the accounts that may read the admin page. Empty here; a deployment fills it from its
+   * server:ledger-alarm-lists-suspects: the accounts that may read the admin page. Empty here; a deployment fills it from its
    * Worker secret ADMIN_ACCOUNTS (`deployedConfig`), so no account id is ever written in a committed file.
    */
   admin: { accounts: string[] };
-  /** lottery.md Numbers: the secret's size and the public beacon (R-LOTTERY-007). */
+  /** lottery.md Numbers: the secret's size and the public beacon (lottery:fingerprint-commits-secret). */
   lottery: { secretBits: number; beacon: { genesis: number; period: number; url: string } };
-  /** R-SERVER-030 to 032: how long a switch is cached per isolate and how long the full screen asks a player to wait. */
+  /** server:private-settings-and-dials, server:four-off-switches and server:signups-off-shows-full: how long a switch is cached per isolate and how long the full screen asks a player to wait. */
   switches: { cacheMs: number; retryMs: number };
-  /** R-MODERATION-020. */
+  /** moderation:feedback-box-in-settings. */
   feedback: { maxChars: number; perDay: number; keepDays: number };
-  /** R-CITY-039, 040. */
+  /** city:boards-switch-when-and-who, city:board-line-and-ranking. */
   board: { size: number };
-  /** R-CLOCK-031 and the notify numbers: days before the bank-full notice is asked for again, a push's time to live, devices per account, a token's life. */
+  /** clock:full-bank-push-notification and the notify numbers: days before the bank-full notice is asked for again, a push's time to live, devices per account, a token's life. */
   notify: { reaskDays: number; pushTtlDays: number; maxDevices: number; tokenHours: number };
   /** moderation.md Numbers: reports a player may file a day, the longest hold, the decision target, how long decisions are kept. */
   moderation: { reportsPerDay: number; holdDays: number; decideHours: number; logYears: number };
   /**
-   * R-ADVERT-020: impressions and taps one account may add to a slot's totals in a UTC day. R-ADVERT-008, R-ADVERT-021:
+   * advert:advertiser-records-stored: impressions and taps one account may add to a slot's totals in a UTC day. advert:campaign-chosen-without-player-data, advert:advertisers-get-daily-counts-only:
    * the regions a campaign may name, each a country's code, and `default` for any country not listed.
    */
   advert: { countsPerAccountDay: { impressions: number; taps: number }; regions: string[] };
   /**
-   * R-ACCOUNT-005, R-CLOCK-009: the stand-ins that exist only in the test
+   * account:stand-ins-test-sign-in, clock:production-has-no-fast-clock: the stand-ins that exist only in the test
    * server's config. Every one is false in production.
    */
   testing: { fastClock: boolean; captureOtp: boolean; stubGoogle: boolean; virtualPasskeys: boolean; testLogin: boolean };
@@ -77,7 +77,7 @@ const EU = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "G
 /** A kibibyte, so the sizes read as they are meant. */
 const KIB = 1024;
 
-/** Friday 9 October 2026 at 18:00 UTC, the epoch every deployment runs on (R-CLOCK-002). */
+/** Friday 9 October 2026 at 18:00 UTC, the epoch every deployment runs on (clock:world-tick-length-and-epoch). */
 export const DEFAULT_EPOCH = Date.UTC(2026, 9, 9, 18, 0, 0);
 
 export const productionConfig: ServerConfig = {
@@ -88,13 +88,13 @@ export const productionConfig: ServerConfig = {
     readsPer60s: 120,
     anonPer60s: 60,
     socketPer10s: 10,
-    // R-SERVER-036: a player's body is a few hundred bytes, the counters' batch at most 16 KB, a beacon at most 64 KiB.
+    // server:body-size-limits: a player's body is a few hundred bytes, the counters' batch at most 16 KB, a beacon at most 64 KiB.
     bodyBytes: 64 * KIB,
-    // R-SERVER-036: an advert image is uploaded as base64, at most 200 KB before encoding (R-ADVERT-004).
+    // server:body-size-limits: an advert image is uploaded as base64, at most 200 KB before encoding (advert:one-labelled-still-image).
     adminBodyBytes: KIB * KIB,
-    // R-SERVER-037: the largest command, a month's slots, is a few hundred bytes of JSON.
+    // server:command-size-limit: the largest command, a month's slots, is a few hundred bytes of JSON.
     commandBytes: 4 * KIB,
-    // R-SERVER-046: the longest preset is seventeen answers (counted over every tile, home and age).
+    // server:server-plays-prologue-preset: the longest preset is seventeen answers (counted over every tile, home and age).
     presetSteps: 20,
   },
   clock: { epoch: DEFAULT_EPOCH, worldTickMs: time.WORLD_TICK_MS, turnRefillMs: time.TURN_REFILL_MS, worldFetchSpreadMs: 60 * time.SECOND_MS },
@@ -114,7 +114,7 @@ export const productionConfig: ServerConfig = {
 };
 
 /**
- * R-SERVER-012: the Worker secret ADMIN_ACCOUNTS read as account ids: comma-separated, each
+ * server:ledger-alarm-lists-suspects: the Worker secret ADMIN_ACCOUNTS read as account ids: comma-separated, each
  * trimmed, empty pieces and repeats dropped. Unset or empty, there is no admin account.
  */
 export function adminAccountsFrom(value: string | undefined): string[] {
@@ -122,7 +122,7 @@ export function adminAccountsFrom(value: string | undefined): string[] {
   return [...new Set(ids)];
 }
 
-/** R-SERVER-012: the config a deployment runs: production's, with the admin accounts from its ADMIN_ACCOUNTS secret. */
+/** server:ledger-alarm-lists-suspects: the config a deployment runs: production's, with the admin accounts from its ADMIN_ACCOUNTS secret. */
 export function deployedConfig(adminAccounts: string | undefined): ServerConfig {
   return { ...productionConfig, admin: { accounts: adminAccountsFrom(adminAccounts) } };
 }

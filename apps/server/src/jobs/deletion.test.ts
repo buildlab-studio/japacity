@@ -34,7 +34,7 @@ async function deletedPlayer(h: Harness) {
 }
 
 describe("the deletion job", () => {
-  test("[R-ACCOUNT-017] given a deletion, when the job runs a millisecond before it is due, then nothing is removed; at its due time everything the account named is gone, its dedication light with it (R-ACCOUNT-033)", async () => {
+  test("[account:deleted-data-removed-within-month] given a deletion, when the job runs a millisecond before it is due, then nothing is removed; at its due time everything the account named is gone, its dedication light with it (account:name-a-light-for-yours)", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();
@@ -60,7 +60,7 @@ describe("the deletion job", () => {
     expect(await runDeletions(h.deps, h.auth)).toBe(0);
   });
 
-  test("[R-ACCOUNT-018] given a completed deletion, when the kept records are read, then the audit entry, the day totals and the tickets survive and only the hash and dates name the account", async () => {
+  test("[account:deletion-keeps-anonymous-totals] given a completed deletion, when the kept records are read, then the audit entry, the day totals and the tickets survive and only the hash and dates name the account", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();

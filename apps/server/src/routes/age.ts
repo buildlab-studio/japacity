@@ -1,7 +1,7 @@
-// R-ACCOUNT-011, 012: `POST /api/age`, the age screen, and `GET /api/age`, its
+// account:sign-up-open-everywhere, account:age-screen-refuses-minors: `POST /api/age`, the age screen, and `GET /api/age`, its
 // standing, before the username and the guest life, the same from every
 // country. The date of birth is judged and dropped; a pass is a single-use
-// row that the guest start consumes, where the bot check runs (R-ACCOUNT-013,
+// row that the guest start consumes, where the bot check runs (account:bot-check-on-guest-creation,
 // routes/account.ts).
 // https://hono.dev/docs/helpers/cookie
 import type { AgeReply, AgeRequest, AgeStatus } from "@japacity/api";
@@ -22,7 +22,7 @@ export const PASS_PATH = "/api/guest";
 export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
 
-  // R-ACCOUNT-011, R-ACCOUNT-012: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (R-SERVER-031).
+  // account:sign-up-open-everywhere, account:age-screen-refuses-minors: the screen's standing read before it is shown; the switch gate answers it first while sign-ups are off (server:four-off-switches).
   app.get("/api/age", limit(deps, "reads"), (c) => {
     return c.json<AgeStatus>({ refused: readCookie(c.req.header("cookie"), REFUSED_COOKIE) !== null });
   });

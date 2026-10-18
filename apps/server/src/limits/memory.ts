@@ -1,5 +1,5 @@
 // A counting limiter in memory with the shape of Cloudflare's rate-limit
-// binding (docs/rules/server.md R-SERVER-028), for tests and local runs.
+// binding (server:limits-are-approximate), for tests and local runs.
 import type { ServerConfig } from "../config";
 import type { Limiter, Limiters } from "../deps";
 
@@ -21,7 +21,7 @@ export function memoryLimiter(limit: number, periodMs: number, now: () => number
   };
 }
 
-/** R-SERVER-025 to 027: every limit of the config, counted in memory. */
+/** server:per-account-rate-limits, server:anonymous-limit-by-address and server:noisy-socket-closed: every limit of the config, counted in memory. */
 export function memoryLimiters(limits: ServerConfig["limits"], now: () => number): Limiters {
   return {
     commands10s: memoryLimiter(limits.commandsPer10s, SECONDS_10, now),

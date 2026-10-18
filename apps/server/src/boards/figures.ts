@@ -1,4 +1,4 @@
-// The figures the boards rank (city.md R-CITY-039, R-CITY-040), written after
+// The figures the boards rank (city:boards-switch-when-and-who, city:board-line-and-ranking), written after
 // a commit and never inside it: the japacity figure the state now holds, and
 // the one it held before, which opens a week the row has not seen.
 import type { ReadCtx } from "@japacity/sim";
@@ -12,13 +12,13 @@ import type { BoardPorts } from "./ports";
 import { accountPorts } from "./ports";
 import { lagosWeek } from "./week";
 
-/** R-JAPACITY-003: the figure a board shows, null for "no route yet". */
+/** japacity:best-open-route-is-japacity: the figure a board shows, null for "no route yet". */
 export type FigureOf = (read: ReadCtx) => number | null;
 
 export const figureOf: FigureOf = (read) => japacity(read).percent;
 
 /**
- * R-CITY-039: for each character that logged a row, writes its figure when it
+ * city:boards-switch-when-and-who: for each character that logged a row, writes its figure when it
  * moved, and always on its first commit so a new life has its row. A figure
  * that moves only with the world (a window closing) is written at the
  * character's next commit, since a board read never loads a life.

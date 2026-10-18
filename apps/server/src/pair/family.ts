@@ -1,4 +1,4 @@
-// R-PEOPLE-034: a family request shared between siblings who are both
+// person:family-requests-shared: a family request shared between siblings who are both
 // players. A request that opens in one life opens in every linked sibling's
 // life at home with the same terms; the first copy paid closes the others,
 // each told it was handled. Carried in the same transaction as the command
@@ -24,7 +24,7 @@ function siblingsOf(scope: Scope, live: Live): Live[] {
   return found;
 }
 
-/** A choice that takes money: the paying choice R-PEOPLE-034 means. */
+/** A choice that takes money: the paying choice person:family-requests-shared means. */
 function pays(live: Live, entry: OfferState["entry"], choice: string): boolean {
   return live.content.offer[entry]?.choices.find((each) => each.id === choice)?.effects.some((effect) => effect.type === "money/take") ?? false;
 }

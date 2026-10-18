@@ -20,7 +20,7 @@ function commandOf(bytes: number): Command {
 }
 
 describe("every command through the server", () => {
-  test("[R-SERVER-001] [R-ENGINE-012] given a body that also carries a tick, a state and a sender, when the command is sent at tick 2, then only the command and basedOn are read, and it is stamped with tick 2 and the sender player", async () => {
+  test("[server:commands-only-through-route] [engine:simulation-reads-no-clock] given a body that also carries a tick, a state and a sender, when the command is sent at tick 2, then only the command and basedOn are read, and it is stamped with tick 2 and the sender player", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     server.setNow(epoch + 2 * worldTickMs + 1);
@@ -30,7 +30,7 @@ describe("every command through the server", () => {
     expect((await held(server, character)).tail).toMatchObject([{ v: 1, tick: 2, sender: "player", command: { type: "turn/end", basedOn: 0 } }]);
   });
 
-  test("[R-SERVER-001] [R-ENGINE-015] given a player, when it sends an authority command, then the simulation refuses it as not-yours and nothing is written", async () => {
+  test("[server:commands-only-through-route] [engine:browser-authority-for-dev-only] given a player, when it sends an authority command, then the simulation refuses it as not-yours and nothing is written", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const reply = await send(server, "acc-1", { type: "turns/grant", count: 5, basedOn: 0 });
@@ -39,7 +39,7 @@ describe("every command through the server", () => {
     expect((await held(server, character)).character.v).toBe(0);
   });
 
-  test("[R-SERVER-002] [R-ENGINE-003] given a character at version 1, when commands based on 0, 2 and 1 are sent, then the first two are stale and write nothing, and the third raises the version to 2", async () => {
+  test("[server:one-command-one-transaction] [engine:stale-commands-rejected] given a character at version 1, when commands based on 0, 2 and 1 are sent, then the first two are stale and write nothing, and the third raises the version to 2", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     accepted((await send(server, "acc-1", restMonth({ v: 0 }))).body);
@@ -53,7 +53,7 @@ describe("every command through the server", () => {
     expect((await held(server, character)).character.v).toBe(2);
   });
 
-  test("[R-SERVER-002] [R-CLOCK-005] given earned turns, when the player's command is sent at the stored version, then the grant is stepped first and the command is stamped with the version after it", async () => {
+  test("[server:one-command-one-transaction] [clock:earned-turns-granted-first] given earned turns, when the player's command is sent at the stored version, then the grant is stepped first and the command is stamped with the version after it", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     accepted((await send(server, "acc-1", restMonth({ v: 0 }))).body);
@@ -67,7 +67,7 @@ describe("every command through the server", () => {
     ]);
   });
 
-  test("[R-SERVER-003] given accepted commands, when the log is read, then each row holds the command, its tick, its sender, the version after it and the hash of the state after it", async () => {
+  test("[server:log-rows-hash-state] given accepted commands, when the log is read, then each row holds the command, its tick, its sender, the version after it and the hash of the state after it", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     for (let v = 0; v < 3; v += 1) accepted((await send(server, "acc-1", restMonth({ v }))).body);
@@ -79,7 +79,7 @@ describe("every command through the server", () => {
     expect(stored.tail.at(-1)?.hash).toBe(hashState(outcome.value));
   });
 
-  test("[R-SERVER-003] [R-SERVER-008] given one account whose log no longer replays to its hash, when it and another account play, then it alone is refused diverged and queued once for the rollback tool", async () => {
+  test("[server:log-rows-hash-state] [server:rollback-check-finds-divergence] given one account whose log no longer replays to its hash, when it and another account play, then it alone is refused diverged and queued once for the rollback tool", async () => {
     const server = testServer();
     const broken = await newLife(server, "acc-1");
     await newLife(server, "acc-2");
@@ -103,7 +103,7 @@ describe("every command through the server", () => {
     expect(accepted((await send(server, "acc-2", restMonth({ v: 0 }))).body).view.v).toBe(1);
   });
 
-  test("[R-SERVER-004] given snapshots every 3 versions, when 8 commands are played, then a snapshot is stored at 3 and 6 and every load replays fewer than 3 rows", async () => {
+  test("[server:snapshots-bound-replay] given snapshots every 3 versions, when 8 commands are played, then a snapshot is stored at 3 and 6 and every load replays fewer than 3 rows", async () => {
     const server = testServer({ config: testConfig({ testing: { testLogin: true }, server: { snapshotEvery: 3 } }) });
     const character = await newLife(server, "acc-1");
     for (let v = 0; v < 8; v += 1) {
@@ -118,7 +118,7 @@ describe("every command through the server", () => {
     expect(hashState(stored.snapshot.state)).toBe((await server.deps.stores.player.log(character, 5))[0]?.hash);
   });
 
-  test("[R-SERVER-004] given the production snapshot interval, when exactly that many commands are played, then the snapshot is at that version and the tail is empty", async () => {
+  test("[server:snapshots-bound-replay] given the production snapshot interval, when exactly that many commands are played, then the snapshot is at that version and the tail is empty", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const every = productionConfig.server.snapshotEvery;
@@ -128,7 +128,7 @@ describe("every command through the server", () => {
     expect(stored.tail).toEqual([]);
   });
 
-  test("[R-SERVER-005] given a command the simulation rejects, when it is sent, then the rejection comes back with the clock and nothing is written", async () => {
+  test("[server:rejections-write-nothing] given a command the simulation rejects, when it is sent, then the rejection comes back with the clock and nothing is written", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);
@@ -139,7 +139,7 @@ describe("every command through the server", () => {
     expect(await held(server, character)).toEqual(before);
   });
 
-  test("[R-SERVER-006] [R-CLOCK-020] given an authority command, when it is sent for a character, then it is logged with the sender authority and the player is nudged with the new version after the commit", async () => {
+  test("[server:authority-commands-same-path] [clock:socket-only-nudges] given an authority command, when it is sent for a character, then it is logged with the sender authority and the player is nudged with the new version after the commit", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     accepted((await send(server, "acc-1", restMonth({ v: 0 }))).body);
@@ -153,7 +153,7 @@ describe("every command through the server", () => {
     expect(nudges).toHaveLength(1);
   });
 
-  test("[R-SERVER-007] given two characters asked for in descending order, when one transaction holds them, then they are loaded in ascending id order", async () => {
+  test("[server:paired-rows-locked-in-order] given two characters asked for in descending order, when one transaction holds them, then they are loaded in ascending id order", async () => {
     const server = testServer();
     const one = await newLife(server, "acc-1");
     const two = await newLife(server, "acc-2");
@@ -162,7 +162,7 @@ describe("every command through the server", () => {
     expect(outcome.kind === "done" ? outcome.value : null).toEqual([...ids].reverse());
   });
 
-  test("[R-SERVER-019] [R-CLOCK-017] given a command, when the reply comes, then its view is the stored state after the step against the current tick's stored world", async () => {
+  test("[server:client-never-predicts] [clock:command-uses-stamped-tick] given a command, when the reply comes, then its view is the stored state after the step against the current tick's stored world", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     server.setNow(epoch + worldTickMs);
@@ -176,7 +176,7 @@ describe("every command through the server", () => {
     expect(reply.view).toEqual(viewFor({ state: outcome.value, world, content }));
   });
 
-  test("[R-CLOCK-017] [R-ENGINE-001] given commands at ticks 0 to 2 and a world seed that changes after they were stored, when the character is loaded later, then the replay reads the stored rows and does not diverge", async () => {
+  test("[clock:command-uses-stamped-tick] [engine:same-inputs-same-result] given commands at ticks 0 to 2 and a world seed that changes after they were stored, when the character is loaded later, then the replay reads the stored rows and does not diverge", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     let v = 0;
@@ -190,7 +190,7 @@ describe("every command through the server", () => {
     expect(reply.body).toMatchObject({ ok: true, clock: { tick: 5 } });
   });
 
-  test("[R-ENGINE-001] given two servers, when the same character plays the same commands at the same times, then the stored hashes are the same", async () => {
+  test("[engine:same-inputs-same-result] given two servers, when the same character plays the same commands at the same times, then the stored hashes are the same", async () => {
     const hashes: string[][] = [];
     for (let run = 0; run < 2; run += 1) {
       const server = testServer();
@@ -206,7 +206,7 @@ describe("every command through the server", () => {
     expect(hashes[1]).toEqual(hashes[0]);
   });
 
-  test("[R-SERVER-001] given no session, a body that is not a command, or an account with no character, when a command is sent, then it is refused signed-out, not-legal or no-character", async () => {
+  test("[server:commands-only-through-route] given no session, a body that is not a command, or an account with no character, when a command is sent, then it is refused signed-out, not-legal or no-character", async () => {
     const server = testServer();
     expect((await call(server, "POST", "/api/command", null, { command: restMonth({ v: 0 }), basedOn: 0 })).status).toBe(401);
     await newLife(server, "acc-1");
@@ -219,7 +219,7 @@ describe("every command through the server", () => {
 });
 
 describe("the command's size", () => {
-  test("[R-SERVER-037] given commands of exactly the production limit and one byte over, when each request is read, then the first is read and the second is refused before anything reads it", () => {
+  test("[server:command-size-limit] given commands of exactly the production limit and one byte over, when each request is read, then the first is read and the second is refused before anything reads it", () => {
     const { commandBytes } = productionConfig.limits;
     const at = commandOf(commandBytes);
     expect(JSON.stringify(at).length).toBe(commandBytes);
@@ -227,7 +227,7 @@ describe("the command's size", () => {
     expect(readRequest({ command: commandOf(commandBytes + 1), basedOn: 0 }, commandBytes)).toBeNull();
   });
 
-  test("[R-SERVER-037] given a command one byte over the limit, when it is sent, then it is refused not-legal and nothing is logged", async () => {
+  test("[server:command-size-limit] given a command one byte over the limit, when it is sent, then it is refused not-legal and nothing is logged", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);

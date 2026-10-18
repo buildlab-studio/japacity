@@ -1,7 +1,7 @@
-// R-ANALYTICS-012: the admin's numbers, built from the stored
+// analytics:admin-stats-for-admins-only: the admin's numbers, built from the stored
 // totals and two live counts of the command log. Plain functions over plain
 // data; the shape is `Stats` of @japacity/api. Every count passes through `shown`
-// (R-ANALYTICS-010), and a division is made only when both its sides show.
+// (analytics:small-counts-shown-as-fewer), and a division is made only when both its sides show.
 import type { EconomyCell, FunnelStep, PeriodRates, Regional, RetentionWeek, Returned, ShareKind, Shown, Stats, StatsPeriod } from "@japacity/api";
 import { FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, SESSION_BANDS } from "@japacity/content";
 import type { Content } from "@japacity/sim";
@@ -25,7 +25,7 @@ export interface StatsInput {
   todayPlayers: readonly RegionCount[];
 }
 
-/** The top-level keys, in the order R-ANALYTICS-012 gives them. */
+/** The top-level keys, in the order analytics:admin-stats-for-admins-only gives them. */
 export const STATS_KEYS = ["now", "today", "last7", "last30", "totals", "funnel", "retention", "sessions", "shares", "adverts", "economy"] as const;
 
 const WEEK_DAYS = 7;
@@ -73,7 +73,7 @@ function regional(counts: ReadonlyMap<string, number> | readonly RegionCount[], 
   return { all: shown(all, minShown), regions };
 }
 
-/** R-ANALYTICS-013: the day's peaks; the whole game's is kept under the region `all`, never a sum of the regions'. */
+/** analytics:session-split-by-command-gaps: the day's peaks; the whole game's is kept under the region `all`, never a sum of the regions'. */
 function peakOf(byRegion: ReadonlyMap<string, number>, minShown: number): Regional {
   const regions = new Map([...byRegion].filter(([region]) => region !== WHOLE_GAME));
   return { all: shown(byRegion.get(WHOLE_GAME) ?? 0, minShown), regions: regional(regions, minShown).regions };
@@ -118,7 +118,7 @@ function period(input: StatsInput, window: Window, players: ReadonlyMap<string, 
   };
 }
 
-/** R-ANALYTICS-012: the numbers as the endpoint answers them. */
+/** analytics:admin-stats-for-admins-only: the numbers as the endpoint answers them. */
 export function buildStats(content: Content, input: StatsInput): Stats {
   const { minShown } = content.tuning.analytics;
   const last = input.today - 1;

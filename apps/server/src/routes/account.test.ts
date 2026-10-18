@@ -16,7 +16,7 @@ async function accountOf(h: Harness, jar: Jar): Promise<{ text: string; reply: A
 }
 
 describe("the ways back in (GET /api/account's ways)", () => {
-  test("[R-ACCOUNT-027] [R-ACCOUNT-020] given a guest, a life kept by a code and a life kept with Google, when each reads its row, then ways names the Google address where Google is linked, the code's address and the passkeys held, and a guest has none", async () => {
+  test("[account:guest-reminded-to-secure] [account:only-needed-data-kept] given a guest, a life kept by a code and a life kept with Google, when each reads its row, then ways names the Google address where Google is linked, the code's address and the passkeys held, and a guest has none", async () => {
     const h = harness();
     const guest = await h.guest();
     expect((await accountOf(h, guest.jar)).reply).toMatchObject({ ok: true, account: { state: "guest", ways: { google: null, email: null, passkeys: 0 } } });
@@ -34,7 +34,7 @@ describe("the ways back in (GET /api/account's ways)", () => {
     expect((await accountOf(h, kept.jar)).reply).toMatchObject({ ok: true, account: { ways: { google: "ada@example.com", email: "ada@example.com", passkeys: 1 } } });
   });
 
-  test("[R-ACCOUNT-027] [R-ACCOUNT-020] given a life kept with Google, when its row is read, then ways holds the three fields alone: no token, no Google subject, no key", async () => {
+  test("[account:guest-reminded-to-secure] [account:only-needed-data-kept] given a life kept with Google, when its row is read, then ways holds the three fields alone: no token, no Google subject, no key", async () => {
     const h = harness();
     const kept = await h.guest();
     await withGoogle(h, kept.jar, { sub: "google-subject-secret", email: "ada@example.com" });
@@ -46,8 +46,8 @@ describe("the ways back in (GET /api/account's ways)", () => {
   });
 });
 
-describe("another way in to the same account (R-ACCOUNT-023)", () => {
-  test("[R-ACCOUNT-023] given a life kept with Google, when a code is sent to that Google address from another browser and typed, then it opens the same account and its life, and no account is made", async () => {
+describe("another way in to the same account (account:guest-secures-the-life)", () => {
+  test("[account:guest-secures-the-life] given a life kept with Google, when a code is sent to that Google address from another browser and typed, then it opens the same account and its life, and no account is made", async () => {
     const h = harness();
     const kept = await h.guest();
     await withGoogle(h, kept.jar, { sub: "google-ada", email: "ada@example.com" });
@@ -62,7 +62,7 @@ describe("another way in to the same account (R-ACCOUNT-023)", () => {
     expect(h.tables.user).toHaveLength(users);
   });
 
-  test("[R-ACCOUNT-023] given a life kept by a code, when Google with that same verified address signs in from another browser, then it opens the same account, and from then Google is one of its ways", async () => {
+  test("[account:guest-secures-the-life] given a life kept by a code, when Google with that same verified address signs in from another browser, then it opens the same account, and from then Google is one of its ways", async () => {
     const h = harness();
     const byCode = await h.signUp("ada@example.com");
     const users = h.tables.user.length;
@@ -75,7 +75,7 @@ describe("another way in to the same account (R-ACCOUNT-023)", () => {
     expect(h.tables.user).toHaveLength(users);
   });
 
-  test("[R-ACCOUNT-023] [R-ACCOUNT-001] given an address no life is kept with, when a code to it is typed at the door, then it opens nothing and makes no account", async () => {
+  test("[account:guest-secures-the-life] [account:sign-in-without-secret] given an address no life is kept with, when a code to it is typed at the door, then it opens nothing and makes no account", async () => {
     const h = harness();
     await h.signUp("ada@example.com");
     const users = h.tables.user.length;
@@ -92,7 +92,7 @@ describe("another way in to the same account (R-ACCOUNT-023)", () => {
 const START = Date.parse("2026-10-08T09:00:00Z");
 
 describe("GET /api/account", () => {
-  test("[R-ACCOUNT-015] [R-ACCOUNT-020] given a new account, when it reads its row, then it sees the country, the age method and no age date, and no character", async () => {
+  test("[account:one-character-per-account] [account:only-needed-data-kept] given a new account, when it reads its row, then it sees the country, the age method and no age date, and no character", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const reply = await h.call("/api/account", { jar });
@@ -115,7 +115,7 @@ describe("GET /api/account", () => {
     expect(Object.keys(row ?? {}).sort()).toEqual(["age", "character", "country", "createdAt", "id", "lastPlayedAt", "notifyBankFull", "sendUsageCounts", "state", "username", "usernameChangedAt"]);
   });
 
-  test("[R-ANALYTICS-006] given a new account, when it turns usage counts off and on with PUT /api/account, then the row and the reply follow, and a body of any other shape is refused with nothing changed", async () => {
+  test("[analytics:player-can-stop-usage-counts] given a new account, when it turns usage counts off and on with PUT /api/account, then the row and the reply follow, and a body of any other shape is refused with nothing changed", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const put = (json: unknown) => h.call("/api/account", { method: "PUT", jar, json });
@@ -131,7 +131,7 @@ describe("GET /api/account", () => {
     expect((await h.call("/api/account", { method: "PUT", jar: makeJar(), json: { sendUsageCounts: false } })).status).toBe(401);
   });
 
-  test("[R-MODERATION-012] given an account on the admin list, when it reads its row, then it is marked admin only while its session was opened with a passkey; one off the list is not", async () => {
+  test("[moderation:admin-view-for-admin-list] given an account on the admin list, when it reads its row, then it is marked admin only while its session was opened with a passkey; one off the list is not", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const other = await h.signUp("bola@example.com");
@@ -143,7 +143,7 @@ describe("GET /api/account", () => {
     expect(await (await h.call("/api/account", { jar: other.jar })).json()).toMatchObject({ ok: true, account: { id: other.account, admin: false } });
   });
 
-  test("[R-ACCOUNT-015] given no session, when the row is read, then it answers signed-out", async () => {
+  test("[account:one-character-per-account] given no session, when the row is read, then it answers signed-out", async () => {
     const reply = await harness().call("/api/account", { jar: makeJar() });
     expect(reply.status).toBe(401);
     expect(await reply.json()).toMatchObject({ code: "signed-out" });
@@ -151,7 +151,7 @@ describe("GET /api/account", () => {
 });
 
 describe("DELETE /api/account", () => {
-  test("[R-ACCOUNT-016] given a session signed in one millisecond inside the fresh window, when the account is deleted, then every session ends at once and it cannot sign in", async () => {
+  test("[account:player-deletes-account] given a session signed in one millisecond inside the fresh window, when the account is deleted, then every session ends at once and it cannot sign in", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();
@@ -171,7 +171,7 @@ describe("DELETE /api/account", () => {
     expect(h.tables.user).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-016] given a session signed in exactly the fresh window ago, when the account is deleted with no code, then it is refused and nothing is removed", async () => {
+  test("[account:player-deletes-account] given a session signed in exactly the fresh window ago, when the account is deleted with no code, then it is refused and nothing is removed", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();
@@ -185,7 +185,7 @@ describe("DELETE /api/account", () => {
     expect(await h.deps.stores.account.get(account)).not.toBeNull();
   });
 
-  test("[R-ACCOUNT-016] given a stale session, when the account is deleted with a fresh email code, then it is deleted; a wrong code is refused", async () => {
+  test("[account:player-deletes-account] given a stale session, when the account is deleted with a fresh email code, then it is deleted; a wrong code is refused", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(START);
     const h = harness();

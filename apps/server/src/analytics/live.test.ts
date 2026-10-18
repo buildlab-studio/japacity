@@ -8,7 +8,7 @@ import { testConfig } from "../config";
 import { testSession } from "../deps";
 
 describe("counted the moment the server acts", () => {
-  test("[R-ANALYTICS-008] [R-ACCOUNT-023] given a guest made one day and secured the next, when it secures, then it is counted as secured and as the funnel's last step that day, and on its sign-up day for conversion, by region", async () => {
+  test("[analytics:nightly-game-counters] [account:guest-secures-the-life] given a guest made one day and secured the next, when it secures, then it is counted as secured and as the funnel's last step that day, and on its sign-up day for conversion, by region", async () => {
     // The auth library dates the age pass by the machine's clock, so the test starts there.
     let now = Date.now();
     const h = harness({ now: () => now });
@@ -26,7 +26,7 @@ describe("counted the moment the server acts", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-008] [R-MODERATION-020] [R-ANALYTICS-007] given feedback kept from two regions and one refused, when they are sent, then feedback/sent counts the kept ones by region and holds no text", async () => {
+  test("[analytics:nightly-game-counters] [moderation:feedback-box-in-settings] [analytics:store-holds-nothing-personal] given feedback kept from two regions and one refused, when they are sent, then feedback/sent counts the kept ones by region and holds no text", async () => {
     const config = testConfig({ testing: { testLogin: true } });
     const deps = testDeps({ config, session: testSession(config), now: () => Date.UTC(2026, 9, 8, 12, 0, 0) });
     const app = makeApp(deps);

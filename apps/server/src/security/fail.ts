@@ -1,7 +1,7 @@
-// R-SERVER-043: no failure escapes to the platform's own error page. A
+// server:no-platform-error-page: no failure escapes to the platform's own error page. A
 // request that throws is answered in JSON the client can read,
 // `{ ok: false, code: "unavailable" }`, with the security headers, and the
-// failure is logged once (R-SERVER-042). The status says whether trying again
+// failure is logged once (server:shared-observability-block). The status says whether trying again
 // may help: 503 with `Retry-After` when the database or an upstream did not
 // answer, 500 when the server itself is wrong.
 import type { Context } from "hono";
@@ -51,7 +51,7 @@ const DETAIL: Record<FailureStatus, string> = {
 
 /**
  * The body of a failure. Not one of the game's refusals (`ServerCode`): nothing the player did is refused, and the
- * client shows its trouble card for it (engine.md R-ENGINE-015).
+ * client shows its trouble card for it (engine:browser-authority-for-dev-only).
  */
 interface ServerFailure {
   ok: false;
@@ -66,7 +66,7 @@ function unavailable(status: FailureStatus): ServerFailure {
   return { ok: false, code: "unavailable", detail: DETAIL[status], ...(status === 503 ? { retryAfter: RETRY_AFTER_SECONDS } : {}) };
 }
 
-/** R-SERVER-043: the reply for a failure, with the security headers of R-SERVER-034, `no-store`, and `Retry-After` on a 503. */
+/** server:no-platform-error-page: the reply for a failure, with the security headers of server:security-headers-on-replies, `no-store`, and `Retry-After` on a 503. */
 export function failureReply(status: FailureStatus): Response {
   const headers = new Headers({ ...SECURITY_HEADERS, "content-type": "application/json; charset=utf-8", "cache-control": DEFAULT_CACHE });
   if (status === 503) headers.set("retry-after", String(RETRY_AFTER_SECONDS));
@@ -83,12 +83,12 @@ export interface FailureBindings {
 }
 
 /**
- * R-SERVER-043: `app.onError`. A failure inside a route: logged, then answered 503 when the request's database
+ * server:no-platform-error-page: `app.onError`. A failure inside a route: logged, then answered 503 when the request's database
  * refused or dropped its connection, or by `failureStatus` otherwise. An admin read stopped at its statement
- * timeout is answered with a refusal the admin page shows (R-SERVER-012).
+ * timeout is answered with a refusal the admin page shows (server:ledger-alarm-lists-suspects).
  */
 export function onAppError(error: Error, c: Context): Response {
-  // R-SERVER-012: an admin read stopped at its statement timeout is the admin's refusal, not a failure of the server.
+  // server:ledger-alarm-lists-suspects: an admin read stopped at its statement timeout is the admin's refusal, not a failure of the server.
   if (adminReadTimedOut(c.req.path, error)) {
     logFailure({ what: "request", method: c.req.method, path: c.req.path, status: 503, error });
     return c.json(adminTimeoutRefusal(), 503, { "cache-control": DEFAULT_CACHE });
@@ -100,7 +100,7 @@ export function onAppError(error: Error, c: Context): Response {
 }
 
 /**
- * R-SERVER-043: a request's whole answer. A failure that escapes it (one before or outside the app: the
+ * server:no-platform-error-page: a request's whole answer. A failure that escapes it (one before or outside the app: the
  * database client, the auth library's set-up, the files on staging) is logged and answered 503, since the
  * app's own failures are answered inside it.
  */

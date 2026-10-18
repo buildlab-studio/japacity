@@ -34,7 +34,7 @@ function settles<T>(what: string, work: Promise<T>): Promise<T> {
 
 describe("the command transaction on Postgres", () => {
   test(
-    "[R-SERVER-002] given a character on the Postgres stores, when its first, second and third commands are sent in three ticks, then each settles, and the log holds the three months at their ticks with the earned grants between",
+    "[server:one-command-one-transaction] given a character on the Postgres stores, when its first, second and third commands are sent in three ticks, then each settles, and the log holds the three months at their ticks with the earned grants between",
     async () => {
       const server = await onPostgres();
       const character = await newLife(server, "acc-1");
@@ -59,7 +59,7 @@ describe("the command transaction on Postgres", () => {
   );
 
   test(
-    "[R-SERVER-002] [R-LOTTERY-005] given an open draw on the Postgres stores, when a character buys tickets twice, then both purchases settle, the tickets are numbered in commit order and the world rows read under the lock are the stored ones",
+    "[server:one-command-one-transaction] [lottery:tickets-numbered-by-commit] given an open draw on the Postgres stores, when a character buys tickets twice, then both purchases settle, the tickets are numbered in commit order and the world rows read under the lock are the stored ones",
     async () => {
       const server = await onPostgres();
       await drawJob(server.deps, { beacon: { genesis: 0, period: 1, randomness: () => Promise.resolve(null) } }, TICKS_CRON);
@@ -89,7 +89,7 @@ describe("the command transaction on Postgres", () => {
   );
 
   test(
-    "[R-SERVER-002] [R-LOTTERY-005] [R-CLOCK-017] given the same draw, lives and clock on the memory stores and on Postgres, when each life buys tickets and plays months across ticks, then every log row and every ticket is the same on both, and every reply but for the order of its routes",
+    "[server:one-command-one-transaction] [lottery:tickets-numbered-by-commit] [clock:command-uses-stamped-tick] given the same draw, lives and clock on the memory stores and on Postgres, when each life buys tickets and plays months across ticks, then every log row and every ticket is the same on both, and every reply but for the order of its routes",
     async () => {
       const play = async (server: TestServer) => {
         await drawJob(server.deps, { beacon: { genesis: 0, period: 1, randomness: () => Promise.resolve(null) } }, TICKS_CRON);

@@ -1,4 +1,4 @@
-// R-MODERATION-020: the feedback a player sends, kept with the build, the
+// moderation:feedback-box-in-settings: the feedback a player sends, kept with the build, the
 // screen, the graphics mode, the day and the region and nothing else, and
 // dropped after `config.feedback.keepDays`.
 import type { ServerCode } from "@japacity/api";
@@ -19,7 +19,7 @@ export function characters(text: string): number {
 export type Sent = { ok: true } | { ok: false; status: 400 | 429; code: ServerCode; detail: string; retryAfter?: number };
 
 /**
- * R-MODERATION-020: one feedback from a signed-in session. The sender's key
+ * moderation:feedback-box-in-settings: one feedback from a signed-in session. The sender's key
  * is a hash of the account and the day, counted apart from the rows, so the
  * day's limit holds while no row names who sent it.
  */
@@ -46,7 +46,7 @@ export async function sendFeedback(deps: ServerDeps, account: string, region: st
   return { ok: true };
 }
 
-/** R-MODERATION-020: a row is kept for `keepDays` days counting its own, and goes on the day after. */
+/** moderation:feedback-box-in-settings: a row is kept for `keepDays` days counting its own, and goes on the day after. */
 function keptFrom(deps: Pick<ServerDeps, "config" | "now">): string {
   return time.dayName(time.utcDay(deps.now()) - (deps.config.feedback.keepDays - 1));
 }

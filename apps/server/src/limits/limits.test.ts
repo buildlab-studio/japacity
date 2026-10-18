@@ -18,7 +18,7 @@ function limitedServer(limits: Partial<ServerConfig["limits"]>) {
 }
 
 describe("the counting limiter", () => {
-  test("[R-SERVER-028] given a limit of 2 in 10 s, when one key calls three times and another once, then only the first key's third call is refused, and the window opens again after 10 s", async () => {
+  test("[server:limits-are-approximate] given a limit of 2 in 10 s, when one key calls three times and another once, then only the first key's third call is refused, and the window opens again after 10 s", async () => {
     let now = epoch;
     const limiter: Limiter = memoryLimiter(2, 10_000, () => now);
     const calls = [await limiter.limit({ key: "a" }), await limiter.limit({ key: "a" }), await limiter.limit({ key: "a" }), await limiter.limit({ key: "b" })];
@@ -31,7 +31,7 @@ describe("the counting limiter", () => {
 });
 
 describe("the limits over the routes", () => {
-  test("[R-SERVER-025] given an account at its 10-second command limit, when it sends one more, then it is answered 429 rate-limited with a retry in 10 seconds and nothing is stepped or logged", async () => {
+  test("[server:per-account-rate-limits] given an account at its 10-second command limit, when it sends one more, then it is answered 429 rate-limited with a retry in 10 seconds and nothing is stepped or logged", async () => {
     const server = limitedServer({ commandsPer10s: 2 });
     const character = await newLife(server, "acc-1");
     const first = await send(server, "acc-1", restMonth({ v: 0 }));
@@ -45,7 +45,7 @@ describe("the limits over the routes", () => {
     expect((await send(server, "acc-1", restMonth({ v: 1 }))).body.ok).toBe(true);
   });
 
-  test("[R-SERVER-025] given an account at its 60-second command limit, when it sends one more, then the retry is 60 seconds", async () => {
+  test("[server:per-account-rate-limits] given an account at its 60-second command limit, when it sends one more, then the retry is 60 seconds", async () => {
     const server = limitedServer({ commandsPer10s: 100, commandsPer60s: 3 });
     await newLife(server, "acc-1");
     for (let v = 0; v < 2; v += 1) expect((await send(server, "acc-1", restMonth({ v }))).body.ok).toBe(true);
@@ -54,7 +54,7 @@ describe("the limits over the routes", () => {
     expect((over.body as ServerRejection).retryAfter).toBe(60);
   });
 
-  test("[R-SERVER-025] given an account at its read limit, when it fetches the view or the world once more, then both are refused with a retry in 60 seconds while another account still reads", async () => {
+  test("[server:per-account-rate-limits] given an account at its read limit, when it fetches the view or the world once more, then both are refused with a retry in 60 seconds while another account still reads", async () => {
     const server = limitedServer({ readsPer60s: 2 });
     await newLife(server, "acc-1");
     await newLife(server, "acc-2");
@@ -67,7 +67,7 @@ describe("the limits over the routes", () => {
     expect((await view(server, "acc-2")).status).toBe(200);
   });
 
-  test("[R-SERVER-026] given requests with no session, when one address passes its limit, then it is refused by its cf-connecting-ip and another address is not", async () => {
+  test("[server:anonymous-limit-by-address] given requests with no session, when one address passes its limit, then it is refused by its cf-connecting-ip and another address is not", async () => {
     const server = limitedServer({ anonPer60s: 2 });
     const from = (ip: string) => call<ServerRejection>(server, "GET", "/api/world", null, undefined, ip);
     expect([(await from("198.51.100.1")).status, (await from("198.51.100.1")).status]).toEqual([200, 200]);

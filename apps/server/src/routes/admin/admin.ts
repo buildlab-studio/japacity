@@ -1,7 +1,7 @@
-// The admin page's data (R-SERVER-005, R-SERVER-008, R-SERVER-011, R-SERVER-012).
+// The admin page's data (server:rejections-write-nothing, server:rollback-check-finds-divergence, server:daily-money-report, server:ledger-alarm-lists-suspects).
 // Only a session whose account is in `config.admin.accounts` may read it; to
 // anyone else, signed in or not, every route here does not exist. An admin
-// whose session was not opened with a passkey is refused (R-MODERATION-012).
+// whose session was not opened with a passkey is refused (moderation:admin-view-for-admin-list).
 import type { ServerRejection } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { Hono } from "hono";
@@ -21,7 +21,7 @@ export interface AdminEnv {
   Variables: { admin: string };
 }
 
-/** R-MODERATION-012, R-SERVER-012: the gate before every admin route. */
+/** moderation:admin-view-for-admin-list, server:ledger-alarm-lists-suspects: the gate before every admin route. */
 export function adminOnly(deps: ServerDeps): MiddlewareHandler<AdminEnv> {
   return async (c, next) => {
     const session = await deps.session(c.req.raw);

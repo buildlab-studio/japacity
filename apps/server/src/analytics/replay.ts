@@ -1,4 +1,4 @@
-// R-ANALYTICS-001, R-ANALYTICS-008: what each accepted command did, found by
+// analytics:game-counters-from-server, analytics:nightly-game-counters: what each accepted command did, found by
 // stepping a character's stored rows again, as the admin tools do
 // (ops/replay.ts). Nothing here writes.
 import type { BaseEvent, Command, ReportLine, State } from "@japacity/sim";
@@ -14,13 +14,13 @@ export interface Played {
   row: LogRow;
   /** False while the prologue was open when the command came. */
   afterPrologue: boolean;
-  /** R-GUIDE-014: the turn the command belongs to, counting the `turn/end` commands after the prologue from 1. */
+  /** guide:early-win-in-three-turns: the turn the command belongs to, counting the `turn/end` commands after the prologue from 1. */
   turn: number;
   events: BaseEvent[];
   lines: ReportLine[];
 }
 
-/** R-ANALYTICS-008: where a life stood after its last command before a moment, for `economy/held`. */
+/** analytics:nightly-game-counters: where a life stood after its last command before a moment, for `economy/held`. */
 export interface LifeAt {
   /** True while the years before are still open. */
   prologueOpen: boolean;

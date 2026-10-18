@@ -1,4 +1,4 @@
-// R-ACCOUNT-024: the username. Letters, digits and underscore, 3 to 20 long,
+// account:username-and-unconfirmed-email: the username. Letters, digits and underscore, 3 to 20 long,
 // unique whatever the capitals (the store holds that), not on the reserved
 // list and holding no blocked word, in any of their spellings. One free change,
 // then a wait of `account.renameDays` between changes. A handle only: never the
@@ -43,7 +43,7 @@ export function renameFrom(row: Pick<AccountRow, "usernameChangedAt">, config: P
 
 /**
  * A name of the shape `player_` and eleven characters, for an account whose
- * name a moderator resets (R-MODERATION-014 `reset-name`). The store refuses
+ * name a moderator resets (moderation:fixed-admin-actions `reset-name`). The store refuses
  * one already held, and the caller draws again.
  */
 export function generatedUsername(randomBytes: (count: number) => Uint8Array): string {

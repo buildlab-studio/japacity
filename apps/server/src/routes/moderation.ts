@@ -1,5 +1,5 @@
-// Block and report (docs/rules/moderation.md R-MODERATION-001 to 008, pair.md
-// R-PAIR-015, R-PAIR-016): `POST /api/moderation/block`, `/unblock` and `/report`.
+// Block and report (moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored, moderation:report-offers-block, moderation:reporter-told-outcome-only and moderation:reports-hold-cited-records, pair.md
+// pair:block-ends-every-bond, pair:report-holds-conversation): `POST /api/moderation/block`, `/unblock` and `/report`.
 import { Hono } from "hono";
 
 import type { ServerDeps } from "../deps";

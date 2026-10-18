@@ -38,7 +38,7 @@ async function raw(server: ReturnType<typeof testServer>, method: "POST" | "PUT"
 }
 
 describe("the headers on every reply", () => {
-  test("[R-SERVER-034] given any reply, when it leaves the Worker, then it carries the content policy, nosniff, no framing and no referrer, and is not stored", async () => {
+  test("[server:security-headers-on-replies] given any reply, when it leaves the Worker, then it carries the content policy, nosniff, no framing and no referrer, and is not stored", async () => {
     const server = testServer();
     const health = await server.app.request("/api/health");
     expectDressed(health.headers);
@@ -48,7 +48,7 @@ describe("the headers on every reply", () => {
     expectDressed(missing.headers);
   });
 
-  test("[R-SERVER-034] given a reply that names its own caching, when it leaves the Worker, then that caching is kept and the other headers are added", async () => {
+  test("[server:security-headers-on-replies] given a reply that names its own caching, when it leaves the Worker, then that caching is kept and the other headers are added", async () => {
     const server = testServer();
     const world = await call(server, "GET", "/api/world", null);
     expect(world.status).toBe(200);
@@ -56,7 +56,7 @@ describe("the headers on every reply", () => {
     expectDressed(world.headers);
   });
 
-  test("[R-SERVER-034] given a refusal from a limit, when it leaves the Worker, then it is dressed too", async () => {
+  test("[server:security-headers-on-replies] given a refusal from a limit, when it leaves the Worker, then it is dressed too", async () => {
     const server = limitedServer({ anonPer60s: 0 });
     const over = await call<ServerRejection>(server, "GET", "/api/world", null);
     expect(over.status).toBe(429);
@@ -65,7 +65,7 @@ describe("the headers on every reply", () => {
 });
 
 describe("writes only from the game's own page", () => {
-  test("[R-SERVER-035] given a write that names another site as its origin, when it reaches the Worker, then it is refused 403 before the route reads it, and nothing is kept", async () => {
+  test("[server:same-origin-writes-only] given a write that names another site as its origin, when it reaches the Worker, then it is refused 403 before the route reads it, and nothing is kept", async () => {
     const h = harness();
     const { jar } = await h.signUp("ada@example.test");
     const before = await h.deps.stores.feedback.list(10);
@@ -75,7 +75,7 @@ describe("writes only from the game's own page", () => {
     expect(await h.deps.stores.feedback.list(10)).toEqual(before);
   });
 
-  test("[R-SERVER-035] given the same write from the game's own origin, or from no browser at all, when it reaches the Worker, then the route answers it", async () => {
+  test("[server:same-origin-writes-only] given the same write from the game's own origin, or from no browser at all, when it reaches the Worker, then the route answers it", async () => {
     const h = harness();
     const { jar } = await h.signUp("ada@example.test");
     const own = await h.call("/api/feedback", { method: "POST", jar, headers: { origin: SITE }, json: { text: "hello", build: "1", screen: "city", mode: "low" } });
@@ -84,13 +84,13 @@ describe("writes only from the game's own page", () => {
     expect(plain.status).toBe(200);
   });
 
-  test("[R-SERVER-035] given a read from another site, when it reaches the Worker, then it is answered as any read is", async () => {
+  test("[server:same-origin-writes-only] given a read from another site, when it reaches the Worker, then it is answered as any read is", async () => {
     const h = harness();
     const reply = await h.call("/api/age", { method: "GET", jar: makeJar(), headers: { origin: ELSEWHERE } });
     expect(reply.status).toBe(200);
   });
 
-  test("[R-SERVER-035] given the origin headers a browser sends, when they are judged, then only another origin, or no origin with a cross-site fetch, is from elsewhere", () => {
+  test("[server:same-origin-writes-only] given the origin headers a browser sends, when they are judged, then only another origin, or no origin with a cross-site fetch, is from elsewhere", () => {
     const site = new URL(SITE).origin;
     expect(fromElsewhere(site, new Headers({ origin: SITE }))).toBe(false);
     expect(fromElsewhere(site, new Headers({ origin: ELSEWHERE }))).toBe(true);
@@ -102,7 +102,7 @@ describe("writes only from the game's own page", () => {
 });
 
 describe("bodies and commands of a bounded size", () => {
-  test("[R-SERVER-036] given a body over the player limit, when it is sent to the command route, then it is refused 413 and nothing is stepped or logged", async () => {
+  test("[server:body-size-limits] given a body over the player limit, when it is sent to the command route, then it is refused 413 and nothing is stepped or logged", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);
@@ -112,21 +112,21 @@ describe("bodies and commands of a bounded size", () => {
     expect(await held(server, character)).toEqual(before);
   });
 
-  test("[R-SERVER-036] given a beacon over the player limit, when it is sent to the counters, then the answer is still 204", async () => {
+  test("[server:body-size-limits] given a beacon over the player limit, when it is sent to the counters, then the answer is still 204", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
     const reply = await raw(server, "POST", "/api/counters", "acc-1", "x".repeat(bodyBytes + 1), "text/plain");
     expect(reply.status).toBe(204);
   });
 
-  test("[R-SERVER-036] given an admin route, when a body over the player limit is sent, then it reaches the admin gate rather than the size refusal", async () => {
+  test("[server:body-size-limits] given an admin route, when a body over the player limit is sent, then it reaches the admin gate rather than the size refusal", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
     const reply = await raw(server, "POST", "/api/admin/adverts/advertisers", "acc-1", JSON.stringify({ pad: "x".repeat(bodyBytes) }));
     expect(reply.status).toBe(404);
   });
 
-  test("[R-SERVER-036] given bodies of exactly the player limit and one byte over, when each is sent to the command route, then the first reaches the route and the second is refused 413", async () => {
+  test("[server:body-size-limits] given bodies of exactly the player limit and one byte over, when each is sent to the command route, then the first reaches the route and the second is refused 413", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const at = await raw(server, "POST", "/api/command", "acc-1", "x".repeat(bodyBytes));
@@ -135,7 +135,7 @@ describe("bodies and commands of a bounded size", () => {
     expect(over.status).toBe(413);
   });
 
-  test("[R-SERVER-036] given bodies of exactly the admin limit and one byte over, when each is sent to an admin route, then the first reaches the admin gate and the second is refused 413", async () => {
+  test("[server:body-size-limits] given bodies of exactly the admin limit and one byte over, when each is sent to an admin route, then the first reaches the admin gate and the second is refused 413", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
     const at = await raw(server, "POST", "/api/admin/adverts/advertisers", "acc-1", "x".repeat(adminBodyBytes));
@@ -145,7 +145,7 @@ describe("bodies and commands of a bounded size", () => {
     expect(await over.json()).toEqual({ ok: false, code: "not-legal", detail: TOO_LARGE_DETAIL });
   });
 
-  test("[R-SERVER-037] given a command whose JSON is over the logged limit, when it is sent, then it is refused not-legal and nothing is logged, while the same month without the padding is played", async () => {
+  test("[server:command-size-limit] given a command whose JSON is over the logged limit, when it is sent, then it is refused not-legal and nothing is logged, while the same month without the padding is played", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const before = await held(server, character);
@@ -159,7 +159,7 @@ describe("bodies and commands of a bounded size", () => {
 });
 
 describe("the limits on the routes that had none", () => {
-  test("[R-SERVER-025] given an account at its read limit, when it asks for a place's people, its standing or a socket, then each is answered 429 with a retry in 60 seconds", async () => {
+  test("[server:per-account-rate-limits] given an account at its read limit, when it asks for a place's people, its standing or a socket, then each is answered 429 with a retry in 60 seconds", async () => {
     const server = limitedServer({ readsPer60s: 0 });
     // The socket route is mounted by index.ts with the place objects; nothing past the limit is reached here.
     server.app.route("/", placeSocketRoutes(server.deps, { rooms: {} as Rooms, placeOf: () => Promise.resolve(null), profileOf: () => Promise.resolve(null) }));
@@ -171,7 +171,7 @@ describe("the limits on the routes that had none", () => {
     }
   });
 
-  test("[R-SERVER-025] given an account at its command limit, when it sends feedback or an appeal, then each is answered 429 and nothing is kept", async () => {
+  test("[server:per-account-rate-limits] given an account at its command limit, when it sends feedback or an appeal, then each is answered 429 and nothing is kept", async () => {
     const server = limitedServer({ commandsPer10s: 0 });
     await signUp(server, "acc-1");
     const feedback = await call<ServerRejection>(server, "POST", "/api/feedback", "acc-1", { text: "hello", build: "1", screen: "city", mode: "low" });
@@ -181,7 +181,7 @@ describe("the limits on the routes that had none", () => {
     expect(await server.deps.stores.feedback.list(10)).toEqual([]);
   });
 
-  test("[R-SERVER-026] given an address at its limit, when it sends the age screen with no session, then it is refused by its address before the date or the bot check is read", async () => {
+  test("[server:anonymous-limit-by-address] given an address at its limit, when it sends the age screen with no session, then it is refused by its address before the date or the bot check is read", async () => {
     const config = testConfig({ testing: { captureOtp: true }, limits: { anonPer60s: 1 } });
     const now = productionConfig.clock.epoch;
     const h = harness({ config, limits: memoryLimiters(config.limits, () => now) });
@@ -192,7 +192,7 @@ describe("the limits on the routes that had none", () => {
     expect(await over.json()).toMatchObject({ code: "rate-limited", retryAfter: 60 });
   });
 
-  test("[R-SERVER-025] given a signed-in account at its read limit, when it reads its own account, then it is answered 429", async () => {
+  test("[server:per-account-rate-limits] given a signed-in account at its read limit, when it reads its own account, then it is answered 429", async () => {
     const config = testConfig({ testing: { captureOtp: true }, limits: { readsPer60s: 0 } });
     const now = productionConfig.clock.epoch;
     const h = harness({ config, limits: memoryLimiters(config.limits, () => now) });

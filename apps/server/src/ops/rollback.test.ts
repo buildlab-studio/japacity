@@ -28,7 +28,7 @@ async function appendRejected(deps: ServerDeps, state: State, v: number): Promis
 }
 
 describe("the rollback check", () => {
-  test("[R-SERVER-008] given a stored life whose every hash matches, when it is checked, then no version differs and nothing is written", async () => {
+  test("[server:rollback-check-finds-divergence] given a stored life whose every hash matches, when it is checked, then no version differs and nothing is written", async () => {
     const deps = testDeps();
     await stored(deps);
     const before = await deps.stores.player.load(ID);
@@ -40,7 +40,7 @@ describe("the rollback check", () => {
     expect(await deps.stores.audit.list(ID)).toEqual([]);
   });
 
-  test("[R-SERVER-008] given one stored hash that differs, when the life is checked, then that version is reported as the first, the first row and the last row at the edges", async () => {
+  test("[server:rollback-check-finds-divergence] given one stored hash that differs, when the life is checked, then that version is reported as the first, the first row and the last row at the edges", async () => {
     for (const index of [0, 30, SAVE.commands.length - 1]) {
       const deps = testDeps();
       await stored(deps, { tamper: (row, at) => (at === index ? { ...row, hash: "written-by-a-fault" } : row) });
@@ -52,7 +52,7 @@ describe("the rollback check", () => {
     }
   });
 
-  test("[R-SERVER-008] given an unknown character or a tick with no stored world, when it is checked, then the check says why and replays nothing", async () => {
+  test("[server:rollback-check-finds-divergence] given an unknown character or a tick with no stored world, when it is checked, then the check says why and replays nothing", async () => {
     const deps = testDeps();
     expect(await rollbackCheck(deps, "character.nobody")).toEqual({ ok: false, code: "missing", detail: "No character character.nobody." });
 
@@ -65,7 +65,7 @@ describe("the rollback check", () => {
     expect(await rollbackCheck(bare, ID)).toMatchObject({ ok: false, code: "no-world" });
   });
 
-  test("[R-SERVER-008] given a life in two segments, each under the content it names, when it is checked, then both replay and a fault in the second is found there", async () => {
+  test("[server:rollback-check-finds-divergence] given a life in two segments, each under the content it names, when it is checked, then both replay and a fault in the second is found there", async () => {
     const base = testDeps();
     const overlaid = applyOverlay(base.contents.current, { version: "overlay-1" });
     for (const fault of [null, 50]) {
@@ -93,7 +93,7 @@ describe("the rollback check", () => {
 });
 
 describe("the rollback correction", () => {
-  test("[R-SERVER-009] given a stored hash that differs, when the correction is applied, then the replayed state is the base of a new segment at the next version and the old rows go to the audit store", async () => {
+  test("[server:rollback-apply-one-account] given a stored hash that differs, when the correction is applied, then the replayed state is the base of a new segment at the next version and the old rows go to the audit store", async () => {
     const deps = testDeps({ now: () => 77 });
     const honest = await stored(deps, { tamper: (row, index) => (index === 30 ? { ...row, hash: "written-by-a-fault" } : row) });
     const before = await deps.stores.player.load(ID);
@@ -114,7 +114,7 @@ describe("the rollback correction", () => {
     expect(await rollbackCheck(deps, ID)).toMatchObject({ ok: true, report: { firstDiff: null, replayed: 0 } });
   });
 
-  test("[R-SERVER-009] given a corrected character, when the client sends its next command on the version it saw, then it is stale", async () => {
+  test("[server:rollback-apply-one-account] given a corrected character, when the client sends its next command on the version it saw, then it is stale", async () => {
     const deps = testDeps();
     await stored(deps, { tamper: (row, index) => (index === 3 ? { ...row, hash: "fault" } : row) });
     await rollbackApply(deps, ID);
@@ -127,7 +127,7 @@ describe("the rollback correction", () => {
     expect(sent).toMatchObject({ ok: false, code: "stale" });
   });
 
-  test("[R-SERVER-009] given a logged command the simulation now rejects, in the middle or at the end, when the correction is applied, then it is dropped and listed and every other command is kept", async () => {
+  test("[server:rollback-apply-one-account] given a logged command the simulation now rejects, in the middle or at the end, when the correction is applied, then it is dropped and listed and every other command is kept", async () => {
     const middle = testDeps();
     const head = await stored(middle, {}, 30);
     await appendRejected(middle, head, 31);
@@ -149,7 +149,7 @@ describe("the rollback correction", () => {
     expect((await end.stores.player.load(ID))?.snapshot.state).toEqual({ ...whole, v: SAVE.commands.length + 2 });
   });
 
-  test("[R-SERVER-009] given a life with no difference, when the correction is applied, then nothing is written", async () => {
+  test("[server:rollback-apply-one-account] given a life with no difference, when the correction is applied, then nothing is written", async () => {
     const deps = testDeps();
     await stored(deps);
     const before = await deps.stores.player.load(ID);
@@ -159,7 +159,7 @@ describe("the rollback correction", () => {
     expect(await deps.stores.audit.list(ID)).toEqual([]);
   });
 
-  test("[R-SERVER-009] given a command committed between the check and the lock, when the correction is applied, then it writes nothing and asks to be run again", async () => {
+  test("[server:rollback-apply-one-account] given a command committed between the check and the lock, when the correction is applied, then it writes nothing and asks to be run again", async () => {
     const deps = testDeps();
     const state = await stored(deps, { tamper: (row, index) => (index === 3 ? { ...row, hash: "fault" } : row) }, SAVE.commands.length - 1);
     const real = deps.stores.player;
@@ -178,7 +178,7 @@ describe("the rollback correction", () => {
     expect((await deps.stores.player.load(ID))?.character).toMatchObject({ v: SAVE.commands.length, segment: 0 });
   });
 
-  test("[R-SERVER-010] given two characters, when one is corrected, then the other's rows are not touched", async () => {
+  test("[server:no-mass-rollback] given two characters, when one is corrected, then the other's rows are not touched", async () => {
     const deps = testDeps();
     await stored(deps, { tamper: (row, index) => (index === 3 ? { ...row, hash: "fault" } : row) });
     const other = "character.zainab";

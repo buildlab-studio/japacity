@@ -1,4 +1,4 @@
-// R-ADVERT-017: the real names live campaigns put on private places, written
+// advert:real-name-only-by-agreement: the real names live campaigns put on private places, written
 // into the world of each tick. Public content never holds them.
 import type { World } from "@japacity/sim";
 

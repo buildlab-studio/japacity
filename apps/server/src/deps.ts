@@ -72,38 +72,38 @@ export interface Stores {
   moderation: ModerationStore;
   push: PushStore;
   adverts: AdvertStore;
-  /** city.md R-CITY-039, R-CITY-040. */
+  /** city:boards-switch-when-and-who, city:board-line-and-ranking. */
   boards: BoardStore;
-  /** server.md R-SERVER-045, the dedication's lights. */
+  /** server:dedication-routes, the dedication's lights. */
   dedication: DedicationStore;
 }
 
-/** R-SERVER-023, R-SERVER-024: the contents a segment may name, with any overlay already applied (R-SERVER-016). */
+/** server:older-contents-bundled, server:overlay-change-opens-segment: the contents a segment may name, with any overlay already applied (server:hidden-values-made-once). */
 export interface Contents {
   current: Content;
   /** A second content a segment may name: the public one under an overlay (`contentsFor`), so a segment run without it replays; null with none. */
   previous: Content | null;
   /**
-   * R-SERVER-023: the older content versions, still bundled so a life saved under one replays and is upgraded on its
+   * server:older-contents-bundled: the older content versions, still bundled so a life saved under one replays and is upgraded on its
    * first load (`withContentBefore`). Missing: none.
    */
   older?: readonly Content[];
 }
 
-/** R-SERVER-015, R-SERVER-016: the secrets of the deployment. Never in a reply. */
+/** server:secrets-stay-on-server, server:hidden-values-made-once: the secrets of the deployment. Never in a reply. */
 export interface Secrets {
   worldSeed: string;
-  /** The salt of the banned identities' hashes (R-MODERATION-012) and the HMAC key of the draw tokens (R-SERVER-015, 016). */
+  /** The salt of the banned identities' hashes (moderation:admin-view-for-admin-list) and the HMAC key of the draw tokens (server:secrets-stay-on-server, server:hidden-values-made-once). */
   banSalt: string;
   drawTokenKey: string;
 }
 
-/** R-SERVER-028: the shape of Cloudflare's rate-limit binding, so a memory limiter and the binding are used alike. */
+/** server:limits-are-approximate: the shape of Cloudflare's rate-limit binding, so a memory limiter and the binding are used alike. */
 export interface Limiter {
   limit: (options: { key: string }) => Promise<{ success: boolean }>;
 }
 
-/** R-SERVER-025 to 027: one limiter per limit, each counting its own period. */
+/** server:per-account-rate-limits, server:anonymous-limit-by-address and server:noisy-socket-closed: one limiter per limit, each counting its own period. */
 export interface Limiters {
   commands10s: Limiter;
   commands60s: Limiter;
@@ -114,7 +114,7 @@ export interface Limiters {
 
 /**
  * Who sent a request: the signed-in account and whether its session was opened
- * with a passkey (R-MODERATION-012), or null. The auth module provides it;
+ * with a passkey (moderation:admin-view-for-admin-list), or null. The auth module provides it;
  * tests hand in a stand-in.
  */
 export type SessionReader = (request: Request) => Promise<{ account: string; passkey: boolean } | null>;
@@ -128,7 +128,7 @@ export interface ServerDeps {
   session: SessionReader;
   /** Milliseconds since 1970. Injected so a test can move time. */
   now: () => number;
-  /** R-SERVER-016: cryptographically secure bytes. */
+  /** server:hidden-values-made-once: cryptographically secure bytes. */
   randomBytes: (count: number) => Uint8Array;
 }
 
@@ -147,7 +147,7 @@ export const openLimiters: Limiters = {
 export const TEST_SIGNED_IN_WITH = "x-test-signed-in-with";
 
 /**
- * R-ACCOUNT-005: the test server's session, from the `x-test-account` header,
+ * account:stand-ins-test-sign-in: the test server's session, from the `x-test-account` header,
  * read only while `testing.testLogin` is on. Production refuses every request
  * through it.
  */
@@ -163,7 +163,7 @@ export function testSession(config: ServerConfig): SessionReader {
 export function memoryStores(): Stores {
   const world = memoryWorldStore();
   const audit = memoryAuditStore();
-  // R-SERVER-002: a transaction's work is given the same world and audit stores the server holds.
+  // server:one-command-one-transaction: a transaction's work is given the same world and audit stores the server holds.
   const { player, pair } = memoryPlayerStores({ world, audit });
   return {
     player,

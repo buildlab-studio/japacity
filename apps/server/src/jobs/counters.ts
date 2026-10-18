@@ -1,6 +1,6 @@
-// R-ANALYTICS-008, R-ANALYTICS-011: the nightly job at 00:00 UTC, for the day
+// analytics:nightly-game-counters, analytics:day-one-and-seven-return: the nightly job at 00:00 UTC, for the day
 // that has just ended. It reads the command log and adds the day's game
-// counters once: a second run for the same day adds nothing. R-ANALYTICS-013:
+// counters once: a second run for the same day adds nothing. analytics:session-split-by-command-gaps:
 // with the counts by region it adds the numbers of numbers.ts too.
 import { time } from "@japacity/sim";
 import type { DayLog, NumbersLog, RegionCount } from "@japacity/store";
@@ -23,7 +23,7 @@ export interface CountersDay {
   skipped: { character: string; why: string }[];
 }
 
-/** R-ANALYTICS-008: `players/weekly` and `players/monthly` reach back over this many days, the counted one included. */
+/** analytics:nightly-game-counters: `players/weekly` and `players/monthly` reach back over this many days, the counted one included. */
 const WEEK_DAYS = 7;
 const MONTH_DAYS = 30;
 
@@ -38,7 +38,7 @@ async function openReports(deps: ServerDeps): Promise<{ reason: string; region: 
   return found;
 }
 
-/** Counts one UTC day; `numbers` reads the counts by region (R-ANALYTICS-013), and without it those counters are left out. */
+/** Counts one UTC day; `numbers` reads the counts by region (analytics:session-split-by-command-gaps), and without it those counters are left out. */
 export async function countDay(deps: ServerDeps, log: DayLog, day: number, numbers?: NumbersLog): Promise<CountersDay> {
   const start = time.dayStart(day);
   const end = time.dayStart(day + 1);

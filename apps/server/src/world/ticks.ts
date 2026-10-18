@@ -1,4 +1,4 @@
-// The world on a schedule (docs/rules/clock.md R-CLOCK-010 to 017): one stored
+// The world on a schedule (clock:world-is-stored-history, clock:tick-row-is-pure-step, clock:cron-stores-missing-ticks, clock:request-fills-missing-ticks, clock:december-by-lagos-time, clock:online-lengths-scaled, clock:new-content-from-next-tick and clock:command-uses-stamped-tick): one stored
 // row per tick, each a pure function of the row before, the world seed, the
 // content and the tick's calendar. A row is never rewritten; two writers make
 // the same row and the store keeps the first.
@@ -11,18 +11,18 @@ import type { ServerDeps } from "../deps";
 import { placeNamesAt } from "../advert/names";
 import { lotteryFor } from "./lottery.world";
 
-/** R-CLOCK-014: Lagos keeps UTC+1 all year. */
+/** clock:december-by-lagos-time: Lagos keeps UTC+1 all year. */
 const LAGOS_OFFSET_MS = time.HOUR_MS;
 const DECEMBER = 11;
 
 export type WorldDeps = Pick<ServerDeps, "config" | "stores" | "contents" | "secrets">;
 
-/** R-CLOCK-014: December when the tick begins in December in Lagos. */
+/** clock:december-by-lagos-time: December when the tick begins in December in Lagos. */
 export function lagosCalendar(startsAt: number): WorldCalendar {
   return { december: new Date(startsAt + LAGOS_OFFSET_MS).getUTCMonth() === DECEMBER };
 }
 
-/** R-CLOCK-011, R-CLOCK-015, R-CLOCK-016: the row for the tick after `previous`, or tick 0 from the seed alone, under the current content. */
+/** clock:tick-row-is-pure-step, clock:online-lengths-scaled, clock:new-content-from-next-tick: the row for the tick after `previous`, or tick 0 from the seed alone, under the current content. */
 export async function makeTick(deps: WorldDeps, previous: WorldTickRow | null): Promise<WorldTickRow> {
   const content = deps.contents.current;
   const tick = previous === null ? 0 : previous.tick + 1;
@@ -35,7 +35,7 @@ export async function makeTick(deps: WorldDeps, previous: WorldTickRow | null): 
 }
 
 /**
- * R-CLOCK-012, R-CLOCK-013: stores every tick after the latest stored one up
+ * clock:cron-stores-missing-ticks, clock:request-fills-missing-ticks: stores every tick after the latest stored one up
  * to `upTo`, in order, one insert each, and returns the ticks this call
  * stored. Each next row steps from the row the store kept.
  */
@@ -51,7 +51,7 @@ export async function catchUp(deps: WorldDeps, upTo: number): Promise<number[]> 
   return stored;
 }
 
-/** R-CLOCK-013, R-CLOCK-017: the stored row of a tick, made first when it is missing. */
+/** clock:request-fills-missing-ticks, clock:command-uses-stamped-tick: the stored row of a tick, made first when it is missing. */
 export async function tickRow(deps: WorldDeps, tick: number): Promise<WorldTickRow> {
   const found = await deps.stores.world.tick(tick);
   if (found !== null) return found;
@@ -61,7 +61,7 @@ export async function tickRow(deps: WorldDeps, tick: number): Promise<WorldTickR
   return made;
 }
 
-/** R-CLOCK-017: the stored worlds of the given ticks, by tick. */
+/** clock:command-uses-stamped-tick: the stored worlds of the given ticks, by tick. */
 export async function storedWorlds(deps: WorldDeps, ticks: Iterable<number>): Promise<Map<number, World>> {
   const worlds = new Map<number, World>();
   for (const tick of ticks) {
@@ -71,10 +71,10 @@ export async function storedWorlds(deps: WorldDeps, ticks: Iterable<number>): Pr
 }
 
 /**
- * R-CLOCK-017, R-SERVER-002: the stored worlds of the given
+ * clock:command-uses-stamped-tick, server:one-command-one-transaction: the stored worlds of the given
  * ticks, read through a transaction's own world store, which only reads. A
  * logged command's tick is at or under a tick made before the locks
- * (R-CLOCK-013), so a missing one is a fault, never a tick to make here.
+ * (clock:request-fills-missing-ticks), so a missing one is a fault, never a tick to make here.
  */
 export async function heldWorlds(world: WorldStore, ticks: Iterable<number>): Promise<Map<number, World>> {
   const worlds = new Map<number, World>();

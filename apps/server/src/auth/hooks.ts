@@ -1,8 +1,8 @@
-// The auth library's request hooks: the code sends per email (R-ACCOUNT-014),
-// the guest start reached only through the game's route (R-ACCOUNT-013), no
-// passkey for a guest (R-ACCOUNT-023), the sessions that end when a method is
-// removed (R-ACCOUNT-006), and who may add a passkey and what each addition
-// leaves behind (R-ACCOUNT-003).
+// The auth library's request hooks: the code sends per email (account:sign-in-routes-rate-limited),
+// the guest start reached only through the game's route (account:bot-check-on-guest-creation), no
+// passkey for a guest (account:guest-secures-the-life), the sessions that end when a method is
+// removed (account:session-is-secure-cookie), and who may add a passkey and what each addition
+// leaves behind (account:passkey-needs-signed-in-session).
 // https://better-auth.com/docs/concepts/hooks
 // https://better-auth.com/docs/concepts/rate-limit
 // https://pages.nist.gov/800-63-4/sp800-63b/events/ (4.1.2.1, 4.6)
@@ -14,7 +14,7 @@ import type { ServerDeps } from "../deps";
 import type { AuthKeys } from "./auth";
 import type { SignedInWith } from "./session";
 
-/** The library's rate-limit table, which the `database` store keeps (R-ACCOUNT-014). */
+/** The library's rate-limit table, which the `database` store keeps (account:sign-in-routes-rate-limited). */
 export const RATE_LIMIT_MODEL = "rateLimit";
 
 /** Keys of the per-email rows; the address itself is never stored, only its hash. */
@@ -31,13 +31,13 @@ const REGISTER_PATHS = new Set(["/passkey/generate-register-options", VERIFY_REG
 export const ADMIN_PASSKEY_BIND_DETAIL = "A new passkey on an admin account is added only from a session opened with a passkey; sign in with yours first.";
 
 /**
- * R-ACCOUNT-003: the audit rows that hold passkey registrations are filed
+ * account:passkey-needs-signed-in-session: the audit rows that hold passkey registrations are filed
  * under this name instead of a character id; each row's note is a
  * `PasskeyNote` as JSON and its row lists are empty.
  */
 export const PASSKEY_ROWS = "auth.passkeys";
 
-/** R-ACCOUNT-003: one registration as the audit log keeps it, the account only as a hash (R-ACCOUNT-018). */
+/** account:passkey-needs-signed-in-session: one registration as the audit log keeps it, the account only as a hash (account:deletion-keeps-anonymous-totals). */
 export interface PasskeyNote {
   /** `accountHash` of the account: a living account is found by hashing its id; a deleted one leaves nothing that names it. */
   accountHash: string;
@@ -58,7 +58,7 @@ interface LimitRow {
 }
 
 /**
- * R-ACCOUNT-003, R-ACCOUNT-018: the SHA-256 of an account id, as hex, the same hash the deletion audit keeps:
+ * account:passkey-needs-signed-in-session, account:deletion-keeps-anonymous-totals: the SHA-256 of an account id, as hex, the same hash the deletion audit keeps:
  * an id is random, so a plain hash names nobody, and a rotated secret never breaks the tie to older rows.
  */
 export async function accountHash(account: string): Promise<string> {
@@ -116,7 +116,7 @@ async function dayWindow(adapter: Adapter, key: string, now: number): Promise<Wi
 }
 
 /**
- * R-ACCOUNT-014: at most `auth.limits.otpSendPer60s` code sends to one email
+ * account:sign-in-routes-rate-limited: at most `auth.limits.otpSendPer60s` code sends to one email
  * in 60 seconds, and at most `auth.limits.otpSendPerDay` in a day, from any
  * address. A refused send is counted in neither.
  */
@@ -143,7 +143,7 @@ function openedWith(session: { session: Record<string, unknown> }): SignedInWith
 }
 
 /**
- * R-ACCOUNT-003, R-MODERATION-012: an account on the admin list that already
+ * account:passkey-needs-signed-in-session, moderation:admin-view-for-admin-list: an account on the admin list that already
  * holds a passkey adds another only from a session opened with a passkey.
  * Checked when the options are asked for and again at the verification,
  * which is where the passkey is stored.
@@ -157,12 +157,12 @@ async function guardAdminPasskeys(deps: ServerDeps, ctx: HookContext): Promise<v
   if (held > 0) throw new APIError("FORBIDDEN", { message: ADMIN_PASSKEY_BIND_DETAIL });
 }
 
-/** R-ACCOUNT-013, R-ACCOUNT-025: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
+/** account:bot-check-on-guest-creation, account:guest-floods-are-capped: the anonymous sign-in is reached only through `POST /api/guest`, with its bot check and limits; a browser's own call is refused. */
 function guestStartCheck(ctx: HookContext): void {
   if (ctx.path === GUEST_PATH && ctx.request !== undefined) throw new APIError("NOT_FOUND", { message: "Start a life through the guest start." });
 }
 
-/** R-ACCOUNT-023: a passkey is registered only once the account is secured. */
+/** account:guest-secures-the-life: a passkey is registered only once the account is secured. */
 async function guardGuestPasskeys(ctx: HookContext): Promise<void> {
   if (!REGISTER_PATHS.has(ctx.path ?? "")) return;
   const session = await getSessionFromCtx(ctx, { disableRefresh: true }).catch(() => null);
@@ -189,7 +189,7 @@ function storedPasskey(returned: unknown): { id: string; userId: string } | null
 }
 
 /**
- * R-ACCOUNT-003: every passkey stored is written to the audit log, and a
+ * account:passkey-needs-signed-in-session: every passkey stored is written to the audit log, and a
  * notice goes to the account's email by the send, never awaited by the reply
  * (NIST SP 800-63B-4 4.1.2.1: a mechanism independent of the binding).
  */
@@ -206,7 +206,7 @@ async function notePasskey(deps: ServerDeps, keys: AuthKeys, ctx: HookContext): 
   keys.background(keys.sendNotice({ email: user.email, kind: "passkey-added", at }));
 }
 
-/** R-ACCOUNT-006: removing a linked Google account or a passkey ends every session of that account. */
+/** account:session-is-secure-cookie: removing a linked Google account or a passkey ends every session of that account. */
 async function endSessionsOnUnlink(ctx: HookContext): Promise<void> {
   if (!UNLINK_PATHS.has(ctx.path ?? "")) return;
   if (isAPIError(ctx.context.returned)) return;
@@ -223,7 +223,7 @@ export function afterAuth(deps: ServerDeps, keys: AuthKeys) {
   });
 }
 
-/** R-ACCOUNT-017: rate-limit rows past every window, so none outlives its use. A day row is kept until its window ends (`EMAIL_DAY_PREFIX`). */
+/** account:deleted-data-removed-within-month: rate-limit rows past every window, so none outlives its use. A day row is kept until its window ends (`EMAIL_DAY_PREFIX`). */
 export async function pruneLimitRows(adapter: { deleteMany: (input: { model: string; where: { field: string; operator: "lt"; value: number }[] }) => Promise<number> }, now: number): Promise<void> {
   await adapter.deleteMany({ model: RATE_LIMIT_MODEL, where: [{ field: "lastRequest", operator: "lt", value: now - EMAIL_LIMIT_WINDOW_MS }] });
 }

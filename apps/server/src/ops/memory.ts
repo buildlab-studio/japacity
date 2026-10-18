@@ -10,7 +10,7 @@ import type { ServerDeps } from "../deps";
 
 type MemoryDeps = Pick<ServerDeps, "config" | "contents" | "stores">;
 
-/** R-CLOCK-010: stores the stand-in world of every tick the save names as the world's history. */
+/** clock:world-is-stored-history: stores the stand-in world of every tick the save names as the world's history. */
 export async function storeWorlds(deps: MemoryDeps, save: FlatSave): Promise<void> {
   const content = deps.contents.current;
   const upTo = Math.max(0, ...save.commands.map((entry) => entry.tick));

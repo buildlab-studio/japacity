@@ -1,8 +1,8 @@
 // The fixed counter list of analytics.data.ts, as the server checks a row
-// against it (R-ANALYTICS-004).
+// against it (analytics:server-checks-every-batch).
 import type { Content, CounterDef } from "@japacity/sim";
 
-/** R-ANALYTICS-004: why a row or a batch was dropped, the keys of `analytics/dropped`. */
+/** analytics:server-checks-every-batch: why a row or a batch was dropped, the keys of `analytics/dropped`. */
 export type DropReason = "signed-out" | "size" | "shape" | "rate" | "name" | "key" | "count";
 
 /** The unknown region, as the account's country is stored when Cloudflare gave none. */
@@ -18,7 +18,7 @@ export function requestRegion(country: string | null): string {
   return country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
 }
 
-/** R-ANALYTICS-013: the region a whole-game figure is kept under, such as the day's online peak; no account's region is ever this. */
+/** analytics:session-split-by-command-gaps: the region a whole-game figure is kept under, such as the day's online peak; no account's region is ever this. */
 export const WHOLE_GAME = "all";
 
 export function counterDef(content: Content, name: string): CounterDef | null {
@@ -35,7 +35,7 @@ function knownId(content: Content, key: string): boolean {
   return typeof entry === "object" && entry !== null && (entry as { id?: unknown }).id === id;
 }
 
-/** R-ANALYTICS-004: a key is on its name's list, a region code, or an entry id the content holds. */
+/** analytics:server-checks-every-batch: a key is on its name's list, a region code, or an entry id the content holds. */
 export function keyAllowed(content: Content, def: CounterDef, key: string): boolean {
   if (Array.isArray(def.keys)) return def.keys.includes(key);
   switch (def.keys) {

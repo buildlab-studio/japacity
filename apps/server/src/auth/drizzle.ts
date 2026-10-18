@@ -1,5 +1,5 @@
 // The auth library on Postgres: Drizzle's adapter over packages/db's `auth`
-// tables (decision 0006). `user.name` is stored empty: R-ACCOUNT-020 asks for
+// tables (decision 0006). `user.name` is stored empty: account:only-needed-data-kept asks for
 // no name, and the library's column must hold something.
 // https://better-auth.com/docs/adapters/drizzle
 import { schema } from "@japacity/db";

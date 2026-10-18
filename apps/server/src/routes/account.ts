@@ -1,6 +1,6 @@
-// R-ACCOUNT-015, 016, 021 to 025: `POST /api/guest`, the guest start after the
+// account:one-character-per-account, account:player-deletes-account, account:guest-and-secured-states, account:social-needs-secured-account, account:guest-secures-the-life, account:username-and-unconfirmed-email and account:guest-floods-are-capped: `POST /api/guest`, the guest start after the
 // age screen; `GET /api/account`, the account's own row; `PUT /api/account`,
-// its one setting the player changes here (R-ANALYTICS-006);
+// its one setting the player changes here (analytics:player-can-stop-usage-counts);
 // `PUT /api/account/username`; and `DELETE /api/account`, confirmed by a fresh
 // session or a fresh email code. The guest gates are mounted here, before
 // every route they guard (account/guest.ts).
@@ -29,7 +29,7 @@ import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
 import { rejection } from "./reply";
 
-/** How long the device cookie of R-ACCOUNT-025 is kept: the longest a browser keeps one. */
+/** How long the device cookie of account:guest-floods-are-capped is kept: the longest a browser keeps one. */
 const DEVICE_COOKIE_S = 400 * time.DAY_S;
 
 /** A reply's `Set-Cookie` lines. */
@@ -43,11 +43,11 @@ function cookiesFrom(headers: Headers): Headers {
   return new Headers({ cookie: pairs.filter((pair) => pair !== "").join("; ") });
 }
 
-/** A guest's ways back in: none but its own session (R-ACCOUNT-021). */
+/** A guest's ways back in: none but its own session (account:guest-and-secured-states). */
 const NO_WAYS: AccountView["ways"] = { google: null, email: null, passkeys: 0 };
 
 /**
- * R-ACCOUNT-023, R-ACCOUNT-027: the ways a secured account opens by. The library signs a code in by the user's own
+ * account:guest-secures-the-life, account:guest-reminded-to-secure: the ways a secured account opens by. The library signs a code in by the user's own
  * address, so the code's address is the user's email whatever way the life was kept. Google joins an account only by
  * the same verified address (a guest's own link, or the library's linking by email), so a linked Google account's
  * address is that email too. Read-only: the subject id and the tokens on the Google row stay on the server.
@@ -107,7 +107,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
   const app = new Hono<SessionEnv>();
   app.route("/", guestGates(deps));
 
-  // R-ACCOUNT-021, 013, 025: a guest life from a username, after the age screen; the bot check and the limits come before the account exists.
+  // account:guest-and-secured-states, account:bot-check-on-guest-creation, account:guest-floods-are-capped: a guest life from a username, after the age screen; the bot check and the limits come before the account exists.
   app.post("/api/guest", limit(deps, "commands"), async (c) => {
     if (sessionOf(c) !== null) return c.json<NameReply>(rejection("not-possible", "This browser already has a life."), 409);
     const request = c.req.raw;
@@ -127,7 +127,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     const check = await checkTurnstile(keys.turnstile, request.headers.get("x-captcha-response"), address, new URL(keys.siteUrl).hostname);
     if (!check.ok) return c.json<NameReply>(rejection("bot-check", check.reason), 403);
 
-    // No session was found above, so any session cookie the browser sent is dead; the library must not see it (R-ACCOUNT-021).
+    // No session was found above, so any session cookie the browser sent is dead; the library must not see it (account:guest-and-secured-states).
     const headers = await headersWithoutSession(auth, request.headers);
     headers.set(GUEST_NAME_HEADER, username);
     const signed = await auth.api.signInAnonymous({ headers, returnHeaders: true }).catch((error: unknown) => ({ error }));
@@ -166,7 +166,7 @@ export function accountRoutes(deps: ServerDeps, { auth, keys }: Accounts): Hono<
     return c.json<AccountReply>({ ok: true, account: viewOf(changed.value, deps, session.passkey, await waysOf(auth, changed.value)) });
   });
 
-  // R-ACCOUNT-024: one free change, then one each `renameDays`.
+  // account:username-and-unconfirmed-email: one free change, then one each `renameDays`.
   app.put("/api/account/username", limit(deps, "commands"), async (c) => {
     const session = await deps.session(c.req.raw);
     if (session === null) return c.json<NameReply>(rejection("signed-out", "Sign in first."), 401);

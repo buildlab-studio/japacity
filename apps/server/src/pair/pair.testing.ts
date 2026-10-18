@@ -111,7 +111,7 @@ export async function sayFrom(server: TestServer, account: string, key: string, 
   return (await call<{ ok: boolean; code?: string; message?: { id: string } }>(server, "POST", `/api/pair/${key}/say`, account, fill === null ? { phrase } : { phrase, fill })).body;
 }
 
-/** Both sides court, and the inviter says enough phrases for the moments partners need (R-PEOPLE-015). */
+/** Both sides court, and the inviter says enough phrases for the moments partners need (person:talking-adds-moments). */
 export async function courting(linked: Linked): Promise<void> {
   const { server, key } = linked;
   await must(server, INVITER, { type: "people/court", with: key });

@@ -1,5 +1,5 @@
-// How the email codes and the notices leave the server (account.md R-ACCOUNT-014, R-ACCOUNT-002,
-// R-ACCOUNT-003). The transport is chosen in this order. The local stack alone (server.md R-SERVER-038)
+// How the email codes and the notices leave the server (account:sign-in-routes-rate-limited, account:email-code-is-short-lived,
+// account:passkey-needs-signed-in-session). The transport is chosen in this order. The local stack alone (server:production-and-staging)
 // sets MAIL_TRANSPORT=mailpit: each mail is then posted to Mailpit's HTTP send API, since a Worker
 // cannot open SMTP, and the inbox is read at Mailpit's page; Mailpit's address must be on this machine,
 // so a stray setting on a deployment still sends nothing anywhere. Otherwise a deployment with the MAIL
@@ -108,7 +108,7 @@ export function codeMail(message: OtpMessage, mail: MailWords): Letter {
   return letter(words(mail.text, "mail.code.subject", params), words(mail.text, "mail.code.body", params));
 }
 
-/** R-ACCOUNT-003: the notice's mail. The time is said in UTC, the same for every reader. */
+/** account:passkey-needs-signed-in-session: the notice's mail. The time is said in UTC, the same for every reader. */
 export function noticeMail(notice: AuthNotice, mail: MailWords): Letter {
   const params = { date: new Date(notice.at).toUTCString() };
   return letter(words(mail.text, `mail.${notice.kind}.subject`, params), words(mail.text, `mail.${notice.kind}.body`, params));
@@ -136,7 +136,7 @@ function errorCode(thrown: unknown): string | null {
 
 /**
  * Sends one mail through the binding. A refusal throws a new error that carries only the binding's error
- * code (R-SERVER-015: the auth library logs what a background send throws, so neither the address nor the
+ * code (server:secrets-stay-on-server: the auth library logs what a background send throws, so neither the address nor the
  * code may be in it); the original error is dropped, not chained, since its message may name the address.
  */
 async function send(binding: MailBinding, to: string, mail: Letter): Promise<void> {

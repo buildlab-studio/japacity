@@ -1,4 +1,4 @@
-// R-ANALYTICS-008, R-ANALYTICS-011: the game counters of one UTC day, made
+// analytics:nightly-game-counters, analytics:day-one-and-seven-return: the game counters of one UTC day, made
 // from the replayed lives of the characters that logged a command on it and
 // the accounts created on it. Plain functions over plain data.
 import { isEarlyWin, picksOf, time } from "@japacity/sim";
@@ -31,7 +31,7 @@ type Counted =
   | { type: "place/returned"; shape: string }
   | { type: "lottery/bought"; tickets: number };
 
-/** R-ANALYTICS-008: the days after sign-up a return is counted on, close enough that the returns make a curve. */
+/** analytics:nightly-game-counters: the days after sign-up a return is counted on, close enough that the returns make a curve. */
 const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 14: "d14", 30: "d30" };
 
 /** Adds one to a total, keyed so the same day, region, name and key fold into one row. */
@@ -45,7 +45,7 @@ function onDay(played: Played, start: number, end: number): boolean {
   return played.row.at >= start && played.row.at < end;
 }
 
-/** R-ANALYTICS-011: the turn of the first early win before the end of the first day, as its key. */
+/** analytics:day-one-and-seven-return: the turn of the first early win before the end of the first day, as its key. */
 function earlyWinKey(life: Life | null, end: number): string {
   const first = life?.played.find((played) => played.row.at < end && played.afterPrologue && played.lines.some((line) => isEarlyWin(line, picksOf(played.row.command))));
   if (first === undefined) return "none";
@@ -60,7 +60,7 @@ function eventTotals(day: string, region: string, played: Played, into: Map<stri
         add("chapter/closed", event.chapter);
         break;
       case "chapter/reopened":
-        // R-CHAPTER-003: a grant withdrawn before the flight reopens the chapters it closed; each is counted.
+        // chapter:done-chapter-stays-done: a grant withdrawn before the flight reopens the chapters it closed; each is counted.
         for (const chapter of event.chapters) add("chapter/reopened", chapter);
         break;
       case "route/moved":
@@ -84,7 +84,7 @@ function eventTotals(day: string, region: string, played: Played, into: Map<stri
   }
 }
 
-/** R-ANALYTICS-008, R-ANALYTICS-011: every total the day adds, folded by day, region, name and key. */
+/** analytics:nightly-game-counters, analytics:day-one-and-seven-return: every total the day adds, folded by day, region, name and key. */
 export function nightlyTotals(facts: DayFacts): CounterTotal[] {
   const start = time.dayStart(facts.day);
   const end = time.dayStart(facts.day + 1);
@@ -106,7 +106,7 @@ export function nightlyTotals(facts: DayFacts): CounterTotal[] {
     const region = regionOf(account);
     tally(into, { day, region, name: "players/active", key: region, count: 1 });
     if (account === null) continue;
-    // R-ANALYTICS-011: a return is kept on the sign-up day, so the dashboard reads it by sign-up week.
+    // analytics:day-one-and-seven-return: a return is kept on the sign-up day, so the dashboard reads it by sign-up week.
     const signedUp = time.utcDay(account.createdAt);
     const key = RETURNED[facts.day - signedUp];
     if (key !== undefined) tally(into, { day: time.dayName(signedUp), region, name: "players/returned", key, count: 1 });

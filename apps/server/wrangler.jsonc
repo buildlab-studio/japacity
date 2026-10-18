@@ -12,11 +12,11 @@
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
   "preview_urls": false,
-  // R-SERVER-040: run the fetch handler near the database, Neon's London region (aws-eu-west-2), not near
+  // server:worker-placed-near-database: run the fetch handler near the database, Neon's London region (aws-eu-west-2), not near
   // the player: one command makes several queries in a row, each a round trip. A placement hint, checked
   // against wrangler 4.149's schema and Cloudflare's placement page on 11 Oct 2026.
   "placement": { "region": "aws:eu-west-2" },
-  // R-SERVER-042: Workers Logs keep every request (head
+  // server:shared-observability-block: Workers Logs keep every request (head
   // sampling 1) with its invocation log and every console line, 7 days on the paid plan; traces keep one request in
   // twenty (automatic tracing is in beta; stored traces count toward Cloudflare's observability pricing from
   // 1 Dec 2026); Issues groups the failures. Every key was checked against wrangler 4.149's config-schema.json and
@@ -39,14 +39,14 @@
   },
   "vars": {
     // The game's address, the one it is served from. The auth library, the passkeys' relying
-    // party (its host, R-ACCOUNT-003), the bot check's host and the origin check on writes trust only this.
+    // party (its host, account:passkey-needs-signed-in-session), the bot check's host and the origin check on writes trust only this.
     "SITE_URL": "https://japacity.app"
     // Production's database is on a paid plan that need not sleep, so production sets no TICK_CRON and ticks
     // every five minutes.
   },
-  // R-CLOCK-012: the world's ticks every five minutes. R-SERVER-011: the money report at 00:00 UTC.
+  // clock:cron-stores-missing-ticks: the world's ticks every five minutes. server:daily-money-report: the money report at 00:00 UTC.
   "triggers": { "crons": ["*/5 * * * *", "0 0 * * *"] },
-  // R-SERVER-025 to 027: the limits, counted per location (R-SERVER-028). Periods are 10 or 60 seconds.
+  // server:per-account-rate-limits, server:anonymous-limit-by-address and server:noisy-socket-closed: the limits, counted per location (server:limits-are-approximate). Periods are 10 or 60 seconds.
   "ratelimits": [
     { "name": "COMMANDS_10S", "namespace_id": "2001", "simple": { "limit": 10, "period": 10 } },
     { "name": "COMMANDS_60S", "namespace_id": "2002", "simple": { "limit": 60, "period": 60 } },
@@ -54,7 +54,7 @@
     { "name": "ANON_60S", "namespace_id": "2004", "simple": { "limit": 60, "period": 60 } },
     { "name": "SOCKET_10S", "namespace_id": "2005", "simple": { "limit": 10, "period": 10 } }
   ],
-  // R-CLOCK-025: one small stateful object per place, holding presence in memory only.
+  // clock:presence-held-in-memory: one small stateful object per place, holding presence in memory only.
   "durable_objects": { "bindings": [{ "name": "PLACE", "class_name": "Place" }] },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Place"] }],
   // Game state goes through a configuration with caching off; only the world's
@@ -62,7 +62,7 @@
   // Decision 0006: every request opens one client through GAME_DB and closes it after the reply.
   // Secrets, set with `wrangler secret put <NAME>` and never written here:
   // WORLD_SEED, BAN_SALT, DRAW_TOKEN_KEY, BETTER_AUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET,
-  // TURNSTILE_SECRET_KEY, ADMIN_ACCOUNTS (R-SERVER-012: the admin list, never a var here), and for the bank-full
+  // TURNSTILE_SECRET_KEY, ADMIN_ACCOUNTS (server:ledger-alarm-lists-suspects: the admin list, never a var here), and for the bank-full
   // notice VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT.
   // From `wrangler hyperdrive create` on production's database: the game
   // configuration with caching off, the cached one for the ticks and the auth library.
@@ -70,10 +70,10 @@
     { "binding": "GAME_DB", "id": "dfa35042f0eb48d9beefaeae053a5408" },
     // CACHED_DB is read by nothing. It stays bound for the reads design 05 section 7 allows
     // from a cache: the world's ticks and the auth library. The world's reply is kept by the Cache API instead
-    // (R-SERVER-039), because reading a tick may store a missing one, a write a cached configuration must not serve.
+    // (server:public-replies-cached), because reading a tick may store a missing one, a write a cached configuration must not serve.
     { "binding": "CACHED_DB", "id": "d5b2792f9d3f46fcb79bf6aa79ad5802" }
   ],
-  // R-ACCOUNT-014, decision 0007: the email codes and the notices leave through Cloudflare Email Service, from
+  // account:sign-in-routes-rate-limited, decision 0007: the email codes and the notices leave through Cloudflare Email Service, from
   // the sending subdomain onboarded for it. The binding may send from the game's one sender and no other
   // address (SENDER in src/mail/mail.ts, held equal by its test). It needs no secret.
   "send_email": [{ "name": "MAIL", "allowed_sender_addresses": ["game@mail.japacity.app"] }],
@@ -87,12 +87,12 @@
       // workers.dev address and no preview URLs.
       "workers_dev": false,
       "preview_urls": false,
-      // R-SERVER-040: near staging's database, also in Neon's London region, written again so the block says it.
+      // server:worker-placed-near-database: near staging's database, also in Neon's London region, written again so the block says it.
       "placement": { "region": "aws:eu-west-2" },
       "routes": [{ "pattern": "staging.japacity.app", "custom_domain": true }],
       // No observability block: `observability` is one of the keys an environment inherits (wrangler's configuration
-      // page, "Inheritable keys"), so staging keeps the top level's logs, traces and Issues (R-SERVER-042).
-      // R-SERVER-038: the Worker runs first for every path and serves the client's files through
+      // page, "Inheritable keys"), so staging keeps the top level's logs, traces and Issues (server:shared-observability-block).
+      // server:production-and-staging: the Worker runs first for every path and serves the client's files through
       // ASSETS, so each reply carries the noindex tag and robots.txt disallows all. Production keeps
       // the platform serving its files first.
       "assets": {
@@ -103,7 +103,7 @@
       },
       "vars": {
         "SITE_URL": "https://staging.japacity.app",
-        // R-CLOCK-012, R-SERVER-038: staging ticks every thirty minutes so its database can sleep
+        // clock:cron-stores-missing-ticks, server:production-and-staging: staging ticks every thirty minutes so its database can sleep
         // between runs; every five-minute job runs on this cron instead. Equal to the first cron below.
         "TICK_CRON": "*/30 * * * *",
         "NOINDEX": "1"

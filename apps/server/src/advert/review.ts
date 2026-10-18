@@ -1,4 +1,4 @@
-// The review's decisions (R-ADVERT-010, 011, 014). Each approval and refusal is
+// The review's decisions (advert:named-person-approves-creatives, advert:changes-return-to-review, advert:reported-advert-pulled-at-once). Each approval and refusal is
 // recorded with the reviewer, the time, the checks and the banned list's version.
 import type { AdminAction, AdvertReview, Campaign, Creative, LogParams, StoreResult } from "@japacity/store";
 
@@ -24,7 +24,7 @@ function record(deps: ReviewDeps, creative: string, version: number, decision: D
   return deps.stores.adverts.addReview({ creative, version, reviewer: decision.reviewer, at: deps.now(), checks: [...decision.checks], bannedListVersion: BANNED_LIST_VERSION, outcome, note: decision.note });
 }
 
-/** R-ADVERT-012: approves a pending or pulled campaign once every check it needs is recorded. */
+/** advert:reviewer-checks-and-records: approves a pending or pulled campaign once every check it needs is recorded. */
 export async function decideCampaign(deps: ReviewDeps, id: string, outcome: AdvertReview["outcome"], decision: Decision): Promise<Decided<Campaign>> {
   const campaign = await deps.stores.adverts.campaign(id);
   if (campaign === null) return { ok: false, code: "missing", detail: `No campaign ${id}.` };
@@ -35,7 +35,7 @@ export async function decideCampaign(deps: ReviewDeps, id: string, outcome: Adve
   return deps.stores.adverts.setCampaignStatus(id, outcome === "approved" ? "approved" : "refused");
 }
 
-/** R-ADVERT-010, R-ADVERT-011: approves or refuses one pending version of a creative. Payment is never an input. */
+/** advert:named-person-approves-creatives, advert:changes-return-to-review: approves or refuses one pending version of a creative. Payment is never an input. */
 export async function decideCreative(deps: ReviewDeps, id: string, version: number, outcome: AdvertReview["outcome"], decision: Decision): Promise<Decided<Creative>> {
   const creative = await deps.stores.adverts.creative(id, version);
   if (creative === null) return { ok: false, code: "missing", detail: `No version ${String(version)} of ${id}.` };
@@ -46,7 +46,7 @@ export async function decideCreative(deps: ReviewDeps, id: string, version: numb
   return deps.stores.adverts.setCreativeStatus(id, version, outcome);
 }
 
-/** R-ADVERT-014: out of rotation at once, and back to review: the campaign is paused and its approved versions wait again. */
+/** advert:reported-advert-pulled-at-once: out of rotation at once, and back to review: the campaign is paused and its approved versions wait again. */
 export async function pullCampaign(deps: Pick<ServerDeps, "stores">, id: string): Promise<StoreResult<Campaign>> {
   const paused = await deps.stores.adverts.setCampaignStatus(id, "paused");
   if (!paused.ok) return paused;
@@ -56,10 +56,10 @@ export async function pullCampaign(deps: Pick<ServerDeps, "stores">, id: string)
   return paused;
 }
 
-/** The reason an advert decision is logged under, from the report reasons the admin log uses (R-MODERATION-015). */
+/** The reason an advert decision is logged under, from the report reasons the admin log uses (moderation:admin-actions-logged-append-only). */
 const ADVERT_LOG_REASON = "advert";
 
-/** R-MODERATION-014, R-MODERATION-015: an advert decision in the admin log, with the admin, the time, the item and its parameters. */
+/** moderation:fixed-admin-actions, moderation:admin-actions-logged-append-only: an advert decision in the admin log, with the admin, the time, the item and its parameters. */
 export async function logAdvertAction(
   deps: Pick<ServerDeps, "stores" | "now" | "randomBytes">,
   admin: string,

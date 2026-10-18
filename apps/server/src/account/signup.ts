@@ -1,4 +1,4 @@
-// R-ACCOUNT-008, 011, 012, 013, 020, 021, 023: the gate every new user of the
+// account:country-comes-from-cloudflare, account:sign-up-open-everywhere, account:age-screen-refuses-minors, account:bot-check-on-guest-creation, account:only-needed-data-kept, account:guest-and-secured-states, account:guest-secures-the-life: the gate every new user of the
 // auth library passes through. It runs as the library's `user.create.before`
 // hook, so no sign-in method can make an account without it. An account is
 // born only as a guest, through `POST /api/guest` and the anonymous sign-in
@@ -24,7 +24,7 @@ function refuse(code: string, message: string): never {
   throw new APIError("FORBIDDEN", { code, message });
 }
 
-/** The one thing a refused banned identity is told (R-MODERATION-018). */
+/** The one thing a refused banned identity is told (moderation:ban-survives-as-hash). */
 const NOT_POSSIBLE = "This sign-in cannot make an account.";
 
 /** The library's path of the anonymous sign-in, reached only through `POST /api/guest`. */
@@ -34,8 +34,8 @@ export const GUEST_PATH = "/sign-in/anonymous";
 export const GUEST_NAME_HEADER = "x-japacity-guest-name";
 
 /**
- * R-ACCOUNT-021: the guest's birth. Consumes the browser's age pass (single
- * use: one pass, one account) and stores the row with the username. R-SERVER-031:
+ * account:guest-and-secured-states: the guest's birth. Consumes the browser's age pass (single
+ * use: one pass, one account) and stores the row with the username. server:four-off-switches:
  * refused while `signups` is off, so a pass issued before the switch went off
  * makes no account.
  */
@@ -67,15 +67,15 @@ async function admitGuest(deps: ServerDeps, endpoint: GenericEndpointContext): P
     lastPlayedAt: now,
   });
   if (!created.ok) return created.code === "conflict" ? refuse("name-taken", "That username is taken.") : refuse(created.code, created.detail);
-  // R-ACCOUNT-020: the library's name column holds nothing; the username lives on the game's row.
+  // account:only-needed-data-kept: the library's name column holds nothing; the username lives on the game's row.
   return { data: { id, name: "" } };
 }
 
 /**
  * Every user the library makes. A guest's birth, a guest's own link (no row
  * of its own: it is folded into the guest), or nothing: a method that has no
- * account finds none, since an account starts as a guest (R-ACCOUNT-001).
- * R-MODERATION-018: a banned email is refused either way.
+ * account finds none, since an account starts as a guest (account:sign-in-without-secret).
+ * moderation:ban-survives-as-hash: a banned email is refused either way.
  */
 export async function admitAccount(deps: ServerDeps, endpoint: GenericEndpointContext | null, linking: Linking, user: { email?: string | null } = {}): Promise<{ data: { id: string; name?: string } }> {
   if (endpoint === null) return refuse("no-account", "An account is made only through the guest start.");
@@ -88,9 +88,9 @@ export async function admitAccount(deps: ServerDeps, endpoint: GenericEndpointCo
 }
 
 /**
- * R-MODERATION-018: a sign-in method is refused when its identity
+ * moderation:ban-survives-as-hash: a sign-in method is refused when its identity
  * (`<provider>:<id>`, such as `google:<sub>`) was banned, whether it makes an
- * account or is linked to one. R-ACCOUNT-023: from a guest, a method may join
+ * account or is linked to one. account:guest-secures-the-life: from a guest, a method may join
  * only the guest's own link. Runs as the library's `account.create.before` hook.
  */
 export async function admitMethod(deps: ServerDeps, endpoint: GenericEndpointContext | null, linking: Linking, method: { providerId: string; accountId: string; userId: string }): Promise<void> {
@@ -100,10 +100,10 @@ export async function admitMethod(deps: ServerDeps, endpoint: GenericEndpointCon
 
 /**
  * Runs as the library's `session.create.before` hook, so every sign-in method
- * is judged alike. R-MODERATION-014: no sign-in while a suspension runs; the
- * suspension itself ended the sessions the account held. R-ACCOUNT-022: a
+ * is judged alike. moderation:fixed-admin-actions: no sign-in while a suspension runs; the
+ * suspension itself ended the sessions the account held. account:social-needs-secured-account: a
  * guest's life is never opened anywhere but where it began, so no method signs
- * in to a guest. R-ACCOUNT-023: from a guest, no sign-in to another account.
+ * in to a guest. account:guest-secures-the-life: from a guest, no sign-in to another account.
  */
 export async function admitSession(deps: ServerDeps, endpoint: GenericEndpointContext | null, linking: Linking, session: { userId: string }): Promise<void> {
   if (endpoint?.path !== GUEST_PATH) {

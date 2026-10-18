@@ -1,9 +1,9 @@
-// The server's cache (docs/rules/server.md R-SERVER-039, clock.md R-CLOCK-019).
+// The server's cache (server:public-replies-cached, clock:world-fetch-is-jittered).
 // Despite the file's name this is no cache in front of the Worker: a Worker's
 // own reply is not cached by Cloudflare, and its `public, max-age` reaches the
 // browser only. The world, the draw and the advert replies are put by hand in
 // the Cache API (`caches.default`), which lives beside the Worker in the data
-// centre it runs in (London with placement, R-SERVER-040), keyed by what makes
+// centre it runs in (London with placement, server:worker-placed-near-database), keyed by what makes
 // each the same for everyone, and read before the database. A hit saves the
 // database query, not the player's trip to the server. Nothing about the
 // player enters a key. Behind Cloudflare Access there is no such cache.
@@ -14,7 +14,7 @@ import type { Context, Env } from "hono";
 export interface EdgeCache {
   match: (key: string) => Promise<Response | undefined>;
   put: (key: string, response: Response) => Promise<void>;
-  /** Lets a kept reply go before its time (the dedication's lights once one is lit, R-SERVER-045). */
+  /** Lets a kept reply go before its time (the dedication's lights once one is lit, server:dedication-routes). */
   delete?: (key: string) => Promise<boolean>;
 }
 
@@ -24,7 +24,7 @@ export interface Made {
   type: string;
   /** Milliseconds since 1970: how long a browser may keep it. */
   freshUntil: number;
-  /** When the server's cache must let it go, if sooner than `freshUntil` (the advert replies, R-ADVERT-014). */
+  /** When the server's cache must let it go, if sooner than `freshUntil` (the advert replies, advert:reported-advert-pulled-at-once). */
   keptUntil?: number;
 }
 
@@ -109,7 +109,7 @@ async function stored(edge: EdgeCache | null, key: string, now: number, made: Ma
 }
 
 /**
- * R-SERVER-039: the reply under `key`, from the cache while it is fresh, or
+ * server:public-replies-cached: the reply under `key`, from the cache while it is fresh, or
  * made by `make` (the database) and stored. With no cache every reply is made.
  */
 export async function throughEdge(edge: EdgeCache | null, key: string, now: number, make: () => Promise<Made>): Promise<Served> {

@@ -34,12 +34,12 @@ function holdsNumber(text: string, value: number): boolean {
 }
 
 describe("a recorded life through the route", () => {
-  test("[R-SERVER-014] given the sentinel overlay, when it is checked, then it may be applied", () => {
+  test("[server:overlays-never-multiply-prices] given the sentinel overlay, when it is checked, then it may be applied", () => {
     expect(checkOverlay(content, sentinelOverlay)).toEqual([]);
   });
 
   test.each(Object.entries(lifeSaves))(
-    "[R-SERVER-015] [R-SERVER-019] [R-CLOCK-006] given the recorded life %s played command by command through the route at tick 0, when its view is fetched, then it equals the local authority's for the same commands, and no reply ever carries a seed, the world seed or an overlay value",
+    "[server:secrets-stay-on-server] [server:client-never-predicts] [clock:full-bank-earns-nothing] given the recorded life %s played command by command through the route at tick 0, when its view is fetched, then it equals the local authority's for the same commands, and no reply ever carries a seed, the world seed or an overlay value",
     async (_name, save: FlatSave) => {
       const server = testServer({
         config: testConfig({ testing: { testLogin: true, fastClock: true } }),

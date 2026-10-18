@@ -17,7 +17,7 @@ function admin() {
 }
 
 describe("GET /api/admin/analytics", () => {
-  test("[R-ANALYTICS-009] [R-SERVER-012] given a session that is not an admin's, or none, when the dashboard is fetched, then it does not exist", async () => {
+  test("[analytics:dashboard-shows-fixed-list] [server:ledger-alarm-lists-suspects] given a session that is not an admin's, or none, when the dashboard is fetched, then it does not exist", async () => {
     const app = makeApp(admin());
     const missing = await (await app.request("/api/admin/nothing-here", asAccount(ADMIN))).text();
     for (const account of [null, "account.player"]) {
@@ -27,7 +27,7 @@ describe("GET /api/admin/analytics", () => {
     }
   });
 
-  test("[R-ANALYTICS-009] [R-ANALYTICS-010] given stored totals, when an admin fetches a day, then the window ends on that day and a key under the smallest number is hidden", async () => {
+  test("[analytics:dashboard-shows-fixed-list] [analytics:small-counts-shown-as-fewer] given stored totals, when an admin fetches a day, then the window ends on that day and a key under the smallest number is hidden", async () => {
     const deps = admin();
     const today = time.utcDay(deps.now());
     await deps.stores.counters.add([

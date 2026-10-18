@@ -6,12 +6,12 @@ import type { ConversationRow } from "@japacity/sim";
 import type { StoreResult } from "@japacity/store";
 
 /**
- * R-MODERATION-015: the reasons an admin action is written to the log with: a report's reasons, and the dedication's
- * lights (R-MODERATION-021), which no player reports.
+ * moderation:admin-actions-logged-append-only: the reasons an admin action is written to the log with: a report's reasons, and the dedication's
+ * lights (moderation:dedication-lights-await-approval), which no player reports.
  */
 export const LOG_REASONS = [...REPORT_REASONS, "dedication"] as const;
 
-/** R-MODERATION-021: the reason a dedication light's approval or refusal is logged under. */
+/** moderation:dedication-lights-await-approval: the reason a dedication light's approval or refusal is logged under. */
 export const DEDICATION_LOG_REASON = "dedication" satisfies (typeof LOG_REASONS)[number];
 
 export interface Report {
@@ -43,7 +43,7 @@ export interface ReportQueueStore {
   messages: (ids: readonly string[]) => Promise<ConversationRow[]>;
   /** Refused with `missing` for an unknown report and `closed` once decided. */
   close: (report: string, outcome: "acted" | "no-action", at: number) => Promise<StoreResult<Report>>;
-  /** R-MODERATION-008: the hold ends; deletion that was waiting goes ahead. */
+  /** moderation:reports-hold-cited-records: the hold ends; deletion that was waiting goes ahead. */
   lift: (report: string) => Promise<void>;
 }
 
@@ -57,7 +57,7 @@ function text(value: unknown): value is string {
   return typeof value === "string" && ID.test(value);
 }
 
-/** R-MODERATION-004: the cite a report carries, or null when it cites nothing the page lists. */
+/** moderation:report-carries-subject-and-reason: the cite a report carries, or null when it cites nothing the page lists. */
 function readCite(value: unknown): ReportCite | null {
   if (typeof value !== "object" || value === null) return null;
   const cite = value as Record<string, unknown>;
@@ -83,12 +83,12 @@ export interface ReportInput {
   subject: ReportSubject | null;
   reason: ReportReason;
   cites: ReportCite;
-  /** R-MODERATION-005: a phrase heard in a place is not stored, so its report is what the client heard. */
+  /** moderation:spoken-phrases-not-stored: a phrase heard in a place is not stored, so its report is what the client heard. */
   unverified: boolean;
 }
 
 /**
- * R-MODERATION-004, R-MODERATION-005: a report's body as sent, or why it is
+ * moderation:report-carries-subject-and-reason, moderation:spoken-phrases-not-stored: a report's body as sent, or why it is
  * refused. A report with no cites is refused; one with no subject is read
  * with a null subject, since a card or a phrase heard in a place names no
  * account the client knows. For the pair side's report route.

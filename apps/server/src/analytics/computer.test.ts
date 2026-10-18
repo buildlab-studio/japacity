@@ -1,4 +1,4 @@
-// A computer character is never counted (docs/rules/person.md R-PEOPLE-055): every count of players the nightly
+// A computer character is never counted (person:computers-never-counted): every count of players the nightly
 // job keeps, the online count and the boards are built from lives whose families are computer characters, and
 // each counts only the players.
 import type { State } from "@japacity/sim";
@@ -94,7 +94,7 @@ async function liveOf(server: TestServer, character: string): Promise<Live> {
 const sum = (rows: readonly CounterTotal[], day: string, name: string) => rows.filter((row) => row.day === day && row.name === name).reduce((total, row) => total + row.count, 0);
 
 describe("a computer character is never counted", () => {
-  test("[R-PEOPLE-055] given three players whose lives hold computer characters, when the day's players, the online count and the board are built, then each counts the three players and no computer", async () => {
+  test("[person:computers-never-counted] given three players whose lives hold computer characters, when the day's players, the online count and the board are built, then each counts the three players and no computer", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const characters: string[] = [];

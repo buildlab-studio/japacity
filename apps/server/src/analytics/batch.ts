@@ -1,4 +1,4 @@
-// R-ANALYTICS-003, R-ANALYTICS-004, R-ANALYTICS-007: a batch as it arrives.
+// analytics:client-batches-counters, analytics:server-checks-every-batch, analytics:store-holds-nothing-personal: a batch as it arrives.
 // Only `name`, `key` and `count` of each row are read; every other field,
 // in the rows or around them, is never looked at again.
 import type { CounterRow } from "@japacity/api";
@@ -33,7 +33,7 @@ function rowFault(content: Content, row: unknown): DropReason | null {
 }
 
 /**
- * R-ANALYTICS-004: the rows of a batch that may be counted, and how many were
+ * analytics:server-checks-every-batch: the rows of a batch that may be counted, and how many were
  * dropped and why. A body over `maxBatchBytes` or not of the batch's shape is
  * dropped whole, as one.
  */
@@ -60,7 +60,7 @@ export function checkBatch(content: Content, body: string): Checked {
   return checked;
 }
 
-/** R-ANALYTICS-004: the front door's screens, the only rows a batch may carry signed out. */
+/** analytics:server-checks-every-batch: the front door's screens, the only rows a batch may carry signed out. */
 const DOOR_KEYS: ReadonlySet<string> = new Set(FUNNEL_STEPS.filter((each) => each.from === "screen/opened").map((each) => each.step));
 
 export function isDoorRow(row: CounterRow): boolean {

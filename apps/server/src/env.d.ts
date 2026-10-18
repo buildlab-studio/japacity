@@ -5,26 +5,26 @@
 // Workers tests) read this one type.
 declare namespace Cloudflare {
   interface Env {
-    /** R-SERVER-016: secrets of the deployment, set once with `wrangler secret put`. */
+    /** server:hidden-values-made-once: secrets of the deployment, set once with `wrangler secret put`. */
     WORLD_SEED: string;
-    /** R-MODERATION-018: the salt of the banned identities' hashes. */
+    /** moderation:ban-survives-as-hash: the salt of the banned identities' hashes. */
     BAN_SALT: string;
-    /** R-LOTTERY-008: the HMAC key of the draw's ticket tokens. */
+    /** lottery:ticket-list-frozen-anonymously: the HMAC key of the draw's ticket tokens. */
     DRAW_TOKEN_KEY: string;
-    /** R-SERVER-018: the private overlay; unset, the public defaults run the game. */
+    /** server:public-defaults-run-the-game: the private overlay; unset, the public defaults run the game. */
     OVERLAY?: string;
-    /** Secrets set with `wrangler secret put` (R-ACCOUNT-001, 013). */
+    /** Secrets set with `wrangler secret put` (account:sign-in-without-secret, account:bot-check-on-guest-creation). */
     BETTER_AUTH_SECRET: string;
     GOOGLE_CLIENT_ID: string;
     GOOGLE_CLIENT_SECRET: string;
     TURNSTILE_SECRET_KEY: string;
-    /** R-SERVER-012: the admin accounts, comma-separated account ids, a Worker secret set once per environment; unset, the admin page does not exist. */
+    /** server:ledger-alarm-lists-suspects: the admin accounts, comma-separated account ids, a Worker secret set once per environment; unset, the admin page does not exist. */
     ADMIN_ACCOUNTS?: string;
-    /** R-CLOCK-031: the VAPID pair, base64url, and the address the push services can reach the game's operator at. No notice is sent without all three. */
+    /** clock:full-bank-push-notification: the VAPID pair, base64url, and the address the push services can reach the game's operator at. No notice is sent without all three. */
     VAPID_PUBLIC_KEY?: string;
     VAPID_PRIVATE_KEY?: string;
     VAPID_SUBJECT?: string;
-    /** R-ACCOUNT-014, R-SERVER-038: `mailpit` on the local stack only; unset on every deployment, which sends through MAIL (decision 0007). */
+    /** account:sign-in-routes-rate-limited, server:production-and-staging: `mailpit` on the local stack only; unset on every deployment, which sends through MAIL (decision 0007). */
     MAIL_TRANSPORT?: string;
     /** Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit. */
     MAILPIT_URL?: string;

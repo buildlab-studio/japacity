@@ -34,7 +34,7 @@ function setup() {
 const feedback = (text: string) => ({ text, build: "b-41.a1b2c3d", screen: "month", mode: "high" });
 
 describe("feedback", () => {
-  test("[R-MODERATION-020] given a text at the longest allowed and one character over, when each is sent, then the first is kept and the second refused; characters are counted as code points", async () => {
+  test("[moderation:feedback-box-in-settings] given a text at the longest allowed and one character over, when each is sent, then the first is kept and the second refused; characters are counted as code points", async () => {
     const { send, deps } = setup();
     const max = deps.config.feedback.maxChars;
 
@@ -47,7 +47,7 @@ describe("feedback", () => {
     expect((await deps.stores.feedback.list(10)).map((row) => [...row.text].length)).toEqual([max, max]);
   });
 
-  test("[R-MODERATION-020] given a session that has sent five today, when it sends a sixth, then it is refused until the next UTC day; another session is not counted with it", async () => {
+  test("[moderation:feedback-box-in-settings] given a session that has sent five today, when it sends a sixth, then it is refused until the next UTC day; another session is not counted with it", async () => {
     const { send, deps, at } = setup();
     const statuses: number[] = [];
     for (let sent = 0; sent < deps.config.feedback.perDay + 1; sent += 1) statuses.push((await send("account.a", feedback(`note ${String(sent)}`))).status);
@@ -63,7 +63,7 @@ describe("feedback", () => {
     expect((await send("account.a", feedback("tomorrow"))).status).toBe(200);
   });
 
-  test("[R-MODERATION-020] given feedback sent, when it is stored, then it holds the text, build, screen, mode, day and region and nothing that names the sender", async () => {
+  test("[moderation:feedback-box-in-settings] given feedback sent, when it is stored, then it holds the text, build, screen, mode, day and region and nothing that names the sender", async () => {
     const { send, deps } = setup();
     await send("account.sender-77", { ...feedback("  The map is slow on my phone.  "), mode: "low", screen: "road" }, "GB");
 
@@ -72,7 +72,7 @@ describe("feedback", () => {
     expect(JSON.stringify(row)).not.toContain("sender-77");
   });
 
-  test("[R-MODERATION-020] given no session or a body that is not feedback, when it is sent, then it is refused and nothing is kept", async () => {
+  test("[moderation:feedback-box-in-settings] given no session or a body that is not feedback, when it is sent, then it is refused and nothing is kept", async () => {
     const { send, deps } = setup();
     expect((await send(null, feedback("hello"))).status).toBe(401);
     for (const body of [{}, feedback(""), feedback("   "), { ...feedback("x"), mode: "medium" }, { ...feedback("x"), build: "" }, { ...feedback("x"), screen: "a b" }, { ...feedback("x"), build: "b".repeat(65) }, "text"]) {
@@ -81,7 +81,7 @@ describe("feedback", () => {
     expect(await deps.stores.feedback.list(10)).toEqual([]);
   });
 
-  test("[R-MODERATION-020] given feedback from a day, when the daily job runs, then it is kept for the configured days counting its own and dropped on the day after", async () => {
+  test("[moderation:feedback-box-in-settings] given feedback from a day, when the daily job runs, then it is kept for the configured days counting its own and dropped on the day after", async () => {
     const { send, deps, at } = setup();
     const keep = deps.config.feedback.keepDays;
     await send("account.a", feedback("old words"));
@@ -95,7 +95,7 @@ describe("feedback", () => {
     expect(await deps.stores.feedback.list(10)).toEqual([]);
   });
 
-  test("[R-MODERATION-020] given feedback, when an admin reads the admin view, then it is there and not in the report queue; a player cannot read it", async () => {
+  test("[moderation:feedback-box-in-settings] given feedback, when an admin reads the admin view, then it is there and not in the report queue; a player cannot read it", async () => {
     const { send, app } = setup();
     await send("account.a", feedback("Love the bus stop."));
     const read = (account: string) => app.request("/api/admin/moderation/feedback", { headers: { "x-test-account": account } });

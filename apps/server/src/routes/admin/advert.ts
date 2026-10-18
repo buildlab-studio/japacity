@@ -1,5 +1,5 @@
-// The admin view's advert routes (moderation.md R-MODERATION-012, 014;
-// advert.md R-ADVERT-010 to 017, 020, 021). A submission reaches the game only
+// The admin view's advert routes (moderation:admin-view-for-admin-list, moderation:fixed-admin-actions;
+// advert:named-person-approves-creatives, advert:changes-return-to-review, advert:reviewer-checks-and-records, advert:submissions-never-auto-post, advert:reported-advert-pulled-at-once, advert:banned-categories-refused, advert:restricted-categories-need-conditions, advert:real-name-only-by-agreement, advert:advertiser-records-stored, advert:advertisers-get-daily-counts-only). A submission reaches the game only
 // here, entered by an admin from the form or email it arrived by, and waits in
 // review; nothing in it is served until a named person approves it. Only an
 // account in `config.admin.accounts` may reach these routes; to anyone else
@@ -78,7 +78,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
 
   admin.use("*", adminOnly(deps));
 
-  /** R-ADVERT-012, R-ADVERT-020: the business, its registration and one contact. */
+  /** advert:reviewer-checks-and-records, advert:advertiser-records-stored: the business, its registration and one contact. */
   admin.post("/advertisers", async (c) => {
     const body = await bodyOf(c);
     const registration = body?.registration as Body | undefined;
@@ -93,7 +93,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return added.ok ? c.json({ ok: true, advertiser: added.value }) : c.json(added, 409);
   });
 
-  /** R-ADVERT-008, R-ADVERT-015 to 017: a campaign enters review as `pending`, or is refused with every reason. */
+  /** advert:campaign-chosen-without-player-data, advert:banned-categories-refused, advert:restricted-categories-need-conditions and advert:real-name-only-by-agreement: a campaign enters review as `pending`, or is refused with every reason. */
   admin.post("/campaigns", async (c) => {
     const body = await bodyOf(c);
     const slots = texts(body?.slots);
@@ -108,7 +108,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return added.ok ? c.json({ ok: true, campaign: added.value }) : c.json(added, added.code === "missing" ? 404 : 409);
   });
 
-  /** R-ADVERT-004, R-ADVERT-005, R-ADVERT-011: a new creative, or a new version of one, waits for review. */
+  /** advert:one-labelled-still-image, advert:tap-opens-advert-card, advert:changes-return-to-review: a new creative, or a new version of one, waits for review. */
   admin.post("/campaigns/:campaign/creatives", async (c) => {
     const body = await bodyOf(c);
     const image = typeof body?.image === "string" ? fromBase64(body.image) : null;
@@ -126,7 +126,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return added.ok ? c.json({ ok: true, creative: added.value }) : c.json(added, 409);
   });
 
-  // R-MODERATION-015: every decision below is written to the admin log once it is made.
+  // moderation:admin-actions-logged-append-only: every decision below is written to the admin log once it is made.
   for (const outcome of ["approved", "refused"] as const) {
     const action = outcome === "approved" ? "approve-advert" : "refuse-advert";
     admin.post(`/campaigns/:campaign/${outcome === "approved" ? "approve" : "refuse"}`, async (c) => {
@@ -149,7 +149,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     });
   }
 
-  /** R-ADVERT-014: out of rotation at once, back to review. */
+  /** advert:reported-advert-pulled-at-once: out of rotation at once, back to review. */
   admin.post("/campaigns/:campaign/pull", async (c) => {
     const id = c.req.param("campaign");
     const pulled = await pullCampaign(deps, id);
@@ -157,7 +157,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return pulled.ok ? c.json({ ok: true, campaign: pulled.value }) : c.json(pulled, 404);
   });
 
-  /** R-ADVERT-014: a link that no longer holds pulls its campaign. */
+  /** advert:reported-advert-pulled-at-once: a link that no longer holds pulls its campaign. */
   admin.post("/campaigns/:campaign/recheck", async (c) => {
     const id = c.req.param("campaign");
     if ((await deps.stores.adverts.campaign(id)) === null) return c.json({ ok: false, code: "missing", detail: `No campaign ${id}.` }, 404);
@@ -169,8 +169,8 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
 
   /**
    * The review queue's view: every campaign with its status now, the checks its
-   * approval needs (R-ADVERT-012), its creatives each with theirs, every review,
-   * and its daily counts (R-ADVERT-020).
+   * approval needs (advert:reviewer-checks-and-records), its creatives each with theirs, every review,
+   * and its daily counts (advert:advertiser-records-stored).
    */
   admin.get("/campaigns", async (c) => {
     const now = deps.now();
@@ -191,7 +191,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return c.json({ ok: true, campaigns: rows });
   });
 
-  /** R-ADVERT-011: any version's image, whatever its status, so the reviewer sees what they decide on. Never cached. */
+  /** advert:changes-return-to-review: any version's image, whatever its status, so the reviewer sees what they decide on. Never cached. */
   admin.get("/creatives/:creative/:version/image", async (c) => {
     const version = c.req.param("version");
     if (!VERSION.test(version)) return c.notFound();
@@ -204,7 +204,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     return c.body(image.slice().buffer);
   });
 
-  /** R-ADVERT-021: what an advertiser receives, the daily counts and nothing else. */
+  /** advert:advertisers-get-daily-counts-only: what an advertiser receives, the daily counts and nothing else. */
   admin.get("/campaigns/:campaign/counts", async (c) => {
     const id = c.req.param("campaign");
     if ((await deps.stores.adverts.campaign(id)) === null) return c.json({ ok: false, code: "missing", detail: `No campaign ${id}.` }, 404);

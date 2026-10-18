@@ -19,7 +19,7 @@ function logOf(commands: readonly { at: number; region: string; account: string 
 }
 
 describe("online now and the day's peak", () => {
-  test("[R-ANALYTICS-013] given commands just inside and just outside the online minutes, when online now is read, then only the accounts inside are counted, each once", async () => {
+  test("[analytics:session-split-by-command-gaps] given commands just inside and just outside the online minutes, when online now is read, then only the accounts inside are counted, each once", async () => {
     const now = Date.UTC(2026, 9, 11, 12, 0, 0);
     const edge = now - ONLINE_MINUTES * time.MINUTE_MS;
     const log = logOf([
@@ -32,7 +32,7 @@ describe("online now and the day's peak", () => {
     expect(await onlineAt(log, now)).toEqual([{ region: "NG", count: 2 }]);
   });
 
-  test("[R-ANALYTICS-013] given samples that rise and fall through a day, when each is taken, then each region and the whole game (region all) keep their highest sample of the day and a new day starts again", async () => {
+  test("[analytics:session-split-by-command-gaps] given samples that rise and fall through a day, when each is taken, then each region and the whole game (region all) keep their highest sample of the day and a new day starts again", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const peak = async (on: number) => (await server.deps.stores.counters.days(time.dayName(on), time.dayName(on))).filter((row) => row.name === "players/online-peak");
@@ -54,7 +54,7 @@ describe("online now and the day's peak", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-013] given the five-minute cron and the daily one, when the job runs, then only the five-minute cron samples", async () => {
+  test("[analytics:session-split-by-command-gaps] given the five-minute cron and the daily one, when the job runs, then only the five-minute cron samples", async () => {
     const server = testServer();
     const log = logOf([{ at: server.deps.now(), region: "NG", account: "a" }]);
     expect(await onlineJob(server.deps, log, "0 0 * * *")).toEqual([]);

@@ -1,4 +1,4 @@
-// R-ANALYTICS-008: the day's log while the server runs on the memory stores.
+// analytics:nightly-game-counters: the day's log while the server runs on the memory stores.
 // The memory stores cannot list characters or accounts, so the
 // active characters are the ones the money job's isolate list holds
 // (ops/active.ts, filled by markAfterCommit), and the accounts created on

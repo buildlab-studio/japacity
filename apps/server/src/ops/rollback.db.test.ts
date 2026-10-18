@@ -1,5 +1,5 @@
-// The rollback tool against the database (server.md R-SERVER-008, R-SERVER-009,
-// R-SERVER-010, R-SERVER-047): the command line's form with no
+// The rollback tool against the database (server:rollback-check-finds-divergence, server:rollback-apply-one-account,
+// server:no-mass-rollback, server:snapshot-before-deploy): the command line's form with no
 // flag, on Postgres (PGlite, the committed migrations), one character per run.
 import { content } from "@japacity/content";
 import { pgStores } from "@japacity/db";
@@ -40,7 +40,7 @@ async function onPostgres(): Promise<{ deps: Database["deps"]; open: OpenDatabas
   return { deps, open, closed: () => closes };
 }
 
-/** R-CLOCK-010: the stand-in world of every tick the save names, with its director's book, as Postgres keeps a tick. */
+/** clock:world-is-stored-history: the stand-in world of every tick the save names, with its director's book, as Postgres keeps a tick. */
 async function storeWorlds(deps: Database["deps"], save: FlatSave): Promise<void> {
   const upTo = Math.max(0, ...save.commands.map((entry) => entry.tick));
   let book = null;
@@ -71,7 +71,7 @@ function parsed(lines: readonly string[]): unknown {
 }
 
 describe("the rollback tool on the database", () => {
-  test("[R-SERVER-008] given a clean character on Postgres, when the check is run with no flag, then it reports no difference, writes nothing, closes its connection and exits 0", async () => {
+  test("[server:rollback-check-finds-divergence] given a clean character on Postgres, when the check is run with no flag, then it reports no difference, writes nothing, closes its connection and exits 0", async () => {
     const { deps, open, closed } = await onPostgres();
     await stored(deps);
     const before = await deps.stores.player.load(ID);
@@ -85,7 +85,7 @@ describe("the rollback tool on the database", () => {
     expect(closed()).toBe(1);
   });
 
-  test("[R-SERVER-008] given a character whose log was written under other rules, when the check is run on the database, then it reports the first version that differs and writes nothing", async () => {
+  test("[server:rollback-check-finds-divergence] given a character whose log was written under other rules, when the check is run on the database, then it reports the first version that differs and writes nothing", async () => {
     const { deps, open } = await onPostgres();
     await stored(deps, SAVE.commands.length, otherRules);
     const before = await deps.stores.player.load(ID);
@@ -102,7 +102,7 @@ describe("the rollback tool on the database", () => {
     expect(await deps.stores.player.load(ID)).toEqual(before);
   });
 
-  test("[R-SERVER-009] [R-SERVER-010] given a logged command the simulation now rejects and a second character, when apply is run on the database, then the command is dropped and listed, a new segment opens at the next version, the old rows go to the audit table and the other character is untouched", async () => {
+  test("[server:rollback-apply-one-account] [server:no-mass-rollback] given a logged command the simulation now rejects and a second character, when apply is run on the database, then the command is dropped and listed, a new segment opens at the next version, the old rows go to the audit table and the other character is untouched", async () => {
     const { deps, open } = await onPostgres();
     const head = await stored(deps, 30);
     await appendRejected(deps, head, 31);
@@ -132,7 +132,7 @@ describe("the rollback tool on the database", () => {
     expect(parsed((await rollbackCli(["check", ID], noFile, open)).lines)).toMatchObject({ ok: true, report: { firstDiff: null, replayed: 0 } });
   });
 
-  test("[R-SERVER-008] [R-SERVER-009] given no DATABASE_URL_UNPOOLED, when check or apply is run with no flag, then it refuses plainly with its usage and exits 2", async () => {
+  test("[server:rollback-check-finds-divergence] [server:rollback-apply-one-account] given no DATABASE_URL_UNPOOLED, when check or apply is run with no flag, then it refuses plainly with its usage and exits 2", async () => {
     for (const action of ["check", "apply"]) {
       const result = await rollbackCli([action, ID], noFile, databaseFrom({ DATABASE_URL: "postgres://the-app-role@example.invalid/game" }));
       expect(result.exit).toBe(2);

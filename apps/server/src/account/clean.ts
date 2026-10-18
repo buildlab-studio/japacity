@@ -1,7 +1,7 @@
-// R-ACCOUNT-026: the guest clean-up, run by hand and never by a schedule.
+// account:idle-guests-cleaned-by-hand: the guest clean-up, run by hand and never by a schedule.
 // `pnpm guests:clean --idle-days <n> [--apply]` lists the guest
 // accounts with no play for that many days and, with `--apply`, removes them
-// through the deletion of R-ACCOUNT-017, due at once. Secured accounts are
+// through the deletion of account:deleted-data-removed-within-month, due at once. Secured accounts are
 // never listed. Without `--idle-days` the working number `account.guestIdleDays`.
 import { time } from "@japacity/sim";
 import type { AccountRow } from "@japacity/store";

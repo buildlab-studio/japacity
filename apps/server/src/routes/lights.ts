@@ -1,9 +1,9 @@
-// `GET /api/lights` (docs/rules/account.md R-ACCOUNT-031): the two lights over
+// `GET /api/lights` (account:two-lights-and-wink-lines): the two lights over
 // the start screen, the lives at home and abroad and those back this month,
 // the whole game's, rounded to the nearest ten. Counts only: no session is
 // read, nothing about the asker enters the reply or the key, and nothing is
-// logged. Counted against the address limit first (R-SERVER-026), then kept in
-// the server's cache by the hour (server.md R-SERVER-039) and public to the
+// logged. Counted against the address limit first (server:anonymous-limit-by-address), then kept in
+// the server's cache by the hour (server:public-replies-cached) and public to the
 // browser until the hour ends, so the counters are read at most once an hour
 // in each location the Worker runs in.
 import type { LightsReply } from "@japacity/api";
@@ -29,7 +29,7 @@ function monthOf(now: number): string {
 export function lightsRoute(deps: ServerDeps, edge: EdgeCache | null = edgeCache()): Hono {
   const route = new Hono();
   route.get(LIGHTS_PATH, async (c) => {
-    // R-SERVER-026: no session is read here, so every asker counts against the address limit.
+    // server:anonymous-limit-by-address: no session is read here, so every asker counts against the address limit.
     const refused = await overLimit(deps, "reads", null, c.req.header("cf-connecting-ip") ?? null);
     if (refused !== null) return c.json(refused, 429);
     const now = deps.now();

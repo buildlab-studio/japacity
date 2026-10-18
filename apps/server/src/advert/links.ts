@@ -1,4 +1,4 @@
-// R-ADVERT-014: a link is rechecked before its campaign starts and whenever its
+// advert:reported-advert-pulled-at-once: a link is rechecked before its campaign starts and whenever its
 // advert is reported. A link that fails pulls the campaign from rotation.
 import type { ServerDeps } from "../deps";
 import { approvedCreatives } from "./serve";

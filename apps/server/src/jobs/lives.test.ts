@@ -1,5 +1,5 @@
 // The nightly count of the lives being played (docs/rules/account.md
-// R-ACCOUNT-031, analytics.md R-ANALYTICS-008), on the memory stores and on
+// account:two-lights-and-wink-lines, analytics:nightly-game-counters), on the memory stores and on
 // Postgres (PGlite, the committed migrations).
 import { pgCounterStore } from "@japacity/db";
 import type { State } from "@japacity/sim";
@@ -96,7 +96,7 @@ for (const [where, make] of [
   ["Postgres", onPostgres],
 ] as const) {
   describe(`the nightly count of lives on ${where}`, () => {
-    test("[R-ACCOUNT-031] [R-ANALYTICS-008] given lives at home, abroad, on the road, ended, and with an account gone or moved on, when the day is counted, then only the lives being played are counted, by where each stands, under its region and the whole game's, once a day, with no name in the result and no log line", async () => {
+    test("[account:two-lights-and-wink-lines] [analytics:nightly-game-counters] given lives at home, abroad, on the road, ended, and with an account gone or moved on, when the day is counted, then only the lives being played are counted, by where each stands, under its region and the whole game's, once a day, with no name in the result and no log line", async () => {
       const server = await make();
       await world(server);
       const day = time.utcDay(server.deps.now());
@@ -123,7 +123,7 @@ for (const [where, make] of [
 }
 
 describe("the nightly job of lives", () => {
-  test("[R-ACCOUNT-031] given no life at all, when the job runs at 00:00, then the day just ended is counted with the whole game's three keys at 0, so the lights know the count has run", async () => {
+  test("[account:two-lights-and-wink-lines] given no life at all, when the job runs at 00:00, then the day just ended is counted with the whole game's three keys at 0, so the lights know the count has run", async () => {
     const server = testServer();
     const today = time.utcDay(server.deps.now());
     const yesterday = time.dayName(today - 1);
@@ -133,7 +133,7 @@ describe("the nightly job of lives", () => {
     expect(await totals(server)).toEqual([row(yesterday, "all", "abroad", 0), row(yesterday, "all", "home", 0), row(yesterday, "all", "road", 0)]);
   });
 
-  test("[R-ACCOUNT-031] given a life whose state is under a content the server no longer bundles, when the day is counted, then it is skipped by count alone and the rest are counted", async () => {
+  test("[account:two-lights-and-wink-lines] given a life whose state is under a content the server no longer bundles, when the day is counted, then it is skipped by count alone and the rest are counted", async () => {
     const server = testServer();
     await account(server, "account.old", "NG");
     const current = server.deps.contents.current;

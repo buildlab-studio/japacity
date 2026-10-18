@@ -25,7 +25,7 @@ function onPostgres(): { stores: Stores; db: PgliteConnection["db"] } {
 }
 
 describe("the server on Postgres", () => {
-  test("[R-ACCOUNT-001] [R-ACCOUNT-012] [R-ACCOUNT-020] [R-SERVER-002] given the auth library on Drizzle's adapter and the Postgres stores, when a player signs up by code, makes a character, plays a month and reads the view, then each answers as on the memory stores and the user row holds no name", async () => {
+  test("[account:sign-in-without-secret] [account:age-screen-refuses-minors] [account:only-needed-data-kept] [server:one-command-one-transaction] given the auth library on Drizzle's adapter and the Postgres stores, when a player signs up by code, makes a character, plays a month and reads the view, then each answers as on the memory stores and the user row holds no name", async () => {
     const { stores, db } = onPostgres();
     const h = harness({ stores, adapter: drizzleAuthAdapter(db) });
     const { jar, account } = await h.signUp("ada@example.com");

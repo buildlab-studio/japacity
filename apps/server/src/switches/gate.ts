@@ -1,4 +1,4 @@
-// The off switches over the routes (docs/rules/server.md R-SERVER-031). A
+// The off switches over the routes (server:four-off-switches). A
 // request whose switch is off is answered 503 `switched-off` before its route
 // runs, so nothing is stepped, logged or stored. Reads of the view, the world
 // and a draw are never gated.
@@ -10,15 +10,15 @@ import type { Context, MiddlewareHandler } from "hono";
 import type { ServerDeps } from "../deps";
 import { isOn, retryAfterSeconds, switchedOff } from "./switches";
 
-/** R-SERVER-031: the commands a switch stops before they reach `step`. */
+/** server:four-off-switches: the commands a switch stops before they reach `step`. */
 export const GATED_COMMANDS: Partial<Record<CommandType, SwitchName>> = {
   "lottery/buy": "lottery",
-  // Makes an invite card (R-PEOPLE-012 to 014); computer candidates go on through people/court.
+  // Makes an invite card (person:nobody-real-is-needed, person:courting-opens-a-bond and person:time-together-is-an-act); computer candidates go on through people/court.
   "people/invite": "partnerPlay",
 };
 
 /**
- * R-SERVER-031: the routes a switch closes, by path pattern, every method.
+ * server:four-off-switches: the routes a switch closes, by path pattern, every method.
  * The sign-up path is the age screen, which a signed-out returning
  * player also passes on a new browser; the server cannot tell the two apart
  * before sign-in, so both see the full screen while `signups` is off.
@@ -27,7 +27,7 @@ const GATED_PATHS: readonly { path: string; name: SwitchName; reads: boolean }[]
   { path: "/api/age", name: "signups", reads: true },
   { path: "/api/adverts", name: "adverts", reads: true },
   { path: "/api/adverts/*", name: "adverts", reads: true },
-  // A route that only serves a pair that exists must stay open (R-SERVER-031), so these close writes only.
+  // A route that only serves a pair that exists must stay open (server:four-off-switches), so these close writes only.
   { path: "/api/pair", name: "partnerPlay", reads: false },
   { path: "/api/pair/*", name: "partnerPlay", reads: false },
   { path: "/api/people", name: "partnerPlay", reads: false },
@@ -60,7 +60,7 @@ function commandTypeOf(body: unknown): string | null {
   return typeof type === "string" ? type : null;
 }
 
-/** R-SERVER-031: refuses a gated command; the route reads the same body again from Hono's cache. */
+/** server:four-off-switches: refuses a gated command; the route reads the same body again from Hono's cache. */
 function commandGate(deps: ServerDeps): MiddlewareHandler {
   return async (c, next) => {
     if (c.req.method !== "POST") {

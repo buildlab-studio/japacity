@@ -1,5 +1,5 @@
 /// <reference types="node" />
-// The guest clean-up's entry (R-ACCOUNT-026), run by Node through tsx as
+// The guest clean-up's entry (account:idle-guests-cleaned-by-hand), run by Node through tsx as
 // `pnpm guests:clean` and never part of the Worker. It reads the database at
 // `DATABASE_URL` and touches nothing but the auth library's tables and the
 // stores the deletion job removes from.

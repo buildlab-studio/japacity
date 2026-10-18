@@ -94,7 +94,7 @@ async function served(app: App, region = "NG", account: string | null = null): P
 }
 
 describe("serving the hour's campaign", () => {
-  test("[R-ADVERT-008] given a live campaign, when two players and a stranger in the region ask in the same hour, then each gets the same campaign in the slot, and another region gets none", async () => {
+  test("[advert:campaign-chosen-without-player-data] given a live campaign, when two players and a stranger in the region ask in the same hour, then each gets the same campaign in the slot, and another region gets none", async () => {
     const app = makeApp(world());
     const { campaign: id, creative: art } = await live(app);
     const first = await served(app, "NG", "account.one");
@@ -105,7 +105,7 @@ describe("serving the hour's campaign", () => {
     expect((await served(app, "GB")).slots).toEqual({});
   });
 
-  test("[R-ADVERT-008] given two live campaigns in one slot, when the hour turns, then the slot changes campaign exactly at the boundary and the reply is cached to it", async () => {
+  test("[advert:campaign-chosen-without-player-data] given two live campaigns in one slot, when the hour turns, then the slot changes campaign exactly at the boundary and the reply is cached to it", async () => {
     const clock = { at: EPOCH };
     const app = makeApp(world(clock));
     const a = await live(app);
@@ -122,7 +122,7 @@ describe("serving the hour's campaign", () => {
     expect(after.headers.get("cache-control")).toBe(`public, max-age=${String(time.HOUR_MS / time.SECOND_MS)}`);
   });
 
-  test("[R-ADVERT-008] given a country not in the table, when it asks, then it is served the default row's campaigns", async () => {
+  test("[advert:campaign-chosen-without-player-data] given a country not in the table, when it asks, then it is served the default row's campaigns", async () => {
     const app = makeApp(world());
     const { campaign: id } = await live(app, { regions: ["default"] });
     expect((await served(app, "ZZ")).slots["advert.road-billboard"]?.campaign).toBe(id);
@@ -130,7 +130,7 @@ describe("serving the hour's campaign", () => {
     expect((await served(app, "NG")).slots).toEqual({});
   });
 
-  test("[R-ADVERT-003] [R-SERVER-031] given the adverts switch off, when the slots and an approved image are asked for, then nothing is served", async () => {
+  test("[advert:no-adverts-on-protected-screens] [server:four-off-switches] given the adverts switch off, when the slots and an approved image are asked for, then nothing is served", async () => {
     const deps = world();
     const app = makeApp(deps);
     const { creative: art } = await live(app);
@@ -141,7 +141,7 @@ describe("serving the hour's campaign", () => {
     expect((await app.request(`/api/adverts/image/${art}/1`)).status).toBe(200);
   });
 
-  test("[R-ADVERT-004] given an approved creative, when its image is fetched, then the stored bytes come back as the measured format", async () => {
+  test("[advert:one-labelled-still-image] given an approved creative, when its image is fetched, then the stored bytes come back as the measured format", async () => {
     const app = makeApp(world());
     const { creative: art } = await live(app);
     const reply = await app.request(`/api/adverts/image/${art}/1`);
@@ -151,44 +151,44 @@ describe("serving the hour's campaign", () => {
 });
 
 describe("taking a creative for review", () => {
-  test("[R-ADVERT-004] given a billboard creative exactly at the byte limit, when it is entered, then it waits for review; one byte over is refused", async () => {
+  test("[advert:one-labelled-still-image] given a billboard creative exactly at the byte limit, when it is entered, then it waits for review; one byte over is refused", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
     const at = await creative(app, id, pngOf(1024, 512, BILLBOARD.maxBytes));
     expect(at.body).toMatchObject({ ok: true, creative: { file: { format: "png", width: 1024, height: 512, bytes: BILLBOARD.maxBytes }, status: "pending", version: 1 } });
     const over = await creative(app, id, pngOf(1024, 512, BILLBOARD.maxBytes + 1));
     expect(over.status).toBe(422);
-    expect(over.body.refusals).toEqual([`The image is ${String(BILLBOARD.maxBytes + 1)} bytes, over advert.road-billboard's limit of ${String(BILLBOARD.maxBytes)} (R-ADVERT-004).`]);
+    expect(over.body.refusals).toEqual([`The image is ${String(BILLBOARD.maxBytes + 1)} bytes, over advert.road-billboard's limit of ${String(BILLBOARD.maxBytes)} (advert:one-labelled-still-image).`]);
   });
 
-  test("[R-ADVERT-004] given images of a size no slot of the campaign has, or that move, when they are entered, then each is refused", async () => {
+  test("[advert:one-labelled-still-image] given images of a size no slot of the campaign has, or that move, when they are entered, then each is refused", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
-    expect((await creative(app, id, pngOf(512, 768))).body.refusals).toEqual(["The image is 512 by 768, the size of none of the campaign's slots (R-ADVERT-004)."]);
-    expect((await creative(app, id, pngOf(1024, 512, 1000, true))).body.refusals).toEqual(["The image moves; an advert is one still image (R-ADVERT-004)."]);
+    expect((await creative(app, id, pngOf(512, 768))).body.refusals).toEqual(["The image is 512 by 768, the size of none of the campaign's slots (advert:one-labelled-still-image)."]);
+    expect((await creative(app, id, pngOf(1024, 512, 1000, true))).body.refusals).toEqual(["The image moves; an advert is one still image (advert:one-labelled-still-image)."]);
     expect((await creative(app, id, webpOf(256, 256, "extended", true))).status).toBe(422);
     expect((await creative(app, id, webpOf(TILE.width, TILE.height))).status).toBe(200);
   });
 
-  test("[R-ADVERT-005] given a link that is not https, a second link in the text, or two lines, when they are entered, then each is refused; no link at all is allowed", async () => {
+  test("[advert:tap-opens-advert-card] given a link that is not https, a second link in the text, or two lines, when they are entered, then each is refused; no link at all is allowed", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
-    expect((await creative(app, id, undefined, "Fresh food.", "http://example.com")).body.refusals).toEqual(["The link is https (R-ADVERT-005)."]);
-    expect((await creative(app, id, undefined, "See www.example.com", null)).body.refusals).toEqual(["The text carries no link; the one link is its own field (R-ADVERT-005)."]);
-    expect((await creative(app, id, undefined, "One.\nTwo.", null)).body.refusals).toEqual(["The text is one line (R-ADVERT-005)."]);
-    expect((await creative(app, id, undefined, "Fresh food.", "https://user:pass@example.com")).body.refusals).toEqual(["The link carries no sign-in details (R-ADVERT-005)."]);
+    expect((await creative(app, id, undefined, "Fresh food.", "http://example.com")).body.refusals).toEqual(["The link is https (advert:tap-opens-advert-card)."]);
+    expect((await creative(app, id, undefined, "See www.example.com", null)).body.refusals).toEqual(["The text carries no link; the one link is its own field (advert:tap-opens-advert-card)."]);
+    expect((await creative(app, id, undefined, "One.\nTwo.", null)).body.refusals).toEqual(["The text is one line (advert:tap-opens-advert-card)."]);
+    expect((await creative(app, id, undefined, "Fresh food.", "https://user:pass@example.com")).body.refusals).toEqual(["The link carries no sign-in details (advert:tap-opens-advert-card)."]);
     expect((await creative(app, id, undefined, "Fresh food.", null)).status).toBe(200);
   });
 
-  test("[R-ADVERT-006] given text that reads as a bank alert or a news story, when it is entered, then it is refused", async () => {
+  test("[advert:adverts-never-mimic-the-game] given text that reads as a bank alert or a news story, when it is entered, then it is refused", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
-    for (const text of ["Credit alert: N50,000 received.", "Breaking news from the island."]) expect((await creative(app, id, undefined, text)).body.refusals).toEqual(["The advert reads as the banned impersonation (R-ADVERT-015)."]);
+    for (const text of ["Credit alert: N50,000 received.", "Breaking news from the island."]) expect((await creative(app, id, undefined, text)).body.refusals).toEqual(["The advert reads as the banned impersonation (advert:banned-categories-refused)."]);
   });
 });
 
 describe("the review", () => {
-  test("[R-ADVERT-010] given a pending creative, when it is approved without every check, then it stays pending; with them, the reviewer, time, checks and banned list are recorded", async () => {
+  test("[advert:named-person-approves-creatives] given a pending creative, when it is approved without every check, then it stays pending; with them, the reviewer, time, checks and banned list are recorded", async () => {
     const clock = { at: EPOCH };
     const app = makeApp(world(clock));
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
@@ -203,7 +203,7 @@ describe("the review", () => {
     expect((await call(app, "POST", `/api/admin/adverts/creatives/${art}/1/approve`, { checks: CREATIVE_CHECKS })).body).toMatchObject({ code: "not-pending" });
   });
 
-  test("[R-ADVERT-010] given an approved creative in a campaign not yet approved, when the slots are asked for, then nothing shows", async () => {
+  test("[advert:named-person-approves-creatives] given an approved creative in a campaign not yet approved, when the slots are asked for, then nothing shows", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
     const art = ((await creative(app, id)).body.creative as { id: string }).id;
@@ -213,7 +213,7 @@ describe("the review", () => {
     expect((await served(app)).slots["advert.road-billboard"]?.creative).toBe(art);
   });
 
-  test("[R-ADVERT-011] given a live creative, when a changed version is entered, then the approved version keeps showing until the new one is approved", async () => {
+  test("[advert:changes-return-to-review] given a live creative, when a changed version is entered, then the approved version keeps showing until the new one is approved", async () => {
     const app = makeApp(world());
     const { campaign: id, creative: art } = await live(app);
     const changed = await creative(app, id, undefined, "Now with suya.", "https://example.com/menu", art);
@@ -224,7 +224,7 @@ describe("the review", () => {
     expect((await served(app)).slots["advert.road-billboard"]).toMatchObject({ version: 2, text: "Now with suya." });
   });
 
-  test("[R-ADVERT-012] given a campaign shown in Nigeria, when it is approved without the regulator's approval recorded, then it is not; a campaign only in GB does not need it", async () => {
+  test("[advert:reviewer-checks-and-records] given a campaign shown in Nigeria, when it is approved without the regulator's approval recorded, then it is not; a campaign only in GB does not need it", async () => {
     const app = makeApp(world());
     const ng = ((await campaign(app)).body.campaign as { id: string }).id;
     expect((await call(app, "POST", `/api/admin/adverts/campaigns/${ng}/approve`, { checks: ["registered-business", "category"] })).body).toMatchObject({ code: "unchecked", missing: ["regulator-approval"] });
@@ -232,7 +232,7 @@ describe("the review", () => {
     expect((await call(app, "POST", `/api/admin/adverts/campaigns/${gb}/approve`, { checks: ["registered-business", "category"] })).body).toMatchObject({ ok: true, campaign: { status: "approved" } });
   });
 
-  test("[R-ADVERT-013] given a creative waiting for review, when anyone outside the admin view asks for it or sends a submission, then nothing is served and nothing is taken", async () => {
+  test("[advert:submissions-never-auto-post] given a creative waiting for review, when anyone outside the admin view asks for it or sends a submission, then nothing is served and nothing is taken", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
     const art = ((await creative(app, id)).body.creative as { id: string }).id;
@@ -247,14 +247,14 @@ describe("the review", () => {
     }
   });
 
-  test("[R-MODERATION-012] given a session not on the admin list, when any advert admin route is asked, then it does not exist", async () => {
+  test("[moderation:admin-view-for-admin-list] given a session not on the admin list, when any advert admin route is asked, then it does not exist", async () => {
     const app = makeApp(world());
     for (const [method, path] of [["GET", "/api/admin/adverts/campaigns"], ["POST", "/api/admin/adverts/campaigns"], ["GET", "/api/admin/adverts/campaigns/x/counts"]] as const) {
       expect((await app.request(path, { method, headers: { "x-test-account": "account.player" } })).status).toBe(404);
     }
   });
 
-  test("[R-ADVERT-014] given a live advert, when it is pulled, then it leaves rotation at once and both the campaign and the creative wait for review again", async () => {
+  test("[advert:reported-advert-pulled-at-once] given a live advert, when it is pulled, then it leaves rotation at once and both the campaign and the creative wait for review again", async () => {
     const app = makeApp(world());
     const { campaign: id, creative: art } = await live(app);
     expect((await call(app, "POST", `/api/admin/adverts/campaigns/${id}/pull`, {})).body).toMatchObject({ ok: true, campaign: { status: "paused" } });
@@ -266,7 +266,7 @@ describe("the review", () => {
     expect((await served(app)).slots["advert.road-billboard"]?.campaign).toBe(id);
   });
 
-  test("[R-ADVERT-014] given a link that now lands on another domain, when it is rechecked, then the campaign is pulled; one that holds is left", async () => {
+  test("[advert:reported-advert-pulled-at-once] given a link that now lands on another domain, when it is rechecked, then the campaign is pulled; one that holds is left", async () => {
     const deps = world();
     const app = makeApp(deps);
     const { campaign: id } = await live(app);
@@ -279,7 +279,7 @@ describe("the review", () => {
     expect((await deps.stores.adverts.campaign(id))?.status).toBe("paused");
   });
 
-  test("[R-ADVERT-014] given approved campaigns, when the five-minute job runs, then only one starting before the next run has its links rechecked and is pulled when they fail", async () => {
+  test("[advert:reported-advert-pulled-at-once] given approved campaigns, when the five-minute job runs, then only one starting before the next run has its links rechecked and is pulled when they fail", async () => {
     // The job is handed the deployment's tick period; five minutes here.
     const FIVE = tickPeriodMs(TICKS_CRON);
     const clock = { at: EPOCH };
@@ -293,7 +293,7 @@ describe("the review", () => {
     expect((await deps.stores.adverts.campaign(later.campaign))?.status).toBe("approved");
   });
 
-  test("[R-ADVERT-014] given the tick crons, when their periods are read, then five and thirty minutes come back and a cron of any other form is refused", () => {
+  test("[advert:reported-advert-pulled-at-once] given the tick crons, when their periods are read, then five and thirty minutes come back and a cron of any other form is refused", () => {
     expect(tickPeriodMs("*/5 * * * *")).toBe(5 * time.MINUTE_MS);
     expect(tickPeriodMs("*/30 * * * *")).toBe(30 * time.MINUTE_MS);
     for (const cron of ["0 0 * * *", "*/7 * * * *", "*/0 * * * *", "*/90 * * * *", "*/5 * * * 1", "5 * * * *", ""]) expect(() => tickPeriodMs(cron)).toThrow("every N minutes");
@@ -310,7 +310,7 @@ describe("the review", () => {
     return { fetcher, calls: () => calls, fail: () => (hold = false) };
   }
 
-  test("[R-ADVERT-014] given a thirty-minute tick, when the job runs a minute late and the next a minute early, then every campaign starting before each next run is rechecked by exactly one run, those starting just after a late firing among them", async () => {
+  test("[advert:reported-advert-pulled-at-once] given a thirty-minute tick, when the job runs a minute late and the next a minute early, then every campaign starting before each next run is rechecked by exactly one run, those starting just after a late firing among them", async () => {
     const THIRTY = tickPeriodMs("*/30 * * * *");
     const clock = { at: EPOCH };
     const deps = world(clock);
@@ -336,7 +336,7 @@ describe("the review", () => {
     for (const { campaign } of [justAfter, fiveIn, lastMs]) expect((await deps.stores.adverts.campaign(campaign))?.status).toBe("approved");
   });
 
-  test("[R-ADVERT-014] given a five-minute tick, when runs drift by a minute either way, then the windows of successive firings meet end to start, so no campaign is rechecked twice or skipped", () => {
+  test("[advert:reported-advert-pulled-at-once] given a five-minute tick, when runs drift by a minute either way, then the windows of successive firings meet end to start, so no campaign is rechecked twice or skipped", () => {
     const FIVE = tickPeriodMs(TICKS_CRON);
     for (const firing of [0, 1, 2, 288]) {
       const at = EPOCH + firing * FIVE;
@@ -349,7 +349,7 @@ describe("the review", () => {
 });
 
 describe("what the review sees", () => {
-  test("[R-ADVERT-011] [R-ADVERT-013] given versions pending, approved and refused, when an admin asks the admin image route, then each comes back as stored; the public route still serves only the approved live one", async () => {
+  test("[advert:changes-return-to-review] [advert:submissions-never-auto-post] given versions pending, approved and refused, when an admin asks the admin image route, then each comes back as stored; the public route still serves only the approved live one", async () => {
     const app = makeApp(world());
     const { campaign: id, creative: art } = await live(app);
     const second = jpegOf(BILLBOARD.width, BILLBOARD.height);
@@ -374,7 +374,7 @@ describe("what the review sees", () => {
     expect((await app.request(`/api/admin/adverts/creatives/${art}/x/image`, { headers: { "x-test-account": ADMIN } })).status).toBe(404);
   });
 
-  test("[R-ADVERT-011] given the adverts switch off, when an admin asks for a pending version's image, then it is still served for review", async () => {
+  test("[advert:changes-return-to-review] given the adverts switch off, when an admin asks for a pending version's image, then it is still served for review", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app)).body.campaign as { id: string }).id;
     const art = ((await creative(app, id)).body.creative as { id: string }).id;
@@ -382,7 +382,7 @@ describe("what the review sees", () => {
     expect((await app.request(`/api/admin/adverts/creatives/${art}/1/image`, { headers: { "x-test-account": ADMIN } })).status).toBe(200);
   });
 
-  test("[R-ADVERT-012] given campaigns in NG and GB, general and restricted, and creatives with and without a link, when the campaigns are listed, then each row and each version carries the checks its approval needs, and approving with exactly those passes", async () => {
+  test("[advert:reviewer-checks-and-records] given campaigns in NG and GB, general and restricted, and creatives with and without a link, when the campaigns are listed, then each row and each version carries the checks its approval needs, and approving with exactly those passes", async () => {
     const app = makeApp(world());
     const ng = ((await campaign(app)).body.campaign as { id: string }).id;
     const gb = ((await campaign(app, { regions: ["GB"], category: "telco" })).body.campaign as { id: string }).id;
@@ -402,7 +402,7 @@ describe("what the review sees", () => {
     for (const each of row(ng)?.creatives ?? []) expect((await call(app, "POST", `/api/admin/adverts/creatives/${each.id}/${String(each.version)}/approve`, { checks: each.checks })).body).toMatchObject({ ok: true });
   });
 
-  test("[R-ADVERT-020] given a campaign's counts over two days, when the campaigns are listed, then its row carries the daily counts per slot and region, and a campaign with none carries none", async () => {
+  test("[advert:advertiser-records-stored] given a campaign's counts over two days, when the campaigns are listed, then its row carries the daily counts per slot and region, and a campaign with none carries none", async () => {
     const deps = world();
     const app = makeApp(deps);
     const { campaign: id } = await live(app);
@@ -421,23 +421,23 @@ describe("what the review sees", () => {
 });
 
 describe("categories, regions and places", () => {
-  test("[R-ADVERT-008] given a campaign for a region not in the table, when it is entered, then it is refused", async () => {
+  test("[advert:campaign-chosen-without-player-data] given a campaign for a region not in the table, when it is entered, then it is refused", async () => {
     const app = makeApp(world());
     const reply = await campaign(app, { regions: ["NG", "XX"] });
     expect(reply.status).toBe(422);
-    expect(reply.body.refusals).toEqual(["XX is not a region of the table (R-ADVERT-021)."]);
+    expect(reply.body.refusals).toEqual(["XX is not a region of the table (advert:advertisers-get-daily-counts-only)."]);
     expect((await campaign(app, { regions: ["unknown"] })).status).toBe(422);
     expect((await campaign(app, { regions: ["FR", "default"] })).status).toBe(200);
   });
 
-  test("[R-ADVERT-016] given a restricted category, when its campaign is approved without its conditions recorded, then it is not; with them it is", async () => {
+  test("[advert:restricted-categories-need-conditions] given a restricted category, when its campaign is approved without its conditions recorded, then it is not; with them it is", async () => {
     const app = makeApp(world());
     const id = ((await campaign(app, { category: "telco" })).body.campaign as { id: string }).id;
     expect((await call(app, "POST", `/api/admin/adverts/campaigns/${id}/approve`, { checks: NG_CHECKS })).body).toMatchObject({ missing: ["no-prize-or-promo"] });
     expect((await call(app, "POST", `/api/admin/adverts/campaigns/${id}/approve`, { checks: [...NG_CHECKS, "no-prize-or-promo"] })).body).toMatchObject({ ok: true });
   });
 
-  test("[R-ADVERT-017] given a live campaign naming a private place, when the tick is made, then its world carries the real name and sign; before the start it does not, and content never holds it", async () => {
+  test("[advert:real-name-only-by-agreement] given a live campaign naming a private place, when the tick is made, then its world carries the real name and sign; before the start it does not, and content never holds it", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
@@ -452,25 +452,25 @@ describe("categories, regions and places", () => {
     expect(JSON.stringify(content)).not.toContain("Realname Hub");
   });
 
-  test("[R-ADVERT-018] given a place that stages an offer that can be a fraud, when a campaign would name it, then it is refused", async () => {
+  test("[advert:sponsored-place-hosts-no-harm] given a place that stages an offer that can be a fraud, when a campaign would name it, then it is refused", async () => {
     const app = makeApp(world());
     const reply = await campaign(app, { category: "named-place", place: { place: "place.agent-office", name: "Real Agents", sign: "REAL AGENTS" } });
-    expect(reply.body.refusals).toEqual(["place.agent-office stages offer.held-funds-agent, offer.gulf-agent, which can be a fraud, and a named place hosts no bad event (R-ADVERT-018)."]);
+    expect(reply.body.refusals).toEqual(["place.agent-office stages offer.held-funds-agent, offer.gulf-agent, which can be a fraud, and a named place hosts no bad event (advert:sponsored-place-hosts-no-harm)."]);
   });
 
-  test("[R-ADVERT-019] given a bank, an embassy, a visa centre, a test centre or a government office, when a campaign would name it, then it is refused", async () => {
+  test("[advert:institutions-never-take-real-names] given a bank, an embassy, a visa centre, a test centre or a government office, when a campaign would name it, then it is refused", async () => {
     const app = makeApp(world());
     const institutions = Object.values(content.place).filter((place) => place.nameKind === "institution");
     expect(institutions.map((place) => place.id)).toEqual(expect.arrayContaining(["place.visa-centre", "place.passport-office", "place.english-test-centre"]));
     for (const place of institutions) {
       const reply = await campaign(app, { category: "named-place", place: { place: place.id, name: "Real Name", sign: "REAL NAME" } });
-      expect(reply.body.refusals).toContain(`${place.id} is an institution and never takes a real name (R-ADVERT-019).`);
+      expect(reply.body.refusals).toContain(`${place.id} is an institution and never takes a real name (advert:institutions-never-take-real-names).`);
     }
   });
 });
 
 describe("what is stored and shared", () => {
-  test("[R-ADVERT-022] [R-ADVERT-020] given counter rows from one batch, when they arrive, then the advert rows add to the day's totals for the campaign that slot showed, keyed by nothing but day, slot, campaign and region", async () => {
+  test("[advert:impression-counted-when-seen] [advert:advertiser-records-stored] given counter rows from one batch, when they arrive, then the advert rows add to the day's totals for the campaign that slot showed, keyed by nothing but day, slot, campaign and region", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
@@ -488,7 +488,7 @@ describe("what is stored and shared", () => {
     expect(await deps.stores.adverts.counts(id)).toEqual([{ day, slot: "advert.road-billboard", campaign: id, region: "NG", impressions: 5, taps: 1 }]);
   });
 
-  test("[R-ADVERT-021] given a campaign's counts, when the advertiser's report is read, then it holds the daily counts and nothing about any player", async () => {
+  test("[advert:advertisers-get-daily-counts-only] given a campaign's counts, when the advertiser's report is read, then it holds the daily counts and nothing about any player", async () => {
     const deps = world();
     const app = makeApp(deps);
     const { campaign: id } = await live(app);
@@ -511,7 +511,7 @@ describe("what one account can add to a campaign's day", () => {
     return deps.stores.adverts.counts(id).then((rows) => rows.map(({ day, slot, impressions, taps }) => ({ day, slot, impressions, taps })));
   }
 
-  test("[R-ADVERT-020] given one account, when its impressions and taps on a slot reach the day's allowance exactly, then all count; past it the batch is accepted and the rest is dropped", async () => {
+  test("[advert:advertiser-records-stored] given one account, when its impressions and taps on a slot reach the day's allowance exactly, then all count; past it the batch is accepted and the rest is dropped", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
@@ -529,7 +529,7 @@ describe("what one account can add to a campaign's day", () => {
     expect(await totals(deps, id)).toEqual([{ day, slot: "advert.road-billboard", impressions, taps }]);
   });
 
-  test("[R-ADVERT-020] given a row that crosses the allowance, when it arrives, then only the part within it counts, while another account, another slot and the next day each start afresh", async () => {
+  test("[advert:advertiser-records-stored] given a row that crosses the allowance, when it arrives, then only the part within it counts, while another account, another slot and the next day each start afresh", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
@@ -555,7 +555,7 @@ describe("what one account can add to a campaign's day", () => {
 });
 
 describe("the wiring to the admin log and the counters", () => {
-  test("[R-MODERATION-015] [R-ADVERT-012] [R-ADVERT-014] given a campaign approved, a creative approved, another refused and the campaign pulled, when the admin log is read, then each decision is there once with the admin, the time and the item", async () => {
+  test("[moderation:admin-actions-logged-append-only] [advert:reviewer-checks-and-records] [advert:reported-advert-pulled-at-once] given a campaign approved, a creative approved, another refused and the campaign pulled, when the admin log is read, then each decision is there once with the admin, the time and the item", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);
@@ -573,7 +573,7 @@ describe("the wiring to the admin log and the counters", () => {
     expect(await deps.stores.moderationLog.list({ item: "missing" })).toEqual([]);
   });
 
-  test("[R-ADVERT-020] [R-ANALYTICS-002] given a live campaign, when a player's batch holds advert rows, then POST /api/counters adds them to the campaign's day and to the interface counters, and an account with usage counts off adds neither", async () => {
+  test("[advert:advertiser-records-stored] [analytics:client-sends-interface-counts] given a live campaign, when a player's batch holds advert rows, then POST /api/counters adds them to the campaign's day and to the interface counters, and an account with usage counts off adds neither", async () => {
     const deps = world();
     const app = makeApp(deps);
     const { campaign: id } = await live(app);
@@ -591,7 +591,7 @@ describe("the wiring to the admin log and the counters", () => {
 });
 
 describe("the slots and images through the cache", () => {
-  test("[R-ADVERT-008] [R-ADVERT-014] [R-SERVER-039] given caches.default and a live campaign, when the slots are asked for twice within five minutes from one region, then the campaigns are read once and both replies are the same, the browser told to keep them to the hour's end; another region, five minutes on and the next hour are read again", async () => {
+  test("[advert:campaign-chosen-without-player-data] [advert:reported-advert-pulled-at-once] [server:public-replies-cached] given caches.default and a live campaign, when the slots are asked for twice within five minutes from one region, then the campaigns are read once and both replies are the same, the browser told to keep them to the hour's end; another region, five minutes on and the next hour are read again", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const { campaign: id } = await live(makeApp(deps));
@@ -626,7 +626,7 @@ describe("the slots and images through the cache", () => {
     expect(reads).toHaveBeenCalledTimes(4);
   });
 
-  test("[R-SERVER-031] [R-SERVER-039] given slots kept in the cache, when the adverts switch goes off, then nothing is served and the cache is not asked; back on, the kept reply is served again", async () => {
+  test("[server:four-off-switches] [server:public-replies-cached] given slots kept in the cache, when the adverts switch goes off, then nothing is served and the cache is not asked; back on, the kept reply is served again", async () => {
     const deps = world();
     await live(makeApp(deps));
     const edge = fakeEdge();
@@ -641,7 +641,7 @@ describe("the slots and images through the cache", () => {
     expect(await (await route.request("/api/adverts?region=NG")).text()).toBe(kept);
   });
 
-  test("[R-ADVERT-013] [R-ADVERT-014] [R-SERVER-039] given an approved image, when it is fetched twice within five minutes, then its bytes are read once and come back the same as its format, and five minutes on they are read again; a creative that is not live is 404 each time and never stored", async () => {
+  test("[advert:submissions-never-auto-post] [advert:reported-advert-pulled-at-once] [server:public-replies-cached] given an approved image, when it is fetched twice within five minutes, then its bytes are read once and come back the same as its format, and five minutes on they are read again; a creative that is not live is 404 each time and never stored", async () => {
     const clock = { at: EPOCH };
     const deps = world(clock);
     const app = makeApp(deps);

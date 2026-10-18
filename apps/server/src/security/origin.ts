@@ -1,5 +1,5 @@
-// R-SERVER-035: writes come from the game's own page. The session
-// cookie is `SameSite=Lax` (R-ACCOUNT-006), which stops another site's form,
+// server:same-origin-writes-only: writes come from the game's own page. The session
+// cookie is `SameSite=Lax` (account:session-is-secure-cookie), which stops another site's form,
 // but not a page on another part of the same site, such as another subdomain.
 // So a request that changes something and names an origin must name the
 // game's own. A request that names none is not a browser's on another site's

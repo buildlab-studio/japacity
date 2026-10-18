@@ -1,5 +1,5 @@
 /// <reference types="node" />
-// `pnpm snapshot:all` (R-SERVER-047), run by Node through tsx and never part
+// `pnpm snapshot:all` (server:snapshot-before-deploy), run by Node through tsx and never part
 // of the Worker, on the database at DATABASE_URL_UNPOOLED.
 import { databaseFrom } from "./database";
 import { snapshotCli } from "./snapshot";

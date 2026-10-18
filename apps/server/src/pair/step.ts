@@ -1,5 +1,5 @@
-// The pair transaction (person.md R-PEOPLE-002, R-PEOPLE-003, pair.md
-// R-PAIR-004, R-PAIR-005): both characters locked in sorted id order, fresh
+// The pair transaction (person:lives-meet-by-authority-command, person:both-lives-step-together, pair.md
+// pair:only-server-writes-record, pair:joint-steps-need-both-sides): both characters locked in sorted id order, fresh
 // facts sent to each life first when the step reads both, the step's
 // authority commands, and the record written with the version it was read at.
 import type { Bond, Command, PairRecord, Rejection, Sender, State, StepResult, World } from "@japacity/sim";
@@ -41,12 +41,12 @@ export function sideLive(lives: readonly Live[], record: PairRecord, at: "a" | "
   const id = record[at];
   if (id === "") return null;
   const live = lives.find((each) => each.id === id);
-  // A life in its prologue or over takes no command but the grant (R-PROLOGUE-001, R-ENGINE-010).
+  // A life in its prologue or over takes no command but the grant (prologue:prologue-life-starts-empty, engine:state-is-plain-data).
   if (live === undefined || live.state.prologue.open || live.state.turn.ended) return null;
   return openBond(live.state, record.id) !== null ? live : null;
 }
 
-/** R-PEOPLE-003: each life with an open bond gets the other's facts as they are now. */
+/** person:both-lives-step-together: each life with an open bond gets the other's facts as they are now. */
 export function sendFacts(turn: Turn, lives: readonly Live[], record: PairRecord, world: World): Rejection | null {
   for (const at of ["a", "b"] as const) {
     const to = sideLive(lives, record, at);
@@ -77,7 +77,7 @@ export type PairOutcome<T> =
   | { kind: "refused"; refusal: Refusal };
 
 /**
- * R-PEOPLE-003, R-PAIR-004: runs `work` for the pair `key` under the locks of
+ * person:both-lives-step-together, pair:only-server-writes-record: runs `work` for the pair `key` under the locks of
  * both characters (or of `ids` when given, for a record not made yet). With
  * `facts`, each life with an open bond first gets the other's fresh facts.
  * Every changed record is written with the version it was read at; a refusal

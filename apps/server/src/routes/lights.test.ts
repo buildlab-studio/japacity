@@ -1,4 +1,4 @@
-// The two lights' counts (docs/rules/account.md R-ACCOUNT-031): made from the
+// The two lights' counts (account:two-lights-and-wink-lines): made from the
 // stored totals, public, rounded, kept in the server's cache by the hour. Home
 // and abroad are the lives being played as the nightly count last found them,
 // and before its first run the lives started and the departures.
@@ -48,35 +48,35 @@ const PLAYING: CounterTotal[] = [
 ];
 
 describe("the counts", () => {
-  test("[R-ACCOUNT-031] given the nightly count of lives has run, then home and abroad are the lives being played on its last day, the whole game's rows alone, a life on the road at home; back is still the returns this month", () => {
+  test("[account:two-lights-and-wink-lines] given the nightly count of lives has run, then home and abroad are the lives being played on its last day, the whole game's rows alone, a life on the road at home; back is still the returns this month", () => {
     // Home 606 and 3 on the road, abroad 84; returned this month 16, as before.
     expect(livesPlaying([...TOTALS, ...PLAYING])).toEqual({ home: 609, abroad: 84 });
     expect(lightsOf({ totals: [...TOTALS, ...PLAYING], monthFrom: "2026-10-01" })).toEqual({ home: 610, abroad: 80, back: 20 });
   });
 
-  test("[R-ACCOUNT-031] given the nightly count found no life, then home and abroad are 0, not the lives ever started", () => {
+  test("[account:two-lights-and-wink-lines] given the nightly count found no life, then home and abroad are 0, not the lives ever started", () => {
     const none = [row("2026-10-03", LIVES_PLAYING, 0, "all", "home"), row("2026-10-03", LIVES_PLAYING, 0, "all", "abroad"), row("2026-10-03", LIVES_PLAYING, 0, "all", "road")];
     expect(lightsOf({ totals: [...TOTALS, ...none], monthFrom: "2026-10-01" })).toEqual({ home: 0, abroad: 0, back: 20 });
   });
 
-  test("[R-ACCOUNT-031] given the stored totals before the nightly count of lives has ever run, then abroad is every departure less every return, home every life started less those abroad, back the returns this month, each the whole game's and rounded to ten only at the end", () => {
+  test("[account:two-lights-and-wink-lines] given the stored totals before the nightly count of lives has ever run, then abroad is every departure less every return, home every life started less those abroad, back the returns this month, each the whole game's and rounded to ten only at the end", () => {
     // Started 1200; departed 166; returned 25, of them 16 this month: abroad 141, home 1059.
     expect(livesPlaying(TOTALS)).toBeNull();
     expect(lightsOf({ totals: TOTALS, monthFrom: "2026-10-01" })).toEqual({ home: 1060, abroad: 140, back: 20 });
   });
 
-  test("[R-ACCOUNT-031] given counts at the edges of a ten, then a count is rounded to the nearest ten, a half up, and never below zero", () => {
+  test("[account:two-lights-and-wink-lines] given counts at the edges of a ten, then a count is rounded to the nearest ten, a half up, and never below zero", () => {
     expect([0, 4, 5, 14, 15, 1059, -3].map(roundToTen)).toEqual([0, 0, 10, 10, 20, 1060, 0]);
   });
 
-  test("[R-ACCOUNT-031] given more returns than departures, then abroad is 0 and home is every life started", () => {
+  test("[account:two-lights-and-wink-lines] given more returns than departures, then abroad is 0 and home is every life started", () => {
     const totals = [row("2026-10-01", LIGHTS_COUNTERS.started, 30), row("2026-10-01", LIGHTS_COUNTERS.returned, 8, "NG", "removed")];
     expect(lightsOf({ totals, monthFrom: "2026-10-01" })).toEqual({ home: 30, abroad: 0, back: 10 });
   });
 });
 
 describe("GET /api/lights", () => {
-  test("[R-ACCOUNT-031] [R-SERVER-039] [R-ANALYTICS-012] given the server's cache, when the lights are asked for twice in an hour by different people, then the counters are read once, the key is the hour alone, the reply is public counts only with no cookie, kept until the hour ends; the next hour is read again", async () => {
+  test("[account:two-lights-and-wink-lines] [server:public-replies-cached] [analytics:admin-stats-for-admins-only] given the server's cache, when the lights are asked for twice in an hour by different people, then the counters are read once, the key is the hour alone, the reply is public counts only with no cookie, kept until the hour ends; the next hour is read again", async () => {
     const edge = fakeEdge();
     vi.stubGlobal("caches", { default: edge });
     const server = testServer();
@@ -105,7 +105,7 @@ describe("GET /api/lights", () => {
     expect(reads).toHaveBeenCalledTimes(2);
   });
 
-  test("[R-ACCOUNT-031] [R-ANALYTICS-012] given the route before the nightly count of lives and after its first run at 00:00, when the lights are asked for in each hour, then the reply falls back to the lives started until the count has run, then holds the lives being played, rounded to ten, in the same shape", async () => {
+  test("[account:two-lights-and-wink-lines] [analytics:admin-stats-for-admins-only] given the route before the nightly count of lives and after its first run at 00:00, when the lights are asked for in each hour, then the reply falls back to the lives started until the count has run, then holds the lives being played, rounded to ten, in the same shape", async () => {
     vi.stubGlobal("caches", { default: fakeEdge() });
     const server = testServer();
     await server.deps.stores.counters.add(TOTALS);
@@ -145,7 +145,7 @@ describe("GET /api/lights", () => {
     expect(Object.keys(after.body).sort()).toEqual(Object.keys(before.body).sort());
   });
 
-  test("[R-ACCOUNT-031] [R-SERVER-026] given an address at the anonymous limit, when it asks once more, signed in or not, then it is refused 429 before any counter is read, and another address is answered", async () => {
+  test("[account:two-lights-and-wink-lines] [server:anonymous-limit-by-address] given an address at the anonymous limit, when it asks once more, signed in or not, then it is refused 429 before any counter is read, and another address is answered", async () => {
     const config = testConfig({ testing: { testLogin: true }, limits: { anonPer60s: 2 } });
     const server = testServer({ config, now: () => epoch, limits: memoryLimiters(config.limits, () => epoch) });
     const reads = vi.spyOn(server.deps.stores.counters, "days");

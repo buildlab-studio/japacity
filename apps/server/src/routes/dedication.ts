@@ -1,14 +1,14 @@
-// The dedication's lights (docs/rules/server.md R-SERVER-045; account.md R-ACCOUNT-032 and R-ACCOUNT-033;
-// moderation.md R-MODERATION-021 for the approval):
+// The dedication's lights (server:dedication-routes; account:dedication-page-and-its-doors and account:name-a-light-for-yours;
+// moderation:dedication-lights-await-approval for the approval):
 //
 // GET    /api/dedication/lights  { count, lights, mine? }: the shared part from the server's cache, `mine` read fresh
 // PUT    /api/dedication/light   { name, from?, to? }: lights the account's one light, checked by content's checkLight
 // DELETE /api/dedication/light   puts it out
 //
 // The shared part is the same for everyone: the whole count and at most 240 lights, each with an opaque id and, only
-// once approved, its name and years. It is kept in the server's cache (R-SERVER-039) in five-minute windows and let go
+// once approved, its name and years. It is kept in the server's cache (server:public-replies-cached) in five-minute windows and let go
 // at once when a light is lit, put out, approved or refused, so every account sees a new light straight away. A reply
-// with `mine` differs for each account, so nothing here is kept by the browser. The counts route of R-ACCOUNT-031 is
+// with `mine` differs for each account, so nothing here is kept by the browser. The counts route of account:two-lights-and-wink-lines is
 // `/api/lights` and is not this one.
 import type { DedicationReply, LitReply, MyLight, ServerRejection, SharedLight } from "@japacity/api";
 import { checkSentLight, type LightProblem } from "@japacity/content";
@@ -28,13 +28,13 @@ import { keepNone } from "./reply";
 export const DEDICATION_LIGHTS_PATH = "/api/dedication/lights";
 export const DEDICATION_LIGHT_PATH = "/api/dedication/light";
 
-/** R-SERVER-045: the most lights a reply lists; the count is every light whatever is listed. */
+/** server:dedication-routes: the most lights a reply lists; the count is every light whatever is listed. */
 export const DEDICATION_MOST = 240;
 
-/** R-SERVER-045: how long the server's cache keeps the shared part. */
+/** server:dedication-routes: how long the server's cache keeps the shared part. */
 export const DEDICATION_KEPT_MS = 5 * time.MINUTE_MS;
 
-/** R-SERVER-045: a light refused by the shared check, with what is wrong. */
+/** server:dedication-routes: a light refused by the shared check, with what is wrong. */
 export interface BadLight extends ServerRejection {
   code: "bad-light";
   problems: LightProblem[];
@@ -105,7 +105,7 @@ export function dedicationRoutes(deps: ServerDeps, edge: EdgeCache | null = edge
 
   route.put(DEDICATION_LIGHT_PATH, limit(deps, "commands"), async (c) => {
     const session = sessionOf(c);
-    // The light is kept with the account (R-ACCOUNT-033), so a session with no account behind it has nowhere to keep one.
+    // The light is kept with the account (account:name-a-light-for-yours), so a session with no account behind it has nowhere to keep one.
     if (session === null || (await deps.stores.account.get(session.account)) === null) return personal(c, SIGNED_OUT, 401);
     const sent: unknown = await c.req.json<unknown>().catch(() => null);
     const now = deps.now();
@@ -131,7 +131,7 @@ export function dedicationRoutes(deps: ServerDeps, edge: EdgeCache | null = edge
   return route;
 }
 
-/** For the admin's routes (R-MODERATION-021): the shared part's kept copy let go after an approval or a refusal. */
+/** For the admin's routes (moderation:dedication-lights-await-approval): the shared part's kept copy let go after an approval or a refusal. */
 export function forgetSharedLights(edge: EdgeCache | null, origin: string, now: number): Promise<void> {
   return forgetKept(edge, sharedKey(origin, now));
 }

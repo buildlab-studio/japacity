@@ -1,7 +1,6 @@
 // Carrying one life's accepted command into the record and the other life
-// (person.md R-PEOPLE-002, R-PEOPLE-003, R-PEOPLE-014, R-PEOPLE-016,
-// R-PEOPLE-043; pair.md R-PAIR-004, R-PAIR-005; interview.md R-INTERVIEW-001,
-// 004, 006), in the same transaction. Only a player's or a stand-in's
+// (person:lives-meet-by-authority-command, person:both-lives-step-together, person:time-together-is-an-act, person:proposing-a-step,
+// person:stand-in-after-absence; pair:only-server-writes-record, pair:joint-steps-need-both-sides; interview:partner-application-opens-interview, interview:answers-taken-in-order, interview:answers-scored-without-draw), in the same transaction. Only a player's or a stand-in's
 // command is carried; the authority's own commands are the carrying.
 import type { BaseEvent, Id, InterviewResult, Moment, PairRecord, Proposal, Rejection, Sender, State } from "@japacity/sim";
 import { agreed, factsOf, flip, mirror, side, stableJson } from "@japacity/sim";
@@ -67,14 +66,14 @@ function nextN(state: State, pair: string): number {
   return ns.length === 0 ? 1 : Math.max(...ns) + 1;
 }
 
-/** R-PEOPLE-014, R-PEOPLE-015: a moment sent into a life, numbered after its own. */
+/** person:time-together-is-an-act, person:talking-adds-moments: a moment sent into a life, numbered after its own. */
 export function momentInto(scope: Scope, to: Live, pair: string, moment: Omit<Moment, "n">): Rejection | null {
   const sent = sendTo(scope.turn, to, { type: "people/moments", pair, moments: [{ ...moment, n: nextN(to.state, pair) }] });
   return sent.ok ? null : sent;
 }
 
 /**
- * R-PAIR-005, R-PEOPLE-003: when both sides hold the same step, each life
+ * pair:joint-steps-need-both-sides, person:both-lives-step-together: when both sides hold the same step, each life
  * gets the other's fresh facts, then `people/agreed` in its own terms, and
  * the record clears both proposals. A wedding's moment is the one side a's
  * life staged.
@@ -107,7 +106,7 @@ function agreeBoth(scope: Scope, pair: string): Rejection | null {
   return null;
 }
 
-/** R-INTERVIEW-006: both sets of answers in, each life gets the other's and works out the same result. */
+/** interview:answers-scored-without-draw: both sets of answers in, each life gets the other's and works out the same result. */
 function scoreBoth(scope: Scope, pair: string): Rejection | null {
   const record = scope.book.get(pair);
   const interview = record?.interview ?? null;
@@ -139,7 +138,7 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
   };
   switch (event.type) {
     case "people/courted":
-      // Lifting a block or an end restores nothing: a new invite relinks the pair (R-PAIR-015).
+      // Lifting a block or an end restores nothing: a new invite relinks the pair (pair:block-ends-every-bond).
       if (record.ended !== null) return reject("not-legal", "This pair has ended. A new invite is needed to court again.");
       scope.book.write(pair, mine, { type: "pair/courted", tick });
       return null;
@@ -155,10 +154,10 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
     }
     case "people/answered":
       scope.book.write(pair, mine, { type: "pair/answered", step: event.step, yes: event.yes });
-      // R-PEOPLE-034, decision 0020: a no reaches the proposer's life as people/declined.
+      // person:family-requests-shared, decision 0020: a no reaches the proposer's life as people/declined.
       return event.yes ? agreeBoth(scope, pair) : send({ type: "people/declined", pair, step: event.step });
     case "people/withdrawn": {
-      // R-PEOPLE-034, decision 0020: the other life's waiting proposal is withdrawn too.
+      // person:family-requests-shared, decision 0020: the other life's waiting proposal is withdrawn too.
       const step = record.pending[mine]?.step ?? null;
       scope.book.write(pair, mine, { type: "pair/withdrawn" });
       return step === null ? null : send({ type: "people/withdrawn", pair, step });
@@ -178,7 +177,7 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
       }
       return null;
     case "people/gossip-spread":
-      // R-PEOPLE-041: the partner hears, never with whom.
+      // person:gossip-when-two-timing: the partner hears, never with whom.
       return send({ type: "people/gossip", pair });
     case "interview/opened":
       scope.book.write(pair, mine, { type: "pair/interview-opened", route: event.route, questions: event.questions });
@@ -196,11 +195,11 @@ function carryOne(scope: Scope, live: Live, record: PairRecord, event: Carried, 
   }
 }
 
-/** The slot a life made from a sibling invite holds for the inviter (R-PEOPLE-011, person.family.ts). */
+/** The slot a life made from a sibling invite holds for the inviter (person:real-sibling-shares-family-draw, person.family.ts). */
 const INVITER_SLOT = "sibling-1";
 
 /**
- * R-PEOPLE-011, decision 0020: a life made with the inviter's family waits
+ * person:real-sibling-shares-family-draw, decision 0020: a life made with the inviter's family waits
  * with its first sibling slot as an invited card. The simulation refuses
  * `people/link` while the prologue is open, so the link is sent the moment
  * the prologue closes, with the inviter's facts.
@@ -219,7 +218,7 @@ function siblingLink(scope: Scope, live: Live, before: State): Rejection | null 
 }
 
 /**
- * R-PAIR-004, R-PEOPLE-002, R-PEOPLE-003, R-PEOPLE-043: what one accepted
+ * pair:only-server-writes-record, person:lives-meet-by-authority-command, person:both-lives-step-together, person:stand-in-after-absence: what one accepted
  * command of `live` (from its player or its stand-in) does to every record
  * it shares and every other life. Then, if its facts changed, each bonded
  * life gets them; and a player's own command clears a stand-in on its side.
@@ -232,7 +231,7 @@ export function carry(scope: Scope, live: Live, before: State, events: readonly 
     const carried = event as unknown as Carried;
     const pair = pairOf(live.state, carried);
     const record = pair === null ? null : scope.book.get(pair);
-    // Only an ended record is left out of the locks; lifting an end restores nothing (R-PAIR-015).
+    // Only an ended record is left out of the locks; lifting an end restores nothing (pair:block-ends-every-bond).
     if (pair !== null && record === null && carried.type === "people/courted") return reject("not-legal", "This pair has ended. A new invite is needed to court again.");
     if (record === null || (record.a !== live.id && record.b !== live.id)) continue;
     const failed = carryOne(scope, live, record, carried, forFacts);
@@ -268,7 +267,7 @@ export function carry(scope: Scope, live: Live, before: State, events: readonly 
   return null;
 }
 
-/** R-PEOPLE-002: the characters bonded with `character` through a record still open, so a command of its own can reach them in one transaction. */
+/** person:lives-meet-by-authority-command: the characters bonded with `character` through a record still open, so a command of its own can reach them in one transaction. */
 export async function bondedWith(deps: ServerDeps, character: string): Promise<string[]> {
   const others: string[] = [];
   for (const key of await deps.stores.invite.pairsOf(character)) {

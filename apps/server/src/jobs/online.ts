@@ -1,4 +1,4 @@
-// R-ANALYTICS-013: online now and the day's peak. Online now is
+// analytics:session-split-by-command-gaps: online now and the day's peak. Online now is
 // one query over the command log: the accounts whose player sent an accepted
 // command in the last `ONLINE_MINUTES`, by region; no table holds it. The
 // five-minute tick samples it and keeps each region's highest sample of the

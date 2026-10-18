@@ -8,11 +8,11 @@ import type { Seen } from "./place.today";
 
 /** What the place object reads from its bindings. */
 export interface PlaceEnv {
-  /** R-SERVER-027: the rate-limit binding for socket messages. */
+  /** server:noisy-socket-closed: the rate-limit binding for socket messages. */
   SOCKET_10S: RateLimit;
 }
 
-/** R-CLOCK-026, R-CLOCK-029, R-CITY-036: the limits the router sends with each socket, from the server's config. */
+/** clock:attachments-rebuild-presence, clock:busy-place-splits-rooms, city:players-shown-present-not-tracked: the limits the router sends with each socket, from the server's config. */
 export interface SocketLimits {
   maxPerObject: number;
   attachmentBytes: number;
@@ -24,7 +24,7 @@ export type Attachment =
   | { kind: "member"; socket: string; member: PresenceMember }
   | { kind: "listener"; socket: string; account: string };
 
-/** What a room answers the router: its members, whether the asker is one, a sample, and some seen today (R-CITY-036). */
+/** What a room answers the router: its members, whether the asker is one, a sample, and some seen today (city:players-shown-present-not-tracked). */
 export interface RoomLook {
   members: number;
   holds: boolean;
@@ -40,13 +40,13 @@ export const CLOSE_NORMAL = 1000;
 export const CLOSE_POLICY = 1008;
 /** The object's refusal of a member when the room is full. */
 export const STATUS_FULL = 503;
-/** The refusal of an attachment over `attachmentBytes` (R-CLOCK-026). */
+/** The refusal of an attachment over `attachmentBytes` (clock:attachments-rebuild-presence). */
 export const STATUS_TOO_LARGE = 413;
 
 const ENCODER = new TextEncoder();
 
 /**
- * R-CLOCK-028: the presence nudge's window. The object reads it from the
+ * clock:presence-is-a-sample: the presence nudge's window. The object reads it from the
  * production config because a socket's close reaches the object with no
  * request to carry a test server's number.
  */
@@ -65,7 +65,7 @@ export function parseLimits(raw: string | null): SocketLimits | null {
   }
 }
 
-/** R-CLOCK-026: the size of an attachment as stored. */
+/** clock:attachments-rebuild-presence: the size of an attachment as stored. */
 export function attachmentBytes(attachment: Attachment): number {
   return ENCODER.encode(JSON.stringify(attachment)).length;
 }
@@ -106,7 +106,7 @@ export function tagsFor(attachment: Attachment): string[] {
   return [attachment.kind, `account:${accountOf(attachment)}`, `socket:${attachment.socket}`];
 }
 
-/** R-CLOCK-020: the only text a socket ever carries from the server. */
+/** clock:socket-only-nudges: the only text a socket ever carries from the server. */
 export function nudgeText(nudge: Nudge): string {
   switch (nudge.nudge) {
     case "view":

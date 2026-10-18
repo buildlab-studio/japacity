@@ -11,7 +11,7 @@ function played(of: Content) {
 }
 
 describe("adverts and the simulation", () => {
-  test("[R-ADVERT-007] given the same life played with the slots and with none, when the turns are ended, then the states are identical and hold no advert", () => {
+  test("[advert:adverts-change-no-simulation] given the same life played with the slots and with none, when the turns are ended, then the states are identical and hold no advert", () => {
     const play = (of: Content) => {
       const game = played(of);
       for (let turn = 0; turn < 3; turn += 1) game.endTurn();
@@ -24,7 +24,7 @@ describe("adverts and the simulation", () => {
     expect(typeof withAdverts.view().adverts).toBe("boolean");
   });
 
-  test("[R-ADVERT-003] given a life in its first chapter, when that chapter is marked noAdverts in content, then the view says no advert may show", () => {
+  test("[advert:no-adverts-on-protected-screens] given a life in its first chapter, when that chapter is marked noAdverts in content, then the view says no advert may show", () => {
     const game = played(content);
     const current = game.state.chapter.current;
     expect(game.view().adverts).toBe(true);

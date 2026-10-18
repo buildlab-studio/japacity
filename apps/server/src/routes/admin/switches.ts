@@ -1,5 +1,5 @@
-// The switches and dials on the admin page (docs/rules/server.md R-SERVER-030,
-// R-SERVER-031), and the gates they work through, mounted together before
+// The switches and dials on the admin page (server:private-settings-and-dials,
+// server:four-off-switches), and the gates they work through, mounted together before
 // every other route. As on the rest of the admin page, a session whose
 // account is not in `config.admin.accounts` finds no route here.
 //

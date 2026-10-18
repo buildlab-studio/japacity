@@ -1,5 +1,5 @@
-// Invite links (pair.md R-PAIR-007, R-PAIR-008, R-PAIR-018; person.md
-// R-PEOPLE-010, R-PEOPLE-011): a single-use code for the slot a card names,
+// Invite links (pair:invite-card-contents, pair:invite-link-single-use, pair:everyone-meets-by-invite; person.md
+// person:invite-fills-a-slot, person:real-sibling-shares-family-draw): a single-use code for the slot a card names,
 // the card read by anyone with the link, and the accept that makes the record.
 import type { InviteAccepted, InviteMade, InviteShown } from "@japacity/api";
 import type { Id, InviteCard, PairRecord, ReadCtx, State } from "@japacity/sim";
@@ -20,13 +20,13 @@ import { pairStep, sendTo, unusual } from "./step";
 const CODE_BYTES = 12;
 
 /**
- * R-PAIR-008: a link's refusals answer the 4xx the other routes use, with the refusal in the body: a link taken is a
+ * pair:invite-link-single-use: a link's refusals answer the 4xx the other routes use, with the refusal in the body: a link taken is a
  * conflict (409, as a name taken), a link run out is refused (403, as the age pass that ran out).
  */
 function unusable(failed: "used" | "expired" | "wrong-slot", detail: string): { status: Status; body: PairRejection } {
   return refused(failed === "used" ? 409 : failed === "expired" ? 403 : 200, failed, detail);
 }
-/** R-PEOPLE-008: a partner is an adult with the prologue behind them. */
+/** person:three-ways-to-fill-slots: a partner is an adult with the prologue behind them. */
 const ADULT_MONTHS = 216;
 const AGE: Id<"quality"> = "quality.age-months";
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
@@ -52,7 +52,7 @@ async function stateOf(deps: ServerDeps, character: string): Promise<ReadCtx | n
 }
 
 /**
- * R-PAIR-007, R-PAIR-008: a link for the card the character's `people/invite`
+ * pair:invite-card-contents, pair:invite-link-single-use: a link for the card the character's `people/invite`
  * put out on `slot`. The card's link already out is answered again; a new one
  * needs fewer than `maxOpenInvites` open.
  */
@@ -83,7 +83,7 @@ export async function makeInvite(deps: ServerDeps, account: string, body: unknow
   return { status: 200, body: { ok: true, code, slot, expires, card } };
 }
 
-/** R-PAIR-007: what anyone holding the link sees: the card, never a photo, a sum or a contact. */
+/** pair:invite-card-contents: what anyone holding the link sees: the card, never a photo, a sum or a contact. */
 export async function showInvite(deps: ServerDeps, code: string): Promise<PairAnswer<InviteShown>> {
   const row = await deps.stores.invite.get(code);
   if (row === null) return refused(404, "bad-code", "There is no such link.");
@@ -92,17 +92,17 @@ export async function showInvite(deps: ServerDeps, code: string): Promise<PairAn
   return { status: 200, body: { ok: true, slot: row.slot, looking: row.looking, expires: row.expires, card: row.card as InviteCard } };
 }
 
-/** R-PEOPLE-008: a partner must be an adult whose prologue is over. */
+/** person:three-ways-to-fill-slots: a partner must be an adult whose prologue is over. */
 function adult(state: State): boolean {
   return !state.prologue.open && (state.quality[AGE] ?? 0) >= ADULT_MONTHS;
 }
 
-/** The friend's character for the link: a sibling is always a new life (R-PEOPLE-011); a partner is the friend's own, or a new one in `scenario`. */
+/** The friend's character for the link: a sibling is always a new life (person:real-sibling-shares-family-draw); a partner is the friend's own, or a new one in `scenario`. */
 async function friendFor(deps: ServerDeps, account: string, invite: InviteRow, scenario: string | null): Promise<{ ok: true; character: string } | PairAnswer<never>> {
   const existing = await characterOf(deps, account);
   if (invite.looking === "sibling") {
     if (existing !== null) return refused(409, "one-character", "An existing character never becomes anyone's sibling. A sibling link starts a new life.");
-    // R-PEOPLE-011, decision 0020: the new life takes the inviter's family draw.
+    // person:real-sibling-shares-family-draw, decision 0020: the new life takes the inviter's family draw.
     // An inviter from a fixed scenario, or before its prologue's family step, has no draw; the new life then draws its own and no sibling slot waits for the link.
     const draw = (await stateOf(deps, invite.from))?.state.prologue.draw ?? null;
     const made = await newCharacter(deps, account, PROLOGUE, draw === null ? undefined : { from: invite.from, draw });
@@ -117,7 +117,7 @@ async function friendFor(deps: ServerDeps, account: string, invite: InviteRow, s
   return { ok: true, character };
 }
 
-/** The checks on the two accounts before any life is touched (R-PAIR-008, R-PAIR-015, R-PAIR-018). An inviter whose account is gone is not possible. */
+/** The checks on the two accounts before any life is touched (pair:invite-link-single-use, pair:block-ends-every-bond, pair:everyone-meets-by-invite). An inviter whose account is gone is not possible. */
 async function mayAccept(deps: ServerDeps, account: string, invite: InviteRow): Promise<PairRejection | null> {
   const friend = await deps.stores.account.get(account);
   if (friend === null) return { ok: false, code: "signed-out", detail: "Sign in again to accept." };
@@ -130,7 +130,7 @@ async function mayAccept(deps: ServerDeps, account: string, invite: InviteRow): 
 }
 
 /**
- * R-PAIR-008, R-PEOPLE-010, R-PEOPLE-011: takes the link for the slot it was
+ * pair:invite-link-single-use, person:invite-fills-a-slot, person:real-sibling-shares-family-draw: takes the link for the slot it was
  * made for, after sign-up and the age screen. Both lives are locked in one
  * transaction: the record made at `connected` (or an ended one relinked), the
  * friend's partner slot opened and linked, and `people/link` sent to the
@@ -175,7 +175,7 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
         const linked = sendTo(turn, joining, { type: "people/link", slot: "partner", pair: key, facts: factsOf(inviter.state, inviter.content, turn.world) });
         if (!linked.ok) return linked;
       }
-      // R-PEOPLE-011: a sibling's new life is in its prologue, which refuses the link; carry.ts sends it when the prologue closes.
+      // person:real-sibling-shares-family-draw: a sibling's new life is in its prologue, which refuses the link; carry.ts sends it when the prologue closes.
       const link = sendTo(turn, inviter, { type: "people/link", slot: invite.slot, pair: key, facts: factsOf(joining.state, joining.content, turn.world) });
       if (!link.ok) return link;
       const record = book.get(key);
@@ -202,7 +202,7 @@ export async function acceptInvite(deps: ServerDeps, account: string, code: stri
   }
 }
 
-/** `GET /api/invite`: the character's open links and the rewards its friends have earned it (R-PAIR-009). */
+/** `GET /api/invite`: the character's open links and the rewards its friends have earned it (pair:invite-rewards-never-cash). */
 export interface InvitesListed {
   ok: true;
   open: { code: string; slot: string; expires: number }[];
@@ -219,7 +219,7 @@ export async function listInvites(deps: ServerDeps, account: string): Promise<Pa
     body: {
       ok: true,
       open: open.map((row) => ({ code: row.code, slot: row.slot, expires: row.expires })),
-      // The friend is never named: a reward is a frame and a line (R-PAIR-009).
+      // The friend is never named: a reward is a frame and a line (pair:invite-rewards-never-cash).
       rewards: rewards.map((row) => ({ reached: row.reached, frame: row.frame, line: row.line, at: row.at })),
     },
   };

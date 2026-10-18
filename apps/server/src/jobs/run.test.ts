@@ -1,5 +1,5 @@
-// R-SERVER-043: the scheduled jobs each run alone; a failure is caught, logged
-// with the job's name (R-SERVER-042), and never hides another.
+// server:no-platform-error-page: the scheduled jobs each run alone; a failure is caught, logged
+// with the job's name (server:shared-observability-block), and never hides another.
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { JobsFailed, runJobs } from "./run";
@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("the scheduled run", () => {
-  test("[R-SERVER-043] [R-SERVER-042] given three jobs of which one rejects and one throws before it starts, when they run, then the good one finishes, each failure is logged once with its job's name, and the run's last promise names both", async () => {
+  test("[server:no-platform-error-page] [server:shared-observability-block] given three jobs of which one rejects and one throws before it starts, when they run, then the good one finishes, each failure is logged once with its job's name, and the run's last promise names both", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     // What each kept promise settles as: "ok", or the error it rejects with.
     const kept: Promise<unknown>[] = [];
@@ -44,7 +44,7 @@ describe("the scheduled run", () => {
     expect(await Promise.all(kept)).toEqual(["ok", "ok", "ok", new JobsFailed(["draw", "money"])]);
   });
 
-  test("[R-SERVER-043] given every job succeeding, when they run, then nothing is logged and the run's last promise resolves", async () => {
+  test("[server:no-platform-error-page] given every job succeeding, when they run, then nothing is logged and the run's last promise resolves", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const kept: Promise<unknown>[] = [];
     expect(await runJobs([{ name: "ticks", run: () => Promise.resolve() }], (promise) => kept.push(promise))).toEqual([]);

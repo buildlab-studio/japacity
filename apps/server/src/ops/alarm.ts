@@ -1,4 +1,4 @@
-// The alarm (R-SERVER-012, R-LOTTERY-014): what the money job and a diverged
+// The alarm (server:ledger-alarm-lists-suspects, lottery:money-report-checks-draws): what the money job and a diverged
 // load find, listed for a person to look at. An alarm takes no action. The
 // list is kept in the isolate's memory and in the audit store, so the admin
 // page still shows it after a restart.
@@ -42,7 +42,7 @@ export async function raiseAlarms(deps: Pick<ServerDeps, "stores" | "now">, alar
   }
 }
 
-/** R-SERVER-003: the core calls this when a load's hash differs, so the character is listed for the rollback tool. */
+/** server:log-rows-hash-state: the core calls this when a load's hash differs, so the character is listed for the rollback tool. */
 export async function noteDiverged(deps: Pick<ServerDeps, "stores" | "now">, character: string, v: number): Promise<void> {
   await raiseAlarms(deps, [{ kind: "diverged", day: time.utcDay(deps.now()), character, v }]);
 }

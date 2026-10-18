@@ -1,5 +1,5 @@
 /// <reference types="@cloudflare/vitest-plugin/types" />
-// R-ACCOUNT-021 in the Workers runtime: the sign-in paths hand the library a
+// account:guest-and-secured-states in the Workers runtime: the sign-in paths hand the library a
 // copy of the request without the dead session cookie, and the copy must keep
 // the request's body (the email code, the passkey's answer) as workerd moves it.
 // Here, unlike under Node, the library checks the origin of a write that
@@ -52,7 +52,7 @@ async function opened(h: Harness, jar: Jar): Promise<string | null> {
 }
 
 describe("a dead session cookie on the Workers runtime", () => {
-  test("[R-ACCOUNT-021] given a kept life whose sessions were ended, when the same browser signs in by a code and then by its passkey, then each POST body reaches the library and the kept life opens", async () => {
+  test("[account:guest-and-secured-states] given a kept life whose sessions were ended, when the same browser signs in by a code and then by its passkey, then each POST body reaches the library and the kept life opens", async () => {
     const h = from(harness(), SITE);
     const { jar, account, stale, key } = await keptAndEnded(h);
 
@@ -66,7 +66,7 @@ describe("a dead session cookie on the Workers runtime", () => {
     expect(await opened(h, jar)).toBe(account);
   });
 
-  test("[R-ACCOUNT-021] given a dead session cookie as the only cookie, when another part of the site signs in by a code with it, then the library still refuses the origin and no session is opened", async () => {
+  test("[account:guest-and-secured-states] given a dead session cookie as the only cookie, when another part of the site signs in by a code with it, then the library still refuses the origin and no session is opened", async () => {
     const h = from(harness(), SITE);
     const { jar, stale } = await keptAndEnded(h);
     for (const name of [...jar.cookies.keys()]) if (name !== SESSION) jar.cookies.delete(name);
@@ -77,7 +77,7 @@ describe("a dead session cookie on the Workers runtime", () => {
     expect(jar.cookies.get(SESSION)).toBe(stale);
   });
 
-  test("[R-ACCOUNT-021] given a streamed POST body and a dead session cookie, when the middleware swaps the request, then the next handler reads the whole body and the other cookies, and no session cookie", async () => {
+  test("[account:guest-and-secured-states] given a streamed POST body and a dead session cookie, when the middleware swaps the request, then the next handler reads the whole body and the other cookies, and no session cookie", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     await (await h.auth.$context).internalAdapter.deleteUserSessions(account);

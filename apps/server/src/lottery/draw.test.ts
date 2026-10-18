@@ -134,7 +134,7 @@ async function stateOf(server: TestServer, character: string): Promise<State> {
 }
 
 describe("opening a draw", () => {
-  test("[R-LOTTERY-007] given one secret, when its fingerprint is taken for draws 0, 1 and 2, then each differs and each is the SHA-256 of the secret's bytes followed by the draw as eight bytes", () => {
+  test("[lottery:fingerprint-commits-secret] given one secret, when its fingerprint is taken for draws 0, 1 and 2, then each differs and each is the SHA-256 of the secret's bytes followed by the draw as eight bytes", () => {
     const secret = "11".repeat(SECRET_BYTES);
     const prints = [0, 1, 2].map((draw) => fingerprintOf(secret, draw));
     expect(new Set(prints).size).toBe(3);
@@ -142,14 +142,14 @@ describe("opening a draw", () => {
     expect(prints[1]).toBe(toHex(sha256(joined)));
   });
 
-  test("[R-LOTTERY-007] given secrets of all zeros, all ones and counting bytes, when the fingerprint is taken for draws 0, 1, 255, 256 and the largest safe draw, then no two are equal", () => {
+  test("[lottery:fingerprint-commits-secret] given secrets of all zeros, all ones and counting bytes, when the fingerprint is taken for draws 0, 1, 255, 256 and the largest safe draw, then no two are equal", () => {
     const secrets = ["00".repeat(SECRET_BYTES), "ff".repeat(SECRET_BYTES), toHex(Uint8Array.from({ length: SECRET_BYTES }, (_, index) => index))];
     const draws = [0, 1, 255, 256, Number.MAX_SAFE_INTEGER];
     const prints = secrets.flatMap((secret) => draws.map((draw) => fingerprintOf(secret, draw)));
     expect(new Set(prints).size).toBe(secrets.length * draws.length);
   });
 
-  test("[R-LOTTERY-007] [R-LOTTERY-012] [R-SERVER-015] given the draw job at tick 0, when it runs twice, then draw 0 is stored once with a 256-bit secret, its fingerprint, the first beacon round after the close, the odds and the starting jackpot, draw 1 waits for it, and the world of tick 0 carries all but the secret", async () => {
+  test("[lottery:fingerprint-commits-secret] [lottery:jackpot-rolls-over] [server:secrets-stay-on-server] given the draw job at tick 0, when it runs twice, then draw 0 is stored once with a 256-bit secret, its fingerprint, the first beacon round after the close, the odds and the starting jackpot, draw 1 waits for it, and the world of tick 0 carries all but the secret", async () => {
     const server = testServer();
     const beacon = fakeBeacon();
     await drawJob(server.deps, keysWith(beacon), TICKS_CRON);
@@ -184,7 +184,7 @@ describe("opening a draw", () => {
     expect(page.text).not.toContain(row!.secret);
   });
 
-  test("[R-LOTTERY-007] given a close that falls exactly on a round, when the round after it is asked for, then it is the next round, and a close a millisecond later still gives that round", () => {
+  test("[lottery:fingerprint-commits-secret] given a close that falls exactly on a round, when the round after it is asked for, then it is the next round, and a close a millisecond later still gives that round", () => {
     const beacon = { genesis: QUICKNET_GENESIS_MS, period: QUICKNET_PERIOD_MS };
     const onRound = roundFallsAt(beacon, 500);
     expect(roundAfter(beacon, onRound)).toBe(501);
@@ -193,14 +193,14 @@ describe("opening a draw", () => {
     expect(roundAfter(beacon, onRound + QUICKNET_PERIOD_MS - 1)).toBe(501);
   });
 
-  test("[R-LOTTERY-002] given ticks 0, 13 and 14, when the draw on sale is read, then it is draw 0, draw 0 and draw 1, closing at ticks 14, 14 and 28", () => {
+  test("[lottery:draw-sells-between-ticks] given ticks 0, 13 and 14, when the draw on sale is read, then it is draw 0, draw 0 and draw 1, closing at ticks 14, 14 and 28", () => {
     expect([0, 13, 14].map(drawOn)).toEqual([0, 0, 1]);
     expect([0, 0, 1].map(closesTickOf)).toEqual([14, 14, 28]);
   });
 });
 
 describe("selling", () => {
-  test("[R-LOTTERY-005] [R-LOTTERY-006] given two players buying 2 and then 3 tickets, when the next tick's world is made, then the tickets are numbered in the order bought and the sales so far are the five tickets' price", async () => {
+  test("[lottery:tickets-numbered-by-commit] [lottery:view-shows-draw-state] given two players buying 2 and then 3 tickets, when the next tick's world is made, then the tickets are numbered in the order bought and the sales so far are the five tickets' price", async () => {
     const { server, lives } = await soldDraw(1, 2);
     const second = await newLife(server, "acct-b");
     accepted(await buy(server, "acct-b", second, 3));
@@ -217,7 +217,7 @@ describe("selling", () => {
     expect(world.body.world.lottery?.salesSoFar).toBe(5 * tuning.ticket);
   });
 
-  test("[R-LOTTERY-005] [R-LOTTERY-008] given a list frozen while the world still sells, when a player buys, then the purchase is rejected with not-legal and nothing is written or taken", async () => {
+  test("[lottery:tickets-numbered-by-commit] [lottery:ticket-list-frozen-anonymously] given a list frozen while the world still sells, when a player buys, then the purchase is rejected with not-legal and nothing is written or taken", async () => {
     const { server } = await soldDraw(0, 0);
     const character = await newLife(server, "acct-late");
     const before = await held(server, character);
@@ -231,7 +231,7 @@ describe("selling", () => {
 });
 
 describe("closing, drawing and paying", () => {
-  test("[R-LOTTERY-008] given tickets of three accounts, when the draw closes, then the list holds one 16-hex-digit token per ticket in order, no token holds its account id, an account's tickets share a token, and the hash is of the tokens in order", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] given tickets of three accounts, when the draw closes, then the list holds one 16-hex-digit token per ticket in order, no token holds its account id, an account's tickets share a token, and the hash is of the tokens in order", async () => {
     const { server, keys, lives } = await soldDraw(3, 2);
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
@@ -250,7 +250,7 @@ describe("closing, drawing and paying", () => {
     expect(page.body.result?.listHash).toBe(page.body.listHash);
   });
 
-  test("[R-LOTTERY-008] given account ids of many shapes and draws at the edges, when their tokens are made, then each is 16 hex digits, never contains its account id, and changes with the draw", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] given account ids of many shapes and draws at the edges, when their tokens are made, then each is 16 hex digits, never contains its account id, and changes with the draw", async () => {
     const accounts = ["acct-0", "abcdef", "0123456789abcdef", "deadbeefdeadbeef", "a1b2c3d4-e5f6-4789-8abc-def012345678", "user@example.test"];
     for (const account of accounts) {
       for (const draw of [0, 1, 9999]) {
@@ -262,11 +262,11 @@ describe("closing, drawing and paying", () => {
     }
   });
 
-  test("[R-LOTTERY-008] given no token key, when a token is made, then it is refused rather than made under an empty key", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] given no token key, when a token is made, then it is refused rather than made under an empty key", async () => {
     await expect(tokenOf("", "acct-0", 0)).rejects.toThrow(/token key/);
   });
 
-  test("[R-LOTTERY-009] [R-LOTTERY-010] [R-LOTTERY-015] given a drawn draw, when its page is read, then the seed is recomputed from the published secret, list hash and beacon randomness, the secret matches the fingerprint, and the winners equal drawResults on that seed at the published odds and jackpot", async () => {
+  test("[lottery:seed-from-secret-and-beacon] [lottery:ticket-result-is-public-function] [lottery:result-published-in-tick-row] given a drawn draw, when its page is read, then the seed is recomputed from the published secret, list hash and beacon randomness, the secret matches the fingerprint, and the winners equal drawResults on that seed at the published odds and jackpot", async () => {
     const { server, keys, beacon } = await soldDraw(4, 5, GENEROUS);
     server.setNow(during(14));
     const run = await drawJob(server.deps, keys, TICKS_CRON);
@@ -286,7 +286,7 @@ describe("closing, drawing and paying", () => {
     expect(result.nextJackpot).toBe(rollJackpot(result.jackpot, 20 * tuning.ticket, jackpotHit(result.winners), result.odds));
   });
 
-  test("[R-LOTTERY-011] [R-LOTTERY-013] given twenty tickets under odds that pay often, when the draw is paid, then every winning ticket is paid its tier's amount as win to its own player once, and nothing else is credited", async () => {
+  test("[lottery:fixed-prizes-shared-jackpot] [lottery:winners-paid-by-authority] given twenty tickets under odds that pay often, when the draw is paid, then every winning ticket is paid its tier's amount as win to its own player once, and nothing else is credited", async () => {
     const { server, keys, lives } = await soldDraw(4, 5, GENEROUS);
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
@@ -306,7 +306,7 @@ describe("closing, drawing and paying", () => {
     expect(house).toBe(0);
   });
 
-  test("[R-LOTTERY-011] given three tickets that all hit a jackpot of 10,001 kobo, when the draw is paid, then each is paid 3,333 and the 2 kobo left over are destroyed", async () => {
+  test("[lottery:fixed-prizes-shared-jackpot] given three tickets that all hit a jackpot of 10,001 kobo, when the draw is paid, then each is paid 3,333 and the 2 kobo left over are destroyed", async () => {
     const { server, keys, lives } = await soldDraw(3, 1, ALWAYS);
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
@@ -320,7 +320,7 @@ describe("closing, drawing and paying", () => {
     [25, 8000],
     [5000, 40],
   ])(
-    "[R-LOTTERY-011] [R-LOTTERY-022] given %i tickets sold, when the server draws them under %i seeds at the starting jackpot and at the cap, then a ticket is paid on average under its price",
+    "[lottery:fixed-prizes-shared-jackpot] [lottery:expected-return-below-price] given %i tickets sold, when the server draws them under %i seeds at the starting jackpot and at the cap, then a ticket is paid on average under its price",
     async (count, seeds) => {
       const server = testServer();
       const row = (await openDraw(server.deps, fakeBeacon(), 0))!;
@@ -338,7 +338,7 @@ describe("closing, drawing and paying", () => {
     60_000,
   );
 
-  test("[R-LOTTERY-013] [R-LOTTERY-015] given a draw paid by one run, when the job runs again, then nobody is paid twice and the stored result is unchanged", async () => {
+  test("[lottery:winners-paid-by-authority] [lottery:result-published-in-tick-row] given a draw paid by one run, when the job runs again, then nobody is paid twice and the stored result is unchanged", async () => {
     const { server, keys, lives } = await soldDraw(3, 5);
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
@@ -351,7 +351,7 @@ describe("closing, drawing and paying", () => {
     expect(await closeDraw(server.deps, keys, 0)).toEqual({ kind: "drawn", result });
   });
 
-  test("[R-LOTTERY-013] given a winner already paid when a run stopped before the result was stored, when the draw is closed again, then the kind refuses the second payment and the draw is published with that winner paid once", async () => {
+  test("[lottery:winners-paid-by-authority] given a winner already paid when a run stopped before the result was stored, when the draw is closed again, then the kind refuses the second payment and the draw is published with that winner paid once", async () => {
     const { server, keys, lives } = await soldDraw(1, 5, ALWAYS);
     server.setNow(during(14));
     const character = lives[0]!.character;
@@ -362,7 +362,7 @@ describe("closing, drawing and paying", () => {
     expect(await pays(server, character)).toHaveLength(1);
   });
 
-  test("[R-LOTTERY-008] [R-LOTTERY-009] given the beacon cannot be read at the close, when the job runs, then the draw stays without a result, nobody is paid and the next draw does not open, and the next run with the beacon back draws and pays it and opens the next", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] [lottery:seed-from-secret-and-beacon] given the beacon cannot be read at the close, when the job runs, then the draw stays without a result, nobody is paid and the next draw does not open, and the next run with the beacon back draws and pays it and opens the next", async () => {
     const { server, keys, beacon, lives } = await soldDraw(2, 3, GENEROUS);
     server.setNow(during(14));
     beacon.down = true;
@@ -386,7 +386,7 @@ describe("closing, drawing and paying", () => {
     expect((await wallets(server, lives)).won).toBe(prizesOwed((await server.deps.stores.world.draw(0))!.result!.winners));
   });
 
-  test("[R-LOTTERY-008] given a draw still on sale, when it is closed, then it waits and nothing is frozen", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] given a draw still on sale, when it is closed, then it waits and nothing is frozen", async () => {
     const { server, keys } = await soldDraw(1, 1);
     server.setNow(during(13));
     expect(await closeDraw(server.deps, keys, 0)).toMatchObject({ kind: "waiting" });
@@ -395,7 +395,7 @@ describe("closing, drawing and paying", () => {
 });
 
 describe("telling", () => {
-  test("[R-LOTTERY-015] [R-LOTTERY-012] given draw 0 drawn during tick 14, after that tick's row was made, when the world of tick 15 is fetched, then it sells draw 1 with the jackpot draw 0 left, and its last result is draw 0's", async () => {
+  test("[lottery:result-published-in-tick-row] [lottery:jackpot-rolls-over] given draw 0 drawn during tick 14, after that tick's row was made, when the world of tick 15 is fetched, then it sells draw 1 with the jackpot draw 0 left, and its last result is draw 0's", async () => {
     const { server, keys, lives } = await soldDraw(2, 2);
     server.setNow(during(14));
     await drawJob(server.deps, keys, TICKS_CRON);
@@ -410,7 +410,7 @@ describe("telling", () => {
     accepted(await buy(server, lives[0]!.account, lives[0]!.character, 1));
   });
 
-  test("[R-LOTTERY-012] given a draw nobody hit and then one every ticket hit, when each next draw opens, then the first rolls over by a tenth of the sales and the second starts again", async () => {
+  test("[lottery:jackpot-rolls-over] given a draw nobody hit and then one every ticket hit, when each next draw opens, then the first rolls over by a tenth of the sales and the second starts again", async () => {
     const { server, keys, lives } = await soldDraw(2, 5);
     const hitting: LotteryOdds = { ...odds, smallPerMillion: 0, midPerMillion: 0, jackpotPerMillion: 1_000_000 };
     server.deps.contents.current = withOdds(hitting);
@@ -434,7 +434,7 @@ describe("telling", () => {
     expect((await server.deps.stores.world.draw(2))!.jackpot).toBe(odds.jackpotStart);
   });
 
-  test("[R-LOTTERY-017] [R-CLOCK-020] given a winner online and one away, when the draw is paid, then the online one is nudged with its new version and the away one's payment waits in its log", async () => {
+  test("[lottery:payment-waits-for-away-player] [clock:socket-only-nudges] given a winner online and one away, when the draw is paid, then the online one is nudged with its new version and the away one's payment waits in its log", async () => {
     const { server, keys, lives } = await soldDraw(2, 5, ALWAYS);
     const nudges: Nudge[] = [];
     const stop = server.deps.stores.nudges.subscribe(lives[0]!.account, (nudge) => nudges.push(nudge));
@@ -448,7 +448,7 @@ describe("telling", () => {
 });
 
 describe("what the players see of a paid draw", () => {
-  test("[R-LOTTERY-013] [R-LOTTERY-017] [R-SERVER-019] given a winner away while the draw was paid, when they come back and fetch the view since the version they last held, then the reply carries the letter; without since, or since the paid version, it carries no lines", async () => {
+  test("[lottery:winners-paid-by-authority] [lottery:payment-waits-for-away-player] [server:client-never-predicts] given a winner away while the draw was paid, when they come back and fetch the view since the version they last held, then the reply carries the letter; without since, or since the paid version, it carries no lines", async () => {
     const { server, keys, lives } = await soldDraw(2, 5, ALWAYS);
     const away = lives[1]!;
     const before = (await held(server, away.character)).character.v;
@@ -467,7 +467,7 @@ describe("what the players see of a paid draw", () => {
     expect((await call<ViewReply>(server, "GET", "/api/view?since=-1", away.account)).status).toBe(400);
   });
 
-  test("[R-LOTTERY-005] given two players' tickets numbered 0 to 4 and 5 to 9, when the view is read while the draw sells and after it closes, then the numbers are hidden while it sells and each sees only their own after", async () => {
+  test("[lottery:tickets-numbered-by-commit] given two players' tickets numbered 0 to 4 and 5 to 9, when the view is read while the draw sells and after it closes, then the numbers are hidden while it sells and each sees only their own after", async () => {
     const { server, keys, lives } = await soldDraw(2, 5);
     const selling = await call<ViewReply>(server, "GET", "/api/view", lives[0]!.account);
     expect(selling.body.ok && selling.body.view.lottery?.numbers).toBeNull();
@@ -483,7 +483,7 @@ describe("what the players see of a paid draw", () => {
 });
 
 describe("the beacon over HTTP", () => {
-  test("[R-LOTTERY-007] [R-LOTTERY-009] given drand's answer for quicknet round 42, when its randomness is read, then it is the SHA-256 of the signature, the value drand's v1 API publishes", async () => {
+  test("[lottery:fingerprint-commits-secret] [lottery:seed-from-secret-and-beacon] given drand's answer for quicknet round 42, when its randomness is read, then it is the SHA-256 of the signature, the value drand's v1 API publishes", async () => {
     const asked: string[] = [];
     const fetcher = ((url: string) => {
       asked.push(url);
@@ -493,7 +493,7 @@ describe("the beacon over HTTP", () => {
     expect(asked).toEqual(["https://api.drand.sh/v2/beacons/quicknet/rounds/42"]);
   });
 
-  test("[R-LOTTERY-009] given a relay that fails, answers another round or is unreachable, when the randomness is read, then it is null", async () => {
+  test("[lottery:seed-from-secret-and-beacon] given a relay that fails, answers another round or is unreachable, when the randomness is read, then it is null", async () => {
     const answers = [new Response("not found", { status: 404 }), new Response(JSON.stringify({ round: 41, signature: "00" }))];
     const fetcher = (() => {
       const next = answers.shift();
@@ -507,13 +507,13 @@ describe("the beacon over HTTP", () => {
 });
 
 describe("the draw page", () => {
-  test("[R-LOTTERY-015] given no such draw or a number that is not one, when the page is asked for, then it answers 404 and 400", async () => {
+  test("[lottery:result-published-in-tick-row] given no such draw or a number that is not one, when the page is asked for, then it answers 404 and 400", async () => {
     const server = testServer();
     expect((await drawPage(server, 3)).status).toBe(404);
     expect((await drawPage(server, "x1")).status).toBe(400);
   });
 
-  test("[R-LOTTERY-007] given draw 0 on sale, when it is opened by the job with the world's own secret bytes, then the fingerprint is published before any ticket is sold", async () => {
+  test("[lottery:fingerprint-commits-secret] given draw 0 on sale, when it is opened by the job with the world's own secret bytes, then the fingerprint is published before any ticket is sold", async () => {
     const server = testServer();
     const row = (await openDraw(server.deps, fakeBeacon(), 0))!;
     expect(row.closedAt).toBeNull();
@@ -523,7 +523,7 @@ describe("the draw page", () => {
 });
 
 describe("the odds are settings", () => {
-  test("[R-LOTTERY-021] given the settings' odds, when the job opens a draw and the settings change after, then the draw keeps the odds it opened with, the world and the draw page publish them, and the next draw opens with the new ones", async () => {
+  test("[lottery:odds-fixed-at-draw-open] given the settings' odds, when the job opens a draw and the settings change after, then the draw keeps the odds it opened with, the world and the draw page publish them, and the next draw opens with the new ones", async () => {
     const server = testServer({ contents: { current: withOdds(GENEROUS), previous: null } });
     const keys = keysWith(fakeBeacon());
     await drawJob(server.deps, keys, TICKS_CRON);
@@ -539,14 +539,14 @@ describe("the odds are settings", () => {
     expect((await server.deps.stores.world.draw(1))?.odds).toEqual(later);
   });
 
-  test("[R-LOTTERY-021] [R-SERVER-030] given decision 0016, under which the raffle has no top-up, when the job opens a draw, then the draw carries no top-up and the switch row no top-up dial", async () => {
+  test("[lottery:odds-fixed-at-draw-open] [server:private-settings-and-dials] given decision 0016, under which the raffle has no top-up, when the job opens a draw, then the draw carries no top-up and the switch row no top-up dial", async () => {
     const server = testServer();
     await drawJob(server.deps, keysWith(fakeBeacon()), TICKS_CRON);
     expect(Object.keys((await server.deps.stores.world.draw(0)) ?? {})).not.toContain("topUpTickets");
     expect(Object.keys((await server.deps.stores.switches.read()).dials)).not.toContain("topUpTickets");
   });
 
-  test("[R-LOTTERY-012] given a forced win after three draws, when the stored results before a draw are read, then the third draw since a hit is forced and the second is not, and the forced draw pays its jackpot to the ticket whose draw is highest", async () => {
+  test("[lottery:jackpot-rolls-over] given a forced win after three draws, when the stored results before a draw are read, then the third draw since a hit is forced and the second is not, and the forced draw pays its jackpot to the ticket whose draw is highest", async () => {
     const forced: LotteryOdds = { ...odds, forcedWinWeeks: 2 };
     const { server, keys, lives } = await soldDraw(2, 5, forced);
     const first = (await server.deps.stores.world.draw(0))!;
@@ -569,7 +569,7 @@ describe("the odds are settings", () => {
 });
 
 describe("the stored list", () => {
-  test("[R-LOTTERY-008] given a draw frozen and its beacon down, when the job runs, then the list and its hash are stored once at the close and the page publishes the stored list", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] given a draw frozen and its beacon down, when the job runs, then the list and its hash are stored once at the close and the page publishes the stored list", async () => {
     const { server, keys, beacon } = await soldDraw(2, 2);
     server.setNow(during(14));
     beacon.down = true;
@@ -589,7 +589,7 @@ describe("the stored list", () => {
     expect(drawn.result?.listHash).toBe(row.listHash);
   });
 
-  test("[R-LOTTERY-008] given a stored list, when another list is offered for the draw before it is drawn, then it is refused and the draw is drawn from the stored list", async () => {
+  test("[lottery:ticket-list-frozen-anonymously] given a stored list, when another list is offered for the draw before it is drawn, then it is refused and the draw is drawn from the stored list", async () => {
     const { server, keys, beacon } = await soldDraw(2, 2);
     server.setNow(during(14));
     beacon.down = true;
@@ -604,7 +604,7 @@ describe("the stored list", () => {
 });
 
 describe("one lottery for everyone", () => {
-  test("[R-SERVER-033] given players signed up from Nigeria, Britain, Canada, the Emirates and nowhere known, when each buys a ticket, then all five are in the one draw on sale, numbered in the order bought", async () => {
+  test("[server:one-shared-world] given players signed up from Nigeria, Britain, Canada, the Emirates and nowhere known, when each buys a ticket, then all five are in the one draw on sale, numbered in the order bought", async () => {
     const { server } = await soldDraw(0, 0);
     const characters: string[] = [];
     for (const country of ["NG", "GB", "CA", "AE", "XX"]) {

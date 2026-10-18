@@ -4,7 +4,7 @@ import { finishPrologue, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 describe("a real name on a place", () => {
-  test("[R-ADVERT-018] given a world that puts a real name on a place, when a life is played through it, then every state is the same as under the made-up name", () => {
+  test("[advert:sponsored-place-hosts-no-harm] given a world that puts a real name on a place, when a life is played through it, then every state is the same as under the made-up name", () => {
     const play = (named: boolean) => {
       const game = start({
         content,

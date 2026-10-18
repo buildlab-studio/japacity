@@ -1,4 +1,4 @@
-// R-CITY-036, R-CLOCK-025: the day's seen list, the one thing a room keeps in
+// city:players-shown-present-not-tracked, clock:presence-held-in-memory: the day's seen list, the one thing a room keeps in
 // its storage. Names and looks only. Plain functions, so the router and the
 // Node tests import them without the Workers runtime.
 import { xorshift32 } from "@japacity/store";
@@ -19,7 +19,7 @@ export interface TodayList {
 /** The room's one storage key. */
 export const TODAY_KEY = "today";
 
-/** R-CLOCK-014: Lagos keeps UTC+1 all year. */
+/** clock:december-by-lagos-time: Lagos keeps UTC+1 all year. */
 const LAGOS_OFFSET_MS = time.HOUR_MS;
 
 /** The Lagos day of a moment, as whole days since 1970. */
@@ -59,7 +59,7 @@ export function parseTodayList(value: unknown): TodayList | undefined {
   return { day: held.day, seen };
 }
 
-/** R-CLOCK-028: at most `n` of the day's list, none of them here now, drawn afresh by the seed. */
+/** clock:presence-is-a-sample: at most `n` of the day's list, none of them here now, drawn afresh by the seed. */
 export function drawToday(seen: readonly Seen[], here: readonly Seen[], n: number, seed: number): Seen[] {
   const pool = seen.filter((each) => !here.some((member) => same(member, each))).map((each) => ({ name: each.name, look: each.look }));
   const next = xorshift32(seed);

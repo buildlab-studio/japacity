@@ -1,5 +1,5 @@
-// The switch row as the server reads it (docs/rules/server.md R-SERVER-030,
-// R-SERVER-031): from the store at most once every `switches.cacheMs` per
+// The switch row as the server reads it (server:private-settings-and-dials,
+// server:four-off-switches): from the store at most once every `switches.cacheMs` per
 // isolate, so a change made anywhere is seen within that time, and at once by
 // the isolate that made it.
 import type { ServerRejection } from "@japacity/api";
@@ -12,7 +12,7 @@ const cache = new WeakMap<SwitchStore, { at: number; row: SwitchRow }>();
 
 type Reads = Pick<ServerDeps, "config" | "stores" | "now">;
 
-/** R-SERVER-031: the row, from the cache while it is younger than `switches.cacheMs`. */
+/** server:four-off-switches: the row, from the cache while it is younger than `switches.cacheMs`. */
 export async function readSwitches(deps: Reads): Promise<SwitchRow> {
   const store = deps.stores.switches;
   const now = deps.now();
@@ -28,14 +28,14 @@ export async function isOn(deps: Reads, name: SwitchName): Promise<boolean> {
   return (await readSwitches(deps)).switches[name];
 }
 
-/** R-SERVER-031: sets a switch, logs who and why, and refreshes this isolate's cache. */
+/** server:four-off-switches: sets a switch, logs who and why, and refreshes this isolate's cache. */
 export async function setSwitch(deps: Reads, name: SwitchName, on: boolean, admin: string, reason: string): Promise<SwitchRow> {
   const row = await deps.stores.switches.set(name, on, admin, reason, deps.now());
   cache.set(deps.stores.switches, { at: deps.now(), row });
   return row;
 }
 
-/** R-SERVER-030: sets or unsets a dial, logs who and why, and refreshes this isolate's cache. */
+/** server:private-settings-and-dials: sets or unsets a dial, logs who and why, and refreshes this isolate's cache. */
 export async function setDial(deps: Reads, change: DialChange, admin: string, reason: string): Promise<SwitchRow | { detail: string }> {
   const written = await deps.stores.switches.setDial(change, admin, reason, deps.now());
   if (!written.ok) return { detail: written.detail };
@@ -43,7 +43,7 @@ export async function setDial(deps: Reads, change: DialChange, admin: string, re
   return written.value;
 }
 
-/** R-SERVER-031: the whole seconds the full screen and any client wait before asking again. */
+/** server:four-off-switches: the whole seconds the full screen and any client wait before asking again. */
 export function retryAfterSeconds(deps: Pick<ServerDeps, "config">): number {
   return Math.ceil(deps.config.switches.retryMs / 1000);
 }
@@ -60,7 +60,7 @@ const WHAT: Record<SwitchName, string> = {
   "boards.joined-week": "This board is paused.",
 };
 
-/** R-SERVER-031: the refusal for a request whose switch is off, answered 503. */
+/** server:four-off-switches: the refusal for a request whose switch is off, answered 503. */
 export function switchedOff(deps: Pick<ServerDeps, "config">, name: SwitchName): ServerRejection {
   return { ok: false, code: "switched-off", detail: WHAT[name], retryAfter: retryAfterSeconds(deps) };
 }

@@ -1,6 +1,6 @@
-// The place routes: the presence fetch (R-CLOCK-028, R-CITY-036) and the nudge socket
-// (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
-// every signed-in account: presence is not contact (region.md R-REGION-002),
+// The place routes: the presence fetch (clock:presence-is-a-sample, city:players-shown-present-not-tracked) and the nudge socket
+// (clock:socket-only-nudges, clock:busy-place-splits-rooms, clock:presence-is-not-contact). Both need a session and answer
+// every signed-in account: presence is not contact (region:same-contact-everywhere),
 // and the socket carries only nudges, never words between players.
 import type { PresenceReply } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
@@ -32,12 +32,12 @@ function seedFrom(bytes: Uint8Array): number {
   return bytes.reduce((seed, byte) => ((seed << 8) | byte) >>> 0, 0);
 }
 
-/** R-CITY-036: a name and a look, so no account id or position can reach the reply. */
+/** city:players-shown-present-not-tracked: a name and a look, so no account id or position can reach the reply. */
 function shown(member: { name: string; look: string }): { name: string; look: string } {
   return { name: member.name, look: member.look };
 }
 
-/** `GET /api/place/:place`: a fresh sample of the other players there (R-CLOCK-028), and of some seen there today (R-CITY-036). */
+/** `GET /api/place/:place`: a fresh sample of the other players there (clock:presence-is-a-sample), and of some seen there today (city:players-shown-present-not-tracked). */
 export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
 
@@ -47,11 +47,11 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const place = c.req.param("place");
     if (!Object.hasOwn(deps.contents.current.place, place)) return refuse(c, 404, "unknown-id", `no place ${place}`);
     const reply: PresenceReply = { place, others: [], today: [] };
-    // R-CITY-015: a stranger is never shown in someone's home, so a home's sample is never drawn.
+    // city:players-fill-the-crowd: a stranger is never shown in someone's home, so a home's sample is never drawn.
     if ((PRIVATE_PLACES as ReadonlySet<string>).has(place)) return c.json(reply);
     const seed = seedFrom(deps.randomBytes(4));
     const store = deps.stores.presence;
-    // R-CITY-032, R-SERVER-030: never more players than the place's target headcount, dial applied.
+    // city:residents-fill-to-target, server:private-settings-and-dials: never more players than the place's target headcount, dial applied.
     const n = Math.min(deps.config.presence.sample, await placeTarget(deps, place));
     if (readsToday(store)) {
       const look = await store.lookWithToday(place, n, session.account, seed, deps.now());
@@ -66,7 +66,7 @@ export function placeRoutes(deps: ServerDeps): Hono<SessionEnv> {
   return app;
 }
 
-/** `GET /api/place/:place/socket`: the nudge and presence socket, in the room the router picks (R-CLOCK-029). */
+/** `GET /api/place/:place/socket`: the nudge and presence socket, in the room the router picks (clock:busy-place-splits-rooms). */
 export function placeSocketRoutes(deps: ServerDeps, bindings: PlaceBindings): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
 

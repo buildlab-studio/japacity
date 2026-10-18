@@ -8,7 +8,7 @@ import type { PairRejection } from "./codes";
 import { bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, recordOf, sayFrom, stateOf } from "./pair.testing";
 
 describe("conversations in preset phrases", () => {
-  test("[R-PAIR-011] [R-PEOPLE-015] given a linked pair, when one side says a phrase, then the row is stored, the record gains a said moment, both lives hold it as me and them, and the other side is nudged to fetch", async () => {
+  test("[pair:conversation-phrases-stored] [person:talking-adds-moments] given a linked pair, when one side says a phrase, then the row is stored, the record gains a said moment, both lives hold it as me and them, and the other side is nudged to fetch", async () => {
     const { server, a, b, key } = await linkedPair();
     const nudges: Nudge[] = [];
     server.deps.stores.nudges.subscribe(FRIEND, (nudge) => nudges.push(nudge));
@@ -25,7 +25,7 @@ describe("conversations in preset phrases", () => {
     expect(nudges).toContainEqual({ nudge: "messages" });
   });
 
-  test("[R-PAIR-011] given rows from both sides, when one side fetches from where it left off, then it gets only the later rows and the other side's rows are marked read", async () => {
+  test("[pair:conversation-phrases-stored] given rows from both sides, when one side fetches from where it left off, then it gets only the later rows and the other side's rows are marked read", async () => {
     const { server, key } = await linkedPair();
     const first = await sayFrom(server, INVITER, key, "phrase.hello");
     server.wait(1000);
@@ -44,7 +44,7 @@ describe("conversations in preset phrases", () => {
     ]);
   });
 
-  test("[R-PAIR-013] given phrasesPerHour phrases sent, when one more is sent, then it is refused as too-many and nothing is stored, and an hour after the first it goes", async () => {
+  test("[pair:phrase-checks-before-send] given phrasesPerHour phrases sent, when one more is sent, then it is refused as too-many and nothing is stored, and an hour after the first it goes", async () => {
     const { server, key } = await linkedPair();
     const limit = content.tuning.pair.phrasesPerHour;
     for (let index = 0; index < limit; index += 1) expect((await sayFrom(server, INVITER, key)).ok).toBe(true);
@@ -59,7 +59,7 @@ describe("conversations in preset phrases", () => {
     expect((await sayFrom(server, INVITER, key)).ok).toBe(true);
   });
 
-  test("[R-PAIR-010] [R-PAIR-013] given a phrase, when its fill is off its list or it is a place phrase, then it is refused and nothing is stored", async () => {
+  test("[pair:preset-phrases-only] [pair:phrase-checks-before-send] given a phrase, when its fill is off its list or it is a place phrase, then it is refused and nothing is stored", async () => {
     const { server, key } = await linkedPair();
 
     expect(await sayFrom(server, INVITER, key, "phrase.meet-at", "my-house")).toMatchObject({ ok: false, code: "bad-fill" });
@@ -68,7 +68,7 @@ describe("conversations in preset phrases", () => {
     expect(await server.deps.stores.conversation.list(key, null)).toEqual([]);
   });
 
-  test("[R-PAIR-013] given a pair that has ended, when either side says a phrase, then it is refused as not possible and says nothing more", async () => {
+  test("[pair:phrase-checks-before-send] given a pair that has ended, when either side says a phrase, then it is refused as not possible and says nothing more", async () => {
     const { server, a, key } = await linkedPair();
     await must(server, INVITER, { type: "people/court", with: key });
     await must(server, INVITER, { type: "people/end", bond: bondIn(await stateOf(server, a), key) });
@@ -77,7 +77,7 @@ describe("conversations in preset phrases", () => {
     expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: false, code: "not-possible" });
   });
 
-  test("[R-PAIR-018] [R-REGION-002] given a pair linked by an invite between accounts that signed up in France and Australia, when either says a phrase, then it is stored", async () => {
+  test("[pair:everyone-meets-by-invite] [region:same-contact-everywhere] given a pair linked by an invite between accounts that signed up in France and Australia, when either says a phrase, then it is stored", async () => {
     const server = pairServer();
     const characters: string[] = [];
     for (const [id, country, scenario] of [[INVITER, "FR", "scenario.ada"], [FRIEND, "AU", "scenario.tunde"]] as const) {
@@ -95,7 +95,7 @@ describe("conversations in preset phrases", () => {
     expect(await server.deps.stores.conversation.list(key, null)).toHaveLength(2);
   });
 
-  test("[R-PAIR-013] [R-REGION-002] given two players never connected by an invite, when one says a phrase to a pair key of the two, then it is refused and nothing is stored", async () => {
+  test("[pair:phrase-checks-before-send] [region:same-contact-everywhere] given two players never connected by an invite, when one says a phrase to a pair key of the two, then it is refused and nothing is stored", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER, "scenario.ada");
     const b = await newLife(server, FRIEND, "scenario.tunde");
@@ -105,7 +105,7 @@ describe("conversations in preset phrases", () => {
     expect(await server.deps.stores.conversation.list(key, null)).toEqual([]);
   });
 
-  test("[R-PAIR-006] given a record, when each side reads it, then each sees it in its own terms, and a third account finds no such pair", async () => {
+  test("[pair:who-may-read-a-record] given a record, when each side reads it, then each sees it in its own terms, and a third account finds no such pair", async () => {
     const { server, key } = await linkedPair();
     await newLife(server, "account-c", "scenario.zainab");
 

@@ -13,7 +13,7 @@ async function act(server: TestServer, account: string, action: "mute" | "suspen
 }
 
 describe("mutes and suspensions on the people routes", () => {
-  test("[R-MODERATION-014] given a player muted for 2 days, when they say a phrase, make a link or take one, then each is refused not-possible until the mute ends to the millisecond, and the other side may still speak", async () => {
+  test("[moderation:fixed-admin-actions] given a player muted for 2 days, when they say a phrase, make a link or take one, then each is refused not-possible until the mute ends to the millisecond, and the other side may still speak", async () => {
     const { server, key } = await linkedPair();
     const ends = server.deps.now() + 2 * time.DAY_MS;
     await act(server, INVITER, "mute", 2, "log.mute");
@@ -31,7 +31,7 @@ describe("mutes and suspensions on the people routes", () => {
     expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: true });
   });
 
-  test("[R-MODERATION-014] [R-MODERATION-016] given a suspension whose appeal was overturned, when the player says a phrase, then it goes", async () => {
+  test("[moderation:fixed-admin-actions] [moderation:actioned-player-told-and-appeals] given a suspension whose appeal was overturned, when the player says a phrase, then it goes", async () => {
     const { server, key } = await linkedPair();
     await act(server, INVITER, "suspend", 30, "log.suspend");
     expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: false, code: "not-possible" });
@@ -40,7 +40,7 @@ describe("mutes and suspensions on the people routes", () => {
     expect(await sayFrom(server, INVITER, key)).toMatchObject({ ok: true });
   });
 
-  test("[R-MODERATION-014] given a mute on another account, when a player with none makes a link, then it is not refused for it", async () => {
+  test("[moderation:fixed-admin-actions] given a mute on another account, when a player with none makes a link, then it is not refused for it", async () => {
     const server = pairServer();
     await signUp(server, "account-z");
     await act(server, "account-z", "mute", 5, "log.other");

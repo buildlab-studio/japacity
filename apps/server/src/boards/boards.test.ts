@@ -66,7 +66,7 @@ async function liveOf(server: TestServer, character: string, loaded: State, stat
 
 /**
  * Writes a figure straight into the store, for boards with many lines. A stranger's account is made the first time,
- * with the username `player_<character>`, so the everyone board has a name to show (R-CITY-040).
+ * with the username `player_<character>`, so the everyone board has a name to show (city:board-line-and-ranking).
  */
 async function figure(server: TestServer, character: string, value: number | null, over: { before?: number | null; joinedAt?: number; account?: string; scenario?: string } = {}): Promise<void> {
   const joinedAt = over.joinedAt ?? EPOCH;
@@ -86,7 +86,7 @@ async function figure(server: TestServer, character: string, value: number | nul
   });
 }
 
-/** A guest's life (account.md R-ACCOUNT-021): the account row as the guest start makes it, then its character. */
+/** A guest's life (account:guest-and-secured-states): the account row as the guest start makes it, then its character. */
 async function guestLife(server: TestServer, account: string, username: string): Promise<string> {
   await signUp(server, account, username, "guest");
   const made = await call<{ ok: boolean }>(server, "POST", "/api/character", account, { scenario: "scenario.ada" });
@@ -101,14 +101,14 @@ async function turnOff(server: TestServer, name: SwitchName, on = false): Promis
 }
 
 describe("the Lagos week", () => {
-  test("[R-CITY-039] given the last millisecond of a Sunday and the first of the Monday in Lagos, when the week is worked out, then the Monday begins the next week", () => {
+  test("[city:boards-switch-when-and-who] given the last millisecond of a Sunday and the first of the Monday in Lagos, when the week is worked out, then the Monday begins the next week", () => {
     expect(new Date(MONDAY).toISOString()).toBe("2026-10-11T23:00:00.000Z");
     expect(lagosWeek(MONDAY)).toBe(lagosWeek(MONDAY - 1) + 1);
     expect(lagosWeek(MONDAY + 7 * time.DAY_MS - 1)).toBe(lagosWeek(MONDAY));
     expect(lagosWeek(MONDAY + 7 * time.DAY_MS)).toBe(lagosWeek(MONDAY) + 1);
   });
 
-  test("[R-CITY-039] given every half hour across three weeks and moments from 1970 to 2100, when each week is worked out, then the moment falls inside that week's seven days, which begin on a Monday", () => {
+  test("[city:boards-switch-when-and-who] given every half hour across three weeks and moments from 1970 to 2100, when each week is worked out, then the moment falls inside that week's seven days, which begin on a Monday", () => {
     const moments = [0, 1, 4_102_444_800_000];
     for (let ms = MONDAY - 7 * time.DAY_MS; ms < MONDAY + 14 * time.DAY_MS; ms += 30 * time.MINUTE_MS) moments.push(ms - 1, ms);
     for (const ms of moments) {
@@ -121,7 +121,7 @@ describe("the Lagos week", () => {
 });
 
 describe("the figures a commit writes", () => {
-  test("[R-CITY-039] given a new life, when its first command is committed, then its row holds its scenario, its account's time and no figure yet", async () => {
+  test("[city:boards-switch-when-and-who] given a new life, when its first command is committed, then its row holds its scenario, its account's time and no figure yet", async () => {
     const server = testServer();
     const character = await newLife(server, "account.ada", "scenario.ada");
     const start = await held(server, character);
@@ -139,7 +139,7 @@ describe("the figures a commit writes", () => {
     });
   });
 
-  test("[R-CITY-039] given a route that becomes known in a commit, when the figure is written, then the row holds the new figure and its week starts at the old one", async () => {
+  test("[city:boards-switch-when-and-who] given a route that becomes known in a commit, when the figure is written, then the row holds the new figure and its week starts at the old one", async () => {
     const server = testServer();
     const character = await newLife(server, "account.ada", "scenario.ada");
     const { snapshot } = await held(server, character);
@@ -148,12 +148,12 @@ describe("the figures a commit writes", () => {
     expect(row?.figure).toBeGreaterThan(0);
     expect(row).toMatchObject({ weekStart: null, v: 1 });
 
-    // The everyone board names the account's username (R-CITY-040).
+    // The everyone board names the account's username (city:board-line-and-ranking).
     const line = reply((await board(server, "account.ada", "this-week.everyone")).body).own;
     expect(line).toEqual({ rank: 1, username: "account.ada", figure: row?.figure, me: true });
   });
 
-  test("[R-CITY-039] given a commit that leaves the figure where it was, when it is not the first, then nothing is written", async () => {
+  test("[city:boards-switch-when-and-who] given a commit that leaves the figure where it was, when it is not the first, then nothing is written", async () => {
     const server = testServer();
     const character = await newLife(server, "account.ada", "scenario.ada");
     const { snapshot } = await held(server, character);
@@ -161,8 +161,8 @@ describe("the figures a commit writes", () => {
     expect(await server.deps.stores.boards.get(character)).toBeNull();
   });
 
-  // The guest is read from the account's own state, as production reads it, not from a stand-in (R-ACCOUNT-022).
-  test("[R-ACCOUNT-022] given a guest's commit, when its figure is written, then the row is on no board", async () => {
+  // The guest is read from the account's own state, as production reads it, not from a stand-in (account:social-needs-secured-account).
+  test("[account:social-needs-secured-account] given a guest's commit, when its figure is written, then the row is on no board", async () => {
     const server = testServer();
     const character = await guestLife(server, "account.guest", "guest_ada");
     const { snapshot } = await held(server, character);
@@ -173,7 +173,7 @@ describe("the figures a commit writes", () => {
 });
 
 describe("the week's turn", () => {
-  test("[R-CITY-039] given figures from last week, when the job runs on the Monday, then each figure is saved as the week's start, once", async () => {
+  test("[city:boards-switch-when-and-who] given figures from last week, when the job runs on the Monday, then each figure is saved as the week's start, once", async () => {
     const server = testServer();
     await figure(server, "c1", 40, { before: 10 });
     server.setNow(MONDAY - 1);
@@ -190,7 +190,7 @@ describe("the week's turn", () => {
 });
 
 describe("the boards", () => {
-  test.each(FOUR)("[R-CITY-039] given the switch row as shipped, when the %s board is asked for, then it answers", async (name) => {
+  test.each(FOUR)("[city:boards-switch-when-and-who] given the switch row as shipped, when the %s board is asked for, then it answers", async (name) => {
     const server = testServer();
     await newLife(server, "account.ada", "scenario.ada");
     const answered = await board(server, "account.ada", name);
@@ -198,7 +198,7 @@ describe("the boards", () => {
     expect(reply(answered.body)).toMatchObject({ board: name, size: productionConfig.board.size });
   });
 
-  test.each(FOUR)("[R-SERVER-031] given the %s board switched off, when it is asked for, then it is refused switched-off with Retry-After and the other three still answer", async (name) => {
+  test.each(FOUR)("[server:four-off-switches] given the %s board switched off, when it is asked for, then it is refused switched-off with Retry-After and the other three still answer", async (name) => {
     const server = testServer();
     await newLife(server, "account.ada", "scenario.ada");
     await turnOff(server, BOARD_SWITCH[name]);
@@ -213,7 +213,7 @@ describe("the boards", () => {
     expect((await board(server, "account.ada", name)).status).toBe(200);
   });
 
-  test("[R-CITY-039] given the joined-week board as shipped, when it is asked for, then it is refused switched-off; when switched on, then it ranks only the accounts made in the player's week", async () => {
+  test("[city:boards-switch-when-and-who] given the joined-week board as shipped, when it is asked for, then it is refused switched-off; when switched on, then it ranks only the accounts made in the player's week", async () => {
     const server = testServer();
     expect(BOARD_NAMES).toContain("joined-week");
     await figure(server, "early", 90, { joinedAt: EPOCH - 7 * time.DAY_MS });
@@ -227,14 +227,14 @@ describe("the boards", () => {
 
     await turnOff(server, "boards.joined-week", true);
     const cohort = reply((await board(server, "account.ada", "joined-week")).body);
-    // Strangers in the same week are named by username, as on everyone (R-CITY-040).
+    // Strangers in the same week are named by username, as on everyone (city:board-line-and-ranking).
     expect(cohort.rows.map((row) => [row.rank, row.username, row.figure, row.me])).toEqual([
       [1, "account.ada", 30, true],
       [2, "player_same", 20, false],
     ]);
   });
 
-  test("[R-CITY-040] given more players than the board's size, when the player ranks below it, then the board holds exactly the size and the player's own line with its rank", async () => {
+  test("[city:board-line-and-ranking] given more players than the board's size, when the player ranks below it, then the board holds exactly the size and the player's own line with its rank", async () => {
     const server = testServer({ config: testConfig({ testing: { testLogin: true }, board: { size: 3 } }) });
     for (const [at, value] of [90, 80, 70, 60].entries()) await figure(server, `c${String(at)}`, value);
     const character = await newLife(server, "account.ada", "scenario.ada");
@@ -243,7 +243,7 @@ describe("the boards", () => {
     const read = reply((await board(server, "account.ada", "all-time.everyone")).body);
     expect(read.size).toBe(3);
     expect(read.rows.map((row) => row.figure)).toEqual([90, 80, 70]);
-    // The lines name usernames, and no first name or display name travels on a board (R-CITY-040).
+    // The lines name usernames, and no first name or display name travels on a board (city:board-line-and-ranking).
     expect(read.rows.map((row) => row.username)).toEqual(["player_c0", "player_c1", "player_c2"]);
     expect(read.rows.every((row) => !row.me)).toBe(true);
     expect(read.own).toEqual({ rank: 5, username: "account.ada", figure: 10, me: true });
@@ -258,7 +258,7 @@ describe("the boards", () => {
     expect(inside.own?.rank).toBe(3);
   });
 
-  test("[R-CITY-040] given equal figures, when the board is ranked, then the earlier account comes first", async () => {
+  test("[city:board-line-and-ranking] given equal figures, when the board is ranked, then the earlier account comes first", async () => {
     const server = testServer();
     await figure(server, "later", 50, { joinedAt: EPOCH + time.HOUR_MS, scenario: "scenario.zainab" });
     await figure(server, "earlier", 50, { joinedAt: EPOCH, scenario: "scenario.ngozi" });
@@ -267,7 +267,7 @@ describe("the boards", () => {
     expect(read.rows.map((row) => row.username)).toEqual(["player_earlier", "player_later"]);
   });
 
-  test("[R-CITY-039] given a long-time leader and a new player who rose more since Monday, when this week is read, then the new player tops it and all time keeps the leader first", async () => {
+  test("[city:boards-switch-when-and-who] given a long-time leader and a new player who rose more since Monday, when this week is read, then the new player tops it and all time keeps the leader first", async () => {
     const server = testServer();
     server.setNow(MONDAY - time.HOUR_MS);
     await figure(server, "leader", 80, { joinedAt: EPOCH - 30 * time.DAY_MS });
@@ -289,7 +289,7 @@ describe("the boards", () => {
     ]);
   });
 
-  test("[R-CITY-040] given a friend joined by an invite and a stranger, when the friends board is read, then it ranks the player and the friend only, each line naming the account's username as the everyone board does, with no first name", async () => {
+  test("[city:board-line-and-ranking] given a friend joined by an invite and a stranger, when the friends board is read, then it ranks the player and the friend only, each line naming the account's username as the everyone board does, with no first name", async () => {
     const server = testServer();
     const mine = await newLife(server, "account.ada", "scenario.ada");
     const friend = await newLife(server, "account.tunde", "scenario.tunde");
@@ -317,7 +317,7 @@ describe("the boards", () => {
     expect(week.rows.map((row) => row.username)).toEqual(["tunde_k", "account.ada"]);
   });
 
-  test("[R-CITY-040] given a player who changed their username, when the everyone and friends boards and the player's own line are read, then each line names the username as it stands now and nothing else about the player travels", async () => {
+  test("[city:board-line-and-ranking] given a player who changed their username, when the everyone and friends boards and the player's own line are read, then each line names the username as it stands now and nothing else about the player travels", async () => {
     const server = testServer({ config: testConfig({ testing: { testLogin: true }, board: { size: 1 } }) });
     await figure(server, "leader", 90, { scenario: "scenario.zainab" });
     const mine = await newLife(server, "account.ada", "scenario.ada");
@@ -333,7 +333,7 @@ describe("the boards", () => {
     for (const row of [...read.rows, read.own, ...friends.rows, friends.own]) expect(Object.keys(row ?? {}).sort()).toEqual(["figure", "me", "rank", "username"]);
   });
 
-  test("[R-PEOPLE-056] given lives whose families are computer characters, when every board is read, then only the players' own characters are on it", async () => {
+  test("[person:computers-never-win-scarce] given lives whose families are computer characters, when every board is read, then only the players' own characters are on it", async () => {
     const server = testServer();
     const characters: string[] = [];
     for (const name of ["ada", "tunde", "zainab"]) {
@@ -349,8 +349,8 @@ describe("the boards", () => {
     expect(read.rows).toHaveLength(3);
   });
 
-  // The guest is the account's own state, and the refusal is `guest-only` with the way to secure (R-ACCOUNT-022).
-  test.each([...FOUR, "joined-week" as const])("[R-ACCOUNT-022] given a guest account, when it asks for the %s board, then it is refused guest-only and sees no board", async (name) => {
+  // The guest is the account's own state, and the refusal is `guest-only` with the way to secure (account:social-needs-secured-account).
+  test.each([...FOUR, "joined-week" as const])("[account:social-needs-secured-account] given a guest account, when it asks for the %s board, then it is refused guest-only and sees no board", async (name) => {
     const server = testServer();
     await turnOff(server, "boards.joined-week", true);
     await guestLife(server, "account.guest", "guest_ada");
@@ -359,7 +359,7 @@ describe("the boards", () => {
     expect(asked.body).toEqual({ ok: false, code: "guest-only", detail: "Secure this life with Google or an email code to be on the boards." });
   });
 
-  test("[R-ACCOUNT-022] [R-CITY-040] given a guest and a secured player whose commits wrote their figures, when the secured player reads everyone, then the guest is on no line and the secured player shows by username; once the guest is secured and listed again, then its line shows by its username", async () => {
+  test("[account:social-needs-secured-account] [city:board-line-and-ranking] given a guest and a secured player whose commits wrote their figures, when the secured player reads everyone, then the guest is on no line and the secured player shows by username; once the guest is secured and listed again, then its line shows by its username", async () => {
     const server = testServer();
     const guest = await guestLife(server, "account.guest", "guest_ada");
     const mine = await newLife(server, "account.tunde", "scenario.tunde");
@@ -378,7 +378,7 @@ describe("the boards", () => {
     expect((await accountPorts(server.deps).guests(["account.guest", "account.tunde", "account.unknown"])).size).toBe(0);
   });
 
-  test("[R-CITY-039] given no session, no character or a board that does not exist, when a board is asked for, then each is refused", async () => {
+  test("[city:boards-switch-when-and-who] given no session, no character or a board that does not exist, when a board is asked for, then each is refused", async () => {
     const server = testServer();
     expect((await board(server, null, "all-time.everyone")).body).toMatchObject({ code: "signed-out" });
     await newLife(server, "account.ada", "scenario.ada");
@@ -392,7 +392,7 @@ describe("the boards", () => {
 });
 
 describe("the board switches on the admin page", () => {
-  test("[R-SERVER-031] given an admin, when the switch row is read and the joined-week board is turned on with a reason, then the five board switches are listed and the change is logged", async () => {
+  test("[server:four-off-switches] given an admin, when the switch row is read and the joined-week board is turned on with a reason, then the five board switches are listed and the change is logged", async () => {
     const owner = "account.owner";
     const server = testServer({ config: testConfig({ testing: { testLogin: true }, admin: { accounts: [owner] } }) });
     const row = await call<{ ok: true; switches: Record<string, boolean> }>(server, "GET", "/api/admin/switches", owner);

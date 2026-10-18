@@ -1,12 +1,12 @@
 // The deployment's dependencies on Postgres (decision 0006): a new `pg`
 // client for each request through the Hyperdrive configuration with caching
 // off, opened by the first statement a store or the auth library sends
-// (R-SERVER-002), every store over it, the presence and
+// (server:one-command-one-transaction), every store over it, the presence and
 // the nudges on the place objects, and the client closed once the request is
 // answered. Two stores live for the
 // isolate instead, each opening a client per call: the switch row, whose cache
-// is kept per store (R-SERVER-031), and the counters, whose hourly batch count
-// is (R-ANALYTICS-004).
+// is kept per store (server:four-off-switches), and the counters, whose hourly batch count
+// is (analytics:server-checks-every-batch).
 import type { Content, Id, PlaceEntry, Where, World } from "@japacity/sim";
 import { boundedHandle, connect, connectOnFirstUse, pgCounterStore, pgStores, pgSwitchStore } from "@japacity/db";
 import type { Connection, Handle, Queries } from "@japacity/db";
@@ -58,7 +58,7 @@ export interface RequestScope {
   handle: Handle;
   db: Queries;
   close: () => Promise<void>;
-  /** R-SERVER-043: true once the request's database refused the connection or dropped it. */
+  /** server:no-platform-error-page: true once the request's database refused the connection or dropped it. */
   unavailable: () => boolean;
 }
 
@@ -92,7 +92,7 @@ const NO_HUB: Record<Where, Id<"place">> = {
 };
 
 /**
- * R-CITY-013, R-CITY-036: the hub a character's sockets and presence are for,
+ * city:ojuelegba-is-the-hub, city:players-shown-present-not-tracked: the hub a character's sockets and presence are for,
  * read as the client's `openingPlace` reads it so the socket route's place
  * check meets the client: the home hub at home, the country's hub abroad, the
  * stylised road place on the road.
@@ -116,7 +116,7 @@ export function hubFor(where: Where, country: Id<"country"> | null, places: read
   return hub?.id ?? NO_HUB[where];
 }
 
-/** R-CLOCK-020, R-CLOCK-027, R-CITY-036: the content place a character's sockets and nudges are for. */
+/** clock:socket-only-nudges, clock:moving-switches-place-socket, city:players-shown-present-not-tracked: the content place a character's sockets and nudges are for. */
 export function placeOfIn(deps: ServerDeps): PlaceOf {
   return async (account) => {
     const read = await stateOfAccount(deps, account);
@@ -127,7 +127,7 @@ export function placeOfIn(deps: ServerDeps): PlaceOf {
 }
 
 /**
- * R-CITY-036: the name and look other players see.
+ * city:players-shown-present-not-tracked: the name and look other players see.
  * The state holds neither, so the scenario's share-card first name and the
  * scenario id stand in for them.
  */
@@ -140,13 +140,13 @@ export function profileOfIn(deps: ServerDeps, text: Record<string, string>): Pro
   };
 }
 
-/** How a request's statements are bounded: `statementMs` for an admin read (R-SERVER-012). */
+/** How a request's statements are bounded: `statementMs` for an admin read (server:ledger-alarm-lists-suspects). */
 export interface RequestBounds {
   statementMs?: number;
 }
 
 /**
- * The request's dependencies over a new client, which connects on its first statement (R-SERVER-002);
+ * The request's dependencies over a new client, which connects on its first statement (server:one-command-one-transaction);
  * `session` is filled by the caller once the auth library is made on `db`. With `bounds.statementMs` every store
  * call runs in a transaction of its own under that statement timeout, the counters' reads included, which then go
  * through the request's client rather than the isolate's.

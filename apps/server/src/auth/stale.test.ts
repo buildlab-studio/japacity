@@ -1,4 +1,4 @@
-// R-ACCOUNT-021, R-ACCOUNT-023: a browser still holding a validly signed session
+// account:guest-and-secured-states, account:guest-secures-the-life: a browser still holding a validly signed session
 // cookie whose session is gone (a database reset, a deletion, a guest clean-up,
 // sessions ended elsewhere) starts a guest or signs in like any other browser.
 // The auth library's anonymous link reads the request's session after every
@@ -44,7 +44,7 @@ async function accountId(h: Harness, jar: Jar): Promise<{ status: number; id: st
 }
 
 describe("a dead session cookie never stops a new sign-in", () => {
-  test("[R-ACCOUNT-021] given a browser whose guest's sessions were ended, when it passes the age screen and starts a guest again, then the new guest's session cookie is set and the account opens", async () => {
+  test("[account:guest-and-secured-states] given a browser whose guest's sessions were ended, when it passes the age screen and starts a guest again, then the new guest's session cookie is set and the account opens", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     await endSessions(h, jar, account);
@@ -60,7 +60,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
     expect(made).not.toBe(account);
   });
 
-  test("[R-ACCOUNT-023] given a life kept by a code whose sessions were ended, when the same browser signs in by a code again, then the session cookie is set and the kept life opens", async () => {
+  test("[account:guest-secures-the-life] given a life kept by a code whose sessions were ended, when the same browser signs in by a code again, then the session cookie is set and the kept life opens", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     await endSessions(h, jar, account);
@@ -71,7 +71,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
     expect(await accountId(h, jar)).toEqual({ status: 200, id: account });
   });
 
-  test("[R-ACCOUNT-023] given a life kept by a code whose sessions were ended, when Google with the same verified address comes back to a browser still sending the dead cookie, then the session cookie is set and the kept life opens", async () => {
+  test("[account:guest-secures-the-life] given a life kept by a code whose sessions were ended, when Google with the same verified address comes back to a browser still sending the dead cookie, then the session cookie is set and the kept life opens", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const restore = await endSessions(h, jar, account);
@@ -82,7 +82,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
     expect(await accountId(h, jar)).toEqual({ status: 200, id: account });
   });
 
-  test("[R-ACCOUNT-023] given a kept life with a passkey whose sessions were ended, when the passkey signs in from a browser still sending the dead cookie, then the session cookie is set and the kept life opens", async () => {
+  test("[account:guest-secures-the-life] given a kept life with a passkey whose sessions were ended, when the passkey signs in from a browser still sending the dead cookie, then the session cookie is set and the kept life opens", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const key = await softwarePasskey();
@@ -94,7 +94,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
     expect(await accountId(h, jar)).toEqual({ status: 200, id: account });
   });
 
-  test("[R-ACCOUNT-023] given a guest whose session is live, when it secures the life by a code, then the guest's own account is kept: a live cookie still links", async () => {
+  test("[account:guest-secures-the-life] given a guest whose session is live, when it secures the life by a code, then the guest's own account is kept: a live cookie still links", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     const signed = await h.secureByCode(jar, "ada@example.com");
@@ -104,7 +104,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
 });
 
 describe("the cookies a dead session leaves behind", () => {
-  test("[R-ACCOUNT-021] given a Cookie header with the library's session cookies, secure-named or not and chunked, when they are dropped, then every other cookie is kept as it came, and the header stays when nothing is left", async () => {
+  test("[account:guest-and-secured-states] given a Cookie header with the library's session cookies, secure-named or not and chunked, when they are dropped, then every other cookie is kept as it came, and the header stays when nothing is left", async () => {
     const h = harness();
     const cookie = [
       "__Secure-better-auth.session_token=abc.def%3D",

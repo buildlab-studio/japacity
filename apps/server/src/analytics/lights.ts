@@ -1,5 +1,5 @@
-// R-ACCOUNT-031: the two lights' counts, made from the stored
-// totals of analytics.md R-ANALYTICS-008 and nothing else. The whole game's,
+// account:two-lights-and-wink-lines: the two lights' counts, made from the stored
+// totals of analytics:nightly-game-counters and nothing else. The whole game's,
 // never a region's, rounded to the nearest ten, so no figure stands for one
 // person. Home and abroad are the lives being played as the nightly count
 // last found them (`lives/playing`); before its first run, the lives ever
@@ -10,7 +10,7 @@ import type { CounterTotal } from "@japacity/store";
 
 import { WHOLE_GAME } from "./list";
 
-/** R-ANALYTICS-008: the nightly count of the lives being played, keyed by where each stands. */
+/** analytics:nightly-game-counters: the nightly count of the lives being played, keyed by where each stands. */
 export const LIVES_PLAYING = "lives/playing";
 
 /** Every key of `lives/playing`, written for the whole game even at 0, so a run that found no life still shows. */
@@ -32,7 +32,7 @@ export interface LightsCounts {
 }
 
 /**
- * The counters each light reads (R-ANALYTICS-008) besides `lives/playing`. Every
+ * The counters each light reads (analytics:nightly-game-counters) besides `lives/playing`. Every
  * life starts at home (`lives/started`); a departure (`japa/departed`) moves one
  * abroad and a return home of any shape (`place/returned`) moves one back.
  */
@@ -48,10 +48,10 @@ export function roundToTen(count: number): number {
 }
 
 /**
- * R-ACCOUNT-031: the lives being played, from the last
+ * account:two-lights-and-wink-lines: the lives being played, from the last
  * day the nightly count wrote (its whole-game rows); null before its first run.
  * A life on the road counts at home, as the place rule has two places
- * (place.md R-PLACE-001) and the road is no departure (road.md R-ROAD-001); its
+ * (place:new-character-at-home) and the road is no departure (road:road-route-has-no-figure); its
  * own key keeps it apart in the store.
  */
 export function livesPlaying(totals: readonly CounterTotal[]): { home: number; abroad: number } | null {
@@ -69,7 +69,7 @@ export function livesPlaying(totals: readonly CounterTotal[]): { home: number; a
 }
 
 /**
- * R-ACCOUNT-031: home and abroad are the lives being played (`livesPlaying`);
+ * account:two-lights-and-wink-lines: home and abroad are the lives being played (`livesPlaying`);
  * until the nightly count has run, abroad is every departure less every
  * return and home every life started less those abroad. Back is the returns
  * this month. Each is whole-game and rounded only at the end, so the rounding

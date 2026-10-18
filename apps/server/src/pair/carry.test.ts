@@ -9,7 +9,7 @@ const STANDING = "quality.standing";
 const WELLBEING = "quality.wellbeing";
 
 describe("the pair transaction", () => {
-  test("[R-PAIR-001] [R-PEOPLE-003] given two pair steps asking for the two characters in opposite orders at once, when both run, then both commit in turn and the record holds both writes at version 3", async () => {
+  test("[pair:one-record-per-two] [person:both-lives-step-together] given two pair steps asking for the two characters in opposite orders at once, when both run, then both commit in turn and the record holds both writes at version 3", async () => {
     const { server, a, b, key } = await linkedPair();
 
     const [first, second] = await Promise.all([
@@ -26,7 +26,7 @@ describe("the pair transaction", () => {
     ]);
   });
 
-  test("[R-PAIR-001] given both players saying a phrase at the same moment, when the two requests run together, then both are stored and each life holds both moments, whichever locked first", async () => {
+  test("[pair:one-record-per-two] given both players saying a phrase at the same moment, when the two requests run together, then both are stored and each life holds both moments, whichever locked first", async () => {
     const { server, a, b, key } = await linkedPair();
 
     const said = await Promise.all([sayFrom(server, FRIEND, key, "phrase.thanks"), sayFrom(server, INVITER, key, "phrase.hello")]);
@@ -40,7 +40,7 @@ describe("the pair transaction", () => {
     }
   });
 
-  test("[R-PAIR-005] [R-PEOPLE-016] given a proposal from one side alone, when it is sent, then the other life holds it as theirs in its own terms and nothing else changes in either life or the record", async () => {
+  test("[pair:joint-steps-need-both-sides] [person:proposing-a-step] given a proposal from one side alone, when it is sent, then the other life holds it as theirs in its own terms and nothing else changes in either life or the record", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await courting(linked);
@@ -54,7 +54,7 @@ describe("the pair transaction", () => {
     expect(record?.pending[record.a === a ? "a" : "b"]).toEqual({ step: "partner", route: null, lead: null });
   });
 
-  test("[R-PAIR-005] [R-PEOPLE-003] [R-PEOPLE-016] given a proposal, when the other side says yes, then both lives get fresh facts and then people/agreed in the same transaction, both bonds are partners, and the record clears both proposals", async () => {
+  test("[pair:joint-steps-need-both-sides] [person:both-lives-step-together] [person:proposing-a-step] given a proposal, when the other side says yes, then both lives get fresh facts and then people/agreed in the same transaction, both bonds are partners, and the record clears both proposals", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
 
@@ -72,7 +72,7 @@ describe("the pair transaction", () => {
     }
   });
 
-  test("[R-PAIR-005] given both sides proposing the same step, when the second proposal arrives, then the step is agreed in both lives without an answer", async () => {
+  test("[pair:joint-steps-need-both-sides] given both sides proposing the same step, when the second proposal arrives, then the step is agreed in both lives without an answer", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await courting(linked);
@@ -85,7 +85,7 @@ describe("the pair transaction", () => {
     expect(friend.people.bonds[bondIn(friend, key)]?.stage).toBe("partner");
   });
 
-  test("[R-PEOPLE-016] given a proposal, when the other side says no, then the record and the answering life clear it and no stage moves", async () => {
+  test("[person:proposing-a-step] given a proposal, when the other side says no, then the record and the answering life clear it and no stage moves", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await courting(linked);
@@ -99,7 +99,7 @@ describe("the pair transaction", () => {
     expect(friend.people.bonds[bondIn(friend, key)]?.pending.theirs).toBeNull();
   });
 
-  test("[R-PEOPLE-016] [R-PEOPLE-034] given a proposal, when the other side says no, then the proposer's life holds no waiting proposal and its log holds people/declined from the authority", async () => {
+  test("[person:proposing-a-step] [person:family-requests-shared] given a proposal, when the other side says no, then the proposer's life holds no waiting proposal and its log holds people/declined from the authority", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await courting(linked);
@@ -114,7 +114,7 @@ describe("the pair transaction", () => {
     expect(declined).toMatchObject([{ sender: "authority", command: { type: "people/declined", pair: key, step: "partner" } }]);
   });
 
-  test("[R-PEOPLE-016] [R-PEOPLE-034] given a proposal waiting, when the proposer withdraws it, then the other life no longer holds it and its log holds people/withdrawn from the authority; a withdraw with nothing waiting sends nothing", async () => {
+  test("[person:proposing-a-step] [person:family-requests-shared] given a proposal waiting, when the proposer withdraws it, then the other life no longer holds it and its log holds people/withdrawn from the authority; a withdraw with nothing waiting sends nothing", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await courting(linked);
@@ -130,7 +130,7 @@ describe("the pair transaction", () => {
     expect(withdrawn).toMatchObject([{ sender: "authority", command: { type: "people/withdrawn", pair: key, step: "partner" } }]);
   });
 
-  test("[R-PEOPLE-017] [R-PAIR-004] given partners, when they marry, then both lives are married, each paid its own share, and the record holds one wedding moment", async () => {
+  test("[person:agreed-partner-and-marriage] [pair:only-server-writes-record] given partners, when they marry, then both lives are married, each paid its own share, and the record holds one wedding moment", async () => {
     const linked = await linkedPair(pairServer(quickWeddings()));
     const { server, a, b, key } = linked;
 
@@ -145,7 +145,7 @@ describe("the pair transaction", () => {
     }
   });
 
-  test("[R-PEOPLE-037] [R-PAIR-004] given partners, when one ends it, then the record ends by that side, the one who ended pays standing, and the other life is left with the left wellbeing and no standing cost", async () => {
+  test("[person:ender-pays-in-standing] [pair:only-server-writes-record] given partners, when one ends it, then the record ends by that side, the one who ended pays standing, and the other life is left with the left wellbeing and no standing cost", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await partners(linked);
@@ -163,7 +163,7 @@ describe("the pair transaction", () => {
     expect(after.b.people.bonds[lastBondIn(after.b, key)]?.ended?.by).toBe("them");
   });
 
-  test("[R-PAIR-015] given a pair that ended, when one side courts it again, then it is refused, because only a new invite relinks the two", async () => {
+  test("[pair:block-ends-every-bond] given a pair that ended, when one side courts it again, then it is refused, because only a new invite relinks the two", async () => {
     const linked = await linkedPair(pairServer());
     const { server, a, key } = linked;
     await must(server, INVITER, { type: "people/court", with: key });
@@ -176,7 +176,7 @@ describe("the pair transaction", () => {
     expect(again).toMatchObject({ ok: false, code: "not-legal" });
   });
 
-  test("[R-PEOPLE-003] given a bonded pair, when one life's facts change with a month, then the other life is sent them in the same transaction and holds them", async () => {
+  test("[person:both-lives-step-together] given a bonded pair, when one life's facts change with a month, then the other life is sent them in the same transaction and holds them", async () => {
     const { server, a, b, key } = await linkedPair();
     const linkedFacts = (await stateOf(server, b)).people.bonds[bondIn(await stateOf(server, b), key)]?.facts;
     server.wait(4 * 3_600_000);
@@ -192,13 +192,13 @@ describe("the pair transaction", () => {
     expect(stableJson(held)).toBe(stableJson(factsOf(inviter, server.deps.contents.current, world)));
   });
 
-  test("[R-PEOPLE-014] given a courting pair at home, when one player spends a slot seeing the other, then the moment is copied into the record and into the other life as theirs", async () => {
+  test("[person:time-together-is-an-act] given a courting pair at home, when one player spends a slot seeing the other, then the moment is copied into the record and into the other life as theirs", async () => {
     const { server, a, b, key } = await linkedPair();
     await must(server, INVITER, { type: "people/court", with: key });
     await must(server, FRIEND, { type: "people/court", with: key });
     server.wait(4 * 3_600_000);
 
-    // R-ACTIVITY-015: seeing someone is an act done at once, sent as activity/now.
+    // activity:now-acts-and-month-acts: seeing someone is an act done at once, sent as activity/now.
     await must(server, INVITER, { type: "activity/now", activity: "activity.see-someone", param: null });
 
     const mine = await stateOf(server, a);

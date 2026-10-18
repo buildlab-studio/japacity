@@ -1,4 +1,4 @@
-// R-MODERATION-014: a mute (no phrases or invites) and a suspension (no
+// moderation:fixed-admin-actions: a mute (no phrases or invites) and a suspension (no
 // sign-in, and so nothing else) in force, read from the admin log as the
 // player's standing reads them, an overturned appeal undoing the action.
 import { time } from "@japacity/sim";
@@ -24,7 +24,7 @@ export async function restrictedUntil(deps: Pick<ServerDeps, "stores" | "now">, 
 }
 
 /**
- * R-MODERATION-014: the refusal for a phrase or an invite from a muted or
+ * moderation:fixed-admin-actions: the refusal for a phrase or an invite from a muted or
  * suspended account, or null. ServerCode has no code of its own for a mute,
  * so `not-possible` is used, with the end in the detail.
  */

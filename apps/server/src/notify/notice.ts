@@ -1,4 +1,4 @@
-// R-CLOCK-031: the bank-full notices. Every fill whose time has come is
+// clock:full-bank-push-notification: the bank-full notices. Every fill whose time has come is
 // claimed once, and only then sent, to every device of an account whose
 // setting is on: a second run, or two at once, never sends a fill twice.
 import type { ServerDeps } from "../deps";
@@ -48,7 +48,7 @@ export async function sendNotices(deps: ServerDeps, keys: PushKeys): Promise<Not
   return run;
 }
 
-/** R-CLOCK-031, R-ACCOUNT-020: the setting off and every device forgotten, as when the player turns it off or the account goes. */
+/** clock:full-bank-push-notification, account:only-needed-data-kept: the setting off and every device forgotten, as when the player turns it off or the account goes. */
 export async function stopNotices(deps: ServerDeps, account: string): Promise<void> {
   await deps.stores.push.forget(account);
   await deps.stores.account.setNotify(account, false);

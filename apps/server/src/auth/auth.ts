@@ -1,4 +1,4 @@
-// The Better Auth instance (R-ACCOUNT-001 to 006, 014). Made from the
+// The Better Auth instance (account:sign-in-without-secret, account:email-code-is-short-lived, account:passkey-needs-signed-in-session, account:no-text-message-codes, account:stand-ins-test-sign-in, account:session-is-secure-cookie, account:sign-in-routes-rate-limited). Made from the
 // server's dependencies and a database adapter: the memory adapter in tests,
 // Drizzle's (drizzle.ts) on the Worker. On Workers it is made inside each request
 // (decision 0006, section 1), so the send of an email code can hand its
@@ -34,14 +34,14 @@ import { signedInWith } from "./session";
 /** The memory adapter in tests; Drizzle's adapter has the same shape. */
 type Adapter = ReturnType<typeof memoryAdapter>;
 
-/** What an email code's send is given. Its promise is never awaited by the request (R-ACCOUNT-002). */
+/** What an email code's send is given. Its promise is never awaited by the request (account:email-code-is-short-lived). */
 export interface OtpMessage {
   email: string;
   otp: string;
   type: "sign-in" | "email-verification" | "forget-password" | "change-email";
 }
 
-/** R-ACCOUNT-003: what the account's email is told, by a send the request never awaits. */
+/** account:passkey-needs-signed-in-session: what the account's email is told, by a send the request never awaits. */
 export interface AuthNotice {
   email: string;
   kind: "passkey-added";
@@ -52,25 +52,25 @@ export interface AuthNotice {
 export interface AuthKeys {
   /** Signs the session cookie. At least 32 random characters. */
   secret: string;
-  /** The game's own address: `https://japacity.app`, or `https://staging.japacity.app` on staging. The passkeys' relying party is its host (R-ACCOUNT-003). */
+  /** The game's own address: `https://japacity.app`, or `https://staging.japacity.app` on staging. The passkeys' relying party is its host (account:passkey-needs-signed-in-session). */
   siteUrl: string;
   google: { clientId: string; clientSecret: string };
   turnstile: TurnstileKeys;
   sendOtp: (message: OtpMessage) => Promise<void>;
-  /** R-ACCOUNT-003: sends a notice to an account's email. */
+  /** account:passkey-needs-signed-in-session: sends a notice to an account's email. */
   sendNotice: (notice: AuthNotice) => Promise<void>;
   /** Keeps a promise alive past the reply: the request's `waitUntil` on Workers. */
   background: (promise: Promise<unknown>) => void;
 }
 
-/** R-ACCOUNT-021: the longest a browser keeps a cookie. */
+/** account:guest-and-secured-states: the longest a browser keeps a cookie. */
 const SESSION_DAYS = 400;
 
-/** R-ACCOUNT-006: the session cookie's attributes, whatever the library's defaults become. */
+/** account:session-is-secure-cookie: the session cookie's attributes, whatever the library's defaults become. */
 const COOKIE_ATTRIBUTES = { httpOnly: true, secure: true, sameSite: "lax" } as const;
 
 /**
- * R-ACCOUNT-003: the passkeys' relying party id, exactly the host of SITE_URL: `japacity.app` in
+ * account:passkey-needs-signed-in-session: the passkeys' relying party id, exactly the host of SITE_URL: `japacity.app` in
  * production (the apex, never a subdomain) and `staging.japacity.app` on staging, so a staging passkey
  * never signs in to production. A passkey is bound to this id for good, so a SITE_URL that is not a bare
  * https origin is refused here rather than turned into an id no passkey could follow.
@@ -83,7 +83,7 @@ export function relyingPartyOf(siteUrl: string): string {
 }
 
 /**
- * R-ACCOUNT-005: the test utilities exist only while the test server's config
+ * account:stand-ins-test-sign-in: the test utilities exist only while the test server's config
  * turns them on. They capture no code: the database holds only its hash, so
  * the tests read a code from the stand-in for the send.
  */
@@ -100,14 +100,14 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       otpLength: config.auth.otp.length,
       expiresIn: config.auth.otp.expiresIn,
       allowedAttempts: config.auth.otp.attempts,
-      // R-ACCOUNT-002: the database keeps only a code's hash, so whoever reads it sees no live code.
+      // account:email-code-is-short-lived: the database keeps only a code's hash, so whoever reads it sees no live code.
       storeOTP: "hashed",
       resendStrategy: "rotate",
       // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
       sendVerificationOTP: (message) => keys.sendOtp(message),
     }),
     passkey({ rpID: relyingParty, rpName: "Japacity", origin: keys.siteUrl, registration: { requireSession: true } }),
-    // R-ACCOUNT-021, 023: the guest's user is kept on a link; the user the link made is folded into it.
+    // account:guest-and-secured-states, account:guest-secures-the-life: the guest's user is kept on a link; the user the link made is folded into it.
     anonymous({ disableDeleteAnonymousUser: true, generateName: () => "", onLinkAccount: (input) => foldIntoGuest(deps, linking, input) }),
     ...testPlugins(config.testing.captureOtp),
   ];
@@ -118,7 +118,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
     basePath: "/api/auth",
     secret: keys.secret,
     database: adapter,
-    // R-SERVER-042: the library's errors become the server's one log line, scrubbed; its warnings and its own
+    // server:shared-observability-block: the library's errors become the server's one log line, scrubbed; its warnings and its own
     // printing (which would carry a failed statement's values) are dropped.
     logger: {
       level: "error",
@@ -132,7 +132,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       google: {
         clientId: keys.google.clientId,
         clientSecret: keys.google.clientSecret,
-        // R-ACCOUNT-020: no name and no photo are kept.
+        // account:only-needed-data-kept: no name and no photo are kept.
         mapProfileToUser: () => ({ name: "", image: "" }),
       },
     },
@@ -145,13 +145,13 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       },
     },
     session: {
-      // R-ACCOUNT-021: a guest's session is its only way back, so it lasts as long as a browser keeps a cookie (400 days), renewed each day it is used.
+      // account:guest-and-secured-states: a guest's session is its only way back, so it lasts as long as a browser keeps a cookie (400 days), renewed each day it is used.
       // No config field holds the session's life; the library's default of 7 days would lose a guest that rests a week.
       expiresIn: SESSION_DAYS * time.DAY_S,
       updateAge: time.DAY_S,
-      // R-ACCOUNT-016: deletion needs a session signed in within this many seconds.
+      // account:player-deletes-account: deletion needs a session signed in within this many seconds.
       freshAge: Math.floor(config.account.deleteFreshMs / 1000),
-      // R-MODERATION-012: how the session was opened, set by the hook below and never by a request.
+      // moderation:admin-view-for-admin-list: how the session was opened, set by the hook below and never by a request.
       additionalFields: { signedInWith: { type: "string", required: false, input: false } },
     },
     databaseHooks: {

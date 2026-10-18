@@ -51,7 +51,7 @@ function inbox(status = 200): { fetch: MailFetch; sent: { url: string; body: unk
 }
 
 describe("the mail transport", () => {
-  test("[R-ACCOUNT-014] given MAIL_TRANSPORT=mailpit with Mailpit on this machine, when a code is sent, then it is posted to Mailpit's send API with the reply-to, content's subject and a body naming the code and its minutes", async () => {
+  test("[account:sign-in-routes-rate-limited] given MAIL_TRANSPORT=mailpit with Mailpit on this machine, when a code is sent, then it is posted to Mailpit's send API with the reply-to, content's subject and a body naming the code and its minutes", async () => {
     const box = inbox();
     const mail = mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
     await mail.sendOtp({ email: "ada@example.com", otp: "481516", type: "sign-in" });
@@ -64,7 +64,7 @@ describe("the mail transport", () => {
     expect(codeMail({ email: "ada@example.com", otp: "481516", type: "sign-in" }, WORDS).text).toContain(`${String(productionConfig.auth.otp.expiresIn / 60)} minutes`);
   });
 
-  test("[R-ACCOUNT-003] [R-ACCOUNT-014] given the local transport, when a passkey's notice is sent, then Mailpit gets content's notice with the time in UTC", async () => {
+  test("[account:passkey-needs-signed-in-session] [account:sign-in-routes-rate-limited] given the local transport, when a passkey's notice is sent, then Mailpit gets content's notice with the time in UTC", async () => {
     const box = inbox();
     const mail = mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
     await mail.sendNotice({ email: "ada@example.com", kind: "passkey-added", at: Date.UTC(2026, 9, 11, 9, 53) });
@@ -72,7 +72,7 @@ describe("the mail transport", () => {
   });
 
   // A deployment sends through its MAIL binding (decision 0007); one without it sends nothing.
-  test("[R-ACCOUNT-014] given no MAIL_TRANSPORT and no MAIL binding, when a code or a notice is sent, then the send is refused and nothing is fetched", async () => {
+  test("[account:sign-in-routes-rate-limited] given no MAIL_TRANSPORT and no MAIL binding, when a code or a notice is sent, then the send is refused and nothing is fetched", async () => {
     const box = inbox();
     const mail = mailFor({ MAILPIT_URL: MAILPIT }, WORDS, box.fetch);
     await expect(mail.sendOtp({ email: "ada@example.com", otp: "481516", type: "sign-in" })).rejects.toThrow(NO_PROVIDER);
@@ -82,7 +82,7 @@ describe("the mail transport", () => {
     expect(box.sent).toEqual([]);
   });
 
-  test("[R-ACCOUNT-014] given MAIL_TRANSPORT=mailpit with Mailpit's address missing or not on this machine, when a code is sent, then it is refused and nothing is fetched", async () => {
+  test("[account:sign-in-routes-rate-limited] given MAIL_TRANSPORT=mailpit with Mailpit's address missing or not on this machine, when a code is sent, then it is refused and nothing is fetched", async () => {
     const box = inbox();
     for (const MAILPIT_URL of [undefined, "https://mail.example.com", "http://10.0.0.5:8025", "not an address"]) {
       const mail = mailFor(MAILPIT_URL === undefined ? { MAIL_TRANSPORT: "mailpit" } : { MAIL_TRANSPORT: "mailpit", MAILPIT_URL }, WORDS, box.fetch);
@@ -91,12 +91,12 @@ describe("the mail transport", () => {
     expect(box.sent).toEqual([]);
   });
 
-  test("[R-ACCOUNT-014] given Mailpit refuses the mail, when a code is sent, then the send rejects", async () => {
+  test("[account:sign-in-routes-rate-limited] given Mailpit refuses the mail, when a code is sent, then the send rejects", async () => {
     const mail = mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT }, WORDS, inbox(500).fetch);
     await expect(mail.sendOtp({ email: "ada@example.com", otp: "481516", type: "sign-in" })).rejects.toThrow("500");
   });
 
-  test("[R-ACCOUNT-014] [R-SERVER-038] given MAIL_TRANSPORT=mailpit on the local stack, where wrangler dev also binds MAIL, when a code is sent, then Mailpit gets it and the binding is never called; a Mailpit off this machine is refused, never handed to the binding", async () => {
+  test("[account:sign-in-routes-rate-limited] [server:production-and-staging] given MAIL_TRANSPORT=mailpit on the local stack, where wrangler dev also binds MAIL, when a code is sent, then Mailpit gets it and the binding is never called; a Mailpit off this machine is refused, never handed to the binding", async () => {
     const box = inbox();
     const mail = binding();
     await mailFor({ MAIL_TRANSPORT: "mailpit", MAILPIT_URL: MAILPIT, MAIL: mail }, WORDS, box.fetch).sendOtp({ email: "ada@example.com", otp: "481516", type: "sign-in" });
@@ -107,7 +107,7 @@ describe("the mail transport", () => {
     expect(box.sent).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-014] [R-SERVER-038] given the deployed config, when it is read, then no environment names a mail transport or Mailpit", () => {
+  test("[account:sign-in-routes-rate-limited] [server:production-and-staging] given the deployed config, when it is read, then no environment names a mail transport or Mailpit", () => {
     const config = readFileSync(fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url).href), "utf8");
     expect(config).not.toContain("MAIL_TRANSPORT");
     expect(config).not.toContain("MAILPIT");
@@ -115,7 +115,7 @@ describe("the mail transport", () => {
 });
 
 describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
-  test("[R-ACCOUNT-014] [R-ACCOUNT-002] given the MAIL binding and no MAIL_TRANSPORT, as on a deployment, when a code is sent, then the binding gets one mail from the game's one sender, replies to the monitored inbox, to the one address, with content's subject and a text part and an HTML part that both say the code, and nothing is fetched", async () => {
+  test("[account:sign-in-routes-rate-limited] [account:email-code-is-short-lived] given the MAIL binding and no MAIL_TRANSPORT, as on a deployment, when a code is sent, then the binding gets one mail from the game's one sender, replies to the monitored inbox, to the one address, with content's subject and a text part and an HTML part that both say the code, and nothing is fetched", async () => {
     const box = inbox();
     for (const MAIL_TRANSPORT of [undefined, "", "smtp"]) {
       const mail = binding();
@@ -129,7 +129,7 @@ describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
     expect(box.sent).toEqual([]);
   });
 
-  test("[R-ACCOUNT-003] [R-ACCOUNT-014] given the MAIL binding, when a passkey's notice is sent, then the binding gets content's notice from the one sender with the same reply-to, the time in UTC in both parts", async () => {
+  test("[account:passkey-needs-signed-in-session] [account:sign-in-routes-rate-limited] given the MAIL binding, when a passkey's notice is sent, then the binding gets content's notice from the one sender with the same reply-to, the time in UTC in both parts", async () => {
     const mail = binding();
     const notice = { email: "ada@example.com", kind: "passkey-added", at: Date.UTC(2026, 9, 11, 9, 53) } as const;
     await mailFor({ MAIL: mail }, WORDS, inbox().fetch).sendNotice(notice);
@@ -139,7 +139,7 @@ describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
     expect(letter.html).toContain("Sun, 11 Oct 2026 09:53:00 GMT");
   });
 
-  test("[R-ACCOUNT-014] given a mail's words, when its HTML part is made, then it is the text's paragraphs as plain paragraphs, escaped, with no picture, link, style or script", () => {
+  test("[account:sign-in-routes-rate-limited] given a mail's words, when its HTML part is made, then it is the text's paragraphs as plain paragraphs, escaped, with no picture, link, style or script", () => {
     expect(plainHtml("One <b>&</b> two.\nStill one.\n\nThree.")).toBe('<!doctype html><html lang="en"><body><p>One &lt;b&gt;&amp;&lt;/b&gt; two.<br>Still one.</p><p>Three.</p></body></html>');
     for (const letter of [codeMail({ email: "ada@example.com", otp: "481516", type: "sign-in" }, WORDS), noticeMail({ email: "ada@example.com", kind: "passkey-added", at: 0 }, WORDS)]) {
       expect(letter.html).not.toMatch(/<(img|a|style|script|link)\b/);
@@ -147,7 +147,7 @@ describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
     }
   });
 
-  test("[R-ACCOUNT-014] [R-SERVER-015] given the binding refuses a send with its error code and a message naming the address, when a code is sent, then the send rejects with the code alone: no address, no code, no chained error, and nothing is written to the console; an error with no code of that shape rejects with no code at all", async () => {
+  test("[account:sign-in-routes-rate-limited] [server:secrets-stay-on-server] given the binding refuses a send with its error code and a message naming the address, when a code is sent, then the send rejects with the code alone: no address, no code, no chained error, and nothing is written to the console; an error with no code of that shape rejects with no code at all", async () => {
     const refusal = Object.assign(new Error("Recipient ada@example.com is suppressed"), { code: "E_RECIPIENT_SUPPRESSED" });
     const mail = mailFor({ MAIL: binding(refusal) }, WORDS, inbox().fetch);
     let thrown: unknown;
@@ -165,7 +165,7 @@ describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
     }
   });
 
-  test("[R-ACCOUNT-002] [R-ACCOUNT-014] [R-SERVER-015] given the binding refuses, when a code is asked for through the auth library's route, then the route answers as for any failed send (200, the send left to the background), the background task settles, and no console line carries the address or the code", async () => {
+  test("[account:email-code-is-short-lived] [account:sign-in-routes-rate-limited] [server:secrets-stay-on-server] given the binding refuses, when a code is asked for through the auth library's route, then the route answers as for any failed send (200, the send left to the background), the background task settles, and no console line carries the address or the code", async () => {
     const mail = mailFor({ MAIL: binding(Object.assign(new Error("Recipient ada@example.com refused"), { code: "E_DELIVERY_FAILED" })) }, WORDS, inbox().fetch);
     const h = harness({ sendOtp: mail.sendOtp });
     const jar = makeJar();
@@ -184,7 +184,7 @@ describe("Cloudflare Email Service, the MAIL binding (decision 0007)", () => {
     expect(logged).not.toContain(code);
   });
 
-  test("[R-ACCOUNT-014] [R-SERVER-038] given the deployed config, when it is read, then production and staging each bind MAIL to Email Service allowed the game's one sender alone, the same address as the seam's SENDER", () => {
+  test("[account:sign-in-routes-rate-limited] [server:production-and-staging] given the deployed config, when it is read, then production and staging each bind MAIL to Email Service allowed the game's one sender alone, the same address as the seam's SENDER", () => {
     const raw = readFileSync(fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url).href), "utf8");
     type Worker = { send_email?: unknown; env?: Record<string, { send_email?: unknown }> };
     const config = JSON.parse(raw.replace(/^\s*\/\/.*$/gm, "")) as Worker;

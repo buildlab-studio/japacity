@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("the guest clean-up tool", () => {
-  test("[R-ACCOUNT-026] given guests last played either side of the idle days and an old secured account, when the tool lists and then applies, then only guests idle strictly longer are listed and removed, through the deletion's removal", async () => {
+  test("[account:idle-guests-cleaned-by-hand] given guests last played either side of the idle days and an old secured account, when the tool lists and then applies, then only guests idle strictly longer are listed and removed, through the deletion's removal", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-01-05T10:00:00Z");
     vi.setSystemTime(start);
@@ -36,7 +36,7 @@ describe("the guest clean-up tool", () => {
     expect(await h.deps.stores.deletion.due(Number.MAX_SAFE_INTEGER)).toEqual([]);
   });
 
-  test("[R-ACCOUNT-026] given the command line, when it is read, then the idle days default to the setting, take a whole number of at least 1, and anything else is refused", () => {
+  test("[account:idle-guests-cleaned-by-hand] given the command line, when it is read, then the idle days default to the setting, take a whole number of at least 1, and anything else is refused", () => {
     expect(cleanArgs([], 90)).toEqual({ idleDays: 90, apply: false });
     expect(cleanArgs(["--apply", "--idle-days", "1"], 90)).toEqual({ idleDays: 1, apply: true });
     for (const bad of [["--idle-days"], ["--idle-days", "0"], ["--idle-days", "-3"], ["--idle-days", "2.5"], ["--days", "3"], ["apply"]]) expect(cleanArgs(bad, 90)).toBeNull();

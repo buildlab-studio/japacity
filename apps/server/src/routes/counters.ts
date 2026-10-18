@@ -1,4 +1,4 @@
-// `POST /api/counters` (analytics.md R-ANALYTICS-003 to 007): the client's
+// `POST /api/counters` (analytics:client-batches-counters, analytics:server-checks-every-batch, analytics:rows-stored-as-day-totals, analytics:player-can-stop-usage-counts and analytics:store-holds-nothing-personal): the client's
 // batch, sent as a beacon. It always answers 204 with no body, whatever it
 // dropped, so a failed batch is never something the player sees. Only the
 // day's totals are written: the account, the session and the request's
@@ -32,9 +32,9 @@ export function countersRoute(deps: ServerDeps): Hono {
     const day = time.dayName(time.utcDay(deps.now()));
     const session = await deps.session(c.req.raw);
     if (session === null) {
-      // R-SERVER-026: a batch with no session is looked at only within the address limit.
+      // server:anonymous-limit-by-address: a batch with no session is looked at only within the address limit.
       if ((await overLimit(deps, "reads", null, c.req.header("cf-connecting-ip") ?? null)) !== null) return done();
-      // R-ANALYTICS-004: the door's three screens may arrive signed out, since the door is
+      // analytics:server-checks-every-batch: the door's three screens may arrive signed out, since the door is
       // before any account; they are counted under the request's region. Nothing else may: it is dropped signed out.
       const checked = checkBatch(deps.contents.current, await c.req.text());
       const door = checked.rows.filter(isDoorRow);
@@ -50,7 +50,7 @@ export function countersRoute(deps: ServerDeps): Hono {
       await deps.stores.counters.add(droppedRows(day, NO_REGION, { "signed-out": 1 }));
       return done();
     }
-    // R-ANALYTICS-006: a player who stopped the counters is not counted at all, not even as dropped.
+    // analytics:player-can-stop-usage-counts: a player who stopped the counters is not counted at all, not even as dropped.
     if (!usageCountsOn(account)) return done();
     const region = regionOf(account);
     if (!batchAllowed(deps.stores.counters, session.account, deps.now(), deps.contents.current.tuning.analytics.batchesPerHour)) {
@@ -60,7 +60,7 @@ export function countersRoute(deps: ServerDeps): Hono {
     const checked = checkBatch(deps.contents.current, await c.req.text());
     const counted = checked.rows.map((row) => ({ day, region, name: row.name, key: row.key, count: row.count }));
     await deps.stores.counters.add([...counted, ...droppedRows(day, region, checked.dropped)]);
-    // R-ADVERT-020: the advert rows also reach the campaign's daily totals, by the slot and the hour's campaign there,
+    // advert:advertiser-records-stored: the advert rows also reach the campaign's daily totals, by the slot and the hour's campaign there,
     // up to one account's allowance for the day.
     const allowed = await withinAccountDay(deps, session.account, deps.now(), checked.rows);
     await addAdvertCounters(deps, advertRegion(deps.config.advert.regions, account.country), deps.now(), allowed);

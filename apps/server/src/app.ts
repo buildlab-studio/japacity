@@ -41,16 +41,16 @@ import { sameOriginWrites } from "./security/origin";
 
 export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   const app = new Hono();
-  // R-SERVER-043: a route that throws is logged once and answered in JSON, never the platform's error page.
+  // server:no-platform-error-page: a route that throws is logged once and answered in JSON, never the platform's error page.
   app.onError(onAppError);
   // Outermost, so every reply carries the headers, a refusal below included.
   app.use(securityHeaders());
   // A write from another site, or a body too large, is refused before anything reads or counts it.
   if (accounts !== undefined) app.use(sameOriginWrites(accounts.keys.siteUrl));
   app.use(bodyLimits(deps.config.limits));
-  // R-SERVER-005, R-ANALYTICS-008: around the gates and the limits, so a refusal from either is counted too.
+  // server:rejections-write-nothing, analytics:nightly-game-counters: around the gates and the limits, so a refusal from either is counted too.
   for (const path of COUNTED_PATHS) app.use(path, countRefusals(deps));
-  // R-SERVER-031: first, so its gates run before every route they close.
+  // server:four-off-switches: first, so its gates run before every route they close.
   app.route("/", adminSwitchRoutes(deps));
 
   if (accounts !== undefined) app.route("/", authRoutes(accounts)).route("/", ageRoutes(deps, accounts)).route("/", accountRoutes(deps, accounts));
@@ -69,7 +69,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   app.route("/api/admin/adverts", adminAdvertRoutes(deps));
   app.route("/api/admin", adminRoutes(deps));
   app.route("/", countersRoute(deps)).route("/api/admin", adminAnalyticsRoutes(deps));
-  // R-SERVER-041: the page's content policy reports here.
+  // server:csp-reports-to-own-origin: the page's content policy reports here.
   app.route("/", cspReportRoute(deps));
   app.route("/", adminModerationRoutes(deps, moderationPorts(deps, accounts)));
   app.route("/", feedbackRoute(deps));
@@ -82,7 +82,7 @@ export function makeApp(deps: ServerDeps, accounts?: Accounts): Hono {
   return app;
 }
 
-/** R-CLOCK-001: the current tick from the server's clock alone. */
+/** clock:server-owns-the-clock: the current tick from the server's clock alone. */
 export function currentTick(deps: Pick<ServerDeps, "config" | "now">): number {
   const { epoch, worldTickMs } = deps.config.clock;
   return Math.max(0, Math.floor((deps.now() - epoch) / worldTickMs));

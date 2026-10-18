@@ -1,4 +1,4 @@
-// The load test's Worker (docs/rules/load.md R-LOAD-001): the same app as
+// The load test's Worker (load:runs-against-local-stack): the same app as
 // index.ts under the local Workers runtime, with the test server's config
 // (the test sign-in and the fast clock), the memory stores with their writes
 // counted, and the load routes. Run only by `wrangler.load.jsonc`; the

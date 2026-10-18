@@ -1,4 +1,4 @@
-// R-SERVER-038: staging is kept out of search engines; production never is.
+// server:production-and-staging: staging is kept out of search engines; production never is.
 // On staging every request reaches the Worker first (`run_worker_first: true`),
 // so the Worker serves the client's files itself through the ASSETS binding and
 // can mark every reply. A page or a file never opens a database client: only
@@ -36,7 +36,7 @@ function marked(response: Response): Response {
 }
 
 /**
- * R-SERVER-038: without `NOINDEX` the request goes to the game as it always
+ * server:production-and-staging: without `NOINDEX` the request goes to the game as it always
  * did. With it, `/robots.txt` disallows everything, `/api/*` goes to the game
  * and every other path to the client's files, and each reply carries the tag.
  */

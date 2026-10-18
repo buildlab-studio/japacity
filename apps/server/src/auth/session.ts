@@ -1,6 +1,6 @@
 // The session reader every route is given (deps.ts `SessionReader`): the
 // signed-in account from the session cookie, and whether that session was
-// opened with a passkey (R-MODERATION-012), or null.
+// opened with a passkey (moderation:admin-view-for-admin-list), or null.
 // https://better-auth.com/docs/concepts/session-management
 // https://better-auth.com/docs/concepts/database#extending-core-schema
 import type { SessionReader } from "../deps";

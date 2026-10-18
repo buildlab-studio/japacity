@@ -1,4 +1,4 @@
-// R-SERVER-005: rejections counted by code for the admin page only. The counts
+// server:rejections-write-nothing: rejections counted by code for the admin page only. The counts
 // live in the isolate's memory and start again at zero when it restarts.
 import type { ServerCode } from "@japacity/api";
 

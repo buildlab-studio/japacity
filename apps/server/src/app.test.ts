@@ -7,7 +7,7 @@ import { productionConfig, testConfig } from "./config";
 import { TEST_SIGNED_IN_WITH, testSession } from "./deps";
 
 describe("the server shell", () => {
-  test("[R-CLOCK-001] given the server's clock, when the tick is read, then it is the floor of the time since the epoch over a tick", () => {
+  test("[clock:server-owns-the-clock] given the server's clock, when the tick is read, then it is the floor of the time since the epoch over a tick", () => {
     const { epoch, worldTickMs } = productionConfig.clock;
     expect(currentTick(testDeps({ now: () => epoch }))).toBe(0);
     expect(currentTick(testDeps({ now: () => epoch + worldTickMs - 1 }))).toBe(0);
@@ -15,20 +15,20 @@ describe("the server shell", () => {
     expect(currentTick(testDeps({ now: () => epoch + 14 * worldTickMs }))).toBe(14);
   });
 
-  test("[R-CLOCK-002] given the default epoch, when it is read, then it is a Friday at 18:00 UTC", () => {
+  test("[clock:world-tick-length-and-epoch] given the default epoch, when it is read, then it is a Friday at 18:00 UTC", () => {
     const epoch = new Date(productionConfig.clock.epoch);
     expect(epoch.getUTCDay()).toBe(5);
     expect(epoch.getUTCHours()).toBe(18);
     expect(epoch.getUTCMinutes()).toBe(0);
   });
 
-  test("[R-ACCOUNT-005] [R-CLOCK-009] given the production config, when its test switches are read, then every one is off", () => {
+  test("[account:stand-ins-test-sign-in] [clock:production-has-no-fast-clock] given the production config, when its test switches are read, then every one is off", () => {
     expect(Object.values(productionConfig.testing).every((on) => on === false)).toBe(true);
     expect(testConfig({ testing: { fastClock: true } }).testing.fastClock).toBe(true);
     expect(productionConfig.testing.fastClock).toBe(false);
   });
 
-  test("[R-ACCOUNT-005] given the production config, when the test session reads a request with the test header, then no one is signed in", async () => {
+  test("[account:stand-ins-test-sign-in] given the production config, when the test session reads a request with the test header, then no one is signed in", async () => {
     const request = new Request("http://server/api/view", { headers: { "x-test-account": "acc-1" } });
     expect(await testSession(productionConfig)(request)).toBeNull();
     expect(await testSession(testConfig({ testing: { testLogin: true } }))(request)).toEqual({ account: "acc-1", passkey: true });

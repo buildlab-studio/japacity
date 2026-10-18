@@ -1,6 +1,6 @@
 /// <reference types="node" />
 // The command line's entry, run by Node through tsx and never part of the Worker.
-// With no flag it opens the database at DATABASE_URL_UNPOOLED (R-SERVER-047).
+// With no flag it opens the database at DATABASE_URL_UNPOOLED (server:snapshot-before-deploy).
 import { readFile } from "node:fs/promises";
 
 import { rollbackCli } from "./cli";

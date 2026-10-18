@@ -1,6 +1,6 @@
-// The place object (R-CLOCK-025 to 029): one per room of a place, holding who
+// The place object (clock:presence-held-in-memory, clock:attachments-rebuild-presence, clock:moving-switches-place-socket, clock:presence-is-a-sample and clock:busy-place-splits-rooms): one per room of a place, holding who
 // is there in memory only, through hibernatable sockets. Its storage holds
-// one thing, the day's seen list (R-CITY-036).
+// one thing, the day's seen list (city:players-shown-present-not-tracked).
 // Sources, read on 8 Oct 2026:
 // https://developers.cloudflare.com/durable-objects/api/state/ (acceptWebSocket, getWebSockets, tags, setWebSocketAutoResponse)
 // https://developers.cloudflare.com/durable-objects/api/websockets/ (serializeAttachment, at most 16,384 bytes)
@@ -33,7 +33,7 @@ import { drawToday, lagosDay, listOn, parseTodayList, recordSeen, TODAY_KEY } fr
 import type { TodayList } from "./place.today";
 
 function send(socket: WebSocket, text: string): boolean {
-  // Best effort (R-CLOCK-022): a socket that is closing must not stop the others.
+  // Best effort (clock:nudges-are-best-effort): a socket that is closing must not stop the others.
   try {
     socket.send(text);
     return true;
@@ -55,13 +55,13 @@ function close(socket: WebSocket, code: number, reason: string): void {
  * plain functions above and in the store it holds.
  */
 export class Place extends DurableObject<PlaceEnv> {
-  /** R-CLOCK-026: rebuilt from the open sockets on every wake. */
+  /** clock:attachments-rebuild-presence: rebuilt from the open sockets on every wake. */
   private readonly members: PresenceStore = memoryPresenceStore();
   private readonly held = new Map<string, PresenceMember>();
 
   constructor(ctx: DurableObjectState, env: PlaceEnv) {
     super(ctx, env);
-    // R-CLOCK-024: answered by the runtime without waking the object.
+    // clock:client-sends-only-pings: answered by the runtime without waking the object.
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair(PING, PONG));
     void ctx.blockConcurrencyWhile(async () => {
       for (const socket of ctx.getWebSockets("member")) {
@@ -91,13 +91,13 @@ export class Place extends DurableObject<PlaceEnv> {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  /** R-CLOCK-029: how many members the room holds, for the router. */
+  /** clock:busy-place-splits-rooms: how many members the room holds, for the router. */
   count(): number {
     return this.held.size;
   }
 
   /**
-   * R-CLOCK-028, R-CITY-036: the room's answer to a presence fetch. Those seen
+   * clock:presence-is-a-sample, city:players-shown-present-not-tracked: the room's answer to a presence fetch. Those seen
    * today fill only what the live sample leaves of `n`, and never anyone here now.
    */
   async look(place: string, asker: string | null, n: number, seed: number, now: number | null = null): Promise<RoomLook> {
@@ -108,14 +108,14 @@ export class Place extends DurableObject<PlaceEnv> {
     return { members: this.held.size, holds, sample, today };
   }
 
-  /** R-CLOCK-020: sends the nudge to every socket of the account here, and says how many it reached. */
+  /** clock:socket-only-nudges: sends the nudge to every socket of the account here, and says how many it reached. */
   nudge(account: string, nudge: Nudge): { reached: number; members: number } {
     const text = nudgeText(nudge);
     const reached = this.ctx.getWebSockets(`account:${account}`).filter((socket) => send(socket, text)).length;
     return { reached, members: this.held.size };
   }
 
-  /** R-CLOCK-027: closes one socket from the server's side and drops it from the list at once. */
+  /** clock:moving-switches-place-socket: closes one socket from the server's side and drops it from the list at once. */
   async leave(socket: string): Promise<{ found: boolean; members: number }> {
     const found = this.ctx.getWebSockets(`socket:${socket}`);
     for (const each of found) close(each, CLOSE_NORMAL, "left");
@@ -124,7 +124,7 @@ export class Place extends DurableObject<PlaceEnv> {
   }
 
   override async webSocketMessage(socket: WebSocket): Promise<void> {
-    // R-SERVER-027: pings answered by the automatic reply never reach here, so only these are counted.
+    // server:noisy-socket-closed: pings answered by the automatic reply never reach here, so only these are counted.
     const attachment = parseAttachment(JSON.stringify(socket.deserializeAttachment()));
     if (attachment === null) return;
     const { success } = await this.env.SOCKET_10S.limit({ key: `socket:${attachment.socket}` });
@@ -141,7 +141,7 @@ export class Place extends DurableObject<PlaceEnv> {
     await this.dropSocket(socket);
   }
 
-  /** R-CLOCK-028: one presence nudge to every member, at most once a window. R-CITY-036: a past day's list goes. */
+  /** clock:presence-is-a-sample: one presence nudge to every member, at most once a window. city:players-shown-present-not-tracked: a past day's list goes. */
   override async alarm(): Promise<void> {
     const text = nudgeText({ nudge: "presence" });
     for (const socket of this.ctx.getWebSockets("member")) send(socket, text);
@@ -154,7 +154,7 @@ export class Place extends DurableObject<PlaceEnv> {
     await this.members.join(member.place, socket, member);
   }
 
-  /** R-CITY-036: a socket that joins puts its member on the day of its joining, by name and look only. */
+  /** city:players-shown-present-not-tracked: a socket that joins puts its member on the day of its joining, by name and look only. */
   private async seen(member: PresenceMember, todayMax: number): Promise<void> {
     const list = recordSeen(await this.stored(), lagosDay(member.joinedAt), member, todayMax);
     await this.ctx.storage.put(TODAY_KEY, list);
@@ -177,7 +177,7 @@ export class Place extends DurableObject<PlaceEnv> {
     await this.presenceChanged();
   }
 
-  /** R-CLOCK-028: the first change in a window sets the alarm; the rest find it set. */
+  /** clock:presence-is-a-sample: the first change in a window sets the alarm; the rest find it set. */
   private async presenceChanged(): Promise<void> {
     if ((await this.ctx.storage.getAlarm()) !== null) return;
     await this.ctx.storage.setAlarm(Date.now() + NUDGE_EVERY_MS);

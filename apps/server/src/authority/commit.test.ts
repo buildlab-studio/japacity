@@ -7,7 +7,7 @@ import { moneyJob } from "../jobs/money";
 import { accepted, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 
 describe("what follows a commit", () => {
-  test("[R-SERVER-011] [R-SERVER-002] given a character that plays a month on one day and another on the next, when each commits, then the mark sits on the commit's day and the first day's month is closed into the first day's totals by the second day's first commit, the second day's own month waiting for its close", async () => {
+  test("[server:daily-money-report] [server:one-command-one-transaction] given a character that plays a month on one day and another on the next, when each commits, then the mark sits on the commit's day and the first day's month is closed into the first day's totals by the second day's first commit, the second day's own month waiting for its close", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1");
     const first = time.utcDay(server.deps.now());
@@ -32,7 +32,7 @@ describe("what follows a commit", () => {
     expect(Object.keys(second.created).length + Object.keys(second.destroyed).length).toBe(0);
   });
 
-  test("[R-SERVER-011] given a day log that names the day's characters, when the money job runs in an isolate that never saw them commit, then it closes their day from the log", async () => {
+  test("[server:daily-money-report] given a day log that names the day's characters, when the money job runs in an isolate that never saw them commit, then it closes their day from the log", async () => {
     const played = testServer();
     const character = await newLife(played, "acc-1");
     accepted((await send(played, "acc-1", restMonth({ v: 0 }))).body);
@@ -54,7 +54,7 @@ describe("what follows a commit", () => {
     expect((await played.deps.stores.ledger.mark(character))?.day).toBe(day + 1);
   });
 
-  test("[R-SERVER-003] [R-SERVER-012] given a character whose log no longer replays, when it is loaded twice, then the diverged alarm is raised once for its version", async () => {
+  test("[server:log-rows-hash-state] [server:ledger-alarm-lists-suspects] given a character whose log no longer replays, when it is loaded twice, then the diverged alarm is raised once for its version", async () => {
     const server = testServer();
     const broken = await newLife(server, "acc-1");
     accepted((await send(server, "acc-1", restMonth({ v: 0 }))).body);

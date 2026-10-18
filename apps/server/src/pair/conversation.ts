@@ -1,5 +1,5 @@
-// Conversations in preset phrases (pair.md R-PAIR-010, R-PAIR-011, R-PAIR-013;
-// person.md R-PEOPLE-015; moderation.md R-MODERATION-009): the checks in the
+// Conversations in preset phrases (pair:preset-phrases-only, pair:conversation-phrases-stored, pair:phrase-checks-before-send;
+// person:talking-adds-moments; moderation:open-report-pauses-conversation): the checks in the
 // page's order, the row stored, a `said` moment in the record and in both
 // lives, and the other side nudged to fetch.
 import type { ConversationRead, PairRead, Said } from "@japacity/api";
@@ -30,10 +30,10 @@ export async function readable(deps: ServerDeps, account: string, key: string): 
 }
 
 /**
- * R-PAIR-011, R-PAIR-013: a phrase in the pair's conversation. Connected,
+ * pair:conversation-phrases-stored, pair:phrase-checks-before-send: a phrase in the pair's conversation. Connected,
  * neither blocked, within `phrasesPerHour`, then the phrase and its fill from
  * the sender's own lists; a report the other side filed on this pair pauses
- * their way in too (R-MODERATION-009), and an account that is gone takes no
+ * their way in too (moderation:open-report-pauses-conversation), and an account that is gone takes no
  * phrase. A refusal stores nothing and names only the check that failed.
  */
 export async function say(deps: ServerDeps, account: string, key: string, body: unknown): Promise<PairAnswer<Said>> {
@@ -68,7 +68,7 @@ export async function say(deps: ServerDeps, account: string, key: string, body: 
     if (theirAccount === null) return { ok: false, code: "not-possible", detail: NOT_POSSIBLE };
     const tick = turn.world.tick;
     book.write(key, at, saidMoment(message, phrase, tick));
-    // R-PEOPLE-015: talking counts, in both lives.
+    // person:talking-adds-moments: talking counts, in both lives.
     for (const each of ["a", "b"] as const) {
       const to = sideLive(lives, held, each);
       if (to === null) continue;
@@ -96,7 +96,7 @@ export async function say(deps: ServerDeps, account: string, key: string, body: 
   }
 }
 
-/** R-PAIR-011: the rows after `after`, then every row from the other side marked read. */
+/** pair:conversation-phrases-stored: the rows after `after`, then every row from the other side marked read. */
 export async function readConversation(deps: ServerDeps, account: string, key: string, after: string | null): Promise<PairAnswer<ConversationRead>> {
   const found = await readable(deps, account, key);
   if (found === null) return refused(404, "unknown-id", "There is no such pair.");
@@ -105,7 +105,7 @@ export async function readConversation(deps: ServerDeps, account: string, key: s
   return { status: 200, body: { ok: true, pair: key, messages } };
 }
 
-/** R-PAIR-006: the record as the reader's side may see it. */
+/** pair:who-may-read-a-record: the record as the reader's side may see it. */
 export async function readPair(deps: ServerDeps, account: string, key: string): Promise<PairAnswer<PairRead>> {
   const found = await readable(deps, account, key);
   const view = found === null ? null : pairView(found.record, found.character);

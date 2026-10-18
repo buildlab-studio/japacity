@@ -1,5 +1,4 @@
-// Block and report (pair.md R-PAIR-014 to 016; moderation.md R-MODERATION-001,
-// 002, 004, 006 to 009). A block ends every bond between the two as a block
+// Block and report (pair:block-and-report-one-tap, pair:block-ends-every-bond and pair:report-holds-conversation; moderation:block-refuses-both-ways, moderation:block-ends-pair-records, moderation:report-carries-subject-and-reason, moderation:report-offers-block, moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records and moderation:open-report-pauses-conversation). A block ends every bond between the two as a block
 // end in both lives and is never shown to the blocked side as a block; a
 // report holds what it cites and changes nothing in either life.
 import { type Blocked, REPORT_REASONS, type ReportCite, type Reported, type ReportSubject } from "@japacity/api";
@@ -36,7 +35,7 @@ async function targetOf(deps: ServerDeps, me: string, body: unknown): Promise<st
 }
 
 /**
- * R-PAIR-015, R-MODERATION-002: writes the block into the record the two
+ * pair:block-ends-every-bond, moderation:block-ends-pair-records: writes the block into the record the two
  * share, ending it as a block in both lives, with no standing cost and the
  * joint collapsed by each life's own end.
  */
@@ -63,7 +62,7 @@ async function blockRecord(deps: ServerDeps, me: string, them: string): Promise<
   return widen(unusual(outcome));
 }
 
-/** R-MODERATION-001: `moderation/block` names the other player by their pair or their character. */
+/** moderation:block-refuses-both-ways: `moderation/block` names the other player by their pair or their character. */
 export async function block(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Blocked>> {
   const me = await characterOf(deps, account);
   if (me === null) return refused(404, "no-character", "This account has no character yet.");
@@ -74,7 +73,7 @@ export async function block(deps: ServerDeps, account: string, body: unknown): P
   return (await blockRecord(deps, me, them)) ?? { status: 200, body: { ok: true } };
 }
 
-/** R-MODERATION-002: the block lifted, and nothing restored: a new invite is needed. */
+/** moderation:block-ends-pair-records: the block lifted, and nothing restored: a new invite is needed. */
 export async function unblock(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Blocked>> {
   const me = await characterOf(deps, account);
   if (me === null) return refused(404, "no-character", "This account has no character yet.");
@@ -95,7 +94,7 @@ export async function unblock(deps: ServerDeps, account: string, body: unknown):
   return { status: 200, body: { ok: true } };
 }
 
-/** Sets or clears `held` on a record, touching no life (R-PAIR-016). */
+/** Sets or clears `held` on a record, touching no life (pair:report-holds-conversation). */
 async function holdRecord(deps: ServerDeps, key: string, held: boolean): Promise<void> {
   if ((await deps.stores.pair.get(key)) === null) return;
   await pairStep(deps, key, ({ book }) => {
@@ -112,9 +111,9 @@ function messagesOf(body: unknown): string[] | null {
   return Array.isArray(messages) && messages.every((each) => typeof each === "string") ? messages : null;
 }
 
-/** R-MODERATION-006: the refusal when the account has filed `reportsPerDay` reports in the last day, else null. */
+/** moderation:report-offers-block: the refusal when the account has filed `reportsPerDay` reports in the last day, else null. */
 async function overLimit(deps: ServerDeps, account: string): Promise<PairAnswer<Reported> | null> {
-  // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
+  // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (pair:phrase-checks-before-send).
   if ((await deps.stores.moderation.filedSince(account, deps.now() - time.DAY_MS + 1)) < deps.config.moderation.reportsPerDay) return null;
   return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: time.DAY_S } };
 }
@@ -124,7 +123,7 @@ function reportId(deps: ServerDeps): string {
 }
 
 /**
- * R-PAIR-016, R-MODERATION-004, R-MODERATION-006, R-MODERATION-008: a report
+ * pair:report-holds-conversation, moderation:report-carries-subject-and-reason, moderation:report-offers-block, moderation:reports-hold-cited-records: a report
  * on a pair, citing the pair or messages of its conversation. The record is
  * held until a moderator decides; the reporter may block in the same step.
  */
@@ -153,7 +152,7 @@ async function pairReport(deps: ServerDeps, account: string, reason: ReportReaso
 type Found = { ok: true; subject: ReportSubject } | { ok: false; answer: PairAnswer<Reported> };
 
 /**
- * R-MODERATION-003, R-MODERATION-004: the subject of a report that cites no
+ * moderation:report-from-every-surface, moderation:report-carries-subject-and-reason: the subject of a report that cites no
  * pair. A card names its inviter, looked up from the code; an advert names its
  * campaign, which must run in the slot cited; a phrase heard in a place names
  * a place and a phrase of the content.
@@ -172,15 +171,15 @@ async function subjectOf(deps: ServerDeps, account: string, input: ReportInput, 
     if (campaign === null || !Object.hasOwn(current.advert, cite.slot) || !(campaign.slots as readonly string[]).includes(cite.slot)) return { ok: false, answer: refused(404, "unknown-id", "There is no such advert in that slot.") };
     return { ok: true, subject: { campaign: campaign.id } };
   }
-  // R-PAIR-012: only a phrase marked for places can be said in one.
+  // pair:place-phrases-not-stored: only a phrase marked for places can be said in one.
   const phrase = Object.hasOwn(current.phrase, cite.phrase) ? current.phrase[cite.phrase as Id<"phrase">] : undefined;
   if (!Object.hasOwn(current.place, cite.place) || phrase === undefined || phrase.where === "conversation") return { ok: false, answer: refused(404, "unknown-id", "There is no such phrase said in that place.") };
   if (cite.at > deps.now()) return { ok: false, answer: refused(400, "not-legal", "A phrase cannot be heard after the report.") };
-  // Presence carries no account (R-CITY-036), so a phrase heard in a place names its speaker only when the body does; otherwise the subject is blank for the moderator to find.
+  // Presence carries no account (city:players-shown-present-not-tracked), so a phrase heard in a place names its speaker only when the body does; otherwise the subject is blank for the moderator to find.
   return { ok: true, subject: input.subject ?? { account: "" } };
 }
 
-/** The cite form `{ subject?, reason, cites }` (R-MODERATION-004): a card, an advert, a phrase heard in a place, or a pair or its messages. */
+/** The cite form `{ subject?, reason, cites }` (moderation:report-carries-subject-and-reason): a card, an advert, a phrase heard in a place, or a pair or its messages. */
 async function citeReport(deps: ServerDeps, account: string, body: unknown): Promise<PairAnswer<Reported>> {
   const read = readReport(body);
   if (!read.ok) return refused(400, "not-legal", read.detail);
@@ -208,7 +207,7 @@ async function citeReport(deps: ServerDeps, account: string, body: unknown): Pro
 }
 
 /**
- * `POST /api/moderation/report` (R-MODERATION-003, 004, 006): the pair form
+ * `POST /api/moderation/report` (moderation:report-from-every-surface, moderation:report-carries-subject-and-reason, moderation:report-offers-block): the pair form
  * `{ pair, reason, messages?, block? }`, or the cite form `{ subject?, reason,
  * cites }` read by `readReport`, told apart by `cites`. Either way at most
  * `config.moderation.reportsPerDay` a day, each held at most `holdDays`.
@@ -226,7 +225,7 @@ export async function report(deps: ServerDeps, account: string, body: unknown): 
 }
 
 /**
- * R-MODERATION-007, R-MODERATION-008: for the moderation admin view.
+ * moderation:reporter-told-outcome-only, moderation:reports-hold-cited-records: for the moderation admin view.
  * Decides the report, lifts its hold, and releases the record once no other
  * open report holds it.
  */

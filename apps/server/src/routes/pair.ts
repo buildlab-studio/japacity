@@ -1,4 +1,4 @@
-// The pair record as one side reads it (docs/rules/pair.md R-PAIR-006):
+// The pair record as one side reads it (pair:who-may-read-a-record):
 // `GET /api/pair/:pair`.
 import { Hono } from "hono";
 

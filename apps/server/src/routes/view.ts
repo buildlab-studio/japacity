@@ -1,6 +1,6 @@
-// `GET /api/view?since=<v>` (docs/rules/clock.md R-CLOCK-003): the view after
+// `GET /api/view?since=<v>` (clock:reply-carries-the-clock): the view after
 // the load and the turn grant, with the clock, and the lines of the rows after
-// version `since` that the player did not send (lottery.md R-LOTTERY-017).
+// version `since` that the player did not send (lottery:payment-waits-for-away-player).
 import { Hono } from "hono";
 
 import { refusal } from "../authority/answer";

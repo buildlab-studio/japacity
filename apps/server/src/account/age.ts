@@ -1,4 +1,4 @@
-// R-ACCOUNT-012: the age screen's arithmetic and its two cookies. The date of
+// account:age-screen-refuses-minors: the age screen's arithmetic and its two cookies. The date of
 // birth is read, judged and dropped here; nothing below keeps it.
 import { time } from "@japacity/sim";
 

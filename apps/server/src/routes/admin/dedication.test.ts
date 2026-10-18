@@ -1,5 +1,5 @@
-// The lights list on the admin page (docs/rules/moderation.md R-MODERATION-021): the lights awaiting a look, oldest
-// first, Approve and Refuse, each written to the admin log with the reason `dedication` (R-MODERATION-015).
+// The lights list on the admin page (moderation:dedication-lights-await-approval): the lights awaiting a look, oldest
+// first, Approve and Refuse, each written to the admin log with the reason `dedication` (moderation:admin-actions-logged-append-only).
 import { type DedicationReply, type PendingLight, REPORT_REASONS } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -40,7 +40,7 @@ async function lit(): Promise<TestServer> {
 const pending = (server: TestServer, account = ADMIN) => ask<{ ok: true; lights: PendingLight[] }>(server, "GET", DEDICATION_PENDING_PATH, account);
 
 describe("the lights awaiting a look", () => {
-  test("[R-MODERATION-021] given lights lit, when an admin reads the list, then each shows its name, years, the account's username and region and when lit, oldest first", async () => {
+  test("[moderation:dedication-lights-await-approval] given lights lit, when an admin reads the list, then each shows its name, years, the account's username and region and when lit, oldest first", async () => {
     const server = await lit();
     const reply = await pending(server);
     expect(reply.status).toBe(200);
@@ -50,7 +50,7 @@ describe("the lights awaiting a look", () => {
     ]);
   });
 
-  test("[R-MODERATION-021] [R-SERVER-012] [R-MODERATION-012] given a player, or an admin without a passkey, when the list or a decision is asked for, then it does not exist for the player and is refused for the admin", async () => {
+  test("[moderation:dedication-lights-await-approval] [server:ledger-alarm-lists-suspects] [moderation:admin-view-for-admin-list] given a player, or an admin without a passkey, when the list or a decision is asked for, then it does not exist for the player and is refused for the admin", async () => {
     const server = await lit();
     expect((await pending(server, "account.c")).status).toBe(404);
     expect((await ask(server, "POST", "/api/admin/dedication/account.a/approve", "account.c")).status).toBe(404);
@@ -59,7 +59,7 @@ describe("the lights awaiting a look", () => {
     expect((await server.deps.stores.dedication.mine("account.a"))?.approvedAt).toBeNull();
   });
 
-  test("[R-MODERATION-021] [R-MODERATION-015] [R-ACCOUNT-033] given a light, when the admin approves it, then the name shows to everyone from the next read, it leaves the list, and the log holds the approval with the reason dedication", async () => {
+  test("[moderation:dedication-lights-await-approval] [moderation:admin-actions-logged-append-only] [account:name-a-light-for-yours] given a light, when the admin approves it, then the name shows to everyone from the next read, it leaves the list, and the log holds the approval with the reason dedication", async () => {
     const server = await lit();
     const before = await ask<DedicationReply>(server, "GET", DEDICATION_LIGHTS_PATH, "account.c");
     expect(before.body.lights.every((light) => light.name === undefined)).toBe(true);
@@ -73,7 +73,7 @@ describe("the lights awaiting a look", () => {
     expect(log).toEqual([{ id: approved.body.entry, admin: ADMIN, at: server.deps.now(), item: id, action: "approve-light", params: { account: "account.a" }, reason: "dedication", note: "a mother's name" }]);
   });
 
-  test("[R-MODERATION-021] [R-MODERATION-015] [R-ACCOUNT-033] given a light, when the admin refuses it, then it is put out of the count and the strings, the log holds the refusal, and the account may light again", async () => {
+  test("[moderation:dedication-lights-await-approval] [moderation:admin-actions-logged-append-only] [account:name-a-light-for-yours] given a light, when the admin refuses it, then it is put out of the count and the strings, the log holds the refusal, and the account may light again", async () => {
     const server = await lit();
     const id = (await pending(server)).body.lights[1]?.id ?? "";
     const refused = await ask<{ ok: true; entry: string }>(server, "POST", "/api/admin/dedication/account.b/refuse", ADMIN);
@@ -86,7 +86,7 @@ describe("the lights awaiting a look", () => {
     expect((await pending(server)).body.lights.map((light) => light.account)).toEqual(["account.a", "account.b"]);
   });
 
-  test("[R-MODERATION-021] given an account with no light, when it is approved or refused, then it is refused unknown-id and nothing is logged", async () => {
+  test("[moderation:dedication-lights-await-approval] given an account with no light, when it is approved or refused, then it is refused unknown-id and nothing is logged", async () => {
     const server = await lit();
     for (const outcome of ["approve", "refuse"]) {
       const reply = await ask<{ code: string }>(server, "POST", `/api/admin/dedication/account.c/${outcome}`, ADMIN);
@@ -96,7 +96,7 @@ describe("the lights awaiting a look", () => {
     expect(await server.deps.stores.moderationLog.list({ account: "account.c" })).toEqual([]);
   });
 
-  test("[R-MODERATION-021] [R-SERVER-045] given the shared part kept, when a light is approved or refused, then the kept part is let go", async () => {
+  test("[moderation:dedication-lights-await-approval] [server:dedication-routes] given the shared part kept, when a light is approved or refused, then the kept part is let go", async () => {
     const server = await lit();
     const edge = fakeEdge();
     const routes = { app: adminDedicationRoutes(server.deps, edge) };
@@ -105,7 +105,7 @@ describe("the lights awaiting a look", () => {
     expect(edge.forgotten).toHaveLength(2);
   });
 
-  test("[R-MODERATION-015] [R-MODERATION-021] given the log's reasons, then they are the report reasons and dedication, which no player may report under", () => {
+  test("[moderation:admin-actions-logged-append-only] [moderation:dedication-lights-await-approval] given the log's reasons, then they are the report reasons and dedication, which no player may report under", () => {
     expect(LOG_REASONS).toEqual([...REPORT_REASONS, "dedication"]);
     expect(REPORT_REASONS).not.toContain("dedication");
   });

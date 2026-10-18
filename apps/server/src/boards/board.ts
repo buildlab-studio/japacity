@@ -1,8 +1,8 @@
-// A board as a player reads it (city.md R-CITY-039, R-CITY-040): the top
+// A board as a player reads it (city:boards-switch-when-and-who, city:board-line-and-ranking): the top
 // `board.size` lines and the player's own line, each naming the account's
 // username and nothing else about the player, on every board, friends too.
 // Computer characters have no row, so they are on no board (person.md
-// R-PEOPLE-056).
+// person:computers-never-win-scarce).
 import type { BoardName, BoardReply, BoardRow } from "@japacity/api";
 import type { BoardQuery, BoardWhen, BoardWho, RankedRow, SwitchName } from "@japacity/store";
 import { pairIds } from "@japacity/store";
@@ -12,7 +12,7 @@ import { lagosWeek } from "./week";
 
 export const BOARD_NAMES: readonly BoardName[] = ["this-week.everyone", "this-week.friends", "all-time.everyone", "all-time.friends", "joined-week"];
 
-/** R-CITY-039: each board's own switch in the switch row. */
+/** city:boards-switch-when-and-who: each board's own switch in the switch row. */
 export const BOARD_SWITCH: Record<BoardName, SwitchName> = {
   "this-week.everyone": "boards.this-week.everyone",
   "this-week.friends": "boards.this-week.friends",
@@ -38,7 +38,7 @@ function pickers(board: BoardName): { when: BoardWhen; who: BoardWho } {
     case "all-time.friends":
       return { when: "all-time", who: "friends" };
     case "joined-week":
-      // The joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, R-CITY-040).
+      // The joined-week board ranks the japacity figure among the accounts made in the player's week, named as everyone is (usernames, city:board-line-and-ranking).
       return { when: "all-time", who: "everyone" };
     default: {
       const never: never = board;
@@ -47,7 +47,7 @@ function pickers(board: BoardName): { when: BoardWhen; who: BoardWho } {
   }
 }
 
-/** R-CITY-040: the player's friends, accounts joined to theirs by an invite or a pair record, and the player. */
+/** city:board-line-and-ranking: the player's friends, accounts joined to theirs by an invite or a pair record, and the player. */
 async function friendsOf(deps: ServerDeps, character: string): Promise<string[]> {
   const friends = [character];
   for (const key of await deps.stores.invite.pairsOf(character)) {
@@ -59,7 +59,7 @@ async function friendsOf(deps: ServerDeps, character: string): Promise<string[]>
   return friends;
 }
 
-/** R-CITY-039, R-CITY-040: the board for the player whose character is `character`. */
+/** city:boards-switch-when-and-who, city:board-line-and-ranking: the board for the player whose character is `character`. */
 export async function readBoard(deps: ServerDeps, character: string, board: BoardName): Promise<BoardReply> {
   const { when, who } = pickers(board);
   const week = lagosWeek(deps.now());
@@ -73,7 +73,7 @@ export async function readBoard(deps: ServerDeps, character: string, board: Boar
   const top = await deps.stores.boards.top(query, size);
   const own = top.find((line) => line.character === character) ?? (await deps.stores.boards.lineOf(query, character));
   const lines = own === null || top.includes(own) ? top : [...top, own];
-  // One read for every line's name: the usernames, on every board (R-CITY-040).
+  // One read for every line's name: the usernames, on every board (city:board-line-and-ranking).
   const usernames = await deps.stores.account.usernames(lines.map((line) => line.account));
   const row = (line: RankedRow): BoardRow => ({
     rank: line.rank,

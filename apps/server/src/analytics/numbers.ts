@@ -1,9 +1,9 @@
-// R-ANALYTICS-008, R-ANALYTICS-013: the numbers
+// analytics:nightly-game-counters, analytics:session-split-by-command-gaps: the numbers
 // that the nightly job adds beside the game counters (nightly.ts): sessions,
 // the funnel's server steps, lives started, secured and departed, the economy
 // in bands, top-ups, the players of the last week and month, every account so
 // far, and the reports still open. Counts and sums only: no row names an
-// account, a character or a life (R-ANALYTICS-007). Plain functions over plain data.
+// account, a character or a life (analytics:store-holds-nothing-personal). Plain functions over plain data.
 import { HELD_BANDS, MONTH_BANDS, SESSION_BANDS, SESSION_GAP_MINUTES } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { CounterTotal, RegionCount } from "@japacity/store";
@@ -32,10 +32,10 @@ type Counted =
   | { type: "status/granted"; why: string }
   | { type: "wallet/credited"; currency: string; amount: number; reason: string };
 
-/** R-WALLET-020: the reason a bought top-up is credited with. */
+/** wallet:top-ups-are-marked: the reason a bought top-up is credited with. */
 const TOP_UP = "top-up";
 
-/** R-STATUS-007: the grants that secure a life abroad, as the secured card reads them. */
+/** status:lawful-months-reach-settlement: the grants that secure a life abroad, as the secured card reads them. */
 const SECURING = new Set(["settled", "citizen"]);
 
 function tally(into: Map<string, CounterTotal>, row: CounterTotal): void {
@@ -51,18 +51,18 @@ function bandOf(bands: readonly { key: string; from: number }[], value: number):
   return found;
 }
 
-/** R-ANALYTICS-013: a session's length band. */
+/** analytics:session-split-by-command-gaps: a session's length band. */
 export function sessionBand(lengthMs: number): string {
   return bandOf(SESSION_BANDS, Math.floor(lengthMs / time.MINUTE_MS));
 }
 
-/** R-ANALYTICS-008: `economy/held`'s key for a life in month `month` (1 is its first after the years before) holding `kobo`. */
+/** analytics:nightly-game-counters: `economy/held`'s key for a life in month `month` (1 is its first after the years before) holding `kobo`. */
 export function heldKey(month: number, kobo: number): string {
   return `${bandOf(MONTH_BANDS, month)}:${bandOf(HELD_BANDS, Math.max(0, kobo))}`;
 }
 
 /**
- * R-ANALYTICS-013: one account's sessions on a day, as their lengths. A
+ * analytics:session-split-by-command-gaps: one account's sessions on a day, as their lengths. A
  * session is its player's commands with no gap over `SESSION_GAP_MINUTES`,
  * cut at the day's edges; its length runs from its first command to its last.
  */
@@ -88,7 +88,7 @@ function firstWith(life: Life, matches: (event: Counted) => boolean): Played | n
   return life.played.find((played) => (played.events as Counted[]).some(matches)) ?? null;
 }
 
-/** R-ANALYTICS-008, R-ANALYTICS-013: every total the day adds beside the game counters. */
+/** analytics:nightly-game-counters, analytics:session-split-by-command-gaps: every total the day adds beside the game counters. */
 export function numbersTotals(facts: NumbersFacts): CounterTotal[] {
   const start = time.dayStart(facts.day);
   const end = time.dayStart(facts.day + 1);
@@ -140,7 +140,7 @@ export function numbersTotals(facts: NumbersFacts): CounterTotal[] {
     }
   }
 
-  // R-ACCOUNT-021: every account is born a guest.
+  // account:guest-and-secured-states: every account is born a guest.
   for (const account of facts.created) add(regionOf(account), "players/guest", regionOf(account));
   for (const { region, count } of facts.weekly) add(region, "players/weekly", region, count);
   for (const { region, count } of facts.monthly) add(region, "players/monthly", region, count);

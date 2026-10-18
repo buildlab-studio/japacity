@@ -1,4 +1,4 @@
-// R-ACCOUNT-023: securing a guest. The guest signs in with Google or an email
+// account:guest-secures-the-life: securing a guest. The guest signs in with Google or an email
 // code from its own session; the auth library makes a user for that method and
 // its anonymous plugin calls `onLinkAccount`. Here that new user is folded into
 // the guest: its methods and sessions move to the guest's id, it is removed,
@@ -31,7 +31,7 @@ function taken(): never {
 }
 
 /**
- * R-ACCOUNT-023: from a guest's request, a method or a session may only be
+ * account:guest-secures-the-life: from a guest's request, a method or a session may only be
  * made for the guest itself or for the user its own link is making. Anything
  * else is an account that exists already: joining it or signing in to it is
  * refused, so neither life changes.
@@ -48,7 +48,7 @@ interface LinkInput {
   ctx: GenericEndpointContext;
 }
 
-/** R-ACCOUNT-023: the anonymous plugin's `onLinkAccount`. The plugin keeps the guest's user (`disableDeleteAnonymousUser`). */
+/** account:guest-secures-the-life: the anonymous plugin's `onLinkAccount`. The plugin keeps the guest's user (`disableDeleteAnonymousUser`). */
 export async function foldIntoGuest(deps: ServerDeps, linking: Linking, { anonymousUser, newUser, ctx }: LinkInput): Promise<void> {
   const guest = anonymousUser.user.id;
   const made = newUser.user.id;
@@ -64,8 +64,8 @@ export async function foldIntoGuest(deps: ServerDeps, linking: Linking, { anonym
   await internal.updateUser(guest, { email: newUser.user.email, emailVerified: newUser.user.emailVerified, isAnonymous: false });
   const secured = await deps.stores.account.secure(guest);
   if (!secured.ok) throw new Error(`The guest ${guest} has no account row to secure: ${secured.detail}`);
-  // R-ACCOUNT-022, city.md R-CITY-040: a guest's board rows were written unlisted; secured, its life is on the boards at once.
+  // account:social-needs-secured-account, city:board-line-and-ranking: a guest's board rows were written unlisted; secured, its life is on the boards at once.
   await deps.stores.boards.setListed(guest, true);
-  // R-ANALYTICS-008: the guest secured, by region, on the day and on its sign-up day.
+  // analytics:nightly-game-counters: the guest secured, by region, on the day and on its sign-up day.
   await countSecured(deps, guest);
 }

@@ -1,7 +1,7 @@
-// A new character for an account (docs/rules/server.md R-SERVER-016,
-// account.md R-ACCOUNT-015): a 128-bit seed made once, the state at version
+// A new character for an account (server:hidden-values-made-once,
+// account:one-character-per-account): a 128-bit seed made once, the state at version
 // 0, the account pointed at it. The reply is the first view. And the end of
-// one (R-ACCOUNT-030), so the account may start another.
+// one (account:start-a-new-life), so the account may start another.
 import type { ViewReply } from "@japacity/api";
 import type { Id, Save } from "@japacity/sim";
 import { int, newState, toHex, viewFor } from "@japacity/sim";
@@ -16,14 +16,14 @@ import { refusal } from "./answer";
 const ID_BYTES = 16;
 const BYTE_BITS = 8;
 
-/** R-SERVER-016: the seed of a new character, `server.seedBits` of secure random bytes as hex. */
+/** server:hidden-values-made-once: the seed of a new character, `server.seedBits` of secure random bytes as hex. */
 function newSeed(deps: Pick<ServerDeps, "config" | "randomBytes">): string {
   return toHex(deps.randomBytes(int.divFloor(deps.config.server.seedBits, BYTE_BITS)));
 }
 
 /**
- * R-SERVER-016, R-ACCOUNT-015: makes the account's one character in `scenario`.
- * R-PEOPLE-011, decision 0020: a sibling made from an invite starts from the
+ * server:hidden-values-made-once, account:one-character-per-account: makes the account's one character in `scenario`.
+ * person:real-sibling-shares-family-draw, decision 0020: a sibling made from an invite starts from the
  * inviter's family draw; its first segment starts from that state, so every
  * replay begins where the life did.
  */
@@ -66,9 +66,9 @@ export interface EndReply {
 }
 
 /**
- * R-ACCOUNT-030: ends the account's character for good. A real partner or sibling joined to it is told
- * as R-PEOPLE-040 tells them of a deletion; then the account stops naming it, and the life's rows go as
- * the deletion job takes a character's (R-ACCOUNT-017, 018): its conversations but what a hold keeps,
+ * account:start-a-new-life: ends the account's character for good. A real partner or sibling joined to it is told
+ * as person:leaving-player-ends-bonds tells them of a deletion; then the account stops naming it, and the life's rows go as
+ * the deletion job takes a character's (account:deleted-data-removed-within-month, account:deletion-keeps-anonymous-totals): its conversations but what a hold keeps,
  * its links, every save row, and its ledger mark. The account stays, with its age pass, its username,
  * its ways in and its blocks, so the next life needs no age screen and no bot check.
  */

@@ -17,7 +17,7 @@ function played(events: object[], sender: Sender = "player", command: Command = 
 const facts = (rows: Played[], who: AccountRow | null = account) => ({ day: DAY, active: [{ character: "character.a", life: { account: "account.a", played: rows }, account: who }], created: [] });
 
 describe("the day's game counters", () => {
-  test("[R-ANALYTICS-008] given the events of a day, when they are counted, then each counter is keyed as the page gives it", () => {
+  test("[analytics:nightly-game-counters] given the events of a day, when they are counted, then each counter is keyed as the page gives it", () => {
     const rows = nightlyTotals(
       facts([
         played([
@@ -51,17 +51,17 @@ describe("the day's game counters", () => {
     expect(rows).toHaveLength(10);
   });
 
-  test("[R-ANALYTICS-008] given only the authority's grants and a stand-in's months on a day, when it is counted, then no player is active and no turn is counted as a player's", () => {
+  test("[analytics:nightly-game-counters] given only the authority's grants and a stand-in's months on a day, when it is counted, then no player is active and no turn is counted as a player's", () => {
     const rows = nightlyTotals(facts([played([], "authority", { type: "turns/grant", count: 1, basedOn: 0 }), played([], "stand-in")]));
     expect(rows).toEqual([]);
   });
 
-  test("[R-ANALYTICS-008] given commands on the days either side, when the day is counted, then only its own are", () => {
+  test("[analytics:nightly-game-counters] given commands on the days either side, when the day is counted, then only its own are", () => {
     const rows = nightlyTotals(facts([played([], "player", undefined, DAY * time.DAY_MS - 1), played([], "player", undefined, (DAY + 1) * time.DAY_MS)]));
     expect(rows).toEqual([]);
   });
 
-  test("[R-ANALYTICS-007] given an account that is gone, when its character's day is counted, then it is counted under the unknown region and no row names it", () => {
+  test("[analytics:store-holds-nothing-personal] given an account that is gone, when its character's day is counted, then it is counted under the unknown region and no row names it", () => {
     const rows = nightlyTotals(facts([played([])], null));
     expect(rows.map((row) => [row.region, row.name])).toEqual([
       ["XX", "turns/ended"],

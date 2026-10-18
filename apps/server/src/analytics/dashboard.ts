@@ -1,11 +1,11 @@
-// R-ANALYTICS-009 to 011: the dashboard's data, for the day asked and the 30
-// before it. A figure under `minShown` is never shown as itself (R-ANALYTICS-010).
+// analytics:dashboard-shows-fixed-list, analytics:small-counts-shown-as-fewer and analytics:day-one-and-seven-return: the dashboard's data, for the day asked and the 30
+// before it. A figure under `minShown` is never shown as itself (analytics:small-counts-shown-as-fewer).
 import type { DailyRow, Dashboard, Shown, WeekRow } from "@japacity/api";
 import type { Content } from "@japacity/sim";
 import { int, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 
-/** R-ANALYTICS-009: today and the last 30 days. */
+/** analytics:dashboard-shows-fixed-list: today and the last 30 days. */
 export const WINDOW_DAYS = 30;
 
 const WEEK_DAYS = 7;

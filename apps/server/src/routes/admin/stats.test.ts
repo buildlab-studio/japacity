@@ -35,7 +35,7 @@ function app(asked: [number, number][] = []) {
 }
 
 describe("GET /api/admin/stats", () => {
-  test("[R-ANALYTICS-012] [R-MODERATION-012] given a session that is not an admin's, or none, when the numbers are fetched, then they do not exist", async () => {
+  test("[analytics:admin-stats-for-admins-only] [moderation:admin-view-for-admin-list] given a session that is not an admin's, or none, when the numbers are fetched, then they do not exist", async () => {
     const { app: served } = app();
     const missing = await (await served.request("/api/admin/nothing-here", asAccount(ADMIN))).text();
     for (const account of [null, "account.player"]) {
@@ -45,7 +45,7 @@ describe("GET /api/admin/stats", () => {
     }
   });
 
-  test("[R-ANALYTICS-012] [R-ANALYTICS-013] [R-ANALYTICS-010] given an admin, when the numbers are fetched, then the frozen sections come back, online now is read live over the last five minutes and today so far, and a small region is hidden", async () => {
+  test("[analytics:admin-stats-for-admins-only] [analytics:session-split-by-command-gaps] [analytics:small-counts-shown-as-fewer] given an admin, when the numbers are fetched, then the frozen sections come back, online now is read live over the last five minutes and today so far, and a small region is hidden", async () => {
     const asked: [number, number][] = [];
     const { deps, app: served } = app(asked);
     const today = time.utcDay(deps.now());

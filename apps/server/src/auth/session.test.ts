@@ -4,7 +4,7 @@ import { sessionReader } from "./session";
 import { SITE, harness } from "./auth.testing";
 
 describe("the session reader", () => {
-  test("[R-ACCOUNT-005] [R-MODERATION-012] given a session from the test utilities' login, when a request carries it, then the reader gives its account and no passkey, since no passkey opened it; with none it gives null", async () => {
+  test("[account:stand-ins-test-sign-in] [moderation:admin-view-for-admin-list] given a session from the test utilities' login, when a request carries it, then the reader gives its account and no passkey, since no passkey opened it; with none it gives null", async () => {
     const h = harness();
     const { account } = await h.signUp("ada@example.com");
     const { headers } = await (await h.helpers()).login({ userId: account });

@@ -1,4 +1,4 @@
-// The stand-in's clock (person.md R-PEOPLE-043 to 045), on the daily cron. A
+// The stand-in's clock (person:stand-in-after-absence, person:stand-in-acts-narrowly and person:computers-need-no-stand-in), on the daily cron. A
 // player side of a pair idle for `warnDays` real days is warned to the other
 // life; at `standInDays` the stand-in is on, and then it answers the absent
 // side's interview and the joint step the absent side allowed. Idle runs from
@@ -18,7 +18,7 @@ import { openBond, pairStep, sendTo, sideLive } from "../pair/step";
 const FIRST_LOOK = 64;
 const WIDER = 4;
 
-/** R-PEOPLE-043: when the character's player last sent a command, or when its account was made if never. */
+/** person:stand-in-after-absence: when the character's player last sent a command, or when its account was made if never. */
 export async function lastPlayerAt(deps: ServerDeps, character: string): Promise<number | null> {
   const held = await deps.stores.player.load(character);
   if (held === null) return null;
@@ -35,7 +35,7 @@ export async function lastPlayerAt(deps: ServerDeps, character: string): Promise
   return (await deps.stores.account.get(held.character.account))?.createdAt ?? null;
 }
 
-/** R-PEOPLE-043: the stage an idle time calls for. */
+/** person:stand-in-after-absence: the stage an idle time calls for. */
 export function stageFor(idleMs: number, numbers: { warnDays: number; standInDays: number }): "warned" | "on" | null {
   if (idleMs >= numbers.standInDays * time.DAY_MS) return "on";
   if (idleMs >= numbers.warnDays * time.DAY_MS) return "warned";
@@ -43,7 +43,7 @@ export function stageFor(idleMs: number, numbers: { warnDays: number; standInDay
 }
 
 /**
- * R-PEOPLE-044: what the stand-in does in the absent life: answers its open
+ * person:stand-in-acts-narrowly: what the stand-in does in the absent life: answers its open
  * interview, giving on a question about plans the waiting side's answer where
  * it is in, and says yes to a joint the absent side allowed. Each is carried
  * like a player's command, sent by `stand-in`.
@@ -74,7 +74,7 @@ function standInActs(book: Book, turn: Turn, lives: readonly Live[], record: Pai
   return null;
 }
 
-/** R-PEOPLE-043 to 045: one pass over every pair two players share; answers how many records it moved. */
+/** person:stand-in-after-absence, person:stand-in-acts-narrowly and person:computers-need-no-stand-in: one pass over every pair two players share; answers how many records it moved. */
 export async function standInJob(deps: ServerDeps): Promise<number> {
   const numbers = deps.contents.current.tuning.people;
   let moved = 0;

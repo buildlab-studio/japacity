@@ -11,38 +11,38 @@ afterEach(() => {
 });
 
 describe("the username's text", () => {
-  test("[R-ACCOUNT-024] given names at the edges of the shape, when each is judged, then 3 and 20 letters, digits or underscores pass and 2, 21 or any other sign do not", () => {
+  test("[account:username-and-unconfirmed-email] given names at the edges of the shape, when each is judged, then 3 and 20 letters, digits or underscores pass and 2, 21 or any other sign do not", () => {
     expect(nameProblem("abc")).toBeNull();
     expect(nameProblem("a".repeat(20))).toBeNull();
     expect(nameProblem("Tunde_1990")).toBeNull();
     for (const bad of ["ab", "a".repeat(21), "tunde-1990", "tunde 1990", "tùnde", "tunde!", "", 42, null]) expect(nameProblem(bad)).toBe("format");
   });
 
-  test("[R-ACCOUNT-024] given the reserved names in any capitals or spelling, when each is judged, then it is reserved", () => {
+  test("[account:username-and-unconfirmed-email] given the reserved names in any capitals or spelling, when each is judged, then it is reserved", () => {
     for (const name of ["Japacity", "japa_city", "J4PACITY", "Admin", "adm1n", "aaadmin", "the_admin", "SUPPORT", "suppport_desk", "staff_ng", "0fficial", "Moderator", "m0d3rat0r"]) {
       expect(nameProblem(name)).toBe("reserved");
     }
     expect(reservedNames.every((word) => nameProblem(word) === "reserved")).toBe(true);
   });
 
-  test("[R-ACCOUNT-024] given the blocked words in any capitals or spelling, when each is judged, then it is blocked; ordinary names that only hold their letters apart are not", () => {
+  test("[account:username-and-unconfirmed-email] given the blocked words in any capitals or spelling, when each is judged, then it is blocked; ordinary names that only hold their letters apart are not", () => {
     expect(blockedWords.every((word) => nameProblem(word) === "blocked")).toBe(true);
     for (const name of ["FUCK_off", "sh1t_happens", "b1tch", "big_ashawo"]) expect(nameProblem(name)).toBe("blocked");
     for (const name of ["Dickson_O", "Nazir_Kano", "Essex_girl", "Cassandra", "grapefruit"]) expect(nameProblem(name)).toBeNull();
   });
 
-  test("[R-ACCOUNT-024] given names with and without a listed word, when their capitals change, then the judgement does not", () => {
+  test("[account:username-and-unconfirmed-email] given names with and without a listed word, when their capitals change, then the judgement does not", () => {
     for (const name of ["tunde", "admin_ng", "b1tch", "ngozi_okafor", "j4pacity", "kemi_99"]) {
       expect(nameProblem(name.toUpperCase())).toBe(nameProblem(name));
     }
   });
 
-  test("[R-ACCOUNT-024] given an account, when its next change is read, then the free change is open at once and each later one waits renameDays", () => {
+  test("[account:username-and-unconfirmed-email] given an account, when its next change is read, then the free change is open at once and each later one waits renameDays", () => {
     expect(renameFrom({ usernameChangedAt: null }, productionConfig)).toBe(0);
     expect(renameFrom({ usernameChangedAt: 5_000 }, productionConfig)).toBe(5_000 + productionConfig.account.renameDays * time.DAY_MS);
   });
 
-  test("[R-ACCOUNT-024] given random bytes, when a name is generated for a reset, then it has the shape and passes the lists", () => {
+  test("[account:username-and-unconfirmed-email] given random bytes, when a name is generated for a reset, then it has the shape and passes the lists", () => {
     let seed = 3;
     const bytes = (count: number) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255);
     for (let round = 0; round < 50; round += 1) expect(nameProblem(generatedUsername(bytes))).toBeNull();
@@ -50,7 +50,7 @@ describe("the username's text", () => {
 });
 
 describe("the username on the server", () => {
-  test("[R-ACCOUNT-024] given a username held in other capitals, when a guest starts with it, then it is refused as taken and nothing is made", async () => {
+  test("[account:username-and-unconfirmed-email] given a username held in other capitals, when a guest starts with it, then it is refused as taken and nothing is made", async () => {
     const h = harness();
     await h.guest(makeJar(), { username: "Ada_Lagos" });
     const jar = makeJar();
@@ -61,7 +61,7 @@ describe("the username on the server", () => {
     expect(h.tables.user).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-024] given a reserved, blocked or ill-formed name, when a guest starts with it, then the server refuses it and says which", async () => {
+  test("[account:username-and-unconfirmed-email] given a reserved, blocked or ill-formed name, when a guest starts with it, then the server refuses it and says which", async () => {
     const h = harness();
     for (const [username, name] of [["Admin_NG", "reserved"], ["b1tch_queen", "blocked"], ["no", "format"]] as const) {
       const jar = makeJar();
@@ -73,7 +73,7 @@ describe("the username on the server", () => {
     expect(h.tables.user).toEqual([]);
   });
 
-  test("[R-ACCOUNT-024] given a guest, when it changes its username, then the first change is free, the next waits exactly renameDays, and a taken name is refused", async () => {
+  test("[account:username-and-unconfirmed-email] given a guest, when it changes its username, then the first change is free, the next waits exactly renameDays, and a taken name is refused", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");
     vi.setSystemTime(start);
@@ -97,7 +97,7 @@ describe("the username on the server", () => {
     expect((await rename("not ok")).status).toBe(400);
   });
 
-  test("[R-ACCOUNT-024] given a username, when anything tries to sign in with it, then no such way in exists", async () => {
+  test("[account:username-and-unconfirmed-email] given a username, when anything tries to sign in with it, then no such way in exists", async () => {
     const h = harness();
     await h.guest(makeJar(), { username: "ada_lagos" });
     for (const path of ["/api/auth/sign-in/username", "/api/auth/sign-in/email"]) {

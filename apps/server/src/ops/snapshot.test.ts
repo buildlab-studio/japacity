@@ -1,4 +1,4 @@
-// Every character snapshotted before a deploy (server.md R-SERVER-047), on
+// Every character snapshotted before a deploy (server:snapshot-before-deploy), on
 // Postgres (PGlite, the committed migrations), through the same tool the
 // deploy runs, with the stores a command uses.
 import { content } from "@japacity/content";
@@ -15,7 +15,7 @@ import type { OpenDatabase } from "./database";
 import { databaseFrom, workerContents } from "./database";
 import { snapshotAll, snapshotCli } from "./snapshot";
 
-/** A stand-in older version, the current data under the name "0", and the worker's contents with it bundled (R-SERVER-023). */
+/** A stand-in older version, the current data under the name "0", and the worker's contents with it bundled (server:older-contents-bundled). */
 const previous: Content = { ...content, version: "0" };
 const bundled = withContentBefore(workerContents(undefined), undefined, [previous]);
 /** The tables a snapshot writes; every other table must come out as it went in. */
@@ -54,7 +54,7 @@ async function otherTables(connection: PgliteConnection): Promise<Record<string,
 }
 
 describe("the snapshot of every character before a deploy", () => {
-  test("[R-SERVER-047] [R-SERVER-009] given two characters on Postgres, when every character is snapshotted, then each has a new segment at the next version with its state as the base and an empty tail, a command on the old version is stale, and the next on the new version is accepted in the new segment", async () => {
+  test("[server:snapshot-before-deploy] [server:rollback-apply-one-account] given two characters on Postgres, when every character is snapshotted, then each has a new segment at the next version with its state as the base and an empty tail, a command on the old version is stale, and the next on the new version is accepted in the new segment", async () => {
     const { server, connection, open } = await onPostgres();
     const ada = await lived(server, "acc-1", 3);
     const bisi = await lived(server, "acc-2", 1);
@@ -91,7 +91,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect(played.tail.map((row) => [row.v, row.command.basedOn])).toEqual([[ada.v + 2, ada.v + 1]]);
   });
 
-  test("[R-SERVER-047] [R-SERVER-003] given one character whose last logged hash no longer replays, when every character is snapshotted, then it is skipped, listed and left as it was, the others are done, and the tool ends non-zero", async () => {
+  test("[server:snapshot-before-deploy] [server:log-rows-hash-state] given one character whose last logged hash no longer replays, when every character is snapshotted, then it is skipped, listed and left as it was, the others are done, and the tool ends non-zero", async () => {
     const { server, connection, open } = await onPostgres();
     const ada = await lived(server, "acc-1", 2);
     const bad = await lived(server, "acc-2", 2);
@@ -110,7 +110,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect(await server.deps.stores.audit.list(bad.id)).toEqual([]);
   });
 
-  test("[R-SERVER-047] given every character snapshotted, when the tool runs again, then nothing is written and each is listed as already done", async () => {
+  test("[server:snapshot-before-deploy] given every character snapshotted, when the tool runs again, then nothing is written and each is listed as already done", async () => {
     const { server, connection, open } = await onPostgres();
     const ada = await lived(server, "acc-1", 2);
     const bisi = await lived(server, "acc-2", 0);
@@ -128,7 +128,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect(await otherTables(connection)).toEqual(others);
   });
 
-  test("[R-SERVER-047] [R-SERVER-021] given characters snapshotted under an older content, when the current content is deployed and a view is fetched, then the snapshot's segment is upgraded into a new one as any load does, and the next command is accepted", async () => {
+  test("[server:snapshot-before-deploy] [server:newer-content-upgrades-state] given characters snapshotted under an older content, when the current content is deployed and a view is fetched, then the snapshot's segment is upgraded into a new one as any load does, and the next command is accepted", async () => {
     const { server, open } = await onPostgres();
     server.deps.contents = { current: previous, previous: null };
     const ada = await lived(server, "acc-1", 2);
@@ -150,7 +150,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect((await send(server, "acc-1", restMonth({ v: ada.v + 1 }))).body).toMatchObject({ ok: true, view: { v: ada.v + 2 } });
   });
 
-  test("[R-SERVER-047] given a character under a content this tool does not bundle, when every character is snapshotted, then it is listed as failed, nothing of it is written and the others are done", async () => {
+  test("[server:snapshot-before-deploy] given a character under a content this tool does not bundle, when every character is snapshotted, then it is listed as failed, nothing of it is written and the others are done", async () => {
     const { server, open } = await onPostgres();
     server.deps.contents = { current: previous, previous: null };
     const old = await lived(server, "acc-1", 1);
@@ -166,7 +166,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect(await held(server, old.id)).toEqual(untouched);
   });
 
-  test("[R-SERVER-047] given more characters than one page of rows, when every character is snapshotted a page at a time, then each is done once, in id order", async () => {
+  test("[server:snapshot-before-deploy] given more characters than one page of rows, when every character is snapshotted a page at a time, then each is done once, in id order", async () => {
     const { server } = await onPostgres();
     const ids = [(await lived(server, "acc-1", 1)).id, (await lived(server, "acc-2", 1)).id, (await lived(server, "acc-3", 1)).id].sort();
 
@@ -175,7 +175,7 @@ describe("the snapshot of every character before a deploy", () => {
     expect(done.map((one) => [one.id, one.outcome])).toEqual(ids.map((id) => [id, "snapshotted"]));
   });
 
-  test("[R-SERVER-047] given no DATABASE_URL_UNPOOLED, or arguments the tool does not take, when the snapshot is run, then it refuses with its usage and connects to nothing", async () => {
+  test("[server:snapshot-before-deploy] given no DATABASE_URL_UNPOOLED, or arguments the tool does not take, when the snapshot is run, then it refuses with its usage and connects to nothing", async () => {
     expect(databaseFrom({})).toBeNull();
     expect(databaseFrom({ DATABASE_URL_UNPOOLED: "" })).toBeNull();
     const missing = await snapshotCli([], databaseFrom({}));

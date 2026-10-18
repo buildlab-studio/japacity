@@ -1,5 +1,5 @@
-// An account leaving (person.md R-PEOPLE-040; account.md R-ACCOUNT-016,
-// R-ACCOUNT-017; moderation.md R-MODERATION-008): every bond with it ends in
+// An account leaving (person:leaving-player-ends-bonds; account:player-deletes-account,
+// account:deleted-data-removed-within-month; moderation:reports-hold-cited-records): every bond with it ends in
 // the other life as an absence end, the record keeps the moments with the
 // leaving side's name taken out, and at removal its rows go but what a hold keeps.
 import type { PairRecord } from "@japacity/sim";
@@ -8,10 +8,10 @@ import type { ServerDeps } from "../deps";
 import { pairStep, sendTo, sideLive, sideOf } from "./step";
 
 /**
- * R-PEOPLE-040, R-ACCOUNT-016: called when a deletion is asked for
+ * person:leaving-player-ends-bonds, account:player-deletes-account: called when a deletion is asked for
  * (account/deletion.ts) and when a life ends for another (authority/character.ts). The other player is told only that the bond ended.
  */
-/** `why`: `absence` for a deletion (R-PEOPLE-040), `restart` when the player ended the life to start another (R-ACCOUNT-030). */
+/** `why`: `absence` for a deletion (person:leaving-player-ends-bonds), `restart` when the player ended the life to start another (account:start-a-new-life). */
 export async function leavePairs(deps: ServerDeps, _account: string, character: string | null, why: "absence" | "restart" = "absence"): Promise<void> {
   if (character === null) return;
   for (const key of await deps.stores.invite.pairsOf(character)) {
@@ -34,7 +34,7 @@ export async function leavePairs(deps: ServerDeps, _account: string, character: 
 }
 
 /**
- * R-ACCOUNT-017, R-MODERATION-008: what the deletion job removes beside the
+ * account:deleted-data-removed-within-month, moderation:reports-hold-cited-records: what the deletion job removes beside the
  * character: its conversations (but the messages a running hold keeps), the
  * links it made or used and their rewards, and its blocks and reports (but
  * the reports still holding). Run before `stores.player.remove`, which takes

@@ -16,7 +16,7 @@ async function rejected(server: TestServer, code: string, region = "NG"): Promis
 const isolate = (code: string) => (rejectionCounts() as Record<string, number | undefined>)[code] ?? 0;
 
 describe("refusals counted by code", () => {
-  test("[R-SERVER-005] [R-ANALYTICS-008] [R-SERVER-046] given a stale command and an accepted one, when each is answered, then only the stale one is counted, in the isolate and as the day's command/rejected total for the account's region; a stale preset is counted as well", async () => {
+  test("[server:rejections-write-nothing] [analytics:nightly-game-counters] [server:server-plays-prologue-preset] given a stale command and an accepted one, when each is answered, then only the stale one is counted, in the isolate and as the day's command/rejected total for the account's region; a stale preset is counted as well", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const before = isolate("stale");
@@ -29,13 +29,13 @@ describe("refusals counted by code", () => {
     const day = time.dayName(time.utcDay(server.deps.now()));
     expect((await server.deps.stores.counters.days(day, day)).filter((row) => row.name === "command/rejected")).toHaveLength(1);
 
-    // R-SERVER-046: the prologue's preset is a command route too, its refusals counted the same way.
+    // server:server-plays-prologue-preset: the prologue's preset is a command route too, its refusals counted the same way.
     expect((await call(server, "POST", "/api/prologue/preset", "acc-1", { archetype: "developer", age: 0, home: "family-house", basedOn: 5 })).body).toMatchObject({ ok: false, code: "stale" });
     expect(isolate("stale") - before).toBe(2);
     expect(await rejected(server, "stale")).toBe(2);
   });
 
-  test("[R-SERVER-005] [R-SERVER-025] [R-ANALYTICS-008] given a command over the limit and one with no session, when they are refused before the route, then rate-limited and signed-out are counted, the second under the unknown region", async () => {
+  test("[server:rejections-write-nothing] [server:per-account-rate-limits] [analytics:nightly-game-counters] given a command over the limit and one with no session, when they are refused before the route, then rate-limited and signed-out are counted, the second under the unknown region", async () => {
     // One request passes: the character's own.
     let allowed = 1;
     const refusing: Limiter = { limit: () => Promise.resolve({ success: allowed-- > 0 }) };
@@ -49,7 +49,7 @@ describe("refusals counted by code", () => {
     expect(await rejected(server, "signed-out", "XX")).toBe(1);
   });
 
-  test("[R-ANALYTICS-008] given a people route's refusal and a read, when they are answered, then the refusal's code is counted and the read adds nothing", async () => {
+  test("[analytics:nightly-game-counters] given a people route's refusal and a read, when they are answered, then the refusal's code is counted and the read adds nothing", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
 

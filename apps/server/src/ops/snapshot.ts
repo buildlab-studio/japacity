@@ -1,7 +1,7 @@
-// Every character snapshotted before a deploy (server.md R-SERVER-047): one
-// character per transaction under its row lock (R-SERVER-010), loaded as a
+// Every character snapshotted before a deploy (server:snapshot-before-deploy): one
+// character per transaction under its row lock (server:no-mass-rollback), loaded as a
 // command loads it, then a new segment at the next version with that state
-// as its base and an empty tail (R-SERVER-004, R-SERVER-020), so the rules
+// as its base and an empty tail (server:snapshots-bound-replay, server:save-is-list-of-segments), so the rules
 // deployed next never replay a command logged under the rules before. A
 // character that diverges is left for the rollback tool. Nothing here writes
 // a world row, an account or a ledger, and nothing is sent to a player.
@@ -23,7 +23,7 @@ export type Snapshotted =
   | { id: string; outcome: "snapshotted"; before: number; after: number; segment: number }
   /** Its segment in force already begins at its version from a base, with nothing logged after: nothing to replay, nothing written. */
   | { id: string; outcome: "already"; before: number; after: number }
-  /** R-SERVER-003: the replay did not reach the stored hash; skipped and left for the rollback tool. */
+  /** server:log-rows-hash-state: the replay did not reach the stored hash; skipped and left for the rollback tool. */
   | { id: string; outcome: "diverged"; before: number; after: number; detail: string }
   /** The load could not run (a content not bundled, a world not stored, an upgrade that fails its checks) or the write was refused. */
   | { id: string; outcome: "failed"; before: number | null; after: number | null; detail: string };
@@ -34,7 +34,7 @@ function alreadyBased(held: Held): boolean {
   return segment !== undefined && "base" in segment.start && segment.fromV === held.character.v && held.snapshot.v === held.character.v && held.tail.length === 0;
 }
 
-/** R-SERVER-047: one character in one transaction under its lock. */
+/** server:snapshot-before-deploy: one character in one transaction under its lock. */
 async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, id: string): Promise<Snapshotted> {
   let before: number | null = null;
   try {
@@ -44,11 +44,11 @@ async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, id: str
       const v = held.character.v;
       before = v;
       if (alreadyBased(held)) return { writes: {}, result: { id, outcome: "already", before: v, after: v } };
-      // R-CLOCK-017: the stored world of each logged tick, read through the transaction's own client.
+      // clock:command-uses-stamped-tick: the stored world of each logged tick, read through the transaction's own client.
       const worlds = await heldWorlds(stores.world, new Set(held.tail.map((row) => row.tick)));
       const loaded = load(held, contents, worlds);
       if (!loaded.ok) return { writes: {}, result: { id, outcome: "diverged", before: v, after: v, detail: loaded.diverged.detail } };
-      // A load that carried the state to the current content (R-SERVER-021) is folded into this one new segment.
+      // A load that carried the state to the current content (server:newer-content-upgrades-state) is folded into this one new segment.
       const { content, state } = loaded.live;
       const segment = held.character.segment + 1;
       const fromV = v + 1;
@@ -70,9 +70,9 @@ async function snapshotCharacter(deps: SnapshotDeps, contents: Contents, id: str
 const SNAPSHOT_PAGE = 100;
 
 /**
- * R-SERVER-047: every character, in id order, each in its own transaction, so
+ * server:snapshot-before-deploy: every character, in id order, each in its own transaction, so
  * every other character plays on while one is held. The contents are the ones
- * a command runs under (the partner dial applied, R-SERVER-024).
+ * a command runs under (the partner dial applied, server:overlay-change-opens-segment).
  */
 export async function snapshotAll(deps: SnapshotDeps, each: (done: Snapshotted) => void = () => undefined, pageSize = SNAPSHOT_PAGE): Promise<Snapshotted[]> {
   const contents = await dialedContents(deps);

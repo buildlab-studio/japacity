@@ -1,8 +1,8 @@
-// `GET /api/draw/:n` (docs/rules/lottery.md R-LOTTERY-007, 008, 015): a draw's
+// `GET /api/draw/:n` (lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:result-published-in-tick-row): a draw's
 // public data for the client's draw page, the same for everyone, with no
-// session. The secret leaves only inside the published result (R-SERVER-015).
+// session. The secret leaves only inside the published result (server:secrets-stay-on-server).
 // Kept in the server's cache (the Cache API beside the Worker) by the draw's number for as long as a browser may
-// keep it (server.md R-SERVER-039).
+// keep it (server:public-replies-cached).
 import type { DrawReply } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { Hono } from "hono";
@@ -22,7 +22,7 @@ const DRAWN_MAX_AGE = time.DAY_S;
 
 /**
  * The reply for draw `n`, or null when no such draw is stored. The list is the
- * one the close stored (R-LOTTERY-008), so it never changes once published.
+ * one the close stored (lottery:ticket-list-frozen-anonymously), so it never changes once published.
  */
 async function drawReply(deps: ServerDeps, draw: number): Promise<DrawReply | null> {
   const row = await deps.stores.world.draw(draw);
@@ -35,7 +35,7 @@ async function drawReply(deps: ServerDeps, draw: number): Promise<DrawReply | nu
 
 
 /**
- * R-SERVER-039: the limit first, then the cache by the draw's number, then the
+ * server:public-replies-cached: the limit first, then the cache by the draw's number, then the
  * database. The number alone makes the reply the same for everyone; an open
  * draw's reply is kept a minute, as the browser was always told.
  */

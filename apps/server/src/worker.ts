@@ -1,7 +1,7 @@
 // The Worker's request and job plumbing (decision 0006), kept apart from
 // `index.ts` so the tests run it on Node. One request or one job has one `pg`
 // client through the Hyperdrive configuration with caching off, opened when a
-// store or the auth library first asks for it (R-SERVER-002) and closed once
+// store or the auth library first asks for it (server:one-command-one-transaction) and closed once
 // the reply and every background task have settled;
 // nothing holds a client between requests.
 import { content, text } from "@japacity/content";
@@ -31,7 +31,7 @@ import type { FailureBindings } from "./security/fail";
 
 let isolate: Isolate | null = null;
 
-/** R-SERVER-016: what the isolate keeps: the overlay applied once, the secrets, the limits, the switch and counter stores. */
+/** server:hidden-values-made-once: what the isolate keeps: the overlay applied once, the secrets, the limits, the switch and counter stores. */
 export function isolateOf(env: Env): Isolate {
   isolate ??= isolateFor(
     { connectionString: env.GAME_DB.connectionString, place: env.PLACE },
@@ -49,8 +49,8 @@ export function isolateOf(env: Env): Isolate {
 }
 
 /**
- * The mail transport (account.md R-ACCOUNT-014, decision 0007): the MAIL binding on a deployment, Mailpit on the
- * local stack (mail.ts). R-ACCOUNT-003: the notices go by the same way as the codes.
+ * The mail transport (account:sign-in-routes-rate-limited, decision 0007): the MAIL binding on a deployment, Mailpit on the
+ * local stack (mail.ts). account:passkey-needs-signed-in-session: the notices go by the same way as the codes.
  */
 function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): AuthKeys {
   const { sendOtp, sendNotice } = mailFor(env, { text, codeSeconds: productionConfig.auth.otp.expiresIn }, (input, init) => fetch(input, init));
@@ -65,7 +65,7 @@ function authKeys(env: Env, waitUntil: (promise: Promise<unknown>) => void): Aut
   };
 }
 
-/** R-CLOCK-031: the push keys from the bindings, or null while one is missing. */
+/** clock:full-bank-push-notification: the push keys from the bindings, or null while one is missing. */
 export function pushKeys(env: Env): PushKeys | null {
   const { VAPID_PUBLIC_KEY: publicKey, VAPID_PRIVATE_KEY: privateKey, VAPID_SUBJECT: subject } = env;
   if (publicKey === undefined || privateKey === undefined || subject === undefined) return null;
@@ -78,7 +78,7 @@ export interface Plumbing {
   open?: (url: string) => Promise<Connection>;
 }
 
-/** R-SERVER-002: the deployment's connection, which opens its client on the first statement. */
+/** server:one-command-one-transaction: the deployment's connection, which opens its client on the first statement. */
 const onFirstUse = (url: string): Promise<Connection> => Promise.resolve(connectOnFirstUse(url));
 
 /**
@@ -115,7 +115,7 @@ export async function within<T>(
 
 /**
  * The game's answer to one request under `/api/*`: the app with every route, over the request's scope. An admin
- * read runs every statement under the admin's statement timeout (R-SERVER-012).
+ * read runs every statement under the admin's statement timeout (server:ledger-alarm-lists-suspects).
  */
 export function gameReply(request: Request, env: Env, waitUntil: (promise: Promise<unknown>) => void, plumbing: Plumbing = {}): Promise<Response> {
   return within(
@@ -125,12 +125,12 @@ export function gameReply(request: Request, env: Env, waitUntil: (promise: Promi
       const rooms = (plumbing.isolate ?? isolateOf(env)).rooms;
       const words = (plumbing.isolate ?? isolateOf(env)).text;
       const app = makeApp(deps, { auth, keys })
-        // R-ANALYTICS-012: the admin's numbers read the command log by its time.
+        // analytics:admin-stats-for-admins-only: the admin's numbers read the command log by its time.
         .route("/api/admin", adminStatsRoutes(deps, pgDayLog(handle)))
         .route("/", drawRoute(deps))
         .route("/", notifyKeyRoute(pushKeys(env)))
         .route("/", placeSocketRoutes(deps, { rooms, placeOf: placeOfIn(deps), profileOf: profileOfIn(deps, words) }));
-      // R-SERVER-043: `onError` asks the request's connection whether the database answered (security/fail.ts).
+      // server:no-platform-error-page: `onError` asks the request's connection whether the database answered (security/fail.ts).
       const bindings: FailureBindings = { databaseUnavailable: unavailable };
       return app.fetch(request, bindings);
     },

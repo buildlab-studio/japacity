@@ -36,7 +36,7 @@ function wrangler(path: string): Worker {
   return JSON.parse(text.replace(/^\s*\/\/.*$/gm, "")) as Worker;
 }
 
-/** R-SERVER-042: the observability every Worker deploys with. */
+/** server:shared-observability-block: the observability every Worker deploys with. */
 const OBSERVED = {
   enabled: true,
   logs: { enabled: true, head_sampling_rate: 1, invocation_logs: true },
@@ -68,7 +68,7 @@ describe("the game's address", () => {
     expect(staging?.preview_urls).toBe(false);
   });
 
-  test("[R-SERVER-038] [R-CLOCK-012] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON, staging on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
+  test("[server:production-and-staging] [clock:cron-stores-missing-ticks] given both environments, when their crons are read, then production ticks every five minutes with no TICK_CRON, staging on its own TICK_CRON of thirty minutes, both with the daily cron", () => {
     // Production's database is on a paid plan that need not sleep, so production sets no TICK_CRON and its first cron is TICKS_CRON.
     expect(server.vars["TICK_CRON"]).toBeUndefined();
     expect(server.triggers?.crons).toEqual([TICKS_CRON, "0 0 * * *"]);
@@ -76,34 +76,34 @@ describe("the game's address", () => {
     expect(staging?.triggers?.crons).toEqual([staging?.vars["TICK_CRON"] ?? TICKS_CRON, "0 0 * * *"]);
   });
 
-  test("[R-ADVERT-014] given both environments' tick crons, when the advert recheck reads their period, then staging's gives thirty minutes and production's five-minute cron gives five", () => {
+  test("[advert:reported-advert-pulled-at-once] given both environments' tick crons, when the advert recheck reads their period, then staging's gives thirty minutes and production's five-minute cron gives five", () => {
     expect(tickPeriodMs(server.vars["TICK_CRON"] ?? TICKS_CRON)).toBe(5 * 60_000);
     expect(tickPeriodMs(staging?.vars["TICK_CRON"] ?? TICKS_CRON)).toBe(30 * 60_000);
     expect(tickPeriodMs(TICKS_CRON)).toBe(5 * 60_000);
   });
 
-  test("[R-SERVER-038] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with the files bound as ASSETS and NOINDEX set", () => {
+  test("[server:production-and-staging] given both environments, when their files and switches are read, then only staging runs the Worker first for every path with the files bound as ASSETS and NOINDEX set", () => {
     expect(server.vars["NOINDEX"]).toBeUndefined();
     expect(server.assets?.binding).toBeUndefined();
     expect(staging?.vars["NOINDEX"]).toBe("1");
     expect(staging?.assets).toEqual({ directory: "../client/dist", not_found_handling: "single-page-application", binding: "ASSETS", run_worker_first: true });
   });
 
-  test("[R-SERVER-038] [R-SERVER-042] given both environments, when their observability is read, then production keeps every request's logs and invocation log, a twentieth of traces and Issues, and staging has no block of its own, so it inherits the same", () => {
+  test("[server:production-and-staging] [server:shared-observability-block] given both environments, when their observability is read, then production keeps every request's logs and invocation log, a twentieth of traces and Issues, and staging has no block of its own, so it inherits the same", () => {
     expect(server.observability).toEqual(OBSERVED);
     // `observability` is an inheritable key (wrangler's configuration page), so staging without one runs on the top level's.
     expect(staging?.observability).toBeUndefined();
     expect(staging?.observability ?? server.observability).toEqual(OBSERVED);
   });
 
-  test("[R-SERVER-040] given both environments, when their placement is read, then each runs its fetch handler near Neon's London region, and both keep the cached Hyperdrive configuration bound", () => {
+  test("[server:worker-placed-near-database] given both environments, when their placement is read, then each runs its fetch handler near Neon's London region, and both keep the cached Hyperdrive configuration bound", () => {
     expect(server.placement).toEqual({ region: "aws:eu-west-2" });
     expect(staging?.placement).toEqual({ region: "aws:eu-west-2" });
     expect(server.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
     expect(staging?.hyperdrive?.map((each) => each.binding)).toEqual(["GAME_DB", "CACHED_DB"]);
   });
 
-  test("[R-ACCOUNT-003] given the shipped SITE_URLs, when the relying party is taken from each, then production's is the apex japacity.app and staging's is staging.japacity.app, never the same", () => {
+  test("[account:passkey-needs-signed-in-session] given the shipped SITE_URLs, when the relying party is taken from each, then production's is the apex japacity.app and staging's is staging.japacity.app, never the same", () => {
     expect(relyingPartyOf(server.vars["SITE_URL"] ?? "")).toBe("japacity.app");
     expect(relyingPartyOf(staging?.vars["SITE_URL"] ?? "")).toBe("staging.japacity.app");
   });

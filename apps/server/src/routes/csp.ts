@@ -1,10 +1,10 @@
-// `POST /api/csp-report` (server.md R-SERVER-041): where the page's content policy, which reports and blocks
+// `POST /api/csp-report` (server:csp-reports-to-own-origin): where the page's content policy, which reports and blocks
 // nothing, sends what it would have blocked, so the violations real play makes can be seen. Browsers send
 // one of two shapes: the older `report-uri` one (`application/csp-report`, one report) and the Reporting API's
 // (`application/reports+json`, a list that may hold other kinds of report too). Each violation becomes one log line
 // and one count. A report carries far more than is kept: the line holds the directive, the blocked address's origin
 // and the document's path, and nothing else (never the user agent, the full address, the referrer, the sample, the
-// policy or a query string; R-SERVER-015, analytics.md R-ANALYTICS-007).
+// policy or a query string; server:secrets-stay-on-server, analytics:store-holds-nothing-personal).
 import type { ServerRejection } from "@japacity/api";
 import { CSP_DIRECTIVES } from "@japacity/content";
 import { time } from "@japacity/sim";
@@ -31,10 +31,10 @@ export const CSP_REPORT_BYTES = 16 * 1024;
 /** The most violations one request may add; the rest of a longer list is left out. */
 export const CSP_REPORTS_PER_REQUEST = 20;
 
-/** The counter each violation adds one to, keyed by its directive. Counts only (analytics.md R-ANALYTICS-012). */
+/** The counter each violation adds one to, keyed by its directive. Counts only (analytics:admin-stats-for-admins-only). */
 export const CSP_COUNTER = "client/csp";
 
-/** The directives a report may name, from the content's counter list (analytics.md R-ANALYTICS-008); any other is `other`. */
+/** The directives a report may name, from the content's counter list (analytics:nightly-game-counters); any other is `other`. */
 export { CSP_DIRECTIVES };
 
 type CspDirective = (typeof CSP_DIRECTIVES)[number];
@@ -89,7 +89,7 @@ function pathOf(raw: unknown): string {
     return "other";
   }
   if (!["http:", "https:"].includes(url.protocol)) return "other";
-  // An invite link's code lets its holder pair with the player who made it (pair.md R-PAIR-007): never kept.
+  // An invite link's code lets its holder pair with the player who made it (pair:invite-card-contents): never kept.
   if (url.pathname.startsWith("/invite/")) return "/invite/:code";
   return url.pathname.slice(0, FIELD_CHARS);
 }
@@ -135,7 +135,7 @@ function refuse(status: 400 | 413 | 415, detail: string): Response {
 export function cspReportRoute(deps: ServerDeps): Hono {
   const route = new Hono();
 
-  // R-SERVER-026: a report carries no session worth reading, so every one counts against the address limit.
+  // server:anonymous-limit-by-address: a report carries no session worth reading, so every one counts against the address limit.
   // Then the type, before the body is read.
   const guard: MiddlewareHandler = async (c, next) => {
     const refused = await overLimit(deps, "reads", null, c.req.header("cf-connecting-ip") ?? null);
@@ -157,7 +157,7 @@ export function cspReportRoute(deps: ServerDeps): Hono {
     if (violations === null) return refuse(400, MALFORMED_DETAIL);
     const kept = violations.slice(0, CSP_REPORTS_PER_REQUEST);
     // The log line first, so a report is seen even if the count cannot be written; written through log.ts, the
-    // Worker's one console writer (R-SERVER-042).
+    // Worker's one console writer (server:shared-observability-block).
     for (const violation of kept) writeLine(cspLogLine(violation));
     if (kept.length > 0) {
       const day = time.dayName(time.utcDay(deps.now()));

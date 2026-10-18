@@ -1,5 +1,5 @@
-// The deployment's content (docs/rules/server.md R-SERVER-014, R-SERVER-016,
-// R-SERVER-018, R-SERVER-024): the public content, with the private overlay
+// The deployment's content (server:overlays-never-multiply-prices, server:hidden-values-made-once,
+// server:public-defaults-run-the-game, server:overlay-change-opens-segment): the public content, with the private overlay
 // applied once when the isolate starts, refused whole when `checkOverlay`
 // finds a problem.
 import { olderContents } from "@japacity/content";
@@ -9,10 +9,10 @@ import { applyOverlay, checkOverlay } from "@japacity/sim";
 import type { Contents } from "../deps";
 
 /**
- * R-SERVER-016, R-SERVER-018: the contents for an overlay given as JSON, or
+ * server:hidden-values-made-once, server:public-defaults-run-the-game: the contents for an overlay given as JSON, or
  * the public content alone without one. Throws on a refused overlay, so the
  * server does not start on it. Under an overlay the public content is the one
- * before, so a segment run without it replays and opens a new one (R-SERVER-024).
+ * before, so a segment run without it replays and opens a new one (server:overlay-change-opens-segment).
  */
 export function contentsFor(base: Content, overlayJson: string | undefined): Contents {
   if (overlayJson === undefined || overlayJson === "") return { current: base, previous: null };
@@ -24,8 +24,8 @@ export function contentsFor(base: Content, overlayJson: string | undefined): Con
 }
 
 /**
- * R-SERVER-023: the contents with every older content version beside them (`olderContents`, each as it shipped), so a
- * life whose last segment names one replays under it and is upgraded to the current on its first load (R-SERVER-021).
+ * server:older-contents-bundled: the contents with every older content version beside them (`olderContents`, each as it shipped), so a
+ * life whose last segment names one replays under it and is upgraded to the current on its first load (server:newer-content-upgrades-state).
  * Under an overlay each older content joins twice, as it shipped and with the overlay applied, so a segment run under
  * either replays. With no older version the contents are returned as they are.
  */

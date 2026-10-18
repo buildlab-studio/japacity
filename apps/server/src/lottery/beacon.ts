@@ -1,5 +1,5 @@
 // The public randomness a draw's seed takes (docs/rules/lottery.md
-// R-LOTTERY-007, R-LOTTERY-009): the League of Entropy's `quicknet` beacon,
+// lottery:fingerprint-commits-secret, lottery:seed-from-secret-and-beacon): the League of Entropy's `quicknet` beacon,
 // read through drand's HTTP API (https://docs.drand.love/developer/http-api).
 // quicknet's chain info: https://api.drand.sh/v2/beacons/quicknet/info
 import { int, fromHex, sha256, toHex } from "@japacity/sim";
@@ -20,7 +20,7 @@ export const QUICKNET_PERIOD_MS = 3000;
 const DRAND_URL = "https://api.drand.sh";
 
 /**
- * R-LOTTERY-007: the first round that falls after `at`. Round `r` falls at
+ * lottery:fingerprint-commits-secret: the first round that falls after `at`. Round `r` falls at
  * `genesis + (r - 1) * period`, so a round falling exactly at `at` is not after it.
  */
 export function roundAfter(beacon: Pick<Beacon, "genesis" | "period">, at: number): number {

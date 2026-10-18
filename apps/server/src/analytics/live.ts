@@ -1,7 +1,7 @@
-// R-ANALYTICS-008: the counters the server adds the moment it
+// analytics:nightly-game-counters: the counters the server adds the moment it
 // acts, for what the command log never holds: a guest secured and feedback
 // sent. Only the day's totals by region are written; the account is read for
-// its region and its sign-up day and goes no further (R-ANALYTICS-007). A
+// its region and its sign-up day and goes no further (analytics:store-holds-nothing-personal). A
 // counter that fails to write is never something the player sees.
 import { time } from "@japacity/sim";
 import type { ServerDeps } from "../deps";
@@ -13,12 +13,12 @@ async function quietly(write: () => Promise<void>): Promise<void> {
   try {
     await write();
   } catch {
-    // R-ANALYTICS-004's spirit: counting never fails what was counted.
+    // analytics:server-checks-every-batch's spirit: counting never fails what was counted.
   }
 }
 
 /**
- * R-ACCOUNT-023: a guest was secured. Counted on the day it happened
+ * account:guest-secures-the-life: a guest was secured. Counted on the day it happened
  * (`players/secured`, the funnel's `secured`) and on the account's sign-up day
  * (`players/secured-by-signup`), so conversion reads by sign-up week.
  */
@@ -36,7 +36,7 @@ export function countSecured(deps: Deps, account: string): Promise<void> {
   });
 }
 
-/** R-MODERATION-020: one piece of feedback kept, counted by the region it came from. */
+/** moderation:feedback-box-in-settings: one piece of feedback kept, counted by the region it came from. */
 export function countFeedback(deps: Deps, country: string | null): Promise<void> {
   return quietly(async () => {
     const region = requestRegion(country);

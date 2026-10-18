@@ -1,4 +1,4 @@
-// R-ADVERT-008: which campaign fills each slot, from the slot, the region and
+// advert:campaign-chosen-without-player-data: which campaign fills each slot, from the slot, the region and
 // the hour alone. Everyone in a region sees the same campaign in a slot for the
 // whole hour; nothing about the player is read.
 import type { AdvertsReply } from "@japacity/api";
@@ -19,7 +19,7 @@ function imagePath(creative: Creative): string {
   return `/api/adverts/image/${encodeURIComponent(creative.id)}/${String(creative.version)}`;
 }
 
-/** The newest approved version of each creative. Older approved versions stay until a newer one is approved (R-ADVERT-011). */
+/** The newest approved version of each creative. Older approved versions stay until a newer one is approved (advert:changes-return-to-review). */
 export function approvedCreatives(creatives: Creative[]): Creative[] {
   const newest = new Map<string, Creative>();
   for (const creative of creatives) {
@@ -52,7 +52,7 @@ export function emptyReply(region: string, at: number): AdvertsReply {
   return { ok: true, region, hour, until: (hour + 1) * time.HOUR_MS, slots: {} };
 }
 
-/** R-ADVERT-008: the hour's campaign per slot for a region. */
+/** advert:campaign-chosen-without-player-data: the hour's campaign per slot for a region. */
 export async function servedAt(deps: AdvertsDeps, region: string, at: number): Promise<AdvertsReply> {
   const reply = emptyReply(region, at);
   const { hour } = reply;

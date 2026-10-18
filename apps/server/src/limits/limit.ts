@@ -1,5 +1,4 @@
-// The rate limits over the routes (docs/rules/server.md R-SERVER-025, 026,
-// 028). A request over a limit is answered 429 before its route runs, so
+// The rate limits over the routes (server:per-account-rate-limits, server:anonymous-limit-by-address, server:limits-are-approximate). A request over a limit is answered 429 before its route runs, so
 // nothing is stepped and nothing is logged.
 import type { ServerRejection } from "@japacity/api";
 import type { Context, MiddlewareHandler } from "hono";
@@ -14,7 +13,7 @@ export interface SessionEnv {
 /** Which limits a route counts against when signed in. */
 export type Gate = "commands" | "reads";
 
-/** R-SERVER-026: a request with no address header is counted under one key. */
+/** server:anonymous-limit-by-address: a request with no address header is counted under one key. */
 const NO_ADDRESS = "no-address";
 
 function gatesOf(deps: ServerDeps, gate: Gate): { limiter: Limiter; seconds: number }[] {
@@ -33,7 +32,7 @@ function gatesOf(deps: ServerDeps, gate: Gate): { limiter: Limiter; seconds: num
   }
 }
 
-/** R-SERVER-025, R-SERVER-026: the refusal for a request over a limit, or null. A limit passed is counted; the next is not asked once one refuses. */
+/** server:per-account-rate-limits, server:anonymous-limit-by-address: the refusal for a request over a limit, or null. A limit passed is counted; the next is not asked once one refuses. */
 export async function overLimit(deps: ServerDeps, gate: Gate, account: string | null, address: string | null): Promise<ServerRejection | null> {
   const checks = account === null ? [{ limiter: deps.limits.anon60s, seconds: 60, key: address ?? NO_ADDRESS }] : gatesOf(deps, gate).map((each) => ({ ...each, key: account }));
   for (const check of checks) {

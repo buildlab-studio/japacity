@@ -1,5 +1,5 @@
 // Replay for the admin tools: a character's stored rows stepped again against
-// the stored world rows (R-CLOCK-017) under the content each segment names.
+// the stored world rows (clock:command-uses-stamped-tick) under the content each segment names.
 // Everything here reads; nothing writes.
 import type { Diff, Dropped, LoadFailure } from "@japacity/api";
 import type { Command, Content, State, World } from "@japacity/sim";
@@ -17,12 +17,12 @@ export interface Replayed {
   dropped: Dropped[];
 }
 
-/** R-SERVER-023: the bundled content a segment or snapshot names, the current or an older one, under the same overlay. */
+/** server:older-contents-bundled: the bundled content a segment or snapshot names, the current or an older one, under the same overlay. */
 export function contentNamed(deps: Pick<ServerDeps, "contents">, version: string, overlay: string | undefined): Content | null {
   return namedContent(deps.contents, version, overlay);
 }
 
-/** R-CLOCK-017: the stored world of every tick the rows name. */
+/** clock:command-uses-stamped-tick: the stored world of every tick the rows name. */
 export async function worldsFor(deps: Pick<ServerDeps, "stores">, rows: readonly LogRow[]): Promise<Loaded<Map<number, World>>> {
   const ticks = [...new Set(rows.map((row) => row.tick))];
   const stored = await Promise.all(ticks.map((tick) => deps.stores.world.tick(tick)));
@@ -70,9 +70,9 @@ export function rowsBySegment(segments: readonly SegmentRow[], log: readonly Log
 }
 
 /**
- * R-SERVER-008: replays every stored segment from its own start. Once an
+ * server:rollback-check-finds-divergence: replays every stored segment from its own start. Once an
  * earlier segment has changed, a later one begins from the replayed state
- * carried to its content (R-SERVER-021) instead of its stored base.
+ * carried to its content (server:newer-content-upgrades-state) instead of its stored base.
  */
 export function replaySegments(
   deps: Pick<ServerDeps, "contents">,

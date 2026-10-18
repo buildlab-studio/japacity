@@ -1,5 +1,5 @@
-// The public replies in the server's cache (docs/rules/server.md R-SERVER-039,
-// clock.md R-CLOCK-019), with a stand-in for `caches.default`.
+// The public replies in the server's cache (server:public-replies-cached,
+// clock:world-fetch-is-jittered), with a stand-in for `caches.default`.
 import type { DrawReply, WorldReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -34,7 +34,7 @@ function maxAgeTo(until: number, now: number): string {
 }
 
 describe("the world through the cache", () => {
-  test("[R-CLOCK-019] [R-SERVER-039] given caches.default, when the world is fetched twice in one tick, then the tick is read from the database once and the second reply is the first, for the seconds left; the next tick is read again", async () => {
+  test("[clock:world-fetch-is-jittered] [server:public-replies-cached] given caches.default, when the world is fetched twice in one tick, then the tick is read from the database once and the second reply is the first, for the seconds left; the next tick is read again", async () => {
     const edge = fakeEdge();
     const server = await behindEdge(edge);
     const reads = vi.spyOn(server.deps.stores.world, "tick");
@@ -56,7 +56,7 @@ describe("the world through the cache", () => {
     expect(next.body.world).toEqual((await server.deps.stores.world.tick(2))?.world);
   });
 
-  test("[R-SERVER-039] [R-SERVER-015] given players with different accounts, addresses, cookies and queries, when each fetches the world, then every key is the game's origin and the tick alone, and what is stored is public JSON with no cookie", async () => {
+  test("[server:public-replies-cached] [server:secrets-stay-on-server] given players with different accounts, addresses, cookies and queries, when each fetches the world, then every key is the game's origin and the tick alone, and what is stored is public JSON with no cookie", async () => {
     const edge = fakeEdge();
     const server = await behindEdge(edge);
     server.setNow(epoch + worldTickMs);
@@ -75,7 +75,7 @@ describe("the world through the cache", () => {
     expect(JSON.stringify(edge.stored)).not.toMatch(/account|198\.51|session|test-world-seed/);
   });
 
-  test("[R-SERVER-039] [R-SERVER-025] given a limit that refuses, when the world is fetched, then it is refused 429 before the cache is asked", async () => {
+  test("[server:public-replies-cached] [server:per-account-rate-limits] given a limit that refuses, when the world is fetched, then it is refused 429 before the cache is asked", async () => {
     const edge = fakeEdge();
     const refuse: Limiter = { limit: () => Promise.resolve({ success: false }) };
     const server = await behindEdge(edge, { limits: { ...openLimiters, anon60s: refuse, reads60s: refuse } });
@@ -84,7 +84,7 @@ describe("the world through the cache", () => {
     expect(edge.asked).toEqual([]);
   });
 
-  test("[R-SERVER-039] given a cache that fails at every call, as behind Cloudflare Access, when the world is fetched, then each reply is made from the database and is the reply made with no cache", async () => {
+  test("[server:public-replies-cached] given a cache that fails at every call, as behind Cloudflare Access, when the world is fetched, then each reply is made from the database and is the reply made with no cache", async () => {
     const server = await behindEdge(brokenEdge);
     const reads = vi.spyOn(server.deps.stores.world, "tick");
     const first = await call<WorldReply>(server, "GET", "/api/world", null);
@@ -106,7 +106,7 @@ describe("the draw through the cache", () => {
     return { status: reply.status, text: await reply.text(), headers: reply.headers };
   }
 
-  test("[R-SERVER-039] [R-LOTTERY-007] given an open draw, when its page is fetched within the minute, then the draw is read once and the second reply has the seconds left; after the minute it is read again", async () => {
+  test("[server:public-replies-cached] [lottery:fingerprint-commits-secret] given an open draw, when its page is fetched within the minute, then the draw is read once and the second reply has the seconds left; after the minute it is read again", async () => {
     const edge = fakeEdge();
     const server = await behindEdge(edge);
     await server.deps.stores.world.putDraw({ draw: 1, secret: "s", fingerprint: "f", beaconRound: 1, odds: server.deps.contents.current.tuning.lottery.odds, jackpot: 1 });
@@ -126,7 +126,7 @@ describe("the draw through the cache", () => {
     expect(reads).toHaveBeenCalledTimes(2);
   });
 
-  test("[R-SERVER-039] given no such draw, when its page is fetched twice, then each is 404 from the database and nothing is stored", async () => {
+  test("[server:public-replies-cached] given no such draw, when its page is fetched twice, then each is 404 from the database and nothing is stored", async () => {
     const edge = fakeEdge();
     const server = await behindEdge(edge);
     const reads = vi.spyOn(server.deps.stores.world, "draw");
@@ -138,7 +138,7 @@ describe("the draw through the cache", () => {
 });
 
 describe("the cache itself", () => {
-  test("[R-SERVER-039] given a stored reply whose moment has passed, when it is asked for, then it is made again and stored again, even if the cache still holds it", async () => {
+  test("[server:public-replies-cached] given a stored reply whose moment has passed, when it is asked for, then it is made again and stored again, even if the cache still holds it", async () => {
     const edge = fakeEdge();
     let made = 0;
     const make = () => {
@@ -156,7 +156,7 @@ describe("the cache itself", () => {
     expect(made).toBe(2);
   });
 
-  test("[R-SERVER-039] given no cache, as in Node and the browser tests, when a reply is asked for, then it is made every time", async () => {
+  test("[server:public-replies-cached] given no cache, as in Node and the browser tests, when a reply is asked for, then it is made every time", async () => {
     let made = 0;
     const make = () => Promise.resolve({ body: String((made += 1)), type: "text/plain", freshUntil: 60 * time.SECOND_MS });
     await throughEdge(null, "https://japacity.app/x", 0, make);

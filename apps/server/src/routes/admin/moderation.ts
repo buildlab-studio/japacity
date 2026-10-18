@@ -1,8 +1,8 @@
-// R-MODERATION-010 to 016, R-MODERATION-019, R-MODERATION-020: the admin
+// moderation:one-queue-by-reason-weight, moderation:reports-decided-within-target, moderation:admin-view-for-admin-list, moderation:queue-item-shows-context, moderation:fixed-admin-actions, moderation:admin-actions-logged-append-only, moderation:actioned-player-told-and-appeals, moderation:rollback-through-admin-view, moderation:feedback-box-in-settings: the admin
 // view's moderation routes under /api/admin/moderation, which do not exist for
-// anyone off `config.admin.accounts` (R-SERVER-012), and the player's own two:
+// anyone off `config.admin.accounts` (server:ledger-alarm-lists-suspects), and the player's own two:
 // their standing and an appeal. The log has no route that changes or removes
-// an entry (R-MODERATION-015).
+// an entry (moderation:admin-actions-logged-append-only).
 import type { StandingReply } from "@japacity/api";
 import { Hono } from "hono";
 import type { Context } from "hono";

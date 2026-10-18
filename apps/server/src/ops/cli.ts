@@ -1,7 +1,7 @@
 // `pnpm rollback check <character>` and `pnpm rollback apply <character>`
-// (R-SERVER-008, R-SERVER-009, R-SERVER-047). With no flag it runs
+// (server:rollback-check-finds-divergence, server:rollback-apply-one-account, server:snapshot-before-deploy). With no flag it runs
 // on the game's database through packages/db, on the string in
-// `DATABASE_URL_UNPOOLED`, one character per run (R-SERVER-010);
+// `DATABASE_URL_UNPOOLED`, one character per run (server:no-mass-rollback);
 // `--memory <save.json>` stores the save as that character in the memory
 // stores and runs the tool there, and an applied correction ends with the process.
 import { content } from "@japacity/content";
@@ -32,7 +32,7 @@ function flat(value: unknown): FlatSave | null {
   return { schema: 2, content: only.content, ...only.start, commands: only.commands };
 }
 
-/** R-SERVER-008, R-SERVER-009: the check or the correction of one character on the database `open` reaches. */
+/** server:rollback-check-finds-divergence, server:rollback-apply-one-account: the check or the correction of one character on the database `open` reaches. */
 async function onDatabase(action: "check" | "apply", character: string, open: OpenDatabase): Promise<CliResult> {
   if (open === null) return { exit: 2, lines: [`Set ${DATABASE_ENV} to the game's database first (the migrator's string, as the migration step uses).`, USAGE] };
   const { deps, close } = await open();

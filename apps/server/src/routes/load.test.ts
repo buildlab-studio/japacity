@@ -31,7 +31,7 @@ async function warmed(server: TestServer, account: string, months: number): Prom
 }
 
 describe("the load test's routes", () => {
-  test("[R-LOAD-001] given the production config, when any load route is asked, then it answers 404 and writes nothing", async () => {
+  test("[load:runs-against-local-stack] given the production config, when any load route is asked, then it answers 404 and writes nothing", async () => {
     const { server, counts } = loadServer(productionConfig);
     for (const [method, path] of [
       ["POST", "/api/load/account"],
@@ -47,7 +47,7 @@ describe("the load test's routes", () => {
     expect(counts).toEqual(emptyCounts());
   });
 
-  test("[R-LOAD-001] given the production Worker, when its sources are read, then neither it nor the app mounts the load routes or the load Worker", () => {
+  test("[load:runs-against-local-stack] given the production Worker, when its sources are read, then neither it nor the app mounts the load routes or the load Worker", () => {
     for (const file of ["../index.ts", "../app.ts"]) {
       const text = readFileSync(fileURLToPath(new URL(file, import.meta.url).href), "utf8");
       expect(text).not.toContain("routes/load");
@@ -55,7 +55,7 @@ describe("the load test's routes", () => {
     }
   });
 
-  test("[R-LOAD-002] given an account made through the test sign-in, when its character is played forward 0, 1 and 30 months, then it plays exactly those months and the rows replay from the seed", async () => {
+  test("[load:seeded-test-accounts] given an account made through the test sign-in, when its character is played forward 0, 1 and 30 months, then it plays exactly those months and the rows replay from the seed", async () => {
     const { server } = loadServer();
     for (const [account, months] of [
       ["acc-0", 0],
@@ -83,7 +83,7 @@ describe("the load test's routes", () => {
     }
   });
 
-  test("[R-LOAD-002] given a warming step, when an answer waits, then it is sent before any month, and with nothing legal there is no step", () => {
+  test("[load:seeded-test-accounts] given a warming step, when an answer waits, then it is sent before any month, and with nothing legal there is no step", () => {
     const answer: Loose = { type: "setpiece/answer", question: "setpiece.q" as Id<"setpiece">, answer: "yes" } as unknown as Loose;
     const month: Loose = { type: "turn/end", slots: [] };
     expect(warmCommand([month, answer], 0)).toEqual(answer);
@@ -91,7 +91,7 @@ describe("the load test's routes", () => {
     expect(warmCommand([], 0)).toBeNull();
   });
 
-  test("[R-LOAD-003] given a warmed character, when its legal commands are read, then nothing is written, and each one read afresh and sent at the stored version is accepted", async () => {
+  test("[load:constant-rate-command-mix] given a warmed character, when its legal commands are read, then nothing is written, and each one read afresh and sent at the stored version is accepted", async () => {
     const { server, counts } = loadServer();
     const made = await warmed(server, "acc-1", 12);
     for (let at = 0; at < 8; at += 1) {
@@ -106,7 +106,7 @@ describe("the load test's routes", () => {
     }
   });
 
-  test("[R-LOAD-004] given a command based on the version before, when it is sent, then it is rejected stale and nothing is written", async () => {
+  test("[load:some-commands-sent-stale] given a command based on the version before, when it is sent, then it is rejected stale and nothing is written", async () => {
     const { server, counts } = loadServer();
     const made = await warmed(server, "acc-1", 3);
     const read = await call<LoadView>(server, "GET", `/api/load/view/${made.character}`, null);
@@ -118,7 +118,7 @@ describe("the load test's routes", () => {
     expect(counts).toEqual(before);
   });
 
-  test("[R-LOAD-010] [R-LOAD-011] given the counted store, when characters are made and played, then the counts match the stored log rows and the snapshots at every multiple of snapshotEvery", async () => {
+  test("[load:correctness-checked-after-run] [load:run-summary-recorded] given the counted store, when characters are made and played, then the counts match the stored log rows and the snapshots at every multiple of snapshotEvery", async () => {
     const { server, counts } = loadServer();
     const one = await warmed(server, "acc-1", 25);
     const two = await warmed(server, "acc-2", 7);
@@ -131,7 +131,7 @@ describe("the load test's routes", () => {
     expect(counts.snapshotBytes).toBeGreaterThan(0);
   });
 
-  test("[R-LOAD-010] given a refused write, when the counted store is asked, then nothing is counted", async () => {
+  test("[load:correctness-checked-after-run] given a refused write, when the counted store is asked, then nothing is counted", async () => {
     const { server, counts } = loadServer();
     const made = await warmed(server, "acc-1", 2);
     const before = { ...counts };
@@ -140,7 +140,7 @@ describe("the load test's routes", () => {
     expect(counts).toEqual(before);
   });
 
-  test("[R-LOAD-010] given a played character, when its rows are handed over, then they hold its seed's start, every log row from version 1 and the latest snapshot's hash", async () => {
+  test("[load:correctness-checked-after-run] given a played character, when its rows are handed over, then they hold its seed's start, every log row from version 1 and the latest snapshot's hash", async () => {
     const { server } = loadServer();
     const made = await warmed(server, "acc-1", 22);
     const rows = await call<LoadRows>(server, "GET", `/api/load/rows/${made.character}`, null);
@@ -153,7 +153,7 @@ describe("the load test's routes", () => {
     expect((await call(server, "GET", "/api/load/world/99", null)).status).toBe(404);
   });
 
-  test("[R-LOAD-002] given a character the route does not know, when it is warmed or read, then it answers 404", async () => {
+  test("[load:seeded-test-accounts] given a character the route does not know, when it is warmed or read, then it answers 404", async () => {
     const { server } = loadServer();
     await newLife(server, "acc-1");
     expect((await call(server, "POST", "/api/load/warm/character-none", null, { months: 1 })).status).toBe(404);

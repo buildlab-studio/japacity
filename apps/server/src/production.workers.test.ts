@@ -36,7 +36,7 @@ const BASE = {
 };
 
 describe("the Worker on Postgres", () => {
-  test("[R-SERVER-002] [R-SERVER-016] given the Workers runtime, when the Worker and @japacity/db are loaded, then pg is importable there and the entry exports its handlers", async () => {
+  test("[server:one-command-one-transaction] [server:hidden-values-made-once] given the Workers runtime, when the Worker and @japacity/db are loaded, then pg is importable there and the entry exports its handlers", async () => {
     expect(typeof worker.fetch).toBe("function");
     expect(typeof worker.scheduled).toBe("function");
     expect(Object.keys(pgStores({ read: () => Promise.reject(new Error("x")), transaction: () => Promise.reject(new Error("x")) })).sort()).toContain("player");
@@ -44,7 +44,7 @@ describe("the Worker on Postgres", () => {
     await expect(connect("postgres://test:test@127.0.0.1:1/test")).rejects.toThrow();
   });
 
-  test("[R-SERVER-002] given two requests, when each opens its scope, then each has its own client and every store, the presence on the place objects, and the switch and counter stores shared by the isolate", async () => {
+  test("[server:one-command-one-transaction] given two requests, when each opens its scope, then each has its own client and every store, the presence on the place objects, and the switch and counter stores shared by the isolate", async () => {
     const closed: string[] = [];
     const isolate = isolateFor({ connectionString: "postgres://game", place: env.PLACE }, BASE, idle(closed));
     const first = await openRequest(isolate, "postgres://game", idle(closed));
@@ -61,7 +61,7 @@ describe("the Worker on Postgres", () => {
 });
 
 describe("the socket on the production readers", () => {
-  test("[R-CITY-036] [R-CLOCK-028] given two characters at home, when one opens the socket on the hub the client sends, then it is let in and the other's presence fetch shows it by name and look; a socket on another place is refused", async () => {
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given two characters at home, when one opens the socket on the hub the client sends, then it is let in and the other's presence fetch shows it by name and look; a socket on another place is refused", async () => {
     const rooms = freshRooms();
     const server = testServer({ stores: { ...memoryStores(), presence: placePresenceStore(rooms) } });
     await newLife(server, "account-a", "scenario.ada");

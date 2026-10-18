@@ -108,7 +108,7 @@ async function playerAway(server: TestServer, account: string, devices: TestDevi
 }
 
 describe("the push message", () => {
-  test("[R-CLOCK-031] given a device's keys, when the notice is sealed, then only that device's private key opens it, to the bank-full words", async () => {
+  test("[clock:full-bank-push-notification] given a device's keys, when the notice is sealed, then only that device's private key opens it, to the bank-full words", async () => {
     const device = await testDevice("one");
     const other = await testDevice("two");
     const { keys } = await testKeys();
@@ -121,7 +121,7 @@ describe("the push message", () => {
     await expect(open({ ...other, json: device.json }, body)).rejects.toThrow();
   });
 
-  test("[R-CLOCK-031] given the deployment's keys, when a push request is made, then its token is signed for the endpoint's origin, lives twelve hours and names its contact, beside the coding and the TTL", async () => {
+  test("[clock:full-bank-push-notification] given the deployment's keys, when a push request is made, then its token is signed for the endpoint's origin, lives twelve hours and names its contact, beside the coding and the TTL", async () => {
     const device = await testDevice("one");
     const { keys, verify } = await testKeys();
 
@@ -142,7 +142,7 @@ describe("the push message", () => {
 });
 
 describe("the notice's words", () => {
-  test("[R-TEXT-007] [R-CLOCK-031] given the server's words, when each is read, then none narrates the player as idle or waited on: the bank-full notice says what to do", () => {
+  test("[text:voice-by-surface] [clock:full-bank-push-notification] given the server's words, when each is read, then none narrates the player as idle or waited on: the bank-full notice says what to do", () => {
     const deadTime = /\b(?:waiting for you|waits for you|while you wait|nothing to do but wait|dead time|still waiting|keep waiting|your life is waiting)\b/i;
     expect(Object.values(notifyText).filter((line) => deadTime.test(line.replace(/\{[^}]*\}/g, "")))).toEqual([]);
     expect(notifyText["notify.bank-full"]).toBe("Your months are full. Come and live them.");
@@ -156,23 +156,23 @@ describe("the bank's fill", () => {
     return { ...start, turn: { ...start.turn, banked, ended } };
   };
 
-  test("[R-CLOCK-031] given a bank one and two short of the cap, when its fill is worked out, then it is that many refills after refilledAt", () => {
+  test("[clock:full-bank-push-notification] given a bank one and two short of the cap, when its fill is worked out, then it is that many refills after refilledAt", () => {
     expect(fullAtOf(state(cap - 1), epoch + 5, epoch + 9, "player", clock)).toBe(epoch + 5 + turnRefillMs);
     expect(fullAtOf(state(cap - 2), epoch + 5, epoch + 9, "authority", clock)).toBe(epoch + 5 + 2 * turnRefillMs);
   });
 
-  test("[R-CLOCK-031] given a full bank, when the player's request saw it, then there is no fill to tell of; when the authority filled it, the fill is now", () => {
+  test("[clock:full-bank-push-notification] given a full bank, when the player's request saw it, then there is no fill to tell of; when the authority filled it, the fill is now", () => {
     expect(fullAtOf(state(cap), epoch, epoch + 9, "player", clock)).toBeNull();
     expect(fullAtOf(state(cap), epoch, epoch + 9, "authority", clock)).toBe(epoch + 9);
   });
 
-  test("[R-CLOCK-031] given a life that is over, when its fill is worked out, then it never fills", () => {
+  test("[clock:full-bank-push-notification] given a life that is over, when its fill is worked out, then it never fills", () => {
     expect(fullAtOf(state(0, true), epoch, epoch + 9, "authority", clock)).toBeNull();
   });
 });
 
 describe("the bank-full notices", () => {
-  test("[R-CLOCK-031] given a player away on two devices, when the job runs one ms before the bank fills and at the fill, then nothing goes before it, one push to each device at it, and nothing on the next run", async () => {
+  test("[clock:full-bank-push-notification] given a player away on two devices, when the job runs one ms before the bank fills and at the fill, then nothing goes before it, one push to each device at it, and nothing on the next run", async () => {
     const server = testServer();
     const devices = [await testDevice("a"), await testDevice("b")];
     const { keys, sent } = await testKeys();
@@ -195,7 +195,7 @@ describe("the bank-full notices", () => {
     expect(sent).toHaveLength(2);
   });
 
-  test("[R-CLOCK-031] given a fill already told, when the player comes back, spends a turn and goes away until it fills again, then exactly one more push goes", async () => {
+  test("[clock:full-bank-push-notification] given a fill already told, when the player comes back, spends a turn and goes away until it fills again, then exactly one more push goes", async () => {
     const server = testServer();
     const { keys, sent } = await testKeys();
     await playerAway(server, "acc-1", [await testDevice("a")], 1);
@@ -215,7 +215,7 @@ describe("the bank-full notices", () => {
     expect(sent).toHaveLength(2);
   });
 
-  test("[R-CLOCK-031] given a bank that filled while the player was looking, when the job runs, then nothing is sent", async () => {
+  test("[clock:full-bank-push-notification] given a bank that filled while the player was looking, when the job runs, then nothing is sent", async () => {
     const server = testServer();
     const { keys, sent } = await testKeys();
     await playerAway(server, "acc-1", [await testDevice("a")], 1);
@@ -229,7 +229,7 @@ describe("the bank-full notices", () => {
     expect(sent).toHaveLength(0);
   });
 
-  test("[R-CLOCK-031] given the setting turned off, when the bank fills, then nothing is sent and no device is kept", async () => {
+  test("[clock:full-bank-push-notification] given the setting turned off, when the bank fills, then nothing is sent and no device is kept", async () => {
     const server = testServer();
     const { keys, sent } = await testKeys();
     await playerAway(server, "acc-1", [await testDevice("a")], 1);
@@ -243,7 +243,7 @@ describe("the bank-full notices", () => {
     expect(await server.deps.stores.push.forAccount("acc-1")).toEqual([]);
   });
 
-  test("[R-CLOCK-031] given the setting on with the device's row still there, when the account row says off, then the job sends nothing", async () => {
+  test("[clock:full-bank-push-notification] given the setting on with the device's row still there, when the account row says off, then the job sends nothing", async () => {
     const server = testServer();
     const { keys, sent } = await testKeys();
     await playerAway(server, "acc-1", [await testDevice("a")], 1);
@@ -255,7 +255,7 @@ describe("the bank-full notices", () => {
     expect(sent).toHaveLength(0);
   });
 
-  test("[R-CLOCK-031] given an apology's grant that fills the bank while the player is away, when the job runs, then the notice goes at once", async () => {
+  test("[clock:full-bank-push-notification] given an apology's grant that fills the bank while the player is away, when the job runs, then the notice goes at once", async () => {
     const server = testServer();
     const { keys, sent } = await testKeys();
     const character = await playerAway(server, "acc-1", [await testDevice("a")], 1);
@@ -267,7 +267,7 @@ describe("the bank-full notices", () => {
     expect(sent).toHaveLength(1);
   });
 
-  test("[R-CLOCK-031] given a device the push service no longer knows, when the notice goes to it, then its row is removed and the other device keeps its own", async () => {
+  test("[clock:full-bank-push-notification] given a device the push service no longer knows, when the notice goes to it, then its row is removed and the other device keeps its own", async () => {
     const server = testServer();
     const gone = await testDevice("gone");
     const kept = await testDevice("kept");
@@ -282,7 +282,7 @@ describe("the bank-full notices", () => {
     expect(await server.deps.stores.push.forAccount("acc-1")).toEqual([kept.json]);
   });
 
-  test("[R-CLOCK-031] given no push keys, or another cron, when the job is asked to run, then it claims nothing, and with the keys the fill is still told", async () => {
+  test("[clock:full-bank-push-notification] given no push keys, or another cron, when the job is asked to run, then it claims nothing, and with the keys the fill is still told", async () => {
     const server = testServer();
     const { keys, sent } = await testKeys();
     await playerAway(server, "acc-1", [await testDevice("a")], 1);
@@ -297,7 +297,7 @@ describe("the bank-full notices", () => {
 });
 
 describe("the notice's routes", () => {
-  test("[R-CLOCK-031] given no session, when the setting or a device is asked for or sent, then each is refused as signed out", async () => {
+  test("[clock:full-bank-push-notification] given no session, when the setting or a device is asked for or sent, then each is refused as signed out", async () => {
     const server = testServer();
     const device = await testDevice("a");
 
@@ -311,7 +311,7 @@ describe("the notice's routes", () => {
     }
   });
 
-  test("[R-CLOCK-031] given a new account, when the setting is read, then it is off with the re-ask wait, and a device turns it on", async () => {
+  test("[clock:full-bank-push-notification] given a new account, when the setting is read, then it is off with the re-ask wait, and a device turns it on", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
 
@@ -320,7 +320,7 @@ describe("the notice's routes", () => {
     expect((await request(server, "GET", "/api/notify", "acc-1")).body).toMatchObject({ on: true });
   });
 
-  test("[R-CLOCK-031] given subscriptions that are not a browser's, when they are sent, then each is refused and nothing is kept", async () => {
+  test("[clock:full-bank-push-notification] given subscriptions that are not a browser's, when they are sent, then each is refused and nothing is kept", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const { json } = await testDevice("a");
@@ -338,7 +338,7 @@ describe("the notice's routes", () => {
     expect(await server.deps.stores.push.forAccount("acc-1")).toEqual([]);
   });
 
-  test("[R-CLOCK-031] given push addresses on hosts that are no known push service, when each is sent, then each is refused with the bad-address answer and nothing is kept", async () => {
+  test("[clock:full-bank-push-notification] given push addresses on hosts that are no known push service, when each is sent, then each is refused with the bad-address answer and nothing is kept", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const { json } = await testDevice("a");
@@ -356,7 +356,7 @@ describe("the notice's routes", () => {
     expect(await server.deps.stores.push.forAccount("acc-1")).toEqual([]);
   });
 
-  test("[R-CLOCK-031] given the push addresses Google's, Apple's, Mozilla's and Microsoft's services give, when each is read, then each is kept as sent", () => {
+  test("[clock:full-bank-push-notification] given the push addresses Google's, Apple's, Mozilla's and Microsoft's services give, when each is read, then each is kept as sent", () => {
     for (const endpoint of [
       "https://fcm.googleapis.com/fcm/send/abc:def",
       "https://web.push.apple.com/QAbc",
@@ -367,7 +367,7 @@ describe("the notice's routes", () => {
     }
   });
 
-  test("[R-CLOCK-031] given an account at the most devices, when one more subscribes, then it is refused, and a device already held may subscribe again", async () => {
+  test("[clock:full-bank-push-notification] given an account at the most devices, when one more subscribes, then it is refused, and a device already held may subscribe again", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const devices: TestDevice[] = [];
@@ -380,7 +380,7 @@ describe("the notice's routes", () => {
     expect((await subscribe(server, "acc-1", again)).status).toBe(200);
   });
 
-  test("[R-CLOCK-031] given two devices, when one is removed, then only the other is kept and the setting stays on", async () => {
+  test("[clock:full-bank-push-notification] given two devices, when one is removed, then only the other is kept and the setting stays on", async () => {
     const server = testServer();
     await newLife(server, "acc-1");
     const [one, two] = [await testDevice("a"), await testDevice("b")];
@@ -398,7 +398,7 @@ describe("the notice and the account's deletion", () => {
     vi.useRealTimers();
   });
 
-  test("[R-ACCOUNT-017] [R-CLOCK-031] given an account with two devices, when it is deleted, then its devices go at once with the setting, and none is left after the deletion job", async () => {
+  test("[account:deleted-data-removed-within-month] [clock:full-bank-push-notification] given an account with two devices, when it is deleted, then its devices go at once with the setting, and none is left after the deletion job", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(epoch);
     const h = harness();

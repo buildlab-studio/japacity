@@ -1,4 +1,4 @@
-// Selling (docs/rules/lottery.md R-LOTTERY-005): the tickets of each accepted
+// Selling (lottery:tickets-numbered-by-commit): the tickets of each accepted
 // `lottery/buy` are added to the draw's list inside the command's transaction,
 // numbered in the order the purchases are committed.
 import type { Rejection, World } from "@japacity/sim";
@@ -7,7 +7,7 @@ import type { WorldStore } from "@japacity/store";
 import type { Live } from "../authority/load";
 
 /**
- * R-LOTTERY-005, R-LOTTERY-008: adds the tickets of every `lottery/buy` the
+ * lottery:tickets-numbered-by-commit, lottery:ticket-list-frozen-anonymously: adds the tickets of every `lottery/buy` the
  * transaction stepped, or a rejection when the list is already frozen, so a
  * purchase that misses the close writes nothing and costs nothing.
  */

@@ -1,4 +1,4 @@
-// R-CLOCK-020 to 022: the NudgeBus over the place objects. A nudge goes to the
+// clock:socket-only-nudges, clock:nudge-triggers-ordinary-fetch and clock:nudges-are-best-effort: the NudgeBus over the place objects. A nudge goes to the
 // object of the account's place, which sends it down every socket whose
 // attachment names the account. A subscriber here is a listener socket in
 // that place: it receives the account's nudges and is never shown or counted.
@@ -29,7 +29,7 @@ interface Listener {
 function heard(listener: Listener, nudge: Nudge): void {
   listener.heard++;
   if (!listener.ended) {
-    // Best effort (R-CLOCK-022): one broken handler must not keep the nudge from the others.
+    // Best effort (clock:nudges-are-best-effort): one broken handler must not keep the nudge from the others.
     try {
       listener.handler(nudge);
     } catch {

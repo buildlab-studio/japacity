@@ -1,4 +1,4 @@
-// R-ACCOUNT-021: a dead session cookie never stops a new sign-in. After every
+// account:guest-and-secured-states: a dead session cookie never stops a new sign-in. After every
 // sign-in the auth library's anonymous link reads the session from the
 // request's cookie to fold a guest in; a validly signed cookie whose session is
 // gone makes it expire the session cookie the sign-in has just set, so the
@@ -51,7 +51,7 @@ export async function headersWithoutSession(auth: Auth, headers: Headers): Promi
 
 /**
  * On the sign-in paths: a request whose session cookie opens no live session reaches the library without it.
- * A live session's cookie is left alone, so a guest still links the new way in to its life (R-ACCOUNT-023).
+ * A live session's cookie is left alone, so a guest still links the new way in to its life (account:guest-secures-the-life).
  * The read never refreshes the session, as the library's own read after a sign-in does not, and a failed read
  * fails the request rather than strip a cookie that may be live.
  */

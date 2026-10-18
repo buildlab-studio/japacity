@@ -1,4 +1,4 @@
-// `POST /api/character/end` (account.md R-ACCOUNT-030): the life ends for good, a real
+// `POST /api/character/end` (account:start-a-new-life): the life ends for good, a real
 // partner or sibling joined to it is told, and the account stays to start another.
 import type { ViewReply } from "@japacity/api";
 import { describe, expect, test } from "vitest";
@@ -10,7 +10,7 @@ import { cardOut, FRIEND, INVITER, lastBondIn, linkedPair, pairServer, sayFrom, 
 const STANDING = "quality.standing";
 
 describe("ending a life", () => {
-  test("[R-ACCOUNT-030] [R-ACCOUNT-015] given an account with a life, when it ends the life, then the account names no character, the life's rows are gone, the account keeps its age pass and username, and a new life starts on a seed of its own", async () => {
+  test("[account:start-a-new-life] [account:one-character-per-account] given an account with a life, when it ends the life, then the account names no character, the life's rows are gone, the account keeps its age pass and username, and a new life starts on a seed of its own", async () => {
     const server = pairServer();
     const first = await newLife(server, INVITER, "scenario.ada");
     const firstSeed = (await held(server, first)).segments[0]?.start;
@@ -38,7 +38,7 @@ describe("ending a life", () => {
     expect(secondSeed).not.toEqual(firstSeed);
   });
 
-  test("[R-ACCOUNT-030] [R-PEOPLE-040] given a real partner joined to the life, when the life ends, then the partner's bond ends at no cost to them, their record keeps the moments, and the pair is gone from the ended side", async () => {
+  test("[account:start-a-new-life] [person:leaving-player-ends-bonds] given a real partner joined to the life, when the life ends, then the partner's bond ends at no cost to them, their record keeps the moments, and the pair is gone from the ended side", async () => {
     const { server, a, b, key } = await linkedPair();
     await sayFrom(server, INVITER, key, "phrase.hello");
     const before = await stateOf(server, b);
@@ -57,7 +57,7 @@ describe("ending a life", () => {
     expect((await server.deps.stores.account.get(FRIEND))?.character).toBe(b);
   });
 
-  test("[R-ACCOUNT-030] given a real sibling joined to the life, when the life ends, then the bond ends in the other life", async () => {
+  test("[account:start-a-new-life] given a real sibling joined to the life, when the life ends, then the bond ends in the other life", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER, "scenario.ada");
     const code = await cardOut(server, INVITER, "sibling-1", "sibling");
@@ -74,7 +74,7 @@ describe("ending a life", () => {
     expect(after.people.bonds[key ?? ""]?.stage).toBe("ended");
   });
 
-  test("[R-ACCOUNT-030] given no session, or an account with no life, when the end is asked for, then it is refused signed-out or no-character", async () => {
+  test("[account:start-a-new-life] given no session, or an account with no life, when the end is asked for, then it is refused signed-out or no-character", async () => {
     const server = pairServer();
     expect((await call(server, "POST", "/api/character/end", null)).status).toBe(401);
     await newLife(server, INVITER, "scenario.ada");
@@ -84,7 +84,7 @@ describe("ending a life", () => {
     expect(twice.body).toMatchObject({ ok: false, code: "no-character" });
   });
 
-  test("[R-ACCOUNT-030] [R-ACCOUNT-013] given a guest with a life, when the life ends and a new one starts, then it is the same guest account with the same username, and the new life asks for no bot check", async () => {
+  test("[account:start-a-new-life] [account:bot-check-on-guest-creation] given a guest with a life, when the life ends and a new one starts, then it is the same guest account with the same username, and the new life asks for no bot check", async () => {
     const h = harness();
     const { jar, account } = await h.guest(undefined, { username: "ada_lagos" });
     const first = await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } });

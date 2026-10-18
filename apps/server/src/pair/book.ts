@@ -1,4 +1,4 @@
-// The pair records one transaction holds (pair.md R-PAIR-001, R-PAIR-004):
+// The pair records one transaction holds (pair:one-record-per-two, pair:only-server-writes-record):
 // read under the locks, changed only through `writeEvent`, and handed to the
 // store once at the end with the version each was read at.
 import type { PairRecord, PairWrite, Side } from "@japacity/sim";
@@ -11,7 +11,7 @@ export interface Book {
   get: (key: string) => PairRecord | null;
   /** A record made in this transaction, or one replaced whole. */
   put: (record: PairRecord) => void;
-  /** R-PAIR-004: one write from one side. */
+  /** pair:only-server-writes-record: one write from one side. */
   write: (key: string, from: Side, write: PairWrite) => PairRecord;
   /** The keys of the records held, in key order. */
   keys: () => string[];

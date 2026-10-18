@@ -1,6 +1,6 @@
 /// <reference types="@cloudflare/vitest-plugin/types" />
 // The public replies in the Workers runtime's own `caches.default` (server.md
-// R-SERVER-039), as Miniflare runs it for `wrangler dev` and these tests: the
+// server:public-replies-cached), as Miniflare runs it for `wrangler dev` and these tests: the
 // runtime takes what the routes store, and gives it back.
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { edgeCache, edgeKey, throughEdge, throughEdgeIfAny } from "./cache";
 
 describe("the runtime's cache", () => {
-  test("[R-SERVER-039] given the Workers runtime, when a public reply is asked for twice, then caches.default keeps it: made once, the same body and type back, for the seconds left; a missing reply is never kept", async () => {
+  test("[server:public-replies-cached] given the Workers runtime, when a public reply is asked for twice, then caches.default keeps it: made once, the same body and type back, for the seconds left; a missing reply is never kept", async () => {
     const edge = edgeCache();
     expect(edge).not.toBeNull();
     const now = Date.now();

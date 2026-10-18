@@ -1,5 +1,5 @@
-// The people routes' refusals beside the server's own (pair.md R-PAIR-008,
-// R-PAIR-013, R-MODERATION-001). Anything that turns on the other side is
+// The people routes' refusals beside the server's own (pair:invite-link-single-use,
+// pair:phrase-checks-before-send, moderation:block-refuses-both-ways). Anything that turns on the other side is
 // `not-possible` and nothing more.
 import type { ServerCode } from "@japacity/api";
 import type { SayRefusal } from "@japacity/sim";
@@ -28,7 +28,7 @@ export function widen<B>(answer: Answer<B>): PairAnswer<B> {
   return answer;
 }
 
-/** The one thing a refusal that turns on the other side may say (R-PAIR-013, R-MODERATION-001). */
+/** The one thing a refusal that turns on the other side may say (pair:phrase-checks-before-send, moderation:block-refuses-both-ways). */
 export const NOT_POSSIBLE = "That is not possible now.";
 
 /** A server answer known to be a refusal, as a pair answer of any reply. */

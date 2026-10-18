@@ -8,7 +8,7 @@ import { lastPlayerAt, stageFor, standInJob } from "./standIn";
 const numbers = content.tuning.people;
 
 describe("the stand-in's clock", () => {
-  test("[R-PEOPLE-043] given idle times at the edges, when the stage is worked out, then a minute short of warnDays is nothing, warnDays is warned, a minute short of standInDays is warned and standInDays is on", () => {
+  test("[person:stand-in-after-absence] given idle times at the edges, when the stage is worked out, then a minute short of warnDays is nothing, warnDays is warned, a minute short of standInDays is warned and standInDays is on", () => {
     const day = time.DAY_MS;
     expect(stageFor(numbers.warnDays * day - time.MINUTE_MS, numbers)).toBeNull();
     expect(stageFor(numbers.warnDays * day, numbers)).toBe("warned");
@@ -16,7 +16,7 @@ describe("the stand-in's clock", () => {
     expect(stageFor(numbers.standInDays * day, numbers)).toBe("on");
   });
 
-  test("[R-PEOPLE-043] given partners where only the friend went quiet, when the daily job runs a minute before warnDays, at warnDays and at standInDays, then nothing changes, then the inviter's life is warned, then the stand-in is on and the slot shows it", async () => {
+  test("[person:stand-in-after-absence] given partners where only the friend went quiet, when the daily job runs a minute before warnDays, at warnDays and at standInDays, then nothing changes, then the inviter's life is warned, then the stand-in is on and the slot shows it", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await partners(linked);
@@ -45,7 +45,7 @@ describe("the stand-in's clock", () => {
     expect((await recordOf(server.deps, key))?.record.standIn[friendSide]).toBe("on");
   });
 
-  test("[R-PEOPLE-043] given the stand-in on, when the absent player sends any command, then it is off in the record and the other life is told", async () => {
+  test("[person:stand-in-after-absence] given the stand-in on, when the absent player sends any command, then it is off in the record and the other life is told", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     const quiet = await lastPlayerAt(server.deps, b);
@@ -62,7 +62,7 @@ describe("the stand-in's clock", () => {
     expect(record?.standIn[record.a === b ? "a" : "b"]).toBeNull();
   });
 
-  test("[R-PEOPLE-043] given a player who only reads and is sent commands by the server, when idle is measured, then it runs from the last command the player sent", async () => {
+  test("[person:stand-in-after-absence] given a player who only reads and is sent commands by the server, when idle is measured, then it runs from the last command the player sent", async () => {
     const { server, b, key } = await linkedPair();
     const quiet = await lastPlayerAt(server.deps, b);
     server.wait(time.DAY_MS);
@@ -72,7 +72,7 @@ describe("the stand-in's clock", () => {
     expect(await lastPlayerAt(server.deps, b)).toBe(quiet);
   });
 
-  test("[R-PEOPLE-044] [R-PEOPLE-037] given the stand-in on, when the waiting player ends the bond, then it is an absence end that costs nobody standing", async () => {
+  test("[person:stand-in-acts-narrowly] [person:ender-pays-in-standing] given the stand-in on, when the waiting player ends the bond, then it is an absence end that costs nobody standing", async () => {
     const linked = await linkedPair();
     const { server, a, b, key } = linked;
     await partners(linked);

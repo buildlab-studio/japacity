@@ -6,7 +6,7 @@ import { call, FRIEND, INVITER, linkedPair, pairServer, recordOf, sayFrom } from
 const ADMIN = "account.owner";
 
 describe("the admin queue over the pair side's store", () => {
-  test("[R-MODERATION-010] [R-MODERATION-008] [R-MODERATION-014] given a report filed on a pair through the game, when the admin reads the queue and dismisses it, then the report is in the queue with its held message, and the dismissal decides it, lifts the hold and releases the record", async () => {
+  test("[moderation:one-queue-by-reason-weight] [moderation:reports-hold-cited-records] [moderation:fixed-admin-actions] given a report filed on a pair through the game, when the admin reads the queue and dismisses it, then the report is in the queue with its held message, and the dismissal decides it, lifts the hold and releases the record", async () => {
     const { server, key } = await linkedPair(pairServer(undefined, { admin: { accounts: [ADMIN] } }));
     const said = await sayFrom(server, INVITER, key, "phrase.hello");
     const filed = await call<{ ok: boolean; report: string }>(server, "POST", "/api/moderation/report", FRIEND, { pair: key, messages: [said.message?.id], reason: "harassment" });

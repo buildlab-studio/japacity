@@ -1,4 +1,4 @@
-// The rollback tool (R-SERVER-008 to 010): one character at a time, always.
+// The rollback tool (server:rollback-check-finds-divergence, server:rollback-apply-one-account and server:no-mass-rollback): one character at a time, always.
 // The check reads only; the correction runs under that character's lock and
 // touches no other row. Nothing here takes or walks a list of characters.
 import type { LoadFailure, RollbackCheck, RollbackReport } from "@japacity/api";
@@ -39,14 +39,14 @@ async function plan(deps: AdminDeps, character: string): Promise<Loaded<Plan>> {
   return { ok: true, value: { held, log, state, report: { character, v: held.character.v, replayed: log.length, firstDiff, dropped } } };
 }
 
-/** R-SERVER-008: replays the character from the base of its first segment and reports the first version whose hash differs. Reads only. */
+/** server:rollback-check-finds-divergence: replays the character from the base of its first segment and reports the first version whose hash differs. Reads only. */
 export async function rollbackCheck(deps: AdminDeps, character: string): Promise<RollbackCheck> {
   const planned = await plan(deps, character);
   return planned.ok ? { ok: true, report: planned.value.report } : planned;
 }
 
 /**
- * R-SERVER-009: corrects one character. The replayed state, with every command
+ * server:rollback-apply-one-account: corrects one character. The replayed state, with every command
  * now rejected left out, becomes the base of a new segment at the next
  * version, so the client's next command is `stale`. The old segments are
  * copied to the audit store before they are retired, in the same transaction.

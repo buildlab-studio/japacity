@@ -14,7 +14,7 @@ import { bondIn, call, cardOut, FRIEND, INVITER, married, must, newLife, pairSer
 const ROUTE: Id<"route"> = "route.uk-partner";
 const APPLY: Id<"activity"> = "activity.apply-uk-partner";
 const LOOK: Id<"activity"> = "activity.look-into-route";
-/** A status `route.uk-partner` takes from a sponsor (R-UNDERTAKING-002). */
+/** A status `route.uk-partner` takes from a sponsor (undertaking:sponsor-settled-in-country). */
 const SETTLED: Id<"status"> = "status.uk-settled";
 const MINUTE_MS = 60_000;
 
@@ -39,7 +39,7 @@ function interviewContent(): Content {
 /**
  * A sponsor already settled in the UK. No scenario starts abroad and the road
  * there is years of play, so the life's first state is placed there and every
- * replay starts from it, as a sibling's family draw does (R-PEOPLE-011).
+ * replay starts from it, as a sibling's family draw does (person:real-sibling-shares-family-draw).
  */
 async function sponsorAbroad(server: TestServer, account: string): Promise<string> {
   await signUp(server, account);
@@ -71,8 +71,8 @@ async function applied(): Promise<Linked> {
   await married(linked);
   await must(server, INVITER, { type: "people/propose", bond: bondIn(await stateOf(server, a), linked.key), step: "joint", route: ROUTE, lead: "them" });
   await must(server, FRIEND, { type: "people/answer", bond: bondIn(await stateOf(server, b), linked.key), step: "joint", yes: true });
-  // R-PEOPLE-025: heard with the month the married partner's facts show a sponsor; then looked into, then applied for.
-  // R-ACTIVITY-015: looking into the route and applying are acts done at once, sent as activity/now.
+  // person:partner-routes-heard-via-bond: heard with the month the married partner's facts show a sponsor; then looked into, then applied for.
+  // activity:now-acts-and-month-acts: looking into the route and applying are acts done at once, sent as activity/now.
   await must(server, INVITER, { type: "turn/end", slots: [] });
   await must(server, INVITER, { type: "activity/now", activity: LOOK, param: ROUTE });
   await must(server, INVITER, { type: "turn/end", slots: [] });
@@ -89,7 +89,7 @@ function truthsOf(state: State): string[] {
 }
 
 describe("the genuineness interview between two players", () => {
-  test("[R-INTERVIEW-001] [R-PEOPLE-026] given a married pair with the sponsor settled abroad and the joint agreed with the sponsor leading, when the applicant sends the partner application, then the same questions open in the sponsor's life and the record", async () => {
+  test("[interview:partner-application-opens-interview] [person:partner-gate-needs] given a married pair with the sponsor settled abroad and the joint agreed with the sponsor leading, when the applicant sends the partner application, then the same questions open in the sponsor's life and the record", async () => {
     const { server, a, b, key } = await applied();
     const applicant = await stateOf(server, a);
     const sponsor = await stateOf(server, b);
@@ -100,7 +100,7 @@ describe("the genuineness interview between two players", () => {
     expect((await recordOf(server.deps, key))?.record.interview).toMatchObject({ route: ROUTE, questions: applicant.interview.open?.questions, answers: { a: null, b: null }, result: null });
   });
 
-  test("[R-INTERVIEW-005] [R-INTERVIEW-008] [R-INTERVIEW-011] [R-INTERVIEW-012] [R-PEOPLE-044] given the applicant answered and the sponsor silent, when the daily job runs a minute short of standInDays and then at standInDays, then first the applicant waits, then the stand-in answers in the sponsor's life and the same score reaches both lives", async () => {
+  test("[interview:one-question-at-a-time] [interview:stand-in-answers-when-absent] [interview:players-answer-at-own-pace] [interview:draws-made-in-one-life] [person:stand-in-acts-narrowly] given the applicant answered and the sponsor silent, when the daily job runs a minute short of standInDays and then at standInDays, then first the applicant waits, then the stand-in answers in the sponsor's life and the same score reaches both lives", async () => {
     const { server, a, b, key } = await applied();
     const standInMs = server.deps.contents.current.tuning.people.standInDays * time.DAY_MS;
     const asked = (await stateOf(server, a)).interview.open?.questions.length ?? 0;
@@ -143,7 +143,7 @@ describe("the genuineness interview between two players", () => {
       expect(shown.view.interview).toMatchObject({ result: "pass", matched: asked, question: null });
       expect(JSON.stringify(shown.view.interview)).not.toMatch(/truth|secret|answers/);
     }
-    // R-INTERVIEW-012: the stand-in's draws are made in the sponsor's life, one on people for each question, and the scoring draws nothing in either.
+    // interview:draws-made-in-one-life: the stand-in's draws are made in the sponsor's life, one on people for each question, and the scoring draws nothing in either.
     expect((await stateOf(server, a)).draws).toEqual(drawsBefore.a);
     expect((await stateOf(server, b)).draws).toEqual({ ...drawsBefore.b, people: (drawsBefore.b.people ?? 0) + asked });
   });

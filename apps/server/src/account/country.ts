@@ -1,4 +1,4 @@
-// R-ACCOUNT-008: a request's country, as Cloudflare gives it.
+// account:country-comes-from-cloudflare: a request's country, as Cloudflare gives it.
 
 /** `request.cf.country` on Workers, else the `CF-IPCountry` header; null when neither is set. */
 export function countryOf(request: Request | null | undefined, headers?: Headers | null): string | null {

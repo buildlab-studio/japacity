@@ -18,7 +18,7 @@ async function stored(server: TestServer): Promise<CounterTotal[]> {
 }
 
 describe("the door's screens sent signed out", () => {
-  test("[R-ANALYTICS-004] [R-ANALYTICS-008] given a batch with no session holding only the door's three screens, when it is sent, then each is counted under the request's region and nothing is dropped", async () => {
+  test("[analytics:server-checks-every-batch] [analytics:nightly-game-counters] given a batch with no session holding only the door's three screens, when it is sent, then each is counted under the request's region and nothing is dropped", async () => {
     const server = testServer();
     expect((await post(server, [door("door-1", 2), door("door-2"), door("page")], { "cf-ipcountry": "GB" })).status).toBe(204);
     const day = time.dayName(time.utcDay(server.deps.now()));
@@ -29,7 +29,7 @@ describe("the door's screens sent signed out", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-004] given a batch with no session holding the door beside another screen, a load time and an ask, when it is sent, then only the door is counted and the batch is dropped signed out once; a country that is not a code counts under the unknown region", async () => {
+  test("[analytics:server-checks-every-batch] given a batch with no session holding the door beside another screen, a load time and an ask, when it is sent, then only the door is counted and the batch is dropped signed out once; a country that is not a code counts under the unknown region", async () => {
     const server = testServer();
     await post(server, [door("door-1"), door("wallet"), { name: "load/time", key: "1s-3s", count: 1 }, { name: "ask/shown", key: "sign-in:after", count: 1 }], { "cf-ipcountry": "T1" });
     const day = time.dayName(time.utcDay(server.deps.now()));
@@ -39,7 +39,7 @@ describe("the door's screens sent signed out", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-004] [R-SERVER-026] given an address over the anonymous limit, when a door batch is sent with no session, then nothing is counted", async () => {
+  test("[analytics:server-checks-every-batch] [server:anonymous-limit-by-address] given an address over the anonymous limit, when a door batch is sent with no session, then nothing is counted", async () => {
     let allowed = 1;
     const anon60s: Limiter = { limit: () => Promise.resolve({ success: allowed-- > 0 }) };
     const server = testServer({ limits: { ...openLimiters, anon60s } });

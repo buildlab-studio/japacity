@@ -19,7 +19,7 @@ function json(reply: Response): Promise<Record<string, unknown>> {
 }
 
 describe("signing in", () => {
-  test("[R-ACCOUNT-001] given the password sign-in left off, when its routes are called, then every one refuses and no account is made", async () => {
+  test("[account:sign-in-without-secret] given the password sign-in left off, when its routes are called, then every one refuses and no account is made", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -32,7 +32,7 @@ describe("signing in", () => {
     expect(h.tables.user).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-001] [R-ACCOUNT-020] [R-ACCOUNT-023] given a guest, when Google secures it, then the guest's own account holds the subject id and email and no name or photo", async () => {
+  test("[account:sign-in-without-secret] [account:only-needed-data-kept] [account:guest-secures-the-life] given a guest, when Google secures it, then the guest's own account holds the subject id and email and no name or photo", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/" } });
@@ -50,7 +50,7 @@ describe("signing in", () => {
     expect(await json(me)).toMatchObject({ ok: true, account: { id: account, state: "secured" } });
   });
 
-  test("[R-ACCOUNT-001] given an account made by email code, when Google signs in with the same verified email, then it is linked to the same account", async () => {
+  test("[account:sign-in-without-secret] given an account made by email code, when Google signs in with the same verified email, then it is linked to the same account", async () => {
     const h = harness();
     const { account } = await h.signUp("ada@example.com");
     const jar = makeJar();
@@ -62,7 +62,7 @@ describe("signing in", () => {
     expect(h.tables.account).toEqual([expect.objectContaining({ userId: account, providerId: "google" })]);
   });
 
-  test("[R-MODERATION-018] given a banned email, when it signs up by code after passing the screen, then no account or row is made, and another email still can", async () => {
+  test("[moderation:ban-survives-as-hash] given a banned email, when it signs up by code after passing the screen, then no account or row is made, and another email still can", async () => {
     const h = harness();
     await banIdentities(h.deps, [emailIdentity("Bad@Example.com")]);
     const jar = makeJar();
@@ -75,7 +75,7 @@ describe("signing in", () => {
     expect((await h.signUp("good@example.com")).account).not.toBe("");
   });
 
-  test("[R-MODERATION-018] given a banned Google subject, when it signs in with a new email or links to an existing account, then the method is refused", async () => {
+  test("[moderation:ban-survives-as-hash] given a banned Google subject, when it signs in with a new email or links to an existing account, then the method is refused", async () => {
     const h = harness();
     await banIdentities(h.deps, ["google:google-subject-9"]);
     await h.signUp("ada@example.com");
@@ -92,7 +92,7 @@ describe("signing in", () => {
     expect(h.tables.account.filter((method) => method.providerId === "google")).toEqual([]);
   });
 
-  test("[R-MODERATION-014] given an account suspended for a day, when it signs in by code, then no session is made until the day is over", async () => {
+  test("[moderation:fixed-admin-actions] given an account suspended for a day, when it signs in by code, then no session is made until the day is over", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-08T09:00:00Z");
     vi.setSystemTime(start);
@@ -117,7 +117,7 @@ describe("signing in", () => {
     expect((await h.call("/api/account", { jar: allowed.jar })).status).toBe(200);
   });
 
-  test("[R-SERVER-031] given an age pass taken while sign-ups were on, when the switch goes off and the guest life is started, then it is refused switched-off and no account is made", async () => {
+  test("[server:four-off-switches] given an age pass taken while sign-ups were on, when the switch goes off and the guest life is started, then it is refused switched-off and no account is made", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -128,7 +128,7 @@ describe("signing in", () => {
     expect(h.tables.user).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-002] given a code sent, when it is read back, then it is 6 digits and the reply did not wait on the send", async () => {
+  test("[account:email-code-is-short-lived] given a code sent, when it is read back, then it is 6 digits and the reply did not wait on the send", async () => {
     let release: () => void = () => undefined;
     const h = harness({ sendOtp: () => new Promise<void>((resolve) => (release = resolve)) });
     const jar = makeJar();
@@ -144,7 +144,7 @@ describe("signing in", () => {
     expect(settled).toBe(true);
   });
 
-  test("[R-ACCOUNT-002] [R-ACCOUNT-005] given a code sent, when the database is read, then it holds only the code's hash, and the code as sent still signs in", async () => {
+  test("[account:email-code-is-short-lived] [account:stand-ins-test-sign-in] given a code sent, when the database is read, then it holds only the code's hash, and the code as sent still signs in", async () => {
     const h = harness();
     const { jar } = await h.guest();
     const otp = await h.codeFor("ada@example.com", jar);
@@ -155,7 +155,7 @@ describe("signing in", () => {
     expect(reply.status).toBe(200);
   });
 
-  test("[R-ACCOUNT-002] given a second code sent to one email, when the codes are stored, then the new one replaces the old", async () => {
+  test("[account:email-code-is-short-lived] given a second code sent to one email, when the codes are stored, then the new one replaces the old", async () => {
     const h = harness();
     const { jar } = await h.guest();
     vi.useFakeTimers({ toFake: ["Date"], now: Date.now() });
@@ -169,7 +169,7 @@ describe("signing in", () => {
     expect(current.status).toBe(200);
   });
 
-  test("[R-ACCOUNT-002] given a code, when it is used exactly 5 minutes after the send, then it works; a millisecond later it has expired", async () => {
+  test("[account:email-code-is-short-lived] given a code, when it is used exactly 5 minutes after the send, then it works; a millisecond later it has expired", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-08T09:00:00Z");
     const h = harness();
@@ -187,7 +187,7 @@ describe("signing in", () => {
     expect(results).toEqual(["200 ", "400 OTP_EXPIRED"]);
   });
 
-  test("[R-ACCOUNT-002] given three wrong tries, when the right code is checked a fourth time, then it is refused", async () => {
+  test("[account:email-code-is-short-lived] given three wrong tries, when the right code is checked a fourth time, then it is refused", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -203,7 +203,7 @@ describe("signing in", () => {
     expect(h.tables.user).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-003] given no session, when a passkey's registration is asked for, then it is refused; with a session the relying party is the game's domain", async () => {
+  test("[account:passkey-needs-signed-in-session] given no session, when a passkey's registration is asked for, then it is refused; with a session the relying party is the game's domain", async () => {
     const h = harness();
     const refused = await h.call("/api/auth/passkey/generate-register-options", { jar: makeJar() });
     expect(refused.status).toBe(401);
@@ -213,13 +213,13 @@ describe("signing in", () => {
     expect(await json(options)).toMatchObject({ rp: { id: new URL(SITE).hostname, name: "Japacity" } });
   });
 
-  test("[R-ACCOUNT-003] given a SITE_URL that is a bare https origin, when the relying party is taken from it, then it is exactly its host", () => {
+  test("[account:passkey-needs-signed-in-session] given a SITE_URL that is a bare https origin, when the relying party is taken from it, then it is exactly its host", () => {
     expect(relyingPartyOf("https://japacity.app")).toBe("japacity.app");
     expect(relyingPartyOf("https://staging.japacity.app")).toBe("staging.japacity.app");
     expect(relyingPartyOf(SITE)).toBe(new URL(SITE).hostname);
   });
 
-  test("[R-ACCOUNT-003] given a SITE_URL that is not https or carries a path, a query or a trailing slash, when the relying party is asked for, then it throws and no auth instance is made", () => {
+  test("[account:passkey-needs-signed-in-session] given a SITE_URL that is not https or carries a path, a query or a trailing slash, when the relying party is asked for, then it throws and no auth instance is made", () => {
     for (const siteUrl of ["http://japacity.app", "https://japacity.app/", "https://japacity.app/play", "https://japacity.app/?x=1", "https://japacity.app/#top", "ftp://japacity.app", "japacity.app"]) {
       expect(() => relyingPartyOf(siteUrl)).toThrow();
     }
@@ -227,7 +227,7 @@ describe("signing in", () => {
     expect(() => makeAuth(h.deps, memoryAuthAdapter(), { ...h.keys, siteUrl: "https://japacity.app/play" })).toThrow();
   });
 
-  test("[R-ACCOUNT-004] given the methods built, when a text-message code is asked for, then no such route exists", async () => {
+  test("[account:no-text-message-codes] given the methods built, when a text-message code is asked for, then no such route exists", async () => {
     const h = harness();
     for (const path of ["/api/auth/phone-number/send-otp", "/api/auth/sign-in/phone-number"]) {
       const reply = await h.call(path, { method: "POST", json: { phoneNumber: "+2348000000000" } });
@@ -235,7 +235,7 @@ describe("signing in", () => {
     }
   });
 
-  test("[R-ACCOUNT-005] given the production config, when the instance is made, then it holds no test utilities and captures no code", async () => {
+  test("[account:stand-ins-test-sign-in] given the production config, when the instance is made, then it holds no test utilities and captures no code", async () => {
     const keys = harness().keys;
     const production = await makeAuth({ ...harness().deps, config: productionConfig }, memoryAuthAdapter(), keys).$context;
     expect(production.options.plugins?.map((plugin) => plugin.id)).not.toContain("test-utils");
@@ -244,7 +244,7 @@ describe("signing in", () => {
     expect(testing.options.plugins?.map((plugin) => plugin.id)).toContain("test-utils");
   });
 
-  test("[R-ACCOUNT-006] given a sign-in, when its session cookie is set, then it is HttpOnly, Secure and SameSite=Lax", async () => {
+  test("[account:session-is-secure-cookie] given a sign-in, when its session cookie is set, then it is HttpOnly, Secure and SameSite=Lax", async () => {
     const h = harness();
     const { jar } = await h.guest();
     const otp = await h.codeFor("ada@example.com", jar);
@@ -255,7 +255,7 @@ describe("signing in", () => {
     expect(line).toContain("SameSite=Lax");
   });
 
-  test("[R-ACCOUNT-006] given an account signed in twice, when it removes a passkey, then every session ends", async () => {
+  test("[account:session-is-secure-cookie] given an account signed in twice, when it removes a passkey, then every session ends", async () => {
     const h = harness();
     const { jar, account } = await h.signUp("ada@example.com");
     const other = makeJar();
@@ -271,7 +271,7 @@ describe("signing in", () => {
 });
 
 describe("the sign-in limits", () => {
-  test("[R-ACCOUNT-014] given code sends from one address, when one more than the limit is sent in 60 seconds, then it is refused and the count is in the database", async () => {
+  test("[account:sign-in-routes-rate-limited] given code sends from one address, when one more than the limit is sent in 60 seconds, then it is refused and the count is in the database", async () => {
     const h = harness();
     const limit = h.deps.config.auth.limits.otpSendPer60s;
     const statuses: number[] = [];
@@ -283,7 +283,7 @@ describe("the sign-in limits", () => {
     expect(h.tables.rateLimit.some((row) => String(row["key"]).startsWith("198.51.100.50"))).toBe(true);
   });
 
-  test("[R-ACCOUNT-014] given code sends to one email from many addresses, when one more than the limit is sent in 60 seconds, then it is refused", async () => {
+  test("[account:sign-in-routes-rate-limited] given code sends to one email from many addresses, when one more than the limit is sent in 60 seconds, then it is refused", async () => {
     const h = harness();
     const limit = h.deps.config.auth.limits.otpSendPer60s;
     const statuses: number[] = [];
@@ -295,7 +295,7 @@ describe("the sign-in limits", () => {
     expect(JSON.stringify(h.tables.rateLimit)).not.toContain("example.com");
   });
 
-  test("[R-ACCOUNT-014] given code sends to one email spaced past the minute limit, when one more than the daily cap is sent within a day, then it is refused, and a day after the first it is sent again", async () => {
+  test("[account:sign-in-routes-rate-limited] given code sends to one email spaced past the minute limit, when one more than the daily cap is sent within a day, then it is refused, and a day after the first it is sent again", async () => {
     let now = Date.UTC(2026, 9, 10, 9, 0, 0);
     const h = harness({ now: () => now });
     const { otpSendPerDay } = h.deps.config.auth.limits;
@@ -317,7 +317,7 @@ describe("the sign-in limits", () => {
     expect(JSON.stringify(h.tables.rateLimit)).not.toContain("example.com");
   });
 
-  test("[R-ACCOUNT-014] given code checks from one address, when a fourth comes within 10 seconds, then it is refused", async () => {
+  test("[account:sign-in-routes-rate-limited] given code checks from one address, when a fourth comes within 10 seconds, then it is refused", async () => {
     const h = harness();
     const statuses: number[] = [];
     for (let n = 0; n < 4; n++) {

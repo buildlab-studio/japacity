@@ -1,5 +1,5 @@
 // The Friday draw as each stored tick carries it (docs/rules/lottery.md
-// R-LOTTERY-002, 006, 007, 012, 015, 021): the draw on sale, its close,
+// lottery:draw-sells-between-ticks, lottery:view-shows-draw-state, lottery:fingerprint-commits-secret, lottery:jackpot-rolls-over, lottery:result-published-in-tick-row, lottery:odds-fixed-at-draw-open): the draw on sale, its close,
 // fingerprint and beacon round, its odds and the jackpot standing, the sales
 // so far, and the latest published result.
 import type { LotteryResult, World } from "@japacity/sim";
@@ -10,7 +10,7 @@ import type { ServerDeps } from "../deps";
 import { closesTickOf, drawOn, storedBefore } from "../lottery/draw";
 
 /**
- * R-LOTTERY-015: the newest result stored for a draw before `draw`. The row
+ * lottery:result-published-in-tick-row: the newest result stored for a draw before `draw`. The row
  * before carries the newest known at its making, so only the draws after it
  * are read.
  */
@@ -24,7 +24,7 @@ async function lastResult(world: WorldStore, tick: number, draw: number): Promis
 }
 
 /**
- * R-LOTTERY-002, R-LOTTERY-006, R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021:
+ * lottery:draw-sells-between-ticks, lottery:view-shows-draw-state, lottery:fingerprint-commits-secret, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open:
  * `World.lottery` for the row of `tick`, from the stored draw on sale at it,
  * with the odds and the jackpot it opened with and whether that jackpot rolled
  * over from the last result. The sales so far are the tickets sold before the
@@ -34,7 +34,7 @@ async function lastResult(world: WorldStore, tick: number, draw: number): Promis
  * the close. That row, and any made before the draw opens, carries the draw
  * before, closed, so its tickets show as being drawn and a purchase is refused
  * as closed; sales of the new draw start with the next row, Saturday 07:00 in
- * Lagos, with the result and the new jackpot. R-LOTTERY-002 says sales start
+ * Lagos, with the result and the new jackpot. lottery:draw-sells-between-ticks says sales start
  * with tick 14n, so the code and the page differ here.
  * With no draw stored at or before the tick's draw the world runs no draw.
  */

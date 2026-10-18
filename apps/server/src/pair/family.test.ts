@@ -42,7 +42,7 @@ async function paidInOne() {
 }
 
 describe("a family request shared between sibling players", () => {
-  test("[R-PEOPLE-034] given two linked siblings at home, when the request opens in one life and that life pays it, then the other life gets a copy with the same terms and then the handled notice and standing +1, and nothing is paid there", async () => {
+  test("[person:family-requests-shared] given two linked siblings at home, when the request opens in one life and that life pays it, then the other life gets a copy with the same terms and then the handled notice and standing +1, and nothing is paid there", async () => {
     const { target, b, opened, copies, sibling, after } = await paidInOne();
     expect(copies.at(-1)).toMatchObject({ type: "people/family-request", offer: REQUEST, terms: opened.terms });
     expect(copies.at(-1)).not.toHaveProperty("handled");
@@ -55,7 +55,7 @@ describe("a family request shared between sibling players", () => {
     expect(after.wallet).toEqual(sibling.wallet);
   });
 
-  test("[R-PEOPLE-034] given a copy open in a sibling's life, when the other life pays the request, then the copy closes there through offer/close: gone from the state and the view", async () => {
+  test("[person:family-requests-shared] given a copy open in a sibling's life, when the other life pays the request, then the copy closes there through offer/close: gone from the state and the view", async () => {
     const { target, after } = await paidInOne();
     expect(Object.values(after.offer.items).some((item) => item.entry === REQUEST)).toBe(false);
     const shown = (await view(target, FRIEND)).body;

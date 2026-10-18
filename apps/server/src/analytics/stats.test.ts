@@ -62,7 +62,7 @@ function everything(): CounterTotal[] {
 }
 
 describe("the admin's numbers", () => {
-  test("[R-ANALYTICS-012] given every figure shown, when the numbers are built, then the reply has the frozen shape: the eleven sections in order, and each section's fields", () => {
+  test("[analytics:admin-stats-for-admins-only] given every figure shown, when the numbers are built, then the reply has the frozen shape: the eleven sections in order, and each section's fields", () => {
     const stats = buildStats(content, input(everything(), { online: [{ region: "NG", count: minShown }], todayPlayers: [{ region: "NG", count: minShown }] }));
     expect(Object.keys(stats)).toEqual([...STATS_KEYS]);
     expect(shapeOf(stats)).toEqual({
@@ -86,7 +86,7 @@ describe("the admin's numbers", () => {
     expect(stats.economy.cells).toHaveLength(12);
   });
 
-  test("[R-ANALYTICS-012] given a day of 9:00, when the numbers are built, then today is the day so far, the 7 and 30 days end yesterday, and the totals are yesterday's", () => {
+  test("[analytics:admin-stats-for-admins-only] given a day of 9:00, when the numbers are built, then today is the day so far, the 7 and 30 days end yesterday, and the totals are yesterday's", () => {
     const stats = buildStats(content, input([]));
     expect([stats.today.from, stats.today.to]).toEqual([time.dayName(TODAY), time.dayName(TODAY)]);
     expect([stats.last7.from, stats.last7.to]).toEqual([time.dayName(YESTERDAY - 6), time.dayName(YESTERDAY)]);
@@ -96,7 +96,7 @@ describe("the admin's numbers", () => {
     for (const week of stats.retention.weeks) expect(new Date(`${week.week}T00:00:00Z`).getUTCDay()).toBe(1);
   });
 
-  test("[R-ANALYTICS-010] [R-ANALYTICS-012] given regions either side of the smallest number shown, when the numbers are built, then each region is hidden on its own and the whole game by its sum, the whole game's peak is its own sample and never the regions' sum, and no small count appears as itself", () => {
+  test("[analytics:small-counts-shown-as-fewer] [analytics:admin-stats-for-admins-only] given regions either side of the smallest number shown, when the numbers are built, then each region is hidden on its own and the whole game by its sum, the whole game's peak is its own sample and never the regions' sum, and no small count appears as itself", () => {
     const stats = buildStats(
       content,
       input([row(YESTERDAY, "players/total", "NG", 40), row(YESTERDAY, "players/total", "GB", 3, "GB"), row(TODAY, "players/online-peak", "peak", 2, "GB")], {
@@ -113,7 +113,7 @@ describe("the admin's numbers", () => {
     for (const small of [1, 2, 3, minShown - 1]) expect(text).not.toMatch(new RegExp(`"(?:all|GB|NG)":${String(small)}[,}]`));
   });
 
-  test("[R-ANALYTICS-012] given the counts behind each division, when the numbers are built, then each is made on the server in basis points, and is null while either side is hidden", () => {
+  test("[analytics:admin-stats-for-admins-only] given the counts behind each division, when the numbers are built, then each is made on the server in basis points, and is null while either side is hidden", () => {
     const totals: CounterTotal[] = [];
     for (let day = YESTERDAY - 29; day <= YESTERDAY; day += 1) totals.push(row(day, "players/active", "NG", 20), row(day, "sessions/count", "NG", 30));
     totals.push(
@@ -142,7 +142,7 @@ describe("the admin's numbers", () => {
       ["page", 80, 2000],
     ]);
     expect(stats.adverts).toMatchObject({ revenueKobo: 1_200_000, revenuePerPlayerKobo: 2000 });
-    // R-ANALYTICS-007: three top-ups are too few to show their sum.
+    // analytics:store-holds-nothing-personal: three top-ups are too few to show their sum.
     expect(stats.last30).toMatchObject({ topUps: { fewerThan: minShown }, topUpKobo: null });
     expect(JSON.stringify(stats)).not.toContain("7500000");
   });

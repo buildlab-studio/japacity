@@ -1,5 +1,4 @@
-// `GET /api/admin/analytics?day=YYYY-MM-DD` (analytics.md R-ANALYTICS-009 to
-// 011): the dashboard's data, a page of the admin view. As with the other
+// `GET /api/admin/analytics?day=YYYY-MM-DD` (analytics:dashboard-shows-fixed-list, analytics:small-counts-shown-as-fewer and analytics:day-one-and-seven-return): the dashboard's data, a page of the admin view. As with the other
 // admin routes, to anyone not in `config.admin.accounts` it does not exist.
 import { time } from "@japacity/sim";
 import { Hono } from "hono";

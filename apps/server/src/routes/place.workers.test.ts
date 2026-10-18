@@ -78,7 +78,7 @@ async function refusal(response: Response): Promise<ServerRejection> {
 }
 
 describe("the place routes", () => {
-  test("[R-CLOCK-030] given no session, when the socket or the presence is asked for, then both are refused as signed out", async () => {
+  test("[clock:presence-is-not-contact] given no session, when the socket or the presence is asked for, then both are refused as signed out", async () => {
     const setupped = setup({ "account-1": PLACE });
 
     const opening = await socket(setupped, null);
@@ -90,7 +90,7 @@ describe("the place routes", () => {
     expect((await refusal(fetched)).code).toBe("signed-out");
   });
 
-  test("[R-CLOCK-030] given a signed-in account, when it opens the socket, then it joins the place with its name, look and the server's time", async () => {
+  test("[clock:presence-is-not-contact] given a signed-in account, when it opens the socket, then it joins the place with its name, look and the server's time", async () => {
     const setupped = setup({ "account-1": PLACE });
 
     listenTo(await opened(await socket(setupped, "account-1", "NG")));
@@ -98,7 +98,7 @@ describe("the place routes", () => {
     expect(await setupped.deps.stores.presence.sample(PLACE, 20, null, 0)).toEqual([{ ...member("account-1", PLACE), joinedAt: NOW }]);
   });
 
-  test("[R-CLOCK-030] [R-REGION-002] given a player connecting from France, when the socket and the presence are asked for, then it joins the place and the presence shows the other players by name and look", async () => {
+  test("[clock:presence-is-not-contact] [region:same-contact-everywhere] given a player connecting from France, when the socket and the presence are asked for, then it joins the place and the presence shows the other players by name and look", async () => {
     const setupped = setup({ "account-1": PLACE, "account-2": PLACE });
     listenTo(await opened(await socket(setupped, "account-2", "NG")));
 
@@ -109,7 +109,7 @@ describe("the place routes", () => {
     expect(await roomCounts(setupped.rooms, PLACE)).toEqual([2, 0]);
   });
 
-  test("[R-CITY-015] given another player the asker never joined through, when the presence is fetched, then that player is in the sample with its display name", async () => {
+  test("[city:players-fill-the-crowd] given another player the asker never joined through, when the presence is fetched, then that player is in the sample with its display name", async () => {
     const setupped = setup({ "account-1": PLACE, "account-2": PLACE });
     listenTo(await opened(await socket(setupped, "account-2", "GB")));
 
@@ -118,7 +118,7 @@ describe("the place routes", () => {
     expect(reply.others).toEqual([{ name: "Name account-2", look: "look-account-2" }]);
   });
 
-  test("[R-CLOCK-027] given a character in another place, when it asks for this place's socket, then it is refused", async () => {
+  test("[clock:moving-switches-place-socket] given a character in another place, when it asks for this place's socket, then it is refused", async () => {
     const setupped = setup({ "account-1": "place.ajah" });
 
     const opening = await socket(setupped, "account-1");
@@ -140,7 +140,7 @@ describe("the place routes", () => {
     await plainRequest.text();
   });
 
-  test("[R-CLOCK-028] [R-CITY-032] given more players in the place than the sample, when one fetches the presence, then it gets the configured number of others, at most the place's target headcount, names and looks only, never itself", async () => {
+  test("[clock:presence-is-a-sample] [city:residents-fill-to-target] given more players in the place than the sample, when one fetches the presence, then it gets the configured number of others, at most the place's target headcount, names and looks only, never itself", async () => {
     const size = Math.min(productionConfig.presence.sample, content.place[PLACE]!.crowd.target);
     const accounts = Array.from({ length: size + 3 }, (_unused, index) => `account-${String(index)}`);
     const setupped = setup(Object.fromEntries(accounts.map((account) => [account, PLACE])));
@@ -154,7 +154,7 @@ describe("the place routes", () => {
     for (const other of reply.others) expect(Object.keys(other).sort()).toEqual(["look", "name"]);
   });
 
-  test("[R-CLOCK-028] given the same players, when the presence is fetched twice, then the sample is drawn afresh", async () => {
+  test("[clock:presence-is-a-sample] given the same players, when the presence is fetched twice, then the sample is drawn afresh", async () => {
     const accounts = Array.from({ length: 30 }, (_unused, index) => `account-${String(index)}`);
     const setupped = setup(Object.fromEntries(accounts.map((account) => [account, PLACE])));
     for (const account of accounts) listenTo(await opened(await socket(setupped, account)));
@@ -168,7 +168,7 @@ describe("the place routes", () => {
     expect(shown.size).toBeGreaterThan(1);
   });
 
-  test("[R-CLOCK-029] given rooms of two from the config, when three players open the socket, then the router fills the first room and opens the second", async () => {
+  test("[clock:busy-place-splits-rooms] given rooms of two from the config, when three players open the socket, then the router fills the first room and opens the second", async () => {
     const config = testConfig({ testing: { testLogin: true }, presence: { maxPerObject: 2 } });
     const setupped = setup({ "account-1": PLACE, "account-2": PLACE, "account-3": PLACE }, config);
 
@@ -177,7 +177,7 @@ describe("the place routes", () => {
     expect(await roomCounts(setupped.rooms, PLACE)).toEqual([2, 1, 0]);
   });
 
-  test("[R-SERVER-033] given rooms of three and players connecting from Nigeria, Britain and Canada, when each opens the socket, then all three share the one room and the next room opens only past the cap", async () => {
+  test("[server:one-shared-world] given rooms of three and players connecting from Nigeria, Britain and Canada, when each opens the socket, then all three share the one room and the next room opens only past the cap", async () => {
     const config = testConfig({ testing: { testLogin: true }, presence: { maxPerObject: 3 } });
     const setupped = setup({ "account-1": PLACE, "account-2": PLACE, "account-3": PLACE, "account-4": PLACE }, config);
 
@@ -206,7 +206,7 @@ async function visit(setupped: Setup, account: string): Promise<void> {
 }
 
 describe("the presence fetch's players seen today", () => {
-  test("[R-CITY-036] given players who were here today and players here now, when one fetches the presence, then today has those who left, by name and look only, never anyone in others and never the asker", async () => {
+  test("[city:players-shown-present-not-tracked] given players who were here today and players here now, when one fetches the presence, then today has those who left, by name and look only, never anyone in others and never the asker", async () => {
     const accounts = ["account-0", "account-1", "account-2", "account-3", "account-4"];
     const setupped = setup(Object.fromEntries(accounts.map((account) => [account, PLACE])));
     setupped.clock.at = MIDNIGHT;
@@ -222,7 +222,7 @@ describe("the presence fetch's players seen today", () => {
     expect(JSON.stringify(reply)).not.toContain("account-0");
   });
 
-  test("[R-CITY-036] given a player seen just before Lagos midnight, when the presence is fetched either side of it, then they are in today before and gone at midnight", async () => {
+  test("[city:players-shown-present-not-tracked] given a player seen just before Lagos midnight, when the presence is fetched either side of it, then they are in today before and gone at midnight", async () => {
     const setupped = setup({ "account-0": PLACE, "account-1": PLACE });
     setupped.clock.at = MIDNIGHT - 1;
     await visit(setupped, "account-1");
@@ -235,7 +235,7 @@ describe("the presence fetch's players seen today", () => {
     expect(after.today).toEqual([]);
   });
 
-  test("[R-CITY-036] [R-CLOCK-028] given more seen today than the sample leaves, when the presence is fetched, then others and today together are the sample and today is drawn afresh", async () => {
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given more seen today than the sample leaves, when the presence is fetched, then others and today together are the sample and today is drawn afresh", async () => {
     const config = testConfig({ testing: { testLogin: true }, presence: { sample: 4 } });
     const accounts = Array.from({ length: 10 }, (_unused, index) => `account-${String(index)}`);
     const setupped = setup(Object.fromEntries(accounts.map((account) => [account, PLACE])), config);
@@ -253,7 +253,7 @@ describe("the presence fetch's players seen today", () => {
     expect(drawn.size).toBeGreaterThan(1);
   });
 
-  test("[R-CITY-036] [R-CLOCK-030] given a region whose policy is none, when the presence is fetched, then today holds those seen there today, as anywhere", async () => {
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-not-contact] given a region whose policy is none, when the presence is fetched, then today holds those seen there today, as anywhere", async () => {
     const setupped = setup({ "account-0": PLACE, "account-1": PLACE });
     await visit(setupped, "account-1");
 

@@ -1,4 +1,4 @@
-// R-CLOCK-029: a place is one or more numbered rooms, each its own object.
+// clock:busy-place-splits-rooms: a place is one or more numbered rooms, each its own object.
 // Rooms are counted without a database: the router asks room 0, 1, 2 and on
 // for its member count, which each object holds in memory, and stops at the
 // first empty room. A newcomer only ever opens the first empty room, so a
@@ -37,7 +37,7 @@ export function roomStub(rooms: Rooms, place: string, room: number): DurableObje
   return rooms.namespace.get(rooms.namespace.idFromName(roomName(rooms.scope, place, room)));
 }
 
-/** R-CLOCK-029: the fullest room with space, or the first empty room when every open room is full. */
+/** clock:busy-place-splits-rooms: the fullest room with space, or the first empty room when every open room is full. */
 export function pickRoom(counts: readonly number[], maxPerObject: number): number {
   let best = -1;
   let bestCount = -1;
@@ -83,7 +83,7 @@ export async function openSocket(rooms: Rooms, place: string, attachment: Attach
 }
 
 /**
- * R-CLOCK-028, R-CITY-036: the look of the room the asker is in, or of room 0
+ * clock:presence-is-a-sample, city:players-shown-present-not-tracked: the look of the room the asker is in, or of room 0
  * when the asker is in none. `now` names the Lagos day; null asks for no one seen today.
  */
 export async function roomLook(rooms: Rooms, place: string, asker: string | null, n: number, seed: number, now: number | null): Promise<RoomLook> {
@@ -96,12 +96,12 @@ export async function roomLook(rooms: Rooms, place: string, asker: string | null
   }
 }
 
-/** R-CLOCK-028: the sample from the room the asker is in, or from room 0 when the asker is in none. */
+/** clock:presence-is-a-sample: the sample from the room the asker is in, or from room 0 when the asker is in none. */
 export async function lookAround(rooms: Rooms, place: string, asker: string | null, n: number, seed: number): Promise<PresenceMember[]> {
   return (await roomLook(rooms, place, asker, n, seed, null)).sample;
 }
 
-/** R-CLOCK-020: the nudge to every room of the place up to the first empty one, which may still hold listeners. */
+/** clock:socket-only-nudges: the nudge to every room of the place up to the first empty one, which may still hold listeners. */
 export async function nudgeRooms(rooms: Rooms, place: string, account: string, nudge: Nudge): Promise<number> {
   let reached = 0;
   for (let room = 0; ; room++) {
@@ -111,7 +111,7 @@ export async function nudgeRooms(rooms: Rooms, place: string, account: string, n
   }
 }
 
-/** R-CLOCK-027: closes one socket wherever it is in the place. */
+/** clock:moving-switches-place-socket: closes one socket wherever it is in the place. */
 export async function leaveRooms(rooms: Rooms, place: string, socket: string): Promise<void> {
   for (let room = 0; ; room++) {
     const left = await roomStub(rooms, place, room).leave(socket);

@@ -1,4 +1,4 @@
-// R-ACCOUNT-003 and R-MODERATION-012: who may add a passkey, and what every
+// account:passkey-needs-signed-in-session and moderation:admin-view-for-admin-list: who may add a passkey, and what every
 // addition leaves behind, so whoever gets into an admin's email cannot add the
 // passkey the admin pages need.
 // Through the real auth library with a software passkey.
@@ -21,7 +21,7 @@ async function notes(h: Harness): Promise<PasskeyNote[]> {
   return (await h.deps.stores.audit.list(PASSKEY_ROWS)).map((row) => JSON.parse(row.note) as PasskeyNote);
 }
 
-/** R-ACCOUNT-018: no audit row of a passkey holds the account's id itself. */
+/** account:deletion-keeps-anonymous-totals: no audit row of a passkey holds the account's id itself. */
 async function namesNoOne(h: Harness, account: string): Promise<void> {
   const rows = await h.deps.stores.audit.list(PASSKEY_ROWS);
   expect(rows.length).toBeGreaterThan(0);
@@ -33,7 +33,7 @@ function passkeysOf(h: Harness, account: string): unknown[] {
 }
 
 describe("adding a passkey", () => {
-  test("[R-ACCOUNT-003] [R-MODERATION-012] given an admin holding a passkey and signed in by email code, when a second passkey's registration is asked for, then it is refused, and nothing is stored, logged or sent", async () => {
+  test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given an admin holding a passkey and signed in by email code, when a second passkey's registration is asked for, then it is refused, and nothing is stored, logged or sent", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar, account } = await signedUp(h, "owner@example.com", true);
     await (await softwarePasskey("Zmlyc3Qta2V5")).store(h, account);
@@ -44,7 +44,7 @@ describe("adding a passkey", () => {
     expect(h.notices).toEqual([]);
   });
 
-  test("[R-ACCOUNT-003] [R-MODERATION-012] given an admin signed in by email code who was given the options before the first passkey was stored, when the second is sent for verification, then it is refused there too", async () => {
+  test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given an admin signed in by email code who was given the options before the first passkey was stored, when the second is sent for verification, then it is refused there too", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar, account } = await signedUp(h, "owner@example.com", true);
     const first = await softwarePasskey("Zmlyc3Qta2V5");
@@ -54,7 +54,7 @@ describe("adding a passkey", () => {
     expect(await notes(h)).toEqual([]);
   });
 
-  test("[R-ACCOUNT-003] [R-MODERATION-012] given the same admin signed in with the passkey, when a second passkey is registered, then it is stored, the audit log holds the row, and a notice goes to the account's email without the reply waiting on it", async () => {
+  test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given the same admin signed in with the passkey, when a second passkey is registered, then it is stored, the audit log holds the row, and a notice goes to the account's email without the reply waiting on it", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { account } = await signedUp(h, "owner@example.com", true);
     const first = await softwarePasskey("Zmlyc3Qta2V5");
@@ -73,7 +73,7 @@ describe("adding a passkey", () => {
     expect(h.background).toHaveLength(background + 1);
   });
 
-  test("[R-ACCOUNT-003] given an admin with no passkey yet, signed in by email code, when the first passkey is registered, then it is allowed, logged and noticed", async () => {
+  test("[account:passkey-needs-signed-in-session] given an admin with no passkey yet, signed in by email code, when the first passkey is registered, then it is allowed, logged and noticed", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar, account } = await signedUp(h, "owner@example.com", true);
     const first = await (await softwarePasskey("Zmlyc3Qta2V5")).register(h, jar);
@@ -84,7 +84,7 @@ describe("adding a passkey", () => {
     expect(h.notices.map((notice) => notice.email)).toEqual(["owner@example.com"]);
   });
 
-  test("[R-ACCOUNT-003] given a player off the admin list holding a passkey and signed in by email code, when a second is registered, then it is allowed, logged and noticed", async () => {
+  test("[account:passkey-needs-signed-in-session] given a player off the admin list holding a passkey and signed in by email code, when a second is registered, then it is allowed, logged and noticed", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar, account } = await signedUp(h, "player@example.com", false);
     await (await softwarePasskey("Zmlyc3Qta2V5")).store(h, account);
@@ -96,7 +96,7 @@ describe("adding a passkey", () => {
     expect(h.notices.map((notice) => notice.email)).toEqual(["player@example.com"]);
   });
 
-  test("[R-ACCOUNT-003] given a registration that fails its verification, when it is refused, then nothing is logged or sent", async () => {
+  test("[account:passkey-needs-signed-in-session] given a registration that fails its verification, when it is refused, then nothing is logged or sent", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar } = await signedUp(h, "player@example.com", false);
     const asked = await h.call("/api/auth/passkey/generate-register-options", { jar });
@@ -109,7 +109,7 @@ describe("adding a passkey", () => {
     expect(h.notices).toEqual([]);
   });
 
-  test("[R-ACCOUNT-003] [R-ACCOUNT-018] given a passkey's audit row, when a living account's id is hashed under the server's secret, then it finds the row, and under any other secret it does not", async () => {
+  test("[account:passkey-needs-signed-in-session] [account:deletion-keeps-anonymous-totals] given a passkey's audit row, when a living account's id is hashed under the server's secret, then it finds the row, and under any other secret it does not", async () => {
     const h = harness();
     const { jar, account } = await signedUp(h, "player@example.com", false);
     expect((await (await softwarePasskey("Zmlyc3Qta2V5")).register(h, jar)).status).toBe(200);

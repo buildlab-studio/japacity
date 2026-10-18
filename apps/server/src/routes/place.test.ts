@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import { call, testServer } from "../authority/authority.testing";
 
 describe("the presence fetch at a home", () => {
-  test("[R-CITY-015] given players joined at every home, at Makoko and at the hub, when the presence is fetched, then each home's sample is empty and Makoko's and the hub's are not", async () => {
+  test("[city:players-fill-the-crowd] given players joined at every home, at Makoko and at the hub, when the presence is fetched, then each home's sample is empty and Makoko's and the hub's are not", async () => {
     const target = testServer();
     const places = [...PRIVATE_PLACES, "place.makoko", "place.ojuelegba"];
     for (const place of places) {

@@ -1,4 +1,4 @@
-// R-LOTTERY-005: the character's own ticket numbers, shown once the draw they
+// lottery:tickets-numbered-by-commit: the character's own ticket numbers, shown once the draw they
 // were bought in has closed, so a number is never seen while sales still run.
 import type { PlayerView, State } from "@japacity/sim";
 

@@ -27,7 +27,7 @@ function alarmOf(stub: DurableObjectStub<Place>): Promise<number | null> {
 }
 
 describe("the place object", () => {
-  test("[R-CLOCK-026] given three members on open sockets, when the object is evicted with its sockets hibernated, then the list comes back from the attachments", async () => {
+  test("[clock:attachments-rebuild-presence] given three members on open sockets, when the object is evicted with its sockets hibernated, then the list comes back from the attachments", async () => {
     const rooms = freshRooms();
     const store = placePresenceStore(rooms);
     for (const account of ["account-1", "account-2", "account-3"]) await store.join(PLACE, `socket-${account}`, member(account));
@@ -40,7 +40,7 @@ describe("the place object", () => {
     expect(shown.find((each) => each.account === "account-2")).toEqual(member("account-2"));
   });
 
-  test("[R-CLOCK-025] [R-CITY-036] given members in a place, when the object's storage is read, then it holds only the day's list of names and looks", async () => {
+  test("[clock:presence-held-in-memory] [city:players-shown-present-not-tracked] given members in a place, when the object's storage is read, then it holds only the day's list of names and looks", async () => {
     const rooms = freshRooms();
     await openMember(rooms, "account-1");
     await openMember(rooms, "account-2");
@@ -53,7 +53,7 @@ describe("the place object", () => {
     expect(await roomStub(rooms, PLACE, 0).count()).toBe(2);
   });
 
-  test("[R-CLOCK-026] given attachments at the limit and one byte over, when each socket is opened, then the first is accepted and the second refused", async () => {
+  test("[clock:attachments-rebuild-presence] given attachments at the limit and one byte over, when each socket is opened, then the first is accepted and the second refused", async () => {
     const rooms = freshRooms();
     const limit = productionConfig.presence.attachmentBytes;
     const shaped = (name: string): Attachment => ({ kind: "member", socket: "socket-edge", member: { ...member("account-edge"), name } });
@@ -69,7 +69,7 @@ describe("the place object", () => {
     expect(await roomStub(rooms, PLACE, 0).count()).toBe(1);
   });
 
-  test("[R-CLOCK-026] given a request that bypasses the router with an attachment over the limit, when the object reads it, then it refuses the socket", async () => {
+  test("[clock:attachments-rebuild-presence] given a request that bypasses the router with an attachment over the limit, when the object reads it, then it refuses the socket", async () => {
     const rooms = freshRooms();
     const big: Attachment = { kind: "member", socket: "socket-big", member: { ...member("account-big"), name: "n".repeat(productionConfig.presence.attachmentBytes) } };
 
@@ -82,7 +82,7 @@ describe("the place object", () => {
     expect(await roomStub(rooms, PLACE, 0).count()).toBe(0);
   });
 
-  test("[R-CLOCK-027] given two members, when one closes its socket from the client, then it leaves the list and the other stays", async () => {
+  test("[clock:moving-switches-place-socket] given two members, when one closes its socket from the client, then it leaves the list and the other stays", async () => {
     const rooms = freshRooms();
     const leaving = await openMember(rooms, "account-1");
     await openMember(rooms, "account-2");
@@ -94,7 +94,7 @@ describe("the place object", () => {
     expect(shown.map((each) => each.account)).toEqual(["account-2"]);
   });
 
-  test("[R-CLOCK-028] given members coming and going, when the window passes, then each member gets one presence nudge and the next change waits a full window", async () => {
+  test("[clock:presence-is-a-sample] given members coming and going, when the window passes, then each member gets one presence nudge and the next change waits a full window", async () => {
     const rooms = freshRooms();
     const stub = roomStub(rooms, PLACE, 0);
     const before = Date.now();
@@ -118,7 +118,7 @@ describe("the place object", () => {
     expect(first.texts).toHaveLength(1);
   });
 
-  test("[R-CLOCK-028] given more members than the sample, when the place is looked at, then the sample is the configured size and never shows the asker", async () => {
+  test("[clock:presence-is-a-sample] given more members than the sample, when the place is looked at, then the sample is the configured size and never shows the asker", async () => {
     const rooms = freshRooms();
     const size = productionConfig.presence.sample;
     for (let index = 0; index <= size + 1; index++) await openMember(rooms, `account-${String(index)}`);
@@ -129,7 +129,7 @@ describe("the place object", () => {
     expect(shown.map((each) => each.account)).not.toContain("account-0");
   });
 
-  test("[R-CLOCK-029] given rooms of three, when members join and one leaves, then each newcomer takes the fullest room with space and a full place opens the next room", async () => {
+  test("[clock:busy-place-splits-rooms] given rooms of three, when members join and one leaves, then each newcomer takes the fullest room with space and a full place opens the next room", async () => {
     const rooms = freshRooms({ maxPerObject: 3 });
     const store = placePresenceStore(rooms);
     for (let index = 1; index <= 7; index++) await store.join(PLACE, `socket-${String(index)}`, member(`account-${String(index)}`));
@@ -143,7 +143,7 @@ describe("the place object", () => {
     expect(await roomCounts(rooms, PLACE)).toEqual([3, 3, 1, 0]);
   });
 
-  test("[R-CLOCK-029] given a room at its cap, when a member is sent to it directly, then the object refuses it", async () => {
+  test("[clock:busy-place-splits-rooms] given a room at its cap, when a member is sent to it directly, then the object refuses it", async () => {
     const rooms = freshRooms({ maxPerObject: 1 });
     await openMember(rooms, "account-1");
 
@@ -160,7 +160,7 @@ describe("the place object", () => {
     expect(await roomStub(rooms, PLACE, 0).count()).toBe(1);
   });
 
-  test("[R-CLOCK-024] given a member's socket, when the client pings, then the automatic reply answers it", async () => {
+  test("[clock:client-sends-only-pings] given a member's socket, when the client pings, then the automatic reply answers it", async () => {
     const rooms = freshRooms();
     const client = await openMember(rooms, "account-1");
 
@@ -172,7 +172,7 @@ describe("the place object", () => {
     expect(pair?.response).toBe(PONG);
   });
 
-  test("[R-SERVER-027] given a socket, when it sends the limit of messages and then one more, then it stays open at the limit and is closed with 1008 past it", async () => {
+  test("[server:noisy-socket-closed] given a socket, when it sends the limit of messages and then one more, then it stays open at the limit and is closed with 1008 past it", async () => {
     const rooms = freshRooms();
     const client = await openMember(rooms, "account-1");
     const limit = productionConfig.limits.socketPer10s;
@@ -211,7 +211,7 @@ function storedList(rooms: Rooms): Promise<unknown> {
 }
 
 describe("the day's seen list in the place object", () => {
-  test("[R-CITY-036] given todayMax members and then one more, when each joins, then the list holds todayMax and the first is dropped", async () => {
+  test("[city:players-shown-present-not-tracked] given todayMax members and then one more, when each joins, then the list holds todayMax and the first is dropped", async () => {
     const rooms = freshRooms();
     const max = productionConfig.presence.todayMax;
     for (let index = 0; index < max; index++) await openAt(rooms, `account-${String(index)}`, MIDNIGHT);
@@ -227,7 +227,7 @@ describe("the day's seen list in the place object", () => {
     expect((over as { seen: Seen[] }).seen.at(-1)).toEqual(seenOf(`account-${String(max)}`));
   });
 
-  test("[R-CITY-036] given players who were here and left, when the object is evicted, then the list comes back from storage", async () => {
+  test("[city:players-shown-present-not-tracked] given players who were here and left, when the object is evicted, then the list comes back from storage", async () => {
     const rooms = freshRooms();
     await visit(rooms, "account-1", MIDNIGHT);
     await visit(rooms, "account-2", MIDNIGHT);
@@ -239,7 +239,7 @@ describe("the day's seen list in the place object", () => {
     expect(look.today.map((each) => each.name).sort()).toEqual(["Name account-1", "Name account-2"]);
   });
 
-  test("[R-CITY-036] given players seen in the last minute before Lagos midnight, when the day turns, then they are gone and the next join starts a new list", async () => {
+  test("[city:players-shown-present-not-tracked] given players seen in the last minute before Lagos midnight, when the day turns, then they are gone and the next join starts a new list", async () => {
     const rooms = freshRooms();
     const sample = productionConfig.presence.sample;
     await visit(rooms, "account-1", MIDNIGHT - 1);
@@ -253,7 +253,7 @@ describe("the day's seen list in the place object", () => {
     expect(await storedList(rooms)).toEqual({ day: lagosDay(MIDNIGHT), seen: [seenOf("account-2")] });
   });
 
-  test("[R-CITY-036] given a past day's list, when the presence alarm runs, then the list is deleted", async () => {
+  test("[city:players-shown-present-not-tracked] given a past day's list, when the presence alarm runs, then the list is deleted", async () => {
     const rooms = freshRooms();
     await visit(rooms, "account-1", 1_000);
 
@@ -262,7 +262,7 @@ describe("the day's seen list in the place object", () => {
     expect(await storedList(rooms)).toBeUndefined();
   });
 
-  test("[R-CITY-036] [R-CLOCK-028] given players here now and others seen today, when the asker looks, then today holds none here now, never the asker, and fills only what the sample leaves", async () => {
+  test("[city:players-shown-present-not-tracked] [clock:presence-is-a-sample] given players here now and others seen today, when the asker looks, then today holds none here now, never the asker, and fills only what the sample leaves", async () => {
     const rooms = freshRooms();
     for (const account of ["account-1", "account-2", "account-3"]) await visit(rooms, account, MIDNIGHT);
     await openAt(rooms, "account-0", MIDNIGHT);

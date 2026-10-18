@@ -1,4 +1,4 @@
-// The dials' readers (docs/rules/server.md R-SERVER-030): the city shell, the
+// The dials' readers (server:private-settings-and-dials): the city shell, the
 // people kind's server side and the draw service ask here, never the store.
 // Each falls back to the content's number, overlay applied, when the dial is unset.
 import type { Content, LotteryOdds } from "@japacity/sim";
@@ -8,7 +8,7 @@ import { readSwitches } from "./switches";
 
 type Reads = Pick<ServerDeps, "config" | "stores" | "now" | "contents">;
 
-/** R-CITY-032: the target headcount of a place. Throws for a place the content does not hold. */
+/** city:residents-fill-to-target: the target headcount of a place. Throws for a place the content does not hold. */
 export async function placeTarget(deps: Reads, place: string): Promise<number> {
   const entry = deps.contents.current.place[place as keyof typeof deps.contents.current.place];
   if (entry === undefined) throw new Error(`No place ${place}.`);
@@ -17,12 +17,12 @@ export async function placeTarget(deps: Reads, place: string): Promise<number> {
   return dial === undefined ? entry.crowd.target : Math.min(dial, entry.crowd.high);
 }
 
-/** R-PEOPLE-060: months the partner slot waits empty before computer candidates are listed. */
+/** person:computer-partner-offer-dial: months the partner slot waits empty before computer candidates are listed. */
 export async function computerAfterMonths(deps: Reads): Promise<number> {
   return (await readSwitches(deps)).dials.computerAfterMonths ?? deps.contents.current.tuning.people.computerAfterMonths;
 }
 
-/** R-LOTTERY-021: the odds and amounts of the private settings, overlay applied, read once when a draw opens. */
+/** lottery:odds-fixed-at-draw-open: the odds and amounts of the private settings, overlay applied, read once when a draw opens. */
 export function lotteryOdds(deps: Pick<ServerDeps, "contents">): LotteryOdds {
   return deps.contents.current.tuning.lottery.odds;
 }
@@ -34,7 +34,7 @@ export function placeTargetFits(deps: Pick<ServerDeps, "contents">, place: strin
 }
 
 /**
- * R-PEOPLE-060, R-SERVER-024: how a dial the simulation reads reaches a
+ * person:computer-partner-offer-dial, server:overlay-change-opens-segment: how a dial the simulation reads reaches a
  * character and stays replayable. A transaction runs under the current content
  * with `computerAfterMonths` set to the dial, and that content's overlay name
  * gains `~computerAfterMonths=<n>`; the segment opened under it records the
@@ -67,7 +67,7 @@ export async function dialedContents(deps: Reads): Promise<Contents> {
 }
 
 /**
- * R-SERVER-023, R-SERVER-024: the content a segment or snapshot names: the
+ * server:older-contents-bundled, server:overlay-change-opens-segment: the content a segment or snapshot names: the
  * current, the public one under an overlay or an older version, or one of them
  * under a partner dial rebuilt from the name. Null when the server bundles none
  * of them.

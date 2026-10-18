@@ -1,4 +1,4 @@
-// R-MODERATION-020: `POST /api/feedback { text, build, screen, mode }` from a
+// moderation:feedback-box-in-settings: `POST /api/feedback { text, build, screen, mode }` from a
 // signed-in session. The reply says only whether it was kept.
 import type { ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
@@ -20,7 +20,7 @@ export function feedbackRoute(deps: ServerDeps): Hono<SessionEnv> {
     const country = countryOf(c.req.raw);
     const sent = await sendFeedback(deps, session.account, country, body);
     if (sent.ok) {
-      // R-ANALYTICS-008: the support load, by region.
+      // analytics:nightly-game-counters: the support load, by region.
       await countFeedback(deps, country);
       return c.json({ ok: true });
     }

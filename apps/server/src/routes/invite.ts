@@ -1,4 +1,4 @@
-// The invite routes (docs/rules/pair.md R-PAIR-007 to 009):
+// The invite routes (pair:invite-card-contents, pair:invite-link-single-use and pair:invite-rewards-never-cash):
 // `POST /api/invite`, `GET /api/invite`, `GET /api/invite/:code` (no session
 // needed: the card is what a link shows before sign-up) and
 // `POST /api/invite/:code/accept`.

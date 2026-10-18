@@ -1,12 +1,12 @@
-// The lights list (docs/rules/moderation.md R-MODERATION-021, a name shows once approved): the
+// The lights list (moderation:dedication-lights-await-approval, a name shows once approved): the
 // dedication lights whose names await a look, for the admin page's moderation tab, and the two decisions on each.
-// Behind the admin gate (R-SERVER-012, R-MODERATION-012), like every admin route.
+// Behind the admin gate (server:ledger-alarm-lists-suspects, moderation:admin-view-for-admin-list), like every admin route.
 //
 // GET  /api/admin/dedication/pending          the lights awaiting a look, oldest first, with each account's username and region
 // POST /api/admin/dedication/:account/approve the name shows to everyone from the next read
 // POST /api/admin/dedication/:account/refuse  the light is put out; the account may light again
 //
-// Both decisions are written to the admin log (R-MODERATION-015) with the reason `dedication`. Planned, not built: a
+// Both decisions are written to the admin log (moderation:admin-actions-logged-append-only) with the reason `dedication`. Planned, not built: a
 // reviewer job approving on the makers' behalf through the same route.
 import type { PendingLight, ServerRejection } from "@japacity/api";
 import type { DedicationLight } from "@japacity/store";
@@ -29,7 +29,7 @@ async function readNote(c: Context): Promise<string | null> {
   return typeof note === "string" && note.trim() !== "" ? note.trim().slice(0, 500) : null;
 }
 
-/** R-MODERATION-015: the decision in the admin log, on the light, naming the account it was taken on. */
+/** moderation:admin-actions-logged-append-only: the decision in the admin log, on the light, naming the account it was taken on. */
 async function logDecision(deps: ServerDeps, admin: string, action: "approve-light" | "refuse-light", light: DedicationLight, note: string | null): Promise<string> {
   const entry = { id: newId(deps, "log"), admin, at: deps.now(), item: light.id, action, params: { account: light.account }, reason: DEDICATION_LOG_REASON, ...(note === null ? {} : { note }) };
   const written = await deps.stores.moderationLog.append(entry);

@@ -1,5 +1,5 @@
-// The command transaction (docs/rules/server.md R-SERVER-002 to 007,
-// clock.md R-CLOCK-004 to 006, 013, 017): lock the characters, load each,
+// The command transaction (server:one-command-one-transaction, server:log-rows-hash-state, server:snapshots-bound-replay, server:rejections-write-nothing, server:authority-commands-same-path and server:paired-rows-locked-in-order,
+// clock:turns-earned-from-refill-time, clock:earned-turns-granted-first, clock:full-bank-earns-nothing, clock:request-fills-missing-ticks, clock:command-uses-stamped-tick): lock the characters, load each,
 // grant what real time earned, run the caller's step, and write the rows, the
 // snapshots, any new segment and `refilledAt` together, or nothing at all.
 import type { Command, Rejection, Sender, StepResult, World } from "@japacity/sim";
@@ -19,9 +19,9 @@ export interface Turn {
   world: World;
   at: number;
   send: (live: Live, command: Command, sender: Sender) => StepResult;
-  /** R-PAIR-004: the stored records between the held characters, read under the locks. */
+  /** pair:only-server-writes-record: the stored records between the held characters, read under the locks. */
   pairs: readonly PairRow[];
-  /** R-PAIR-004: a record write, applied with the characters' writes or not at all. */
+  /** pair:only-server-writes-record: a record write, applied with the characters' writes or not at all. */
   writePair: (write: PairWrite) => void;
 }
 
@@ -29,7 +29,7 @@ export interface Turn {
 export type Act<T> = (lives: Live[], turn: Turn) => { ok: true; value: T } | Rejection;
 
 export interface TxOptions {
-  /** R-CLOCK-004: off only for a sweep that carries characters to the current content and steps nothing. */
+  /** clock:turns-earned-from-refill-time: off only for a sweep that carries characters to the current content and steps nothing. */
   grant?: boolean;
 }
 
@@ -39,7 +39,7 @@ export type TxResult<T> =
   | { kind: "diverged"; diverged: Diverged }
   | { kind: "refused"; refusal: Refusal };
 
-/** R-SERVER-002: one character's writes, or null when the transaction changed nothing of it. */
+/** server:one-command-one-transaction: one character's writes, or null when the transaction changed nothing of it. */
 function writeOf(live: Live): CharacterWrite | null {
   const changed = live.opened !== null || live.rows.length > 0 || live.refilledAt !== live.storedRefilledAt;
   if (!changed) return null;
@@ -53,7 +53,7 @@ function writeOf(live: Live): CharacterWrite | null {
 }
 
 /**
- * R-CLOCK-005, R-CLOCK-006: one `turns/grant` from the authority for what
+ * clock:earned-turns-granted-first, clock:full-bank-earns-nothing: one `turns/grant` from the authority for what
  * real time earned, logged like any command, and `refilledAt` moved on.
  */
 function grantEarned(deps: ServerDeps, live: Live, turn: Turn): void {
@@ -66,9 +66,9 @@ function grantEarned(deps: ServerDeps, live: Live, turn: Turn): void {
 }
 
 /**
- * R-SERVER-002, R-SERVER-007: runs `act` under the locks of `ids` (ascending
+ * server:one-command-one-transaction, server:paired-rows-locked-in-order: runs `act` under the locks of `ids` (ascending
  * id order, whatever order they are given in) at the current tick. The
- * missing tick rows are made before the locks are taken (R-CLOCK-013).
+ * missing tick rows are made before the locks are taken (clock:request-fills-missing-ticks).
  */
 export async function transact<T>(deps: ServerDeps, ids: readonly string[], act: Act<T>, options: TxOptions = {}): Promise<TxResult<T>> {
   const at = deps.now();
@@ -76,9 +76,9 @@ export async function transact<T>(deps: ServerDeps, ids: readonly string[], act:
   const snapshotEvery = deps.config.server.snapshotEvery;
   const send: Turn["send"] = (live, command, sender) => apply(live, command, sender, world, at, snapshotEvery);
 
-  // R-PEOPLE-060, R-SERVER-024: the partner dial in the content, read before the locks.
+  // person:computer-partner-offer-dial, server:overlay-change-opens-segment: the partner dial in the content, read before the locks.
   const contents = await dialedContents(deps);
-  // R-SERVER-002: under the locks every read and write goes through the work's own stores.
+  // server:one-command-one-transaction: under the locks every read and write goes through the work's own stores.
   const result = await deps.stores.player.transact(ids, async (rows, stores): Promise<{ writes: Writes; result: TxResult<T> }> => {
     const pairWrites: PairWrite[] = [];
     const turn: Turn = { world, at, send, pairs: rows.pairs, writePair: (write) => pairWrites.push(write) };

@@ -26,7 +26,7 @@ async function queueOf(app: { request: (path: string, init?: RequestInit) => Res
 const close = (action: string, extra: Body = {}) => ({ action, reason: "harassment", ...extra });
 
 describe("the admin view's routes", () => {
-  test("[R-MODERATION-012] [R-SERVER-012] given a session off the admin list or none, when any moderation admin route is asked, then it answers 404 exactly as a route that does not exist", async () => {
+  test("[moderation:admin-view-for-admin-list] [server:ledger-alarm-lists-suspects] given a session off the admin list or none, when any moderation admin route is asked, then it answers 404 exactly as a route that does not exist", async () => {
     const config = testConfig({ testing: { testLogin: true }, admin: { accounts: [ADMIN] } });
     const app = makeApp(testDeps({ config, session: testSession(config) }));
     const missing = await app.request("/api/admin/moderation/nothing-here", as(ADMIN));
@@ -48,7 +48,7 @@ describe("the admin view's routes", () => {
     expect((await app.request("/api/admin/moderation/queue", as(ADMIN))).status).toBe(200);
   });
 
-  test("[R-MODERATION-015] given a logged action, when an admin tries to change or delete it through any route, then nothing answers and the entry is unchanged", async () => {
+  test("[moderation:admin-actions-logged-append-only] given a logged action, when an admin tries to change or delete it through any route, then nothing answers and the entry is unchanged", async () => {
     const h = moderationHarness({ reports: [report("report.1")] });
     const closed = await json<{ entry: ModerationLogEntry }>(await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("warn"))));
     const id = closed.entry.id;
@@ -64,7 +64,7 @@ describe("the admin view's routes", () => {
 });
 
 describe("the queue", () => {
-  test("[R-MODERATION-010] given reports of every weight and an appeal, when the queue is read, then underage, self-harm, sexual and illegal come first, then scam, then the rest with the appeal, each oldest first", async () => {
+  test("[moderation:one-queue-by-reason-weight] given reports of every weight and an appeal, when the queue is read, then underage, self-harm, sexual and illegal come first, then scam, then the rest with the appeal, each oldest first", async () => {
     const h = moderationHarness({
       now: 10 * DAY,
       reports: [
@@ -97,7 +97,7 @@ describe("the queue", () => {
     ]);
   });
 
-  test("[R-MODERATION-011] given open reports, when the queue is read, then it shows the oldest one's age, and one is overdue only past the target to the millisecond", async () => {
+  test("[moderation:reports-decided-within-target] given open reports, when the queue is read, then it shows the oldest one's age, and one is overdue only past the target to the millisecond", async () => {
     const target = productionConfig.moderation.decideHours * HOUR;
     const h = moderationHarness({ now: 0, reports: [report("report.a", { at: 0 }), report("report.b", { at: 1 })] });
     expect(await queueOf(moderationHarness({ now: 0 }).app)).toEqual({ items: [], oldest: 0, target, overdue: 0 });
@@ -110,7 +110,7 @@ describe("the queue", () => {
     expect(await queueOf(h.app)).toMatchObject({ overdue: 2 });
   });
 
-  test("[R-MODERATION-013] given a report on a conversation, when its item is read, then it shows the reason, the cited phrases with their words and times, both accounts' region, age, reports and actions, and no email, seed or state", async () => {
+  test("[moderation:queue-item-shows-context] given a report on a conversation, when its item is read, then it shows the reason, the cited phrases with their words and times, both accounts' region, age, reports and actions, and no email, seed or state", async () => {
     const h = moderationHarness({
       now: 5 * DAY,
       reports: [
@@ -162,7 +162,7 @@ describe("the queue", () => {
 });
 
 describe("closing a report", () => {
-  test("[R-MODERATION-008] given a held report, when the queue is read, another report is closed, an appeal is filed and a rollback is opened on it, then it stays held; only its own close lifts it", async () => {
+  test("[moderation:reports-hold-cited-records] given a held report, when the queue is read, another report is closed, an appeal is filed and a rollback is opened on it, then it stays held; only its own close lifts it", async () => {
     const h = moderationHarness({
       reports: [report("report.1"), report("report.2", { at: 1 })],
       holds: [
@@ -187,7 +187,7 @@ describe("closing a report", () => {
     expect(await h.queue.get("report.1")).toMatchObject({ status: "decided", outcome: "no-action" });
   });
 
-  test("[R-MODERATION-014] given open reports, when each action is taken, then a dismiss closes with no action, every other with acted, and the advert actions and unknown ones are refused here", async () => {
+  test("[moderation:fixed-admin-actions] given open reports, when each action is taken, then a dismiss closes with no action, every other with acted, and the advert actions and unknown ones are refused here", async () => {
     const reports = ["dismiss", "warn", "mute", "suspend", "reset-name", "refer"].map((action, at) => report(`report.${action}`, { at }));
     const h = moderationHarness({ reports: [...reports, report("report.left", { at: 99 })] });
     const extra: Record<string, Body> = { mute: { days: 7 }, suspend: { days: 30 }, refer: { body: "the police" } };
@@ -205,7 +205,7 @@ describe("closing a report", () => {
     expect(h.identities.ended).toEqual(["account.reported"]);
   });
 
-  test("[R-MODERATION-014] given a mute or a suspension, when its days are 0, 1, 3650 and 3651, then 1 and 3650 are taken and the others refused", async () => {
+  test("[moderation:fixed-admin-actions] given a mute or a suspension, when its days are 0, 1, 3650 and 3651, then 1 and 3650 are taken and the others refused", async () => {
     for (const action of ["mute", "suspend"]) {
       const h = moderationHarness({ reports: [report("report.a"), report("report.b"), report("report.c"), report("report.d")] });
       const statuses: number[] = [];
@@ -216,7 +216,7 @@ describe("closing a report", () => {
     }
   });
 
-  test("[R-MODERATION-014] given a report about an advert, when an action on an account is taken on it, then it is refused; dismiss and refer are taken", async () => {
+  test("[moderation:fixed-admin-actions] given a report about an advert, when an action on an account is taken on it, then it is refused; dismiss and refer are taken", async () => {
     const advert = { subject: { campaign: "campaign.1" }, reason: "advert" as const, cites: { campaign: "campaign.1", slot: "advert.slot-1" } };
     const h = moderationHarness({ reports: [report("report.a", advert), report("report.b", advert)] });
     for (const action of ["warn", "mute", "suspend", "ban", "reset-name", "rollback"]) {
@@ -227,7 +227,7 @@ describe("closing a report", () => {
     expect((await h.deps.stores.moderationLog.list({ item: "report.a" }))[0]?.params).toEqual({ body: "the advertising standards body" });
   });
 
-  test("[R-MODERATION-015] given an action, when it is taken, then the log holds the admin, the time, the item, the action, its parameters, the reason and the note; a decided report closed again writes nothing", async () => {
+  test("[moderation:admin-actions-logged-append-only] given an action, when it is taken, then the log holds the admin, the time, the item, the action, its parameters, the reason and the note; a decided report closed again writes nothing", async () => {
     const h = moderationHarness({ now: 3 * DAY, reports: [report("report.1")] });
     const reply = await json<{ entry: ModerationLogEntry }>(await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("mute", { days: 7, reason: "hate", note: "third time" }))));
 
@@ -241,7 +241,7 @@ describe("closing a report", () => {
     for (const reason of REPORT_REASONS) expect(typeof reason).toBe("string");
   });
 
-  test("[R-MODERATION-014] [R-MODERATION-018] given a ban, when it is taken, then every sign-in identity is kept only as a salted hash, every session ends and the account's deletion is requested", async () => {
+  test("[moderation:fixed-admin-actions] [moderation:ban-survives-as-hash] given a ban, when it is taken, then every sign-in identity is kept only as a salted hash, every session ends and the account's deletion is requested", async () => {
     const identities = { "account.reported": ["email:bad@example.test", "google:1234"] };
     const h = moderationHarness({ reports: [report("report.1")], identities });
 
@@ -258,7 +258,7 @@ describe("closing a report", () => {
     expect(await h.deps.stores.deletion.due(h.deps.now() + h.deps.config.account.deleteWithinDays * time.DAY_MS)).toMatchObject([{ account: "account.reported" }]);
   });
 
-  test("[R-MODERATION-014] given a report on a player's name, when the name is reset, then the account's username is a generated one in place of the reported name, and the player may choose their own at once", async () => {
+  test("[moderation:fixed-admin-actions] given a report on a player's name, when the name is reset, then the account's username is a generated one in place of the reported name, and the player may choose their own at once", async () => {
     const h = moderationHarness({ reports: [report("report.1")] });
     await h.deps.stores.account.create({ id: "account.reported", country: "GB", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: null, notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "rude_name", usernameChangedAt: 0, lastPlayedAt: 0 });
     // Renamed at the start of the clock, so without the reset the next change would wait `renameDays`.
@@ -273,7 +273,7 @@ describe("closing a report", () => {
     expect(row === null ? null : renameFrom(row, h.deps.config)).toBeLessThanOrEqual(h.deps.now());
   });
 
-  test("[R-MODERATION-017] given an underage report, when an admin upholds it with less than a ban, then it is refused; a ban closes the account and bars the same identity from a new date of birth", async () => {
+  test("[moderation:upheld-underage-closes-account] given an underage report, when an admin upholds it with less than a ban, then it is refused; a ban closes the account and bars the same identity from a new date of birth", async () => {
     const h = moderationHarness({ reports: [report("report.1", { reason: "underage" })], identities: { "account.reported": ["email:kid@example.test"] } });
     for (const action of ["warn", "mute", "suspend", "reset-name"]) {
       expect((await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close(action, { days: 1, reason: "underage" })))).status).toBe(400);
@@ -286,7 +286,7 @@ describe("closing a report", () => {
     expect(await h.deps.stores.deletion.find(await (await import("../account/deletion")).accountHash("account.reported"))).toMatchObject({ completedAt: null });
   });
 
-  test("[R-MODERATION-019] given a report on an account, when the rollback is opened from it, then its use is logged, the comparison comes back, and the report stays open and held", async () => {
+  test("[moderation:rollback-through-admin-view] given a report on an account, when the rollback is opened from it, then its use is logged, the comparison comes back, and the report stays open and held", async () => {
     const h = moderationHarness({ reports: [report("report.1")], holds: [{ report: "report.1", messages: ["report.1.m1"], until: 91 * DAY }] });
     await h.deps.stores.account.create({ id: "account.reported", country: "NG", age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: "character.nobody", notifyBankFull: false, sendUsageCounts: true, state: "secured", username: "account_reported", usernameChangedAt: null, lastPlayedAt: 0 });
 
@@ -300,7 +300,7 @@ describe("closing a report", () => {
 });
 
 describe("what the player is told, and the appeal", () => {
-  test("[R-MODERATION-016] given a mute on a player, when they read their standing, then they see the action, the reason and that it can be appealed; they appeal it once, and the appeal enters the queue", async () => {
+  test("[moderation:actioned-player-told-and-appeals] given a mute on a player, when they read their standing, then they see the action, the reason and that it can be appealed; they appeal it once, and the appeal enters the queue", async () => {
     const h = moderationHarness({ now: 2 * DAY, reports: [report("report.1")] });
     const { entry } = await json<{ entry: ModerationLogEntry }>(await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("mute", { days: 7, reason: "hate", note: "private note" }))));
 
@@ -319,7 +319,7 @@ describe("what the player is told, and the appeal", () => {
     expect((await json<{ standing: Standing }>(await h.app.request("/api/moderation/standing", as("account.reported")))).standing.mutedUntil).toBeNull();
   });
 
-  test("[R-MODERATION-016] given two admins, when the one who acted decides the appeal, then it is refused; the other decides it, and an overturned mute is no longer in force", async () => {
+  test("[moderation:actioned-player-told-and-appeals] given two admins, when the one who acted decides the appeal, then it is refused; the other decides it, and an overturned mute is no longer in force", async () => {
     const h = moderationHarness({ admins: [ADMIN, SECOND_ADMIN], reports: [report("report.1")] });
     const { entry } = await json<{ entry: ModerationLogEntry }>(await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("mute", { days: 7 }))));
     await h.app.request("/api/moderation/appeal", post("account.reported", { action: entry.id }));
@@ -341,7 +341,7 @@ describe("what the player is told, and the appeal", () => {
     expect((await h.app.request(`/api/admin/moderation/${appeal.id}/close`, post(SECOND_ADMIN, { outcome: "upheld", reason: "other" }))).status).toBe(409);
   });
 
-  test("[R-MODERATION-016] given one admin, when they decide the appeal against their own action, then it is taken", async () => {
+  test("[moderation:actioned-player-told-and-appeals] given one admin, when they decide the appeal against their own action, then it is taken", async () => {
     const h = moderationHarness({ reports: [report("report.1")] });
     const { entry } = await json<{ entry: ModerationLogEntry }>(await h.app.request("/api/admin/moderation/report.1/close", post(ADMIN, close("warn"))));
     const filed = await json<{ appeal: { id: string } }>(await h.app.request("/api/moderation/appeal", post("account.reported", { action: entry.id })));
@@ -350,7 +350,7 @@ describe("what the player is told, and the appeal", () => {
     expect((await h.deps.stores.appeals.get(filed.appeal.id))?.outcome).toBe("upheld");
   });
 
-  test("[R-MODERATION-007] given a player's report, when they read their standing, then they see it received and then its outcome, and never what was done to whom", async () => {
+  test("[moderation:reporter-told-outcome-only] given a player's report, when they read their standing, then they see it received and then its outcome, and never what was done to whom", async () => {
     const h = moderationHarness({ reports: [report("report.1", { at: 5 })] });
     const read = async () => (await json<{ standing: Standing }>(await h.app.request("/api/moderation/standing", as("account.reporter")))).standing;
     expect((await read()).reports).toEqual([{ id: "report.1", at: 5, status: "open" }]);
@@ -366,7 +366,7 @@ describe("what the player is told, and the appeal", () => {
 describe("what a report carries", () => {
   const subject = { account: "account.b" };
 
-  test("[R-MODERATION-004] given a report with no cites, empty cites or cites of an unknown kind, when it is read, then it is refused", () => {
+  test("[moderation:report-carries-subject-and-reason] given a report with no cites, empty cites or cites of an unknown kind, when it is read, then it is refused", () => {
     for (const cites of [undefined, null, {}, { messages: [] }, { messages: [""] }, { text: "you are rude" }, { card: "card.1", pair: "pair.1" }, { place: "place.1", phrase: "phrase.hello" }]) {
       expect(readReport({ subject, reason: "harassment", cites })).toMatchObject({ ok: false });
     }
@@ -374,7 +374,7 @@ describe("what a report carries", () => {
     expect(readReport({ subject: { email: "x@example.test" }, reason: "scam", cites: { card: "card.1" } })).toMatchObject({ ok: false });
   });
 
-  test("[R-MODERATION-004] [R-MODERATION-005] given each kind of cite, when a report is read, then it is taken whole, and a phrase heard in a place is marked unverified", () => {
+  test("[moderation:report-carries-subject-and-reason] [moderation:spoken-phrases-not-stored] given each kind of cite, when a report is read, then it is taken whole, and a phrase heard in a place is marked unverified", () => {
     const cites = [{ messages: ["m.1", "m.2"] }, { place: "place.market", phrase: "phrase.hello", at: 1_700 }, { card: "card.1" }, { pair: "pair.a~b" }, { campaign: "campaign.1", slot: "advert.slot-1" }];
     for (const cite of cites) {
       expect(readReport({ subject, reason: "scam", cites: cite })).toEqual({ ok: true, report: { subject, reason: "scam", cites: cite, unverified: "place" in cite } });

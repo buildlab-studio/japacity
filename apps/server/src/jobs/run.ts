@@ -1,5 +1,5 @@
-// R-SERVER-043: the scheduled jobs, each run on its own. A job that throws
-// or rejects is caught and logged with its name (R-SERVER-042), so one
+// server:no-platform-error-page: the scheduled jobs, each run on its own. A job that throws
+// or rejects is caught and logged with its name (server:shared-observability-block), so one
 // failure never stops or hides another. Once every job has settled, the
 // names of those that failed reject one last promise, so the cron's own
 // record (Cron Events) still says the run failed.

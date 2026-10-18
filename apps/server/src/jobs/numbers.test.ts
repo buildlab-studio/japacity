@@ -61,7 +61,7 @@ async function months(server: TestServer, account: string, count: number): Promi
 const pick = (rows: readonly CounterTotal[], day: string, name: string, key: string) => rows.find((row) => row.day === day && row.name === name && row.key === key)?.count ?? 0;
 
 describe("the nightly job's numbers for the admin", () => {
-  test("[R-ANALYTICS-008] [R-ANALYTICS-013] given a day of play with the counts by region, when the job counts it, then the life started, its first month, its session, its economy in its fourth month, the week's, month's and all players are counted from the log by region", async () => {
+  test("[analytics:nightly-game-counters] [analytics:session-split-by-command-gaps] given a day of play with the counts by region, when the job counts it, then the life started, its first month, its session, its economy in its fourth month, the week's, month's and all players are counted from the log by region", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -84,7 +84,7 @@ describe("the nightly job's numbers for the admin", () => {
     for (const row of rows) expect(row.region).toBe("NG");
   });
 
-  test("[R-ANALYTICS-008] given a player seen six days before the day counted and another 29 days before, when the day is counted, then the week holds one and the month both", async () => {
+  test("[analytics:nightly-game-counters] given a player seen six days before the day counted and another 29 days before, when the day is counted, then the week holds one and the month both", async () => {
     const server = testServer();
     const first = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
@@ -103,7 +103,7 @@ describe("the nightly job's numbers for the admin", () => {
     expect(pick(rows, time.dayName(day), "players/active", "NG")).toBe(0);
   });
 
-  test("[R-ANALYTICS-008] given an open report as the day ends, when the day is counted, then it is counted by its reason under its reporter's region", async () => {
+  test("[analytics:nightly-game-counters] given an open report as the day ends, when the day is counted, then it is counted by its reason under its reporter's region", async () => {
     const server = testServer();
     const day = time.utcDay(server.deps.now());
     await signUp(server, "account.ada");

@@ -18,7 +18,7 @@ function asReport(row: ReportRow): Report {
 
 const byAge = (left: Report, right: Report) => left.at - right.at;
 
-/** R-MODERATION-008 to 010: the queue over `stores.moderation`, so a report filed on a pair is the one the admin decides. */
+/** moderation:reports-hold-cited-records, moderation:open-report-pauses-conversation and moderation:one-queue-by-reason-weight: the queue over `stores.moderation`, so a report filed on a pair is the one the admin decides. */
 function storeQueue(deps: ServerDeps): ReportQueueStore {
   const moderation = deps.stores.moderation;
   return {

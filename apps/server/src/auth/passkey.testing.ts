@@ -1,5 +1,5 @@
-// A software passkey for the account tests: it registers (R-ACCOUNT-003) and
-// signs in (R-MODERATION-012) through the real auth library, building the
+// A software passkey for the account tests: it registers (account:passkey-needs-signed-in-session) and
+// signs in (moderation:admin-view-for-admin-list) through the real auth library, building the
 // WebAuthn messages a browser would send. Never imported by the Worker.
 // https://www.w3.org/TR/webauthn-3/#sctn-registering-a-new-credential
 // https://www.w3.org/TR/webauthn-3/#sctn-verifying-assertion

@@ -1,4 +1,4 @@
-// R-SERVER-012: the admin accounts come from the deployment's Worker secret ADMIN_ACCOUNTS, never from a committed
+// server:ledger-alarm-lists-suspects: the admin accounts come from the deployment's Worker secret ADMIN_ACCOUNTS, never from a committed
 // file: a secret set with `wrangler secret put`, never a variable in wrangler.jsonc
 // filled by a deploy's --var, which the dashboard shows as plain text.
 import { readFileSync } from "node:fs";
@@ -31,16 +31,16 @@ function wrangler(): Vars {
 }
 
 describe("the admin accounts from the deployment", () => {
-  test("[R-SERVER-012] given the variable unset, empty or only commas and spaces, when it is read, then there is no admin account", () => {
+  test("[server:ledger-alarm-lists-suspects] given the variable unset, empty or only commas and spaces, when it is read, then there is no admin account", () => {
     for (const value of [undefined, "", " ", ",", " , ,"]) expect(adminAccountsFrom(value)).toEqual([]);
   });
 
-  test("[R-SERVER-012] given comma-separated ids with spaces, empty pieces and a repeat, when the variable is read, then each id is kept once, trimmed, in order", () => {
+  test("[server:ledger-alarm-lists-suspects] given comma-separated ids with spaces, empty pieces and a repeat, when the variable is read, then each id is kept once, trimmed, in order", () => {
     expect(adminAccountsFrom(" account.owner, ,account.second,account.owner ")).toEqual(["account.owner", "account.second"]);
     expect(adminAccountsFrom("account.owner")).toEqual(["account.owner"]);
   });
 
-  test("[R-SERVER-012] given a deployment's variable, when its config is made, then only the admin list differs from production's, and with no variable it is production's own", () => {
+  test("[server:ledger-alarm-lists-suspects] given a deployment's variable, when its config is made, then only the admin list differs from production's, and with no variable it is production's own", () => {
     const config = deployedConfig(`${OWNER},account.second`);
     expect(config.admin.accounts).toEqual([OWNER, "account.second"]);
     expect({ ...config, admin: productionConfig.admin }).toEqual(productionConfig);
@@ -48,7 +48,7 @@ describe("the admin accounts from the deployment", () => {
     expect(productionConfig.admin.accounts).toEqual([]);
   });
 
-  test("[R-SERVER-012] [R-MODERATION-012] given ADMIN_ACCOUNTS naming one account, when the admin page is asked, then it answers that account and nobody else; with the variable empty it does not exist for that account either", async () => {
+  test("[server:ledger-alarm-lists-suspects] [moderation:admin-view-for-admin-list] given ADMIN_ACCOUNTS naming one account, when the admin page is asked, then it answers that account and nobody else; with the variable empty it does not exist for that account either", async () => {
     const named = deployment(` ${OWNER} `);
     const app = makeApp(testDeps({ config: named, session: testSession(named) }));
     expect((await app.request("/api/admin/alarms", asAccount(OWNER))).status).toBe(200);
@@ -61,7 +61,7 @@ describe("the admin accounts from the deployment", () => {
 
   // The admin list is a Worker secret. A variable and a secret of one name cannot stand on one
   // Worker, so neither environment's vars may name it, and a deploy (which keeps the secrets already set) leaves it be.
-  test("[R-SERVER-012] given the committed wrangler.jsonc, when both environments are read, then neither names ADMIN_ACCOUNTS as a variable, so no account id is committed and the secret of that name stands alone", () => {
+  test("[server:ledger-alarm-lists-suspects] given the committed wrangler.jsonc, when both environments are read, then neither names ADMIN_ACCOUNTS as a variable, so no account id is committed and the secret of that name stands alone", () => {
     const config = wrangler();
     expect(Object.keys(config.vars)).not.toContain("ADMIN_ACCOUNTS");
     expect(Object.keys(config.env?.["staging"]?.vars ?? {})).not.toContain("ADMIN_ACCOUNTS");
@@ -74,8 +74,8 @@ describe("the admin accounts from the deployment", () => {
     expect(text).toMatch(/\/\/ Secrets, set with `wrangler secret put <NAME>`[^\n]*\n(\s*\/\/[^\n]*\n)*?\s*\/\/[^\n]*\bADMIN_ACCOUNTS\b/);
   });
 
-  test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
-    // The isolate is made in worker.ts (R-SERVER-043's plumbing); the Env is in index.ts.
+  test("[server:ledger-alarm-lists-suspects] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
+    // The isolate is made in worker.ts (server:no-platform-error-page's plumbing); the Env is in index.ts.
     const plumbing = readFileSync(fileURLToPath(new URL("../../worker.ts", import.meta.url).href), "utf8");
     expect(plumbing).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
     const worker = readFileSync(fileURLToPath(new URL("../../index.ts", import.meta.url).href), "utf8");

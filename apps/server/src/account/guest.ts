@@ -1,4 +1,4 @@
-// R-ACCOUNT-022, 025, 026: what a guest may not do, the limits on making
+// account:social-needs-secured-account, account:guest-floods-are-capped, account:idle-guests-cleaned-by-hand: what a guest may not do, the limits on making
 // guests, and the last time each account played. Mounted with the account
 // routes, before every route it guards, so the server refuses whatever the
 // screen shows.
@@ -14,22 +14,22 @@ import type { SessionEnv } from "../limits/limit";
 
 const SECURE = "Secure this life with Google or an email code";
 
-/** R-ACCOUNT-022: what a guest asking for a board is told. */
+/** account:social-needs-secured-account: what a guest asking for a board is told. */
 export const BOARDS_DETAIL = `${SECURE} to be on the boards.`;
 
-/** R-ACCOUNT-022: the commands only a secured account may send, each with what the refusal says. */
+/** account:social-needs-secured-account: the commands only a secured account may send, each with what the refusal says. */
 const SECURED_COMMANDS: Partial<Record<CommandType, string>> = {
   "lottery/buy": `${SECURE} to buy lottery tickets.`,
   "people/invite": `${SECURE} to invite a friend.`,
 };
 
-/** R-ACCOUNT-022: the routes only a secured account may use, by path pattern and method. */
+/** account:social-needs-secured-account: the routes only a secured account may use, by path pattern and method. */
 export const SECURED_PATHS: readonly { path: string; method: "GET" | "POST"; detail: string }[] = [
   { path: "/api/invite", method: "POST", detail: `${SECURE} to invite a friend.` },
   { path: "/api/invite/:code/accept", method: "POST", detail: `${SECURE} to take a friend's invite.` },
   { path: "/api/pair/:pair/say", method: "POST", detail: `${SECURE} to send messages.` },
   { path: "/api/pair/:pair/conversation", method: "GET", detail: `${SECURE} to read messages.` },
-  // The boards the client reads (city.md R-CITY-039): `/api/boards/:when/:who` and `/api/boards/joined-week`. Their rows
+  // The boards the client reads (city:boards-switch-when-and-who): `/api/boards/:when/:who` and `/api/boards/joined-week`. Their rows
   // leave guests out too (boards/figures.ts), and a secured account is listed again (link.ts).
   { path: "/api/boards/*", method: "GET", detail: BOARDS_DETAIL },
 ];
@@ -58,7 +58,7 @@ function commandTypeOf(body: unknown): string | null {
 }
 
 /**
- * R-ACCOUNT-026: every command and every new life keeps the account's last
+ * account:idle-guests-cleaned-by-hand: every command and every new life keeps the account's last
  * play. Read after the route, from the session its limit already read.
  */
 function keepLastPlay(deps: ServerDeps): MiddlewareHandler<SessionEnv> {
@@ -69,7 +69,7 @@ function keepLastPlay(deps: ServerDeps): MiddlewareHandler<SessionEnv> {
   };
 }
 
-/** R-ACCOUNT-022: refuses a guest a secured-only command; the route reads the same body again from Hono's cache. */
+/** account:social-needs-secured-account: refuses a guest a secured-only command; the route reads the same body again from Hono's cache. */
 function commandGate(deps: ServerDeps): MiddlewareHandler<SessionEnv> {
   return async (c, next) => {
     if (c.req.method === "POST") {
@@ -96,16 +96,16 @@ export function guestGates(deps: ServerDeps): Hono<SessionEnv> {
   }
   gates.use("/api/command", commandGate(deps));
   gates.use("/api/command", keepLastPlay(deps));
-  // R-SERVER-046: the prologue's preset is the player's commands in one request.
+  // server:server-plays-prologue-preset: the prologue's preset is the player's commands in one request.
   gates.use("/api/prologue/preset", keepLastPlay(deps));
   gates.use("/api/character", keepLastPlay(deps));
   return gates;
 }
 
 // ---------------------------------------------------------------------------
-// R-ACCOUNT-025: new guest lives from one device and from one connection.
+// account:guest-floods-are-capped: new guest lives from one device and from one connection.
 // Counted in the auth library's rate-limit table, the database store that
-// R-ACCOUNT-014 already uses, because the rate-limit bindings count only 10 or
+// account:sign-in-routes-rate-limited already uses, because the rate-limit bindings count only 10 or
 // 60 second periods and this window is hours long.
 // ---------------------------------------------------------------------------
 
@@ -134,7 +134,7 @@ async function keysOf(device: string, address: string | null): Promise<{ key: st
   return keys;
 }
 
-/** R-ACCOUNT-025: true when one more guest from this device or this connection would pass its limit in the window. */
+/** account:guest-floods-are-capped: true when one more guest from this device or this connection would pass its limit in the window. */
 export async function tooManyGuests(deps: ServerDeps, adapter: LimitAdapter, device: string, address: string | null): Promise<boolean> {
   const now = deps.now();
   for (const { key, max } of await keysOf(device, address)) {
@@ -144,7 +144,7 @@ export async function tooManyGuests(deps: ServerDeps, adapter: LimitAdapter, dev
   return false;
 }
 
-/** R-ACCOUNT-025: counts a guest made from this device and this connection. A window starts with the first guest after the last one ended. */
+/** account:guest-floods-are-capped: counts a guest made from this device and this connection. A window starts with the first guest after the last one ended. */
 export async function countGuest(deps: ServerDeps, adapter: LimitAdapter, device: string, address: string | null): Promise<void> {
   const now = deps.now();
   const ends = now + deps.config.account.guestWindowHours * time.HOUR_MS;

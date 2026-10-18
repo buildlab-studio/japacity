@@ -1,4 +1,4 @@
-// R-MODERATION-014, R-MODERATION-018: a banned account's sign-in identities,
+// moderation:fixed-admin-actions, moderation:ban-survives-as-hash: a banned account's sign-in identities,
 // kept only as salted hashes, and the end of its sessions.
 import type { Auth } from "../auth/auth";
 import { sha256Hex } from "../auth/hooks";
@@ -35,13 +35,13 @@ export function identityHash(deps: Pick<ServerDeps, "secrets">, identity: string
   return sha256Hex(`ban:${deps.secrets.banSalt}:${identity}`);
 }
 
-/** R-MODERATION-014, R-MODERATION-018: stores the hash of every identity the account signs in with. */
+/** moderation:fixed-admin-actions, moderation:ban-survives-as-hash: stores the hash of every identity the account signs in with. */
 export async function banIdentities(deps: Pick<ServerDeps, "secrets" | "stores" | "now">, identities: readonly string[]): Promise<void> {
   const hashes = await Promise.all(identities.map((identity) => identityHash(deps, identity)));
   await deps.stores.banned.add(hashes, deps.now());
 }
 
-/** R-MODERATION-017, R-MODERATION-018: true when any of the identities was banned. For the sign-up gate. */
+/** moderation:upheld-underage-closes-account, moderation:ban-survives-as-hash: true when any of the identities was banned. For the sign-up gate. */
 export async function isBanned(deps: Pick<ServerDeps, "secrets" | "stores">, identities: readonly string[]): Promise<boolean> {
   for (const identity of identities) if (await deps.stores.banned.has(await identityHash(deps, identity))) return true;
   return false;

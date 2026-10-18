@@ -1,4 +1,4 @@
-// R-MODERATION-007, R-MODERATION-014, R-MODERATION-016: what a player is told
+// moderation:reporter-told-outcome-only, moderation:fixed-admin-actions, moderation:actioned-player-told-and-appeals: what a player is told
 // about actions on their own account and their own reports, and the mute or
 // suspension in force, read from the log so the rest of the server can refuse.
 import { type ActionOnMe, TOLD_ACTIONS, type Standing, type ToldAction } from "@japacity/api";

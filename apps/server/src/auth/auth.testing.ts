@@ -1,5 +1,5 @@
 // The account tests' harness: the app with the auth library on the memory
-// adapter, the test server's config (R-ACCOUNT-005), a cookie jar, and
+// adapter, the test server's config (account:stand-ins-test-sign-in), a cookie jar, and
 // stand-ins for Turnstile and the email send. Never imported by the Worker.
 // https://better-auth.com/docs/plugins/test-utils
 // https://developers.cloudflare.com/turnstile/troubleshooting/testing/
@@ -28,7 +28,7 @@ const STUB_SITEVERIFY = "https://turnstile.stub/siteverify";
 
 /**
  * Cloudflare's three test secrets, answered as Cloudflare documents them, a pass naming `hostname` as where the
- * token was solved and `action` as the widget's action (R-ACCOUNT-013: the guest start's, unless a test names another).
+ * token was solved and `action` as the widget's action (account:bot-check-on-guest-creation: the guest start's, unless a test names another).
  */
 function turnstileStub(hostname: string, action: string = TURNSTILE_ACTION): typeof fetch {
   return async (_input, init) => {
@@ -74,7 +74,7 @@ export interface Harness {
   app: Hono;
   tables: AuthTables;
   sent: OtpMessage[];
-  /** The notices sent to accounts' emails (R-ACCOUNT-003). */
+  /** The notices sent to accounts' emails (account:passkey-needs-signed-in-session). */
   notices: AuthNotice[];
   background: Promise<unknown>[];
   helpers: () => Promise<TestHelpers>;
@@ -132,7 +132,7 @@ export function harness(options: HarnessOptions = {}): Harness {
     siteUrl: SITE,
     google: { clientId: "test-google-client", clientSecret: "test-google-secret" },
     turnstile: { secretKey: options.turnstileSecret ?? TURNSTILE_TEST.passSecret, siteVerifyUrl: STUB_SITEVERIFY, fetch: turnstileStub(options.turnstileHost ?? new URL(SITE).hostname, options.turnstileAction) },
-    // R-ACCOUNT-005: every code is kept as it is sent, the only place a test can read it.
+    // account:stand-ins-test-sign-in: every code is kept as it is sent, the only place a test can read it.
     sendOtp: (message) => {
       sent.push(message);
       return options.sendOtp?.(message) ?? Promise.resolve();
@@ -227,7 +227,7 @@ export interface GoogleAnswer {
   tokens: Record<string, unknown>;
 }
 
-/** Google sharing the person's name and photo, which an account never keeps (R-ACCOUNT-020). */
+/** Google sharing the person's name and photo, which an account never keeps (account:only-needed-data-kept). */
 export const GOOGLE_PROFILE: GoogleAnswer = { claims: { name: "A Real Name", picture: "https://photos.example/face.jpg" }, tokens: { access_token: "google-access" } };
 
 /** Google sending an access token and a refresh token, which no reply ever shows. */

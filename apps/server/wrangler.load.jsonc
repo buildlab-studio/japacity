@@ -1,4 +1,4 @@
-// The load test's Worker on this machine only (docs/rules/load.md R-LOAD-001):
+// The load test's Worker on this machine only (load:runs-against-local-stack):
 // the server package's app under `wrangler dev`, with the test sign-in and the
 // memory stores. Never deployed: it has no routes, no account and no database id.
 {
@@ -8,7 +8,7 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
-  // The same limits as wrangler.jsonc (R-SERVER-025), so the run meets them as players would.
+  // The same limits as wrangler.jsonc (server:per-account-rate-limits), so the run meets them as players would.
   "ratelimits": [
     { "name": "COMMANDS_10S", "namespace_id": "2001", "simple": { "limit": 10, "period": 10 } },
     { "name": "COMMANDS_60S", "namespace_id": "2002", "simple": { "limit": 60, "period": 60 } },

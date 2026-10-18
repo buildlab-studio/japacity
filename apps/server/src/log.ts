@@ -1,4 +1,4 @@
-// R-SERVER-042: the server's one log line, written for each failure and for
+// server:shared-observability-block: the server's one log line, written for each failure and for
 // nothing else, as JSON so Workers Logs can index its fields. It names what
 // failed (a request, a job, the auth library), the job's name, the method and
 // the path's shape, the status answered, and the error's name, code and first
@@ -96,7 +96,7 @@ export function errorCode(error: unknown): string | undefined {
   return undefined;
 }
 
-/** R-SERVER-042: the line for a failure, every field checked. */
+/** server:shared-observability-block: the line for a failure, every field checked. */
 export function failureLine(failure: Failure): FailureLine {
   const { what, job, method, path, status, error } = failure;
   const cause = causeOf(error);
@@ -115,7 +115,7 @@ export function failureLine(failure: Failure): FailureLine {
   };
 }
 
-/** R-SERVER-042: writes the one line, at error level, as JSON. Never throws. */
+/** server:shared-observability-block: writes the one line, at error level, as JSON. Never throws. */
 export function logFailure(failure: Failure): void {
   try {
     console.error(JSON.stringify(failureLine(failure)));
@@ -125,7 +125,7 @@ export function logFailure(failure: Failure): void {
 }
 
 /**
- * R-SERVER-041, R-SERVER-042: the policy's report lines go out through this file too, already made into JSON by
+ * server:csp-reports-to-own-origin, server:shared-observability-block: the policy's report lines go out through this file too, already made into JSON by
  * the route (`routes/csp.ts`), at the same level, so no other file of the Worker writes to the console. Never throws.
  */
 export function writeLine(json: string): void {

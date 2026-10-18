@@ -1,5 +1,5 @@
-// The load test's own routes (docs/rules/load.md R-LOAD-002, R-LOAD-003,
-// R-LOAD-010, R-LOAD-011): make a test account, play a character forward
+// The load test's own routes (load:seeded-test-accounts, load:constant-rate-command-mix,
+// load:correctness-checked-after-run, load:run-summary-recorded): make a test account, play a character forward
 // before the run, read its legal commands without writing, hand over its
 // rows for the verifier, and count what the stores wrote. Each answers 404
 // unless `testing.testLogin` is on, and only the load test's Worker mounts them.
@@ -17,7 +17,7 @@ import { tickAt, turnClock } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { storedWorlds, tickRow } from "../world/ticks";
 
-/** R-LOAD-010, R-LOAD-011: what the stores accepted since the Worker started. Bytes are JSON characters. */
+/** load:correctness-checked-after-run, load:run-summary-recorded: what the stores accepted since the Worker started. Bytes are JSON characters. */
 export interface WriteCounts {
   characters: number;
   rows: number;
@@ -46,7 +46,7 @@ function countWrites(counts: WriteCounts, writes: Writes): void {
   }
 }
 
-/** R-LOAD-010, R-LOAD-011: the store with every accepted write counted, the snapshot of version 0 at creation included. */
+/** load:correctness-checked-after-run, load:run-summary-recorded: the store with every accepted write counted, the snapshot of version 0 at creation included. */
 export function countingPlayerStore(inner: PlayerStore, counts: WriteCounts): PlayerStore {
   return {
     ...inner,
@@ -72,7 +72,7 @@ export function countingPlayerStore(inner: PlayerStore, counts: WriteCounts): Pl
   };
 }
 
-/** R-LOAD-003: what a virtual user builds its command from. `basedOn` is the stored version the command route compares. */
+/** load:constant-rate-command-mix: what a virtual user builds its command from. `basedOn` is the stored version the command route compares. */
 export interface LoadView {
   ok: true;
   character: string;
@@ -82,7 +82,7 @@ export interface LoadView {
   legal: Loose[];
 }
 
-/** R-LOAD-010: a character's rows as the verifier replays them. `snapshot` is the latest one, with the hash of its state. */
+/** load:correctness-checked-after-run: a character's rows as the verifier replays them. `snapshot` is the latest one, with the hash of its state. */
 export interface LoadRows {
   ok: true;
   character: { id: string; account: string; v: number; segment: number };
@@ -94,7 +94,7 @@ export interface LoadRows {
 /** The answers that hold the turn: while one waits, `turn/end` is not legal. */
 const ANSWERS = ["prologue/choose", "setpiece/answer", "interview/answer"] as const;
 
-/** R-LOAD-002: a warming step, an answer the turn waits on first, then a month; `pick` chooses among the options. Null when neither is legal. */
+/** load:seeded-test-accounts: a warming step, an answer the turn waits on first, then a month; `pick` chooses among the options. Null when neither is legal. */
 export function warmCommand(legal: readonly Loose[], pick: number): Loose | null {
   for (const type of [...ANSWERS, "turn/end"]) {
     const found = legal.filter((command) => command.type === type);
@@ -107,7 +107,7 @@ export function warmCommand(legal: readonly Loose[], pick: number): Loose | null
 const EXTRA_STEPS = 40;
 
 /**
- * R-LOAD-002: plays up to `months` months for one character, in one
+ * load:seeded-test-accounts: plays up to `months` months for one character, in one
  * transaction, so 100,000 accounts seed in minutes rather than hours; it
  * writes the rows a player's commands would (each command's row and hash, a
  * snapshot at every multiple of `snapshotEvery`), and the fast clock's
@@ -138,7 +138,7 @@ async function warm(deps: ServerDeps, character: string, months: number, seed: n
 const notFound = () => refusal(404, "unknown-id", "Not found.");
 
 /**
- * R-LOAD-003: the legal commands of the character's current view, read
+ * load:constant-rate-command-mix: the legal commands of the character's current view, read
  * without a lock and written nowhere. The earned grant is stepped in memory,
  * as the command's own transaction will step it first.
  */
@@ -168,7 +168,7 @@ export function loadRoutes(deps: ServerDeps, counts: WriteCounts): Hono {
     await next();
   });
 
-  // R-LOAD-002: the account row the sign-in makes, for the test session's account.
+  // load:seeded-test-accounts: the account row the sign-in makes, for the test session's account.
   route.post("/api/load/account", async (c) => {
     const session = await deps.session(c.req.raw);
     if (session === null) {

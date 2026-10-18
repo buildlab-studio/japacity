@@ -9,24 +9,24 @@
 # Variables (wrangler.jsonc `vars`)
 # The game's one address, a bare https origin; the auth library, the passkeys and the bot check trust only it.
 SITE_URL=<https://your-domain.example>
-# Staging only: the tick cron when it is not the five-minute one (R-CLOCK-012).
+# Staging only: the tick cron when it is not the five-minute one (clock:cron-stores-missing-ticks).
 TICK_CRON=
-# Staging only: "1" marks every reply noindex (R-SERVER-038).
+# Staging only: "1" marks every reply noindex (server:production-and-staging).
 NOINDEX=
 # The local stack only: "mailpit" sends mail to Mailpit; unset on every deployment, which sends through its MAIL binding
 # (Cloudflare Email Service, wrangler.jsonc). Run by hand without it, wrangler dev only simulates that binding.
 MAIL_TRANSPORT=
 # Mailpit's address on this machine, for MAIL_TRANSPORT=mailpit.
 MAILPIT_URL=
-# The private overlay (R-SERVER-018); unset, the public defaults run the game.
+# The private overlay (server:public-defaults-run-the-game); unset, the public defaults run the game.
 OVERLAY=
 
 # Secrets (`wrangler secret put`). Make each random value with `openssl rand -hex 32`.
-# The world's seed, made once at the first deploy and never changed (R-SERVER-016).
+# The world's seed, made once at the first deploy and never changed (server:hidden-values-made-once).
 WORLD_SEED=<a long random value>
-# The salt of the banned identities' hashes (R-MODERATION-018).
+# The salt of the banned identities' hashes (moderation:ban-survives-as-hash).
 BAN_SALT=<a long random value>
-# The key that signs the draw's ticket tokens (R-LOTTERY-008).
+# The key that signs the draw's ticket tokens (lottery:ticket-list-frozen-anonymously).
 DRAW_TOKEN_KEY=<a long random value>
 # The auth library's signing secret, at least 32 characters.
 BETTER_AUTH_SECRET=<a long random value>
@@ -36,10 +36,10 @@ GOOGLE_CLIENT_SECRET=<your Google OAuth client secret>
 # The secret half of your Turnstile widget, from your Cloudflare dashboard; the site key goes into the client's build.
 TURNSTILE_SECRET_KEY=<your Turnstile secret key>
 # The web push pair (a P-256 key pair, base64url, as any web push tool makes it) and a mailto: address push services can reach you at.
-# Without all three no notice is sent (R-CLOCK-031).
+# Without all three no notice is sent (clock:full-bank-push-notification).
 VAPID_PUBLIC_KEY=<your VAPID public key>
 VAPID_PRIVATE_KEY=<your VAPID private key>
 VAPID_SUBJECT=<mailto: an address of yours>
-# The accounts that may open the admin page, comma-separated account ids (R-SERVER-012). Empty: nobody. A secret on a
+# The accounts that may open the admin page, comma-separated account ids (server:ledger-alarm-lists-suspects). Empty: nobody. A secret on a
 # deployment (`wrangler secret put ADMIN_ACCOUNTS`), never a variable in wrangler.jsonc.
 ADMIN_ACCOUNTS=

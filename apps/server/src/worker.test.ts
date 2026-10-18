@@ -1,6 +1,6 @@
 // The Worker's request plumbing (worker.ts) on Postgres, with PGlite standing
-// in for `pg` behind a client that counts its connections: R-SERVER-002's
-// client opened on first use, and R-SERVER-043's answer when the database
+// in for `pg` behind a client that counts its connections: server:one-command-one-transaction's
+// client opened on first use, and server:no-platform-error-page's answer when the database
 // does not take the connection.
 import type { ServerReply, ViewReply } from "@japacity/api";
 import { content, text } from "@japacity/content";
@@ -147,8 +147,8 @@ async function asked(request: Request, plumbing: ReturnType<typeof counting>["pl
   return reply;
 }
 
-describe("the database client of a request (R-SERVER-002)", () => {
-  test("[R-SERVER-002] given the Worker's plumbing, when GET /api/health is asked, then it answers and no database client is opened, neither the request's nor the isolate's", async () => {
+describe("the database client of a request (server:one-command-one-transaction)", () => {
+  test("[server:one-command-one-transaction] given the Worker's plumbing, when GET /api/health is asked, then it answers and no database client is opened, neither the request's nor the isolate's", async () => {
     const { request, isolateCalls, plumbing } = counting();
     const reply = await asked(browser("/api/health"), plumbing);
     expect(reply.status).toBe(200);
@@ -157,7 +157,7 @@ describe("the database client of a request (R-SERVER-002)", () => {
     expect(isolateCalls.count).toBe(0);
   });
 
-  test("[R-SERVER-002] given a signed-in player with a character, when POST /api/command is sent, then it is stepped through exactly one client of the request's, which the session, the stores and the transaction share", async () => {
+  test("[server:one-command-one-transaction] given a signed-in player with a character, when POST /api/command is sent, then it is stepped through exactly one client of the request's, which the session, the stores and the transaction share", async () => {
     const { jar, v } = await playerWithLife();
     const { request, plumbing } = counting();
     const reply = await asked(browser("/api/command", { method: "POST", jar, json: { command: { type: "turn/end", slots: [], basedOn: v }, basedOn: v } }), plumbing);
@@ -165,7 +165,7 @@ describe("the database client of a request (R-SERVER-002)", () => {
     expect(request.count).toBe(1);
   });
 
-  test("[R-SERVER-002] given a request with no session, when GET /api/view is asked, then it is refused signed-out without opening a client: no cookie, nothing to look up", async () => {
+  test("[server:one-command-one-transaction] given a request with no session, when GET /api/view is asked, then it is refused signed-out without opening a client: no cookie, nothing to look up", async () => {
     const { request, plumbing } = counting();
     const reply = await asked(browser("/api/view", { jar: makeJar() }), plumbing);
     expect(reply.status).toBe(401);
@@ -173,8 +173,8 @@ describe("the database client of a request (R-SERVER-002)", () => {
   });
 });
 
-describe("a database that does not answer (R-SERVER-043)", () => {
-  test("[R-SERVER-043] [R-SERVER-042] given a signed-in player and a database that refuses the connection, when POST /api/command is sent, then the reply is 503 unavailable with Retry-After, the connection was tried once, and one log line names no account, session, address or body", async () => {
+describe("a database that does not answer (server:no-platform-error-page)", () => {
+  test("[server:no-platform-error-page] [server:shared-observability-block] given a signed-in player and a database that refuses the connection, when POST /api/command is sent, then the reply is 503 unavailable with Retry-After, the connection was tried once, and one log line names no account, session, address or body", async () => {
     const { jar, v } = await playerWithLife();
     const { request, plumbing } = counting(true);
     const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
@@ -195,7 +195,7 @@ describe("a database that does not answer (R-SERVER-043)", () => {
   });
 });
 
-describe("the admin's reads (R-SERVER-012)", () => {
+describe("the admin's reads (server:ledger-alarm-lists-suspects)", () => {
   /** An admin on the isolate's list, signed in with a passkey through the harness on the same database. */
   async function adminWithPasskey(): Promise<{ jar: Jar; config: ServerConfig }> {
     const db = database();
@@ -225,7 +225,7 @@ describe("the admin's reads (R-SERVER-012)", () => {
     return { bounded, unbounded };
   }
 
-  test("[R-SERVER-012] given an admin signed in with a passkey, when an admin report is read, then each of its statements runs in a transaction that set the statement timeout first", async () => {
+  test("[server:ledger-alarm-lists-suspects] given an admin signed in with a passkey, when an admin report is read, then each of its statements runs in a transaction that set the statement timeout first", async () => {
     const { jar, config } = await adminWithPasskey();
     const statements: string[] = [];
     const reply = await asked(browser("/api/admin/report?day=0", { jar }), counting(false, { statements }, config).plumbing);
@@ -239,7 +239,7 @@ describe("the admin's reads (R-SERVER-012)", () => {
     expect(unbounded.filter((statement) => statement.includes("ledger_days"))).toEqual([]);
   });
 
-  test("[R-SERVER-012] given a player, when a command is sent, then no statement timeout is set: only the admin's reads are bounded", async () => {
+  test("[server:ledger-alarm-lists-suspects] given a player, when a command is sent, then no statement timeout is set: only the admin's reads are bounded", async () => {
     const { jar: playerJar, v } = await playerWithLife();
     const played: string[] = [];
     const command = await asked(browser("/api/command", { method: "POST", jar: playerJar, json: { command: { type: "turn/end", slots: [], basedOn: v }, basedOn: v } }), counting(false, { statements: played }).plumbing);
@@ -247,7 +247,7 @@ describe("the admin's reads (R-SERVER-012)", () => {
     expect(played.filter((statement) => statement.includes("statement_timeout"))).toEqual([]);
   });
 
-  test("[R-SERVER-012] given an admin report that Postgres stops at the statement timeout, when it is read, then the admin is answered with a plain refusal, not a server failure", async () => {
+  test("[server:ledger-alarm-lists-suspects] given an admin report that Postgres stops at the statement timeout, when it is read, then the admin is answered with a plain refusal, not a server failure", async () => {
     const { jar, config } = await adminWithPasskey();
     const stopped = Object.assign(new Error("canceling statement due to statement timeout"), { code: "57014" });
     const fail = (statement: string) => (statement.includes("ledger_days") ? stopped : null);

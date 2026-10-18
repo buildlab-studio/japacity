@@ -1,5 +1,5 @@
-// A pair's conversation in preset phrases (docs/rules/pair.md R-PAIR-011,
-// R-PAIR-013): `POST /api/pair/:pair/say` and
+// A pair's conversation in preset phrases (pair:conversation-phrases-stored,
+// pair:phrase-checks-before-send): `POST /api/pair/:pair/say` and
 // `GET /api/pair/:pair/conversation?after=`.
 import { Hono } from "hono";
 

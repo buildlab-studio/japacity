@@ -14,7 +14,7 @@ function bornYearsAgo(years: number, days = 0): string {
 }
 
 describe("POST /api/age", () => {
-  test("[R-ACCOUNT-012] given a player who is the least age exactly today, when the screen is sent, then it passes and sets a single-use pass", async () => {
+  test("[account:age-screen-refuses-minors] given a player who is the least age exactly today, when the screen is sent, then it passes and sets a single-use pass", async () => {
     const h = harness();
     const jar = makeJar();
     const reply = await h.passAge(jar, { dateOfBirth: bornYearsAgo(h.deps.config.account.minAge) });
@@ -24,7 +24,7 @@ describe("POST /api/age", () => {
     expect(h.tables.verification.filter((row) => String(row["identifier"]).startsWith(PASS_PREFIX))).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-012] given a player one day short of the least age, when the screen is sent, then it is refused with a cookie that lasts the refusal days", async () => {
+  test("[account:age-screen-refuses-minors] given a player one day short of the least age, when the screen is sent, then it is refused with a cookie that lasts the refusal days", async () => {
     const h = harness();
     const jar = makeJar();
     const reply = await h.passAge(jar, { dateOfBirth: bornYearsAgo(h.deps.config.account.minAge, 1) });
@@ -37,7 +37,7 @@ describe("POST /api/age", () => {
     expect(h.tables.verification).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-012] given a browser refused once, when it sends an adult's date, then it is refused again without the date being judged", async () => {
+  test("[account:age-screen-refuses-minors] given a browser refused once, when it sends an adult's date, then it is refused again without the date being judged", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar, { dateOfBirth: bornYearsAgo(10) });
@@ -49,7 +49,7 @@ describe("POST /api/age", () => {
     expect(jar.cookies.has(PASS_COOKIE)).toBe(false);
   });
 
-  test("[R-ACCOUNT-012] given a date that is not real or not believable, when the screen is sent, then it is refused as a bad date and nothing is kept", async () => {
+  test("[account:age-screen-refuses-minors] given a date that is not real or not believable, when the screen is sent, then it is refused as a bad date and nothing is kept", async () => {
     const h = harness();
     for (const dateOfBirth of ["2008-02-30", "2999-01-01", "1850-01-01", ""]) {
       const reply = await h.passAge(makeJar(), { dateOfBirth });
@@ -59,14 +59,14 @@ describe("POST /api/age", () => {
     expect(h.tables.verification).toHaveLength(0);
   });
 
-  test("[R-ACCOUNT-020] given a passed screen and a new account, when every store and table is read, then the date of birth is nowhere", async () => {
+  test("[account:only-needed-data-kept] given a passed screen and a new account, when every store and table is read, then the date of birth is nowhere", async () => {
     const h = harness();
     const { account } = await h.signUp("ada@example.com");
     const everything = JSON.stringify({ tables: h.tables, row: await h.deps.stores.account.get(account) });
     expect(everything).not.toContain("1990-05-17");
   });
 
-  test("[R-ACCOUNT-011] [R-ACCOUNT-007] given players in Australia and in France, when each passes the age screen and starts a guest life, then each account is made and keeps its country", async () => {
+  test("[account:sign-up-open-everywhere] [account:same-contact-for-everyone] given players in Australia and in France, when each passes the age screen and starts a guest life, then each account is made and keeps its country", async () => {
     const h = harness();
     for (const [country, email] of [["AU", "au@example.com"], ["FR", "fr@example.com"]] as const) {
       const { account } = await h.signUp(email, makeJar(), country);
@@ -74,7 +74,7 @@ describe("POST /api/age", () => {
     }
   });
 
-  test("[R-ACCOUNT-011] given a pass from Nigeria, when the guest life is started from Australia, then the account is made", async () => {
+  test("[account:sign-up-open-everywhere] given a pass from Nigeria, when the guest life is started from Australia, then the account is made", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar, { country: "NG" });
@@ -83,7 +83,7 @@ describe("POST /api/age", () => {
     expect(h.tables.user).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-008] given the codes XX and T1, when a player signs up, then the code is stored", async () => {
+  test("[account:country-comes-from-cloudflare] given the codes XX and T1, when a player signs up, then the code is stored", async () => {
     const h = harness();
     for (const [country, email] of [["XX", "x@example.com"], ["T1", "t@example.com"]] as const) {
       const { account } = await h.signUp(email, makeJar(), country);
@@ -93,14 +93,14 @@ describe("POST /api/age", () => {
 });
 
 describe("GET /api/age", () => {
-  test("[R-ACCOUNT-012] given a fresh browser, when the screen's standing is read, then it is not refused", async () => {
+  test("[account:age-screen-refuses-minors] given a fresh browser, when the screen's standing is read, then it is not refused", async () => {
     const h = harness();
     const reply = await h.call("/api/age", { jar: makeJar() });
     expect(reply.status).toBe(200);
     expect(await reply.json()).toEqual({ refused: false });
   });
 
-  test("[R-ACCOUNT-012] given a browser refused at the screen, when its standing is read, then it is refused, from the cookie alone", async () => {
+  test("[account:age-screen-refuses-minors] given a browser refused at the screen, when its standing is read, then it is refused, from the cookie alone", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar, { dateOfBirth: bornYearsAgo(h.deps.config.account.minAge, 1) });
@@ -109,14 +109,14 @@ describe("GET /api/age", () => {
     expect(await (await h.call("/api/age", { headers: { cookie: `${REFUSED_COOKIE}=1` } })).json()).toEqual({ refused: true });
   });
 
-  test("[R-ACCOUNT-011] given a request from Australia, when the standing is read, then it answers as it does anywhere", async () => {
+  test("[account:sign-up-open-everywhere] given a request from Australia, when the standing is read, then it answers as it does anywhere", async () => {
     const h = harness();
     const reply = await h.call("/api/age", { country: "AU" });
     expect(reply.status).toBe(200);
     expect(await reply.json()).toEqual({ refused: false });
   });
 
-  test("[R-ACCOUNT-011] [R-SERVER-031] given sign-ups switched off, when the standing is read, then the gate answers 503 switched-off with the wait, refused cookie or not", async () => {
+  test("[account:sign-up-open-everywhere] [server:four-off-switches] given sign-ups switched off, when the standing is read, then the gate answers 503 switched-off with the wait, refused cookie or not", async () => {
     const h = harness();
     await h.deps.stores.switches.set("signups", false, "account-admin", "full", h.deps.now());
     for (const headers of [{}, { cookie: `${REFUSED_COOKIE}=1` }]) {

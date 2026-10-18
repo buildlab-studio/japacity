@@ -47,7 +47,7 @@ async function lifeOf(h: Harness, account: string) {
 }
 
 describe("the guest start", () => {
-  test("[R-ACCOUNT-021] given a passed age screen and a username, when the guest life is started, then the account is a guest with the username and no email, no password and no method", async () => {
+  test("[account:guest-and-secured-states] given a passed age screen and a username, when the guest life is started, then the account is a guest with the username and no email, no password and no method", async () => {
     const h = harness();
     const { jar, account } = await h.guest(makeJar(), { username: "Ada_Lagos" });
 
@@ -60,7 +60,7 @@ describe("the guest start", () => {
     expect(h.tables.verification.filter((row) => String(row["identifier"]).startsWith(PASS_PREFIX))).toEqual([]);
   });
 
-  test("[R-ACCOUNT-021] [R-ACCOUNT-012] given no age pass, when a guest life is asked for, then it is refused and nothing is made", async () => {
+  test("[account:guest-and-secured-states] [account:age-screen-refuses-minors] given no age pass, when a guest life is asked for, then it is refused and nothing is made", async () => {
     const h = harness();
     const reply = await h.startGuest(makeJar());
     expect(reply.status).toBe(403);
@@ -68,7 +68,7 @@ describe("the guest start", () => {
     expect(h.tables.user).toEqual([]);
   });
 
-  test("[R-ACCOUNT-021] given a browser that already holds a life, when it asks for another guest life, then it is refused and keeps the one it has", async () => {
+  test("[account:guest-and-secured-states] given a browser that already holds a life, when it asks for another guest life, then it is refused and keeps the one it has", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     await h.passAge(jar);
@@ -78,7 +78,7 @@ describe("the guest start", () => {
     expect(h.tables.user).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-021] given a guest that rests for 300 days, when it comes back, then its session still opens its life: it is the only way back", async () => {
+  test("[account:guest-and-secured-states] given a guest that rests for 300 days, when it comes back, then its session still opens its life: it is the only way back", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");
     vi.setSystemTime(start);
@@ -88,7 +88,7 @@ describe("the guest start", () => {
     expect(await body(await h.call("/api/account", { jar }))).toMatchObject({ ok: true, account: { id: account, state: "guest" } });
   });
 
-  test("[R-ACCOUNT-016] [R-ACCOUNT-021] given a guest whose session is a day old, when it deletes its account, then its own session confirms it, every session ends and the deletion is recorded", async () => {
+  test("[account:player-deletes-account] [account:guest-and-secured-states] given a guest whose session is a day old, when it deletes its account, then its own session confirms it, every session ends and the deletion is recorded", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");
     vi.setSystemTime(start);
@@ -104,7 +104,7 @@ describe("the guest start", () => {
     expect(await h.deps.stores.deletion.due(Number.MAX_SAFE_INTEGER)).toEqual([expect.objectContaining({ account })]);
   });
 
-  test("[R-ACCOUNT-028] given a new guest, when its life is started, then no email is sent and none is waiting to be sent", async () => {
+  test("[account:play-starts-without-email] given a new guest, when its life is started, then no email is sent and none is waiting to be sent", async () => {
     const h = harness();
     await h.guest();
     expect(h.sent).toEqual([]);
@@ -113,14 +113,14 @@ describe("the guest start", () => {
 });
 
 describe("the bot check at the guest start", () => {
-  test("[R-ACCOUNT-013] given Turnstile's always-pass test secret and its dummy token, when the guest life is started, then it is made, and the age screen asked for no token", async () => {
+  test("[account:bot-check-on-guest-creation] given Turnstile's always-pass test secret and its dummy token, when the guest life is started, then it is made, and the age screen asked for no token", async () => {
     const h = harness({ turnstileSecret: TURNSTILE_TEST.passSecret });
     const jar = makeJar();
     expect((await h.call("/api/age", { method: "POST", jar, json: { dateOfBirth: "1990-05-17" } })).status).toBe(200);
     expect((await h.startGuest(jar, { token: TURNSTILE_TEST.dummyToken })).status).toBe(200);
   });
 
-  test("[R-ACCOUNT-013] given a missing, failed or spent token, when the guest life is started, then no account is made and the age pass is still there to try again", async () => {
+  test("[account:bot-check-on-guest-creation] given a missing, failed or spent token, when the guest life is started, then no account is made and the age pass is still there to try again", async () => {
     const cases = [
       { secret: TURNSTILE_TEST.passSecret, token: "" },
       { secret: TURNSTILE_TEST.failSecret, token: TURNSTILE_TEST.dummyToken },
@@ -139,7 +139,7 @@ describe("the bot check at the guest start", () => {
     }
   });
 
-  test("[R-ACCOUNT-013] given a token Turnstile says was solved on another host, when the guest life is started, then the check fails and no account is made", async () => {
+  test("[account:bot-check-on-guest-creation] given a token Turnstile says was solved on another host, when the guest life is started, then the check fails and no account is made", async () => {
     for (const host of ["elsewhere.example", "japacity.test.elsewhere.example", ""]) {
       const h = harness({ turnstileHost: host });
       const jar = makeJar();
@@ -151,7 +151,7 @@ describe("the bot check at the guest start", () => {
     }
   });
 
-  test("[R-ACCOUNT-013] given a token Turnstile says was made for another action, when the guest life is started, then the check fails and no account is made", async () => {
+  test("[account:bot-check-on-guest-creation] given a token Turnstile says was made for another action, when the guest life is started, then the check fails and no account is made", async () => {
     for (const action of ["login", ""]) {
       const h = harness({ turnstileAction: action });
       const jar = makeJar();
@@ -163,7 +163,7 @@ describe("the bot check at the guest start", () => {
     }
   });
 
-  test("[R-ACCOUNT-013] given one pass, when two browsers start a guest life with it, then the second is refused", async () => {
+  test("[account:bot-check-on-guest-creation] given one pass, when two browsers start a guest life with it, then the second is refused", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -176,7 +176,7 @@ describe("the bot check at the guest start", () => {
     expect(h.tables.user).toHaveLength(1);
   });
 
-  test("[R-ACCOUNT-013] given a browser that calls the library's anonymous sign-in itself, when it skips the guest start, then it is refused and no account is made", async () => {
+  test("[account:bot-check-on-guest-creation] given a browser that calls the library's anonymous sign-in itself, when it skips the guest start, then it is refused and no account is made", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -187,7 +187,7 @@ describe("the bot check at the guest start", () => {
     expect(h.tables.user).toEqual([]);
   });
 
-  test("[R-ACCOUNT-013] given a secured account, when it signs in again on another browser with no pass and no token, then no bot check is asked", async () => {
+  test("[account:bot-check-on-guest-creation] given a secured account, when it signs in again on another browser with no pass and no token, then no bot check is asked", async () => {
     const h = harness();
     const { account } = await h.signUp("ada@example.com");
     const fresh = makeJar();
@@ -197,7 +197,7 @@ describe("the bot check at the guest start", () => {
     expect(await body(await h.call("/api/account", { jar: fresh }))).toMatchObject({ account: { id: account } });
   });
 
-  test("[R-ACCOUNT-001] given no guest life, when a new email or a new Google account signs in at the door, then no account is made: a life starts as a guest", async () => {
+  test("[account:sign-in-without-secret] given no guest life, when a new email or a new Google account signs in at the door, then no account is made: a life starts as a guest", async () => {
     const h = harness();
     const jar = makeJar();
     await h.passAge(jar);
@@ -230,7 +230,7 @@ describe("rule B: what only a secured account may do", () => {
 
   const command = (type: string) => ({ command: { type, tickets: 1, basedOn: 0 }, basedOn: 0 });
 
-  test("[R-ACCOUNT-022] given a guest, when it buys lottery tickets, then it is refused guest-only with the way to secure; a secured account is let through", async () => {
+  test("[account:social-needs-secured-account] given a guest, when it buys lottery tickets, then it is refused guest-only with the way to secure; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
     expect(await outcome(await h.call("/api/command", { method: "POST", jar: guest.jar, json: command("lottery/buy") }))).toEqual(GUEST_ONLY);
@@ -238,7 +238,7 @@ describe("rule B: what only a secured account may do", () => {
   });
 
   // The gate guards the boards the client reads, `/api/boards/...`.
-  test("[R-ACCOUNT-022] given a guest, when it reads any board, then it is refused guest-only at the gate; a secured account is let through", async () => {
+  test("[account:social-needs-secured-account] given a guest, when it reads any board, then it is refused guest-only at the gate; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
     expect(SECURED_PATHS.filter((path) => path.path.includes("board"))).toEqual([{ path: "/api/boards/*", method: "GET", detail: BOARDS_DETAIL }]);
@@ -248,7 +248,7 @@ describe("rule B: what only a secured account may do", () => {
     }
   });
 
-  test("[R-ACCOUNT-022] given a guest, when it makes an invite card or a partner invite, then each is refused guest-only; a secured account is let through", async () => {
+  test("[account:social-needs-secured-account] given a guest, when it makes an invite card or a partner invite, then each is refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
     expect(await outcome(await h.call("/api/invite", { method: "POST", jar: guest.jar, json: { slot: "partner" } }))).toEqual(GUEST_ONLY);
@@ -257,14 +257,14 @@ describe("rule B: what only a secured account may do", () => {
     expect((await outcome(await h.call("/api/command", { method: "POST", jar: secured.jar, json: command("people/invite") }))).code).not.toBe("guest-only");
   });
 
-  test("[R-ACCOUNT-022] given a guest, when it takes a friend's invite, then it is refused guest-only; a secured account is let through", async () => {
+  test("[account:social-needs-secured-account] given a guest, when it takes a friend's invite, then it is refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
     expect(await outcome(await h.call("/api/invite/some-card/accept", { method: "POST", jar: guest.jar, json: { slot: "partner" } }))).toEqual(GUEST_ONLY);
     expect((await outcome(await h.call("/api/invite/some-card/accept", { method: "POST", jar: secured.jar, json: { slot: "partner" } }))).code).not.toBe("guest-only");
   });
 
-  test("[R-ACCOUNT-022] given a guest, when it sends or reads messages, then both are refused guest-only; a secured account is let through", async () => {
+  test("[account:social-needs-secured-account] given a guest, when it sends or reads messages, then both are refused guest-only; a secured account is let through", async () => {
     const h = harness();
     const { guest, secured } = await guestAndSecured(h);
     expect(await outcome(await h.call("/api/pair/pair.1/say", { method: "POST", jar: guest.jar, json: { phrase: "phrase.hello" } }))).toEqual(GUEST_ONLY);
@@ -273,7 +273,7 @@ describe("rule B: what only a secured account may do", () => {
     expect((await outcome(await h.call("/api/pair/pair.1/conversation", { jar: secured.jar }))).code).not.toBe("guest-only");
   });
 
-  test("[R-ACCOUNT-022] given a guest's life, when another browser signs in to it by its placeholder address, then it is refused guest-only: a guest life is restored on no other device", async () => {
+  test("[account:social-needs-secured-account] given a guest's life, when another browser signs in to it by its placeholder address, then it is refused guest-only: a guest life is restored on no other device", async () => {
     const h = harness();
     const { account } = await h.guest();
     const placeholder = String(h.tables.user.find((row) => row["id"] === account)?.["email"]);
@@ -287,7 +287,7 @@ describe("rule B: what only a secured account may do", () => {
     expect((await h.call("/api/account", { jar: other })).status).toBe(401);
   });
 
-  test("[R-ACCOUNT-022] given a guest, when it plays its own life and reads the world and the news, then nothing is refused", async () => {
+  test("[account:social-needs-secured-account] given a guest, when it plays its own life and reads the world and the news, then nothing is refused", async () => {
     const h = harness();
     const { jar } = await h.guest();
     const after = await playAMonth(h, jar);
@@ -297,7 +297,7 @@ describe("rule B: what only a secured account may do", () => {
 });
 
 describe("securing a guest", () => {
-  test("[R-ACCOUNT-023] given a guest that played a month, when it secures with an email code, then the same account holds the same life, the same save and the same clock", async () => {
+  test("[account:guest-secures-the-life] given a guest that played a month, when it secures with an email code, then the same account holds the same life, the same save and the same clock", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     const played = await playAMonth(h, jar);
@@ -314,7 +314,7 @@ describe("securing a guest", () => {
     expect(h.tables.session.map((row) => row["userId"])).toEqual([account]);
   });
 
-  test("[R-ACCOUNT-022] [R-ACCOUNT-023] given a guest that played a month, when it secures with an email code, then its board row, written unlisted while it was a guest, is listed at once", async () => {
+  test("[account:social-needs-secured-account] [account:guest-secures-the-life] given a guest that played a month, when it secures with an email code, then its board row, written unlisted while it was a guest, is listed at once", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     await playAMonth(h, jar);
@@ -325,7 +325,7 @@ describe("securing a guest", () => {
     expect(await h.deps.stores.boards.get(character)).toMatchObject({ account, listed: true });
   });
 
-  test("[R-ACCOUNT-023] given a guest that played a month, when it secures with Google, then the same account holds the same life, and it signs in from another browser with Google", async () => {
+  test("[account:guest-secures-the-life] given a guest that played a month, when it secures with Google, then the same account holds the same life, and it signs in from another browser with Google", async () => {
     const h = harness();
     const { jar, account } = await h.guest();
     const played = await playAMonth(h, jar);
@@ -341,7 +341,7 @@ describe("securing a guest", () => {
     expect(await body(await h.call("/api/account", { jar: elsewhere }))).toMatchObject({ account: { id: account, state: "secured" } });
   });
 
-  test("[R-ACCOUNT-023] given an email that already has an account, when a guest secures with it, then the guest is told it is taken and neither life changes", async () => {
+  test("[account:guest-secures-the-life] given an email that already has an account, when a guest secures with it, then the guest is told it is taken and neither life changes", async () => {
     const h = harness();
     const owner = await h.signUp("ada@example.com");
     await playAMonth(h, owner.jar);
@@ -363,7 +363,7 @@ describe("securing a guest", () => {
     expect(await body(await h.call("/api/account", { jar }))).toMatchObject({ account: { id: account, state: "guest" } });
   });
 
-  test("[R-ACCOUNT-023] given a Google account that already has a life, or whose email does, when a guest secures with it, then the guest is sent back told it is taken and neither life changes or joins", async () => {
+  test("[account:guest-secures-the-life] given a Google account that already has a life, or whose email does, when a guest secures with it, then the guest is sent back told it is taken and neither life changes or joins", async () => {
     const h = harness();
     const owner = await h.guest();
     await withGoogle(h, owner.jar, { sub: "google-owner", email: "owner@example.com" }, SHARING);
@@ -382,7 +382,7 @@ describe("securing a guest", () => {
     expect(await body(await h.call("/api/account", { jar }))).toMatchObject({ account: { id: account, state: "guest" } });
   });
 
-  test("[R-ACCOUNT-023] [R-ACCOUNT-003] given a guest, when it asks to register a passkey, then it is refused guest-only; once secured it may", async () => {
+  test("[account:guest-secures-the-life] [account:passkey-needs-signed-in-session] given a guest, when it asks to register a passkey, then it is refused guest-only; once secured it may", async () => {
     const h = harness();
     const { jar } = await h.guest();
     const refused = await h.call("/api/auth/passkey/generate-register-options", { jar });
@@ -394,7 +394,7 @@ describe("securing a guest", () => {
 });
 
 describe("rule A: an email that was never confirmed", () => {
-  test("[R-ACCOUNT-024] given a guest that asked for a code and never typed it, when the address is used elsewhere, then it signs in to nothing, reserves nothing, and is dropped once its owner confirms it", async () => {
+  test("[account:username-and-unconfirmed-email] given a guest that asked for a code and never typed it, when the address is used elsewhere, then it signs in to nothing, reserves nothing, and is dropped once its owner confirms it", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");
     vi.setSystemTime(start);
@@ -431,7 +431,7 @@ describe("rule A: an email that was never confirmed", () => {
 describe("the flood limits on guests", () => {
   const limits = { guestsPerDevice: 2, guestsPerConnection: 3, guestWindowHours: 24 };
 
-  test("[R-ACCOUNT-025] given one device cookie, when one more guest than the limit is started in the window from different connections, then it is refused too-many; after the window it is allowed", async () => {
+  test("[account:guest-floods-are-capped] given one device cookie, when one more guest than the limit is started in the window from different connections, then it is refused too-many; after the window it is allowed", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-08T09:00:00Z");
     vi.setSystemTime(start);
@@ -456,7 +456,7 @@ describe("the flood limits on guests", () => {
     expect((await startOne(5)).status).toBe(200);
   });
 
-  test("[R-ACCOUNT-025] given one connection, when one more guest than the limit is started in the window from fresh devices, then it is refused too-many", async () => {
+  test("[account:guest-floods-are-capped] given one connection, when one more guest than the limit is started in the window from fresh devices, then it is refused too-many", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true }, account: limits }) });
     const results: number[] = [];
     for (let at = 0; at < limits.guestsPerConnection + 1; at += 1) {
@@ -470,7 +470,7 @@ describe("the flood limits on guests", () => {
 });
 
 describe("the guest start under the server's limits", () => {
-  test("[R-SERVER-025] [R-ACCOUNT-025] given the guest start, then it counts as a command under its address's limit and is refused rate-limited over it; and a connection over R-ACCOUNT-025's limit is refused too-many before the anonymous sign-in, with no account made", async () => {
+  test("[server:per-account-rate-limits] [account:guest-floods-are-capped] given the guest start, then it counts as a command under its address's limit and is refused rate-limited over it; and a connection over account:guest-floods-are-capped's limit is refused too-many before the anonymous sign-in, with no account made", async () => {
     const config = testConfig({ testing: { captureOtp: true }, limits: { anonPer60s: 3 }, account: { guestsPerDevice: 5, guestsPerConnection: 1, guestWindowHours: 24 } });
     // The limits' own clock; the library's age pass and the guest counts read the machine's.
     let now = 0;
@@ -493,7 +493,7 @@ describe("the guest start under the server's limits", () => {
     expect(h.tables.user).toHaveLength(1);
   });
 
-  test("[R-SERVER-025] [R-ACCOUNT-013] given a browser that calls the library's anonymous sign-in route itself, then it is refused, whatever the limits, and no account is made", async () => {
+  test("[server:per-account-rate-limits] [account:bot-check-on-guest-creation] given a browser that calls the library's anonymous sign-in route itself, then it is refused, whatever the limits, and no account is made", async () => {
     const h = harness();
     const reply = await h.call("/api/auth/sign-in/anonymous", { method: "POST", jar: makeJar(), json: {} });
     expect(reply.status).toBe(404);
@@ -502,7 +502,7 @@ describe("the guest start under the server's limits", () => {
 });
 
 describe("the last time a life was played", () => {
-  test("[R-ACCOUNT-026] given a guest, when it starts its life and sends a command later, then its last play follows each", async () => {
+  test("[account:idle-guests-cleaned-by-hand] given a guest, when it starts its life and sends a command later, then its last play follows each", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");
     vi.setSystemTime(start);
@@ -519,7 +519,7 @@ describe("the last time a life was played", () => {
     expect((await h.deps.stores.account.get(account))?.lastPlayedAt).toBe(start + 120_000);
   });
 
-  test("[R-ACCOUNT-026] [R-SERVER-046] given a guest with a new life from sixteen, when its preset is sent later, then its last play follows the preset request", async () => {
+  test("[account:idle-guests-cleaned-by-hand] [server:server-plays-prologue-preset] given a guest with a new life from sixteen, when its preset is sent later, then its last play follows the preset request", async () => {
     vi.useFakeTimers({ toFake: ["Date"] });
     const start = Date.parse("2026-10-09T19:00:00Z");
     vi.setSystemTime(start);

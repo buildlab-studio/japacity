@@ -11,7 +11,7 @@ import { call, held, signUp, testServer } from "./authority.testing";
 const { epoch } = productionConfig.clock;
 
 describe("a new character", () => {
-  test("[R-SERVER-016] [R-ACCOUNT-015] given a signed-in account with no character, when it makes one, then the seed is 128 bits of the secure bytes as hex, the character is stored at version 0 under the current content, and the reply is the first view with the clock", async () => {
+  test("[server:hidden-values-made-once] [account:one-character-per-account] given a signed-in account with no character, when it makes one, then the seed is 128 bits of the secure bytes as hex, the character is stored at version 0 under the current content, and the reply is the first view with the clock", async () => {
     const asked: number[] = [];
     let next = 0;
     const server = testServer({
@@ -41,7 +41,7 @@ describe("a new character", () => {
     expect(reply.text).not.toContain(start.seed);
   });
 
-  test("[R-ACCOUNT-015] given an account that has a character, when it asks for another, then it is refused one-character and nothing is made", async () => {
+  test("[account:one-character-per-account] given an account that has a character, when it asks for another, then it is refused one-character and nothing is made", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
     await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.ada" });
@@ -52,7 +52,7 @@ describe("a new character", () => {
     expect((await server.deps.stores.account.get("acc-1"))?.character).toBe(first);
   });
 
-  test("[R-SERVER-016] given a scenario the content lacks, no scenario, or no session, when a character is asked for, then it is refused unknown-id or signed-out", async () => {
+  test("[server:hidden-values-made-once] given a scenario the content lacks, no scenario, or no session, when a character is asked for, then it is refused unknown-id or signed-out", async () => {
     const server = testServer();
     await signUp(server, "acc-1");
     expect((await call(server, "POST", "/api/character", "acc-1", { scenario: "scenario.nobody" })).body).toMatchObject({ code: "unknown-id" });
@@ -65,19 +65,19 @@ describe("a new character", () => {
 describe("the deployment's content", () => {
   const dials = { version: "dials-1", tuning: { director: { surgePerTick: 4 } } } as Overlay;
 
-  test("[R-SERVER-018] [R-ENGINE-017] given no overlay, when the server starts, then it runs on the public content alone", () => {
+  test("[server:public-defaults-run-the-game] [engine:numbers-read-from-content] given no overlay, when the server starts, then it runs on the public content alone", () => {
     expect(contentsFor(content, undefined)).toEqual({ current: content, previous: null });
     expect(contentsFor(content, "")).toEqual({ current: content, previous: null });
   });
 
-  test("[R-SERVER-016] [R-SERVER-024] given an overlay the check accepts, when the server starts, then it is applied once and the public content is the one before", () => {
+  test("[server:hidden-values-made-once] [server:overlay-change-opens-segment] given an overlay the check accepts, when the server starts, then it is applied once and the public content is the one before", () => {
     const contents = contentsFor(content, JSON.stringify(dials));
     expect(contents.current).toEqual(applyOverlay(content, dials));
     expect(contents.current.overlay).toBe("dials-1");
     expect(contents.previous).toBe(content);
   });
 
-  test("[R-SERVER-018] [R-SERVER-014] given an overlay with a factor field the content lacks, when the server starts, then checkOverlay refuses it and the server does not start", () => {
+  test("[server:public-defaults-run-the-game] [server:overlays-never-multiply-prices] given an overlay with a factor field the content lacks, when the server starts, then checkOverlay refuses it and the server does not start", () => {
     const factor = JSON.stringify({ version: "bad-1", tuning: { turn: { factor: 2 } } });
     expect(() => contentsFor(content, factor)).toThrow(/The overlay is refused/);
   });

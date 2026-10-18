@@ -49,7 +49,7 @@ async function begin(deps: ServerDeps): Promise<State> {
 const at = (moment: number) => () => moment;
 
 describe("the money report", () => {
-  test("[R-SERVER-011] given a life played over two days with the job after each, when the days are read, then each holds what was made that day and the two add up to the life's totals, transfers left out", async () => {
+  test("[server:daily-money-report] given a life played over two days with the job after each, when the days are read, then each holds what was made that day and the two add up to the life's totals, transfers left out", async () => {
     const deps = testDeps();
     const start = await begin(deps);
     const first = await day(deps, ID, start, SAVE.commands.slice(0, HALF), DAY);
@@ -70,7 +70,7 @@ describe("the money report", () => {
     expect(await deps.stores.ledger.mark(ID)).toMatchObject({ day: DAY + 2 });
   });
 
-  test("[R-SERVER-011] given a character's first command of a day before the job for the day before, when the job runs, then the earlier day already holds exactly its own money and the job closes nothing", async () => {
+  test("[server:daily-money-report] given a character's first command of a day before the job for the day before, when the job runs, then the earlier day already holds exactly its own money and the job closes nothing", async () => {
     const deps = testDeps();
     const start = await begin(deps);
     const first = await day(deps, ID, start, SAVE.commands.slice(0, HALF), DAY);
@@ -84,7 +84,7 @@ describe("the money report", () => {
     expect(await deps.stores.ledger.mark(ID)).toMatchObject({ day: DAY + 1 });
   });
 
-  test("[R-SERVER-011] given commits on one day, when the hook runs after each, then only the first moves the mark and the rest note the character only", async () => {
+  test("[server:daily-money-report] given commits on one day, when the hook runs after each, then only the first moves the mark and the rest note the character only", async () => {
     const deps = testDeps();
     const start = await begin(deps);
     await day(deps, ID, start, SAVE.commands.slice(0, 5), DAY);
@@ -95,7 +95,7 @@ describe("the money report", () => {
     expect(activeOn(deps, DAY - 1)).toEqual([]);
   });
 
-  test("[R-SERVER-011] given the job's second write failing after its first, when it runs and is run again, then the failed run kept nothing and the day is added once", async () => {
+  test("[server:daily-money-report] given the job's second write failing after its first, when it runs and is run again, then the failed run kept nothing and the day is added once", async () => {
     const deps = testDeps();
     const start = await begin(deps);
     const first = await day(deps, ID, start, SAVE.commands.slice(0, HALF), DAY);
@@ -113,7 +113,7 @@ describe("the money report", () => {
     expect(await ledger.mark(ID)).toMatchObject({ day: DAY + 1 });
   });
 
-  test("[R-SERVER-011] given a day's first commit whose mark fails to move after its totals were added, when the hook is run again, then the earlier day holds its money once", async () => {
+  test("[server:daily-money-report] given a day's first commit whose mark fails to move after its totals were added, when the hook is run again, then the earlier day holds its money once", async () => {
     const deps = testDeps();
     const start = await begin(deps);
     const first = await day(deps, ID, start, SAVE.commands.slice(0, HALF), DAY);
@@ -129,7 +129,7 @@ describe("the money report", () => {
     expect(await ledger.mark(ID)).toMatchObject({ day: DAY + 1 });
   });
 
-  test("[R-SERVER-011] given the job at 00:00 UTC, when it runs, then it reports the day that has just ended and no character idle that day", async () => {
+  test("[server:daily-money-report] given the job at 00:00 UTC, when it runs, then it reports the day that has just ended and no character idle that day", async () => {
     const deps = testDeps();
     const start = await begin(deps);
     await day(deps, ID, start, SAVE.commands.slice(0, 5), DAY);
@@ -150,7 +150,7 @@ describe("the alarm", () => {
     await markAfterCommit(deps, ID, rich, DAY);
   }
 
-  test("[R-SERVER-012] given salary one kobo over its ceiling and at it, when the job runs, then only the first is listed as suspect with its reason, currency, total and ceiling", async () => {
+  test("[server:ledger-alarm-lists-suspects] given salary one kobo over its ceiling and at it, when the job runs, then only the first is listed as suspect with its reason, currency, total and ceiling", async () => {
     const probe = testDeps();
     await storeWorlds(probe, SAVE);
     const plain = await createLife(probe, "character.plain", SAVE);
@@ -167,7 +167,7 @@ describe("the alarm", () => {
     expect(await listAlarms(over)).toHaveLength(1);
   });
 
-  test("[R-SERVER-012] given a suspect, when the alarm is raised, then it takes no action on the character and is still listed after a restart", async () => {
+  test("[server:ledger-alarm-lists-suspects] given a suspect, when the alarm is raised, then it takes no action on the character and is still listed after a restart", async () => {
     const deps = testDeps({ now: at(time.dayStart(DAY + 1)) });
     await doctored(deps, Number.MAX_SAFE_INTEGER);
     const before = await deps.stores.player.load(ID);
@@ -183,7 +183,7 @@ describe("the alarm", () => {
     expect(listed[0]).toMatchObject({ kind: "suspect", character: ID });
   });
 
-  test("[R-SERVER-012] given a stored row whose hash differs, when the job runs or a load reports it, then the character is listed as diverged and its day is not closed", async () => {
+  test("[server:ledger-alarm-lists-suspects] given a stored row whose hash differs, when the job runs or a load reports it, then the character is listed as diverged and its day is not closed", async () => {
     const deps = testDeps({ now: at(time.dayStart(DAY + 1)) });
     const start = await begin(deps);
     await playRows(deps, ID, start, SAVE.commands.slice(0, 5), {
@@ -200,7 +200,7 @@ describe("the alarm", () => {
     expect((await listAlarms(deps)).map((alarm) => alarm.kind === "diverged" && alarm.character)).toEqual([ID, "character.other"]);
   });
 
-  test("[R-SERVER-012] given an alarm raised, when its audit row is read, then it is filed with why alarm", async () => {
+  test("[server:ledger-alarm-lists-suspects] given an alarm raised, when its audit row is read, then it is filed with why alarm", async () => {
     const deps = testDeps();
     await noteDiverged(deps, "character.other", 9);
     expect((await deps.stores.audit.list(ALARM_ROWS)).map((row) => row.why)).toEqual(["alarm"]);
@@ -210,7 +210,7 @@ describe("the alarm", () => {
 describe("the draw's alarm", () => {
   const close = productionConfig.clock.epoch + TICKS_PER_DRAW * productionConfig.clock.worldTickMs;
 
-  test("[R-LOTTERY-014] given the epoch, when the draws closing each day are listed, then draw 0 closes on the Friday a week on, and a close at midnight belongs to the day it opens", () => {
+  test("[lottery:money-report-checks-draws] given the epoch, when the draws closing each day are listed, then draw 0 closes on the Friday a week on, and a close at midnight belongs to the day it opens", () => {
     const deps = testDeps();
     expect(drawsClosingOn(deps, time.utcDay(close))).toEqual([0]);
     expect(drawsClosingOn(deps, time.utcDay(close) - 1)).toEqual([]);
@@ -254,13 +254,13 @@ describe("the draw's alarm", () => {
     { character: "character.b", tick: TICKS_PER_DRAW, tickets: 4 },
   ];
 
-  test("[R-LOTTERY-014] given a draw whose wins are what its result gives and whose tickets are its sales, when it is checked, then no alarm is raised; a buy at the next draw's first tick is not counted", async () => {
+  test("[lottery:money-report-checks-draws] given a draw whose wins are what its result gives and whose tickets are its sales, when it is checked, then no alarm is raised; a buy at the next draw's first tick is not counted", async () => {
     const deps = testDeps();
     await drawn(deps, BUYS, 500, { count: 3, owed: 500 });
     expect(await drawAlarms(deps, time.utcDay(close))).toEqual([]);
   });
 
-  test("[R-LOTTERY-014] given wins one kobo over or under what the result gives, or tickets one off the sales either way, when the draw is checked, then the world alarm is raised", async () => {
+  test("[lottery:money-report-checks-draws] given wins one kobo over or under what the result gives, or tickets one off the sales either way, when the draw is checked, then the world alarm is raised", async () => {
     for (const paid of [501, 499]) {
       const off = testDeps();
       await drawn(off, BUYS, paid, { count: 3, owed: 500 });
@@ -275,7 +275,7 @@ describe("the draw's alarm", () => {
     }
   });
 
-  test("[R-LOTTERY-014] given a payout logged with any house part, when the draw is checked, then the world alarm is raised for pot-top-up against 0; a part of 0 raises nothing", async () => {
+  test("[lottery:money-report-checks-draws] given a payout logged with any house part, when the draw is checked, then the world alarm is raised for pot-top-up against 0; a part of 0 raises nothing", async () => {
     const house = testDeps();
     await drawn(house, BUYS, { amount: 500, topUp: 1 }, { count: 3, owed: 500 });
     expect(await drawAlarms(house, time.utcDay(close))).toEqual([{ kind: "draw", day: time.utcDay(close), draw: 0, check: "top-up", total: 1, limit: 0 }]);

@@ -1,4 +1,4 @@
-// R-SERVER-011: the characters that logged a command on each UTC day, as the
+// server:daily-money-report: the characters that logged a command on each UTC day, as the
 // money job needs them. No store can list the characters that logged on a
 // day, so the list is kept in the isolate's memory from markAfterCommit and is
 // lost when the isolate restarts. A store query, such as

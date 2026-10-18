@@ -1,4 +1,4 @@
-// R-SERVER-012: the admin's reads run against the players' database, so each statement of an
+// server:ledger-alarm-lists-suspects: the admin's reads run against the players' database, so each statement of an
 // admin read stops after ADMIN_STATEMENT_MS (Postgres `SET LOCAL statement_timeout` in a transaction of its own,
 // `boundedHandle` in @japacity/db), and a report that heavy is answered to the admin as a plain refusal: the game
 // is never slowed by one, and the admin page is never shown a server failure for it.

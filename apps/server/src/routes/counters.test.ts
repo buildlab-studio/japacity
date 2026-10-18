@@ -40,7 +40,7 @@ async function account(server: TestServer, id: string, over: Partial<AccountRow>
 }
 
 describe("POST /api/counters", () => {
-  test("[R-ANALYTICS-004] given a batch of exactly the largest size, when it is sent, then it is counted; one byte more and it is dropped whole and counted as dropped for its size", async () => {
+  test("[analytics:server-checks-every-batch] given a batch of exactly the largest size, when it is sent, then it is counted; one byte more and it is dropped whole and counted as dropped for its size", async () => {
     const server = testServer();
     await signUp(server, "account.a");
     expect(new TextEncoder().encode(sized(maxBatchBytes)).length).toBe(maxBatchBytes);
@@ -56,7 +56,7 @@ describe("POST /api/counters", () => {
     expect(await total(server, "analytics/dropped", "size")).toBe(1);
   });
 
-  test("[R-ANALYTICS-004] [R-ANALYTICS-001] given rows the list does not allow, when the batch is sent, then each is dropped silently with a 204 and counted by why, and the rest are counted", async () => {
+  test("[analytics:server-checks-every-batch] [analytics:game-counters-from-server] given rows the list does not allow, when the batch is sent, then each is dropped silently with a 204 and counted by why, and the rest are counted", async () => {
     const server = testServer();
     await signUp(server, "account.a");
     const reply = await post(
@@ -86,14 +86,14 @@ describe("POST /api/counters", () => {
     expect(await total(server, "analytics/dropped", "shape")).toBe(1);
   });
 
-  test("[R-ANALYTICS-004] given a body that is not a batch, when it is sent, then it answers 204 and counts one dropped batch", async () => {
+  test("[analytics:server-checks-every-batch] given a body that is not a batch, when it is sent, then it answers 204 and counts one dropped batch", async () => {
     const server = testServer();
     await signUp(server, "account.a");
     for (const body of ["not json", "[]", JSON.stringify({ rows: "none" })]) expect((await post(server, "account.a", body)).status).toBe(204);
     expect(await total(server, "analytics/dropped", "shape")).toBe(3);
   });
 
-  test("[R-ANALYTICS-004] given a session at its batches for the hour, when one more is sent, then it is dropped; in the next hour it is counted again", async () => {
+  test("[analytics:server-checks-every-batch] given a session at its batches for the hour, when one more is sent, then it is dropped; in the next hour it is counted again", async () => {
     const server = testServer();
     await signUp(server, "account.a");
     for (let sent = 0; sent < batchesPerHour; sent += 1) await post(server, "account.a", batch([wallet]));
@@ -108,7 +108,7 @@ describe("POST /api/counters", () => {
     expect(await total(server, "screen/opened", "wallet")).toBe(batchesPerHour + 1);
   });
 
-  test("[R-ANALYTICS-004] given no session, when a batch is sent, then nothing in it is counted and the drop is counted within the address limit", async () => {
+  test("[analytics:server-checks-every-batch] given no session, when a batch is sent, then nothing in it is counted and the drop is counted within the address limit", async () => {
     let allowed = 1;
     const anon60s: Limiter = { limit: () => Promise.resolve({ success: allowed-- > 0 }) };
     const server = testServer({ limits: { ...openLimiters, anon60s } });
@@ -117,7 +117,7 @@ describe("POST /api/counters", () => {
     expect(await stored(server)).toEqual([{ day: time.dayName(time.utcDay(server.deps.now())), region: "XX", name: "analytics/dropped", key: "signed-out", count: 1 }]);
   });
 
-  test("[R-ANALYTICS-006] given an account with usage counts turned off, when it sends a batch, then nothing at all is stored, not even a drop", async () => {
+  test("[analytics:player-can-stop-usage-counts] given an account with usage counts turned off, when it sends a batch, then nothing at all is stored, not even a drop", async () => {
     const server = testServer();
     await account(server, "account.off", { sendUsageCounts: false });
     expect((await post(server, "account.off", batch([wallet, { name: "screen/secret", key: "x", count: 1 }]))).status).toBe(204);
@@ -129,7 +129,7 @@ describe("POST /api/counters", () => {
     expect(await total(server, "screen/opened", "wallet")).toBe(1);
   });
 
-  test("[R-ANALYTICS-005] given batches from two regions on two days, when they are counted, then each day and region holds its own total and nothing else", async () => {
+  test("[analytics:rows-stored-as-day-totals] given batches from two regions on two days, when they are counted, then each day and region holds its own total and nothing else", async () => {
     const server = testServer();
     await signUp(server, "account.ng");
     await account(server, "account.gb", { country: "GB" });
@@ -147,7 +147,7 @@ describe("POST /api/counters", () => {
     ]);
   });
 
-  test("[R-ANALYTICS-007] given a batch carrying an account, a session, an address and a device beside each row, when it is counted, then only the name, key and count reach the store", async () => {
+  test("[analytics:store-holds-nothing-personal] given a batch carrying an account, a session, an address and a device beside each row, when it is counted, then only the name, key and count reach the store", async () => {
     const server = testServer();
     await signUp(server, "account.a");
     const extras = { account: "account.a", session: "session-123", ip: "203.0.113.9", userAgent: "Agent/1.0", device: "device-9", name2: "Ada" };
@@ -159,7 +159,7 @@ describe("POST /api/counters", () => {
     for (const value of Object.values(extras)) expect(text).not.toContain(value);
   });
 
-  test("[R-ANALYTICS-004] given advert slots in content, when a tap is counted, then a slot id the content holds is allowed and any other is dropped", async () => {
+  test("[analytics:server-checks-every-batch] given advert slots in content, when a tap is counted, then a slot id the content holds is allowed and any other is dropped", async () => {
     const slot: AdvertSlotEntry = { id: "advert.test-board", surface: "billboard", place: "place.lagos", width: 10, height: 10, maxBytes: 1000 };
     const server = testServer({ contents: { current: { ...content, advert: { [slot.id]: slot } }, previous: null } });
     await signUp(server, "account.a");

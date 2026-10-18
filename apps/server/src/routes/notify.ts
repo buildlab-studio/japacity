@@ -1,4 +1,4 @@
-// The bank-full notice's routes (docs/rules/clock.md R-CLOCK-031): the
+// The bank-full notice's routes (clock:full-bank-push-notification): the
 // setting, and the devices that agreed. `GET /api/notify/key` gives the
 // deployment's public key and is mounted with the keys in index.ts.
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
@@ -67,7 +67,7 @@ export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
   return route;
 }
 
-/** R-CLOCK-031: the public key a browser subscribes with, or null while the deployment has none. Needs no session. */
+/** clock:full-bank-push-notification: the public key a browser subscribes with, or null while the deployment has none. Needs no session. */
 export function notifyKeyRoute(keys: PushKeys | null): Hono {
   const route = new Hono();
   route.get("/api/notify/key", (c) => c.json<NotifyKeyReply>({ ok: true, key: keys?.publicKey ?? null }));

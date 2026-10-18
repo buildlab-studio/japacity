@@ -22,7 +22,7 @@ async function accountIn(server: ReturnType<typeof pairServer>, id: string, coun
 }
 
 describe("invite links", () => {
-  test("[R-PAIR-008] [R-PEOPLE-010] given a partner card out, when the friend takes the link, then the record is made at connected, both lives hold a connected bond with the pair, and the inviter's slot is no longer out", async () => {
+  test("[pair:invite-link-single-use] [person:invite-fills-a-slot] given a partner card out, when the friend takes the link, then the record is made at connected, both lives hold a connected bond with the pair, and the inviter's slot is no longer out", async () => {
     const { server, a, b, key } = await linkedPair();
 
     const stored = await recordOf(server.deps, key);
@@ -37,7 +37,7 @@ describe("invite links", () => {
     expect(inviter.people.bonds[bondIn(inviter, key)]?.facts?.label).toBe("player");
   });
 
-  test("[R-PAIR-007] given a card out, when anyone opens its link with no session, then it shows the card's keys and ids and nothing that is money, a photo or a contact", async () => {
+  test("[pair:invite-card-contents] given a card out, when anyone opens its link with no session, then it shows the card's keys and ids and nothing that is money, a photo or a contact", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -50,7 +50,7 @@ describe("invite links", () => {
     expect(shown.text).not.toMatch(/kobo|naira|photo|phone|http|@/i);
   });
 
-  test("[R-PAIR-008] given a link taken once, when another account takes it, then it is refused as used with 409 and the record does not move", async () => {
+  test("[pair:invite-link-single-use] given a link taken once, when another account takes it, then it is refused as used with 409 and the record does not move", async () => {
     const { server, key, code } = await linkedPair();
     expect((await call<Reply<InvitesListed>>(server, "GET", "/api/invite", INVITER)).body).toMatchObject({ ok: true, open: [] });
     await newLife(server, "account-c", "scenario.zainab");
@@ -66,7 +66,7 @@ describe("invite links", () => {
     expect((await recordOf(server.deps, key))?.v).toBe(1);
   });
 
-  test("[R-PAIR-008] given a link, when it is taken a millisecond before it runs out, then it works, and at the moment it runs out it is refused as expired with 403", async () => {
+  test("[pair:invite-link-single-use] given a link, when it is taken a millisecond before it runs out, then it works, and at the moment it runs out it is refused as expired with 403", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     await newLife(server, FRIEND, "scenario.tunde");
@@ -89,7 +89,7 @@ describe("invite links", () => {
     expect(await accept(server, "account-c", code)).toMatchObject({ ok: true });
   });
 
-  test("[R-PAIR-008] given a partner link, when it is taken for another slot, then it is refused as wrong-slot and no record is made", async () => {
+  test("[pair:invite-link-single-use] given a partner link, when it is taken for another slot, then it is refused as wrong-slot and no record is made", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER);
     const b = await newLife(server, FRIEND, "scenario.tunde");
@@ -99,7 +99,7 @@ describe("invite links", () => {
     expect(await recordOf(server.deps, pairId(a, b))).toBeNull();
   });
 
-  test("[R-PAIR-008] given a card taken back after its link was made, when the link is taken, then it is refused as wrong-slot and the link stays unused", async () => {
+  test("[pair:invite-link-single-use] given a card taken back after its link was made, when the link is taken, then it is refused as wrong-slot and the link stays unused", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER);
     const b = await newLife(server, FRIEND, "scenario.tunde");
@@ -111,7 +111,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false });
   });
 
-  test("[R-PAIR-008] given maxOpenInvites cards out, when one more link is asked for, then it is refused as too-many with 429, and the card already out gets its own link again", async () => {
+  test("[pair:invite-link-single-use] given maxOpenInvites cards out, when one more link is asked for, then it is refused as too-many with 429, and the card already out gets its own link again", async () => {
     const server = pairServer(tuned((copy) => (copy.tuning.pair.maxOpenInvites = 1)));
     await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -126,7 +126,7 @@ describe("invite links", () => {
     expect(again.body).toMatchObject({ ok: true, code });
   });
 
-  test("[R-PAIR-008] given no card out on a slot, when a link is asked for it, then it is refused with 400 as the routes' other not-legal answers are, and none is made", async () => {
+  test("[pair:invite-link-single-use] given no card out on a slot, when a link is asked for it, then it is refused with 400 as the routes' other not-legal answers are, and none is made", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
 
@@ -137,7 +137,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.open(await characterOf(server.deps, INVITER) ?? "", server.deps.now())).toEqual([]);
   });
 
-  test("[R-PAIR-008] given an account that has not passed the date-of-birth screen, when it takes a link, then it is refused and gets no pair", async () => {
+  test("[pair:invite-link-single-use] given an account that has not passed the date-of-birth screen, when it takes a link, then it is refused and gets no pair", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -147,7 +147,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.get(code)).toMatchObject({ used: false });
   });
 
-  test("[R-PAIR-018] [R-REGION-002] given two players who signed up in France and Germany, when one asks for a link and the other takes it, then the pair is made as anywhere else", async () => {
+  test("[pair:everyone-meets-by-invite] [region:same-contact-everywhere] given two players who signed up in France and Germany, when one asks for a link and the other takes it, then the pair is made as anywhere else", async () => {
     const server = pairServer();
     await accountIn(server, "account-fr", "FR");
     await call(server, "POST", "/api/character", "account-fr", { scenario: "scenario.ada" });
@@ -158,7 +158,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.pairs()).toHaveLength(1);
   });
 
-  test("[R-PAIR-008] given an inviter whose account is gone, when the link is taken, then it is not possible and no record is made", async () => {
+  test("[pair:invite-link-single-use] given an inviter whose account is gone, when the link is taken, then it is not possible and no record is made", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -169,7 +169,7 @@ describe("invite links", () => {
     expect(await server.deps.stores.invite.pairs()).toEqual([]);
   });
 
-  test("[R-PAIR-008] given a friend with no character, when a partner link is taken naming a scenario, then a character is made in it and linked", async () => {
+  test("[pair:invite-link-single-use] given a friend with no character, when a partner link is taken naming a scenario, then a character is made in it and linked", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER);
     const code = await cardOut(server);
@@ -183,7 +183,7 @@ describe("invite links", () => {
     expect((taken as InviteAccepted).pair).toBe(pairId(a, b));
   });
 
-  test("[R-PEOPLE-011] given a friend who already has a character, when a sibling link is taken, then it is refused, because an existing character never becomes anyone's sibling", async () => {
+  test("[person:real-sibling-shares-family-draw] given a friend who already has a character, when a sibling link is taken, then it is refused, because an existing character never becomes anyone's sibling", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     await newLife(server, FRIEND, "scenario.tunde");
@@ -192,7 +192,7 @@ describe("invite links", () => {
     expect(await accept(server, FRIEND, code, { slot: "sibling-1" })).toMatchObject({ ok: false, code: "one-character" });
   });
 
-  test("[R-PEOPLE-011] given a friend with no character, when a sibling link is taken, then a new life starts in the prologue, the record is a sibling pair, and the inviter's sibling slot holds the player", async () => {
+  test("[person:real-sibling-shares-family-draw] given a friend with no character, when a sibling link is taken, then a new life starts in the prologue, the record is a sibling pair, and the inviter's sibling slot holds the player", async () => {
     const server = pairServer();
     const a = await newLife(server, INVITER);
     const code = await cardOut(server, INVITER, "sibling-1", "sibling");
@@ -207,14 +207,14 @@ describe("invite links", () => {
     expect((await stateOf(server, a)).people.slots["sibling-1"]?.state).toBe("player");
   });
 
-  test("[R-PEOPLE-011] given an inviter whose prologue drew a family, when a sibling link is taken, then the new life holds the same draw from its first state, its first segment starts from that state, and its sibling-1 slot waits as a card until its prologue closes and then holds the inviter", async () => {
+  test("[person:real-sibling-shares-family-draw] given an inviter whose prologue drew a family, when a sibling link is taken, then the new life holds the same draw from its first state, its first segment starts from that state, and its sibling-1 slot waits as a card until its prologue closes and then holds the inviter", async () => {
     // A family drawn with two children besides the inviter, so the sibling slots exist.
     const server = pairServer(tuned((copy) => {
       copy.tuning.prologue.siblings = [2, 2];
     }));
     const a = await newLife(server, INVITER, "scenario.prologue");
     await playPrologue(server, INVITER);
-    // The family's siblings join the slots in the first month after the prologue (R-PEOPLE-007).
+    // The family's siblings join the slots in the first month after the prologue (person:family-and-partner-slots).
     await must(server, INVITER, { type: "turn/end", slots: [] });
     const family = (await stateOf(server, a)).prologue.draw;
     expect(family).not.toBeNull();
@@ -237,7 +237,7 @@ describe("invite links", () => {
     expect((await stateOf(server, a)).people.slots["sibling-1"]?.state).toBe("player");
   });
 
-  test("[R-PAIR-009] given a sibling link taken, when the friend's prologue closes, then the inviter gets the prologue's frame and line once, naming no friend", async () => {
+  test("[pair:invite-rewards-never-cash] given a sibling link taken, when the friend's prologue closes, then the inviter gets the prologue's frame and line once, naming no friend", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     const code = await cardOut(server, INVITER, "sibling-1", "sibling");
@@ -257,7 +257,7 @@ describe("invite links", () => {
     expect(listed).toEqual({ ok: true, open: [], rewards: [{ reached: "prologue", frame: "card.frame.prologue", line: "line.pair.reward.prologue", at: expect.any(Number) as number }] });
   });
 
-  test("[R-PAIR-015] [R-MODERATION-001] given the friend's account blocked by the inviter, when the friend takes the card, then it is refused as not possible", async () => {
+  test("[pair:block-ends-every-bond] [moderation:block-refuses-both-ways] given the friend's account blocked by the inviter, when the friend takes the card, then it is refused as not possible", async () => {
     const server = pairServer();
     await newLife(server, INVITER);
     await newLife(server, FRIEND, "scenario.tunde");

@@ -13,7 +13,7 @@ import { held, newLife, restMonth, send, signUp, testServer, view } from "./auth
 import { transact } from "./transaction";
 
 const { epoch, worldTickMs } = productionConfig.clock;
-/** A stand-in older version, the current data under the name "0", and the worker's contents with it bundled (R-SERVER-023). */
+/** A stand-in older version, the current data under the name "0", and the worker's contents with it bundled (server:older-contents-bundled). */
 const previous: Content = { ...content, version: "0" };
 const bundled = withContentBefore(contentsFor(content, undefined), undefined, [previous]);
 const dials: Overlay = { version: "dials-1", tuning: { director: { surgePerTick: 4 } } };
@@ -70,7 +70,7 @@ function without(value: object, keys: readonly string[]): Record<string, unknown
 
 describe("old saves", () => {
   test.each(Object.entries(lifeSaves))(
-    "[R-SERVER-020] [R-SERVER-021] [R-SERVER-023] given the golden life %s stored under an older content, when its view is fetched under the current one, then its end state is upgraded, checked and made the base of a new segment in that one transaction",
+    "[server:save-is-list-of-segments] [server:newer-content-upgrades-state] [server:older-contents-bundled] given the golden life %s stored under an older content, when its view is fetched under the current one, then its end state is upgraded, checked and made the base of a new segment in that one transaction",
     async (_name, save) => {
       const server = testServer();
       const { id, worlds } = await storeLife(server, save);
@@ -100,7 +100,7 @@ describe("old saves", () => {
     30_000,
   );
 
-  test("[R-SERVER-024] [R-ENGINE-010] given a character under the public content, when an overlay is deployed and the player sends a command, then a new segment naming the overlay opens in the same transaction and the command is its first row", async () => {
+  test("[server:overlay-change-opens-segment] [engine:state-is-plain-data] given a character under the public content, when an overlay is deployed and the player sends a command, then a new segment naming the overlay opens in the same transaction and the command is its first row", async () => {
     const server = testServer();
     const id = await newLife(server, "acc-1");
     for (let v = 0; v < 3; v += 1) await send(server, "acc-1", restMonth({ v }));
@@ -118,7 +118,7 @@ describe("old saves", () => {
     expect((await view(server, "acc-1")).body.ok).toBe(true);
   });
 
-  test("[R-SERVER-021] [R-SERVER-005] given a character on an older content, when its command is rejected, then the upgrade is not written either", async () => {
+  test("[server:newer-content-upgrades-state] [server:rejections-write-nothing] given a character on an older content, when its command is rejected, then the upgrade is not written either", async () => {
     const server = testServer();
     server.deps.contents = { current: previous, previous: null };
     const id = await newLife(server, "acc-1");
@@ -128,7 +128,7 @@ describe("old saves", () => {
     expect((await held(server, id)).segments).toHaveLength(1);
   });
 
-  test("[R-SERVER-023] given a character still on an older content, when the sweep upgrades it, then a new segment is written and no turn is granted", async () => {
+  test("[server:older-contents-bundled] given a character still on an older content, when the sweep upgrades it, then a new segment is written and no turn is granted", async () => {
     const server = testServer();
     server.deps.contents = { current: previous, previous: null };
     const id = await newLife(server, "acc-1");
@@ -143,7 +143,7 @@ describe("old saves", () => {
     expect(stored.snapshot.state.turn.banked).toBe(content.tuning.turn.cap - 1);
   });
 
-  test("[R-SERVER-021] [R-SERVER-022] [R-SERVER-023] given a character stored under an older content by the code before schema 4 (no spent half-days, no offers rolled, no body), when its view is fetched under the current one, then the new segment's base has them filled as a new life starts them, at schema 4, and the invariants hold", async () => {
+  test("[server:newer-content-upgrades-state] [server:upgrade-state-is-pure] [server:older-contents-bundled] given a character stored under an older content by the code before schema 4 (no spent half-days, no offers rolled, no body), when its view is fetched under the current one, then the new segment's base has them filled as a new life starts them, at schema 4, and the invariants hold", async () => {
     const server = testServer();
     await storeWorlds(server, "golden-world", 0);
     server.setNow(epoch);
@@ -172,7 +172,7 @@ describe("old saves", () => {
     expect(checkInvariants(base, content)).toEqual([]);
   });
 
-  test("[R-SERVER-023] [R-SERVER-024] given the worker's contents with an older version, with and without an overlay, when a segment names the current or the older version, then each is bundled under its own overlay", () => {
+  test("[server:older-contents-bundled] [server:overlay-change-opens-segment] given the worker's contents with an older version, with and without an overlay, when a segment names the current or the older version, then each is bundled under its own overlay", () => {
     const plain = withContentBefore(contentsFor(content, undefined), undefined, [previous]);
     expect(contentNamed(plain, content.version, undefined)).toBe(content);
     expect(contentNamed(plain, previous.version, undefined)).toBe(previous);
@@ -184,7 +184,7 @@ describe("old saves", () => {
     expect(() => contentNamed(plain, "unknown", undefined)).toThrow(/bundles no content unknown/);
   });
 
-  test("[R-SERVER-023] [R-SERVER-024] given an overlay naming a number an older content lacks, when the worker's contents are built, then that older content is bundled as it shipped and not under the overlay", () => {
+  test("[server:older-contents-bundled] [server:overlay-change-opens-segment] given an overlay naming a number an older content lacks, when the worker's contents are built, then that older content is bundled as it shipped and not under the overlay", () => {
     const director = Object.fromEntries(Object.entries(content.tuning.director).filter(([key]) => key !== "surgePerTick"));
     const narrower = { ...content, version: "0", tuning: { ...content.tuning, director } } as unknown as Content;
     const overlaid = withContentBefore(contentsFor(content, JSON.stringify(dials)), JSON.stringify(dials), [narrower]);
@@ -192,7 +192,7 @@ describe("old saves", () => {
     expect(() => contentNamed(overlaid, "0", "dials-1")).toThrow(/bundles no content 0 under overlay dials-1/);
   });
 
-  test("[R-SERVER-023] given content version 1, the first, when the worker's contents are built, then no older version is bundled and only the current is named", () => {
+  test("[server:older-contents-bundled] given content version 1, the first, when the worker's contents are built, then no older version is bundled and only the current is named", () => {
     expect(content.version).toBe("1");
     expect(olderContents).toEqual([]);
     const worker = withContentBefore(contentsFor(content, undefined), undefined);

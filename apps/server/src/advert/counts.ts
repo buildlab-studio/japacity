@@ -1,6 +1,6 @@
-// R-ADVERT-020 to 022: impressions and taps reach the advert store only as
+// advert:advertiser-records-stored, advert:advertisers-get-daily-counts-only and advert:impression-counted-when-seen: impressions and taps reach the advert store only as
 // daily totals per slot, campaign and region. They arrive among the interface
-// counters (analytics.md R-ANALYTICS-002), keyed by slot, and are given to the
+// counters (analytics:client-sends-interface-counts), keyed by slot, and are given to the
 // campaign the slot showed in that region that hour. No account reaches the
 // store; one account's share of a day is capped before the rows get here.
 import type { Id } from "@japacity/sim";
@@ -42,13 +42,13 @@ export async function addAdvertCounters(deps: AdvertsDeps, region: string, at: n
 /**
  * What each account has had counted today, by a hash of the account and the
  * day, the slot and the counter. Kept in the isolate's memory, as the batch
- * limit of R-ANALYTICS-004 is, so like the rate limits it holds per isolate
- * and not exactly (R-SERVER-028).
+ * limit of analytics:server-checks-every-batch is, so like the rate limits it holds per isolate
+ * and not exactly (server:limits-are-approximate).
  */
 const countedToday = new WeakMap<AdvertStore, { day: number; used: Map<string, number> }>();
 
 /**
- * R-ADVERT-020: an account adds at most `advert.countsPerAccountDay` impressions
+ * advert:advertiser-records-stored: an account adds at most `advert.countsPerAccountDay` impressions
  * and taps to one slot in a UTC day. The rows past it are dropped here; the
  * batch is still accepted. Other rows pass untouched.
  */

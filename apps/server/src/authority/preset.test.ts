@@ -1,5 +1,5 @@
-// The prologue's preset played by the server in one request (server.md R-SERVER-046, decision 0008; R-SERVER-002,
-// R-SERVER-025): Begin sends the tile, the age step and the home, and the server steps `prologue/choose` with content's
+// The prologue's preset played by the server in one request (server:server-plays-prologue-preset, decision 0008; server:one-command-one-transaction,
+// server:per-account-rate-limits): Begin sends the tile, the age step and the home, and the server steps `prologue/choose` with content's
 // answer at each card in one transaction, a log row a step, until the prologue closes.
 import type { PresetReply, ServerReply, ViewReply } from "@japacity/api";
 import { presetAnswer } from "@japacity/content";
@@ -27,7 +27,7 @@ function preset(server: TestServer, account: string | null, body: unknown) {
 }
 
 describe("the preset played by the server", () => {
-  test("[R-SERVER-046] [R-SERVER-002] [R-PROLOGUE-010] given a new life from sixteen, when its preset is sent once, then every step is played in one request: the prologue closed, one log row a step as the player's, the version raised by the count, the trail a step each", async () => {
+  test("[server:server-plays-prologue-preset] [server:one-command-one-transaction] [prologue:archetype-presets-answers] given a new life from sixteen, when its preset is sent once, then every step is played in one request: the prologue closed, one log row a step as the player's, the version raised by the count, the trail a step each", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1", PROLOGUE);
     const nudges: Nudge[] = [];
@@ -56,7 +56,7 @@ describe("the preset played by the server", () => {
     expect(nudges).toEqual([]);
   });
 
-  test("[R-SERVER-046] [R-SERVER-003] given a preset played, when the life is loaded again, then the stored log replays to every row's hash, and the next command goes on from the version after it", async () => {
+  test("[server:server-plays-prologue-preset] [server:log-rows-hash-state] given a preset played, when the life is loaded again, then the stored log replays to every row's hash, and the next command goes on from the version after it", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1", PROLOGUE);
     const body = played((await preset(server, "acc-1", { archetype: "water", age: 0, home: "makoko", basedOn: 0 })).body);
@@ -69,7 +69,7 @@ describe("the preset played by the server", () => {
     expect((await send(server, "acc-1", restMonth({ v: body.stepped }))).body).toMatchObject({ ok: true });
   });
 
-  test("[R-SERVER-046] [R-PROLOGUE-013] given the door's age step and home, when the preset is played, then the life starts at the tile's own year and the steps older, in the home picked", async () => {
+  test("[server:server-plays-prologue-preset] [prologue:front-door-three-screens] given the door's age step and home, when the preset is played, then the life starts at the tile's own year and the steps older, in the home picked", async () => {
     const plain = testServer();
     await newLife(plain, "acc-1", PROLOGUE);
     const own = played((await preset(plain, "acc-1", { archetype: "shop-worker", age: 0, home: "family-house", basedOn: 0 })).body);
@@ -83,7 +83,7 @@ describe("the preset played by the server", () => {
     expect(own.view.home.place).not.toBe("place.hostel-room");
   });
 
-  test("[R-SERVER-046] given an answer refused after some steps, when the preset is played, then the steps before it stand and are committed, and the reply carries the refusal with the view after them", async () => {
+  test("[server:server-plays-prologue-preset] given an answer refused after some steps, when the preset is played, then the steps before it stand and are committed, and the reply carries the refusal with the view after them", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1", PROLOGUE);
     let asked = 0;
@@ -105,7 +105,7 @@ describe("the preset played by the server", () => {
     expect(played((await preset(server, "acc-1", { ...DEVELOPER, basedOn: 3 })).body).view.prologue).toBeNull();
   });
 
-  test("[R-SERVER-046] [R-SERVER-002] given the first answer refused, when the preset is played, then nothing is written and the refusal comes back with the clock, as a command's", async () => {
+  test("[server:server-plays-prologue-preset] [server:one-command-one-transaction] given the first answer refused, when the preset is played, then nothing is written and the refusal comes back with the clock, as a command's", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1", PROLOGUE);
     const before = await held(server, character);
@@ -114,7 +114,7 @@ describe("the preset played by the server", () => {
     expect(await held(server, character)).toEqual(before);
   });
 
-  test("[R-SERVER-046] [R-ENGINE-003] given a preset based on a version that is not the stored one, when it is sent, then it is refused stale with the clock and nothing is written", async () => {
+  test("[server:server-plays-prologue-preset] [engine:stale-commands-rejected] given a preset based on a version that is not the stored one, when it is sent, then it is refused stale with the clock and nothing is written", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1", PROLOGUE);
     const before = await held(server, character);
@@ -126,14 +126,14 @@ describe("the preset played by the server", () => {
     }
   });
 
-  test("[R-SERVER-046] given no session, or an account with no character, when the preset is sent, then it is refused signed-out or no-character", async () => {
+  test("[server:server-plays-prologue-preset] given no session, or an account with no character, when the preset is sent, then it is refused signed-out or no-character", async () => {
     const server = testServer();
     expect(await preset(server, null, { ...DEVELOPER, basedOn: 0 })).toMatchObject({ status: 401, body: { code: "signed-out" } });
     await signUp(server, "acc-1");
     expect(await preset(server, "acc-1", { ...DEVELOPER, basedOn: 0 })).toMatchObject({ status: 404, body: { ok: false, code: "no-character" } });
   });
 
-  test("[R-SERVER-046] given a character past its prologue, when the preset is sent, then it is refused not-legal and nothing is written", async () => {
+  test("[server:server-plays-prologue-preset] given a character past its prologue, when the preset is sent, then it is refused not-legal and nothing is written", async () => {
     const server = testServer();
     const fixed = await newLife(server, "acc-1", "scenario.ada");
     const before = await held(server, fixed);
@@ -147,7 +147,7 @@ describe("the preset played by the server", () => {
     expect(await held(done, character)).toEqual(after);
   });
 
-  test("[R-SERVER-046] given a tile no one has, an age step or a home the door does not offer, or a body that is not a preset, when it is sent, then it is refused not-legal before anything is read", async () => {
+  test("[server:server-plays-prologue-preset] given a tile no one has, an age step or a home the door does not offer, or a body that is not a preset, when it is sent, then it is refused not-legal before anything is read", async () => {
     const server = testServer();
     const character = await newLife(server, "acc-1", PROLOGUE);
     const before = await held(server, character);
@@ -169,7 +169,7 @@ describe("the preset played by the server", () => {
     expect(await held(server, character)).toEqual(before);
   });
 
-  test("[R-SERVER-046] [R-SERVER-025] given an account at two commands in ten seconds, when Begin makes the life and the whole preset is played, then the preset counted once: the next command is refused 429", async () => {
+  test("[server:server-plays-prologue-preset] [server:per-account-rate-limits] given an account at two commands in ten seconds, when Begin makes the life and the whole preset is played, then the preset counted once: the next command is refused 429", async () => {
     const config = testConfig({ testing: { testLogin: true }, limits: { commandsPer10s: 2 } });
     const server = testServer({ config, now: () => epoch, limits: memoryLimiters(config.limits, () => epoch) });
     await newLife(server, "acc-1", PROLOGUE);
@@ -180,7 +180,7 @@ describe("the preset played by the server", () => {
     expect(over.body).toMatchObject({ ok: false, code: "rate-limited" });
   });
 
-  test("[R-SERVER-046] given limits.presetSteps, then it is twenty, and a preset stops there with the steps played standing", async () => {
+  test("[server:server-plays-prologue-preset] given limits.presetSteps, then it is twenty, and a preset stops there with the steps played standing", async () => {
     expect(productionConfig.limits.presetSteps).toBe(20);
     const config = testConfig({ testing: { testLogin: true }, limits: { presetSteps: 4 } });
     const server = testServer({ config });

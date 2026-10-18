@@ -1,6 +1,6 @@
-// Loading a character under its lock (docs/rules/server.md R-SERVER-003,
-// R-SERVER-004, R-SERVER-020, R-SERVER-021, R-SERVER-024; clock.md
-// R-CLOCK-017): the latest snapshot, the log after it replayed against the
+// Loading a character under its lock (server:log-rows-hash-state,
+// server:snapshots-bound-replay, server:save-is-list-of-segments, server:newer-content-upgrades-state, server:overlay-change-opens-segment; clock.md
+// clock:command-uses-stamped-tick): the latest snapshot, the log after it replayed against the
 // stored world of each row's tick, the hash compared with the last row's, and
 // the state carried to the current content when its segment names another.
 import type { Command, Content, ReportLine, Sender, State, StepResult, World } from "@japacity/sim";
@@ -18,25 +18,25 @@ export interface Live {
   storedV: number;
   content: Content;
   state: State;
-  /** R-SERVER-011: the state as loaded, before this transaction's commands, for the money report's mark. */
+  /** server:daily-money-report: the state as loaded, before this transaction's commands, for the money report's mark. */
   loaded: State;
   refilledAt: number;
   storedRefilledAt: number;
   /** The segment new rows belong to. */
   segment: number;
-  /** R-SERVER-021, R-SERVER-024: the segment opened at this load, with its base snapshot. */
+  /** server:newer-content-upgrades-state, server:overlay-change-opens-segment: the segment opened at this load, with its base snapshot. */
   opened: { segment: SegmentRow; base: SnapshotRow } | null;
   rows: LogRow[];
   snapshots: SnapshotRow[];
   /**
-   * R-LOTTERY-017, R-SERVER-019: the report lines of the rows its player did
+   * lottery:payment-waits-for-away-player, server:client-never-predicts: the report lines of the rows its player did
    * not send (the authority's and the stand-in's), from the replayed tail and
    * this transaction, by the version each row made, for the view's reply.
    */
   sentFor: { v: number; lines: ReportLine[] }[];
 }
 
-/** R-SERVER-003: why a load was refused. */
+/** server:log-rows-hash-state: why a load was refused. */
 export interface Diverged {
   character: string;
   account: string;
@@ -46,15 +46,15 @@ export interface Diverged {
 
 export type Loaded = { ok: true; live: Live } | { ok: false; diverged: Diverged };
 
-/** R-SERVER-023: the bundled content a segment names, by version and overlay. */
+/** server:older-contents-bundled: the bundled content a segment names, by version and overlay. */
 export function contentNamed(contents: Contents, version: string, overlay: string | undefined): Content {
   const found = namedContent(contents, version, overlay);
-  // A segment under a content the server no longer bundles cannot be replayed; R-SERVER-023's sweep is meant to leave none.
+  // A segment under a content the server no longer bundles cannot be replayed; server:older-contents-bundled's sweep is meant to leave none.
   if (found === null) throw new Error(`The server bundles no content ${version} under overlay ${overlay ?? "none"}.`);
   return found;
 }
 
-/** R-SERVER-020: the segment in force. */
+/** server:save-is-list-of-segments: the segment in force. */
 function segmentOf(held: Held): SegmentRow {
   const segment = held.segments.find((each) => each.segment === held.character.segment);
   if (segment === undefined) throw new Error(`Character ${held.character.id} has no row for its segment ${String(held.character.segment)}.`);
@@ -65,7 +65,7 @@ const sameContent = (a: Content, b: Content) => a.version === b.version && a.ove
 
 const checked = new WeakMap<Content, string[]>();
 
-/** R-SERVER-021: `checkContent` once for each content object the isolate holds. */
+/** server:newer-content-upgrades-state: `checkContent` once for each content object the isolate holds. */
 function contentProblems(content: Content): string[] {
   const known = checked.get(content);
   if (known !== undefined) return known;
@@ -78,13 +78,13 @@ function overlayOf(content: Content): { overlay?: string } {
   return content.overlay === undefined ? {} : { overlay: content.overlay };
 }
 
-/** R-SERVER-004: a snapshot of `state` in `segment`, named by the content it runs under. */
+/** server:snapshots-bound-replay: a snapshot of `state` in `segment`, named by the content it runs under. */
 export function snapshotOf(character: string, segment: number, content: Content, state: State): SnapshotRow {
   return { character, v: state.v, segment, content: content.version, ...overlayOf(content), state };
 }
 
 /**
- * R-SERVER-003, R-SERVER-021: replays the held tail under the segment's own
+ * server:log-rows-hash-state, server:newer-content-upgrades-state: replays the held tail under the segment's own
  * content and checks the hash, then carries the state to the current content
  * when the segment names another (opening a segment with that state as its
  * base). A tail row the replay rejects, or a hash that differs, is `diverged`.
@@ -145,7 +145,7 @@ export function load(held: Held, contents: Contents, worlds: ReadonlyMap<number,
 }
 
 /**
- * R-SERVER-002, R-SERVER-003, R-SERVER-004: steps one command for a live
+ * server:one-command-one-transaction, server:log-rows-hash-state, server:snapshots-bound-replay: steps one command for a live
  * character against `world`, and on acceptance keeps its log row (with the
  * hash after it) and a snapshot when the version is a multiple of
  * `snapshotEvery`.

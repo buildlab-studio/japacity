@@ -1,5 +1,5 @@
-// The money report (R-SERVER-011) and the alarms the same job finds
-// (R-SERVER-012, R-LOTTERY-014). A character's mark holds its totals with the
+// The money report (server:daily-money-report) and the alarms the same job finds
+// (server:ledger-alarm-lists-suspects, lottery:money-report-checks-draws). A character's mark holds its totals with the
 // transfers left out, as `ledgerReport` gives them; the day's totals are the
 // differences between marks.
 import type { Alarm } from "@japacity/api";
@@ -14,7 +14,7 @@ import { contentNamed, stateNow } from "./replay";
 type MoneyDeps = Pick<ServerDeps, "config" | "contents" | "stores">;
 type Totals = WalletSlice["totals"];
 
-/** R-LOTTERY-002: draw `n` sells from tick 14n and closes when tick 14(n + 1) begins. */
+/** lottery:draw-sells-between-ticks: draw `n` sells from tick 14n and closes when tick 14(n + 1) begins. */
 export const TICKS_PER_DRAW = 14;
 
 function contentOf(deps: Pick<ServerDeps, "contents">, state: State): Content {
@@ -47,7 +47,7 @@ function less(now: Totals["in"], before: Totals["in"] | undefined): ByReason {
 }
 
 /**
- * R-SERVER-011, R-SERVER-002: the core calls this after every commit with the
+ * server:daily-money-report, server:one-command-one-transaction: the core calls this after every commit with the
  * state the transaction loaded, before this commit's commands, and the UTC day
  * of the commit. On a character's first commit of a day it closes the day of
  * its last mark: what the character made since that mark goes to that day,
@@ -59,7 +59,7 @@ export async function markAfterCommit(deps: Pick<ServerDeps, "contents" | "store
   // Most commits are not a day's first: one read settles them, and only a day's first opens a transaction.
   const seen = await deps.stores.ledger.mark(character);
   if (seen !== null && seen.day >= day) return;
-  // R-SERVER-011: the day's totals and the mark move in one transaction, read again inside it.
+  // server:daily-money-report: the day's totals and the mark move in one transaction, read again inside it.
   await deps.stores.ledger.transaction(async (ledger) => {
     const mark = await ledger.mark(character);
     if (mark !== null && mark.day >= day) return;
@@ -77,12 +77,12 @@ export interface MoneyDay {
   closed: string[];
   /** The characters the report could not read, and why. */
   skipped: { character: string; why: string }[];
-  /** R-SERVER-012: what the report found; the job raises them. */
+  /** server:ledger-alarm-lists-suspects: what the report found; the job raises them. */
   alarms: Alarm[];
 }
 
 /**
- * R-SERVER-011, R-SERVER-012: for every character that logged a command on the
+ * server:daily-money-report, server:ledger-alarm-lists-suspects: for every character that logged a command on the
  * day (the isolate's list unless the caller reads the log), adds what it made since its last mark to the day's totals and moves the
  * mark to the next day, and lists every alarm `ledgerReport` raises on it.
  */
@@ -107,7 +107,7 @@ export async function moneyReport(deps: MoneyDeps, day: number, active: readonly
     const report = ledgerReport(now.value.state, now.value.content);
     for (const alarm of report.alarms) result.alarms.push({ kind: "suspect", day, character, ...alarm });
 
-    // R-SERVER-011: the day's totals and the mark move in one transaction, so a failure between the
+    // server:daily-money-report: the day's totals and the mark move in one transaction, so a failure between the
     // two writes keeps neither and a rerun of the job adds the day once.
     const totals: Totals = { in: report.created, out: report.destroyed };
     const closed = await deps.stores.ledger.transaction(async (ledger) => {
@@ -122,7 +122,7 @@ export async function moneyReport(deps: MoneyDeps, day: number, active: readonly
   return result;
 }
 
-/** The draws that close within the UTC day (R-LOTTERY-002). */
+/** The draws that close within the UTC day (lottery:draw-sells-between-ticks). */
 export function drawsClosingOn(deps: Pick<ServerDeps, "config">, day: number): number[] {
   const { epoch, worldTickMs } = deps.config.clock;
   const drawMs = TICKS_PER_DRAW * worldTickMs;
@@ -147,11 +147,11 @@ function housePart(prize: object): number {
 }
 
 /**
- * R-LOTTERY-014: checks every draw that closed on the day and has a result.
+ * lottery:money-report-checks-draws: checks every draw that closed on the day and has a result.
  * A `win` belongs to the draw its `lottery/pay` command names; a `ticket` to
  * the draw on sale at the tick its `lottery/buy` was stepped at. All are read
  * from the logs of the characters on the draw's ticket list. The `win` paid
- * must be what R-LOTTERY-011 gives the result, `pot-top-up` must be 0
+ * must be what lottery:fixed-prizes-shared-jackpot gives the result, `pot-top-up` must be 0
  * (decision 0016), and the tickets taken must be the sales: the tickets sold
  * at the current price.
  */

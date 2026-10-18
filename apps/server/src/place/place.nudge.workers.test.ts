@@ -17,7 +17,7 @@ suiteForPresenceStore(() => Promise.resolve(placePresenceStore(freshRooms())));
 suiteForNudgeBus(() => Promise.resolve(placeNudgeBus(freshRooms(), () => Promise.resolve(PLACE))));
 
 describe("the nudge bus over the place objects", () => {
-  test("[R-CLOCK-020] given an account with sockets in two rooms of its place, when it is nudged, then both sockets get it and no one else does", async () => {
+  test("[clock:socket-only-nudges] given an account with sockets in two rooms of its place, when it is nudged, then both sockets get it and no one else does", async () => {
     const rooms = freshRooms({ maxPerObject: 1 });
     const home = await openMember(rooms, "account-1", PLACE, "socket-a");
     const other = await openMember(rooms, "account-2");
@@ -33,7 +33,7 @@ describe("the nudge bus over the place objects", () => {
     expect(other.texts).toEqual([]);
   });
 
-  test("[R-CLOCK-020] given sockets that get every kind of nudge and a presence window, when every text they received is read, then each is one of the three nudges and carries no state", async () => {
+  test("[clock:socket-only-nudges] given sockets that get every kind of nudge and a presence window, when every text they received is read, then each is one of the three nudges and carries no state", async () => {
     const rooms = freshRooms();
     const first = await openMember(rooms, "account-1");
     const second = await openMember(rooms, "account-2");
@@ -55,7 +55,7 @@ describe("the nudge bus over the place objects", () => {
     expect(first.texts.filter((text) => text !== PONG).slice(0, sent.length).map(readNudge)).toEqual(sent);
   });
 
-  test("[R-CLOCK-022] given an account whose place is unknown, when it is nudged, then the nudge is dropped without an error", async () => {
+  test("[clock:nudges-are-best-effort] given an account whose place is unknown, when it is nudged, then the nudge is dropped without an error", async () => {
     const rooms = freshRooms();
     const client = await openMember(rooms, "account-1");
     const bus = placeNudgeBus(rooms, () => Promise.resolve(null));
@@ -65,7 +65,7 @@ describe("the nudge bus over the place objects", () => {
     expect(client.texts).toEqual([]);
   });
 
-  test("[R-CLOCK-022] given a place lookup that fails, when an account is nudged, then the send still resolves", async () => {
+  test("[clock:nudges-are-best-effort] given a place lookup that fails, when an account is nudged, then the send still resolves", async () => {
     const bus = placeNudgeBus(freshRooms(), () => Promise.reject(new Error("database down")));
 
     await expect(bus.send("account-1", { nudge: "view", v: 1 })).resolves.toBeUndefined();

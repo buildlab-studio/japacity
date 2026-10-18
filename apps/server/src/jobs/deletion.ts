@@ -1,4 +1,4 @@
-// R-ACCOUNT-017, 018: the deletion job. Removes everything a due deletion
+// account:deleted-data-removed-within-month, account:deletion-keeps-anonymous-totals: the deletion job. Removes everything a due deletion
 // names, then keeps only the hash and the dates. Runs from the daily cron.
 import type { Auth } from "../auth/auth";
 import { pruneLimitRows } from "../auth/hooks";
@@ -18,7 +18,7 @@ async function removeAuthUser(auth: Auth, account: string): Promise<void> {
 
 /**
  * Runs every deletion due at `deps.now()` and returns how many completed.
- * Never touches the audit store, the day totals or the draws. R-MODERATION-008:
+ * Never touches the audit store, the day totals or the draws. moderation:reports-hold-cited-records:
  * what a report holds (its messages, its pair record) is kept past the removal.
  */
 export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number> {
@@ -32,7 +32,7 @@ export async function runDeletions(deps: ServerDeps, auth: Auth): Promise<number
     await forgetPairs(deps, account, character);
     if (character !== null) await deps.stores.player.remove(character);
     await deps.stores.push.forget(account);
-    // R-ACCOUNT-033: the dedication light goes with the account (the database's foreign key does it too).
+    // account:name-a-light-for-yours: the dedication light goes with the account (the database's foreign key does it too).
     await deps.stores.dedication.putOut(account);
     await deps.stores.account.remove(account);
     await removeAuthUser(auth, account);

@@ -1,5 +1,4 @@
-// The Friday draw on the server (docs/rules/lottery.md R-LOTTERY-007 to 013,
-// 015, 017): open a draw with its fingerprint, beacon round, odds and jackpot,
+// The Friday draw on the server (lottery:fingerprint-commits-secret, lottery:ticket-list-frozen-anonymously, lottery:seed-from-secret-and-beacon, lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:winners-paid-by-authority, lottery:result-published-in-tick-row, lottery:payment-waits-for-away-player): open a draw with its fingerprint, beacon round, odds and jackpot,
 // freeze the list at the close, take the beacon's randomness, read every
 // ticket with the simulation's public function, pay each winner as the
 // authority, then publish the result.
@@ -14,35 +13,35 @@ import { lotteryOdds } from "../switches/dials";
 import type { Beacon } from "./beacon";
 import { roundAfter } from "./beacon";
 
-/** R-LOTTERY-002, R-CLOCK-002: draw `n` sells from tick `14n` and closes when tick `14(n + 1)` begins. */
+/** lottery:draw-sells-between-ticks, clock:world-tick-length-and-epoch: draw `n` sells from tick `14n` and closes when tick `14(n + 1)` begins. */
 export const TICKS_PER_DRAW = 14;
 
-/** R-LOTTERY-007: 256 bits, the figure config's `lottery.secretBits` also holds; this constant is the one read. */
+/** lottery:fingerprint-commits-secret: 256 bits, the figure config's `lottery.secretBits` also holds; this constant is the one read. */
 export const SECRET_BYTES = 32;
 
-/** A token is the first 16 hex digits of the HMAC (R-LOTTERY-008). */
+/** A token is the first 16 hex digits of the HMAC (lottery:ticket-list-frozen-anonymously). */
 const TOKEN_DIGITS = 16;
 
-/** The draw's beacon, passed in so a test can hand in its own. The tokens' HMAC key is `secrets.drawTokenKey` (R-SERVER-015, R-SERVER-016). */
+/** The draw's beacon, passed in so a test can hand in its own. The tokens' HMAC key is `secrets.drawTokenKey` (server:secrets-stay-on-server, server:hidden-values-made-once). */
 export interface DrawKeys {
   beacon: Beacon;
 }
 
-/** R-LOTTERY-002: the draw on sale at a tick. */
+/** lottery:draw-sells-between-ticks: the draw on sale at a tick. */
 export function drawOn(tick: number): number {
   return int.divFloor(tick, TICKS_PER_DRAW);
 }
 
-/** R-LOTTERY-002: the tick whose start closes draw `n`. */
+/** lottery:draw-sells-between-ticks: the tick whose start closes draw `n`. */
 export function closesTickOf(draw: number): number {
   return TICKS_PER_DRAW * (draw + 1);
 }
 
-/** R-LOTTERY-007: the fingerprint is the simulation's, so the client's draw page checks it the same way. */
+/** lottery:fingerprint-commits-secret: the fingerprint is the simulation's, so the client's draw page checks it the same way. */
 export { fingerprintOf };
 
 /**
- * R-LOTTERY-008: the first 16 hex digits of the HMAC-SHA-256 of the account id
+ * lottery:ticket-list-frozen-anonymously: the first 16 hex digits of the HMAC-SHA-256 of the account id
  * and the draw number under the server's key.
  * The message is the account id, a colon and the draw number in decimal, as UTF-8.
  */
@@ -54,11 +53,11 @@ export async function tokenOf(key: string, account: string, draw: number): Promi
   return toHex(new Uint8Array(mac)).slice(0, TOKEN_DIGITS);
 }
 
-/** R-LOTTERY-008: the list's hash is the simulation's, so the client's draw page recomputes it the same way. */
+/** lottery:ticket-list-frozen-anonymously: the list's hash is the simulation's, so the client's draw page recomputes it the same way. */
 export { listHashOf };
 
 /**
- * R-LOTTERY-008: the frozen list's tokens in ticket order.
+ * lottery:ticket-list-frozen-anonymously: the frozen list's tokens in ticket order.
  * A ticket whose character is gone (an account deleted) has no account id left to hash; its token is made from the character id instead. The first close stores the list (`listOf`), so the published list stays fixed whatever is deleted afterwards.
  */
 async function tokensOf(deps: Pick<ServerDeps, "stores">, key: string, draw: number, tickets: readonly TicketRow[]): Promise<string[]> {
@@ -95,7 +94,7 @@ export async function storedBefore(world: Pick<WorldStore, "draw">, draw: number
 }
 
 /**
- * R-LOTTERY-007, R-LOTTERY-012, R-LOTTERY-021: stores draw `n` with a fresh
+ * lottery:fingerprint-commits-secret, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open: stores draw `n` with a fresh
  * 256-bit secret, its fingerprint, the first beacon round after its close,
  * the odds the private settings hold now, and the jackpot standing, all fixed
  * for the draw. A draw already stored is returned as it is, so opening twice
@@ -125,10 +124,10 @@ export async function openDraw(deps: DrawDeps, beacon: Pick<Beacon, "genesis" | 
 export type Closed = { kind: "drawn"; result: LotteryResult } | { kind: "waiting"; why: string };
 
 /**
- * R-LOTTERY-010 to 012, R-LOTTERY-021: the published result of a frozen list
+ * lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:odds-fixed-at-draw-open: the published result of a frozen list
  * under the given randomness, at the odds and jackpot the draw opened with.
  * Every ticket is read alone; the jackpot rolls on by the draw's sales, the
- * tickets sold at `ticket` each. `forced` is R-LOTTERY-012's forced win.
+ * tickets sold at `ticket` each. `forced` is lottery:jackpot-rolls-over's forced win.
  */
 export function resultOf(row: DrawRow, tokens: readonly string[], beaconRandomness: string, ticket: number, forced = false): LotteryResult {
   const listHash = listHashOf(tokens);
@@ -139,7 +138,7 @@ export function resultOf(row: DrawRow, tokens: readonly string[], beaconRandomne
 }
 
 /**
- * R-LOTTERY-012: whether draw `row` is a forced win: its odds name
+ * lottery:jackpot-rolls-over: whether draw `row` is a forced win: its odds name
  * `forcedWinWeeks`, and that many draws, this one counted, have passed since
  * the last hit, read from the stored results before it.
  * With no hit stored, the draws are counted from the first stored one.
@@ -159,7 +158,7 @@ export async function forcedWin(world: Pick<WorldStore, "draw">, row: DrawRow): 
 export type Prize = { tier: "jackpot" | "mid" | "small"; amount: number };
 
 /**
- * R-LOTTERY-011, R-LOTTERY-013: each winning character's prizes, one entry per
+ * lottery:fixed-prizes-shared-jackpot, lottery:winners-paid-by-authority: each winning character's prizes, one entry per
  * winning ticket, in ascending character id order. Zero-kobo prizes are left out.
  */
 function prizesByCharacter(result: LotteryResult, tickets: readonly TicketRow[]): [string, Prize[]][] {
@@ -177,7 +176,7 @@ function prizesByCharacter(result: LotteryResult, tickets: readonly TicketRow[])
 }
 
 /**
- * R-LOTTERY-008: the published list of a frozen draw. The first close stores
+ * lottery:ticket-list-frozen-anonymously: the published list of a frozen draw. The first close stores
  * it, so a later run and the draw page read the same list whatever is deleted afterwards.
  */
 async function listOf(deps: ServerDeps, row: DrawRow, tickets: readonly TicketRow[]): Promise<string[]> {
@@ -192,7 +191,7 @@ async function listOf(deps: ServerDeps, row: DrawRow, tickets: readonly TicketRo
 }
 
 /**
- * R-LOTTERY-008 to 013, R-LOTTERY-015, R-LOTTERY-017: closes draw `n` once its
+ * lottery:ticket-list-frozen-anonymously, lottery:seed-from-secret-and-beacon, lottery:ticket-result-is-public-function, lottery:fixed-prizes-shared-jackpot, lottery:jackpot-rolls-over, lottery:winners-paid-by-authority, lottery:result-published-in-tick-row, lottery:payment-waits-for-away-player: closes draw `n` once its
  * close tick has begun. Freezes the list, reads the beacon round, draws, pays
  * each winner by one `lottery/pay` as the authority, and stores the result
  * only after every payment is committed. Safe to run again at any point: a

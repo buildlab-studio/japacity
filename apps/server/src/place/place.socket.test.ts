@@ -15,7 +15,7 @@ const MEMBER: Attachment = {
 };
 
 describe("the place object's plain parts", () => {
-  test("[R-CLOCK-029] given rooms at, under and over the cap, when a room is picked, then it is the fullest with space, else the next room", () => {
+  test("[clock:busy-place-splits-rooms] given rooms at, under and over the cap, when a room is picked, then it is the fullest with space, else the next room", () => {
     expect(pickRoom([0], 3)).toBe(0);
     expect(pickRoom([3, 0], 3)).toBe(1);
     expect(pickRoom([3, 2, 1, 0], 3)).toBe(1);
@@ -25,7 +25,7 @@ describe("the place object's plain parts", () => {
     expect(pickRoom([], 3)).toBe(0);
   });
 
-  test("[R-CLOCK-029] given every list of up to four rooms of up to three members, when a room is picked, then it has space and no room with space is fuller", () => {
+  test("[clock:busy-place-splits-rooms] given every list of up to four rooms of up to three members, when a room is picked, then it has space and no room with space is fuller", () => {
     const max = 3;
     let lists: number[][] = [[]];
     for (let length = 1; length <= 4; length++) {
@@ -39,12 +39,12 @@ describe("the place object's plain parts", () => {
     }
   });
 
-  test("[R-CLOCK-029] given a place, when its rooms are named, then each number is its own object and the scope comes first", () => {
+  test("[clock:busy-place-splits-rooms] given a place, when its rooms are named, then each number is its own object and the scope comes first", () => {
     expect(roomName("", "place.agege", 0)).toBe("place.agege#0");
     expect(roomName("test-1/", "place.agege", 2)).toBe("test-1/place.agege#2");
   });
 
-  test("[R-CLOCK-026] given an attachment, when it is sent as text and read back, then it is the same, and a malformed one is refused", () => {
+  test("[clock:attachments-rebuild-presence] given an attachment, when it is sent as text and read back, then it is the same, and a malformed one is refused", () => {
     const listener: Attachment = { kind: "listener", socket: "socket-2", account: "account-2" };
 
     expect(parseAttachment(JSON.stringify(MEMBER))).toEqual(MEMBER);
@@ -58,11 +58,11 @@ describe("the place object's plain parts", () => {
     expect(parseLimits("{}")).toBeNull();
   });
 
-  test("[R-CLOCK-020] given a socket's attachment, when it is tagged, then a nudge can find it by account and a leave by socket", () => {
+  test("[clock:socket-only-nudges] given a socket's attachment, when it is tagged, then a nudge can find it by account and a leave by socket", () => {
     expect(tagsFor(MEMBER)).toEqual(["member", "account:account-1", "socket:socket-1"]);
   });
 
-  test("[R-CLOCK-020] given each kind of nudge, when it is written and read back, then it is the nudge itself and nothing more", () => {
+  test("[clock:socket-only-nudges] given each kind of nudge, when it is written and read back, then it is the nudge itself and nothing more", () => {
     const nudges: Nudge[] = [{ nudge: "view", v: 3 }, { nudge: "messages" }, { nudge: "presence" }];
     for (const nudge of nudges) expect(readNudge(nudgeText(nudge))).toEqual(nudge);
     expect(nudgeText({ nudge: "view", v: 3, state: { cash: 1 } } as unknown as Nudge)).toBe('{"nudge":"view","v":3}');
@@ -72,11 +72,11 @@ describe("the place object's plain parts", () => {
     expect(readNudge("pong")).toBeNull();
   });
 
-  test("[R-CLOCK-028] given the production config, when the object's window is read, then it is the configured presence window", () => {
+  test("[clock:presence-is-a-sample] given the production config, when the object's window is read, then it is the configured presence window", () => {
     expect(NUDGE_EVERY_MS).toBe(productionConfig.presence.nudgeEveryMs);
   });
 
-  test("[R-ACCOUNT-008] given a request, when its country is read, then Cloudflare's own property wins over the header", () => {
+  test("[account:country-comes-from-cloudflare] given a request, when its country is read, then Cloudflare's own property wins over the header", () => {
     const withHeader = new Request("https://server/api/place/x", { headers: { "cf-ipcountry": "GB" } });
     const withProperty = Object.assign(new Request("https://server/api/place/x", { headers: { "cf-ipcountry": "GB" } }), { cf: { country: "NG" } });
 

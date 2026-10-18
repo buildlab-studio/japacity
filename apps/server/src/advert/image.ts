@@ -1,4 +1,4 @@
-// R-ADVERT-004: what an image is, read from its own bytes. Only one still PNG,
+// advert:one-labelled-still-image: what an image is, read from its own bytes. Only one still PNG,
 // JPEG or WebP is an advert; an animated one is refused.
 import type { CreativeFile } from "@japacity/store";
 

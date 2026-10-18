@@ -1,4 +1,4 @@
-// What follows a commit (docs/rules/server.md R-SERVER-002, R-SERVER-003):
+// What follows a commit (server:one-command-one-transaction, server:log-rows-hash-state):
 // the nudge, never inside the transaction, and the queue for the rollback
 // tool when a load diverged.
 import type { Sender } from "@japacity/sim";
@@ -13,11 +13,11 @@ import { noteFigures } from "../boards/figures";
 import type { Diverged, Live } from "./load";
 
 /**
- * R-SERVER-002, R-CLOCK-020: runs after the commit. A character whose state
+ * server:one-command-one-transaction, clock:socket-only-nudges: runs after the commit. A character whose state
  * moved without its player sending the command is nudged with its new version.
- * R-CLOCK-031: every held character's fill is noted. R-SERVER-011: every
+ * clock:full-bank-push-notification: every held character's fill is noted. server:daily-money-report: every
  * character that logged a row has its money mark kept, from the state it was
- * loaded with, on the UTC day of the commit. city.md R-CITY-039: its board figure is written.
+ * loaded with, on the UTC day of the commit. city:boards-switch-when-and-who: its board figure is written.
  */
 export async function afterCommit(deps: ServerDeps, lives: readonly Live[], by: Sender): Promise<void> {
   const day = time.utcDay(deps.now());
@@ -35,7 +35,7 @@ export async function afterCommit(deps: ServerDeps, lives: readonly Live[], by: 
 export const DIVERGED_NOTE = "diverged:";
 
 /**
- * R-SERVER-003, R-SERVER-008, R-SERVER-012: queues a diverged character for
+ * server:log-rows-hash-state, server:rollback-check-finds-divergence, server:ledger-alarm-lists-suspects: queues a diverged character for
  * the rollback tool as an audit entry with no rows, its note starting
  * `diverged:`, and raises the admin alarm. The same divergence is queued and
  * raised once however often the player retries.

@@ -1,4 +1,4 @@
-// R-MODERATION-008, R-MODERATION-014 to 019: an admin closes a report or
+// moderation:reports-hold-cited-records, moderation:fixed-admin-actions, moderation:admin-actions-logged-append-only, moderation:actioned-player-told-and-appeals, moderation:upheld-underage-closes-account, moderation:ban-survives-as-hash and moderation:rollback-through-admin-view: an admin closes a report or
 // decides an appeal; every action is logged first, a close lifts the hold,
 // and a ban bars the sign-in identities and ends every session.
 import { ACTION_MAX_DAYS, REPORT_ACTIONS, REPORT_REASONS, TOLD_ACTIONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
@@ -25,7 +25,7 @@ const NAME_DRAWS = 8;
 /** Actions that need the subject to be an account, not an advert's campaign. */
 const ON_ACCOUNT: readonly ReportAction[] = ["warn", "mute", "suspend", "ban", "reset-name", "rollback"];
 
-/** R-MODERATION-017: an upheld `underage` report closes the account; a lesser action does not uphold it. */
+/** moderation:upheld-underage-closes-account: an upheld `underage` report closes the account; a lesser action does not uphold it. */
 const NOT_FOR_UNDERAGE: readonly ReportAction[] = ["warn", "mute", "suspend", "reset-name"];
 
 const MAX_NOTE = 1000;
@@ -66,7 +66,7 @@ async function write(deps: ServerDeps, entry: Omit<ModerationLogEntry, "id">): P
   return written.value;
 }
 
-/** R-MODERATION-014 to 019: closes a report with one action. */
+/** moderation:fixed-admin-actions, moderation:admin-actions-logged-append-only, moderation:actioned-player-told-and-appeals, moderation:upheld-underage-closes-account, moderation:ban-survives-as-hash and moderation:rollback-through-admin-view: closes a report with one action. */
 export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admin: string, id: string, body: unknown): Promise<Decided> {
   const report = await ports.reports.get(id);
   if (report === null) return refused(404, "unknown-id", `No report ${id}.`);
@@ -97,7 +97,7 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
   const entry = await write(deps, { admin, at: deps.now(), item: report.id, action: act, params, ...common });
 
   if (act === "rollback" && account !== null) {
-    // R-MODERATION-019: the tool opens on the one account; the report stays open and held.
+    // moderation:rollback-through-admin-view: the tool opens on the one account; the report stays open and held.
     const row = await deps.stores.account.get(account);
     return { ok: true, entry, rollback: row?.character === null || row === null ? { ok: false, code: "missing", detail: `Account ${account} has no character.` } : await rollbackCheck(deps, row.character) };
   }
@@ -117,7 +117,7 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
 }
 
 /**
- * Draws a generated name until one is free; an account already gone needs none (R-MODERATION-014 `reset-name`).
+ * Draws a generated name until one is free; an account already gone needs none (moderation:fixed-admin-actions `reset-name`).
  * The change time is cleared, so the reset never costs the player their own rename.
  */
 async function resetName(deps: ServerDeps, account: string): Promise<void> {
@@ -128,7 +128,7 @@ async function resetName(deps: ServerDeps, account: string): Promise<void> {
   throw new Error(`No free generated name for ${account} after ${String(NAME_DRAWS)} draws.`);
 }
 
-/** R-MODERATION-016: decides an appeal, by an admin other than the one who acted when there is more than one. */
+/** moderation:actioned-player-told-and-appeals: decides an appeal, by an admin other than the one who acted when there is more than one. */
 export async function decideAppeal(deps: ServerDeps, admin: string, id: string, body: unknown): Promise<Decided> {
   const appeal = await deps.stores.appeals.get(id);
   if (appeal === null) return refused(404, "unknown-id", `No appeal ${id}.`);
@@ -141,14 +141,14 @@ export async function decideAppeal(deps: ServerDeps, admin: string, id: string, 
   const acted = await deps.stores.moderationLog.get(appeal.entry);
   if (acted !== null && acted.admin === admin && deps.config.admin.accounts.length > 1) return refused(403, "not-yours", "Another admin decides an appeal against your own action.");
 
-  // R-MODERATION-014 has no action for deciding an appeal; it is logged as `dismiss` on the appeal, with the outcome in its parameters.
+  // moderation:fixed-admin-actions has no action for deciding an appeal; it is logged as `dismiss` on the appeal, with the outcome in its parameters.
   const entry = await write(deps, { admin, at: deps.now(), item: appeal.id, action: "dismiss", params: { account: appeal.account, entry: appeal.entry, outcome }, ...common });
   const decided = await deps.stores.appeals.decide(appeal.id, { outcome, by: admin, at: deps.now() });
   if (!decided.ok) return refused(409, "ended", decided.detail);
   return { ok: true, entry, appeal: decided.value };
 }
 
-/** R-MODERATION-016: a player appeals one action taken on their own account, once. */
+/** moderation:actioned-player-told-and-appeals: a player appeals one action taken on their own account, once. */
 export async function fileAppeal(deps: ServerDeps, account: string, body: unknown): Promise<{ ok: true; appeal: AppealRow } | { ok: false; status: 400 | 404 | 409; code: ServerCode; detail: string }> {
   const action = asObject(body).action;
   if (typeof action !== "string") return { ok: false, status: 400, code: "not-legal", detail: "action names the action appealed." };

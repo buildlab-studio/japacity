@@ -1,6 +1,6 @@
-// `POST /api/character` (docs/rules/server.md R-SERVER-016, account.md
-// R-ACCOUNT-015): the account's one character. `POST /api/character/end`
-// (R-ACCOUNT-030): that character ended for good, so another may start.
+// `POST /api/character` (server:hidden-values-made-once, account.md
+// account:one-character-per-account): the account's one character. `POST /api/character/end`
+// (account:start-a-new-life): that character ended for good, so another may start.
 import type { Id } from "@japacity/sim";
 import { Hono } from "hono";
 

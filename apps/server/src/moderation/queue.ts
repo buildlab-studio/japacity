@@ -1,4 +1,4 @@
-// R-MODERATION-010, R-MODERATION-011, R-MODERATION-013: the one queue and
+// moderation:one-queue-by-reason-weight, moderation:reports-decided-within-target, moderation:queue-item-shows-context: the one queue and
 // what the admin view shows for each item in it.
 import type { AccountSummary, HeldMessage, QueueItem, QueueView, ReportReason } from "@japacity/api";
 import { text } from "@japacity/content";
@@ -8,7 +8,7 @@ import type { AppealRow } from "@japacity/store";
 import type { ServerDeps } from "../deps";
 import type { Report, ReportQueueStore } from "./reports";
 
-/** R-MODERATION-010: lower goes first. Appeals carry no reason and sit with the rest. */
+/** moderation:one-queue-by-reason-weight: lower goes first. Appeals carry no reason and sit with the rest. */
 const WEIGHT: Record<ReportReason, number> = {
   underage: 0,
   "self-harm": 0,
@@ -43,7 +43,7 @@ export async function summarise(deps: ServerDeps, queue: ReportQueueStore, accou
   };
 }
 
-/** R-MODERATION-013: the cited messages as their phrases with their times. */
+/** moderation:queue-item-shows-context: the cited messages as their phrases with their times. */
 async function heldMessages(queue: ReportQueueStore, report: Report): Promise<HeldMessage[]> {
   if (!("messages" in report.cites)) return [];
   const rows = await queue.messages(report.cites.messages);
@@ -76,7 +76,7 @@ function weightOf(item: QueueItem): number {
   return item.kind === "report" ? WEIGHT[item.reason] : APPEAL_WEIGHT;
 }
 
-/** R-MODERATION-010: open reports and appeals by reason weight, then oldest first. */
+/** moderation:one-queue-by-reason-weight: open reports and appeals by reason weight, then oldest first. */
 export async function readQueue(deps: ServerDeps, queue: ReportQueueStore): Promise<QueueView> {
   const reports = await Promise.all((await queue.open()).map((report) => reportItem(deps, queue, report)));
   const appeals = await Promise.all((await deps.stores.appeals.pending()).map((appeal) => appealItem(deps, queue, appeal)));

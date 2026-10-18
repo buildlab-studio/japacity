@@ -1,4 +1,4 @@
-// R-ANALYTICS-008: `command/rejected` by code. A rejected command is never
+// analytics:nightly-game-counters: `command/rejected` by code. A rejected command is never
 // logged, so the nightly job cannot read it; the refusal counter in count.ts
 // calls this beside `countRejection` (ops/rejections.ts) once a counted route
 // has answered with a refusal.

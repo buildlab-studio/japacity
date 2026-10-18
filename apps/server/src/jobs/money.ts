@@ -1,4 +1,4 @@
-// R-SERVER-011, R-SERVER-012: the daily job at 00:00 UTC, for the day that has
+// server:daily-money-report, server:ledger-alarm-lists-suspects: the daily job at 00:00 UTC, for the day that has
 // just ended. It reports, raises what it finds, and takes no other action.
 import { time } from "@japacity/sim";
 import type { DayLog } from "@japacity/store";

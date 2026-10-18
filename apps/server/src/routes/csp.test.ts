@@ -1,4 +1,4 @@
-// R-SERVER-041: the page's content policy reports to the server, and
+// server:csp-reports-to-own-origin: the page's content policy reports to the server, and
 // each report leaves one log line of three fields and one count, nothing of the person who met it.
 import { time } from "@japacity/sim";
 import { readFileSync } from "node:fs";
@@ -80,7 +80,7 @@ afterEach(() => {
 });
 
 describe("the page's policy reports", () => {
-  test("[R-SERVER-041] given the page's _headers, when they are read, then the policy still only reports, and reports to /api/csp-report by report-to through Reporting-Endpoints and by report-uri", () => {
+  test("[server:csp-reports-to-own-origin] given the page's _headers, when they are read, then the policy still only reports, and reports to /api/csp-report by report-to through Reporting-Endpoints and by report-uri", () => {
     const policy = /^\s+Content-Security-Policy-Report-Only: (.*)$/m.exec(HEADERS)?.[1] ?? "";
     const directives = new Map(policy.split(";").map((part) => part.trim().split(/\s+/)).map(([name = "", ...sources]) => [name, sources]));
     expect(directives.get("report-uri")).toEqual([CSP_REPORT_PATH]);
@@ -91,7 +91,7 @@ describe("the page's policy reports", () => {
     expect(CSP_REPORT_PATH.startsWith("/api/")).toBe(true);
   });
 
-  test("[R-SERVER-041] given a report-uri report, when it is posted, then it is answered 204 and leaves one line of the directive, the blocked origin and the page's path, and one count under the request's region", async () => {
+  test("[server:csp-reports-to-own-origin] given a report-uri report, when it is posted, then it is answered 204 and leaves one line of the directive, the blocked origin and the page's path, and one count under the request's region", async () => {
     const server = testServer();
     const sent = await post(server, legacyReport(), "application/csp-report");
     expect(sent).toEqual({ status: 204, text: "" });
@@ -99,7 +99,7 @@ describe("the page's policy reports", () => {
     expect(await counted(server)).toEqual([{ region: "NG", key: "script-src-elem", count: 1 }]);
   });
 
-  test("[R-SERVER-041] given a Reporting API list with two violations and a report of another kind, when it is posted with a charset, then each violation is one line and one count, and the other report is left out", async () => {
+  test("[server:csp-reports-to-own-origin] given a Reporting API list with two violations and a report of another kind, when it is posted with a charset, then each violation is one line and one count, and the other report is left out", async () => {
     const server = testServer();
     const body = JSON.stringify([
       violation({ effectiveDirective: "img-src", blockedURL: "https://images.example.test/a.png", documentURL: `https://game.japacity.test/invite/${PERSONAL.invite}` }),
@@ -115,7 +115,7 @@ describe("the page's policy reports", () => {
     expect(await counted(server)).toEqual([{ region: "NG", key: "img-src", count: 2 }]);
   });
 
-  test("[R-SERVER-041] [R-SERVER-015] given reports carrying a query, a fragment, a referrer, a sample, a user agent, a blocked path and an invite code, when they are logged, then no line holds any of them, and each line has exactly its four fields", async () => {
+  test("[server:csp-reports-to-own-origin] [server:secrets-stay-on-server] given reports carrying a query, a fragment, a referrer, a sample, a user agent, a blocked path and an invite code, when they are logged, then no line holds any of them, and each line has exactly its four fields", async () => {
     const server = testServer();
     await post(server, legacyReport(), "application/csp-report");
     await post(server, legacyReport({ "document-uri": `https://game.japacity.test/invite/${PERSONAL.invite}?${PERSONAL.query}`, "blocked-uri": "inline", "effective-directive": undefined, "violated-directive": "style-src-attr 'self'" }), "application/csp-report");
@@ -131,7 +131,7 @@ describe("the page's policy reports", () => {
     ]);
   });
 
-  test("[R-SERVER-041] given a directive off the list, an extension's address and fields that are not text, when they are read, then each is written as other, the scheme alone, or none", () => {
+  test("[server:csp-reports-to-own-origin] given a directive off the list, an extension's address and fields that are not text, when they are read, then each is written as other, the scheme alone, or none", () => {
     const read = (body: Record<string, unknown>) => violationsOf("application/reports+json", [violation(body)]);
     expect(read({ effectiveDirective: "made-up-src\n{\"event\":\"forged\"}", blockedURL: "chrome-extension://abcdefghijklmnop/inject.js", documentURL: PAGE })).toEqual([{ directive: "other", blocked: "chrome-extension", path: "/city" }]);
     expect(read({ effectiveDirective: 42, blockedURL: null, documentURL: "not an address" })).toEqual([{ directive: "other", blocked: "none", path: "other" }]);
@@ -139,7 +139,7 @@ describe("the page's policy reports", () => {
     expect(cspLogLine({ directive: "other", blocked: "none", path: "/" })).toBe('{"event":"csp-report","directive":"other","blocked":"none","path":"/"}');
   });
 
-  test("[R-SERVER-041] given a list longer than one request may add, when it is posted, then only the first violations up to the limit are logged and counted", async () => {
+  test("[server:csp-reports-to-own-origin] given a list longer than one request may add, when it is posted, then only the first violations up to the limit are logged and counted", async () => {
     const server = testServer();
     const many = Array.from({ length: CSP_REPORTS_PER_REQUEST + 5 }, () => ({ type: "csp-violation", body: { effectiveDirective: "img-src", blockedURL: "data", documentURL: "https://game.japacity.test/" } }));
     expect((await post(server, JSON.stringify(many), "application/reports+json")).status).toBe(204);
@@ -149,14 +149,14 @@ describe("the page's policy reports", () => {
 });
 
 describe("the reports refused", () => {
-  test("[R-SERVER-041] given a body of another type, none at all, or JSON sent as JSON, when it is posted, then it is refused 415 before it is read, and nothing is logged or counted", async () => {
+  test("[server:csp-reports-to-own-origin] given a body of another type, none at all, or JSON sent as JSON, when it is posted, then it is refused 415 before it is read, and nothing is logged or counted", async () => {
     const server = testServer();
     for (const type of ["application/json", "text/plain", ""]) expect({ type, status: (await post(server, legacyReport(), type)).status }).toEqual({ type, status: 415 });
     expect(logged).not.toHaveBeenCalled();
     expect(await counted(server)).toEqual([]);
   });
 
-  test("[R-SERVER-041] given a body over the report limit, when it is posted, then it is refused 413, and nothing is logged or counted", async () => {
+  test("[server:csp-reports-to-own-origin] given a body over the report limit, when it is posted, then it is refused 413, and nothing is logged or counted", async () => {
     const server = testServer();
     const big = legacyReport({ "script-sample": "x".repeat(CSP_REPORT_BYTES) });
     expect((await post(server, big, "application/csp-report")).status).toBe(413);
@@ -164,7 +164,7 @@ describe("the reports refused", () => {
     expect(await counted(server)).toEqual([]);
   });
 
-  test("[R-SERVER-041] given a body that is not JSON, or JSON that is not a report of its type, when it is posted, then it is refused 400, and nothing is logged or counted", async () => {
+  test("[server:csp-reports-to-own-origin] given a body that is not JSON, or JSON that is not a report of its type, when it is posted, then it is refused 400, and nothing is logged or counted", async () => {
     const server = testServer();
     const cases: [string, string][] = [
       ["{not json", "application/csp-report"],
@@ -177,7 +177,7 @@ describe("the reports refused", () => {
     expect(await counted(server)).toEqual([]);
   });
 
-  test("[R-SERVER-041] [R-SERVER-026] given an address over the anonymous limit, when it posts a report, then it is refused 429 with the limit's reply, and nothing is logged or counted; another address still reports", async () => {
+  test("[server:csp-reports-to-own-origin] [server:anonymous-limit-by-address] given an address over the anonymous limit, when it posts a report, then it is refused 429 with the limit's reply, and nothing is logged or counted; another address still reports", async () => {
     const config = testConfig({ limits: { anonPer60s: 1 } });
     const now = productionConfig.clock.epoch;
     const server = testServer({ config, now: () => now, limits: memoryLimiters(config.limits, () => now) });
@@ -191,7 +191,7 @@ describe("the reports refused", () => {
     expect((await post(server, legacyReport(), "application/csp-report", "198.51.100.4")).status).toBe(204);
   });
 
-  test("[R-SERVER-041] given a request with no country, when its report is counted, then it is counted under the unknown region", async () => {
+  test("[server:csp-reports-to-own-origin] given a request with no country, when its report is counted, then it is counted under the unknown region", async () => {
     const server = testServer();
     const reply = await server.app.request(CSP_REPORT_PATH, { method: "POST", headers: { "content-type": "application/csp-report", "cf-connecting-ip": "203.0.113.9" }, body: legacyReport() });
     expect(reply.status).toBe(204);

@@ -1,4 +1,4 @@
-// Invite rewards (pair.md R-PAIR-009): from what the invited friend goes on to
+// Invite rewards (pair:invite-rewards-never-cash): from what the invited friend goes on to
 // do, after the commit that did it, a card frame and a line for the inviter,
 // once for each milestone and friend, from at most `rewardFriends` friends.
 import type { Content, State } from "@japacity/sim";
@@ -17,7 +17,7 @@ export function milestonesOf(state: State, content: Content): InviteMilestone[] 
   return reached;
 }
 
-/** R-PAIR-009: gives each inviter of these lives what their progress earned, and nothing for what a friend had done before the link. */
+/** pair:invite-rewards-never-cash: gives each inviter of these lives what their progress earned, and nothing for what a friend had done before the link. */
 export async function rewardInviters(deps: ServerDeps, lives: readonly Live[]): Promise<void> {
   for (const live of lives) {
     const reached = milestonesOf(live.state, live.content);

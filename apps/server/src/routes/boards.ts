@@ -1,5 +1,5 @@
-// The boards (docs/rules/city.md R-CITY-039, R-CITY-040), each behind its own
-// switch (server.md R-SERVER-031): a board switched off is refused 503
+// The boards (city:boards-switch-when-and-who, city:board-line-and-ranking), each behind its own
+// switch (server:four-off-switches): a board switched off is refused 503
 // `switched-off` with Retry-After before anything is read.
 //
 // GET /api/boards/:when/:who   when this-week|all-time, who everyone|friends
@@ -29,7 +29,7 @@ async function answer(deps: ServerDeps, ports: BoardPorts, c: Context<SessionEnv
   if (!(await isOn(deps, BOARD_SWITCH[board]))) return { status: 503, body: switchedOff(deps, BOARD_SWITCH[board]) };
   const session = sessionOf(c);
   if (session === null) return refuse(401, "signed-out", "Sign in to see the boards.");
-  // R-ACCOUNT-022: the guest gate refuses a guest first (account/guest.ts); this holds for a route mounted without it.
+  // account:social-needs-secured-account: the guest gate refuses a guest first (account/guest.ts); this holds for a route mounted without it.
   if ((await ports.guests([session.account])).has(session.account)) return { status: 403, body: guestOnly(BOARDS_DETAIL) };
   const character = (await deps.stores.account.get(session.account))?.character ?? null;
   if (character === null) return refuse(404, "no-character", "Start a life to be on the boards.");
