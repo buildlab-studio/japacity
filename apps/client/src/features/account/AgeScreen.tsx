@@ -1,7 +1,8 @@
 // The age screen (account:age-screen-refuses-minors): three fields, the day, the month and the year, none filled in and none
 // hinting at the age needed, before the username and the guest life. The server decides and keeps no date of
 // birth; this screen only sends what was picked. The bot check runs where the account is made, at Begin on the
-// page (account:bot-check-on-guest-creation, account:start-screen-over-live-city).
+// page (account:bot-check-on-guest-creation, account:start-screen-over-live-city). One quiet line under the fields turns a
+// returning player who tapped Play by habit back to the ways back in, before any life is made (account:age-screen-refuses-minors).
 import { ArrowLeft } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
@@ -25,18 +26,22 @@ export interface AgeScreenProps {
   onStanding: (standing: AgeStanding | Full) => void;
   /** Back to the start screen; none inside the invite page. */
   onBack?: (() => void) | null;
+  /** To the ways back in, for a player who has a life already. */
+  onReturning?: (() => void) | null;
+  /** What the gate says as the screen opens: why it is asked again. */
+  said?: string | null;
   /** A seam for tests: the year the list starts at. */
   thisYear?: number;
 }
 
 const FIELD = "h-12 w-full min-w-0 appearance-none rounded-[6px] border-2 border-sheet-line bg-sheet-muted px-3 text-[16px] font-bold text-text outline-none focus:border-action";
 
-export function AgeScreen({ account, onStanding, onBack = null, thisYear = new Date().getFullYear() }: AgeScreenProps) {
+export function AgeScreen({ account, onStanding, onBack = null, onReturning = null, said = null, thisYear = new Date().getFullYear() }: AgeScreenProps) {
   const [day, setDay] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [busy, setBusy] = useState(false);
-  const [problem, setProblem] = useState<string | null>(null);
+  const [problem, setProblem] = useState<string | null>(said);
 
   async function answer(event: FormEvent) {
     event.preventDefault();
@@ -67,7 +72,9 @@ export function AgeScreen({ account, onStanding, onBack = null, thisYear = new D
             <ArrowLeft size={18} />
           </button>
         )}
-        <h1 className="title text-[22px] leading-tight">{say("ui.account.age.title")}</h1>
+        <h1 className="title text-[22px] leading-tight" tabIndex={-1}>
+          {say("ui.account.age.title")}
+        </h1>
       </div>
       <p className="text-[14px] leading-snug text-text-2">{say("ui.account.age.intro")}</p>
       <fieldset className="flex flex-col gap-1.5">
@@ -112,6 +119,11 @@ export function AgeScreen({ account, onStanding, onBack = null, thisYear = new D
         <p role="alert" className="text-[14px] font-bold text-bad">
           {problem}
         </p>
+      )}
+      {onReturning === null ? null : (
+        <button type="button" className="press min-h-11 self-start text-[14px] font-bold text-text-2 underline underline-offset-4" onClick={onReturning} data-age-returning>
+          {say("ui.account.age.returning")}
+        </button>
       )}
     </form>
   );

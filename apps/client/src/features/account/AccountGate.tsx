@@ -2,14 +2,18 @@
 // it (account:start-screen-over-live-city, account:two-lights-and-wink-lines): Play goes to
 // the age screen (account:age-screen-refuses-minors) and on to the door, where Begin on the page makes the guest life (account:guest-and-secured-states)
 // with the username filled in from the name and the bot check run unseen (GuestStart.tsx); "I already have a life
-// here" goes straight to the ways back in. No sign-in method is asked for at the door, and none of the ways back in
+// here", on the start screen and in one line on the age screen, goes straight to the ways back in. In a browser a kept
+// life was open in, the start screen turns its two doors round (marks.ts). A guest who chose to open its kept life
+// instead lands on the ways back in. An age answer that runs out twice in a row, or a browser with cookies off, is
+// told that the browser is not keeping the sign-in (account:bot-check-on-guest-creation). Each move to another screen
+// takes the focus to its heading. No sign-in method is asked for at the door, and none of the ways back in
 // makes an account. A refusal is said plainly and nothing else is offered (account:sign-up-open-everywhere, account:age-screen-refuses-minors). While
 // sign-ups are switched off, the full screen instead, which asks again once the server's wait is over (server:signups-off-shows-full).
 // Inside the invite page the card is the start, so the gate begins at the age screen there, and the username stands
 // under it (the card makes the life, not the door). A notice the last screen left ("You have signed out.") shows on
 // the first screen here and goes as soon as the player moves on: to the age screen, to the ways back in, back to the
 // start, or into a life (account:guest-and-secured-states).
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { useGame } from "../../authority/GameProvider";
 import { counting } from "../../shared/analytics/start";
@@ -19,7 +23,9 @@ import { say } from "../../shared/words/text";
 import { AgeScreen } from "./AgeScreen";
 import { failureWords } from "./CodeForm";
 import { Full, type FullCheck } from "./Full";
-import { GuestForm, useGuestDoor, type GuestDoor } from "./GuestStart";
+import { cookiesOff, GuestForm, LAPSES_TOLD, useGuestDoor, type GuestDoor } from "./GuestStart";
+import { inAppBrowser } from "./inApp";
+import { doneWaysBackIn, keptHere, waysBackInAsked } from "./marks";
 import { SheetColumn } from "../../shared/ui/lively/SheetColumn";
 import { LegalLinks } from "../../shared/ui/LegalLinks";
 import { Wordmark } from "../../shared/ui/Wordmark";
@@ -83,8 +89,8 @@ function StartLights() {
 }
 
 /** The new life after the age screen: the door with the guest start at Begin, or, inside the invite page, the form. */
-function NewLife({ account, sitekey, load, botWaitMs, door, onExpired, onFull, onStarted, onReturning }: { account: AccountApi; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; door: ((guest: GuestDoor) => ReactNode) | null; onExpired: () => void; onFull: () => void; onStarted: () => Promise<void>; onReturning: () => void }) {
-  const guest = useGuestDoor({ account, sitekey, load, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
+function NewLife({ account, sitekey, load, botWaitMs, door, lapses, onLapse, onExpired, onFull, onStarted, onReturning }: { account: AccountApi; sitekey: string | null; load: LoadTurnstile; botWaitMs?: number; door: ((guest: GuestDoor) => ReactNode) | null; lapses: number; onLapse: () => void; onExpired: () => void; onFull: () => void; onStarted: () => Promise<void>; onReturning: () => void }) {
+  const guest = useGuestDoor({ account, sitekey, load, lapses, onLapse, onExpired, onFull, onStarted, ...(botWaitMs === undefined ? {} : { botWaitMs }) });
   return door === null ? <GuestForm door={guest} onReturning={onReturning} /> : <>{door(guest)}</>;
 }
 
@@ -93,7 +99,10 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   const notice = useGame((state) => state.accountNotice);
   const signedIn = useGame((state) => state.signedIn);
   const [standing, setStanding] = useState<Standing>("loading");
-  const [step, setStep] = useState<Step>("start");
+  // A guest that chose to open its kept life lands on the ways back in, its address filled in.
+  const [asked] = useState(waysBackInAsked);
+  const [step, setStep] = useState<Step>(asked === null ? "start" : "returning");
+  const [kept] = useState(keptHere);
   // Once the player moves on from the screen the gate opened on, the notice it carried is done with.
   const [moved, setMoved] = useState(false);
   const go = (next: Step) => {
@@ -101,12 +110,32 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     setStep(next);
   };
   const [back, setBack] = useState<string | null>(null);
+  // How many times in a row the guest start found the age answer or the session gone: the cookie did not stay.
+  const [lapses, setLapses] = useState(0);
   const shown = shownOf(standing, step, embedded);
   const key = counted(shown, embedded);
+  const sheet = useRef<HTMLDivElement>(null);
+  // The notice, said through one live region mounted before its words come.
+  const [said, setSaid] = useState<string | null>(null);
 
   useEffect(() => {
     if (key !== null) counting().count("screen/opened", key);
   }, [key, shown]);
+
+  useEffect(() => {
+    if (asked !== null) doneWaysBackIn();
+  }, [asked]);
+
+  useEffect(() => setSaid(notice === null || moved ? null : say(notice)), [notice, moved]);
+
+  // A move to another screen takes the focus to its heading; the screen the gate opened on keeps the page's own.
+  useEffect(() => {
+    if (!moved) return;
+    const heading = sheet.current?.querySelector<HTMLElement>("h1");
+    if (heading === null || heading === undefined) return;
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+  }, [moved, shown]);
 
   // A trip to Google that found no life comes back here with the reason (account:guest-and-secured-states). One that went through opens
   // the life instead, where the shell tells it (Secure.tsx), so it never lands here.
@@ -143,6 +172,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
 
   if (account === null) return null;
   const sitekeyShown = sitekey === undefined ? siteKey() : sitekey;
+  const browser = agent ?? (typeof navigator === "undefined" ? "" : navigator.userAgent);
   const toStart = embedded ? null : () => go("start");
   const enter = async (api: AccountApi, by: SignedInBy | null = null): Promise<void> => {
     setMoved(true);
@@ -155,6 +185,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     <SignIn
       account={api}
       problem={back}
+      filled={asked?.email ?? null}
       onBack={toStart}
       onSignedIn={(by) => void enter(api, by)}
       {...(agent === undefined ? {} : { agent })}
@@ -175,9 +206,9 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
       case "passed":
         switch (shown) {
           case "start":
-            return <StartScreen onPlay={() => go("age")} onReturning={() => go("returning")} />;
+            return <StartScreen kept={kept} inApp={inAppBrowser(browser) ? { agent: browser, ...(href === undefined ? {} : { href }) } : null} onPlay={() => go("age")} onReturning={() => go("returning")} />;
           case "age":
-            return <AgeScreen account={api} onStanding={setStanding} onBack={toStart} />;
+            return <AgeScreen key={lapses} account={api} onStanding={setStanding} onBack={toStart} onReturning={() => go("returning")} said={ageSaid()} />;
           case "returning":
             return ways(api);
           case "door":
@@ -195,6 +226,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
     }
   }
 
+  /** Why the age screen asks again: the answer ran out, or, a second time in a row or with cookies off, the browser keeps no sign-in. */
+  function ageSaid(): string | null {
+    if (cookiesOff() || lapses >= LAPSES_TOLD) return say("ui.account.cookies");
+    return lapses > 0 ? say("ui.account.guest.expired") : null;
+  }
+
   function newLife(api: AccountApi) {
     return (
       <NewLife
@@ -203,7 +240,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
         load={load}
         {...(botWaitMs === undefined ? {} : { botWaitMs })}
         door={embedded ? null : door}
-        onExpired={() => setStanding("unasked")}
+        lapses={lapses}
+        onLapse={() => setLapses((count) => count + 1)}
+        onExpired={() => {
+          setLapses((count) => count + 1);
+          setStanding("unasked");
+        }}
         onFull={() => setStanding({ full: true, retryAfter: 30 })}
         onStarted={() => enter(api)}
         onReturning={() => go("returning")}
@@ -214,7 +256,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
   if (embedded)
     return (
       <div className="flex flex-col gap-6">
-        {body(account)}
+        <div ref={sheet}>{body(account)}</div>
         <LegalLinks />
       </div>
     );
@@ -238,12 +280,12 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           on a phone the column is the screen. */}
       <SheetColumn>
         <GateSheet mark={shown} label={say("ui.game")}>
-          {notice === null || moved ? null : (
-            <p role="status" className="mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]">
-              {say(notice)}
-            </p>
-          )}
-          {body(account)}
+          <p role="status" aria-live="polite" className={said === null ? "sr-only" : "mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]"}>
+            {said ?? ""}
+          </p>
+          <div ref={sheet} data-account-step={shown}>
+            {body(account)}
+          </div>
           <LegalLinks />
         </GateSheet>
       </SheetColumn>

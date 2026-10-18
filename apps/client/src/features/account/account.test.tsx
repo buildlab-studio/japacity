@@ -3,7 +3,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore, type GameStore } from "../../authority/store";
@@ -21,6 +21,11 @@ import { AccountSettings } from "./Settings";
 import { StartTrouble } from "./StartTrouble";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./Turnstile";
 import { WayToast } from "./WayToast";
+
+// The marks a kept life and a used passkey leave in this browser turn the screens round; each test starts from a new browser.
+beforeEach(() => {
+  localStorage.clear();
+});
 
 const OK: AuthResult = { ok: true };
 
@@ -231,16 +236,18 @@ describe("the start screen online", () => {
     expect(await screen.findByText(say("ui.account.in-app"))).toBeDefined();
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
     expect(screen.getByLabelText(say("ui.account.email.label"))).toBeDefined();
-    expect(screen.getByRole("link", { name: say("ui.account.in-app.open") }).getAttribute("href")).toBe("intent://japacity.app/#Intent;scheme=https;end");
+    expect(screen.getByRole("link", { name: say("ui.account.in-app.open") }).getAttribute("href")).toBe("intent://japacity.app/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Fjapacity.app%2F;end");
   });
 
-  test("[account:start-screen-over-live-city] given an in-app browser on an iPhone, then Google is not shown and the page's address is offered to copy", async () => {
+  test("[account:start-screen-over-live-city] given an in-app browser on an iPhone, then Google is not shown, and Open in my browser says how and offers the page's address to copy", async () => {
     const agent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0";
     const copied: string[] = [];
     Object.defineProperty(navigator, "clipboard", { value: { writeText: (text: string) => (copied.push(text), Promise.resolve()) }, configurable: true });
     gate(fakeAccount(), fakeTurnstile(), agent);
     await returning();
     expect(screen.queryByRole("button", { name: say("ui.account.google") })).toBeNull();
+    fireEvent.click(await screen.findByRole("button", { name: say("ui.account.in-app.open") }));
+    expect(await screen.findByText(say("ui.account.in-app.how"))).toBeDefined();
     fireEvent.click(await screen.findByRole("button", { name: say("ui.account.in-app.copy") }));
     expect(await screen.findByText(say("ui.account.in-app.copied"))).toBeDefined();
     expect(copied).toEqual(["https://japacity.app/"]);
