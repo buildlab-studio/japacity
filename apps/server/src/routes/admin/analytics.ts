@@ -3,10 +3,10 @@
 // admin routes, to anyone not in `config.admin.accounts` it does not exist.
 import { Hono } from "hono";
 
-import { utcDay } from "../admin/day";
-import { dashboard, WINDOW_DAYS } from "../analytics/dashboard";
-import { dayName, dayNumber } from "../analytics/day";
-import type { ServerDeps } from "../deps";
+import { utcDay } from "../../ops/day";
+import { dashboard, WINDOW_DAYS } from "../../analytics/dashboard";
+import { dayName, dayNumber } from "../../analytics/day";
+import type { ServerDeps } from "../../deps";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 

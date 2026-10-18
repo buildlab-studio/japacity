@@ -6,7 +6,7 @@
 import type { CounterTotal } from "@japacity/store";
 import { Hono } from "hono";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { advertRegion } from "../adverts/campaign";
 import { addAdvertCounters, withinAccountDay } from "../adverts/counts";
 import { checkBatch, isDoorRow } from "../analytics/batch";

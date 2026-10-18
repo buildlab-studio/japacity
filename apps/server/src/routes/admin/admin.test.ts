@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
-import { countRejection } from "../admin/rejections";
-import { testDeps } from "../app.testing";
-import { makeApp } from "../app";
-import { productionConfig, testConfig } from "../config";
-import { TEST_SIGNED_IN_WITH, testSession } from "../deps";
-import { dayStart, utcDay } from "../admin/day";
+import { countRejection } from "../../ops/rejections";
+import { testDeps } from "../../app.testing";
+import { makeApp } from "../../app";
+import { productionConfig, testConfig } from "../../config";
+import { TEST_SIGNED_IN_WITH, testSession } from "../../deps";
+import { dayStart, utcDay } from "../../ops/day";
 import { ADMIN_PASSKEY_DETAIL } from "./admin";
 
 const ADMIN = "account.owner";

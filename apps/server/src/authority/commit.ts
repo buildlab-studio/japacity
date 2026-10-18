@@ -3,9 +3,9 @@
 // tool when a load diverged.
 import type { Sender } from "@japacity/sim";
 
-import { noteDiverged } from "../admin/alarm";
-import { utcDay } from "../admin/day";
-import { markAfterCommit } from "../admin/money";
+import { noteDiverged } from "../ops/alarm";
+import { utcDay } from "../ops/day";
+import { markAfterCommit } from "../ops/money";
 import type { ServerDeps } from "../deps";
 import { rewardInviters } from "../pair/rewards";
 import { noteFills } from "../notify/fill";

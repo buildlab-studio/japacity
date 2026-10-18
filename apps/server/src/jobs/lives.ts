@@ -10,8 +10,8 @@
 import type { Where } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 
-import { utcDay } from "../admin/day";
-import { stateNow } from "../admin/load";
+import { utcDay } from "../ops/day";
+import { stateNow } from "../ops/replay";
 import { dayName } from "../analytics/day";
 import { LIVES_KEYS, LIVES_PLAYING } from "../analytics/lights";
 import { NO_REGION, WHOLE_GAME } from "../analytics/list";

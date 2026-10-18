@@ -146,6 +146,7 @@ describe("the workflows", () => {
       "/tests/ @Alameen688",
       "/tools/check/scrub.ts @Alameen688",
       "wrangler.jsonc @Alameen688",
+      "wrangler.load.jsonc @Alameen688",
       "/.github/ @Alameen688",
       "/packages/content/src/legal/ @Alameen688",
     ]);

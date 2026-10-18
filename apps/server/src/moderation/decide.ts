@@ -5,7 +5,7 @@ import type { AdminAction, AppealRow, ModerationLogEntry } from "@japacity/store
 
 import { requestDeletion } from "../account/deletion";
 import { generatedUsername } from "../account/username";
-import { rollbackCheck } from "../admin/rollback";
+import { rollbackCheck } from "../ops/rollback";
 import type { ServerDeps } from "../deps";
 import type { ServerCode } from "../types";
 import { banIdentities, type Identities } from "./identities";

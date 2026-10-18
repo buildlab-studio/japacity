@@ -2,8 +2,8 @@ import type { AccountRow, CounterTotal, DayLog } from "@japacity/store";
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { noteActive } from "../admin/active";
-import { utcDay } from "../admin/day";
+import { noteActive } from "../ops/active";
+import { utcDay } from "../ops/day";
 import { isolateDayLog } from "../analytics/daylog";
 import { dayName } from "../analytics/day";
 import { newLife, restMonth, send, signUp, testServer, view } from "../authority/authority.testing";

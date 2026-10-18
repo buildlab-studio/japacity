@@ -6,7 +6,7 @@
 import type { Id } from "@japacity/sim";
 import type { AdvertCount, AdvertStore } from "@japacity/store";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { sha256Hex } from "../auth/hooks";
 import type { ServerConfig } from "../config";
 import type { AdvertsDeps } from "./serve";

@@ -2,11 +2,11 @@
 // just ended. It reports, raises what it finds, and takes no other action.
 import type { DayLog } from "@japacity/store";
 
-import { activeOn, forgetBefore } from "../admin/active";
-import { raiseAlarms } from "../admin/alarm";
-import { dayStart, utcDay } from "../admin/day";
-import type { MoneyDay } from "../admin/money";
-import { drawAlarms, moneyReport } from "../admin/money";
+import { activeOn, forgetBefore } from "../ops/active";
+import { raiseAlarms } from "../ops/alarm";
+import { dayStart, utcDay } from "../ops/day";
+import type { MoneyDay } from "../ops/money";
+import { drawAlarms, moneyReport } from "../ops/money";
 import type { ServerDeps } from "../deps";
 
 /** The cron in `wrangler.jsonc` that runs this job. */

@@ -12,6 +12,7 @@
 
 # Every Worker's config: routes, bindings, the deployment's ids.
 wrangler.jsonc @Alameen688
+wrangler.load.jsonc @Alameen688
 
 # The workflows, the deploys and this file.
 /.github/ @Alameen688

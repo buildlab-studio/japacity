@@ -3,13 +3,13 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { signUp, type TestServer, testServer } from "../authority/authority.testing";
-import { productionConfig, testConfig } from "../config";
-import { TEST_SIGNED_IN_WITH } from "../deps";
-import { LOG_REASONS, REPORT_REASONS } from "../moderation/reports";
-import { adminDedicationRoutes, DEDICATION_PENDING_PATH, type PendingLight } from "./admin-dedication";
-import { DEDICATION_LIGHTS_PATH, type DedicationReply } from "./dedication";
-import { fakeEdge } from "./cache.testing";
+import { signUp, type TestServer, testServer } from "../../authority/authority.testing";
+import { productionConfig, testConfig } from "../../config";
+import { TEST_SIGNED_IN_WITH } from "../../deps";
+import { LOG_REASONS, REPORT_REASONS } from "../../moderation/reports";
+import { adminDedicationRoutes, DEDICATION_PENDING_PATH, type PendingLight } from "./dedication";
+import { DEDICATION_LIGHTS_PATH, type DedicationReply } from "../dedication";
+import { fakeEdge } from "../cache.testing";
 
 const { epoch } = productionConfig.clock;
 const ADMIN = "account.admin";

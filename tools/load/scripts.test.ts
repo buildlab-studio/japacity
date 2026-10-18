@@ -27,8 +27,8 @@ function manifests(): string[] {
 
 describe("the load test's scripts", () => {
   test("[R-LOAD-001] given the load Worker's config, when it is read, then it runs the server package's app on this machine with the server's limits and nothing deployable", () => {
-    const worker = read("./wrangler.jsonc");
-    expect(worker).toContain('"main": "../../apps/server/src/load.worker.ts"');
+    const worker = read("../../apps/server/wrangler.load.jsonc");
+    expect(worker).toContain('"main": "src/load.worker.ts"');
     expect(worker).toContain('"workers_dev": false');
     for (const absent of ['"routes"', '"route"', "account_id", "hyperdrive", "triggers"]) expect(worker).not.toContain(absent);
     const server = read("../../apps/server/wrangler.jsonc");

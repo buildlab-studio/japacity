@@ -11,12 +11,12 @@ import type { DialChange, SwitchName } from "@japacity/store";
 import { isDialValue } from "@japacity/store";
 import { Hono } from "hono";
 
-import type { ServerDeps } from "../deps";
+import type { ServerDeps } from "../../deps";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
-import { placeTargetFits } from "../switches/dials";
-import { switchGates } from "../switches/gate";
-import { SWITCH_NAMES, readSwitches, setDial, setSwitch } from "../switches/switches";
+import { placeTargetFits } from "../../switches/dials";
+import { switchGates } from "../../switches/gate";
+import { SWITCH_NAMES, readSwitches, setDial, setSwitch } from "../../switches/switches";
 
 /** The longest reason kept in the log. */
 const REASON_MAX = 500;

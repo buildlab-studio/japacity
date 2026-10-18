@@ -1,13 +1,13 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
-import { testDeps } from "../app.testing";
-import { makeApp } from "../app";
-import { testConfig } from "../config";
-import { testSession } from "../deps";
-import type { Dashboard } from "../analytics/dashboard";
-import { dayName } from "../analytics/day";
+import { utcDay } from "../../ops/day";
+import { testDeps } from "../../app.testing";
+import { makeApp } from "../../app";
+import { testConfig } from "../../config";
+import { testSession } from "../../deps";
+import type { Dashboard } from "../../analytics/dashboard";
+import { dayName } from "../../analytics/day";
 
 const ADMIN = "account.owner";
 const { minShown } = content.tuning.analytics;

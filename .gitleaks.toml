@@ -17,7 +17,7 @@ useDefault = true
 id = "generic-api-key"
 
 # Tests and browser specs hold made-up values in a secret's shape on purpose: a software passkey's id, which is the
-# words "software-passkey" in base64url (apps/server/src/routes/admin-passkey.test.ts), and the web push sample's
+# words "software-passkey" in base64url (apps/server/src/routes/admin/passkey.test.ts), and the web push sample's
 # published public key (apps/client/e2e/asks.spec.ts).
 [[rules.allowlists]]
 description = "Made-up values in tests and browser specs"

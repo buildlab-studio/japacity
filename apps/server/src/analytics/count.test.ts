@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
-import { rejectionCounts } from "../admin/rejections";
+import { utcDay } from "../ops/day";
+import { rejectionCounts } from "../ops/rejections";
 import { call, newLife, restMonth, send, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
 import type { Limiter } from "../deps";

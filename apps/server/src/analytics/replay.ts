@@ -1,12 +1,12 @@
 // R-ANALYTICS-001, R-ANALYTICS-008: what each accepted command did, found by
 // stepping a character's stored rows again, as the admin tools do
-// (admin/load.ts). Nothing here writes.
+// (ops/replay.ts). Nothing here writes.
 import type { BaseEvent, Command, ReportLine, State } from "@japacity/sim";
 import { newState, step } from "@japacity/sim";
 import type { LogRow } from "@japacity/store";
 
-import { contentNamed, rowsBySegment, worldsFor } from "../admin/load";
-import type { Loaded } from "../admin/load";
+import { contentNamed, rowsBySegment, worldsFor } from "../ops/replay";
+import type { Loaded } from "../ops/replay";
 import type { ServerDeps } from "../deps";
 
 /** One accepted command as the replay saw it. */

@@ -157,7 +157,7 @@ describe("GET /api/account", () => {
     const other = await h.signUp("bola@example.com");
     h.deps.config.admin.accounts.push(account);
     expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { id: account, admin: false } });
-    // routes/admin-passkey.test.ts opens such a session through the real passkey sign-in.
+    // routes/admin/passkey.test.ts opens such a session through the real passkey sign-in.
     for (const row of h.tables.session) row["signedInWith"] = "passkey";
     expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { id: account, admin: true } });
     expect(await (await h.call("/api/account", { jar: other.jar })).json()).toMatchObject({ ok: true, account: { id: other.account, admin: false } });

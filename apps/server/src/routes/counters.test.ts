@@ -4,7 +4,7 @@ import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { signUp, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";

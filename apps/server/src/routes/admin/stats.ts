@@ -5,12 +5,12 @@
 import type { NumbersLog } from "@japacity/store";
 import { Hono } from "hono";
 
-import { dayStart, utcDay } from "../admin/day";
-import { dayName } from "../analytics/day";
-import { buildStats, statsFrom } from "../analytics/stats";
-import type { StatsReply } from "../analytics/stats.contract";
-import type { ServerDeps } from "../deps";
-import { onlineAt } from "../jobs/online";
+import { dayStart, utcDay } from "../../ops/day";
+import { dayName } from "../../analytics/day";
+import { buildStats, statsFrom } from "../../analytics/stats";
+import type { StatsReply } from "../../analytics/stats.contract";
+import type { ServerDeps } from "../../deps";
+import { onlineAt } from "../../jobs/online";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 

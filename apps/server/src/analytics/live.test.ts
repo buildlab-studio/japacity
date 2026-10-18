@@ -1,7 +1,7 @@
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { harness } from "../auth/auth.testing";

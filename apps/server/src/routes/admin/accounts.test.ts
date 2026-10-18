@@ -6,11 +6,11 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../app.testing";
-import { makeApp } from "../app";
-import { adminAccountsFrom, deployedConfig, productionConfig } from "../config";
-import type { ServerConfig } from "../config";
-import { testSession } from "../deps";
+import { testDeps } from "../../app.testing";
+import { makeApp } from "../../app";
+import { adminAccountsFrom, deployedConfig, productionConfig } from "../../config";
+import type { ServerConfig } from "../../config";
+import { testSession } from "../../deps";
 
 const OWNER = "account.owner";
 const as = (account: string): RequestInit => ({ headers: { "x-test-account": account } });
@@ -27,7 +27,7 @@ interface Vars {
 }
 
 function wrangler(): Vars {
-  const text = readFileSync(fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url).href), "utf8");
+  const text = readFileSync(fileURLToPath(new URL("../../../wrangler.jsonc", import.meta.url).href), "utf8");
   return JSON.parse(text.replace(/^\s*\/\/.*$/gm, "")) as Vars;
 }
 
@@ -68,7 +68,7 @@ describe("the admin accounts from the deployment", () => {
     expect(Object.keys(config.env?.["staging"]?.vars ?? {})).not.toContain("ADMIN_ACCOUNTS");
     expect(config.vars["SITE_URL"]).toMatch(/^https:\/\//);
     expect(config.env?.["staging"]?.vars["SITE_URL"]).toMatch(/^https:\/\//);
-    const text = readFileSync(fileURLToPath(new URL("../../wrangler.jsonc", import.meta.url).href), "utf8");
+    const text = readFileSync(fileURLToPath(new URL("../../../wrangler.jsonc", import.meta.url).href), "utf8");
     // Named only in the comment that lists the secrets set with `wrangler secret put`, never as a key or a --var.
     expect(text).not.toMatch(/"ADMIN_ACCOUNTS"\s*:/);
     expect(text).not.toContain("--var");
@@ -77,17 +77,17 @@ describe("the admin accounts from the deployment", () => {
 
   test("[R-SERVER-012] given the Worker, when its isolate is made, then its config is the deployment's, read from the ADMIN_ACCOUNTS binding, and config.ts names no account", () => {
     // The isolate is made in worker.ts (R-SERVER-043's plumbing); the Env is in index.ts.
-    const plumbing = readFileSync(fileURLToPath(new URL("../worker.ts", import.meta.url).href), "utf8");
+    const plumbing = readFileSync(fileURLToPath(new URL("../../worker.ts", import.meta.url).href), "utf8");
     expect(plumbing).toContain("config: deployedConfig(env.ADMIN_ACCOUNTS)");
-    const worker = readFileSync(fileURLToPath(new URL("../index.ts", import.meta.url).href), "utf8");
+    const worker = readFileSync(fileURLToPath(new URL("../../index.ts", import.meta.url).href), "utf8");
     expect(worker).toContain("export type Env = Cloudflare.Env;");
     // The bindings' types are generated from wrangler.jsonc; the admin list is a secret, so it is
     // declared beside the other secrets in src/env.d.ts and the generated file does not list it.
-    const secrets = readFileSync(fileURLToPath(new URL("../env.d.ts", import.meta.url).href), "utf8");
+    const secrets = readFileSync(fileURLToPath(new URL("../../env.d.ts", import.meta.url).href), "utf8");
     expect(secrets).toMatch(/ADMIN_ACCOUNTS\?: string;/);
-    const bindings = readFileSync(fileURLToPath(new URL("../../worker-configuration.d.ts", import.meta.url).href), "utf8");
+    const bindings = readFileSync(fileURLToPath(new URL("../../../worker-configuration.d.ts", import.meta.url).href), "utf8");
     expect(bindings).not.toContain("ADMIN_ACCOUNTS");
-    const config = readFileSync(fileURLToPath(new URL("../config.ts", import.meta.url).href), "utf8");
+    const config = readFileSync(fileURLToPath(new URL("../../config.ts", import.meta.url).href), "utf8");
     expect(config).toContain("admin: { accounts: [] },");
   });
 });

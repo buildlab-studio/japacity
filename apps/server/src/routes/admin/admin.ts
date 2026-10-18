@@ -5,12 +5,12 @@
 import { Hono } from "hono";
 import type { MiddlewareHandler } from "hono";
 
-import { listAlarms } from "../admin/alarm";
-import { utcDay } from "../admin/day";
-import { rejectionCounts } from "../admin/rejections";
-import { rollbackCheck } from "../admin/rollback";
-import type { ServerDeps } from "../deps";
-import type { ServerRejection } from "../types";
+import { listAlarms } from "../../ops/alarm";
+import { utcDay } from "../../ops/day";
+import { rejectionCounts } from "../../ops/rejections";
+import { rollbackCheck } from "../../ops/rollback";
+import type { ServerDeps } from "../../deps";
+import type { ServerRejection } from "../../types";
 
 const WHOLE = /^\d{1,9}$/;
 

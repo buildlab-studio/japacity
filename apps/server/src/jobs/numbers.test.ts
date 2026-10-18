@@ -2,7 +2,7 @@ import type { AccountRow, CounterTotal, DayLog, NumbersLog, RegionCount } from "
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { newLife, restMonth, send, signUp, testServer, view } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";

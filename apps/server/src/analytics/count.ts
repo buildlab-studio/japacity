@@ -4,7 +4,7 @@
 // taken from the reply after the route has run.
 import type { MiddlewareHandler } from "hono";
 
-import { countRejection } from "../admin/rejections";
+import { countRejection } from "../ops/rejections";
 import type { ServerDeps } from "../deps";
 import type { ServerCode } from "../types";
 import { countRejected } from "./rejected";
