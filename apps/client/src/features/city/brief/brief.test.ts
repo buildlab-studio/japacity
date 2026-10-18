@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { engineView } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
-import { livelyText } from "../../../shared/words/lively";
+import { livelyText } from "../../../shared/words/tables/lively.words";
 import { baseOf, briefDots, briefOf, doneToast, FUN_ACTS, itemPlace, itemsDone, markerAllowed, nextBase } from "./brief";
 
 describe("the brief", () => {

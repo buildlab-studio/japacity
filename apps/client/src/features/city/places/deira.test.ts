@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/deira/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
-import { dubaiWords } from "../../../shared/words/dubai.words";
+import { dubaiWords } from "../../../shared/words/tables/dubai.words";
 import { addLateWords } from "../../../shared/words/late";
 import { tidyLines } from "../../../shared/words/lines";
 import { words } from "../../../shared/words/text";

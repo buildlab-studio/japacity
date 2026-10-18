@@ -8,8 +8,8 @@ import { expect, test, type Page } from "@playwright/test";
 // route is answered here, in the shapes apps/client/src/shared/net/contract.ts
 // copies from the server.
 import { content } from "../../../packages/content/src/index";
-import { onlineText } from "../src/shared/words/online";
-import { uiText } from "../src/shared/words/ui";
+import { onlineText } from "../src/shared/words/tables/online.words";
+import { uiText } from "../src/shared/words/tables/ui.words";
 
 const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });

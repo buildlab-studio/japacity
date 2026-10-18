@@ -9,10 +9,10 @@ import { sceneWords } from "./scene.words";
 import { plainActLine } from "./actLines";
 import { MAX_ACTS, stagedNow, STOP_SHORT, thingSpot, thingsNow, thingsOf, vehicleOf, walkSpot } from "./things";
 import { addLateWords } from "../../shared/words/late";
-import { londonWords } from "../../shared/words/london.words";
-import { calgaryWords } from "../../shared/words/calgary.words";
-import { dubaiWords } from "../../shared/words/dubai.words";
-import { castelWords } from "../../shared/words/castel.words";
+import { londonWords } from "../../shared/words/tables/london.words";
+import { calgaryWords } from "../../shared/words/tables/calgary.words";
+import { dubaiWords } from "../../shared/words/tables/dubai.words";
+import { castelWords } from "../../shared/words/tables/castel.words";
 
 // London's words ride their own chunk in the game (shared/words/late.ts); a test of London adds them as the city does.
 addLateWords(londonWords);

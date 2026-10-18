@@ -20,7 +20,7 @@ import { turnText } from "../../features/turn/turn.words";
 import { engineView, recordedGame } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { nameOf } from "./text";
-import { uiText } from "./ui";
+import { uiText } from "./tables/ui.words";
 import "../../features/map/paper/PaperMap";
 
 /** What a player must never read: the engine's counting, never the life's. Braces are a line's params, never read. */

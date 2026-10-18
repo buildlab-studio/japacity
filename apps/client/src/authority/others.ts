@@ -8,7 +8,7 @@
 import { lifePeople, namedPeople, namePool, text } from "@japacity/content";
 
 import type { NameSwaps } from "../shared/words/now";
-import { uiText } from "../shared/words/ui";
+import { uiText } from "../shared/words/tables/ui.words";
 
 /** A pool name's words and who it suits. */
 interface Pooled {

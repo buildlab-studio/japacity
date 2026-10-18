@@ -3,7 +3,7 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { uiText } from "../../shared/words/ui";
+import { uiText } from "../../shared/words/tables/ui.words";
 
 /** The client's source, tests left out, as raw text: its word tables are the `"key": "words"` rows. */
 const sources = import.meta.glob<string>(["../../**/*.ts", "../../**/*.tsx", "!../../**/*.test.ts", "!../../**/*.test.tsx"], { query: "?raw", import: "default", eager: true });

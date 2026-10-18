@@ -16,7 +16,7 @@ import { isSaid, tidyLines } from "../shared/words/lines";
 import { cardKey } from "../shared/ui/cardKey";
 import { setNow } from "../shared/words/now";
 import { say, sayCount } from "../shared/words/text";
-import { uiText } from "../shared/words/ui";
+import { uiText } from "../shared/words/tables/ui.words";
 import { forgetArranged } from "../shared/world/arranged";
 import { forgetTaught } from "../shared/world/taught";
 import { forgetLife } from "./ended";

@@ -8,7 +8,7 @@ import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEndin
 import { nowHometown, nowMonth, swapped } from "./now";
 import { peopleParam } from "./people";
 import { lateWord } from "./late";
-import { uiText } from "./ui";
+import { uiText } from "./tables/ui.words";
 
 export type Params = Record<string, ReportParam>;
 

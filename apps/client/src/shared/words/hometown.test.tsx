@@ -9,7 +9,7 @@ import { engineView } from "../testing/fixtures";
 import { renderWithView } from "../testing/render";
 import { setNow } from "./now";
 import { blurbOf, hometownWords, nameOf, say, words } from "./text";
-import { uiText } from "./ui";
+import { uiText } from "./tables/ui.words";
 
 afterEach(() => {
   setNow(null);

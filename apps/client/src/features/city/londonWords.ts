@@ -7,6 +7,6 @@ let london: Promise<void> | null = null;
 
 /** London's words, fetched once, then added so every lookup finds them. */
 export function loadLondonWords(): Promise<void> {
-  london ??= import("../../shared/words/london.words").then((table) => addLateWords(table.londonWords));
+  london ??= import("../../shared/words/tables/london.words").then((table) => addLateWords(table.londonWords));
   return london;
 }

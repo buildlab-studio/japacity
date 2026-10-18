@@ -14,7 +14,7 @@ import { renderWithView } from "../testing/render";
 import { ReportLines } from "../ui/ReportLines";
 import { asksAttention, tidyLines } from "./lines";
 import { paramWords, say, sayCount, words } from "./text";
-import { uiText } from "./ui";
+import { uiText } from "./tables/ui.words";
 
 const LOTTO = "activity.play-lotto";
 
