@@ -1,11 +1,10 @@
 import type { ServerReply, ViewReply } from "@japacity/api";
-import { pgStores } from "@japacity/db";
 import { connectPglite } from "@japacity/db/pglite";
 import type { PgliteConnection } from "@japacity/db/pglite";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import { memoryStores } from "../deps";
 import type { Stores } from "../deps";
+import { postgresStores } from "../postgres.testing";
 import { drizzleAuthAdapter } from "./drizzle";
 import { harness, makeJar } from "./auth.testing";
 
@@ -19,10 +18,10 @@ afterAll(async () => {
   await connection?.close();
 });
 
-/** The production wiring on PGlite: every store the database holds, presence and nudges in memory as the place objects stand in for them. */
+/** The production wiring on the file's database, and its Drizzle handle for the auth library. */
 function onPostgres(): { stores: Stores; db: PgliteConnection["db"] } {
   if (connection === null) throw new Error("The database is opened before the first test.");
-  return { stores: { ...memoryStores(), ...pgStores(connection.handle) }, db: connection.db };
+  return { stores: postgresStores(connection), db: connection.db };
 }
 
 describe("the server on Postgres", () => {

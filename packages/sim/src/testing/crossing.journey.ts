@@ -2,23 +2,14 @@
 // replayed to a point and months played abroad. Nothing in the simulation
 // imports this file.
 import type { Accepted, Content, Id } from "../engine/types";
-import { lifeSaves } from "../goldens/lives.data";
-import { lifeStart, savedCommands } from "../engine/replay";
 import type { Game } from "./play";
-import { start } from "./play";
+import { replayedGame } from "./recorded";
 
 /** A recorded life replayed command by command until `until` holds after a command. */
 export function replayTo(name: string, content: Content, until: (game: Game) => boolean): Game {
-  const save = lifeSaves[name];
-  if (save === undefined) throw new Error(`${name} is not recorded.`);
-  const first = lifeStart(save);
-  if (first === null) throw new Error(`${name} does not start a life.`);
-  const game = start({ scenario: first.scenario, seed: first.seed, worldSeed: first.worldSeed, content });
-  for (const { command, sender } of savedCommands(save)) {
-    game.accept(command, sender);
-    if (until(game)) return game;
-  }
-  throw new Error(`${name} never reaches the point asked for.`);
+  const replayed = replayedGame(name, content);
+  replayed.to(until);
+  return replayed.game;
 }
 
 /** Answers any open set piece with its first answer, grants turns when the bank is empty, and ends the month with the slots given. */

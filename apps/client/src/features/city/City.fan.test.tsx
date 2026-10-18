@@ -5,10 +5,11 @@
 // gone. The place file is the one the game ships; the scene is a stand-in that hands the city the taps, says where the
 // fanned thing stands, and walks at once.
 import { act, fireEvent, waitFor } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { useEffect } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { newGame, openOffer, setPockets } from "../../shared/testing/fixtures";
+import { newGame, openOffer } from "../../shared/testing/fixtures";
 import { renderWithGame } from "../../shared/testing/person";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
@@ -18,6 +19,8 @@ import { markTaught } from "../../shared/world/taught";
 import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
 import { cityWords } from "./city.words";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
@@ -49,27 +52,13 @@ function StandInScene({ things, actOn = null, onPick }: StandInProps) {
 vi.mock("./scene/CityScene", () => ({ default: StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 const SCREEN = { width: window.innerWidth, height: window.innerHeight };
 
 beforeEach(() => {
   handed.length = 0;
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
   // A phone held upright, as the game is built for.
   Object.defineProperty(window, "innerWidth", { value: 390, configurable: true });
@@ -80,16 +69,10 @@ afterEach(() => {
   vi.restoreAllMocks();
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 const COOK = "activity.cook-at-home";
 const JOLLOF = "activity.cook-jollof";

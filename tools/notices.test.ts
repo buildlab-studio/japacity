@@ -3,7 +3,8 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { CLIENT_ROOT, NOTICES_PATH, noticesFile, ROOT, shippedPackages } from "./notices";
+import { CLIENT_ROOT, NOTICES_PATH, noticesFile, shippedPackages } from "./notices";
+import { REPO_ROOT } from "./repo";
 
 describe("the repository's account of the makers and the shipped code", () => {
   test("[R-GUIDE-008] given the client's dependencies, when NOTICES.md is read, then it is what pnpm notices writes from them, so it is never stale", () => {
@@ -19,8 +20,8 @@ describe("the repository's account of the makers and the shipped code", () => {
   });
 
   test("[R-GUIDE-008] given the repository, when its licence files are read, then LICENSE names the makers and LICENSES.md points to the notices", () => {
-    const holders = /^Copyright \(c\) \d{4} (.+)$/m.exec(readFileSync(join(ROOT, "LICENSE"), "utf8"))?.[1];
+    const holders = /^Copyright \(c\) \d{4} (.+)$/m.exec(readFileSync(join(REPO_ROOT, "LICENSE"), "utf8"))?.[1];
     expect(holders).toMatch(/\S and Japacity contributors$/);
-    expect(readFileSync(join(ROOT, "LICENSES.md"), "utf8")).toContain("[NOTICES.md](NOTICES.md)");
+    expect(readFileSync(join(REPO_ROOT, "LICENSES.md"), "utf8")).toContain("[NOTICES.md](NOTICES.md)");
   });
 });

@@ -15,17 +15,14 @@ import { stagedNow, thingsNow } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 import { cityWords } from "../city.words";
+import { thingIn } from "../../../shared/testing/things";
 
 // Dubai's words ride their own chunk in the game (shared/words/late.ts); a test of Dubai adds them as the city does.
 addLateWords(uiDubaiText);
 
 const ID = "place.deira";
 const { file, stage, entry } = staged(raw, ID);
-const thing = (id: string) => {
-  const found = (stage.things ?? []).find((candidate) => candidate.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
-};
+const thing = (id: string) => thingIn(stage.things, id);
 
 describe("Deira", () => {
   frontageTests(raw, ID);

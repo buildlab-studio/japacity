@@ -4,7 +4,6 @@
 // with their cost and speed, an amount with its rate and the naira that lands, and a card whose
 // button says the amount, sends at once and says what is left in pounds.
 import { content } from "@japacity/content";
-import type { Command } from "@japacity/sim";
 import { remitQuote } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
@@ -14,21 +13,7 @@ import { renderWithView } from "../../../shared/testing/render";
 import { formatBp, formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { Bank } from "./Bank";
-
-function sent(authority: { sent: Command[] }): unknown[] {
-  return authority.sent.map((command) => {
-    const rest: Partial<Command> = { ...command };
-    delete rest.basedOn;
-    return rest;
-  });
-}
-
-function card(): HTMLElement {
-  const main = document.querySelector<HTMLElement>("[data-ask-main]");
-  const dialog = main?.closest<HTMLElement>("[role='dialog']") ?? main?.parentElement?.parentElement ?? null;
-  if (dialog === null) throw new Error("No card is open.");
-  return dialog;
-}
+import { askCard as card, sent } from "../phone.testing";
 
 describe("Change money says what you get", () => {
   test("[R-WORLD-006] [R-WALLET-004] given Ada just landed with dollars, when all of them are set to change into pounds at the bank, then the card says the pounds she gets, the figure the engine gives, and what she holds in both monies after: the pounds in the bank on the line, the dollars left on the button", async () => {

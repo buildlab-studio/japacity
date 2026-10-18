@@ -1,34 +1,14 @@
 import type { AccountReply } from "@japacity/api";
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/auth.testing";
+import { harness, makeJar, withGoogle } from "../auth/auth.testing";
 import type { Harness, Jar } from "../auth/auth.testing";
 
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });
-
-function unsignedJwt(claims: Record<string, unknown>): string {
-  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
-}
-
-/** The whole Google round trip from the jar's browser, Google's token endpoint answered here for one identity; returns where the callback sent it. */
-async function withGoogle(h: Harness, jar: Jar, identity: { sub: string; email: string }): Promise<URL> {
-  const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/?google=in", errorCallbackURL: "/" } });
-  const state = new URL(String((await start.json<{ url: string }>()).url)).searchParams.get("state") ?? "";
-  const real = globalThis.fetch;
-  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = input instanceof Request ? input.url : String(input);
-    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
-    const idToken = unsignedJwt({ ...identity, email_verified: true, iss: "https://accounts.google.com" });
-    return Promise.resolve(Response.json({ access_token: "google-access-token", refresh_token: "google-refresh-token", id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
-  });
-  const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
-  vi.unstubAllGlobals();
-  return new URL(back.headers.get("location") ?? "/", "https://japacity.test");
-}
 
 async function accountOf(h: Harness, jar: Jar): Promise<{ text: string; reply: AccountReply }> {
   const text = await (await h.call("/api/account", { jar })).text();
@@ -181,7 +161,7 @@ describe("DELETE /api/account", () => {
     vi.setSystemTime(START + h.deps.config.account.deleteFreshMs - 1);
     const reply = await h.call("/api/account", { method: "DELETE", jar, ip: "192.0.2.50" });
     expect(reply.status).toBe(200);
-    expect(await reply.json()).toMatchObject({ ok: true, dueAt: START + h.deps.config.account.deleteFreshMs - 1 + h.deps.config.account.deleteWithinDays * 86_400_000 });
+    expect(await reply.json()).toMatchObject({ ok: true, dueAt: START + h.deps.config.account.deleteFreshMs - 1 + h.deps.config.account.deleteWithinDays * time.DAY_MS });
     expect(h.tables.session).toHaveLength(0);
     expect((await h.call("/api/account", { jar: other })).status).toBe(401);
     const again = makeJar();

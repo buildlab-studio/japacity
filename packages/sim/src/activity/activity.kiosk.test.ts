@@ -6,16 +6,15 @@ import { fc, test } from "@fast-check/vitest";
 import { describe, expect } from "vitest";
 
 import { bp, mulDiv } from "../engine/int";
-import type { Id, MoneyParam, ReportLine } from "../engine/types";
+import type { MoneyParam, ReportLine } from "../engine/types";
 import { applyEffects, draw, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { moneyOf } from "../testing/read";
 import type { ActivityEvent, Prize } from "./activity.events";
 import { activityKind, PER_MILLION, prizeOdds, ticketParams } from "./activity.logic";
+import { BET, LOTTO } from "../testing/ids";
 
-const LOTTO: Id<"activity"> = "activity.play-lotto";
-const BET: Id<"activity"> = "activity.bet-slip";
 const luck = content.tuning.luck;
 
 /** The prize a draw out of a million wins, worked out here from the odds as the page states them. */

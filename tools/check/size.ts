@@ -8,11 +8,12 @@
 //
 // Usage: pnpm check:size
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
+
+import { isMain, readJson, REPO_ROOT } from "../repo";
 
 export const BUDGET_FILE = "tools/check/size-budget.json";
 
@@ -147,8 +148,7 @@ export function buildEnv(report: string): NodeJS.ProcessEnv {
 }
 
 function main(): void {
-  const root = fileURLToPath(new URL("../..", import.meta.url));
-  const budgets = JSON.parse(readFileSync(join(root, BUDGET_FILE), "utf8")) as BudgetFile;
+  const budgets = readJson<BudgetFile>(join(REPO_ROOT, BUDGET_FILE));
   const problems = budgetFileProblems(budgets);
   const work = mkdtempSync(join(tmpdir(), "japacity-size-"));
   try {
@@ -156,7 +156,7 @@ function main(): void {
     const report = join(work, "chunks.json");
     const started = Date.now();
     const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", "production", "--outDir", outDir, "--emptyOutDir", "--logLevel", "warn"], {
-      cwd: root,
+      cwd: REPO_ROOT,
       env: buildEnv(report),
       stdio: "inherit",
     });
@@ -165,7 +165,7 @@ function main(): void {
       process.exit(built.status ?? 1);
     }
     const seconds = Math.round((Date.now() - started) / 1000);
-    const { chunks } = JSON.parse(readFileSync(report, "utf8")) as { chunks: ReportChunk[] };
+    const { chunks } = readJson<{ chunks: ReportChunk[] }>(report);
     const first = firstVisit(chunks);
     const sizes = measure(first, (file) => gzipSync(readFileSync(join(outDir, file))).length);
     console.log(`Built in ${String(seconds)} s. A first visit downloads ${String(first.length)} script files:`);
@@ -186,4 +186,4 @@ function main(): void {
   console.log("Every part of a first visit is inside its budget.");
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main();
+if (isMain(import.meta.url)) main();

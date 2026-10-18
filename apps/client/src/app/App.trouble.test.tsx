@@ -19,16 +19,12 @@ import { engineView } from "../shared/testing/fixtures";
 import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
+import { memoryStorage } from "../shared/testing/storage";
 
 afterEach(() => {
   vi.useRealTimers();
   localStorage.clear();
 });
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
 
 const unused = () => Promise.reject(new Error("unused"));
 const noPause = { wait: () => Promise.resolve() };

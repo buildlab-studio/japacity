@@ -1,7 +1,6 @@
 // R-MODERATION-012 through the real auth library: an admin session opened by
 // email code is refused, one opened with a passkey is let in. The passkey is a
 // software one that signs the WebAuthn assertion a browser would send.
-import { pgStores } from "@japacity/db";
 import { connectPglite } from "@japacity/db/pglite";
 import { describe, expect, test } from "vitest";
 
@@ -9,7 +8,7 @@ import { drizzleAuthAdapter } from "../../auth/drizzle";
 import { softwarePasskey } from "../../auth/passkey.testing";
 import { harness } from "../../auth/auth.testing";
 import { testConfig } from "../../config";
-import { memoryStores } from "../../deps";
+import { postgresStores } from "../../postgres.testing";
 import type { Harness, Jar } from "../../auth/auth.testing";
 import { ADMIN_PASSKEY_DETAIL } from "./admin";
 
@@ -63,7 +62,7 @@ describe("the admin passkey rule", () => {
   test("[R-MODERATION-012] given the auth library on Drizzle's adapter and Postgres, when an admin signs in by code and then with a passkey, then the session row keeps how each was opened and only the passkey one reaches the admin routes", async () => {
     const connection = await connectPglite();
     try {
-      const h = harness({ config: testConfig({ testing: { captureOtp: true } }), stores: { ...memoryStores(), ...pgStores(connection.handle) }, adapter: drizzleAuthAdapter(connection.db) });
+      const h = harness({ config: testConfig({ testing: { captureOtp: true } }), stores: postgresStores(connection), adapter: drizzleAuthAdapter(connection.db) });
       const { jar: byCode, account } = await admin(h, "owner@example.com");
       expect((await h.call("/api/admin/alarms", { jar: byCode })).status).toBe(403);
       const { jar, status } = await (await storedPasskey(h, account))();

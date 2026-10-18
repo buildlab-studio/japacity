@@ -4,7 +4,7 @@
 import { text } from "@japacity/content";
 import { type Browser, type BrowserContext, chromium, type Page } from "@playwright/test";
 
-import { ROOT } from "./catalog";
+import { REPO_ROOT } from "../repo";
 import { type Server, startServer } from "./serve";
 
 /** A place's sign key: `place.<slug>.sign.<n>`. */
@@ -26,7 +26,7 @@ export function signText(): Record<string, string> {
 }
 
 export async function openStage(): Promise<Stage> {
-  const server = await startServer(ROOT);
+  const server = await startServer(REPO_ROOT);
   const browser = await chromium.launch({ args: CHROMIUM_ARGS });
   return {
     server,

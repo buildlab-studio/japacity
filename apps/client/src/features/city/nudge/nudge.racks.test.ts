@@ -7,7 +7,8 @@ import { say } from "../../../shared/words/text";
 import { answerAsk } from "../acts/acts";
 import { describe, expect, test } from "vitest";
 
-import { answersInOrder, archetypeOf, presetAnswer } from "../../../shared/frontdoor/archetypes";
+import { archetypeOf } from "../../../shared/frontdoor/archetypes";
+import { playTile } from "../../../shared/frontdoor/archetypes.testing";
 import { newGame } from "../../../shared/testing/fixtures";
 import { nudgeOf, stepWayOf } from "./nudge";
 
@@ -21,12 +22,7 @@ function play(id: string, seed: string): ReturnType<typeof newGame> {
   const archetype = archetypeOf(id);
   if (archetype === null) throw new Error(`No ${id} tile.`);
   const game = newGame("scenario.prologue", seed);
-  for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-    const prologue = game.view().prologue!;
-    const open = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((answer) => answer.allowed)?.id;
-    if (open === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer: open });
-  }
+  playTile(game, archetype);
   return game;
 }
 

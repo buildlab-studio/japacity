@@ -13,9 +13,9 @@ import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import type { QualityEvent } from "./quality.events";
 import { qualityKind } from "./quality.logic";
+import { UK_ROUTE } from "../testing/ids";
 
 const tuning = content.tuning.quality;
-const UK: Id<"route"> = "route.uk-masters";
 
 /**
  * A registry where `offer/choose` carries out the given effects, so a test can
@@ -266,14 +266,14 @@ describe("report lines", () => {
   test("[R-QUALITY-006] given a gain to a quality that counts toward a route, when it is reported, then the line carries the route", () => {
     const game = ada();
     const result = applyEffects(game, [add("quality.english", 6)]);
-    expect(content.quality["quality.english"]!.counts).toEqual([UK]);
+    expect(content.quality["quality.english"]!.counts).toEqual([UK_ROUTE]);
     expect(result.lines).toEqual([
       {
         key: "line.quality.gain",
         params: { quality: "quality.english", points: 6, value: game.state.quality["quality.english"]!, source: "offer.test.yes" },
         tone: "good",
         attention: false,
-        counts: [UK],
+        counts: [UK_ROUTE],
       },
     ]);
   });
@@ -318,13 +318,13 @@ describe("report lines", () => {
 
   test("[R-QUALITY-006] [R-QUALITY-004] given a quality that counts toward a route, when the month phase raises it, then the drift line carries the route", () => {
     const wellbeing = content.quality["quality.wellbeing"]!;
-    const counted: Content = { ...restless, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK] } } };
+    const counted: Content = { ...restless, quality: { ...content.quality, [wellbeing.id]: { ...wellbeing, counts: [UK_ROUTE] } } };
     const game = start({ content: counted, scenario: "scenario.ada" });
     applyEffects(game, [add("quality.wellbeing", tuning.wellbeingDriftTo - 10 - game.state.quality["quality.wellbeing"]!)]);
     const result = game.endTurn();
     const drift = result.lines.filter((line) => line.key === "line.quality.drift");
     expect(drift).toEqual([
-      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift, source: "month" }, tone: "plain", attention: false, counts: [UK] },
+      { key: "line.quality.drift", params: { quality: "quality.wellbeing", points: tuning.wellbeingDrift, value: tuning.wellbeingDriftTo - 10 + tuning.wellbeingDrift, source: "month" }, tone: "plain", attention: false, counts: [UK_ROUTE] },
     ]);
   });
 

@@ -1,5 +1,4 @@
 import { execFileSync } from "node:child_process";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { devices, expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
@@ -14,22 +13,19 @@ import { devices, expect, test, type Browser, type BrowserContext, type Page } f
 import { realTarget, withAccess } from "../../../../tools/local/access";
 import { cronUrl, readLocalStack } from "../../../../tools/local/env";
 import { passOpeningWords, passThePage } from "../support/door";
+import { shoot } from "../support/preview";
 
 const ROOT = fileURLToPath(new URL("../../../..", import.meta.url));
 const stack = readLocalStack(ROOT);
 const target = realTarget(process.env, stack.siteUrl);
 const NO_MAILPIT = "staging has no Mailpit, so no email code can be read there";
 const NO_LOCAL_DATABASE = "the switch is set on the local database, which staging is not";
-const SHOTS = process.env.PREVIEW_DIR ?? "";
 /** A new address each run: the code sends are limited per address a day (R-ACCOUNT-014). */
 const EMAIL = `player-${String(Date.now())}@example.com`;
 const USERNAME = `real_${String(Date.now()).slice(-9)}`;
 
-async function shoot(page: Page, name: string): Promise<void> {
-  if (SHOTS === "") return;
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: join(SHOTS, `${name}.png`) });
-}
+/** A picture waits a moment for the screen to settle. */
+const SETTLED = { settleMs: 300 };
 
 /** What went wrong in the page: console errors, page errors, failed requests and refusals not on the allowed list ("401 GET /api/view"). */
 interface Watch {
@@ -152,10 +148,10 @@ test.describe("one new player, played in order on one phone", () => {
     seen.allow("401 GET /api/view", "401 GET /api/account");
     await page.goto("/");
     await expect(page.getByRole("button", { name: "Play", exact: true })).toBeVisible({ timeout: 60_000 });
-    await shoot(page, "real-01-start");
+    await shoot(page, "real-01-start", SETTLED);
     await page.getByRole("button", { name: "Play", exact: true }).click();
     await expect(page.getByRole("combobox", { name: "Day" })).toBeVisible();
-    await shoot(page, "real-02-age");
+    await shoot(page, "real-02-age", SETTLED);
     expect(seen.problems()).toEqual([]);
   });
 
@@ -177,7 +173,7 @@ test.describe("one new player, played in order on one phone", () => {
     if (!target.local && started.status() === 403 && (await started.text()).includes('"bot-check"')) {
       // The game says so on the page, in its own words, and the life goes no further here.
       await expect(page.getByRole("alert")).toContainText("The quick check did not go through.");
-      await shoot(page, "real-03-bot-check");
+      await shoot(page, "real-03-bot-check", SETTLED);
       expect(seen.problems()).toEqual([]);
       stoppedAtTheCheck = true;
       test.skip(true, STOPPED);
@@ -186,7 +182,7 @@ test.describe("one new player, played in order on one phone", () => {
     await passThePage(page, 60_000);
     await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
     await passOpeningWords(page, 20_000);
-    await shoot(page, "real-03-world");
+    await shoot(page, "real-03-world", SETTLED);
 
     // The month is ended on the server: the band's Next month, through the Calendar where it opens first.
     const ended = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/command" && (response.request().postData() ?? "").includes('"turn/end"'), { timeout: 60_000 });
@@ -199,7 +195,7 @@ test.describe("one new player, played in order on one phone", () => {
     expect(reply.status(), await reply.text()).toBe(200);
     expect(((await reply.json()) as { ok: boolean }).ok).toBe(true);
     await expect(page.locator("[data-world-sheet='results']")).toBeVisible({ timeout: 60_000 });
-    await shoot(page, "real-04-month-ended");
+    await shoot(page, "real-04-month-ended", SETTLED);
     await page.keyboard.press("Escape");
     expect(seen.problems()).toEqual([]);
   });
@@ -216,7 +212,7 @@ test.describe("one new player, played in order on one phone", () => {
     await sheet.getByRole("button", { name: "Send me a code" }).click();
     const code = await codeFor(page, EMAIL, asked);
     await sheet.getByLabel("The 6-digit code").fill(code);
-    await shoot(page, "real-05-keep-code");
+    await shoot(page, "real-05-keep-code", SETTLED);
     await sheet.getByRole("button", { name: "Keep my life" }).click();
     await expect(page.getByText("Done. This life is yours on any phone now.")).toBeVisible({ timeout: 20_000 });
     const account = await page.request.get("/api/account");
@@ -252,7 +248,7 @@ test.describe("one new player, played in order on one phone", () => {
     const reply = await bought;
     expect(reply.status(), await reply.text()).toBe(200);
     await expect(sheet.locator("[data-lottery-held]")).toHaveAttribute("data-lottery-held", "1");
-    await shoot(page, "real-06-kiosk");
+    await shoot(page, "real-06-kiosk", SETTLED);
     await page.keyboard.press("Escape");
     expect(seen.problems()).toEqual([]);
   });
@@ -264,7 +260,7 @@ test.describe("one new player, played in order on one phone", () => {
     await row.click();
     const sheet = page.getByRole("dialog", { name: "Credits" });
     await expect(sheet.getByRole("link", { name: "OpenStreetMap" })).toHaveAttribute("href", "https://www.openstreetmap.org/copyright");
-    await shoot(page, "real-07-credits");
+    await shoot(page, "real-07-credits", SETTLED);
     await page.keyboard.press("Escape");
     await closePhone(page);
     expect(seen.problems()).toEqual([]);
@@ -283,12 +279,12 @@ test.describe("one new player, played in order on one phone", () => {
     await page.getByRole("button", { name: "Send me a code" }).click();
     const code = await codeFor(page, EMAIL, asked);
     await page.getByLabel("The 6-digit code").fill(code);
-    await shoot(page, "real-08-sign-in");
+    await shoot(page, "real-08-sign-in", SETTLED);
     await page.getByRole("button", { name: /^Sign in/ }).click();
     await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
     const account = await page.request.get("/api/account");
     expect(((await account.json()) as { account: { username: string } }).account.username).toBe(USERNAME);
-    await shoot(page, "real-09-back-in");
+    await shoot(page, "real-09-back-in", SETTLED);
     expect(seen.problems()).toEqual([]);
   });
 
@@ -314,7 +310,7 @@ test.describe("one new player, played in order on one phone", () => {
       const card = theirs.locator("[data-invite-card]");
       await expect(card).toContainText("Japacity is a game", { timeout: 60_000 });
       await expect(theirs.getByRole("combobox", { name: "Day" })).toBeVisible();
-      await shoot(theirs, "real-10-invite");
+      await shoot(theirs, "real-10-invite", SETTLED);
       expect(theirWatch.problems()).toEqual([]);
     } finally {
       await friend.close();
@@ -339,7 +335,7 @@ test("[R-SERVER-031] [R-SERVER-032] with sign-ups switched off in the database, 
       await expect(theirs.getByRole("heading", { name: "Japacity is full right now. Try again shortly." })).toBeVisible({ timeout: 10_000 });
     }).toPass({ timeout: 90_000, intervals: [5_000] });
     await expect(theirs.getByRole("button", { name: "Play", exact: true })).toHaveCount(0);
-    await shoot(theirs, "real-11-full");
+    await shoot(theirs, "real-11-full", SETTLED);
     expect(theirWatch.problems()).toEqual([]);
   } finally {
     setSwitch("signups", true);

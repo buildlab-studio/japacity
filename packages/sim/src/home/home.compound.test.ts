@@ -8,20 +8,20 @@ import { describe, expect, test } from "vitest";
 import { bp } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import { applyOverlay } from "../engine/overlay";
-import type { Accepted, BaseEvent, Content, Effect, Id } from "../engine/types";
+import type { Accepted, BaseEvent, Content, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
-import { eventsOf, naira, restMonth } from "../testing/read";
+import { answerPrologue, start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
+import { eventsOf, naira, openObligations, restMonth } from "../testing/read";
 import { compoundMoveIn } from "./home.logic";
+import { FAMILY_UPKEEP, STANDING } from "../testing/ids";
 
 const FAMILY = "place.family-house" as const;
 const MAKOKO = "place.makoko" as const;
 const COMPOUND = "place.compound-room" as const;
-const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const RENT: Id<"obligation"> = "obligation.rent-compound";
 const UPKEEP: Id<"obligation"> = "obligation.upkeep-compound";
-const STANDING: Id<"quality"> = "quality.standing";
 const { home } = content.tuning;
 const MOVE_IN = home.compound.rentYear + bp(home.compound.rentYear, home.compound.feesBp);
 /** Ada's family upkeep, from her starting life (scenario.data.ts). */
@@ -35,17 +35,6 @@ function ada(base: Content = QUIET): Game {
   return start({ content: base, scenario: "scenario.ada", seed: "seed-1" });
 }
 
-/** Leaves exactly this much naira in cash and in the bank. */
-function setNaira(game: Game, cash: number, bank: number): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  const effects: Effect[] = [];
-  if (pocket.cash > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "mishap" });
-  if (pocket.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" });
-  if (cash > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "cash", amount: cash, reason: "gift" });
-  if (bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" });
-  applyEffects(game, effects);
-}
-
 function charged(result: { events: BaseEvent[] }, entry: Id<"obligation">): number[] {
   return eventsOf(result, "obligation/charged")
     .filter((event) => event["entry"] === entry)
@@ -56,7 +45,7 @@ function charged(result: { events: BaseEvent[] }, entry: Id<"obligation">): numb
 function rentMonths(game: Game, last: number): number[] {
   const months: number[] = [];
   while (game.state.turn.month < last) {
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const result = restMonth(game);
     if (charged(result, RENT).length > 0) months.push(game.state.turn.month);
   }
@@ -68,16 +57,10 @@ function toRentDue(game: Game): void {
   while (game.state.turn.month < 11) restMonth(game);
 }
 
-function openEntries(game: Game): Id<"obligation">[] {
-  return Object.values(game.state.obligation.items)
-    .map((item) => item.entry)
-    .sort();
-}
-
 /** Ada moved into the room in this month with plenty left. */
 function inTheRoom(base: Content = QUIET): Game {
   const game = ada(base);
-  setNaira(game, 0, 5_000_000_00);
+  setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
   game.accept({ type: "home/move", to: COMPOUND });
   return game;
 }
@@ -85,11 +68,7 @@ function inTheRoom(base: Content = QUIET): Game {
 /** A life from sixteen through the shop counter, started three years past its path (three years worked, more saved), its home card answered `answer`. */
 function fromSixteen(answer: string, before: (game: Game) => void = () => undefined): Game {
   const game = start({ content: QUIET, scenario: "scenario.prologue", seed: "seed-1" });
-  for (const choice of ["begin", "commercial", "work", "start-24", "save", "nowhere"]) {
-    const step = game.state.prologue.step;
-    if (step === null) throw new Error(`The prologue closed before ${choice}.`);
-    game.accept({ type: "prologue/choose", step, answer: choice });
-  }
+  answerPrologue(game, ["begin", "commercial", "work", "start-24", "save", "nowhere"]);
   before(game);
   game.accept({ type: "prologue/choose", step: "home", answer });
   return game;
@@ -116,13 +95,13 @@ describe("the numbers", () => {
 describe("moving into the room", () => {
   test("[R-HOME-010] [R-HOME-002] given Ada at the family house with plenty, when she moves into the room, then the year's rent and the fees are taken at once under rent, the family's upkeep closes, the room's rent and upkeep open, and standing does not move", () => {
     const game = ada(CHARGED);
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     const standing = game.state.quality[STANDING];
     const result = game.accept({ type: "home/move", to: COMPOUND });
     const debits = eventsOf(result, "wallet/debited").map((event) => [event["amount"], event["reason"]]);
     expect(debits).toEqual([[MOVE_IN, "rent"]]);
     expect(naira(game)).toBe(5_000_000_00 - MOVE_IN);
-    expect(openEntries(game)).toEqual([RENT, UPKEEP]);
+    expect(openObligations(game)).toEqual([RENT, UPKEEP]);
     expect(game.state.home).toMatchObject({ place: COMPOUND, since: 0, moved: 0, guest: null });
     expect(game.state.quality[STANDING]).toBe(standing);
     expect(result.lines.map((line) => line.key)).toContain("line.home.moved");
@@ -132,11 +111,11 @@ describe("moving into the room", () => {
 
   test("[R-HOME-010] [R-HOME-008] given Ada one kobo short of the year's rent and fees, when the card is read and she moves, then the move is shut as short and refused with cannot-afford; with it exactly held it is open and taken", () => {
     const short = ada(CHARGED);
-    setNaira(short, 0, MOVE_IN - 1);
+    setPockets(short, { NGN: { cash: 0, bank: MOVE_IN - 1 } });
     expect(short.view().home.moves.find((move) => move.to === COMPOUND)).toEqual({ to: COMPOUND, monthly: { currency: "NGN", amount: home.compound.upkeep }, now: MOVE_IN, shut: "short" });
     short.expectRejected({ type: "home/move", to: COMPOUND }, "cannot-afford");
     const exact = ada(CHARGED);
-    setNaira(exact, 0, MOVE_IN);
+    setPockets(exact, { NGN: { cash: 0, bank: MOVE_IN } });
     expect(exact.view().home.moves.find((move) => move.to === COMPOUND)?.shut).toBeNull();
     exact.accept({ type: "home/move", to: COMPOUND });
     expect(naira(exact)).toBe(0);
@@ -200,7 +179,7 @@ describe("moving back", () => {
     const standing = game.state.quality[STANDING]!;
     const before = naira(game);
     const result = game.accept({ type: "home/move", to: FAMILY });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     expect(Object.values(game.state.obligation.items)[0]?.amount).toBe(ADA_UPKEEP);
     expect(game.state.quality[STANDING]).toBe(standing + home.returnStanding);
     expect(naira(game)).toBe(before);
@@ -213,7 +192,7 @@ describe("moving back", () => {
     const game = inTheRoom();
     restMonth(game);
     game.accept({ type: "home/move", to: MAKOKO });
-    expect(openEntries(game)).toEqual(["obligation.upkeep-makoko"]);
+    expect(openObligations(game)).toEqual(["obligation.upkeep-makoko"]);
     expect(game.state.home.place).toBe(MAKOKO);
   });
 });
@@ -226,7 +205,7 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
 
   test("[R-OBLIGATION-015] given the room's rent opened in a later month, when it is read, then its first charge falls twelve months after that month", () => {
     const game = ada();
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     for (let at = 0; at < 3; at += 1) restMonth(game);
     expect(game.state.turn.month).toBe(3);
     game.accept({ type: "home/move", to: COMPOUND });
@@ -236,11 +215,11 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
   test("[R-OBLIGATION-015] [R-OBLIGATION-003] given the year's rent due and not held, when it is missed, then it is asked for again the next month, and once paid the next falls twelve months after the opening year's", () => {
     const game = inTheRoom();
     toRentDue(game);
-    setNaira(game, 0, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const missed = restMonth(game);
     expect(game.state.turn.month).toBe(12);
     expect(eventsOf(missed, "obligation/missed").filter((event) => event["entry"] === RENT)).toHaveLength(1);
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     expect(charged(restMonth(game), RENT)).toEqual([home.compound.rentYear]);
     expect(rentMonths(game, 26)).toEqual([24]);
   });
@@ -255,7 +234,7 @@ describe("the room's rent in the view", () => {
       const rent = game.view().home.roomRent;
       expect(rent).toMatchObject({ year: home.compound.rentYear, fees });
       seen.push(rent!.dueIn);
-      setNaira(game, 0, 5_000_000_00);
+      setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
       const result = restMonth(game);
       // The month whose end takes the rent is the month the view said 0.
       expect(charged(result, RENT).length > 0).toBe(rent!.dueIn === 0);
@@ -266,7 +245,7 @@ describe("the room's rent in the view", () => {
   test("[R-HOME-010] given the year's rent missed, when the view is read, then it is due again at this month's end", () => {
     const game = inTheRoom();
     toRentDue(game);
-    setNaira(game, 0, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     restMonth(game);
     expect(game.view().home.roomRent?.dueIn).toBe(0);
   });
@@ -288,13 +267,13 @@ describe("a rent gone bad (R-HOME-011)", () => {
     let last: Accepted | null = null;
     for (let miss = 0; miss <= grace; miss += 1) {
       expect(game.state.home.place).toBe(COMPOUND);
-      setNaira(game, 0, 0);
+      setPockets(game, { NGN: { cash: 0, bank: 0 } });
       last = restMonth(game);
     }
     if (last === null) throw new Error("No month ran.");
     expect(eventsOf(last, "obligation/defaulted").map((event) => event["entry"])).toEqual([RENT]);
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
-    expect(openEntries(game)).toEqual([FAMILY_UPKEEP]);
+    expect(openObligations(game)).toEqual([FAMILY_UPKEEP]);
     const moved = eventsOf(last, "home/moved");
     expect(moved).toHaveLength(1);
     expect(moved[0]).toMatchObject({ from: COMPOUND, to: FAMILY, putOut: true });
@@ -308,11 +287,11 @@ describe("a rent gone bad (R-HOME-011)", () => {
   test("[R-HOME-011] given Ada's room rent missed but not yet past its grace, when the month ends, then she still lives in the room", () => {
     const game = inTheRoom();
     toRentDue(game);
-    setNaira(game, 0, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const result = restMonth(game);
     expect(eventsOf(result, "obligation/defaulted")).toEqual([]);
     expect(game.state.home.place).toBe(COMPOUND);
-    expect(openEntries(game)).toEqual([RENT, UPKEEP]);
+    expect(openObligations(game)).toEqual([RENT, UPKEEP]);
   });
 
   test("[R-HOME-011] given the standing cost of a move back, when Ada is put out, then her standing falls by the tuning's figure on top of the misses' own costs", () => {
@@ -321,8 +300,8 @@ describe("a rent gone bad (R-HOME-011)", () => {
     const twin = inTheRoom(applyOverlay(QUIET, { version: "test-compound-no-talk", tuning: { home: { returnStanding: 0 } } }));
     toRentDue(twin);
     for (let miss = 0; miss <= content.obligation[RENT]!.grace; miss += 1) {
-      setNaira(game, 0, 0);
-      setNaira(twin, 0, 0);
+      setPockets(game, { NGN: { cash: 0, bank: 0 } });
+      setPockets(twin, { NGN: { cash: 0, bank: 0 } });
       restMonth(game);
       restMonth(twin);
     }
@@ -337,11 +316,11 @@ describe("a flight lets the room go (R-PLACE-002)", () => {
     const game = inTheRoom();
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
-    expect(openEntries(game).filter((entry) => entry === RENT || entry === UPKEEP || entry === FAMILY_UPKEEP)).toEqual([]);
+    expect(openObligations(game).filter((entry) => entry === RENT || entry === UPKEEP || entry === FAMILY_UPKEEP)).toEqual([]);
     restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
-    expect(openEntries(game)).toContain(FAMILY_UPKEEP);
-    expect(openEntries(game)).not.toContain(RENT);
+    expect(openObligations(game)).toContain(FAMILY_UPKEEP);
+    expect(openObligations(game)).not.toContain(RENT);
     expect(game.view().home.place).toBe(FAMILY);
     restMonth(game);
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
@@ -359,15 +338,15 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
     expect(naira(game)).toBe(held - MOVE_IN);
     expect(game.state.prologue.open).toBe(false);
     expect(game.state.home).toEqual({ place: COMPOUND, since: 0, guest: null, moved: null, evicted: null, hosting: null });
-    expect(openEntries(game)).toEqual([RENT, UPKEEP]);
+    expect(openObligations(game)).toEqual([RENT, UPKEEP]);
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
     for (let at = 1; at < 12; at += 1) {
-      setNaira(game, 0, 5_000_000_00);
+      setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
       const result = restMonth(game);
       expect(charged(result, RENT)).toEqual([]);
       expect(charged(result, UPKEEP)).toHaveLength(1);
     }
-    setNaira(game, 0, 5_000_000_00);
+    setPockets(game, { NGN: { cash: 0, bank: 5_000_000_00 } });
     expect(charged(restMonth(game), RENT)).toEqual([home.compound.rentYear]);
     expect(game.state.turn.month).toBe(12);
   });

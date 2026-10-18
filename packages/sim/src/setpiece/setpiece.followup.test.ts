@@ -1,24 +1,20 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Id, SetpieceAnswer, SetpieceEntry, SetpieceQuestion } from "../engine/types";
-import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "../testing/route.journey";
+import type { SetpieceAnswer, SetpieceEntry, SetpieceQuestion } from "../engine/types";
+import { drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, uk } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
-import { offerChanceBp } from "../route/route.logic";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
+import { INTERVIEW, PREP } from "../testing/ids";
 
-const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
-const PREP: Id<"quality"> = "quality.interview-prep";
 // A clean file is never asked about the deposit (over 30% unexplained) or the papers (a transcript that is not genuine).
 const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit" && id !== "papers");
 
-const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
-
 /** A seed whose interview asks `question` at `index` of the questions drawn for a clean file. */
 function seedAsking(question: string, index: number): string {
-  return seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask)[index] === question);
+  return seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask)[index] === question);
 }
 
 function lifeAsking(question: string, index: number, options: LifeOptions = {}, used = content): Game {
@@ -165,7 +161,7 @@ describe("the follow-up question", () => {
     const followUps = new Set((entry.followUps ?? []).map((question) => question.id));
     expect(followUps.size).toBeGreaterThan(0);
     for (let index = 0; index < 8; index += 1) {
-      const seed = seedWhere((candidate) => northgateOffers(candidate) && Number(candidate.slice(5)) >= index * 5);
+      const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= index * 5);
       const game = readyLife(content, { seed });
       toApplied(game);
       const open = game.state.setpiece.open!;

@@ -4,11 +4,12 @@
 import { content } from "@japacity/content";
 import type { Currency, PlayerView } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
-import { gameAuthority, newGame, openOffer, setPockets } from "../testing/fixtures";
+import { gameAuthority, newGame, openOffer } from "../testing/fixtures";
 import "../testing/render";
 import { formatMoney } from "../words/format";
 import { nameOf, say, words } from "../words/text";

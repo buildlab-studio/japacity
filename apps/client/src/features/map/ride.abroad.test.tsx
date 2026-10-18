@@ -4,11 +4,12 @@
 import { content } from "@japacity/content";
 import { uiLondonText } from "@japacity/content/ui/london";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
+import { positionOf, setPockets } from "@japacity/sim/testing";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame, engineView, setPockets } from "../../shared/testing/fixtures";
+import { abroadGame, engineView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf } from "../../shared/words/text";
@@ -32,12 +33,6 @@ const PASS: Id<"activity"> = "activity.bus-pass-uk";
 /** A words key left unsaid, or an en or em dash (docs/rules/text.md), built from their codes so no dash stands in this file. */
 const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${String.fromCharCode(0x2014)}]`);
 
-function positionOf(id: string): { latE3: number; lonE3: number } {
-  const position = content.place[id as Id<"place">]?.position;
-  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
-  return position;
-}
-
 /** Ada landed in London with pounds in hand, and, when asked, this month's bus pass bought. */
 function londonView(pass = false): PlayerView {
   const game = abroadGame();
@@ -48,11 +43,11 @@ function londonView(pass = false): PlayerView {
 
 /** The ways from Peckham to a place, as the sheet reads them from the view. */
 function from(view: PlayerView, to: string) {
-  const at = { from: positionOf(PECKHAM), to: to === ROOM ? HOME_SPOT : positionOf(to) };
+  const at = { from: positionOf(content, PECKHAM), to: to === ROOM ? HOME_SPOT : positionOf(content, to) };
   return waysAbroad(view.place.ways ?? [], { from: PECKHAM, to }, at, to === ROOM, view.place.fareBp);
 }
 
-const pin = (id: string, state: MapPin["state"]): MapPin => ({ id, name: nameOf(id), state, position: id === ROOM ? HOME_SPOT : positionOf(id), things: 2 });
+const pin = (id: string, state: MapPin["state"]): MapPin => ({ id, name: nameOf(id), state, position: id === ROOM ? HOME_SPOT : positionOf(content, id), things: 2 });
 
 describe("the ways in London", () => {
   test("[R-WORLD-039] [R-PLACE-010] given Ada landed in London, when the ways from Peckham are read, then they are the bus at its flat £1.75, the train by distance (£3.20 to the office) and on foot, priced by the simulation's own fare, all in pounds", () => {
@@ -69,7 +64,7 @@ describe("the ways in London", () => {
     expect(train?.fare).toBe(320);
     const figures = view.place.ways?.find((way) => way.way === "train");
     if (figures === undefined) throw new Error("No train");
-    expect(train?.fare).toBe(rideFare(figures, positionOf(PECKHAM), positionOf("place.office-uk")));
+    expect(train?.fare).toBe(rideFare(figures, positionOf(content, PECKHAM), positionOf(content, "place.office-uk")));
     // The bus is one fare however far: the big shop next door costs what the office does.
     expect(from(view, "place.big-shop-uk")[0]?.fare).toBe(175);
     expect(walk?.fare).toBe(0);
@@ -90,7 +85,7 @@ describe("the ways in London", () => {
     expect(walkTo(ROOM)?.shut).toBeUndefined();
     // The room has no address of its own; a pin standing at another country's spot never times a ride in thousands of minutes.
     const lagosSpot = { latE3: 6507, lonE3: 3359 };
-    const home = waysAbroad(view.place.ways ?? [], { from: ROOM, to: PECKHAM }, { from: lagosSpot, to: positionOf(PECKHAM) }, false, view.place.fareBp);
+    const home = waysAbroad(view.place.ways ?? [], { from: ROOM, to: PECKHAM }, { from: lagosSpot, to: positionOf(content, PECKHAM) }, false, view.place.fareBp);
     expect(Math.max(...home.map((way) => way.minutes))).toBeLessThan(60);
   });
 
@@ -110,7 +105,7 @@ describe("the ways in London", () => {
 
   test("[R-WORLD-017] [R-PLACE-010] given a life at home, when the view's ways are priced by the simulation's fare, then each is the fare the sheet has always said, to the kobo", () => {
     const view = engineView();
-    const at = { from: positionOf("place.ojuelegba"), to: positionOf("place.bode-thomas") };
+    const at = { from: positionOf(content, "place.ojuelegba"), to: positionOf(content, "place.bode-thomas") };
     const sheet = rideChoices(at.from, at.to, null, view.place.fareBp, false, { from: "place.ojuelegba", to: "place.bode-thomas" });
     for (const way of view.place.ways ?? []) {
       const said = sheet.find((choice) => choice.id === way.way);

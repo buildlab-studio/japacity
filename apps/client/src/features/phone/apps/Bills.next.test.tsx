@@ -1,11 +1,12 @@
 // Bills in a month no instalment is taken (docs/rules/world.md R-WORLD-019, R-WORLD-002): tuition says
 // when the next one comes, as months away, never "Taken at the month's end." in a month none is taken.
 import { fireEvent, render } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
-import { ABROAD_POCKETS, abroadGame, gameAuthority, newGame, setPockets } from "../../../shared/testing/fixtures";
+import { ABROAD_POCKETS, abroadGame, gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { PhoneApps } from "../PhoneApps";
 

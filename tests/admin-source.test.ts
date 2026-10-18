@@ -1,15 +1,15 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
-const OPS = join(root, "apps/server/src/ops");
+import { REPO_ROOT } from "../tools/repo";
+
+const OPS = join(REPO_ROOT, "apps/server/src/ops");
 
 function sources(): { file: string; text: string }[] {
   const files = readdirSync(OPS).filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"));
-  return [...files.map((name) => join(OPS, name)), join(root, "apps/server/src/routes/admin/admin.ts"), join(root, "apps/server/src/jobs/money.ts")].map((file) => ({ file, text: readFileSync(file, "utf8") }));
+  return [...files.map((name) => join(OPS, name)), join(REPO_ROOT, "apps/server/src/routes/admin/admin.ts"), join(REPO_ROOT, "apps/server/src/jobs/money.ts")].map((file) => ({ file, text: readFileSync(file, "utf8") }));
 }
 
 describe("the admin tools' reach", () => {
@@ -28,7 +28,7 @@ describe("the admin tools' reach", () => {
   });
 
   test("[R-SERVER-029] given the server's readme, when the steps in the accounts are read, then the spending alerts at $50 and $200 a month are there", () => {
-    const readme = readFileSync(join(root, "apps/server/README.md"), "utf8");
+    const readme = readFileSync(join(REPO_ROOT, "apps/server/README.md"), "utf8");
     const steps = readme.slice(readme.indexOf("## Steps in the accounts"));
     expect(steps).toMatch(/R-SERVER-029.*\$50.*\$200 a month/);
   });

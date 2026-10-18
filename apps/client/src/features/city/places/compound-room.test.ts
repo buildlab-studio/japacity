@@ -5,16 +5,18 @@
 // family house's acts on its things.
 import { content } from "@japacity/content";
 import type { PlayerView } from "@japacity/sim";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import raw from "../../../../public/assets/places/home-room-house/place.json";
-import { engineView, newGame, setPockets } from "../../../shared/testing/fixtures";
+import { engineView, newGame } from "../../../shared/testing/fixtures";
 import { cameraAt, projected, SCREENS } from "../scene/scene.testing";
 import { aimRoom, shotOf } from "../scene/shot";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { byHandAt, homeStagesAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow, thingsOf, withMoreAt } from "../scene/things";
 import { cityWords } from "../city.words";
+import { thingIn } from "../../../shared/testing/things";
 
 const ID = "place.compound-room";
 const file = raw as unknown as PlaceFile;
@@ -23,9 +25,7 @@ const PLACES = Object.values(content.place);
 const HOME = { where: "home", country: null } as const;
 
 function thingOf(id: string) {
-  const found = (stage.things ?? []).find((thing) => thing.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
+  return thingIn(stage.things, id);
 }
 
 /** Ada's view living in the room: moved in through the game, so her upkeep is the room's own (R-HOME-010). */

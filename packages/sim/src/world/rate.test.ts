@@ -7,9 +7,9 @@ import { drawAt, scaleDraw } from "../engine/random";
 import type { Content, Id, NewsEntry } from "../engine/types";
 import { seedWhere } from "../testing/world";
 import { rateTrack, standInWorld, standInWorlds } from "./standIn";
+import { FLOAT } from "../testing/ids";
 
 const { rate } = content.tuning;
-const FLOAT: Id<"news"> = "news.naira-float";
 
 /** The real content with tuning or variables changed, for tests about one number. */
 function variant(change: { rate?: Partial<Content["tuning"]["rate"]>; vars?: Partial<Record<Id<"var">, number>>; news?: Content["news"] }): Content {

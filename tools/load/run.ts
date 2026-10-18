@@ -5,9 +5,9 @@
 //
 // Usage: tools/load/run.sh [--scale 10] [--scenario commands|reads] [--tool k6|node] [--minutes 10] [--base http://127.0.0.1:8787] [--no-verify]
 import { spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { cpus, platform, release, totalmem } from "node:os";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { content } from "../../packages/content/src/index";
 import { drive } from "./drive";
@@ -22,6 +22,7 @@ import { MANIFEST, RESULTS } from "./seed";
 import { summaryMarkdown, summaryOf } from "./summary";
 import type { Counts, Verification } from "./verify";
 import { verifyAll } from "./verify";
+import { isMain, readJson } from "../repo";
 
 const HERE = fileURLToPath(new URL("./", import.meta.url));
 
@@ -35,7 +36,7 @@ export function k6Version(): string | null {
 function wranglerVersion(): string {
   const manifest = fileURLToPath(new URL("../../apps/server/node_modules/wrangler/package.json", import.meta.url));
   try {
-    return (JSON.parse(readFileSync(manifest, "utf8")) as { version: string }).version;
+    return readJson<{ version: string }>(manifest).version;
   } catch {
     return "unknown";
   }
@@ -50,7 +51,7 @@ async function counts(target: Target): Promise<{ counts: Counts; snapshotEvery: 
 function runK6(plan: LoadPlan, target: Target, scenario: "commands" | "reads", tool: string): RunResult {
   const ran = spawnSync("k6", ["run", "commands.k6.js"], { cwd: HERE, stdio: "inherit", env: { ...process.env, LOAD_BASE: target.base, LOAD_SCENARIO: scenario } });
   if (ran.error !== undefined) throw ran.error;
-  const data = JSON.parse(readFileSync(`${RESULTS}k6-${scenario}.json`, "utf8")) as Parameters<typeof fromK6>[0];
+  const data = readJson<Parameters<typeof fromK6>[0]>(`${RESULTS}k6-${scenario}.json`);
   return fromK6(data, plan, tool, Date.now(), scenario);
 }
 
@@ -61,7 +62,7 @@ async function main(args: readonly string[]): Promise<void> {
   const target = { base: argument(args, "base", "http://127.0.0.1:8787") };
   const load = scaled(config.load, scale);
   const minutes = wholeArgument(args, "minutes", load.minutes);
-  const manifest = JSON.parse(readFileSync(MANIFEST, "utf8")) as Manifest;
+  const manifest = readJson<Manifest>(MANIFEST);
   if (manifest.accounts.length !== load.accounts) console.log(`The manifest holds ${String(manifest.accounts.length)} accounts where this scale plans ${String(load.accounts)}. The run uses the manifest's.`);
   const plan = planFor({ ...load, minutes, accounts: manifest.accounts.length }, scale);
 
@@ -108,7 +109,7 @@ async function main(args: readonly string[]): Promise<void> {
   if (scenario === "commands" && summary.verdict !== "pass") process.exit(1);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

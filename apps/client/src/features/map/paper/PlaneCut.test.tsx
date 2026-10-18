@@ -6,7 +6,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { along, PlaneCut, planePath, STILL_AT } from "./PlaneCut";
 
-vi.mock("../../../shared/three/manifest", async (original) => ({ ...(await original<typeof import("../../../shared/three/manifest")>()), loadManifest: () => Promise.resolve({ files: {} }) }));
+vi.mock("../../../shared/three/manifest", async (original) => (await import("../../../shared/testing/manifest")).emptyManifest(original));
 
 afterEach(() => {
   vi.restoreAllMocks();

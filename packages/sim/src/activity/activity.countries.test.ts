@@ -6,23 +6,15 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Currency, Effect, Id } from "../engine/types";
-import { applyEffects } from "../testing/route.journey";
+import { applyEffects, middling } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { debits } from "../testing/read";
+import { BELLY, CANADA_COUNTRY, ENERGY, ITALY, NETWORK, PREP, STANDING, UAE, WELLBEING } from "../testing/ids";
 
-const BELLY: Id<"quality"> = "quality.belly";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const ENERGY: Id<"quality"> = "quality.energy";
-const STANDING: Id<"quality"> = "quality.standing";
-const PREP: Id<"quality"> = "quality.interview-prep";
-const NETWORK: Id<"quality"> = "quality.network";
 const body = content.tuning.turn.body;
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
-const CANADA: Id<"country"> = "country.canada";
-const UAE: Id<"country"> = "country.uae";
-const ITALY: Id<"country"> = "country.italy";
-const MONEY: Readonly<Record<string, Currency>> = { [CANADA]: "CAD", [UAE]: "AED", [ITALY]: "EUR" };
+const MONEY: Readonly<Record<string, Currency>> = { [CANADA_COUNTRY]: "CAD", [UAE]: "AED", [ITALY]: "EUR" };
 
 interface Act {
   id: Id<"activity">;
@@ -39,12 +31,12 @@ interface Act {
 /** The rules' lists, in their order, with their numbers and names. */
 const RULE: readonly Act[] = [
   // R-STREET-013, Calgary.
-  { id: "activity.weekly-shop-ca", country: CANADA, price: 9000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
-  { id: "activity.buy-clothes-ca", country: CANADA, price: 12000, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 4]], name: "Winter clothes" },
-  { id: "activity.cook-own-ca", country: CANADA, price: 800, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
-  { id: "activity.coffee-ca", country: CANADA, price: 300, reason: "enjoyment", halfDays: null, repeat: false, effects: [[WELLBEING, 2]], name: "A coffee" },
-  { id: "activity.naija-shop-ca", country: CANADA, price: 4000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 30], [WELLBEING, 8]], name: "The African store" },
-  { id: "activity.barber-ca", country: CANADA, price: 3000, reason: "enjoyment", halfDays: 1, repeat: false, effects: [[WELLBEING, 5], [STANDING, 1], [PREP, 2]], name: "A fresh cut" },
+  { id: "activity.weekly-shop-ca", country: CANADA_COUNTRY, price: 9000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
+  { id: "activity.buy-clothes-ca", country: CANADA_COUNTRY, price: 12000, reason: "enjoyment", halfDays: 2, repeat: false, effects: [[STANDING, 1], [WELLBEING, 4]], name: "Winter clothes" },
+  { id: "activity.cook-own-ca", country: CANADA_COUNTRY, price: 800, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
+  { id: "activity.coffee-ca", country: CANADA_COUNTRY, price: 300, reason: "enjoyment", halfDays: null, repeat: false, effects: [[WELLBEING, 2]], name: "A coffee" },
+  { id: "activity.naija-shop-ca", country: CANADA_COUNTRY, price: 4000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 30], [WELLBEING, 8]], name: "The African store" },
+  { id: "activity.barber-ca", country: CANADA_COUNTRY, price: 3000, reason: "enjoyment", halfDays: 1, repeat: false, effects: [[WELLBEING, 5], [STANDING, 1], [PREP, 2]], name: "A fresh cut" },
   // R-STREET-014, Dubai.
   { id: "activity.weekly-shop-uae", country: UAE, price: 15000, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 40]], name: "The weekly shop" },
   { id: "activity.cook-own-uae", country: UAE, price: 800, reason: "food", halfDays: 1, repeat: true, effects: [[BELLY, 25]], name: "A meal of your own" },
@@ -84,14 +76,6 @@ function money(game: Game, country: Id<"country">, cash: number): void {
     return held === 0 ? [] : [{ type: "money/take", currency, pocket: "any", amount: held, reason: "mishap" }];
   });
   applyEffects(game, [...takes, ...(cash > 0 ? [{ type: "money/add", currency: currencyOf(country), pocket: "cash", amount: cash, reason: "gift" } as const] : [])]);
-}
-
-/** Sets each named quality to the middle, so a lift or a fall is never lost to a bound. */
-function middling(game: Game, qualities: readonly Id<"quality">[]): void {
-  applyEffects(
-    game,
-    qualities.map((quality): Effect => ({ type: "quality/add", quality, amount: 50 - (game.state.quality[quality] ?? 0) })),
-  );
 }
 
 describe("the three countries lived by hand", () => {
@@ -153,7 +137,7 @@ describe("the three countries lived by hand", () => {
     const home = start({ content });
     for (const act of RULE) {
       expect({ id: act.id, ok: home.expectRejected({ type: "activity/now", activity: act.id, param: null }, "not-legal").ok }).toEqual({ id: act.id, ok: false });
-      const elsewhere = landed(act.country === CANADA ? UAE : CANADA, 1_000_000);
+      const elsewhere = landed(act.country === CANADA_COUNTRY ? UAE : CANADA_COUNTRY, 1_000_000);
       expect({ id: act.id, ok: elsewhere.expectRejected({ type: "activity/now", activity: act.id, param: null }, "not-legal").ok }).toEqual({ id: act.id, ok: false });
     }
   });
@@ -188,7 +172,7 @@ describe("the church in Castel Volturno and the souq in Naif", () => {
 });
 
 const UPKEEPS = [
-  { country: CANADA, id: "obligation.upkeep-ca" as Id<"obligation">, currency: "CAD", amount: 3000, name: "Your phone, prepaid, in Canada" },
+  { country: CANADA_COUNTRY, id: "obligation.upkeep-ca" as Id<"obligation">, currency: "CAD", amount: 3000, name: "Your phone, prepaid, in Canada" },
   { country: UAE, id: "obligation.upkeep-uae" as Id<"obligation">, currency: "AED", amount: 5000, name: "Your phone, prepaid, in Dubai" },
   { country: ITALY, id: "obligation.upkeep-it" as Id<"obligation">, currency: "EUR", amount: 1000, name: "Your phone, prepaid, in Italy" },
 ] as const;
@@ -209,7 +193,7 @@ describe("the three upkeeps", () => {
 describe("the room abroad cooks in the country's money", () => {
   test("[R-HOME-012] [R-OBLIGATION-014] given a life in each country, when the meal of the country is cooked, then it is paid in that money as food, nothing is relieved, and the naira meal is refused", () => {
     for (const [country, meal] of [
-      [CANADA, "activity.cook-own-ca"],
+      [CANADA_COUNTRY, "activity.cook-own-ca"],
       [UAE, "activity.cook-own-uae"],
       [ITALY, "activity.cook-own-it"],
     ] as const) {

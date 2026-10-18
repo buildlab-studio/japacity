@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { RegisterRow, Review } from "@japacity/assets";
@@ -36,9 +35,9 @@ import { placeMapData } from "./map-data";
 import { sha256 } from "./manifest";
 import { checkPalette } from "./palette-check";
 import type { Register } from "./register";
+import { readJson, REPO_ROOT } from "../repo";
 
-const ROOT = join(import.meta.dirname, "..", "..");
-const budgets = JSON.parse(readFileSync(join(ROOT, "assets-src", "budgets.json"), "utf8")) as Budgets;
+const budgets = readJson<Budgets>(join(REPO_ROOT, "assets-src", "budgets.json"));
 const config = { outlineMin: 85, dimTolerancePct: 5, minEach: 3, minPhone: 4, minMean: 3.5 };
 
 const measured = (file: string, over: Partial<Measured> = {}): Measured => ({ file, triangles: 100, drawCalls: 1, materials: 1, bytes: 1000, minY: 0, maxY: 6, palette: [], signs: 0, size: [1, 6, 1], extras: {}, ...over });
@@ -111,7 +110,7 @@ describe("the register", () => {
 
   test("[R-ASSET-009] given the repository, when every check runs, then every shipped file matches its register row and nothing fails", async () => {
     // The same place map data the command feeds in, so the credits file has one expected shape (R-CITY-021).
-    const { problems } = await runChecks(defaultPaths(ROOT), placeMapData());
+    const { problems } = await runChecks(defaultPaths(REPO_ROOT), placeMapData());
     expect(problems).toEqual([]);
   });
 });

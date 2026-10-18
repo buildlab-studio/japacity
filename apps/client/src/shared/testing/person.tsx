@@ -4,7 +4,7 @@
 // and the real content through commands, as the rule tests reach them.
 import { content } from "@japacity/content";
 import type { Content, Id, PersonFacts, SlotPick } from "@japacity/sim";
-import { start, type Game } from "@japacity/sim/testing";
+import { bondWith, start, type Game } from "@japacity/sim/testing";
 import { render } from "@testing-library/react";
 import type { ReactElement } from "react";
 
@@ -38,13 +38,6 @@ export function peopleGame(given: Content = content): Game {
 export function playMonth(game: Game, slots: SlotPick[] = []): void {
   if (game.state.turn.banked === 0) game.grant(1);
   game.endTurn(slots);
-}
-
-/** The id of the open bond with this computer. */
-function bondWith(game: Game, person: Id<"person">): string {
-  const found = Object.entries(game.state.people.bonds).find(([, bond]) => bond.with.kind === "computer" && bond.with.entry === person && bond.stage !== "ended");
-  if (found === undefined) throw new Error(`No open bond with ${person}.`);
-  return found[0];
 }
 
 /** Courts a computer and spends `months` months seeing them. */

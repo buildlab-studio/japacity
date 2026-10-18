@@ -9,17 +9,11 @@ import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
+import { ASK_AROUND, BET, BUY_PHONE, GULF_ROUTE, HUNT, LOTTO, ROAD_PARK } from "../testing/ids";
 
-const LOTTO: Id<"activity"> = "activity.play-lotto";
-const BET: Id<"activity"> = "activity.bet-slip";
-const PHONE: Id<"activity"> = "activity.buy-phone";
-const ASK_AROUND: Id<"activity"> = "activity.ask-around";
 const PASSPORT: Id<"activity"> = "activity.get-passport";
-const HUNT: Id<"activity"> = "activity.job-hunt";
 const MEETUP: Id<"activity"> = "activity.meetup";
 const LEARN: Id<"activity"> = "activity.learn-tech";
-const GULF: Id<"route"> = "route.gulf-contract";
-const PITCH: Id<"offer"> = "offer.road-park";
 
 /** The rule's two lists. Every entry not named a now-act is a month-act. */
 const NOW_ACTS: readonly string[] = [
@@ -45,7 +39,7 @@ const NOW_ACTS: readonly string[] = [
   "activity.call-someone",
   "activity.family-meeting",
   // buying a phone and the shopping abroad, the cash gig, posting from the phone, the safe ride
-  PHONE,
+  BUY_PHONE,
   "activity.street-shopping-uk",
   "activity.street-shopping-uae",
   "activity.side-gig",
@@ -129,7 +123,7 @@ describe("when an act answers", () => {
     for (const id of MONTH_ACTS) expect({ id, when: content.activity[id as Id<"activity">]?.when }).toEqual({ id, when: "month" });
     for (const entry of entries().filter((candidate) => candidate.slot === "main" || candidate.slot === "side")) expect({ id: entry.id, when: entry.when }).toEqual({ id: entry.id, when: "month" });
     expect(entries().filter((entry) => entry.purchase === true && entry.when !== "now")).toEqual([]);
-    for (const id of [LOTTO, BET, PHONE, "activity.street-shopping-uk", "activity.street-shopping-uae", "activity.pure-water"]) expect({ id, purchase: content.activity[id as Id<"activity">]?.purchase }).toEqual({ id, purchase: true });
+    for (const id of [LOTTO, BET, BUY_PHONE, "activity.street-shopping-uk", "activity.street-shopping-uae", "activity.pure-water"]) expect({ id, purchase: content.activity[id as Id<"activity">]?.purchase }).toEqual({ id, purchase: true });
     for (const id of [ASK_AROUND, PASSPORT, HUNT, MEETUP]) expect(content.activity[id]?.purchase).toBeUndefined();
   });
 
@@ -175,10 +169,10 @@ describe("a now-act", () => {
 
   test("[R-ACTIVITY-015] [R-ROAD-002] given the motor park, when asking around now, then the Gulf is heard of now and the pitch opens now, before the month ends", () => {
     const game = ada();
-    expect(game.state.route[GULF]?.state ?? "unheard").not.toBe("heard");
+    expect(game.state.route[GULF_ROUTE]?.state ?? "unheard").not.toBe("heard");
     const asked = now(game, ASK_AROUND);
-    expect(game.state.route[GULF]?.state).toBe("heard");
-    expect(Object.values(game.state.offer.items).map((offer) => offer.entry)).toContain(PITCH);
+    expect(game.state.route[GULF_ROUTE]?.state).toBe("heard");
+    expect(Object.values(game.state.offer.items).map((offer) => offer.entry)).toContain(ROAD_PARK);
     expect(nowLine(asked, ASK_AROUND)).toBeDefined();
     expect(game.state.turn.month).toBe(0);
   });

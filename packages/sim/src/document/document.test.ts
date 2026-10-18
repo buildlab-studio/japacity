@@ -2,7 +2,6 @@ import { fc, test } from "@fast-check/vitest";
 import { content } from "@japacity/content";
 import { describe, expect } from "vitest";
 
-import { check } from "../engine/check";
 import { clamp, mulDiv, roundDownTo } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Registry } from "../engine/kind";
@@ -15,20 +14,14 @@ import type {
   Effect,
   Id,
   Rejection,
-  Requirement,
-  RequirementResult,
   ScenarioEntry,
   Tuning,
 } from "../engine/types";
 import { registry } from "../kinds";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-
-const PASSPORT: Id<"document"> = "document.passport";
-const TRANSCRIPT: Id<"document"> = "document.transcript";
-const ENGLISH: Id<"document"> = "document.english-test";
-const TB: Id<"document"> = "document.tb-certificate";
-const CAS: Id<"document"> = "document.cas";
+import { judged } from "../testing/read";
+import { CAS, ENGLISH, PASSPORT, TB, TRANSCRIPT } from "../testing/ids";
 
 const entries = content.document;
 const band = content.tuning.english;
@@ -144,20 +137,16 @@ function paper(game: Game, id: Id<"document">): DocumentState | undefined {
   return game.state.document[id];
 }
 
-function judge(game: Game, requirement: Requirement): RequirementResult {
-  return check({ state: game.state, world: game.world(), content: game.content }, requirement);
-}
-
 function held(game: Game, document: Id<"document">, min?: number): boolean {
-  return judge(game, min === undefined ? { type: "document/held", document } : { type: "document/held", document, min }).met;
+  return judged(game, min === undefined ? { type: "document/held", document } : { type: "document/held", document, min }).met;
 }
 
 function pending(game: Game, document: Id<"document">): boolean {
-  return judge(game, { type: "document/pending", document }).met;
+  return judged(game, { type: "document/pending", document }).met;
 }
 
 function absent(game: Game, document: Id<"document">): boolean {
-  return judge(game, { type: "document/absent", document }).met;
+  return judged(game, { type: "document/absent", document }).met;
 }
 
 const request = (document: Id<"document">): Effect => ({ type: "document/request", document });
@@ -524,9 +513,9 @@ describe("the English band", () => {
     const game = life({ english: 60, seed: SEED_DRAW_EVEN });
     applyNow(game, [request(ENGLISH)]);
     game.endTurn();
-    expect(judge(game, { type: "document/held", document: ENGLISH, min: 60 })).toEqual({ met: true, have: 60, need: 60 });
-    expect(judge(game, { type: "document/held", document: ENGLISH, min: 65 })).toEqual({ met: false, have: 60, need: 65 });
-    expect(judge(game, { type: "document/held", document: PASSPORT, min: 60 })).toEqual({ met: false, have: 0, need: 60 });
+    expect(judged(game, { type: "document/held", document: ENGLISH, min: 60 })).toEqual({ met: true, have: 60, need: 60 });
+    expect(judged(game, { type: "document/held", document: ENGLISH, min: 65 })).toEqual({ met: false, have: 60, need: 65 });
+    expect(judged(game, { type: "document/held", document: PASSPORT, min: 60 })).toEqual({ met: false, have: 0, need: 60 });
   });
 
   test("[R-DOCUMENT-005] given a document with no result, when it is issued, then it has no value", () => {

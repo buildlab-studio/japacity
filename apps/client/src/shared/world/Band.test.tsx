@@ -5,12 +5,13 @@
 import { content, text } from "@japacity/content";
 import { type Currency, type PlayerView, time, worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test, vi } from "vitest";
 
 import { GameProvider } from "../../authority/GameProvider";
 import { createGameStore } from "../../authority/store";
 import { localAuthority } from "../../authority/local";
-import { abroadGame, engineView, fakeAuthority, setPockets } from "../testing/fixtures";
+import { abroadGame, engineView, fakeAuthority } from "../testing/fixtures";
 import "../testing/render";
 import { bodyWords } from "../words/body";
 import { formatMoney } from "../words/format";

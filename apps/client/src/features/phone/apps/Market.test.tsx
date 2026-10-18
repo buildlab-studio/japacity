@@ -4,13 +4,13 @@
 // only at home, and abroad a Lagos thing.
 import { content } from "@japacity/content";
 import type { Game } from "@japacity/sim/testing";
-import { applyEffects } from "@japacity/sim/testing";
+import { applyEffects, setPockets } from "@japacity/sim/testing";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
-import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixtures";
+import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { marketTile } from "../../../shared/tiles/tiles.data";
 import { formatMoney } from "../../../shared/words/format";

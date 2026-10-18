@@ -1,3 +1,4 @@
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { productionConfig, testConfig } from "../config";
@@ -6,7 +7,7 @@ import { setSwitch } from "../switches/switches";
 import { makeAuth, relyingPartyOf } from "./auth";
 import { EMAIL_DAY_WINDOW_MS, EMAIL_LIMIT_WINDOW_MS, pruneLimitRows } from "./hooks";
 import { memoryAuthAdapter } from "./memory";
-import { SITE, harness, makeJar } from "./auth.testing";
+import { GOOGLE_PROFILE, SITE, harness, makeJar, stubGoogle } from "./auth.testing";
 
 afterEach(() => {
   vi.useRealTimers();
@@ -15,22 +16,6 @@ afterEach(() => {
 
 function json(reply: Response): Promise<Record<string, unknown>> {
   return reply.json<Record<string, unknown>>();
-}
-
-function unsignedJwt(claims: Record<string, unknown>): string {
-  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
-}
-
-/** Google's token endpoint answered by the test, with an id token for one fixed identity. */
-function stubGoogle(identity: { sub: string; email: string }) {
-  const real = globalThis.fetch;
-  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = input instanceof Request ? input.url : String(input);
-    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
-    const idToken = unsignedJwt({ ...identity, email_verified: true, name: "A Real Name", picture: "https://photos.example/face.jpg", iss: "https://accounts.google.com" });
-    return Promise.resolve(Response.json({ access_token: "google-access", id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
-  });
 }
 
 describe("signing in", () => {
@@ -55,7 +40,7 @@ describe("signing in", () => {
     const url = new URL(String((await json(start))["url"]));
     expect(url.origin).toBe("https://accounts.google.com");
     expect(url.searchParams.get("redirect_uri")).toBe(`${SITE}/api/auth/callback/google`);
-    stubGoogle({ sub: "google-subject-1", email: "ada@example.com" });
+    stubGoogle({ sub: "google-subject-1", email: "ada@example.com" }, GOOGLE_PROFILE);
     const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${url.searchParams.get("state") ?? ""}`, { jar });
     expect(back.status).toBe(302);
     expect(h.tables.user).toEqual([expect.objectContaining({ id: account, email: "ada@example.com", name: "", isAnonymous: false })]);
@@ -71,7 +56,7 @@ describe("signing in", () => {
     const jar = makeJar();
     const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, ip: "203.0.113.9", json: { provider: "google", callbackURL: "/" } });
     const state = new URL(String((await json(start))["url"])).searchParams.get("state") ?? "";
-    stubGoogle({ sub: "google-subject-2", email: "ada@example.com" });
+    stubGoogle({ sub: "google-subject-2", email: "ada@example.com" }, GOOGLE_PROFILE);
     await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
     expect(h.tables.user).toHaveLength(1);
     expect(h.tables.account).toEqual([expect.objectContaining({ userId: account, providerId: "google" })]);
@@ -99,7 +84,7 @@ describe("signing in", () => {
       await h.passAge(jar);
       const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/" } });
       const state = new URL(String((await json(start))["url"])).searchParams.get("state") ?? "";
-      stubGoogle({ sub: "google-subject-9", email });
+      stubGoogle({ sub: "google-subject-9", email }, GOOGLE_PROFILE);
       await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
       vi.unstubAllGlobals();
       expect((await h.call("/api/account", { jar })).status).toBe(401);
@@ -121,12 +106,12 @@ describe("signing in", () => {
       return { reply, jar };
     };
 
-    vi.setSystemTime(start + 86_400_000 - 1);
+    vi.setSystemTime(start + time.DAY_MS - 1);
     const refused = await signIn();
     expect(await json(refused.reply)).toMatchObject({ code: "not-possible" });
     expect((await h.call("/api/account", { jar: refused.jar })).status).toBe(401);
 
-    vi.setSystemTime(start + 86_400_000);
+    vi.setSystemTime(start + time.DAY_MS);
     const allowed = await signIn();
     expect(allowed.reply.status).toBe(200);
     expect((await h.call("/api/account", { jar: allowed.jar })).status).toBe(200);

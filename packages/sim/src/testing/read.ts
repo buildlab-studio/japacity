@@ -1,7 +1,7 @@
 // What rule tests read off a game and off a step's result, and the plain month
 // they end. Nothing in the simulation imports this file.
 import { check } from "../engine/check";
-import type { Accepted, BaseEvent, Id, ReadCtx, ReportLine, Requirement, RouteState } from "../engine/types";
+import type { Accepted, BaseEvent, Id, ReadCtx, ReportLine, Requirement, RequirementResult, RouteState } from "../engine/types";
 import type { Game } from "./play";
 
 /** The game as the requirement checks and the kinds' reads see it. */
@@ -35,6 +35,11 @@ export function cash(game: Game): number {
 /** A quality's value in the state, 0 when it was never set. */
 export function quality(game: Game, id: Id<"quality">): number {
   return game.state.quality[id] ?? 0;
+}
+
+/** A requirement's result for the game now. */
+export function judged(game: Game, requirement: Requirement): RequirementResult {
+  return check(readOf(game), requirement);
 }
 
 /** Whether a requirement holds for the game now. */
@@ -99,4 +104,23 @@ export function salaries(result: Accepted): number[] {
     .filter((event): event is BaseEvent & { reason: string; amount: number; currency: string } => event.type === "wallet/credited" && (event as unknown as { reason: string }).reason === "salary")
     .filter((event) => event.currency === "NGN")
     .map((event) => event.amount);
+}
+
+/** The id of the open bond with a computer person. */
+export function bondWith(game: Game, person: Id<"person">): string {
+  const found = Object.entries(game.state.people.bonds).find(([, bond]) => bond.with.kind === "computer" && bond.with.entry === person && bond.stage !== "ended");
+  if (found === undefined) throw new Error(`No open bond with ${person}.`);
+  return found[0];
+}
+
+/** The entries of the offers open now. */
+export function openOffers(game: Game): Id<"offer">[] {
+  return Object.values(game.state.offer.items).map((item) => item.entry);
+}
+
+/** The entries of the obligations open now, sorted. */
+export function openObligations(game: Game): Id<"obligation">[] {
+  return Object.values(game.state.obligation.items)
+    .map((item) => item.entry)
+    .sort();
 }

@@ -1,4 +1,4 @@
-import { type ServerRejection, type ServerReply, SWITCH_NAMES } from "@japacity/api";
+import { type ServerRejection, SWITCH_NAMES } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Overlay } from "@japacity/sim";
 import { applyOverlay, AUTHORITY_COMMANDS } from "@japacity/sim";
@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import type { TestServer } from "../authority/authority.testing";
 import { harness, makeJar } from "../auth/auth.testing";
 import { PASS_PREFIX } from "../account/age";
-import { call, held, newLife, restMonth, send, testServer } from "../authority/authority.testing";
+import { accepted, call, held, newLife, restMonth, send, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import type { Beacon } from "../lottery/beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../lottery/beacon";
@@ -30,11 +30,6 @@ function server(): TestServer {
 /** Turns every named switch off as another isolate would: straight in the store, past this isolate's cache. */
 async function turnOff(target: TestServer, names: readonly SwitchName[]): Promise<void> {
   for (const name of names) await target.deps.stores.switches.set(name, false, ADMIN, "test", target.deps.now());
-}
-
-function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
-  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
-  return reply;
 }
 
 function buyOne(v: number): Command {

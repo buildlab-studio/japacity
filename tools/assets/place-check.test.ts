@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { content } from "@japacity/content";
@@ -7,9 +6,9 @@ import { describe, expect, test } from "vitest";
 import type { Budgets } from "./assets-check";
 import { defaultPaths } from "./assets-check";
 import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, describeMeasure, inputOf, type Measure, median, type PlaceMeasure, ROUTE_TAPS, routeCost, stagedPlaces, summarise } from "./place-check";
+import { readJson, REPO_ROOT } from "../repo";
 
-const ROOT = join(import.meta.dirname, "..", "..");
-const budgets = JSON.parse(readFileSync(join(ROOT, "assets-src", "budgets.json"), "utf8")) as Budgets;
+const budgets = readJson<Budgets>(join(REPO_ROOT, "assets-src", "budgets.json"));
 const still: Measure = { drawCalls: 40, triangles: 40000, scriptUs: 10, frameMs: 30 };
 const measureOf = (moving: Partial<Measure>, mode: "low" | "high" = "high"): PlaceMeasure => ({ place: "place.x", mode, still, moving: { ...still, ...moving } });
 
@@ -43,7 +42,7 @@ describe("the place check", () => {
   });
 
   test("[R-CITY-038] given a staged place, when the check hands it to the page, then it goes as plain data on the cheap phone profile, still and moving alike but for the motion", () => {
-    const [file] = stagedPlaces(defaultPaths(ROOT)).filter((place) => place.hub);
+    const [file] = stagedPlaces(defaultPaths(REPO_ROOT)).filter((place) => place.hub);
     if (file === undefined) throw new Error("No hub is staged");
     const input = inputOf(file, "high", true, {});
     expect(input.entry).toBe(content.place["place.ojuelegba"]);

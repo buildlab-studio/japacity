@@ -2,7 +2,6 @@
 // recorded life boards the plane through the send-off scene, the send-off card
 // is opened from the phone (R-SHARE-015), and the player saves it as a file
 // where the browser has no share sheet.
-import { lifeSaves } from "@japacity/sim/testing";
 import { readFileSync } from "node:fs";
 
 import { devices, expect, test, type Page } from "@playwright/test";
@@ -11,18 +10,12 @@ import { devices, expect, test, type Page } from "@playwright/test";
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { boardThroughTheScene, closeGranted, doAct, LIVED, placeReady, rideTo } from "./support/live";
+import { adaBeforeFlight } from "./support/saves";
 
 // A device's browser type can be chosen only by the project; the rest of the profile applies here.
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices["Pixel 7"];
 test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch, launchOptions: SOFTWARE_WEBGL });
-
-/** Ada's recorded life up to the month before she flies. */
-function adaBeforeFlight(): string {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, -1) }, clock: { anchor: 0 } });
-}
 
 /** The pixel size in a JPEG's frame header. */
 function jpegSize(bytes: Buffer): { width: number; height: number } | null {

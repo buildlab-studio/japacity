@@ -7,9 +7,10 @@ import { describe, expect, test } from "vitest";
 
 import { bp, convertMinor, divFloor } from "../engine/int";
 import type { ForeignCurrency, PlayerView } from "../engine/types";
-import { NORTHGATE, offeredWith, readyContent, readyLife, seedWhere, slot, toApplied, UK } from "../testing/route.journey";
+import { offeredWith, readyContent, readyLife, seedWhere, slot, toApplied } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { NORTHGATE, UK_ROUTE } from "../testing/ids";
 
 const rest = slot("activity.rest");
 
@@ -118,13 +119,13 @@ describe("[R-ENGINE-016] limits the player can meet", () => {
   test("[R-ENGINE-016] [R-ROUTE-008] given no offer from the school, when the deposit is paid, then it is rejected with not-legal", () => {
     const game = readyLife(content);
     expect(game.state.wallet.pockets.GBP.bank).toBeGreaterThan(content.school[NORTHGATE]!.deposit);
-    game.expectRejected({ type: "route/pay-deposit", route: UK, school: NORTHGATE }, "not-legal");
+    game.expectRejected({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE }, "not-legal");
   });
 
   test("[R-ENGINE-016] [R-ROUTE-020] given no grant, when the character departs, then it is rejected with not-legal", () => {
     const game = start({ scenario: "scenario.tunde", content });
     expect(game.state.wallet.pockets.NGN.bank).toBeGreaterThan(160000000);
-    game.expectRejected({ type: "route/depart", route: UK }, "not-legal");
+    game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
   });
 
   test("[R-ENGINE-016] [R-SETPIECE-003] given the interview open, when a later question is answered first, then it is rejected with not-legal, and with no set piece open any answer is", () => {

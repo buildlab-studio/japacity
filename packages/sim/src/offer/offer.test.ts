@@ -28,12 +28,11 @@ import { freeHalfDays } from "../turn/turn.logic";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
+import { openOffers } from "../testing/read";
 import type { OfferEvent } from "./offer.events";
+import { ADA, STANDING, TUNDE, WELLBEING } from "../testing/ids";
 
-const ADA: Id<"scenario"> = "scenario.ada";
-const TUNDE: Id<"scenario"> = "scenario.tunde";
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const tuning = content.tuning.offer;
 
 // ---------------------------------------------------------------------------
@@ -73,7 +72,7 @@ interface Lab {
   accept(loose: Loose): Accepted;
   reject(loose: Loose, code: RejectionCode): Rejection;
   end(): Accepted;
-  apply(effects: Effect[], terms?: Terms): Accepted;
+  apply: (effects: Effect[], terms?: Terms) => Accepted;
   open(offer: Id<"offer">, terms?: Terms): OfferState | undefined;
   view(): PlayerView;
 }
@@ -141,22 +140,6 @@ function own<T extends OfferEvent["type"]>(result: { events: BaseEvent[] }, type
 
 function opened(result: { events: BaseEvent[] }): OfferState[] {
   return own(result, "offer/opened").map((event) => event.item);
-}
-
-function openEntries(subject: Lab): Id<"offer">[] {
-  return Object.values(subject.game.state.offer.items).map((item) => item.entry);
-}
-
-function setNaira(subject: Lab, bank: number, cash = 0): void {
-  const pocket = subject.game.state.wallet.pockets.NGN;
-  const effects: Effect[] = [];
-  const change = (where: "bank" | "cash", now: number, want: number) => {
-    if (now > want) effects.push({ type: "money/take", currency: "NGN", pocket: where, amount: now - want, reason: "mishap" });
-    if (now < want) effects.push({ type: "money/add", currency: "NGN", pocket: where, amount: want - now, reason: "gift" });
-  };
-  change("bank", pocket.bank, bank);
-  change("cash", pocket.cash, cash);
-  if (effects.length > 0) subject.apply(effects);
 }
 
 function qualityChanges(result: { events: BaseEvent[] }, source: string): [string, number][] {
@@ -277,7 +260,7 @@ describe("coming up", () => {
     const subject = lab({ content: variant({ "offer.fuel-scarcity": { chanceBp: CERTAIN, expiresAfter: 3, cooldown: 0 } }, true) });
     expect(opened(subject.end())).toHaveLength(1);
     expect(opened(subject.end())).toEqual([]);
-    expect(openEntries(subject)).toEqual(["offer.fuel-scarcity"]);
+    expect(openOffers(subject.game)).toEqual(["offer.fuel-scarcity"]);
   });
 
   test("[R-OFFER-001] given a cooldown of 3, when the offer opened in month 1, then it does not come up in months 2 and 3, and does in month 4", () => {
@@ -483,12 +466,12 @@ describe("choosing", () => {
   test("[R-OFFER-003] given a debit that cannot be paid, when the choice is taken, then it is rejected with cannot-afford; exactly enough is accepted", () => {
     const short = lab();
     const item = short.open("offer.nepa-bill")!;
-    setNaira(short, 2499999);
+    setPockets(short.game, { NGN: { cash: 0, bank: 2499999 } }, { apply: short.apply });
     expect(short.reject({ type: "offer/choose", offer: item.id, choice: "pay" }, "cannot-afford").code).toBe("cannot-afford");
 
     const exact = lab();
     const again = exact.open("offer.nepa-bill")!;
-    setNaira(exact, 0, 2500000);
+    setPockets(exact.game, { NGN: { cash: 2500000, bank: 0 } }, { apply: exact.apply });
     exact.accept({ type: "offer/choose", offer: again.id, choice: "pay" });
     expect(exact.game.state.wallet.pockets.NGN.cash).toBe(0);
   });
@@ -499,9 +482,9 @@ describe("choosing", () => {
     const amount = item.terms.min as number;
     const fee = bp(amount, 400);
     expect(fee).toBeGreaterThan(content.tuning.wallet.cashUpTo);
-    setNaira(subject, 0, fee - 1);
+    setPockets(subject.game, { NGN: { cash: fee - 1, bank: 0 } }, { apply: subject.apply });
     expect(subject.reject({ type: "offer/choose", offer: item.id, choice: "take", amount }, "cannot-afford").code).toBe("cannot-afford");
-    setNaira(subject, fee - 1, amount + 1);
+    setPockets(subject.game, { NGN: { cash: amount + 1, bank: fee - 1 } }, { apply: subject.apply });
     const result = subject.accept({ type: "offer/choose", offer: item.id, choice: "take", amount });
     expect(result.events.filter((event) => event.type === "wallet/debited" && (event as { reason?: string }).reason === "fee-agent")).toEqual([
       { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: fee - 1, reason: "fee-agent" },
@@ -517,7 +500,7 @@ describe("fraud", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
-    setNaira(subject, 0, bp(amount, 400));
+    setPockets(subject.game, { NGN: { cash: bp(amount, 400), bank: 0 } }, { apply: subject.apply });
     const result = subject.accept({ type: "offer/choose", offer: item.id, choice: "take", amount });
     expect(result.events.filter((event) => event.type.startsWith("wallet/"))).toEqual([
       { type: "wallet/debited", currency: "NGN", pocket: "cash", amount: bp(amount, 400), reason: "fee-agent" },
@@ -530,7 +513,7 @@ describe("fraud", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: 0 } }) });
     const item = subject.open("offer.held-funds-agent")!;
     const amount = item.terms.min as number;
-    setNaira(subject, 0, bp(amount, 400));
+    setPockets(subject.game, { NGN: { cash: bp(amount, 400), bank: 0 } }, { apply: subject.apply });
     subject.accept({ type: "offer/choose", offer: item.id, choice: "take", amount });
     expect(Object.values(subject.game.state.obligation.items).map((owed) => owed.entry)).toContain("obligation.held-funds-agent");
     expect(subject.game.state.wallet.pockets.NGN).toEqual({ bank: 0, cash: 0, locked: amount });
@@ -554,7 +537,7 @@ describe("lapsing", () => {
   test("[R-OFFER-005] given a lapse choice that cannot be paid, when the month comes, then the offer is removed and nothing is applied", () => {
     const subject = lab({ content: variant({ "offer.nepa-bill": { onExpire: "pay" } }, true) });
     const item = subject.open("offer.nepa-bill")!;
-    setNaira(subject, 0);
+    setPockets(subject.game, { NGN: { cash: 0, bank: 0 } }, { apply: subject.apply });
     const result = subject.end();
     expect(own(result, "offer/lapsed")).toEqual([{ type: "offer/lapsed", id: item.id, entry: "offer.nepa-bill", choice: null }]);
     expect(qualityChanges(result, "offer.nepa-bill.pay")).toEqual([]);
@@ -577,7 +560,7 @@ describe("the view", () => {
     const subject = lab({ scenario: TUNDE, routeHolds: true, content: variant({ "offer.held-funds-agent": { fraudBp: CERTAIN } }) });
     const item = subject.open("offer.held-funds-agent")!;
     // Enough cash for the agent's fee at the smallest amount.
-    setNaira(subject, 0, 100000000);
+    setPockets(subject.game, { NGN: { cash: 100000000, bank: 0 } }, { apply: subject.apply });
     const view = subject.view();
     expect(hiddenPaths(view)).toEqual([]);
     expect(view.offers).toEqual([
@@ -599,7 +582,7 @@ describe("the view", () => {
   test("[R-OFFER-006] given a choice that cannot be paid or an amount range that is empty, when the view is read, then that choice is not allowed", () => {
     const poor = lab();
     poor.open("offer.nepa-bill");
-    setNaira(poor, 0);
+    setPockets(poor.game, { NGN: { cash: 0, bank: 0 } }, { apply: poor.apply });
     expect(poor.view().offers[0]?.choices).toEqual([
       { id: "pay", allowed: false, pick: null },
       { id: "leave", allowed: true, pick: null },
@@ -681,7 +664,7 @@ describe("opened by an effect", () => {
     expect(own(result, "offer/replaced")).toEqual([{ type: "offer/replaced", id: first.id, entry: "offer.job" }]);
     expect(second.id).not.toBe(first.id);
     expect(second.terms).toEqual({ job: "activity.job-customer-service" });
-    expect(openEntries(subject)).toEqual(["offer.job"]);
+    expect(openOffers(subject.game)).toEqual(["offer.job"]);
     expect(subject.game.state.offer.items[first.id]).toBeUndefined();
     expect(subject.game.state.offer.timesOpened["offer.job"]).toBe(2);
     expect(result.lines.map((line) => line.key)).toEqual(["line.offer.replaced", "line.offer.opened"]);
@@ -698,7 +681,7 @@ describe("opened by an effect", () => {
     expect(own(result, "offer/replaced")).toHaveLength(1);
     expect(subject.game.state.quality).toEqual(before.quality);
     expect(subject.game.state.wallet).toEqual(before.wallet);
-    expect(openEntries(subject)).toEqual(["offer.nepa-bill"]);
+    expect(openOffers(subject.game)).toEqual(["offer.nepa-bill"]);
   });
 
   test("[R-OFFER-007] given a job hunt that lands, when the month resolves, then a job offer opens naming the job, and accepting it starts the job", () => {

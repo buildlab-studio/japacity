@@ -15,7 +15,8 @@ import { join, relative } from "node:path";
 import { type PoseName, poseRotations } from "@japacity/assets-src/people/poses";
 import type { Page } from "@playwright/test";
 
-import { type CatalogEntry, findEntries, PUBLIC, ROOT, type ViewName } from "./catalog";
+import { type CatalogEntry, findEntries, PUBLIC, type ViewName } from "./catalog";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 import { readManifest, sha256, writeManifest } from "./manifest";
 import { openStage, signText, type Stage } from "./stage-browser";
 
@@ -100,7 +101,7 @@ export function mergeRecords(views: readonly ViewName[], kept: readonly RenderRe
 }
 
 export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readonly ViewName[] | null = null): Promise<RenderRecord[]> {
-  const dir = join(ROOT, entry.source, "renders");
+  const dir = join(REPO_ROOT, entry.source, "renders");
   mkdirSync(dir, { recursive: true });
   const records: RenderRecord[] = [];
   const asked = entry.views.filter((view) => only === null || only.includes(view));
@@ -121,12 +122,12 @@ export async function shootEntry(stage: Stage, entry: CatalogEntry, only: readon
       const file = join(dir, `${view}.png`);
       // The tile and the portraits keep the page's clear background as their alpha.
       const bytes = await page.screenshot({ path: file, omitBackground: view === "tile" || isPortrait(view) });
-      records.push({ view, file: relative(ROOT, file), sha256: sha256(bytes), viewport: { width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor }, camera: info.camera });
+      records.push({ view, file: relative(REPO_ROOT, file), sha256: sha256(bytes), viewport: { width: viewport.width, height: viewport.height, deviceScaleFactor: viewport.deviceScaleFactor }, camera: info.camera });
     }
     await context.close();
   }
   const manifestPath = join(dir, "manifest.json");
-  const kept = only !== null && existsSync(manifestPath) ? (JSON.parse(readFileSync(manifestPath, "utf8")) as { renders: RenderRecord[] }).renders : [];
+  const kept = only !== null && existsSync(manifestPath) ? readJson<{ renders: RenderRecord[] }>(manifestPath).renders : [];
   const glb = readFileSync(join(PUBLIC, entry.file));
   const renderManifest = {
     asset: entry.name,
@@ -157,4 +158,4 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

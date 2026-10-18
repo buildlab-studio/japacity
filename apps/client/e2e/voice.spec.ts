@@ -1,4 +1,3 @@
-import { lifeSaves } from "@japacity/sim/testing";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
@@ -10,6 +9,7 @@ import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
 import { LIVED, passCards, passHomeTeach, placeReady } from "./support/live";
 import { shootAtSize } from "./support/preview";
+import { kept, recorded } from "./support/saves";
 
 // The world's scene needs WebGL, drawn in software where the machine has no GPU (as world.spec.ts draws it).
 test.use({ launchOptions: SOFTWARE_WEBGL });
@@ -25,10 +25,9 @@ const IN_APP = {
 
 /** Ada's recorded life up to the interview's first answer: the application has just gone in. */
 function adaAtInterview(): string {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
+  const save = recorded("ada-careful");
   const first = save.commands.findIndex((entry) => entry.command.type === "setpiece/answer");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, first) }, clock: { anchor: 0 } });
+  return kept({ ...save, commands: save.commands.slice(0, first) });
 }
 
 async function seed(page: Page, options: { saveData?: boolean } = {}): Promise<string[]> {

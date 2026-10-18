@@ -6,12 +6,13 @@ import { join } from "node:path";
 import { defaultPaths, expectedCredits, mapSources } from "./assets-check";
 import { placeMapData } from "./map-data";
 import { readRegister } from "./register";
+import { isMain, REPO_ROOT } from "../repo";
 
 function main(): void {
-  const paths = defaultPaths(join(import.meta.dirname, "..", ".."));
+  const paths = defaultPaths(REPO_ROOT);
   const credits = expectedCredits(readRegister(), mapSources(paths, placeMapData()));
   writeFileSync(join(paths.public, "credits.json"), `${JSON.stringify(credits, null, 2)}\n`);
   console.log(`credits: ${String(credits.mapData.length)} map data line(s), ${String(credits.assets.length)} attribution(s), ${String(credits.fonts.length)} font(s)`);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) main();
+if (isMain(import.meta.url)) main();

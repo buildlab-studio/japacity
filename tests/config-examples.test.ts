@@ -1,17 +1,16 @@
 // The example settings: .env.example and each Worker's
 // .dev.vars.example name every variable the code reads, each with a placeholder or a value for this machine only, and
 // no value that could be a deployment's.
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
 import { localStack, parseDotEnv, WORKER_KEYS, workerEnvFile } from "../tools/local/env";
 import { DEPLOYMENT_VALUES, findDeploymentValues } from "../tools/check/scrub";
+import { filesUnder, REPO_ROOT } from "../tools/repo";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
-const read = (path: string): string => readFileSync(join(root, path), "utf8");
+const read = (path: string): string => readFileSync(join(REPO_ROOT, path), "utf8");
 
 const EXAMPLES = [".env.example", "apps/server/.dev.vars.example"] as const;
 
@@ -22,7 +21,7 @@ function named(text: string): Set<string> {
 
 /** Every file under a folder, tests left out. */
 function sources(folder: string): string[] {
-  return readdirSync(join(root, folder), { recursive: true, encoding: "utf8" })
+  return filesUnder(join(REPO_ROOT, folder))
     .filter((path) => /\.(ts|tsx)$/.test(path) && !/\.test\.tsx?$/.test(path))
     .map((path) => join(folder, path));
 }

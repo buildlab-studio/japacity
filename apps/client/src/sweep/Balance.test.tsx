@@ -10,7 +10,7 @@ import { describe, expect, test, vi } from "vitest";
 import { ActivityPicker } from "../features/activity/ActivityView";
 import { RideSheet } from "../features/map/RideSheet";
 import { engineView } from "../shared/testing/fixtures";
-import { renderWithView } from "../shared/testing/render";
+import { found, renderWithView } from "../shared/testing/render";
 import { effectWordsOf, timeWordsOf } from "../shared/words/acts";
 import { formatMoney } from "../shared/words/format";
 import { nameOf, say } from "../shared/words/text";
@@ -22,12 +22,6 @@ const COOK = "activity.cook-own";
 /** The meal's price in kobo, ₦1,500, read against content in the first test. */
 const MEAL = 150_000;
 const money = (amount: number): string => formatMoney(amount, "NGN");
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 /** A view whose naira is `cash` in hand and `bank` in the bank. */
 function holding(cash: number, bank: number): PlayerView {

@@ -10,14 +10,16 @@ import { applyOverlay } from "../engine/overlay";
 import { bp, convertMinor, mulDiv } from "../engine/int";
 import type { Accepted, Content, Currency, ForeignCurrency, Id, PlayerView, State } from "../engine/types";
 import { flownAda } from "../testing/goal.journey";
-import { abroad, closeTypes, markBy, setPounds, settledAbroad } from "../testing/obligation.journey";
-import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UK, UNIT } from "../testing/route.journey";
+import { abroad, closeTypes, markBy, settledAbroad } from "../testing/obligation.journey";
+import { setPockets } from "../testing/wallet";
+import { applyEffects, draw, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { firstTick, seedWhere as seedWhereStory } from "../testing/world";
 import { standInWorld } from "../world/standIn";
 import { month, owing, replayTo } from "../testing/crossing.journey";
 import { eventsOf } from "../testing/read";
+import { CAR, NORTHGATE, OVERSTAYER, SHORTFALL, SPONSORED, STUDENT, TUITION, UK_ROUTE } from "../testing/ids";
 
 function officialOf(pairs: PlayerView["rates"]): Record<ForeignCurrency, number> {
   const rates = {} as Record<ForeignCurrency, number>;
@@ -32,19 +34,19 @@ function fundsByHand(state: State, pairs: PlayerView["rates"]): number {
   for (const [currency, pocket] of Object.entries(state.wallet.pockets) as [Currency, State["wallet"]["pockets"]["NGN"]][]) {
     shown += convertMinor(pocket.bank, currency, "GBP", rates) + convertMinor(pocket.locked, currency, "GBP", rates);
   }
-  const support = state.route[UK]?.support ?? null;
+  const support = state.route[UK_ROUTE]?.support ?? null;
   if (support !== null) shown += convertMinor(support.amount, support.currency, "GBP", rates);
   return shown;
 }
 
 function fundsItem(view: PlayerView) {
-  const item = view.routes.find((route) => route.id === UK)?.checklist.find((entry) => entry.id === "funds");
+  const item = view.routes.find((route) => route.id === UK_ROUTE)?.checklist.find((entry) => entry.id === "funds");
   if (item === undefined) throw new Error("The UK route shows no funds item.");
   return item;
 }
 
 function checklistMet(view: PlayerView, id: string): boolean {
-  const item = view.routes.find((route) => route.id === UK)?.checklist.find((entry) => entry.id === id);
+  const item = view.routes.find((route) => route.id === UK_ROUTE)?.checklist.find((entry) => entry.id === id);
   if (item === undefined) throw new Error(`The UK route shows no ${id} item.`);
   return item.met;
 }
@@ -76,7 +78,7 @@ describe("rules that cross kinds", () => {
 
     const view = game.view();
     expect(uk(game).support).toEqual({ currency: "NGN", amount: show });
-    expect(view.routes.find((route) => route.id === UK)?.support).toEqual({ currency: "NGN", amount: show });
+    expect(view.routes.find((route) => route.id === UK_ROUTE)?.support).toEqual({ currency: "NGN", amount: show });
     expect(fundsItem(view).have).toBe(fundsByHand(game.state, view.rates));
     // The pledge's support and its gift both count; neither is spendable as the support.
     const rates = officialOf(view.rates);
@@ -168,7 +170,7 @@ describe("rules that cross kinds", () => {
     const used = readyContent(content, options);
     const game = readyLife(content, { ...options, seed: offerSeed(used, 3) });
     toOffer(game);
-    game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
+    game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE });
     // Chapter 2 closed on the offer, at most one a month: rest until chapter 3 is the current one and the funds were held at a month end.
     for (let month = 0; month < 3 && (game.view().chapter.current !== "chapter.decision-day" || uk(game).funds.heldMonths < 1); month += 1) game.endTurn();
     expect(game.view().chapter.current).toBe("chapter.decision-day");
@@ -193,7 +195,7 @@ describe("rules that cross kinds", () => {
     expect(view.chapter.done).toEqual(doneBefore);
     // The offer stands, so the deposit can be paid again (R-ROUTE-018).
     expect(uk(game).schools[NORTHGATE]?.state).toBe("offer");
-    game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
+    game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE });
     expect(checklistMet(game.view(), "deposit")).toBe(true);
   });
 
@@ -254,13 +256,6 @@ describe("rules that cross kinds", () => {
 // The whole life: rules that cross kinds abroad, on the road and before month 1
 // ---------------------------------------------------------------------------
 
-const SPONSORED: Id<"status"> = "status.uk-sponsored";
-const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
-const STUDENT: Id<"status"> = "status.uk-student";
-const TUITION: Id<"obligation"> = "obligation.tuition";
-const CAR: Id<"obligation"> = "obligation.car";
-const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
-
 describe("whole-life rules that cross kinds", () => {
   test("[R-STATUS-003] [R-LADDER-005] [R-ACTIVITY-006] given Tunde's recorded life on the sponsored worker's status, when he quits the sponsor's job, then the status clock starts at the entry's months, runs one a month, and at its end the status lapses to the overstayer", () => {
     const game = replayTo("tunde-abroad", content, (played) => played.state.status.current?.entry === SPONSORED && played.state.activity.job === played.state.status.current.job);
@@ -305,10 +300,10 @@ describe("whole-life rules that cross kinds", () => {
     markBy(game, 30);
     const deposit = game.view().activities.find((option) => option.id === "activity.buy-car-finance")?.cost[0]?.amount ?? 0;
     expect(deposit).toBeGreaterThan(0);
-    setPounds(game, deposit);
+    setPockets(game, { GBP: deposit });
     month(game, [slot("activity.buy-car-finance")]);
     expect(owing(game, CAR)).toBeDefined();
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     const grace = content.obligation[CAR]?.grace ?? 0;
     let taken: Accepted | null = null;
     for (let missed = 0; missed <= grace && taken === null; missed += 1) {
@@ -334,7 +329,7 @@ describe("whole-life rules that cross kinds", () => {
     const sum = 10000;
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep", "phone");
-    setPounds(game, sum * 3);
+    setPockets(game, { GBP: sum * 3 });
     const rates = game.world().rates.GBP;
     const before = game.state.wallet.pockets.NGN;
     game.accept({ type: "wallet/remit", currency: "GBP", amount: sum, channel: "app" });
@@ -355,7 +350,7 @@ describe("whole-life rules that cross kinds", () => {
     const game = flownAda(content);
     const country = content.country["country.uk"]!;
     expect(game.view().place.fareHome).toEqual({ currency: "GBP", amount: bp(country.fare, country.decemberFactorBp) });
-    setPounds(game, 1000000);
+    setPockets(game, { GBP: 1000000 });
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     game.endTurn();
     expect(game.state.setpiece.open?.entry).toBe("setpiece.december");
@@ -390,7 +385,7 @@ describe("whole-life rules that cross kinds", () => {
       const game = abroad(content);
       // A different month abroad before the return gives each life its own draws.
       for (let played = 0; played < months; played += 1) month(game);
-      setPounds(game, 600000);
+      setPockets(game, { GBP: 600000 });
       game.accept({ type: "return/home" });
       expect(game.state.place.returns.map((entry) => entry.shape)).toEqual(["by-choice"]);
       const back = game.state.turn.month;

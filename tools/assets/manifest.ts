@@ -2,10 +2,11 @@
 // from the pattern builder, each with its hash. Any other image under assets-src or public/assets
 // fails the check, which is how a reference photo is kept out of the repository.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { SOURCE } from "./catalog";
+import { readJson } from "../repo";
 
 export interface Manifest {
   note: string;
@@ -45,7 +46,7 @@ export function readManifest(path = MANIFEST_PATH): Manifest {
       patterns: {},
     };
   }
-  return JSON.parse(readFileSync(path, "utf8")) as Manifest;
+  return readJson<Manifest>(path);
 }
 
 export function writeManifest(manifest: Manifest, path = MANIFEST_PATH): void {

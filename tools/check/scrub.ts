@@ -14,9 +14,10 @@
 //
 // Usage: pnpm check:scrub
 import { execFileSync } from "node:child_process";
-import { readFileSync, realpathSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
+
+import { isMain } from "../repo";
 
 export interface TellTale {
   readonly label: string;
@@ -293,17 +294,7 @@ export function scrubTree(root: string): Hit[] {
   return hits;
 }
 
-function isMain(): boolean {
-  const entry = process.argv[1];
-  if (entry === undefined) return false;
-  try {
-    return import.meta.url === pathToFileURL(realpathSync(entry)).href;
-  } catch {
-    return false;
-  }
-}
-
-if (isMain()) {
+if (isMain(import.meta.url)) {
   const hits = scrubTree(process.cwd());
   for (const hit of hits) console.log(`${hit.file}:${String(hit.line)}: "${hit.label}": ${hit.text.slice(0, 160)}`);
   const planning = hits.filter((hit) => hit.kind === "planning").length;

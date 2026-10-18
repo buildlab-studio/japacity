@@ -8,7 +8,7 @@ import { describe, expect, test } from "vitest";
 import { sendAuthority } from "../authority/command";
 import { load } from "../authority/load";
 import type { TestServer } from "../authority/authority.testing";
-import { call, held, newLife, send, testServer } from "../authority/authority.testing";
+import { accepted, call, held, newLife, send, testServer } from "../authority/authority.testing";
 import { productionConfig } from "../config";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
@@ -63,11 +63,6 @@ function keysWith(beacon: Beacon): DrawKeys {
 /** The start of `tick`, plus a minute. */
 function during(tick: number): number {
   return epoch + tick * worldTickMs + 60000;
-}
-
-function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
-  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
-  return reply;
 }
 
 async function buy(server: TestServer, account: string, character: string, tickets: number): Promise<ServerReply> {

@@ -8,36 +8,13 @@ import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets
 import { beam, box, cylinder, onWall, quad, signboard, solid } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-/** A group at (x, y, z) turned ry, to draw a part in its own frame. */
-function at(g: Object3D, x: number, z: number, ry = 0, y = 0): Group {
-  const frame = new Group();
-  frame.position.set(x, y, z);
-  frame.rotation.y = ry;
-  g.add(frame);
-  return frame;
-}
-
-/** Four square legs under a top of w by d at height h. */
-function legs(g: Object3D, w: number, d: number, h: number, colour: PaletteName, thick = 0.05): void {
-  const ix = w / 2 - thick;
-  const iz = d / 2 - thick;
-  for (const [x, z] of [[-ix, -iz], [ix, -iz], [-ix, iz], [ix, iz]] as const) box(g, thick, h, thick, x, 0, z, colour);
-}
+import { at, legs, monitor } from "../parts";
 
 /** A plain chair facing +Z in its frame: seat at 0.45, a back. */
 function chair(g: Object3D, colour: PaletteName = "charcoal", frame: PaletteName = "hub"): void {
   legs(g, 0.42, 0.42, 0.43, frame, 0.03);
   box(g, 0.44, 0.04, 0.44, 0, 0.43, 0, colour);
   box(g, 0.44, 0.44, 0.04, 0, 0.47, -0.2, colour);
-}
-
-/** A flat screen on its foot, facing +Z. */
-function monitor(g: Object3D, x: number, y: number, z: number, ry = 0): void {
-  const f = at(g, x, z, ry, y);
-  box(f, 0.18, 0.02, 0.14, 0, 0, 0, "black");
-  box(f, 0.04, 0.16, 0.04, 0, 0.02, -0.02, "black");
-  box(f, 0.54, 0.34, 0.04, 0, 0.14, -0.02, "black");
-  quad(f, 0.5, 0.3, 0, 0.16, 0.001, "glass");
 }
 
 /** A row of goods on a shelf: boxes of the given colours side by side along x. */

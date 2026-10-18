@@ -4,14 +4,14 @@ import { describe, expect, test } from "vitest";
 import { hashState } from "../engine/hash";
 import { replay } from "../engine/replay";
 import { newState } from "../engine/state";
-import type { Id, PersonFacts, Save } from "../engine/types";
+import type { PersonFacts, Save } from "../engine/types";
 import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import { legalCommands } from "../testing/legal";
 import { standInWorld } from "../world/standIn";
 import { INVITER_SLOT } from "./person.family";
+import { PROLOGUE } from "../testing/ids";
 
-const PROLOGUE: Id<"scenario"> = "scenario.prologue";
 const SEED = "family";
 const WORLD_SEED = "world-1";
 

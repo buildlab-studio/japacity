@@ -7,15 +7,14 @@
 //
 // Usage: pnpm check:version, pnpm content:seal
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { join, sep } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 import ts from "typescript";
 
 import { content } from "../../packages/content/src/index";
+import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
 /** Folders of the simulation's source that only tests and tools read. */
@@ -70,11 +69,8 @@ export function played(path: string): boolean {
 }
 
 /** Every file the simulation plays, read from `dir`, in path order. */
-export function simSources(dir: string = join(ROOT, SIM_SOURCE)): SourceFile[] {
-  const files = readdirSync(dir, { recursive: true, encoding: "utf8" })
-    .map((path) => path.split(sep).join("/"))
-    .filter(played)
-    .sort();
+export function simSources(dir: string = join(REPO_ROOT, SIM_SOURCE)): SourceFile[] {
+  const files = filesUnder(dir).filter(played);
   return files.map((path) => ({ path, text: readFileSync(join(dir, path), "utf8") }));
 }
 
@@ -131,7 +127,7 @@ export function resealed(now: Sealed, seal: Sealed | null): { ok: true; seal: Se
 
 function readSeal(): Seal | null {
   try {
-    return JSON.parse(readFileSync(join(ROOT, SEAL_FILE), "utf8")) as Seal;
+    return readJson<Seal>(join(REPO_ROOT, SEAL_FILE));
   } catch {
     return null;
   }
@@ -147,7 +143,7 @@ function main(): void {
       console.log(result.problem);
       process.exit(1);
     }
-    writeFileSync(join(ROOT, SEAL_FILE), `${JSON.stringify(result.seal, null, 2)}\n`);
+    writeFileSync(join(REPO_ROOT, SEAL_FILE), `${JSON.stringify(result.seal, null, 2)}\n`);
     console.log(`Sealed content version "${now.version}": ${now.fingerprint}.`);
     return;
   }
@@ -167,4 +163,4 @@ function main(): void {
   console.log(`Content version "${now.version}" is sealed: the content and the simulation are as sealed.`);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main();
+if (isMain(import.meta.url)) main();

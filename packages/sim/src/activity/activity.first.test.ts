@@ -12,8 +12,7 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
 import { sureHuntJob } from "./activity.logic";
-
-const HUNT: Id<"activity"> = "activity.job-hunt";
+import { HUNT } from "../testing/ids";
 
 function entryOf(id: string): ActivityEntry {
   const entry = content.activity[id as Id<"activity">];
@@ -38,7 +37,7 @@ function everyFirstSession(seed?: string): FirstSession[] {
   const seen = new Set<string>();
   const sessions: FirstSession[] = [];
   for (const life of startingLives(content)) {
-    const session = playFirstSession(life, content, seed);
+    const session = playFirstSession(life, content, { seed });
     const path = `${life.scenario} ${session.path.join(" ")}`;
     if (seen.has(path)) continue;
     seen.add(path);

@@ -4,7 +4,7 @@ import type { NumbersLog } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../../ops/day";
-import { testDeps } from "../../app.testing";
+import { asAccount as as, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { testConfig } from "../../config";
 import { testSession } from "../../deps";
@@ -34,8 +34,6 @@ function app(asked: [number, number][] = []) {
   const deps = testDeps({ config, session: testSession(config) });
   return { deps, app: makeApp(deps).route("/api/admin", adminStatsRoutes(deps, log(asked))) };
 }
-
-const as = (account: string | null): RequestInit => (account === null ? {} : { headers: { "x-test-account": account } });
 
 describe("GET /api/admin/stats", () => {
   test("[R-ANALYTICS-012] [R-MODERATION-012] given a session that is not an admin's, or none, when the numbers are fetched, then they do not exist", async () => {

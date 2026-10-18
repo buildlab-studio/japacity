@@ -14,6 +14,7 @@ import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { anchorFan } from "./anchor";
 import { Fan } from "./Fan";
 import { type FanEntry, fanEntriesOf, fanModel } from "./fanActs";
+import { thingIn } from "../../../shared/testing/things";
 
 const village = villageRaw as unknown as PlaceFile;
 const LEARN = "activity.apprentice-repair";
@@ -21,9 +22,7 @@ const LEARN = "activity.apprentice-repair";
 afterEach(() => cleanup());
 
 function thingOf(id: string) {
-  const thing = (stageOf(village).things ?? []).find((candidate) => candidate.id === id);
-  if (thing === undefined) throw new Error(`No ${id}`);
-  return thing;
+  return thingIn(stageOf(village).things, id);
 }
 
 /** The stall's fan drawn with the plan as it stands, beside the thing's spot on the left of a phone. */

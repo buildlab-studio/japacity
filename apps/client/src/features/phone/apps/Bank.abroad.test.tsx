@@ -2,11 +2,12 @@
 // (the figure follows the recording) while rent, living costs and a tuition instalment of £4,352 fall due (the UK
 // upkeep includes the phone's £15, R-ABROAD-003), the app leads with the gap and the way to close it, then the pounds,
 // then the naira and the dollars each with Change money. Once flown, there is no move to save toward.
-import type { Command, PlayerView } from "@japacity/sim";
+import type { PlayerView } from "@japacity/sim";
 import { fireEvent, waitFor, within } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { recordedGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
+import { recordedGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { bandMoney } from "../../../shared/world/Band";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
@@ -14,6 +15,7 @@ import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";
 import { Bank } from "./Bank";
 import { PhoneApps } from "../PhoneApps";
+import { sent } from "../phone.testing";
 
 /** Ada's careful life, replayed to the flight: the first morning abroad. */
 function landed(): PlayerView {
@@ -22,14 +24,6 @@ function landed(): PlayerView {
 
 function dueOf(view: PlayerView): number {
   return view.obligations.filter((owed) => owed.due > 0).reduce((sum, owed) => sum + owed.due, 0);
-}
-
-function sent(authority: { sent: Command[] }): unknown[] {
-  return authority.sent.map((command) => {
-    const rest: Partial<Command> = { ...command };
-    delete rest.basedOn;
-    return rest;
-  });
 }
 
 describe("the month's dues abroad", () => {

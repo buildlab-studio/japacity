@@ -9,12 +9,11 @@ import type { DirectorBook, DirectorTick, WorldCalendar } from "./director";
 import { directorTicks, offlineCalendar, stepWorld } from "./director";
 import { standInWorld, standInWorlds } from "./standIn";
 import { pooled, stageOf, starts } from "../testing/world";
+import { CALM, DECEMBER_VAR } from "../testing/ids";
 
 const { director } = content.tuning;
 const SCALE = director.onlineTickScale;
 const SEEDS = ["online-0", "online-1", "online-2", "online-3"];
-const CALM: Id<"era"> = "era.calm";
-const DECEMBER: Id<"var"> = "var.season-december";
 
 /** A calendar that is not the offline one: a December of 62 ticks in each year of 730. */
 const realish = (tick: number): WorldCalendar => ({ december: tick % 730 >= 200 && tick % 730 < 262 });
@@ -167,10 +166,10 @@ describe("the online scale", () => {
 describe("the calendar", () => {
   test("[R-CLOCK-014] [R-DIRECTOR-006] given the tick's calendar, when the world is stepped, then the December variable follows the calendar and not the tick", () => {
     const ticks = directorTicks("online-0", 300, content, SCALE, realish);
-    for (const tick of ticks) expect(tick.vars[DECEMBER]).toBe(realish(tick.tick).december ? 1 : 0);
-    expect(ticks.filter((tick) => tick.vars[DECEMBER] === 1)).toHaveLength(62);
+    for (const tick of ticks) expect(tick.vars[DECEMBER_VAR]).toBe(realish(tick.tick).december ? 1 : 0);
+    expect(ticks.filter((tick) => tick.vars[DECEMBER_VAR] === 1)).toHaveLength(62);
     const offline = directorTicks("online-0", 24, content);
-    expect(offline.filter((tick) => tick.vars[DECEMBER] === 1).map((tick) => tick.tick)).toEqual([11, 23]);
+    expect(offline.filter((tick) => tick.vars[DECEMBER_VAR] === 1).map((tick) => tick.tick)).toEqual([11, 23]);
   });
 });
 

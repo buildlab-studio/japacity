@@ -6,14 +6,13 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
-import { testDeps } from "../../app.testing";
+import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { adminAccountsFrom, deployedConfig, productionConfig } from "../../config";
 import type { ServerConfig } from "../../config";
 import { testSession } from "../../deps";
 
 const OWNER = "account.owner";
-const as = (account: string): RequestInit => ({ headers: { "x-test-account": account } });
 
 /** A deployment's config from its variable, with only the test sign-in switched on so a session can be named. */
 function deployment(adminAccounts: string | undefined): ServerConfig {
@@ -52,12 +51,12 @@ describe("the admin accounts from the deployment", () => {
   test("[R-SERVER-012] [R-MODERATION-012] given ADMIN_ACCOUNTS naming one account, when the admin page is asked, then it answers that account and nobody else; with the variable empty it does not exist for that account either", async () => {
     const named = deployment(` ${OWNER} `);
     const app = makeApp(testDeps({ config: named, session: testSession(named) }));
-    expect((await app.request("/api/admin/alarms", as(OWNER))).status).toBe(200);
-    expect((await app.request("/api/admin/alarms", as("account.player"))).status).toBe(404);
+    expect((await app.request("/api/admin/alarms", asAccount(OWNER))).status).toBe(200);
+    expect((await app.request("/api/admin/alarms", asAccount("account.player"))).status).toBe(404);
 
     const empty = deployment("");
     const closed = makeApp(testDeps({ config: empty, session: testSession(empty) }));
-    expect((await closed.request("/api/admin/alarms", as(OWNER))).status).toBe(404);
+    expect((await closed.request("/api/admin/alarms", asAccount(OWNER))).status).toBe(404);
   });
 
   // The admin list is a Worker secret. A variable and a secret of one name cannot stand on one

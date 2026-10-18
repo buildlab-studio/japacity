@@ -11,13 +11,11 @@ import { applyEffects } from "../testing/route.journey";
 import { start } from "../testing/play";
 import { naira } from "../testing/read";
 import type { WalletEvent } from "../wallet/wallet.events";
+import { BELLY, COOK, STANDING } from "../testing/ids";
 
 const POT: Id<"activity"> = "activity.cook-at-home";
 const BIG_POT: Id<"activity"> = "activity.cook-jollof";
-const OWN: Id<"activity"> = "activity.cook-own";
 const OWN_POT: Id<"activity"> = "activity.cook-own-pot";
-const STANDING: Id<"quality"> = "quality.standing";
-const BELLY: Id<"quality"> = "quality.belly";
 
 function quality(game: Game, id: Id<"quality">): number {
   return game.view().qualities.find((one) => one.id === id)?.value ?? 0;
@@ -74,8 +72,8 @@ describe("a home of your own's corner", () => {
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 5_000_000_00, reason: "gift" }]);
     game.accept({ type: "home/move", to: "place.compound-room" });
     expect(game.view().home.place).toBe("place.compound-room");
-    expect([price(OWN), price(OWN_POT)]).toEqual([1_500_00, 7_500_00]);
-    expect(taken(eat(game, OWN))).toEqual([{ reason: "food", amount: 1_500_00 }]);
+    expect([price(COOK), price(OWN_POT)]).toEqual([1_500_00, 7_500_00]);
+    expect(taken(eat(game, COOK))).toEqual([{ reason: "food", amount: 1_500_00 }]);
     expect(taken(eat(game, OWN_POT))).toEqual([{ reason: "food", amount: 7_500_00 }]);
   });
 
@@ -83,11 +81,11 @@ describe("a home of your own's corner", () => {
     expect(content.activity[POT]?.where).toBe("home");
     expect(content.activity[BIG_POT]?.where).toBe("home");
     // No naira is charged abroad; in the UK the room's meal is activity.cook-own-uk.
-    expect(content.activity[OWN]?.where).toBe("home");
+    expect(content.activity[COOK]?.where).toBe("home");
     expect(content.activity["activity.cook-own-uk"]).toMatchObject({ where: "abroad", country: "country.uk", cost: [{ currency: "GBP", reason: "food" }] });
     expect(content.activity[OWN_POT]?.where).toBe("home");
-    expect(content.activity[POT]?.effects).toEqual(content.activity[OWN]?.effects);
+    expect(content.activity[POT]?.effects).toEqual(content.activity[COOK]?.effects);
     expect(content.activity[BIG_POT]?.effects).toEqual(content.activity[OWN_POT]?.effects);
-    for (const id of [POT, BIG_POT, OWN, OWN_POT]) expect(content.activity[id]?.repeat).toBe(true);
+    for (const id of [POT, BIG_POT, COOK, OWN_POT]) expect(content.activity[id]?.repeat).toBe(true);
   });
 });

@@ -2,68 +2,22 @@
 // R-PLACE-010, R-PLACE-012; streets.md R-STREET-012): Ada's recorded life lands in London, she walks to Peckham Rye,
 // buys the month's bus pass at the ticket machine, rides the bus free to the big shop, does the weekly shop, takes the
 // train to the office at London Bridge for its fare, and walks home to the room, however far.
-import { lifeSaves } from "@japacity/sim/testing";
 import { expect, type Page, test } from "@playwright/test";
 
+import { clear, money as pounds, pickStop, rideBy } from "./support/abroad";
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords } from "./support/door";
-import { doAct, LIVED, passCards, placeReady, seedSave } from "./support/live";
+import { doAct, LIVED, placeReady, seedSave } from "./support/live";
+import { recordedUpTo } from "./support/saves";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
 /** Ada's second life a few months into London on a sponsored job (she lands at command 420), as the catalog opens it. */
 const ADA_IN_LONDON = 440;
 
-/** The city's probe; only its place and readiness are read here. */
-type CityProbe = { ready?: boolean; place?: string } | undefined;
-
-function adaInLondon(): string {
-  const save = lifeSaves["ada-abroad"];
-  if (save === undefined) throw new Error("No recorded life ada-abroad.");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, ADA_IN_LONDON) }, clock: { anchor: 0 } });
-}
-
-/** The pounds in the band, as whole pounds. */
-async function pounds(page: Page): Promise<number> {
-  const said = (await page.locator("[data-band] [data-band-money]").first().textContent()) ?? "";
-  return Number(said.replace(/[^\d]/g, ""));
-}
-
-/** Every card over the world passed, and an act's own line put away by its Done. */
-async function clear(page: Page): Promise<void> {
-  for (let round = 0; round < 3; round += 1) {
-    const done = page.getByRole("dialog").getByRole("button", { name: "Done", exact: true });
-    if (await done.first().isVisible().catch(() => false)) await done.first().click();
-    await passCards(page);
-    const teach = page.locator("[data-home-teach-ok]");
-    if (await teach.isVisible().catch(() => false)) await teach.click();
-    await page.waitForTimeout(300);
-  }
-}
-
-/** The map opened on London's painted paper, a stop picked from the list kept for a screen reader, and its ride sheet. */
-async function pickStop(page: Page, stop: string): Promise<void> {
-  await page.locator('[data-thumb="map"]').click();
-  await page.waitForFunction(() => (window as unknown as { __map?: { ready?: boolean } }).__map?.ready === true, null, { timeout: 60_000 });
-  await page.locator(`[data-stop="${stop}"]`).waitFor({ state: "attached", timeout: 20_000 });
-  await page.evaluate((id) => document.querySelector<HTMLButtonElement>(`[data-stop="${id}"]`)?.click(), stop);
-  await page.locator(`[data-ride-sheet="${stop}"]`).waitFor({ timeout: 10_000 });
-}
-
-/** A way chosen on the ride sheet and taken; the place opens once the ride has played. */
-async function rideBy(page: Page, stop: string, way: string): Promise<void> {
-  await page.locator(`[data-ride-sheet="${stop}"] [data-way="${way}"]`).click();
-  await page.locator(`[data-ride-sheet="${stop}"] [data-ride-main]`).click();
-  await page.waitForFunction((id) => {
-    const city = (window as unknown as { __city?: CityProbe }).__city;
-    return city?.place === id && city.ready === true;
-  }, stop, { timeout: 120_000 });
-  await clear(page);
-}
-
 test("[R-WORLD-039] [R-PLACE-012] [R-STREET-012] given Ada landed in London, when she buys the bus pass, rides the bus to the big shop, does the weekly shop, takes the train to the office and walks home, then the bus asks nothing, the shop and the train take pounds, and she ends in the room", async ({ page }) => {
   test.setTimeout(420_000);
-  await seedSave(page, adaInLondon());
+  await seedSave(page, recordedUpTo("ada-abroad", ADA_IN_LONDON));
   await page.goto(`/${LIVED}&clock=afternoon`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);
@@ -123,7 +77,7 @@ async function cardUnderTheSheet(page: Page, stop: string): Promise<{ card: stri
 
 test("[R-WORLD-038] [R-WORLD-015] given London's map folded on Peckham, when the office at London Bridge is picked across the city, then the card under the open sheet is its district's, drawn with the office ringed, from the moment the sheet is up", async ({ page }) => {
   test.setTimeout(180_000);
-  await seedSave(page, adaInLondon());
+  await seedSave(page, recordedUpTo("ada-abroad", ADA_IN_LONDON));
   await page.goto(`/${LIVED}&clock=afternoon`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);

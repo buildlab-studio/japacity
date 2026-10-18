@@ -6,17 +6,16 @@ import { step } from "../engine/step";
 import type { Currency, Effect, Id, SetpieceAnswer, SetpieceEntry } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
-import { NORTHGATE, UK, UNIT, applyEffects, answerFirst, draw, drawnQuestions, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
+import { UNIT, applyEffects, answerFirst, drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
-import { fundsRequired, offerChanceBp, unexplainedBp } from "../route/route.logic";
+import { fundsRequired, unexplainedBp } from "../route/route.logic";
 import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 import { flown } from "../testing/place.journey";
 import { readOf } from "../testing/read";
+import { DECEMBER_SETPIECE, DECEMBER_VAR, INTERVIEW, PREP, STANDING, UK_ROUTE } from "../testing/ids";
 
-const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
-const PREP: Id<"quality"> = "quality.interview-prep";
 const hintPrep = content.tuning.route.hintPrep;
 /** Every question in content order, and those asked of a clean file: the deposit question needs over 30% unexplained, the papers one a transcript that is not genuine. */
 const ALL = entry.questions.map((question) => question.id);
@@ -24,10 +23,8 @@ const CLEAN = ALL.filter((id) => id !== "deposit" && id !== "papers");
 /** The pool with the deposit question in it, as a file with unexplained money has it; the papers one still needs a fake. */
 const WITH_DEPOSIT = ALL.filter((id) => id !== "papers");
 
-const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
-
 function life(options: LifeOptions = {}): Game {
-  return readyLife(content, { seed: seedWhere(northgateOffers), ...options });
+  return readyLife(content, { seed: seedWhere((seed) => northgateOffers(content, seed)), ...options });
 }
 
 /** The score of an answer as the page's table gives it, for interview prep and the unexplained share. */
@@ -74,25 +71,25 @@ function answerWith(game: Game, pick: (question: string, answers: string[]) => s
 describe("opening the interview", () => {
   test("[R-SETPIECE-001] given a clean file, when the application goes in, then as many questions as the entry asks are drawn on visa, without repeats, in the order drawn", () => {
     for (const index of [0, 1, 2, 3]) {
-      const seed = seedWhere((candidate) => northgateOffers(candidate) && Number(candidate.slice(5)) >= index * 7);
+      const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= index * 7);
       const game = life({ seed });
       toApplied(game);
       const open = game.state.setpiece.open!;
       expect(open.questions).toHaveLength(entry.ask);
       expect(new Set(open.questions).size).toBe(entry.ask);
       expect(open.questions).toEqual(drawnQuestions(seed, CLEAN, entry.ask));
-      expect(open).toMatchObject({ entry: INTERVIEW, route: UK, answers: {} });
+      expect(open).toMatchObject({ entry: INTERVIEW, route: UK_ROUTE, answers: {} });
       expect(game.state.draws.visa).toBe(entry.ask);
     }
   });
 
   test("[R-SETPIECE-001] given a share of unexplained money above 30%, when the application goes in, then the deposit question may be drawn too", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, WITH_DEPOSIT, entry.ask).includes("deposit"));
+    const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, WITH_DEPOSIT, entry.ask).includes("deposit"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 40000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
     // Upkeep is taken from cash first each month, so what is banked is the cash that is left.
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
-    expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(3000);
+    expect(unexplainedBp(readOf(game), UK_ROUTE)).toBeGreaterThan(3000);
     game.endTurn([{ activity: "activity.apply-for-visa", param: null }]);
     expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, WITH_DEPOSIT, entry.ask));
     expect(game.state.setpiece.open?.questions).toContain("deposit");
@@ -100,7 +97,7 @@ describe("opening the interview", () => {
 
   test("[R-SETPIECE-001] given a clean file, when many applications go in, then the deposit question is never asked", () => {
     for (let i = 0; i < 12; i += 1) {
-      const seed = seedWhere((candidate) => northgateOffers(candidate) && Number(candidate.slice(5)) >= i);
+      const seed = seedWhere((candidate) => northgateOffers(content, candidate) && Number(candidate.slice(5)) >= i);
       const game = life({ seed });
       toApplied(game);
       expect(game.state.setpiece.open?.questions).not.toContain("deposit");
@@ -180,18 +177,18 @@ describe("scoring", () => {
   });
 
   test("[R-SETPIECE-004] given money from flagged sources over 20% of what is needed, when the student says they pay from savings, then that answer scores against them", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
+    const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 30000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
     game.accept({ type: "wallet/move", currency: "NGN", amount: 11000000 * UNIT, to: "bank" });
-    const share = unexplainedBp(readOf(game), UK);
+    const share = unexplainedBp(readOf(game), UK_ROUTE);
     expect(share).toBeGreaterThan(2000);
     expect(share).toBeLessThanOrEqual(3000);
     game.endTurn([{ activity: "activity.apply-for-visa", param: null }]);
     expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, CLEAN, entry.ask));
     const total = answerWith(game, (question, answers) => (question === "who-pays" ? "own" : answers[0]!), 0, share);
     expect(uk(game).visa?.interviewScore).toBe(total);
-    expect(check(readOf(game), { type: "route/unexplained-max", route: UK, bp: 2000 }).met).toBe(false);
+    expect(check(readOf(game), { type: "route/unexplained-max", route: UK_ROUTE, bp: 2000 }).met).toBe(false);
   });
 
   /** A life rich in cash, so a cash move into the bank can make a lot of any size. */
@@ -199,11 +196,11 @@ describe("scoring", () => {
 
   /** Moves into the bank the least naira cash that makes the unexplained share exactly `target` basis points (R-ROUTE-013). */
   function lotTo(game: Game, target: number): void {
-    const required = fundsRequired(readOf(game), UK);
+    const required = fundsRequired(readOf(game), UK_ROUTE);
     const pence = mulDivCeil(target, required, 10000);
     const kobo = mulDivCeil(pence, game.world().rates.GBP.official, UNIT);
     game.accept({ type: "wallet/move", currency: "NGN", amount: kobo, to: "bank" });
-    expect(unexplainedBp(readOf(game), UK)).toBe(target);
+    expect(unexplainedBp(readOf(game), UK_ROUTE)).toBe(target);
   }
 
   /** Answers every open question, `who-pays` with `own` and the rest with their first answer, with `between` run after `who-pays`. */
@@ -220,7 +217,7 @@ describe("scoring", () => {
 
   test("[R-SETPIECE-004] given a clean file, when a cash lot is made between two answers, then each answer keeps the score it was judged at when given, and the running sum is what is recorded", () => {
     const seed = seedWhere((candidate) => {
-      if (!northgateOffers(candidate)) return false;
+      if (!northgateOffers(content, candidate)) return false;
       const asked = drawnQuestions(candidate, CLEAN, entry.ask);
       return asked.includes("who-pays") && asked.indexOf("who-pays") < entry.ask - 1;
     });
@@ -232,13 +229,13 @@ describe("scoring", () => {
       expect(game.state.setpiece.open?.score).toBe(asked.slice(0, asked.indexOf("who-pays") + 1).reduce((sum, id) => sum + (id === "who-pays" ? 2 : pageScore(id, entry.questions.find((question) => question.id === id)!.answers[0]!.id, 0, 0)), 0));
       lotTo(game, 2500);
     });
-    expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(2000);
+    expect(unexplainedBp(readOf(game), UK_ROUTE)).toBeGreaterThan(2000);
     expect(game.state.setpiece.open).toBeNull();
     expect(uk(game).visa?.interviewScore).toBe(expected);
   });
 
   test("[R-SETPIECE-004] given an unexplained share of 2000 and of 2001 basis points when who-pays is answered, when the student says own, then it scores +2 at 2000 and -2 at 2001", () => {
-    const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
+    const seed = seedWhere((candidate) => northgateOffers(content, candidate) && drawnQuestions(candidate, CLEAN, entry.ask).includes("who-pays"));
     for (const [share, own] of [
       [2000, 2],
       [2001, -2],
@@ -265,7 +262,7 @@ describe("scoring", () => {
     expect(last?.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: INTERVIEW }, tone: "plain", attention: false, counts: [] }]);
     expect(last?.events.map((event) => event.type)).toEqual(["setpiece/answered", "setpiece/closed", "route/interview-scored", "engine/stepped"]);
     const fresh = life();
-    applyEffects(fresh, [{ type: "route/interview-scored", route: UK, score: 5 }]);
+    applyEffects(fresh, [{ type: "route/interview-scored", route: UK_ROUTE, score: 5 }]);
     expect(uk(fresh).visa).toBeNull();
   });
 });
@@ -316,7 +313,7 @@ describe("answers with effects, and set pieces with no route", () => {
         },
       },
     };
-    const game = readyLife(changed, { seed: seedWhere(northgateOffers) });
+    const game = readyLife(changed, { seed: seedWhere((seed) => northgateOffers(content, seed)) });
     toApplied(game);
     const before = game.state.quality[WELLBEING] ?? 0;
     expect(game.state.setpiece.answered[INTERVIEW] ?? 0).toBe(0);
@@ -345,7 +342,7 @@ describe("answers with effects, and set pieces with no route", () => {
   test("[R-SETPIECE-006] [R-SETPIECE-002] given a set piece open, when setpiece/close names another, then nothing changes; when it names the open one, then it closes unscored and uncounted, and the turn may end", () => {
     const game = life();
     applyEffects(game, [{ type: "setpiece/open", setpiece: INTERVIEW, route: null }]);
-    applyEffects(game, [{ type: "setpiece/close", setpiece: DECEMBER }]);
+    applyEffects(game, [{ type: "setpiece/close", setpiece: DECEMBER_SETPIECE }]);
     expect(game.state.setpiece.open?.entry).toBe(INTERVIEW);
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(false);
     applyEffects(game, [{ type: "setpiece/close", setpiece: INTERVIEW }]);
@@ -359,27 +356,24 @@ describe("answers with effects, and set pieces with no route", () => {
   });
 });
 
-const DECEMBER: Id<"setpiece"> = "setpiece.december";
-const STANDING: Id<"quality"> = "quality.standing";
-const SEASON: Id<"var"> = "var.season-december";
 const MONTHS_A_YEAR = 12;
 
 /** A life flown to the UK on the study route, with every tick December. */
 function flownInDecember(): Game {
-  return flown(content, { vars: () => ({ [SEASON]: 1 }) });
+  return flown(content, { vars: () => ({ [DECEMBER_VAR]: 1 }) });
 }
 
 /** The same life a month later, the December visit open. */
 function december(): Game {
   const game = flownInDecember();
   game.endTurn();
-  expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+  expect(game.state.setpiece.open?.entry).toBe(DECEMBER_SETPIECE);
   return game;
 }
 
 /** What an answer of the December visit takes, as content gives it. */
 function priceOf(question: string, answer: string): { currency: Currency; amount: number } {
-  const found = content.setpiece[DECEMBER]!.questions.find((item) => item.id === question)?.answers.find((item) => item.id === answer);
+  const found = content.setpiece[DECEMBER_SETPIECE]!.questions.find((item) => item.id === question)?.answers.find((item) => item.id === answer);
   const take = found?.effects.find((effect) => effect.type === "money/take");
   if (take?.type !== "money/take" || typeof take.amount !== "number") throw new Error(`${question}.${answer} takes no fixed amount.`);
   return { currency: take.currency, amount: take.amount };
@@ -399,7 +393,7 @@ function holdOnly(game: Game, currency: Currency, bank: number, naira: number): 
 
 /** The interview with its questions and order changed. */
 function interviewAs(changed: SetpieceEntry, options: LifeOptions = {}): Game {
-  return readyLife({ ...content, setpiece: { ...content.setpiece, [INTERVIEW]: changed } }, { seed: seedWhere(northgateOffers), ...options });
+  return readyLife({ ...content, setpiece: { ...content.setpiece, [INTERVIEW]: changed } }, { seed: seedWhere((seed) => northgateOffers(content, seed)), ...options });
 }
 
 describe("a set piece asked in a fixed order", () => {
@@ -416,7 +410,7 @@ describe("a set piece asked in a fixed order", () => {
     const game = flownInDecember();
     const before = game.state.draws.visa ?? 0;
     game.endTurn();
-    expect(game.state.setpiece.open).toMatchObject({ entry: DECEMBER, route: null, questions: ["go-uk", "party-uk", "gifts-uk", "look-uk"] });
+    expect(game.state.setpiece.open).toMatchObject({ entry: DECEMBER_SETPIECE, route: null, questions: ["go-uk", "party-uk", "gifts-uk", "look-uk"] });
     expect(game.state.draws.visa ?? 0).toBe(before);
   });
 });
@@ -426,9 +420,9 @@ describe("closing on an answer", () => {
     const game = december();
     const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
     expect(result.events.map((event) => event.type)).toEqual(["setpiece/answered", "setpiece/closed", "engine/stepped"]);
-    expect(result.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: DECEMBER }, tone: "plain", attention: false, counts: [] }]);
+    expect(result.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: DECEMBER_SETPIECE }, tone: "plain", attention: false, counts: [] }]);
     expect(game.state.setpiece.open).toBeNull();
-    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
     expect(game.view().setpiece).toBeNull();
     game.expectRejected({ type: "setpiece/answer", question: "party-uk", answer: "home" }, "not-legal");
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
@@ -461,7 +455,7 @@ describe("answers that need something", () => {
     const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
     expect(game.state.wallet.pockets.GBP.bank + game.state.wallet.pockets.GBP.cash).toBe(0);
     expect(result.lines.filter((line) => line.big === true)).toEqual([
-      { key: "line.setpiece.december-go", params: { setpiece: DECEMBER }, tone: "good", attention: true, big: true, counts: [] },
+      { key: "line.setpiece.december-go", params: { setpiece: DECEMBER_SETPIECE }, tone: "good", attention: true, big: true, counts: [] },
     ]);
     expect(game.view().setpiece).toMatchObject({ asked: 1, total: 4, question: { id: "party-uk" } });
   });
@@ -482,7 +476,7 @@ describe("answers that need something", () => {
     game.accept({ type: "setpiece/answer", question: "gifts-uk", answer: "none" });
     game.accept({ type: "setpiece/answer", question: "look-uk", answer: "plain" });
     expect(game.state.setpiece.open).toBeNull();
-    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
   });
 
   test("[R-SHARE-001] given the December visit, when going is answered and the scene is answered through, then the December card is due for the rest of that month; staying home gives none", () => {
@@ -546,7 +540,7 @@ describe("the interview, unchanged", () => {
   test("[R-SETPIECE-001] [R-SETPIECE-004] given the interview, which has no fixed order and no closing answer, when it opens and is answered, then its order is drawn on visa and it stays open until the last answer", () => {
     expect(entry.order).toBeUndefined();
     expect(entry.questions.flatMap((question) => question.answers).filter((answer) => answer.closes === true || answer.requires !== undefined)).toEqual([]);
-    const seed = seedWhere(northgateOffers);
+    const seed = seedWhere((seed) => northgateOffers(content, seed));
     const game = life({ seed });
     toApplied(game);
     const asked = game.state.setpiece.open!.questions;
@@ -565,7 +559,7 @@ describe("the December visit, once a year", () => {
     // The handle moves the tick on after each turn; holding it back plays the answer and a second turn in the same tick.
     game.tick -= 1;
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
-    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
     game.endTurn();
     expect(game.state.setpiece.open).toBeNull();
   });
@@ -582,7 +576,7 @@ describe("the December visit, once a year", () => {
     expect(game.state.place.decemberMonth).toBe(opened);
     game.endTurn();
     expect(game.state.turn.month).toBe(opened + MONTHS_A_YEAR);
-    expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+    expect(game.state.setpiece.open?.entry).toBe(DECEMBER_SETPIECE);
     expect(game.state.place.decemberMonth).toBe(opened + MONTHS_A_YEAR);
   });
 

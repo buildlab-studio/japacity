@@ -11,12 +11,13 @@ import { flown } from "../testing/place.journey";
 import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { openOffers } from "../testing/read";
+import { WELLBEING } from "../testing/ids";
 
 const SHOP_UK: Id<"activity"> = "activity.street-shopping-uk";
 const SHOP_UAE: Id<"activity"> = "activity.street-shopping-uae";
 const FIND_UK: Id<"offer"> = "offer.street-find-uk";
 const FIND_UAE: Id<"offer"> = "offer.street-find-uae";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const CERTAIN = 10000;
 const street = content.tuning.street;
 
@@ -64,10 +65,6 @@ function onlyOffers(chances: Partial<Record<Id<"offer">, number>>): Content {
   const copy = JSON.parse(JSON.stringify(content)) as Content;
   for (const entry of Object.values(copy.offer)) entry.chanceBp = chances[entry.id] ?? 0;
   return copy;
-}
-
-function openEntries(game: Game): Id<"offer">[] {
-  return Object.values(game.state.offer.items).map((item) => item.entry);
 }
 
 describe("shopping on the street abroad", () => {
@@ -123,7 +120,7 @@ describe("something interesting on the street", () => {
     const game = start({ content: certain, scenario: "scenario.ada" });
     for (let n = 0; n < 4; n += 1) {
       month(game);
-      expect(openEntries(game)).toEqual([]);
+      expect(openOffers(game)).toEqual([]);
     }
   });
 
@@ -131,12 +128,12 @@ describe("something interesting on the street", () => {
     const game = start({ content: certain, scenario: "scenario.ada" });
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     month(game);
-    expect(openEntries(game)).toEqual([FIND_UK]);
+    expect(openOffers(game)).toEqual([FIND_UK]);
 
     const dubai = start({ content: certain, scenario: "scenario.ada" });
     applyEffects(dubai, [{ type: "place/move", to: "abroad", country: "country.uae" }]);
     month(dubai);
-    expect(openEntries(dubai)).toEqual([FIND_UAE]);
+    expect(openOffers(dubai)).toEqual([FIND_UAE]);
   });
 
   test("[R-STREET-006] given the find open in London, when the player looks, then the mood rises by the street's figure and it cannot come up again inside its cooldown", () => {
@@ -152,9 +149,9 @@ describe("something interesting on the street", () => {
     const cooldown = content.offer[FIND_UK]?.cooldown ?? 0;
     expect(cooldown).toBe(2);
     month(game);
-    expect(openEntries(game)).toEqual([]);
+    expect(openOffers(game)).toEqual([]);
     month(game);
-    expect(openEntries(game)).toEqual([FIND_UK]);
+    expect(openOffers(game)).toEqual([FIND_UK]);
   });
 
   test("[R-STREET-006] given the real chance, when its entry is read, then it is the street's chance a month and the find is no blow and no fraud", () => {

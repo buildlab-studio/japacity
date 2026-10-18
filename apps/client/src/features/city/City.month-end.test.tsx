@@ -15,46 +15,28 @@ import { plannable } from "../../shared/words/acts";
 import { City, RESULTS_BEAT_MS } from "./City";
 import { SLEEP_MS } from "./acts/sleep";
 import { pressFanActNow } from "./fan/fan.testing";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
 });
 
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 /** Ada at home with a month behind her and something planned. */
 async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {

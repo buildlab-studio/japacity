@@ -7,6 +7,7 @@ import { uiCalgaryText } from "@japacity/content/ui/calgary";
 import { uiCastelText } from "@japacity/content/ui/castel";
 import { uiDubaiText } from "@japacity/content/ui/dubai";
 import { type Id, type PlayerView, rideFare } from "@japacity/sim";
+import { positionOf } from "@japacity/sim/testing";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { Vector3 } from "three";
 import { describe, expect, test } from "vitest";
@@ -40,12 +41,6 @@ const KEY_OR_DASH = new RegExp(`map\\.ride|[${String.fromCharCode(0x2013)}${Stri
 const ROOM = "place.the-room";
 const PASSES: Readonly<Record<string, Id<"activity">>> = { "country.canada": "activity.transit-pass-ca", "country.uae": "activity.transit-pass-uae" };
 
-function positionOf(id: string): { latE3: number; lonE3: number } {
-  const position = content.place[id as Id<"place">]?.position;
-  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
-  return position;
-}
-
 /** A life landed in the country with its money in hand, and, when asked, this month's pass bought. */
 function landed(country: Id<"country">, pass = false): PlayerView {
   const game = landedGame(country, 50_000);
@@ -59,7 +54,7 @@ function landed(country: Id<"country">, pass = false): PlayerView {
 
 /** The ways between two places of the country, as the sheet reads them from the view. */
 function ways(view: PlayerView, fromId: string, to: string) {
-  const at = { from: positionOf(fromId), to: positionOf(to) };
+  const at = { from: positionOf(content, fromId), to: positionOf(content, to) };
   return waysAbroad(view.place.ways ?? [], { from: fromId, to }, at, to === ROOM, view.place.fareBp, { country: view.place.country, shuttles: view.place.shuttles ?? [] });
 }
 
@@ -77,7 +72,7 @@ describe("the ways in Calgary, Dubai and Castel Volturno", () => {
     expect([bus?.fare, train?.fare]).toEqual([380, 380]);
     const figures = view.place.ways?.find((way) => way.way === "taxi");
     if (figures === undefined) throw new Error("No taxi");
-    expect(taxi?.fare).toBe(rideFare(figures, positionOf("place.calgary-north-east"), positionOf("place.office-ca")));
+    expect(taxi?.fare).toBe(rideFare(figures, positionOf(content, "place.calgary-north-east"), positionOf(content, "place.office-ca")));
     expect(walk?.shut).toBe("far");
     expect(fareWords(bus?.fare ?? 0, "CAD")).toBe(fareWords(380, "CAD"));
     expect([bus, train, taxi].some((way) => way?.pill !== undefined)).toBe(false);
@@ -177,7 +172,7 @@ describe("the country's own vehicle", () => {
 });
 
 describe("the ride sheet and the ride abroad", () => {
-  const pin = (id: string, state: MapPin["state"]): MapPin => ({ id, name: nameOf(id), state, position: positionOf(id), things: 2 });
+  const pin = (id: string, state: MapPin["state"]): MapPin => ({ id, name: nameOf(id), state, position: positionOf(content, id), things: 2 });
 
   test("[R-WORLD-039] [R-PLACE-013] given a life in Dubai at Deira, when it picks the site and goes by bus, then the sheet's bus tile shows the labour bus at AED 0, site bus, and the ride plays in the labour bus with that pill under the site bus's title", async () => {
     const view = landed("country.uae");

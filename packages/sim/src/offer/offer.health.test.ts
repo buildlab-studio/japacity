@@ -12,11 +12,10 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { keys, naira, quality } from "../testing/read";
 import { COURSE, COURSE_STEP } from "./offer.health";
+import { STANDING, WELLBEING } from "../testing/ids";
 
 const health = content.tuning.health;
 const DRIFT = content.tuning.quality.wellbeingDrift;
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
 const RUN_DOWN: Id<"quality"> = "quality.run-down-months";
 const FORCED_WAIT: Id<"quality"> = "quality.forced-wait";
 const ILLNESS: Id<"offer"> = "offer.illness";

@@ -4,6 +4,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { makeApp } from "../app";
+import { seededBytes } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
 import { memoryStores, openLimiters, testSession } from "../deps";
 import type { ServerDeps } from "../deps";
@@ -27,7 +28,6 @@ interface Setup {
 
 /** The app with the place objects, a test session, and characters that are where `places` says. */
 function setup(places: Record<string, string>, config: ServerConfig = testConfig({ testing: { testLogin: true } })): Setup {
-  let seed = 7;
   const clock = { at: NOW };
   const rooms = freshRooms(config.presence);
   const deps: ServerDeps = {
@@ -38,7 +38,7 @@ function setup(places: Record<string, string>, config: ServerConfig = testConfig
     limits: openLimiters,
     session: testSession(config),
     now: () => clock.at,
-    randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
+    randomBytes: seededBytes(7),
   };
   const app = makeApp(deps).route(
     "/",

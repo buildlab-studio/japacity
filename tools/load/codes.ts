@@ -12,12 +12,12 @@
 // and the test server's email stand-in, so no email leaves this machine.
 import { int } from "@japacity/sim";
 import { setTimeout as sleep } from "node:timers/promises";
-import { pathToFileURL } from "node:url";
 
 import { argument, wholeArgument } from "./http";
 import { config } from "./load.config";
 import { ms, percentile } from "./pass";
 import type { Check, Verdict } from "./pass";
+import { isMain } from "../repo";
 
 // No rule page gives the codes' target rate; 20 a second is a working value, a twentieth of the peak's commands.
 export const CODES_PER_SECOND = 20;
@@ -92,7 +92,7 @@ export async function runCodes(base: string, rate: number, seconds: number): Pro
   };
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMain(import.meta.url)) {
   const args = process.argv.slice(2);
   const result = await runCodes(argument(args, "target", "http://127.0.0.1:8787"), wholeArgument(args, "rate", CODES_PER_SECOND), wholeArgument(args, "seconds", 60));
   const { verdict, checks } = codesPassRule(result);

@@ -14,11 +14,7 @@ import { ARCHETYPES, opensChips, savingsOf } from "./archetypes";
 import { toTheArchetypes } from "./frontDoor.testing";
 // Registers Testing Library's cleanup for this file.
 import "../testing/render";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
+import { memoryStorage } from "../testing/storage";
 
 describe("Your life so far", () => {
   test("[R-PROLOGUE-010] [R-PROLOGUE-013] given the second screen, then no ready life is on it, the tiles come first with the first chosen, each tile says its tag, what it was, the routes it opens and the age it hands over from, and the age stands under them", async () => {

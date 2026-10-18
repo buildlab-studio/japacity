@@ -10,22 +10,19 @@ import { registry } from "../kinds";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import { debits, restMonth } from "../testing/read";
 import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
+import { ADA, FAMILY_UPKEEP, NETWORK, PORTFOLIO, STANDING, TECH, TUNDE, WELLBEING } from "../testing/ids";
 
 /** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
-const ADA: Id<"scenario"> = "scenario.ada";
-const TUNDE: Id<"scenario"> = "scenario.tunde";
-const UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const SUPPORT: Id<"obligation"> = "obligation.home-support";
 const SALARY_LOAN: Id<"obligation"> = "obligation.salary-loan";
 const QUICK_LOAN: Id<"obligation"> = "obligation.quick-loan";
 const HELD: Id<"obligation"> = "obligation.held-funds";
-const STANDING: Id<"quality"> = "quality.standing";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
 const CREDIT: Id<"quality"> = "quality.credit-mark";
 
 function entryOf(id: Id<"obligation">): ObligationEntry {
@@ -51,19 +48,6 @@ function apply(game: Game, effects: Effect[], terms: Terms = {}): Accepted {
   if (!result.ok) throw new Error(result.detail);
   game.state = result.state;
   return result;
-}
-
-/** Leaves exactly `bank` naira kobo in the bank and `cash` in cash. */
-function setNaira(game: Game, bank: number, cash = 0): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  const effects: Effect[] = [];
-  const change = (where: "bank" | "cash", now: number, want: number) => {
-    if (now > want) effects.push({ type: "money/take", currency: "NGN", pocket: where, amount: now - want, reason: "mishap" });
-    if (now < want) effects.push({ type: "money/add", currency: "NGN", pocket: where, amount: want - now, reason: "gift" });
-  };
-  change("bank", pocket.bank, bank);
-  change("cash", pocket.cash, cash);
-  if (effects.length > 0) apply(game, effects);
 }
 
 /** Opens an obligation by effect and returns its instance. */
@@ -98,7 +82,7 @@ function item(game: Game, id: string): ObligationState | undefined {
 }
 
 function upkeepOf(game: Game): ObligationState {
-  const found = Object.values(game.state.obligation.items).find((owed) => owed.entry === UPKEEP);
+  const found = Object.values(game.state.obligation.items).find((owed) => owed.entry === FAMILY_UPKEEP);
   if (found === undefined) throw new Error("No upkeep.");
   return found;
 }
@@ -110,7 +94,7 @@ describe("the monthly charge", () => {
     expect(upkeep.amount).toBe(ADA_UPKEEP);
     const result = game.endTurn();
     expect(ofType(result, "obligation/charged")).toEqual([
-      { type: "obligation/charged", id: upkeep.id, entry: UPKEEP, total: ADA_UPKEEP, interest: 0, principal: 0 },
+      { type: "obligation/charged", id: upkeep.id, entry: FAMILY_UPKEEP, total: ADA_UPKEEP, interest: 0, principal: 0 },
     ]);
   });
 
@@ -148,7 +132,7 @@ describe("the monthly charge", () => {
     const upkeep = upkeepOf(game);
     const support = open(game, SUPPORT, undefined, 6000000);
     expect(support.amount).toBeLessThan(upkeep.amount);
-    setNaira(game, upkeep.amount);
+    setPockets(game, { NGN: { cash: 0, bank: upkeep.amount } });
     const result = game.endTurn();
     const owned = own(result).filter((event) => event.type === "obligation/charged" || event.type === "obligation/missed");
     expect(owned.map((event) => [event.type, event.id])).toEqual([
@@ -161,13 +145,13 @@ describe("the monthly charge", () => {
 describe("paid in full or missed", () => {
   test("[R-OBLIGATION-002] given exactly the charge, when the month ends, then it is paid; one kobo less and what is held goes toward it, the shortfall the miss", () => {
     const exact = start({ scenario: ADA, content });
-    setNaira(exact, ADA_UPKEEP);
+    setPockets(exact, { NGN: { cash: 0, bank: ADA_UPKEEP } });
     expect(ofType(exact.endTurn(), "obligation/charged")).toHaveLength(1);
     expect(exact.state.wallet.pockets.NGN.bank).toBe(0);
 
     // One kobo less: the upkeep takes what is held and the shortfall is the miss (decision 0013).
     const short = start({ scenario: ADA, content });
-    setNaira(short, ADA_UPKEEP - 1);
+    setPockets(short, { NGN: { cash: 0, bank: ADA_UPKEEP - 1 } });
     const result = short.endTurn();
     expect(ofType(result, "obligation/charged")).toEqual([]);
     expect(ofType(result, "obligation/missed")).toMatchObject([{ paid: ADA_UPKEEP - 1, total: ADA_UPKEEP }]);
@@ -186,7 +170,7 @@ describe("paid in full or missed", () => {
     // Enough in the bank for the upkeep and most of the loan's principal part; each charge is over the line for cash.
     for (const charge of [ADA_UPKEEP, part, interest]) expect(charge).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     const bank = ADA_UPKEEP + part - 333334;
-    setNaira(game, bank, 50000000);
+    setPockets(game, { NGN: { cash: 50000000, bank } });
     const result = game.endTurn();
     expect(debits(result)).toEqual([
       { type: "wallet/debited", currency: "NGN", pocket: "bank", amount: ADA_UPKEEP, reason: "upkeep" },
@@ -215,16 +199,16 @@ describe("misses", () => {
   test("[R-OBLIGATION-003] given no money, when upkeep is missed, then its onMiss effects apply and the misses count up; a paid month puts them back to zero", () => {
     const game = start({ scenario: ADA, content });
     const upkeep = upkeepOf(game);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const first = game.endTurn();
-    expect(ofType(first, "obligation/missed")).toEqual([{ type: "obligation/missed", id: upkeep.id, entry: UPKEEP, total: ADA_UPKEEP, missed: 1 }]);
-    expect(qualityChanges(first, UPKEEP).map((event) => [event.quality, event.amount])).toEqual([
+    expect(ofType(first, "obligation/missed")).toEqual([{ type: "obligation/missed", id: upkeep.id, entry: FAMILY_UPKEEP, total: ADA_UPKEEP, missed: 1 }]);
+    expect(qualityChanges(first, FAMILY_UPKEEP).map((event) => [event.quality, event.amount])).toEqual([
       [STANDING, -3],
       [WELLBEING, -5],
     ]);
     game.endTurn();
     expect(item(game, upkeep.id)?.missed).toBe(2);
-    setNaira(game, ADA_UPKEEP);
+    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP } });
     game.endTurn();
     expect(item(game, upkeep.id)?.missed).toBe(0);
   });
@@ -233,7 +217,7 @@ describe("misses", () => {
     const game = start({ scenario: ADA, content });
     const upkeep = upkeepOf(game);
     const support = open(game, SUPPORT, undefined, 6000000);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     for (let month = 1; month <= 4; month += 1) {
       const result = game.endTurn();
       expect(ofType(result, "obligation/defaulted")).toEqual([]);
@@ -245,7 +229,7 @@ describe("misses", () => {
     const view = game.view().obligations;
     expect(view.find((owed) => owed.id === upkeep.id)?.due).toBe(ADA_UPKEEP);
     expect(view.find((owed) => owed.id === support.id)?.due).toBe(6000000);
-    setNaira(game, ADA_UPKEEP + 6000000);
+    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + 6000000 } });
     const paid = game.endTurn();
     expect(ofType(paid, "obligation/charged").map((event) => event.total)).toEqual([ADA_UPKEEP, 6000000]);
   });
@@ -257,7 +241,7 @@ describe("default", () => {
     const entry = entryOf(SALARY_LOAN);
     expect(entry.grace).toBe(1);
     const loan = open(game, SALARY_LOAN, 10000000);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const first = game.endTurn();
     expect(ofType(first, "obligation/defaulted")).toEqual([]);
     expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 1 });
@@ -284,16 +268,16 @@ describe("default", () => {
     const game = start({ scenario: ADA, content });
     expect(entryOf(SALARY_LOAN).grace).toBe(1);
     const loan = open(game, SALARY_LOAN, 10000000);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     game.endTurn();
     expect(item(game, loan.id)).toMatchObject({ state: "grace", missed: 1 });
 
-    setNaira(game, 50000000);
+    setPockets(game, { NGN: { cash: 0, bank: 50000000 } });
     const paid = game.endTurn();
     expect(ofType(paid, "obligation/charged").filter((event) => event.id === loan.id)).toHaveLength(1);
     expect(item(game, loan.id)).toMatchObject({ state: "active", missed: 0 });
 
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const missed = game.endTurn();
     expect(ofType(missed, "obligation/missed").filter((event) => event.id === loan.id)).toHaveLength(1);
     expect(ofType(missed, "obligation/defaulted")).toEqual([]);
@@ -304,7 +288,7 @@ describe("default", () => {
     const game = start({ scenario: ADA, content });
     const principal = 10000000;
     const loan = open(game, SALARY_LOAN, principal);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     game.endTurn();
     game.endTurn();
     expect(item(game, loan.id)?.state).toBe("defaulted");
@@ -312,14 +296,14 @@ describe("default", () => {
 
     // Too little for the upkeep: it is charged first (R-OBLIGATION-001) and takes every naira held (decision 0013), so
     // the lender finds nothing this month and what is owed stands.
-    setNaira(game, 3000000, 5000000);
+    setPockets(game, { NGN: { cash: 5000000, bank: 3000000 } });
     const partly = game.endTurn();
-    expect(ofType(partly, "obligation/missed")).toMatchObject([{ entry: UPKEEP, paid: 8000000 }]);
+    expect(ofType(partly, "obligation/missed")).toMatchObject([{ entry: FAMILY_UPKEEP, paid: 8000000 }]);
     expect(ofType(partly, "obligation/seized")).toEqual([]);
     expect(game.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: 0 });
     expect(item(game, loan.id)?.outstanding).toBe(principal);
 
-    setNaira(game, ADA_UPKEEP + 50000000, 0);
+    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + 50000000 } });
     const rest = game.endTurn();
     expect(ofType(rest, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: SALARY_LOAN, amount: principal }]);
     expect(ofType(rest, "obligation/closed")).toEqual([{ type: "obligation/closed", id: loan.id, entry: SALARY_LOAN, why: "paid" }]);
@@ -376,7 +360,7 @@ describe("held funds", () => {
     const held = open(game, HELD, principal);
     const interest = bp(principal, entryOf(HELD).rateBp);
     expect(game.view().obligations.find((owed) => owed.id === held.id)?.due).toBe(interest);
-    setNaira(game, ADA_UPKEEP + interest);
+    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + interest } });
     const result = game.endTurn();
     expect(debits(result)).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "bank", amount: interest, reason: "held-funds-interest" });
     expect(game.state.wallet.pockets.NGN.locked).toBe(principal);
@@ -387,7 +371,7 @@ describe("held funds", () => {
     const game = start({ scenario: ADA, content });
     const principal = 200000000;
     const held = open(game, HELD, principal);
-    setNaira(game, 1000000);
+    setPockets(game, { NGN: { cash: 0, bank: 1000000 } });
     const result = game.endTurn();
     expect(ofType(result, "obligation/taken-back")).toEqual([{ type: "obligation/taken-back", id: held.id, entry: HELD, amount: principal }]);
     expect(debits(result)).toContainEqual({ type: "wallet/debited", currency: "NGN", pocket: "locked", amount: principal, reason: "held-funds-return" });
@@ -404,7 +388,7 @@ describe("paying early", () => {
   test("[R-OBLIGATION-008] [R-WALLET-018] given a loan, when any whole amount up to what is owed is paid, then it is taken under loan-repay as the street pays by its size, a sum over the line for cash the bank first then cash, and the outstanding falls", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, SALARY_LOAN, 10000000);
-    setNaira(game, 1000000, 20000000);
+    setPockets(game, { NGN: { cash: 20000000, bank: 1000000 } });
     expect(1500000).toBeGreaterThan(content.tuning.wallet.cashUpTo);
     const result = game.accept({ type: "obligation/pay", obligation: loan.id, amount: 1500000 });
     expect(debits(result)).toEqual([
@@ -429,7 +413,7 @@ describe("paying early", () => {
     const loan = open(game, SALARY_LOAN, 10000000);
     expect(game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 0 }, "bad-amount").code).toBe("bad-amount");
     expect(game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: Number("2.5") }, "bad-amount").code).toBe("bad-amount");
-    setNaira(game, 999999, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 999999 } });
     game.expectRejected({ type: "obligation/pay", obligation: loan.id, amount: 1000000 }, "cannot-afford");
     game.accept({ type: "obligation/pay", obligation: loan.id, amount: 999999 });
   });
@@ -473,12 +457,12 @@ describe("lines and the view", () => {
     expect(keys.filter((key) => (text[key] ?? "").trim() === "")).toEqual([]);
     const game = start({ scenario: ADA, content });
     open(game, SALARY_LOAN, 10000000);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     game.endTurn();
     const result = game.endTurn();
     expect(result.lines.find((line) => line.key === "line.obligation.missed")).toMatchObject({ tone: "bad", attention: true });
     expect(result.lines.find((line) => line.key === "line.obligation.defaulted")).toMatchObject({ tone: "bad", attention: true });
-    setNaira(game, ADA_UPKEEP);
+    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP } });
     const quiet = game.endTurn();
     expect(quiet.lines.find((line) => line.key === "line.obligation.charged")).toMatchObject({ tone: "plain", attention: false });
   });
@@ -535,9 +519,6 @@ describe("random play", () => {
 const GROUP_LOAN: Id<"obligation"> = "obligation.group-loan";
 const GUARANTEE: Id<"obligation"> = "obligation.guarantee";
 const AJO: Id<"obligation"> = "obligation.ajo";
-const NETWORK: Id<"quality"> = "quality.network";
-const TECH: Id<"quality"> = "quality.tech";
-const PORTFOLIO: Id<"quality"> = "quality.portfolio";
 const GROUP = content.tuning.groupLoan;
 /** ₦100,000, the page's example: ₦25,000 in fees and savings. */
 const HUNDRED_THOUSAND = 10000000;
@@ -599,13 +580,13 @@ describe("the group loan", () => {
     const interest = bp(HUNDRED_THOUSAND, entry.rateBp);
     expect([part, interest]).toEqual([1111112, 170000]);
     for (let paid = 1; paid < entry.term!; paid += 1) {
-      setNaira(game, 100000000);
+      setPockets(game, { NGN: { cash: 0, bank: 100000000 } });
       const result = restMonth(game);
       expect(ofType(result, "obligation/charged").filter((event) => event.id === loan.id)).toEqual([
         { type: "obligation/charged", id: loan.id, entry: GROUP_LOAN, total: part + interest, interest, principal: part },
       ]);
     }
-    setNaira(game, 100000000);
+    setPockets(game, { NGN: { cash: 0, bank: 100000000 } });
     const last = restMonth(game);
     expect(item(game, loan.id)).toBeUndefined();
     expect(ofType(last, "obligation/closed")).toEqual([{ type: "obligation/closed", id: loan.id, entry: GROUP_LOAN, why: "paid" }]);
@@ -618,7 +599,7 @@ describe("the group loan", () => {
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
     const part = divCeil(HUNDRED_THOUSAND, 9);
     const total = part + bp(HUNDRED_THOUSAND, 170);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
 
     const first = restMonth(game);
     expect(ofType(first, "obligation/covered")).toEqual([{ type: "obligation/covered", id: loan.id, entry: GROUP_LOAN, total, principal: part, missed: 1 }]);
@@ -647,7 +628,7 @@ describe("the group loan", () => {
     expect(third.lines.find((line) => line.key === "line.obligation.group-default")).toMatchObject({ tone: "bad", attention: true });
 
     // From then on the lender takes from the bank, as any defaulted loan (the upkeep, charged first, is paid in full here).
-    setNaira(game, ADA_UPKEEP + 5000000);
+    setPockets(game, { NGN: { cash: 0, bank: ADA_UPKEEP + 5000000 } });
     const taken = restMonth(game);
     expect(ofType(taken, "obligation/seized")).toEqual([{ type: "obligation/seized", id: loan.id, entry: GROUP_LOAN, amount: 5000000 }]);
     // The credit mark now keeps every group loan closed.
@@ -730,10 +711,10 @@ describe("the way out", () => {
   test("[R-OBLIGATION-013] given a group loan the group has covered, when it is paid ahead whole, then it closes and the savings come back", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     restMonth(game);
     const owed = item(game, loan.id)!.outstanding;
-    setNaira(game, owed);
+    setPockets(game, { NGN: { cash: 0, bank: owed } });
     const paid = game.accept({ type: "obligation/pay", obligation: loan.id, amount: owed });
     expect(item(game, loan.id)).toBeUndefined();
     expect(credits(paid)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: bp(HUNDRED_THOUSAND, GROUP.savingsBp), reason: "deposit-return" });
@@ -742,13 +723,13 @@ describe("the way out", () => {
   test("[R-OBLIGATION-013] given a group loan in default, when what is owed is paid ahead, then it closes; the savings are lost with the default", () => {
     const game = start({ scenario: ADA, content });
     const loan = open(game, GROUP_LOAN, HUNDRED_THOUSAND);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     restMonth(game);
     restMonth(game);
     restMonth(game);
     expect(item(game, loan.id)?.state).toBe("defaulted");
     const owed = item(game, loan.id)!.outstanding;
-    setNaira(game, 0, owed);
+    setPockets(game, { NGN: { cash: owed, bank: 0 } });
     const paid = game.accept({ type: "obligation/pay", obligation: loan.id, amount: owed });
     expect(item(game, loan.id)).toBeUndefined();
     expect(credits(paid)).toEqual([]);
@@ -791,7 +772,7 @@ describe("the savings circle", () => {
   test("[R-LUCK-009] given a seed whose first lotto draw in ten is 0, when the first month is paid, then the pot comes as a gift; a seed whose first is not waits", () => {
     const lucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) === 0);
     const { game, circle } = joined(lucky);
-    setNaira(game, 100000000);
+    setPockets(game, { NGN: { cash: 0, bank: 100000000 } });
     const first = restMonth(game);
     expect(ofType(first, "obligation/pot-paid")).toEqual([{ type: "obligation/pot-paid", id: circle.id, entry: AJO, amount: POT }]);
     expect(credits(first)).toContainEqual({ type: "wallet/credited", currency: "NGN", pocket: "bank", amount: POT, reason: "gift" });
@@ -799,7 +780,7 @@ describe("the savings circle", () => {
 
     const unlucky = seedWhere((seed) => draw(seed, "lotto", 0, 10) !== 0 && draw(seed, "lotto", 1, 9) === 0);
     const later = joined(unlucky);
-    setNaira(later.game, 100000000);
+    setPockets(later.game, { NGN: { cash: 0, bank: 100000000 } });
     expect(ofType(restMonth(later.game), "obligation/pot-paid")).toEqual([]);
     expect(ofType(restMonth(later.game), "obligation/pot-paid")).toHaveLength(1);
   });
@@ -811,7 +792,7 @@ describe("the savings circle", () => {
       let pots = 0;
       let paidIn = 0;
       for (let count = 0; count < 10; count += 1) {
-        setNaira(game, 100000000);
+        setPockets(game, { NGN: { cash: 0, bank: 100000000 } });
         const result = restMonth(game);
         pots += ofType(result, "obligation/pot-paid").reduce((sum, event) => sum + event.amount, 0);
         paidIn += ofType(result, "obligation/charged").filter((event) => event.id === circle.id).reduce((sum, event) => sum + event.total, 0);
@@ -828,9 +809,9 @@ describe("the savings circle", () => {
     // Ada has no pay coming in, so a month with nothing is a missed share.
     const game = start({ scenario: ADA, content, seed: unlucky });
     const circle = open(game, AJO);
-    setNaira(game, 100000000);
+    setPockets(game, { NGN: { cash: 0, bank: 100000000 } });
     restMonth(game);
-    setNaira(game, 0);
+    setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const missed = restMonth(game);
     expect(item(game, circle.id)).toBeUndefined();
     expect(ofType(missed, "obligation/closed")).toEqual([{ type: "obligation/closed", id: circle.id, entry: AJO, why: "dropped" }]);

@@ -1,10 +1,9 @@
 // The interview's close as the world shows it: the officer's last
 // line holds the sheet open with one button, and the sound notice sits in the sheet's header, never over the band.
-import { content, OFFICER_REACTIONS, text, uiRoomText, uiSoundText } from "@japacity/content";
-import { offerChanceBp } from "@japacity/sim";
+import { OFFICER_REACTIONS, text, uiRoomText, uiSoundText } from "@japacity/content";
 import type { Game } from "@japacity/sim/testing";
-import { NORTHGATE, draw, drawnQuestions, readyLife, seedWhere, toApplied, uk } from "@japacity/sim/testing";
-import { act, fireEvent, screen, within } from "@testing-library/react";
+import { uk } from "@japacity/sim/testing";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { useView } from "../../authority/GameProvider";
@@ -12,19 +11,9 @@ import { fakeSound } from "../../shared/sound/sound.testing";
 import { installSoundWake, NOTICE_MS, setSoundBackend } from "../../shared/sound/sound";
 import { SoundNotice } from "../../shared/sound/SoundNotice";
 import { renderWithGame } from "../../shared/testing/person";
-import { CLOSE, roomStore, VOICED } from "./room.store";
+import { after, interviewOpened, room } from "./interview.testing";
+import { CLOSE, roomStore } from "./room.store";
 import { SetpieceView, useClosingOpen } from "./SetpieceView";
-
-const entry = content.setpiece[VOICED]!;
-const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit");
-const northgateOffers = (seed: string) => draw(seed, "school", 1, 10000) < offerChanceBp(content.school[NORTHGATE]!, 4, content.tuning.route);
-
-function interviewGame(): Game {
-  const seed = seedWhere((candidate) => northgateOffers(candidate) && drawnQuestions(candidate, CLEAN, entry.ask)[0] === "who-pays");
-  const game = readyLife(content, { seed });
-  toApplied(game);
-  return game;
-}
 
 /** What the world's asks sheet holds: the set piece while it is open, and while its closing line still shows. */
 function AsksHost() {
@@ -33,17 +22,7 @@ function AsksHost() {
   return view.setpiece === null && !closing ? <p data-host="empty" /> : <SetpieceView />;
 }
 
-async function after(ms: number): Promise<void> {
-  await act(() => vi.advanceTimersByTimeAsync(ms));
-}
-
-function room(): HTMLElement {
-  const found = document.querySelector<HTMLElement>(`[data-scene='${VOICED}']`);
-  if (found === null) throw new Error("The interview room is not on screen.");
-  return found;
-}
-
-async function open(options: Parameters<typeof fakeSound>[0], game = interviewGame()): Promise<Game> {
+async function open(options: Parameters<typeof fakeSound>[0], game = interviewOpened()): Promise<Game> {
   setSoundBackend(fakeSound(options).backend);
   await renderWithGame(
     <>

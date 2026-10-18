@@ -8,6 +8,7 @@ import type { Held } from "@japacity/store";
 import type { Hono } from "hono";
 
 import { makeApp } from "../app";
+import { seededBytes } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
 import { memoryStores, openLimiters, testSession } from "../deps";
@@ -24,7 +25,6 @@ export interface TestServer {
 /** A test server at the epoch, with `over` in place of any dependency. */
 export function testServer(over: Partial<ServerDeps> = {}): TestServer {
   let now = over.config?.clock.epoch ?? productionConfig.clock.epoch;
-  let seed = 7;
   const config = over.config ?? testConfig({ testing: { testLogin: true } });
   const deps: ServerDeps = {
     config,
@@ -34,7 +34,7 @@ export function testServer(over: Partial<ServerDeps> = {}): TestServer {
     limits: openLimiters,
     session: testSession(config),
     now: () => now,
-    randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
+    randomBytes: seededBytes(7),
     ...over,
   };
   return {
@@ -93,6 +93,12 @@ export async function newLife(server: TestServer, account: string, scenario: Id<
   const row = await server.deps.stores.account.get(account);
   if (row === null || row.character === null) throw new Error("The account names no character.");
   return row.character;
+}
+
+/** The reply of an accepted command; a rejection fails the test with its code and detail. */
+export function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {
+  if (!reply.ok) throw new Error(`Rejected with ${reply.code}: ${reply.detail}`);
+  return reply;
 }
 
 /** Sends a command based on `basedOn`. */

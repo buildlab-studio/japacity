@@ -2,6 +2,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { AGREE_FRAMES, type Device, enterPlace, type FrameWatch, keepChoice, modeSettings, observeFrame, readChoice, startingMode, watchFrames, WINDOW_FRAMES } from "./mode";
+import { memoryStorage } from "../testing/storage";
 
 const city = content.tuning.city;
 const phone: Device = { finePointer: false, width: 412, pixelRatio: 3 };
@@ -40,8 +41,7 @@ describe("starting mode", () => {
   test("[R-CITY-019] given the player fixed a mode in settings, when the city opens on any device, then that mode is used and kept per device", () => {
     expect(startingMode(phone, city, "high")).toBe("high");
     expect(startingMode(desktop, city, "low")).toBe("low");
-    const kept = new Map<string, string>();
-    const storage = { getItem: (key: string) => kept.get(key) ?? null, setItem: (key: string, value: string) => void kept.set(key, value) };
+    const storage = memoryStorage();
     expect(readChoice(storage)).toBe("auto");
     keepChoice(storage, "low");
     expect(readChoice(storage)).toBe("low");

@@ -5,17 +5,15 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { bp } from "../engine/int";
-import type { Accepted, BaseEvent, Currency, FlatSave, Id, State } from "../engine/types";
+import type { Accepted, BaseEvent, Currency, FlatSave, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import { newLifeSaves } from "../sweep/lives.data";
 import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
+import { COOK } from "../testing/ids";
 
 type Closed = Extract<WalletEvent, { type: "wallet/month-closed" }>;
-/** A meal bought and eaten at once (R-HOME-012, decision 0013). */
-// A meal bought is a meal of your own: the family house's pot is free.
-const MEAL: Id<"activity"> = "activity.cook-own";
 
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
 
@@ -107,7 +105,7 @@ describe("the months kept", () => {
     // Resting months at home: the living costs go out and nothing comes in. Since decision 0013 the living is paid by hand
     // as it is lived, so each month eats a meal bought then; no living is charged as the month turns.
     for (let month = 0; month < 3; month += 1) {
-      game.accept({ type: "activity/now", activity: MEAL, param: null });
+      game.accept({ type: "activity/now", activity: COOK, param: null });
       const closed = closedOf(game.endTurn());
       expect(closed?.net).toBeLessThan(0);
       expect(game.state.wallet).not.toHaveProperty("keptMonths");
@@ -177,7 +175,7 @@ describe("the months kept", () => {
     expect(earned.length).toBeGreaterThan(0);
     expect(game.state.wallet.monthNet ?? {}).toEqual({});
     // Since decision 0013 nothing is charged as a month at home turns, so the first month moves money by a meal bought then.
-    game.accept({ type: "activity/now", activity: MEAL, param: null });
+    game.accept({ type: "activity/now", activity: COOK, param: null });
     const closed = closedOf(game.endTurn());
     expect(closed).toBeDefined();
   });

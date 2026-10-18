@@ -2,10 +2,9 @@
 // answers, and `friend` shut with its reason when no joined player has a place in Lagos.
 import { content } from "@japacity/content";
 import { applyOverlay } from "@japacity/sim";
-import { start } from "@japacity/sim/testing";
+import { setPockets, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { setPockets } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { words } from "../../shared/words/text";
 import { OfferView } from "./OfferView";

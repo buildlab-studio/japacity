@@ -1,8 +1,9 @@
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { FIRST_SESSION_MONTHS, playFirstSession, startingLives, type FirstSession } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { chapterNextStep, FIRST_SESSION_TURNS, playFirstSession, startingLives, type FirstSession } from "../../shared/testing/firstSession";
+import { chapterNextStep } from "../../shared/testing/firstSession";
 import { words } from "../../shared/words/text";
 import { earlyWinIn, isEarlyWin } from "../../shared/sim/earlyWin";
 
@@ -12,8 +13,8 @@ const line = (key: string, tone: ReportLine["tone"] = "good"): ReportLine => ({ 
 function everyFirstSession(): FirstSession[] {
   const seen = new Set<string>();
   const sessions: FirstSession[] = [];
-  for (const life of startingLives()) {
-    const session = playFirstSession(life);
+  for (const life of startingLives(content)) {
+    const session = playFirstSession(life, content, { nextStep: chapterNextStep });
     const path = `${life.scenario} ${session.path.join(" ")}`;
     if (seen.has(path)) continue;
     seen.add(path);
@@ -24,7 +25,7 @@ function everyFirstSession(): FirstSession[] {
 
 describe("the first session", () => {
   test("[R-GUIDE-014] given every starting life, when its first three months are played as the next step suggests, then each has an early win by the third", () => {
-    expect(FIRST_SESSION_TURNS).toBe(3);
+    expect(FIRST_SESSION_MONTHS).toBe(3);
     const sessions = everyFirstSession();
     const scenarios = new Set(sessions.map((session) => session.life.scenario));
     expect([...scenarios].sort()).toEqual(Object.keys(content.scenario).sort());
@@ -34,11 +35,11 @@ describe("the first session", () => {
     expect(taken.size).toBeGreaterThan(offered.length / 2);
     const without = sessions.filter((session) => session.earlyWin === null).map((session) => `${session.life.name} (${session.path.join(" ")})`);
     expect(without).toEqual([]);
-    for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_TURNS);
+    for (const session of sessions) expect(session.earlyWin!.month).toBeLessThanOrEqual(FIRST_SESSION_MONTHS);
   }, 120000);
 
   test("[R-GUIDE-014] [R-TEXT-007] given a life whose months are all left to rest, when its first three are played, then a route heard on the radio says the radio as its source and is not an early win", () => {
-    const session = playFirstSession({ name: "resting", scenario: "scenario.ada", answers: {} }, { nextStep: () => [] });
+    const session = playFirstSession({ name: "resting", scenario: "scenario.ada", answers: {} }, content, { nextStep: () => [] });
     const heard = session.months.flatMap((month) => month.lines).filter((found) => found.key === "line.route.heard");
     expect(heard.length).toBeGreaterThan(0);
     for (const found of heard) expect(words(found.key, found.params)).toMatch(/^On the radio: /);
@@ -46,7 +47,7 @@ describe("the first session", () => {
   });
 
   test("[R-GUIDE-014] given a new life at home, when the next step is read, then it works toward the chapter's first unmet items", () => {
-    const session = playFirstSession({ name: "ada", scenario: "scenario.ada", answers: {} });
+    const session = playFirstSession({ name: "ada", scenario: "scenario.ada", answers: {} }, content, { nextStep: chapterNextStep });
     expect(session.months[0]?.slots.map((slot) => slot.activity)).toEqual(["activity.job-hunt", "activity.meetup"]);
     expect(chapterNextStep).toBeTypeOf("function");
   });

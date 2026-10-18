@@ -7,9 +7,10 @@ import { checkContent } from "../engine/content";
 import { divFloor } from "../engine/int";
 import { characterRandom } from "../engine/random";
 import type { Accepted, BaseEvent, Content, Id, OfferEntry, OfferState, Requirement } from "../engine/types";
-import { applyEffects, slot } from "../testing/route.journey";
+import { slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
+import { setPockets } from "../testing/wallet";
 import type { WalletEvent } from "../wallet/wallet.events";
 import type { OfferEvent } from "./offer.events";
 import { rollOrder } from "./offer.logic";
@@ -36,19 +37,6 @@ function life(pool: Content, seed: string, scenario: Id<"scenario"> = "scenario.
 
 function openedIn(result: Accepted, id: Id<"offer">): OfferState | undefined {
   return result.events.filter((event): event is BaseEvent & OfferEvent => event.type === "offer/opened").flatMap((event) => (event.type === "offer/opened" && event.item.entry === id ? [event.item] : []))[0];
-}
-
-/** Naira cash and bank set through the wallet's own effects. */
-function setNaira(game: Game, cash: number, bank: number): void {
-  const pocket = game.state.wallet.pockets.NGN;
-  applyEffects(game, [
-    { type: "money/take", currency: "NGN", pocket: "cash", amount: pocket.cash, reason: "mishap" },
-    { type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" },
-  ]);
-  applyEffects(game, [
-    ...(cash > 0 ? [{ type: "money/add", currency: "NGN", pocket: "cash", amount: cash, reason: "gift" } as const] : []),
-    ...(bank > 0 ? [{ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" } as const] : []),
-  ]);
 }
 
 /** The first seed whose night under the bridge opens this offer alone. */
@@ -112,7 +100,7 @@ describe("the bridge's price: what each does", () => {
   const BANK = content.scenario["scenario.ada"]!.obligations[0]!.amount + street.theftNaira * 4;
   function cashAtComeUp(seed: string, cash: number): number {
     const twin = life(alone(BRIDGE_THEFT), seed);
-    setNaira(twin, cash, BANK);
+    setPockets(twin, { NGN: { cash, bank: BANK } });
     twin.endTurn();
     return twin.state.wallet.pockets.NGN.cash;
   }
@@ -129,7 +117,7 @@ describe("the bridge's price: what each does", () => {
       const cash = base + (street.theftNaira - short) - cashAtComeUp(seed, base);
       expect(cashAtComeUp(seed, cash)).toBe(street.theftNaira - short);
       const game = life(alone(BRIDGE_THEFT), seed);
-      setNaira(game, cash, BANK);
+      setPockets(game, { NGN: { cash, bank: BANK } });
       const result = game.endTurn([slot(SLEEP_ROUGH)]);
       const item = openedIn(result, BRIDGE_THEFT);
       expect(item?.terms.lost).toBe(line);
@@ -177,7 +165,7 @@ describe("the bad night by the character's sex", () => {
       const opened = SEEDS.map((seed) => {
         const game = life(pool, seed, scenario);
         finishPrologue(game);
-        setNaira(game, 0, 1);
+        setPockets(game, { NGN: { cash: 0, bank: 1 } });
         return openedIn(game.endTurn([slot(SLEEP_ROUGH)]), BRIDGE_NIGHT);
       }).find((item) => item !== undefined);
       lines[scenario] = String(opened?.terms.night);

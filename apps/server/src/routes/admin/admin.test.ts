@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { countRejection } from "../../ops/rejections";
-import { testDeps } from "../../app.testing";
+import { asAccount as as, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { productionConfig, testConfig } from "../../config";
 import { TEST_SIGNED_IN_WITH, testSession } from "../../deps";
@@ -15,8 +15,6 @@ function admin() {
   const config = testConfig({ testing: { testLogin: true }, admin: { accounts: [ADMIN] } });
   return testDeps({ config, session: testSession(config) });
 }
-
-const as = (account: string | null): RequestInit => (account === null ? {} : { headers: { "x-test-account": account } });
 
 describe("the admin routes", () => {
   test("[R-SERVER-012] given a session not in the admin accounts or none at all, when any admin route is fetched, then it answers 404 exactly as a route that does not exist", async () => {

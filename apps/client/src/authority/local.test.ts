@@ -5,17 +5,7 @@ import { describe, expect, test } from "vitest";
 
 import { localAuthority } from "./local";
 import { PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return {
-    items,
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => {
-      items.set(key, value);
-    },
-  };
-}
+import { memoryStorage } from "../shared/testing/storage";
 
 function storedSave(storage: ReturnType<typeof memoryStorage>): Save {
   const raw = storage.items.get(SAVE_KEY);

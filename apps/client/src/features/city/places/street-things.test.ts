@@ -20,6 +20,7 @@ import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { actEntries } from "./frontage.testing";
 import { instancesOf, measured, rowOf, staged, totalsOf } from "./place.testing";
 import { cityWords } from "../city.words";
+import { thingIn } from "../../../shared/testing/things";
 
 interface Expected {
   thing: string;
@@ -60,9 +61,7 @@ function carriageway(stage: Stage): [number, number] {
 }
 
 function thingOf(stage: Stage, id: string): Thing {
-  const found = (stage.things ?? []).find((thing) => thing.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
+  return thingIn(stage.things, id);
 }
 
 describe.each(STREETS)("the street's things at $id", ({ raw, id, things }) => {

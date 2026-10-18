@@ -1,5 +1,5 @@
 import { content, text } from "@japacity/content";
-import type { Command, PlayerView } from "@japacity/sim";
+import type { PlayerView } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -16,6 +16,7 @@ import { resetLines, tell } from "../../shared/world/Lines";
 import { TOLD_LANE } from "./Phone";
 import { handBrief } from "../../shared/world/briefHanded";
 import { GRAPHICS_KEY, SEEN_KEY } from "../../shared/kept/storage";
+import { sent } from "./phone.testing";
 
 const NOON = () => new Date(2026, 9, 8, 12, 5);
 
@@ -45,15 +46,6 @@ function main(): HTMLElement {
   const found = document.querySelector<HTMLElement>("[data-ask-main]");
   if (found === null) throw new Error("No sheet is open.");
   return found;
-}
-
-/** The commands sent, without the version stamp. */
-function sent(authority: { sent: Command[] }): unknown[] {
-  return authority.sent.map((command) => {
-    const rest: Partial<Command> = { ...command };
-    delete rest.basedOn;
-    return rest;
-  });
 }
 
 /** Tunde's rich view with a job offer open, a job held and the Friday draw with a result. */

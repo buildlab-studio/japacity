@@ -6,8 +6,18 @@ import { productionConfig, testConfig } from "./config";
 import { memoryStores, openLimiters, testSession } from "./deps";
 import type { ServerDeps } from "./deps";
 
+/** A test's `randomBytes`: bytes from a seeded Lehmer generator, the same on every run for the same seed. */
+export function seededBytes(seed: number): ServerDeps["randomBytes"] {
+  let state = seed;
+  return (count) => Uint8Array.from({ length: count }, () => (state = (state * 48271) % 2147483647) & 255);
+}
+
+/** A request's init signed in as `account` through the test session, or with no session when null. */
+export function asAccount(account: string | null): RequestInit {
+  return account === null ? {} : { headers: { "x-test-account": account } };
+}
+
 export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
-  let seed = 1;
   const config = over.config ?? testConfig({ testing: { testLogin: true } });
   return {
     config,
@@ -17,7 +27,7 @@ export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
     limits: openLimiters,
     session: testSession(config),
     now: () => productionConfig.clock.epoch,
-    randomBytes: (count) => Uint8Array.from({ length: count }, () => (seed = (seed * 48271) % 2147483647) & 255),
+    randomBytes: seededBytes(1),
     ...over,
   };
 }

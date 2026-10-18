@@ -14,16 +14,10 @@ import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
+import { GRADUATE, JUNIOR_DEV, OVERSTAYER, SETTLED, SPONSORED, STUDENT, UK_COUNTRY } from "../testing/ids";
 
-const STUDENT: Id<"status"> = "status.uk-student";
-const GRADUATE: Id<"status"> = "status.uk-graduate";
-const SPONSORED: Id<"status"> = "status.uk-sponsored";
-const SETTLED: Id<"status"> = "status.uk-settled";
 const CITIZEN: Id<"status"> = "status.uk-citizen";
-const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
 const GULF: Id<"status"> = "status.gulf-worker";
-const UK: Id<"country"> = "country.uk";
-const JOB: Id<"activity"> = "activity.job-junior-dev";
 
 const entryOf = (id: Id<"status">): StatusEntry => content.status[id]!;
 
@@ -60,7 +54,7 @@ function quitStartsClock(): Registry {
 /** Zainab, flown on the study route and then given a sponsored worker's status for her old job, which she holds again. */
 function sponsored(options: LifeOptions = {}): Game {
   const game = flown(content, { from: "scenario.zainab", ...options });
-  applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SPONSORED, job: JOB }, { type: "activity/start-job", job: JOB }]);
+  applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SPONSORED, job: JUNIOR_DEV }, { type: "activity/start-job", job: JUNIOR_DEV }]);
   return game;
 }
 
@@ -105,12 +99,12 @@ describe("what a status lets you work at", () => {
     const plain = job({});
     const part = job({ part: true });
     const cash = job({ cash: true });
-    const named = job({ id: JOB });
+    const named = job({ id: JUNIOR_DEV });
     const sponsorJob = job({ sponsor: true });
     expect([plain, part, cash].map((entry) => workAllows(read(GRADUATE), entry))).toEqual([true, true, true]);
     expect([plain, part, cash].map((entry) => workAllows(read(STUDENT), entry))).toEqual([false, true, false]);
     expect([plain, part, cash].map((entry) => workAllows(read(OVERSTAYER), entry))).toEqual([false, false, true]);
-    expect([plain, named, sponsorJob].map((entry) => workAllows(read(SPONSORED, JOB), entry))).toEqual([false, true, true]);
+    expect([plain, named, sponsorJob].map((entry) => workAllows(read(SPONSORED, JUNIOR_DEV), entry))).toEqual([false, true, true]);
     const none: Content = { ...content, status: { ...content.status, [GRADUATE]: { ...entryOf(GRADUATE), work: "none" } } };
     expect(workAllows({ ...read(GRADUATE), content: none }, part)).toBe(false);
     // At home there is no status and nothing to obey.
@@ -138,7 +132,7 @@ describe("the sponsored worker's clock", () => {
   test("[R-STATUS-003] given a running clock, when a job the status allows is held again, then the clock stops at the next month end", () => {
     const game = sponsored({ kinds: quitStartsClock() });
     game.accept({ type: "activity/quit" });
-    applyEffects(game, [{ type: "activity/start-job", job: JOB }]);
+    applyEffects(game, [{ type: "activity/start-job", job: JUNIOR_DEV }]);
     const result = game.endTurn();
     expect(current(game)).toMatchObject({ entry: SPONSORED, clock: null });
     expect(statusLines(result.lines)).toContainEqual({ key: "line.status.clock-cleared", params: {}, tone: "good", attention: false, counts: [] });
@@ -198,10 +192,10 @@ describe("the overstayer", () => {
     applyEffects(game, [{ type: "status/lose" }]);
     const result = game.endTurn();
     const month = game.state.turn.month;
-    expect(game.state.status).toEqual({ current: null, removals: [{ country: UK, month }] });
+    expect(game.state.status).toEqual({ current: null, removals: [{ country: UK_COUNTRY, month }] });
     expect(game.state.place).toMatchObject({ where: "home", country: null });
-    expect(game.state.place.returns.at(-1)).toEqual({ month, shape: "removed", country: UK });
-    expect(statusLines(result.lines)).toContainEqual({ key: "line.status.removed", params: { country: UK, months: entryOf(OVERSTAYER).banMonths }, tone: "bad", attention: true, counts: [] });
+    expect(game.state.place.returns.at(-1)).toEqual({ month, shape: "removed", country: UK_COUNTRY });
+    expect(statusLines(result.lines)).toContainEqual({ key: "line.status.removed", params: { country: UK_COUNTRY, months: entryOf(OVERSTAYER).banMonths }, tone: "bad", attention: true, counts: [] });
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
@@ -325,7 +319,7 @@ describe("removal and the Gulf contract", () => {
   test("[R-STATUS-008] given a status removed, when it is carried out, then the removal is recorded and the character comes home with the shape removed", () => {
     const game = flown(content);
     applyEffects(game, [{ type: "status/remove" }]);
-    expect(game.state.status.removals).toEqual([{ country: UK, month: game.state.turn.month }]);
+    expect(game.state.status.removals).toEqual([{ country: UK_COUNTRY, month: game.state.turn.month }]);
     expect(game.state.place.returns.map((back) => back.shape)).toEqual(["removed"]);
     // At home there is nothing to remove.
     applyEffects(game, [{ type: "status/remove" }]);

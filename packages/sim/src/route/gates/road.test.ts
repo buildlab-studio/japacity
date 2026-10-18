@@ -18,25 +18,19 @@ import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
 import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
 import { cash, quality, readOf } from "../../testing/read";
-import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../../testing/route.journey";
+import { applyEffects, readyLife, slot, toDecision, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
+import { AGE, AGENT_DEBT, ASK_AROUND, FAMILY_UPKEEP, ROAD_PARK, STANDING, UK_ROUTE, WELLBEING } from "../../testing/ids";
 
 const ROAD: Id<"route"> = "route.road";
-const PARK: Id<"offer"> = "offer.road-park";
 const RADIO: Id<"offer"> = "offer.road-radio";
 const COUSIN: Id<"offer"> = "offer.road-cousin";
-const PITCHES: Id<"offer">[] = [RADIO, PARK, COUSIN];
+const PITCHES: Id<"offer">[] = [RADIO, ROAD_PARK, COUSIN];
 const RANSOM: Id<"offer"> = "offer.road-ransom-call";
 const NIGHT: Id<"setpiece"> = "setpiece.road-night";
 const TRUTH: Id<"setpiece"> = "setpiece.road-truth";
-const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
-const UPKEEP: Id<"obligation"> = "obligation.upkeep";
-const ASK_AROUND: Id<"activity"> = "activity.ask-around";
-const STANDING: Id<"quality"> = "quality.standing";
 const MEANS: Id<"quality"> = "quality.family-means";
 const STAKE: Id<"quality"> = "quality.family-stake";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const AGE: Id<"quality"> = "quality.age-months";
 
 const road: RouteEntry = content.route[ROAD]!;
 const chain = road.road!.steps;
@@ -114,9 +108,9 @@ function turn(game: Game) {
 }
 
 /** Opens a pitch as the motor park would, and returns it. */
-function openPitch(game: Game, offer: Id<"offer"> = PARK): OfferState {
+function openPitch(game: Game, offer: Id<"offer"> = ROAD_PARK): OfferState {
   // The man at the park asks only someone who has asked around there.
-  if (offer === PARK && !game.state.activity.now?.some((pick) => pick.activity === "activity.ask-around")) game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
+  if (offer === ROAD_PARK && !game.state.activity.now?.some((pick) => pick.activity === "activity.ask-around")) game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
   applyEffects(game, [{ type: "offer/open", offer }]);
   const pitch = offerOf(game, offer);
   if (pitch === undefined) throw new Error(`${offer} did not open.`);
@@ -124,7 +118,7 @@ function openPitch(game: Game, offer: Id<"offer"> = PARK): OfferState {
 }
 
 /** The pitch opened and taken. Returns the deposit. */
-function take(game: Game, offer: Id<"offer"> = PARK): number {
+function take(game: Game, offer: Id<"offer"> = ROAD_PARK): number {
   const pitch = openPitch(game, offer);
   game.accept({ type: "offer/choose", offer: pitch.id, choice: "take" });
   return pitch.terms.deposit as number;
@@ -135,7 +129,7 @@ function answer(game: Game, question: string, reply: string) {
 }
 
 /** Taken, on the bus, and a month later the truth is asked. Returns the deposit. */
-function toTruth(game: Game, offer: Id<"offer"> = PARK): number {
+function toTruth(game: Game, offer: Id<"offer"> = ROAD_PARK): number {
   const deposit = take(game, offer);
   answer(game, "night", "go");
   turn(game);
@@ -247,10 +241,10 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given one and then two earlier refusals, and a loan in default, when the chance is read, then each refusal and the default add theirs", () => {
     const game = life();
-    const uk = game.state.route[UK]!;
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...uk, refusals: 1 } } };
+    const uk = game.state.route[UK_ROUTE]!;
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...uk, refusals: 1 } } };
     expect(chanceOf(game)).toBe(radio.chanceBp + pressure.refusalBp);
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...uk, refusals: 2 } } };
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...uk, refusals: 2 } } };
     expect(chanceOf(game)).toBe(radio.chanceBp + 2 * pressure.refusalBp);
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.quick-loan", principal: 100000 * UNIT }]);
     const loan = Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.quick-loan")!;
@@ -260,18 +254,18 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given a known formal route at a figure of 59 and then 60, when the chance is read, then only 60 or more takes the strong-route figure off", () => {
     const at = (weight: number): Change => (used) => {
-      const uk = used.route[UK]!;
+      const uk = used.route[UK_ROUTE]!;
       const checklist = [
         { id: "met", weight, requirement: { type: "month/min", value: 0 } as Requirement, partial: false },
         { id: "unmet", weight: 100 - weight, requirement: { type: "month/min", value: 9999 } as Requirement, partial: false },
       ];
-      return { ...used, route: { ...used.route, [UK]: { ...uk, checklist } } };
+      return { ...used, route: { ...used.route, [UK_ROUTE]: { ...uk, checklist } } };
     };
     const known = (game: Game): Game => {
-      game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "known" } } };
+      game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "known" } } };
       return game;
     };
-    const park = content.offer[PARK]!;
+    const park = content.offer[ROAD_PARK]!;
     const parkChance = (game: Game) => pressureChanceBp(readOf(game), park, judgeOf(game));
     expect(parkChance(known(life({ change: at(59) })))).toBe(park.chanceBp);
     expect(parkChance(known(life({ change: at(60) })))).toBe(park.chanceBp - pressure.strongRouteBp);
@@ -280,19 +274,19 @@ describe("the pitch", () => {
   test("[R-ROAD-002] [R-ENGINE-017] given the pressure lines moved in the tuning (standing under 50, age over 25, a strong route at 10), when the chance is read, then each line is the tuning's", () => {
     // The UK route known at a figure of 10, standing 40 and 27 years: no line of the page's is crossed.
     const atTen: Change = (used) => {
-      const uk = used.route[UK]!;
+      const uk = used.route[UK_ROUTE]!;
       const checklist = [
         { id: "met", weight: 10, requirement: { type: "month/min", value: 0 } as Requirement, partial: false },
         { id: "unmet", weight: 90, requirement: { type: "month/min", value: 9999 } as Requirement, partial: false },
       ];
-      return { ...used, route: { ...used.route, [UK]: { ...uk, checklist } } };
+      return { ...used, route: { ...used.route, [UK_ROUTE]: { ...uk, checklist } } };
     };
     const moved: Change = (used) => ({
       ...used,
       tuning: { ...used.tuning, road: { ...used.tuning.road, pressureStandingUnder: 50, pressureAgeOver: 25, pressureStrongRoute: 10 } },
     });
     const known = (game: Game): Game => {
-      game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "known" } } };
+      game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "known" } } };
       return game;
     };
     const qualities = { [STANDING]: 40, [AGE]: 27 * 12 };
@@ -306,8 +300,8 @@ describe("the pitch", () => {
     // Abroad, the pitch's take is not allowed even before the plane closes it (its `requires` is the character at home).
     const athome = game.view().offers.find((offer) => offer.id === pitch.id);
     expect(athome?.choices.find((choice) => choice.id === "take")?.allowed ?? false).toBe(true);
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
-    game.accept({ type: "route/depart", route: UK });
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "granted" } } };
+    game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(game.state.place.where).toBe("abroad");
     expect(game.view().offers.find((offer) => offer.id === pitch.id)).toBeUndefined();
     game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "unknown-id");
@@ -316,7 +310,7 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given a strong route and no pressure on a pitch whose chance is below the figure, when the chance is read, then it stops at 0", () => {
     const game = life();
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "granted" } } };
     expect(pressureChanceBp(readOf(game), content.offer[COUSIN]!, judgeOf(game))).toBe(0);
   });
 
@@ -324,8 +318,8 @@ describe("the pitch", () => {
     const game = life();
     // R-ACTIVITY-015: asking around is an act done at once, so the pitch opens now, in the month in hand.
     const result = game.accept({ type: "activity/now", activity: ASK_AROUND, param: null });
-    expect(offerOf(game, PARK)).toBeDefined();
-    expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === PARK)).toBe(true);
+    expect(offerOf(game, ROAD_PARK)).toBeDefined();
+    expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === ROAD_PARK)).toBe(true);
   });
 });
 
@@ -468,12 +462,12 @@ describe("the truth", () => {
     const game = life({ change: HONEST_ROAD });
     const deposit = toTruth(game);
     const money = cash(game);
-    expect(owed(game, UPKEEP)).not.toBeNull();
+    expect(owed(game, FAMILY_UPKEEP)).not.toBeNull();
     const result = answer(game, "truth", "pay");
     expect(cash(game)).toBe(money - deposit);
     expect(result.events).toContainEqual(expect.objectContaining({ type: "wallet/debited", currency: "NGN", pocket: "cash", amount: deposit, reason: "fee-agent" }));
     expect(game.state.place.where).toBe("road");
-    expect(owed(game, UPKEEP)).toBeNull();
+    expect(owed(game, FAMILY_UPKEEP)).toBeNull();
     expect(game.state.activity.job).toBeNull();
     expect(gateOf(game)).toEqual({ gate: "road", step: chain[0]!.id, monthsHere: 0, debt: 0 });
     expect(game.view().freeSlots).toBe(0);
@@ -541,7 +535,7 @@ describe("the truth", () => {
     expect(game.state.place.where).toBe("home");
     expect(game.state.place.returns).toEqual([]);
     expect(gateOf(game).step).toBe("exit");
-    expect(owed(game, UPKEEP)).not.toBeNull();
+    expect(owed(game, FAMILY_UPKEEP)).not.toBeNull();
   });
 });
 
@@ -753,7 +747,7 @@ describe("the way out", () => {
       const fromReturn = changes.filter((event) => event.quality === STANDING && event.source === ROAD).reduce((sum, event) => sum + event.amount, 0);
       expect(fromReturn).toBe(ASSISTED);
       expect(owed(game, AGENT_DEBT)).toBe(700000 * UNIT);
-      expect(owed(game, UPKEEP)).not.toBeNull();
+      expect(owed(game, FAMILY_UPKEEP)).not.toBeNull();
       expect(game.view().freeSlots).toBeGreaterThan(0);
       const back = game.state.turn.report!.lines;
       expect(back.some((line) => line.key === "line.route.road-turned")).toBe(true);
@@ -913,7 +907,7 @@ describe("who the pitches reach", () => {
       // A life from sixteen cannot act while its prologue is open, so its park pitch is judged once the prologue is closed elsewhere.
       const asked = game.send({ type: "activity/now", activity: "activity.ask-around", param: null }, "player").ok;
       for (const id of PITCHES) {
-        if (id === PARK && !asked) continue;
+        if (id === ROAD_PARK && !asked) continue;
         const when = content.offer[id]!.when;
         expect(when.every((requirement) => check(readOf(game), requirement).met)).toBe(true);
       }
@@ -1049,7 +1043,7 @@ describe("a formal flight and the road", () => {
       pockets: { NGN: { bank: 2000000 * UNIT, cash: CASH }, GBP: { bank: 40000 * UNIT, cash: 0 } },
     });
     toDecision(game);
-    expect(game.state.route[UK]?.state).toBe("granted");
+    expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
     return game;
   }
 
@@ -1057,7 +1051,7 @@ describe("a formal flight and the road", () => {
     const game = granted();
     take(game);
     answer(game, "night", "go");
-    game.accept({ type: "route/depart", route: UK });
+    game.accept({ type: "route/depart", route: UK_ROUTE });
     const cashAbroad = cash(game);
     for (let month = 0; month < 3; month += 1) {
       turn(game);
@@ -1075,7 +1069,7 @@ describe("a formal flight and the road", () => {
     const game = granted();
     take(game);
     expect(game.state.setpiece.open?.entry).toBe(NIGHT);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(game.state.setpiece.open).toBeNull();
     expect(game.state.setpiece.answered[NIGHT]).toBeUndefined();
     expect(game.state.setpiece.given[NIGHT]).toBeUndefined();
@@ -1091,7 +1085,7 @@ describe("a formal flight and the road", () => {
   test("[R-ROAD-012] [R-ROAD-005] [R-SETPIECE-002] given the truth open at home, when the granted visa is flown, then the truth closes unscored, nobody sets off, no money is taken, no debt opens and the month abroad can end", () => {
     const game = granted();
     toTruth(game);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     const before = cash(game);
     expect(game.state.setpiece.open).toBeNull();
     expect(game.state.setpiece.answered[TRUTH]).toBeUndefined();
@@ -1111,7 +1105,7 @@ describe("a formal flight and the road", () => {
     toTruth(game);
     answer(game, "truth", "pay");
     expect(game.state.place.where).toBe("road");
-    game.expectRejected({ type: "route/depart", route: UK }, "not-legal");
+    game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
     expect(game.state.place.where).toBe("road");
   });
 });

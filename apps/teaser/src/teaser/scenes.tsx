@@ -163,7 +163,7 @@ export function NightEnd() {
         </div>
       </div>
       <div style={{ marginTop: 84, display: "flex", alignItems: "center", gap: 48, transform: `scale(${String(button)})` }}>
-        <PressButton size={62} style={{ borderColor: "#0b1130", boxShadow: `0 12px 0 ${CREAM}` }}>
+        <PressButton size={62} paint={NIGHT}>
           Play it
         </PressButton>
         <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 58, color: CREAM }}>japacity.app</div>

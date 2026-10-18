@@ -2,17 +2,15 @@
 // client ships with their versions and licences (docs/rules/guide.md R-GUIDE-008). Read from the
 // client's dependencies and each package's own package.json; a test fails when the file and the
 // dependencies disagree, so the file is never stale.
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { join } from "node:path";
+
+import { isMain, readJson, REPO_ROOT } from "./repo";
 
 export interface ShippedPackage {
   name: string;
   version: string;
   license: string;
-}
-
-function readJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
 /** The packages the client ships, read from each one's own package.json. */
@@ -44,9 +42,8 @@ export function noticesFile(packages: readonly ShippedPackage[]): string {
   ].join("\n");
 }
 
-export const ROOT = join(import.meta.dirname, "..");
-export const CLIENT_ROOT = join(ROOT, "apps", "client");
-export const NOTICES_PATH = join(ROOT, "NOTICES.md");
+export const CLIENT_ROOT = join(REPO_ROOT, "apps", "client");
+export const NOTICES_PATH = join(REPO_ROOT, "NOTICES.md");
 
 function main(): void {
   const packages = shippedPackages(CLIENT_ROOT);
@@ -54,4 +51,4 @@ function main(): void {
   console.log(`notices: ${String(packages.length)} package(s) written to NOTICES.md`);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) main();
+if (isMain(import.meta.url)) main();

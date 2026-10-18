@@ -1,8 +1,9 @@
 import { content, text } from "@japacity/content";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { decemberGame, setPockets, viewAfter } from "../../shared/testing/fixtures";
+import { decemberGame, viewAfter } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say, words } from "../../shared/words/text";

@@ -5,17 +5,17 @@
 // page; the credits still name what they must. The development build is read too, to prove each development marker the
 // test looks for is real and is what the production build leaves out. Reads and writes only local files.
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { buildEnv } from "../tools/check/size";
 import { shippedPackages } from "../tools/notices";
+import { filesUnder, readJson, REPO_ROOT } from "../tools/repo";
 
-const ROOT = join(import.meta.dirname, "..");
-const CLIENT = join(ROOT, "apps/client");
+const CLIENT = join(REPO_ROOT, "apps/client");
 
 /** The console calls a build for players keeps: the boundary's report and the libraries' faults, and the build's line. */
 const KEPT_CONSOLE = new Set(["error", "info"]);
@@ -44,20 +44,14 @@ let work = "";
 let shipped: Built;
 let development: Built;
 
-function walk(folder: string): string[] {
-  return readdirSync(folder, { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => relative(folder, join(entry.parentPath, entry.name)).split("\\").join("/"));
-}
-
 function build(name: string, mode: "production" | "development"): Built {
   const out = join(work, name);
   const report = join(work, `${name}.json`);
   const env = mode === "production" ? buildEnv(report) : { ...buildEnv(report), NODE_ENV: "development" };
-  const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: ROOT, encoding: "utf8", env });
+  const built = spawnSync("pnpm", ["--filter", "@japacity/client", "exec", "vite", "build", "--mode", mode, "--outDir", out, "--emptyOutDir", "--logLevel", "error"], { cwd: REPO_ROOT, encoding: "utf8", env });
   if (built.status !== 0) throw new Error(`The client did not build in ${mode} mode: ${built.stderr}`);
-  const { chunks } = JSON.parse(readFileSync(report, "utf8")) as { chunks: { file: string }[] };
-  return { out, files: walk(out), chunks: chunks.map((chunk) => chunk.file) };
+  const { chunks } = readJson<{ chunks: { file: string }[] }>(report);
+  return { out, files: filesUnder(out), chunks: chunks.map((chunk) => chunk.file) };
 }
 
 function read(built: Built, file: string): string {

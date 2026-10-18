@@ -3,23 +3,16 @@
 // opens the world as any address does; the band carries no Next month, its month opens the phone's Calendar; the month is lived and
 // the bed's Sleep turns it, the results show over the scene and go back to the place; an ask waiting keeps its line under
 // the band and a tap on it opens what is asked. With PREVIEW_DIR set, each step leaves a picture there.
-import { lifeSaves } from "@japacity/sim/testing";
-import { join } from "node:path";
 
 import { expect, test, type Page } from "@playwright/test";
 
 import { SOFTWARE_WEBGL } from "./support/browser";
 import { passOpeningWords, startReadyLife } from "./support/door";
 import { backFromResults, LIVED, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, seedSave, sleepTheMonth } from "./support/live";
+import { shoot } from "./support/preview";
+import { kept, recorded } from "./support/saves";
 
 test.use({ viewport: { width: 390, height: 844 }, launchOptions: SOFTWARE_WEBGL });
-
-const PREVIEW = process.env.PREVIEW_DIR;
-
-async function shoot(page: Page, name: string): Promise<void> {
-  if (PREVIEW === undefined || PREVIEW === "") return;
-  await page.screenshot({ path: join(PREVIEW, `world-${name}-phone.png`), fullPage: false });
-}
 
 /** The phone-size checks run once, on the phone project. */
 function phoneOnly(project: string): void {
@@ -53,10 +46,9 @@ async function visibleButtons(page: Page): Promise<string[]> {
 
 /** Ada's recorded life one month in: the acts sent at once before its first month's end, not the end itself, whose turn opens the life's first offer. */
 function adaOneMonthIn(): string {
-  const save = lifeSaves["ada-careful"];
-  if (save === undefined) throw new Error("No recorded life ada-careful.");
+  const save = recorded("ada-careful");
   const firstEnd = save.commands.findIndex((entry) => entry.command.type === "turn/end");
-  return JSON.stringify({ save: { ...save, commands: save.commands.slice(0, firstEnd) }, clock: { anchor: 0 } });
+  return kept({ ...save, commands: save.commands.slice(0, firstEnd) });
 }
 
 test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the world with the band, the two buttons and the wide home's round turn button and nothing else, and nothing under the band", async ({ page }, info) => {
@@ -81,7 +73,7 @@ test("[R-WORLD-001] [R-WORLD-024] [R-WORLD-003] the default address opens the wo
   await expect(page.locator("[data-end-month]")).toHaveCount(0);
   await expect(page.locator("header")).toHaveCount(0);
   await expect(page.locator("[data-tab]")).toHaveCount(0);
-  await shoot(page, "open");
+  await shoot(page, "world-open-phone");
 });
 
 test("[R-WORLD-024] ?classic opens the world as any address does, with no month page", async ({ page }, info) => {
@@ -113,7 +105,7 @@ test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the 
   await expect(calendar).not.toContainText(/slot|takes no/i);
   await expect(page.locator("[data-nudge]")).toHaveCount(0);
   await page.waitForTimeout(900);
-  await shoot(page, "month");
+  await shoot(page, "world-month-phone");
   await putPhoneAway(page);
 
   // The bed's Sleep: the chip and Wake up while it runs, the month turns when it runs out (R-WORLD-025).
@@ -125,7 +117,7 @@ test("[R-WORLD-002] [R-WORLD-007] [R-WORLD-008] [R-WORLD-025] [R-WORLD-030] the 
   await expect(page.locator("[data-band]")).toHaveAttribute("aria-hidden", "true");
   await expect(page.locator("[data-thumb-bar]")).toHaveAttribute("aria-hidden", "true");
   await page.waitForTimeout(600);
-  await shoot(page, "results");
+  await shoot(page, "world-results-phone");
 
   await expect(results.locator("[data-results-back]")).toHaveText(new RegExp(`^Back to ${place.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i"));
   await backFromResults(page);
@@ -157,12 +149,12 @@ test("[R-WORLD-003] an ask waiting keeps its line under the band, and a tap on i
     await backFromResults(page);
   }
   await expect(nudge).toHaveText("Answer the person asking");
-  await shoot(page, "nudge-offer");
+  await shoot(page, "world-nudge-offer-phone");
 
   await nudge.getByRole("button").click();
   const asks = page.locator("[data-world-sheet='asks']");
   await expect(asks).toBeVisible();
   await expect(asks.getByRole("listitem").first()).toBeVisible();
   await page.waitForTimeout(900);
-  await shoot(page, "asks");
+  await shoot(page, "world-asks-phone");
 });

@@ -4,6 +4,7 @@
 import type { Content } from "@japacity/sim";
 
 import { content, staleGuides, text } from "../../packages/content/src/index";
+import { isMain } from "../repo";
 
 /** What the tool prints and its exit code: 1 when the arguments are wrong, otherwise 0. */
 export function guidesStale(args: readonly string[], of: Content = content): { lines: string[]; code: number } {
@@ -29,7 +30,7 @@ export function guidesStale(args: readonly string[], of: Content = content): { l
   };
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) {
+if (isMain(import.meta.url)) {
   const { lines, code } = guidesStale(process.argv.slice(2));
   for (const line of lines) console.log(line);
   process.exit(code);

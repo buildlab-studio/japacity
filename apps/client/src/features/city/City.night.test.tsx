@@ -23,30 +23,18 @@ import { fanEntriesOf, fanModel } from "./fan/fanActs";
 import { pressFanActNow } from "./fan/fan.testing";
 import { atNight, NIGHT } from "./nudge/nudge";
 import { SLEEP_MS } from "./acts/sleep";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
 });
 
@@ -54,14 +42,8 @@ afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
   window.localStorage.clear();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 const WATER = "activity.fetch-water";
 

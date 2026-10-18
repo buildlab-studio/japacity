@@ -7,12 +7,11 @@ import { pooled, stageOf, starts } from "../testing/world";
 import type { DirectorTick } from "./director";
 import { directorTicks } from "./director";
 import { standInWorld, standInWorlds } from "./standIn";
+import { CALM, STUDY_WINDOW } from "../testing/ids";
 
 const { director } = content.tuning;
 const SEEDS = Array.from({ length: 20 }, (_, index) => `director-${String(index)}`);
-const CALM: Id<"era"> = "era.calm";
 const OTHER: Id<"era"> = "era.crash";
-const STUDY_WINDOW: Id<"var"> = "var.uk-study-window";
 const STUDY_SURGE: Id<"var"> = "var.uk-study-surge";
 const PANDEMIC: Id<"news"> = "news.pandemic-borders";
 

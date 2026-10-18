@@ -7,19 +7,16 @@ import { describe, expect, test } from "vitest";
 import type { Id, OfferState } from "../engine/types";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import type { LifeOptions } from "../testing/route.journey";
-import { answerFirst, applyEffects, readyLife, toApplied, uk, UK, UNIT } from "../testing/route.journey";
+import { answerFirst, applyEffects, readyLife, toApplied, uk, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { quality } from "../testing/read";
 import { rollOrder } from "./offer.logic";
+import { NETWORK, STANDING, UK_ROUTE, WELLBEING } from "../testing/ids";
 
 const SEND_OFF: Id<"offer"> = "offer.family-send-off";
-const WELLBEING: Id<"quality"> = "quality.wellbeing";
-const STANDING: Id<"quality"> = "quality.standing";
-const NETWORK: Id<"quality"> = "quality.network";
 const entry = content.offer[SEND_OFF];
 if (entry === undefined) throw new Error(`The content has no ${SEND_OFF}.`);
 const COST = content.tuning.chapter.sendOffNaira;
-
 
 /** A ready life applied for, the month before its decision. Never refused. */
 function applied(options: LifeOptions = {}): Game {
@@ -70,7 +67,7 @@ function movedBy(events: readonly { type: string }[], choice: string): Record<st
 
 describe("home's send-off, the month of the grant", () => {
   test("[R-CHAPTER-008] given the entry, when it is read, then it opens at home while the story's route is granted, certain and never by chance, at most once, lapsing into dinner after two months, and the party costs the tuning's figure", () => {
-    expect(entry.when).toEqual([{ type: "route/state", route: UK, in: ["granted"] }]);
+    expect(entry.when).toEqual([{ type: "route/state", route: UK_ROUTE, in: ["granted"] }]);
     expect(entry.where ?? "home").toBe("home");
     expect(entry.chanceBp).toBe(10000);
     expect(entry.maxTimes).toBe(1);

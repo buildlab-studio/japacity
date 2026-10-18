@@ -13,10 +13,11 @@ import { AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame
 
 import type { ClipName } from "../clips";
 import { GitHubMark, Seal, Wordmark } from "../parts/brand";
-import { Card, Chip, Clip, PressButton, Sticker, Title } from "../parts/dress";
+import { Card, Chip, Clip, confetti, PressButton, Sticker, Title } from "../parts/dress";
 import { loadRubik } from "../parts/fonts";
 import { FrameContext, type FrameShape, useFrameShape } from "../parts/frame";
 import { land, pop, ramp } from "../parts/motion";
+import { naira } from "../parts/naira";
 import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, type Paint, TINT, YELLOW } from "@japacity/brand";
 import { TALL_VIDEO, VIDEO } from "../parts/frame";
 import { FEED_BARS, Piece, ZONES } from "../parts/zones";
@@ -193,7 +194,7 @@ function Bubble({ name, mark, children, x, y, delay = 0, paint = DAY, size = 40,
 const TALL_BAND = { scale: 0.88 } as const;
 
 /** The band at the top of the world: who, when, where, and what is in the pocket. */
-function Band({ name, when, where, naira, age = "23 yrs 1 mo", paint = DAY, delay = 0 }: { name: string; when: string; where: string; naira: string; age?: string; paint?: Paint; delay?: number }) {
+function Band({ name, when, where, money, age = "23 yrs 1 mo", paint = DAY, delay = 0 }: { name: string; when: string; where: string; money: string; age?: string; paint?: Paint; delay?: number }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = land(frame, fps, delay, 14);
@@ -206,7 +207,7 @@ function Band({ name, when, where, naira, age = "23 yrs 1 mo", paint = DAY, dela
         </div>
         <div style={{ fontWeight: 500, fontSize: 28, color: paint.ink2 }}>{age} · {where}</div>
       </div>
-      <div style={{ marginLeft: "auto", fontFamily: FONT, fontWeight: 700, fontSize: 42, color: paint === DAY ? GREEN : "#8fe3b0", background: paint === DAY ? TINT.money : "#1f4a3a", borderRadius: 999, padding: "10px 30px" }}>{naira}</div>
+      <div style={{ marginLeft: "auto", fontFamily: FONT, fontWeight: 700, fontSize: 42, color: paint === DAY ? GREEN : "#8fe3b0", background: paint === DAY ? TINT.money : "#1f4a3a", borderRadius: 999, padding: "10px 30px" }}>{money}</div>
     </Card>
   );
   if (useFrameShape() === "tall") {
@@ -377,7 +378,7 @@ function Passbook({ delay = 0 }: { delay?: number }) {
         </div>
       </div>
       <div style={{ marginTop: 22, height: 34, lineHeight: "34px", fontWeight: 500, fontSize: 28, color: DAY.ink2 }}>Held for the road</div>
-      <div style={{ height: 110, lineHeight: "110px", fontWeight: 700, fontSize: 96, letterSpacing: -2, fontVariantNumeric: "tabular-nums", color: DAY.ink }}>₦{amount.toLocaleString("en-NG")}</div>
+      <div style={{ height: 110, lineHeight: "110px", fontWeight: 700, fontSize: 96, letterSpacing: -2, fontVariantNumeric: "tabular-nums", color: DAY.ink }}>{naira(amount)}</div>
       <div style={{ marginTop: 14, height: 22, borderRadius: 99, background: DAY.skyDeep, overflow: "hidden" }}>
         <div style={{ width: `${String(eased * 50)}%`, height: "100%", borderRadius: 99, background: GREEN }} />
       </div>
@@ -448,7 +449,7 @@ function Bit({ bit }: { bit: (typeof CONFETTI)[number] }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const p = pop(frame, fps, bit.d);
-  const style: CSSProperties = { width: 40, height: 20, borderRadius: 8, background: bit.c, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * 160)}px) rotate(${String(bit.r * p)}deg) scale(${String(p)})` };
+  const style = confetti(bit.c, bit.r, p, { width: 40, height: 20, rise: 160 });
   if (useFrameShape() === "tall") {
     return (
       <Piece zone="picture" name="confetti" left={bit.tx} top={bit.ty} width={40} height={20}>
@@ -515,7 +516,7 @@ function LightsOut() {
             <Wordmark height={160} color={CREAM} />
           </div>
           <div style={{ marginTop: 90, display: "flex", flexDirection: "column", alignItems: "center", gap: 44, transform: `scale(${String(button)})` }}>
-            <PressButton size={66} style={{ borderColor: "#0b1130", boxShadow: `0 13px 0 ${CREAM}` }}>
+            <PressButton size={66} paint={NIGHT}>
               Play it
             </PressButton>
             <div style={{ fontWeight: 700, fontSize: 66, color: CREAM }}>japacity.app</div>
@@ -543,7 +544,7 @@ function LightsOut() {
         </div>
       </div>
       <div style={{ marginTop: 84, display: "flex", alignItems: "center", gap: 48, transform: `scale(${String(button)})` }}>
-        <PressButton size={62} style={{ borderColor: "#0b1130", boxShadow: `0 12px 0 ${CREAM}` }}>
+        <PressButton size={62} paint={NIGHT}>
           Play it
         </PressButton>
         <div style={{ fontFamily: FONT, fontWeight: 700, fontSize: 58, color: CREAM }}>japacity.app</div>
@@ -723,7 +724,7 @@ const SHOTS: readonly Shot[] = [
     // Makoko by morning, another life the door can start: the homes on stilts over the lagoon, the plank walk, the canoes;
     // in the tall frame drawn a little closer round the fish racks, the bridge under the band.
     <World clip="wide-makoko" from={6} push={0.08} toward={[0.48, 0.52]} tall={{ clip: "tall-makoko", from: 6, scale: 1.12, at: [-60, -118], push: 0.04, toward: [495, 975] }}>
-      <Band name="Bisi" when="Morning" where="Makoko" naira="₦500,000" age="21 yrs 1 mo" delay={0} />
+      <Band name="Bisi" when="Morning" where="Makoko" money="₦500,000" age="21 yrs 1 mo" delay={0} />
       <Bubble name="Fish seller" mark="F" x={919} y={556} delay={6} size={42} width={780} tall={{ head: [495, 975], width: 760 }}>
         Fish don ready! Come buy o.
       </Bubble>
@@ -746,7 +747,7 @@ const SHOTS: readonly Shot[] = [
   ) },
   { frames: 66, act: "city", node: (
     <World clip="wide-sofa" from={40} push={0.14} toward={[0.4, 0.45]} tall={{ clip: "tall-sofa", from: 40, push: 0.08, toward: [640, 880] }}>
-      <Band name="Ada" when="Evening" where="The family house" naira="₦498,500" age="23 yrs 1 mo" delay={0} />
+      <Band name="Ada" when="Evening" where="The family house" money="₦498,500" age="23 yrs 1 mo" delay={0} />
       <Bubble name="Ada" x={1240} y={540} delay={30} size={42} width={620} tall={{ head: [[30, 640, 905], [48, 640, 905], [62, 780, 850]], width: 760 }}>
         Small rest, then I go hustle.
       </Bubble>
@@ -760,7 +761,7 @@ const SHOTS: readonly Shot[] = [
   { frames: 68, act: "city", node: (
     // The street seen from above, its people low in the phone's view: drawn larger and higher, its empty road under the bars.
     <World clip="wide-street" from={0} push={0.12} toward={[0.5, 0.7]} tall={{ clip: "tall-street", from: 0, scale: 1.3, at: [-60, -576], push: 0.05, toward: [420, 900] }}>
-      <Band name="Ada" when="Morning" where="Ojuelegba" naira="₦498,200" age="23 yrs 2 mo" delay={0} />
+      <Band name="Ada" when="Morning" where="Ojuelegba" money="₦498,200" age="23 yrs 2 mo" delay={0} />
       <Bubble name="Conductor" x={760} y={760} delay={6} size={40} width={620} tall={{ head: [262, 1048], width: 760 }}>
         Na Yaba you dey go? Enter, enter.
       </Bubble>
@@ -779,7 +780,7 @@ const SHOTS: readonly Shot[] = [
   ) },
   { frames: 76, act: "city", node: (
     <World clip="wide-day" from={110} push={0.05} toward={[0.5, 0.3]} tall={{ clip: "tall-day", from: 110, at: [0, -130], push: 0.03, toward: [540, 700] }}>
-      <Band name="Ada" when="Afternoon" where="The family house" naira="₦2,500,000" age="24 yrs 6 mo" delay={0} />
+      <Band name="Ada" when="Afternoon" where="The family house" money="₦2,500,000" age="24 yrs 6 mo" delay={0} />
       <Passbook delay={4} />
       <Bubble name="Ada" x={1180} y={420} delay={34} size={42} width={520} tall={{ head: [641, 664], width: 760 }}>
         Small small, I go reach.
@@ -797,7 +798,7 @@ const SHOTS: readonly Shot[] = [
   ) },
   { frames: 76, act: "turn", node: (
     <World clip="wide-day" from={10} push={0.05} toward={[0.3, 0.5]} tall={{ clip: "tall-day", from: 10, at: HOUSE_UP, push: 0.04, toward: [540, 700] }}>
-      <Band name="Ada" when="Evening" where="The family house" naira="₦3,120,000" age="25 yrs 1 mo" delay={0} />
+      <Band name="Ada" when="Evening" where="The family house" money="₦3,120,000" age="25 yrs 1 mo" delay={0} />
       <RouteCard tile="prop_papers-box" title="A master's in the UK" line="A school that says yes" tint={TINT.money} top={166} tallTop={1006} delay={2} />
       <RouteCard tile="prop_laptop-desk" title="A tech job abroad" line="A company that sponsors you" tint={TINT.study} top={332} tallTop={1142} delay={8} />
       <RouteCard tile="prop_travel-bag" title="Health care in the UK" line="Your registration and a sponsor" tint={TINT.people} top={498} tallTop={1278} delay={14} />
@@ -821,7 +822,7 @@ const SHOTS: readonly Shot[] = [
   { frames: 78, act: "hand", node: (
     <AbsoluteFill>
       <NightFalls from={0} falls={[6, 30]} />
-      <Band name="Ada" when="Night" where="The family house" naira="₦3,120,000" age="25 yrs 2 mo" paint={NIGHT} delay={30} />
+      <Band name="Ada" when="Night" where="The family house" money="₦3,120,000" age="25 yrs 2 mo" paint={NIGHT} delay={30} />
       <Bubble name="Ada" x={760} y={700} delay={44} size={42} paint={NIGHT} width={560} tall={{ head: [[54, 422, 1140], [62, 150, 830]], width: 760 }}>
         Sleep. The month is done.
       </Bubble>

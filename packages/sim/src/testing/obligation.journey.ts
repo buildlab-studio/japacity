@@ -8,17 +8,7 @@ import { flown } from "./place.journey";
 import { applyEffects } from "./route.journey";
 import type { LifeOptions } from "./route.journey";
 import type { Game } from "./play";
-
-export const UK: Id<"country"> = "country.uk";
-const SETTLED: Id<"status"> = "status.uk-settled";
-export const RENT_ROOM: Id<"obligation"> = "obligation.rent-room-uk";
-export const RENT_FLAT: Id<"obligation"> = "obligation.rent-flat-uk";
-export const PHONE: Id<"obligation"> = "obligation.phone-uk";
-export const UPKEEP: Id<"obligation"> = "obligation.upkeep-uk";
-export const TUITION: Id<"obligation"> = "obligation.tuition";
-export const CAR: Id<"obligation"> = "obligation.car";
-export const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
-export const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
+import { SETTLED } from "./ids";
 
 /** Ada flown to the UK on the student status: her room and upkeep are open, and her file is empty. */
 export function abroad(content: Content, options: LifeOptions = {}): Game {
@@ -31,16 +21,6 @@ export function settledAbroad(content: Content, options: LifeOptions = {}): Game
   // A settled worker, not a student: the tuition the study gate opened on departure is not theirs.
   applyEffects(game, [{ type: "obligation/close", obligationType: "tuition" }, { type: "status/grant", status: SETTLED }]);
   return game;
-}
-
-/** Leaves exactly `bank` pence in the GBP bank pocket and none in cash. */
-export function setPounds(game: Game, bank: number): void {
-  const pocket = game.state.wallet.pockets.GBP;
-  const effects: Effect[] = [];
-  if (pocket.cash > 0) effects.push({ type: "money/take", currency: "GBP", pocket: "cash", amount: pocket.cash, reason: "mishap" });
-  if (pocket.bank > bank) effects.push({ type: "money/take", currency: "GBP", pocket: "bank", amount: pocket.bank - bank, reason: "mishap" });
-  if (pocket.bank < bank) effects.push({ type: "money/add", currency: "GBP", pocket: "bank", amount: bank - pocket.bank, reason: "gift" });
-  if (effects.length > 0) applyEffects(game, effects);
 }
 
 /** Opens an obligation by effect, as an activity or an offer would, and returns the one new instance. */

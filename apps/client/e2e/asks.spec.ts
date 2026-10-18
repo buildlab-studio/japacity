@@ -1,5 +1,5 @@
-import type { Command, Id, PlayerView, ReportLine } from "@japacity/sim";
-import { start, type Game } from "@japacity/sim/testing";
+import type { Command, Id, ReportLine } from "@japacity/sim";
+import { FIRST_SESSION_MONTHS, start, type Game } from "@japacity/sim/testing";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -12,11 +12,12 @@ import { expect, test, type Page } from "@playwright/test";
 // month slept in the bed (docs/rules/world.md R-WORLD-025, R-WORLD-030), and
 // every screen before the first good line is searched for an ask.
 import { content, text } from "../../../packages/content/src/index";
-import { chapterNextStep, FIRST_SESSION_TURNS } from "../src/shared/testing/firstSession";
+import { accountView } from "../src/shared/testing/fixtures";
+import { chapterNextStep } from "../src/shared/testing/firstSession";
+import { json, NO_CHARACTER, NOT_FAKED, ONLINE, quietSocket, viewReply } from "./support/api";
 import { startReadyLife } from "./support/door";
 import { backFromResults, doAct, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, sleepTheMonth } from "./support/live";
 
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 test.use({ baseURL: ONLINE });
 
 const SCENARIO: Id<"scenario"> = "scenario.tunde";
@@ -29,21 +30,10 @@ interface Faked {
   lines: () => ReportLine[];
 }
 
-function clock(game: Game) {
-  return { tick: game.tick, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
-}
-
-/** The view with a month banked, as the server's clock would have it. */
-function viewOf(game: Game): { ok: true; view: PlayerView; lines: ReportLine[]; clock: ReturnType<typeof clock> } {
-  if (game.state.turn.banked === 0) game.grant(1);
-  return { ok: true, view: game.view(), lines: [], clock: clock(game) };
-}
-
 /** Every /api route the client calls, answered from a game the faked server holds; the nudge socket opens and stays quiet. */
 async function fakeServer(page: Page): Promise<Faked> {
   let game: Game | null = null;
   let lines: ReportLine[] = [];
-  const json = (body: unknown, status = 200) => ({ status, contentType: "application/json", body: JSON.stringify(body) });
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     async (route) => {
@@ -51,13 +41,13 @@ async function fakeServer(page: Page): Promise<Faked> {
       const path = new URL(request.url()).pathname;
       const asked = `${request.method()} ${path}`;
       if (asked === "GET /api/view") {
-        if (game === null) return route.fulfill(json({ ok: false, code: "no-character", detail: "No character yet." }, 404));
-        return route.fulfill(json(viewOf(game)));
+        if (game === null) return route.fulfill(json(NO_CHARACTER, 404));
+        return route.fulfill(json(viewReply(game)));
       }
       if (asked === "POST /api/character") {
         const { scenario } = request.postDataJSON() as { scenario: Id<"scenario"> };
         game = start({ scenario, content });
-        return route.fulfill(json(viewOf(game)));
+        return route.fulfill(json(viewReply(game)));
       }
       if (asked === "POST /api/command" && game !== null) {
         const { command } = request.postDataJSON() as { command: Command };
@@ -65,17 +55,17 @@ async function fakeServer(page: Page): Promise<Faked> {
         const result = game.send(command);
         if (!result.ok) return route.fulfill(json({ ok: false, code: result.code, detail: result.detail }, 409));
         lines = result.lines;
-        return route.fulfill(json({ ...viewOf(game), lines }));
+        return route.fulfill(json({ ...viewReply(game), lines }));
       }
       if (asked === "GET /api/account") {
-        return route.fulfill(json({ ok: true, account: { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false } }));
+        return route.fulfill(json({ ok: true, account: accountView() }));
       }
       if (asked === "GET /api/notify") return route.fulfill(json({ ok: true, on: false, reaskDays: 7 }));
       if (asked === "GET /api/notify/key") return route.fulfill(json({ ok: true, key: PUSH_KEY }));
-      return route.fulfill(json({ ok: false, code: "unknown-id", detail: "not faked" }, 404));
+      return route.fulfill(json(NOT_FAKED, 404));
     },
   );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
+  await quietSocket(page);
   // The browser has neither agreed to notices nor refused them, as on a first visit.
   await page.addInitScript(() => {
     Object.defineProperty(Notification, "permission", { get: () => "default" });
@@ -188,7 +178,7 @@ test("[R-GUIDE-015] [R-GUIDE-014] [R-MOMENT-006] a new life played online as the
     await expect(told.locator("[data-share-button]")).toHaveCount(0);
     chapterTold = true;
   };
-  for (let month = 1; month <= FIRST_SESSION_TURNS; month += 1) {
+  for (let month = 1; month <= FIRST_SESSION_MONTHS; month += 1) {
     const game = server.game();
     if (game === null) throw new Error("The faked server holds no game.");
     const before = !won;

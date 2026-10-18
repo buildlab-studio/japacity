@@ -4,13 +4,10 @@
 import type { Accepted, Content, Id, SlotPick, World } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import type { Game } from "./play";
-import { start } from "./play";
+import { replayedGame } from "./recorded";
 import { standInWorld } from "../world/standIn";
+import { HUNT } from "./ids";
 
-export const SEND_OFF: Id<"chapter"> = "chapter.send-off";
-export const LANDING: Id<"chapter"> = "chapter.landing";
-export const SECURE: Id<"chapter"> = "chapter.secure";
-const HUNT: Id<"activity"> = "activity.job-hunt";
 const JOB_OFFER: Id<"offer"> = "offer.job";
 
 /**
@@ -31,8 +28,8 @@ export function flownAda(content: Content): Game {
     const december = (tick - flight) % 12 === 0 ? 1 : 0;
     return { ...world, vars: { ...world.vars, "var.season-december": december } };
   };
-  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content, worldAt });
-  for (const { command, tick, sender } of save.commands) {
+  const { game, commands } = replayedGame("ada-careful", content, worldAt);
+  for (const { command, tick, sender } of commands) {
     if (game.tick !== tick) throw new Error(`The replay is at tick ${String(game.tick)}, the save at ${String(tick)}.`);
     // The handle fills `basedOn` from the state.
     game.accept(command, sender);

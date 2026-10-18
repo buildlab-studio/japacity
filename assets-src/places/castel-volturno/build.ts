@@ -9,14 +9,7 @@ import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets
 import { acUnit, awning, balcony, beam, box, cylinder, dish, door, floorQuad, meterAndCable, onWall, parapet, posters, quad, seeded, shopOpening, signboard, solid, stain, tank, wornShade } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-/** A group at (x, y, z) turned ry, to draw a part in its own frame. */
-export function at(g: Object3D, x: number, z: number, ry = 0, y = 0): Group {
-  const frame = new Group();
-  frame.position.set(x, y, z);
-  frame.rotation.y = ry;
-  g.add(frame);
-  return frame;
-}
+import { at } from "../../prop/parts";
 
 // ---------------------------------------------------------------------------
 // The plaster row: a low block of shops with a floor of flats over them

@@ -12,17 +12,16 @@ import { registry } from "../../kinds";
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
 import { judge, pounds, readOf, routeOf } from "../../testing/read";
-import { applyEffects, draw, linesOf, READY, readyLife, slot, UK, UNIT } from "../../testing/route.journey";
+import { applyEffects, draw, linesOf, readyLife, slot, UNIT } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { findChanceBp, findSponsor, sponsorGate, sponsorJob } from "./sponsor";
+import { CARE_ROUTE, READY, SKILLED, UK_ROUTE } from "../../testing/ids";
 
-const CARE: Id<"route"> = "route.uk-care";
-const SKILLED: Id<"route"> = "route.uk-skilled";
 const APPLY_CARE: Id<"activity"> = "activity.apply-uk-care";
 const APPLY_SKILLED: Id<"activity"> = "activity.apply-uk-skilled";
 const numbers = content.tuning.route;
-const care = content.route[CARE]!;
+const care = content.route[CARE_ROUTE]!;
 const skilled = content.route[SKILLED]!;
 const CARE_BAR = content.var["var.uk-care-salary"]!.start;
 const SKILLED_BAR = content.var["var.uk-skilled-salary"]!.start;
@@ -77,7 +76,7 @@ function worker(options: LifeOptions = {}): Game {
  */
 function toKnown(game: Game, route: Id<"route">): void {
   applyEffects(game, [{ type: "route/hear", route, via: "friend" }]);
-  for (let month = 0; month < 5 && routeOf(game, UK).state !== "heard"; month += 1) game.endTurn();
+  for (let month = 0; month < 5 && routeOf(game, UK_ROUTE).state !== "heard"; month += 1) game.endTurn();
   game.endTurn([slot("activity.look-into-route", route)]);
   expect(routeOf(game, route).state).toBe("known");
 }
@@ -108,8 +107,8 @@ function checklistItem(game: Game, route: Id<"route">, item: string) {
 /** Ngozi known on the care route with an honest sponsor at the bar, ready to apply. */
 function readyToApply(options: LifeOptions = {}): Game {
   const game = ngozi(options);
-  toKnown(game, CARE);
-  takeSponsor(game, CARE, CARE_BAR);
+  toKnown(game, CARE_ROUTE);
+  takeSponsor(game, CARE_ROUTE, CARE_BAR);
   return game;
 }
 
@@ -137,19 +136,19 @@ function runAsCommand(game: Game, run: (ctx: Ctx) => void): void {
 describe("the sponsor gate's place in the route kind", () => {
   test("[R-GATE-001] given the UK master's known, when a sponsor is recorded on it, then the study gate is untouched", () => {
     const game = readyLife(content, { quiet: true });
-    for (let month = 0; month < 5 && routeOf(game, UK).state !== "heard"; month += 1) game.endTurn();
-    game.endTurn([slot("activity.look-into-route", UK)]);
-    const before = routeOf(game, UK);
-    takeSponsor(game, UK, 5000000);
-    expect(routeOf(game, UK)).toEqual(before);
-    expect(routeOf(game, UK).gate).toEqual({ gate: "study" });
+    for (let month = 0; month < 5 && routeOf(game, UK_ROUTE).state !== "heard"; month += 1) game.endTurn();
+    game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
+    const before = routeOf(game, UK_ROUTE);
+    takeSponsor(game, UK_ROUTE, 5000000);
+    expect(routeOf(game, UK_ROUTE)).toEqual(before);
+    expect(routeOf(game, UK_ROUTE).gate).toEqual({ gate: "study" });
   });
 
   test("[R-GATE-001] given the care route, when its steps are asked for, then only `sponsor` and `salary` are named and any other step is never reached", () => {
     const game = readyToApply();
     expect(sponsorGate.steps).toEqual(["sponsor", "salary"]);
-    expect(judge(game, { type: "route/gate-step", route: CARE, step: "sponsor" })).toBe(true);
-    expect(judge(game, { type: "route/gate-step", route: CARE, step: "pool" })).toBe(false);
+    expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "sponsor" })).toBe(true);
+    expect(judge(game, { type: "route/gate-step", route: CARE_ROUTE, step: "pool" })).toBe(false);
   });
 
   test("[R-GATE-001] given a fresh sponsor route, when it starts, then no sponsor is recorded", () => {
@@ -159,7 +158,7 @@ describe("the sponsor gate's place in the route kind", () => {
 
   test("[R-GATE-002] given the sponsor gate, when its decision is asked for, then the draw reads strictness, earlier refusals and the good grade, and not the unexplained share or the interview", () => {
     const game = readyToApply();
-    const decision = sponsorGate.decision(readOf(game), care, routeOf(game, CARE));
+    const decision = sponsorGate.decision(readOf(game), care, routeOf(game, CARE_ROUTE));
     expect(decision.terms).toEqual({ strictness: true, unexplained: false, refusals: true, interview: false, goodGrade: true });
     expect(decision.override).toBeNull();
   });
@@ -168,13 +167,13 @@ describe("the sponsor gate's place in the route kind", () => {
 describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
   test("[R-SPONSOR-001] given the care route known, when its window is open or closed, then the care home's offer may come up only while it is open", () => {
     const open = ngozi();
-    toKnown(open, CARE);
+    toKnown(open, CARE_ROUTE);
     const when = content.offer["offer.sponsor-care-home"]!.when;
     expect(when.every((requirement) => judge(open, requirement))).toBe(true);
     const shut = ngozi({ vars: () => ({ "var.uk-care-window": 0 }) });
-    applyEffects(shut, [{ type: "route/hear", route: CARE, via: "friend" }]);
-    for (let month = 0; month < 5 && routeOf(shut, UK).state !== "heard"; month += 1) shut.endTurn();
-    shut.endTurn([slot("activity.look-into-route", CARE)]);
+    applyEffects(shut, [{ type: "route/hear", route: CARE_ROUTE, via: "friend" }]);
+    for (let month = 0; month < 5 && routeOf(shut, UK_ROUTE).state !== "heard"; month += 1) shut.endTurn();
+    shut.endTurn([slot("activity.look-into-route", CARE_ROUTE)]);
     expect(when.every((requirement) => judge(shut, requirement))).toBe(false);
   });
 
@@ -194,12 +193,12 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     for (let index = 0; index < 40; index += 1) {
       const seed = `find-${String(index)}`;
       const game = ngozi({ seed });
-      toKnown(game, CARE);
+      toKnown(game, CARE_ROUTE);
       const position = game.state.draws.job ?? 0;
       const chance = findChanceBp(care, game.state.quality["quality.network"] ?? 0, content.tuning.quality);
       const hit = draw(seed, "job", position, 10000) < chance;
       const before = new Set(Object.keys(game.state.offer.items));
-      runAsCommand(game, (ctx) => findSponsor(ctx, CARE));
+      runAsCommand(game, (ctx) => findSponsor(ctx, CARE_ROUTE));
       const fresh = Object.values(game.state.offer.items).filter((item) => !before.has(item.id)).map((item) => item.entry);
       expect(fresh.length).toBe(hit ? 1 : 0);
       // Ngozi's care of 60 lets the trust's offer come up as well as the care home's.
@@ -217,12 +216,12 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     for (let index = 0; index < 30; index += 1) {
       const seed = `missed-${String(index)}`;
       const game = ngozi({ seed });
-      toKnown(game, CARE);
+      toKnown(game, CARE_ROUTE);
       const position = game.state.draws.job ?? 0;
       const hit = draw(seed, "job", position, 10000) < findChanceBp(care, game.state.quality["quality.network"] ?? 0, content.tuning.quality);
       let events: ReturnType<typeof findSponsor> = [];
       runAsCommand(game, (ctx) => {
-        events = findSponsor(ctx, CARE);
+        events = findSponsor(ctx, CARE_ROUTE);
       });
       expect(events.some((event) => event.type === "route/sponsor-missed")).toBe(!hit);
       misses += hit ? 0 : 1;
@@ -230,20 +229,20 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
     expect(misses).toBeGreaterThan(0);
     // Played through a month: a miss is a line on the results.
     const game = ngozi({ seed: "missed-line" });
-    toKnown(game, CARE);
+    toKnown(game, CARE_ROUTE);
     const lines = (): ReportLine[] => game.state.turn.report?.lines ?? [];
-    for (let month = 0; month < 12 && !lines().some((line) => line.key === "line.route.sponsor-missed"); month += 1) game.endTurn([slot("activity.find-sponsor", CARE)]);
-    expect(lines().find((line) => line.key === "line.route.sponsor-missed")).toMatchObject({ params: { route: CARE }, tone: "plain" });
+    for (let month = 0; month < 12 && !lines().some((line) => line.key === "line.route.sponsor-missed"); month += 1) game.endTurn([slot("activity.find-sponsor", CARE_ROUTE)]);
+    expect(lines().find((line) => line.key === "line.route.sponsor-missed")).toMatchObject({ params: { route: CARE_ROUTE }, tone: "plain" });
     expect(text["line.route.sponsor-missed"]).toBe("No trust answered this month. The search goes on.");
   });
 
   test("[R-SPONSOR-001] given the care window closed, when a sponsor is looked for, then nothing is drawn and nothing opens", () => {
     const game = ngozi({ vars: (tick) => ({ "var.uk-care-window": tick < 5 ? 2 : 0 }) });
-    toKnown(game, CARE);
+    toKnown(game, CARE_ROUTE);
     for (let month = 0; month < 6; month += 1) game.endTurn();
     const position = game.state.draws.job ?? 0;
     const before = Object.keys(game.state.offer.items).length;
-    runAsCommand(game, (ctx) => findSponsor(ctx, CARE));
+    runAsCommand(game, (ctx) => findSponsor(ctx, CARE_ROUTE));
     expect(game.state.draws.job ?? 0).toBe(position);
     expect(Object.keys(game.state.offer.items).length).toBe(before);
   });
@@ -252,10 +251,10 @@ describe("R-SPONSOR-001: sponsor offers and looking for one", () => {
 describe("R-SPONSOR-002: taking a sponsor", () => {
   test("[R-SPONSOR-002] given the care home's honest take, when it is carried out, then the employer and the drawn salary are recorded and no money moves", () => {
     const game = ngozi();
-    toKnown(game, CARE);
+    toKnown(game, CARE_ROUTE);
     const wallet = game.state.wallet;
     applyEffects(game, offerEffects("offer.sponsor-care-home", false), { salary: 2650000, fee: 450000000 });
-    expect(routeOf(game, CARE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "care-home", salary: 2650000 } });
+    expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "care-home", salary: 2650000 } });
     expect(game.state.wallet).toEqual(wallet);
   });
 
@@ -263,8 +262,8 @@ describe("R-SPONSOR-002: taking a sponsor", () => {
     const pockets = { NGN: { bank: 2000000 * UNIT, cash: 6000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } };
     const honest = ngozi({ pockets });
     const fraud = ngozi({ pockets });
-    toKnown(honest, CARE);
-    toKnown(fraud, CARE);
+    toKnown(honest, CARE_ROUTE);
+    toKnown(fraud, CARE_ROUTE);
     const terms: Terms = { salary: 2650000, fee: 450000000 };
     const { bank, cash } = fraud.state.wallet.pockets.NGN;
     const fees = fraud.state.wallet.totals.out["fee-agent"]?.NGN ?? 0;
@@ -274,40 +273,40 @@ describe("R-SPONSOR-002: taking a sponsor", () => {
     expect(bank).toBeLessThan(450000000);
     expect(fraud.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: cash - (450000000 - bank) });
     expect(fraud.state.wallet.totals.out["fee-agent"]?.NGN).toBe(fees + 450000000);
-    expect(routeOf(fraud, CARE).gate).toEqual(routeOf(honest, CARE).gate);
+    expect(routeOf(fraud, CARE_ROUTE).gate).toEqual(routeOf(honest, CARE_ROUTE).gate);
     // The fraud is never in the view: the two routes look the same.
-    const view = (game: Game) => game.view().routes.find((route) => route.id === CARE);
+    const view = (game: Game) => game.view().routes.find((route) => route.id === CARE_ROUTE);
     expect(view(fraud)).toEqual(view(honest));
   });
 
   test("[R-SPONSOR-002] given the trust's take, when its record names a salary, then that salary is recorded", () => {
     const game = ngozi();
-    toKnown(game, CARE);
+    toKnown(game, CARE_ROUTE);
     applyEffects(game, offerEffects("offer.sponsor-trust", false), { salary: 3130000 });
-    expect(routeOf(game, CARE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: 3130000 } });
+    expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: 3130000 } });
   });
 
   test("[R-SPONSOR-002] given the care route only heard of, when a sponsor's take arrives, then nothing is recorded", () => {
     const game = ngozi();
-    applyEffects(game, [{ type: "route/hear", route: CARE, via: "friend" }]);
-    takeSponsor(game, CARE, CARE_BAR);
-    expect(routeOf(game, CARE).gate).toEqual({ gate: "sponsor", sponsor: null });
+    applyEffects(game, [{ type: "route/hear", route: CARE_ROUTE, via: "friend" }]);
+    takeSponsor(game, CARE_ROUTE, CARE_BAR);
+    expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: null });
   });
 
   test("[R-SPONSOR-002] given a sponsor recorded, when a second one is taken, then the second replaces it", () => {
     const game = readyToApply();
-    takeSponsor(game, CARE, 2800000, false, "trust");
-    expect(routeOf(game, CARE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: 2800000 } });
+    takeSponsor(game, CARE_ROUTE, 2800000, false, "trust");
+    expect(routeOf(game, CARE_ROUTE).gate).toEqual({ gate: "sponsor", sponsor: { employer: "trust", salary: 2800000 } });
   });
 
   test("[R-SPONSOR-002] given a sponsor taken, when it is carried out, then a line names the route, and one under the bar says it cannot be used", () => {
     const game = ngozi();
-    toKnown(game, CARE);
-    expect(linesOf(game, [{ type: "route/record-sponsor", route: CARE, employer: "care-home", salary: 0, fraud: false }], { salary: CARE_BAR })).toEqual([
-      { key: "line.route.sponsor-recorded", params: { route: CARE }, tone: "plain", attention: true, counts: [] },
+    toKnown(game, CARE_ROUTE);
+    expect(linesOf(game, [{ type: "route/record-sponsor", route: CARE_ROUTE, employer: "care-home", salary: 0, fraud: false }], { salary: CARE_BAR })).toEqual([
+      { key: "line.route.sponsor-recorded", params: { route: CARE_ROUTE }, tone: "plain", attention: true, counts: [] },
     ]);
-    expect(linesOf(game, [{ type: "route/record-sponsor", route: CARE, employer: "care-home", salary: 0, fraud: false }], { salary: CARE_BAR - 1 })).toEqual([
-      { key: "line.route.sponsor-under-bar", params: { route: CARE }, tone: "plain", attention: true, counts: [] },
+    expect(linesOf(game, [{ type: "route/record-sponsor", route: CARE_ROUTE, employer: "care-home", salary: 0, fraud: false }], { salary: CARE_BAR - 1 })).toEqual([
+      { key: "line.route.sponsor-under-bar", params: { route: CARE_ROUTE }, tone: "plain", attention: true, counts: [] },
     ]);
     expect(text["line.route.sponsor-recorded"]).toBeDefined();
     expect(text["line.route.sponsor-under-bar"]).toBeDefined();
@@ -319,13 +318,13 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     const game = readyToApply();
     const before = pounds(game);
     game.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
-    expect(routeOf(game, CARE).state).toBe("applying");
+    expect(routeOf(game, CARE_ROUTE).state).toBe("applying");
     expect(before - pounds(game)).toBe(CARE_FEE);
   });
 
   test("[R-SPONSOR-003] given no sponsor recorded, when Ngozi applies, then the turn is rejected", () => {
     const game = ngozi();
-    toKnown(game, CARE);
+    toKnown(game, CARE_ROUTE);
     expect(game.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
   });
 
@@ -345,24 +344,24 @@ describe("R-SPONSOR-003: applying with a sponsor", () => {
     expect(under.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
     const at = readyToApply({ documents: withEnglish(CARE_PAPERS, care.sponsor!.bandMin) });
     at.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
-    expect(routeOf(at, CARE).state).toBe("applying");
+    expect(routeOf(at, CARE_ROUTE).state).toBe("applying");
   });
 
   test("[R-SPONSOR-003] given a sponsor one penny a year under the care bar, when Ngozi applies, then the turn is rejected; at the bar it goes in", () => {
     const under = ngozi();
-    toKnown(under, CARE);
-    takeSponsor(under, CARE, CARE_BAR - 1);
+    toKnown(under, CARE_ROUTE);
+    takeSponsor(under, CARE_ROUTE, CARE_BAR - 1);
     expect(under.expectRejected({ type: "activity/now", activity: APPLY_CARE, param: null }, "not-legal").code).toBe("not-legal");
     const at = ngozi();
-    toKnown(at, CARE);
-    takeSponsor(at, CARE, CARE_BAR);
+    toKnown(at, CARE_ROUTE);
+    takeSponsor(at, CARE_ROUTE, CARE_BAR);
     at.accept({ type: "activity/now", activity: APPLY_CARE, param: null });
-    expect(routeOf(at, CARE).state).toBe("applying");
+    expect(routeOf(at, CARE_ROUTE).state).toBe("applying");
   });
 
   test("[R-SPONSOR-003] given a qualification paper missing, when the gate is asked, then applying is held back even past the slot", () => {
     const game = readyToApply();
-    const ready = routeOf(game, CARE);
+    const ready = routeOf(game, CARE_ROUTE);
     const cause = { source: APPLY_CARE, param: null, terms: {} };
     const asCtx = (read: ReadCtx): Ctx => ({ ...read, check: (requirement: Requirement) => check(read, requirement) }) as unknown as Ctx;
     expect(sponsorGate.mayApply(asCtx(readOf(game)), care, ready, cause)).toBe(true);
@@ -377,28 +376,28 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY_CARE)]);
     game.endTurn();
-    expect(routeOf(game, CARE).state).toBe("granted");
+    expect(routeOf(game, CARE_ROUTE).state).toBe("granted");
   });
 
   test("[R-SPONSOR-004] given an honest sponsor and the draw pinned to refuse, when the decision month ends, then the refusal gives no sponsor reason and bans nothing", () => {
     const game = readyToApply({ tuning: ALWAYS_REFUSED });
     game.endTurn([slot(APPLY_CARE)]);
-    expect(sponsorGate.decision(readOf(game), care, routeOf(game, CARE))).toMatchObject({ override: null, bans: false });
+    expect(sponsorGate.decision(readOf(game), care, routeOf(game, CARE_ROUTE))).toMatchObject({ override: null, bans: false });
     game.endTurn();
-    expect(routeOf(game, CARE).state).toBe("known");
-    expect(routeOf(game, CARE).lastRefusal?.reasons).not.toContain("sponsor");
+    expect(routeOf(game, CARE_ROUTE).state).toBe("known");
+    expect(routeOf(game, CARE_ROUTE).lastRefusal?.reasons).not.toContain("sponsor");
   });
 
   test("[R-SPONSOR-004] given a fraud sponsor and the draw pinned to grant, when the decision month ends, then the visa is refused with the reason sponsor and no visa draw is made", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
-    hideFraud(game, CARE);
+    hideFraud(game, CARE_ROUTE);
     game.endTurn([slot(APPLY_CARE)]);
     const draws = game.state.draws.visa ?? 0;
     game.endTurn();
     // R-GATE-005: the deception refusal bans the route into the country.
-    expect(routeOf(game, CARE).state).toBe("refused");
-    expect(routeOf(game, CARE).bannedUntil).not.toBeNull();
-    expect(routeOf(game, CARE).lastRefusal?.reasons[0]).toBe("sponsor");
+    expect(routeOf(game, CARE_ROUTE).state).toBe("refused");
+    expect(routeOf(game, CARE_ROUTE).bannedUntil).not.toBeNull();
+    expect(routeOf(game, CARE_ROUTE).lastRefusal?.reasons[0]).toBe("sponsor");
     expect(game.state.draws.visa ?? 0).toBe(draws);
   });
 
@@ -406,7 +405,7 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
     "[R-SPONSOR-004] given any file, when an honest sponsor's chance is worked out, then it is the base plus 10 a strictness point plus 800 a refusal less 200 for a second upper, and the unexplained share and the interview never move it",
     (unexplainedBp, interviewScore, strictness, refusals, grade) => {
       const held: RouteState = { ...unknownRoute("sponsor"), state: "applying", refusals };
-      const read = { state: { route: { [CARE]: held } }, world: { vars: {} }, content } as unknown as ReadCtx;
+      const read = { state: { route: { [CARE_ROUTE]: held } }, world: { vars: {} }, content } as unknown as ReadCtx;
       const { terms } = sponsorGate.decision(read, care, held);
       const got = refusalChanceBp(numbers, care.refusalBaseBp, { strictness, unexplainedBp, refusals, interviewScore, grade }, terms);
       const raw = care.refusalBaseBp + 10 * strictness + 800 * refusals - (grade >= numbers.goodGrade ? 200 : 0);
@@ -418,10 +417,10 @@ describe("R-SPONSOR-004: the sponsor's decision", () => {
 describe("R-GATE-005: the deception ban", () => {
   test("[R-GATE-005] given a fraud sponsor, when the decision is asked for, then its refusal is the one that bans; an honest sponsor's never does", () => {
     const game = readyToApply();
-    hideFraud(game, CARE);
-    expect(sponsorGate.decision(readOf(game), care, routeOf(game, CARE))).toMatchObject({ override: "sponsor", bans: true });
+    hideFraud(game, CARE_ROUTE);
+    expect(sponsorGate.decision(readOf(game), care, routeOf(game, CARE_ROUTE))).toMatchObject({ override: "sponsor", bans: true });
     const honest = readyToApply();
-    expect(sponsorGate.decision(readOf(honest), care, routeOf(honest, CARE))).toMatchObject({ override: null, bans: false });
+    expect(sponsorGate.decision(readOf(honest), care, routeOf(honest, CARE_ROUTE))).toMatchObject({ override: null, bans: false });
   });
 });
 
@@ -434,8 +433,8 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
 
   test("[R-SPONSOR-005] given the care window closed, when Ngozi meets the care bar, then she still hears of the route", () => {
     const game = readyLife(content, { from: "scenario.ngozi", quiet: true });
-    for (let month = 0; month < care.hearBy! + 1 && routeOf(game, CARE).state === "unknown"; month += 1) game.endTurn();
-    expect(routeOf(game, CARE).state).toBe("heard");
+    for (let month = 0; month < care.hearBy! + 1 && routeOf(game, CARE_ROUTE).state === "unknown"; month += 1) game.endTurn();
+    expect(routeOf(game, CARE_ROUTE).state).toBe("heard");
   });
 
   test("[R-SPONSOR-005] given 23 months in a nursing job, when the verification is requested, then the turn is rejected; at 24 it is being made", () => {
@@ -458,18 +457,18 @@ describe("R-SPONSOR-005: the care route's papers and window", () => {
     expect(certificate!.weight).toBe(5);
     expect(care.checklist.find((item) => item.id === "applied")!.weight).toBe(10);
     expect(weights.reduce((sum, weight) => sum + weight, 0)).toBe(100);
-    expect(text[`${CARE}.item.certificate`]).toBe("Nursing certificate held");
-    expect(text[`${CARE}.item.certificate.way`]).toContain("clinic");
+    expect(text[`${CARE_ROUTE}.item.certificate`]).toBe("Nursing certificate held");
+    expect(text[`${CARE_ROUTE}.item.certificate.way`]).toContain("clinic");
   });
 
   test("[R-SPONSOR-005] [R-JAPACITY-001] given Ngozi with care work known and the same papers but for the clinic's certificate, when the figures are read, then the certified nurse's is higher by the item's weight", () => {
     const certified = ngozi({ documents: [...CARE_PAPERS, { document: "document.nurse-certificate", monthsLeft: null, value: null }] });
     const plain = ngozi();
-    toKnown(certified, CARE);
-    toKnown(plain, CARE);
-    const figure = (game: Game): number => game.view().routes.find((route) => route.id === CARE)!.percent!;
+    toKnown(certified, CARE_ROUTE);
+    toKnown(plain, CARE_ROUTE);
+    const figure = (game: Game): number => game.view().routes.find((route) => route.id === CARE_ROUTE)!.percent!;
     const weight = care.checklist.find((item) => item.id === "certificate")!.weight;
-    expect(certified.view().routes.find((route) => route.id === CARE)!.checklist.find((item) => item.id === "certificate")!.met).toBe(true);
+    expect(certified.view().routes.find((route) => route.id === CARE_ROUTE)!.checklist.find((item) => item.id === "certificate")!.met).toBe(true);
     expect(figure(certified) - figure(plain)).toBe(weight);
   });
 });
@@ -522,9 +521,9 @@ describe("R-SPONSOR-006: the skilled route", () => {
 
   test("[R-SPONSOR-003] given the care route, which has no maintenance line, when months pass with a sponsor, then no funds check runs", () => {
     const game = readyToApply();
-    const funds = routeOf(game, CARE).funds;
+    const funds = routeOf(game, CARE_ROUTE).funds;
     game.endTurn();
-    expect(routeOf(game, CARE).funds).toEqual(funds);
+    expect(routeOf(game, CARE_ROUTE).funds).toEqual(funds);
   });
 });
 
@@ -533,8 +532,8 @@ describe("R-SPONSOR-007: departure on a sponsor", () => {
     const game = readyToApply({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY_CARE)]);
     game.endTurn();
-    game.accept({ type: "route/depart", route: CARE });
-    expect(routeOf(game, CARE).state).toBe("departed");
+    game.accept({ type: "route/depart", route: CARE_ROUTE });
+    expect(routeOf(game, CARE_ROUTE).state).toBe("departed");
     expect(game.state.status.current?.entry).toBe("status.uk-sponsored");
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uk" });
   });
@@ -545,7 +544,7 @@ describe("R-SPONSOR-007: departure on a sponsor", () => {
     game.endTurn();
     expect(game.state.activity.job).toBe("activity.job-nurse");
     const months = game.state.activity.tenure["activity.job-nurse"];
-    const result = game.accept({ type: "route/depart", route: CARE });
+    const result = game.accept({ type: "route/depart", route: CARE_ROUTE });
     expect(game.state.activity.job).toBe("activity.job-uk-care");
     expect(game.view().job.id).toBe("activity.job-uk-care");
     expect(game.state.activity.tenure["activity.job-nurse"]).toBe(months);

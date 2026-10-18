@@ -10,9 +10,10 @@ import type { LifeOptions } from "../../testing/route.journey";
 import { applyEffects, draw, pastDecision, READY_PAPERS, seedWhere, slot } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
-import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, scored, setFacts, setPeople, UK_PARTNER } from "../../testing/person.journey";
+import { answerInterview, BOND, facts, interviewOpen, joint, life, scored, setFacts, setPeople } from "../../testing/person.journey";
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import { pounds, readOf, routeOf } from "../../testing/read";
+import { CA_SPOUSE, UK_PARTNER } from "../../testing/ids";
 
 const ukPartner = content.route[UK_PARTNER]!;
 const caSpouse = content.route[CA_SPOUSE]!;

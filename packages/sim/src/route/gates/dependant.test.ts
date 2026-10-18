@@ -9,9 +9,10 @@ import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
 import { pastDecision, slot } from "../../testing/route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
-import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/person.journey";
+import { applyAs, facts, interviewOpen, joint, life, scored, setFacts } from "../../testing/person.journey";
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import { pounds, readOf, routeOf } from "../../testing/read";
+import { CANADA_ROUTE, CA_ACCOMPANY, SKILLED, UK_DEPENDANT } from "../../testing/ids";
 
 const ukDependant = content.route[UK_DEPENDANT]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-dependant";
@@ -52,7 +53,7 @@ describe("R-PEOPLE-019, 020: who may bring a partner", () => {
   test("[R-PEOPLE-019] given the routes, when their dependants are read, then the skilled and talent routes bring the UK dependant, the points route the Canadian one, and the rest none", () => {
     expect(content.route[SKILLED]?.dependants).toBe(UK_DEPENDANT);
     expect(content.route["route.uk-talent"]?.dependants).toBe(UK_DEPENDANT);
-    expect(content.route[CANADA]?.dependants).toBe(CA_ACCOMPANY);
+    expect(content.route[CANADA_ROUTE]?.dependants).toBe(CA_ACCOMPANY);
     for (const id of ["route.uk-masters", "route.uk-care", "route.gulf-contract", "route.road"] as const) expect(content.route[id]?.dependants).toBeNull();
   });
 
@@ -113,7 +114,7 @@ describe("R-PEOPLE-022: applying as a dependant", () => {
 
   test("[R-PEOPLE-022] given a lead in Canada's pool applying, when the spouse applies alongside, then the accompanying fee is paid in Canadian money and no funds are asked", () => {
     const pockets: LifeOptions["pockets"] = { NGN: { bank: 200000000, cash: 150000000 }, CAD: { bank: 300000, cash: 0 } };
-    const game = joined(CANADA, CA_ACCOMPANY, leadOn(CANADA, "applying"), { pockets });
+    const game = joined(CANADA_ROUTE, CA_ACCOMPANY, leadOn(CANADA_ROUTE, "applying"), { pockets });
     expect(dependantGate.funds?.(readOf(game), content.route[CA_ACCOMPANY]!, routeOf(game, CA_ACCOMPANY))).toBeNull();
     const before = game.state.wallet.pockets.CAD.bank;
     game.accept({ type: "activity/now", activity: APPLY_CA, param: null });

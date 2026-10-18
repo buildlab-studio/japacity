@@ -9,14 +9,11 @@ import { placeLines } from "../overheard";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { heldFundsOpen, offeredFrom } from "./offices.testing";
 import { staged } from "./place.testing";
+import { thingIn } from "../../../shared/testing/things";
 
 const { stage, entry } = staged(raw, "place.agent-office");
 const things = stage.things ?? [];
-const thing = (id: string) => {
-  const found = things.find((candidate) => candidate.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
-};
+const thing = (id: string) => thingIn(things, id);
 
 describe("the agent's office", () => {
   test("[R-WORLD-005] given the recorded life after the deposit, with nothing on at the desk, when the office's things are read, then the agent still stands at his desk with one act to ask, and he says himself that nothing is on today", () => {

@@ -6,8 +6,8 @@
 // Usage: pnpm check:protected -- <base-ref>
 // CI sets APPROVED_TEST_CHANGE=1 when the label is present.
 import { execFileSync } from "node:child_process";
-import { realpathSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+
+import { isMain } from "../repo";
 
 export const PENDING_FILE = "tools/rules-pending.json";
 
@@ -137,11 +137,6 @@ export function main(argv: readonly string[], env: NodeJS.ProcessEnv): number {
   return 1;
 }
 
-function isMain(): boolean {
-  const entry = process.argv[1];
-  return entry !== undefined && import.meta.url === pathToFileURL(realpathSync(entry)).href;
-}
-
-if (isMain()) {
+if (isMain(import.meta.url)) {
   process.exitCode = main(process.argv.slice(2), process.env);
 }

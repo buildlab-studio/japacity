@@ -3,9 +3,10 @@
 // on the button and on the line above it, and never a figure left over a button that is shut.
 import type { ActivityOption } from "@japacity/sim";
 import { screen } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { newGame, setPockets } from "../../shared/testing/fixtures";
+import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";

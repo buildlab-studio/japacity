@@ -5,16 +5,9 @@ import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { abroadView, engineView, richAbroadView } from "../../../shared/testing/fixtures";
-import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { blurbOf, nameOf, say, sayCount, words } from "../../../shared/words/text";
-import { PhoneApps } from "../PhoneApps";
-
-async function openPapers(view: PlayerView) {
-  const rendered = await renderWithView(<PhoneApps onClose={() => undefined} area="London" now={() => new Date(2026, 9, 11, 12, 0)} talk={null} />, view);
-  fireEvent.click(document.querySelector<HTMLElement>('[data-app="papers"]')!);
-  return rendered;
-}
+import { openPapers } from "../phone.testing";
 
 function statusCard(): HTMLElement {
   const card = document.querySelector<HTMLElement>("[data-papers-status]");
@@ -26,7 +19,7 @@ describe("the status abroad, in Papers", () => {
   test("[R-STATUS-010] given Ada on her student visa, then its name, the work it allows, the months left and the way up show", async () => {
     const view = abroadView();
     const held = view.status!;
-    await openPapers(view);
+    await openPapers(view, "London");
     const card = within(statusCard());
     expect(card.getByText(nameOf(held.entry))).toBeDefined();
     expect(card.getByText(blurbOf(held.entry)!)).toBeDefined();
@@ -39,7 +32,7 @@ describe("the status abroad, in Papers", () => {
   });
 
   test("[R-STATUS-010] given a sponsored worker, then the lawful months show against the months to settle", async () => {
-    await openPapers(richAbroadView());
+    await openPapers(richAbroadView(), "London");
     expect(within(statusCard()).getByRole("progressbar", { name: say("ui.status.lawful", { months: 16, need: 60 }) })).toBeDefined();
   });
 
@@ -47,7 +40,7 @@ describe("the status abroad, in Papers", () => {
     const rich = richAbroadView();
     const view: PlayerView = { ...rich, job: { id: "activity.job-uk-skilled", months: 20, side: null, pay: null, sidePay: null }, status: { ...rich.status!, clock: null } };
     const cost = view.status!.renew!;
-    const { authority } = await openPapers(view);
+    const { authority } = await openPapers(view, "London");
     const card = within(statusCard());
     expect(card.getByText(say("ui.status.renew-fees", { fee: formatMoney(cost.fee, "GBP"), surcharge: formatMoney(cost.surcharge, "GBP"), total: formatMoney(cost.fee + cost.surcharge, "GBP") }))).toBeDefined();
     fireEvent.click(card.getByRole("button", { name: say("ui.status.renew") }));
@@ -56,14 +49,14 @@ describe("the status abroad, in Papers", () => {
   });
 
   test("[R-STATUS-006] given a sponsored worker whose job has gone, then renewing waits for the job", async () => {
-    await openPapers(richAbroadView());
+    await openPapers(richAbroadView(), "London");
     const card = within(statusCard());
     expect(card.getByText(say("ui.status.renew-needs-job"))).toBeDefined();
     expect(card.getByRole<HTMLButtonElement>("button", { name: say("ui.status.renew") }).disabled).toBe(true);
   });
 
   test("[R-STATUS-010] given a life at home, then Papers shows no status", async () => {
-    await openPapers(engineView());
+    await openPapers(engineView(), "London");
     expect(document.querySelector("[data-papers]")).not.toBeNull();
     expect(document.querySelector("[data-papers-status]")).toBeNull();
     expect(screen.queryByText(say("ui.status.title"))).toBeNull();

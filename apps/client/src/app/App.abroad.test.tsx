@@ -11,11 +11,8 @@ import { say, words } from "../shared/words/text";
 import { found } from "../shared/testing/render";
 import { pressFanAct } from "../features/city/fan/fan.testing";
 import { SAVE_KEY } from "../shared/kept/storage";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
+import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
+import { memoryStorage } from "../shared/testing/storage";
 
 
 // The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.
@@ -23,20 +20,7 @@ function memoryStorage() {
 vi.mock("../features/city/scene/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../shared/three/manifest", async (original) => (await import("../shared/testing/manifest")).fromDisk(original));
 
 async function showing(view: PlayerView) {
   const store = createGameStore(fakeAuthority(view));
@@ -53,8 +37,7 @@ describe("the shell by where the character is", () => {
     const storage = memoryStorage();
     storage.setItem(SAVE_KEY, JSON.stringify({ save: beforeFlight, clock: { anchor: 0 } }));
     // The world draws its place here (City.tsx canDraw); the scene is the stand-in above, at the family house where her bag is.
-    Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+    stubWebGL();
     window.localStorage.setItem("japacity.city.last", JSON.stringify(["place.family-house"]));
     try {
       const store = bootGame({ storage, fastClock: true });
@@ -98,7 +81,7 @@ describe("the shell by where the character is", () => {
       expect(await waitFor(() => found(`[data-japa-visa="${status ?? ""}"]`))).toBeDefined();
     } finally {
       vi.restoreAllMocks();
-      Reflect.deleteProperty(window, "WebGL2RenderingContext");
+      unstubWebGL();
       window.localStorage.clear();
     }
   }, 30000);

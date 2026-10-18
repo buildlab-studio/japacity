@@ -6,14 +6,13 @@
 // that fails (server.md R-SERVER-044).
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
 
 import { REPOSITORY_URL } from "../packages/content/src/legal/legal.repository";
+import { readJson, REPO_ROOT } from "../tools/repo";
 
-const root = fileURLToPath(new URL("..", import.meta.url));
-const folder = join(root, ".github", "workflows");
+const folder = join(REPO_ROOT, ".github", "workflows");
 const read = (name: string): string => readFileSync(join(folder, name), "utf8");
 const workflows = readdirSync(folder).filter((name) => name.endsWith(".yml"));
 
@@ -22,7 +21,7 @@ const REPOSITORY = new URL(REPOSITORY_URL).pathname.slice(1);
 const GUARD = `github.repository == '${REPOSITORY}'`;
 
 /** The wrangler version apps/server/package.json names, its range mark taken off. */
-const SERVER_PACKAGE = JSON.parse(readFileSync(join(root, "apps", "server", "package.json"), "utf8")) as { devDependencies?: Record<string, string>; dependencies?: Record<string, string> };
+const SERVER_PACKAGE = readJson<{ devDependencies?: Record<string, string>; dependencies?: Record<string, string> }>(join(REPO_ROOT, "apps", "server", "package.json"));
 const WRANGLER_VERSION = (SERVER_PACKAGE.devDependencies?.["wrangler"] ?? SERVER_PACKAGE.dependencies?.["wrangler"] ?? "").replace(/^[\^~]/, "");
 
 /** The check workflow's name, which the staging deploy waits for. */
@@ -132,13 +131,13 @@ describe("the workflows", () => {
       expect(text).not.toMatch(/always\(\)|failure\(\)|cancelled\(\)|success\(\)|continue-on-error/);
     }
     // The package's script is drizzle-kit's migrate with the config that reads DATABASE_URL_UNPOOLED.
-    const db = JSON.parse(readFileSync(join(root, "packages", "db", "package.json"), "utf8")) as { scripts: Record<string, string> };
+    const db = readJson<{ scripts: Record<string, string> }>(join(REPO_ROOT, "packages", "db", "package.json"));
     expect(db.scripts["db:migrate"]).toBe("drizzle-kit migrate --config drizzle.migrate.config.ts");
-    expect(readFileSync(join(root, "packages", "db", "drizzle.migrate.config.ts"), "utf8")).toContain('dbCredentials: { url: process.env["DATABASE_URL_UNPOOLED"] ?? "" }');
+    expect(readFileSync(join(REPO_ROOT, "packages", "db", "drizzle.migrate.config.ts"), "utf8")).toContain('dbCredentials: { url: process.env["DATABASE_URL_UNPOOLED"] ?? "" }');
   });
 
   test("given CODEOWNERS, when it is read, then the lint config, tests/, the scrub check, every Worker config, the workflows and the legal constants are the maintainer's", () => {
-    const owners = readFileSync(join(root, ".github", "CODEOWNERS"), "utf8")
+    const owners = readFileSync(join(REPO_ROOT, ".github", "CODEOWNERS"), "utf8")
       .split("\n")
       .filter((line) => line.trim() !== "" && !line.startsWith("#"));
     expect(owners).toEqual([

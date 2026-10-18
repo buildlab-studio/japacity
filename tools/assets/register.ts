@@ -1,12 +1,13 @@
 // The register (R-ASSET-009): one row per shipped file, in assets-src/register.json, with the
 // fonts the signs are lettered in (R-ASSET-012). The export fills the measured columns; people
 // fill the rest; the check proves the measured columns still match the files.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { RegisterRow } from "@japacity/assets";
 
 import { SOURCE } from "./catalog";
+import { readJson } from "../repo";
 
 interface FontRow {
   family: string;
@@ -38,7 +39,7 @@ const EMPTY: Register = {
 
 export function readRegister(path = REGISTER_PATH): Register {
   if (!existsSync(path)) return structuredClone(EMPTY);
-  return JSON.parse(readFileSync(path, "utf8")) as Register;
+  return readJson<Register>(path);
 }
 
 export function writeRegister(register: Register, path = REGISTER_PATH): void {

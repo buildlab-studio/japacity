@@ -11,13 +11,8 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
 import { leanRoute } from "./chapter.logic";
+import { CANADA_ROUTE, CARE_ROUTE, FEET, FILE, SKILLED, UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
-const CARE: Id<"route"> = "route.uk-care";
-const POINTS: Id<"route"> = "route.canada-points";
-const SKILLED: Id<"route"> = "route.uk-skilled";
-const FEET: Id<"chapter"> = "chapter.find-your-feet";
-const FILE: Id<"chapter"> = "chapter.build-the-file";
 const LOOK = "activity.look-into-route";
 
 function life(scenario: Id<"scenario">): Game {
@@ -33,9 +28,9 @@ function untilHeard(game: Game, route: Id<"route">, most = 8): void {
 /** The nurse who has heard of the master's and of care work, and has read the care page. */
 function nurseOnCare(): Game {
   const game = life("scenario.ngozi");
-  untilHeard(game, CARE);
-  expect(game.state.route[UK]?.state).toBe("heard");
-  game.endTurn([slot(LOOK, CARE)]);
+  untilHeard(game, CARE_ROUTE);
+  expect(game.state.route[UK_ROUTE]?.state).toBe("heard");
+  game.endTurn([slot(LOOK, CARE_ROUTE)]);
   return game;
 }
 
@@ -44,7 +39,7 @@ describe("the chapter ahead in the view", () => {
     const game = nurseOnCare();
     expect(game.view().chapter.current).toBe("chapter.build-the-file-care");
     expect(game.view().chapter.next).toBe("chapter.decision-day-care");
-    game.accept({ type: "chapter/lean", route: UK });
+    game.accept({ type: "chapter/lean", route: UK_ROUTE });
     expect(game.view().chapter.next).toBe("chapter.decision-day");
   });
 
@@ -83,13 +78,13 @@ describe("the plan in the view", () => {
 
   test("[R-CHAPTER-009] given the nurse who heard of care and the master's, when she reads the care page, then the view's plan is care work", () => {
     const game = nurseOnCare();
-    expect(game.view().plan.route).toBe(CARE);
+    expect(game.view().plan.route).toBe(CARE_ROUTE);
   });
 
   test("[R-CHAPTER-009] given a route only heard of, when the view is read, then the plan is the route heard of first", () => {
     const game = life("scenario.ngozi");
-    untilHeard(game, UK);
-    expect(game.view().plan.route).toBe(UK);
+    untilHeard(game, UK_ROUTE);
+    expect(game.view().plan.route).toBe(UK_ROUTE);
   });
 
   test("[R-CHAPTER-009] [R-JAPACITY-001] given the nurse on care, when the ways are read, then each own-effort way heard of carries its figure as the japacity kind sums it, the looked-into one as its route's figure", () => {
@@ -98,14 +93,14 @@ describe("the plan in the view", () => {
     const ways = game.view().plan.ways;
     const sum = (route: Id<"route">) => checklistView(read, route).reduce((total, item) => total + item.earned, 0);
     expect(ways.map((way) => way.route).sort()).toEqual(
-      (Object.keys(game.state.route) as Id<"route">[]).filter((id) => [CARE, UK, POINTS, "route.uk-talent", "route.gulf-contract"].includes(id) && game.state.route[id]?.state !== "unknown").sort(),
+      (Object.keys(game.state.route) as Id<"route">[]).filter((id) => [CARE_ROUTE, UK_ROUTE, CANADA_ROUTE, "route.uk-talent", "route.gulf-contract"].includes(id) && game.state.route[id]?.state !== "unknown").sort(),
     );
-    expect(ways.find((way) => way.route === CARE)?.percent).toBe(routePercent(read, CARE));
+    expect(ways.find((way) => way.route === CARE_ROUTE)?.percent).toBe(routePercent(read, CARE_ROUTE));
     // The master's is only heard of: no figure of its own (R-JAPACITY-005), but the sum its checklist would earn.
-    expect(routePercent(read, UK)).toBeNull();
-    expect(ways.find((way) => way.route === UK)?.percent).toBe(sum(UK));
+    expect(routePercent(read, UK_ROUTE)).toBeNull();
+    expect(ways.find((way) => way.route === UK_ROUTE)?.percent).toBe(sum(UK_ROUTE));
     // The nurse's licence and months on the ward count for care, not for the master's.
-    expect(sum(UK)).toBeLessThan(routePercent(read, CARE) ?? 0);
+    expect(sum(UK_ROUTE)).toBeLessThan(routePercent(read, CARE_ROUTE) ?? 0);
     // A route with no file of its own is never a way the plan can take.
     expect(ways.some((way) => way.route === SKILLED)).toBe(false);
   });
@@ -114,29 +109,29 @@ describe("the plan in the view", () => {
 describe("making another way the plan", () => {
   test("[R-CHAPTER-009] given the nurse on care, when she makes the master's the plan, then the choice is kept and the lean is the master's, read before the route looked into first", () => {
     const game = nurseOnCare();
-    const result = game.accept({ type: "chapter/lean", route: UK });
-    expect(result.events).toContainEqual({ type: "chapter/leaned", route: UK });
-    expect(game.state.chapter.chosen).toBe(UK);
-    expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK);
-    expect(game.view().plan.route).toBe(UK);
+    const result = game.accept({ type: "chapter/lean", route: UK_ROUTE });
+    expect(result.events).toContainEqual({ type: "chapter/leaned", route: UK_ROUTE });
+    expect(game.state.chapter.chosen).toBe(UK_ROUTE);
+    expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK_ROUTE);
+    expect(game.view().plan.route).toBe(UK_ROUTE);
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
 
   test("[R-CHAPTER-009] given the nurse who heard of both, when she makes the master's the plan and reads both pages in the month, then the first chapter closes to the master's file, not the care file", () => {
     const game = life("scenario.ngozi");
-    untilHeard(game, CARE);
-    game.accept({ type: "chapter/lean", route: UK });
-    const result = game.endTurn([slot(LOOK, CARE), slot(LOOK, UK)]);
+    untilHeard(game, CARE_ROUTE);
+    game.accept({ type: "chapter/lean", route: UK_ROUTE });
+    const result = game.endTurn([slot(LOOK, CARE_ROUTE), slot(LOOK, UK_ROUTE)]);
     expect(result.events.find((event) => event.type === "chapter/closed")).toEqual({ type: "chapter/closed", chapter: FEET, next: FILE });
     expect(game.state.chapter.current).toBe(FILE);
   });
 
   test("[R-CHAPTER-009] given a way chosen as the plan, when it is chosen again, then it is refused: it is the plan already; another way may still be chosen", () => {
     const game = nurseOnCare();
-    game.accept({ type: "chapter/lean", route: UK });
-    game.expectRejected({ type: "chapter/lean", route: UK }, "not-legal");
-    game.accept({ type: "chapter/lean", route: CARE });
-    expect(game.view().plan.route).toBe(CARE);
+    game.accept({ type: "chapter/lean", route: UK_ROUTE });
+    game.expectRejected({ type: "chapter/lean", route: UK_ROUTE }, "not-legal");
+    game.accept({ type: "chapter/lean", route: CARE_ROUTE });
+    expect(game.view().plan.route).toBe(CARE_ROUTE);
   });
 
   test("[R-CHAPTER-009] given a way never heard of, a way with no file of its own and a route not in content, when each is made the plan, then each is refused", () => {

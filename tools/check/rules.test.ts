@@ -1,10 +1,11 @@
-import { cpSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { fc, test } from "@fast-check/vitest";
 import { afterEach, describe, expect } from "vitest";
 import { evaluate, findCitations, findCitationsInSource, findDefinitions, run } from "./rules";
+import { readJson } from "../repo";
 
 const fixtures = fileURLToPath(new URL("../__fixtures__/rules/", import.meta.url));
 const ids = (citations: ReadonlyArray<{ id: string }>) => citations.map((citation) => citation.id);
@@ -109,7 +110,7 @@ describe("write pending", () => {
     scratch = mkdtempSync(join(tmpdir(), "check-rules-"));
     cpSync(join(fixtures, "failing"), scratch, { recursive: true });
     const result = run(scratch, { writePending: true });
-    expect(JSON.parse(readFileSync(join(scratch, "tools", "rules-pending.json"), "utf8"))).toEqual(["R-UNTESTED-001"]);
+    expect(readJson(join(scratch, "tools", "rules-pending.json"))).toEqual(["R-UNTESTED-001"]);
     // The duplicate and the undefined citation are still errors after a rewrite.
     expect(result.code).toBe(1);
   });

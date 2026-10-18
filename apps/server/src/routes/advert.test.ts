@@ -4,7 +4,7 @@ import type { Id } from "@japacity/sim";
 import { int, time } from "@japacity/sim";
 import { describe, expect, test, vi } from "vitest";
 
-import { testDeps } from "../app.testing";
+import { asAccount, testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { addAdvertCounters, ADVERT_COUNTERS } from "../advert/counts";
 import { advertLinksJob, recheckWindow } from "../advert/job";
@@ -356,7 +356,7 @@ describe("what the review sees", () => {
     await creative(app, id, second, "Now with suya.", "https://example.com/menu", art);
     await creative(app, id, webpOf(BILLBOARD.width, BILLBOARD.height), "Now with fish.", "https://example.com/menu", art);
     await call(app, "POST", `/api/admin/adverts/creatives/${art}/3/refuse`, { checks: [], note: "Reads as a bank alert." });
-    const image = (version: number, account: string | null = ADMIN) => app.request(`/api/admin/adverts/creatives/${art}/${String(version)}/image`, account === null ? {} : { headers: { "x-test-account": account } });
+    const image = (version: number, account: string | null = ADMIN) => app.request(`/api/admin/adverts/creatives/${art}/${String(version)}/image`, asAccount(account));
 
     for (const [version, format, bytes] of [[1, "png", pngOf(BILLBOARD.width, BILLBOARD.height)], [2, "jpeg", second], [3, "webp", webpOf(BILLBOARD.width, BILLBOARD.height)]] as const) {
       const reply = await image(version);

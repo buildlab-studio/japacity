@@ -1,10 +1,10 @@
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { int } from "@japacity/sim";
-import { draw, slot } from "@japacity/sim/testing";
+import { draw, setPockets, slot } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame, newGame, setPockets, viewAfter } from "../../../shared/testing/fixtures";
+import { abroadGame, newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { renderWithView } from "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { say } from "../../../shared/words/text";

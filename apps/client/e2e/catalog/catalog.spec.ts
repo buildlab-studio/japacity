@@ -4,18 +4,18 @@
 // played, a recorded life seeded (packages/sim/src/goldens/lives.data.ts), and the development build's hooks
 // (`window.__city`, `__map`, `__sendOff`, `?clock=`). A screen that cannot be reached is written down as not reached,
 // with why, and the test goes on. Nothing here asserts how a screen should look: the look is the review's.
-import { lifeSaves, start } from "@japacity/sim/testing";
+import { start } from "@japacity/sim/testing";
 import { devices, expect, test, type Page } from "@playwright/test";
 
 import { content } from "../../../../packages/content/src/index";
 import { ADMIN_GETS } from "../../src/features/admin/admin.testing";
+import { NOT_FAKED, ONLINE, quietSocket, SIGNED_OUT, STANDING, viewReply } from "../support/api";
 import { type AbroadLife, clear as clearAbroad, lifeIn } from "../support/abroad";
 import { passOpeningWords, passThePage } from "../support/door";
 import { backFromResults, bedThing, doAct, intoTheRoom, passCards, passHomeTeach, passMoments, placeReady, seedSave } from "../support/live";
+import { recorded, recordedUpTo } from "../support/saves";
 import { attempt, missed, shot, shotPages } from "./shoot";
 
-/** The second dev server, whose every /api route is answered here. */
-const ONLINE = `http://localhost:${process.env.E2E_ONLINE_PORT ?? "5180"}`;
 /** The day and the night as the development build pins them (`?clock=`), with the sleep cut short and the morning now. */
 const DAY = "?sleep=2&morning=now&clock=afternoon";
 const NIGHT = "?sleep=2&morning=now&clock=night";
@@ -28,11 +28,11 @@ async function signedOut(page: Page): Promise<void> {
       const key = `${route.request().method()} ${new URL(route.request().url()).pathname}`;
       const json = (status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
       if (key === "GET /api/age") return json(200, { refused: false });
-      if (key === "GET /api/view") return json(401, { ok: false, code: "signed-out", detail: "Sign in to play." });
-      return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      if (key === "GET /api/view") return json(401, SIGNED_OUT.body);
+      return json(404, NOT_FAKED);
     },
   );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
+  await quietSocket(page);
   // The bot check as its always-pass test key behaves, drawing nothing.
   await page.route("https://challenges.cloudflare.com/**", (route) => route.fulfill({ contentType: "text/javascript", body: "window.turnstile = { render() { return 'widget-1'; }, reset() {}, remove() {} };" }));
 }
@@ -47,7 +47,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
       const json = (status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-      if (new URL(route.request().url()).pathname !== "/api/view") return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      if (new URL(route.request().url()).pathname !== "/api/view") return json(404, NOT_FAKED);
       if (view === "hold") return new Promise<void>(() => undefined);
       if (view === "wall") return route.fulfill({ status: 401, body: "" });
       return json(503, { ok: false, code: "unavailable", detail: "The game's server could not reach its database.", retryAfter: 5 });
@@ -61,8 +61,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
  */
 async function pageWaiting(page: Page): Promise<void> {
   const game = start({ scenario: "scenario.prologue", content });
-  if (game.state.turn.banked === 0) game.grant(1);
-  const view = { ok: true, view: game.view(), lines: [], clock: { tick: game.tick, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null } };
+  const view = viewReply(game);
   await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
@@ -71,7 +70,7 @@ async function pageWaiting(page: Page): Promise<void> {
       const asked = `${route.request().method()} ${new URL(route.request().url()).pathname}`;
       if (asked === "GET /api/view") return json(200, view);
       if (asked === "POST /api/prologue/preset") return new Promise<void>(() => undefined);
-      return json(404, { ok: false, code: "unknown-id", detail: "not faked" });
+      return json(404, NOT_FAKED);
     },
   );
 }
@@ -327,17 +326,10 @@ for (const start of STARTS) {
 // Recorded lives, seeded as the suite seeds them (live.ts seedSave), cut where the screen wanted stands.
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** A recorded life's save, its commands cut at `upTo` (all of them when null), as the page keeps it. */
-function lifeUpTo(name: string, upTo: number | null): string {
-  const save = lifeSaves[name];
-  if (save === undefined) throw new Error(`No recorded life ${name}.`);
-  return JSON.stringify({ save: { ...save, commands: upTo === null ? save.commands : save.commands.slice(0, upTo) }, clock: { anchor: 0 } });
-}
-
 /** Ada's careful life the month before the visa's answer: the turn that grants it is the next command (index 285). */
 const ADA_BEFORE_ANSWER = 285;
 /** Ada's careful life with the visa granted, the month before she flies: every command but the flight. */
-const ADA_GRANTED = (lifeSaves["ada-careful"]?.commands.length ?? 1) - 1;
+const ADA_GRANTED = recorded("ada-careful").commands.length - 1;
 /** Ada's careful life with the visa interview open: the act that opens it is the command before (index 280). */
 const ADA_INTERVIEW = 281;
 /** Ada's second life a few months into London on a sponsored job (she lands at command 420). */
@@ -363,7 +355,7 @@ async function clearTheWorld(page: Page): Promise<void> {
 
 /** A recorded life opened in the world at `search`, past its opening words and every card. */
 async function openLife(page: Page, life: string, upTo: number | null, search: string): Promise<void> {
-  await seedSave(page, lifeUpTo(life, upTo));
+  await seedSave(page, recordedUpTo(life, upTo));
   await page.goto(`/${search}`);
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 60_000 });
   await passOpeningWords(page);
@@ -1363,15 +1355,14 @@ test("dedication: the page online over a faked server, a light named and lit, an
   game.grant(1);
   game.endTurn([]);
   game.grant(1);
-  const clock = { tick: 3, nextTickAt: Date.now() + 3_600_000, nextTurnAt: null };
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
       const request = route.request();
       const key = `${request.method()} ${new URL(request.url()).pathname}`;
       const json = (body: unknown, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-      if (key === "GET /api/view") return json({ ok: true, view: game.view(), lines: [], clock });
-      if (key === "GET /api/moderation/standing") return json({ ok: true, standing: { actions: [], mutedUntil: null, suspendedUntil: null, banned: false, reports: [] } });
+      if (key === "GET /api/view") return json(viewReply(game, 3));
+      if (key === "GET /api/moderation/standing") return json(STANDING);
       if (key === "GET /api/dedication/lights") {
         const ordered = [...kept].sort((a, b) => Number(b.approved) - Number(a.approved) || b.litAt - a.litAt);
         const own = kept.find((light) => light.account === account);
@@ -1383,10 +1374,10 @@ test("dedication: the page online over a faked server, a light named and lit, an
         kept.push(light);
         return json({ ok: true, mine: { id: light.id, name: light.name, years: { from: light.from, to: light.to }, approved: false } });
       }
-      return json({ ok: false, code: "unknown-id", detail: "not faked" }, 404);
+      return json(NOT_FAKED, 404);
     },
   );
-  await page.routeWebSocket(/\/api\/place\/.+\/socket$/, () => undefined);
+  await quietSocket(page);
   await page.addInitScript(() => localStorage.setItem("japacity.walkthrough", "1"));
   const sheet = page.getByRole("dialog", { name: "Dedication" });
   await attempt(page, "dedication-water", async () => {

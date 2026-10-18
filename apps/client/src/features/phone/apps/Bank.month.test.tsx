@@ -11,15 +11,12 @@ import "../../../shared/testing/render";
 import { moneyLines } from "../../../shared/words/money";
 import { words } from "../../../shared/words/text";
 import { PhoneApps } from "../PhoneApps";
+import { lately } from "../phone.testing";
 
 const LIFE = "ada-careful";
 /** The visa application, sent at once (R-ACTIVITY-015): found in the recorded life, wherever its cut puts it. */
 function applicationIndex(commands: readonly { command: { type: string; activity?: string } }[]): number {
   return commands.findIndex(({ command }) => command.type === "activity/now" && command.activity === "activity.apply-for-visa");
-}
-
-function lately(): string[] {
-  return [...document.querySelectorAll("[data-money-lines] li")].map((row) => row.textContent ?? "");
 }
 
 describe("Bank, Lately in the application month", () => {

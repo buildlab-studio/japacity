@@ -6,7 +6,8 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import yabaHub from "../../../../public/assets/places/yaba-hub/place.json";
-import { answersInOrder, archetypeOf, presetAnswer } from "../../../shared/frontdoor/archetypes";
+import { archetypeOf } from "../../../shared/frontdoor/archetypes";
+import { playTile } from "../../../shared/frontdoor/archetypes.testing";
 import { newGame, viewAfter } from "../../../shared/testing/fixtures";
 import { requirementSentence } from "../../../shared/words/requirement";
 import { say } from "../../../shared/words/text";
@@ -25,12 +26,7 @@ const MASTERS_AT_HOME = "activity.masters-at-home";
 function developer(): ReturnType<typeof newGame> {
   const archetype = archetypeOf("developer")!;
   const game = newGame("scenario.prologue", "routes-desk");
-  for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-    const prologue = game.view().prologue!;
-    const answer = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
-    if (answer === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer });
-  }
+  playTile(game, archetype);
   return game;
 }
 

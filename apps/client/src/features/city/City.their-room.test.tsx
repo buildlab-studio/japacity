@@ -15,6 +15,8 @@ import { Fan } from "./fan/Fan";
 import { fanEntriesOf } from "./fan/fanActs";
 import { standingAsThemselves, THEIR_ROOM } from "./meetings";
 import { dressPlace, type PlaceFile, stageOf } from "../../shared/scene/placeFile";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 vi.mock("./scene/CityScene", () => ({
   default: ({ file, people, things, onPick }: { file: PlaceFile; people: unknown[]; things?: Thing[]; onPick: (pick: { kind: "thing"; thing: Thing }) => void }) => (
@@ -33,41 +35,21 @@ vi.mock("./scene/CityScene", () => ({
 }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 const ROOM = theirRoom as unknown as PlaceFile;
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   window.localStorage.setItem("japacity.city.last", JSON.stringify([THEIR_ROOM]));
 });
 
 afterEach(() => {
   vi.restoreAllMocks();
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   window.localStorage.clear();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 describe("their room in the world", () => {
   test("[R-WORLD-020] [R-CITY-011] [R-PEOPLE-054] [R-CITY-001] given Tobi's bond courting, when their room is drawn, then it is dressed for Tobi: his props stand in it, his figure stands alone as a thing named by him with the computer mark and no act, no stranger in the room, the visit stays on the chair, and a tap on him sends nothing", async () => {

@@ -1,18 +1,20 @@
 import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, test } from "vitest";
+
+import { REPO_ROOT } from "../repo";
 
 const here = (file: string) => fileURLToPath(new URL(file, import.meta.url));
 const read = (file: string) => readFileSync(here(file), "utf8");
 
 /** Every package manifest of the workspace. */
 function manifests(): string[] {
-  const root = here("../../");
-  const found = [`${root}package.json`, `${root}tools/package.json`];
+  const found = [join(REPO_ROOT, "package.json"), join(REPO_ROOT, "tools", "package.json")];
   for (const parent of ["apps", "packages"]) {
-    for (const entry of readdirSync(`${root}${parent}`, { withFileTypes: true })) {
-      if (entry.isDirectory()) found.push(`${root}${parent}/${entry.name}/package.json`);
+    for (const entry of readdirSync(join(REPO_ROOT, parent), { withFileTypes: true })) {
+      if (entry.isDirectory()) found.push(join(REPO_ROOT, parent, entry.name, "package.json"));
     }
   }
   return found.filter((file) => {

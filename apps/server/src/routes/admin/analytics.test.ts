@@ -3,7 +3,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { utcDay } from "../../ops/day";
-import { testDeps } from "../../app.testing";
+import { asAccount as as, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { testConfig } from "../../config";
 import { testSession } from "../../deps";
@@ -16,8 +16,6 @@ function admin() {
   const config = testConfig({ testing: { testLogin: true }, admin: { accounts: [ADMIN] } });
   return testDeps({ config, session: testSession(config) });
 }
-
-const as = (account: string | null): RequestInit => (account === null ? {} : { headers: { "x-test-account": account } });
 
 describe("GET /api/admin/analytics", () => {
   test("[R-ANALYTICS-009] [R-SERVER-012] given a session that is not an admin's, or none, when the dashboard is fetched, then it does not exist", async () => {

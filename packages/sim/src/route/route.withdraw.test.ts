@@ -4,10 +4,11 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Game } from "../testing/play";
-import { answerInterview, applyAs, facts, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT, UK_PARTNER } from "../testing/person.journey";
+import { answerInterview, applyAs, facts, joint, life, scored, setFacts } from "../testing/person.journey";
 import { ALWAYS_GRANTED } from "../testing/place.journey";
 import { routeOf } from "../testing/read";
 import { slot } from "../testing/route.journey";
+import { SKILLED, UK_DEPENDANT, UK_PARTNER } from "../testing/ids";
 
 const used = content;
 const SURCHARGE_YEAR = content.var["var.uk-surcharge-year"]!.start;

@@ -8,8 +8,8 @@ import type { Id, PrologueSlice } from "../engine/types";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { familyHometown, hometownOf } from "./prologue.logic";
+import { PROLOGUE } from "../testing/ids";
 
-const PROLOGUE: Id<"scenario"> = "scenario.prologue";
 const numbers = content.tuning.prologue;
 type Draw = NonNullable<PrologueSlice["draw"]>;
 

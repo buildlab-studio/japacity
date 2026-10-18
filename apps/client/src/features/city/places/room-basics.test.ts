@@ -19,6 +19,7 @@ import { byHandAt } from "../../../shared/scene/staging";
 import { stagedNow, thingSpot, thingsNow } from "../scene/things";
 import { instancesOf } from "./place.testing";
 import { cityWords } from "../city.words";
+import { thingIn } from "../../../shared/testing/things";
 
 const parlour = parlourRaw as unknown as PlaceFile;
 const room = roomRaw as unknown as PlaceFile;
@@ -70,9 +71,7 @@ function floorShare(file: PlaceFile, shot: Shot): number {
 const FRONT: Shot = { centre: [0, 0.6, -0.6], far: 30, near: 9, farPitch: 68, nearPitch: 36, turn: 30, yaw: 180, width: 14.5 };
 
 function thingOf(file: PlaceFile, id: string) {
-  const thing = (stageOf(file).things ?? []).find((candidate) => candidate.id === id);
-  if (thing === undefined) throw new Error(`No ${id}`);
-  return thing;
+  return thingIn(stageOf(file).things, id);
 }
 
 /** The things the view lets the player act on now, as the city reads them. */

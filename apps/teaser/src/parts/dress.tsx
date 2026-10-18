@@ -6,7 +6,7 @@ import { Img, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from
 
 import { ALL_CLIPS, type ClipName } from "../clips";
 import { land, pop, wobble } from "./motion";
-import { DAY, DEVICE, FONT, NAVY, type Paint, YELLOW } from "@japacity/brand";
+import { CREAM, DAY, DEVICE, FONT, NAVY, NIGHT, type Paint, YELLOW } from "@japacity/brand";
 
 export function Card({ children, paint = DAY, style }: { children: ReactNode; paint?: Paint; style?: CSSProperties }) {
   return (
@@ -67,8 +67,23 @@ export function Sticker({ tile, size, tilt = 0, delay = 0, edge = 8, style }: { 
   );
 }
 
-/** The one yellow action with its navy underside. */
-export function PressButton({ children, size = 52, style }: { children: ReactNode; size?: number; style?: CSSProperties }) {
+/**
+ * A bit of confetti `p` of the way through its pop: a chip of `colour` cut with a white edge, `width` by `height`,
+ * rising `rise` px into place and turning to `turn` degrees as it grows.
+ */
+export function confetti(colour: string, turn: number, p: number, { width, height, rise }: { width: number; height: number; rise: number }): CSSProperties {
+  return { width, height, borderRadius: 8, background: colour, boxShadow: "0 0 0 5px #fff", transform: `translateY(${String((1 - p) * rise)}px) rotate(${String(turn * p)}deg) scale(${String(p)})` };
+}
+
+/** The night's edge round the yellow action, as the client's night paint draws it. */
+const NIGHT_ACTION_EDGE = "#0b1130";
+
+/**
+ * The one yellow action with its navy underside. On the night paint its edge is the night's and its underside cream,
+ * a whole number of pixels deep.
+ */
+export function PressButton({ children, size = 52, paint = DAY, style }: { children: ReactNode; size?: number; paint?: Paint; style?: CSSProperties }) {
+  const night = paint === NIGHT ? { borderColor: NIGHT_ACTION_EDGE, boxShadow: `0 ${String(Math.round(size * 0.2))}px 0 ${CREAM}` } : {};
   return (
     <div
       style={{
@@ -85,6 +100,7 @@ export function PressButton({ children, size = 52, style }: { children: ReactNod
         fontSize: size,
         lineHeight: 1,
         boxShadow: `0 ${String(size * 0.2)}px 0 ${NAVY}`,
+        ...night,
         ...style,
       }}
     >

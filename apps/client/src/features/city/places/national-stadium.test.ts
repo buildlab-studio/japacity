@@ -12,14 +12,11 @@ import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged } from "./place.testing";
 import { cityWords } from "../city.words";
+import { thingIn } from "../../../shared/testing/things";
 
 const ID = "place.national-stadium";
 const { stage, entry } = staged(raw, ID);
-const thing = (id: string) => {
-  const found = (stage.things ?? []).find((candidate) => candidate.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
-};
+const thing = (id: string) => thingIn(stage.things, id);
 
 describe("the National Stadium", () => {
   frontageTests(raw, ID);

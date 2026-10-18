@@ -2,10 +2,11 @@
 // it, and every cited id is defined. See docs/design/02-quality-and-testing.md.
 //
 // Usage: pnpm check:rules [--write-pending]
-import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
+
+import { isMain, readJson, REPO_ROOT, toPosix } from "../repo";
 
 export const RULE_ID = /R-[A-Z][A-Z0-9]*-\d{3}/;
 
@@ -39,10 +40,6 @@ export interface Report {
   readonly tested: number;
   readonly pending: number;
   readonly untested: readonly string[];
-}
-
-function toPosix(path: string): string {
-  return path.split(sep).join("/");
 }
 
 function walk(directory: string, visit: (path: string, name: string) => void, skip: (path: string) => boolean): void {
@@ -144,7 +141,7 @@ export function findCitations(root: string, excludes: readonly string[] = DEFAUL
 
 export function readPending(path: string): string[] {
   if (!existsSync(path)) return [];
-  const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+  const parsed: unknown = readJson(path);
   if (!Array.isArray(parsed) || !parsed.every((item): item is string => typeof item === "string")) {
     throw new Error(`${path} must be a JSON array of rule id strings.`);
   }
@@ -225,15 +222,8 @@ export function run(root: string, options: { readonly writePending: boolean }): 
   };
 }
 
-function isMain(): boolean {
-  const entry = process.argv[1];
-  if (entry === undefined) return false;
-  return import.meta.url === pathToFileURL(realpathSync(entry)).href;
-}
-
-if (isMain()) {
-  const root = fileURLToPath(new URL("../..", import.meta.url));
-  const { code, output } = run(root, { writePending: process.argv.includes("--write-pending") });
+if (isMain(import.meta.url)) {
+  const { code, output } = run(REPO_ROOT, { writePending: process.argv.includes("--write-pending") });
   for (const line of output) console.log(line);
   process.exitCode = code;
 }

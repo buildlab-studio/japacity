@@ -16,10 +16,8 @@ import { newLifeSaves } from "../sweep/lives.data";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
+import { CARE_ROUTE, GULF_ROUTE, UK_ROUTE } from "../testing/ids";
 
-const CARE: Id<"route"> = "route.uk-care";
-const MASTERS: Id<"route"> = "route.uk-masters";
-const GULF: Id<"route"> = "route.gulf-contract";
 /** The road's own costs: the target counts them, so the pace leaves them out. */
 const ROAD_FEES: readonly string[] = ["fee-document", "fee-test", "fee-school", "fee-visa", "fee-surcharge", "flight"];
 /** What a month's net leaves out (R-WALLET-015). */
@@ -98,25 +96,25 @@ describe("[R-WALLET-021] the money held for the road and the plan's whole cost",
   test("[R-WALLET-021] [R-WORLD-019] given no plan, or a plan only heard of, when the passbook is read, then there is no target; once the way is looked into, there is", () => {
     const game = nurse();
     expect(passbook(game).target).toBeNull();
-    applyEffects(game, [{ type: "route/hear", route: CARE, via: "meetup" }]);
-    expect(game.view().plan.route).toBe(CARE);
+    applyEffects(game, [{ type: "route/hear", route: CARE_ROUTE, via: "meetup" }]);
+    expect(game.view().plan.route).toBe(CARE_ROUTE);
     expect(passbook(game).target).toBeNull();
-    game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE });
-    expect(passbook(game).target?.route).toBe(CARE);
+    game.accept({ type: "activity/now", activity: "activity.look-into-route", param: CARE_ROUTE });
+    expect(passbook(game).target?.route).toBe(CARE_ROUTE);
   });
 
   test("[R-WALLET-021] [R-WORLD-019] given the nurse whose plan is care work, when the passbook is read, then the target is every paper she still needs, the visa's fee and the flight, all in naira", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     const view = game.view();
     const target = passbook(game).target!;
     // She holds her passport and licence; the verification, the English test, the TB test, the police paper and the visa are ahead.
     const fees = ["activity.request-verification", "activity.sit-english-test", "activity.tb-test", "activity.get-police-certificate", "activity.apply-uk-care"].reduce((sum, act) => sum + priceOf(view, act), 0);
     const { flight } = content.tuning.route;
-    expect(target).toEqual({ route: CARE, funds: 0, fees, flight: kobo(view, flight.amount as number, flight.currency), total: fees + kobo(view, flight.amount as number, flight.currency) });
+    expect(target).toEqual({ route: CARE_ROUTE, funds: 0, fees, flight: kobo(view, flight.amount as number, flight.currency), total: fees + kobo(view, flight.amount as number, flight.currency) });
   });
 
   test("[R-WALLET-021] [R-WORLD-019] given the nurse's plan, when a paper is asked for, then its fee is no longer ahead", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     const before = passbook(game).target!;
     const tb = priceOf(game.view(), "activity.tb-test");
     game.accept({ type: "activity/now", activity: "activity.tb-test", param: null });
@@ -127,7 +125,7 @@ describe("[R-WALLET-021] the money held for the road and the plan's whole cost",
   });
 
   test("[R-WALLET-021] [R-GATE-003] given the Gulf as the plan, whose employer pays the flight, when the passbook is read, then no flight is in the target", () => {
-    const game = planOn(nurse(), GULF);
+    const game = planOn(nurse(), GULF_ROUTE);
     const target = passbook(game).target!;
     expect(target.flight).toBe(0);
     expect(target.total).toBe(target.funds + target.fees);
@@ -136,7 +134,7 @@ describe("[R-WALLET-021] the money held for the road and the plan's whole cost",
   test("[R-WALLET-021] [R-WORLD-019] given Ada's master's plan, when the passbook is read, then the funds to show are her checklist's, less the locked money and the family's support", () => {
     const game = replay("ada-careful", 160);
     const view = game.view();
-    const route = view.routes.find((each) => each.id === MASTERS)!;
+    const route = view.routes.find((each) => each.id === UK_ROUTE)!;
     expect(route.state).toBe("known");
     const need = route.checklist.find((item) => item.id === "funds")?.need ?? 0;
     expect(need).toBeGreaterThan(0);
@@ -177,7 +175,7 @@ describe("[R-WALLET-022] the stamps", () => {
   });
 
   test("[R-WALLET-022] [R-MOMENT-008] given the money for the whole road held, when the month closes, then the road's own stamp is told with the way and its figure, after every fixed one it passed", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     applyEffects(game, [{ type: "money/add", currency: "NGN", pocket: "bank", amount: 300000000, reason: "gift" }]);
     const result = game.endTurn();
     const stamped = result.events.filter((event): event is BaseEvent & Extract<WalletEvent, { type: "wallet/stamped" }> => event.type === "wallet/stamped");
@@ -185,10 +183,10 @@ describe("[R-WALLET-022] the stamps", () => {
     // About ₦3.7m held: past the million and the two and a half, short of five.
     expect(passbook(game).held).toBeLessThan(five!);
     expect(stamped.filter((event) => !event.target).map((event) => event.at)).toEqual([million, twoAndHalf]);
-    expect(stamped.at(-1)).toMatchObject({ target: true, route: CARE });
+    expect(stamped.at(-1)).toMatchObject({ target: true, route: CARE_ROUTE });
     const ready = linesOf(result.lines, "line.passbook.ready");
     expect(ready).toHaveLength(1);
-    expect(ready[0]!.params["route"]).toBe(CARE);
+    expect(ready[0]!.params["route"]).toBe(CARE_ROUTE);
     const book = passbook(game);
     const last = book.stamps.at(-1)!;
     expect(last).toMatchObject({ target: true, month: game.state.turn.month });
@@ -222,7 +220,7 @@ function koboOf(view: Pick<PlayerView, "rates">, money: Partial<Record<Currency,
 
 describe("[R-WALLET-023] the pace", () => {
   test("[R-WALLET-023] [R-WALLET-015] given the nurse's months, when each closes, then the pace keeps its net for the road in every money at the official rate, the road's own fees aside, and reads the last three", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     const kept: number[] = [];
     let month: BaseEvent[] = [];
     for (let at = 0; at < 5; at += 1) {
@@ -239,7 +237,7 @@ describe("[R-WALLET-023] the pace", () => {
   });
 
   test("[R-WALLET-023] [R-WALLET-015] given a pace and a target, when the passbook is read, then the months are the gap over the pace rounded up, none once it is held, and none to say with no pace above nothing", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     expect(passbook(game).pace).toBeNull();
     expect(passbook(game).months).toBeNull();
     game.endTurn();
@@ -258,7 +256,7 @@ describe("[R-WALLET-023] the pace", () => {
 
 describe("[R-WALLET-024] the roads to it", () => {
   test("[R-WALLET-024] [R-WORLD-019] given Zainab a junior developer, when her roads are read, then the ladder's next rung is the mid dev job with what it still needs and what it adds a month", () => {
-    const game = planOn(start({ content, scenario: "scenario.zainab", seed: "passbook-z", worldSeed: "passbook-world" }), MASTERS);
+    const game = planOn(start({ content, scenario: "scenario.zainab", seed: "passbook-z", worldSeed: "passbook-world" }), UK_ROUTE);
     const view = game.view();
     const ladder = road(game, "ladder")!;
     expect(ladder).toMatchObject({ via: "activity.job-mid-dev", state: "shut", needs: [{ type: "quality/min", quality: "quality.tech", value: 60 }] });
@@ -267,7 +265,7 @@ describe("[R-WALLET-024] the roads to it", () => {
   });
 
   test("[R-WALLET-024] [R-ACTIVITY-010] given the nurse who can drive, when her roads are read, then the side job is the ride driving she can take now; once held, it is taken and its months are the pace's", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     game.endTurn();
     const side = road(game, "side")!;
     const pay = content.activity["activity.ride-driving"]!.pay!;
@@ -280,7 +278,7 @@ describe("[R-WALLET-024] the roads to it", () => {
   });
 
   test("[R-WALLET-024] [R-LUCK-009] given the street's circle, when it waits, stands open and runs, then its road says so, and it never moves the months: its pot is what is paid in", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     game.endTurn();
     expect(road(game, "ajo")).toMatchObject({ via: "offer.join-ajo", state: "shut", needs: [], offer: null, monthly: 0, lump: 0, months: passbook(game).months });
     applyEffects(game, [{ type: "quality/add", quality: "quality.standing", amount: -40 }]);
@@ -294,7 +292,7 @@ describe("[R-WALLET-024] the roads to it", () => {
   });
 
   test("[R-WALLET-024] [R-ACTIVITY-015] given the nurse at home with the house's means, when her family's road is read, then Papa's loan is open with what the house would lend; asked, it stands as his offer; taken, the money is held and the road is shut", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     game.endTurn();
     const lend = (game.state.quality["quality.family-means"] ?? 0) * 5000000;
     const family = road(game, "family")!;
@@ -313,11 +311,11 @@ describe("[R-WALLET-024] the roads to it", () => {
     const ada = replay("ada-careful", 160);
     expect(road(ada, "family")?.via).toBe("activity.family-meeting");
     expect(road(ada, "scholarship")?.via).toBe("offer.scholarship-round");
-    expect(road(planOn(nurse(), CARE), "scholarship")).toBeUndefined();
+    expect(road(planOn(nurse(), CARE_ROUTE), "scholarship")).toBeUndefined();
   });
 
   test("[R-WALLET-024] [R-WORLD-019] given the nurse's roads, when the best is read, then it is the road not taken that reaches the target soonest, sooner than the pace alone", () => {
-    const game = planOn(nurse(), CARE);
+    const game = planOn(nurse(), CARE_ROUTE);
     game.endTurn();
     const book = passbook(game);
     const open = book.roads.filter((each) => each.state !== "taken" && each.months !== null);

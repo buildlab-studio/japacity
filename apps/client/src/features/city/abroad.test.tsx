@@ -3,9 +3,10 @@
 // itself needs WebGL and is not drawn here; Ada's recorded life is flown and landed in London.
 import { fireEvent, screen } from "@testing-library/react";
 import type { PlayerView } from "@japacity/sim";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { abroadGame, setPockets } from "../../shared/testing/fixtures";
+import { abroadGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";

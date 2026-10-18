@@ -7,9 +7,10 @@
 import { content } from "@japacity/content";
 import { int, type Currency, type ReportLine } from "@japacity/sim";
 import { act } from "@testing-library/react";
+import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { newGame, setPockets } from "../../shared/testing/fixtures";
+import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";

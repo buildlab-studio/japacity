@@ -4,14 +4,15 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry } from "../engine/types";
-import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, setPounds, settledAbroad, UK } from "../testing/obligation.journey";
+import { abroad, closeTypes, markBy, markOf, openOwed, settledAbroad } from "../testing/obligation.journey";
+import { setPockets } from "../testing/wallet";
 import { playMonths } from "../testing/place.journey";
 import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { creditKind, rateFor } from "./credit.logic";
+import { CANADA_COUNTRY, UK_COUNTRY, UK_PHONE } from "../testing/ids";
 
-const CANADA: Id<"country"> = "country.canada";
 const CREDIT = content.tuning.credit;
 const JUDGMENT_CAP = CREDIT.judgmentCap;
 
@@ -26,19 +27,19 @@ function creditMin(game: Game, value: number) {
 }
 
 /** Rent, phone and upkeep for a month, so the month is paid in full. */
-const MONTH_ABROAD = entryOf("obligation.upkeep-uk").amount + entryOf("obligation.rent-room-uk").amount + entryOf(PHONE).amount;
+const MONTH_ABROAD = entryOf("obligation.upkeep-uk").amount + entryOf("obligation.rent-room-uk").amount + entryOf(UK_PHONE).amount;
 
 /** A carer's month: upkeep, the room and a phone contract, both of which report. */
 function carer(): Game {
   const game = abroad(content);
-  openOwed(game, PHONE);
+  openOwed(game, UK_PHONE);
   return game;
 }
 
 describe("the file", () => {
   test("[R-CREDIT-001] given a life arriving abroad, when it lands, then its file there reads 0 with no payments counted", () => {
     const game = abroad(content);
-    expect(game.state.place).toMatchObject({ where: "abroad", country: UK });
+    expect(game.state.place).toMatchObject({ where: "abroad", country: UK_COUNTRY });
     expect(game.view().credit).toMatchObject({ mark: 0, onTime: 0, missed: 0, judgmentUntil: null });
     expect(checkInvariants(game.state, content)).toEqual([]);
   });
@@ -49,7 +50,7 @@ describe("the file", () => {
     game.accept({ type: "return/home" });
     expect(game.view().credit).toBeNull();
     expect(creditMin(game, 1)).toEqual({ met: false, have: 0, need: 1 });
-    expect(game.state.credit.byCountry[UK]?.mark).toBe(50);
+    expect(game.state.credit.byCountry[UK_COUNTRY]?.mark).toBe(50);
     applyEffects(game, [{ type: "place/move", to: "road", country: null }]);
     expect(game.view().credit).toBeNull();
     expect(creditMin(game, 1).met).toBe(false);
@@ -65,16 +66,16 @@ describe("the file", () => {
       const game = abroad(content);
       markBy(game, before);
       game.accept({ type: "return/home" });
-      applyEffects(game, [{ type: "place/move", to: "abroad", country: UK }]);
+      applyEffects(game, [{ type: "place/move", to: "abroad", country: UK_COUNTRY }]);
       expect(markOf(game)).toBe(after);
       // The first month back takes the penalty off the kept file, and the rent paid that month adds to it.
       const first = game.endTurn();
-      expect(game.state.credit.byCountry[UK]?.mark).toBe(after + CREDIT.onTime);
-      expect(first.lines).toContainEqual({ key: "line.credit.reopened", params: { country: UK, mark: after }, tone: "plain", attention: false, counts: [] });
+      expect(game.state.credit.byCountry[UK_COUNTRY]?.mark).toBe(after + CREDIT.onTime);
+      expect(first.lines).toContainEqual({ key: "line.credit.reopened", params: { country: UK_COUNTRY, mark: after }, tone: "plain", attention: false, counts: [] });
       game.accept({ type: "return/home" });
-      applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA }]);
+      applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA_COUNTRY }]);
       expect(game.view().credit).toMatchObject({ mark: 0, onTime: 0, missed: 0 });
-      expect(game.state.credit.byCountry[UK]?.mark).toBe(after + CREDIT.onTime);
+      expect(game.state.credit.byCountry[UK_COUNTRY]?.mark).toBe(after + CREDIT.onTime);
     },
   );
 });
@@ -98,7 +99,7 @@ describe("payments", () => {
     const game = carer();
     playMonths(game, 4);
     expect(markOf(game)).toBe(8 * CREDIT.onTime);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     expect(markOf(game)).toBe(8 * CREDIT.onTime - 2 * CREDIT.onMiss);
     expect(markOf(game)).toBe(0);
@@ -109,22 +110,22 @@ describe("payments", () => {
     const game = carer();
     playMonths(game, 4);
     // Upkeep is charged first and the phone last: enough for both, not for the rent between them.
-    setPounds(game, entryOf("obligation.upkeep-uk").amount + entryOf(PHONE).amount);
+    setPockets(game, { GBP: entryOf("obligation.upkeep-uk").amount + entryOf(UK_PHONE).amount });
     // December may have opened its scene; the month is what is under test.
     if (game.state.setpiece.open !== null) answerFirst(game);
     const result = game.endTurn();
     expect(markOf(game)).toBe(8 * CREDIT.onTime - CREDIT.onMiss + CREDIT.onTime);
-    expect(result.lines).toContainEqual({ key: "line.credit.missed", params: { country: UK, mark: markOf(game) - CREDIT.onTime }, tone: "bad", attention: false, counts: [] });
+    expect(result.lines).toContainEqual({ key: "line.credit.missed", params: { country: UK_COUNTRY, mark: markOf(game) - CREDIT.onTime }, tone: "bad", attention: false, counts: [] });
   });
 
   test("[R-CREDIT-002] given a file at 0 or at 100, when a payment is missed or made, then the mark stays within 0 to 100 and the payment is still counted", () => {
     const game = carer();
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     expect(game.view().credit).toMatchObject({ mark: 0, missed: 2 });
     markBy(game, 100);
     expect(markOf(game)).toBe(100);
-    setPounds(game, 2 * MONTH_ABROAD);
+    setPockets(game, { GBP: 2 * MONTH_ABROAD });
     playMonths(game, 1);
     expect(game.view().credit).toMatchObject({ mark: 100, onTime: 3 });
     expect(checkInvariants(game.state, content)).toEqual([]);
@@ -133,7 +134,7 @@ describe("payments", () => {
   test("[R-CREDIT-002] given the first payment on an empty file, when it is made, then a line says the file has begun", () => {
     const game = abroad(content);
     const result = game.endTurn();
-    expect(result.lines).toContainEqual({ key: "line.credit.first", params: { country: UK, mark: CREDIT.onTime }, tone: "good", attention: false, counts: [] });
+    expect(result.lines).toContainEqual({ key: "line.credit.first", params: { country: UK_COUNTRY, mark: CREDIT.onTime }, tone: "good", attention: false, counts: [] });
     expect(game.endTurn().lines.filter((line) => line.key.startsWith("line.credit."))).toEqual([]);
   });
 });
@@ -187,7 +188,7 @@ describe("drift", () => {
 
 describe("approval and rates", () => {
   test("[R-CREDIT-004] given a mark one under and at each entry's creditMin, when credit/min is judged, then it is met only from the minimum: phone 10, flat 20, car 30", () => {
-    for (const id of [PHONE, "obligation.rent-flat-uk", "obligation.car"] as Id<"obligation">[]) {
+    for (const id of [UK_PHONE, "obligation.rent-flat-uk", "obligation.car"] as Id<"obligation">[]) {
       const need = entryOf(id).creditMin!;
       const game = abroad(content);
       markBy(game, need - 1);
@@ -195,7 +196,7 @@ describe("approval and rates", () => {
       markBy(game, 1);
       expect(creditMin(game, need)).toEqual({ met: true, have: need, need });
     }
-    expect([PHONE, "obligation.rent-flat-uk", "obligation.car"].map((id) => entryOf(id as Id<"obligation">).creditMin)).toEqual([10, 20, 30]);
+    expect([UK_PHONE, "obligation.rent-flat-uk", "obligation.car"].map((id) => entryOf(id as Id<"obligation">).creditMin)).toEqual([10, 20, 30]);
   });
 
   test.each([
@@ -246,9 +247,9 @@ describe("judgments", () => {
     const month = game.state.turn.month;
     applyEffects(game, [{ type: "credit/judgment" }]);
     const until = month + CREDIT.judgmentMonths;
-    expect(game.state.credit.byCountry[UK]?.judgmentUntil).toBe(until);
-    expect(creditKind.lines?.({ type: "credit/judged", country: UK, until }, game.state, content)).toEqual([
-      { key: "line.credit.judgment", params: { country: UK, until }, tone: "bad", attention: true, counts: [] },
+    expect(game.state.credit.byCountry[UK_COUNTRY]?.judgmentUntil).toBe(until);
+    expect(creditKind.lines?.({ type: "credit/judged", country: UK_COUNTRY, until }, game.state, content)).toEqual([
+      { key: "line.credit.judgment", params: { country: UK_COUNTRY, until }, tone: "bad", attention: true, counts: [] },
     ]);
     expect(text["line.credit.judgment"]).toContain("{until}");
   });
@@ -258,7 +259,7 @@ describe("the view", () => {
   test("[R-CREDIT-007] given a file abroad, when the view is read, then it shows the mark, the counts, the judgment and what each entry needing credit asks, lowest first", () => {
     const game = carer();
     playMonths(game, 1);
-    setPounds(game, 0);
+    setPockets(game, { GBP: 0 });
     playMonths(game, 1);
     applyEffects(game, [{ type: "credit/judgment" }]);
     expect(game.view().credit).toEqual({
@@ -267,7 +268,7 @@ describe("the view", () => {
       missed: 2,
       judgmentUntil: game.state.turn.month + CREDIT.judgmentMonths,
       needs: [
-        { id: PHONE, creditMin: 10 },
+        { id: UK_PHONE, creditMin: 10 },
         { id: "obligation.rent-flat-uk", creditMin: 20 },
         { id: "obligation.car", creditMin: 30 },
       ],
@@ -277,7 +278,7 @@ describe("the view", () => {
   test("[R-CREDIT-007] given a life in Canada, when the view is read, then the needs are Canada's phone and flat and the car, never the UK's", () => {
     const game = abroad(content);
     game.accept({ type: "return/home" });
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA }]);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA_COUNTRY }]);
     expect(game.view().credit?.needs).toEqual([
       { id: "obligation.phone-ca", creditMin: 10 },
       { id: "obligation.rent-flat-ca", creditMin: 20 },

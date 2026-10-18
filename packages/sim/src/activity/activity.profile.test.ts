@@ -8,31 +8,20 @@ import { bp } from "../engine/int";
 import type { Accepted, ActivityEntry, BaseEvent, Id, Money, SlotPick } from "../engine/types";
 import { pointsScore } from "../route/gates/points";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
-import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../testing/route.journey";
+import { applyEffects, raiseSeed, readyLife, slot, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
+import { CANADA_ROUTE, CARE_ROUTE, EDU, NETWORK, NIGHT_SUPPORT, PORTFOLIO, REST, RIDE, STANDING, TALENT, TECH, TUTORING, UK_ROUTE } from "../testing/ids";
 
-const NIGHT: Id<"activity"> = "activity.night-support";
-const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
-const RIDE: Id<"activity"> = "activity.ride-driving";
 const OPEN_SOURCE: Id<"activity"> = "activity.open-source";
 const POSTS: Id<"activity"> = "activity.tech-posts";
 const TALK: Id<"activity"> = "activity.conference-talk";
 const NOTICED: Id<"activity"> = "activity.be-noticed";
 const CERTIFY: Id<"activity"> = "activity.nurse-certification";
 const MASTERS: Id<"activity"> = "activity.masters-at-home";
-const REST: Id<"activity"> = "activity.rest";
-const CANADA: Id<"route"> = "route.canada-points";
-const TALENT: Id<"route"> = "route.uk-talent";
-const CARE_ROUTE: Id<"route"> = "route.uk-care";
 
-const TECH: Id<"quality"> = "quality.tech";
-const NETWORK: Id<"quality"> = "quality.network";
-const PORTFOLIO: Id<"quality"> = "quality.portfolio";
-const STANDING: Id<"quality"> = "quality.standing";
 const CARE: Id<"quality"> = "quality.care";
-const EDU: Id<"quality"> = "quality.edu-level";
 
 interface Credit {
   type: string;
@@ -94,16 +83,6 @@ function holding(scenario: Id<"scenario">, side: Id<"activity">): Game {
   return game;
 }
 
-/** A seed whose first draw on the job stream lands under the chance (or over it, with `hit` false). */
-function seedFor(hit: boolean): string {
-  const chance = content.tuning.activity.raiseChanceBp;
-  for (let n = 0; n < 200; n += 1) {
-    const seed = `notice-${String(n)}`;
-    if (draw(seed, "job", 0, 10000) < chance === hit) return seed;
-  }
-  throw new Error("No seed found.");
-}
-
 describe("side jobs by level", () => {
   test("[R-ACTIVITY-014] given weekend tutoring, when a month is paid at one point under its tier and then at the tier, then the entry's own pay comes first and the tier's pay once its tech is met", () => {
     const tiers = entryOf(TUTORING).tiers ?? [];
@@ -118,10 +97,10 @@ describe("side jobs by level", () => {
   });
 
   test("[R-ACTIVITY-014] given the night shift with two tiers, when both are met, then the highest tier pays, in its own currency to the bank", () => {
-    const tiers = entryOf(NIGHT).tiers ?? [];
+    const tiers = entryOf(NIGHT_SUPPORT).tiers ?? [];
     expect(tiers.length).toBeGreaterThanOrEqual(2);
     const top = tiers.reduce((best, tier) => (figure(tier.pay) > figure(best.pay) ? tier : best));
-    const game = holding("scenario.ada", NIGHT);
+    const game = holding("scenario.ada", NIGHT_SUPPORT);
     for (const tier of tiers) raiseTo(game, tier.min.quality, Math.max(qualityOf(game, tier.min.quality), tier.min.value));
     const paid = credits(month(game, []), "salary");
     expect(paid).toEqual([{ type: "wallet/credited", currency: top.pay.currency, pocket: "bank", amount: figure(top.pay), reason: "salary" }]);
@@ -211,7 +190,7 @@ describe("the developer's acts", () => {
   });
 
   test("[R-ACTIVITY-013] given a job held six months or more, when the draw lands, then the job's pay rises by the tuning's raise from the next month, standing rises, and the raise never comes twice", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
     const noticed = month(game, [slot(NOTICED)]);
@@ -225,7 +204,7 @@ describe("the developer's acts", () => {
   });
 
   test("[R-ACTIVITY-013] given a job held six months or more, when the draw misses, then the pay stays and the month says nobody has said anything yet", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(false) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, false) });
     const job = game.state.activity.job!;
     const missed = month(game, [slot(NOTICED)]);
     expect(missed.events).toContainEqual(expect.objectContaining({ type: "activity/noticed", job, raised: false }));
@@ -268,7 +247,7 @@ describe("each act's outcome told the month it happens", () => {
   });
 
   test("[R-ACTIVITY-013] given the raise lands, when the month is told, then its line carries what the pay goes up by a month and the pay after it", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
     const currency = entryOf(job).pay!.currency;
@@ -281,7 +260,7 @@ describe("each act's outcome told the month it happens", () => {
 
 describe("the raise in the view", () => {
   test("[R-ACTIVITY-013] given the raise lands, when the view is read, then the job carries its pay with the raise and the month it landed, the month of the report that told it", () => {
-    const game = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const game = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     const job = game.state.activity.job!;
     const base = figure(entryOf(job).pay!);
     expect(game.view().job.raise).toBeUndefined();
@@ -295,10 +274,10 @@ describe("the raise in the view", () => {
   });
 
   test("[R-ACTIVITY-013] given the draw misses, or the raised job is left, when the view is read, then the job carries no raise", () => {
-    const missed = start({ content, scenario: "scenario.tunde", seed: seedFor(false) });
+    const missed = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, false) });
     month(missed, [slot(NOTICED)]);
     expect(missed.view().job.raise).toBeUndefined();
-    const raised = start({ content, scenario: "scenario.tunde", seed: seedFor(true) });
+    const raised = start({ content, scenario: "scenario.tunde", seed: raiseSeed(content, true) });
     month(raised, [slot(NOTICED)]);
     expect(raised.view().job.raise).toBeDefined();
     raised.accept({ type: "activity/quit" });
@@ -380,7 +359,7 @@ describe("a master's at home", () => {
     if (opening?.type !== "obligation/open" || typeof opening.principal !== "number") throw new Error("The master's opens no fees.");
     const table = content.points["points.canada"]!;
     const rowOf = (level: number) => table.education.find((row) => row.level === level)?.points ?? NaN;
-    const before = pointsScore(readOf(game), CANADA);
+    const before = pointsScore(readOf(game), CANADA_ROUTE);
     const first = month(game, [slot(MASTERS)]);
     const opened = first.events.find((event) => event.type === "obligation/opened") as unknown as { item: { entry: string; principal: number; monthsLeft: number } } | undefined;
     expect(opened?.item).toMatchObject({ entry: opening.obligation, principal: opening.principal, monthsLeft: content.obligation[opening.obligation]?.term });
@@ -390,9 +369,9 @@ describe("a master's at home", () => {
     expect(game.state.activity.played[MASTERS]).toBe(11);
     month(game, [slot(MASTERS)]);
     expect(qualityOf(game, EDU)).toBe(4);
-    expect(pointsScore(readOf(game), CANADA) - before).toBe(rowOf(4) - rowOf(3));
+    expect(pointsScore(readOf(game), CANADA_ROUTE) - before).toBe(rowOf(4) - rowOf(3));
     expect(allowed(game, MASTERS)).toBe(false);
-    expect(entryOf(MASTERS).counts).toContain(CANADA);
+    expect(entryOf(MASTERS).counts).toContain(CANADA_ROUTE);
   });
 
   test("[R-ACTIVITY-013] given a master's at home three months in, when the character flies, then the course ends with a results line, its fees close, and nothing of it is charged after", () => {
@@ -403,7 +382,7 @@ describe("a master's at home", () => {
     const open = () => Object.values(game.state.obligation.items).filter((item) => item.entry === fees.obligation);
     expect(open()).toHaveLength(1);
     toDecision(game);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(flight.events).toContainEqual(expect.objectContaining({ type: "activity/course-ended", activity: MASTERS }));
     expect(flight.lines).toContainEqual(expect.objectContaining({ key: "line.activity.course-ended", params: { activity: MASTERS } }));
     expect(flight.lines.filter((line) => line.key === "line.activity.course-ended")).toHaveLength(1);
@@ -421,7 +400,7 @@ describe("a master's at home", () => {
       for (let n = 0; n < months; n += 1) month(game, [slot(MASTERS)]);
       expect(qualityOf(game, EDU)).toBe(months === 12 ? 4 : 3);
       toDecision(game);
-      const flight = game.accept({ type: "route/depart", route: UK });
+      const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
       expect(flight.events.filter((event) => event.type === "activity/course-ended")).toEqual([]);
       expect(flight.lines.filter((line) => line.key === "line.activity.course-ended")).toEqual([]);
     }

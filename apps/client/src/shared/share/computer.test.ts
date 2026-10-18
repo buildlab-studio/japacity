@@ -5,12 +5,12 @@ import { describe, expect, test } from "vitest";
 
 import { recordedGame } from "../testing/fixtures";
 import { cardFace, type ShareCard } from "./face";
-import { cardSteps, previewSteps, type Measure } from "./layout";
+import { cardSteps, previewSteps } from "./layout";
+import { measure } from "./share.testing";
 
 const tuning = content.tuning.share;
 const SIZE = { width: tuning.width, height: tuning.height };
 const PREVIEW = { width: tuning.previewWidth, height: tuning.previewHeight };
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 
 /** Every computer character's shown name that is a given name, not a relation ("Your brother"). */
 const COMPUTER_NAMES = Object.keys(content.person)

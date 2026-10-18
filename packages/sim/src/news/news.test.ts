@@ -11,8 +11,8 @@ import type { RouteEvent } from "../route/route.events";
 import { start } from "../testing/play";
 import { firstTick, RANK } from "../testing/world";
 import { standInWorld } from "../world/standIn";
+import { UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
 const RECRUIT: Id<"news"> = "news.uk-unis-recruit";
 
 /**
@@ -155,13 +155,13 @@ describe("for you", () => {
     const recruit = deliveries(played.allLines).find((line) => line.params.story === RECRUIT);
     expect(recruit?.params.forYou).toBe(1);
     expect(recruit?.attention).toBe(recruit?.params.stage === "in-force");
-    expect(played.state.route[UK]?.state).toBe("heard");
+    expect(played.state.route[UK_ROUTE]?.state).toBe("heard");
     expect(played.view().news.find((story) => story.id === RECRUIT)?.forYou).toBe(true);
     for (let tick = 0; tick < 30; tick += 1) played.endTurn();
     // Every story delivered after that one, touching the route the character now knows of, is for them.
     const all = deliveries(played.allLines);
     const after = all.slice(all.findIndex((line) => line.params.story === RECRUIT) + 1);
-    const later = after.filter((line) => line.params.story !== RECRUIT && (firstContent.news[line.params.story as Id<"news">]?.touches.includes(UK) ?? false));
+    const later = after.filter((line) => line.params.story !== RECRUIT && (firstContent.news[line.params.story as Id<"news">]?.touches.includes(UK_ROUTE) ?? false));
     expect(later.length).toBeGreaterThan(0);
     expect(later.every((line) => line.params.forYou === 1 && line.attention === (line.params.stage === "in-force"))).toBe(true);
     // R-NEWS-004: a story asks for attention only once it is in force and for you.
@@ -190,7 +190,7 @@ describe("hearing through the news", () => {
     for (let tick = 0; tick < announced; tick += 1) played.endTurn();
     expect(heard).toEqual([]);
     played.endTurn();
-    expect(heard).toEqual([{ type: "route/hear", route: UK, via: "news" }]);
+    expect(heard).toEqual([{ type: "route/hear", route: UK_ROUTE, via: "news" }]);
   });
 
   test("[R-NEWS-006] given a story at rumour, when it is delivered, then nobody hears of anything until it is announced", () => {
@@ -207,7 +207,7 @@ describe("hearing through the news", () => {
     expect(heard).toEqual([]);
     const announced = deliveries(played.endTurn());
     expect(announced.map((line) => line.params.stage)).toEqual(["announced"]);
-    expect(heard).toEqual([{ type: "route/hear", route: UK, via: "news" }]);
+    expect(heard).toEqual([{ type: "route/hear", route: UK_ROUTE, via: "news" }]);
     expect(played.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
     expect(RANK[played.state.news.delivered[RECRUIT]!.stage]).toBeGreaterThan(RANK.rumour);
   });
@@ -227,23 +227,23 @@ describe("hearing through the news", () => {
     };
     const abroad = play("abroad");
     expect(deliveries(abroad.rumour).map((line) => line.params.stage)).toEqual(["rumour"]);
-    expect(abroad.game.state.route[UK]?.state).toBe("heard");
-    expect(abroad.rumour).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "sibling" }, tone: "good", attention: false, counts: [] });
+    expect(abroad.game.state.route[UK_ROUTE]?.state).toBe("heard");
+    expect(abroad.rumour).toContainEqual({ key: "line.route.heard", params: { route: UK_ROUTE, via: "sibling" }, tone: "good", attention: false, counts: [] });
     const home = play("home");
     expect(deliveries(home.rumour).map((line) => line.params.stage)).toEqual(["rumour"]);
-    expect(home.game.state.route[UK]?.state).toBe("unknown");
+    expect(home.game.state.route[UK_ROUTE]?.state).toBe("unknown");
   });
 
   test("[R-NEWS-006] given the real route kind, when a story with a route to hear is delivered before the route's month for hearing, then the route is heard through the news", () => {
     const announced = firstTick("golden-world", content, RECRUIT, "announced")!;
-    expect(announced + 1).toBeLessThan(content.route[UK]!.hearBy!);
+    expect(announced + 1).toBeLessThan(content.route[UK_ROUTE]!.hearBy!);
     const game = start({ scenario: "scenario.ada", content, worldSeed: "golden-world" });
     for (let tick = 0; tick < announced; tick += 1) game.endTurn();
-    expect(game.state.route[UK]?.state).toBe("unknown");
+    expect(game.state.route[UK_ROUTE]?.state).toBe("unknown");
     const result = game.endTurn();
     expect(game.state.news.delivered[RECRUIT]).toMatchObject({ stage: "announced" });
-    expect(game.state.route[UK]?.state).toBe("heard");
-    expect(result.lines).toContainEqual({ key: "line.route.heard", params: { route: UK, via: "news" }, tone: "good", attention: false, counts: [] });
+    expect(game.state.route[UK_ROUTE]?.state).toBe("heard");
+    expect(result.lines).toContainEqual({ key: "line.route.heard", params: { route: UK_ROUTE, via: "news" }, tone: "good", attention: false, counts: [] });
     expect(deliveries(result.lines).find((line) => line.params.story === RECRUIT)?.params.forYou).toBe(1);
   });
 });

@@ -2,10 +2,11 @@
 // content, so they follow the kinds as they land. The rich one is built by
 // hand on top of a real view, so the screens for offers, routes and the
 // interview can be exercised before the kinds that fill them exist.
+import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
-import { flownAda, lifeSaves, applyEffects, start, type Game } from "@japacity/sim/testing";
+import { applyEffects, flownAda, type Game, lifeSaves, replayedGame, setPockets, start } from "@japacity/sim/testing";
 
 const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -178,19 +179,6 @@ export function recordedSave(name: string): FlatSave {
  */
 export const ABROAD_POCKETS = { GBP: 0, USD: 800_000, NGN: 500_000_000 } as const satisfies Partial<Record<Currency, number>>;
 
-/** Sets each named currency's bank pocket to the amount given and its cash to nothing, through the wallet's own effects. */
-export function setPockets(game: Game, pockets: Partial<Record<Currency, number>>): void {
-  const effects: Effect[] = [];
-  for (const currency of Object.keys(pockets) as Currency[]) {
-    const want = pockets[currency] ?? 0;
-    const held = game.state.wallet.pockets[currency];
-    if (held.cash > 0) effects.push({ type: "money/take", currency, pocket: "cash", amount: held.cash, reason: "social" });
-    if (held.bank > want) effects.push({ type: "money/take", currency, pocket: "bank", amount: held.bank - want, reason: "social" });
-    if (held.bank < want) effects.push({ type: "money/add", currency, pocket: "bank", amount: want - held.bank, reason: "gift" });
-  }
-  if (effects.length > 0) applyEffects(game, effects);
-}
-
 /** Ada's careful life replayed up to and including the flight, with the pockets of `ABROAD_POCKETS`. */
 export function abroadGame(): Game {
   const game = recordedGame("ada-careful");
@@ -346,9 +334,8 @@ export function chargedLivingGame(scenario: Id<"scenario"> = "scenario.ada", see
  * go on from where it ends. `drop` leaves that many of its last commands unplayed.
  */
 export function recordedGame(name: string, drop = 0): Game {
-  const save = recordedSave(name);
-  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
-  for (const { command, sender } of save.commands.slice(0, save.commands.length - drop)) game.accept(command, sender);
+  const { game, commands } = replayedGame(name, content);
+  for (const { command, sender } of commands.slice(0, commands.length - drop)) game.accept(command, sender);
   return game;
 }
 
@@ -387,4 +374,14 @@ export function gameAuthority(game: Game): Authority & { sent: Command[] } {
       return Promise.resolve({ ok: true, view: game.view(), lines: result.lines });
     },
   };
+}
+
+/**
+ * An account as `GET /api/account` answers its owner (R-ACCOUNT-021, R-ACCOUNT-027): a kept account with its email as
+ * the way back in, or a guest with none. A test overrides what it is about.
+ */
+export function accountView(over: Partial<AccountView> = {}): AccountView {
+  const state = over.state ?? "secured";
+  const ways = state === "guest" ? { google: null, email: null, passkeys: 0 } : { google: null, email: "ada@example.com", passkeys: 0 };
+  return { id: "account-1", country: "NG", age: { passed: true, method: "declared" }, createdAt: 1, character: "c-1", sendUsageCounts: true, admin: false, state, username: "ada_lagos", renameFrom: 0, ways, ...over };
 }

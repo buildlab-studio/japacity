@@ -11,12 +11,7 @@ import { start } from "./play";
 import { routeOf } from "./read";
 import { standInWorld } from "../world/standIn";
 import { offerChanceBp } from "../route/route.logic";
-
-export const UK: Id<"route"> = "route.uk-masters";
-export const NORTHGATE: Id<"school"> = "school.northgate";
-export const ASHBY: Id<"school"> = "school.ashby";
-export const KINGSMERE: Id<"school"> = "school.kingsmere";
-export const READY: Id<"scenario"> = "scenario.ready";
+import { NORTHGATE, READY, UK_ROUTE } from "./ids";
 
 /** Smallest units in one naira or one pound. */
 export const UNIT = 100;
@@ -93,7 +88,7 @@ export function slot(activity: Id<"activity">, param: string | null = null): Slo
 }
 
 export function uk(game: Game): RouteState {
-  const held = game.state.route[UK];
+  const held = game.state.route[UK_ROUTE];
   if (held === undefined) throw new Error("The state holds no UK route.");
   return held;
 }
@@ -112,7 +107,7 @@ export function toHeard(game: Game): void {
 export function toKnown(game: Game): void {
   if (uk(game).state === "unknown") toHeard(game);
   expectState(game, "heard");
-  game.endTurn([slot("activity.look-into-route", UK)]);
+  game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
   expectState(game, "known");
 }
 
@@ -130,7 +125,7 @@ export function toOffer(game: Game, school: Id<"school"> = NORTHGATE): void {
 
 export function toDeposit(game: Game, school: Id<"school"> = NORTHGATE): void {
   toOffer(game, school);
-  game.accept({ type: "route/pay-deposit", route: UK, school });
+  game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school });
 }
 
 /** One month end with the deposit paid: the funds check runs once. */
@@ -186,6 +181,23 @@ export function seedWhere(ok: (seed: string) => boolean): string {
     if (ok(seed)) return seed;
   }
   throw new Error("No seed passes.");
+}
+
+/** Whether a seed's first school draw is an offer from Northgate for a grade of 4 (R-ROUTE-007). */
+export function northgateOffers(content: Content, seed: string): boolean {
+  const entry = content.school[NORTHGATE];
+  if (entry === undefined) throw new Error(`The content has no ${NORTHGATE}.`);
+  return draw(seed, "school", 1, 10000) < offerChanceBp(entry, 4, content.tuning.route);
+}
+
+/** The first `notice-n` seed whose job draw lands under the raise chance when `hit`, or over it when not. */
+export function raiseSeed(content: Content, hit: boolean): string {
+  const chance = content.tuning.activity.raiseChanceBp;
+  for (let n = 0; n < 200; n += 1) {
+    const seed = `notice-${String(n)}`;
+    if (draw(seed, "job", 0, 10000) < chance === hit) return seed;
+  }
+  throw new Error("No seed found.");
 }
 
 /** The questions a set piece asks, drawn on `visa` from position `from` out of `pool`, as R-SETPIECE-001 draws them. */
@@ -262,6 +274,14 @@ export function applyEffects(game: Game, effects: Effect[], terms: Terms = {}): 
   const result = stepWith(withEffects(effects, terms), game.state, { type: "offer/choose", offer: "x", choice: "y", basedOn: game.state.v }, game.world(), game.content);
   if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
   game.state = result.state;
+}
+
+/** Sets each named quality to the middle, so a lift or a fall is never lost to a bound. */
+export function middling(game: Game, qualities: readonly Id<"quality">[]): void {
+  applyEffects(
+    game,
+    qualities.map((quality): Effect => ({ type: "quality/add", quality, amount: 50 - (game.state.quality[quality] ?? 0) })),
+  );
 }
 
 /** The route's report lines from carrying out effects as an offer's take would. */

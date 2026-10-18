@@ -3,12 +3,13 @@
 // flat black silhouette in each view on the stage, at the frame and scale the rule gives, and
 // compares it with the traced polygon in outline.json. Writes outline-score.json beside the
 // outline, an overlay picture per view into renders/, and the scores into the register row.
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import type { Page } from "@playwright/test";
 
-import { type CatalogEntry, findEntries, ROOT } from "./catalog";
+import { type CatalogEntry, findEntries } from "./catalog";
+import { isMain, readJson, REPO_ROOT } from "../repo";
 import { readManifest, sha256, writeManifest } from "./manifest";
 import { contourDistance, frameFor, type Mask, maskBounds, type OutlineSettings, polygonBounds, rasterise, centre, scoreView, type ViewScore } from "./outline-score";
 import { encodeIndexedPng } from "./png";
@@ -27,7 +28,7 @@ export interface OutlineView {
 }
 
 export function readSettings(): OutlineSettings {
-  return JSON.parse(readFileSync(join(ROOT, "assets-src", "review.config.json"), "utf8")) as OutlineSettings;
+  return readJson<OutlineSettings>(join(REPO_ROOT, "assets-src", "review.config.json"));
 }
 
 /** The view's picture coordinates from the model's bounds: front [x, y], side [-z, y], plan [x, -z]. */
@@ -61,8 +62,8 @@ function overlay(model: Mask, reference: Mask, shiftBy: [number, number]): Buffe
 }
 
 export async function scoreEntry(page: Page, entry: CatalogEntry, settings: OutlineSettings): Promise<Record<string, ViewScore & { contourDistance?: number }>> {
-  const file = join(ROOT, entry.source, "outline.json");
-  const outline = JSON.parse(readFileSync(file, "utf8")) as { views: OutlineView[] };
+  const file = join(REPO_ROOT, entry.source, "outline.json");
+  const outline = readJson<{ views: OutlineView[] }>(file);
   await page.evaluate(async (o) => {
     await (globalThis as unknown as { stage: { load: (x: unknown) => Promise<unknown> } }).stage.load(o);
   }, { url: `/apps/client/public/assets/${entry.file}`, text: signText() });
@@ -93,17 +94,17 @@ export async function scoreEntry(page: Page, entry: CatalogEntry, settings: Outl
     const reference = centre(rasterise(view.polygon, frame));
     if (view.view === "plan") score.contourDistance = Math.round(contourDistance(centre(model), reference, frame.pxPerMetre) * 100) / 100;
     scores[view.view] = score;
-    const picture = join(ROOT, entry.source, "renders", `outline-${view.view}.png`);
+    const picture = join(REPO_ROOT, entry.source, "renders", `outline-${view.view}.png`);
     const bytes = overlay(centre(model), reference, score.shift);
     writeFileSync(picture, bytes);
-    manifest.renders[relative(ROOT, picture)] = sha256(bytes);
+    manifest.renders[relative(REPO_ROOT, picture)] = sha256(bytes);
   }
   writeManifest(manifest);
-  writeFileSync(join(ROOT, entry.source, "outline-score.json"), `${JSON.stringify({ asset: entry.name, settings, scores }, null, 2)}\n`);
+  writeFileSync(join(REPO_ROOT, entry.source, "outline-score.json"), `${JSON.stringify({ asset: entry.name, settings, scores }, null, 2)}\n`);
   const register = readRegister();
   const row = register.rows.find((candidate) => candidate.file === entry.file);
   if (row !== undefined) {
-    row.outline = { file: relative(ROOT, file), scores: Object.fromEntries(Object.entries(scores).map(([view, s]) => [view, s.score])) };
+    row.outline = { file: relative(REPO_ROOT, file), scores: Object.fromEntries(Object.entries(scores).map(([view, s]) => [view, s.score])) };
     writeRegister(register);
   }
   return scores;
@@ -111,7 +112,7 @@ export async function scoreEntry(page: Page, entry: CatalogEntry, settings: Outl
 
 async function main(): Promise<void> {
   const settings = readSettings();
-  const entries = findEntries(process.argv.slice(2)).filter((entry) => existsSync(join(ROOT, entry.source, "outline.json")));
+  const entries = findEntries(process.argv.slice(2)).filter((entry) => existsSync(join(REPO_ROOT, entry.source, "outline.json")));
   const stage = await openStage();
   try {
     const { page } = await stage.open({ width: 512, height: 512, deviceScaleFactor: 1 });
@@ -130,4 +131,4 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

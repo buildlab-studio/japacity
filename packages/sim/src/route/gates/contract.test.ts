@@ -9,17 +9,16 @@ import type { Content, Ctx, Effect, Id, ReadCtx, Requirement, RouteState, Terms 
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
 import { judge, readOf } from "../../testing/read";
-import { answerFirst, applyEffects, linesOf, readyLife, slot, UK } from "../../testing/route.journey";
+import { answerFirst, applyEffects, linesOf, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { contractGate, contractJob } from "./contract";
+import { AGE, GULF_ROUTE, UK_ROUTE } from "../../testing/ids";
 
-const GULF: Id<"route"> = "route.gulf-contract";
 const APPLY: Id<"activity"> = "activity.apply-gulf-contract";
 const MEDICAL: Id<"document"> = "document.medical";
 const AGENT: Id<"offer"> = "offer.gulf-agent";
-const AGE: Id<"quality"> = "quality.age-months";
-const gulf = content.route[GULF]!;
+const gulf = content.route[GULF_ROUTE]!;
 const numbers = content.tuning.route;
 const MAX_AGE = gulf.contract!.maxAgeMonths;
 
@@ -31,7 +30,7 @@ function life(options: LifeOptions = {}): Game {
   return readyLife(content, { quiet: true, ...options });
 }
 
-function routeOf(game: Game, route: Id<"route"> = GULF): RouteState {
+function routeOf(game: Game, route: Id<"route"> = GULF_ROUTE): RouteState {
   return game.state.route[route]!;
 }
 
@@ -39,8 +38,8 @@ function routeOf(game: Game, route: Id<"route"> = GULF): RouteState {
 function toKnown(game: Game): void {
   // A second ask at the park looks the Gulf into once it is heard (decision 0001), so the hub's look-into is needed only while it is still heard.
   if (routeOf(game).state === "unknown") game.endTurn([slot("activity.ask-around")]);
-  for (let month = 0; month < 5 && routeOf(game, UK).state !== "heard"; month += 1) game.endTurn();
-  if (routeOf(game).state === "heard") game.endTurn([slot("activity.look-into-route", GULF)]);
+  for (let month = 0; month < 5 && routeOf(game, UK_ROUTE).state !== "heard"; month += 1) game.endTurn();
+  if (routeOf(game).state === "heard") game.endTurn([slot("activity.look-into-route", GULF_ROUTE)]);
   expect(routeOf(game).state).toBe("known");
 }
 
@@ -71,7 +70,7 @@ function ready(options: LifeOptions = {}): Game {
 
 /** Sets `secret.sponsorFraud` as the agent's `route/gate-updated` event would, so the override is tested on its own. */
 function hideFraud(game: Game): void {
-  game.state = { ...game.state, route: { ...game.state.route, [GULF]: { ...routeOf(game), secret: { sponsorFraud: true } } } };
+  game.state = { ...game.state, route: { ...game.state.route, [GULF_ROUTE]: { ...routeOf(game), secret: { sponsorFraud: true } } } };
 }
 
 function asCtx(read: ReadCtx): Ctx {
@@ -96,7 +95,7 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
     game.endTurn([slot("activity.ask-around")]);
     expect(routeOf(game).state).toBe("heard");
     toKnown(game);
-    const view = game.view().routes.find((route) => route.id === GULF)!;
+    const view = game.view().routes.find((route) => route.id === GULF_ROUTE)!;
     expect(view.checklist.map((item) => item.id)).toEqual(["passport", "medical", "agent", "police", "applied"]);
   });
 
@@ -107,7 +106,7 @@ describe("R-CONTRACT-001: hearing of the Gulf", () => {
     game.endTurn([slot("activity.ask-around")]);
     expect(routeOf(game).state).toBe("known");
     const ask = content.activity["activity.ask-around"]!.effects;
-    expect(ask[0]).toEqual({ type: "route/look-into", route: GULF });
+    expect(ask[0]).toEqual({ type: "route/look-into", route: GULF_ROUTE });
     expect(ask.findIndex((effect) => effect.type === "route/hear")).toBeGreaterThan(0);
   });
 
@@ -162,7 +161,7 @@ describe("R-CONTRACT-002: the agent", () => {
     takeAgent(fraud, GUARD, true);
     expect(fraud.state.wallet).toEqual(honest.state.wallet);
     expect(routeOf(fraud).gate).toEqual(routeOf(honest).gate);
-    const view = (game: Game) => game.view().routes.find((route) => route.id === GULF);
+    const view = (game: Game) => game.view().routes.find((route) => route.id === GULF_ROUTE);
     expect(view(fraud)).toEqual(view(honest));
   });
 
@@ -170,7 +169,7 @@ describe("R-CONTRACT-002: the agent", () => {
     const game = life();
     toKnown(game);
     expect(linesOf(game, agentEffects(false), GUARD)).toEqual([
-      { key: "line.route.agent-recorded", params: { route: GULF }, tone: "plain", attention: true, counts: [] },
+      { key: "line.route.agent-recorded", params: { route: GULF_ROUTE }, tone: "plain", attention: true, counts: [] },
     ]);
     expect(text["line.route.agent-recorded"]).toBeDefined();
   });
@@ -181,10 +180,10 @@ describe("R-CONTRACT-002: the agent", () => {
     expect(contractGate.steps).toEqual(["sponsor"]);
     expect(contractGate.initial()).toEqual({ gate: "contract", agent: null });
     expect(unknownRoute("contract").gate).toEqual({ gate: "contract", agent: null });
-    expect(judge(game, { type: "route/gate-step", route: GULF, step: "sponsor" })).toBe(false);
+    expect(judge(game, { type: "route/gate-step", route: GULF_ROUTE, step: "sponsor" })).toBe(false);
     takeAgent(game);
-    expect(judge(game, { type: "route/gate-step", route: GULF, step: "sponsor" })).toBe(true);
-    expect(judge(game, { type: "route/gate-step", route: GULF, step: "salary" })).toBe(false);
+    expect(judge(game, { type: "route/gate-step", route: GULF_ROUTE, step: "sponsor" })).toBe(true);
+    expect(judge(game, { type: "route/gate-step", route: GULF_ROUTE, step: "salary" })).toBe(false);
   });
 });
 
@@ -268,7 +267,7 @@ describe("R-CONTRACT-003: applying and the decision", () => {
     "[R-GATE-002] given any file, when the contract's chance is worked out, then it is the route's base alone between the floor and the ceiling",
     (unexplainedBp, interviewScore, strictness, refusals, grade) => {
       const held: RouteState = { ...unknownRoute("contract"), state: "applying", refusals };
-      const read = { state: { route: { [GULF]: held } }, world: { vars: {} }, content } as unknown as ReadCtx;
+      const read = { state: { route: { [GULF_ROUTE]: held } }, world: { vars: {} }, content } as unknown as ReadCtx;
       const decision = contractGate.decision(read, gulf, held);
       expect(decision.override).toBeNull();
       const got = refusalChanceBp(numbers, gulf.refusalBaseBp, { strictness, unexplainedBp, refusals, interviewScore, grade }, decision.terms);
@@ -282,7 +281,7 @@ describe("R-CONTRACT-004: going out on the contract", () => {
     const game = ready({ tuning: ALWAYS_GRANTED });
     game.endTurn([slot(APPLY)]);
     game.endTurn();
-    game.accept({ type: "route/depart", route: GULF });
+    game.accept({ type: "route/depart", route: GULF_ROUTE });
     expect(routeOf(game).state).toBe("departed");
     expect(game.state.status.current?.entry).toBe("status.gulf-worker");
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uae" });
@@ -319,7 +318,7 @@ describe("the Gulf contract renewed by the employer", () => {
     const game = ready({ tuning: ALWAYS_GRANTED, change: renewAt(renewBp) });
     game.endTurn([slot(APPLY)]);
     game.endTurn();
-    game.accept({ type: "route/depart", route: GULF });
+    game.accept({ type: "route/depart", route: GULF_ROUTE });
     const expires = game.state.status.current!.expiresMonth!;
     while (game.state.turn.month < expires - 2) month(game);
     expect(game.state.status.current?.entry).toBe(WORKER);
@@ -356,7 +355,7 @@ describe("the Gulf contract renewed by the employer", () => {
     const game = ready({ tuning: ALWAYS_GRANTED, change: renewAt(10000) });
     game.endTurn([slot(APPLY)]);
     game.endTurn();
-    game.accept({ type: "route/depart", route: GULF });
+    game.accept({ type: "route/depart", route: GULF_ROUTE });
     const expires = game.state.status.current!.expiresMonth!;
     const before = game.state.status.current!;
     for (let played = 0; played < 3; played += 1) month(game);

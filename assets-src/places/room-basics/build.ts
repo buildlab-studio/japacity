@@ -5,16 +5,9 @@
 // the pot's steam is the room's smoke motion, the fetched water a model of its own over the drum.
 import { setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad } from "@japacity/assets/kit";
-import { Group, type Object3D } from "three";
+import { Group } from "three";
 
-/** A group at (x, y, z) turned ry, to draw a part in its own frame. */
-function frame(g: Object3D, x: number, y: number, z: number, ry = 0): Group {
-  const part = new Group();
-  part.position.set(x, y, z);
-  part.rotation.y = ry;
-  g.add(part);
-  return part;
-}
+import { at } from "../../prop/parts";
 
 /** Where the pot sits in the cooking corner's frame, for the steam over it. */
 export const POT_AT: [number, number, number] = [-0.2, 0.82, 0.02];
@@ -91,7 +84,7 @@ export function buildDrumWater(): Group {
   g.name = "prop_drum-water";
   cylinder(g, WATER_R, 0.02, 0, DRUM_H + 0.06, 0, "lagoon", 14);
   for (const [x, z, turn] of [[-0.48, 0.18, 0.3], [-0.42, -0.26, -0.2]] as const) {
-    const can = frame(g, x, 0, z, turn);
+    const can = at(g, x, z, turn);
     box(can, 0.26, 0.4, 0.16, 0, 0, 0, "danfoYellow");
     box(can, 0.06, 0.06, 0.06, 0.07, 0.4, 0, "danfoYellow");
     beam(can, [-0.08, 0.4, 0], [0.0, 0.46, 0], 0.03, "danfoYellow");
@@ -136,7 +129,7 @@ export function buildLantern(): Group {
   const seat = 0.45;
   box(g, 0.4, 0.04, 0.4, 0, seat - 0.04, 0, "wood");
   for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) box(g, 0.04, seat - 0.04, 0.04, x * 0.16, 0, z * 0.16, "darkWood");
-  const lamp = frame(g, 0, seat, 0);
+  const lamp = at(g, 0, 0, 0, seat);
   cylinder(lamp, 0.09, 0.06, 0, 0, 0, "red", 10);
   cylinder(lamp, 0.06, 0.16, 0, 0.06, 0, "orange", 10, 0.05);
   cylinder(lamp, 0.07, 0.04, 0, 0.22, 0, "red", 10, 0.04);

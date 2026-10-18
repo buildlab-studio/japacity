@@ -26,15 +26,11 @@ import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../shared/frontdoor/looks"
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
 import { FULL_PROLOGUE_KEY, PERSON_KEY, SAVE_KEY } from "../shared/kept/storage";
+import { memoryStorage } from "../shared/testing/storage";
 
 const FIXED = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** Every starting life's person's name, first names included: none may be offered at the door. */
 const NAMED = FIXED.flatMap((id) => (text[`${id}.name`] ?? "").split(/[\s,"]+/).filter((word) => word.length > 2));
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
 
 function seeds(): () => string {
   let next = 0;

@@ -15,10 +15,8 @@ import type { Game, Loose } from "../testing/play";
 import { readOf } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { chapterKind } from "./chapter.logic";
+import { FEET, FILE, UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
-const FEET: Id<"chapter"> = "chapter.find-your-feet";
-const FILE: Id<"chapter"> = "chapter.build-the-file";
 const ONE: Id<"chapter"> = "chapter.one";
 const TWO: Id<"chapter"> = "chapter.two";
 const cap = miniContent.tuning.turn.cap;
@@ -59,12 +57,12 @@ describe("closing a chapter", () => {
       const result = game.endTurn();
       expect(result.events.filter((event) => event.type.startsWith("chapter/"))).toEqual([]);
     }
-    expect(game.state.route[UK]?.state).toBe("heard");
+    expect(game.state.route[UK_ROUTE]?.state).toBe("heard");
     expect(game.state.chapter).toEqual({ current: FEET, done: [] });
     expect(game.state.turn.banked).toBe(cap - 3);
 
-    const result = game.endTurn([slot("activity.look-into-route", UK)]);
-    expect(game.state.route[UK]?.state).toBe("known");
+    const result = game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("known");
     const types = result.events.map((event) => event.type);
     expect(result.events.find((event) => event.type === "chapter/closed")).toEqual({ type: "chapter/closed", chapter: FEET, next: FILE });
     // The close comes first, then the refill it pays for, then the report.
@@ -102,7 +100,7 @@ describe("closing a chapter", () => {
   test("[R-CHAPTER-002] given a chapter closing, when its lines are read, then the close asks for attention and the opening is quiet, and both have words", () => {
     const game = tunde();
     toHeard(game);
-    const result = game.endTurn([slot("activity.look-into-route", UK)]);
+    const result = game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
     expect(chapterLines(result.lines)).toEqual([
       { key: "line.chapter.closed", params: { chapter: FEET }, tone: "good", attention: true, counts: [] },
       { key: "line.chapter.opened", params: { chapter: FILE }, tone: "plain", attention: false, counts: [] },
@@ -135,7 +133,7 @@ describe("a chapter that one item closes", () => {
     // The first pass finds the command whose turn brings the grant.
     const granting = save.commands.findIndex(({ command, tick, sender }) => {
       send(command, tick, sender);
-      return state.route[UK]?.state === "granted";
+      return state.route[UK_ROUTE]?.state === "granted";
     });
     expect(granting).toBeGreaterThan(0);
     state = newState(save.scenario, save.seed, used);
@@ -161,7 +159,7 @@ describe("a chapter that one item closes", () => {
   test("[R-CHAPTER-002] given the tunde-borrower golden with its funds no longer held while the visa is pending, when the grant comes, then decision day closes on `granted` alone", () => {
     expect(content.chapter[DECISION]?.closesOn).toBe("granted");
     const { result, state, world } = grantWithHeldLapsed(content);
-    expect(state.route[UK]?.state).toBe("granted");
+    expect(state.route[UK_ROUTE]?.state).toBe("granted");
     expect(check({ state, world, content }, HELD).met).toBe(false);
     expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off" });
     expect(state.chapter.current).toBe("chapter.send-off");
@@ -174,10 +172,10 @@ describe("a chapter that one item closes", () => {
     delete open.closesOn;
     const without: Content = { ...content, chapter: { ...content.chapter, [DECISION]: open } };
     const { result, state, world } = grantWithHeldLapsed(without);
-    expect(state.route[UK]?.state).toBe("granted");
+    expect(state.route[UK_ROUTE]?.state).toBe("granted");
     expect(check({ state, world, content: without }, HELD).met).toBe(false);
     // R-CHAPTER-003: the grant clause closed it, so the close carries the route.
-    expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off", onGrant: UK });
+    expect(result.events).toContainEqual({ type: "chapter/closed", chapter: DECISION, next: "chapter.send-off", onGrant: UK_ROUTE });
     expect(state.chapter.current).toBe("chapter.send-off");
   });
 
@@ -222,7 +220,7 @@ describe("done stays done", () => {
     const game = tunde();
     toKnown(game);
     // No event takes a route back along an arrow (R-ROUTE-001), so the slip is written into the state.
-    writeRoute(game, UK, "heard");
+    writeRoute(game, UK_ROUTE, "heard");
     game.endTurn();
     expect(game.state.chapter).toEqual({ current: FILE, done: [FEET] });
     expect(done(game, FEET)).toBe(true);

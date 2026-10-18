@@ -2,12 +2,13 @@
 // through the real route kind, months played abroad, and a registry that
 // records the obligation closes asked for. Nothing in the simulation imports this file.
 import type { Registry } from "../engine/kind";
-import type { BaseEvent, Content, Ctx, Effect, ObligationType } from "../engine/types";
+import type { BaseEvent, Content, Ctx, Effect, Id, ObligationType } from "../engine/types";
 import { registry } from "../kinds";
-import { answerFirst, draw, NORTHGATE, readyLife, seedWhere, toDecision, UK } from "./route.journey";
+import { answerFirst, draw, readyLife, seedWhere, toDecision } from "./route.journey";
 import type { LifeOptions } from "./route.journey";
 import { offerChanceBp } from "../route/route.logic";
 import type { Game } from "./play";
+import { NORTHGATE, UK_ROUTE } from "./ids";
 
 /** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
 export const ALWAYS_GRANTED = { refusalMinBp: 0, refusalMaxBp: 0 };
@@ -44,7 +45,7 @@ export function recordingCloses(closed: ObligationType[]): Registry {
 export function flown(content: Content, options: LifeOptions = {}): Game {
   const game = readyLife(content, { seed: offeredSeed(content), ...options, tuning: { ...ALWAYS_GRANTED, ...options.tuning } });
   toDecision(game);
-  game.accept({ type: "route/depart", route: UK });
+  game.accept({ type: "route/depart", route: UK_ROUTE });
   return game;
 }
 
@@ -55,4 +56,11 @@ export function playMonths(game: Game, count: number): void {
     if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
     game.endTurn();
   }
+}
+
+/** A place's position in the content, which must have one. */
+export function positionOf(content: Content, id: string): { latE3: number; lonE3: number } {
+  const position = content.place[id as Id<"place">]?.position;
+  if (position === null || position === undefined) throw new Error(`${id} has no position.`);
+  return position;
 }

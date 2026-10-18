@@ -4,13 +4,13 @@
 import { content, text } from "@japacity/content";
 import { int, applyOverlay } from "@japacity/sim";
 import type { Game } from "@japacity/sim/testing";
-import { applyEffects, start } from "@japacity/sim/testing";
+import { applyEffects, setPockets, start } from "@japacity/sim/testing";
 import { act, fireEvent, render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { GameProvider } from "../../../authority/GameProvider";
 import { createGameStore } from "../../../authority/store";
-import { gameAuthority, newGame, setPockets } from "../../../shared/testing/fixtures";
+import { gameAuthority, newGame } from "../../../shared/testing/fixtures";
 import "../../../shared/testing/render";
 import { formatMoney } from "../../../shared/words/format";
 import { PhoneApps } from "../PhoneApps";

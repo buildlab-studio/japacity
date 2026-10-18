@@ -18,14 +18,11 @@ import { thingSpot, vehicleOf } from "../scene/things";
 import { frontageTests } from "./frontage.testing";
 import { copiesOf, staged, wordsOf } from "./place.testing";
 import { cityWords } from "../city.words";
+import { thingIn } from "../../../shared/testing/things";
 
 const ID = "place.makoko";
 const { file, stage, entry } = staged(raw, ID);
-const thing = (id: string) => {
-  const found = (stage.things ?? []).find((candidate) => candidate.id === id);
-  if (found === undefined) throw new Error(`No ${id}`);
-  return found;
-};
+const thing = (id: string) => thingIn(stage.things, id);
 /** The water's highest ripple over the grid's own height: the three waves of the water shader at their crests. */
 const CREST = 0.075 + 0.045 + 0.02;
 const water = stage.motion.filter((motion) => motion.kind === "water");

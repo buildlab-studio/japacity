@@ -12,11 +12,7 @@ import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
 import "../shared/testing/render";
 import { SAVE_KEY } from "../shared/kept/storage";
-
-function memoryStorage() {
-  const items = new Map<string, string>();
-  return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => void items.set(key, value) };
-}
+import { memoryStorage } from "../shared/testing/storage";
 
 describe("the app", () => {
   test("given no save, when a life is picked and a month ended, then the results of month 1 open over the world", async () => {

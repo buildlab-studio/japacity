@@ -1,4 +1,5 @@
 import { blockedWords, reservedNames } from "@japacity/content";
+import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { harness, makeJar } from "../auth/auth.testing";
@@ -8,8 +9,6 @@ import { generatedUsername, nameProblem, renameFrom } from "./username";
 afterEach(() => {
   vi.useRealTimers();
 });
-
-const DAY_MS = 86_400_000;
 
 describe("the username's text", () => {
   test("[R-ACCOUNT-024] given names at the edges of the shape, when each is judged, then 3 and 20 letters, digits or underscores pass and 2, 21 or any other sign do not", () => {
@@ -40,7 +39,7 @@ describe("the username's text", () => {
 
   test("[R-ACCOUNT-024] given an account, when its next change is read, then the free change is open at once and each later one waits renameDays", () => {
     expect(renameFrom({ usernameChangedAt: null }, productionConfig)).toBe(0);
-    expect(renameFrom({ usernameChangedAt: 5_000 }, productionConfig)).toBe(5_000 + productionConfig.account.renameDays * DAY_MS);
+    expect(renameFrom({ usernameChangedAt: 5_000 }, productionConfig)).toBe(5_000 + productionConfig.account.renameDays * time.DAY_MS);
   });
 
   test("[R-ACCOUNT-024] given random bytes, when a name is generated for a reset, then it has the shape and passes the lists", () => {
@@ -86,7 +85,7 @@ describe("the username on the server", () => {
     expect(await (await rename("Bola_Abuja")).json()).toMatchObject({ code: "not-legal", name: "taken" });
     const first = await rename("Ada_Ibadan");
     expect(first.status).toBe(200);
-    const waitUntil = start + productionConfig.account.renameDays * DAY_MS;
+    const waitUntil = start + productionConfig.account.renameDays * time.DAY_MS;
     expect(await first.json()).toMatchObject({ ok: true, account: { id: account, username: "Ada_Ibadan", renameFrom: waitUntil } });
 
     vi.setSystemTime(waitUntil - 1);

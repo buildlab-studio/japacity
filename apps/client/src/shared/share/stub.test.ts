@@ -5,31 +5,20 @@ import { content, japaTypes, shareKinds, text, type JapaType } from "@japacity/c
 import type { PlayerView } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { recordedGame } from "../testing/fixtures";
 import { japaTypeOf } from "../words/japaType";
 import { ART_IDS, artShapes } from "./art";
 import { QUALITIES } from "./encode";
 import { playedWords } from "./face";
 import { fakeCanvas } from "./canvas.testing";
-import type { MarkStep, Measure, Step, TextStep } from "./layout";
+import type { MarkStep, Step, TextStep } from "./layout";
 import { renderStub } from "./render";
+import { adaSendOff, measure, texts } from "./share.testing";
 import { stubFace, stubSize, stubSteps } from "./stub";
 
 const tuning = content.tuning.share;
 const SIZE = stubSize(tuning);
-const measure: Measure = (words, size) => Math.round(words.length * size * 0.55);
 
 type Card = NonNullable<PlayerView["card"]>;
-
-function adaSendOff(): PlayerView {
-  const view = recordedGame("ada-careful").view();
-  if (view.card?.kind !== "send-off") throw new Error("Ada's recorded life does not end at the send-off.");
-  return view;
-}
-
-function texts(steps: readonly Step[]): TextStep[] {
-  return steps.filter((step): step is TextStep => step.op === "text");
-}
 
 function role(steps: readonly Step[], wanted: TextStep["role"]): string[] {
   return texts(steps)

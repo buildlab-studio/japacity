@@ -6,37 +6,24 @@ import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { resetLines, tell } from "../../shared/world/Lines";
 import { markTaught } from "../../shared/world/taught";
 import { DONE_TOAST_MS, doneToast } from "./brief/brief";
 import { City } from "./City";
+import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
 vi.mock("./scene/CityScene", async () => ({ default: (await import("./fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("../../shared/three/manifest", async (original) => {
-  const real = await original<typeof import("../../shared/three/manifest")>();
-  const fs = await import("node:fs");
-  const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "..", "..", "public", "assets");
-  return {
-    ...real,
-    loadManifest: () => Promise.resolve({ files: {} }),
-    loadJson: (_manifest: unknown, under: string) => {
-      const file = path.join(assets, under);
-      return Promise.resolve(fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, "utf8")) as unknown) : null);
-    },
-  };
-});
+vi.mock("../../shared/three/manifest", async (original) => (await import("../../shared/testing/manifest")).fromDisk(original));
 
 const SCREEN = { width: window.innerWidth, height: window.innerHeight };
 
 beforeEach(() => {
-  Object.defineProperty(window, "WebGL2RenderingContext", { value: class {}, configurable: true });
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ({}) as never);
+  stubWebGL();
   
   // A phone held upright, as the game is built for.
   Object.defineProperty(window, "innerWidth", { value: 390, configurable: true });
@@ -47,16 +34,10 @@ afterEach(() => {
   vi.restoreAllMocks();
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
-  Reflect.deleteProperty(window, "WebGL2RenderingContext");
+  unstubWebGL();
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 
 const world = () => <City world results={(place) => <p data-results-for={place} />} />;
