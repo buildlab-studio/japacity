@@ -10,7 +10,7 @@ import { isReported } from "../../shared/net/http";
 import { Button } from "../../shared/ui/Button";
 import { say } from "../../shared/words/text";
 import type { LoadTurnstile } from "./Turnstile";
-import { useUnseenCheck } from "./unseenCheck";
+import { useUnseenCheck } from "./useUnseenCheck";
 
 /** R-ACCOUNT-024's shape, as the server holds it (apps/server/src/account/username.ts); the lists stay the server's. */
 const USERNAME = /^[A-Za-z0-9_]{3,20}$/;

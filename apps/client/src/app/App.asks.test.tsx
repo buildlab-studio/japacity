@@ -12,7 +12,7 @@ import { createGameStore, type GameStore } from "../authority/store";
 import { makeCounters, type CounterRow } from "../shared/analytics/counters";
 import { countInto } from "../shared/analytics/start";
 import { CardView } from "../features/card/ShareCard";
-import { HeldShareCard } from "../features/notify/held";
+import { HeldShareCard } from "../features/notify/HeldShareCard";
 import { engineView, fakeAuthority } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { cardKey } from "../shared/ui/stage";

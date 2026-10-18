@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { assetUrl, loadManifest } from "../three/manifest";
-import { Glyph } from "./glyphs";
+import { Glyph } from "./Glyph";
 import { tileOf } from "./tiles.data";
 
 /** The published URL of a model's tile, null until the manifest is read or when it is not published. */

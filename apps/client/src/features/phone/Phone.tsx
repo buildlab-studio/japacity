@@ -9,7 +9,7 @@ import { invertedTransform, layoutBox, type LayoutBox, motionOn } from "../../sh
 import type { PhoneApp } from "../../shared/world/contract";
 import { tell, useLines } from "../../shared/world/Lines";
 import { PhoneBack, PhoneSaid } from "./act";
-import { PhoneIcon } from "./icons";
+import { PhoneIcon } from "./PhoneIcon";
 import { phoneWords } from "./phone.words";
 
 export interface PhoneProps {

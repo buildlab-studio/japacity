@@ -10,7 +10,7 @@ import type { PlayerCommand } from "../../authority/store";
 import { formatMoney } from "../../shared/words/format";
 import { AskSheet } from "../../shared/world/AskSheet";
 import type { Ask } from "../../shared/world/contract";
-import { iconFor } from "./icons";
+import { iconFor } from "./PhoneIcon";
 import { phoneWords } from "./phone.words";
 
 /** The phone's told line: an app says what happened, the corner over the handset shows it (R-WORLD-026). */
