@@ -55,7 +55,7 @@ function fakeAccount(over: Partial<AccountApi> = {}): AccountApi & { calls: stri
     addPasskey: log("addPasskey"),
     email: () => Promise.resolve(null),
     deleteAccount: log("deleteAccount"),
-    signOut: () => (calls.push("signOut()"), Promise.resolve()),
+    signOut: () => (calls.push("signOut()"), Promise.resolve({ ok: true })),
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: () => Promise.resolve(true),
     ...over,
@@ -239,6 +239,15 @@ describe("a guest who has a kept life already (account:guest-secures-the-life)",
     expect(await screen.findByRole("heading", { name: say("ui.account.returning.title") })).toBeDefined();
     expect(screen.getByLabelText<HTMLInputElement>(say("ui.account.email.label")).value).toBe("ada@example.test");
     expect(store.getState().accountNotice).toBeNull();
+  });
+
+  test("[account:guest-secures-the-life] [account:sign-out-ends-the-session] given Open my kept life when the sign-out does not reach the server, then the guest stays in and is told, and the ways back in do not open", async () => {
+    const account = guest({ signOut: () => Promise.resolve({ ok: false, why: "sign-out" }) });
+    const store = await signedInGuest(account, <KeepThenGate account={account} taken />);
+    fireEvent.click(await button("ui.secure.taken.open"));
+    expect(await screen.findByText(say("ui.account.fail.sign-out"))).toBeDefined();
+    expect(store.getState().signedOut).toBe(false);
+    expect(screen.queryByRole("heading", { name: say("ui.account.returning.title") })).toBeNull();
   });
 
   test("[account:guest-secures-the-life] given Google came back saying its address already has a life, then the sheet offers the kept life too, with no address to fill", async () => {

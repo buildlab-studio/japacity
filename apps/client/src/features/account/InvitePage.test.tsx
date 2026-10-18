@@ -77,7 +77,12 @@ function account(age: AgeAnswer = "passed", afterSignIn: () => void = () => unde
     addPasskey: ok,
     email: () => Promise.resolve(null),
     deleteAccount: ok,
-    signOut: () => Promise.resolve(),
+    signOut: ok,
+    signOutEverywhere: ok,
+    passkeysWork: () => Promise.resolve(true),
+    passkeys: () => Promise.resolve([]),
+    removePasskey: () => Promise.resolve({ ok: true, signedIn: true }),
+    confirmWithPasskey: ok,
     usageCounts: () => Promise.resolve(null),
     setUsageCounts: () => Promise.resolve(true),
   };

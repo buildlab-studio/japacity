@@ -27,6 +27,7 @@ import { emailOTPClient } from "better-auth/client/plugins";
 
 import { forgetAccount, putUsageCounts, readAccount } from "./account";
 import { api, type Fetch, pageFetch, requestFetch } from "./http";
+import { providerOf } from "./providers";
 import { pageWall, type WallGuard } from "./wall";
 
 /**
@@ -36,8 +37,29 @@ import { pageWall, type WallGuard } from "./wall";
  * `passkey-first`: account:passkey-needs-signed-in-session's refusal of a new passkey on an admin account from a session not opened with a passkey.
  * `not-linked`: Google on an address whose life was kept by a code, where the library would not join the two
  * (its `account_not_linked`); the player is pointed to the code (account:guest-secures-the-life).
+ * `already-here`: this phone already holds a passkey for the account; `passkey-gone`: the phone offered a passkey the
+ * account no longer has; `other-account`: the phone answered with a passkey of another account, never sent on
+ * (account:passkey-errors-told-apart, account:player-deletes-account).
+ * `sign-out`: a sign-out that did not reach the server (account:sign-out-ends-the-session).
  */
-type AuthFailure = "not-fresh" | "bad-code" | "wrong-code" | "expired" | "too-many" | "cancelled" | "unreachable" | "refused" | "no-life" | "taken" | "guest-only" | "passkey-first" | "not-linked";
+type AuthFailure =
+  | "not-fresh"
+  | "bad-code"
+  | "wrong-code"
+  | "expired"
+  | "too-many"
+  | "cancelled"
+  | "unreachable"
+  | "refused"
+  | "no-life"
+  | "taken"
+  | "guest-only"
+  | "passkey-first"
+  | "not-linked"
+  | "already-here"
+  | "passkey-gone"
+  | "other-account"
+  | "sign-out";
 
 /** Why the page leaves for Google: to keep a guest's life (account:guest-secures-the-life), or to sign back in to a kept one. */
 type GoogleTrip = "keep" | "sign-in";
@@ -46,6 +68,19 @@ type GoogleTrip = "keep" | "sign-in";
 type GoogleDone = "kept" | "signed-in";
 
 export type AuthResult = { ok: true } | { ok: false; why: AuthFailure };
+
+/** account:passkeys-listed-and-removed: one passkey of the signed-in account as its sheet lists it. */
+export interface PasskeyRow {
+  /** The passkey row's id, which removing it names. */
+  id: string;
+  /** The provider's name from the passkey's AAGUID, or null where the authenticator does not say (an iPhone's, among others). */
+  provider: string | null;
+  /** When it was added, in ms since 1970. */
+  addedAt: number;
+}
+
+/** account:passkeys-listed-and-removed: a passkey removed, and whether this phone's session lived through it. */
+export type RemoveAnswer = { ok: true; signedIn: boolean } | { ok: false; why: AuthFailure };
 
 export type AgeStanding = "unasked" | "passed" | "refused";
 
@@ -92,8 +127,20 @@ export interface AccountApi {
   signInWithPasskey(): Promise<AuthResult>;
   /** account:passkey-in-email-autofill: the passkey offered in the email field's autofill; resolves once one is picked, or with why it stopped. */
   signInWithPasskeyAutofill?(): Promise<AuthResult>;
-  /** account:passkey-needs-signed-in-session: only from a signed-in session. */
+  /** account:passkey-needs-signed-in-session: only from a signed-in session; a session older than the server's fresh age is told `not-fresh`. */
   addPasskey(): Promise<AuthResult>;
+  /** account:passkey-offered-where-it-works: whether this browser can make a passkey on this phone or through a phone nearby. */
+  passkeysWork(): Promise<boolean>;
+  /** account:passkeys-listed-and-removed: the signed-in account's passkeys, oldest first, or null when the server cannot say. */
+  passkeys(): Promise<PasskeyRow[] | null>;
+  /** account:passkeys-listed-and-removed: removes one of the account's passkeys. */
+  removePasskey(id: string): Promise<RemoveAnswer>;
+  /**
+   * account:player-deletes-account, account:passkey-needs-signed-in-session: signs in again with one of the signed-in account's own
+   * passkeys, for a fresh session. The phone's answer is checked against the account's passkeys before it goes to the
+   * server, so a passkey of another account never opens a session here (`other-account`).
+   */
+  confirmWithPasskey(): Promise<AuthResult>;
   /** The signed-in account's email, where it has one. */
   email(): Promise<string | null>;
   /** analytics:player-can-stop-usage-counts: the account's "Send usage counts", or null when the server does not say. */
@@ -105,7 +152,10 @@ export interface AccountApi {
    * session that is no longer fresh. `not-fresh`: sign in again or send a code; `bad-code`: that code did not work.
    */
   deleteAccount(code: string | null): Promise<AuthResult>;
-  signOut(): Promise<void>;
+  /** account:sign-out-ends-the-session: ends this session on the server; `sign-out` when the server was not reached. */
+  signOut(): Promise<AuthResult>;
+  /** account:sign-out-ends-the-session: ends every session of the account, this one too. */
+  signOutEverywhere(): Promise<AuthResult>;
 }
 
 /** The header Better Auth's captcha plugin reads the Turnstile token from. */
@@ -115,6 +165,9 @@ interface LibraryError {
   code?: string | undefined;
   status: number;
 }
+
+/** The refusal the seam itself gives a passkey of another account, in place of the server's answer (account:player-deletes-account). */
+const OTHER_ACCOUNT = "OTHER_ACCOUNT";
 
 /** The library's error codes this game tells apart; every other one is a plain refusal. */
 const FAILURES: Record<string, AuthFailure> = {
@@ -128,6 +181,13 @@ const FAILURES: Record<string, AuthFailure> = {
   TOO_MANY_ATTEMPTS: "too-many",
   AUTH_CANCELLED: "cancelled",
   REGISTRATION_CANCELLED: "cancelled",
+  // account:passkey-errors-told-apart: SimpleWebAuthn's codes. The browser's NotAllowedError (a cancel, a timeout, no passkey found)
+  // comes through as the pass-through code; an abort as the ceremony's.
+  ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY: "cancelled",
+  ERROR_CEREMONY_ABORTED: "cancelled",
+  ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED: "already-here",
+  PASSKEY_NOT_FOUND: "passkey-gone",
+  [OTHER_ACCOUNT]: "other-account",
   // The library's OAuth callback says its refusal with spaces made underscores (better-auth's oauth2/link-account).
   account_not_linked: "not-linked",
 };
@@ -155,6 +215,72 @@ async function attempt(run: () => Promise<{ error: LibraryError | null }>, bySta
 }
 
 const botHeaders = (bot: string | null) => (bot === null ? {} : { headers: { [CAPTCHA_HEADER]: bot } });
+
+/** The parts of the WebAuthn statics this game asks for; each may be missing in an older browser, whatever the types say. */
+interface PasskeyStatics {
+  getClientCapabilities?: () => Promise<Record<string, boolean | undefined>>;
+  isUserVerifyingPlatformAuthenticatorAvailable?: () => Promise<boolean>;
+  signalUnknownCredential?: (options: { rpId: string; credentialId: string }) => Promise<void>;
+}
+
+function passkeyStatics(): PasskeyStatics | null {
+  const statics = (globalThis as { PublicKeyCredential?: PasskeyStatics }).PublicKeyCredential;
+  return typeof statics === "function" ? statics : null;
+}
+
+/**
+ * account:passkey-offered-where-it-works: a passkey can be made where the phone has its own authenticator or can use a phone
+ * nearby (https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential/getClientCapabilities_static); a
+ * browser without the capabilities call is asked for its own authenticator alone.
+ */
+async function passkeysWork(): Promise<boolean> {
+  const statics = passkeyStatics();
+  if (statics === null) return false;
+  try {
+    if (statics.getClientCapabilities !== undefined) {
+      const can = await statics.getClientCapabilities();
+      return can["passkeyPlatformAuthenticator"] === true || can["hybridTransport"] === true;
+    }
+    return (await statics.isUserVerifyingPlatformAuthenticatorAvailable?.()) === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * account:passkey-errors-told-apart: a passkey the server no longer holds is named to the phone, so its list stops offering it
+ * (https://developer.chrome.com/docs/identity/webauthn-signal-api). The relying party is the page's own host
+ * (account:passkey-needs-signed-in-session). A browser without the call, or one that refuses it, changes nothing.
+ */
+function signalGone(credentialId: string): void {
+  const signal = passkeyStatics()?.signalUnknownCredential;
+  if (signal === undefined || typeof location === "undefined") return;
+  void signal({ rpId: location.hostname, credentialId }).catch(() => undefined);
+}
+
+/** The credential id a passkey's verification carries in its body, or null. */
+function credentialSent(init: RequestInit | undefined): string | null {
+  if (typeof init?.body !== "string") return null;
+  try {
+    const id = (JSON.parse(init.body) as { response?: { id?: unknown } }).response?.id;
+    return typeof id === "string" ? id : null;
+  } catch {
+    return null;
+  }
+}
+
+/** One passkey row as the library's `/passkey/list-user-passkeys` answers it. */
+interface LibraryPasskey {
+  id: string;
+  credentialID: string;
+  aaguid?: string | null;
+  createdAt?: string | Date | null;
+}
+
+function passkeyRow(row: LibraryPasskey): PasskeyRow {
+  const added = row.createdAt === undefined || row.createdAt === null ? Number.NaN : new Date(row.createdAt).getTime();
+  return { id: row.id, provider: providerOf(row.aaguid), addedAt: Number.isFinite(added) ? added : 0 };
+}
 
 /** server:signups-off-shows-full: the server's wait before asking again, from the refusal or its Retry-After header, in seconds. */
 const FULL_RETRY_FALLBACK_S = 30;
@@ -213,6 +339,39 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
   });
   const home = () => (typeof location === "undefined" ? "/" : `${location.origin}/`);
   const google = (trip: GoogleTrip) => ({ provider: "google" as const, callbackURL: `${home()}?${GOOGLE_BACK}=${GOOGLE_DONE[trip]}`, errorCallbackURL: home() });
+
+  /** The signed-in account's passkeys as the library keeps them, or null when the server cannot say. */
+  async function ownPasskeys(): Promise<LibraryPasskey[] | null> {
+    try {
+      const { data, error } = await client.passkey.listUserPasskeys();
+      return error === null && Array.isArray(data) ? (data as LibraryPasskey[]) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * A passkey sign-in, from the button or the email field's autofill; `only`, the credential ids that may answer: any other is refused here, before it reaches the
+   * server, so no session is opened for it. A passkey the server no longer holds is named to the phone.
+   */
+  async function passkeySignIn(only: ReadonlySet<string> | null, autoFill = false): Promise<AuthResult> {
+    const guard = (input: string | URL | Request, init?: RequestInit): Promise<Response> => {
+      const id = credentialSent(init);
+      if (only !== null && (id === null || !only.has(id))) {
+        return Promise.resolve(new Response(JSON.stringify({ code: OTHER_ACCOUNT, message: "That passkey is not this account's." }), { status: 403, headers: { "content-type": "application/json" } }));
+      }
+      return classified(input instanceof Request ? input.url : String(input), init);
+    };
+    let sent: string | null = null;
+    const result = await attempt(async () => {
+      const answer = await client.signIn.passkey({ autoFill, returnWebAuthnResponse: true, fetchOptions: { customFetchImpl: guard } });
+      // The library hands back the phone's answer, failed or not, when asked to.
+      sent = (answer as { webauthn?: { response: { id: string } } }).webauthn?.response.id ?? null;
+      return answer;
+    });
+    if (!result.ok && result.why === "passkey-gone" && sent !== null) signalGone(sent);
+    return result;
+  }
 
   return {
     async ageStatus() {
@@ -277,10 +436,43 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       return done === GOOGLE_DONE["sign-in"] ? "signed-in" : null;
     },
     // The button: the browser's own prompt. The field's autofill is the ask below, which the button's cancels.
-    signInWithPasskey: () => attempt(() => client.signIn.passkey({ autoFill: false })),
-    signInWithPasskeyAutofill: () => attempt(() => client.signIn.passkey({ autoFill: true })),
-    // account:passkey-needs-signed-in-session: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session (apps/server/src/auth/hooks.ts).
+    signInWithPasskey: async () => {
+      const result = await passkeySignIn(null);
+      forgetAccount(server);
+      return result;
+    },
+    signInWithPasskeyAutofill: async () => {
+      const result = await passkeySignIn(null, true);
+      forgetAccount(server);
+      return result;
+    },
+    // account:passkey-needs-signed-in-session: the server's only 403 on a passkey's registration is the admin's, which needs a passkey session
+    // (apps/server/src/auth/hooks.ts); its freshness refusal carries its own code. No name is sent: the library names the passkey in the
+    // phone's list with the account's email already, and a name sent here would be stored again on the passkey's row.
     addPasskey: () => attempt(() => client.passkey.addPasskey({}), { 403: "passkey-first" }),
+    passkeysWork,
+    async passkeys() {
+      const rows = await ownPasskeys();
+      if (rows === null) return null;
+      return rows.map(passkeyRow).sort((a, b) => a.addedAt - b.addedAt);
+    },
+    async removePasskey(id) {
+      const result = await attempt(() => client.passkey.deletePasskey({ id }));
+      if (!result.ok) return result;
+      forgetAccount(server);
+      // Removing a way in may end this phone's session with the others (account:session-is-secure-cookie): the game's
+      // own account route says so with its signed-out refusal. A reply that cannot be read leaves the sheet where it is.
+      const reply = await readAccount(server);
+      return { ok: true, signedIn: reply.ok || reply.code !== "signed-out" };
+    },
+    async confirmWithPasskey() {
+      const rows = await ownPasskeys();
+      if (rows === null) return { ok: false, why: "unreachable" };
+      if (rows.length === 0) return { ok: false, why: "refused" };
+      const result = await passkeySignIn(new Set(rows.map((row) => row.credentialID)));
+      forgetAccount(server);
+      return result;
+    },
     async email() {
       try {
         const { data } = await client.getSession();
@@ -306,7 +498,15 @@ export function betterAuthApi({ baseUrl, fetch, wall = pageWall }: { baseUrl: st
       }
     },
     async signOut() {
+      const result = await attempt(() => client.signOut());
+      return result.ok ? result : { ok: false, why: "sign-out" };
+    },
+    async signOutEverywhere() {
+      const ended = await attempt(() => client.revokeSessions());
+      if (!ended.ok) return { ok: false, why: "sign-out" };
+      // Every session is gone on the server; signing out drops this browser's cookie too, and a failure leaves only a dead one.
       await attempt(() => client.signOut());
+      return { ok: true };
     },
   };
 }

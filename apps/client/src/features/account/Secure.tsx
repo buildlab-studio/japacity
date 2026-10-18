@@ -36,14 +36,17 @@ const userAgent = () => (typeof navigator === "undefined" ? "" : navigator.userA
  * Leaves this guest life for a kept one (account:guest-secures-the-life): signs the guest out and opens the ways back in, the
  * address the guest typed filled in. The guest life has no way back after it, which is said before.
  */
-export function useOpenKeptLife(): (email: string | null) => Promise<void> {
+export function useOpenKeptLife(): (email: string | null) => Promise<AuthResult> {
   const account = useGame((state) => state.account);
   const leave = useGame((state) => state.leave);
   return async (email) => {
-    if (account === null) return;
-    await account.signOut();
+    if (account === null) return { ok: false, why: "unreachable" };
+    // A sign-out that never reached the server leaves this guest signed in, and the kept life's sign-in would be refused as taken again.
+    const out = await account.signOut();
+    if (!out.ok) return out;
     askWaysBackIn(email);
     leave(null);
+    return out;
   };
 }
 
@@ -51,6 +54,7 @@ export function useOpenKeptLife(): (email: string | null) => Promise<void> {
 function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: ReactNode }) {
   const open = useOpenKeptLife();
   const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
   return (
     <div className="flex flex-col gap-2" data-open-kept>
       {lead}
@@ -60,12 +64,22 @@ function OpenKeptLife({ email, lead = null }: { email: string | null; lead?: Rea
           disabled={busy}
           onClick={() => {
             setBusy(true);
-            void open(email).finally(() => setBusy(false));
+            setProblem(null);
+            void open(email)
+              .then((result) => {
+                if (!result.ok) setProblem(failureWords(result));
+              })
+              .finally(() => setBusy(false));
           }}
         >
           {say("ui.secure.taken.open")}
         </Button>
       </div>
+      {problem === null ? null : (
+        <p role="alert" className="text-bad">
+          {problem}
+        </p>
+      )}
     </div>
   );
 }

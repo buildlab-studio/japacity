@@ -269,7 +269,7 @@ test.describe("one new player, played in order on one phone", () => {
     test.skip(!target.local, NO_MAILPIT);
     await openApp(page, "settings");
     await page.locator("[data-account-row]").click();
-    await page.getByRole("button", { name: "Sign out" }).click();
+    await page.getByRole("button", { name: "Sign out", exact: true }).click();
     // Signed out, the client asks again who is there.
     seen.allow("401 GET /api/view", "401 GET /api/account");
     // A kept life was open in this browser, so the start screen offers the way back in first (account:start-screen-over-live-city).
