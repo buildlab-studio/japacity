@@ -72,6 +72,9 @@ interface Read {
 /** Each request's read, by the request it was made for. */
 const reads = new WeakMap<Request, Promise<Read>>();
 
+/** RFC 6455: the status of a socket's upgrade. */
+const SWITCHING_PROTOCOLS = 101;
+
 /** What the reader judges a session by: the server's clock and the admin's passkey window. */
 type Judge = Pick<ServerDeps, "now" | "config">;
 
@@ -111,7 +114,18 @@ export function sessionCookies(): MiddlewareHandler {
     if (read === undefined) return;
     const { cookies } = await read.catch(() => ({ cookies: [] as string[] }));
     if (cookies.length === 0) return;
+    // A socket's upgrade comes from the place object and is handed on untouched, as the security headers leave it.
+    if (c.res.status === SWITCHING_PROTOCOLS) return;
     const own = new Set(c.res.headers.getSetCookie().map(cookieName));
-    for (const line of cookies) if (!own.has(cookieName(line))) c.res.headers.append("set-cookie", line);
+    const lines = cookies.filter((line) => !own.has(cookieName(line)));
+    if (lines.length === 0) return;
+    try {
+      for (const line of lines) c.res.headers.append("set-cookie", line);
+    } catch {
+      // A reply whose headers cannot change is copied first.
+      const copy = new Response(c.res.body, c.res);
+      for (const line of lines) copy.headers.append("set-cookie", line);
+      c.res = copy;
+    }
   };
 }

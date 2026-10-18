@@ -1,6 +1,7 @@
+import { Hono } from "hono";
 import { describe, expect, test, vi } from "vitest";
 
-import { sessionReader } from "./session";
+import { sessionCookies, sessionReader } from "./session";
 import { SITE, harness } from "./auth.testing";
 
 describe("the session reader", () => {
@@ -69,6 +70,41 @@ describe("the cookies a session read sets", () => {
     const opened = await h.call("/api/account", { jar });
     expect(opened.status).toBe(200);
     expect((await opened.json<{ account: { id: string } }>()).account.id).toBe(made);
+  });
+
+  test("[account:session-renewal-reaches-browser] given a session due for renewal, when its read is on a socket's upgrade or a reply whose headers cannot change, then the upgrade is handed on untouched and the other reply is copied with the renewed cookie", async () => {
+    const h = harness();
+    const { jar, account } = await h.guest();
+    const context = await h.auth.$context;
+    const { expiresIn, updateAge } = context.sessionConfig;
+    const due = async () => {
+      const [row] = await context.internalAdapter.listSessions(account);
+      if (row === undefined) throw new Error("The guest has no session.");
+      await context.internalAdapter.updateSession(row.token, { expiresAt: new Date(Date.now() + (expiresIn - updateAge - 60) * 1000) });
+    };
+    const read = sessionReader(h.auth, h.deps);
+    // A socket's upgrade comes from the place object with headers no one may change, as Response.redirect's are.
+    const upgrade = { status: 101, headers: Response.redirect(SITE).headers } as unknown as Response;
+    const app = new Hono();
+    app.use(sessionCookies());
+    app.get("/socket", async (c) => {
+      await read(c.req.raw);
+      return upgrade;
+    });
+    app.get("/fixed", async (c) => {
+      await read(c.req.raw);
+      return Response.redirect(SITE);
+    });
+
+    await due();
+    const socket = await app.request("/socket", { headers: { cookie: jar.header() } });
+    expect(socket).toBe(upgrade);
+    expect(sessionLines(socket)).toEqual([]);
+
+    await due();
+    const fixed = await app.request("/fixed", { headers: { cookie: jar.header() } });
+    expect(fixed.status).toBe(302);
+    expect(sessionLines(fixed)).toHaveLength(1);
   });
 
   test("[account:session-renewal-reaches-browser] given a live session last renewed more than a day ago, when the browser reads its account, then the session is read once, renewed for its full life, and the reply sets the renewed cookie; a read soon after sets none", async () => {
