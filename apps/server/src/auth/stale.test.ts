@@ -9,7 +9,7 @@ import { PASS_COOKIE } from "../account/age";
 import { DEVICE_COOKIE } from "../account/guest";
 import { softwarePasskey } from "./passkey.testing";
 import { headersWithoutSession } from "./stale";
-import { harness } from "./auth.testing";
+import { googleCallback, harness } from "./auth.testing";
 import type { Harness, Jar } from "./auth.testing";
 
 afterEach(() => {
@@ -35,28 +35,6 @@ function sessionSet(reply: Response): string | null {
   if (line === undefined) return null;
   const value = (line.split(";")[0] ?? "").slice(SESSION.length + 1);
   return value === "" || /;\s*max-age=0/i.test(line) ? null : value;
-}
-
-function unsignedJwt(claims: Record<string, unknown>): string {
-  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
-}
-
-/** Google's round trip from the jar, its token endpoint answered here; `between` runs before the callback. Returns the callback's reply. */
-async function withGoogle(h: Harness, jar: Jar, identity: { sub: string; email: string }, between: () => void): Promise<Response> {
-  const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/?google=in", errorCallbackURL: "/" } });
-  const state = new URL(String((await start.json<{ url: string }>()).url)).searchParams.get("state") ?? "";
-  const real = globalThis.fetch;
-  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = input instanceof Request ? input.url : String(input);
-    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
-    const idToken = unsignedJwt({ ...identity, email_verified: true, iss: "https://accounts.google.com" });
-    return Promise.resolve(Response.json({ access_token: "google-access-token", refresh_token: "google-refresh-token", id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
-  });
-  between();
-  const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
-  vi.unstubAllGlobals();
-  return back;
 }
 
 async function accountId(h: Harness, jar: Jar): Promise<{ status: number; id: string | null }> {
@@ -98,7 +76,7 @@ describe("a dead session cookie never stops a new sign-in", () => {
     const { jar, account } = await h.signUp("ada@example.com");
     const restore = await endSessions(h, jar, account);
 
-    const back = await withGoogle(h, jar, { sub: "google-ada", email: "ada@example.com" }, restore);
+    const back = await googleCallback(h, jar, { sub: "google-ada", email: "ada@example.com" }, { between: restore });
     expect(new URL(back.headers.get("location") ?? "/", "https://japacity.test").searchParams.get("error")).toBeNull();
     expect(sessionSet(back)).not.toBeNull();
     expect(await accountId(h, jar)).toEqual({ status: 200, id: account });

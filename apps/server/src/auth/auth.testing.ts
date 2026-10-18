@@ -7,6 +7,7 @@ import { content } from "@japacity/content";
 import type { TestHelpers } from "better-auth/plugins";
 import { splitSetCookieHeader } from "better-auth/cookies";
 import type { Hono } from "hono";
+import { vi } from "vitest";
 
 import { TURNSTILE_ACTION, TURNSTILE_TEST } from "../account/turnstile";
 import { makeApp } from "../app";
@@ -206,4 +207,65 @@ export function harness(options: HarnessOptions = {}): Harness {
   };
 
   return { deps, auth, keys, app, tables, sent, notices, background, helpers, call, passAge, startGuest, guest, secureByCode, codeFor, signUp };
+}
+
+/** Who Google says signed in. */
+export interface GoogleIdentity {
+  sub: string;
+  email: string;
+}
+
+/** A JWT with no signature: the server takes Google's id token from Google's own token endpoint, which a test answers. */
+export function unsignedJwt(claims: Record<string, unknown>): string {
+  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
+  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
+}
+
+/** What Google's token endpoint answers: the id token's claims past the identity, and the tokens beside it. */
+export interface GoogleAnswer {
+  claims: Record<string, unknown>;
+  tokens: Record<string, unknown>;
+}
+
+/** Google sharing the person's name and photo, which an account never keeps (R-ACCOUNT-020). */
+export const GOOGLE_PROFILE: GoogleAnswer = { claims: { name: "A Real Name", picture: "https://photos.example/face.jpg" }, tokens: { access_token: "google-access" } };
+
+/** Google sending an access token and a refresh token, which no reply ever shows. */
+export const GOOGLE_TOKENS: GoogleAnswer = { claims: {}, tokens: { access_token: "google-access-token", refresh_token: "google-refresh-token" } };
+
+/** Google's token endpoint answered by the test, with an id token for one fixed identity; every other fetch goes out as it would. */
+export function stubGoogle(identity: GoogleIdentity, answer: GoogleAnswer): void {
+  const real = globalThis.fetch;
+  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = input instanceof Request ? input.url : String(input);
+    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
+    const idToken = unsignedJwt({ ...identity, email_verified: true, ...answer.claims, iss: "https://accounts.google.com" });
+    return Promise.resolve(Response.json({ ...answer.tokens, id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
+  });
+}
+
+export interface GoogleRoundTrip {
+  /** Where Google's callback sends the page on a success; the client's own mark unless a test names another. */
+  callbackURL?: string;
+  /** What Google answers; tokens and no profile unless a test names another. */
+  answer?: GoogleAnswer;
+  /** Runs once Google is stubbed, before the callback. */
+  between?: () => void;
+}
+
+/** Google's whole round trip from the jar's browser, its token endpoint answered here. Returns the callback's reply. */
+export async function googleCallback(h: Harness, jar: Jar, identity: GoogleIdentity, way: GoogleRoundTrip = {}): Promise<Response> {
+  const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: way.callbackURL ?? "/?google=in", errorCallbackURL: "/" } });
+  const state = new URL(String((await start.json<{ url: string }>()).url)).searchParams.get("state") ?? "";
+  stubGoogle(identity, way.answer ?? GOOGLE_TOKENS);
+  way.between?.();
+  const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
+  vi.unstubAllGlobals();
+  return back;
+}
+
+/** Google's whole round trip from the jar's browser. Returns where the callback sent it. */
+export async function withGoogle(h: Harness, jar: Jar, identity: GoogleIdentity, way: GoogleRoundTrip = {}): Promise<URL> {
+  const back = await googleCallback(h, jar, identity, way);
+  return new URL(back.headers.get("location") ?? "/", SITE);
 }

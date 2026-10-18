@@ -1,8 +1,8 @@
 import type { ServerReply, ViewReply } from "@japacity/api";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/auth.testing";
-import type { Harness, Jar } from "../auth/auth.testing";
+import { GOOGLE_PROFILE, harness, makeJar, withGoogle } from "../auth/auth.testing";
+import type { GoogleRoundTrip, Harness, Jar } from "../auth/auth.testing";
 import { testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
 import { PASS_COOKIE, PASS_PREFIX } from "./age";
@@ -19,31 +19,8 @@ function body(reply: Response): Promise<Record<string, unknown>> {
   return reply.json<Record<string, unknown>>();
 }
 
-function unsignedJwt(claims: Record<string, unknown>): string {
-  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
-}
-
-/** Google's token endpoint answered by the test, with an id token for one fixed identity. */
-function stubGoogle(identity: { sub: string; email: string }) {
-  const real = globalThis.fetch;
-  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = input instanceof Request ? input.url : String(input);
-    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
-    const idToken = unsignedJwt({ ...identity, email_verified: true, name: "A Real Name", picture: "https://photos.example/face.jpg", iss: "https://accounts.google.com" });
-    return Promise.resolve(Response.json({ access_token: "google-access", id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
-  });
-}
-
-/** The whole Google round trip from the jar's browser; returns where the callback sent it. */
-async function withGoogle(h: Harness, jar: Jar, identity: { sub: string; email: string }): Promise<URL> {
-  const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/", errorCallbackURL: "/" } });
-  const state = new URL(String((await body(start))["url"])).searchParams.get("state") ?? "";
-  stubGoogle(identity);
-  const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
-  vi.unstubAllGlobals();
-  return new URL(back.headers.get("location") ?? "/", "https://japacity.test");
-}
+/** This file's Google round trip: back to the root, Google sharing a name and photo. */
+const SHARING: GoogleRoundTrip = { callbackURL: "/", answer: GOOGLE_PROFILE };
 
 /** A character for the jar's account, and one month played. Returns the view after it. */
 async function playAMonth(h: Harness, jar: Jar): Promise<Extract<ViewReply, { ok: true }>> {
@@ -227,7 +204,7 @@ describe("the bot check at the guest start", () => {
     const reply = await h.call("/api/auth/sign-in/email-otp", { method: "POST", jar, json: { email: "new@example.com", otp } });
     expect(reply.status).toBe(403);
     expect(await body(reply)).toMatchObject({ code: "no-account" });
-    const back = await withGoogle(h, jar, { sub: "google-new", email: "fresh@example.com" });
+    const back = await withGoogle(h, jar, { sub: "google-new", email: "fresh@example.com" }, SHARING);
     expect(back.searchParams.get("error")).toBe("no-account");
     expect(h.tables.user).toEqual([]);
   });
@@ -353,13 +330,13 @@ describe("securing a guest", () => {
     const played = await playAMonth(h, jar);
     const before = await lifeOf(h, account);
 
-    const back = await withGoogle(h, jar, { sub: "google-ada", email: "ada@example.com" });
+    const back = await withGoogle(h, jar, { sub: "google-ada", email: "ada@example.com" }, SHARING);
     expect(back.searchParams.get("error")).toBeNull();
 
     expect(await lifeOf(h, account)).toEqual({ ...before, row: { ...before.row, state: "secured" } });
     expect(await (await h.call("/api/view", { jar })).json<ViewReply>()).toEqual(played);
     const elsewhere = makeJar();
-    await withGoogle(h, elsewhere, { sub: "google-ada", email: "ada@example.com" });
+    await withGoogle(h, elsewhere, { sub: "google-ada", email: "ada@example.com" }, SHARING);
     expect(await body(await h.call("/api/account", { jar: elsewhere }))).toMatchObject({ account: { id: account, state: "secured" } });
   });
 
@@ -388,14 +365,14 @@ describe("securing a guest", () => {
   test("[R-ACCOUNT-023] given a Google account that already has a life, or whose email does, when a guest secures with it, then the guest is sent back told it is taken and neither life changes or joins", async () => {
     const h = harness();
     const owner = await h.guest();
-    await withGoogle(h, owner.jar, { sub: "google-owner", email: "owner@example.com" });
+    await withGoogle(h, owner.jar, { sub: "google-owner", email: "owner@example.com" }, SHARING);
     const byEmail = await h.signUp("bola@example.com");
     const { jar, account } = await h.guest();
     const before = { owner: await lifeOf(h, owner.account), byEmail: await lifeOf(h, byEmail.account), guest: await lifeOf(h, account) };
     const methodsBefore = structuredClone(h.tables.account);
 
     for (const identity of [{ sub: "google-owner", email: "owner@example.com" }, { sub: "google-bola", email: "bola@example.com" }]) {
-      const back = await withGoogle(h, jar, identity);
+      const back = await withGoogle(h, jar, identity, SHARING);
       expect(back.searchParams.get("error")).toBe(METHOD_TAKEN);
     }
 

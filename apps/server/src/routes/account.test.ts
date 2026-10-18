@@ -1,34 +1,13 @@
 import type { AccountReply } from "@japacity/api";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { harness, makeJar } from "../auth/auth.testing";
+import { harness, makeJar, withGoogle } from "../auth/auth.testing";
 import type { Harness, Jar } from "../auth/auth.testing";
 
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
 });
-
-function unsignedJwt(claims: Record<string, unknown>): string {
-  const part = (value: unknown) => btoa(JSON.stringify(value)).replace(/=+$/, "").replace(/\+/g, "-").replace(/\//g, "_");
-  return `${part({ alg: "none", typ: "JWT" })}.${part(claims)}.`;
-}
-
-/** The whole Google round trip from the jar's browser, Google's token endpoint answered here for one identity; returns where the callback sent it. */
-async function withGoogle(h: Harness, jar: Jar, identity: { sub: string; email: string }): Promise<URL> {
-  const start = await h.call("/api/auth/sign-in/social", { method: "POST", jar, json: { provider: "google", callbackURL: "/?google=in", errorCallbackURL: "/" } });
-  const state = new URL(String((await start.json<{ url: string }>()).url)).searchParams.get("state") ?? "";
-  const real = globalThis.fetch;
-  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
-    const url = input instanceof Request ? input.url : String(input);
-    if (!url.startsWith("https://oauth2.googleapis.com/token")) return real(input, init);
-    const idToken = unsignedJwt({ ...identity, email_verified: true, iss: "https://accounts.google.com" });
-    return Promise.resolve(Response.json({ access_token: "google-access-token", refresh_token: "google-refresh-token", id_token: idToken, token_type: "Bearer", expires_in: 3600 }));
-  });
-  const back = await h.call(`/api/auth/callback/google?code=stub-code&state=${state}`, { jar });
-  vi.unstubAllGlobals();
-  return new URL(back.headers.get("location") ?? "/", "https://japacity.test");
-}
 
 async function accountOf(h: Harness, jar: Jar): Promise<{ text: string; reply: AccountReply }> {
   const text = await (await h.call("/api/account", { jar })).text();
