@@ -163,7 +163,7 @@ describe("rent", () => {
     expect(game.state.place.country).toBe("country.canada");
     expect(isOpen(game, RENT_FLAT)).toBe(false);
     expect(isOpen(game, RENT_ROOM)).toBe(false);
-    expect(isOpen(game, "obligation.rent-room-ca" as Id<"obligation">)).toBe(true);
+    expect(isOpen(game, "obligation.rent-room-ca")).toBe(true);
     expect(game.state.wallet.pockets.GBP.bank).toBe(pounds + entryOf(RENT_FLAT).amount);
   });
 
