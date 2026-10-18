@@ -23,6 +23,7 @@ import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import type { EdgeCache } from "./cache";
 import { edgeCache, edgeKey, forgetKept, JSON_TYPE, throughEdge } from "./cache";
+import { keepNone } from "./reply";
 
 export const DEDICATION_LIGHTS_PATH = "/api/dedication/lights";
 export const DEDICATION_LIGHT_PATH = "/api/dedication/light";
@@ -82,7 +83,7 @@ async function readShared(deps: ServerDeps, edge: EdgeCache | null, origin: stri
 
 /** A reply that differs for each account: never kept by the browser. */
 function personal(c: Context<SessionEnv>, body: unknown, status: 200 | 400 | 401 = 200): Response {
-  c.header("cache-control", "private, no-store");
+  keepNone(c);
   return c.json(body, status);
 }
 

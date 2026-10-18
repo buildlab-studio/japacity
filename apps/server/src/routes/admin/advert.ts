@@ -19,6 +19,7 @@ import { decideCampaign, decideCreative, logAdvertAction, pullCampaign } from ".
 import type { ServerDeps } from "../../deps";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
+import { keepNone } from "../reply";
 
 type Body = Record<string, unknown>;
 
@@ -198,7 +199,7 @@ export function adminAdvertRoutes(deps: ServerDeps, fetcher: Fetcher = (input, i
     const image = creative === null ? null : await deps.stores.adverts.image(creative.id, creative.version);
     if (creative === null || image === null) return c.notFound();
     c.header("content-type", `image/${creative.file.format}`);
-    c.header("cache-control", "private, no-store");
+    keepNone(c);
     c.header("x-content-type-options", "nosniff");
     return c.body(image.slice().buffer);
   });

@@ -11,17 +11,9 @@ import { limit, sessionOf } from "../limits/limit";
 import { readDevice, readEndpoint } from "../notify/device";
 import { stopNotices } from "../notify/notice";
 import type { PushKeys } from "../notify/webpush";
+import { bodyOf, rejection } from "./reply";
 
 const signedOut: ServerRejection = { ok: false, code: "signed-out", detail: "Sign in first." };
-
-function notLegal(detail: string): ServerRejection {
-  return { ok: false, code: "not-legal", detail };
-}
-
-async function bodyOf(request: Request): Promise<Record<string, unknown>> {
-  const body: unknown = await request.json().catch(() => null);
-  return typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
-}
 
 export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
   const route = new Hono<SessionEnv>();
@@ -41,7 +33,7 @@ export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const session = sessionOf(c);
     if (session === null || (await deps.stores.account.get(session.account)) === null) return c.json<NotifyReply>(signedOut, 401);
     const { on } = await bodyOf(c.req.raw);
-    if (typeof on !== "boolean") return c.json<NotifyReply>(notLegal("The setting is on or off."), 400);
+    if (typeof on !== "boolean") return c.json<NotifyReply>(rejection("not-legal", "The setting is on or off."), 400);
     if (on) await deps.stores.account.setNotify(session.account, true);
     else await stopNotices(deps, session.account);
     return c.json<NotifyReply>((await reply(session.account)) ?? signedOut);
@@ -51,12 +43,12 @@ export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const session = sessionOf(c);
     if (session === null || (await deps.stores.account.get(session.account)) === null) return c.json<NotifyReply>(signedOut, 401);
     const device = readDevice((await bodyOf(c.req.raw)).subscription);
-    if (device === null) return c.json<NotifyReply>(notLegal("The subscription is not one a browser gives."), 400);
+    if (device === null) return c.json<NotifyReply>(rejection("not-legal", "The subscription is not one a browser gives."), 400);
     const held = await deps.stores.push.forAccount(session.account);
     // At most `config.notify.maxDevices`, so one account cannot point the job at a crowd of addresses.
     const { maxDevices } = deps.config.notify;
     if (!held.some((each) => each.endpoint === device.endpoint) && held.length >= maxDevices) {
-      return c.json<NotifyReply>(notLegal(`At most ${String(maxDevices)} devices take the notice.`), 400);
+      return c.json<NotifyReply>(rejection("not-legal", `At most ${String(maxDevices)} devices take the notice.`), 400);
     }
     await deps.stores.push.subscribe(session.account, device);
     await deps.stores.account.setNotify(session.account, true);
@@ -67,7 +59,7 @@ export function notifyRoutes(deps: ServerDeps): Hono<SessionEnv> {
     const session = sessionOf(c);
     if (session === null || (await deps.stores.account.get(session.account)) === null) return c.json<NotifyReply>(signedOut, 401);
     const endpoint = readEndpoint((await bodyOf(c.req.raw)).endpoint);
-    if (endpoint === null) return c.json<NotifyReply>(notLegal("The endpoint is not a push service's address."), 400);
+    if (endpoint === null) return c.json<NotifyReply>(rejection("not-legal", "The endpoint is not a push service's address."), 400);
     await deps.stores.push.unsubscribe(session.account, endpoint);
     return c.json<NotifyReply>((await reply(session.account)) ?? signedOut);
   });

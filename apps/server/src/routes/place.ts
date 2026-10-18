@@ -2,11 +2,10 @@
 // (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
 // every signed-in account: presence is not contact (region.md R-REGION-002),
 // and the socket carries only nudges, never words between players.
-import type { PresenceReply, ServerCode, ServerRejection } from "@japacity/api";
+import type { PresenceReply } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
 import { toHex } from "@japacity/sim";
 import { Hono } from "hono";
-import type { Context } from "hono";
 
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
@@ -17,6 +16,7 @@ import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";
 import type { Rooms } from "../place/place.rooms";
 import { placeTarget } from "../switches/dials";
+import { refuse } from "./reply";
 
 /** The character's display name and look, or null when the account has none. The core provides it. */
 export type ProfileOf = (account: string) => Promise<{ name: string; look: string } | null>;
@@ -26,13 +26,6 @@ export interface PlaceBindings {
   rooms: Rooms;
   placeOf: PlaceOf;
   profileOf: ProfileOf;
-}
-
-type Status = 401 | 404 | 409 | 413 | 426 | 503;
-
-function refuse(c: Context, status: Status, code: ServerCode, detail: string): Response {
-  const body: ServerRejection = { ok: false, code, detail };
-  return c.json(body, status);
 }
 
 function seedFrom(bytes: Uint8Array): number {
