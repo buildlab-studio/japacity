@@ -39,7 +39,7 @@ import type {
 } from "../engine/types";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import { routePercent } from "../japacity/japacity.logic";
-import { bannedUntil as placeBannedUntil } from "../place/place.logic";
+import { bannedNow } from "../place/place.logic";
 import { GATES } from "./gates";
 import type { ApplicationFigures, Decision, DecisionTerms, GateEffectHandler } from "./gates";
 import { EVERY_TERM } from "./gates";
@@ -276,9 +276,7 @@ function own(event: RouteKindEvent): RouteKindEvent {
 
 /** R-PLACE-008: a removal's ban holds through the months before its last, and lifts in that month. */
 function banned(read: ReadCtx, country: Id<"country"> | null): boolean {
-  if (country === null) return false;
-  const until = placeBannedUntil(read, country);
-  return until !== null && read.state.turn.month < until;
+  return country !== null && bannedNow(read, country);
 }
 
 function moved(route: Id<"route">, to: RouteStateName, via?: string): RouteKindEvent {

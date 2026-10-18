@@ -149,6 +149,12 @@ export function bannedUntil(read: ReadCtx, country: Id<"country">): number | nul
   return Math.max(...removed.map((removal) => removal.month + months));
 }
 
+/** R-PLACE-008: whether a removal's ban holds on the country this month. It lifts in the month `bannedUntil` gives. */
+export function bannedNow(read: ReadCtx, country: Id<"country">): boolean {
+  const until = bannedUntil(read, country);
+  return until !== null && read.state.turn.month < until;
+}
+
 // ---------------------------------------------------------------------------
 // Carrying out
 // ---------------------------------------------------------------------------
