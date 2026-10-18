@@ -8,8 +8,8 @@ import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { requirementSentence } from "../../shared/words/requirement";
 import { ActivityPicker } from "./ActivityView";
-import { chanceBand, firstJob, huntOrder, jobCardLine, jobChanceBp, jobsOutOfReach } from "./JobList";
-import { jobsWords } from "./jobs.words";
+import { firstJob, huntOrder, jobsOutOfReach } from "./JobList";
+import { chanceBand, jobCardLine, jobChanceBp, jobsWords } from "../../shared/words/jobs";
 
 const HUNT = "activity.job-hunt";
 const NETWORK = "quality.network";
