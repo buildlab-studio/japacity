@@ -8,7 +8,7 @@ import { gameAuthority } from "../shared/testing/fixtures";
 import { courted, peopleGame, playMonth, renderWithGame, SEE, TOBI } from "../shared/testing/person";
 import { nameOf, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "../shared/testing/render";
+import { found } from "../shared/testing/render";
 
 async function playing(game: ReturnType<typeof peopleGame>) {
   if (game.state.turn.banked === 0) game.grant(1);
@@ -17,12 +17,6 @@ async function playing(game: ReturnType<typeof peopleGame>) {
   await store.getState().refresh();
   render(<App store={store} />);
   return { store, authority };
-}
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
 }
 
 // The interview's hold on the month is the world bed's (app/world.interview.test.tsx).

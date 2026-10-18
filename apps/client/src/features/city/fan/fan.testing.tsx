@@ -7,6 +7,7 @@ import { useEffect } from "react";
 
 import type { Act, Thing } from "../../../shared/world/contract";
 import { anchorFan } from "./anchor";
+import { found } from "../../../shared/testing/render";
 
 /** Where a stand-in's thing stands on the screen: on the left, with room for the fan on its right on a phone and a laptop. */
 export const STAND_IN_SPOT = { x: 90, y: 420 } as const;
@@ -59,12 +60,6 @@ export function StandInScene({ things, actOn, onPick, asleep, acted, onFrame, on
       ))}
     </div>
   );
-}
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
 }
 
 /**

@@ -16,6 +16,7 @@ import { City, RESULTS_BEAT_MS } from "./City";
 import { NAP, SLEEP_MS } from "./acts/sleep";
 import { pressFanActNow } from "./fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -35,12 +36,6 @@ afterEach(() => {
   window.localStorage.clear();
   unstubWebGL();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 /** The world's clock at a part of its day, as a reply carries it. */
 function clockAt(part: DayPart): { tick: number; nextTickAt: number; nextTurnAt: null; morningAt: number; world: WorldClock } {

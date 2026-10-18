@@ -19,6 +19,7 @@ import { City } from "./City";
 import { anchorFan } from "./fan/anchor";
 import { sceneWords } from "./scene.words";
 import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 type Pick = { kind: "thing"; thing: Thing } | { kind: "act"; thing: Thing; act: Act };
 
@@ -71,12 +72,6 @@ afterEach(() => {
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 const COOK = "activity.cook-at-home";
 const JOLLOF = "activity.cook-jollof";

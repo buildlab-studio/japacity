@@ -6,7 +6,7 @@ import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { engineView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { resetLines, tell } from "../../shared/world/Lines";
 import { markTaught } from "../../shared/world/taught";
@@ -38,12 +38,6 @@ afterEach(() => {
   Object.defineProperty(window, "innerWidth", { value: SCREEN.width, configurable: true });
   Object.defineProperty(window, "innerHeight", { value: SCREEN.height, configurable: true });
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 
 const world = () => <City world results={(place) => <p data-results-for={place} />} />;

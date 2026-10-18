@@ -16,6 +16,7 @@ import { goHomeAsk, goHomeOffered } from "./goHome";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 import { pressFanAct } from "../fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../../../shared/testing/webgl";
+import { found } from "../../../shared/testing/render";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -34,12 +35,6 @@ afterEach(() => {
   unstubWebGL();
   window.localStorage.clear();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 const hands = { who: "The shared room", go: () => undefined, dismiss: () => undefined };
 

@@ -8,7 +8,7 @@ import type { PlayerView } from "@japacity/sim";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { richView } from "../../shared/testing/fixtures";
-import { renderWithView } from "../../shared/testing/render";
+import { found, renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
 import { City } from "./City";
 import { pressFanAct } from "./fan/fan.testing";
@@ -31,12 +31,6 @@ afterEach(() => {
   unstubWebGL();
   window.localStorage.clear();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 describe("the deposit and the plane in the world", () => {
   test("[R-WORLD-006] given a school offer and no deposit, when the bank's counter is asked to pay the deposit, then route/pay-deposit names the school", async () => {

@@ -8,7 +8,7 @@ import type { PlayerView } from "@japacity/sim";
 
 import { optionWords } from "../shared/sim/person";
 import { engineView } from "../shared/testing/fixtures";
-import { renderWithView } from "../shared/testing/render";
+import { found, renderWithView } from "../shared/testing/render";
 import { interviewGame, renderWithGame } from "../shared/testing/person";
 import { nameOf, say, words } from "../shared/words/text";
 import { InterviewView } from "../features/interview/InterviewView";
@@ -37,12 +37,6 @@ afterEach(() => {
   unstubWebGL();
   window.localStorage.clear();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 describe("the interview holds the month in the world", () => {
   test("[R-INTERVIEW-004] given an interview open, then the month cannot end and the nudge marks what waits, until the last answer is in, when the asks leave and the officer says your answers are in", async () => {

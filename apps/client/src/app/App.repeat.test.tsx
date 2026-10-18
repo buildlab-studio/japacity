@@ -16,6 +16,7 @@ import { City } from "../features/city/City";
 import { anchorFan } from "../features/city/fan/anchor";
 import { pressFanAct } from "../features/city/fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../shared/testing/webgl";
+import { found } from "../shared/testing/render";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -35,12 +36,6 @@ afterEach(() => {
   window.localStorage.clear();
   unstubWebGL();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 const FAMILY = "activity.family-time";
 const COOK = "activity.cook-at-home";

@@ -16,6 +16,7 @@ import { City, RESULTS_BEAT_MS } from "./City";
 import { SLEEP_MS } from "./acts/sleep";
 import { pressFanActNow } from "./fan/fan.testing";
 import { stubWebGL, unstubWebGL } from "../../shared/testing/webgl";
+import { found } from "../../shared/testing/render";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
@@ -36,12 +37,6 @@ afterEach(() => {
   unstubWebGL();
   window.localStorage.clear();
 });
-
-function found(selector: string): HTMLElement {
-  const one = document.querySelector<HTMLElement>(selector);
-  if (one === null) throw new Error(`Nothing at ${selector}.`);
-  return one;
-}
 
 /** Ada at home with a month behind her and something planned. */
 async function adaAtHome(extra: Partial<Parameters<typeof City>[0]> = {}, goIn = true) {
