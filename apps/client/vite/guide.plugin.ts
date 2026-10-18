@@ -1,4 +1,4 @@
-// The guide pages' prerender step (R-GUIDE-005), inside Vite's build. In `generateBundle` it
+// The guide pages' prerender step (guide:guides-are-open-pages), inside Vite's build. In `generateBundle` it
 // loads site.entry.ts through a Vite server in SSR mode, renders every page to plain HTML that
 // links the build's stylesheet, and emits each as `guides/.../index.html` beside the game. The
 // dev server renders the same pages on request. Runs in Node, from vite.config.ts.

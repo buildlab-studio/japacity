@@ -1,4 +1,4 @@
-// The credits link the licences file the build writes beside the page (guide.md R-GUIDE-010). The link takes its path
+// The credits link the licences file the build writes beside the page (guide:credits-state-licences). The link takes its path
 // from content, never from the build's own code, which reads the disk through Node: a page that imported that code would
 // fail to open in development, where Vite refuses Node's modules in the browser, and the front door would never open.
 import { existsSync, readFileSync } from "node:fs";
@@ -39,12 +39,12 @@ function pageModules(entry: string): Set<string> {
 }
 
 describe("the licences file's name", () => {
-  test("[R-GUIDE-010] given the credits' link and the build that writes the file, when both name it, then it is the one file beside the page", () => {
+  test("[guide:credits-state-licences] given the credits' link and the build that writes the file, when both name it, then it is the one file beside the page", () => {
     expect(LICENCES_FILE).toBe("licenses.txt");
     expect(LICENCES_PATH).toBe(`/${LICENCES_FILE}`);
   });
 
-  test("[R-GUIDE-010] given the page from its entry, when every module it can load is read, then none imports Node's own modules, so the credits and the rest open in development", () => {
+  test("[guide:credits-state-licences] given the page from its entry, when every module it can load is read, then none imports Node's own modules, so the credits and the rest open in development", () => {
     const modules = pageModules(join(SRC, "main.tsx"));
     expect(modules.size).toBeGreaterThan(200);
     expect([...modules].some((file) => file.endsWith(join("city", "Credits.tsx")))).toBe(true);

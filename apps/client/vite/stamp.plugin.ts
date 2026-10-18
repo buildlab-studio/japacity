@@ -1,4 +1,4 @@
-// R-SERVER-038: every build carries its own commit in index.html, so a page a cache kept can be told from a new one.
+// server:production-and-staging: every build carries its own commit in index.html, so a page a cache kept can be told from a new one.
 // Runs in Node, from vite.config.ts; the page reads the tag back in stamp.ts.
 import { execFileSync } from "node:child_process";
 

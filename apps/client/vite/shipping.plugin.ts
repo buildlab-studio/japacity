@@ -9,8 +9,8 @@ import type { BuildEnvironmentOptions, Plugin } from "vite";
 
 /**
  * The console calls a build for players drops. Two stay: `console.error`, through which the app's boundary says a
- * screen that broke (analytics.md R-ANALYTICS-002, CountedBoundary.tsx) and the libraries report a real fault, and
- * `console.info`, the one line that says the build (server.md R-SERVER-038, stamp.ts).
+ * screen that broke (analytics:client-sends-interface-counts, CountedBoundary.tsx) and the libraries report a real fault, and
+ * `console.info`, the one line that says the build (server:production-and-staging, stamp.ts).
  */
 const DROPPED_CONSOLE = [
   "console.log",

@@ -3,7 +3,7 @@
 // - "Pixel 7" and "Desktop Chrome" (`pnpm test:browser`): the browser suite at both sizes the game is built for, a
 //   mid-range Android phone, as most players in Nigeria come on a phone, and a desktop, which many in the United
 //   Kingdom use. Against the dev server, so the fast clock is on.
-// - "real" (`pnpm test:browser:real`, server.md R-SERVER-038): the client as the local Worker serves it, against
+// - "real" (`pnpm test:browser:real`, server:production-and-staging): the client as the local Worker serves it, against
 //   Postgres and Mailpit in Docker Compose, nothing faked. Start the stack first with `pnpm dev:full`. With
 //   `--staging` it points at staging instead, with the Access service token's headers from CF_ACCESS_CLIENT_ID and
 //   CF_ACCESS_CLIENT_SECRET (tools/local/access.ts).

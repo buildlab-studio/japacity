@@ -1,4 +1,4 @@
-// R-ENGINE-020: the size check (tools/check/size.ts) needs to know which chunks a first visit downloads and what
+// engine:first-download-has-budget: the size check (tools/check/size.ts) needs to know which chunks a first visit downloads and what
 // each holds. With JAPACITY_SIZE_REPORT naming a file, the build writes there every chunk's file, whether it is
 // the entry, what it imports and the modules inside it. Without it the plugin does nothing. Runs in Node, from
 // vite.config.ts; it writes only that local file and sends nothing anywhere.

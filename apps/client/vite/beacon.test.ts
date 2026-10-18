@@ -1,4 +1,4 @@
-// Cloudflare Web Analytics on the game's page (analytics.md R-ANALYTICS-012): the beacon only with a
+// Cloudflare Web Analytics on the game's page (analytics:admin-stats-for-admins-only): the beacon only with a
 // token from the build, and a page policy that lets in its script and its reports and no other outside host.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -19,19 +19,19 @@ function directive(name: string): string[] {
 }
 
 describe("the analytics beacon on the game's page", () => {
-  test("[R-ANALYTICS-012] [R-ANALYTICS-007] given no token, an empty one, or one that is not a token, when the page is built, then it carries no script of the beacon", () => {
+  test("[analytics:admin-stats-for-admins-only] [analytics:store-holds-nothing-personal] given no token, an empty one, or one that is not a token, when the page is built, then it carries no script of the beacon", () => {
     for (const token of [undefined, "", "abc def", "abc\"><script>", "a".repeat(65)]) expect(withBeacon(PAGE, token)).toBe(PAGE);
     expect(PAGE).not.toContain("cloudflareinsights");
   });
 
-  test("[R-ANALYTICS-012] given a site token, when the page is built, then the beacon is the one script added, from Cloudflare, deferred, with the token and nothing about the player", () => {
+  test("[analytics:admin-stats-for-admins-only] given a site token, when the page is built, then the beacon is the one script added, from Cloudflare, deferred, with the token and nothing about the player", () => {
     const built = withBeacon(PAGE, "0123abcdEF");
     expect(built.replace(beaconTag("0123abcdEF"), "").replace(/\s+/g, "")).toBe(PAGE.replace(/\s+/g, ""));
     expect(beaconTag("0123abcdEF")).toBe(`<script defer src="${BEACON_SCRIPT}/beacon.min.js" data-cf-beacon='{"token": "0123abcdEF", "spa": false}'></script>`);
     expect(built.indexOf("cloudflareinsights")).toBeLessThan(built.indexOf("</body>"));
   });
 
-  test("[R-ANALYTICS-012] given the build's environment with and without VITE_ANALYTICS_TOKEN, when the build's step runs, then the page gains the beacon only with it", () => {
+  test("[analytics:admin-stats-for-admins-only] given the build's environment with and without VITE_ANALYTICS_TOKEN, when the build's step runs, then the page gains the beacon only with it", () => {
     const built = (env: Record<string, unknown>) => {
       const plugin = beaconPlugin() as unknown as { configResolved: (config: { env: Record<string, unknown> }) => void; transformIndexHtml: (html: string) => string };
       plugin.configResolved({ env });
@@ -42,7 +42,7 @@ describe("the analytics beacon on the game's page", () => {
     expect(built({ VITE_ANALYTICS_TOKEN: "0123abcdEF" })).toContain(beaconTag("0123abcdEF"));
   });
 
-  test("[R-ANALYTICS-012] given the page's policy, when it is read, then scripts come only from the page, the bot check and the beacon, and connections only to the page and the beacon's reports", () => {
+  test("[analytics:admin-stats-for-admins-only] given the page's policy, when it is read, then scripts come only from the page, the bot check and the beacon, and connections only to the page and the beacon's reports", () => {
     expect(directive("script-src")).toEqual(["'self'", "'wasm-unsafe-eval'", "https://challenges.cloudflare.com", BEACON_SCRIPT]);
     expect(directive("connect-src")).toEqual(["'self'", "blob:", BEACON_REPORTS]);
   });
