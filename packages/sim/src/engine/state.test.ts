@@ -11,16 +11,7 @@ import { checkInvariants } from "./invariants";
 import { replay } from "./replay";
 import { newState, STATE_SCHEMA, upgradeState } from "./state";
 import type { Content, State } from "./types";
-
-/** Every string and key equal to an id in the table renamed. */
-function renamedDeep(value: unknown, renames: Record<string, string>): unknown {
-  if (typeof value === "string") return renames[value] ?? value;
-  if (Array.isArray(value)) return value.map((item) => renamedDeep(item, renames));
-  if (typeof value === "object" && value !== null) {
-    return Object.fromEntries(Object.entries(value).map(([key, inner]) => [renames[key] ?? key, renamedDeep(inner, renames)]));
-  }
-  return value;
-}
+import { renamedDeep } from "../testing/renamed";
 
 function reversed(renames: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(renames).map(([old, now]) => [now, old]));

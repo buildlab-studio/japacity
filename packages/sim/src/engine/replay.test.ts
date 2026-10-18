@@ -15,6 +15,7 @@ import { isFlatSave, lastSegment, lifeStart, loadSave, newSave, openSegment, rec
 import { upgradeState } from "./state";
 import { step } from "./step";
 import type { Command, Content, FlatSave, Save, State } from "./types";
+import { renamedDeep } from "../testing/renamed";
 
 const CONTENTS: Record<string, Content> = { [miniContent.version]: miniContent, [realContent.version]: realContent };
 
@@ -22,16 +23,6 @@ function contentOf(version: string): Content {
   const found = CONTENTS[version];
   if (found === undefined) throw new Error(`No content ${version}.`);
   return found;
-}
-
-/** Every string and key equal to an old id renamed, as a content version that renames ids would read. */
-function renamedDeep(value: unknown, renames: Record<string, string>): unknown {
-  if (typeof value === "string") return renames[value] ?? value;
-  if (Array.isArray(value)) return value.map((item) => renamedDeep(item, renames));
-  if (typeof value === "object" && value !== null) {
-    return Object.fromEntries(Object.entries(value).map(([key, inner]) => [renames[key] ?? key, renamedDeep(inner, renames)]));
-  }
-  return value;
 }
 
 const RENAMES = { "scenario.worker": "scenario.labourer", "route.mini": "route.small" };
