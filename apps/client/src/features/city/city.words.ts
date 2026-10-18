@@ -2,7 +2,7 @@
 // place/place.text.ts (city.md R-CITY-024); and the names of the people who live in the city.
 import { text } from "@japacity/content";
 
-import { hasWords, nameOf, runningName, words } from "../../shared/words/text";
+import { nameOf, readerOf, runningName, words } from "../../shared/words/text";
 import { hash } from "../../shared/scene/crowd";
 import type { Role } from "../../shared/scene/roster";
 
@@ -23,13 +23,7 @@ export function roleWords(role: Role): string {
 }
 
 /** Words for a city key: content's, else a country's late words. */
-export function cityWords(key: string, params: Record<string, string | number> = {}): string {
-  const template = text[key] ?? (hasWords(key) ? words(key) : undefined) ?? key;
-  return template.replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => {
-    const value = params[name];
-    return value === undefined ? whole : String(value);
-  });
-}
+export const cityWords = readerOf();
 
 /** A place's name as content gives it (R-CITY-024). */
 export function placeName(id: string): string {

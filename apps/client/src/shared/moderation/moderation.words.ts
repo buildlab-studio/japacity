@@ -2,12 +2,12 @@
 import type { ReportReason } from "@japacity/api";
 import { text, type uiModerationText } from "@japacity/content";
 
+import { fill, type Filled } from "../words/text";
+
 export type ModerationKey = keyof typeof uiModerationText;
 
-const BRACE = /\{(\w+)\}/g;
-
-export function words(key: ModerationKey, params: Record<string, string | number> = {}): string {
-  return (text[key] ?? key).replace(BRACE, (whole, name: string) => (params[name] === undefined ? whole : String(params[name])));
+export function words(key: ModerationKey, params: Filled = {}): string {
+  return fill(text[key] ?? key, params);
 }
 
 export function reasonWords(reason: ReportReason): string {

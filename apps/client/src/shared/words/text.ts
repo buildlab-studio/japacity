@@ -296,6 +296,25 @@ export function words(key: string, params: Params = {}): string {
   });
 }
 
+/** Params a screen has already made into words or numbers, put into a line as they are. */
+export type Filled = Readonly<Record<string, string | number | undefined>>;
+
+/** A line with each `{name}` it has a param for put in as given; a name with no param stays as it is. */
+export function fill(line: string, params: Filled = {}): string {
+  return line.replace(BRACE, (whole, name: string) => {
+    const value = params[name];
+    return value === undefined ? whole : String(value);
+  });
+}
+
+/**
+ * A reader of one part of the interface's words: content's table, then the part's own tables (words that ride a chunk
+ * of their own), then a country's late words, else the key itself, with its params put in as given.
+ */
+export function readerOf(...own: readonly Readonly<Record<string, string>>[]): (key: string, params?: Filled) => string {
+  return (key, params = {}) => fill(text[key] ?? own.find((table) => table[key] !== undefined)?.[key] ?? (lateWord(key) === undefined ? key : say(key)), params);
+}
+
 /** Words for the interface, with params the screen has already formatted. */
 export function say(key: string, params: Params = {}): string {
   return lookup(key).replace(BRACE, (whole, name: string) => {

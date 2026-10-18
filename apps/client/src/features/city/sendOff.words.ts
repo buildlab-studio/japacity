@@ -3,11 +3,12 @@
 import { text } from "@japacity/content";
 import { uiSendOffText } from "@japacity/content/ui/send-off";
 
-import { hasWords, words } from "../../shared/words/text";
+import { type Filled, readerOf } from "../../shared/words/text";
+
+const read = readerOf(uiSendOffText);
 
 /** A key of the scene's words, content's table first. Counts take the `.one` form at one. */
-export function sendOffWords(key: string, params: Record<string, string | number> = {}): string {
+export function sendOffWords(key: string, params: Filled = {}): string {
   const counted = typeof params.count === "number" && params.count === 1 && (text[`${key}.one`] !== undefined || uiSendOffText[`${key}.one`] !== undefined) ? `${key}.one` : key;
-  const template = text[counted] ?? uiSendOffText[counted] ?? (hasWords(counted) ? words(counted) : undefined) ?? counted;
-  return template.replace(/\{(\w+)\}/g, (whole, name: string) => (params[name] === undefined ? whole : String(params[name])));
+  return read(counted, params);
 }

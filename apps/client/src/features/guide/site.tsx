@@ -6,6 +6,7 @@ import type { Content, Id } from "@japacity/sim";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
+import { fill } from "../../shared/words/text";
 import { GUIDES_ROOT, guidePath, MADE_PATH, numbersPath } from "./paths";
 
 /** credits.json as tools/assets/credits.ts writes it (city.md R-CITY-021). */
@@ -52,7 +53,7 @@ export function shownDay(day: string): string {
 type Words = (key: string, params?: Record<string, string>) => string;
 
 function wordsFrom(text: Record<string, string>): Words {
-  return (key, params = {}) => (text[key] ?? key).replace(/\{([A-Za-z][\w-]*)\}/g, (whole, name: string) => params[name] ?? whole);
+  return (key, params = {}) => fill(text[key] ?? key, params);
 }
 
 const LINK = "underline underline-offset-4 hover:text-ink";

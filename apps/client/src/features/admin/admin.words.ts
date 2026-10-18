@@ -1,5 +1,7 @@
 // Words for the admin page. Only accounts on the admin list read them, so they
 // name the server's ids and codes as they are, plainly.
+import { fill, type Filled } from "../../shared/words/text";
+
 const adminText = {
   "admin.title": "Admin",
   "admin.tabs": "Admin areas",
@@ -315,8 +317,6 @@ const adminText = {
 
 export type AdminKey = keyof typeof adminText;
 
-const BRACE = /\{(\w+)\}/g;
-
-export function words(key: AdminKey, params: Record<string, string | number> = {}): string {
-  return adminText[key].replace(BRACE, (whole, name: string) => (params[name] === undefined ? whole : String(params[name])));
+export function words(key: AdminKey, params: Filled = {}): string {
+  return fill(adminText[key], params);
 }
