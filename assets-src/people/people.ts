@@ -6,7 +6,7 @@
 import type { PaletteName } from "@japacity/assets";
 import type { PatternSpec } from "@japacity/assets/pattern";
 
-import { type Blend, frontAt, project, type Shape, surface, type Surface, type Tri } from "./blend";
+import { type Blend, cross, dot, frontAt, project, type Shape, sub, surface, type Surface, type Tri, type Vec } from "./blend";
 import type { PersonBone, PersonMesh } from "./person.types";
 import { thin } from "./thin";
 
@@ -54,7 +54,6 @@ const LOOKS: Record<FaceStyle, Look> = {
   c: { style: "c", headScale: 1.25, handScale: 1.2, footScale: 1.12 },
 };
 
-type Vec = [number, number, number];
 type Weights = [number, number][];
 type WeightFn = (p: Vec) => Weights;
 /** A palette colour, or 1 for the person's fabric pattern. */
@@ -207,10 +206,7 @@ const HEAD = [ // [y from head centre, half width, half depth, z offset]
 
 // ---------- small maths ----------
 const add = (a: Vec, b: Vec): Vec => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
-const sub = (a: Vec, b: Vec): Vec => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const mul = (a: Vec, k: number): Vec => [a[0] * k, a[1] * k, a[2] * k];
-const dot = (a: Vec, b: Vec): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 const len = (a: Vec): number => Math.hypot(a[0], a[1], a[2]);
 const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
 const mix = (a: Vec, b: Vec, t: number): Vec => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
