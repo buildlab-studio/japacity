@@ -4,12 +4,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { readJson } from "../../../../../tools/repo";
 import type { CreditsFile } from "./site";
 import type { SiteFiles } from "./site.entry";
-
-function readJson<T>(path: string): T {
-  return JSON.parse(readFileSync(path, "utf8")) as T;
-}
 
 /** The files the pages are built from: the rule pages and credits.json. */
 export function siteFiles(clientRoot: string): SiteFiles {
