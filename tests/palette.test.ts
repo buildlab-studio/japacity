@@ -3,7 +3,7 @@ import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
-// The game's own colours on every screen (docs/rules/world.md R-WORLD-021). The client names role tokens only; the older cream page palette and the
+// The game's own colours on every screen (world:colours-are-role-tokens). The client names role tokens only; the older cream page palette and the
 // tells of a machine-made app stay out. Every finding names the file and the line, so a failure says where to look.
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -75,7 +75,7 @@ const PILL = /(?<![\w-])rounded-full(?![\w-])/;
 /** A pill only where it means something: a dot, a person's avatar, the month's glyph. */
 const PILLS_ALLOWED = 8;
 /**
- * The front door's rounds apart from the budget (R-WORLD-021's exception): its colour swatches and the page's round
+ * The front door's rounds apart from the budget (world:colours-are-role-tokens's exception): its colour swatches and the page's round
  * stamp, one round each. The header is DoorFrame, whose round buttons are the lively layer's own class
  * (`.round-button`, as the band's thumbs are `.thumb-round`), so it draws no round of its own here.
  */
@@ -86,7 +86,7 @@ const DOOR_ROUNDS: Readonly<Record<string, number>> = {
 };
 
 /**
- * The two lights over the start screen (account.md R-ACCOUNT-031; R-WORLD-021's exception): a picture of everyone, not the interface, with the dusk across
+ * The two lights over the start screen (account:two-lights-and-wink-lines; world:colours-are-role-tokens's exception): a picture of everyone, not the interface, with the dusk across
  * the top and a glow for each bulb, in its own colours as the 3D world keeps its own. Its soft gradients are counted
  * apart from the rule, so the picture gains none, and nothing else in the client may draw one.
  */
@@ -95,31 +95,31 @@ const PICTURE_GRADIENTS: Readonly<Record<string, number>> = {
 };
 
 describe("the palette", () => {
-  test("[R-WORLD-021] given the walk, then it sees the client's screens, styles and words", () => {
+  test("[world:colours-are-role-tokens] given the walk, then it sees the client's screens, styles and words", () => {
     expect(clientFiles).toContain(`${CLIENT}/index.css`);
     expect(clientFiles).toContain(`${CLIENT}/features/activity/JobList.tsx`);
     expect(wordFiles).toContain("packages/content/src/ui/ui.text.ts");
     expect(wordFiles).toContain(`${CLIENT}/features/map/map.words.ts`);
   });
 
-  test("[R-WORLD-021] given the client, when its classes are read, then none names the older page palette", () => {
+  test("[world:colours-are-role-tokens] given the client, when its classes are read, then none names the older page palette", () => {
     expect(show(findAll(clientFiles, OLD_CLASS))).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the client, when its styles are read, then the older palette's variables are gone", () => {
+  test("[world:colours-are-role-tokens] given the client, when its styles are read, then the older palette's variables are gone", () => {
     expect(show(findAll(clientFiles, OLD_VARIABLE))).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the client, then no cream or beige of the older palette is written anywhere", () => {
+  test("[world:colours-are-role-tokens] given the client, then no cream or beige of the older palette is written anywhere", () => {
     expect(show(findAll(clientFiles, CREAM))).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the client, then nothing is drawn with a gradient, a blur or a glow", () => {
+  test("[world:colours-are-role-tokens] given the client, then nothing is drawn with a gradient, a blur or a glow", () => {
     const interfaceFiles = clientFiles.filter((file) => PICTURE_GRADIENTS[file] === undefined);
     expect(show([...findAll(clientFiles, GRADIENT_CLASS), ...findAll(clientFiles, GRADIENT_STOP), ...findAll(interfaceFiles, GRADIENT_CSS), ...findAll(clientFiles, BLUR), ...findAll(clientFiles, GLOW)])).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the drawn map's water, then it is the lagoon tone in the game's one look, by day and by night, never the bands' navy (decision 0025)", () => {
+  test("[world:colours-are-role-tokens] given the drawn map's water, then it is the lagoon tone in the game's one look, by day and by night, never the bands' navy (decision 0025)", () => {
     const css = readFileSync(join(root, CLIENT, "index.css"), "utf8");
     expect([...css.matchAll(/--water:\s*([^;]+);/g)].map((found) => found[1])).toEqual(["#5f9fc0"]);
     // The night paint keeps the day's water: it sets no water of its own.
@@ -127,28 +127,28 @@ describe("the palette", () => {
     expect(night).not.toContain("--water");
   });
 
-  test("[R-WORLD-021] [R-ACCOUNT-031] given the two lights' exception, then the picture draws its dusk and its glow and no other gradient, and no blur", () => {
+  test("[world:colours-are-role-tokens] [account:two-lights-and-wink-lines] given the two lights' exception, then the picture draws its dusk and its glow and no other gradient, and no blur", () => {
     for (const [file, gradients] of Object.entries(PICTURE_GRADIENTS)) {
       expect({ file, gradients: findAll([file], GRADIENT_CSS).length }).toEqual({ file, gradients });
       expect(show([...findAll([file], GRADIENT_CLASS), ...findAll([file], GRADIENT_STOP), ...findAll([file], BLUR), ...findAll([file], GLOW)])).toEqual([]);
     }
   });
 
-  test("[R-WORLD-021] given the player's words, then no emoji stands in for a picture", () => {
+  test("[world:colours-are-role-tokens] given the player's words, then no emoji stands in for a picture", () => {
     expect(show(findAll(wordFiles, EMOJI))).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the player's words, then no stock app copy is used", () => {
+  test("[world:colours-are-role-tokens] given the player's words, then no stock app copy is used", () => {
     expect(show(findAll(wordFiles, STOCK))).toEqual([]);
   });
 
-  test(`[R-WORLD-021] given the client, then at most ${String(PILLS_ALLOWED)} things are drawn as pills`, () => {
+  test(`[world:colours-are-role-tokens] given the client, then at most ${String(PILLS_ALLOWED)} things are drawn as pills`, () => {
     const pills = show(findAll(clientFiles.filter((file) => DOOR_ROUNDS[file] === undefined), PILL));
     // Over the limit, every pill is listed, so the failure shows which to make square.
     expect(pills.length <= PILLS_ALLOWED ? [] : pills).toEqual([]);
   });
 
-  test("[R-WORLD-021] given the front door's exception, then its header buttons, its swatches and the page's stamp are each drawn round once, and nothing more of the door", () => {
+  test("[world:colours-are-role-tokens] given the front door's exception, then its header buttons, its swatches and the page's stamp are each drawn round once, and nothing more of the door", () => {
     for (const [file, rounds] of Object.entries(DOOR_ROUNDS)) expect({ file, rounds: findAll([file], PILL).length }).toEqual({ file, rounds });
   });
 });

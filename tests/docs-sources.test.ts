@@ -1,4 +1,4 @@
-// The documentation site's sources page (docs/rules/guide.md R-GUIDE-007): the list its data loader
+// The documentation site's sources page (guide:one-sources-page): the list its data loader
 // builds at every build of the site, read here exactly as the page reads it.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -13,7 +13,7 @@ const rulesDir = join(REPO_ROOT, "docs", "rules");
 const list = loader.load();
 
 describe("the sources page of the documentation site", () => {
-  test("[R-GUIDE-007] given every guide and every rule page, when the site's list is built, then each source is there with its link and date, grouped by guide and by rule page", () => {
+  test("[guide:one-sources-page] given every guide and every rule page, when the site's list is built, then each source is there with its link and date, grouped by guide and by rule page", () => {
     expect(list.guides.map((group) => group.id)).toEqual(Object.keys(content.guide));
     for (const guide of Object.values(content.guide)) {
       const group = list.guides.find((found) => found.id === guide.id);
@@ -30,14 +30,14 @@ describe("the sources page of the documentation site", () => {
     expect(list.rules.find((group) => group.name === "guide")?.sources[0]?.readOn).toBe("2026-10-08");
   });
 
-  test("[R-GUIDE-007] given a rule page's sources changed, when the list is built again, then it shows the change: the page never goes stale", () => {
+  test("[guide:one-sources-page] given a rule page's sources changed, when the list is built again, then it shows the change: the page never goes stale", () => {
     const page = { name: "x", title: "X", sources: [{ title: "One", url: "https://one.example", readOn: "2026-10-07" }] };
     expect(sourcesList([page]).rules).toEqual([page]);
     expect(sourcesList([{ ...page, sources: [] }]).rules).toEqual([]);
     expect(loadSources(rulesDir)).toEqual(list);
   });
 
-  test("[R-GUIDE-007] [R-ROAD-011] given the real-story cards, when the list is built, then every credit is there in order with its link from content where content has one, and nothing from the journalism is reproduced", () => {
+  test("[guide:one-sources-page] [road:real-story-card-after-chain] given the real-story cards, when the list is built, then every credit is there in order with its link from content where content has one, and nothing from the journalism is reproduced", () => {
     const credits = Object.keys(text).filter((key) => key.startsWith("road.real-story.credit.")).sort();
     expect(credits.length).toBeGreaterThanOrEqual(2);
     expect(list.journalism.map((item) => item.credit)).toEqual(credits.map((key) => text[key]));
@@ -46,7 +46,7 @@ describe("the sources page of the documentation site", () => {
     expect(JSON.stringify(list)).not.toContain(text["road.real-story.line"]);
   });
 
-  test("[R-ROAD-011] given the real-story card's words, when its links are read, then each link stands beside a credit in content and is an https address", () => {
+  test("[road:real-story-card-after-chain] given the real-story card's words, when its links are read, then each link stands beside a credit in content and is an https address", () => {
     const links = Object.keys(text).filter((key) => key.startsWith("road.real-story.link."));
     expect(links.length).toBeGreaterThanOrEqual(2);
     for (const key of links) {
@@ -55,7 +55,7 @@ describe("the sources page of the documentation site", () => {
     }
   });
 
-  test("[R-GUIDE-007] given the documentation site, then the page reads the list from its loader and the sidebar of how it plays reaches it", () => {
+  test("[guide:one-sources-page] given the documentation site, then the page reads the list from its loader and the sidebar of how it plays reaches it", () => {
     const page = readFileSync(join(REPO_ROOT, "docs", "site", "plays", "sources.md"), "utf8");
     expect(page).toContain('import { data } from "./sources.data";');
     expect(readFileSync(join(REPO_ROOT, "docs", "site", ".vitepress", "config.ts"), "utf8")).toContain('{ text: "Every source", link: "/plays/sources" }');

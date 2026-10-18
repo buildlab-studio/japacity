@@ -13,7 +13,7 @@ function sources(): { file: string; text: string }[] {
 }
 
 describe("the admin tools' reach", () => {
-  test("[R-SERVER-010] given the admin source, when it is searched, then no rollback runs in a loop, no function but the snapshot's (R-SERVER-047) lists the player store's characters, and the rollback tool reads one character at a time", () => {
+  test("[server:no-mass-rollback] given the admin source, when it is searched, then no rollback runs in a loop, no function but the snapshot's (server:snapshot-before-deploy) lists the player store's characters, and the rollback tool reads one character at a time", () => {
     const found = sources();
     expect(found.length).toBeGreaterThan(5);
     for (const { file, text } of found) {
@@ -27,9 +27,9 @@ describe("the admin tools' reach", () => {
     expect(rollback).toMatch(/transact\(\[character\]/);
   });
 
-  test("[R-SERVER-029] given the server's readme, when the steps in the accounts are read, then the spending alerts at $50 and $200 a month are there", () => {
+  test("[server:spending-alerts] given the server's readme, when the steps in the accounts are read, then the spending alerts at $50 and $200 a month are there", () => {
     const readme = readFileSync(join(REPO_ROOT, "apps/server/README.md"), "utf8");
     const steps = readme.slice(readme.indexOf("## Steps in the accounts"));
-    expect(steps).toMatch(/R-SERVER-029.*\$50.*\$200 a month/);
+    expect(steps).toMatch(/server:spending-alerts.*\$50.*\$200 a month/);
   });
 });

@@ -51,7 +51,7 @@ describe("the example settings", () => {
     for (const name of read_) expect({ name, named: example.has(name) }).toEqual({ name, named: true });
   });
 
-  test("[R-SERVER-012] given each Worker's Env, when its string keys are listed, then its .dev.vars.example names exactly those, the admin accounts among the server's secrets", () => {
+  test("[server:ledger-alarm-lists-suspects] given each Worker's Env, when its string keys are listed, then its .dev.vars.example names exactly those, the admin accounts among the server's secrets", () => {
     const server = envStrings("apps/server");
     expect(server).toContain("ADMIN_ACCOUNTS");
     expect(server).toContain("BETTER_AUTH_SECRET");
@@ -88,7 +88,7 @@ describe("the example settings", () => {
     }
   });
 
-  test("[R-SERVER-012] [R-SERVER-038] given ADMIN_ACCOUNTS empty in .env.example, when the local stack is read, then the Worker is given no admin list; named in .env.local, it is handed on as written", () => {
+  test("[server:ledger-alarm-lists-suspects] [server:production-and-staging] given ADMIN_ACCOUNTS empty in .env.example, when the local stack is read, then the Worker is given no admin list; named in .env.local, it is handed on as written", () => {
     const example = parseDotEnv(read(".env.example"));
     expect(localStack(example, {}).worker["ADMIN_ACCOUNTS"]).toBeUndefined();
     const stack = localStack(example, { ADMIN_ACCOUNTS: "account.one,account.two" });

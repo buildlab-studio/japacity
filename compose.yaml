@@ -1,4 +1,4 @@
-# The local stack's services (server.md R-SERVER-038): Postgres for the game and Mailpit for its mail.
+# The local stack's services (server:production-and-staging): Postgres for the game and Mailpit for its mail.
 # `pnpm dev:full` starts them; `docker compose stop` stops them; `docker compose down --volumes`
 # also deletes the local database and the inbox. Both listen on this machine only.
 # The values here are local and not secrets; LOCAL_DATABASE_URL in .env.example matches them.

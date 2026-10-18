@@ -1,9 +1,9 @@
 // The GitHub workflows: the check runs with no secrets, staging deploys on a push to main, production on a release tag
 // or by hand, each only in this repository and through its own environment, and every action is pinned to a commit.
 // Staging deploys only once the check has passed on that push, the commit it passed; both deploys run the wrangler
-// apps/server pins; the admin list is a Worker secret (server.md R-SERVER-012), so no deploy passes it. Each deploy
+// apps/server pins; the admin list is a Worker secret (server:ledger-alarm-lists-suspects), so no deploy passes it. Each deploy
 // migrates its database before the build and the Worker, with the migrator role's string, and deploys nothing when
-// that fails (server.md R-SERVER-044).
+// that fails (server:migration-before-deploy).
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -51,7 +51,7 @@ describe("the workflows", () => {
     expect(triggers(read("check.yml"))).toContain("pull_request:");
   });
 
-  test("[R-SERVER-012] given the staging deploy, when it is read, then it runs only once the check has passed on a push to this repository's main, only in this repository, in the staging environment, one at a time, deploys the commit the check passed with --env staging, and passes no admin list", () => {
+  test("[server:ledger-alarm-lists-suspects] given the staging deploy, when it is read, then it runs only once the check has passed on a push to this repository's main, only in this repository, in the staging environment, one at a time, deploys the commit the check passed with --env staging, and passes no admin list", () => {
     const text = read("deploy-staging.yml");
     expect(CHECK_NAME).toBe("check");
     expect(triggers(text).trim()).toBe(`workflow_run:\n    workflows: [${CHECK_NAME ?? ""}]\n    types: [completed]\n    branches: [main]`);
@@ -67,7 +67,7 @@ describe("the workflows", () => {
   });
 
   // The Worker keeps its ADMIN_ACCOUNTS secret, so the deploy passes no admin list.
-  test("[R-SERVER-012] given the production deploy, when it is read, then it runs on a v tag or by hand from main or a v tag, never on a branch push, only in this repository, in the production environment, deploys with no --env, and passes no admin list", () => {
+  test("[server:ledger-alarm-lists-suspects] given the production deploy, when it is read, then it runs on a v tag or by hand from main or a v tag, never on a branch push, only in this repository, in the production environment, deploys with no --env, and passes no admin list", () => {
     const text = read("deploy-production.yml");
     expect(triggers(text).trim()).toBe('push:\n    tags: ["v*"]\n  workflow_dispatch:');
     expect(text).toContain(`    if: ${GUARD} && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))\n`);
@@ -96,16 +96,16 @@ describe("the workflows", () => {
       expect(steps[0]).toContain('echo "set=false" >> "$GITHUB_OUTPUT"');
       expect(steps[0]).toContain("::notice::");
       for (const step of steps.slice(1)) expect({ name, step: step.split("\n")[0], gated: step.includes("if: steps.ready.outputs.set == 'true'") }).toEqual({ name, step: step.split("\n")[0], gated: true });
-      // The quiet stop asks for the Cloudflare pair only, never the database's string (R-SERVER-044).
+      // The quiet stop asks for the Cloudflare pair only, never the database's string (server:migration-before-deploy).
       expect(steps[0]).not.toContain("DATABASE_URL_UNPOOLED");
       // Only the Cloudflare pair and the migrator's string are secrets of the environment; the build's variables are
-      // not, and the admin accounts are the Worker's own secret (R-SERVER-012 and R-SERVER-044).
+      // not, and the admin accounts are the Worker's own secret (server:ledger-alarm-lists-suspects and server:migration-before-deploy).
       expect([...new Set(text.match(/secrets\.[A-Z_]+/g))].sort()).toEqual(["secrets.CLOUDFLARE_ACCOUNT_ID", "secrets.CLOUDFLARE_API_TOKEN", "secrets.DATABASE_URL_UNPOOLED"]);
       expect([...new Set(text.match(/vars\.[A-Z_]+/g))].sort()).toEqual(["vars.VITE_ANALYTICS_TOKEN", "vars.VITE_SERVER_URL", "vars.VITE_TURNSTILE_SITE_KEY"]);
     }
   });
 
-  test("[R-SERVER-044] given either deploy, when its steps are read, then it installs, migrates with the migrator's string, builds the client and deploys the Worker in that order, and a missing string or a failed migration stops it loudly before anything is built or deployed", () => {
+  test("[server:migration-before-deploy] given either deploy, when its steps are read, then it installs, migrates with the migrator's string, builds the client and deploys the Worker in that order, and a missing string or a failed migration stops it loudly before anything is built or deployed", () => {
     for (const [name, environment] of [["deploy-staging.yml", "staging"], ["deploy-production.yml", "production"]] as const) {
       const text = read(name);
       const steps = text.slice(text.indexOf("    steps:\n")).split(/\n {6}- /).slice(1);

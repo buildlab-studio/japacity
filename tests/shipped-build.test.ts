@@ -24,7 +24,7 @@ const KEPT_CONSOLE = new Set(["error", "info"]);
  * a promise's result (`.catch(e=>console.warn(...))`), so the call is not a statement the bundler may remove.
  */
 const UNDROPPABLE_CONSOLE = /\.catch\(\w+=>console\.warn\(`\[R3F\] Error disposing renderer`/g;
-/** What the development switches leave in code that reads them: `?paint=`, `?clock=`, `?sleep=`, `?morning=`, `?tiles`, `?lively`, and the lines' hook (`?fan=off` went with the chip, R-WORLD-034). */
+/** What the development switches leave in code that reads them: `?paint=`, `?clock=`, `?sleep=`, `?morning=`, `?tiles`, `?lively`, and the lines' hook (`?fan=off` went with the chip, world:fan-of-sticker-buttons). */
 const DEV_SWITCH = /\.(?:get|has)\([`"'](paint|clock|sleep|morning|tiles|lively)[`"']\)/g;
 const DEV_SWITCHES = ["paint", "clock", "sleep", "morning", "tiles", "lively"];
 const DEV_HOOK = "__wink";
@@ -74,13 +74,13 @@ afterAll(() => {
 });
 
 describe("the build for players", () => {
-  test("[R-ENGINE-020] given the production build, then no source map ships and no shipped file names one", () => {
+  test("[engine:first-download-has-budget] given the production build, then no source map ships and no shipped file names one", () => {
     expect(shipped.chunks.length).toBeGreaterThan(10);
     expect(shipped.files.filter((file) => file.endsWith(".map"))).toEqual([]);
     expect(shipped.files.filter((file) => TEXT.test(file) && /sourceMappingURL/.test(read(shipped, file)))).toEqual([]);
   });
 
-  test("[R-ENGINE-020] [R-ANALYTICS-002] given the production build's chunks, then the only console calls left are console.error (the boundary's report of a broken screen) and console.info (the build's line), and no debugger statement", () => {
+  test("[engine:first-download-has-budget] [analytics:client-sends-interface-counts] given the production build's chunks, then the only console calls left are console.error (the boundary's report of a broken screen) and console.info (the build's line), and no debugger statement", () => {
     const text = code(shipped);
     const left = text.replace(UNDROPPABLE_CONSOLE, "");
     const calls = [...left.matchAll(/\bconsole\.(\w+)/g)].map((match) => match[1] ?? "");
@@ -92,13 +92,13 @@ describe("the build for players", () => {
     expect(text).not.toMatch(/\bdebugger\b/);
   });
 
-  test("[R-ENGINE-020] given the development build's chunks, then the console calls the production build drops are there, so it is the build's setting that drops them", () => {
+  test("[engine:first-download-has-budget] given the development build's chunks, then the console calls the production build drops are there, so it is the build's setting that drops them", () => {
     const calls = new Set([...code(development).matchAll(/\bconsole\.(\w+)/g)].map((match) => match[1]));
     expect(calls.has("warn")).toBe(true);
     expect(calls.has("log")).toBe(true);
   });
 
-  test("[R-ENGINE-020] given both builds, then every development switch, the lines' hook and the development pages are in the development build and none is in the production build", () => {
+  test("[engine:first-download-has-budget] given both builds, then every development switch, the lines' hook and the development pages are in the development build and none is in the production build", () => {
     const dev = code(development);
     const found = (text: string): string[] => [...new Set([...text.matchAll(DEV_SWITCH)].map((match) => match[1] ?? ""))].sort();
     expect(found(dev)).toEqual([...DEV_SWITCHES].sort());
@@ -111,7 +111,7 @@ describe("the build for players", () => {
     expect(shipped.chunks.filter((file) => DEV_PAGES.test(file))).toEqual([]);
   });
 
-  test("[R-ENGINE-020] given the production build, then beside the page a licences file holds every package the client ships with its licence's text, and the development build has none", () => {
+  test("[engine:first-download-has-budget] given the production build, then beside the page a licences file holds every package the client ships with its licence's text, and the development build has none", () => {
     expect(shipped.files).toContain("licenses.txt");
     const licences = read(shipped, "licenses.txt");
     const packages = shippedPackages(CLIENT);
@@ -124,7 +124,7 @@ describe("the build for players", () => {
     expect(development.files).not.toContain("licenses.txt");
   });
 
-  test("[R-ENGINE-020] given the production build, then the file names stay hashed and the code is minified, not obfuscated: the words a player reads are there as written", () => {
+  test("[engine:first-download-has-budget] given the production build, then the file names stay hashed and the code is minified, not obfuscated: the words a player reads are there as written", () => {
     const scripts = shipped.chunks;
     expect(scripts.every((file) => /^assets\/[\w.-]+-[\w-]{8}\.js$/.test(file))).toBe(true);
     const text = code(shipped);
@@ -132,11 +132,11 @@ describe("the build for players", () => {
     expect(text).not.toMatch(/\\x[0-9a-f]{2}\\x[0-9a-f]{2}\\x[0-9a-f]{2}\\x[0-9a-f]{2}/i);
   });
 
-  test("[R-CITY-021] given the production build, then the credits still carry the map data line with its link and the way to the full list of licences", () => {
+  test("[city:credits-screen-attributions] given the production build, then the credits still carry the map data line with its link and the way to the full list of licences", () => {
     const credits = JSON.parse(read(shipped, "assets/credits.json")) as { mapData: { text: string; link: string }[]; fonts: unknown[] };
     expect(credits.mapData.some((line) => line.text.includes("OpenStreetMap") && line.link.includes("openstreetmap.org/copyright"))).toBe(true);
     expect(credits.fonts.length).toBeGreaterThan(0);
-    // The way to the full list is the licence file the build writes beside the page (R-GUIDE-010), not the private repository.
+    // The way to the full list is the licence file the build writes beside the page (guide:credits-state-licences), not the private repository.
     expect(code(shipped)).toContain("licenses.txt");
   });
 });

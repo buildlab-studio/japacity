@@ -7,7 +7,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { filesUnder, readJson, REPO_ROOT, toPosix } from "../tools/repo";
 
-// R-SERVER-017: the production client is built with the server's secrets in
+// server:build-scanned-for-secrets: the production client is built with the server's secrets in
 // its environment, as a build machine that also deploys the server might have
 // them, and the output is scanned for them and for any server-side module.
 const SENTINELS = {
@@ -39,7 +39,7 @@ afterAll(() => {
 });
 
 describe("the client bundle", () => {
-  test("[R-SERVER-017] given the server's secrets in the build's environment, when every file of the production build is read, then no world seed, character seed or overlay value appears", () => {
+  test("[server:build-scanned-for-secrets] given the server's secrets in the build's environment, when every file of the production build is read, then no world seed, character seed or overlay value appears", () => {
     expect(files.some((file) => file.endsWith(".js"))).toBe(true);
     for (const file of files) {
       const text = readFileSync(file, "latin1");
@@ -48,7 +48,7 @@ describe("the client bundle", () => {
     }
   });
 
-  test("[R-SERVER-017] given the build's source maps, when every source they name is read, then none is a module of apps/server, packages/store or packages/db, and the simulation is there", () => {
+  test("[server:build-scanned-for-secrets] given the build's source maps, when every source they name is read, then none is a module of apps/server, packages/store or packages/db, and the simulation is there", () => {
     const sources = files
       .filter((file) => file.endsWith(".map"))
       .flatMap((file) => readJson<{ sources: string[] }>(file).sources.map((source) => toPosix(relative(REPO_ROOT, resolve(dirname(file), source)))));

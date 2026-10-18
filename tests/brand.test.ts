@@ -20,7 +20,7 @@ const firstFamily = (stack: string | undefined): string | undefined => stack?.sp
 
 describe("the brand package", () => {
   // skyDeep is left out: it is the teaser's own deeper background and the client has no token of it.
-  test("[R-WORLD-021] given the brand's paints, then each colour but the teaser's skyDeep is the client's role token of the same paint", () => {
+  test("[world:colours-are-role-tokens] given the brand's paints, then each colour but the teaser's skyDeep is the client's role token of the same paint", () => {
     const paint = { sky: "sheet", card: "sheet-2", ink: "text", ink2: "text-2", edge: "edge", cut: "cut" } as const;
     for (const [key, token] of Object.entries(paint)) expect({ key, value: DAY[key as keyof typeof paint] }).toEqual({ key, value: value(DAY_BLOCK, token) });
     for (const [key, token] of Object.entries(paint)) expect({ key, value: NIGHT[key as keyof typeof paint] }).toEqual({ key, value: value(NIGHT_BLOCK, token) });
@@ -29,7 +29,7 @@ describe("the brand package", () => {
     expect(firstFamily(FONT)).toBe(firstFamily(value(CSS, "font-sans")));
   });
 
-  test("[R-WORLD-021] given the lockups the site serves, then the name in each is drawn with the brand's wordmark letters", () => {
+  test("[world:colours-are-role-tokens] given the lockups the site serves, then the name in each is drawn with the brand's wordmark letters", () => {
     for (const ground of ["light", "dark"]) {
       const svg = readFileSync(join(REPO_ROOT, "apps", "client", "public", "brand", `japacity-lockup-${ground}.svg`), "utf8");
       const name = /<\/g>\s*<path d="([^"]+)"/.exec(svg)?.[1];
