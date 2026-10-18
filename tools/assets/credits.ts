@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { defaultPaths, expectedCredits, mapSources } from "./assets-check";
 import { placeMapData } from "./map-data";
 import { readRegister } from "./register";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 function main(): void {
   const paths = defaultPaths(REPO_ROOT);
@@ -15,4 +15,4 @@ function main(): void {
   console.log(`credits: ${String(credits.mapData.length)} map data line(s), ${String(credits.assets.length)} attribution(s), ${String(credits.fonts.length)} font(s)`);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) main();
+if (isMain(import.meta.url)) main();

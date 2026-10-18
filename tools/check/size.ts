@@ -8,13 +8,12 @@
 //
 // Usage: pnpm check:size
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, realpathSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 export const BUDGET_FILE = "tools/check/size-budget.json";
 
@@ -187,4 +186,4 @@ function main(): void {
   console.log("Every part of a first visit is inside its budget.");
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main();
+if (isMain(import.meta.url)) main();

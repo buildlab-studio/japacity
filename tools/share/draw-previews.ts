@@ -7,12 +7,11 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 
 import { content, shareKinds, text, type ShareKind } from "@japacity/content";
 import { chromium, type Page } from "@playwright/test";
 
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 const PORT = Number(process.env.PREVIEWS_PORT ?? "5871");
 const BASE = `http://localhost:${String(PORT)}`;
@@ -122,4 +121,4 @@ async function main(): Promise<void> {
 }
 
 // Run as a command only; the test imports the faces without drawing anything.
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
+if (isMain(import.meta.url)) await main();

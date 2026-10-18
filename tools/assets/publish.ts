@@ -11,7 +11,7 @@ import { join, relative } from "node:path";
 import { CATALOG, type CatalogEntry, PORTRAITS, type ViewName } from "./catalog";
 import { defaultPaths, isPublishedCopy, listFiles, TILES } from "./assets-check";
 import { hashedName, readManifest, sha256, writeManifest } from "./manifest";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 export { HASH_DIGITS, hashedName, hashInName } from "./manifest";
 export { TILES } from "./assets-check";
@@ -102,4 +102,4 @@ function main(): void {
   console.log(`publish: ${String(Object.keys(manifest.files).length)} file(s) beside their sources under apps/client/public/assets`);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) main();
+if (isMain(import.meta.url)) main();

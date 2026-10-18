@@ -9,7 +9,7 @@ import { join, relative } from "node:path";
 import type { Page } from "@playwright/test";
 
 import { type CatalogEntry, findEntries } from "./catalog";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 import { readManifest, sha256, writeManifest } from "./manifest";
 import { contourDistance, frameFor, type Mask, maskBounds, type OutlineSettings, polygonBounds, rasterise, centre, scoreView, type ViewScore } from "./outline-score";
 import { encodeIndexedPng } from "./png";
@@ -131,4 +131,4 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

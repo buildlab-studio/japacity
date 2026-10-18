@@ -16,7 +16,7 @@ import { type PoseName, poseRotations } from "@japacity/assets-src/people/poses"
 import type { Page } from "@playwright/test";
 
 import { type CatalogEntry, findEntries, PUBLIC, type ViewName } from "./catalog";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 import { readManifest, sha256, writeManifest } from "./manifest";
 import { openStage, signText, type Stage } from "./stage-browser";
 
@@ -158,4 +158,4 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

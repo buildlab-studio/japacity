@@ -14,7 +14,7 @@ import type { Page } from "@playwright/test";
 import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./assets-check";
 import type { CheckMode as Mode, FrameRecord, PlaceInput, RouteRecord } from "./place-check.types";
 import { PHONE_SHOT } from "./shoot";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 import { openStage, signText } from "./stage-browser";
 
 export const CHEAP_PHONE = { ...PHONE_SHOT, slowdown: 6 } as const;
@@ -222,4 +222,4 @@ async function main(): Promise<void> {
   if (problems.length > 0) process.exit(1);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

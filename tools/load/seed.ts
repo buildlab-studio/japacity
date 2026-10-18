@@ -7,7 +7,7 @@
 // Usage: pnpm tsx tools/load/seed.ts [--scale 10] [--base http://127.0.0.1:8787] [--concurrency 32]
 import { int } from "@japacity/sim";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { content } from "../../packages/content/src/index";
 import { argument, patient, pool, request, wholeArgument } from "./http";
@@ -15,6 +15,7 @@ import type { Target } from "./http";
 import { config, scaled } from "./load.config";
 import type { LoadConfig } from "./load.config";
 import { roll, STREAM } from "./pick.js";
+import { isMain } from "../repo";
 
 export interface SeedAccount {
   account: string;
@@ -130,7 +131,7 @@ async function main(args: readonly string[]): Promise<void> {
   console.log(`Manifest: ${MANIFEST}`);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

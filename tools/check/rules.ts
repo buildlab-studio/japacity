@@ -2,12 +2,11 @@
 // it, and every cited id is defined. See docs/design/02-quality-and-testing.md.
 //
 // Usage: pnpm check:rules [--write-pending]
-import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
-import { pathToFileURL } from "node:url";
 import ts from "typescript";
 
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 export const RULE_ID = /R-[A-Z][A-Z0-9]*-\d{3}/;
 
@@ -227,13 +226,7 @@ export function run(root: string, options: { readonly writePending: boolean }): 
   };
 }
 
-function isMain(): boolean {
-  const entry = process.argv[1];
-  if (entry === undefined) return false;
-  return import.meta.url === pathToFileURL(realpathSync(entry)).href;
-}
-
-if (isMain()) {
+if (isMain(import.meta.url)) {
   const { code, output } = run(REPO_ROOT, { writePending: process.argv.includes("--write-pending") });
   for (const line of output) console.log(line);
   process.exitCode = code;

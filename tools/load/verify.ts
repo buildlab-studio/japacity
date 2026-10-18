@@ -9,13 +9,13 @@
 import type { Command, Content, Currency, Id, Sender, State, World } from "@japacity/sim";
 import { checkInvariants, hashState, newState, step, ledgerReport, int } from "@japacity/sim";
 import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
 
 import { content as shipped } from "../../packages/content/src/index";
 import { argument, patient, pool, wholeArgument } from "./http";
 import type { Target } from "./http";
 import type { Manifest } from "./seed";
 import { MANIFEST } from "./seed";
+import { isMain } from "../repo";
 
 /** The rows of one character as the load route hands them over. */
 export interface CharacterRows {
@@ -203,7 +203,7 @@ async function main(args: readonly string[]): Promise<void> {
   if (!verification.ok) process.exit(1);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

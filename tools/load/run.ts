@@ -7,7 +7,7 @@
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { cpus, platform, release, totalmem } from "node:os";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { content } from "../../packages/content/src/index";
 import { drive } from "./drive";
@@ -22,6 +22,7 @@ import { MANIFEST, RESULTS } from "./seed";
 import { summaryMarkdown, summaryOf } from "./summary";
 import type { Counts, Verification } from "./verify";
 import { verifyAll } from "./verify";
+import { isMain } from "../repo";
 
 const HERE = fileURLToPath(new URL("./", import.meta.url));
 
@@ -108,7 +109,7 @@ async function main(args: readonly string[]): Promise<void> {
   if (scenario === "commands" && summary.verdict !== "pass") process.exit(1);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isMain(import.meta.url)) {
   main(process.argv.slice(2)).catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

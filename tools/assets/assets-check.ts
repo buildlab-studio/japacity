@@ -15,7 +15,7 @@ import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
 import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -595,4 +595,4 @@ async function main(): Promise<void> {
   if (problems.length > 0) process.exit(1);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

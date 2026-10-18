@@ -6,7 +6,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 
 import { type CatalogEntry, findEntries, PUBLIC } from "./catalog";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 import { measure, readGlb, toDocument, writeGlb } from "./glb";
 import { checkPalette } from "./palette-check";
 import { readRegister, rowFor, writeRegister } from "./register";
@@ -48,4 +48,4 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) await main();
+if (isMain(import.meta.url)) await main();

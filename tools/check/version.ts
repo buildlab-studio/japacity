@@ -7,14 +7,13 @@
 //
 // Usage: pnpm check:version, pnpm content:seal
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, sep } from "node:path";
-import { pathToFileURL } from "node:url";
 
 import ts from "typescript";
 
 import { content } from "../../packages/content/src/index";
-import { REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT } from "../repo";
 
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
@@ -167,4 +166,4 @@ function main(): void {
   console.log(`Content version "${now.version}" is sealed: the content and the simulation are as sealed.`);
 }
 
-if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main();
+if (isMain(import.meta.url)) main();

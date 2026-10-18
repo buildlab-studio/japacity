@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { REPO_ROOT } from "./repo";
+import { isMain, REPO_ROOT } from "./repo";
 
 export interface ShippedPackage {
   name: string;
@@ -55,4 +55,4 @@ function main(): void {
   console.log(`notices: ${String(packages.length)} package(s) written to NOTICES.md`);
 }
 
-if (process.argv[1] !== undefined && import.meta.filename === process.argv[1]) main();
+if (isMain(import.meta.url)) main();
