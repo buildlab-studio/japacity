@@ -1,4 +1,4 @@
-// The fifth starting life through the engine: the
+// Aniekan's starting life through the engine: the
 // scenario rules every fixed life keeps, and a prologue closed from the start.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -8,7 +8,7 @@ import { start } from "../testing/play";
 
 const LIFE = "scenario.aniekan" as const;
 
-describe("the fifth life", () => {
+describe("Aniekan's life", () => {
   test("[R-SCENARIO-001] given Aniekan, when a new state is built, then every always-true rule holds in it", () => {
     const game = start({ scenario: LIFE, seed: "fifth-1", content });
     expect(checkInvariants(game.state, content)).toEqual([]);

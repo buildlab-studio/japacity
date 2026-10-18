@@ -13,7 +13,7 @@ import { FLIGHT_WINDOW } from "./lives.window";
 const recorded = Object.entries(newLifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 
 describe("the lives recorded after the goldens", () => {
-  test("[R-ENGINE-010] given the new recordings, when listed, then the fifth life is among them, each starts from a life in the content, and none shares a name with a golden life", () => {
+  test("[R-ENGINE-010] given the recordings beyond the goldens, when listed, then they are Aniekan's, each starts from a life in the content, and none shares a name with a golden life", () => {
     expect(recorded.map((script) => lifeStart(script.save)?.scenario)).toEqual(["scenario.aniekan"]);
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
