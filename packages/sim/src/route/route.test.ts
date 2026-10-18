@@ -6,12 +6,13 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { convertMinor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
-import type { ActivityEntry, Content, Currency, Id, ReadCtx, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
+import type { ActivityEntry, Content, Currency, Id, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
 import { lifeStart, savedCommands } from "../engine/replay";
 import { lifeSaves } from "../goldens/lives.data";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { readOf } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import type { RouteKindEvent } from "./route.events";
 import {
@@ -59,10 +60,6 @@ const ALWAYS_REFUSED: Partial<typeof numbers> = { refusalMinBp: 10000, refusalMa
 
 /** The first seed whose first Northgate answer is an offer for a grade of second upper. */
 const OFFERED = seedWhere((seed) => draw(seed, "school", 1, 10000) < offerChanceBp(school(NORTHGATE), 4, numbers));
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 function judge(game: Game, requirement: Requirement) {
   return check(readOf(game), requirement);

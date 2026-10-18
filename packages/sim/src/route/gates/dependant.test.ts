@@ -4,12 +4,13 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
-import type { Id, PersonFacts, RouteState, RouteStateName, Tuning } from "../../engine/types";
+import type { Id, PersonFacts, RouteStateName, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
 import { slot } from "../../testing/route.journey";
 import { dependantFee, dependantGate, leadStatusMonths } from "./dependant";
-import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, readOf, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/people.journey";
+import { applyAs, CA_ACCOMPANY, CANADA, facts, interviewOpen, joint, life, scored, setFacts, SKILLED, UK_DEPENDANT } from "../../testing/people.journey";
+import { pounds, readOf, routeOf } from "../../testing/read";
 
 const ukDependant = content.route[UK_DEPENDANT]!;
 const APPLY_UK: Id<"activity"> = "activity.apply-uk-dependant";
@@ -23,15 +24,6 @@ const EXEMPT = ukDependant.dependant!.leadMonthsExempt!;
 /** A lead at home whose skilled worker application is in this state. */
 function leadOn(route: Id<"route">, state: RouteStateName, over: Partial<PersonFacts> = {}): PersonFacts {
   return facts({ joint: { route, state }, ...over });
-}
-
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
-
-function pounds(game: Game): number {
-  const pocket = game.state.wallet.pockets.GBP;
-  return pocket.bank + pocket.cash;
 }
 
 /**

@@ -10,7 +10,8 @@ import type { LifeOptions } from "../../testing/route.journey";
 import { draw, READY_PAPERS, seedWhere, slot } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { partnerGate } from "./partner";
-import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, readOf, scored, setFacts, setPeople, UK_PARTNER } from "../../testing/people.journey";
+import { answerInterview, BOND, CA_SPOUSE, facts, interviewOpen, joint, life, scored, setFacts, setPeople, UK_PARTNER } from "../../testing/people.journey";
+import { pounds, readOf, routeOf } from "../../testing/read";
 
 const ukPartner = content.route[UK_PARTNER]!;
 const caSpouse = content.route[CA_SPOUSE]!;
@@ -22,15 +23,6 @@ const SETTLED = facts({ where: "abroad", country: "country.uk", status: "status.
 const CA_RESIDENT = facts({ where: "abroad", country: "country.canada", status: "status.ca-resident" });
 
 const ALWAYS_GRANTED: Partial<Tuning["route"]> = { refusalMinBp: 0, refusalMaxBp: 0 };
-
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
-
-function pounds(game: Game): number {
-  const pocket = game.state.wallet.pockets.GBP;
-  return pocket.bank + pocket.cash;
-}
 
 /** Ada married to a sponsor whose facts are `sponsor`, the joint agreed with the sponsor leading on `route`. */
 function married(route: Id<"route">, sponsor = SETTLED, options: LifeOptions = {}): Game {

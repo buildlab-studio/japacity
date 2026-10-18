@@ -8,6 +8,7 @@ import { bp, mulDiv } from "../engine/int";
 import type { Accepted, BaseEvent, Id, Requirement } from "../engine/types";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { naira } from "../testing/read";
 
 const OPEN: Id<"activity"> = "activity.open-shop";
 const SHOP: Id<"activity"> = "activity.run-shop";
@@ -22,11 +23,6 @@ function capital(): number {
   const needs = content.activity[OPEN]?.requires.find((requirement): requirement is Extract<Requirement, { type: "money/min" }> => requirement.type === "money/min" && requirement.currency === "NGN");
   if (needs === undefined || typeof needs.amount !== "number") throw new Error("The shop's act asks for no capital in naira.");
   return needs.amount;
-}
-
-function naira(game: Game): number {
-  const pocket = game.state.wallet.pockets.NGN;
-  return pocket.bank + pocket.cash;
 }
 
 /** Plays the prologue down `answers` where each is open, else the first open answer. */

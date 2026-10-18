@@ -5,7 +5,7 @@
 // through `step`. Nothing in the simulation imports this file.
 import type { Registry } from "../engine/kind";
 import { stepWith } from "../engine/step";
-import type { Bond, Cause, Content, Effect, Id, InterviewResult, Moment, PeopleSlice, PersonFacts, ReadCtx, ReportLine, Terms } from "../engine/types";
+import type { Bond, Cause, Content, Effect, Id, InterviewResult, Moment, PeopleSlice, PersonFacts, ReportLine, Terms } from "../engine/types";
 import { registry } from "../kinds";
 import type { Game } from "./play";
 import type { LifeOptions } from "./route.journey";
@@ -133,8 +133,4 @@ export function applyAs(game: Game, effects: Effect[], cause: Partial<Cause> = {
   if (!result.ok) throw new Error(`The effects were rejected with ${result.code}: ${result.detail}`);
   game.state = result.state;
   return result.lines;
-}
-
-export function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }

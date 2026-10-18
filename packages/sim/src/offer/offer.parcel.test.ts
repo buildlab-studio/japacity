@@ -11,6 +11,7 @@ import type { Accepted, Content, Id, OfferState, State } from "../engine/types";
 import { applyEffects, slot, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { cash } from "../testing/read";
 import { PARCEL, parcelSender } from "./offer.parcel";
 
 const { parcel, street, room } = content.tuning;
@@ -58,10 +59,6 @@ function withParcel(game: Game, holds: string | null): OfferState {
   const item = parcelOf(game.state);
   if (item === undefined) throw new Error("The parcel did not open.");
   return item;
-}
-
-function cash(game: Game): number {
-  return game.state.wallet.pockets.NGN.cash;
 }
 
 function bank(game: Game): number {

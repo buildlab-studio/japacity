@@ -1,7 +1,7 @@
 // Test support for the whole-life rules that cross kinds: a recorded life
-// replayed to a point, months played abroad, and the events of a result read
-// by type. Nothing in the simulation imports this file.
-import type { Accepted, BaseEvent, Content, Id } from "../engine/types";
+// replayed to a point and months played abroad. Nothing in the simulation
+// imports this file.
+import type { Accepted, Content, Id } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import { lifeStart, savedCommands } from "../engine/replay";
 import type { Game } from "./play";
@@ -31,12 +31,6 @@ export function month(game: Game, slots: Parameters<Game["endTurn"]>[0] = []): A
   }
   if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
   return game.endTurn(slots);
-}
-
-export type Fields = BaseEvent & Record<string, unknown>;
-
-export function eventsOf(result: { events: BaseEvent[] }, type: string): Fields[] {
-  return result.events.filter((event) => event.type === type) as Fields[];
 }
 
 /** The one open instance of an obligation entry, or undefined. */

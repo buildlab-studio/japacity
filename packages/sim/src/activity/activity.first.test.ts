@@ -5,18 +5,15 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { valueInKobo } from "../engine/int";
-import type { ActivityEntry, Id, ReadCtx } from "../engine/types";
+import type { ActivityEntry, Id } from "../engine/types";
 import { FIRST_SESSION_MONTHS, isEarlyWin, playFirstSession, startingLives } from "../testing/firstSession";
 import type { FirstSession } from "../testing/firstSession";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { readOf } from "../testing/read";
 import { sureHuntJob } from "./activity.logic";
 
 const HUNT: Id<"activity"> = "activity.job-hunt";
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 function entryOf(id: string): ActivityEntry {
   const entry = content.activity[id as Id<"activity">];

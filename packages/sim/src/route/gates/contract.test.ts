@@ -8,6 +8,7 @@ import { check } from "../../engine/check";
 import { stepWith } from "../../engine/step";
 import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, Terms, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
+import { readOf } from "../../testing/read";
 import { answerFirst, applyEffects, readyLife, slot, UK, withEffects } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
@@ -34,10 +35,6 @@ function life(options: LifeOptions = {}): Game {
 
 function routeOf(game: Game, route: Id<"route"> = GULF): RouteState {
   return game.state.route[route]!;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function judge(game: Game, requirement: Requirement): boolean {

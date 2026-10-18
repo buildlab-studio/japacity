@@ -2,8 +2,9 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { ActivityEntry, Content, Id } from "../engine/types";
-import { applyAs, BOND, CA_SPOUSE, facts, joint, life, readOf, setPeople, UK_PARTNER } from "../testing/people.journey";
+import { applyAs, BOND, CA_SPOUSE, facts, joint, life, setPeople, UK_PARTNER } from "../testing/people.journey";
 import type { Game } from "../testing/play";
+import { readOf } from "../testing/read";
 import { barUntilMonth, floorsMet, meetsFloor, ownPayAYear, sponsorCheck } from "./sponsor-checks";
 
 const FLOOR = content.var["var.uk-partner-income"]!.start;

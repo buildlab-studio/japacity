@@ -16,7 +16,8 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { firstTick, seedWhere as seedWhereStory } from "../testing/world";
 import { standInWorld } from "../world/standIn";
-import { eventsOf, month, owing, replayTo } from "../testing/crossing.journey";
+import { month, owing, replayTo } from "../testing/crossing.journey";
+import { eventsOf } from "../testing/read";
 
 function officialOf(pairs: PlayerView["rates"]): Record<ForeignCurrency, number> {
   const rates = {} as Record<ForeignCurrency, number>;

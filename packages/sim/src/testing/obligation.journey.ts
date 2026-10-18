@@ -2,7 +2,7 @@
 // the UK through the real route kind, held there on a status with no end, and
 // effects applied through the engine as an activity or an offer would apply
 // them. Nothing in the simulation imports this file.
-import type { Accepted, BaseEvent, Content, Effect, Id, ObligationState, ReadCtx, Terms } from "../engine/types";
+import type { Accepted, Content, Effect, Id, ObligationState, Terms } from "../engine/types";
 import { answerFirst } from "./route.journey";
 import { flown } from "./place.journey";
 import { applyEffects } from "./route.journey";
@@ -19,10 +19,6 @@ export const TUITION: Id<"obligation"> = "obligation.tuition";
 export const CAR: Id<"obligation"> = "obligation.car";
 export const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
 export const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
-
-export function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 /** Ada flown to the UK on the student status: her room and upkeep are open, and her file is empty. */
 export function abroad(content: Content, options: LifeOptions = {}): Game {
@@ -94,8 +90,4 @@ export function markOf(game: Game): number {
   const credit = game.view().credit;
   if (credit === null) throw new Error("The view shows no credit file here.");
   return credit.mark;
-}
-
-export function eventsOf<T extends string>(result: { events: BaseEvent[] }, type: T): (BaseEvent & Record<string, unknown>)[] {
-  return result.events.filter((event) => event.type === type) as (BaseEvent & Record<string, unknown>)[];
 }

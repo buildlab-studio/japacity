@@ -8,6 +8,7 @@ import { check } from "../../engine/check";
 import { checkInvariants } from "../../engine/invariants";
 import type { Content, Id, ReadCtx, ReportLine, RouteState, ScenarioEntry, State, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
+import { readOf } from "../../testing/read";
 import { READY, READY_PAPERS, UNIT, applyEffects, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
@@ -51,10 +52,6 @@ const QUEUED: Record<Id<"var">, number> = { "var.fx-bank-queue": 1 };
 
 function zainab(options: LifeOptions = {}): Game {
   return readyLife(content, { from: ZAINAB, quiet: true, documents: ECA_PAPERS, pockets: POCKETS, ...options });
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function canada(game: Game): RouteState {

@@ -12,6 +12,7 @@ import type { Accepted, BaseEvent, Content, Effect, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { eventsOf, naira, restMonth } from "../testing/read";
 import { compoundMoveIn } from "./home.logic";
 
 const FAMILY = "place.family-house" as const;
@@ -45,20 +46,6 @@ function setNaira(game: Game, cash: number, bank: number): void {
   applyEffects(game, effects);
 }
 
-function naira(game: Game): number {
-  return game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
-}
-
-/** Ends a month resting, granting turns first when the bank is empty. */
-function month(game: Game): Accepted {
-  if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
-  return game.endTurn();
-}
-
-function eventsOf(result: { events: BaseEvent[] }, type: string): (BaseEvent & Record<string, unknown>)[] {
-  return result.events.filter((event) => event.type === type) as (BaseEvent & Record<string, unknown>)[];
-}
-
 function charged(result: { events: BaseEvent[] }, entry: Id<"obligation">): number[] {
   return eventsOf(result, "obligation/charged")
     .filter((event) => event["entry"] === entry)
@@ -70,7 +57,7 @@ function rentMonths(game: Game, last: number): number[] {
   const months: number[] = [];
   while (game.state.turn.month < last) {
     setNaira(game, 0, 5_000_000_00);
-    const result = month(game);
+    const result = restMonth(game);
     if (charged(result, RENT).length > 0) months.push(game.state.turn.month);
   }
   return months;
@@ -78,7 +65,7 @@ function rentMonths(game: Game, last: number): number[] {
 
 /** Ends months until the year's rent first falls due, the rent held until then. */
 function toRentDue(game: Game): void {
-  while (game.state.turn.month < 11) month(game);
+  while (game.state.turn.month < 11) restMonth(game);
 }
 
 function openEntries(game: Game): Id<"obligation">[] {
@@ -158,7 +145,7 @@ describe("moving into the room", () => {
   test("[R-HOME-010] given Ada in the room, when months pass, then the room's upkeep is charged each month in place of the family's, the move month included, and the year's rent nothing before month 12", () => {
     const game = inTheRoom();
     for (let at = 1; at < 12; at += 1) {
-      const result = month(game);
+      const result = restMonth(game);
       expect(charged(result, UPKEEP)).toHaveLength(1);
       expect(charged(result, FAMILY_UPKEEP)).toEqual([]);
       expect(charged(result, RENT)).toEqual([]);
@@ -166,7 +153,7 @@ describe("moving into the room", () => {
     expect(game.state.turn.month).toBe(11);
     // Twelve months on from the move, the next year's rent is due, and the card's bill says so the month before.
     expect(game.view().obligations.find((owed) => owed.entry === RENT)?.due).toBe(home.compound.rentYear);
-    expect(charged(month(game), RENT)).toEqual([home.compound.rentYear]);
+    expect(charged(restMonth(game), RENT)).toEqual([home.compound.rentYear]);
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
   });
 
@@ -178,7 +165,7 @@ describe("moving into the room", () => {
       // The fourth home, a hostel room by the month.
       { to: "place.hostel-room", monthly: { currency: "NGN", amount: home.hostelRentKobo }, now: home.hostelRentKobo, shut: "moved" },
     ]);
-    month(game);
+    restMonth(game);
     expect(game.view().home.moves.map((move) => move.shut)).toEqual([null, null, null]);
   });
 });
@@ -194,8 +181,8 @@ describe("water in the room (R-OBLIGATION-014)", () => {
   test("[R-OBLIGATION-014] [R-HOME-010] given Ada in the room, when she fills the drum in a month, then the room's upkeep is charged whole, with no relief and no money line, as in a month she does not", () => {
     const there = inTheRoom(CHARGED);
     const twin = inTheRoom(CHARGED);
-    month(there);
-    month(twin);
+    restMonth(there);
+    restMonth(twin);
     const played = there.endTurn([{ activity: "activity.fill-drum", param: null }]);
     const plain = twin.endTurn();
     expect(charged(played, UPKEEP)).toEqual(charged(plain, UPKEEP));
@@ -209,7 +196,7 @@ describe("water in the room (R-OBLIGATION-014)", () => {
 describe("moving back", () => {
   test("[R-HOME-010] [R-HOME-002] given Ada in the room, when she moves back to the family house, then the family's upkeep reopens at her starting life's charge, the rent closes with nothing given back, and the family talks", () => {
     const game = inTheRoom();
-    month(game);
+    restMonth(game);
     const standing = game.state.quality[STANDING]!;
     const before = naira(game);
     const result = game.accept({ type: "home/move", to: FAMILY });
@@ -224,7 +211,7 @@ describe("moving back", () => {
 
   test("[R-HOME-010] given Ada in the room, when she moves on to Makoko, then the room's rent and upkeep close and Makoko's rent opens, taken as R-HOME-002 takes it", () => {
     const game = inTheRoom();
-    month(game);
+    restMonth(game);
     game.accept({ type: "home/move", to: MAKOKO });
     expect(openEntries(game)).toEqual(["obligation.upkeep-makoko"]);
     expect(game.state.home.place).toBe(MAKOKO);
@@ -240,7 +227,7 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
   test("[R-OBLIGATION-015] given the room's rent opened in a later month, when it is read, then its first charge falls twelve months after that month", () => {
     const game = ada();
     setNaira(game, 0, 5_000_000_00);
-    for (let at = 0; at < 3; at += 1) month(game);
+    for (let at = 0; at < 3; at += 1) restMonth(game);
     expect(game.state.turn.month).toBe(3);
     game.accept({ type: "home/move", to: COMPOUND });
     expect(rentMonths(game, 20)).toEqual([15]);
@@ -250,11 +237,11 @@ describe("the year's rent paid upfront (R-OBLIGATION-015)", () => {
     const game = inTheRoom();
     toRentDue(game);
     setNaira(game, 0, 0);
-    const missed = month(game);
+    const missed = restMonth(game);
     expect(game.state.turn.month).toBe(12);
     expect(eventsOf(missed, "obligation/missed").filter((event) => event["entry"] === RENT)).toHaveLength(1);
     setNaira(game, 0, 5_000_000_00);
-    expect(charged(month(game), RENT)).toEqual([home.compound.rentYear]);
+    expect(charged(restMonth(game), RENT)).toEqual([home.compound.rentYear]);
     expect(rentMonths(game, 26)).toEqual([24]);
   });
 });
@@ -269,7 +256,7 @@ describe("the room's rent in the view", () => {
       expect(rent).toMatchObject({ year: home.compound.rentYear, fees });
       seen.push(rent!.dueIn);
       setNaira(game, 0, 5_000_000_00);
-      const result = month(game);
+      const result = restMonth(game);
       // The month whose end takes the rent is the month the view said 0.
       expect(charged(result, RENT).length > 0).toBe(rent!.dueIn === 0);
     }
@@ -280,14 +267,14 @@ describe("the room's rent in the view", () => {
     const game = inTheRoom();
     toRentDue(game);
     setNaira(game, 0, 0);
-    month(game);
+    restMonth(game);
     expect(game.view().home.roomRent?.dueIn).toBe(0);
   });
 
   test("[R-HOME-010] given Ada at the family house, and Ada moved back from the room, when the view is read, then no yearly rent is carried", () => {
     expect(ada().view().home.roomRent).toBeNull();
     const game = inTheRoom();
-    month(game);
+    restMonth(game);
     game.accept({ type: "home/move", to: FAMILY });
     expect(game.view().home.roomRent).toBeNull();
   });
@@ -302,7 +289,7 @@ describe("a rent gone bad (R-HOME-011)", () => {
     for (let miss = 0; miss <= grace; miss += 1) {
       expect(game.state.home.place).toBe(COMPOUND);
       setNaira(game, 0, 0);
-      last = month(game);
+      last = restMonth(game);
     }
     if (last === null) throw new Error("No month ran.");
     expect(eventsOf(last, "obligation/defaulted").map((event) => event["entry"])).toEqual([RENT]);
@@ -322,7 +309,7 @@ describe("a rent gone bad (R-HOME-011)", () => {
     const game = inTheRoom();
     toRentDue(game);
     setNaira(game, 0, 0);
-    const result = month(game);
+    const result = restMonth(game);
     expect(eventsOf(result, "obligation/defaulted")).toEqual([]);
     expect(game.state.home.place).toBe(COMPOUND);
     expect(openEntries(game)).toEqual([RENT, UPKEEP]);
@@ -336,8 +323,8 @@ describe("a rent gone bad (R-HOME-011)", () => {
     for (let miss = 0; miss <= content.obligation[RENT]!.grace; miss += 1) {
       setNaira(game, 0, 0);
       setNaira(twin, 0, 0);
-      month(game);
-      month(twin);
+      restMonth(game);
+      restMonth(twin);
     }
     expect(game.state.home.place).toBe(FAMILY);
     expect(twin.state.home.place).toBe(FAMILY);
@@ -348,15 +335,15 @@ describe("a rent gone bad (R-HOME-011)", () => {
 describe("a flight lets the room go (R-PLACE-002)", () => {
   test("[R-PLACE-002] [R-HOME-010] [R-PLACE-007] given Ada in the room, when she flies, then the room's rent closes with its upkeep; when she comes home, the family house takes her back at its own charge", () => {
     const game = inTheRoom();
-    month(game);
+    restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }]);
     expect(openEntries(game).filter((entry) => entry === RENT || entry === UPKEEP || entry === FAMILY_UPKEEP)).toEqual([]);
-    month(game);
+    restMonth(game);
     applyEffects(game, [{ type: "place/move", to: "home", country: null }]);
     expect(openEntries(game)).toContain(FAMILY_UPKEEP);
     expect(openEntries(game)).not.toContain(RENT);
     expect(game.view().home.place).toBe(FAMILY);
-    month(game);
+    restMonth(game);
     expect(game.state.home).toMatchObject({ place: FAMILY, guest: null });
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
   });
@@ -376,12 +363,12 @@ describe("a start in the room (R-PROLOGUE-013)", () => {
     expect(checkInvariants(game.state, QUIET)).toEqual([]);
     for (let at = 1; at < 12; at += 1) {
       setNaira(game, 0, 5_000_000_00);
-      const result = month(game);
+      const result = restMonth(game);
       expect(charged(result, RENT)).toEqual([]);
       expect(charged(result, UPKEEP)).toHaveLength(1);
     }
     setNaira(game, 0, 5_000_000_00);
-    expect(charged(month(game), RENT)).toEqual([home.compound.rentYear]);
+    expect(charged(restMonth(game), RENT)).toEqual([home.compound.rentYear]);
     expect(game.state.turn.month).toBe(12);
   });
 

@@ -7,10 +7,11 @@ import { describe, expect, test } from "vitest";
 
 import { bp, divFloor } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
-import type { Accepted, BaseEvent, Effect, Id } from "../engine/types";
+import type { Accepted, Effect, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { eventsOf, naira, restMonth } from "../testing/read";
 import { HomePlaceSchema } from "./home.schema";
 
 const FAMILY = "place.family-house" as const;
@@ -33,19 +34,6 @@ function setNaira(game: Game, bank: number): void {
   if (pocket.bank > 0) effects.push({ type: "money/take", currency: "NGN", pocket: "bank", amount: pocket.bank, reason: "mishap" });
   if (bank > 0) effects.push({ type: "money/add", currency: "NGN", pocket: "bank", amount: bank, reason: "gift" });
   applyEffects(game, effects);
-}
-
-function naira(game: Game): number {
-  return game.state.wallet.pockets.NGN.cash + game.state.wallet.pockets.NGN.bank;
-}
-
-function month(game: Game): Accepted {
-  if (game.state.turn.banked < 1) game.grant(game.content.tuning.turn.cap);
-  return game.endTurn();
-}
-
-function eventsOf(result: { events: BaseEvent[] }, type: string): (BaseEvent & Record<string, unknown>)[] {
-  return result.events.filter((event) => event.type === type) as (BaseEvent & Record<string, unknown>)[];
 }
 
 function openEntries(game: Game): string[] {
@@ -106,7 +94,7 @@ describe("the hostel as a home", () => {
     const game = inTheHostel();
     for (let at = 0; at < 3; at += 1) {
       setNaira(game, 5_000_000_00);
-      const result = month(game);
+      const result = restMonth(game);
       const paid = eventsOf(result, "obligation/charged").filter((event) => event["entry"] === RENT).map((event) => event["total"]);
       expect(paid).toEqual([MONTH]);
       expect(game.state.home.place).toBe(HOSTEL);
@@ -120,7 +108,7 @@ describe("the hostel as a home", () => {
     for (let miss = 0; miss <= grace; miss += 1) {
       expect(game.state.home.place).toBe(HOSTEL);
       setNaira(game, 0);
-      last = month(game);
+      last = restMonth(game);
     }
     if (last === null) throw new Error("No month ran.");
     expect(eventsOf(last, "obligation/defaulted").map((event) => event["entry"])).toEqual([RENT]);
@@ -135,7 +123,7 @@ describe("the hostel as a home", () => {
   test("[R-HOME-011] given Ada's hostel rent missed but not yet past its grace, when the month ends, then she still lives in the hostel", () => {
     const game = inTheHostel();
     setNaira(game, 0);
-    month(game);
+    restMonth(game);
     expect(game.state.home.place).toBe(HOSTEL);
     expect(openEntries(game)).toEqual([RENT]);
   });
@@ -164,7 +152,7 @@ describe("the hostel on the door", () => {
     expect(naira(game)).toBe(before);
     expect(openEntries(game)).toEqual([RENT]);
     setNaira(game, 5_000_000_00);
-    const result = month(game);
+    const result = restMonth(game);
     expect(eventsOf(result, "obligation/charged").filter((event) => event["entry"] === RENT).map((event) => event["total"])).toEqual([MONTH]);
   });
 });

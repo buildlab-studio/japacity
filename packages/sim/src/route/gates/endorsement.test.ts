@@ -5,8 +5,9 @@ import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
 import { checkInvariants } from "../../engine/invariants";
-import type { ActivityEntry, Content, Id, ReadCtx, ReportLine, RouteEntry, RouteState, Tuning } from "../../engine/types";
+import type { ActivityEntry, Content, Id, ReportLine, RouteEntry, RouteState, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
+import { readOf } from "../../testing/read";
 import { UK, applyEffects, draw, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
@@ -49,10 +50,6 @@ function withCooldownStep(used: Content): Content {
 function talentLife(options: LifeOptions = {}): Game {
   const vars = (tick: number) => ({ [entry.window!]: 2, ...options.vars?.(tick) });
   return readyLife(content, { quiet: true, ...options, vars, qualities: { ...AT_BARS, ...options.qualities } });
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function talent(game: Game): RouteState {

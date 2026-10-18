@@ -10,6 +10,7 @@ import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown } from "../testing/place.journey";
+import { debits } from "../testing/read";
 import { metresApart, rideFare, withinMetres } from "./place.logic";
 
 const UK: Id<"country"> = "country.uk";
@@ -46,10 +47,6 @@ function pounds(game: Game, cash: number, bank = 0): void {
 
 function rode(result: Accepted): BaseEvent | undefined {
   return result.events.find((event) => event.type === "place/rode");
-}
-
-function debits(result: Accepted): BaseEvent[] {
-  return result.events.filter((event) => event.type === "wallet/debited");
 }
 
 describe("the fare abroad", () => {

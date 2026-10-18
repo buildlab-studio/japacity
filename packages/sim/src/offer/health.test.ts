@@ -10,6 +10,7 @@ import type { Accepted, BaseEvent, Content, Effect, Id, OfferEntry, OfferView, S
 import { applyEffects, draw, seedWhere, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { naira, quality } from "../testing/read";
 import { COURSE, COURSE_STEP } from "./health";
 
 const health = content.tuning.health;
@@ -44,10 +45,6 @@ function life(seed = "seed-1"): Game {
   const game = start({ content: quiet, scenario: "scenario.ada", seed });
   give(game, PLENTY);
   return game;
-}
-
-function quality(game: Game, id: Id<"quality">): number {
-  return game.state.quality[id] ?? 0;
 }
 
 function add(game: Game, id: Id<"quality">, amount: number): void {
@@ -104,10 +101,6 @@ function changed(result: Accepted, id: Id<"quality">): number[] {
   return result.events
     .filter((event) => event.type === "quality/changed" && (event as unknown as { quality: string }).quality === id)
     .map((event) => (event as unknown as { amount: number }).amount);
-}
-
-function naira(game: Game): number {
-  return game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
 }
 
 function give(game: Game, amount: number): void {

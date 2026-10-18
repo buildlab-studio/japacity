@@ -9,6 +9,7 @@ import { BOND, joint, SKILLED, UK_DEPENDANT } from "../testing/people.journey";
 import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
+import { eventsOf } from "../testing/read";
 import { grantedRoute, leanRoute } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -25,10 +26,6 @@ type Accepted = Extract<StepResult, { ok: true }>;
 
 function closed(result: Accepted): unknown[] {
   return result.events.filter((event) => event.type === "chapter/closed");
-}
-
-function eventsOf(result: Accepted, type: string): unknown[] {
-  return result.events.filter((event) => event.type === type);
 }
 
 /** Tunde with the master's heard of, the month he looks into it: the first chapter closes on its items at this month's end. */

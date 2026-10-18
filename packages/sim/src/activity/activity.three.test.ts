@@ -5,10 +5,11 @@
 import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Accepted, BaseEvent, Currency, Effect, Id } from "../engine/types";
+import type { Currency, Effect, Id } from "../engine/types";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { debits } from "../testing/read";
 
 const BELLY: Id<"quality"> = "quality.belly";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
@@ -91,10 +92,6 @@ function middling(game: Game, qualities: readonly Id<"quality">[]): void {
     game,
     qualities.map((quality): Effect => ({ type: "quality/add", quality, amount: 50 - (game.state.quality[quality] ?? 0) })),
   );
-}
-
-function debits(result: Accepted): BaseEvent[] {
-  return result.events.filter((event) => event.type === "wallet/debited");
 }
 
 describe("the three countries lived by hand", () => {

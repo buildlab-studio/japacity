@@ -8,13 +8,13 @@ import type { Id, ObligationEntry, ObligationState, ReportLine } from "../engine
 import { playMonths } from "../testing/place.journey";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
+import { eventsOf, readOf } from "../testing/read";
 import { carPaid, carTerms, carView } from "./obligation.logic";
 import {
   abroad,
   AGENT_DEBT,
   CAR,
   closeTypes,
-  eventsOf,
   isOpen,
   markBy,
   markOf,
@@ -22,7 +22,6 @@ import {
   openOwed,
   owedOf,
   PHONE,
-  readOf,
   RENT_FLAT,
   RENT_ROOM,
   setPounds,

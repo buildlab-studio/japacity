@@ -11,6 +11,7 @@ import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown } from "../testing/place.journey";
+import { debits } from "../testing/read";
 import { metresApart, rideFare, shuttleRide, withinMetres } from "./place.logic";
 
 const CANADA: Id<"country"> = "country.canada";
@@ -54,10 +55,6 @@ function money(game: Game, country: Id<"country">, cash: number): void {
 
 function rode(result: Accepted): BaseEvent | undefined {
   return result.events.find((event) => event.type === "place/rode");
-}
-
-function debits(result: Accepted): BaseEvent[] {
-  return result.events.filter((event) => event.type === "wallet/debited");
 }
 
 /** The fare the country's way asks between two places, by the simulation's own function. */

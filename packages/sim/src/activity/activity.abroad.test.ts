@@ -8,13 +8,14 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { bp, divFloor, mulDiv } from "../engine/int";
 import type { Registry } from "../engine/kind";
-import type { Accepted, BaseEvent, Content, Id, ReadCtx, Requirement } from "../engine/types";
+import type { Accepted, Content, Id, ReadCtx, Requirement } from "../engine/types";
 import { registry } from "../kinds";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths } from "../testing/place.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import { applyEffects, draw, readyLife, slot, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { type MoneyEvent, moneyOf, readOf } from "../testing/read";
 import { activityKind, cashWorkedThisMonth, localTenure, paramsFor, passChanceBp } from "./activity.logic";
 import { drivingAttempts, hasCar, jobTerms, monthlyPay, monthlyTax } from "./activity.pay";
 
@@ -37,10 +38,6 @@ const UK_LICENCE: Id<"document"> = "document.uk-licence";
 const CARE_SALARY = 2700000;
 const tuning = content.tuning;
 
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
 function entry(id: Id<"activity">) {
   const found = content.activity[id];
   if (found === undefined) throw new Error(`The content has no ${id}.`);
@@ -51,18 +48,6 @@ function yearly(id: Id<"activity">): number {
   const amount = entry(id).pay?.amount;
   if (typeof amount !== "number") throw new Error(`${id} pays no fixed figure.`);
   return amount;
-}
-
-interface Money {
-  type: string;
-  currency: string;
-  pocket: string;
-  amount: number;
-  reason: string;
-}
-
-function moneyOf(result: Accepted, reason: string): Money[] {
-  return result.events.filter((event): event is BaseEvent & Money => (event.type === "wallet/credited" || event.type === "wallet/debited") && (event as unknown as Money).reason === reason);
 }
 
 function keys(result: Accepted): string[] {
@@ -184,7 +169,7 @@ describe("pay and tax abroad", () => {
     expect(moneyOf(result, "tax")).toEqual([{ type: "wallet/debited", currency: "GBP", pocket: "bank", amount: tax, reason: "tax" }]);
     // Rent and upkeep are charged too, by the obligation kind, after the job.
     const types = result.events.map((event) => event.type);
-    const paid = result.events.findIndex((event) => (event as unknown as Money).reason === "tax");
+    const paid = result.events.findIndex((event) => (event as unknown as MoneyEvent).reason === "tax");
     expect(paid).toBeLessThan(types.indexOf("activity/slots-recorded"));
     expect(moneyOf(result, "rent").length + moneyOf(result, "upkeep").length).toBeGreaterThan(0);
   });

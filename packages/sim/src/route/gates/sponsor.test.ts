@@ -10,6 +10,7 @@ import { stepWith } from "../../engine/step";
 import type { Content, Ctx, Effect, Id, ReadCtx, ReportLine, Requirement, RouteState, ScenarioEntry, Terms, Tuning } from "../../engine/types";
 import { registry } from "../../kinds";
 import type { Game } from "../../testing/play";
+import { pounds, readOf, routeOf } from "../../testing/read";
 import { applyEffects, draw, READY, readyLife, slot, UK, UNIT, withEffects } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
@@ -69,14 +70,6 @@ function worker(options: LifeOptions = {}): Game {
   return readyLife(content, { documents: SKILLED_PAPERS, quiet: true, change: working(null, { "activity.job-teacher": 24 }), ...options });
 }
 
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
-
 /**
  * Talk of the route reaches the character, then it is looked into. Looking
  * into a route needs the UK master's heard (the activity names it), which
@@ -106,11 +99,6 @@ function offerEffects(offer: Id<"offer">, fraud: boolean): Effect[] {
  */
 function hideFraud(game: Game, route: Id<"route">): void {
   game.state = { ...game.state, route: { ...game.state.route, [route]: { ...routeOf(game, route), secret: { sponsorFraud: true } } } };
-}
-
-function pounds(game: Game): number {
-  const pocket = game.state.wallet.pockets.GBP;
-  return pocket.bank + pocket.cash;
 }
 
 function judge(game: Game, requirement: Requirement): boolean {

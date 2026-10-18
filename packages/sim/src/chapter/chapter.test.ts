@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { newState } from "../engine/state";
 import { step } from "../engine/step";
-import type { ChapterEntry, Content, Id, ReadCtx, ReportLine, Sender, State } from "../engine/types";
+import type { ChapterEntry, Content, Id, ReportLine, Sender, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
 import { writeRoute } from "../testing/japacity.fixtures";
 import { registry } from "../kinds";
@@ -12,6 +12,7 @@ import { slot, toHeard, toKnown } from "../testing/route.journey";
 import { miniContent } from "../testing/miniContent";
 import { start } from "../testing/play";
 import type { Game, Loose } from "../testing/play";
+import { readOf } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { chapterKind } from "./chapter.logic";
 
@@ -24,10 +25,6 @@ const cap = miniContent.tuning.turn.cap;
 
 function chapterLines(lines: ReportLine[]): ReportLine[] {
   return lines.filter((line) => line.key.startsWith("line.chapter."));
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 function done(game: Game, chapter: Id<"chapter">): boolean {

@@ -4,9 +4,10 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../../engine/check";
-import type { Content, Id, ReadCtx, RouteState, ScenarioEntry, Tuning } from "../../engine/types";
+import type { Content, Id, ScenarioEntry, Tuning } from "../../engine/types";
 import type { Game } from "../../testing/play";
 import { flown } from "../../testing/place.journey";
+import { readOf, routeOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { GATES } from "./index";
@@ -33,14 +34,6 @@ const GULF_PAPERS: ScenarioEntry["documents"] = [
 
 /** The UK's deception ban cut to three months, so a test can watch it lift. */
 const shortBan: Content = { ...content, country: { ...content.country, "country.uk": { ...content.country["country.uk"]!, deceptionBanMonths: BAN_MONTHS } } };
-
-function routeOf(game: Game, route: Id<"route">): RouteState {
-  return game.state.route[route]!;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
-}
 
 /** Talk of the route reaches the character, then it is looked into. */
 function toKnown(game: Game, route: Id<"route">): void {

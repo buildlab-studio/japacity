@@ -9,6 +9,7 @@ import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
 import { applyEffects, readyLife, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { naira } from "../testing/read";
 
 const RACKS: Id<"activity"> = "activity.job-fish-racks";
 const HUNT: Id<"activity"> = "activity.job-hunt";
@@ -37,11 +38,6 @@ function sixteen(seed: string, answers: readonly string[]): Game {
 
 function hunted(game: Game): readonly string[] {
   return game.view().activities.find((option) => option.id === HUNT)?.params ?? [];
-}
-
-function naira(game: Game): number {
-  const pocket = game.state.wallet.pockets.NGN;
-  return pocket.bank + pocket.cash;
 }
 
 function salaries(result: Accepted): number[] {

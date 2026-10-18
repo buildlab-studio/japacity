@@ -15,6 +15,7 @@ import type { QualityEvent } from "../quality/quality.events";
 import { legalCommands } from "../testing/legal";
 import type { Game, Loose } from "../testing/play";
 import { start } from "../testing/play";
+import { naira } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import type { PrologueEvent } from "./prologue.events";
 import { gradeOf, parentsEducatedBp, pathMonths, PROLOGUE_SOURCE, startYear, WORK } from "./prologue.logic";
@@ -468,11 +469,6 @@ describe("age", () => {
     }
   });
 });
-
-/** The naira held, bank and cash. */
-function naira(game: Game): number {
-  return game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
-}
 
 /** The shop counter's path from school with the year given, to the close: the path ends at 259 months, 21 and 7 months. */
 function shopLife(seed: string, year: number): Game {

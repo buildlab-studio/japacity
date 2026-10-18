@@ -4,11 +4,12 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { checkInvariants } from "../engine/invariants";
-import type { Content, Id, ReadCtx } from "../engine/types";
+import type { Content, Id } from "../engine/types";
 import { checklistView, routePercent } from "../japacity/japacity.logic";
 import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { readOf } from "../testing/read";
 import { leanRoute } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -36,10 +37,6 @@ function nurseOnCare(): Game {
   expect(game.state.route[UK]?.state).toBe("heard");
   game.endTurn([slot(LOOK, CARE)]);
   return game;
-}
-
-function readOf(game: Game): ReadCtx {
-  return { state: game.state, world: game.world(), content: game.content };
 }
 
 describe("the chapter ahead in the view", () => {
