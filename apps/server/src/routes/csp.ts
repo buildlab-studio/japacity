@@ -11,7 +11,7 @@ import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { NO_REGION } from "../analytics/list";
 import type { ServerDeps } from "../deps";

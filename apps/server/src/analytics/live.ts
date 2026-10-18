@@ -3,7 +3,7 @@
 // sent. Only the day's totals by region are written; the account is read for
 // its region and its sign-up day and goes no further (R-ANALYTICS-007). A
 // counter that fails to write is never something the player sees.
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import type { ServerDeps } from "../deps";
 import { dayName } from "./day";
 import { NO_REGION } from "./list";

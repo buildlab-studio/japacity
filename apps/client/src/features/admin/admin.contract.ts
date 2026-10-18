@@ -13,7 +13,7 @@ export interface AdminRefusal {
 }
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin.ts (R-SERVER-005, 008, 011, 012)
+// apps/server/src/routes/admin/admin.ts (R-SERVER-005, 008, 011, 012)
 // ---------------------------------------------------------------------------
 
 /** packages/store/src/types.ts ByReason. */
@@ -26,20 +26,20 @@ export interface DayRow {
   destroyed: ByReason;
 }
 
-/** apps/server/src/admin/alarm.ts Alarm. */
+/** apps/server/src/ops/alarm.ts Alarm. */
 export type Alarm =
   | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
   | { kind: "draw"; day: number; draw: number; check: "win" | "top-up" | "ticket"; total: number; limit: number }
   | { kind: "diverged"; day: number; character: string; v: number };
 
-/** apps/server/src/admin/load.ts Diff. */
+/** apps/server/src/ops/replay.ts Diff. */
 export interface Diff {
   v: number;
   stored: string;
   replayed: string | null;
 }
 
-/** apps/server/src/admin/load.ts Dropped. */
+/** apps/server/src/ops/replay.ts Dropped. */
 export interface Dropped {
   v: number;
   type: string;
@@ -47,7 +47,7 @@ export interface Dropped {
   detail: string;
 }
 
-/** apps/server/src/admin/rollback.ts RollbackReport. */
+/** apps/server/src/ops/rollback.ts RollbackReport. */
 interface RollbackReport {
   character: string;
   v: number;
@@ -56,7 +56,7 @@ interface RollbackReport {
   dropped: Dropped[];
 }
 
-/** apps/server/src/admin/rollback.ts RollbackCheck, with LoadFailure's codes. */
+/** apps/server/src/ops/rollback.ts RollbackCheck, with LoadFailure's codes. */
 export type RollbackCheck = { ok: true; report: RollbackReport } | { ok: false; code: string; detail: string };
 
 export type ReportReply = { ok: true; report: DayRow } | AdminRefusal;
@@ -64,7 +64,7 @@ export type AlarmsReply = { ok: true; alarms: Alarm[] } | AdminRefusal;
 export type RejectionsReply = { ok: true; counts: Record<string, number> } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin-moderation.ts (R-MODERATION-010 to 016)
+// apps/server/src/routes/admin/moderation.ts (R-MODERATION-010 to 016)
 // ---------------------------------------------------------------------------
 
 /** apps/server/src/moderation/reports.ts REPORT_REASONS: also the reasons an admin action is logged with. */
@@ -217,10 +217,10 @@ export type DecidedReply = { ok: true; entry: ModerationLogEntry; appeal?: Appea
 export type LogReply = { ok: true; entries: ModerationLogEntry[] } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin-dedication.ts (R-MODERATION-021)
+// apps/server/src/routes/admin/dedication.ts (R-MODERATION-021)
 // ---------------------------------------------------------------------------
 
-/** apps/server/src/routes/admin-dedication.ts PendingLight: a dedication light whose name awaits a look. */
+/** apps/server/src/routes/admin/dedication.ts PendingLight: a dedication light whose name awaits a look. */
 export interface PendingLight {
   account: string;
   id: string;
@@ -237,7 +237,7 @@ export type LightDecidedReply = { ok: true; entry: string } | AdminRefusal;
 export type FeedbackReply = { ok: true; feedback: FeedbackRow[] } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin-analytics.ts (R-ANALYTICS-009 to 011)
+// apps/server/src/routes/admin/analytics.ts (R-ANALYTICS-009 to 011)
 // ---------------------------------------------------------------------------
 
 /** apps/server/src/analytics/dashboard.ts Shown: a count, or the floor it is under. */
@@ -283,7 +283,7 @@ export interface Dashboard {
 export type DashboardReply = { ok: true; dashboard: Dashboard } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin-stats.ts (R-ANALYTICS-012, 013): the Numbers tab.
+// apps/server/src/routes/admin/stats.ts (R-ANALYTICS-012, 013): the Numbers tab.
 // Copied from apps/server/src/analytics/stats.contract.ts; a test holds both to one shape.
 // ---------------------------------------------------------------------------
 
@@ -369,7 +369,7 @@ export interface Stats {
 export type StatsReply = { ok: true; stats: Stats } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin-switches.ts (R-SERVER-030, 031)
+// apps/server/src/routes/admin/switches.ts (R-SERVER-030, 031)
 // ---------------------------------------------------------------------------
 
 /** packages/store/src/switches.ts Switches. */
@@ -432,7 +432,7 @@ export type SwitchesReply = ({ ok: true } & { switches: Switches; dials: Dials }
 export type SwitchLogReply = { ok: true; log: SwitchLogRow[] } | AdminRefusal;
 
 // ---------------------------------------------------------------------------
-// apps/server/src/routes/admin-adverts.ts (R-ADVERT-010 to 014)
+// apps/server/src/routes/admin/adverts.ts (R-ADVERT-010 to 014)
 // ---------------------------------------------------------------------------
 
 /** packages/store/src/advert.types.ts CampaignStatus. */
@@ -503,7 +503,7 @@ export interface CampaignRow {
   counts: AdvertCount[];
 }
 
-/** The body of an approve or refuse (apps/server/src/routes/admin-adverts.ts decisionOf). */
+/** The body of an approve or refuse (apps/server/src/routes/admin/adverts.ts decisionOf). */
 export interface ReviewBody {
   checks: string[];
   note: string;

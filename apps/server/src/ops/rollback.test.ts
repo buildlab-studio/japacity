@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { testDeps } from "../app.testing";
 import { productionConfig } from "../config";
 import type { ServerDeps } from "../deps";
-import { createLife, life, playRows, storeWorlds } from "./admin.testing";
+import { createLife, life, playRows, storeWorlds } from "./ops.testing";
 import { rollbackApply, rollbackCheck } from "./rollback";
 
 const ID = "character.tunde";

@@ -5,8 +5,8 @@ import type { State } from "@japacity/sim";
 import type { Held, LogRow, Writes } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import type { Diff, Dropped, LoadFailure, Loaded } from "./load";
-import { replaySegments, worldsFor } from "./load";
+import type { Diff, Dropped, LoadFailure, Loaded } from "./replay";
+import { replaySegments, worldsFor } from "./replay";
 
 type AdminDeps = Pick<ServerDeps, "contents" | "stores" | "now">;
 

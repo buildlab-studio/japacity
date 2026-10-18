@@ -10,7 +10,7 @@ import { moneyJob } from "../jobs/money";
 import { activeOn } from "./active";
 import { ALARM_ROWS, listAlarms, noteDiverged } from "./alarm";
 import { dayStart, utcDay } from "./day";
-import { createLife, life, playRows, storeWorlds } from "./admin.testing";
+import { createLife, life, playRows, storeWorlds } from "./ops.testing";
 import { drawAlarms, drawsClosingOn, markAfterCommit, moneyReport, TICKS_PER_DRAW } from "./money";
 
 const ID = "character.tunde";

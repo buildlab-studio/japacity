@@ -9,7 +9,7 @@
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { lightsOf } from "../analytics/lights";
 import type { ServerDeps } from "../deps";

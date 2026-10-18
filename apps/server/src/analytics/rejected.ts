@@ -1,10 +1,10 @@
 // R-ANALYTICS-008: `command/rejected` by code. A rejected command is never
 // logged, so the nightly job cannot read it; the refusal counter in count.ts
-// calls this beside `countRejection` (admin/rejections.ts) once a counted route
+// calls this beside `countRejection` (ops/rejections.ts) once a counted route
 // has answered with a refusal.
 import type { ServerDeps } from "../deps";
 import type { ServerCode } from "../types";
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "./day";
 import { NO_REGION } from "./list";
 

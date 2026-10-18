@@ -4,7 +4,7 @@
 import type { ReportLine } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 
-import { dayStart, utcDay } from "../admin/day";
+import { dayStart, utcDay } from "../ops/day";
 import { dayName } from "./day";
 import { NO_REGION } from "./list";
 import type { Life, Played } from "./replay";

@@ -3,7 +3,7 @@ import { time } from "@japacity/sim";
 import type { NumbersLog, RegionCount } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { testServer } from "../authority/authority.testing";
 import { onlineAt, onlineJob, samplePeak } from "./online";

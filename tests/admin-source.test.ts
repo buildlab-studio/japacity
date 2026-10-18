@@ -5,11 +5,11 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const ADMIN = join(root, "apps/server/src/admin");
+const OPS = join(root, "apps/server/src/ops");
 
 function sources(): { file: string; text: string }[] {
-  const files = readdirSync(ADMIN).filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"));
-  return [...files.map((name) => join(ADMIN, name)), join(root, "apps/server/src/routes/admin.ts"), join(root, "apps/server/src/jobs/money.ts")].map((file) => ({ file, text: readFileSync(file, "utf8") }));
+  const files = readdirSync(OPS).filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"));
+  return [...files.map((name) => join(OPS, name)), join(root, "apps/server/src/routes/admin/admin.ts"), join(root, "apps/server/src/jobs/money.ts")].map((file) => ({ file, text: readFileSync(file, "utf8") }));
 }
 
 describe("the admin tools' reach", () => {
@@ -22,7 +22,7 @@ describe("the admin tools' reach", () => {
       expect({ file, looped }).toEqual({ file, looped: [] });
       expect({ file, listed: !file.endsWith("snapshot.ts") && /stores\.player\.(list|all|ids|scan|page)\b/.test(text) }).toEqual({ file, listed: false });
     }
-    const rollback = readFileSync(join(ADMIN, "rollback.ts"), "utf8");
+    const rollback = readFileSync(join(OPS, "rollback.ts"), "utf8");
     expect(rollback.match(/stores\.player\.\w+/g)?.sort()).toEqual(["stores.player.load", "stores.player.log", "stores.player.transact"]);
     expect(rollback).toMatch(/transact\(\[character\]/);
   });

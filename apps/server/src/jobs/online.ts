@@ -8,7 +8,7 @@ import { ONLINE_MINUTES } from "@japacity/content";
 import { time } from "@japacity/sim";
 import type { CounterTotal, NumbersLog, RegionCount } from "@japacity/store";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { WHOLE_GAME } from "../analytics/list";
 import type { ServerDeps } from "../deps";

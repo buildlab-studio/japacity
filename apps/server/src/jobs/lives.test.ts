@@ -9,7 +9,7 @@ import { newState } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { memoryStores } from "../deps";
 import { newLife, restMonth, send, testServer, view } from "../authority/authority.testing";

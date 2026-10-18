@@ -2,15 +2,15 @@ import { content } from "@japacity/content";
 import type { NumbersLog } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
-import { testDeps } from "../app.testing";
-import { makeApp } from "../app";
-import { testConfig } from "../config";
-import { testSession } from "../deps";
-import { dayName } from "../analytics/day";
-import type { StatsReply } from "../analytics/stats.contract";
-import { STATS_KEYS } from "../analytics/stats.contract";
-import { adminStatsRoutes } from "./admin-stats";
+import { utcDay } from "../../ops/day";
+import { testDeps } from "../../app.testing";
+import { makeApp } from "../../app";
+import { testConfig } from "../../config";
+import { testSession } from "../../deps";
+import { dayName } from "../../analytics/day";
+import type { StatsReply } from "../../analytics/stats.contract";
+import { STATS_KEYS } from "../../analytics/stats.contract";
+import { adminStatsRoutes } from "./stats";
 
 const ADMIN = "account.owner";
 const { minShown } = content.tuning.analytics;

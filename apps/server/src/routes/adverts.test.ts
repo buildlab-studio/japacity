@@ -15,7 +15,7 @@ import type { ServerDeps } from "../deps";
 import { testSession } from "../deps";
 import { tickPeriodMs, TICKS_CRON } from "../jobs/ticks";
 import { tickRow } from "../world/ticks";
-import { adminAdvertRoutes } from "./admin-adverts";
+import { adminAdvertRoutes } from "./admin/adverts";
 import { ADVERT_KEPT_MS, advertRoutes, advertsOnByDefault } from "./adverts";
 import { edgeKey } from "./cache";
 import { fakeEdge } from "./cache.testing";

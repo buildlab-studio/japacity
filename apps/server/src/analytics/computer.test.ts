@@ -6,7 +6,7 @@ import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal, DayLog, NumbersLog, RegionCount } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import type { Live } from "../authority/load";
 import { held, newLife, restMonth, send, testServer, view, type TestServer } from "../authority/authority.testing";
 import { noteFigures } from "../boards/figures";

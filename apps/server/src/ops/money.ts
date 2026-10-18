@@ -10,7 +10,7 @@ import type { ServerDeps } from "../deps";
 import { activeOn, noteActive } from "./active";
 import type { Alarm } from "./alarm";
 import { dayStart } from "./day";
-import { contentNamed, stateNow } from "./load";
+import { contentNamed, stateNow } from "./replay";
 
 type MoneyDeps = Pick<ServerDeps, "config" | "contents" | "stores">;
 type Totals = WalletSlice["totals"];

@@ -1,5 +1,5 @@
 // R-ANALYTICS-005: a stored total's day is the UTC date as `YYYY-MM-DD`.
-import { dayStart, utcDay } from "../admin/day";
+import { dayStart, utcDay } from "../ops/day";
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 

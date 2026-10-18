@@ -6,7 +6,7 @@
 // answer, 500 when the server itself is wrong.
 import type { Context } from "hono";
 
-import { adminReadTimedOut, adminTimeoutRefusal } from "../admin/timeout";
+import { adminReadTimedOut, adminTimeoutRefusal } from "../ops/timeout";
 import { causes, errorCode, logFailure } from "../log";
 import { DEFAULT_CACHE, SECURITY_HEADERS } from "./headers";
 

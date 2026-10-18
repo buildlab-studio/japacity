@@ -1,13 +1,13 @@
 // R-ANALYTICS-008: the day's log while the server runs on the memory stores.
 // The memory stores cannot list characters or accounts, so the
 // active characters are the ones the money job's isolate list holds
-// (admin/active.ts, filled by markAfterCommit), and the accounts created on
+// (ops/active.ts, filled by markAfterCommit), and the accounts created on
 // the day are found among their accounts. The Worker's jobs read the
 // Postgres `pgDayLog` from packages/db instead (index.ts).
 import type { AccountRow, DayLog } from "@japacity/store";
 
-import { activeOn } from "../admin/active";
-import { utcDay } from "../admin/day";
+import { activeOn } from "../ops/active";
+import { utcDay } from "../ops/day";
 import type { ServerDeps } from "../deps";
 
 export function isolateDayLog(deps: Pick<ServerDeps, "stores">): DayLog {

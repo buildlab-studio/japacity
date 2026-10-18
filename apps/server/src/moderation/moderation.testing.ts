@@ -6,7 +6,7 @@ import { Hono } from "hono";
 import { testDeps } from "../app.testing";
 import { testConfig } from "../config";
 import { testSession, type ServerDeps } from "../deps";
-import { adminModerationRoutes } from "../routes/admin-moderation";
+import { adminModerationRoutes } from "../routes/admin/moderation";
 import type { Identities } from "./identities";
 import { memoryReportQueue, type Hold, type Report } from "./reports";
 

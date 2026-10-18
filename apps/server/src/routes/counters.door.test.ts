@@ -1,7 +1,7 @@
 import type { CounterTotal } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";

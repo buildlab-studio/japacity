@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { MockInstance } from "vitest";
 
-import { utcDay } from "../admin/day";
+import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import { NO_REGION } from "../analytics/list";
 import { testServer } from "../authority/authority.testing";

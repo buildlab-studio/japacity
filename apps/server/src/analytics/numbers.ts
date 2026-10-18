@@ -8,7 +8,7 @@ import { HELD_BANDS, MONTH_BANDS, SESSION_BANDS, SESSION_GAP_MINUTES } from "@ja
 import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal, RegionCount } from "@japacity/store";
 
-import { dayStart } from "../admin/day";
+import { dayStart } from "../ops/day";
 import { dayName } from "./day";
 import { NO_REGION } from "./list";
 import type { DayFacts } from "./nightly";

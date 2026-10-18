@@ -4,7 +4,7 @@
 // with the counts by region it adds the numbers of numbers.ts too.
 import type { DayLog, NumbersLog, RegionCount } from "@japacity/store";
 
-import { dayStart, utcDay } from "../admin/day";
+import { dayStart, utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
 import type { ActiveLife } from "../analytics/nightly";
 import { nightlyTotals } from "../analytics/nightly";

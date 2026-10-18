@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { describe, expect, test } from "vitest";
 
 import { harness, makeJar, SITE } from "../auth/auth.testing";
-import { adminModerationRoutes } from "../routes/admin-moderation";
+import { adminModerationRoutes } from "../routes/admin/moderation";
 import { authIdentities, emailIdentity, isBanned } from "./identities";
 import { memoryReportQueue } from "./reports";
 import { report } from "./moderation.testing";

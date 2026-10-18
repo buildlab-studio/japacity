@@ -15,7 +15,7 @@ import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
 import type { ServerRejection, ServerReply } from "../types";
 import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget } from "./dials";
-import { rollbackCheck } from "../admin/rollback";
+import { rollbackCheck } from "../ops/rollback";
 import { GATED_COMMANDS } from "./gate";
 import { SWITCH_NAMES, readSwitches } from "./switches";
 
