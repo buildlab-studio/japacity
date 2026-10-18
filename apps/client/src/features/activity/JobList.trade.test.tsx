@@ -4,7 +4,8 @@
 // says first that the one asked for came to nothing (told on the results: App.oneFigure.test.tsx). Played on the real engine from the tiles' own years.
 import { describe, expect, test } from "vitest";
 
-import { type Archetype, answersInOrder, archetypeOf, presetAnswer } from "../../shared/frontdoor/archetypes";
+import { type Archetype, archetypeOf } from "../../shared/frontdoor/archetypes";
+import { playTile } from "../../shared/frontdoor/archetypes.testing";
 import { newGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { ActivityPicker } from "./ActivityView";
@@ -16,12 +17,7 @@ const JUNIOR_DEV = "activity.job-junior-dev";
 /** A tile's life from sixteen, handed over: its preset played on one seed. */
 function lifeOf(tile: Archetype, seed: string): ReturnType<typeof newGame> {
   const game = newGame("scenario.prologue", seed);
-  for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-    const prologue = game.view().prologue!;
-    const answer = presetAnswer(tile, prologue) ?? answersInOrder(tile, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
-    if (answer === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer });
-  }
+  playTile(game, tile);
   return game;
 }
 

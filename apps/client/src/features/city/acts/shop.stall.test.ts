@@ -6,7 +6,8 @@ import type { PlayerView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import tejuosho from "../../../../public/assets/places/tejuosho-front/place.json";
-import { answersInOrder, archetypeOf, presetAnswer } from "../../../shared/frontdoor/archetypes";
+import { archetypeOf } from "../../../shared/frontdoor/archetypes";
+import { playTile } from "../../../shared/frontdoor/archetypes.testing";
 import { newGame } from "../../../shared/testing/fixtures";
 import { formatMoney } from "../../../shared/words/format";
 import { needsWords } from "../../../shared/words/requirement";
@@ -25,12 +26,7 @@ function settledTrader(): ReturnType<typeof newGame> {
   const trader = archetypeOf("trader")!;
   for (let at = 0; at < 30; at += 1) {
     const game = newGame("scenario.prologue", `trader-${String(at)}`);
-    for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-      const prologue = game.view().prologue!;
-      const open = presetAnswer(trader, prologue) ?? answersInOrder(trader, prologue.step, prologue.answers).find((answer) => answer.allowed)?.id;
-      if (open === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-      game.accept({ type: "prologue/choose", step: prologue.step, answer: open });
-    }
+    playTile(game, trader);
     if (sixteenPath(game.view()) === "capital") return game;
   }
   throw new Error("No settled trader in thirty seeds.");

@@ -1,6 +1,7 @@
 // The world's shell over the place (docs/rules/world.md R-WORLD-001 to 004): what stands over the
 // scene, what hides when, and the nudge's choice. The scene itself needs WebGL and is not drawn here.
 import { worldClockAt } from "@japacity/sim";
+import { playPrologueBy } from "@japacity/sim/testing";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
@@ -335,12 +336,7 @@ describe("the nudge", () => {
 describe("the trader from sixteen with a shop's capital", () => {
   test("[R-WORLD-001] [R-WORLD-003] given a settled trader at his handover, when the world opens, then the opening words speak of the settlement and the nudge sends him to the motor park, not the board", () => {
     const game = newGame("scenario.prologue", "sixteen-0");
-    for (let turn = 0; turn < 40 && game.state.prologue.open; turn += 1) {
-      const prologue = game.view().prologue!;
-      const allowed = prologue.answers.filter((answer) => answer.allowed).map((answer) => answer.id);
-      const answer = ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"].find((id) => allowed.includes(id)) ?? allowed[0] ?? "";
-      game.accept({ type: "prologue/choose", step: prologue.step, answer });
-    }
+    playPrologueBy(game, ["apprentice", "spare-parts", "stay", "settle", "nowhere", "room"]);
     const view = game.view();
     expect(view.chapter.current).toBe("chapter.find-your-feet");
     const nudge = nudgeOf({ ...view, setpiece: null, interview: null, offers: [], report: null });

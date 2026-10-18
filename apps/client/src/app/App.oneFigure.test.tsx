@@ -8,7 +8,8 @@ import { Bank } from "../features/phone/apps/Bank";
 import { phoneWords } from "../features/phone/phone.words";
 import { savings } from "../features/turn/month.results";
 import { Results } from "../features/turn/Results";
-import { type Archetype, answersInOrder, archetypeOf, presetAnswer } from "../shared/frontdoor/archetypes";
+import { type Archetype, archetypeOf } from "../shared/frontdoor/archetypes";
+import { playTile } from "../shared/frontdoor/archetypes.testing";
 import { newGame } from "../shared/testing/fixtures";
 import { renderWithView } from "../shared/testing/render";
 import { formatMoney } from "../shared/words/format";
@@ -22,12 +23,7 @@ const TALENT = "route.uk-talent";
 /** A tile's life from sixteen, handed over: its preset played on one seed. */
 function lifeOf(tile: Archetype, seed: string): ReturnType<typeof newGame> {
   const game = newGame("scenario.prologue", seed);
-  for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-    const prologue = game.view().prologue!;
-    const answer = presetAnswer(tile, prologue) ?? answersInOrder(tile, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
-    if (answer === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer });
-  }
+  playTile(game, tile);
   return game;
 }
 

@@ -7,7 +7,8 @@ import type { PlayerView } from "@japacity/sim";
 import { setPockets } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { answersInOrder, archetypeOf, presetAnswer } from "../../../shared/frontdoor/archetypes";
+import { archetypeOf } from "../../../shared/frontdoor/archetypes";
+import { playTile } from "../../../shared/frontdoor/archetypes.testing";
 import { newGame, openOffer } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
 import { BOARD_WAY, freeStep, nudgeOf, type Reach } from "./nudge";
@@ -108,11 +109,7 @@ describe("the free step", () => {
   test("[R-WORLD-003] [R-ACTIVITY-017] given the child of the water at home in Makoko with no naira and no job, the step a ride away, when the nudge is read, then it names the racks beside her room", () => {
     const archetype = archetypeOf("water")!;
     const game = newGame("scenario.prologue", "broke-racks-0");
-    for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-      const prologue = game.view().prologue!;
-      const answer = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((one) => one.allowed)!.id;
-      game.accept({ type: "prologue/choose", step: prologue.step, answer });
-    }
+    playTile(game, archetype);
     setPockets(game, { NGN: 0 });
     const view = atTheClinicStep({ ...game.view(), offers: [] });
     expect(view.job.id).toBeNull();

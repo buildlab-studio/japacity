@@ -7,7 +7,8 @@ import type { Id, PlayerView, SlotPick } from "@japacity/sim";
 import { applyEffects, readyLife, slot, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { archetypeOf, answersInOrder, presetAnswer } from "../../../shared/frontdoor/archetypes";
+import { archetypeOf } from "../../../shared/frontdoor/archetypes";
+import { playTile } from "../../../shared/frontdoor/archetypes.testing";
 import { shortfall } from "../../../shared/words/cost";
 import { settle } from "../../../shared/testing/nurse";
 import { formatMoney } from "../../../shared/words/format";
@@ -102,12 +103,7 @@ function tileDeveloper(seed: string): Game {
   const archetype = archetypeOf("developer");
   if (archetype === null) throw new Error("No developer tile.");
   const game = start({ scenario: "scenario.prologue", seed, content, worldSeed: "world-1" });
-  for (let guard = 0; guard < 40 && game.state.prologue.open; guard += 1) {
-    const prologue = game.view().prologue!;
-    const answer = presetAnswer(archetype, prologue) ?? answersInOrder(archetype, prologue.step, prologue.answers).find((one) => one.allowed)?.id;
-    if (answer === undefined) throw new Error(`No open answer at ${prologue.step}.`);
-    game.accept({ type: "prologue/choose", step: prologue.step, answer });
-  }
+  playTile(game, archetype);
   return game;
 }
 
