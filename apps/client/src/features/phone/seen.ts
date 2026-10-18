@@ -10,6 +10,7 @@ import { japaMark } from "../../shared/world/briefHanded";
 import { familyFeedLines } from "./feed";
 import { papersMarkOf } from "./papers";
 import { browserStorage, SEEN_KEY } from "../../shared/kept/storage";
+import { listeners } from "../../shared/listeners/listeners";
 
 // The Calendar sits first among the apps: the month lives on the phone (R-WORLD-002). Papers sits beside Japa: the
 // plan's papers, held and on their way (R-WORLD-019).
@@ -76,7 +77,7 @@ function read(): Seen {
 }
 
 let seen: Seen | null = null;
-const listeners = new Set<() => void>();
+const { subscribe, notify } = listeners();
 
 function current(): Seen {
   seen ??= read();
@@ -92,18 +93,13 @@ export function markSeen(id: AppId, mark: string): void {
   } catch {
     // Storage may be shut; the dot clears for this visit only.
   }
-  for (const listener of listeners) listener();
+  notify();
 }
 
 /** Reads the kept marks again, for tests that change storage under the phone. */
 export function reloadSeen(): void {
   seen = read();
-  for (const listener of listeners) listener();
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  notify();
 }
 
 export function useSeen(): Seen {

@@ -3,22 +3,19 @@
 // secured account may do. The client shows the ask, never a dead end.
 import type { ServerRejection } from "@japacity/api";
 
+import { listeners } from "../listeners/listeners";
+
 export type GuestOnlyListener = (refusal: ServerRejection) => void;
 
-const listeners = new Set<GuestOnlyListener>();
+const guestOnly = listeners<[refusal: ServerRejection]>();
 
 /** Listens for `guest-only` refusals; returns the way to stop. */
-export function onGuestOnly(listener: GuestOnlyListener): () => void {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
+export const onGuestOnly: (listener: GuestOnlyListener) => () => void = guestOnly.subscribe;
 
 /** Called by the HTTP layer with every body it reads. */
 export function heardBody(body: unknown): void {
   if (typeof body !== "object" || body === null) return;
   const refusal = body as Partial<ServerRejection>;
   if (refusal.ok !== false || refusal.code !== "guest-only") return;
-  for (const listener of listeners) listener(refusal as ServerRejection);
+  guestOnly.notify(refusal as ServerRejection);
 }

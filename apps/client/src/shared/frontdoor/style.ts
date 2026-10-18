@@ -4,6 +4,7 @@
 // painting itself is in colours.ts, loaded with the scene.
 import { isPaletteName, type PaletteName, paletteCss } from "@japacity/assets";
 import { useSyncExternalStore } from "react";
+import { listeners } from "../listeners/listeners";
 
 export const FABRICS = ["plain", "ankara", "adire", "aso-oke"] as const;
 export type Fabric = (typeof FABRICS)[number];
@@ -89,22 +90,17 @@ export const swatchCss = (name: PaletteName): string => paletteCss(name);
 // What the figure on the plinth read of its look, by look: the scene writes it once a look is loaded, and the
 // first screen's rows read it. Where no figure is drawn nothing is read, and the rows do not show.
 const read = new Map<string, OwnColours>();
-const listeners = new Set<() => void>();
+const { subscribe, notify } = listeners();
 
 export function reportOwn(look: string, own: OwnColours): void {
   const held = read.get(look);
   if (held !== undefined && held.skin === own.skin && held.hair === own.hair && held.top === own.top && held.fabric === own.fabric) return;
   read.set(look, own);
-  for (const listener of listeners) listener();
+  notify();
 }
 
 export function ownOf(look: string): OwnColours | null {
   return read.get(look) ?? null;
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
 }
 
 /** The look's own colours once its figure has been read, else null. */
@@ -119,5 +115,5 @@ export function useOwnColours(look: string): OwnColours | null {
 /** Forgets every reading: for tests. */
 export function forgetOwnColours(): void {
   read.clear();
-  for (const listener of listeners) listener();
+  notify();
 }

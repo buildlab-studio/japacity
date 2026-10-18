@@ -3,6 +3,7 @@
 // features/phone/seen.ts). Kept on the device with the life's scenario, so another life's brief is never read as this one's.
 import { useSyncExternalStore } from "react";
 import { BRIEF_KEY, browserStorage } from "../kept/storage";
+import { listeners } from "../listeners/listeners";
 
 interface Kept {
   scenario: string;
@@ -10,7 +11,7 @@ interface Kept {
   handed: string[];
 }
 
-const listeners = new Set<() => void>();
+const { subscribe, notify } = listeners();
 let cache: { raw: string | null; kept: Kept | null } = { raw: null, kept: null };
 
 function read(): Kept | null {
@@ -46,17 +47,12 @@ export function handBrief(scenario: string, chapter: string): void {
   } catch {
     // A private window may refuse storage; the brief is then carried for the visit only.
   }
-  for (const listener of listeners) listener();
+  notify();
 }
 
 /** The Japa app's mark: the brief handed last, so a new one brings the dot back (R-WORLD-018). */
 export function japaMark(scenario: string): string {
   return briefsHanded(scenario).at(-1) ?? "";
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
 }
 
 /** The Japa mark, kept current as a brief is handed. */

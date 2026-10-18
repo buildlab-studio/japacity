@@ -10,6 +10,7 @@ import { CentredColumn } from "../ui/lively/CentredColumn";
 import { Face, faceMark } from "../ui/lively/Face";
 import { LivelySheet } from "../ui/lively/LivelySheet";
 import { say } from "../words/text";
+import { listeners } from "../listeners/listeners";
 
 /** A told line stays this long in the corner. */
 export const TOLD_MS = 7000;
@@ -61,11 +62,11 @@ let speechTimer: number | undefined;
 /** When the last ambient bubble went, for the quiet after it. */
 let quietSince = -Infinity;
 const timers = new Set<number>();
-const listeners = new Set<() => void>();
+const { subscribe, notify } = listeners();
 
 function change(next: Partial<Said>): void {
   said = { ...said, ...next };
-  for (const listener of listeners) listener();
+  notify();
 }
 
 /** How many words a line holds. */
@@ -169,11 +170,6 @@ export function resetLines(): void {
   quietSince = -Infinity;
   headAt = -Infinity;
   change({ lines: [], speech: null, open: null });
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
 }
 
 /** What is said now: the corner's lines, the one speaking, the long line opened. */

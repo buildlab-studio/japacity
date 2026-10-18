@@ -8,6 +8,7 @@ import { useGameStoreIfAny } from "../../authority/GameProvider";
 import type { GameStore } from "../../authority/store";
 import { type MonthDays, stepDays } from "./days";
 import { DAYS_KEY } from "../kept/storage";
+import { listeners } from "../listeners/listeners";
 
 function read(): MonthDays | null {
   try {
@@ -24,7 +25,7 @@ function read(): MonthDays | null {
 }
 
 let held: MonthDays | null | undefined;
-const listeners = new Set<() => void>();
+const { subscribe, notify } = listeners();
 
 export function currentDays(): MonthDays | null {
   if (held === undefined) held = read();
@@ -40,7 +41,7 @@ function keep(next: MonthDays | null): void {
   } catch {
     // A private window: the days last for this visit only.
   }
-  for (const listener of listeners) listener();
+  notify();
 }
 
 /** Drops the days kept: a new life, or a test's own start. */
@@ -87,11 +88,6 @@ export function watchDays(store: GameStore): () => void {
       watched.delete(store);
     }
   };
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
 }
 
 /** The days kept, counted from the game store in hand while a screen shows them. */
