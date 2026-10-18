@@ -4,40 +4,19 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { check } from "../engine/check";
-import type { Id, PlayerView, StepResult } from "../engine/types";
+import type { Id, PlayerView } from "../engine/types";
 import { viewFor } from "../engine/view";
 import { flownAda, LANDING, monthAbroad, playUntil, SECURE, SEND_OFF } from "../testing/goal.journey";
-import { lifeSaves } from "../goldens/lives.data";
 import { roadCard } from "../route/gates/road";
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { start } from "../testing/play";
 import { closed, readOf } from "../testing/read";
+import { replayedGame } from "../testing/recorded";
 import { sendOffCard, topActivities } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
 const STANDING: Id<"quality"> = "quality.standing";
 const cap = content.tuning.turn.cap;
-
-type Accepted = Extract<StepResult, { ok: true }>;
-
-/** A recorded life replayed command by command through the real content; `to` plays on until a command leaves `until` true. */
-function replay(name: string): { game: Game; to: (until: (game: Game) => boolean) => Accepted } {
-  const save = lifeSaves[name];
-  if (save === undefined) throw new Error(`The ${name} life is not recorded.`);
-  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
-  let index = 0;
-  const to = (until: (game: Game) => boolean): Accepted => {
-    while (index < save.commands.length) {
-      const { command, sender } = save.commands[index]!;
-      index += 1;
-      const result = game.accept(command, sender);
-      if (until(game)) return result;
-    }
-    throw new Error(`The ${name} life never got there.`);
-  };
-  return { game, to };
-}
 
 /** Ada flown and on through Landing, so Secure is the chapter in hand. */
 function atSecure(): Game {
@@ -110,7 +89,7 @@ describe("the send-off card", () => {
   test("[R-CHAPTER-006] [R-SHARE-001] given a chapter other than the send-off closing, when the view is read, then there is no send-off card but the chapter card for it, gone once the next month ends", () => {
     // With the lives recorded under decision 0013, Ada's careful life meets Landing's last item on her first pay
     // abroad, whose own card stands before a chapter's; Tunde's recorded life abroad closes Landing in a month of its own.
-    const { game, to } = replay("tunde-abroad");
+    const { game, to } = replayedGame("tunde-abroad", content);
     to((now) => now.state.place.where === "abroad");
     const flight = game.state.turn.month;
     const after = to((now) => now.state.turn.month > flight);

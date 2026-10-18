@@ -4,11 +4,11 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, SavedCommand, StepResult } from "../engine/types";
-import { lifeSaves } from "../goldens/lives.data";
 import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { closed } from "../testing/read";
+import { replayedGame } from "../testing/recorded";
 import { chapterCard, grantedRoute, leanRoute } from "./chapter.logic";
 
 const UK: Id<"route"> = "route.uk-masters";
@@ -22,13 +22,6 @@ const LANDING: Id<"chapter"> = "chapter.landing";
 const cap = content.tuning.turn.cap;
 
 type Accepted = Extract<StepResult, { ok: true }>;
-
-/** A recorded life, replayed command by command through the real content. */
-function recorded(name: string): { game: Game; commands: SavedCommand[] } {
-  const save = lifeSaves[name];
-  if (save === undefined) throw new Error(`The ${name} life is not recorded.`);
-  return { game: start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content }), commands: save.commands };
-}
 
 /** Plays the recorded commands from `from` until one is accepted that leaves `until` true. Returns its result and the next index. */
 function playTo(game: Game, commands: SavedCommand[], from: number, until: (game: Game) => boolean): { result: Accepted; next: number } {
@@ -47,8 +40,8 @@ describe("a grant on a route with no file of its own", () => {
     // With the lives recorded under decision 0013, Tunde's abroad life is the one granted at decision day (month 19);
     // Ada's is granted while still building the file and flies with decision day open, read below.
     // A first pass finds the command whose turn brings the grant; the second stops just before it.
-    const granting = playTo(recorded("tunde-abroad").game, recorded("tunde-abroad").commands, 0, routeIs(SKILLED, "granted")).next - 1;
-    const { game, commands } = recorded("tunde-abroad");
+    const granting = playTo(replayedGame("tunde-abroad", content).game, replayedGame("tunde-abroad", content).commands, 0, routeIs(SKILLED, "granted")).next - 1;
+    const { game, commands } = replayedGame("tunde-abroad", content);
     playTo(game, commands, 0, (now) => now.state.v === granting);
     // Up to the turn of the grant the life leans to the master's, at decision day.
     expect(commands[granting]?.command.type).toBe("turn/end");
@@ -66,7 +59,7 @@ describe("a grant on a route with no file of its own", () => {
 
   test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Tunde granted the skilled worker's visa, when he flies, then the send-off card is in the view, the month ends with the send-off closed and the next month abroad Landing is current", () => {
     // Decision 0013's re-recording: Tunde's abroad life reaches the send-off on the grant and flies from it.
-    const { game, commands } = recorded("tunde-abroad");
+    const { game, commands } = replayedGame("tunde-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     expect(game.state.chapter.current).toBe(SEND_OFF);
     expect(game.view().card).toMatchObject({ kind: "send-off", route: SKILLED, chapter: SEND_OFF, months: game.state.turn.month });
@@ -81,7 +74,7 @@ describe("a grant on a route with no file of its own", () => {
 
   test("[R-CHAPTER-002] [R-CHAPTER-006] [R-CHAPTER-009] given Ada's abroad life flying with decision day still open, when she flies, then the send-off card shows from the flight, and the month's end closes decision day and the send-off in order, each its own close with its own refill", () => {
     // Decision 0013's re-recording: Ada's abroad life is granted while building the file (month 40) and flies that month.
-    const { game, commands } = recorded("ada-abroad");
+    const { game, commands } = replayedGame("ada-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     // The grant's turn closed the file: one close a turn until the flight.
     expect(game.state.chapter).toMatchObject({ current: DECISION, done: ["chapter.find-your-feet", FILE] });
@@ -103,7 +96,7 @@ describe("a grant on a route with no file of its own", () => {
 
 describe("the plan follows the grant", () => {
   test("[R-CHAPTER-009] given Ada's abroad life leaning to the master's, when the skilled worker's visa is granted, then the view's plan names the skilled route and its ways carry it, though it has no file of its own", () => {
-    const { game, commands } = recorded("ada-abroad");
+    const { game, commands } = replayedGame("ada-abroad", content);
     playTo(game, commands, 0, routeIs(SKILLED, "known"));
     expect(game.view().plan.route).toBe(UK);
     expect(game.view().plan.ways.map((way) => way.route)).not.toContain(SKILLED);
@@ -119,7 +112,7 @@ describe("the plan follows the grant", () => {
 describe("the flight's report has one card", () => {
   test("[R-CHAPTER-006] [R-SHARE-001] given Ada's flight turn closing decision day and the send-off in one report, when the view is read in the first month abroad, then no chapter card is due for decision day", () => {
     // Decision 0013's re-recording: Ada's abroad life is the one whose flight turn closes both.
-    const { game, commands } = recorded("ada-abroad");
+    const { game, commands } = replayedGame("ada-abroad", content);
     const flight = playTo(game, commands, 0, routeIs(SKILLED, "departed"));
     const month = game.state.turn.month;
     playTo(game, commands, flight.next, (now) => now.state.turn.month > month);
@@ -133,7 +126,7 @@ describe("the flight's report has one card", () => {
 describe("a grant on a route with a file of its own", () => {
   /** Ada's careful life at decision day on the master's, the month before her grant. */
   function atDecision(): Game {
-    const { game, commands } = recorded("ada-careful");
+    const { game, commands } = replayedGame("ada-careful", content);
     playTo(game, commands, 0, (now) => now.state.chapter.current === DECISION);
     return game;
   }

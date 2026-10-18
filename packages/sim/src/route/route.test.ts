@@ -7,12 +7,11 @@ import { check } from "../engine/check";
 import { convertMinor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { ActivityEntry, Content, Currency, Id, ReportLine, Requirement, RouteStateName, SchoolEntry, ForeignCurrency } from "../engine/types";
-import { lifeStart, savedCommands } from "../engine/replay";
-import { lifeSaves } from "../goldens/lives.data";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
+import { replayedGame } from "../testing/recorded";
 import { standInWorld } from "../world/standIn";
 import type { RouteKindEvent } from "./route.events";
 import {
@@ -1163,11 +1162,7 @@ describe("the first meetup", () => {
 describe("the plane and the asks that belong at home", () => {
   test("[R-OFFER-005] [R-CHAPTER-008] given the family's send-off and a loan open the month of the grant, when the plane leaves, then the send-off is closed unanswered and nothing that belongs at home waits abroad", () => {
     // The recorded life replayed up to its flight, the flight itself left to this test.
-    const save = lifeSaves["ada-careful"];
-    const first = save === undefined ? null : lifeStart(save);
-    if (save === undefined || first === null) throw new Error("ada-careful is not recorded.");
-    const game = start({ scenario: first.scenario, seed: first.seed, worldSeed: first.worldSeed, content });
-    const commands = savedCommands(save);
+    const { game, commands } = replayedGame("ada-careful", content);
     const flight = commands.findIndex((entry) => entry.command.type === "route/depart");
     for (const { command, sender } of commands.slice(0, flight)) game.accept(command, sender);
     expect(game.view().offers.some((offer) => offer.entry === "offer.family-send-off")).toBe(true);
