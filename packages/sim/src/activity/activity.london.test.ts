@@ -139,7 +139,7 @@ describe("the UK's upkeep", () => {
     expect(text["obligation.upkeep-uk.name"]).toBe("Your phone, pay as you go, in the UK");
     const game = flown(content);
     expect(Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.upkeep-uk")).toMatchObject({ amount: 1500, state: "active" });
-    // Canada, the UAE and Italy's upkeep is the prepaid phone too (activity.three.test.ts).
+    // Canada, the UAE and Italy's upkeep is the prepaid phone too (activity.countries.test.ts).
     expect([content.obligation["obligation.upkeep-ca"]?.amount, content.obligation["obligation.upkeep-uae"]?.amount, content.obligation["obligation.upkeep-it"]?.amount]).toEqual([3000, 5000, 1000]);
   });
 });
