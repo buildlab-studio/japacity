@@ -154,7 +154,7 @@ export function CodeForm({ account, bot = null, spentBot, email: known, filled, 
   return (
     <div className="flex flex-col gap-3">
       {/* One live region, mounted from the start, so the line is read out when its words come. */}
-      <p role="status" aria-live="polite" className={sentTo === null ? "sr-only" : ""} data-code-sent={sentTo === null ? undefined : String(sends)}>
+      <p role="status" className={sentTo === null ? "sr-only" : ""} data-code-sent={sentTo === null ? undefined : String(sends)}>
         {sentLine}
       </p>
       {sentTo === null ? (

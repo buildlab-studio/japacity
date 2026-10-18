@@ -184,6 +184,7 @@ describe("the two doors of the start screen (account:start-screen-over-live-city
     render(<WayToast account={account} />);
     const region = document.querySelector("[data-way-said]");
     expect(region?.getAttribute("role")).toBe("status");
+    expect(region?.getAttribute("aria-live")).toBeNull();
     expect(region?.textContent).toBe("");
     act(() => tellWay(account, "kept.email"));
     expect(region?.textContent).toBe(say("ui.account.toast.kept.email"));
@@ -459,7 +460,8 @@ describe("the code form forgives (account:code-form-forgives)", () => {
     form();
     const region = screen.getByRole("status");
     expect(region.textContent).toBe("");
-    expect(region.getAttribute("aria-live")).toBe("polite");
+    // Polite by its role; no aria-live attribute, which a sheet's hiding would step around.
+    expect(region.getAttribute("aria-live")).toBeNull();
   });
 });
 

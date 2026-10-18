@@ -280,7 +280,7 @@ export function AccountGate({ load = loadTurnstile, sitekey, embedded = false, a
           on a phone the column is the screen. */}
       <SheetColumn>
         <GateSheet mark={shown} label={say("ui.game")}>
-          <p role="status" aria-live="polite" className={said === null ? "sr-only" : "mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]"}>
+          <p role="status" className={said === null ? "sr-only" : "mb-3 rounded-[5px] border-l-4 border-l-action bg-sheet-muted p-3 text-[14px]"}>
             {said ?? ""}
           </p>
           <div ref={sheet} data-account-step={shown}>
