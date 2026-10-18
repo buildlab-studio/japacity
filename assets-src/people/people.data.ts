@@ -1,9 +1,9 @@
-// The design's 34 people as data (assets:variants-are-numbers-not-code): each a set of numbers given to the one builder.
-// Names follow assets:shipped-file-naming. The design's `var_` body tests ship as `chr_body_<variant>`, and keep
-// their old name as `face`, so each face is the one the design drew.
+// The 34 people as data (assets:variants-are-numbers-not-code): each a set of numbers given to the one builder.
+// Names follow assets:shipped-file-naming. A face is seeded from the name; the `chr_body_<variant>` people seed theirs
+// from `face` (`var_<variant>`), which keeps each of their faces as it is drawn.
 import type { Garment, PersonSpec } from "./people";
 
-// ---------- eight people, the first experiment ----------
+// ---------- eight people ----------
 export const PEOPLE: PersonSpec[] = [
   // A person ships one pattern (two materials, assets:flat-and-smooth-shading), so the gele is cut from the outfit's own ankara, as a matching set.
   { name: "chr_amaka", body: "f", skin: "skin3", head: "gele", headFab: 1, shoes: "gold",

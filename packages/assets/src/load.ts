@@ -1,5 +1,5 @@
 // What the client does to a model after loading it (assets:flat-and-smooth-shading, assets:sign-text-drawn-in-code). Flat shading does
-// not survive compression (the design's known fault), so it is set here on every material, except where
+// not survive compression, so it is set here on every material, except where
 // a node's extras name round parts to show smooth. Sign text is drawn here, at run time, from the
 // place's text keys, onto one canvas per model.
 import {

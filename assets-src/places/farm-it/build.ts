@@ -9,7 +9,7 @@ import { beam, box, cylinder, floorQuad, quad, seeded, signboard, solid } from "
 import { Group } from "three";
 
 import { at } from "../../prop/parts";
-import { lump } from "../../veh/lab";
+import { lump } from "../../veh/centred";
 
 /** A row of the field: low tomato plants along +z, the drip line at their foot, a few fruit showing red. */
 export const CROP_ROW = { length: 9.0, spacing: 0.6 } as const;

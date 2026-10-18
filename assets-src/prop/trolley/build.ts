@@ -5,7 +5,7 @@ import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder, quad, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-import { facePlusZ } from "../../veh/lab";
+import { facePlusZ } from "../../veh/centred";
 
 export const TROLLEY = { width: 0.62, length: 1.05, deck: 0.22, handle: 1.05 } as const;
 

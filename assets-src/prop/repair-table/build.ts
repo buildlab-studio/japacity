@@ -6,7 +6,7 @@ import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
 import { box, cylinder, floorQuad, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ } from "../../veh/lab";
+import { cbox, facePlusZ } from "../../veh/centred";
 
 export const REPAIR_TABLE = { width: 1.8, depth: 0.8, top: 0.82 } as const;
 

@@ -7,7 +7,7 @@ import { lowBox, setFootprint } from "@japacity/assets";
 import { beam, box, part, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { ccyl } from "../lab";
+import { ccyl } from "../centred";
 
 export const ABRA = { length: 9.0, beam: 2.4, freeboard: 0.75, canopy: 2.3 } as const;
 

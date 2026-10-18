@@ -35,7 +35,7 @@ function bare(spec: PersonSpec): PersonSpec {
   return rest;
 }
 
-describe("the design's people", () => {
+describe("the people", () => {
   beforeAll(() => {
     for (const spec of ALL_PEOPLE) {
       buildPerson(spec);
@@ -43,7 +43,7 @@ describe("the design's people", () => {
     }
   }, 120_000);
 
-  test("[assets:variants-are-numbers-not-code] given the design's people, when they are listed, then there are 34, each a set of numbers for the one builder", () => {
+  test("[assets:variants-are-numbers-not-code] given the people, when they are listed, then there are 34, each a set of numbers for the one builder", () => {
     expect(ALL_PEOPLE).toHaveLength(34);
     expect(new Set(ALL_PEOPLE.map((p) => p.name)).size).toBe(34);
   });

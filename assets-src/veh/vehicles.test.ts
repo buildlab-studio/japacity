@@ -13,7 +13,7 @@ const MODELS: [string, () => Group][] = [
   ["prop_stall", buildStall],
 ];
 
-describe("the design's vehicles and stall", () => {
+describe("the danfo, the keke, the okada and the stall", () => {
   test.each(MODELS)("[assets:metre-units-and-origin] given %s, when it is built, then its lowest point is on y = 0 and its origin is the centre of its footprint", (_, build) => {
     const box = new Box3().setFromObject(build());
     expect(Math.abs(box.min.y)).toBeLessThanOrEqual(0.01);

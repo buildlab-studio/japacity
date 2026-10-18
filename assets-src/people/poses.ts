@@ -1,4 +1,4 @@
-// The design's poses as data. Rotations only, so one pose works on every body; a stage or the
+// The poses as data. Rotations only, so one pose works on every body; a stage or the
 // client poses a loaded skinned mesh by bone name. The hips may also move up or down.
 import type { BoneName } from "./people";
 

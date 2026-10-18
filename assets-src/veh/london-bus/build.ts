@@ -3,12 +3,12 @@
 // built to be sat in: its walls, floor and roof are thin slabs with an inner face, its seats stand in pairs down
 // both sides, and the glass is a pane that faces out, so from outside the band of windows is dark glass and from
 // a seat inside the street shows through it. The doors are on the left of its facing, the kerb side in the UK.
-// Built along +x as the design's vehicles are, then turned to face +z (assets:metre-units-and-origin).
+// Built along +x as every vehicle is, then turned to face +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 
 /** The bus's numbers, in metres, in the frame it is built in: length along x, the kerb side at -z. */
 export const BUS = { length: 10.6, width: 2.5, deck: 2.35, window: 3.15, roof: 4.05, sill: 0.32 } as const;

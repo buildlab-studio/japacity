@@ -6,7 +6,7 @@ import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
 import { box, floorQuad, quad, seeded } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ } from "../../veh/lab";
+import { cbox, facePlusZ } from "../../veh/centred";
 
 export const MARKET_STALL = { width: 2.6, depth: 2.0, front: 2.45, back: 2.1, counter: 0.85 } as const;
 

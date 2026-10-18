@@ -5,7 +5,7 @@ import { boxesIn, setFootprint } from "@japacity/assets";
 import { beam, box, cylinder } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { facePlusZ } from "../../veh/lab";
+import { facePlusZ } from "../../veh/centred";
 
 export const FLAGPOLE = { height: 6.2, flagTop: 5.9, plinth: 1.6 } as const;
 

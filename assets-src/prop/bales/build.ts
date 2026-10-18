@@ -5,7 +5,7 @@ import { lowBox, setFootprint } from "@japacity/assets";
 import { box, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
 import { Group, type Object3D } from "three";
 
-import { facePlusZ } from "../../veh/lab";
+import { facePlusZ } from "../../veh/centred";
 
 /** A bale: a box of sacking with two rope bands round it, the rope a little proud of the cloth. */
 function bale(g: Object3D, w: number, h: number, d: number, x: number, y: number, z: number, cloth: "tan" | "cream" | "khaki"): void {

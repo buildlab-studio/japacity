@@ -3,13 +3,13 @@
 // no operator's mark, line name or words (assets:no-real-brands-on-assets). With no driver, the front is the passengers': two pairs of
 // seats face the windscreen, and the ride sits there, on the right, the line ahead and the city out of the side
 // glass. Behind, benches run along the walls between the doors as a metro's do. Built to be sat in as London's
-// carriage is, the glass a pane facing out. Built along +x as the design's vehicles are, then turned to face +z
+// carriage is, the glass a pane facing out. Built along +x as every vehicle is, then turned to face +z
 // (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { quad, solid } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 import type { RideSeat } from "../ride";
 
 /** The car's numbers in metres: length along x as built, the nose at +x, the floor at the viaduct platform's height. */

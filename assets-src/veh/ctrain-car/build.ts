@@ -3,13 +3,13 @@
 // each end with its deep windscreen, the pantograph on the roof; no operator's mark, line number or words
 // (assets:no-real-brands-on-assets). Built to be sat in as London's carriage is: walls, floor and roof thin slabs, the glass a pane facing
 // out, seats in bays of two facing two by the windows, yellow poles at the doors. The ride's seat is on the right of
-// the facing, the outer side where the line runs past. Built along +x as the design's vehicles are, then turned to face
+// the facing, the outer side where the line runs past. Built along +x as every vehicle is, then turned to face
 // +z (assets:metre-units-and-origin).
 import { lowBox, setFootprint } from "@japacity/assets";
 import { beam, quad } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { cbox, facePlusZ, wheel } from "../lab";
+import { cbox, facePlusZ, wheel } from "../centred";
 import type { RideSeat } from "../ride";
 
 /** The car's numbers in metres: length along x as built, the floor at the high platform's height. */

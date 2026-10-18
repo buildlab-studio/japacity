@@ -3,7 +3,7 @@
 // the interface cuts as a sticker (design page 13) and for a look's face and whole figure, which
 // the front door cuts the same way. The shooter drives it
 // through `window.stage`; it renders on the software renderer, so a model gives the same
-// pixels every time. It loads the shipped file, as the client will, not the builder.
+// pixels every time. It loads the shipped file, as the client does, not the builder.
 import { fullSides, palette, type PaletteName, wallOf } from "@japacity/assets";
 import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
 import {

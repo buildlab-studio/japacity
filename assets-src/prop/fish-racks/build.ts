@@ -6,7 +6,7 @@ import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets
 import { beam, box, onWall, seeded, signboard } from "@japacity/assets/kit";
 import { Group } from "three";
 
-import { lump } from "../../veh/lab";
+import { lump } from "../../veh/centred";
 import { WALKWAY } from "../plank-walkway/build";
 
 /** The platform's width and depth, the kiln's top and where its smoke rises, in the piece's frame. */

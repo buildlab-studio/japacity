@@ -101,7 +101,7 @@ export function isPortrayed(name: string): boolean {
   return DOOR_LOOKS.has(name);
 }
 
-/** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill until the characters are redone. */
+/** The kinds of model a picture tile is cut from (design page 13, the pictures): never a person, whose tile is a name pill. */
 const TILED_KINDS = /^(prop|shop|veh|lm|bld)_/;
 /** Models no player is shown as a thing: the rooms' and the homes' shells, the moving sheets, the water, a pole, the drum's water surface and the plank walk. */
 const UNTILED = /^(bld_room_|bld_home-|prop_sheet-|prop_water_|prop_pole$|prop_drum-water$|prop_plank-walkway$)/;
@@ -125,7 +125,7 @@ export interface CatalogEntry {
   views: ViewName[];
   /** A pose for a person in the shots. */
   pose?: "stand" | "tray";
-  /** Is one of the six examples later pieces are judged against. */
+  /** Is one of the six examples every other piece is judged against. */
   example?: boolean;
   /** The ground in the shots, when it is not sand. */
   ground?: "lagoon";
@@ -133,8 +133,8 @@ export interface CatalogEntry {
   farView?: { position: [number, number, number]; target: [number, number, number] };
 }
 
-const EXAMPLE_MAKERS = "The makers, written as code from the design's models; one of the examples (assets-src/examples.json)";
-const LAB_MAKERS = "The makers, written as code from the design's models";
+const EXAMPLE_MAKERS = "The makers, written as code; one of the examples (assets-src/examples.json)";
+const MAKERS = "The makers, written as code";
 const STREET_DRESSING = "The makers, written as code from the kit (the streets' and offices' dressing)";
 const ELEVATIONS: ViewName[] = ["front", "back", "left", "right", "threeQuarter"];
 const KIT = "The makers, written as code from the kit";
@@ -374,7 +374,7 @@ const ENTRIES: CatalogEntry[] = [
     author: EXAMPLE_MAKERS,
     example: true,
     views: [...ELEVATIONS, "plan", "phone", "phoneFar"],
-    // The lagoon, until the palette names a water colour; seen from a canoe, as the photographs are, so the arches show.
+    // On the lagoon, seen from a canoe as the photographs are, so the arches show.
     ground: "lagoon",
     farView: { position: [40, 2, 260], target: [-90, 6, 0] },
     build: () => staticModel("lm_third-mainland-span", buildBridgeSpan()),
@@ -437,7 +437,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "shared/prop/prop_stall.glb",
     place: "shared",
     source: "assets-src/prop/stall",
-    author: LAB_MAKERS,
+    author: MAKERS,
     views: [...ELEVATIONS, "phone"],
     build: () => staticModel("prop_stall", buildStall()),
   },
@@ -494,7 +494,7 @@ const ENTRIES: CatalogEntry[] = [
   ),
   { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: KIT, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
   { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
-  // The pieces the three places rebuilt as frontages need (world:place-is-one-screen).
+  // The pieces the places staged as frontages need (world:place-is-one-screen).
   { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi/dubai", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
   placePiece("prop_street-bench", "peckham", buildStreetBench),
   { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
@@ -509,7 +509,7 @@ const ENTRIES: CatalogEntry[] = [
       file: `shared/veh/${name}.glb`,
       place: "shared",
       source: `assets-src/veh/${name.slice(4)}`,
-      author: LAB_MAKERS,
+      author: MAKERS,
       views: [...ELEVATIONS, "phone"],
       build: () => staticModel(name, build()),
     }),
@@ -520,7 +520,7 @@ const ENTRIES: CatalogEntry[] = [
       file: `shared/chr/${spec.name}.glb`,
       place: "shared",
       source: `assets-src/people/${spec.name.slice(4)}`,
-      author: LAB_MAKERS,
+      author: MAKERS,
       views: isPortrayed(spec.name) ? [...ELEVATIONS, "phone", ...PORTRAITS] : [...ELEVATIONS, "phone"],
       pose: spec.carry === undefined ? "stand" : "tray",
       // JAPACITY_FACE names a face style to export for comparison; unset, the shipped style.
@@ -620,7 +620,7 @@ const LONDON = "The makers, written as code from the kit";
 ENTRIES.push(
   { name: "veh_london-bus", file: "shared/veh/veh_london-bus.glb", place: "shared", source: "assets-src/veh/london-bus", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_london-bus", buildLondonBus()) },
   { name: "veh_train-carriage", file: "shared/veh/veh_train-carriage.glb", place: "shared", source: "assets-src/veh/train-carriage", author: LONDON, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_train-carriage", buildTrainCarriage()) },
-  // Rye Lane redrawn (world:place-is-one-screen): two more terraces as data, the pub on the corner, the produce, the stalls and the kitchen's door.
+  // Rye Lane (world:place-is-one-screen): two more terraces as data, the pub on the corner, the produce, the stalls and the kitchen's door.
   ...(["c", "d"] as const).map(
     (variant): CatalogEntry => ({
       name: `bld_rye-lane-terrace_${variant}`,
