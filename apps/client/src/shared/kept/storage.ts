@@ -44,6 +44,8 @@ export const FULL_PROLOGUE_KEY = "japacity.prologue.full";
 export const MORNING_KEY = "japacity.morning";
 /** The time of the last reload for the staging wall: kept in the tab's storage, gone with it. */
 export const WALL_KEY = "japacity.wall";
+/** When this device last turned the ask for notices down, in ms since 1970. */
+export const NOTIFY_DISMISSED_KEY = "japacity.notify.dismissedAt";
 
 /** The key an account's ask to secure it is marked under, once per account and moment. */
 export function secureAskedKey(account: string, moment: string): string {

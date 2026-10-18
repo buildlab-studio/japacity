@@ -6,8 +6,9 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe
 import type { NotifyKeyReply, NotifyReply, NotifySettingRequest, PushSubscriptionJson, SubscribeRequest } from "@japacity/api";
 
+import { browserStorage, NOTIFY_DISMISSED_KEY } from "../../shared/kept/storage";
 import { authorityMode } from "../../shared/net/authorityMode";
-import { api, type Fetch } from "../../shared/net/http";
+import { api, pageFetch, type Fetch } from "../../shared/net/http";
 import { pageWall, type WallGuard } from "../../shared/net/wall";
 
 /** The setting, the re-ask wait, and the key to subscribe with (null while the deployment has none). */
@@ -48,7 +49,7 @@ const SUBSCRIBE = "/api/notify/subscribe";
 const KEY = "/api/notify/key";
 
 /** Every call through the one request function (R-ENGINE-015): its clock, same origin, a wall or no answer sorted by kind. */
-export function httpNotifyApi(baseUrl: string, fetch: Fetch = (input, init) => globalThis.fetch(input, init), wall: WallGuard = pageWall): NotifyApi {
+export function httpNotifyApi(baseUrl: string, fetch: Fetch = pageFetch, wall: WallGuard = pageWall): NotifyApi {
   const http = api({ baseUrl, fetch, wall });
   async function call<T extends { ok: true }>(path: string, method: "GET" | "POST" | "PUT", body?: NotifySettingRequest | SubscribeRequest): Promise<T | null> {
     try {
@@ -77,7 +78,6 @@ export function defaultNotifyApi(): NotifyApi | null {
 }
 
 const WORKER = "/notify.sw.js";
-const DISMISSED = "japacity.notify.dismissedAt";
 
 function keyBytes(key: string): Uint8Array<ArrayBuffer> {
   const base = key.replace(/-/g, "+").replace(/_/g, "/");
@@ -114,7 +114,7 @@ export function browserDevice(): NotifyDevice {
     },
     dismissedAt() {
       try {
-        const stored = Number(localStorage.getItem(DISMISSED));
+        const stored = Number(browserStorage()?.getItem(NOTIFY_DISMISSED_KEY) ?? null);
         return Number.isFinite(stored) && stored > 0 ? stored : null;
       } catch {
         return null;
@@ -122,7 +122,7 @@ export function browserDevice(): NotifyDevice {
     },
     dismiss(at) {
       try {
-        localStorage.setItem(DISMISSED, String(at));
+        browserStorage()?.setItem(NOTIFY_DISMISSED_KEY, String(at));
       } catch {
         // A browser that keeps nothing asks again at the next good moment.
       }
