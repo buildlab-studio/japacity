@@ -4,7 +4,7 @@ import { type Footprint, inBox, isFootprint, onWalkable, placeFootprint } from "
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { measureFile } from "../../../../../../tools/assets/check-assets";
+import { measureFile } from "../../../../../../tools/assets/assets-check";
 import hubFile from "../../../../public/assets/places/ojuelegba/place.json";
 import { hash } from "../crowd";
 import type { PlaceFile, Stage } from "../placeFile";

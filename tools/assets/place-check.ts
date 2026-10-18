@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import type { Page } from "@playwright/test";
 
-import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./check-assets";
+import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./assets-check";
 import type { CheckMode as Mode, FrameRecord, PlaceInput, RouteRecord } from "./place-check.types";
 import { PHONE_SHOT } from "./shoot";
 import { openStage, signText } from "./stage-browser";

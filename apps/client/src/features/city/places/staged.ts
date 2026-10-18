@@ -10,7 +10,7 @@ import { expect, test } from "vitest";
 
 import budgets from "../../../../../../assets-src/budgets.json";
 import register from "../../../../../../assets-src/register.json";
-import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/check-assets";
+import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/assets-check";
 import { crowdSize } from "../crowd";
 import type { PlaceFile, Spot, Stage } from "../placeFile";
 import { personOfLook } from "../roster";

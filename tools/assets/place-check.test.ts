@@ -4,8 +4,8 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Budgets } from "./check-assets";
-import { defaultPaths } from "./check-assets";
+import type { Budgets } from "./assets-check";
+import { defaultPaths } from "./assets-check";
 import { CHEAP_PHONE, CHECK_OWN, checkDrawn, checkMotion, describeMeasure, inputOf, type Measure, median, type PlaceMeasure, ROUTE_TAPS, routeCost, stagedPlaces, summarise } from "./place-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG, isTiled } from "./catalog";
-import { defaultPaths, listFiles } from "./check-assets";
+import { defaultPaths, listFiles } from "./assets-check";
 import { readManifest, sha256 } from "./manifest";
 import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
 

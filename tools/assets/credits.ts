@@ -3,7 +3,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { defaultPaths, expectedCredits, mapSources } from "./check-assets";
+import { defaultPaths, expectedCredits, mapSources } from "./assets-check";
 import { placeMapData } from "./map-data";
 import { readRegister } from "./register";
 

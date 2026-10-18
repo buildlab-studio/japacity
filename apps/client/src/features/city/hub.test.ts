@@ -1,4 +1,4 @@
-// The hub's place file against the counts the build check makes (tools/assets/check-assets.ts) and
+// The hub's place file against the counts the build check makes (tools/assets/assets-check.ts) and
 // against what the hub must show: the junction under the flyover where the danfos load.
 import { join } from "node:path";
 
@@ -8,7 +8,7 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import budgets from "../../../../../assets-src/budgets.json";
-import { measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../tools/assets/check-assets";
+import { measureFile, placeTotals, type PlaceFile as CheckedPlace } from "../../../../../tools/assets/assets-check";
 import hubFile from "../../../public/assets/places/ojuelegba/place.json";
 import { cameraAim } from "./camera";
 import { crowdSize } from "./crowd";

@@ -5,7 +5,7 @@ import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, ROOT, SOURCE } from "./catalog";
-import { listFiles, sourceFiles } from "./check-assets";
+import { listFiles, sourceFiles } from "./assets-check";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
 import { FACE_SHOT, FIGURE_SHOT, mergeRecords, PHONE_SHOT, PORTRAIT_POSES, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";

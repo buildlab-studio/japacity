@@ -5,7 +5,7 @@ import { join, relative } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { defaultPaths, mapSources } from "./check-assets";
+import { defaultPaths, mapSources } from "./assets-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");
 const paths = defaultPaths(ROOT);

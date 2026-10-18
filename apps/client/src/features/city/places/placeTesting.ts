@@ -1,5 +1,5 @@
 // What every staged place's test reads: its place.json as the client sees it, measured as the build
-// check measures it (tools/assets/check-assets.ts), and the checks every stage owes the city.
+// check measures it (tools/assets/assets-check.ts), and the checks every stage owes the city.
 import { join } from "node:path";
 
 import { isPaletteName } from "@japacity/assets";
@@ -8,7 +8,7 @@ import type { Id, PlaceEntry } from "@japacity/sim";
 import { expect } from "vitest";
 
 import budgets from "../../../../../../assets-src/budgets.json";
-import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/check-assets";
+import { type Measured, measureFile, placeTotals, type PlaceFile as CheckedPlace, type PlaceTotals } from "../../../../../../tools/assets/assets-check";
 import { crowdSize } from "../crowd";
 import { CAR_FILE, type PlaceFile, type Spot, type Stage } from "../placeFile";
 

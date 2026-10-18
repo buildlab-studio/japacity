@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { type PlaceFile, worldChecks } from "./check-assets";
+import { type PlaceFile, worldChecks } from "./assets-check";
 import { checkLimits, checkParts, checkThings, type LimitedFile, WORLD_LIMITS } from "./world-check";
 
 const ROOT = join(import.meta.dirname, "..", "..");

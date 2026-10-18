@@ -91,7 +91,7 @@ import abraSheet from "../../assets-src/veh/abra/review.json";
 import labourBusSheet from "../../assets-src/veh/labour-bus/review.json";
 import taxiSheet from "../../assets-src/veh/taxi/review.json";
 
-import { listFiles } from "./check-assets";
+import { listFiles } from "./assets-check";
 
 const SHEETS: Record<string, ReviewSheet> = {
   "bld/bode-thomas-betting/review.json": bodeThomasBettingSheet satisfies Review,

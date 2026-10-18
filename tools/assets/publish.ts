@@ -1,7 +1,7 @@
 // pnpm assets:publish: copies every shipped file under public/assets to a name that carries the hash
 // of its contents, beside its source, and writes the manifest the city's loader reads (city.md
 // R-CITY-018). A file whose contents change gets a new name, so the browser may keep every published
-// file for good. The build check skips the hashed copies and the manifest (check-assets.ts).
+// file for good. The build check skips the hashed copies and the manifest (assets-check.ts).
 // First it copies each model's tile render to tiles/<name>.png, and each look's portraits to
 // tiles/<name>-face.png, -figure.png and -cheer.png, so the interface's pictures are published as
 // the models are (design page 13, the pictures; the front door's faces and figures).
@@ -9,11 +9,11 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSyn
 import { join, relative } from "node:path";
 
 import { CATALOG, type CatalogEntry, PORTRAITS, type ViewName } from "./catalog";
-import { defaultPaths, isPublishedCopy, listFiles, TILES } from "./check-assets";
+import { defaultPaths, isPublishedCopy, listFiles, TILES } from "./assets-check";
 import { hashedName, readManifest, sha256, writeManifest } from "./manifest";
 
 export { HASH_DIGITS, hashedName, hashInName } from "./manifest";
-export { TILES } from "./check-assets";
+export { TILES } from "./assets-check";
 
 export const MANIFEST_FILE = "manifest.json";
 

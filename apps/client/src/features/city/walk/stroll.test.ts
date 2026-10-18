@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { type Footprint, isFootprint } from "@japacity/assets";
 import { describe, expect, test } from "vitest";
 
-import { measureFile } from "../../../../../../tools/assets/check-assets";
+import { measureFile } from "../../../../../../tools/assets/assets-check";
 import hubFile from "../../../../public/assets/places/ojuelegba/place.json";
 import type { PlaceFile, Stage } from "../placeFile";
 import { ARRIVED, WALK_SPEED } from "../walk";

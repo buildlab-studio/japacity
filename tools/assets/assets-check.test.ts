@@ -30,7 +30,7 @@ import {
   runChecks,
   isTile,
   sourceFiles,
-} from "./check-assets";
+} from "./assets-check";
 import { measure, readGlb, toDocument, writeGlb } from "./glb";
 import { placeMapData } from "./map-data";
 import { sha256 } from "./manifest";
