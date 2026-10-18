@@ -7,7 +7,7 @@
 // whose dues pass the country's money held leads with the gap and the way. Once flown, the move has no target to save
 // toward.
 import { content } from "@japacity/content";
-import { int, REMIT_CHANNELS, remitQuote, type Currency, type ForeignCurrency, type Id, type OfferView, type ReportParam, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type RemitChannel, type ReportLine } from "@japacity/sim";
+import { CURRENCIES, int, REMIT_CHANNELS, remitQuote, type Currency, type ForeignCurrency, type Id, type OfferView, type ReportParam, type PassbookRoad, type PassbookView, type PlayerView, type Pocket, type RemitChannel, type ReportLine } from "@japacity/sim";
 import { ArrowLeftRight, CircleAlert, MoveVertical, Send } from "lucide-react";
 import { use, useEffect, useRef, useState } from "react";
 
@@ -23,7 +23,7 @@ import { TINTS } from "../../../shared/ui/lively/tint";
 import { requirementSentence } from "../../../shared/words/requirement";
 import { changeQuote } from "../../../shared/words/cost";
 import { duesGap, heldElsewhere } from "../../../shared/words/dues";
-import { CURRENCIES, formatBp, formatMoney, formatOne, formatRate, HOME_CURRENCIES } from "../../../shared/words/format";
+import { formatBp, formatMoney, formatOne, formatRate, HOME_CURRENCIES } from "../../../shared/words/format";
 import { chargeShown, type MoneyLine, moneyLines } from "../../../shared/words/money";
 import { hasWords, inMonths, lowerFirst, nameOf, runningName, say, sayCount, words } from "../../../shared/words/text";
 import { savedFor, savingsOf, savingsRoute } from "../../../shared/words/savings";

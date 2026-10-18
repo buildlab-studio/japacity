@@ -2,9 +2,9 @@
 // late words of a country abroad. A missing key shows as itself, so a gap in content is visible in play instead of
 // hidden behind a guess.
 import { content, HOMETOWN_FILL, text } from "@japacity/content";
-import type { Currency, MoneyParam, ReportParam } from "@japacity/sim";
+import { isCurrency, type Currency, type MoneyParam, type ReportParam } from "@japacity/sim";
 
-import { formatBand, formatBp, formatMoney, formatNumber, isCurrency, monthEnding } from "./format";
+import { formatBand, formatBp, formatMoney, formatNumber, monthEnding } from "./format";
 import { nowHometown, nowMonth, swapped } from "./now";
 import { peopleParam } from "./person";
 import { lateWord } from "./late";

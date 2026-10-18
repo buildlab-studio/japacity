@@ -2,11 +2,11 @@
 // counts (R-SERVER-005) and the rollback check (R-SERVER-008). The check reads
 // only; nothing here corrects, freezes or rolls back a character (R-SERVER-010).
 import type { Alarm, ByReason, RollbackCheck } from "@japacity/api";
-import { time } from "@japacity/sim";
+import { isCurrency, time } from "@japacity/sim";
 import { useState } from "react";
 
 import { Button } from "../../shared/ui/Button";
-import { formatMoney, formatNumber, isCurrency } from "../../shared/words/format";
+import { formatMoney, formatNumber } from "../../shared/words/format";
 import { words } from "./admin.words";
 import type { AdminApi } from "./api";
 import { Confirm, Field, Loaded, ReloadButton, Section, Table, useLoad } from "./admin.ui";

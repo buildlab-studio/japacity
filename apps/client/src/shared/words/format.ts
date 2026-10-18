@@ -107,11 +107,5 @@ export function formatBp(bp: number): string {
   return percentFormat.format(bp / 10000);
 }
 
-export const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
-
 /** The currencies a life at home deals in. The others arrive with a country abroad. */
 export const HOME_CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD"];
-
-export function isCurrency(value: unknown): value is Currency {
-  return typeof value === "string" && (CURRENCIES as readonly string[]).includes(value);
-}

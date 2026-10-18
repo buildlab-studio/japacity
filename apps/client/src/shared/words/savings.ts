@@ -1,9 +1,8 @@
 // The savings toward the move, one figure for the Bank and the results sheet (R-WORLD-019): the plan's route read as the Japa app reads it, what its decision day asks for plus the
 // fees still ahead, against every money held at the official rate.
 import { content } from "@japacity/content";
-import { int, type Currency, type ForeignCurrency, type PlayerView, type RouteView } from "@japacity/sim";
+import { CURRENCIES, int, type Currency, type ForeignCurrency, type PlayerView, type RouteView } from "@japacity/sim";
 
-import { CURRENCIES } from "./format";
 
 /** The route the plan follows: the japacity figure's route, else the furthest one heard of. */
 export function planRoute(view: PlayerView): RouteView | null {

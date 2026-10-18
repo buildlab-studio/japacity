@@ -3,9 +3,8 @@
 // and never through the naira, so a month whose dues pass the pounds held goes unpaid however much
 // naira and how many dollars wait. The Bank and the nudge both read it.
 import { content } from "@japacity/content";
-import type { Currency, PlayerView } from "@japacity/sim";
+import { CURRENCIES, type Currency, type PlayerView } from "@japacity/sim";
 
-import { CURRENCIES } from "./format";
 import { localCurrency } from "./wayHome";
 
 export interface DuesGap {
