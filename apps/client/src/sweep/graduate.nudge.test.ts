@@ -5,9 +5,9 @@ import { content } from "@japacity/content";
 import type { PlayerView, SlotPick } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { firstJob, huntOrder } from "../../features/activity/JobList";
-import { newGame } from "../testing/fixtures";
-import { nudgeOf } from "../../features/city/nudge";
+import { firstJob, huntOrder } from "../features/activity/JobList";
+import { newGame } from "../shared/testing/fixtures";
+import { nudgeOf } from "../features/city/nudge";
 
 const HUNT = "activity.job-hunt";
 const SEEDS = 40;

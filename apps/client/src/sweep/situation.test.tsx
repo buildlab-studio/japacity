@@ -7,13 +7,13 @@ import { legalCommands } from "@japacity/sim";
 import { screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { ScenarioView } from "../../features/scenario/ScenarioView";
-import { newGame } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { tidyLines } from "./lines";
-import { valueWords } from "./quality";
-import { bandWords, say, words } from "./text";
-import { uiText } from "./tables/ui.words";
+import { ScenarioView } from "../features/scenario/ScenarioView";
+import { newGame } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { tidyLines } from "../shared/words/lines";
+import { valueWords } from "../shared/words/quality";
+import { bandWords, say, words } from "../shared/words/text";
+import { uiText } from "../shared/words/tables/ui.words";
 
 /** The lines of the prologue's first answer: the draw, as the first screen tells it. */
 function firstAnswer(): ReportLine[] {

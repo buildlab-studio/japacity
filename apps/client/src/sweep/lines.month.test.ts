@@ -6,11 +6,11 @@ import type { ReportLine } from "@japacity/sim";
 import { applyEffects, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { storyLines } from "../../features/turn/month.results";
-import { chargedLivingContent, newGame, openOffer } from "../testing/fixtures";
-import { formatMoney } from "./format";
-import { tidyLines } from "./lines";
-import { words } from "./text";
+import { storyLines } from "../features/turn/month.results";
+import { chargedLivingContent, newGame, openOffer } from "../shared/testing/fixtures";
+import { formatMoney } from "../shared/words/format";
+import { tidyLines } from "../shared/words/lines";
+import { words } from "../shared/words/text";
 
 const line = (key: string, params: ReportLine["params"], tone: ReportLine["tone"] = "plain"): ReportLine => ({ key, params, tone, attention: false, counts: [] });
 const read = (lines: readonly ReportLine[]) => tidyLines(lines).map((each) => words(each.key, each.params));

@@ -4,8 +4,8 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { sceneWords } from "../../features/city/scene.words";
-import { say, words } from "./text";
+import { sceneWords } from "../features/city/scene.words";
+import { say, words } from "../shared/words/text";
 
 describe("one name for one thing", () => {
   test("[R-TEXT-005] given the savings circle, when its ask, its results and its bill name it, then each says the savings circle, and the ask says ajo once beside it", () => {

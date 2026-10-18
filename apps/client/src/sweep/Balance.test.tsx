@@ -7,15 +7,15 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, render } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-import { ActivityPicker } from "../../features/activity/ActivityView";
-import { RideSheet } from "../../features/map/RideSheet";
-import { engineView } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { effectWordsOf, timeWordsOf } from "../words/acts";
-import { formatMoney } from "../words/format";
-import { nameOf, say } from "../words/text";
-import { AskSheet } from "./AskSheet";
-import type { Ask } from "./contract";
+import { ActivityPicker } from "../features/activity/ActivityView";
+import { RideSheet } from "../features/map/RideSheet";
+import { engineView } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { effectWordsOf, timeWordsOf } from "../shared/words/acts";
+import { formatMoney } from "../shared/words/format";
+import { nameOf, say } from "../shared/words/text";
+import { AskSheet } from "../shared/world/AskSheet";
+import type { Ask } from "../shared/world/contract";
 
 /** A meal of your own, bought at its price (the family house's pot is free). */
 const COOK = "activity.cook-own";

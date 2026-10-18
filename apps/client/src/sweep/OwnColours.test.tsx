@@ -5,16 +5,16 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { GameProvider } from "../../authority/GameProvider";
-import { localAuthority, SAVE_KEY } from "../../authority/local";
-import { readPerson } from "./person";
-import { createGameStore, type GameStore } from "../../authority/store";
-import { DOOR_KEY, readDoor } from "../datapage/door";
-import { say } from "../words/text";
-import { ScenarioView } from "../../features/scenario/ScenarioView";
-import { forgetOwnColours, type OwnColours, reportOwn, SWATCHES } from "./style";
+import { GameProvider } from "../authority/GameProvider";
+import { localAuthority, SAVE_KEY } from "../authority/local";
+import { readPerson } from "../shared/frontdoor/person";
+import { createGameStore, type GameStore } from "../authority/store";
+import { DOOR_KEY, readDoor } from "../shared/datapage/door";
+import { say } from "../shared/words/text";
+import { ScenarioView } from "../features/scenario/ScenarioView";
+import { forgetOwnColours, type OwnColours, reportOwn, SWATCHES } from "../shared/frontdoor/style";
 // Registers Testing Library's cleanup for this file.
-import "../testing/render";
+import "../shared/testing/render";
 
 afterEach(() => {
   localStorage.clear();

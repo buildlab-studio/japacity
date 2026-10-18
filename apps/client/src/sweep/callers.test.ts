@@ -3,11 +3,11 @@
 // sorted like the rest: the wall sets off the page's one reload, and no answer is said as the screen's own failure.
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { httpNotifyApi } from "../../features/notify/notify.api";
-import { BASE } from "../testing/server";
-import { betterAuthApi } from "./auth";
-import { type Fetch, READ_TIMEOUT_MS } from "./http";
-import type { WallGuard } from "./wall";
+import { httpNotifyApi } from "../features/notify/notify.api";
+import { BASE } from "../shared/testing/server";
+import { betterAuthApi } from "../shared/net/auth";
+import { type Fetch, READ_TIMEOUT_MS } from "../shared/net/http";
+import type { WallGuard } from "../shared/net/wall";
 
 afterEach(() => {
   vi.useRealTimers();

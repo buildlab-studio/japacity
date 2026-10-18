@@ -4,14 +4,14 @@
 import { act, render } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { Phone } from "../../../features/phone/Phone";
-import { Band } from "../../world/Band";
-import { Corner, resetLines, tell } from "../../world/Lines";
-import { Nudge } from "../../world/Nudge";
-import { ThumbBar } from "../../world/ThumbBar";
-import { FirstUseLabels } from "../../world/Walkthrough";
+import { Phone } from "../features/phone/Phone";
+import { Band } from "../shared/world/Band";
+import { Corner, resetLines, tell } from "../shared/world/Lines";
+import { Nudge } from "../shared/world/Nudge";
+import { ThumbBar } from "../shared/world/ThumbBar";
+import { FirstUseLabels } from "../shared/world/Walkthrough";
 // Registers Testing Library's cleanup for this file.
-import "../../testing/render";
+import "../shared/testing/render";
 
 afterEach(() => {
   resetLines();

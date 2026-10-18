@@ -7,9 +7,9 @@ import { topActivities } from "@japacity/sim";
 import { lifeSaves, newLifeSaves, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { kept, localCurrency, moneyLines } from "../../features/turn/month.results";
-import { newGame, recordedGame } from "../testing/fixtures";
-import { japaTypeOf, typeWords } from "./japaType";
+import { kept, localCurrency, moneyLines } from "../features/turn/month.results";
+import { newGame, recordedGame } from "../shared/testing/fixtures";
+import { japaTypeOf, typeWords } from "../shared/words/japaType";
 
 /** Every recorded life: the blessed ones and those recorded since, not yet blessed. */
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };

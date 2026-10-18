@@ -5,10 +5,10 @@ import { describe, expect, test } from "vitest";
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 
-import { moneyLines, otherLines } from "../../features/turn/month.results";
-import { newGame, openOffer } from "../testing/fixtures";
-import { formatMoney } from "./format";
-import { words } from "./text";
+import { moneyLines, otherLines } from "../features/turn/month.results";
+import { newGame, openOffer } from "../shared/testing/fixtures";
+import { formatMoney } from "../shared/words/format";
+import { words } from "../shared/words/text";
 
 /** The prize message claimed on the first seed whose draw makes it a fraud, or honest: the answer's lines and the month's. */
 function promoClaimed(fraud: boolean): ReportLine[] {

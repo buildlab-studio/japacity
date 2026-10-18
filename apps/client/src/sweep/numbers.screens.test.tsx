@@ -5,11 +5,11 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { ActivityPicker } from "../../features/activity/ActivityView";
-import { PhoneApps } from "../../features/phone/PhoneApps";
-import { newGame, viewAfter } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { nameOf } from "./text";
+import { ActivityPicker } from "../features/activity/ActivityView";
+import { PhoneApps } from "../features/phone/PhoneApps";
+import { newGame, viewAfter } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { nameOf } from "../shared/words/text";
 
 const TALENT = "route.uk-talent";
 const LOOK = "activity.look-into-route";

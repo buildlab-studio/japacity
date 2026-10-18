@@ -1,23 +1,14 @@
 // Calgary's, Dubai's and Castel Volturno's words ride a chunk each (engine.md R-ENGINE-020; world.md R-WORLD-038,
 // R-WORLD-039): no module of the game imports their tables but the loader, by a dynamic import, and once a
 // country's table is added every lookup finds its words.
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { hasAbroadWords, loadAbroadWords } from "../../features/city/abroad.words";
-import { hasWords, words } from "./text";
-
-const SRC = join(import.meta.dirname, "..", "..");
-
-function sources(folder: string): string[] {
-  return readdirSync(folder).flatMap((name) => {
-    const path = join(folder, name);
-    if (statSync(path).isDirectory()) return sources(path);
-    return /\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name) ? [path] : [];
-  });
-}
+import { hasAbroadWords, loadAbroadWords } from "./abroad.words";
+import { sources, SRC } from "./abroad.words.testing";
+import { hasWords, words } from "../../shared/words/text";
 
 describe("the three countries' words a first visit does not carry", () => {
   test.each(["calgary", "dubai", "castel"])("[R-ENGINE-020] [R-WORLD-039] given %s's words, when the game's modules are read, then only the loader names their table, and by a dynamic import", (name) => {

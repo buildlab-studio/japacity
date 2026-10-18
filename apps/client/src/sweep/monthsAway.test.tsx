@@ -5,13 +5,13 @@ import { text } from "@japacity/content";
 import { act, fireEvent } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { PhoneApps } from "../../features/phone/PhoneApps";
-import { reloadSeen } from "../../features/phone/seen";
-import { newGame } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { monthEnding } from "./format";
-import { nowMonth, setNow } from "./now";
-import { forMonths, inMonths, words } from "./text";
+import { PhoneApps } from "../features/phone/PhoneApps";
+import { reloadSeen } from "../features/phone/seen";
+import { newGame } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { monthEnding } from "../shared/words/format";
+import { nowMonth, setNow } from "../shared/words/now";
+import { forMonths, inMonths, words } from "../shared/words/text";
 
 const PASSPORT = "document.passport";
 const STAMPED = /\{(month|until|readyMonth)\}/;

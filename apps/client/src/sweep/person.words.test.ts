@@ -4,9 +4,9 @@
 import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { markTag } from "../../features/city/mark";
-import { say } from "./text";
-import { uiText } from "./tables/ui.words";
+import { markTag } from "../features/city/mark";
+import { say } from "../shared/words/text";
+import { uiText } from "../shared/words/tables/ui.words";
 
 /** Lines that read as the system talking, kept out of every table. */
 const GONE = ["The lift wore off.", "Every free thing is planned", "Funds covered for a month, and now", "Next page on its way", "Next page any minute now"];

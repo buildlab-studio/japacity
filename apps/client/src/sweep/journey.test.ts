@@ -5,18 +5,18 @@
 import { text, textTables } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { routesUiText } from "../../features/activity/routes.words";
-import { adviceUiText } from "../../features/advice/advice.words";
-import { cityText } from "../../features/city/city.words";
-import { sceneText } from "../../features/city/scene.words";
-import { mapText } from "../../features/map/map.words";
-import { phoneText } from "../../features/phone/phone.words";
-import { roomText } from "../../features/setpiece/room.words";
-import { turnText } from "../../features/turn/turn.words";
-import { moderationText } from "../moderation/moderation.words";
-import { soundText } from "../sound/sound.words";
-import { jobsUiText } from "./tables/jobs.words";
-import { uiText } from "./tables/ui.words";
+import { routesUiText } from "../features/activity/routes.words";
+import { adviceUiText } from "../features/advice/advice.words";
+import { cityText } from "../features/city/city.words";
+import { sceneText } from "../features/city/scene.words";
+import { mapText } from "../features/map/map.words";
+import { phoneText } from "../features/phone/phone.words";
+import { roomText } from "../features/setpiece/room.words";
+import { turnText } from "../features/turn/turn.words";
+import { moderationText } from "../shared/moderation/moderation.words";
+import { soundText } from "../shared/sound/sound.words";
+import { jobsUiText } from "../shared/words/tables/jobs.words";
+import { uiText } from "../shared/words/tables/ui.words";
 
 // The admin tables are left out: they are the staff's tool, where a report's age in the queue is a measure, not the game's voice.
 const clientTables: Record<string, Record<string, string>> = {

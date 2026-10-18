@@ -5,14 +5,14 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import placeFile from "../../../public/assets/places/bode-thomas-front/place.json";
-import { dressPlace, type Stage } from "../scene/placeFile";
-import { frontageTests } from "../../features/city/places/frontage.testing";
-import { copiesOf, staged, wordsOf } from "../../features/city/places/place.testing";
-import { sceneWords } from "../../features/city/scene.words";
-import { offersHere, stagedAt } from "../scene/staging";
-import { stagedNow, thingsNow } from "../../features/city/things";
-import { PARCEL } from "./parcel.ask";
+import placeFile from "../../../../public/assets/places/bode-thomas-front/place.json";
+import { dressPlace, type Stage } from "../../../shared/scene/placeFile";
+import { frontageTests } from "./frontage.testing";
+import { copiesOf, staged, wordsOf } from "./place.testing";
+import { sceneWords } from "../scene.words";
+import { offersHere, stagedAt } from "../../../shared/scene/staging";
+import { stagedNow, thingsNow } from "../things";
+import { PARCEL } from "../../../shared/world/parcel.ask";
 
 const { file, stage, entry } = staged(placeFile, "place.bode-thomas");
 const BOOTH = "shop_provisions.glb";

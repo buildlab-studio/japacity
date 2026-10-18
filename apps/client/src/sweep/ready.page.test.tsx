@@ -3,12 +3,12 @@
 // Nigeria, so Japa reads the plan's own, and the page reads the same. Played on the real engine.
 import { describe, expect, test } from "vitest";
 
-import { Japa } from "../../features/phone/apps/Japa";
-import { newGame, viewAfter } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { say } from "../words/text";
-import { readyWords } from "../words/ready";
-import { pageOf } from "./PageSheet";
+import { Japa } from "../features/phone/apps/Japa";
+import { newGame, viewAfter } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { say } from "../shared/words/text";
+import { readyWords } from "../shared/words/ready";
+import { pageOf } from "../shared/datapage/PageSheet";
 
 const CARE = "route.uk-care";
 

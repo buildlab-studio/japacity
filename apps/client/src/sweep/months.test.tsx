@@ -6,16 +6,16 @@ import type { PlayerView } from "@japacity/sim";
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { OfferView } from "../../features/offer/OfferView";
-import { Japa } from "../../features/phone/apps/Japa";
-import { agoWords } from "../../features/phone/apps/JapaWays";
-import { PhoneApps } from "../../features/phone/PhoneApps";
-import { phoneWords } from "../../features/phone/phone.words";
-import { newGame, openOffer, richAbroadView, richView } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { monthEnding, playerMonth } from "./format";
-import { requirementSentence } from "./requirement";
-import { byMonths, forMonths, inMonths, nameOf, say, words } from "./text";
+import { OfferView } from "../features/offer/OfferView";
+import { Japa } from "../features/phone/apps/Japa";
+import { agoWords } from "../features/phone/apps/JapaWays";
+import { PhoneApps } from "../features/phone/PhoneApps";
+import { phoneWords } from "../features/phone/phone.words";
+import { newGame, openOffer, richAbroadView, richView } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { monthEnding, playerMonth } from "../shared/words/format";
+import { requirementSentence } from "../shared/words/requirement";
+import { byMonths, forMonths, inMonths, nameOf, say, words } from "../shared/words/text";
 
 const PASSPORT = "document.passport";
 

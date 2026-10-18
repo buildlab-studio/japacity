@@ -9,13 +9,13 @@ import { int, standInWorld } from "@japacity/sim";
 import { lifeSaves, newLifeSaves, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { kept, localCurrency } from "../../features/turn/month.results";
-import { newGame } from "../testing/fixtures";
-import { formatMoney } from "./format";
-import { changeLine } from "../../features/phone/apps/Bank";
-import { moneyLines } from "./money";
-import { newsLines } from "./told";
-import { moneyParam, words } from "./text";
+import { kept, localCurrency } from "../features/turn/month.results";
+import { newGame } from "../shared/testing/fixtures";
+import { formatMoney } from "../shared/words/format";
+import { changeLine } from "../features/phone/apps/Bank";
+import { moneyLines } from "../shared/words/money";
+import { newsLines } from "../shared/words/told";
+import { moneyParam, words } from "../shared/words/text";
 
 const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...newLifeSaves };
 

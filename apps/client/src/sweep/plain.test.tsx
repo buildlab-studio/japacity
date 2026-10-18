@@ -4,17 +4,17 @@ import type { ActivityOption, PlayerView, ReportLine } from "@japacity/sim";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { ActivityView } from "../../features/activity/ActivityView";
-import { Bills } from "../../features/phone/apps/Bills";
-import { Japa } from "../../features/phone/apps/Japa";
-import { DECEMBER } from "../../features/setpiece/DecemberScene";
-import { nudgeOf } from "../../features/city/nudge";
-import { engineView, richView } from "../testing/fixtures";
-import { renderWithView } from "../testing/render";
-import { ReportLines } from "../ui/ReportLines";
-import { asksAttention, tidyLines } from "./lines";
-import { paramWords, say, sayCount, words } from "./text";
-import { uiText } from "./tables/ui.words";
+import { ActivityView } from "../features/activity/ActivityView";
+import { Bills } from "../features/phone/apps/Bills";
+import { Japa } from "../features/phone/apps/Japa";
+import { DECEMBER } from "../features/setpiece/DecemberScene";
+import { nudgeOf } from "../features/city/nudge";
+import { engineView, richView } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { ReportLines } from "../shared/ui/ReportLines";
+import { asksAttention, tidyLines } from "../shared/words/lines";
+import { paramWords, say, sayCount, words } from "../shared/words/text";
+import { uiText } from "../shared/words/tables/ui.words";
 
 const LOTTO = "activity.play-lotto";
 

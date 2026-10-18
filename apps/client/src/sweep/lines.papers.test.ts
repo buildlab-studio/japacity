@@ -4,10 +4,10 @@
 import type { PlayerView, ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { newGame } from "../testing/fixtures";
-import { storyLines } from "../../features/turn/month.results";
-import { tidyLines } from "./lines";
-import { newsLines } from "./told";
+import { newGame } from "../shared/testing/fixtures";
+import { storyLines } from "../features/turn/month.results";
+import { tidyLines } from "../shared/words/lines";
+import { newsLines } from "../shared/words/told";
 
 const PASSPORT = "document.passport";
 
