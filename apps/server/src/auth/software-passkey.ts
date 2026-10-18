@@ -63,8 +63,8 @@ export interface SoftwarePasskey {
   store: (h: Harness, account: string) => Promise<void>;
   /** Registers the passkey through the library from the jar's session, running `between` after the options are given; the status and body of the verification. */
   register: (h: Harness, jar: Jar, between?: () => Promise<void>) => Promise<{ options: number; status: number; body: Record<string, unknown> }>;
-  /** Signs in with the passkey into a fresh jar. */
-  signIn: (h: Harness) => Promise<{ jar: Jar; status: number }>;
+  /** Signs in with the passkey into `jar` (a fresh one unless given), running `between` after the options are given. */
+  signIn: (h: Harness, jar?: Jar, between?: () => Promise<void>) => Promise<{ jar: Jar; status: number }>;
 }
 
 export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<SoftwarePasskey> {
@@ -101,9 +101,9 @@ export async function softwarePasskey(id = "c29mdHdhcmUtcGFzc2tleQ"): Promise<So
     return { options: asked.status, status: reply.status, body: await reply.json<Record<string, unknown>>() };
   };
 
-  const signIn: SoftwarePasskey["signIn"] = async (h) => {
-    const jar = makeJar();
+  const signIn: SoftwarePasskey["signIn"] = async (h, jar = makeJar(), between) => {
     const options = await (await h.call("/api/auth/passkey/generate-authenticate-options", { jar })).json<{ challenge: string }>();
+    await between?.();
     const clientData = new TextEncoder().encode(JSON.stringify({ type: "webauthn.get", challenge: options.challenge, origin: SITE, crossOrigin: false }));
     counter += 1;
     const authenticatorData = Uint8Array.from([...rpIdHash, FLAGS.signIn, 0, 0, 0, counter]);

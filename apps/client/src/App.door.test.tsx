@@ -13,6 +13,7 @@ import { usernameFrom, withDigits } from "./features/account/GuestStart";
 import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./features/account/Turnstile";
 import { ScenarioView } from "./features/scenario/ScenarioView";
 import type { AccountApi, GuestAnswer } from "./shared/net/auth";
+import { reportedError } from "./shared/net/http";
 import { engineView } from "./shared/testing/fixtures";
 import { say } from "./shared/words/text";
 // Registers Testing Library's cleanup for this file.
@@ -70,12 +71,14 @@ function fakeTurnstile({ passAtOnce = true }: { passAtOnce?: boolean } = {}) {
 }
 
 /** The gate as the shell draws it online, signed out, with the door after the age screen. */
-function online(account: AccountApi, turnstile: { load: LoadTurnstile } = fakeTurnstile(), { failFirstLife = false, botWaitMs }: { failFirstLife?: boolean; botWaitMs?: number } = {}) {
+/** `failFirstLife`: the first character's start fails, with this error when one is given. */
+function online(account: AccountApi, turnstile: { load: LoadTurnstile } = fakeTurnstile(), { failFirstLife = false, botWaitMs }: { failFirstLife?: boolean | Error; botWaitMs?: number } = {}) {
   const lives: Id<"scenario">[] = [];
   const life = {
     newLife: (scenario: Id<"scenario">) => {
       lives.push(scenario);
-      return failFirstLife && lives.length === 1 ? Promise.reject(new Error("unreachable")) : Promise.resolve(engineView());
+      if (failFirstLife !== false && lives.length === 1) return Promise.reject(failFirstLife === true ? new Error("unreachable") : failFirstLife);
+      return Promise.resolve(engineView());
     },
   };
   const store: GameStore = createGameStore({ view: () => Promise.resolve(engineView()), send: () => Promise.reject(new Error("unused")) }, { account, life, lifeAgain: false });
@@ -258,5 +261,20 @@ describe("the guest start at Begin", () => {
     await waitFor(() => expect(store.getState().signedOut).toBe(false));
     expect(lives).toHaveLength(2);
     expect(account.calls.filter((call) => call.startsWith("startGuest"))).toHaveLength(1);
+  });
+
+  test("[R-ACCOUNT-021] given the guest made but the server answering the character's start signed-out, then the page says the life did not start, and the next Begin makes the guest again and the life starts", async () => {
+    const account = fakeAccount();
+    const { store, lives } = online(account, fakeTurnstile(), { failFirstLife: reportedError({ ok: false, code: "signed-out", detail: "Sign in first." }) });
+    await toTheDoor();
+    toThePage();
+    fireEvent.click(next(say("ui.door.begin")));
+    expect(await screen.findByText(say("ui.account.guest.lost"))).toBeDefined();
+    expect(lives).toHaveLength(1);
+    await waitFor(() => expect(next(say("ui.door.begin")).hasAttribute("disabled")).toBe(false));
+    fireEvent.click(next(say("ui.door.begin")));
+    await waitFor(() => expect(store.getState().signedOut).toBe(false));
+    expect(lives).toHaveLength(2);
+    expect(account.calls.filter((call) => call.startsWith("startGuest"))).toHaveLength(2);
   });
 });
