@@ -13,6 +13,7 @@ import { ageStepWords } from "../../shared/datapage/age";
 import { StickerChip } from "../../shared/ui/lively/StickerChip";
 import { Tile } from "../../shared/tiles/Tile";
 import { TINTS } from "../../shared/ui/lively/tint";
+import { motionReduced } from "../../shared/ui/motion";
 import { formatMoney } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 
@@ -90,7 +91,7 @@ export function LifeScreen({ look, picked, once, onPick, lowest, older, open, on
   useEffect(() => {
     const card = deck.current?.children[at] as HTMLElement | undefined;
     if (card === undefined || typeof card.scrollIntoView !== "function") return;
-    const smooth = shown.current && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const smooth = shown.current && !motionReduced();
     card.scrollIntoView({ behavior: smooth ? "smooth" : "instant", block: "nearest", inline: "center" });
     shown.current = true;
   }, [at]);

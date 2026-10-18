@@ -11,6 +11,7 @@
 // as text.md R-TEXT-008 asks of a line that is not a label over a value.
 import { useEffect, useRef, useState } from "react";
 
+import { motionReduced } from "../../shared/ui/motion";
 import { formatNumber } from "../../shared/words/format";
 import { say } from "../../shared/words/text";
 import { type LightsShown, sharesOf } from "./lights";
@@ -88,10 +89,6 @@ const BREATHE: Keyframe[] = [
   { opacity: 1, transform: "scale(1.03)" },
 ];
 
-export function stillWanted(): boolean {
-  return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 /** The glow for a share: brighter and wider as the share grows, never out. */
 function glowOf(shareBp: number): { alpha: number; radius: number; glass: number } {
   const share = shareBp / BP;
@@ -154,7 +151,7 @@ export function TwoLights({ shown }: { shown: LightsShown }) {
   const counted = shown.from !== "asking";
   const sparks = useRef<(HTMLDivElement | null)[]>([]);
   const layers = useRef<Record<string, HTMLDivElement | null>>({});
-  const [still] = useState(stillWanted);
+  const [still] = useState(motionReduced);
 
   useEffect(() => {
     if (still) return;

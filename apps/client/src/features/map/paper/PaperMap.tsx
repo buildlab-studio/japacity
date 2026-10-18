@@ -24,6 +24,7 @@ import { useTiles } from "./useTiles";
 import { LAGOS, PaperCityContext, usePaperCity } from "./lagos";
 import type { CanoeFill } from "./LanternCanoe";
 import { clampView, openFrame, openingView, type OpenView } from "./view";
+import { REDUCED_MOTION } from "../../../shared/ui/motion";
 import { type Canoe, type Frame, World } from "./World";
 
 /** What a browser test reads of the map: where the stops stand, which card shows, the fold, the route and its channel. */
@@ -56,7 +57,6 @@ function graphOf(city: PaperCity): Graph {
 const WIDE = "(min-width: 64rem)";
 /** How long after a card shows its neighbours draw. */
 const NEIGHBOURS_MS = 450;
-const STILL = "(prefers-reduced-motion: reduce)";
 
 function useMedia(query: string): boolean {
   const [matches, setMatches] = useState(() => typeof matchMedia === "function" && matchMedia(query).matches);
@@ -137,7 +137,7 @@ function CityMap({ pins, home, picked, step, names, onPick, country, close, shee
   const city = usePaperCity();
   const tiles = useTiles();
   const wide = useMedia(WIDE);
-  const still = useMedia(STILL);
+  const still = useMedia(REDUCED_MOTION);
   const [box, size] = useBox();
   const placed = useMemo(() => placeStops(pins.map((pin) => ({ id: pin.id, state: pin.state, position: pin.position })), city), [pins, city]);
   const byId = useMemo(() => new Map(placed.map((stop) => [stop.id, stop])), [placed]);

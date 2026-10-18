@@ -3,6 +3,7 @@
 import { Check, ChevronDown, Lock, MapPin } from "lucide-react";
 import { useRef, useState } from "react";
 
+import { motionReduced } from "../../shared/ui/motion";
 import { words } from "../../shared/words/text";
 import type { CountryChoice } from "../../shared/world/contract";
 import { mapWords } from "./map.words";
@@ -23,8 +24,7 @@ function reasonWords(reason: string): string {
 
 function shake(element: HTMLElement | null): void {
   if (element === null || typeof element.animate !== "function") return;
-  const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduced) return;
+  if (motionReduced()) return;
   element.animate([{ transform: "translateX(0)" }, { transform: "translateX(-6px)" }, { transform: "translateX(6px)" }, { transform: "translateX(-4px)" }, { transform: "translateX(0)" }], { duration: 320, easing: "ease-out" });
 }
 

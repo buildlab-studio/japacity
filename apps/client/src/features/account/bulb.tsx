@@ -5,7 +5,8 @@
 // at night.
 import { useEffect, useRef, useState } from "react";
 
-import { glowFill, stillWanted } from "./TwoLights";
+import { motionReduced } from "../../shared/ui/motion";
+import { glowFill } from "./TwoLights";
 
 /** R-ACCOUNT-032: one breath, in or out, about four seconds, as the design's own `breathe` runs. */
 const BREATH_MS = 4_000;
@@ -44,7 +45,7 @@ export function Bulb({ x, y, r }: { x: number; y: number; r: number }) {
  */
 export function Glow({ x, y, radius, alpha, offsetMs = 0, name }: { x: number; y: number; radius: number; alpha: number; offsetMs?: number; name: string }) {
   const layer = useRef<HTMLDivElement>(null);
-  const [still] = useState(stillWanted);
+  const [still] = useState(motionReduced);
   useEffect(() => {
     const node = layer.current;
     if (still || node === null || typeof node.animate !== "function") return;
