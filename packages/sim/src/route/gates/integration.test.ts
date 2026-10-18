@@ -11,11 +11,8 @@ import { readOf, routeOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { GATES } from "./index";
+import { CARE_ROUTE, GULF_ROUTE, SKILLED, UK_ROUTE } from "../../testing/ids";
 
-const CARE: Id<"route"> = "route.uk-care";
-const GULF: Id<"route"> = "route.gulf-contract";
-const SKILLED: Id<"route"> = "route.uk-skilled";
-const UK: Id<"route"> = "route.uk-masters";
 const CARE_BAR = content.var["var.uk-care-salary"]!.start;
 const BAN_MONTHS = 3;
 
@@ -48,51 +45,51 @@ function ngozi(used: Content, options: LifeOptions = {}): Game {
 describe("the gates through the dispatcher", () => {
   test("[R-SPONSOR-002] [R-GATE-005] given a fraud sponsor taken through the offer's effect, when the application is decided, then the fraud rode on the route's secret, the refusal names sponsor, every known route into the country is refused with the ban, and the ban lifts on its month with the routes known again", () => {
     const game = ngozi(shortBan);
-    toKnown(game, CARE);
+    toKnown(game, CARE_ROUTE);
     // A second route into the same country, known before the decision, is banned too.
     toKnown(game, SKILLED);
-    applyEffects(game, [{ type: "route/record-sponsor", route: CARE, employer: "care-home", salary: 0, fraud: true }], { salary: CARE_BAR });
-    expect(routeOf(game, CARE).secret.sponsorFraud).toBe(true);
+    applyEffects(game, [{ type: "route/record-sponsor", route: CARE_ROUTE, employer: "care-home", salary: 0, fraud: true }], { salary: CARE_BAR });
+    expect(routeOf(game, CARE_ROUTE).secret.sponsorFraud).toBe(true);
     expect(JSON.stringify(game.view())).not.toContain("sponsorFraud");
     game.accept({ type: "activity/now", activity: "activity.apply-uk-care", param: null });
-    expect(routeOf(game, CARE).state).toBe("applying");
+    expect(routeOf(game, CARE_ROUTE).state).toBe("applying");
     game.endTurn();
     const month = game.state.turn.month;
-    expect(routeOf(game, CARE)).toMatchObject({ state: "refused", bannedUntil: month + BAN_MONTHS });
-    expect(routeOf(game, CARE).lastRefusal?.reasons[0]).toBe("sponsor");
+    expect(routeOf(game, CARE_ROUTE)).toMatchObject({ state: "refused", bannedUntil: month + BAN_MONTHS });
+    expect(routeOf(game, CARE_ROUTE).lastRefusal?.reasons[0]).toBe("sponsor");
     expect(routeOf(game, SKILLED)).toMatchObject({ state: "refused", bannedUntil: month + BAN_MONTHS });
     const during: string[] = [];
     for (let passed = 0; passed < BAN_MONTHS - 1; passed += 1) {
       game.endTurn();
-      during.push(routeOf(game, CARE).state);
+      during.push(routeOf(game, CARE_ROUTE).state);
     }
     expect(during).toEqual(Array<string>(BAN_MONTHS - 1).fill("refused"));
     game.endTurn();
-    expect(routeOf(game, CARE)).toMatchObject({ state: "known", bannedUntil: null });
+    expect(routeOf(game, CARE_ROUTE)).toMatchObject({ state: "known", bannedUntil: null });
     expect(routeOf(game, SKILLED).state).toBe("known");
   });
 
   test("[R-SPONSOR-007] [R-CONTRACT-004] given the sponsor and contract gates, when the job on arrival is asked for, then each names the job its block or its agent's role gives, and the study gate names none", () => {
-    const care = content.route[CARE]!;
+    const care = content.route[CARE_ROUTE]!;
     const held = { ...GATES.sponsor.initial() };
-    expect(GATES.sponsor.departureJob?.(care, { ...routeOf(ngozi(content), CARE), gate: held })).toBe("activity.job-uk-care");
-    const gulf = content.route[GULF]!;
+    expect(GATES.sponsor.departureJob?.(care, { ...routeOf(ngozi(content), CARE_ROUTE), gate: held })).toBe("activity.job-uk-care");
+    const gulf = content.route[GULF_ROUTE]!;
     const agent = { gate: "contract" as const, agent: { employer: "agent", salary: 180000, role: "cleaner" } };
-    expect(GATES.contract.departureJob?.(gulf, { ...routeOf(ngozi(content), GULF), gate: agent })).toBe("activity.job-gulf-cleaner");
+    expect(GATES.contract.departureJob?.(gulf, { ...routeOf(ngozi(content), GULF_ROUTE), gate: agent })).toBe("activity.job-gulf-cleaner");
     expect("departureJob" in GATES.study).toBe(false);
   });
 
   test("[R-GATE-003] [R-CONTRACT-004] [R-STATUS-009] given a Gulf contract granted, when the character departs, then no flight is paid, the status is the Gulf worker's with the agent's job, and the character is in the UAE", () => {
     const game = readyLife(content, { quiet: true, documents: GULF_PAPERS, qualities: { "quality.age-months": 360, "quality.edu-level": 3 }, vars: () => ({ "var.uae-window": 2 }), tuning: ALWAYS_GRANTED });
-    toKnown(game, GULF);
-    applyEffects(game, [{ type: "route/record-sponsor", route: GULF, employer: "agent", salary: 0, fraud: false }], { salary: 180000, role: 1 });
-    expect(routeOf(game, GULF).gate).toMatchObject({ gate: "contract", agent: { role: "guard" } });
+    toKnown(game, GULF_ROUTE);
+    applyEffects(game, [{ type: "route/record-sponsor", route: GULF_ROUTE, employer: "agent", salary: 0, fraud: false }], { salary: 180000, role: 1 });
+    expect(routeOf(game, GULF_ROUTE).gate).toMatchObject({ gate: "contract", agent: { role: "guard" } });
     game.accept({ type: "activity/now", activity: "activity.apply-gulf-contract", param: null });
-    expect(routeOf(game, GULF).state).toBe("applying");
+    expect(routeOf(game, GULF_ROUTE).state).toBe("applying");
     game.endTurn();
-    expect(routeOf(game, GULF).state).toBe("granted");
+    expect(routeOf(game, GULF_ROUTE).state).toBe("granted");
     const naira = game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash;
-    const result = game.accept({ type: "route/depart", route: GULF });
+    const result = game.accept({ type: "route/depart", route: GULF_ROUTE });
     expect(result.events.some((event) => event.type === "wallet/debited" && (event as { reason?: string }).reason === "flight")).toBe(false);
     expect(game.state.wallet.pockets.NGN.bank + game.state.wallet.pockets.NGN.cash).toBe(naira);
     expect(game.state.place).toMatchObject({ where: "abroad", country: "country.uae" });
@@ -102,11 +99,11 @@ describe("the gates through the dispatcher", () => {
   test("[R-ABROAD-005] given a student granted, when they depart, then the tuition opens for the course less the deposit and the discount, and nobody else owes tuition", () => {
     const game = readyLife(content, { quiet: true, tuning: ALWAYS_GRANTED });
     toDecision(game);
-    const held = routeOf(game, UK);
+    const held = routeOf(game, UK_ROUTE);
     expect(held.state).toBe("granted");
     const school = content.school[held.school!]!;
     const owed = school.tuition - (held.schools[held.school!]?.discount ?? 0) - held.depositPaid;
-    game.accept({ type: "route/depart", route: UK });
+    game.accept({ type: "route/depart", route: UK_ROUTE });
     const tuition = Object.values(game.state.obligation.items).filter((item) => item.entry === "obligation.tuition");
     expect(tuition).toHaveLength(1);
     expect(tuition[0]).toMatchObject({ principal: owed });

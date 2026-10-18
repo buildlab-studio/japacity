@@ -2,10 +2,11 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { ActivityEntry, Content, Id } from "../engine/types";
-import { applyAs, BOND, CA_SPOUSE, facts, joint, life, setPeople, UK_PARTNER } from "../testing/person.journey";
+import { applyAs, BOND, facts, joint, life, setPeople } from "../testing/person.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { barUntilMonth, floorsMet, meetsFloor, ownPayAYear, sponsorCheck } from "./person.sponsorChecks";
+import { CA_SPOUSE, UK_PARTNER } from "../testing/ids";
 
 const FLOOR = content.var["var.uk-partner-income"]!.start;
 const BAR = content.country["country.canada"]!.partnerBarMonths;

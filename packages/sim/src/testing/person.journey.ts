@@ -11,12 +11,6 @@ import type { Game } from "./play";
 import type { LifeOptions } from "./route.journey";
 import { readyLife } from "./route.journey";
 
-export const UK_PARTNER: Id<"route"> = "route.uk-partner";
-export const CA_SPOUSE: Id<"route"> = "route.ca-spouse";
-export const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
-export const CA_ACCOMPANY: Id<"route"> = "route.ca-accompany";
-export const SKILLED: Id<"route"> = "route.uk-skilled";
-export const CANADA: Id<"route"> = "route.canada-points";
 export const BOND = "bond-1";
 
 /** Ada with her papers. */

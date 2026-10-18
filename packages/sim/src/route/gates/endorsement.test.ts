@@ -9,13 +9,13 @@ import type { ActivityEntry, Content, Id, RouteEntry, RouteState } from "../../e
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
 import { readOf, routeKeys } from "../../testing/read";
-import { UK, applyEffects, draw, readyLife, slot } from "../../testing/route.journey";
+import { applyEffects, draw, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { COOLED, endorsementChanceBp } from "./endorsement";
 import { GATES } from "./index";
+import { TALENT, UK_ROUTE } from "../../testing/ids";
 
-const TALENT: Id<"route"> = "route.uk-talent";
 const LOOK_INTO: Id<"activity"> = "activity.look-into-route";
 const APPLY_ENDORSEMENT: Id<"activity"> = "activity.apply-endorsement";
 const APPLY_VISA: Id<"activity"> = "activity.apply-uk-talent";
@@ -63,7 +63,7 @@ function refusedMonth(game: Game): number | null {
 
 /** The UK master's is heard of by month 3, which the look-into slot needs; then talk of the talent route at a meetup, and a look. */
 function toKnown(game: Game): void {
-  for (let month = 0; month < 4 && game.state.route[UK]!.state === "unknown"; month += 1) game.endTurn();
+  for (let month = 0; month < 4 && game.state.route[UK_ROUTE]!.state === "unknown"; month += 1) game.endTurn();
   applyEffects(game, [{ type: "route/hear", route: TALENT, via: "meetup" }]);
   expect(talent(game).state).toBe("heard");
   game.endTurn([slot(LOOK_INTO, TALENT)]);

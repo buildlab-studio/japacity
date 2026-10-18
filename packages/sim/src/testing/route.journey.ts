@@ -11,8 +11,8 @@ import { start } from "./play";
 import { routeOf } from "./read";
 import { standInWorld } from "../world/standIn";
 import { offerChanceBp } from "../route/route.logic";
+import { UK_ROUTE } from "./ids";
 
-export const UK: Id<"route"> = "route.uk-masters";
 export const NORTHGATE: Id<"school"> = "school.northgate";
 export const ASHBY: Id<"school"> = "school.ashby";
 export const KINGSMERE: Id<"school"> = "school.kingsmere";
@@ -93,7 +93,7 @@ export function slot(activity: Id<"activity">, param: string | null = null): Slo
 }
 
 export function uk(game: Game): RouteState {
-  const held = game.state.route[UK];
+  const held = game.state.route[UK_ROUTE];
   if (held === undefined) throw new Error("The state holds no UK route.");
   return held;
 }
@@ -112,7 +112,7 @@ export function toHeard(game: Game): void {
 export function toKnown(game: Game): void {
   if (uk(game).state === "unknown") toHeard(game);
   expectState(game, "heard");
-  game.endTurn([slot("activity.look-into-route", UK)]);
+  game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
   expectState(game, "known");
 }
 
@@ -130,7 +130,7 @@ export function toOffer(game: Game, school: Id<"school"> = NORTHGATE): void {
 
 export function toDeposit(game: Game, school: Id<"school"> = NORTHGATE): void {
   toOffer(game, school);
-  game.accept({ type: "route/pay-deposit", route: UK, school });
+  game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school });
 }
 
 /** One month end with the deposit paid: the funds check runs once. */

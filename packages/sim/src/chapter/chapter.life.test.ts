@@ -13,9 +13,8 @@ import type { Game } from "../testing/play";
 import { closed, readOf } from "../testing/read";
 import { replayedGame } from "../testing/recorded";
 import { sendOffCard, topActivities } from "./chapter.logic";
-import { STANDING } from "../testing/ids";
+import { STANDING, UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
 const cap = content.tuning.turn.cap;
 
 /** Ada flown and on through Landing, so Secure is the chapter in hand. */
@@ -28,7 +27,7 @@ function atSecure(): Game {
 describe("the send-off closes on the first month abroad", () => {
   test("[R-CHAPTER-002] given Ada's recorded life up to the flight, when the first month abroad ends, then the send-off closes, Landing opens and the bank is refilled", () => {
     const game = flownAda(content);
-    expect(game.state.route[UK]?.state).toBe("departed");
+    expect(game.state.route[UK_ROUTE]?.state).toBe("departed");
     // The flight is a command between turns: nothing closes until a month is played.
     expect(game.state.chapter.current).toBe(SEND_OFF);
     const result = game.endTurn();
@@ -44,7 +43,7 @@ describe("the send-off card", () => {
     const card = game.view().card;
     expect(card).toEqual({
       kind: "send-off",
-      route: UK,
+      route: UK_ROUTE,
       percent: 100,
       months: game.state.turn.month,
       standing: game.state.quality[STANDING],

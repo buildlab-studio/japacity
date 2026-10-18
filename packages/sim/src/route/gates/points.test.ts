@@ -15,8 +15,8 @@ import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { GATES } from "./index";
 import { invites, pointsFunds, pointsParts, pointsScore, pointsUnexplainedBp } from "./points";
+import { CANADA_ROUTE } from "../../testing/ids";
 
-const CANADA: Id<"route"> = "route.canada-points";
 const ENTER_POOL: Id<"activity"> = "activity.enter-pool";
 const LOOK_INTO: Id<"activity"> = "activity.look-into-route";
 const ENGLISH: Id<"document"> = "document.english-test";
@@ -25,7 +25,7 @@ const ZAINAB: Id<"scenario"> = "scenario.zainab";
 const ADA: Id<"scenario"> = "scenario.ada";
 const JOB: Id<"activity"> = "activity.job-junior-dev";
 
-const entry = content.route[CANADA]!;
+const entry = content.route[CANADA_ROUTE]!;
 const block = entry.points!;
 const table = content.points[block.table]!;
 const startVar = (id: Id<"var">): number => content.var[id]!.start;
@@ -55,7 +55,7 @@ function zainab(options: LifeOptions = {}): Game {
 }
 
 function canada(game: Game): RouteState {
-  return game.state.route[CANADA]!;
+  return game.state.route[CANADA_ROUTE]!;
 }
 
 function gate(game: Game): { poolMonth: number | null; invitedMonth: number | null } {
@@ -65,14 +65,14 @@ function gate(game: Game): { poolMonth: number | null; invitedMonth: number | nu
 }
 
 function stepMet(game: Game, step: string): boolean {
-  return check(readOf(game), { type: "route/gate-step", route: CANADA, step }).met;
+  return check(readOf(game), { type: "route/gate-step", route: CANADA_ROUTE, step }).met;
 }
 
 /** Months pass until the route is heard of (by month 5), then it is looked into. */
 function toKnown(game: Game): void {
   for (let month = 0; month < 6 && canada(game).state === "unknown"; month += 1) game.endTurn();
   expect(canada(game).state).toBe("heard");
-  game.endTurn([slot(LOOK_INTO, CANADA)]);
+  game.endTurn([slot(LOOK_INTO, CANADA_ROUTE)]);
   expect(canada(game).state).toBe("known");
 }
 
@@ -117,27 +117,27 @@ describe("the points gate", () => {
   describe("the score", () => {
     test("[R-POINTS-001] given Zainab at 25 with a bachelor's, band 7.0 and 18 months in a job, when her score is asked for, then it is 110 + 120 + 124 + 25 + 25 = 404", () => {
       const game = zainab();
-      expect(pointsParts(readOf(game), CANADA)).toEqual({ age: 110, education: 120, language: 124, transfer: 50 });
-      expect(pointsScore(readOf(game), CANADA)).toBe(ZAINAB_SCORE);
+      expect(pointsParts(readOf(game), CANADA_ROUTE)).toEqual({ age: 110, education: 120, language: 124, transfer: 50 });
+      expect(pointsScore(readOf(game), CANADA_ROUTE)).toBe(ZAINAB_SCORE);
     });
 
     test("[R-POINTS-001] given Ada at 23 with band 6.5 and no job yet, when her score is asked for, then it is 110 + 120 + 92 + 13 = 335", () => {
       const papers = READY_PAPERS.map((paper) => (paper.document === ENGLISH ? { ...paper, value: 65 } : paper));
       const game = readyLife(content, { from: ADA, quiet: true, documents: papers });
-      expect(pointsParts(readOf(game), CANADA)).toEqual({ age: 110, education: 120, language: 92, transfer: 13 });
-      expect(pointsScore(readOf(game), CANADA)).toBe(335);
+      expect(pointsParts(readOf(game), CANADA_ROUTE)).toEqual({ age: 110, education: 120, language: 92, transfer: 13 });
+      expect(pointsScore(readOf(game), CANADA_ROUTE)).toBe(335);
     });
 
     test.each(table.age.map((row, index) => [row.years, row.points, table.age[index - 1]?.points ?? 0] as const))(
       "[R-POINTS-001] given an age of %i whole years, when the age part is read, then it is %i, and a month younger it is the row before's %i",
       (years, points, before) => {
-        expect(pointsParts(read({ ...ZAINAB_INPUTS, months: years * 12 }), CANADA).age).toBe(points);
-        expect(pointsParts(read({ ...ZAINAB_INPUTS, months: years * 12 - 1 }), CANADA).age).toBe(before);
+        expect(pointsParts(read({ ...ZAINAB_INPUTS, months: years * 12 }), CANADA_ROUTE).age).toBe(points);
+        expect(pointsParts(read({ ...ZAINAB_INPUTS, months: years * 12 - 1 }), CANADA_ROUTE).age).toBe(before);
       },
     );
 
     test("[R-POINTS-001] given the age table, when the oldest age the quality allows is read, then the last row is a floor and scores 0", () => {
-      expect(pointsParts(read({ ...ZAINAB_INPUTS, months: content.quality["quality.age-months"]!.max }), CANADA).age).toBe(0);
+      expect(pointsParts(read({ ...ZAINAB_INPUTS, months: content.quality["quality.age-months"]!.max }), CANADA_ROUTE).age).toBe(0);
     });
 
     test.each([
@@ -148,7 +148,7 @@ describe("the points gate", () => {
       [4, 135],
       [5, 150],
     ])("[R-POINTS-001] given an education level of %i, when the education part is read, then it is %i", (level, points) => {
-      expect(pointsParts(read({ ...ZAINAB_INPUTS, level }), CANADA).education).toBe(points);
+      expect(pointsParts(read({ ...ZAINAB_INPUTS, level }), CANADA_ROUTE).education).toBe(points);
     });
 
     test.each([
@@ -161,7 +161,7 @@ describe("the points gate", () => {
       [80, 136],
       [90, 136],
     ])("[R-POINTS-001] given an English band of %s, when the language part is read, then the four abilities score %i", (band, points) => {
-      expect(pointsParts(read({ ...ZAINAB_INPUTS, band }), CANADA).language).toBe(points);
+      expect(pointsParts(read({ ...ZAINAB_INPUTS, band }), CANADA_ROUTE).language).toBe(points);
     });
 
     test.each([
@@ -180,13 +180,13 @@ describe("the points gate", () => {
       [70, 36, 75],
       [80, 120, 75],
     ])("[R-POINTS-001] given band %s and %i months of work with a degree, when transferability is read, then it is %i", (band, work, points) => {
-      expect(pointsParts(read({ ...ZAINAB_INPUTS, band, work }), CANADA).transfer).toBe(points);
+      expect(pointsParts(read({ ...ZAINAB_INPUTS, band, work }), CANADA_ROUTE).transfer).toBe(points);
     });
 
     test("[R-POINTS-001] given a transferability cap below the two parts, when Zainab's score is asked for, then the transferable part stops at the cap", () => {
       const capped: Content = { ...content, points: { ...content.points, [block.table]: { ...table, transfer: { ...table.transfer, cap: 30 } } } };
-      expect(pointsParts(read(ZAINAB_INPUTS, capped), CANADA).transfer).toBe(30);
-      expect(pointsScore(read(ZAINAB_INPUTS, capped), CANADA)).toBe(ZAINAB_SCORE - 20);
+      expect(pointsParts(read(ZAINAB_INPUTS, capped), CANADA_ROUTE).transfer).toBe(30);
+      expect(pointsScore(read(ZAINAB_INPUTS, capped), CANADA_ROUTE)).toBe(ZAINAB_SCORE - 20);
     });
 
     // From 20: before it the table rises, on the 18th and the 20th birthdays.
@@ -197,10 +197,10 @@ describe("the points gate", () => {
       fc.integer({ min: 0, max: 120 }),
     ])("[R-POINTS-001] given any age, education, band and work, when the score is asked for, then it is the sum of its parts, the transfer is within the cap, and from 20 a month older never scores more", (months, level, band, work) => {
       const now = read({ months, level, band, work });
-      const parts = pointsParts(now, CANADA);
-      expect(pointsScore(now, CANADA)).toBe(parts.age + parts.education + parts.language + parts.transfer);
+      const parts = pointsParts(now, CANADA_ROUTE);
+      expect(pointsScore(now, CANADA_ROUTE)).toBe(parts.age + parts.education + parts.language + parts.transfer);
       expect(parts.transfer).toBeLessThanOrEqual(table.transfer.cap);
-      expect(pointsScore(read({ months: months + 1, level, band, work }), CANADA)).toBeLessThanOrEqual(pointsScore(now, CANADA));
+      expect(pointsScore(read({ months: months + 1, level, band, work }), CANADA_ROUTE)).toBeLessThanOrEqual(pointsScore(now, CANADA_ROUTE));
     });
   });
 
@@ -214,7 +214,7 @@ describe("the points gate", () => {
       expect(gate(game)).toEqual({ poolMonth: sent, invitedMonth: null });
       expect(keys).toContain("line.route.pool-entered");
       expect(stepMet(game, "pool")).toBe(true);
-      expect(game.view().routes.find((route) => route.id === CANADA)?.checklist.find((item) => item.id === "pool")?.met).toBe(true);
+      expect(game.view().routes.find((route) => route.id === CANADA_ROUTE)?.checklist.find((item) => item.id === "pool")?.met).toBe(true);
       expect(checkInvariants(game.state, game.content)).toEqual([]);
     });
 
@@ -269,7 +269,7 @@ describe("the points gate", () => {
       const probe = zainab({ vars: () => ({ [block.fundsVar]: 1000000000 }) });
       toKnown(probe);
       // The slot is judged when the turn is accepted, so what is shown then is the line to pin.
-      const { shown } = pointsFunds(readOf(probe), CANADA);
+      const { shown } = pointsFunds(readOf(probe), CANADA_ROUTE);
       probe.expectRejected({ type: "activity/now", activity: ENTER_POOL, param: null }, "not-legal");
       expect(gate(probe).poolMonth).toBeNull();
       for (const [required, entered] of [
@@ -288,7 +288,7 @@ describe("the points gate", () => {
     test("[R-POINTS-002] given money in several currencies, when the funds are read, then bank and locked pockets count in Canadian cents and cash does not", () => {
       const game = zainab({ pockets: { NGN: { bank: 0, cash: 5000000 * UNIT }, CAD: { bank: 2000 * UNIT, cash: 3000 * UNIT } } });
       applyEffects(game, [{ type: "money/add", currency: "CAD", pocket: "bank", amount: 500 * UNIT, reason: "gift", locked: true }]);
-      expect(pointsFunds(readOf(game), CANADA)).toEqual({ shown: 2500 * UNIT, required: startVar(block.fundsVar) });
+      expect(pointsFunds(readOf(game), CANADA_ROUTE)).toEqual({ shown: 2500 * UNIT, required: startVar(block.fundsVar) });
     });
   });
 
@@ -296,7 +296,7 @@ describe("the points gate", () => {
     test("[R-POINTS-003] given a live profile and the cut-off at the score, when the month's clocks run, then the route is applying, decided after the decision months, and the fee is paid in Canadian cents as a visa fee", () => {
       const game = zainab({ vars: () => ({ [CUTOFF]: ZAINAB_SCORE }) });
       toKnown(game);
-      expect(pointsScore(readOf(game), CANADA)).toBe(ZAINAB_SCORE);
+      expect(pointsScore(readOf(game), CANADA_ROUTE)).toBe(ZAINAB_SCORE);
       const cad = game.state.wallet.pockets.CAD.bank;
       const keys = enterPool(game);
       const month = game.state.turn.month;
@@ -324,7 +324,7 @@ describe("the points gate", () => {
     ])("[R-POINTS-003] given care at %i and the care cut-off at the score, when the clocks run, then an invitation comes: %s", (care, invited) => {
       const game = zainab({ qualities: { "quality.care": care }, vars: () => ({ [CARE_CUTOFF]: ZAINAB_SCORE }) });
       toPool(game);
-      expect(invites(readOf(game), CANADA)).toBe(invited);
+      expect(invites(readOf(game), CANADA_ROUTE)).toBe(invited);
       expect(canada(game).state).toBe(invited ? "applying" : "known");
     });
 
@@ -334,12 +334,12 @@ describe("the points gate", () => {
     ])("[R-POINTS-006] given care at %i, the care cut-off at the score and the general cut-off above it, when the gate is viewed, then it says an invitation will come: %s", (care, invited) => {
       const game = zainab({ qualities: { "quality.care": care }, vars: () => ({ [CARE_CUTOFF]: ZAINAB_SCORE }) });
       toKnown(game);
-      const viewed = game.view().routes.find((route) => route.id === CANADA)?.gate;
+      const viewed = game.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate;
       if (viewed?.gate !== "points") throw new Error("Canada's gate is not the points gate.");
       expect(viewed.points).toBe(ZAINAB_SCORE);
       expect(viewed.cutoff).toBeGreaterThan(viewed.points);
       expect(viewed.invites).toBe(invited);
-      expect(viewed.invites).toBe(invites(readOf(game), CANADA));
+      expect(viewed.invites).toBe(invites(readOf(game), CANADA_ROUTE));
     });
 
     test("[R-POINTS-006] given the general cut-off at the score, when the gate is viewed, then it says an invitation will come; one point above, it does not", () => {
@@ -349,7 +349,7 @@ describe("the points gate", () => {
       ] as const) {
         const game = zainab({ vars: () => ({ [CUTOFF]: cutoff }) });
         toKnown(game);
-        const viewed = game.view().routes.find((route) => route.id === CANADA)?.gate;
+        const viewed = game.view().routes.find((route) => route.id === CANADA_ROUTE)?.gate;
         expect(viewed).toMatchObject({ gate: "points", invites: invited });
       }
     });
@@ -436,7 +436,7 @@ describe("the points gate", () => {
       expect(canada(game).state).toBe("applying");
       game.endTurn();
       expect(canada(game).state).toBe("granted");
-      game.accept({ type: "route/depart", route: CANADA });
+      game.accept({ type: "route/depart", route: CANADA_ROUTE });
       expect(game.state.status.current?.entry).toBe(entry.status);
       expect(game.state.place.country).toBe(entry.country);
     });
@@ -445,7 +445,7 @@ describe("the points gate", () => {
       const game = zainab({ tuning: ALWAYS_REFUSED, vars: () => ({ [CUTOFF]: ZAINAB_SCORE }) });
       toKnown(game);
       applyEffects(game, [{ type: "money/add", currency: "CAD", pocket: "bank", amount: 6000 * UNIT, reason: "gift", flagged: true }]);
-      const share = pointsUnexplainedBp(readOf(game), CANADA);
+      const share = pointsUnexplainedBp(readOf(game), CANADA_ROUTE);
       expect(share).toBeGreaterThanOrEqual(content.tuning.route.fundsReasonBp);
       enterPool(game);
       expect(canada(game).visa?.unexplainedBp).toBe(share);
@@ -492,10 +492,10 @@ describe("the points gate", () => {
 
     test("[R-POINTS-005] given a life a month short of 30, when a month passes, then the age part falls from 110 to 105 and the score with it", () => {
       const game = zainab({ qualities: { "quality.age-months": 359 } });
-      const before = pointsScore(readOf(game), CANADA);
+      const before = pointsScore(readOf(game), CANADA_ROUTE);
       game.endTurn();
-      expect(pointsParts(readOf(game), CANADA).age).toBe(105);
-      expect(pointsScore(readOf(game), CANADA)).toBe(before - 5);
+      expect(pointsParts(readOf(game), CANADA_ROUTE).age).toBe(105);
+      expect(pointsScore(readOf(game), CANADA_ROUTE)).toBe(before - 5);
     });
   });
 
@@ -513,7 +513,7 @@ describe("the points gate", () => {
       const game = zainab();
       toPool(game);
       const before = canada(game);
-      applyEffects(game, [{ type: "route/apply", route: CANADA }]);
+      applyEffects(game, [{ type: "route/apply", route: CANADA_ROUTE }]);
       expect(canada(game)).toEqual(before);
     });
 

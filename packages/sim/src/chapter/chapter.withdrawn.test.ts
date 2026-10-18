@@ -5,18 +5,16 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id } from "../engine/types";
-import { BOND, joint, SKILLED, UK_DEPENDANT } from "../testing/person.journey";
+import { BOND, joint } from "../testing/person.journey";
 import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";
 import { closed, eventsOf } from "../testing/read";
 import { grantedRoute, leanRoute } from "./chapter.logic";
+import { CARE_ROUTE, SKILLED, UK_DEPENDANT, UK_PARTNER, UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
-const PARTNER: Id<"route"> = "route.uk-partner";
 const FEET: Id<"chapter"> = "chapter.find-your-feet";
 const FILE: Id<"chapter"> = "chapter.build-the-file";
-const CARE: Id<"route"> = "route.uk-care";
 const CARE_FILE: Id<"chapter"> = "chapter.build-the-file-care";
 const DECISION: Id<"chapter"> = "chapter.decision-day";
 const SEND_OFF: Id<"chapter"> = "chapter.send-off";
@@ -25,7 +23,7 @@ const LANDING: Id<"chapter"> = "chapter.landing";
 /** Tunde with the master's heard of, the month he looks into it: the first chapter closes on its items at this month's end. */
 function aboutToLookIntoUk(): Game {
   const game = start({ scenario: "scenario.tunde", content });
-  for (let month = 0; month < 8 && game.state.route[UK]?.state !== "heard"; month += 1) game.endTurn();
+  for (let month = 0; month < 8 && game.state.route[UK_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
   expect(game.state.chapter.current).toBe(FEET);
   return game;
 }
@@ -33,9 +31,9 @@ function aboutToLookIntoUk(): Game {
 /** Tunde leaning to the master's, in the master's file. */
 function inTheFile(): Game {
   const game = aboutToLookIntoUk();
-  game.endTurn([slot("activity.look-into-route", UK)]);
+  game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
   expect(game.state.chapter.current).toBe(FILE);
-  expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK);
+  expect(leanRoute(game.state.route, content, game.state.chapter.chosen)).toBe(UK_ROUTE);
   return game;
 }
 
@@ -86,7 +84,7 @@ describe("a dependant grant withdrawn before the flight", () => {
     expect(result.lines).toContainEqual(expect.objectContaining({ key: "line.chapter.reopened", params: { chapter: FILE }, tone: "bad", attention: true }));
     // The plan names the lean again, and the Japa app's checklist is the file's (R-CHAPTER-005, R-CHAPTER-009).
     const view = game.view();
-    expect(view.plan.route).toBe(UK);
+    expect(view.plan.route).toBe(UK_ROUTE);
     expect(view.chapter).toMatchObject({ current: FILE, done: [FEET], closes: false, next: DECISION });
     expect(view.chapter.items.map((item) => item.id)).toEqual(content.chapter[FILE]!.items.map((item) => item.id));
     expect(content.chapter[FILE]!.items.every((item) => (text[`${FILE}.item.${item.id}`] ?? "") !== "")).toBe(true);
@@ -98,8 +96,8 @@ describe("a dependant grant withdrawn before the flight", () => {
 
   test("[R-CHAPTER-003] [R-CHAPTER-009] given the nurse in the care file whose dependant grant closed it as the master's file, when the grant is withdrawn, then the chapter that comes back is the care file, the variant standing in under the lean as it is now", () => {
     const game = start({ scenario: "scenario.ngozi", content });
-    for (let month = 0; month < 8 && game.state.route[CARE]?.state !== "heard"; month += 1) game.endTurn();
-    game.endTurn([slot("activity.look-into-route", CARE)]);
+    for (let month = 0; month < 8 && game.state.route[CARE_ROUTE]?.state !== "heard"; month += 1) game.endTurn();
+    game.endTurn([slot("activity.look-into-route", CARE_ROUTE)]);
     expect(game.state.chapter.current).toBe(CARE_FILE);
     grantDependant(game);
     // Under the grant the file is judged as the master's base, the grant's own stand-in (R-CHAPTER-009).
@@ -108,13 +106,13 @@ describe("a dependant grant withdrawn before the flight", () => {
     const result = game.endTurn();
     expect(eventsOf(result, "chapter/reopened")).toEqual([{ type: "chapter/reopened", chapters: [FILE], current: CARE_FILE }]);
     expect(game.view().chapter.items.map((item) => item.id)).toEqual(content.chapter[CARE_FILE]!.items.map((item) => item.id));
-    expect(game.view().plan.route).toBe(CARE);
+    expect(game.view().plan.route).toBe(CARE_ROUTE);
   });
 
   test("[R-CHAPTER-003] [R-CHAPTER-002] given a dependant grant standing when the first chapter's own items close it, when the grant is withdrawn, then that close carries no onGrant and stays done, and only the file the grant closed reopens", () => {
     const game = aboutToLookIntoUk();
     grantDependant(game);
-    const looked = game.endTurn([slot("activity.look-into-route", UK)]);
+    const looked = game.endTurn([slot("activity.look-into-route", UK_ROUTE)]);
     // Earned by the items: the grant stood too, but the close does not rest on it.
     expect(closed(looked)).toEqual([{ type: "chapter/closed", chapter: FEET, next: FILE }]);
     expect(game.state.chapter.byGrant).toBeUndefined();
@@ -137,13 +135,13 @@ describe("a dependant grant withdrawn before the flight", () => {
 describe("a flight makes the closes final", () => {
   test("[R-CHAPTER-003] [R-CHAPTER-002] [R-PEOPLE-036] given a life whose partner grant closed the file and who flew on it, when a later dependant grant is withdrawn abroad, then every chapter stays done and the closes on the grant were sealed at the flight", () => {
     const game = inTheFile();
-    grant(game, PARTNER);
-    expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: PARTNER }]);
-    expect(game.state.chapter.byGrant).toEqual([{ chapter: FILE, route: PARTNER }]);
-    game.accept({ type: "route/depart", route: PARTNER });
+    grant(game, UK_PARTNER);
+    expect(closed(game.endTurn())).toEqual([{ type: "chapter/closed", chapter: FILE, next: DECISION, onGrant: UK_PARTNER }]);
+    expect(game.state.chapter.byGrant).toEqual([{ chapter: FILE, route: UK_PARTNER }]);
+    game.accept({ type: "route/depart", route: UK_PARTNER });
     const flight = game.endTurn();
     expect(closed(flight)).toEqual([
-      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: PARTNER },
+      { type: "chapter/closed", chapter: DECISION, next: SEND_OFF, onGrant: UK_PARTNER },
       { type: "chapter/closed", chapter: SEND_OFF, next: LANDING },
     ]);
     expect(eventsOf(flight, "chapter/sealed")).toEqual([{ type: "chapter/sealed", chapters: [FILE, DECISION] }]);

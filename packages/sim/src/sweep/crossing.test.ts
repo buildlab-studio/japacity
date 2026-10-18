@@ -12,13 +12,14 @@ import type { Accepted, Content, Currency, ForeignCurrency, Id, PlayerView, Stat
 import { flownAda } from "../testing/goal.journey";
 import { abroad, closeTypes, markBy, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
-import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UK, UNIT } from "../testing/route.journey";
+import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { firstTick, seedWhere as seedWhereStory } from "../testing/world";
 import { standInWorld } from "../world/standIn";
 import { month, owing, replayTo } from "../testing/crossing.journey";
 import { eventsOf } from "../testing/read";
+import { UK_ROUTE } from "../testing/ids";
 
 function officialOf(pairs: PlayerView["rates"]): Record<ForeignCurrency, number> {
   const rates = {} as Record<ForeignCurrency, number>;
@@ -33,19 +34,19 @@ function fundsByHand(state: State, pairs: PlayerView["rates"]): number {
   for (const [currency, pocket] of Object.entries(state.wallet.pockets) as [Currency, State["wallet"]["pockets"]["NGN"]][]) {
     shown += convertMinor(pocket.bank, currency, "GBP", rates) + convertMinor(pocket.locked, currency, "GBP", rates);
   }
-  const support = state.route[UK]?.support ?? null;
+  const support = state.route[UK_ROUTE]?.support ?? null;
   if (support !== null) shown += convertMinor(support.amount, support.currency, "GBP", rates);
   return shown;
 }
 
 function fundsItem(view: PlayerView) {
-  const item = view.routes.find((route) => route.id === UK)?.checklist.find((entry) => entry.id === "funds");
+  const item = view.routes.find((route) => route.id === UK_ROUTE)?.checklist.find((entry) => entry.id === "funds");
   if (item === undefined) throw new Error("The UK route shows no funds item.");
   return item;
 }
 
 function checklistMet(view: PlayerView, id: string): boolean {
-  const item = view.routes.find((route) => route.id === UK)?.checklist.find((entry) => entry.id === id);
+  const item = view.routes.find((route) => route.id === UK_ROUTE)?.checklist.find((entry) => entry.id === id);
   if (item === undefined) throw new Error(`The UK route shows no ${id} item.`);
   return item.met;
 }
@@ -77,7 +78,7 @@ describe("rules that cross kinds", () => {
 
     const view = game.view();
     expect(uk(game).support).toEqual({ currency: "NGN", amount: show });
-    expect(view.routes.find((route) => route.id === UK)?.support).toEqual({ currency: "NGN", amount: show });
+    expect(view.routes.find((route) => route.id === UK_ROUTE)?.support).toEqual({ currency: "NGN", amount: show });
     expect(fundsItem(view).have).toBe(fundsByHand(game.state, view.rates));
     // The pledge's support and its gift both count; neither is spendable as the support.
     const rates = officialOf(view.rates);
@@ -169,7 +170,7 @@ describe("rules that cross kinds", () => {
     const used = readyContent(content, options);
     const game = readyLife(content, { ...options, seed: offerSeed(used, 3) });
     toOffer(game);
-    game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
+    game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE });
     // Chapter 2 closed on the offer, at most one a month: rest until chapter 3 is the current one and the funds were held at a month end.
     for (let month = 0; month < 3 && (game.view().chapter.current !== "chapter.decision-day" || uk(game).funds.heldMonths < 1); month += 1) game.endTurn();
     expect(game.view().chapter.current).toBe("chapter.decision-day");
@@ -194,7 +195,7 @@ describe("rules that cross kinds", () => {
     expect(view.chapter.done).toEqual(doneBefore);
     // The offer stands, so the deposit can be paid again (R-ROUTE-018).
     expect(uk(game).schools[NORTHGATE]?.state).toBe("offer");
-    game.accept({ type: "route/pay-deposit", route: UK, school: NORTHGATE });
+    game.accept({ type: "route/pay-deposit", route: UK_ROUTE, school: NORTHGATE });
     expect(checklistMet(game.view(), "deposit")).toBe(true);
   });
 

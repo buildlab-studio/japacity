@@ -6,12 +6,13 @@ import { describe, expect, test } from "vitest";
 import { bp } from "../engine/int";
 import type { Id } from "../engine/types";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
-import { applyEffects, draw, readyLife, slot, toDecision, UK } from "../testing/route.journey";
+import { applyEffects, draw, readyLife, slot, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { moneyOf, readOf } from "../testing/read";
 import { freeSlots } from "../turn/turn.logic";
 import { sideJobHeld, SIDE_JOB_LOCK } from "./activity.logic";
+import { UK_ROUTE } from "../testing/ids";
 
 const NIGHT: Id<"activity"> = "activity.night-support";
 const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
@@ -128,7 +129,7 @@ describe("side jobs", () => {
     toDecision(game);
     applyEffects(game, [{ type: "activity/start-job", job: TUTORING }]);
     expect(game.state.activity.side).toBe(TUTORING);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(game.state.place.where).toBe("abroad");
     expect(game.state.activity.side).toBeNull();
     expect(flight.events).toContainEqual({ type: "activity/side-ended", side: TUTORING, why: "moved" });
@@ -143,7 +144,7 @@ describe("side jobs", () => {
     toDecision(game);
     applyEffects(game, [{ type: "activity/start-job", job: "activity.job-bank-officer" }]);
     expect(game.state.activity).toMatchObject({ job: "activity.job-bank-officer", side: null });
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(flight.events.filter((event) => event.type === "activity/side-ended")).toEqual([]);
     expect(flight.events).toContainEqual({ type: "activity/job-ended", job: "activity.job-bank-officer", why: "moved" });
     expect(game.state.activity).toMatchObject({ job: null, side: null });

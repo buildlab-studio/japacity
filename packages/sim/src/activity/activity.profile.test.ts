@@ -8,11 +8,11 @@ import { bp } from "../engine/int";
 import type { Accepted, ActivityEntry, BaseEvent, Id, Money, SlotPick } from "../engine/types";
 import { pointsScore } from "../route/gates/points";
 import { ALWAYS_GRANTED, offeredSeed } from "../testing/place.journey";
-import { applyEffects, raiseSeed, readyLife, slot, toDecision, UK } from "../testing/route.journey";
+import { applyEffects, raiseSeed, readyLife, slot, toDecision } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { readOf } from "../testing/read";
-import { EDU, NETWORK, PORTFOLIO, STANDING, TECH } from "../testing/ids";
+import { CANADA_ROUTE, CARE_ROUTE, EDU, NETWORK, PORTFOLIO, STANDING, TALENT, TECH, UK_ROUTE } from "../testing/ids";
 
 const NIGHT: Id<"activity"> = "activity.night-support";
 const TUTORING: Id<"activity"> = "activity.weekend-tutoring";
@@ -24,9 +24,6 @@ const NOTICED: Id<"activity"> = "activity.be-noticed";
 const CERTIFY: Id<"activity"> = "activity.nurse-certification";
 const MASTERS: Id<"activity"> = "activity.masters-at-home";
 const REST: Id<"activity"> = "activity.rest";
-const CANADA: Id<"route"> = "route.canada-points";
-const TALENT: Id<"route"> = "route.uk-talent";
-const CARE_ROUTE: Id<"route"> = "route.uk-care";
 
 const CARE: Id<"quality"> = "quality.care";
 
@@ -366,7 +363,7 @@ describe("a master's at home", () => {
     if (opening?.type !== "obligation/open" || typeof opening.principal !== "number") throw new Error("The master's opens no fees.");
     const table = content.points["points.canada"]!;
     const rowOf = (level: number) => table.education.find((row) => row.level === level)?.points ?? NaN;
-    const before = pointsScore(readOf(game), CANADA);
+    const before = pointsScore(readOf(game), CANADA_ROUTE);
     const first = month(game, [slot(MASTERS)]);
     const opened = first.events.find((event) => event.type === "obligation/opened") as unknown as { item: { entry: string; principal: number; monthsLeft: number } } | undefined;
     expect(opened?.item).toMatchObject({ entry: opening.obligation, principal: opening.principal, monthsLeft: content.obligation[opening.obligation]?.term });
@@ -376,9 +373,9 @@ describe("a master's at home", () => {
     expect(game.state.activity.played[MASTERS]).toBe(11);
     month(game, [slot(MASTERS)]);
     expect(qualityOf(game, EDU)).toBe(4);
-    expect(pointsScore(readOf(game), CANADA) - before).toBe(rowOf(4) - rowOf(3));
+    expect(pointsScore(readOf(game), CANADA_ROUTE) - before).toBe(rowOf(4) - rowOf(3));
     expect(allowed(game, MASTERS)).toBe(false);
-    expect(entryOf(MASTERS).counts).toContain(CANADA);
+    expect(entryOf(MASTERS).counts).toContain(CANADA_ROUTE);
   });
 
   test("[R-ACTIVITY-013] given a master's at home three months in, when the character flies, then the course ends with a results line, its fees close, and nothing of it is charged after", () => {
@@ -389,7 +386,7 @@ describe("a master's at home", () => {
     const open = () => Object.values(game.state.obligation.items).filter((item) => item.entry === fees.obligation);
     expect(open()).toHaveLength(1);
     toDecision(game);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(flight.events).toContainEqual(expect.objectContaining({ type: "activity/course-ended", activity: MASTERS }));
     expect(flight.lines).toContainEqual(expect.objectContaining({ key: "line.activity.course-ended", params: { activity: MASTERS } }));
     expect(flight.lines.filter((line) => line.key === "line.activity.course-ended")).toHaveLength(1);
@@ -407,7 +404,7 @@ describe("a master's at home", () => {
       for (let n = 0; n < months; n += 1) month(game, [slot(MASTERS)]);
       expect(qualityOf(game, EDU)).toBe(months === 12 ? 4 : 3);
       toDecision(game);
-      const flight = game.accept({ type: "route/depart", route: UK });
+      const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
       expect(flight.events.filter((event) => event.type === "activity/course-ended")).toEqual([]);
       expect(flight.lines.filter((line) => line.key === "line.activity.course-ended")).toEqual([]);
     }

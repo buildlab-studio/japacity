@@ -4,10 +4,11 @@
 import type { Registry } from "../engine/kind";
 import type { BaseEvent, Content, Ctx, Effect, Id, ObligationType } from "../engine/types";
 import { registry } from "../kinds";
-import { answerFirst, draw, NORTHGATE, readyLife, seedWhere, toDecision, UK } from "./route.journey";
+import { answerFirst, draw, NORTHGATE, readyLife, seedWhere, toDecision } from "./route.journey";
 import type { LifeOptions } from "./route.journey";
 import { offerChanceBp } from "../route/route.logic";
 import type { Game } from "./play";
+import { UK_ROUTE } from "./ids";
 
 /** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
 export const ALWAYS_GRANTED = { refusalMinBp: 0, refusalMaxBp: 0 };
@@ -44,7 +45,7 @@ export function recordingCloses(closed: ObligationType[]): Registry {
 export function flown(content: Content, options: LifeOptions = {}): Game {
   const game = readyLife(content, { seed: offeredSeed(content), ...options, tuning: { ...ALWAYS_GRANTED, ...options.tuning } });
   toDecision(game);
-  game.accept({ type: "route/depart", route: UK });
+  game.accept({ type: "route/depart", route: UK_ROUTE });
   return game;
 }
 

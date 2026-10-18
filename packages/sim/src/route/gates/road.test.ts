@@ -18,9 +18,9 @@ import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
 import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
 import { cash, quality, readOf } from "../../testing/read";
-import { applyEffects, readyLife, slot, toDecision, UK, UNIT } from "../../testing/route.journey";
+import { applyEffects, readyLife, slot, toDecision, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
-import { AGE, STANDING, WELLBEING } from "../../testing/ids";
+import { AGE, STANDING, UK_ROUTE, WELLBEING } from "../../testing/ids";
 
 const ROAD: Id<"route"> = "route.road";
 const PARK: Id<"offer"> = "offer.road-park";
@@ -245,10 +245,10 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given one and then two earlier refusals, and a loan in default, when the chance is read, then each refusal and the default add theirs", () => {
     const game = life();
-    const uk = game.state.route[UK]!;
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...uk, refusals: 1 } } };
+    const uk = game.state.route[UK_ROUTE]!;
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...uk, refusals: 1 } } };
     expect(chanceOf(game)).toBe(radio.chanceBp + pressure.refusalBp);
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...uk, refusals: 2 } } };
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...uk, refusals: 2 } } };
     expect(chanceOf(game)).toBe(radio.chanceBp + 2 * pressure.refusalBp);
     applyEffects(game, [{ type: "obligation/open", obligation: "obligation.quick-loan", principal: 100000 * UNIT }]);
     const loan = Object.values(game.state.obligation.items).find((item) => item.entry === "obligation.quick-loan")!;
@@ -258,15 +258,15 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given a known formal route at a figure of 59 and then 60, when the chance is read, then only 60 or more takes the strong-route figure off", () => {
     const at = (weight: number): Change => (used) => {
-      const uk = used.route[UK]!;
+      const uk = used.route[UK_ROUTE]!;
       const checklist = [
         { id: "met", weight, requirement: { type: "month/min", value: 0 } as Requirement, partial: false },
         { id: "unmet", weight: 100 - weight, requirement: { type: "month/min", value: 9999 } as Requirement, partial: false },
       ];
-      return { ...used, route: { ...used.route, [UK]: { ...uk, checklist } } };
+      return { ...used, route: { ...used.route, [UK_ROUTE]: { ...uk, checklist } } };
     };
     const known = (game: Game): Game => {
-      game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "known" } } };
+      game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "known" } } };
       return game;
     };
     const park = content.offer[PARK]!;
@@ -278,19 +278,19 @@ describe("the pitch", () => {
   test("[R-ROAD-002] [R-ENGINE-017] given the pressure lines moved in the tuning (standing under 50, age over 25, a strong route at 10), when the chance is read, then each line is the tuning's", () => {
     // The UK route known at a figure of 10, standing 40 and 27 years: no line of the page's is crossed.
     const atTen: Change = (used) => {
-      const uk = used.route[UK]!;
+      const uk = used.route[UK_ROUTE]!;
       const checklist = [
         { id: "met", weight: 10, requirement: { type: "month/min", value: 0 } as Requirement, partial: false },
         { id: "unmet", weight: 90, requirement: { type: "month/min", value: 9999 } as Requirement, partial: false },
       ];
-      return { ...used, route: { ...used.route, [UK]: { ...uk, checklist } } };
+      return { ...used, route: { ...used.route, [UK_ROUTE]: { ...uk, checklist } } };
     };
     const moved: Change = (used) => ({
       ...used,
       tuning: { ...used.tuning, road: { ...used.tuning.road, pressureStandingUnder: 50, pressureAgeOver: 25, pressureStrongRoute: 10 } },
     });
     const known = (game: Game): Game => {
-      game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "known" } } };
+      game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "known" } } };
       return game;
     };
     const qualities = { [STANDING]: 40, [AGE]: 27 * 12 };
@@ -304,8 +304,8 @@ describe("the pitch", () => {
     // Abroad, the pitch's take is not allowed even before the plane closes it (its `requires` is the character at home).
     const athome = game.view().offers.find((offer) => offer.id === pitch.id);
     expect(athome?.choices.find((choice) => choice.id === "take")?.allowed ?? false).toBe(true);
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
-    game.accept({ type: "route/depart", route: UK });
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "granted" } } };
+    game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(game.state.place.where).toBe("abroad");
     expect(game.view().offers.find((offer) => offer.id === pitch.id)).toBeUndefined();
     game.expectRejected({ type: "offer/choose", offer: pitch.id, choice: "take" }, "unknown-id");
@@ -314,7 +314,7 @@ describe("the pitch", () => {
 
   test("[R-ROAD-002] given a strong route and no pressure on a pitch whose chance is below the figure, when the chance is read, then it stops at 0", () => {
     const game = life();
-    game.state = { ...game.state, route: { ...game.state.route, [UK]: { ...game.state.route[UK]!, state: "granted" } } };
+    game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "granted" } } };
     expect(pressureChanceBp(readOf(game), content.offer[COUSIN]!, judgeOf(game))).toBe(0);
   });
 
@@ -1047,7 +1047,7 @@ describe("a formal flight and the road", () => {
       pockets: { NGN: { bank: 2000000 * UNIT, cash: CASH }, GBP: { bank: 40000 * UNIT, cash: 0 } },
     });
     toDecision(game);
-    expect(game.state.route[UK]?.state).toBe("granted");
+    expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
     return game;
   }
 
@@ -1055,7 +1055,7 @@ describe("a formal flight and the road", () => {
     const game = granted();
     take(game);
     answer(game, "night", "go");
-    game.accept({ type: "route/depart", route: UK });
+    game.accept({ type: "route/depart", route: UK_ROUTE });
     const cashAbroad = cash(game);
     for (let month = 0; month < 3; month += 1) {
       turn(game);
@@ -1073,7 +1073,7 @@ describe("a formal flight and the road", () => {
     const game = granted();
     take(game);
     expect(game.state.setpiece.open?.entry).toBe(NIGHT);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     expect(game.state.setpiece.open).toBeNull();
     expect(game.state.setpiece.answered[NIGHT]).toBeUndefined();
     expect(game.state.setpiece.given[NIGHT]).toBeUndefined();
@@ -1089,7 +1089,7 @@ describe("a formal flight and the road", () => {
   test("[R-ROAD-012] [R-ROAD-005] [R-SETPIECE-002] given the truth open at home, when the granted visa is flown, then the truth closes unscored, nobody sets off, no money is taken, no debt opens and the month abroad can end", () => {
     const game = granted();
     toTruth(game);
-    const flight = game.accept({ type: "route/depart", route: UK });
+    const flight = game.accept({ type: "route/depart", route: UK_ROUTE });
     const before = cash(game);
     expect(game.state.setpiece.open).toBeNull();
     expect(game.state.setpiece.answered[TRUTH]).toBeUndefined();
@@ -1109,7 +1109,7 @@ describe("a formal flight and the road", () => {
     toTruth(game);
     answer(game, "truth", "pay");
     expect(game.state.place.where).toBe("road");
-    game.expectRejected({ type: "route/depart", route: UK }, "not-legal");
+    game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
     expect(game.state.place.where).toBe("road");
   });
 });

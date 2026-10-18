@@ -6,14 +6,14 @@ import { step } from "../engine/step";
 import type { Currency, Effect, Id, SetpieceAnswer, SetpieceEntry } from "../engine/types";
 import type { Game } from "../testing/play";
 import { legalCommands } from "../testing/legal";
-import { UK, UNIT, applyEffects, answerFirst, drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
+import { UNIT, applyEffects, answerFirst, drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, toHeld, uk } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import { fundsRequired, unexplainedBp } from "../route/route.logic";
 import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 import { flown } from "../testing/place.journey";
 import { readOf } from "../testing/read";
-import { PREP, STANDING } from "../testing/ids";
+import { PREP, STANDING, UK_ROUTE } from "../testing/ids";
 
 const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
@@ -79,7 +79,7 @@ describe("opening the interview", () => {
       expect(open.questions).toHaveLength(entry.ask);
       expect(new Set(open.questions).size).toBe(entry.ask);
       expect(open.questions).toEqual(drawnQuestions(seed, CLEAN, entry.ask));
-      expect(open).toMatchObject({ entry: INTERVIEW, route: UK, answers: {} });
+      expect(open).toMatchObject({ entry: INTERVIEW, route: UK_ROUTE, answers: {} });
       expect(game.state.draws.visa).toBe(entry.ask);
     }
   });
@@ -90,7 +90,7 @@ describe("opening the interview", () => {
     toHeld(game);
     // Upkeep is taken from cash first each month, so what is banked is the cash that is left.
     game.accept({ type: "wallet/move", currency: "NGN", amount: game.state.wallet.pockets.NGN.cash, to: "bank" });
-    expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(3000);
+    expect(unexplainedBp(readOf(game), UK_ROUTE)).toBeGreaterThan(3000);
     game.endTurn([{ activity: "activity.apply-for-visa", param: null }]);
     expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, WITH_DEPOSIT, entry.ask));
     expect(game.state.setpiece.open?.questions).toContain("deposit");
@@ -182,14 +182,14 @@ describe("scoring", () => {
     const game = life({ seed, pockets: { NGN: { bank: 1000000 * UNIT, cash: 30000000 * UNIT }, GBP: { bank: 40000 * UNIT, cash: 0 } } });
     toHeld(game);
     game.accept({ type: "wallet/move", currency: "NGN", amount: 11000000 * UNIT, to: "bank" });
-    const share = unexplainedBp(readOf(game), UK);
+    const share = unexplainedBp(readOf(game), UK_ROUTE);
     expect(share).toBeGreaterThan(2000);
     expect(share).toBeLessThanOrEqual(3000);
     game.endTurn([{ activity: "activity.apply-for-visa", param: null }]);
     expect(game.state.setpiece.open?.questions).toEqual(drawnQuestions(seed, CLEAN, entry.ask));
     const total = answerWith(game, (question, answers) => (question === "who-pays" ? "own" : answers[0]!), 0, share);
     expect(uk(game).visa?.interviewScore).toBe(total);
-    expect(check(readOf(game), { type: "route/unexplained-max", route: UK, bp: 2000 }).met).toBe(false);
+    expect(check(readOf(game), { type: "route/unexplained-max", route: UK_ROUTE, bp: 2000 }).met).toBe(false);
   });
 
   /** A life rich in cash, so a cash move into the bank can make a lot of any size. */
@@ -197,11 +197,11 @@ describe("scoring", () => {
 
   /** Moves into the bank the least naira cash that makes the unexplained share exactly `target` basis points (R-ROUTE-013). */
   function lotTo(game: Game, target: number): void {
-    const required = fundsRequired(readOf(game), UK);
+    const required = fundsRequired(readOf(game), UK_ROUTE);
     const pence = mulDivCeil(target, required, 10000);
     const kobo = mulDivCeil(pence, game.world().rates.GBP.official, UNIT);
     game.accept({ type: "wallet/move", currency: "NGN", amount: kobo, to: "bank" });
-    expect(unexplainedBp(readOf(game), UK)).toBe(target);
+    expect(unexplainedBp(readOf(game), UK_ROUTE)).toBe(target);
   }
 
   /** Answers every open question, `who-pays` with `own` and the rest with their first answer, with `between` run after `who-pays`. */
@@ -230,7 +230,7 @@ describe("scoring", () => {
       expect(game.state.setpiece.open?.score).toBe(asked.slice(0, asked.indexOf("who-pays") + 1).reduce((sum, id) => sum + (id === "who-pays" ? 2 : pageScore(id, entry.questions.find((question) => question.id === id)!.answers[0]!.id, 0, 0)), 0));
       lotTo(game, 2500);
     });
-    expect(unexplainedBp(readOf(game), UK)).toBeGreaterThan(2000);
+    expect(unexplainedBp(readOf(game), UK_ROUTE)).toBeGreaterThan(2000);
     expect(game.state.setpiece.open).toBeNull();
     expect(uk(game).visa?.interviewScore).toBe(expected);
   });
@@ -263,7 +263,7 @@ describe("scoring", () => {
     expect(last?.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: INTERVIEW }, tone: "plain", attention: false, counts: [] }]);
     expect(last?.events.map((event) => event.type)).toEqual(["setpiece/answered", "setpiece/closed", "route/interview-scored", "engine/stepped"]);
     const fresh = life();
-    applyEffects(fresh, [{ type: "route/interview-scored", route: UK, score: 5 }]);
+    applyEffects(fresh, [{ type: "route/interview-scored", route: UK_ROUTE, score: 5 }]);
     expect(uk(fresh).visa).toBeNull();
   });
 });

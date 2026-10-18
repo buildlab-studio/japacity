@@ -9,10 +9,10 @@ import { applyEffects, readyLife, READY, READY_PAPERS, toKnown } from "../testin
 import type { Game } from "../testing/play";
 import type { AgentKind, Pitch } from "./offer.agent";
 import { agentProblems, AGENT_KINDS, agentReadsMoney, carriedTells, CHASED, CHASER, feeRange, kindAt, kindOf, KIND_TERM, MONTHS_TERM, PAPER_TERM, PITCH_TERM, pitchAt } from "./offer.agent";
+import { GULF_ROUTE } from "../testing/ids";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
 const TO_STOP: Id<"activity"> = "activity.see-agent-stop";
-const GULF: Id<"route"> = "route.gulf-contract";
 const FIRST: Id<"chapter"> = "chapter.find-your-feet";
 const POLICE: Id<"document"> = "document.police-certificate";
 const TRANSCRIPT: Id<"document"> = "document.transcript";
@@ -33,13 +33,13 @@ function pastChapterOne(seed: string, cash?: number): Game {
   toKnown(game);
   for (let month = 0; month < 8 && !game.state.chapter.done.includes(FIRST); month += 1) game.endTurn();
   if (!game.state.chapter.done.includes(FIRST)) throw new Error("The first chapter did not close.");
-  applyEffects(game, [{ type: "route/hear", route: GULF, via: "test" }]);
+  applyEffects(game, [{ type: "route/hear", route: GULF_ROUTE, via: "test" }]);
   return game;
 }
 
 /** R-ACTIVITY-015: going to the stop is an act done at once, so the agent is at the table in the month it is sent. */
 function openAt(game: Game): OfferState {
-  game.accept({ type: "activity/now", activity: TO_STOP, param: GULF });
+  game.accept({ type: "activity/now", activity: TO_STOP, param: GULF_ROUTE });
   const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === STOP);
   if (item === undefined) throw new Error(`${STOP} did not open.`);
   return item;

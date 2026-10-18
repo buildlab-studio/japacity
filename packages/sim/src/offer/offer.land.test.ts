@@ -5,7 +5,8 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { applyEffects, readyLife, toKnown, UK } from "../testing/route.journey";
+import { applyEffects, readyLife, toKnown } from "../testing/route.journey";
+import { UK_ROUTE } from "../testing/ids";
 
 const LAND_BUYER = "offer.land-buyer";
 
@@ -20,12 +21,12 @@ describe("the plot's sale is a traced source", () => {
     if (typeof price !== "number") throw new Error("The land buyer named no price.");
     const bank = game.state.wallet.pockets.NGN.bank;
     const lots = game.state.wallet.lots.length;
-    const unexplained = game.view().routes.find((route) => route.id === UK)?.unexplainedBp;
+    const unexplained = game.view().routes.find((route) => route.id === UK_ROUTE)?.unexplainedBp;
     const said = game.accept({ type: "offer/choose", offer: offer.id, choice: "sell" }).lines;
     expect(game.state.wallet.pockets.NGN.bank - bank).toBe(price);
     expect(game.state.wallet.lots).toHaveLength(lots);
     expect(said.some((line) => line.key === "line.wallet.flagged")).toBe(false);
-    expect(game.view().routes.find((route) => route.id === UK)?.unexplainedBp).toBe(unexplained);
+    expect(game.view().routes.find((route) => route.id === UK_ROUTE)?.unexplainedBp).toBe(unexplained);
     expect(game.state.quality["quality.land"]).toBe(0);
   });
 

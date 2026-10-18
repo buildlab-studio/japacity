@@ -15,6 +15,7 @@ import { bondWith } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { computerFacts } from "./person.facts";
 import { factsOf, WEDDING_SPOTS } from "./person.logic";
+import { UK_DEPENDANT } from "../testing/ids";
 
 const TUNDE: Id<"scenario"> = "scenario.tunde";
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
@@ -26,7 +27,6 @@ const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 const CALL: SlotPick = { activity: "activity.call-someone", param: null };
 const RECOVERY: Id<"offer"> = "offer.people-recovery";
 const PAPERS_OFFER: Id<"offer"> = "offer.papers-marriage";
-const UK_DEPENDANT: Id<"route"> = "route.uk-dependant";
 const numbers = content.tuning.people;
 
 /** A deep copy of plain data: content and states are plain JSON (R-ENGINE-010). */

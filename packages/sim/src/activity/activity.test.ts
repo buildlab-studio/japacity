@@ -37,8 +37,8 @@ import { start } from "../testing/play";
 import type { Game, Loose } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
 import { activityKind, canPayAll, hireChanceBp, huntChanceBp, paramsFor } from "./activity.logic";
+import { UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
 const hireTuning = content.tuning.quality;
 
 // ---------------------------------------------------------------------------
@@ -371,7 +371,7 @@ describe("the params a free activity may take now", () => {
   function readWith(game: Game, change: (state: State) => State): ReadCtx {
     return { state: change(game.state), world: game.world(), content: game.content };
   }
-  const routeIn = (to: RouteStateName) => (state: State): State => ({ ...state, route: { ...state.route, [UK]: { ...state.route[UK]!, state: to } } });
+  const routeIn = (to: RouteStateName) => (state: State): State => ({ ...state, route: { ...state.route, [UK_ROUTE]: { ...state.route[UK_ROUTE]!, state: to } } });
   const band = (value: number | null, held: "held" | "pending" = "held") => (state: State): State => ({
     ...state,
     document: { ...state.document, "document.english-test": { state: held, readyMonth: 0, expiresMonth: 24, value } },
@@ -413,7 +413,7 @@ describe("the params a free activity may take now", () => {
   test("[R-ACTIVITY-002] given routes in each state, when the routes to look into are listed, then only a heard route is", () => {
     const game = start({ content, scenario: "scenario.ada" });
     const look = content.activity["activity.look-into-route"]!;
-    expect(paramsFor(readWith(game, routeIn("heard")), look)).toEqual([UK]);
+    expect(paramsFor(readWith(game, routeIn("heard")), look)).toEqual([UK_ROUTE]);
     for (const other of ["unknown", "known", "applying"] as const) expect(paramsFor(readWith(game, routeIn(other)), look)).toEqual([]);
   });
 
@@ -438,8 +438,8 @@ describe("the params a free activity may take now", () => {
       ...state,
       route: {
         ...state.route,
-        [UK]: {
-          ...state.route[UK]!,
+        [UK_ROUTE]: {
+          ...state.route[UK_ROUTE]!,
           schools: {
             "school.northgate": { state: "pending", readyMonth: 3, discount: 0 },
             "school.kingsmere": { state: "offer", readyMonth: 2, discount: 0 },

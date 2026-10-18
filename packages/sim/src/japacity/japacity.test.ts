@@ -11,11 +11,11 @@ import { offeredWith, readyLife, toApplied, toDecision, toHeard, toKnown } from 
 import { carryOut, judgeWith, writeRoute } from "../testing/japacity.fixtures";
 import { ALWAYS_GRANTED } from "../testing/place.journey";
 import { checklistView, japacity, routePercent } from "./japacity.logic";
+import { UK_ROUTE } from "../testing/ids";
 
-const UK: Id<"route"> = "route.uk-masters";
 const TWIN: Id<"route"> = "route.uk-twin";
 const WINDOW = "var.uk-study-window";
-const uk = content.route[UK]!;
+const uk = content.route[UK_ROUTE]!;
 
 function weight(id: string, entry: RouteEntry = uk): number {
   const item = entry.checklist.find((candidate) => candidate.id === id);
@@ -66,7 +66,7 @@ function readyAt(to: "applying" | "granted" | "departed"): Game {
     return game;
   }
   toDecision(game);
-  if (to === "departed") game.accept({ type: "route/depart", route: UK });
+  if (to === "departed") game.accept({ type: "route/depart", route: UK_ROUTE });
   return game;
 }
 
@@ -77,8 +77,8 @@ function poundsToCash(game: Game): void {
 
 /** Months pass until both routes are heard of. */
 function bothHeard(game: Game): void {
-  for (let month = 0; month < 5 && (game.state.route[UK]?.state === "unknown" || game.state.route[TWIN]?.state === "unknown"); month += 1) game.endTurn();
-  expect([game.state.route[UK]?.state, game.state.route[TWIN]?.state]).toEqual(["heard", "heard"]);
+  for (let month = 0; month < 5 && (game.state.route[UK_ROUTE]?.state === "unknown" || game.state.route[TWIN]?.state === "unknown"); month += 1) game.endTurn();
+  expect([game.state.route[UK_ROUTE]?.state, game.state.route[TWIN]?.state]).toEqual(["heard", "heard"]);
 }
 
 /** Sets a quality to a value through `quality/add`, which clamps. */
@@ -92,7 +92,7 @@ const slowEnglish: Content = {
   ...content,
   route: {
     ...content.route,
-    [UK]: {
+    [UK_ROUTE]: {
       ...uk,
       checklist: uk.checklist.map((item) =>
         item.id === "english" ? { ...item, partial: true, requirement: { type: "quality/min", quality: "quality.english", value: 60 } } : item,
@@ -113,8 +113,8 @@ describe("a route's figure", () => {
     const game = adaKnown();
     const read = readOf(game);
     // Her degree and her second upper are met; nothing else on the list is yet.
-    expect(routePercent(read, UK, judgeWith(read))).toBe(weight("degree") + weight("grade"));
-    const items = checklistView(read, UK, judgeWith(read));
+    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade"));
+    const items = checklistView(read, UK_ROUTE, judgeWith(read));
     expect(items.map((item) => item.id)).toEqual(uk.checklist.map((item) => item.id));
     expect(items.find((item) => item.id === "degree")).toEqual({ id: "degree", weight: weight("degree"), met: true, have: null, need: null, earned: weight("degree") });
     expect(items.find((item) => item.id === "passport")).toEqual({ id: "passport", weight: weight("passport"), met: false, have: null, need: null, earned: 0 });
@@ -124,10 +124,10 @@ describe("a route's figure", () => {
     const game = adaKnown();
     carryOut(game, [{ type: "document/grant", document: "document.passport" }]);
     let read = readOf(game);
-    expect(routePercent(read, UK, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport"));
+    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport"));
     carryOut(game, [{ type: "document/grant", document: "document.transcript" }]);
     read = readOf(game);
-    expect(routePercent(read, UK, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport") + weight("transcript"));
+    expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(weight("degree") + weight("grade") + weight("passport") + weight("transcript"));
   });
 
   test("[R-JAPACITY-001] given a slow item, when have moves from 0 to the need, then it earns weight times have over need rounded down, and its whole weight once met", () => {
@@ -137,7 +137,7 @@ describe("a route's figure", () => {
     const earnedAt = (value: number): number => {
       setQuality(game, "quality.english", value);
       const read = readOf(game);
-      return (routePercent(read, UK, judgeWith(read)) ?? -1) - base;
+      return (routePercent(read, UK_ROUTE, judgeWith(read)) ?? -1) - base;
     };
     expect(english).toBe(12);
     // 12 * have / 60, rounded down.
@@ -154,7 +154,7 @@ describe("a route's figure", () => {
     const game = adaKnown(slowEnglish);
     setQuality(game, "quality.english", 55);
     const read = readOf(game);
-    const item = checklistView(read, UK, judgeWith(read)).find((candidate) => candidate.id === "english");
+    const item = checklistView(read, UK_ROUTE, judgeWith(read)).find((candidate) => candidate.id === "english");
     expect(item).toEqual({ id: "english", weight: 12, met: false, have: 55, need: 60, earned: 11 });
   });
 
@@ -164,21 +164,21 @@ describe("a route's figure", () => {
       toDecision(game);
       // With the pounds in cash the funds are not shown, so the checklist has unmet items.
       poundsToCash(game);
-      if (to === "departed") game.accept({ type: "route/depart", route: UK });
-      expect(game.state.route[UK]?.state).toBe(to);
+      if (to === "departed") game.accept({ type: "route/depart", route: UK_ROUTE });
+      expect(game.state.route[UK_ROUTE]?.state).toBe(to);
       const read = readOf(game);
-      expect(checklistView(read, UK).some((item) => !item.met)).toBe(true);
-      expect(routePercent(read, UK)).toBe(100);
+      expect(checklistView(read, UK_ROUTE).some((item) => !item.met)).toBe(true);
+      expect(routePercent(read, UK_ROUTE)).toBe(100);
     }
   });
 
   test("[R-JAPACITY-005] given a route only heard of, or unknown, when the figure is asked for, then there is none", () => {
     const game = ada();
-    expect(routePercent(readOf(game), UK)).toBeNull();
+    expect(routePercent(readOf(game), UK_ROUTE)).toBeNull();
     toHeard(game);
-    expect(routePercent(readOf(game), UK)).toBeNull();
+    expect(routePercent(readOf(game), UK_ROUTE)).toBeNull();
     toKnown(game);
-    expect(routePercent(readOf(game), UK)).not.toBeNull();
+    expect(routePercent(readOf(game), UK_ROUTE)).not.toBeNull();
   });
 });
 
@@ -188,7 +188,7 @@ describe("the character's japacity", () => {
     const figure = weight("degree") + weight("grade");
     for (const window of [2, 1]) {
       const read = readOf(game, window);
-      expect(japacity(read, judgeWith(read))).toEqual({ percent: figure, route: UK });
+      expect(japacity(read, judgeWith(read))).toEqual({ percent: figure, route: UK_ROUTE });
     }
     const closed = readOf(game, 0);
     expect(japacity(closed, judgeWith(closed))).toEqual({ percent: null, route: null });
@@ -197,16 +197,16 @@ describe("the character's japacity", () => {
   test("[R-JAPACITY-003] given a route applying, granted or departed, when the window is closed, then it still counts", () => {
     for (const to of ["applying", "granted", "departed"] as const) {
       const game = readyAt(to);
-      expect(game.state.route[UK]?.state).toBe(to);
+      expect(game.state.route[UK_ROUTE]?.state).toBe(to);
       const read = readOf(game, 0);
       const judge = judgeWith(read);
-      expect(japacity(read, judge)).toEqual({ percent: routePercent(read, UK, judge), route: UK });
+      expect(japacity(read, judge)).toEqual({ percent: routePercent(read, UK_ROUTE, judge), route: UK_ROUTE });
     }
     // Applying, the figure is still the checklist's: with the pounds in cash the funds are short and not held.
     const applying = readyAt("applying");
     poundsToCash(applying);
     const read = readOf(applying, 0);
-    const items = checklistView(read, UK, judgeWith(read));
+    const items = checklistView(read, UK_ROUTE, judgeWith(read));
     expect(items.filter((item) => !item.met).map((item) => item.id)).toEqual(["funds", "held"]);
     const funds = items.find((item) => item.id === "funds")!.earned;
     expect(japacity(read, judgeWith(read)).percent).toBe(100 - weight("funds") - weight("held") + funds);
@@ -219,9 +219,9 @@ describe("the character's japacity", () => {
       if (to === "heard") toHeard(game);
       if (to === "refused") {
         toKnown(game);
-        writeRoute(game, UK, "refused");
+        writeRoute(game, UK_ROUTE, "refused");
       }
-      expect(game.state.route[UK]?.state).toBe(to);
+      expect(game.state.route[UK_ROUTE]?.state).toBe(to);
       const read = readOf(game);
       expect(japacity(read, judgeWith(read))).toEqual({ percent: null, route: null });
     }
@@ -237,10 +237,10 @@ describe("the character's japacity", () => {
       toDecision(game);
       // The twin's checklist reads the same file; with the pounds in cash its funds fall short.
       poundsToCash(game);
-      expect([game.state.route[UK]?.state, game.state.route[TWIN]?.state]).toEqual(["granted", "known"]);
+      expect([game.state.route[UK_ROUTE]?.state, game.state.route[TWIN]?.state]).toEqual(["granted", "known"]);
       const read = readOf(game);
       expect(routePercent(read, TWIN, judgeWith(read))).toBeLessThan(100);
-      expect(japacity(read, judgeWith(read))).toEqual({ percent: 100, route: UK });
+      expect(japacity(read, judgeWith(read))).toEqual({ percent: 100, route: UK_ROUTE });
     }
   });
 
@@ -250,11 +250,11 @@ describe("the character's japacity", () => {
       bothHeard(game);
       game.endTurn([{ activity: "activity.look-into-route", param: TWIN }]);
       toKnown(game);
-      expect([game.state.route[UK]?.state, game.state.route[TWIN]?.state]).toEqual(["known", "known"]);
+      expect([game.state.route[UK_ROUTE]?.state, game.state.route[TWIN]?.state]).toEqual(["known", "known"]);
       const read = readOf(game);
       const result = japacity(read, judgeWith(read));
-      expect(routePercent(read, UK, judgeWith(read))).toBe(routePercent(read, TWIN, judgeWith(read)));
-      expect(result.route).toBe(first ? TWIN : UK);
+      expect(routePercent(read, UK_ROUTE, judgeWith(read))).toBe(routePercent(read, TWIN, judgeWith(read)));
+      expect(result.route).toBe(first ? TWIN : UK_ROUTE);
     }
   });
 
@@ -278,7 +278,7 @@ describe("whole numbers, derived each time", () => {
   });
 
   test("[R-JAPACITY-004] given a route whose weights do not add up to 100, when the content is checked, then it is refused", () => {
-    const broken: Content = { ...content, route: { [UK]: { ...uk, checklist: uk.checklist.map((item) => (item.id === "degree" ? { ...item, weight: 7 } : item)) } } };
+    const broken: Content = { ...content, route: { [UK_ROUTE]: { ...uk, checklist: uk.checklist.map((item) => (item.id === "degree" ? { ...item, weight: 7 } : item)) } } };
     expect(checkContent(broken).length).toBeGreaterThan(0);
     expect(checkContent(content)).toEqual([]);
   });
@@ -311,15 +311,15 @@ describe("whole numbers, derived each time", () => {
         finishPrologue(game);
         if (to === "heard") toHeard(game);
         if (to === "known" || to === "refused") toKnown(game);
-        if (to === "refused") writeRoute(game, UK, "refused");
+        if (to === "refused") writeRoute(game, UK_ROUTE, "refused");
         if (to === "applying") toApplied(game);
         if (to === "granted" || to === "departed") toDecision(game);
         const effects: Effect[] = held.map((document) => ({ type: "document/grant", document }));
         if (effects.length > 0) carryOut(game, effects);
         setQuality(game, "quality.english", english);
         // A departed life takes no more commands (R-TURN-007), so it flies last.
-        if (to === "departed") game.accept({ type: "route/depart", route: UK });
-        expect(game.state.route[UK]?.state).toBe(to);
+        if (to === "departed") game.accept({ type: "route/depart", route: UK_ROUTE });
+        expect(game.state.route[UK_ROUTE]?.state).toBe(to);
         return game;
       };
       const one = build();
@@ -338,7 +338,7 @@ describe("whole numbers, derived each time", () => {
         expect(first.percent).toBeGreaterThanOrEqual(0);
         expect(first.percent).toBeLessThanOrEqual(100);
       }
-      const figure = routePercent(read, UK, judgeWith(read));
+      const figure = routePercent(read, UK_ROUTE, judgeWith(read));
       if (figure !== null) expect(Number.isSafeInteger(figure) && figure >= 0 && figure <= 100).toBe(true);
 
       // Only the read is passed in, and of the state nothing hidden is touched.

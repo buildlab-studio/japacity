@@ -9,6 +9,7 @@ import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
+import { GULF_ROUTE } from "../testing/ids";
 
 const LOTTO: Id<"activity"> = "activity.play-lotto";
 const BET: Id<"activity"> = "activity.bet-slip";
@@ -18,7 +19,6 @@ const PASSPORT: Id<"activity"> = "activity.get-passport";
 const HUNT: Id<"activity"> = "activity.job-hunt";
 const MEETUP: Id<"activity"> = "activity.meetup";
 const LEARN: Id<"activity"> = "activity.learn-tech";
-const GULF: Id<"route"> = "route.gulf-contract";
 const PITCH: Id<"offer"> = "offer.road-park";
 
 /** The rule's two lists. Every entry not named a now-act is a month-act. */
@@ -175,9 +175,9 @@ describe("a now-act", () => {
 
   test("[R-ACTIVITY-015] [R-ROAD-002] given the motor park, when asking around now, then the Gulf is heard of now and the pitch opens now, before the month ends", () => {
     const game = ada();
-    expect(game.state.route[GULF]?.state ?? "unheard").not.toBe("heard");
+    expect(game.state.route[GULF_ROUTE]?.state ?? "unheard").not.toBe("heard");
     const asked = now(game, ASK_AROUND);
-    expect(game.state.route[GULF]?.state).toBe("heard");
+    expect(game.state.route[GULF_ROUTE]?.state).toBe("heard");
     expect(Object.values(game.state.offer.items).map((offer) => offer.entry)).toContain(PITCH);
     expect(nowLine(asked, ASK_AROUND)).toBeDefined();
     expect(game.state.turn.month).toBe(0);

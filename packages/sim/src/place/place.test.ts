@@ -6,14 +6,14 @@ import { check } from "../engine/check";
 import { bp, divCeil, divFloor, mulDiv } from "../engine/int";
 import { checkInvariants } from "../engine/invariants";
 import type { Content, Currency, Effect, Id, ObligationType, ReadCtx, ReportLine, ReturnShape, State } from "../engine/types";
-import { applyEffects, readyLife, toDecision, UK as UK_ROUTE } from "../testing/route.journey";
+import { applyEffects, readyLife, toDecision } from "../testing/route.journey";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
-import { STANDING } from "../testing/ids";
+import { STANDING, UK_ROUTE } from "../testing/ids";
 
 const UK: Id<"country"> = "country.uk";
 const CANADA: Id<"country"> = "country.canada";

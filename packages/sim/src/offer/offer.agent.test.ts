@@ -9,7 +9,7 @@ import { describe, expect } from "vitest";
 import { check } from "../engine/check";
 import type { Accepted, BaseEvent, Content, Id, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
-import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown, UK } from "../testing/route.journey";
+import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind } from "./offer.agent";
 import {
@@ -28,13 +28,12 @@ import {
 import type { OfferEvent } from "./offer.events";
 import { answerScore } from "../setpiece/setpiece.logic";
 import { cash, naira } from "../testing/read";
-import { NETWORK } from "../testing/ids";
+import { GULF_ROUTE, NETWORK, UK_ROUTE } from "../testing/ids";
 
 const STOP: Id<"offer"> = "offer.agent-stop";
 const OFFICE: Id<"offer"> = "offer.agent-office";
 const TO_STOP: Id<"activity"> = "activity.see-agent-stop";
 const TO_OFFICE: Id<"activity"> = "activity.see-agent-office";
-const GULF: Id<"route"> = "route.gulf-contract";
 const FIRST: Id<"chapter"> = "chapter.find-your-feet";
 const advice = content.tuning.advice;
 const stop = content.offer[STOP]!;
@@ -47,8 +46,8 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
   toKnown(game);
   for (let month = 0; month < 6 && !game.state.chapter.done.includes(FIRST); month += 1) game.endTurn();
   if (!game.state.chapter.done.includes(FIRST)) throw new Error("The first chapter did not close.");
-  applyEffects(game, [{ type: "route/hear", route: GULF, via: "test" }]);
-  if (game.state.route[GULF]?.state !== "heard") throw new Error("The Gulf route was not heard.");
+  applyEffects(game, [{ type: "route/hear", route: GULF_ROUTE, via: "test" }]);
+  if (game.state.route[GULF_ROUTE]?.state !== "heard") throw new Error("The Gulf route was not heard.");
   return game;
 }
 
@@ -57,7 +56,7 @@ function pastChapterOne(seed: string, network = advice.networkToAsk, siblings?: 
  * table in the month it is sent, not as the month ends.
  */
 function openAt(game: Game, activity: Id<"activity"> = TO_STOP): OfferState {
-  game.accept({ type: "activity/now", activity, param: GULF });
+  game.accept({ type: "activity/now", activity, param: GULF_ROUTE });
   const entry = activity === TO_STOP ? STOP : OFFICE;
   const item = Object.values(game.state.offer.items).find((candidate) => candidate.entry === entry);
   if (item === undefined) throw new Error(`${entry} did not open.`);
@@ -196,8 +195,8 @@ describe("what the agent's appearance reads", () => {
 
   test("[R-ADVICE-012] given a life before the first chapter is done, when the agent is sought, then the act is not legal and opening the offer opens nothing", () => {
     const game = readyLife(content, { quiet: true });
-    applyEffects(game, [{ type: "route/hear", route: GULF, via: "test" }]);
-    game.expectRejected({ type: "activity/now", activity: TO_STOP, param: GULF }, "not-legal");
+    applyEffects(game, [{ type: "route/hear", route: GULF_ROUTE, via: "test" }]);
+    game.expectRejected({ type: "activity/now", activity: TO_STOP, param: GULF_ROUTE }, "not-legal");
     applyEffects(game, [{ type: "offer/open", offer: STOP }]);
     expect(Object.values(game.state.offer.items).filter((item) => item.entry === STOP)).toEqual([]);
     expect(stop.when).toContainEqual({ type: "chapter/done", chapter: FIRST });
@@ -217,8 +216,8 @@ describe("paying the agent", () => {
     const result = game.accept({ type: "offer/choose", offer: item.id, choice: "take" });
     expect(before.naira - naira(game)).toBe(fee);
     expect(before.bank - game.state.wallet.pockets.NGN.bank).toBe(Math.min(fee, before.bank));
-    expect(game.state.route[GULF]?.state).toBe("known");
-    expect(result.lines.find((line) => line.key === "line.route.looked-into-agent")?.params).toEqual({ route: GULF });
+    expect(game.state.route[GULF_ROUTE]?.state).toBe("known");
+    expect(result.lines.find((line) => line.key === "line.route.looked-into-agent")?.params).toEqual({ route: GULF_ROUTE });
     expect(game.state.document["document.medical"]!.readyMonth).toBe(Math.max(game.state.turn.month + 1, due - advice.fixerMonths));
     expect(eventsOf(result, "offer/agent-paid")[0]).toMatchObject({ kind: "fixer", paper: "document.medical" });
   });
@@ -266,7 +265,7 @@ describe("paying the agent", () => {
     expect(result.lines.filter((line) => line.key === "line.offer.agent-scam-tell").map((line) => line.params["tell"])).toEqual(seen.map((key) => `advice.tell.${key}`));
     expect(text["line.offer.agent-scam"]).toBe("{agent} was a scam. {amount} gone.");
     expect(seen.every((key) => text[`advice.tell.${key}.name`] !== undefined)).toBe(true);
-    expect(game.state.route[GULF]?.state).toBe("heard");
+    expect(game.state.route[GULF_ROUTE]?.state).toBe("heard");
     expect(Object.values(game.state.offer.items).some((candidate) => candidate.entry === PAPERS)).toBe(true);
   });
 });
@@ -294,8 +293,8 @@ describe("fake papers", () => {
     expect(game.view().setpiece).not.toBeNull();
     answerFirst(game);
     game.endTurn();
-    expect(game.state.route[UK]).toMatchObject({ state: "known", bannedUntil: null });
-    expect(game.state.route[UK]?.lastRefusal?.reasons[0]).toBe("agent");
+    expect(game.state.route[UK_ROUTE]).toMatchObject({ state: "known", bannedUntil: null });
+    expect(game.state.route[UK_ROUTE]?.lastRefusal?.reasons[0]).toBe("agent");
   });
 
   test("[R-ADVICE-008] given a fake transcript, when the interview's questions are read, then the papers question is asked and every answer scores below zero; with a genuine transcript it is never asked", () => {
