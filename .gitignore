@@ -18,14 +18,14 @@ test-results/
 # The screen catalog's pictures (pnpm catalog)
 .catalog/
 
-# Agent worktrees and local settings; the repository's skills are kept
+# Local tool settings and worktrees; the repository's skills are kept
 .claude/*
 !.claude/skills/
 
 # Local notes, never committed
 CLAUDE.local.md
 /REPORT.md
-# Neon's project link and an agent's MCP config, local to this machine; the API key the MCP setup may mint never enters the repository.
+# Neon's project link and a local MCP config, both local to one machine; the API key the MCP setup may mint never enters the repository.
 .neon
 .mcp.json
 
