@@ -6,7 +6,8 @@ import { describe, expect, test } from "vitest";
 
 import { valueInKobo } from "../engine/int";
 import type { ActivityEntry, Id } from "../engine/types";
-import { FIRST_SESSION_MONTHS, isEarlyWin, playFirstSession, startingLives } from "../testing/firstSession";
+import { isEarlyWin } from "../guide/guide.earlyWin";
+import { FIRST_SESSION_MONTHS, playFirstSession, startingLives } from "../testing/firstSession";
 import type { FirstSession } from "../testing/firstSession";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";

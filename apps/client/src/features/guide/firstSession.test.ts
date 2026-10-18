@@ -1,10 +1,10 @@
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
+import { earlyWinIn, isEarlyWin } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { chapterNextStep, FIRST_SESSION_TURNS, playFirstSession, startingLives, type FirstSession } from "../../shared/testing/firstSession";
 import { words } from "../../shared/words/text";
-import { earlyWinIn, isEarlyWin } from "../../shared/sim/earlyWin";
 
 const line = (key: string, tone: ReportLine["tone"] = "good"): ReportLine => ({ key, params: {}, tone, attention: false, counts: [] });
 
@@ -52,14 +52,14 @@ describe("the first session", () => {
   });
 
   test("[R-GUIDE-014] given report lines, when the early win is looked for, then only a good line from pay, a chapter or goal, or a route heard by a choice counts", () => {
-    expect(isEarlyWin(line("line.activity.salary"))).toBe(true);
-    expect(isEarlyWin(line("line.activity.gig"))).toBe(true);
-    expect(isEarlyWin(line("line.chapter.closed"))).toBe(true);
-    expect(isEarlyWin(line("line.goal.done"))).toBe(true);
-    expect(isEarlyWin(line("line.quality.gain"))).toBe(false);
-    expect(isEarlyWin(line("line.activity.salary", "plain"))).toBe(false);
+    expect(isEarlyWin(line("line.activity.salary"), [])).toBe(true);
+    expect(isEarlyWin(line("line.activity.gig"), [])).toBe(true);
+    expect(isEarlyWin(line("line.chapter.closed"), [])).toBe(true);
+    expect(isEarlyWin(line("line.goal.done"), [])).toBe(true);
+    expect(isEarlyWin(line("line.quality.gain"), [])).toBe(false);
+    expect(isEarlyWin(line("line.activity.salary", "plain"), [])).toBe(false);
     expect(isEarlyWin(line("line.route.heard"), [{ activity: "activity.rest", param: null }])).toBe(false);
     expect(isEarlyWin(line("line.route.heard"), [{ activity: "activity.meetup", param: null }])).toBe(true);
-    expect(earlyWinIn([line("line.quality.gain"), line("line.goal.done")])?.key).toBe("line.goal.done");
+    expect(earlyWinIn([line("line.quality.gain"), line("line.goal.done")], [])?.key).toBe("line.goal.done");
   });
 });

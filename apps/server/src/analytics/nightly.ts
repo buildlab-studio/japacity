@@ -1,7 +1,7 @@
 // R-ANALYTICS-008, R-ANALYTICS-011: the game counters of one UTC day, made
 // from the replayed lives of the characters that logged a command on it and
 // the accounts created on it. Plain functions over plain data.
-import type { ReportLine } from "@japacity/sim";
+import { isEarlyWin, picksOf } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 
 import { dayStart, utcDay } from "../ops/day";
@@ -36,28 +36,6 @@ type Counted =
 /** R-ANALYTICS-008: the days after sign-up a return is counted on, close enough that the returns make a curve. */
 const RETURNED: Partial<Record<number, string>> = { 1: "d1", 3: "d3", 7: "d7", 14: "d14", 30: "d30" };
 
-/**
- * R-GUIDE-014: a line of tone `good` that follows from the player's own
- * choice: pay from a job or a gig, a chapter item or a goal met, a route heard.
- * guide.md names these in words, not keys; these are the keys the kinds give
- * them.
- */
-const EARLY_WIN_KEYS = new Set([
-  "line.activity.salary",
-  "line.activity.salary-first-foreign",
-  "line.activity.salary-first-abroad",
-  "line.activity.gig",
-  "line.activity.side-pay",
-  "line.activity.overtime",
-  "line.chapter.closed",
-  "line.goal.done",
-  "line.route.heard",
-]);
-
-export function isEarlyWin(line: ReportLine): boolean {
-  return line.tone === "good" && EARLY_WIN_KEYS.has(line.key);
-}
-
 const regionOf = (account: AccountRow | null) => (account === null || account.country === "" ? NO_REGION : account.country);
 
 /** Adds one to a total, keyed so the same day, region, name and key fold into one row. */
@@ -73,7 +51,7 @@ function onDay(played: Played, start: number, end: number): boolean {
 
 /** R-ANALYTICS-011: the turn of the first early win before the end of the first day, as its key. */
 function earlyWinKey(life: Life | null, end: number): string {
-  const first = life?.played.find((played) => played.row.at < end && played.afterPrologue && played.lines.some(isEarlyWin));
+  const first = life?.played.find((played) => played.row.at < end && played.afterPrologue && played.lines.some((line) => isEarlyWin(line, picksOf(played.row.command))));
   if (first === undefined) return "none";
   return first.turn <= 3 ? String(first.turn) : "later";
 }

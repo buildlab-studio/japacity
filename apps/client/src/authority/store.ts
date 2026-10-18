@@ -4,9 +4,9 @@
 import type { ClockView, PresenceReply, PresetReply, PresetRequest, PresetStep, ServerCode, ServerRejection, WorldReply } from "@japacity/api";
 import { content, text } from "@japacity/content";
 import type { Command, Envelope, Id, PlayerView, Reply, ReportLine, SlotPick, World } from "@japacity/sim";
+import { earlyWinIn, picksOf } from "@japacity/sim";
 import { createStore, type StoreApi } from "zustand/vanilla";
 
-import { earlyWinIn } from "../shared/sim/earlyWin";
 import { momentLine } from "../shared/moment/moment";
 import { carriedPlan } from "../shared/sim/carried";
 import type { AccountApi } from "../shared/net/auth";
@@ -286,8 +286,8 @@ function bigLines(lines: readonly ReportLine[]): ReportLine[] {
 }
 
 /** R-GUIDE-014: the view or the lines just shown hold the early win. */
-function wonEarly(view: PlayerView, lines: readonly ReportLine[], slots: readonly SlotPick[] | null): boolean {
-  return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, slots) !== null;
+function wonEarly(view: PlayerView, lines: readonly ReportLine[], picks: readonly SlotPick[]): boolean {
+  return view.chapter.done.length > 0 || view.goals.done.length > 0 || earlyWinIn(lines, picks) !== null;
 }
 
 /** True when a pick fills one of the month's slots: an activity whose `slot` is `none` fills none (R-TURN-006). */
@@ -443,7 +443,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
       // A fetch that set out before a command's reply can land after it: the older view is dropped.
       const held = get().view;
       if (held !== null && view.v < held.v) return;
-      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], null), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}), ...(held === null ? began() : {}), ...ownClock() });
+      set({ view, plan: fitPlan(get().plan, view.freeSlots), earlyWin: get().earlyWin || wonEarly(view, view.report?.lines ?? [], view.lastSlots), ...(held === null && options.rememberMonth === true ? rememberedMonth(view) : {}), ...(held === null ? began() : {}), ...ownClock() });
     }
 
     /**
@@ -462,10 +462,9 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           // One update: a month's report opens with the view it reports on, so nothing that
           // waits for the report (the share card, a scene) can open in between.
           const ended = command.type === "turn/end";
-          const slots = command.type === "turn/end" ? command.slots : null;
           const cards = withMoment(get().momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, get().monthLines);
           set({
-            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, slots),
+            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, picksOf(command)),
             view: reply.view,
             // R-WORLD-007: the commitments carry on into the next month.
             plan: fitPlan(ended ? carriedPlan(get().plan, reply.view) : get().plan, reply.view.freeSlots),
@@ -506,7 +505,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
           const cards = withMoment(get().momentCards, reply.lines, get().momentScreens > 0 ? reply.view : null, view, get().monthLines);
           const refused = reply.refusal;
           set({
-            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, null),
+            earlyWin: get().earlyWin || wonEarly(reply.view, reply.lines, []),
             view: reply.view,
             plan: fitPlan(get().plan, reply.view.freeSlots),
             lines: reply.lines,
@@ -760,7 +759,7 @@ function makeStore(authority: StoreAuthority, options: GameStoreOptions): GameSt
             return;
           case "lines":
             // The authority's own lines (a draw paid while away): staged as the command's are, never as a report.
-            set({ moments: [...get().moments, ...bigLines(event.lines)], momentCards: withMoment(get().momentCards, event.lines, get().momentScreens > 0 ? get().view : null, null), earlyWin: get().earlyWin || earlyWinIn(event.lines, null) !== null });
+            set({ moments: [...get().moments, ...bigLines(event.lines)], momentCards: withMoment(get().momentCards, event.lines, get().momentScreens > 0 ? get().view : null, null), earlyWin: get().earlyWin || earlyWinIn(event.lines, []) !== null });
             return;
           default: {
             const never: never = event;

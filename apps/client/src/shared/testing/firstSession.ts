@@ -2,10 +2,9 @@
 // starting life as the view's next step suggests, and finds the early win.
 import { content as realContent } from "@japacity/content";
 import type { Content, Id, Loose, PlayerView, ReportLine, Requirement, SlotPick } from "@japacity/sim";
-import { legalCommands } from "@japacity/sim";
+import { earlyWinIn, legalCommands } from "@japacity/sim";
 import { start, type Game } from "@japacity/sim/testing";
 
-import { earlyWinIn } from "../sim/earlyWin";
 import { ownRouteOf } from "../words/sixteen";
 
 export const FIRST_SESSION_TURNS = 3;

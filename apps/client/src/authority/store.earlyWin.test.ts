@@ -2,11 +2,11 @@ import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { localAuthority } from "../../authority/local";
-import { createGameStore } from "../../authority/store";
-import { engineView } from "../testing/fixtures";
-import { chapterNextStep } from "../testing/firstSession";
-import { actOnCard } from "../words/acts";
+import { localAuthority } from "./local";
+import { createGameStore } from "./store";
+import { engineView } from "../shared/testing/fixtures";
+import { chapterNextStep } from "../shared/testing/firstSession";
+import { actOnCard } from "../shared/words/acts";
 
 const salary: ReportLine = { key: "line.activity.salary", params: {}, tone: "good", attention: false, counts: [] };
 const gain: ReportLine = { key: "line.quality.gain", params: {}, tone: "good", attention: false, counts: [] };

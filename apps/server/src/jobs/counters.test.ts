@@ -1,5 +1,5 @@
 import type { AccountRow, CounterTotal, DayLog } from "@japacity/store";
-import { time } from "@japacity/sim";
+import { time, type Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { noteActive } from "../ops/active";
@@ -41,9 +41,22 @@ async function months(server: TestServer, account: string, count: number): Promi
   }
 }
 
+/** A month whose one act is the life's sure first hunt, sent at once (R-GUIDE-014, R-ACTIVITY-015). */
+async function huntMonth(server: TestServer, account: string): Promise<void> {
+  const seen = await view(server, account);
+  if (!seen.body.ok) throw new Error(seen.body.detail);
+  const job = seen.body.view.activities.find((option) => option.id === HUNT && option.allowed)?.params?.[0];
+  if (job === undefined) throw new Error("No job to hunt.");
+  const hunted = await send(server, account, { type: "activity/now", activity: HUNT, param: job, basedOn: seen.body.view.v });
+  if (!hunted.body.ok) throw new Error(`${hunted.body.code}: ${hunted.body.detail}`);
+  await months(server, account, 1);
+}
+
 async function totals(server: TestServer): Promise<CounterTotal[]> {
   return server.deps.stores.counters.days("2000-01-01", "2100-01-01");
 }
+
+const HUNT: Id<"activity"> = "activity.job-hunt";
 
 const pick = (rows: readonly CounterTotal[], day: string, name: string, key: string) => rows.find((row) => row.day === day && row.name === name && row.key === key)?.count ?? 0;
 
@@ -113,7 +126,8 @@ describe("the nightly counters job", () => {
     const day = utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
     await signUp(server, "account.idle");
-    await months(server, "account.ada", 4);
+    await months(server, "account.ada", 2);
+    await huntMonth(server, "account.ada");
 
     await countDay(server.deps, knownDayLog(server, [ada], ["account.ada", "account.idle"]), day);
     const rows = await totals(server);
@@ -122,13 +136,35 @@ describe("the nightly counters job", () => {
     expect(rows.filter((row) => row.name === "first/early-win").reduce((sum, row) => sum + row.count, 0)).toBe(2);
   });
 
+  test("[R-ANALYTICS-011] [R-GUIDE-014] given a new account that only rests and hears of a route in its third month, when its first day is counted, then the route it never chose is no early win and it is keyed none", async () => {
+    const server = testServer();
+    const day = utcDay(server.deps.now());
+    const ada = await newLife(server, "account.ada");
+    await months(server, "account.ada", 3);
+
+    await countDay(server.deps, knownDayLog(server, [ada], ["account.ada"]), day);
+    const rows = await totals(server);
+    expect(pick(rows, dayName(day), "first/early-win", "none")).toBe(1);
+    expect(rows.filter((row) => row.name === "first/early-win").reduce((sum, row) => sum + row.count, 0)).toBe(1);
+  });
+
+  test("[R-ANALYTICS-011] [R-GUIDE-014] given a new account whose first month's job hunt lands, when its first day is counted, then the early win is keyed 1", async () => {
+    const server = testServer();
+    const day = utcDay(server.deps.now());
+    const ada = await newLife(server, "account.ada");
+    await huntMonth(server, "account.ada");
+
+    await countDay(server.deps, knownDayLog(server, [ada], ["account.ada"]), day);
+    expect(pick(await totals(server), dayName(day), "first/early-win", "1")).toBe(1);
+  });
+
   test("[R-ANALYTICS-011] given a new account whose early win comes only after its first day ends, when that day is counted, then it is keyed none", async () => {
     const server = testServer();
     const day = utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
     await months(server, "account.ada", 1);
     server.wait(time.DAY_MS);
-    await months(server, "account.ada", 3);
+    await huntMonth(server, "account.ada");
 
     await countDay(server.deps, knownDayLog(server, [ada], ["account.ada"]), day);
     expect(pick(await totals(server), dayName(day), "first/early-win", "none")).toBe(1);
