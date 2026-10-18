@@ -3,13 +3,12 @@
 // flag, on Postgres (PGlite, the committed migrations), one character per run.
 import { content } from "@japacity/content";
 import { pgStores } from "@japacity/db";
-import type { PgliteConnection } from "@japacity/db/pglite";
-import { connectPglite } from "@japacity/db/pglite";
 import type { FlatSave, State } from "@japacity/sim";
 import { applyOverlay, hashState, offlineCalendar, stepWorld } from "@japacity/sim";
-import { afterEach, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
+import { freshDatabases } from "../postgres.testing";
 import { rollbackCli } from "./cli";
 import type { Database, OpenDatabase } from "./database";
 import { databaseDeps, databaseFrom } from "./database";
@@ -24,15 +23,10 @@ const at = (index: number) => productionConfig.clock.epoch + index;
 const otherRules = applyOverlay(content, { version: "other-rules", tuning: { quality: { wellbeingDrift: 5 } } });
 const noFile = () => Promise.reject(new Error("The database form reads no file."));
 
-const opened: PgliteConnection[] = [];
-
-afterEach(async () => {
-  await Promise.all(opened.splice(0).map((connection) => connection.close()));
-});
+const database = freshDatabases();
 
 async function onPostgres(): Promise<{ deps: Database["deps"]; open: OpenDatabase; closed: () => number }> {
-  const connection = await connectPglite();
-  opened.push(connection);
+  const connection = await database();
   const deps = databaseDeps(pgStores(connection.handle), { current: content, previous: null }, () => 77);
   let closes = 0;
   const open = () =>

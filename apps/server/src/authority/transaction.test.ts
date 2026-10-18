@@ -3,15 +3,12 @@
 // them in production (decision 0006). The memory stores cannot show what
 // these show: their world store takes no lock the player store holds.
 import type { ServerReply } from "@japacity/api";
-import { pgStores } from "@japacity/db";
-import type { PgliteConnection } from "@japacity/db/pglite";
-import { connectPglite } from "@japacity/db/pglite";
-import { afterEach, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { productionConfig } from "../config";
-import { memoryStores } from "../deps";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
+import { freshDatabases, postgresStores } from "../postgres.testing";
 import type { TestServer } from "./authority.testing";
 import { accepted, held, newLife, restMonth, send, testServer } from "./authority.testing";
 
@@ -20,16 +17,10 @@ const { epoch, worldTickMs } = productionConfig.clock;
 const HANG_MS = 5000;
 
 // One database for each test, so a test that hangs holds no lock another needs.
-const opened: PgliteConnection[] = [];
-
-afterEach(async () => {
-  await Promise.all(opened.splice(0).map((connection) => connection.close()));
-});
+const database = freshDatabases();
 
 async function onPostgres(): Promise<TestServer> {
-  const connection = await connectPglite();
-  opened.push(connection);
-  return testServer({ stores: { ...memoryStores(), ...pgStores(connection.handle) } });
+  return testServer({ stores: postgresStores(await database()) });
 }
 
 /** `work`, or a failure that names it once `HANG_MS` has passed. */

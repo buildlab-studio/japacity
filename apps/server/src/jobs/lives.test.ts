@@ -1,9 +1,7 @@
 // The nightly count of the lives being played (docs/rules/account.md
 // R-ACCOUNT-031, analytics.md R-ANALYTICS-008), on the memory stores and on
 // Postgres (PGlite, the committed migrations).
-import { pgCounterStore, pgStores } from "@japacity/db";
-import type { PgliteConnection } from "@japacity/db/pglite";
-import { connectPglite } from "@japacity/db/pglite";
+import { pgCounterStore } from "@japacity/db";
 import type { State } from "@japacity/sim";
 import { newState } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
@@ -11,22 +9,20 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { utcDay } from "../ops/day";
 import { dayName } from "../analytics/day";
-import { memoryStores } from "../deps";
+import { freshDatabases, postgresStores } from "../postgres.testing";
 import { newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
 import { countLives, LIVES_CRON, livesJob } from "./lives";
 
-const opened: PgliteConnection[] = [];
+const database = freshDatabases();
 
-afterEach(async () => {
+afterEach(() => {
   vi.restoreAllMocks();
-  await Promise.all(opened.splice(0).map((connection) => connection.close()));
 });
 
 async function onPostgres(): Promise<TestServer> {
-  const connection = await connectPglite();
-  opened.push(connection);
-  return testServer({ stores: { ...memoryStores(), ...pgStores(connection.handle), counters: pgCounterStore(connection.handle) } });
+  const connection = await database();
+  return testServer({ stores: { ...postgresStores(connection), counters: pgCounterStore(connection.handle) } });
 }
 
 /** An account in `country`, as sign-up makes it. */

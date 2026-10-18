@@ -4,7 +4,7 @@
 // does not take the connection.
 import type { ServerReply, ViewReply } from "@japacity/api";
 import { content, text } from "@japacity/content";
-import { connectOnFirstUse, pgStores } from "@japacity/db";
+import { connectOnFirstUse } from "@japacity/db";
 import type { Connection, PgClient } from "@japacity/db";
 import { connectPglite } from "@japacity/db/pglite";
 import type { PgliteConnection } from "@japacity/db/pglite";
@@ -17,9 +17,10 @@ import { ADMIN_STATEMENT_MS, ADMIN_TIMEOUT_DETAIL } from "./ops/timeout";
 import { softwarePasskey } from "./auth/passkey.testing";
 import { productionConfig } from "./config";
 import type { ServerConfig } from "./config";
-import { memoryStores, openLimiters } from "./deps";
+import { openLimiters } from "./deps";
 import type { Env } from "./index";
 import type { Place } from "./place/place.object";
+import { postgresStores } from "./postgres.testing";
 import { isolateFor } from "./production";
 import type { Isolate } from "./production";
 import { answered } from "./security/fail";
@@ -130,7 +131,7 @@ function browser(path: string, init: { method?: string; json?: unknown; jar?: Ja
 /** A signed-up player with a character, made through the harness on the same database. */
 async function playerWithLife(): Promise<{ jar: Jar; v: number }> {
   const db = database();
-  const h = harness({ stores: { ...memoryStores(), ...pgStores(db.handle) }, adapter: drizzleAuthAdapter(db.db) });
+  const h = harness({ stores: postgresStores(db), adapter: drizzleAuthAdapter(db.db) });
   const { jar } = await h.signUp("ada@example.com");
   expect((await h.call("/api/character", { method: "POST", jar, json: { scenario: "scenario.ada" } })).status).toBe(200);
   const view = await (await h.call("/api/view", { jar })).json<ViewReply>();
@@ -198,7 +199,7 @@ describe("the admin's reads (R-SERVER-012)", () => {
   /** An admin on the isolate's list, signed in with a passkey through the harness on the same database. */
   async function adminWithPasskey(): Promise<{ jar: Jar; config: ServerConfig }> {
     const db = database();
-    const h = harness({ stores: { ...memoryStores(), ...pgStores(db.handle) }, adapter: drizzleAuthAdapter(db.db) });
+    const h = harness({ stores: postgresStores(db), adapter: drizzleAuthAdapter(db.db) });
     const { account } = await h.signUp("owner@example.com");
     const key = await softwarePasskey();
     await key.store(h, account);

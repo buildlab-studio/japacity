@@ -2,17 +2,15 @@
 // Postgres (PGlite, the committed migrations), through the same tool the
 // deploy runs, with the stores a command uses.
 import { content } from "@japacity/content";
-import { pgStores } from "@japacity/db";
 import type { PgliteConnection } from "@japacity/db/pglite";
-import { connectPglite } from "@japacity/db/pglite";
 import type { Content } from "@japacity/sim";
 import { upgradeState } from "@japacity/sim";
-import { afterEach, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { withContentBefore } from "../authority/overlay";
 import type { TestServer } from "../authority/authority.testing";
 import { held, newLife, restMonth, send, testServer, view } from "../authority/authority.testing";
-import { memoryStores } from "../deps";
+import { freshDatabases, postgresStores } from "../postgres.testing";
 import type { OpenDatabase } from "./database";
 import { databaseFrom, workerContents } from "./database";
 import { snapshotAll, snapshotCli } from "./snapshot";
@@ -23,16 +21,11 @@ const bundled = withContentBefore(workerContents(undefined), undefined, [previou
 /** The tables a snapshot writes; every other table must come out as it went in. */
 const CHARACTER_TABLES = new Set(["characters", "segments", "snapshots"]);
 
-const opened: PgliteConnection[] = [];
-
-afterEach(async () => {
-  await Promise.all(opened.splice(0).map((connection) => connection.close()));
-});
+const database = freshDatabases();
 
 async function onPostgres(): Promise<{ server: TestServer; connection: PgliteConnection; open: OpenDatabase }> {
-  const connection = await connectPglite();
-  opened.push(connection);
-  const server = testServer({ stores: { ...memoryStores(), ...pgStores(connection.handle) } });
+  const connection = await database();
+  const server = testServer({ stores: postgresStores(connection) });
   return { server, connection, open: () => Promise.resolve({ deps: server.deps, close: () => Promise.resolve() }) };
 }
 
