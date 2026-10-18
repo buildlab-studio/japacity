@@ -4,7 +4,7 @@ import { time } from "@japacity/sim";
 import type { NumbersLog } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { asAccount as as, testDeps } from "../../app.testing";
+import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { testConfig } from "../../config";
 import { testSession } from "../../deps";
@@ -37,9 +37,9 @@ function app(asked: [number, number][] = []) {
 describe("GET /api/admin/stats", () => {
   test("[R-ANALYTICS-012] [R-MODERATION-012] given a session that is not an admin's, or none, when the numbers are fetched, then they do not exist", async () => {
     const { app: served } = app();
-    const missing = await (await served.request("/api/admin/nothing-here", as(ADMIN))).text();
+    const missing = await (await served.request("/api/admin/nothing-here", asAccount(ADMIN))).text();
     for (const account of [null, "account.player"]) {
-      const reply = await served.request("/api/admin/stats", as(account));
+      const reply = await served.request("/api/admin/stats", asAccount(account));
       expect(reply.status).toBe(404);
       expect(await reply.text()).toBe(missing);
     }
@@ -51,7 +51,7 @@ describe("GET /api/admin/stats", () => {
     const today = time.utcDay(deps.now());
     await deps.stores.counters.add([{ day: time.dayName(today - 1), region: "NG", name: "players/total", key: "NG", count: 120 }]);
 
-    const reply = await served.request("/api/admin/stats", as(ADMIN));
+    const reply = await served.request("/api/admin/stats", asAccount(ADMIN));
     expect(reply.status).toBe(200);
     const body = await reply.json<Extract<StatsReply, { ok: true }>>();
     expect(body.ok).toBe(true);

@@ -3,7 +3,7 @@ import { content } from "@japacity/content";
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { asAccount as as, testDeps } from "../../app.testing";
+import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { testConfig } from "../../config";
 import { testSession } from "../../deps";
@@ -19,9 +19,9 @@ function admin() {
 describe("GET /api/admin/analytics", () => {
   test("[R-ANALYTICS-009] [R-SERVER-012] given a session that is not an admin's, or none, when the dashboard is fetched, then it does not exist", async () => {
     const app = makeApp(admin());
-    const missing = await (await app.request("/api/admin/nothing-here", as(ADMIN))).text();
+    const missing = await (await app.request("/api/admin/nothing-here", asAccount(ADMIN))).text();
     for (const account of [null, "account.player"]) {
-      const reply = await app.request("/api/admin/analytics", as(account));
+      const reply = await app.request("/api/admin/analytics", asAccount(account));
       expect(reply.status).toBe(404);
       expect(await reply.text()).toBe(missing);
     }
@@ -37,7 +37,7 @@ describe("GET /api/admin/analytics", () => {
     ]);
     const app = makeApp(deps);
 
-    const reply = await app.request(`/api/admin/analytics?day=${time.dayName(today)}`, as(ADMIN));
+    const reply = await app.request(`/api/admin/analytics?day=${time.dayName(today)}`, asAccount(ADMIN));
     expect(reply.status).toBe(200);
     const { dashboard } = await reply.json<{ ok: true; dashboard: Dashboard }>();
     expect(dashboard.day).toBe(time.dayName(today));
@@ -46,8 +46,8 @@ describe("GET /api/admin/analytics", () => {
       ["wallet", { fewerThan: minShown }],
     ]);
 
-    const fallback = await (await app.request("/api/admin/analytics", as(ADMIN))).json<{ dashboard: Dashboard }>();
+    const fallback = await (await app.request("/api/admin/analytics", asAccount(ADMIN))).json<{ dashboard: Dashboard }>();
     expect(fallback.dashboard.day).toBe(time.dayName(today));
-    for (const bad of ["2026-13-01", "2026-02-30", "yesterday", "", "20261010"]) expect((await app.request(`/api/admin/analytics?day=${bad}`, as(ADMIN))).status).toBe(400);
+    for (const bad of ["2026-13-01", "2026-02-30", "yesterday", "", "20261010"]) expect((await app.request(`/api/admin/analytics?day=${bad}`, asAccount(ADMIN))).status).toBe(400);
   });
 });

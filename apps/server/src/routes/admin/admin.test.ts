@@ -2,7 +2,7 @@ import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { countRejection } from "../../ops/rejections";
-import { asAccount as as, testDeps } from "../../app.testing";
+import { asAccount, testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { productionConfig, testConfig } from "../../config";
 import { TEST_SIGNED_IN_WITH, testSession } from "../../deps";
@@ -19,12 +19,12 @@ function admin() {
 describe("the admin routes", () => {
   test("[R-SERVER-012] given a session not in the admin accounts or none at all, when any admin route is fetched, then it answers 404 exactly as a route that does not exist", async () => {
     const app = makeApp(admin());
-    const missing = await app.request("/api/admin/nothing-here", as(ADMIN));
+    const missing = await app.request("/api/admin/nothing-here", asAccount(ADMIN));
     const body = await missing.text();
     expect(missing.status).toBe(404);
     for (const path of ROUTES) {
       for (const account of [null, "account.player"]) {
-        const reply = await app.request(path, as(account));
+        const reply = await app.request(path, asAccount(account));
         expect(reply.status).toBe(404);
         expect(await reply.text()).toBe(body);
       }
@@ -35,14 +35,14 @@ describe("the admin routes", () => {
     const config = testConfig({ testing: { testLogin: true } });
     const app = makeApp(testDeps({ config, session: testSession(config) }));
     expect(productionConfig.admin.accounts).toEqual([]);
-    expect((await app.request("/api/admin/alarms", as(ADMIN))).status).toBe(404);
+    expect((await app.request("/api/admin/alarms", asAccount(ADMIN))).status).toBe(404);
   });
 
   test("[R-SERVER-012] given an admin account, when each route is fetched, then it answers", async () => {
     const app = makeApp(admin());
-    for (const path of ROUTES) expect((await app.request(path, as(ADMIN))).status).toBe(200);
-    expect(await (await app.request("/api/admin/alarms", as(ADMIN))).json()).toEqual({ ok: true, alarms: [] });
-    expect(await (await app.request("/api/admin/rollback/character.nobody", as(ADMIN))).json()).toEqual({ ok: false, code: "missing", detail: "No character character.nobody." });
+    for (const path of ROUTES) expect((await app.request(path, asAccount(ADMIN))).status).toBe(200);
+    expect(await (await app.request("/api/admin/alarms", asAccount(ADMIN))).json()).toEqual({ ok: true, alarms: [] });
+    expect(await (await app.request("/api/admin/rollback/character.nobody", asAccount(ADMIN))).json()).toEqual({ ok: false, code: "missing", detail: "No character character.nobody." });
   });
 
   test("[R-MODERATION-012] given an admin whose test session says it was opened by email code, when any admin route of any area is asked, then it is refused as not-legal; the same admin with a passkey session is answered", async () => {
@@ -64,15 +64,15 @@ describe("the admin routes", () => {
     await deps.stores.ledger.addDay(today, { gig: { NGN: 1 } }, {});
     const app = makeApp(deps);
 
-    expect(await (await app.request(`/api/admin/report?day=${String(today)}`, as(ADMIN))).json()).toEqual({ ok: true, report: { day: today, created: { gig: { NGN: 1 } }, destroyed: {} } });
-    expect(await (await app.request("/api/admin/report", as(ADMIN))).json()).toEqual({ ok: true, report: { day: today - 1, created: { salary: { NGN: 5 } }, destroyed: { rent: { GBP: 2 } } } });
+    expect(await (await app.request(`/api/admin/report?day=${String(today)}`, asAccount(ADMIN))).json()).toEqual({ ok: true, report: { day: today, created: { gig: { NGN: 1 } }, destroyed: {} } });
+    expect(await (await app.request("/api/admin/report", asAccount(ADMIN))).json()).toEqual({ ok: true, report: { day: today - 1, created: { salary: { NGN: 5 } }, destroyed: { rent: { GBP: 2 } } } });
     expect(time.dayStart(today)).toBeLessThanOrEqual(deps.now());
-    for (const bad of ["-1", "1.5", "x", ""]) expect((await app.request(`/api/admin/report?day=${bad}`, as(ADMIN))).status).toBe(400);
+    for (const bad of ["-1", "1.5", "x", ""]) expect((await app.request(`/api/admin/report?day=${bad}`, asAccount(ADMIN))).status).toBe(400);
   });
 
   test("[R-SERVER-005] given rejections counted by code, when the admin reads them, then each code shows how many", async () => {
     const app = makeApp(admin());
-    const read = async () => (await (await app.request("/api/admin/rejections", as(ADMIN))).json<{ counts: Record<string, number> }>()).counts;
+    const read = async () => (await (await app.request("/api/admin/rejections", asAccount(ADMIN))).json<{ counts: Record<string, number> }>()).counts;
     const before = await read();
 
     countRejection("stale");
