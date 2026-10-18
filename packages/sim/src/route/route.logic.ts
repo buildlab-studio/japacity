@@ -774,6 +774,7 @@ function judge(read: ReadCtx, requirement: Requirement): RequirementResult {
     case "wallet/total":
     case "place/returned":
     case "place/months-here":
+    case "place/banned":
     case "home/host":
     case "not":
     case "any":

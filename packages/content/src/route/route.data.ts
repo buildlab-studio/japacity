@@ -485,6 +485,8 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
       step(UK_PARTNER, "married"),
       step(UK_PARTNER, "sponsor"),
       step(UK_PARTNER, "floor"),
+      // R-PEOPLE-026, R-PLACE-008: no removal's ban on the country, judged before the fee and the surcharge are taken.
+      { type: "not", of: { type: "place/banned", country: "country.uk" } },
       held("document.english-test", 30),
       held("document.tb-certificate"),
       held("document.passport"),
@@ -493,7 +495,13 @@ export const peopleApplyActivities: Record<Id<"activity">, ActivityEntry> = {
   ),
   "activity.apply-ca-spouse": applying(
     CA_SPOUSE,
-    [{ type: "var/min", var: "var.ca-family-window", value: 1 }, step(CA_SPOUSE, "married"), step(CA_SPOUSE, "sponsor"), held("document.passport")],
+    [
+      { type: "var/min", var: "var.ca-family-window", value: 1 },
+      step(CA_SPOUSE, "married"),
+      step(CA_SPOUSE, "sponsor"),
+      { type: "not", of: { type: "place/banned", country: "country.canada" } },
+      held("document.passport"),
+    ],
     [{ currency: "CAD", amount: { var: "var.ca-sponsor-fee" }, reason: "fee-visa" }],
   ),
   "activity.apply-uk-dependant": applying(

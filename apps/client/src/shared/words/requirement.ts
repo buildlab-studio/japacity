@@ -161,6 +161,7 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
     case "not":
       if (requirement.of.type === "document/pending") return say("ui.req.not-pending", { document: runningName(requirement.of.document) });
       if (requirement.of.type === "document/held") return say("ui.req.not-held", { document: runningName(requirement.of.document) });
+      if (requirement.of.type === "place/banned") return say("ui.req.not-banned", { country: nameOf(requirement.of.country) });
       // The one job this act starts, held already: the shop open.
       if (requirement.of.type === "job/is" && requirement.of.activities.length === 1) return say("ui.req.not-job", { job: nameOf(requirement.of.activities[0] ?? "") });
       return say("ui.req.not", { inner: requirementSentence(requirement.of, context) });
@@ -213,6 +214,8 @@ export function requirementSentence(requirement: Requirement, context: SentenceC
         : say("ui.req.place-returned-shapes", { shapes: list(requirement.shapes.map((shape) => say(`ui.place.shape.${shape}`))) });
     case "place/months-here":
       return sayCount("ui.req.place-months-here", requirement.months, { months: requirement.months, where: say(`ui.place.${requirement.where}`) });
+    case "place/banned":
+      return say("ui.req.place-banned", { country: nameOf(requirement.country) });
     case "home/host":
       return say(`ui.req.home-host.${requirement.host}`);
     default: {

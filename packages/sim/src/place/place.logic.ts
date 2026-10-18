@@ -685,6 +685,12 @@ function judgeMonthsHere(read: ReadCtx, requirement: Requirement): RequirementRe
   return { met: here && have >= requirement.months, have, need: requirement.months };
 }
 
+/** R-PLACE-008, R-PEOPLE-026: the ban read as an application's condition, so a partner application is refused before it is paid. */
+function judgeBanned(read: ReadCtx, requirement: Requirement): RequirementResult {
+  if (requirement.type !== "place/banned") throw new Error(`place/banned cannot judge ${requirement.type}.`);
+  return { met: bannedNow(read, requirement.country) };
+}
+
 // ---------------------------------------------------------------------------
 // Evolve, lines, view
 // ---------------------------------------------------------------------------
@@ -811,7 +817,7 @@ export const placeKind: RegisteredKind<PlaceSlice, PlaceEvent> = {
   phases: { month },
   evolve,
   lines,
-  requirements: { "place/is": judgeIs, "place/returned": judgeReturned, "place/months-here": judgeMonthsHere },
+  requirements: { "place/is": judgeIs, "place/returned": judgeReturned, "place/months-here": judgeMonthsHere, "place/banned": judgeBanned },
   invariants,
   view,
 };

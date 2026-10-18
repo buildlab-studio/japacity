@@ -256,6 +256,7 @@ export const RequirementSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("wallet/total"), flow: z.enum(["in", "out"]), reason: ReasonSchema, currency: CurrencySchema, amount: AmountSchema }),
   z.strictObject({ type: z.literal("place/returned"), shapes: z.array(ReturnShapeSchema).min(1) }),
   z.strictObject({ type: z.literal("place/months-here"), where: WhereSchema, months: CountSchema }),
+  z.strictObject({ type: z.literal("place/banned"), country: idOf("country") }),
   z.strictObject({ type: z.literal("home/host"), host: HomeHostSchema }),
   z.strictObject({
     type: z.literal("not"),

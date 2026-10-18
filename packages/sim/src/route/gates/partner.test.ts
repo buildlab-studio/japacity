@@ -167,19 +167,31 @@ describe("R-PLACE-008: a removal's ban and the partner gate", () => {
     status: { ...used.status, "status.uk-overstayer": { ...used.status["status.uk-overstayer"]!, banMonths: SHORT_BAN } },
   });
 
-  test("[R-PLACE-008] [R-GATE-005] given a removal from the UK with a ban of 2 months and a married sponsor settled there, when the partner application is sent, then none goes in while the ban holds and one goes in from the month the ban lifts", () => {
+  test("[R-PLACE-008] [R-GATE-005] [R-PEOPLE-026] given a removal from the UK with a ban of 2 months and a married sponsor settled there, when the partner application is sent, then while the ban holds it is not offered and is refused with nothing taken, and it goes in from the month the ban lifts", () => {
     const game = married(UK_PARTNER, SETTLED, { change: shortBan });
     toKnown(game, UK_PARTNER);
     applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.uk" }, { type: "status/grant", status: "status.uk-student" }, { type: "status/remove" }]);
     expect(game.state.place.where).toBe("home");
     const lifts = game.state.turn.month + SHORT_BAN;
     while (game.state.turn.month < lifts) {
-      game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
+      expect(game.view().activities.find((offered) => offered.id === APPLY_UK)?.allowed).toBe(false);
+      game.expectRejected({ type: "activity/now", activity: APPLY_UK, param: null }, "not-legal");
       expect(routeOf(game, UK_PARTNER).state).toBe("known");
       game.endTurn();
     }
+    expect(game.view().activities.find((offered) => offered.id === APPLY_UK)?.allowed).toBe(true);
     game.accept({ type: "activity/now", activity: APPLY_UK, param: null });
     expect(routeOf(game, UK_PARTNER).state).toBe("applying");
+  });
+
+  test("[R-PLACE-008] [R-PEOPLE-026] given a removal from Canada and a married sponsor resident there, when the spouse application is sent while the ban holds, then it is not offered and is refused with nothing taken", () => {
+    const game = married(CA_SPOUSE, CA_RESIDENT);
+    toKnown(game, CA_SPOUSE);
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }, { type: "status/grant", status: "status.ca-overstayer" }, { type: "status/remove" }]);
+    expect(game.state.place.where).toBe("home");
+    expect(game.view().activities.find((offered) => offered.id === APPLY_CA)?.allowed).toBe(false);
+    game.expectRejected({ type: "activity/now", activity: APPLY_CA, param: null }, "not-legal");
+    expect(routeOf(game, CA_SPOUSE).state).toBe("known");
   });
 });
 

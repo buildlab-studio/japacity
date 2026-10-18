@@ -292,6 +292,8 @@ export type Requirement =
   | { type: "place/returned"; shapes: ReturnShape[] }
   /** The character has been where they are, in `where`, for at least this many months. */
   | { type: "place/months-here"; where: Where; months: number }
+  /** A removal's ban holds on the country this month (R-PLACE-008). */
+  | { type: "place/banned"; country: Id<"country"> }
   /** A host of this kind would take the character in now (docs/rules/home.md R-HOME-004). */
   | { type: "home/host"; host: HomeHost }
   | { type: "not"; of: Requirement }
