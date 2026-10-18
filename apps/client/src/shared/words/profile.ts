@@ -1,5 +1,5 @@
 // The waiting months' figures in words (docs/rules/activity.md R-ACTIVITY-013 and 014): the route each act
-// counts toward, and a side job's pay by level and the band that lifts it. The words table is profile.words.ts.
+// counts toward, and a side job's pay by level and the band that lifts it. The words table is tables/profile.words.ts.
 import { content } from "@japacity/content";
 import type { ActivityTier, Id, MoneyParam, PlayerView } from "@japacity/sim";
 
