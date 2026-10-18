@@ -336,8 +336,7 @@ function drawPot(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseE
 /**
  * R-OBLIGATION-012: three months after standing guarantor, the relative may be
  * gone, and the undertaking's `onDefault` opens the loan on the character for
- * the balance. The page names no stream for the draw; it is `offer`, the
- * stream of the offer that opened it (an open question in obligation.md).
+ * the balance. The draw is on `offer`, the stream of the offer that opened it.
  */
 function callGuarantee(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   if ((item.monthsLeft ?? 0) > 1) return [];

@@ -176,7 +176,7 @@ export async function verifyAll(
     if (check.suspect) suspect += 1;
   });
   const snapshots = counts === null ? null : snapshotShare(counts.before, counts.after, counts.snapshotEvery);
-  const pairs = manifest.pairs.length === 0 ? `not checked: no pairs were made (${manifest.pairsSkipped ?? "none planned"})` : `${String(manifest.pairs.length)} pairs planned, and the pair rows have no load route yet`;
+  const pairs = manifest.pairs.length === 0 ? `not checked: no pairs were made (${manifest.pairsSkipped ?? "none planned"})` : `not checked: ${String(manifest.pairs.length)} pairs planned, and the load test has no route that reads pair rows`;
   return { characters: manifest.accounts.length, touched, failed, suspect, snapshots, pairs, ok: failed.length === 0 && (snapshots?.ok ?? true) };
 }
 

@@ -176,6 +176,22 @@ describe("the place routes", () => {
 
     expect(await roomCounts(setupped.rooms, PLACE)).toEqual([2, 1, 0]);
   });
+
+  test("[R-SERVER-033] given rooms of three and players connecting from Nigeria, Britain and Canada, when each opens the socket, then all three share the one room and the next room opens only past the cap", async () => {
+    const config = testConfig({ testing: { testLogin: true }, presence: { maxPerObject: 3 } });
+    const setupped = setup({ "account-1": PLACE, "account-2": PLACE, "account-3": PLACE, "account-4": PLACE }, config);
+
+    listenTo(await opened(await socket(setupped, "account-1", "NG")));
+    listenTo(await opened(await socket(setupped, "account-2", "GB")));
+    listenTo(await opened(await socket(setupped, "account-3", "CA")));
+    expect(await roomCounts(setupped.rooms, PLACE)).toEqual([3, 0]);
+
+    const reply = await (await presence(setupped, "account-2", "GB")).json<PresenceReply>();
+    expect(reply.others.map((other) => other.name).sort()).toEqual(["Name account-1", "Name account-3"]);
+
+    listenTo(await opened(await socket(setupped, "account-4", "NG")));
+    expect(await roomCounts(setupped.rooms, PLACE)).toEqual([3, 1, 0]);
+  });
 });
 
 /** Midnight in Lagos on 8 Oct 2026, which is 23:00 UTC on 8 Oct. */

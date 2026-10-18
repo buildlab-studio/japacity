@@ -289,9 +289,8 @@ function wayHomeOf(read: ReadCtx): WayHome | null {
 }
 
 /**
- * R-PLACE-004. R-STATUS-009 adds an exit fee to a Gulf worker's fare while
- * the contract runs, and the content has no figure for it, so the fare alone
- * is charged (an open question in status.md).
+ * R-PLACE-004, R-STATUS-009: the fare alone, for a Gulf worker too, whether
+ * the contract has ended or not.
  */
 function returnHome(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   if (command.type !== "return/home") throw new Error(`return/home cannot handle ${command.type}.`);

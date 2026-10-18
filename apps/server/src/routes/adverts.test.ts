@@ -24,7 +24,7 @@ const ADMIN = "account.owner";
 const EPOCH = productionConfig.clock.epoch;
 const BILLBOARD = content.advert["advert.road-billboard"];
 const TILE = content.advert["advert.phone-tile"];
-if (BILLBOARD === undefined || TILE === undefined) throw new Error("The launch slots are missing.");
+if (BILLBOARD === undefined || TILE === undefined) throw new Error("The billboard and phone tile slots are missing.");
 
 interface Clock {
   at: number;

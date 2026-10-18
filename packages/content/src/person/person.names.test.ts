@@ -92,7 +92,7 @@ describe("who is named in the game's words", () => {
     expect(namesUsed(scanned, names).filter((use) => !listed.has(use))).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given the family names, when each is looked up, then it is a pool name from the life's own people", () => {
+  test("[R-PEOPLE-053] [R-TEXT-003] given the family names, when each is looked up, then it is a pool name from the life's own people", () => {
     const wrong = Object.entries(familyNames).flatMap(([life, names]) =>
       Object.values(names ?? {}).filter((name) => poolByName.get(name)?.people !== lifePeople[life as keyof typeof lifePeople]?.people).map((name) => `${life} ${name}`),
     );
@@ -126,7 +126,7 @@ describe("who is named in the game's words", () => {
     expect(Object.keys(lifePeople).sort()).toEqual(Object.keys(content.scenario).filter((id) => id !== "scenario.prologue").sort());
   });
 
-  test("[R-PEOPLE-053] given who holds which role, when they are read by people, then no people holds two roles that take money and no role is held only by one people (names rule 5)", () => {
+  test("[R-PEOPLE-053] [R-PEOPLE-062] given who holds which role, when they are read by people, then no people holds two roles that take money and no role is held only by one people (names rule 5)", () => {
     expect(roleProblems(everyNamed())).toEqual([]);
     const agents = everyNamed().map((person) => (person.role === "agent" ? { ...person, people: "igbo" as const } : person));
     expect(roleProblems(agents)).toEqual(["igbo holds Kunle (agent) and Ameh (agent)", "every agent is igbo"]);
@@ -136,11 +136,11 @@ describe("who is named in the game's words", () => {
 });
 
 describe("cultural institutions", () => {
-  test("[R-PEOPLE-053] given every word in the game, when an institution is named, then no crime or fraud is named beside it (names rule 7)", () => {
+  test("[R-PEOPLE-053] [R-PEOPLE-063] given every word in the game, when an institution is named, then no crime or fraud is named beside it (names rule 7)", () => {
     expect(institutionProblems(text)).toEqual([]);
   });
 
-  test("[R-PEOPLE-053] given words that put a masquerade, a palace or a church beside a crime, when they are checked, then each is found", () => {
+  test("[R-PEOPLE-053] [R-PEOPLE-063] given words that put a masquerade, a palace or a church beside a crime, when they are checked, then each is found", () => {
     const made = {
       "a.masquerade": "Men dressed as a masquerade robbed the bus.",
       "a.palace": "The palace covered for the fraud.",

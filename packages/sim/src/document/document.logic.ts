@@ -158,7 +158,7 @@ function request(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (due !== null) {
     // A second request changes nothing, yet the report says so, and a line
     // comes only from an event: this one event changes nothing and carries the
-    // line (an open question in document.md). The activity's
+    // line. The activity's
     // fee is already paid by then; that is the activity kind's business.
     const event: DocumentEvent = { type: "document/already-pending", document: id, readyMonth: due };
     return [event];

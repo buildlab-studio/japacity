@@ -6,7 +6,7 @@ import { afterEach, describe, expect, test } from "vitest";
 
 import { CLIPS } from "../clips";
 import { VIDEO } from "../parts/tokens";
-import { ROUND_D_CLIPS, ROUND_D_FRAMES, RoundD } from "./RoundD";
+import { DECK_CLIPS, DECK_FRAMES, Deck } from "./Deck";
 
 // React's act() needs this flag in a test page.
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -19,7 +19,7 @@ afterEach(() => {
   mounted = null;
 });
 
-/** Direction D drawn at one frame, as Remotion's player draws it; the page is returned to be read. */
+/** The deck cut drawn at one frame, as Remotion's player draws it; the page is returned to be read. */
 function mountAt(frame: number): HTMLElement {
   const host = document.createElement("div");
   document.body.append(host);
@@ -27,7 +27,7 @@ function mountAt(frame: number): HTMLElement {
   act(() => {
     root.render(
       <Internals.SequenceManagerProvider>
-        <Player component={RoundD} compositionWidth={VIDEO.width} compositionHeight={VIDEO.height} durationInFrames={ROUND_D_FRAMES} fps={VIDEO.fps} initialFrame={frame} acknowledgeRemotionLicense />
+        <Player component={Deck} compositionWidth={VIDEO.width} compositionHeight={VIDEO.height} durationInFrames={DECK_FRAMES} fps={VIDEO.fps} initialFrame={frame} acknowledgeRemotionLicense />
       </Internals.SequenceManagerProvider>,
     );
   });
@@ -35,14 +35,14 @@ function mountAt(frame: number): HTMLElement {
   return host;
 }
 
-describe("direction D of the teaser's round", () => {
-  test("given the round, when its length is read, then it lasts ten seconds at thirty frames a second", () => {
-    expect(ROUND_D_FRAMES).toBe(10 * VIDEO.fps);
+describe("the teaser's deck cut", () => {
+  test("given the deck cut, when its length is read, then it lasts ten seconds at thirty frames a second", () => {
+    expect(DECK_FRAMES).toBe(10 * VIDEO.fps);
   });
 
   test("given the clips it lists, when it is mounted in the middle of each one's span, then the window draws that clip from the clips folder", () => {
     const missing: string[] = [];
-    for (const span of ROUND_D_CLIPS) {
+    for (const span of DECK_CLIPS) {
       const page = mountAt(Math.floor((span.from + span.to) / 2));
       const file = CLIPS.find((one) => one.name === span.name)?.file ?? `${span.name} (not listed)`;
       const sources = [...page.querySelectorAll("video")].map((video) => video.getAttribute("src") ?? "");

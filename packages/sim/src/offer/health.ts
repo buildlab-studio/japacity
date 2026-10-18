@@ -150,10 +150,8 @@ function afterIllness(ctx: Ctx, worse: OfferEntry, open: OpenOffer): BaseEvent[]
  * `tuning.health.illnessBp` when it may come. The illness is not counted
  * against the month's limits on new and open offers (R-OFFER-001),
  * since it is no offer the character could have avoided by having others open.
- * The illness is marked `bad`, and R-LUCK-003 halves a bad entry's chance
- * while wellbeing is under 30, which is always so when illness rolls. It is
- * rolled here at the full `illnessBp`, as R-HEALTH-002 and its numbers say
- * (an open question in luck.md).
+ * The illness is marked `bad` but rolls at the full `illnessBp` (R-LUCK-003):
+ * halving it would always apply, since wellbeing is under 30 whenever it rolls.
  */
 export function healthComeUp(ctx: Ctx, open: OpenOffer): BaseEvent[] {
   const illness = ctx.content.offer[ILLNESS];

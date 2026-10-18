@@ -122,8 +122,7 @@ function schoolOf(content: Content, id: Id<"school">): SchoolEntry {
  * A world variable the route reads by name. A route entry names only its
  * window, so the living line, living months, strictness and surcharge are
  * the UK's variables for every route. The engine's mini content has none of
- * them, so a missing one reads as 0 there; the real content has all four
- * (an open question in route-gates.md).
+ * them, so a missing one reads as 0 there; the real content has all four.
  */
 function ukVar(read: ReadCtx, id: Id<"var">): number {
   return worldVarOr(read.world, id);

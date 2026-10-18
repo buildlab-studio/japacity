@@ -223,7 +223,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "phone-bills-day", what: "Bills" },
   { key: "phone-news-day", what: "News" },
   { key: "phone-settings-day", what: "Settings" },
-  { key: "phone-me", what: "Me (asked for in the brief)" },
+  { key: "phone-me", what: "Me" },
   // The phone by night.
   { key: "phone-home-night", what: "The phone's home, by night" },
   { key: "phone-calendar-night", what: "Calendar, by night" },

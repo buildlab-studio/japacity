@@ -787,7 +787,7 @@ export interface CounterDef {
   source: "server" | "client";
 }
 
-/** docs/rules/city.md R-CITY-031: the fixed emote set. */
+/** The fixed emote set of a player's own figure (design page 13, section 5); no screen uses it. */
 export type Emote = "wave" | "clap" | "sit" | "dance";
 
 export interface VarEntry {
@@ -1628,7 +1628,7 @@ export interface TurnSlice {
   banked: number;
   /** The month's free time spent by now-acts so far, in half-days (R-TURN-010, decision 0011). */
   spent: number;
-  /** True once the character has left. Only `turns/grant` is accepted after that. */
+  /** True once the life is over (`turn/finish`, R-TURN-007; only the road's `lost` applies it). Only `turns/grant` is accepted after that. */
   ended: boolean;
   report: TurnReport | null;
   locks: SlotLock[];

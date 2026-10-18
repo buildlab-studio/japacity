@@ -120,8 +120,7 @@ export const goalTable: Record<Id<"goal">, GoalEntry> = {
     id: "goal.the-house",
     where: "any",
     openIf: [{ type: "money/min", currency: "NGN", amount: naira(5000000), pocket: "bank" }],
-    // No building project pays under the reason `build`, and no requirement reads a ledger
-    // total, so ₦15,000,000 held stands for ₦15,000,000 paid (an open question in goal.md).
+    // Land and ₦15,000,000 held for the house: no building project pays under the reason `build`.
     doneIf: [
       { type: "quality/min", quality: "quality.land", value: 1 },
       { type: "money/min", currency: "NGN", amount: naira(15000000), pocket: "bank" },

@@ -134,11 +134,11 @@ export interface CatalogEntry {
   farView?: { position: [number, number, number]; target: [number, number, number] };
 }
 
-const LEAD = "Written as code; ported to the pipeline";
-const LAB = "Written as code; ported to the pipeline";
-const STREET_AGENT = "The makers, written as code from the kit (the lively layer, the streets' and offices' dressing)";
+const EXAMPLE_MAKERS = "The makers, written as code from the design's models; one of the examples (assets-src/examples.json)";
+const LAB_MAKERS = "The makers, written as code from the design's models";
+const STREET_DRESSING = "The makers, written as code from the kit (the streets' and offices' dressing)";
 const ELEVATIONS: ViewName[] = ["front", "back", "left", "right", "threeQuarter"];
-const PLACES_A = "The makers, written as code from the kit";
+const KIT = "The makers, written as code from the kit";
 /** Every dish in Peckham faces one way (R-ASSET-019); the terraces stand turned a quarter either way, so the yaw is given per side. */
 const PECKHAM_DISH_YAW = 2.4;
 /** Deira's blocks also stand turned a quarter either way; one yaw for the place's dishes. */
@@ -165,7 +165,7 @@ function personModel(mesh: PersonMesh): BakedModel {
   return model;
 }
 
-function buildingEntry(slug: string, place: string, author = LEAD): CatalogEntry {
+function buildingEntry(slug: string, place: string, author = EXAMPLE_MAKERS): CatalogEntry {
   const source = join("assets-src", "bld", slug);
   return {
     name: `bld_${slug}`,
@@ -173,7 +173,7 @@ function buildingEntry(slug: string, place: string, author = LEAD): CatalogEntry
     place: `place.${place}`,
     source,
     author,
-    example: author === LEAD,
+    example: author === EXAMPLE_MAKERS,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () => {
       const { spec, options } = readJson<{ spec: BuildingSpec; options: BuildingOptions }>(join(ROOT, source, "spec.json"));
@@ -182,13 +182,12 @@ function buildingEntry(slug: string, place: string, author = LEAD): CatalogEntry
   };
 }
 
-const PLACES_B = "The makers, written as code from the kit";
 const MAKOKO = "The makers, written as code from the kit";
 
 /** A piece one of the staged places needed, built from the kit by the makers. */
 function placePiece(name: string, place: string, build: () => Group, views: ViewName[] = [...ELEVATIONS, "phone"]): CatalogEntry {
   const [prefix = "", slug = ""] = name.split("_");
-  return { name, file: `places/${place}/${name}.glb`, place: `place.${place}`, source: `assets-src/${prefix}/${slug}`, author: PLACES_B, views, build: () => staticModel(name, build()) };
+  return { name, file: `places/${place}/${name}.glb`, place: `place.${place}`, source: `assets-src/${prefix}/${slug}`, author: KIT, views, build: () => staticModel(name, build()) };
 }
 
 /** A building a staged place needed, as kit data in its spec.json (R-ASSET-014). */
@@ -235,7 +234,7 @@ function gridEntry(piece: GridPiece, level: MeshLevel): CatalogEntry {
   };
 }
 
-const PLACES_M6 = "The makers, written as code from the kit for the world-first places";
+const ROOM_MAKERS = "The makers, written as code from the kit for the rooms";
 /** The street's things of decision 0012. */
 const STREET = "The makers, written as code from the kit";
 
@@ -288,7 +287,7 @@ function roomEntry(room: RoomName): CatalogEntry {
     file: `places/${ROOM_FOLDERS[room]}/${spec.name}.glb`,
     place: ROOM_PLACES[room],
     source: `assets-src/bld/room/${room}`,
-    author: PLACES_M6,
+    author: ROOM_MAKERS,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () => staticModel(spec.name, buildRoom(spec)),
   };
@@ -297,8 +296,8 @@ function roomEntry(room: RoomName): CatalogEntry {
 /** A piece of furniture: shared when more than one room uses it, else in its room's folder. */
 /** The room's basics (world.md R-WORLD-029), written as code from the kit beside the rooms they furnish. */
 function basicsPiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
-  // Each piece its own folder under the basics' builder, so each has renders of its own.
-  return { ...furniturePiece(name, folder, place, build), source: `assets-src/places/room-basics/${name.slice("prop_".length)}`, author: "The makers, written as code from the kit" };
+  // Each piece its own folder under places/room-basics, so each has renders of its own.
+  return { ...furniturePiece(name, folder, place, build), source: `assets-src/places/room-basics/${name.slice("prop_".length)}`, author: KIT };
 }
 
 function furniturePiece(name: string, folder: string, place: string, build: () => Group): CatalogEntry {
@@ -308,7 +307,7 @@ function furniturePiece(name: string, folder: string, place: string, build: () =
     file: shared ? `shared/prop/${name}.glb` : `places/${folder}/${name}.glb`,
     place: shared ? "shared" : place,
     source: `assets-src/prop/${name.slice("prop_".length)}`,
-    author: PLACES_M6,
+    author: ROOM_MAKERS,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () => staticModel(name, build()),
   };
@@ -331,7 +330,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "places/ojuelegba/shop_provisions.glb",
     place: "place.ojuelegba",
     source: "assets-src/shop/provisions",
-    author: LEAD,
+    author: EXAMPLE_MAKERS,
     example: true,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () =>
@@ -346,7 +345,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "places/ojuelegba/shop_container-phones.glb",
     place: "place.ojuelegba",
     source: "assets-src/shop/container-phones",
-    author: LEAD,
+    author: EXAMPLE_MAKERS,
     example: true,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () =>
@@ -361,7 +360,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "places/national-stadium/lm_national-stadium.glb",
     place: "place.national-stadium",
     source: "assets-src/lm/national-stadium",
-    author: LEAD,
+    author: EXAMPLE_MAKERS,
     example: true,
     views: [...ELEVATIONS, "plan", "phone", "phoneFar"],
     build: () => {
@@ -377,7 +376,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "places/third-mainland-bridge/lm_third-mainland-span.glb",
     place: "place.third-mainland-bridge",
     source: "assets-src/lm/third-mainland-span",
-    author: LEAD,
+    author: EXAMPLE_MAKERS,
     example: true,
     views: [...ELEVATIONS, "plan", "phone", "phoneFar"],
     // The lagoon, until the palette names a water colour; seen from a canoe, as the photographs are, so the arches show.
@@ -434,7 +433,7 @@ const ENTRIES: CatalogEntry[] = [
     file: `shared/prop/${name}.glb`,
     place: "shared",
     source: `assets-src/prop/street/${name.slice("prop_".length)}`,
-    author: STREET_AGENT,
+    author: STREET_DRESSING,
     views: [...ELEVATIONS, "phone"],
     build: () => staticModel(name, build()),
   })),
@@ -443,24 +442,24 @@ const ENTRIES: CatalogEntry[] = [
     file: "shared/prop/prop_stall.glb",
     place: "shared",
     source: "assets-src/prop/stall",
-    author: LAB,
+    author: LAB_MAKERS,
     views: [...ELEVATIONS, "phone"],
     build: () => staticModel("prop_stall", buildStall()),
   },
-  buildingEntry("bode-thomas-betting", "bode-thomas", PLACES_A),
-  { name: "shop_lotto-kiosk", file: "places/bode-thomas/shop_lotto-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/lotto-kiosk", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_lotto-kiosk", buildLottoKiosk({ board: "place.bode-thomas.sign.1", games: "place.bode-thomas.sign.5" }, { board: { board: "danfoYellow", ink: "green", painted: true }, games: { board: "black", ink: "white", painted: true } }), true) },
-  { name: "bld_family-house", file: "places/family-house/bld_family-house.glb", place: "place.family-house", source: "assets-src/bld/family-house", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("bld_family-house", buildFamilyHouse("place.family-house.sign.2", { board: "white", ink: "red", painted: true }, HUB_DISH_YAW)) },
-  { name: "prop_party-set", file: "places/family-house/prop_party-set.glb", place: "place.family-house", source: "assets-src/prop/party-set", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_party-set", buildPartySet("place.family-house.sign.1", { board: "cream", ink: "wine" })) },
-  { name: "prop_parlour-set", file: "places/family-house/prop_parlour-set.glb", place: "place.family-house", source: "assets-src/prop/parlour-set", author: PLACES_A, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_parlour-set", buildParlourSet()) },
-  { name: "prop_cooking-fire", file: "places/family-house/prop_cooking-fire.glb", place: "place.family-house", source: "assets-src/prop/cooking-fire", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_cooking-fire", buildCookingFire()) },
-  { name: "prop_plastic-chair", file: "shared/prop/prop_plastic-chair.glb", place: "shared", source: "assets-src/prop/plastic-chair", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_plastic-chair", buildPlasticChair()) },
+  buildingEntry("bode-thomas-betting", "bode-thomas", KIT),
+  { name: "shop_lotto-kiosk", file: "places/bode-thomas/shop_lotto-kiosk.glb", place: "place.bode-thomas", source: "assets-src/shop/lotto-kiosk", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("shop_lotto-kiosk", buildLottoKiosk({ board: "place.bode-thomas.sign.1", games: "place.bode-thomas.sign.5" }, { board: { board: "danfoYellow", ink: "green", painted: true }, games: { board: "black", ink: "white", painted: true } }), true) },
+  { name: "bld_family-house", file: "places/family-house/bld_family-house.glb", place: "place.family-house", source: "assets-src/bld/family-house", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("bld_family-house", buildFamilyHouse("place.family-house.sign.2", { board: "white", ink: "red", painted: true }, HUB_DISH_YAW)) },
+  { name: "prop_party-set", file: "places/family-house/prop_party-set.glb", place: "place.family-house", source: "assets-src/prop/party-set", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_party-set", buildPartySet("place.family-house.sign.1", { board: "cream", ink: "wine" })) },
+  { name: "prop_parlour-set", file: "places/family-house/prop_parlour-set.glb", place: "place.family-house", source: "assets-src/prop/parlour-set", author: KIT, views: [...ELEVATIONS, "plan", "phone"], build: () => staticModel("prop_parlour-set", buildParlourSet()) },
+  { name: "prop_cooking-fire", file: "places/family-house/prop_cooking-fire.glb", place: "place.family-house", source: "assets-src/prop/cooking-fire", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_cooking-fire", buildCookingFire()) },
+  { name: "prop_plastic-chair", file: "shared/prop/prop_plastic-chair.glb", place: "shared", source: "assets-src/prop/plastic-chair", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_plastic-chair", buildPlasticChair()) },
   ...(["a", "b"] as const).map(
     (variant): CatalogEntry => ({
       name: `bld_rye-lane-terrace_${variant}`,
       file: `places/peckham/bld_rye-lane-terrace_${variant}.glb`,
       place: "place.peckham",
       source: `assets-src/bld/rye-lane-terrace/${variant}`,
-      author: PLACES_A,
+      author: KIT,
       views: [...ELEVATIONS, "plan", "phone"],
       build: () => {
         const spec = readJson<TerraceSpec>(join(SOURCE, "bld", "rye-lane-terrace", variant, "spec.json"));
@@ -473,7 +472,7 @@ const ENTRIES: CatalogEntry[] = [
     file: "places/peckham/bld_railway-bridge.glb",
     place: "place.peckham",
     source: "assets-src/bld/railway-bridge",
-    author: PLACES_A,
+    author: KIT,
     views: [...ELEVATIONS, "plan", "phone"],
     build: () =>
       staticModel(
@@ -490,7 +489,7 @@ const ENTRIES: CatalogEntry[] = [
       file: `places/deira/bld_deira-arcade_${variant}.glb`,
       place: "place.deira",
       source: `assets-src/bld/deira-arcade/${variant}`,
-      author: PLACES_A,
+      author: KIT,
       views: [...ELEVATIONS, "plan", "phone"],
       build: () => {
         const spec = readJson<ArcadeSpec>(join(SOURCE, "bld", "deira-arcade", variant, "spec.json"));
@@ -498,13 +497,13 @@ const ENTRIES: CatalogEntry[] = [
       },
     }),
   ),
-  { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: PLACES_A, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
-  { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
+  { name: "veh_abra", file: "places/deira/veh_abra.glb", place: "place.deira", source: "assets-src/veh/abra", author: KIT, views: [...ELEVATIONS, "phone"], ground: "lagoon", build: () => staticModel("veh_abra", buildAbra()) },
+  { name: "veh_labour-bus", file: "places/deira/veh_labour-bus.glb", place: "place.deira", source: "assets-src/veh/labour-bus", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_labour-bus", buildLabourBus()) },
   // The pieces the three places rebuilt as frontages need (docs/rules/world.md R-WORLD-011).
-  { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi/dubai", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
+  { name: "veh_taxi-dubai", file: "places/deira/veh_taxi-dubai.glb", place: "place.deira", source: "assets-src/veh/taxi/dubai", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("veh_taxi-dubai", buildTaxi(DUBAI_TAXI)) },
   placePiece("prop_street-bench", "peckham", buildStreetBench),
-  { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
-  { name: "prop_bus-shelter", file: "shared/prop/prop_bus-shelter.glb", place: "shared", source: "assets-src/prop/bus-shelter", author: PLACES_A, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_bus-shelter", buildBusShelter()) },
+  { name: "prop_flag-mast", file: "shared/prop/prop_flag-mast.glb", place: "shared", source: "assets-src/prop/flag-mast", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_flag-mast", buildFlagMast()) },
+  { name: "prop_bus-shelter", file: "shared/prop/prop_bus-shelter.glb", place: "shared", source: "assets-src/prop/bus-shelter", author: KIT, views: [...ELEVATIONS, "phone"], build: () => staticModel("prop_bus-shelter", buildBusShelter()) },
   ...([
     ["veh_danfo", buildDanfo],
     ["veh_keke", buildKeke],
@@ -515,7 +514,7 @@ const ENTRIES: CatalogEntry[] = [
       file: `shared/veh/${name}.glb`,
       place: "shared",
       source: `assets-src/veh/${name.slice(4)}`,
-      author: LAB,
+      author: LAB_MAKERS,
       views: [...ELEVATIONS, "phone"],
       build: () => staticModel(name, build()),
     }),
@@ -526,10 +525,10 @@ const ENTRIES: CatalogEntry[] = [
       file: `shared/chr/${spec.name}.glb`,
       place: "shared",
       source: `assets-src/people/${spec.name.slice(4)}`,
-      author: LAB,
+      author: LAB_MAKERS,
       views: isPortrayed(spec.name) ? [...ELEVATIONS, "phone", ...PORTRAITS] : [...ELEVATIONS, "phone"],
       pose: spec.carry === undefined ? "stand" : "tray",
-      // JAPACITY_FACE names a face style for an exploration's export; unset, the shipped style.
+      // JAPACITY_FACE names a face style to export for comparison; unset, the shipped style.
       build: () => personModel(buildPerson(spec, faceStyleFrom(process.env.JAPACITY_FACE))),
     }),
   ),
@@ -569,7 +568,7 @@ const ENTRIES: CatalogEntry[] = [
 ];
 
 /** The homes as one wide floor each, the car, and the small things the kit lacked. */
-const HOME_AGENT = "The makers, written as code from the kit (an exploration)";
+const HOME_MAKERS = "The makers, written as code from the kit for the homes";
 function homePiece(name: string, folder: string, build: () => Group): CatalogEntry {
   const [prefix = "", slug = ""] = name.split("_");
   const shared = folder === "shared";
@@ -578,7 +577,7 @@ function homePiece(name: string, folder: string, build: () => Group): CatalogEnt
     file: shared ? `shared/${prefix}/${name}.glb` : `places/${folder}/${name}.glb`,
     place: shared ? "shared" : `place.${folder}`,
     source: prefix === "prop" ? `assets-src/prop/home/${slug}` : `assets-src/${prefix}/${slug}`,
-    author: HOME_AGENT,
+    author: HOME_MAKERS,
     // A building's plan as every building's (R-ASSET-020).
     views: prefix === "bld" ? [...ELEVATIONS, "plan", "phone"] : [...ELEVATIONS, "phone"],
     build: () => staticModel(name, build()),
@@ -674,7 +673,7 @@ const ITALY = "The makers, written as code from the kit";
 /** Every dish at the roundabout and on the Domitiana faces one way (R-ASSET-019); their blocks all stand square to the road. */
 const CASTEL_DISH_YAW = 2.1;
 
-/** A piece of one of Castel Volturno's places, its renders beside its builder under the place's folder. */
+/** A piece of one of Castel Volturno's places, its renders beside its build code under the place's folder. */
 function italyPiece(name: string, folder: string, source: string, build: () => Group, views: ViewName[] = [...ELEVATIONS, "phone"]): CatalogEntry {
   return { name, file: `places/${folder}/${name}.glb`, place: `place.${folder}`, source: `assets-src/places/${folder}/${source}`, author: ITALY, views, build: () => staticModel(name, build()) };
 }

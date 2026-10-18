@@ -44,7 +44,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
       const on = await store.set("boards.joined-week", true, "account.owner", "trying it", 1_000);
       expect(on).toEqual({ ...DEFAULT_SWITCH_ROW, switches: { ...DEFAULT_SWITCH_ROW.switches, "boards.joined-week": true } });
       expect(await store.read()).toEqual(on);
-      await store.set("boards.joined-week", false, "account.owner", "after launch", 2_000);
+      await store.set("boards.joined-week", false, "account.owner", "quiet week", 2_000);
       expect(await store.read()).toEqual(DEFAULT_SWITCH_ROW);
       expect((await store.log()).map((row) => row.change)).toEqual([
         { switch: "boards.joined-week", on: true },
@@ -54,9 +54,9 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
 
     test("[R-SERVER-030] given each dial set, when the row is read, then it holds them; when one is unset, then it is absent again and the others stay", async () => {
       const store = await make();
-      await store.setDial({ dial: "placeTarget", place: "place.ojuelegba", value: 40 }, "account.owner", "launch", 1);
-      await store.setDial({ dial: "placeTarget", place: "place.yaba", value: 0 }, "account.owner", "launch", 2);
-      const set = await store.setDial({ dial: "computerAfterMonths", value: 3 }, "account.owner", "launch", 3);
+      await store.setDial({ dial: "placeTarget", place: "place.ojuelegba", value: 40 }, "account.owner", "crowd tuning", 1);
+      await store.setDial({ dial: "placeTarget", place: "place.yaba", value: 0 }, "account.owner", "crowd tuning", 2);
+      const set = await store.setDial({ dial: "computerAfterMonths", value: 3 }, "account.owner", "crowd tuning", 3);
 
       const dials = { placeTargets: { "place.ojuelegba": 40, "place.yaba": 0 }, computerAfterMonths: 3 };
       expect(set).toEqual({ ok: true, value: { switches: DEFAULT_SWITCH_ROW.switches, dials } });
@@ -70,7 +70,7 @@ export function suiteForSwitchStore(make: () => Promise<SwitchStore>): void {
 
     test("[R-SERVER-030] given a dial value below 0, above the largest or not whole, when it is set, then it is refused with bad-write, the row keeps its value and nothing is logged", async () => {
       const store = await make();
-      await store.setDial({ dial: "computerAfterMonths", value: 2 }, "account.owner", "launch", 1);
+      await store.setDial({ dial: "computerAfterMonths", value: 2 }, "account.owner", "crowd tuning", 1);
       const before = await store.read();
 
       for (const value of [-1, 0.5, MAX_DIAL + 1, Number.NaN, Number.POSITIVE_INFINITY]) {

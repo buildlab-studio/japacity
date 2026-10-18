@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { content, text } from "../index";
+import { realNames } from "./place.real";
 
 declare global {
   interface ImportMeta {
@@ -88,5 +89,16 @@ describe("the words on signs and in the street", () => {
     expect(realName.test("SWIFTLINK PHONES")).toBe(true);
     expect(realName.test("FIRST CHOICE\nPHARMACY")).toBe(true);
     expect(realName.test("Milord")).toBe(false);
+  });
+
+  test("[R-ASSET-010] given every sign a shipped model carries, when its words are read, then none names a real business, a real name on one is only a public place's or a market's from the register, and no place carries a sponsor's", () => {
+    const onModels = [...carried].map((key) => ({ key, words: text[key] ?? "" }));
+    expect(onModels.filter(({ words }) => realName.test(words)).map(({ key, words }) => `${key}: ${words}`)).toEqual([]);
+    const realOnModels = onModels.flatMap(({ key }) => {
+      const entry = realNames[key];
+      return entry === undefined || entry.realName === null ? [] : [{ key, trade: entry.trade }];
+    });
+    expect(realOnModels.filter(({ trade }) => trade !== "public" && trade !== "market").map(({ key, trade }) => `${key}: ${trade}`)).toEqual([]);
+    expect(Object.values(content.place).filter((place) => place.sponsor !== null).map((place) => place.id)).toEqual([]);
   });
 });

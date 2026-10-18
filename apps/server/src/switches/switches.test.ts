@@ -90,7 +90,7 @@ describe("the switch row's cache", () => {
   test("[R-SERVER-031] given a switch turned off through the admin route, when the same isolate reads it at once, then it is off without waiting for the cache", async () => {
     const target = server();
     await readSwitches(target.deps);
-    const sent = await call(target, "POST", "/api/admin/switches", ADMIN, { name: "signups", on: false, reason: "launch rush" });
+    const sent = await call(target, "POST", "/api/admin/switches", ADMIN, { name: "signups", on: false, reason: "sign-up rush" });
     expect(sent.status).toBe(200);
     expect((await readSwitches(target.deps)).switches.signups).toBe(false);
     expectSwitchedOff(await call(target, "POST", "/api/age", null, { dateOfBirth: "1990-05-17" }));
@@ -354,7 +354,7 @@ describe("the dials' callers", () => {
     accepted((await send(target, "acc-1", restMonth({ v: 0 }))).body);
     expect((await held(target, character)).segments).toHaveLength(1);
 
-    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: 3, reason: "launch" });
+    await call(target, "POST", "/api/admin/dials", ADMIN, { dial: "computerAfterMonths", value: 3, reason: "crowd tuning" });
     accepted((await send(target, "acc-1", restMonth({ v: 1 }))).body);
     const dialed = await held(target, character);
     expect(dialed.segments.map((segment) => segment.overlay)).toEqual([undefined, `${COMPUTER_DIAL}3`]);

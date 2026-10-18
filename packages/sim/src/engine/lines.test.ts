@@ -87,14 +87,16 @@ function bareMoney(line: ReportLine): string[] {
 
 describe("report lines on the real lives", () => {
   for (const life of LIVES) {
-    test.prop([fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: 50, maxLength: 50 })], { numRuns: 3 })(
-      `[R-ENGINE-018] given ${life}, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from`,
-      (seed, picks) => {
-        const lines = playForty(life, seed, picks);
-        expect(lines.length).toBeGreaterThan(0);
-        expect(lines.flatMap(bareMoney)).toEqual([]);
-      },
-    );
+    describe(`the life ${life}`, () => {
+      test.prop([fc.string({ minLength: 1, maxLength: 8 }), fc.array(fc.nat(), { minLength: 50, maxLength: 50 })], { numRuns: 3 })(
+        "[R-ENGINE-018] given this life, when 40 months of random legal commands are played, then no line carries money as a bare number under a name the client once guessed from",
+        (seed, picks) => {
+          const lines = playForty(life, seed, picks);
+          expect(lines.length).toBeGreaterThan(0);
+          expect(lines.flatMap(bareMoney)).toEqual([]);
+        },
+      );
+    });
   }
 
   test.each(LIVES)("[R-ENGINE-014] given %s, when 40 months of random legal commands are played, then every line key emitted has words in content", (life) => {

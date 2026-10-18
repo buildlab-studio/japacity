@@ -1,4 +1,4 @@
-// Direction D, the presentation grammar: a deck of the life's cards on the left of the pale sky and one caption on the right
+// The deck cut: a deck of the life's cards on the left of the pale sky and one caption on the right
 // that changes with it; then the front card's picture grows on a firm spring until it fills the frame and is the game's own
 // world (the family house turning), and the world shrinks back into the next card (the Bank counting) with a sticker chip
 // riding along. The night house grows out of the deck the same way, and the night shrinks into the seal for the name.
@@ -13,10 +13,10 @@ import { loadRubik } from "../parts/fonts";
 import { land, pop, ramp } from "../parts/motion";
 import { CREAM, DAY, FONT, GREEN, NAVY, NIGHT, TINT } from "../parts/tokens";
 
-export const ROUND_D_FRAMES = 300;
+export const DECK_FRAMES = 300;
 
-/** The recorded clips the round shows, and the frame span each is on screen, so a test can mount it there. */
-export const ROUND_D_CLIPS: readonly { readonly name: ClipName; readonly from: number; readonly to: number }[] = [
+/** The recorded clips the cut shows, and the frame span each is on screen, so a test can mount it there. */
+export const DECK_CLIPS: readonly { readonly name: ClipName; readonly from: number; readonly to: number }[] = [
   { name: "wide-day", from: 50, to: 160 },
   { name: "wide-night", from: 208, to: 274 },
 ];
@@ -152,7 +152,7 @@ function Window({ box, children, ground = NAVY }: { box: Box; children: ReactNod
   return <div style={{ ...boxStyle(box), background: ground }}>{children}</div>;
 }
 
-/** A recorded wide shot inside a window, playing from `from` (a frame of the round) and eased closer while it fills the frame. */
+/** A recorded wide shot inside a window, playing from `from` (a frame of the cut) and eased closer while it fills the frame. */
 function WindowClip({ clip, from, trim, push }: { clip: ClipName; from: number; trim: number; push: number }) {
   return (
     <AbsoluteFill style={{ transform: `scale(${String(1 + push)})` }}>
@@ -244,7 +244,7 @@ function EndRow() {
   return (
     <>
       <div style={{ position: "absolute", left: SEAL_BOX.x - SEAL_SIZE / 2, top: SEAL_BOX.y - SEAL_SIZE / 2, opacity: sealIn }}>
-        <Seal size={SEAL_SIZE} glow={glow} id="round-d" />
+        <Seal size={SEAL_SIZE} glow={glow} id="deck" />
       </div>
       <div style={{ position: "absolute", left: ROW_LEFT + SEAL_SIZE + 56, top: ROW_Y - MARK_HEIGHT / 2, opacity: name, transform: `translateX(${String((1 - name) * -70)}px)` }}>
         <Wordmark height={MARK_HEIGHT} color={CREAM} />
@@ -259,7 +259,7 @@ function EndRow() {
   );
 }
 
-export function RoundD() {
+export function Deck() {
   loadRubik();
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();

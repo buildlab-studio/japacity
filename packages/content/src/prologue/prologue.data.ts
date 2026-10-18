@@ -390,8 +390,7 @@ const steps: Record<string, PrologueStep> = {
     ],
   },
 
-  // The page sends the shop job straight to step 10, which would end the prologue at 17 or 18. Four years
-  // behind the counter bring it to about 22, as the other paths do.
+  // Four years behind the counter (step 2b) bring the shop job to about 22, as the other paths do.
   shop: {
     id: "shop",
     months: 48,

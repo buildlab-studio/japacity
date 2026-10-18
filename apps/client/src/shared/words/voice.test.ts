@@ -23,6 +23,8 @@ import { turnText } from "../../features/turn/turn.words";
 import { soundText } from "../sound/sound.words";
 import { jobsUiText } from "./jobs";
 import { uiText } from "./ui";
+// The content check on institutions beside wrongdoing (people.md R-PEOPLE-063), run here over the client's tables too.
+import { institutionProblems } from "../../../../../packages/content/src/person/person.names.check";
 
 const clientTables: Record<string, Record<string, string>> = {
   ui: uiText,
@@ -111,5 +113,13 @@ describe("the voice: who speaks on each surface", () => {
     const nudges = every.filter(({ key }) => isNudge(key));
     expect(nudges.length).toBeGreaterThan(100);
     expect(nudges.filter(({ line }) => words(line) >= 8).map(({ key, line }) => `${key}: ${line}`)).toEqual([]);
+  });
+});
+
+describe("cultural institutions in every table", () => {
+  test("[R-PEOPLE-063] given every line of content and every table of the client, when an institution is named, then no crime or fraud word stands beside it", () => {
+    const lines = Object.fromEntries(every.map(({ table, key, line }) => [`${table} ${key}`, line]));
+    expect(Object.keys(lines).length).toBe(every.length);
+    expect(institutionProblems(lines)).toEqual([]);
   });
 });
