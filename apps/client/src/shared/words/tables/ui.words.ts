@@ -4,7 +4,7 @@
 // move into content, where it can be rewritten. Numbers go in braces.
 import { boardsWords } from "./boards.words";
 import { coloursText } from "./colours.words";
-import { daysText } from "../days";
+import { daysText } from "../../days/days.words";
 import { livelyText } from "./lively.words";
 import { lotteryWords } from "./lottery.words";
 import { onlineText } from "./online.words";
