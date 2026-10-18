@@ -105,7 +105,7 @@ export const newsText: Record<string, string> = {
   "news.uk-care-dependants.rumour.head": "Care workers may lose their families' visas",
   "news.uk-care-dependants.rumour.body": "A union leader says the government wants to stop carers bringing dependants.",
   "news.uk-care-dependants.announced.head": "UK to stop care workers bringing dependants",
-  "news.uk-care-dependants.announced.body": "New care visas will be for the worker alone. Officers will check sponsors more closely.",
+  "news.uk-care-dependants.announced.body": "New health care visas will be for the worker alone. Officers will check sponsors more closely.",
   "news.uk-care-dependants.in-force.head": "The care family rule now applies",
   "news.uk-care-dependants.in-force.body": "Carers come alone, and decisions are stricter.",
 

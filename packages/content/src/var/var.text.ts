@@ -43,7 +43,7 @@ export const varText: Record<string, string> = {
   "var.uk-talent-visa-fee.name": "Talent visa fee",
 
   "var.uk-study-surge.name": "Rush to UK study",
-  "var.uk-care-surge.name": "Rush to UK health care visas visas",
+  "var.uk-care-surge.name": "Rush to UK health care visas",
   "var.uk-skilled-surge.name": "Rush to UK skilled work",
   "var.uk-talent-surge.name": "Rush to the UK talent visa",
   "var.ca-surge.name": "Rush to Canada",

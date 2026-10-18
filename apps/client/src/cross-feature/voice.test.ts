@@ -39,6 +39,9 @@ const found = (pattern: RegExp, keep: (key: string) => boolean = () => true) =>
 /** The scam's prize text shouts, and its shout is one of the tells the player learns to read (advice:bad-news-told-straight). */
 const SHOUTS = new Set(["offer.telco-promo.body"]);
 
+/** Words said twice on purpose, as people say them: the snack, "now now", "hot hot", "sharp sharp", "inside inside", "quick quick". A comma between ("Enter, enter") is speech too and never matched. */
+const SPOKEN_DOUBLES = new Set(["chin", "now", "hot", "sharp", "inside", "quick"]);
+
 /** The report lines: what the results, News's month and the Bank's Lately tell of the month gone. */
 const isResult = (key: string) => key.startsWith("line.") || key.startsWith("ui.line.") || key.startsWith("ui.results.");
 /** A story's words on News. */
@@ -60,6 +63,14 @@ describe("the voice: no machine tells anywhere", () => {
 
   test("[text:voice-by-surface] [text:bands-not-figures] given every line, then no stock app copy or machine word is in it", () => {
     expect(found(/\b(?:delve|delving|tapestry|testament|vibrant|bustling|realm|embark|elevate|seamless(?:ly)?|unlock|oops|get started|game-changer|navigate the)\b/i)).toEqual([]);
+  });
+
+  test("[text:voice-by-surface] given every line, then no word stands twice in a row but the doubles people say: chin chin, now now, sharp sharp", () => {
+    const doubled = /\b([A-Za-z']+)\s+\1\b/gi;
+    const lines = every
+      .filter(({ line }) => [...line.matchAll(doubled)].some((match) => !SPOKEN_DOUBLES.has((match[1] ?? "").toLowerCase())))
+      .map(({ table, key, line }) => `${table} ${key}: ${line}`);
+    expect(lines).toEqual([]);
   });
 
   test("[text:voice-by-surface] [text:bands-not-figures] given every line, then no sentence mirrors another: not just this but that, it is not this, it is that", () => {
