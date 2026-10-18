@@ -7,22 +7,22 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
-import { createGameStore } from "./authority/store";
-import { ShareButton } from "./features/card/ShareCard";
-import { countAsk } from "./features/notify/ask";
-import { UsageCounts } from "./features/account/Settings";
-import { countInto, countSound } from "./shared/analytics/start";
-import { makeCounters, type CounterRow } from "./shared/analytics/counters";
-import { City } from "./features/city/City";
-import { cityWords } from "./features/city/city.words";
-import { phoneWords } from "./features/phone/phone.words";
-import { chooseGraphics, graphicsMode, setGraphicsMode } from "./shared/graphics/mode";
-import type { AccountApi } from "./shared/net/auth";
-import { abroadView, engineView, fakeAuthority } from "./shared/testing/fixtures";
-import { found, renderWithView } from "./shared/testing/render";
-import { say } from "./shared/words/text";
+import { createGameStore } from "../authority/store";
+import { ShareButton } from "../features/card/ShareCard";
+import { countAsk } from "../features/notify/ask";
+import { UsageCounts } from "../features/account/Settings";
+import { countInto, countSound } from "../shared/analytics/start";
+import { makeCounters, type CounterRow } from "../shared/analytics/counters";
+import { City } from "../features/city/City";
+import { cityWords } from "../features/city/city.words";
+import { phoneWords } from "../features/phone/phone.words";
+import { chooseGraphics, graphicsMode, setGraphicsMode } from "../shared/graphics/mode";
+import type { AccountApi } from "../shared/net/auth";
+import { abroadView, engineView, fakeAuthority } from "../shared/testing/fixtures";
+import { found, renderWithView } from "../shared/testing/render";
+import { say } from "../shared/words/text";
 
-vi.mock("./shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
+vi.mock("../shared/card/render", () => ({ renderCard: () => Promise.resolve({ ok: true, blob: new Blob(["card"], { type: "image/png" }), bytes: 4 }) }));
 
 let bodies: string[] = [];
 let counters = makeCounters({ send: (body) => bodies.push(body) });

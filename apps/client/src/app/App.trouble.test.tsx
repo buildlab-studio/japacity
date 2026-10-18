@@ -5,20 +5,20 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App, SLOW_MS } from "./App";
-import { localAuthority } from "./authority/local";
-import { remoteAuthority } from "./authority/remote";
-import { keepPerson } from "./authority/person";
-import { createGameStore } from "./authority/store";
-import { readDoor } from "./shared/datapage/door";
-import type { AccountApi } from "./shared/net/auth";
-import type { ServerRejection } from "./shared/net/contract";
-import { requestFailure } from "./shared/net/http";
-import { BASE, fakeServer } from "./shared/testing/server";
-import { passThePage, startArchetype, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
-import { engineView } from "./shared/testing/fixtures";
-import { say } from "./shared/words/text";
+import { localAuthority } from "../authority/local";
+import { remoteAuthority } from "../authority/remote";
+import { keepPerson } from "../authority/person";
+import { createGameStore } from "../authority/store";
+import { readDoor } from "../shared/datapage/door";
+import type { AccountApi } from "../shared/net/auth";
+import type { ServerRejection } from "../shared/net/contract";
+import { requestFailure } from "../shared/net/http";
+import { BASE, fakeServer } from "../shared/testing/server";
+import { passThePage, startArchetype, toTheArchetypes } from "../shared/frontdoor/frontDoor.testing";
+import { engineView } from "../shared/testing/fixtures";
+import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 afterEach(() => {
   vi.useRealTimers();

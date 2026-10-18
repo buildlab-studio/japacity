@@ -4,67 +4,67 @@
 // keep their own screens. The admin page is its own chunk, fetched only at /admin (R-MODERATION-012).
 import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 
-import { bootGame } from "./authority/boot";
-import { CountedBoundary } from "./shared/analytics/CountedBoundary";
-import { SoundNotice } from "./shared/sound/SoundNotice";
-import { Rejection } from "./shared/ui/Rejection";
-import { FaultCard, reloadPage, TroubleCard, TroubleFace } from "./shared/ui/Trouble";
-import { Splash } from "./shared/ui/Splash";
-import { Waiting } from "./shared/ui/Loader";
-import { GameProvider, useGame, useView } from "./authority/GameProvider";
-import type { GameStore } from "./authority/store";
-import { readPerson } from "./authority/person";
-import { AccountGate } from "./features/account/AccountGate";
-import { DedicationLater } from "./features/account/DedicationLater";
-import { glowFill } from "./features/account/TwoLights";
-import { StartTrouble } from "./features/account/StartTrouble";
-import { canDraw } from "./shared/frontdoor/Gate";
-import { AgentSheets } from "./features/advice/AgentSheet";
-import { inviteCodeOf, InvitePage } from "./features/account/InvitePage";
-import { GuestReminder, SecureAsk } from "./features/account/Secure";
-import { adminAsked } from "./features/admin/adminPath";
-import { OFFER_PLACES } from "./features/city/nudge";
-import { PARCEL } from "./shared/world/parcel.ask";
-import { ParcelWaybill } from "./shared/world/Waybill";
-import { AccountButton } from "./features/account/Settings";
-import { ActivityPicker } from "./features/activity/ActivityView";
-import { PhoneTile, PlaceAdverts } from "./features/adverts/placed";
-import { BoardsView } from "./features/boards/BoardsView";
-import { EndingView } from "./features/card/EndingView";
-import { CardView, Keepsake } from "./features/card/ShareCard";
-import { ChapterView } from "./features/chapter/ChapterView";
-import { City } from "./features/city/City";
-import { CreditsRow } from "./features/city/Credits";
-import { GuidesMenu } from "./features/guides/GuidesMenu";
-import { Map, type MapDedication } from "./features/map/Map";
-import { MomentCard } from "./features/moment/MomentCard";
-import { HeldShareCard } from "./features/notify/held";
-import { NotifyAsk } from "./features/notify/NotifyAsk";
-import { NotifySetting } from "./features/notify/NotifySetting";
-import { OfferView } from "./features/offer/OfferView";
-import { usePairApi } from "./features/people/pairApi";
-import { BondHead, PeopleSlots } from "./features/people/PeopleOnPhone";
-import { iconFor } from "./features/phone/icons";
-import { PhoneApps, usePhoneWaiting } from "./features/phone/PhoneApps";
-import { InterviewView } from "./features/interview/InterviewView";
-import { KioskSheet } from "./features/lottery/KioskSheet";
-import { RunDownBanner } from "./features/health/RunDownBanner";
-import { ClockBanner } from "./features/status/ClockBanner";
-import { PageHandover, prologueJustClosed, PrologueView } from "./features/prologue/PrologueView";
-import { RoadView } from "./features/road/RoadView";
-import { ScenarioView } from "./features/scenario/ScenarioView";
-import { ReadyEntry } from "./shared/frontdoor/ReadyEntry";
-import { SetpieceView, useClosingOpen } from "./features/setpiece/SetpieceView";
-import { Calendar, calendarOpening } from "./features/turn/Calendar";
-import { BriefLog } from "./features/city/brief/BriefLog";
-import { Results } from "./features/turn/Results";
-import { say } from "./shared/words/text";
-import { usePaint } from "./shared/world/paint";
-import { useScreenCount } from "./useScreenCount";
+import { bootGame } from "../authority/boot";
+import { CountedBoundary } from "../shared/analytics/CountedBoundary";
+import { SoundNotice } from "../shared/sound/SoundNotice";
+import { Rejection } from "../shared/ui/Rejection";
+import { FaultCard, reloadPage, TroubleCard, TroubleFace } from "../shared/ui/Trouble";
+import { Splash } from "../shared/ui/Splash";
+import { Waiting } from "../shared/ui/Loader";
+import { GameProvider, useGame, useView } from "../authority/GameProvider";
+import type { GameStore } from "../authority/store";
+import { readPerson } from "../authority/person";
+import { AccountGate } from "../features/account/AccountGate";
+import { DedicationLater } from "../features/account/DedicationLater";
+import { glowFill } from "../features/account/TwoLights";
+import { StartTrouble } from "../features/account/StartTrouble";
+import { canDraw } from "../shared/frontdoor/Gate";
+import { AgentSheets } from "../features/advice/AgentSheet";
+import { inviteCodeOf, InvitePage } from "../features/account/InvitePage";
+import { GuestReminder, SecureAsk } from "../features/account/Secure";
+import { adminAsked } from "../features/admin/adminPath";
+import { OFFER_PLACES } from "../features/city/nudge";
+import { PARCEL } from "../shared/world/parcel.ask";
+import { ParcelWaybill } from "../shared/world/Waybill";
+import { AccountButton } from "../features/account/Settings";
+import { ActivityPicker } from "../features/activity/ActivityView";
+import { PhoneTile, PlaceAdverts } from "../features/adverts/placed";
+import { BoardsView } from "../features/boards/BoardsView";
+import { EndingView } from "../features/card/EndingView";
+import { CardView, Keepsake } from "../features/card/ShareCard";
+import { ChapterView } from "../features/chapter/ChapterView";
+import { City } from "../features/city/City";
+import { CreditsRow } from "../features/city/Credits";
+import { GuidesMenu } from "../features/guides/GuidesMenu";
+import { Map, type MapDedication } from "../features/map/Map";
+import { MomentCard } from "../features/moment/MomentCard";
+import { HeldShareCard } from "../features/notify/held";
+import { NotifyAsk } from "../features/notify/NotifyAsk";
+import { NotifySetting } from "../features/notify/NotifySetting";
+import { OfferView } from "../features/offer/OfferView";
+import { usePairApi } from "../features/people/pairApi";
+import { BondHead, PeopleSlots } from "../features/people/PeopleOnPhone";
+import { iconFor } from "../features/phone/icons";
+import { PhoneApps, usePhoneWaiting } from "../features/phone/PhoneApps";
+import { InterviewView } from "../features/interview/InterviewView";
+import { KioskSheet } from "../features/lottery/KioskSheet";
+import { RunDownBanner } from "../features/health/RunDownBanner";
+import { ClockBanner } from "../features/status/ClockBanner";
+import { PageHandover, prologueJustClosed, PrologueView } from "../features/prologue/PrologueView";
+import { RoadView } from "../features/road/RoadView";
+import { ScenarioView } from "../features/scenario/ScenarioView";
+import { ReadyEntry } from "../shared/frontdoor/ReadyEntry";
+import { SetpieceView, useClosingOpen } from "../features/setpiece/SetpieceView";
+import { Calendar, calendarOpening } from "../features/turn/Calendar";
+import { BriefLog } from "../features/city/brief/BriefLog";
+import { Results } from "../features/turn/Results";
+import { say } from "../shared/words/text";
+import { usePaint } from "../shared/world/paint";
+import { useScreenCount } from "../useScreenCount";
 
-const StartCity = lazy(() => import("./features/map/StartCity"));
+const StartCity = lazy(() => import("../features/map/StartCity"));
 /** The send-off's plane cut over the painted map (world.md R-WORLD-037), fetched with the scene that shows it. */
-const PlaneCut = lazy(() => import("./features/map/paper/PlaneCut"));
+const PlaneCut = lazy(() => import("../features/map/paper/PlaneCut"));
 
 /** Whether WebGL draws here, asked once: each ask makes a context. */
 let drawsHere: boolean | null = null;
@@ -83,7 +83,7 @@ function StartCityBehind() {
 }
 
 /** R-MODERATION-012: the admin page, its own chunk, fetched only at /admin, so a player never downloads it. */
-const AdminRoute = lazy(() => import("./features/admin/AdminRoute").then((admin) => ({ default: admin.AdminRoute })));
+const AdminRoute = lazy(() => import("../features/admin/AdminRoute").then((admin) => ({ default: admin.AdminRoute })));
 
 /** Anywhere but /admin the game as it is; at /admin the admin chunk is fetched, and it shows the game to anyone off the admin list. */
 function AdminGate({ children }: { children: ReactNode }) {

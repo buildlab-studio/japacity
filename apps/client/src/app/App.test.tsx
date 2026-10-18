@@ -4,14 +4,14 @@ import { render } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { App } from "./App";
-import { bootGame } from "./authority/boot";
-import { SAVE_KEY } from "./authority/local";
-import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
-import { turnWords } from "./features/turn/turn.words";
-import { monthEnding, playerMonth } from "./shared/words/format";
-import { say } from "./shared/words/text";
+import { bootGame } from "../authority/boot";
+import { SAVE_KEY } from "../authority/local";
+import { askReadyLives, startReadyLife } from "../shared/frontdoor/frontDoor.testing";
+import { turnWords } from "../features/turn/turn.words";
+import { monthEnding, playerMonth } from "../shared/words/format";
+import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 function memoryStorage() {
   const items = new Map<string, string>();

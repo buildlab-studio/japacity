@@ -12,7 +12,7 @@ import { Calendar } from "./Calendar";
 import { Results } from "./Results";
 
 describe("the month's end in the world", () => {
-  // The months held are not shown (decision 0011; World.clock.test.tsx).
+  // The months held are not shown (decision 0011; app/world.clock.test.tsx).
   test("given an empty plan, when the month ends, then turn/end is sent with no slots on the view's version", async () => {
     const view = engineView();
     const { authority, store } = await renderWithView(<Calendar />, view);

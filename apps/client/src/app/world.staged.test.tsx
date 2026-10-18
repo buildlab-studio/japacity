@@ -5,23 +5,23 @@ import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { engineView } from "./shared/testing/fixtures";
-import { renderWithView } from "./shared/testing/render";
-import { words } from "./shared/words/text";
-import { linesNow } from "./shared/world/Lines";
-import { Results } from "./features/turn/Results";
-import { City, RESULTS_BEAT_MS } from "./features/city/City";
+import { engineView } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { words } from "../shared/words/text";
+import { linesNow } from "../shared/world/Lines";
+import { Results } from "../features/turn/Results";
+import { City, RESULTS_BEAT_MS } from "../features/city/City";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
+vi.mock("../features/city/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("./shared/three/manifest", async (original) => {
-  const real = await original<typeof import("./shared/three/manifest")>();
+vi.mock("../shared/three/manifest", async (original) => {
+  const real = await original<typeof import("../shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),

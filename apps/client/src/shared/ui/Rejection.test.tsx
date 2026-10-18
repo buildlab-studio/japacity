@@ -4,7 +4,7 @@ import { worldClockAt } from "@japacity/sim";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { GameProvider } from "../../authority/GameProvider";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";

@@ -5,19 +5,19 @@ import type { Id } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { GameProvider } from "./authority/GameProvider";
-import { createGameStore, type GameStore } from "./authority/store";
-import { AccountGate } from "./features/account/AccountGate";
-import { answerAge } from "./features/account/age.testing";
-import { usernameFrom, withDigits } from "./features/account/GuestStart";
-import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "./features/account/Turnstile";
-import { ScenarioView } from "./features/scenario/ScenarioView";
-import type { AccountApi, GuestAnswer } from "./shared/net/auth";
-import { reportedError } from "./shared/net/http";
-import { engineView } from "./shared/testing/fixtures";
-import { say } from "./shared/words/text";
+import { GameProvider } from "../authority/GameProvider";
+import { createGameStore, type GameStore } from "../authority/store";
+import { AccountGate } from "../features/account/AccountGate";
+import { answerAge } from "../features/account/age.testing";
+import { usernameFrom, withDigits } from "../features/account/GuestStart";
+import { TEST_SITE_KEY, type LoadTurnstile, type TurnstileOptions } from "../features/account/Turnstile";
+import { ScenarioView } from "../features/scenario/ScenarioView";
+import type { AccountApi, GuestAnswer } from "../shared/net/auth";
+import { reportedError } from "../shared/net/http";
+import { engineView } from "../shared/testing/fixtures";
+import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 afterEach(() => {
   localStorage.clear();

@@ -6,11 +6,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
 import { App } from "./App";
-import { bootGame } from "./authority/boot";
-import { askReadyLives, startReadyLife } from "./shared/frontdoor/frontDoor.testing";
-import { say } from "./shared/words/text";
+import { bootGame } from "../authority/boot";
+import { askReadyLives, startReadyLife } from "../shared/frontdoor/frontDoor.testing";
+import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 function memoryStorage() {
   const items = new Map<string, string>();
@@ -68,9 +68,9 @@ describe("the world is the game", () => {
   test("[R-WORLD-024] given the shell's code, then nothing asks for a month page, and no month page module, bar or head exists", () => {
     const app = readFileSync(join(import.meta.dirname, "App.tsx"), "utf8");
     expect(app).not.toMatch(/classic/i);
-    expect(app).not.toContain("./Classic");
+    expect(app).not.toContain("../Classic");
     for (const gone of ["Classic.tsx", "features/turn/TurnBar.tsx", "features/turn/TurnView.tsx", "features/turn/Moment.tsx", "features/city/Phone.tsx"]) {
-      expect(existsSync(join(import.meta.dirname, gone))).toBe(false);
+      expect(existsSync(join(import.meta.dirname, "..", gone))).toBe(false);
     }
   });
 });

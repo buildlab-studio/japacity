@@ -8,17 +8,17 @@ import type { ConversationRow } from "@japacity/sim";
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { moderationApi } from "./shared/moderation/api";
-import { reasonWords, words } from "./shared/moderation/moderation.words";
-import { ModerationProvider } from "./shared/moderation/ModerationProvider";
-import { api } from "./shared/net/http";
-import { bondName, momentWords, phraseWords } from "./shared/sim/people";
-import { courted, linkedFriend, PAIR, peopleGame, renderWithGame, TOBI } from "./shared/testing/people";
-import { BASE, fakeServer, type FakeServer } from "./shared/testing/server";
-import { nameOf, say, sayCount } from "./shared/words/text";
-import { Chats, PhonePeople, PhoneTalk } from "./features/phone/apps/Chats";
-import { pairApiFor, type PairApi } from "./features/people/pairApi";
-import { BondHead, PeopleSlots } from "./features/people/PeopleOnPhone";
+import { moderationApi } from "../shared/moderation/api";
+import { reasonWords, words } from "../shared/moderation/moderation.words";
+import { ModerationProvider } from "../shared/moderation/ModerationProvider";
+import { api } from "../shared/net/http";
+import { bondName, momentWords, phraseWords } from "../shared/sim/people";
+import { courted, linkedFriend, PAIR, peopleGame, renderWithGame, TOBI } from "../shared/testing/people";
+import { BASE, fakeServer, type FakeServer } from "../shared/testing/server";
+import { nameOf, say, sayCount } from "../shared/words/text";
+import { Chats, PhonePeople, PhoneTalk } from "../features/phone/apps/Chats";
+import { pairApiFor, type PairApi } from "../features/people/pairApi";
+import { BondHead, PeopleSlots } from "../features/people/PeopleOnPhone";
 
 const people = content.tuning.people;
 const ME = "character-me";

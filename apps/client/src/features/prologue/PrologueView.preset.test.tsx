@@ -8,7 +8,7 @@ import type { Command, Id } from "@japacity/sim";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { keepPerson } from "../../authority/person";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";

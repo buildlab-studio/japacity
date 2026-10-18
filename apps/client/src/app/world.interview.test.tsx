@@ -6,27 +6,27 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import type { PlayerView } from "@japacity/sim";
 
-import { optionWords } from "./shared/sim/people";
-import { engineView } from "./shared/testing/fixtures";
-import { renderWithView } from "./shared/testing/render";
-import { interviewGame, renderWithGame } from "./shared/testing/people";
-import { nameOf, say, words } from "./shared/words/text";
-import { InterviewView } from "./features/interview/InterviewView";
-import { DECEMBER } from "./features/setpiece/DecemberScene";
-import { City } from "./features/city/City";
-import { SLEEP_MS } from "./features/city/sleep";
-import { pressFanAct, pressFanActNow } from "./features/city/fan/fan.testing";
+import { optionWords } from "../shared/sim/people";
+import { engineView } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { interviewGame, renderWithGame } from "../shared/testing/people";
+import { nameOf, say, words } from "../shared/words/text";
+import { InterviewView } from "../features/interview/InterviewView";
+import { DECEMBER } from "../features/setpiece/DecemberScene";
+import { City } from "../features/city/City";
+import { SLEEP_MS } from "../features/city/sleep";
+import { pressFanAct, pressFanActNow } from "../features/city/fan/fan.testing";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
+vi.mock("../features/city/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("./shared/three/manifest", async (original) => {
-  const real = await original<typeof import("./shared/three/manifest")>();
+vi.mock("../shared/three/manifest", async (original) => {
+  const real = await original<typeof import("../shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),

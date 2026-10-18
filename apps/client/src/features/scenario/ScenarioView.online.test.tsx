@@ -8,7 +8,7 @@ import { start, type Game } from "@japacity/sim/testing";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { remoteAuthority } from "../../authority/remote";
 import { createGameStore } from "../../authority/store";
 import { archetypeOf } from "../../shared/frontdoor/archetypes";

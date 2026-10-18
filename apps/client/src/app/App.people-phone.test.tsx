@@ -8,18 +8,18 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import { useCallback, useState, type ReactNode } from "react";
 import { describe, expect, test } from "vitest";
 
-import { moderationApi } from "./shared/moderation/api";
-import { ModerationProvider } from "./shared/moderation/ModerationProvider";
-import { api } from "./shared/net/http";
-import { slotOrder } from "./shared/sim/people";
-import { BASE, fakeServer } from "./shared/testing/server";
-import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithGame, TOBI } from "./shared/testing/people";
-import { nameOf, say, sayCount } from "./shared/words/text";
-import { PhoneBack } from "./features/phone/act";
-import { Chats, PhonePeople } from "./features/phone/apps/Chats";
-import { phoneWords } from "./features/phone/phone.words";
-import { pairApiFor } from "./features/people/pairApi";
-import { askName, BondHead, leftWords, PeopleSlots, togetherWords } from "./features/people/PeopleOnPhone";
+import { moderationApi } from "../shared/moderation/api";
+import { ModerationProvider } from "../shared/moderation/ModerationProvider";
+import { api } from "../shared/net/http";
+import { slotOrder } from "../shared/sim/people";
+import { BASE, fakeServer } from "../shared/testing/server";
+import { courted, eagerContent, linkedFriend, peopleGame, playMonth, renderWithGame, TOBI } from "../shared/testing/people";
+import { nameOf, say, sayCount } from "../shared/words/text";
+import { PhoneBack } from "../features/phone/act";
+import { Chats, PhonePeople } from "../features/phone/apps/Chats";
+import { phoneWords } from "../features/phone/phone.words";
+import { pairApiFor } from "../features/people/pairApi";
+import { askName, BondHead, leftWords, PeopleSlots, togetherWords } from "../features/people/PeopleOnPhone";
 
 const people = content.tuning.people;
 

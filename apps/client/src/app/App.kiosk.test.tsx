@@ -10,27 +10,27 @@ import type { World } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { GameProvider } from "./authority/GameProvider";
-import { createGameStore, type GameStore } from "./authority/store";
-import "./shared/testing/render";
-import { formatMoney } from "./shared/words/format";
-import { say } from "./shared/words/text";
-import { City } from "./features/city/City";
-import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "./features/city/kiosk";
-import { stageOf, type PlaceFile } from "./features/city/placeFile";
-import { stagedNow, thingsNow, thingsOf } from "./features/city/things";
-import { KioskSheet } from "./features/lottery/KioskSheet";
-import { drawOf, onlineLife, tuning } from "./features/lottery/testing";
+import { GameProvider } from "../authority/GameProvider";
+import { createGameStore, type GameStore } from "../authority/store";
+import "../shared/testing/render";
+import { formatMoney } from "../shared/words/format";
+import { say } from "../shared/words/text";
+import { City } from "../features/city/City";
+import { KIOSK, kioskOnline, opensKiosk, withKiosk } from "../features/city/kiosk";
+import { stageOf, type PlaceFile } from "../features/city/placeFile";
+import { stagedNow, thingsNow, thingsOf } from "../features/city/things";
+import { KioskSheet } from "../features/lottery/KioskSheet";
+import { drawOf, onlineLife, tuning } from "../features/lottery/testing";
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
+vi.mock("../features/city/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("./shared/three/manifest", async (original) => {
-  const real = await original<typeof import("./shared/three/manifest")>();
+vi.mock("../shared/three/manifest", async (original) => {
+  const real = await original<typeof import("../shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),
@@ -42,7 +42,7 @@ vi.mock("./shared/three/manifest", async (original) => {
 });
 
 const BODE_THOMAS = "place.bode-thomas";
-const STREET = JSON.parse(readFileSync(join(import.meta.dirname, "..", "public", "assets", "places", "bode-thomas-front", "place.json"), "utf8")) as PlaceFile;
+const STREET = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "public", "assets", "places", "bode-thomas-front", "place.json"), "utf8")) as PlaceFile;
 
 beforeEach(() => {
   // The city draws its place only where the device can (City.tsx canDraw); the scene itself is the stand-in above.

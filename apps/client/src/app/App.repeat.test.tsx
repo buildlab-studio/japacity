@@ -7,25 +7,25 @@
 import { act, fireEvent, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { newGame } from "./shared/testing/fixtures";
-import { renderWithGame } from "./shared/testing/people";
-import { hush, linesNow, resetLines } from "./shared/world/Lines";
-import { nameOf, say } from "./shared/words/text";
-import { ActivityPicker } from "./features/activity/ActivityView";
-import { City } from "./features/city/City";
-import { anchorFan } from "./features/city/fan/anchor";
-import { pressFanAct } from "./features/city/fan/fan.testing";
+import { newGame } from "../shared/testing/fixtures";
+import { renderWithGame } from "../shared/testing/people";
+import { hush, linesNow, resetLines } from "../shared/world/Lines";
+import { nameOf, say } from "../shared/words/text";
+import { ActivityPicker } from "../features/activity/ActivityView";
+import { City } from "../features/city/City";
+import { anchorFan } from "../features/city/fan/anchor";
+import { pressFanAct } from "../features/city/fan/fan.testing";
 
 
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
+vi.mock("../features/city/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("./shared/three/manifest", async (original) => {
-  const real = await original<typeof import("./shared/three/manifest")>();
+vi.mock("../shared/three/manifest", async (original) => {
+  const real = await original<typeof import("../shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),

@@ -24,7 +24,7 @@ describe("name-status parsing", () => {
 describe("protected paths", () => {
   test.each([
     ["packages/sim/src/money/money.test.ts", "test file"],
-    ["apps/client/src/App.test.tsx", "test file"],
+    ["apps/client/src/app/App.test.tsx", "test file"],
     ["goldens/nurse.json", "golden file"],
     ["packages/sim/src/scenarios/goldens/nurse.json", "golden file"],
     ["packages/sim/src/route/route.schema.ts", "schema"],

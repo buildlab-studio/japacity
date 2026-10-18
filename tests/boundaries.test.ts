@@ -175,7 +175,7 @@ describe("import boundaries", () => {
   test("the walk sees the workspace source", () => {
     expect(files).toContain("packages/sim/src/index.ts");
     expect(files).toContain("packages/db/src/index.ts");
-    expect(files).toContain("apps/client/src/App.tsx");
+    expect(files).toContain("apps/client/src/app/App.tsx");
   });
 
   test("no import crosses a boundary outside the allowed exceptions", () => {

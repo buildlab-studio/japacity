@@ -6,7 +6,7 @@ import { createGameStore } from "../../authority/store";
 import { engineView, fakeAuthority, richView } from "../../shared/testing/fixtures";
 import { found, renderWithView } from "../../shared/testing/render";
 import { say } from "../../shared/words/text";
-import { App } from "../../App";
+import { App } from "../../app/App";
 import { GuidesMenu } from "./GuidesMenu";
 import { guidePath, MADE_PATH } from "./paths";
 

@@ -2,13 +2,13 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
 import { App } from "./App";
-import { createGameStore } from "./authority/store";
-import { ActivityPicker } from "./features/activity/ActivityView";
-import { gameAuthority } from "./shared/testing/fixtures";
-import { courted, peopleGame, playMonth, renderWithGame, SEE, TOBI } from "./shared/testing/people";
-import { nameOf, words } from "./shared/words/text";
+import { createGameStore } from "../authority/store";
+import { ActivityPicker } from "../features/activity/ActivityView";
+import { gameAuthority } from "../shared/testing/fixtures";
+import { courted, peopleGame, playMonth, renderWithGame, SEE, TOBI } from "../shared/testing/people";
+import { nameOf, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 async function playing(game: ReturnType<typeof peopleGame>) {
   if (game.state.turn.banked === 0) game.grant(1);

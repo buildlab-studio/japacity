@@ -3,14 +3,14 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { describe, expect, test, vi } from "vitest";
 
 import { App } from "./App";
-import { bootGame } from "./authority/boot";
-import { SAVE_KEY } from "./authority/local";
-import { createGameStore } from "./authority/store";
-import { abroadView, fakeAuthority, recordedSave, richAbroadView } from "./shared/testing/fixtures";
-import { say, words } from "./shared/words/text";
+import { bootGame } from "../authority/boot";
+import { SAVE_KEY } from "../authority/local";
+import { createGameStore } from "../authority/store";
+import { abroadView, fakeAuthority, recordedSave, richAbroadView } from "../shared/testing/fixtures";
+import { say, words } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import { found } from "./shared/testing/render";
-import { pressFanAct } from "./features/city/fan/fan.testing";
+import { found } from "../shared/testing/render";
+import { pressFanAct } from "../features/city/fan/fan.testing";
 
 function memoryStorage() {
   const items = new Map<string, string>();
@@ -20,14 +20,14 @@ function memoryStorage() {
 
 // The world's scene is a stand-in that hands the city the taps a player makes on the things of the place file the game ships.
 // The scene is the stand-in that opens a tapped thing's fan beside it and walks at once (R-WORLD-034).
-vi.mock("./features/city/CityScene", async () => ({ default: (await import("./features/city/fan/fan.testing")).StandInScene }));
+vi.mock("../features/city/CityScene", async () => ({ default: (await import("../features/city/fan/fan.testing")).StandInScene }));
 
 // The place files the game ships, read from the disk in place of the server.
-vi.mock("./shared/three/manifest", async (original) => {
-  const real = await original<typeof import("./shared/three/manifest")>();
+vi.mock("../shared/three/manifest", async (original) => {
+  const real = await original<typeof import("../shared/three/manifest")>();
   const fs = await import("node:fs");
   const path = await import("node:path");
-  const assets = path.join(import.meta.dirname, "..", "public", "assets");
+  const assets = path.join(import.meta.dirname, "..", "..", "public", "assets");
   return {
     ...real,
     loadManifest: () => Promise.resolve({ files: {} }),

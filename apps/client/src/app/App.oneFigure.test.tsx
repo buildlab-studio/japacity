@@ -4,16 +4,16 @@
 import { act } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { Bank } from "./features/phone/apps/Bank";
-import { phoneWords } from "./features/phone/phone.words";
-import { savings } from "./features/turn/month.results";
-import { Results } from "./features/turn/Results";
-import { type Archetype, answersInOrder, archetypeOf, presetAnswer } from "./shared/frontdoor/archetypes";
-import { newGame } from "./shared/testing/fixtures";
-import { renderWithView } from "./shared/testing/render";
-import { formatMoney } from "./shared/words/format";
-import { words } from "./shared/words/text";
-import { newsLines, toldOnResults } from "./shared/words/told";
+import { Bank } from "../features/phone/apps/Bank";
+import { phoneWords } from "../features/phone/phone.words";
+import { savings } from "../features/turn/month.results";
+import { Results } from "../features/turn/Results";
+import { type Archetype, answersInOrder, archetypeOf, presetAnswer } from "../shared/frontdoor/archetypes";
+import { newGame } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { formatMoney } from "../shared/words/format";
+import { words } from "../shared/words/text";
+import { newsLines, toldOnResults } from "../shared/words/told";
 
 const HUNT = "activity.job-hunt";
 const JUNIOR_DEV = "activity.job-junior-dev";

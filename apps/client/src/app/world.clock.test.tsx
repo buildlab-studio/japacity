@@ -5,12 +5,12 @@ import { worldClockAt } from "@japacity/sim";
 import { act, fireEvent, render } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { GameProvider } from "./authority/GameProvider";
-import { createGameStore } from "./authority/store";
-import { Calendar } from "./features/turn/Calendar";
-import { PhoneApps } from "./features/phone/PhoneApps";
-import { engineView } from "./shared/testing/fixtures";
-import "./shared/testing/render";
+import { GameProvider } from "../authority/GameProvider";
+import { createGameStore } from "../authority/store";
+import { Calendar } from "../features/turn/Calendar";
+import { PhoneApps } from "../features/phone/PhoneApps";
+import { engineView } from "../shared/testing/fixtures";
+import "../shared/testing/render";
 
 const NOW = 5_000_000;
 

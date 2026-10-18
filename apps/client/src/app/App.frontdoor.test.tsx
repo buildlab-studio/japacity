@@ -9,22 +9,22 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import { App } from "./App";
-import { bootGame } from "./authority/boot";
-import { SAVE_KEY } from "./authority/local";
-import { PERSON_KEY, readPerson } from "./authority/person";
-import type { GameStore } from "./authority/store";
-import { countInto } from "./shared/analytics/start";
-import { type CounterRow, makeCounters } from "./shared/analytics/counters";
-import { say, words } from "./shared/words/text";
-import { ownFile } from "./features/city/City";
-import { ROSTER } from "./features/city/roster";
-import { ownLook } from "./features/map/Ride";
-import { ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY, opensChips, savingsOf } from "./shared/frontdoor/archetypes";
-import { formatMoney } from "./shared/words/format";
-import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "./shared/frontdoor/frontDoor.testing";
-import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "./shared/frontdoor/looks";
+import { bootGame } from "../authority/boot";
+import { SAVE_KEY } from "../authority/local";
+import { PERSON_KEY, readPerson } from "../authority/person";
+import type { GameStore } from "../authority/store";
+import { countInto } from "../shared/analytics/start";
+import { type CounterRow, makeCounters } from "../shared/analytics/counters";
+import { say, words } from "../shared/words/text";
+import { ownFile } from "../features/city/City";
+import { ROSTER } from "../features/city/roster";
+import { ownLook } from "../features/map/Ride";
+import { ARCHETYPES, archetypeOf, FULL_PROLOGUE_KEY, opensChips, savingsOf } from "../shared/frontdoor/archetypes";
+import { formatMoney } from "../shared/words/format";
+import { askReadyLives, begin, startArchetype, startReadyLife, toTheArchetypes } from "../shared/frontdoor/frontDoor.testing";
+import { LOOKS, lookOf, namesFor, NAMES_SHOWN } from "../shared/frontdoor/looks";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 const FIXED = (Object.keys(content.scenario) as Id<"scenario">[]).filter((id) => content.scenario[id]?.prologue !== true);
 /** Every starting life's person's name, first names included: none may be offered at the door. */

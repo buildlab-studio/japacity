@@ -4,17 +4,17 @@ import type { PlayerView, ReportLine } from "@japacity/sim";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
-import { GameProvider } from "./authority/GameProvider";
-import type { PlayerCommand } from "./authority/store";
-import { createGameStore } from "./authority/store";
-import { gallery } from "./features/card/gallery";
-import { CardView } from "./features/card/ShareCard";
-import { MomentCard } from "./features/moment/MomentCard";
-import { Results } from "./features/turn/Results";
-import { engineView, gameAuthority, recordedGame, recordedSave } from "./shared/testing/fixtures";
-import { renderWithView } from "./shared/testing/render";
-import { cardKey } from "./shared/ui/stage";
-import { say } from "./shared/words/text";
+import { GameProvider } from "../authority/GameProvider";
+import type { PlayerCommand } from "../authority/store";
+import { createGameStore } from "../authority/store";
+import { gallery } from "../features/card/gallery";
+import { CardView } from "../features/card/ShareCard";
+import { MomentCard } from "../features/moment/MomentCard";
+import { Results } from "../features/turn/Results";
+import { engineView, gameAuthority, recordedGame, recordedSave } from "../shared/testing/fixtures";
+import { renderWithView } from "../shared/testing/render";
+import { cardKey } from "../shared/ui/stage";
+import { say } from "../shared/words/text";
 
 // Decision 0013: the lives were re-recorded; Ada's month that closes her chapter on building the file is now her 228th command.
 const CLOSE = 227;

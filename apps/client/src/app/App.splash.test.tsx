@@ -6,14 +6,14 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { App, SLOW_MS } from "./App";
-import { keepPerson } from "./authority/person";
-import { createGameStore } from "./authority/store";
-import type { AccountApi } from "./shared/net/auth";
-import { requestFailure } from "./shared/net/http";
-import { Splash } from "./shared/ui/Splash";
-import { say } from "./shared/words/text";
+import { keepPerson } from "../authority/person";
+import { createGameStore } from "../authority/store";
+import type { AccountApi } from "../shared/net/auth";
+import { requestFailure } from "../shared/net/http";
+import { Splash } from "../shared/ui/Splash";
+import { say } from "../shared/words/text";
 // Registers Testing Library's cleanup for this file.
-import "./shared/testing/render";
+import "../shared/testing/render";
 
 afterEach(() => {
   vi.useRealTimers();

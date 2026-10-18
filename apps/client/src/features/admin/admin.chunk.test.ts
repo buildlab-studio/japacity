@@ -18,9 +18,9 @@ describe("the admin chunk", () => {
   });
 
   test("[R-MODERATION-012] given the game's shell, then it loads the admin route lazily and imports nothing else of the admin page", () => {
-    const app = readFileSync(join(import.meta.dirname, "..", "..", "App.tsx"), "utf8");
-    expect(app).toContain('lazy(() => import("./features/admin/AdminRoute")');
-    const adminImports = [...app.matchAll(/^import [^;]* from "(\.\/features\/admin\/[^"]+)";/gm)].map((found) => found[1]);
-    expect(adminImports).toEqual(["./features/admin/adminPath"]);
+    const app = readFileSync(join(import.meta.dirname, "..", "..", "app", "App.tsx"), "utf8");
+    expect(app).toContain('lazy(() => import("../features/admin/AdminRoute")');
+    const adminImports = [...app.matchAll(/^import [^;]* from "(\.\.\/features\/admin\/[^"]+)";/gm)].map((found) => found[1]);
+    expect(adminImports).toEqual(["../features/admin/adminPath"]);
   });
 });

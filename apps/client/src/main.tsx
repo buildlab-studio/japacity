@@ -3,7 +3,7 @@ import "./index.css";
 import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "./App";
+import { App } from "./app/App";
 import { tilesAsked } from "./shared/tiles/asked";
 import { sayBuild } from "./shared/stamp/stamp";
 import { installSoundWake } from "./shared/sound/sound";

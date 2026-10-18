@@ -113,7 +113,7 @@ describe("the shell is never stale (R-SERVER-038)", () => {
 
   test("[R-SERVER-038] the build's commit is the checkout's, marked when the tree has changes", () => {
     const clean = (args: string[]) => (args[0] === "rev-parse" ? "2211239e4a1b\n" : "");
-    const changed = (args: string[]) => (args[0] === "rev-parse" ? "2211239e4a1b\n" : " M apps/client/src/App.tsx\n");
+    const changed = (args: string[]) => (args[0] === "rev-parse" ? "2211239e4a1b\n" : " M apps/client/src/app/App.tsx\n");
     const before = process.env.JAPACITY_BUILD;
     delete process.env.JAPACITY_BUILD;
     try {
