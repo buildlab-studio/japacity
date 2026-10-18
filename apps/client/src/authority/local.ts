@@ -200,12 +200,12 @@ export function localAuthority(options: LocalAuthorityOptions): LocalAuthority {
       state = replay(save, content, worldAt).state;
       tick = tickAfter(save);
       anchor = parsed.clock.anchor;
-      // A save from before the lived month began at its anchor, near enough.
+      // A save kept without `beganAt` began at its anchor, near enough.
       began = typeof parsed.clock.beganAt === "number" ? parsed.clock.beganAt : anchor;
       envelopes = isEnvelopes(parsed.envelopes) ? parsed.envelopes : [];
       return { kind: "loaded" };
     } catch {
-      // A save the engine can no longer replay is as good as unreadable.
+      // A save the engine cannot replay is as good as unreadable.
       begin(firstScenario);
       return { kind: "replaced", why: "unreadable" };
     }

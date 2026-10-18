@@ -1,6 +1,6 @@
-// What an act did to the person, in a person's words (text:bands-not-figures): News
-// said "Network up. Wellbeing up." at the meetup, "Tech skill up. Wellbeing down." for the project, "Wellbeing
-// settles. You feel well." and "Care skill up." every month. No line names a quality or which way it went.
+// What an act did to the person, in a person's words (text:bands-not-figures): never "Network up. Wellbeing up.",
+// "Tech skill up. Wellbeing down.", "Wellbeing settles. You feel well." or "Care skill up.". No line names a quality
+// or which way it went.
 import { content } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { slot } from "@japacity/sim/testing";

@@ -1,7 +1,7 @@
 // A place's `place.json` under public/assets/places/<folder>/: which shared and own assets it shows
 // (counted by the build check, assets:assets-and-places-within-budget) and, in `stage`, where the city puts them, where the
 // crowd stands, the light, and what moves. A place with no file, or no `stage`, is drawn as open
-// ground with its crowd, so every place can be entered before its models are built.
+// ground with its crowd, so every place can be entered, built or not.
 import type { PaletteName, WalkablePolygon } from "@japacity/assets";
 import type { PoseName } from "@japacity/assets-src/people/poses";
 import type { Id, PlaceEntry } from "@japacity/sim";

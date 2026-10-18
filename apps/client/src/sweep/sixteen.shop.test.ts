@@ -75,7 +75,7 @@ describe("the trader's way to her own shop", () => {
     expect(ownWayOf(view)).toBeNull();
   });
 
-  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] [chapter:items-are-live-requirements] given a trader with the settlement, when her first chapter is read, then its opening and every item are in her words and none says the service year; a graduate's read as before", () => {
+  test("[activity:trader-opens-own-shop] [prologue:tile-path-open-from-start] [chapter:items-are-live-requirements] given a trader with the settlement, when her first chapter is read, then its opening and every item are in her words and none says the service year; a graduate's reads the chapter's own", () => {
     const view = settledTrader().view();
     expect(view.chapter.current).toBe(FIRST_CHAPTER);
     expect(text[openingKey(view)]).toBe(text[`${FIRST_CHAPTER}.open.prologue.capital`]);

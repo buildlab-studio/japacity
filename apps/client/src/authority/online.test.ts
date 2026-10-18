@@ -40,7 +40,7 @@ function fakePage() {
 async function setUp(first: PlayerView = { ...engineView(), v: 2 }) {
   const server = fakeServer();
   server.answer("GET /api/view", reply(first));
-  // A login wall here shows the card; the page's one reload for it is wall.test.ts's.
+  // A login wall here shows the card; the page's one reload for it is http.test.ts's.
   const remote = remoteAuthority({ baseUrl: BASE, fetch: server.fetch, wall: { met: () => false, passed: () => undefined } });
   const store = createGameStore(remote, { life: remote, lifeAgain: false, wait: () => Promise.resolve() });
   const { open, opened } = fakeSockets();

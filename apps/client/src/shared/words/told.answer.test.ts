@@ -1,6 +1,6 @@
-// An answer in News says what was chosen (world:month-end-results-sheet): News
-// said only "Answered: A hospital trust offers a nursing post." The answer is told with the choice, in the choice's
-// own words, where the offer has no words of its own for that answer.
+// An answer in News says what was chosen (world:month-end-results-sheet), never only "Answered: A hospital trust
+// offers a nursing post.": the answer is told with the choice, in the choice's own words, where the offer has no
+// words of its own for that answer.
 import type { ReportLine } from "@japacity/sim";
 import { applyEffects } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";

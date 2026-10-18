@@ -16,9 +16,9 @@ type ActKind =
   | "enter"
   /** Cuts back out of the room. */
   | "out"
-  /** Ends the month from the bed at home: the same as the band's End month (world:sleep-ends-the-month). */
+  /** The bed's Sleep: a timed sleep that ends the month when it runs out, through the store's `endMonth` (world:sleep-ends-the-month). */
   | "end"
-  /** Happens at once and fills a free slot of the month with the entry it stages, no sheet: rest on the bed (world:things-are-tappable-models). */
+  /** The entry it stages, with no sheet: an act done at once is sent, a month-act joins the plan (world:things-are-tappable-models). */
   | "do"
   /** Opens a card for a player command the world sends on its own: the school's deposit at the bank (route:deposit-secures-school). */
   | "command"

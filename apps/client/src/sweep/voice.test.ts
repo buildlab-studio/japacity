@@ -1,5 +1,5 @@
 // The voice: who speaks on each surface, and no machine tells anywhere. Every words table is walked:
-// content's text and the tables that ride a chunk of their own. Until the voice has its own rule id these cite text:bands-not-figures, the rule that the screen
+// content's text and the tables that ride a chunk of their own. Beside text:voice-by-surface these cite text:bands-not-figures, the rule that the screen
 // says what a person would; text:bad-news-never-joked where bad news is told straight; text:officialdom-is-deadpan where officialdom is deadpan.
 import { text, textTables } from "@japacity/content";
 import { uiCalgaryText } from "@japacity/content/ui/calgary";

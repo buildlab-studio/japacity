@@ -117,7 +117,8 @@ describe("the client keeps under the command limit", () => {
     expect(busiestWindow(posted)).toBeLessThanOrEqual(COMMANDS_PER_WINDOW);
   });
 
-  test("[prologue:archetype-presets-answers] [server:per-account-rate-limits] given every archetype, home and age over many seeds, when its preset is played online as the page plays it, then the longest preset, with the life's own POST before it, never puts more than eight commands in any ten seconds, under the server's ten", { timeout: 30_000 }, async () => {
+  // Every tile, home and age played online over many seeds: about five seconds alone, six times that under the full check's load.
+  test("[prologue:archetype-presets-answers] [server:per-account-rate-limits] given every archetype, home and age over many seeds, when its preset is played online as the page plays it, then the longest preset, with the life's own POST before it, never puts more than eight commands in any ten seconds, under the server's ten", { timeout: 90_000 }, async () => {
     let longest = 0;
     for (const base of ARCHETYPES) {
       for (const home of homesFor(base)) {

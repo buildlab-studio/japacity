@@ -1,6 +1,6 @@
 // A sticker (docs/design/13-the-lively-layer.md, section 2): a picture of the thing, cut with a white edge and a soft
 // shadow and tilted a few degrees, the render of the game's own model where one exists and an emoji standing in where
-// none does yet. With a tint, it sits on a soft tile the colour of its kind.
+// none does. With a tint, it sits on a soft tile the colour of its kind.
 import type { ReactNode } from "react";
 
 import type { Tint } from "./tint";

@@ -1,5 +1,4 @@
-// The party room's two dance loops, written in code by bone name (city:party-room-sets-the-bar; after the
-// prototype's `twoStep` and `shuffle`): a two-step with a shoulder
+// The party room's two dance loops, written in code by bone name (city:party-room-sets-the-bar): a two-step with a shoulder
 // bounce, and the low legwork shuffle. Each is a pose of the loop's share, read off the one shared
 // clock in the scene's one frame loop; no dancer keeps a clock or a loop of its own.
 import { poseRotations } from "@japacity/assets-src/people/poses";
@@ -8,10 +7,10 @@ import type { Bone } from "three";
 import type { DanceName } from "../scene/placeFile";
 import type { Figure } from "./people";
 
-/** Seconds a loop takes, as the prototype baked them. */
+/** Seconds a loop takes. */
 export const DANCE_SECONDS: Record<DanceName, number> = { twoStep: 1.6, shuffle: 1.2 };
 
-/** The hips' height the prototype's offsets were written for. */
+/** The hips' height the loops' offsets are written for. */
 const POSE_HIPS = 0.95;
 const deg = (degrees: number): number => (degrees * Math.PI) / 180;
 

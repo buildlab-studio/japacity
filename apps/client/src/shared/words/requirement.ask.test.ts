@@ -24,7 +24,7 @@ function developerView() {
   return game.view();
 }
 
-describe("the word of someone who went, shut for now", () => {
+describe("the word of someone who went, shut in the first month", () => {
   test("[world:one-action-one-sheet] [advice:someone-who-went-answers-free] given a developer's first month, when the shut reason of Ask someone who went is read, then it is one plain line: someone you know abroad, or a wide enough circle", () => {
     const view = developerView();
     const option = view.activities.find((each) => each.id === FRIEND);

@@ -36,7 +36,7 @@ export const GRAPHICS_KEY = "japacity.city.graphics";
 export const MUTED_KEY = "japacity.sound.muted";
 /** The seat picked at the send-off. */
 export const SEAT_KEY = "japacity.send-off.seat";
-/** The device has played the walkthrough. */
+/** The first-use labels tapped on this device, and whether it has played. */
 export const WALK_KEY = "japacity.walkthrough";
 /** The setting `prologue.full`: every card of the prologue, one answer each, no preset. No screen offers it. */
 export const FULL_PROLOGUE_KEY = "japacity.prologue.full";

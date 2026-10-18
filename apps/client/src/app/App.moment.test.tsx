@@ -16,7 +16,7 @@ import { renderWithView } from "../shared/testing/render";
 import { cardKey } from "../shared/ui/stage";
 import { say } from "../shared/words/text";
 
-// Decision 0013: the lives were re-recorded; Ada's month that closes her chapter on building the file is now her 228th command.
+// Ada's month that closes her chapter on building the file is her 228th command.
 const CLOSE = 227;
 
 const REFUSED: ReportLine = { key: "line.route.refused", params: { route: "route.uk-masters", reason: "interview" }, tone: "bad", attention: true, counts: [] };
@@ -84,7 +84,7 @@ describe("the moment card over the results", () => {
     fireEvent.click(card.querySelector("[data-moment-card]")!);
     await waitFor(() => expect(screen.queryByRole("dialog", { name: say("moment.chapter.kicker") })).toBeNull());
     act(() => store.getState().setReportOpen(false));
-    // The old chapter card does not follow: nothing full screen opens, and the card waits in the gallery.
+    // The chapter's share card does not follow: nothing full screen opens, and the card waits in the gallery.
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.querySelector("[data-share-card]")).toBeNull();
     expect(gallery.getState().kept.some((kept) => kept.key === key)).toBe(true);

@@ -1,5 +1,5 @@
 // The money a tile's life starts with, as the door says it (prologue:front-door-three-screens): each tile's `savings` figure in
-// content, a whole-naira amount beside its words, is kept honest here. The tile's presets run over many seeds the door
+// content, a whole-naira amount beside its words, is held to the lives it starts. The tile's presets run over many seeds the door
 // would start it on (prologue:tile-path-open-from-start), at its own home, and the figure is within a quarter of the median of the naira
 // the lives hold when the prologue closes.
 import { content } from "@japacity/content";
@@ -29,7 +29,8 @@ function closingNaira(archetype: Archetype, base: string): number {
 }
 
 describe("the tiles' savings", () => {
-  test("[prologue:front-door-three-screens] given every tile's savings figure, when its presets run over sixteen seeds at its own home, then the figure is a whole naira amount within a quarter of the median of the naira its lives hold at the close", () => {
+  // Sixteen lives through the prologue for every tile: about a second alone, four or more under the full check's load.
+  test("[prologue:front-door-three-screens] given every tile's savings figure, when its presets run over sixteen seeds at its own home, then the figure is a whole naira amount within a quarter of the median of the naira its lives hold at the close", { timeout: 20_000 }, () => {
     const wrong: string[] = [];
     for (const archetype of ARCHETYPES) {
       const figure = say(`prologue.archetype.${archetype.id}.savings`);

@@ -320,7 +320,7 @@ export function bubbleSpot(at: { x: number; y: number; z: number }, size: { widt
   const centred = Math.min(Math.max(over.x, half), Math.max(half, size.width - half));
   const lowest = top + box.height + EDGE;
   const shown = at.z < 1;
-  // No room over the speaker under the band: the box is held under it, its plain tail straight down, as before.
+  // No room over the speaker under the band: the box is held under it, its plain tail straight down.
   if (over.y < lowest) return { x: centred, y: Math.min(lowest, size.height - EDGE), shown, tail: { x: 0, length: TAIL }, lift: 0, shift: 0 };
   const y = Math.min(over.y, size.height - EDGE);
   const tipX = over.x;

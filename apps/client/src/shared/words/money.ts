@@ -64,7 +64,7 @@ function bankChange(line: ReportLine, chargeLine: ReportLine, charge: MoneyParam
   const gained = moneyParam("amount", line.params, line.key);
   if (gained === null || gained.amount === 0) return [];
   // What went at the rate: the wallet's own figure for the side changed, after the charge was taken off it; the charge
-  // alone places what was paid in only to within a unit, the fallback for an older recording.
+  // alone places what was paid in only to within a unit, the fallback where no line gives that figure.
   const paidPart = paidLine === undefined ? null : moneyParam("amount", paidLine.params, paidLine.key);
   const paid = paidPart === null ? paidIn(charge.amount) - charge.amount : paidPart.amount;
   const shown = chargeShown(charge.amount, charge.currency);

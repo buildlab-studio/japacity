@@ -1,5 +1,5 @@
 // A person (docs/design/13-the-lively-layer.md, section 2): the name in a pill with a flat round mark carrying the initial,
-// never a face render, until the characters are redone. The mark's colour comes from the name, so a person keeps theirs.
+// never a face render. The mark's colour comes from the name, so a person keeps theirs.
 
 /** How many mark colours there are (index.css --face-1 to --face-6). */
 const FACE_COLOURS = 6;

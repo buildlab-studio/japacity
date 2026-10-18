@@ -1,6 +1,6 @@
 // The team's corner of the game (moderation.md): the feedback box (moderation:feedback-box-in-settings), and, when the team has acted on
 // this account or decided one of its reports, the notice with its one appeal per action (moderation:reporter-told-outcome-only,
-// moderation:actioned-player-told-and-appeals). In the world they are two rows in the phone's Settings, the game's menu now; the broken screen's
+// moderation:actioned-player-told-and-appeals). In the world they are two rows in the phone's Settings, the game's menu; the broken screen's
 // Tell us opens the same box (analytics:client-sends-interface-counts).
 import { FEEDBACK_MAX_CHARS, type Standing } from "@japacity/api";
 import { BellDot, MessageSquareText } from "lucide-react";

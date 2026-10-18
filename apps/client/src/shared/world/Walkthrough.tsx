@@ -1,14 +1,14 @@
 // The first-use labels (world:no-walkthrough-before-play): nothing lectures before play. On a device that has not
 // played, the Map and Phone thumbs each carry a short word at their foot until each is tapped once; the calendar's tap
-// says its own words (world:no-months-left-count). The device keeps what was tapped under the walkthrough's old key, and keeps that
-// it has played once both were, as the walkthrough kept that it was seen.
+// says its own words (world:no-months-left-count). The device keeps what was tapped under WALK_KEY, and once both
+// are, that it has played.
 import { useEffect, useState } from "react";
 
 import { CentredColumn } from "../ui/lively/CentredColumn";
 import { say } from "../words/text";
 import { browserStorage, WALK_KEY } from "../kept/storage";
 
-/** What the key holds once the device has played: the walkthrough's own mark, so a device that saw it shows no labels. */
+/** What the key holds once the device has played; a device that saw the walkthrough holds it too, and shows no labels. */
 const PLAYED = "1";
 
 /** The thumbs that carry a first-use label, and each one's word. */
@@ -26,7 +26,7 @@ function kept(): string | null {
   }
 }
 
-/** True once this device has played: both thumbs tapped, or the walkthrough of an earlier version seen. */
+/** True once this device has played: both thumbs tapped, or the walkthrough seen. */
 export function walkSeen(): boolean {
   return kept() === PLAYED;
 }
@@ -62,7 +62,7 @@ function markPlayed(): void {
 
 /**
  * The thumbs tapped on this device, and a tap that keeps it. `mapOpen`: the map is open now, however it was opened. `played`: the life opened with a month behind it, so the
- * device has played already (a save from before the labels): it is kept as played and no label shows.
+ * device has played already: it is kept as played and no label shows.
  */
 export function useFirstUse(played: boolean, mapOpen = false): { tapped: ReadonlySet<FirstThumb>; tap: (thumb: FirstThumb) => void } {
   const [tapped, setTapped] = useState<ReadonlySet<FirstThumb>>(() => {

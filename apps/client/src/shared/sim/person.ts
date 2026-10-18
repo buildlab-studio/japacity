@@ -1,7 +1,7 @@
 // The people part of the view read for the screens: who a bond is with, what
 // ending it costs, which bond a slot of time goes to, and the words for a
-// moment, an interview option and a phrase. The people tab, the month plan,
-// the route gates and the interview all read these, so they live here.
+// moment, an interview option and a phrase. The people screens on the phone,
+// the activity cards and the interview all read these, so they live here.
 import { content, text } from "@japacity/content";
 import type { BondStage, Id, Moment, PersonFacts, PhraseEntry, PlayerView, ReportLine } from "@japacity/sim";
 

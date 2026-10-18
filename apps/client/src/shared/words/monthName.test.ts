@@ -1,5 +1,5 @@
 // The month's name the band carries (world:top-band-is-lively-pill; decision 0011): month 0 of a life is the month of
-// the year it began in, in Lagos. The month's phase by its free time spent, read where it is still needed, and the
+// the year it began in, in Lagos. The month's phase by its free time spent, read where it is needed, and the
 // world's part of the day the band says beside the name (clock:game-day-on-real-time), in words only.
 import { describe, expect, test } from "vitest";
 

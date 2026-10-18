@@ -1,6 +1,5 @@
-// One band for the route (world:one-action-one-sheet): the care
-// file said "English result at band 4.0 or better", the centre's sheet "Band 6.0 this sitting: likely" and the result
-// "That meets the route's 6.0." The band is the plan's route's own, from its content, on the file, the sheet and the result.
+// One band for the route (world:one-action-one-sheet): the band is the plan's route's own, from its content, on the
+// file, the centre's sheet and the result, so the care file's 4.0 is never told as the master's 6.0.
 import { content, text } from "@japacity/content";
 import type { ReportLine } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -39,7 +38,7 @@ describe("one band for the route", () => {
     const told = toldOnResults(tidy!, view);
     expect(words(told.key, told.params)).toMatch(/Band 5\.0\. That meets the route's 4\.0\.$/);
     expect(told.tone).toBe("good");
-    // With no plan, the chapter's 6.0 stands, as before.
+    // With no plan, the chapter's own 6.0 stands.
     const none = toldOnResults(tidy!, newGame("scenario.ngozi").view());
     expect(words(none.key, none.params)).toBe("Band 5.0. The route needs 6.0: study and sit again.");
   });

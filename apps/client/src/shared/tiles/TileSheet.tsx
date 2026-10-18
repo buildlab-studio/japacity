@@ -27,7 +27,7 @@ export function TileSheet() {
   return (
     <main className="min-h-dvh px-4 py-3" style={{ background: "#eaf3fb", color: "#1c2a5e" }} data-tile-sheet>
       <p className="text-sm font-semibold">
-        {standIns().length} of {ids.length} pictures stand in for a model not yet made (dashed).
+        {standIns().length} of {ids.length} pictures stand in for a model that is not drawn (dashed).
       </p>
       {KINDS.map((kind) => (
         <section key={kind.title} className="mt-3">

@@ -84,7 +84,7 @@ export interface OwnWay {
 const CLINIC_WAY: OwnWay = { step: "job", key: "clinic", place: "place.tb-clinic", thing: "jobs-notice", activity: NURSE_JOB };
 /** A trade's first step: asking around at the motor park in Ojuelegba, where the Gulf is heard. */
 const MOTOR_PARK_WAY: OwnWay = { step: "heard", key: "motor-park", place: "place.ojuelegba", thing: "motor-park", activity: "activity.ask-around" };
-/** A trade that heard of the Gulf (from the drivers at the send-off) looks it into by asking around at the same park (chapter:chapters-follow-lean-route's reading; decision 0001). */
+/** A trade that heard of the Gulf (from the drivers at the send-off) looks it into by asking around at the same park (chapter:chapters-follow-lean-route; decision 0001). */
 const MOTOR_PARK_LOOK: OwnWay = { ...MOTOR_PARK_WAY, step: "known" };
 
 /** A trader's job: her own shop, opened at her stall in the market with the settlement. */

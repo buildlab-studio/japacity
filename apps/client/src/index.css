@@ -89,7 +89,7 @@
   --google-fill: #ffffff;
   --google-stroke: #747775;
   --google-text: #1f1f1f;
-  /* Older names, kept as aliases of the roles so they follow the paint. */
+  /* Short names, aliases of the roles, so they follow the paint. */
   --ink: var(--text);
   --accent: var(--action);
   --accent-ink: var(--action-text);
@@ -655,9 +655,6 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 /* The morning's result on the lock screen: a white card, its picture on the
    soft yellow, the thin edge and a soft shadow. */
 .morning-card { border-radius: 22px; background: #ffffff; color: #131a33; box-shadow: 0 0 0 1.5px #1c2a5e, 0 10px 24px rgba(10, 14, 30, 0.3); }
-/* The morning's result on the lock screen: a white card, its picture on the
-   soft yellow, the thin edge and a soft shadow. */
-.morning-card { border-radius: 22px; background: #ffffff; color: #131a33; box-shadow: 0 0 0 1.5px #1c2a5e, 0 10px 24px rgba(10, 14, 30, 0.3); }
 /* A coin flying from a money toast to the band's counter (section 7, "Answer"), transform and opacity only. */
 @keyframes coin-fly { 0% { opacity: 0; transform: translate(-50%, 0) scale(0.6); } 20% { opacity: 1; } 100% { opacity: 0.2; transform: translate(calc(-50% + var(--tx, 0px)), var(--ty, 0px)) scale(1); } }
 .coin-fly { animation: coin-fly 0.42s cubic-bezier(0.4, 0, 0.2, 1) both; }
@@ -780,13 +777,13 @@ details:not([open]) > :not(summary) { transform: translateY(-6px); opacity: 0; }
 .door-dots > i { display: block; width: 9px; height: 9px; border-radius: 9999px; background: color-mix(in srgb, var(--text-2) 32%, transparent); transition-property: width, background-color; transition-duration: 180ms; }
 .door-dots > i[data-done] { background: var(--edge); }
 .door-dots > i[data-now] { width: 26px; border-radius: 5px; background: var(--action); box-shadow: 0 0 0 1.5px var(--action-under); }
-/* The lives swiped sideways (A's sticker board): a strip that snaps a card to the middle, no scrollbar. */
+/* The lives swiped sideways: a strip that snaps a card to the middle, no scrollbar. */
 .door-deck { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
 .door-deck::-webkit-scrollbar { display: none; }
 .door-deck > * { scroll-snap-align: center; flex-shrink: 0; }
 .door-life { transition-property: transform, opacity; transition-duration: 220ms; transition-timing-function: ease-out; }
 .door-life[aria-checked="false"] { opacity: 0.86; transform: scale(0.95); }
-/* The homes as postcards (B's stack): the one picked in front with the J's postage stamp, the others fanned behind it. */
+/* The homes as postcards: the one picked in front with the J's postage stamp, the others fanned behind it. */
 .door-postcard { border-radius: 10px; background: var(--cut); padding: 9px; box-shadow: 0 0 0 1.5px var(--sheet-line), 0 8px 16px rgba(20, 40, 50, 0.18); transition-property: transform, opacity; transition-duration: 240ms; transition-timing-function: ease-out; }
 /* The postage stamp's perforated white rim: a dotted edge in the sky's colour round the white. */
 .door-stamp {

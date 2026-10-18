@@ -42,7 +42,7 @@ interface Main {
 /**
  * The button's money: how much is short, the one exception everywhere; for a priced act the balance before and after
  * under the button (world:one-action-one-sheet, decision 0013), with the month's dues as its warning; for any other ask (a change of
- * money, a bill from the phone) what is left after on the button's second line, as before.
+ * money, a bill from the phone) what is left after on the button's second line.
  */
 function mainOf(paying: AfterPaying | null, formatMoney: AskSheetProps["formatMoney"], priced: boolean): Main {
   if (paying === null) return { after: null, figure: null, shut: false };

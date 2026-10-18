@@ -22,7 +22,7 @@ function line(key: string, params: ReportLine["params"], extra: Partial<ReportLi
   return { key, params, tone: "plain", attention: false, counts: [], ...extra };
 }
 
-// Decisions 0013 and 0012: the lives were re-recorded, so each moment sits at another command of its life.
+// Each moment sits at its own command of a recorded life: Ada's 228th closes her chapter on building the file.
 const AT_HOME = played("ada-careful", 227).view;
 const naira = (amount: number) => ({ currency: "NGN" as const, amount });
 
@@ -33,7 +33,7 @@ describe("which outcomes are moments", () => {
     expect(momentLine(lines, view)?.key).toBe("line.route.granted");
   });
 
-  // Decision 0012: in the re-recorded lives Tunde the borrower's first application is refused on its funds; Zainab's is not.
+  // In the recorded lives Tunde the borrower's first application is refused on its funds; Zainab's is not.
   test("[moment:outcomes-that-are-moments] given Tunde's first application refused on its funds, then the refusal is the card", () => {
     const { lines, view } = played("tunde-borrower", 101);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.route.refused", params: { route: "route.uk-masters", reason: "funds" } });
@@ -47,7 +47,7 @@ describe("which outcomes are moments", () => {
   test("[moment:outcomes-that-are-moments] given a chapter closing with nothing bigger beside it, then the chapter is the card; of two closed at once the last is told", () => {
     const { lines, view } = played("ada-careful", 227);
     expect(momentLine(lines, view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.build-the-file" } });
-    // Decision 0012: in the re-recorded lives it is Ada abroad whose flight closes decision day and the send-off at once.
+    // In the recorded lives it is Ada abroad whose flight closes decision day and the send-off at once.
     const both = played("ada-abroad", 421);
     expect(momentLine(both.lines, both.view)).toMatchObject({ key: "line.chapter.closed", params: { chapter: "chapter.send-off" } });
   });
@@ -99,7 +99,7 @@ function depositTaken(): { answer: ReportLine[]; month: ReportLine[]; view: Play
 
 // The endorsement refused and the cousin's ₦300,000 deposit each make a card.
 describe("the biggest losses get their card", () => {
-  // Decision 0012: in the re-recorded lives only Zainab, abroad-bound, is refused an endorsement.
+  // In the recorded lives only Zainab, abroad-bound, is refused an endorsement (decision 0012).
   test("[moment:outcomes-that-are-moments] given the endorsement refused by the body (Zainab's recorded life), when the month's lines come, then the refusal is the card, told by the body's own line", () => {
     for (const [life, index] of [["zainab-abroad", 74]] as const) {
       const { lines, view, before } = played(life, index);
@@ -128,9 +128,9 @@ describe("the biggest losses get their card", () => {
     expect(momentFace(shot!, view)).toBeNull();
   });
 
-  // Decision 0013: the re-recorded lives never take the cousin's pitch, so the honest pitch is taken here on the first
-  // seed whose hidden draw sends the road to the night meeting (no fraud), and the road is walked as Zainab's old
-  // recording walked it: on at the night, paid at the truth, then month after month.
+  // The recorded lives never take the cousin's pitch (decision 0013), so the honest pitch is taken here on the first
+  // seed whose hidden draw sends the road to the night meeting (no fraud), and the road is walked on at the night,
+  // paid at the truth, then month after month.
   test("[moment:outcomes-that-are-moments] given Zainab taking the cousin's pitch that is no fraud, when she walks the road month after month, then no deposit card comes in any month after it", () => {
     for (let seed = 1; seed < 40; seed += 1) {
       const game = newGame("scenario.zainab", `honest-${String(seed)}`);
@@ -167,7 +167,7 @@ describe("what a card holds", () => {
     expect(face.address).toBe("japacity.app");
   });
 
-  // Decision 0012: the re-recorded refusal on the funds is Tunde the borrower's, on a file 55% untraced.
+  // The recorded refusal on the funds is Tunde the borrower's, on a file 55% untraced (decision 0012).
   test("[moment:moment-card-contents] given Tunde's refusal on the funds, then it is dark, says the funds' line, and its figure is the untraced share on the file the letter judged, as a whole percent", () => {
     const { lines, view, before } = played("tunde-borrower", 101);
     const face = momentFace(momentLine(lines, view)!, view, before)!;
