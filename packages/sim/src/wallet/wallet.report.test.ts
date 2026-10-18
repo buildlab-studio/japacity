@@ -10,7 +10,7 @@ import { lifeSaves } from "../goldens/lives.data";
 import { replay } from "../engine/replay";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-import { ledgerReport } from "./report";
+import { ledgerReport } from "./wallet.report";
 
 function played(name: string): State {
   const save = lifeSaves[name];

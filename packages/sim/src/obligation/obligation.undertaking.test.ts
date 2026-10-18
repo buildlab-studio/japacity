@@ -2,11 +2,11 @@ import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id, ObligationState, ReportLine } from "../engine/types";
-import { applyAs, BOND, CA_SPOUSE, facts, joint, life, setFacts, setPeople } from "../testing/people.journey";
+import { applyAs, BOND, CA_SPOUSE, facts, joint, life, setFacts, setPeople } from "../testing/person.journey";
 import { partnerGate } from "../route/gates/partner";
 import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
-import { isSponsorUndertaking } from "./undertaking";
+import { isSponsorUndertaking } from "./obligation.undertaking";
 
 const used = content;
 const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";

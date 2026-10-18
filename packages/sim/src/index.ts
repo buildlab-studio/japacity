@@ -27,7 +27,7 @@ export type { DirectorBook, WorldCalendar } from "./world/director";
 export { japacity, routePercent } from "./japacity/japacity.logic";
 export { remitQuote, REMIT_CHANNELS } from "./wallet/wallet.logic";
 export type { RemitChannel } from "./wallet/wallet.events";
-export { ledgerReport } from "./wallet/report";
+export { ledgerReport } from "./wallet/wallet.report";
 // Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.
 export { pocketFor } from "./wallet/wallet.logic";
 export { rideFare, metresApart } from "./place/place.logic";
@@ -59,13 +59,13 @@ export type { Tier, TierSpec, RaffleSettings } from "./lottery/lottery.draw";
 // The pair module: pure functions over the record two lives share (docs/rules/pair.md). The server and both clients use them.
 export { pairId, flip, side, other, newRecord, mirror, agreed, writeEvent, pairView, SAFETY_CONTROLS } from "./pair/pair.logic";
 export type { PairView, PairWrite, Side } from "./pair/pair.logic";
-export { canSay, canSayInPlace, heardBy, fillOptions, saidMoment } from "./pair/phrase.logic";
-export type { SayPolicy, PlacePolicy, SayResult, SayRefusal } from "./pair/phrase.logic";
-export { phraseChecks } from "./pair/phrase.check";
+export { canSay, canSayInPlace, heardBy, fillOptions, saidMoment } from "./phrase/phrase.logic";
+export type { SayPolicy, PlacePolicy, SayResult, SayRefusal } from "./phrase/phrase.logic";
+export { phraseChecks } from "./phrase/phrase.check";
 export { inviteCard, inviteExpires, mayOpenInvite, useInvite, rewardFor, mayPair, INVITE_FILLS } from "./pair/pair.invite";
 export type { InviteCard, InviteSlot, LinkResult, Milestone, InviteProgress, InviteReward } from "./pair/pair.invite";
 // What one life knows of another (docs/rules/people.md R-PEOPLE-003, 005): the server sends it as `people/facts`.
-export { factsOf } from "./people/people.facts";
+export { factsOf } from "./person/person.facts";
 // The generated names drawn from content's pool by its mix (R-PEOPLE-053, R-CITY-033).
-export { drawName, drawPeople, MIX_TOTAL } from "./people/people.names";
-export type { NameDrawEntry } from "./people/people.names";
+export { drawName, drawPeople, MIX_TOTAL } from "./person/person.names";
+export type { NameDrawEntry } from "./person/person.names";

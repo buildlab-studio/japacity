@@ -12,8 +12,8 @@ import { legalCommands } from "../testing/legal";
 import type { Game, Loose, StartOptions } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-import { computerFacts } from "./people.facts";
-import { factsOf, WEDDING_SPOTS } from "./people.logic";
+import { computerFacts } from "./person.facts";
+import { factsOf, WEDDING_SPOTS } from "./person.logic";
 
 const TUNDE: Id<"scenario"> = "scenario.tunde";
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";

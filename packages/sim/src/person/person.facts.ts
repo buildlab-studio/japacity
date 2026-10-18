@@ -4,7 +4,7 @@
 import { resolveAmount } from "../engine/check";
 import type { Content, Id, PeopleSlice, PersonEntry, PersonFacts, ReadCtx, RouteStateName, State, World } from "../engine/types";
 import { fundsCurrency, fundsShown } from "../route/route.logic";
-import { floorsMet } from "./sponsor-checks";
+import { floorsMet } from "./person.sponsorChecks";
 
 export const AGE: Id<"quality"> = "quality.age-months";
 const EDUCATION: Id<"quality"> = "quality.edu-level";

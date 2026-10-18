@@ -5,7 +5,7 @@ import { describe, expect } from "vitest";
 import { checkContent } from "../engine/content";
 import type { Content, ConversationRow, Id, PairRecord, PhraseEntry, PlayerView } from "../engine/types";
 import { start } from "../testing/play";
-import { newRecord, writeEvent } from "./pair.logic";
+import { newRecord, writeEvent } from "../pair/pair.logic";
 import { phraseChecks } from "./phrase.check";
 import { canSay, canSayInPlace, fillOptions, heardBy, saidMoment } from "./phrase.logic";
 import type { PlacePolicy, SayPolicy } from "./phrase.logic";

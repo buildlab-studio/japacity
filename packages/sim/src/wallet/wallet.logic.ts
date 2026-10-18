@@ -34,7 +34,7 @@ import type {
   World,
 } from "../engine/types";
 
-import { heldForRoad, netsAfter, passbookOpen, passbookView, roadTarget } from "./passbook";
+import { heldForRoad, netsAfter, passbookOpen, passbookView, roadTarget } from "./wallet.passbook";
 import type { AnyPocket, RemitChannel, WalletEvent } from "./wallet.events";
 import { CURRENCIES, officialRates, streetRates } from "./wallet.rates";
 

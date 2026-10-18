@@ -34,9 +34,9 @@ import type {
   State,
 } from "../engine/types";
 import { appliesHere } from "../place/place.logic";
-import { couchEnds, onTheCouch } from "./couch";
+import { couchEnds, onTheCouch } from "./obligation.couch";
 import type { ClosedWhy, ObligationEvent } from "./obligation.events";
-import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./undertaking";
+import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./obligation.undertaking";
 import { officialRates } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";

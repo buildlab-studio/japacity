@@ -2,7 +2,7 @@ import { fc, test } from "@fast-check/vitest";
 import { nameMix, namePool, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
-import { drawName, drawPeople, MIX_TOTAL } from "./people.names";
+import { drawName, drawPeople, MIX_TOTAL } from "./person.names";
 
 const peopleOf = new Map(namePool.map((entry) => [entry.n, entry.people]));
 const mix: Readonly<Record<string, number>> = nameMix;

@@ -12,7 +12,7 @@ import { standInWorld } from "../world/standIn";
 import { stableJson } from "./hash";
 import { checkInvariants } from "./invariants";
 import { replay } from "./replay";
-import { ledgerReport } from "../wallet/report";
+import { ledgerReport } from "../wallet/wallet.report";
 import { AUTHORITY_COMMANDS, STAND_IN_COMMANDS, step } from "./step";
 import type { Command, CommandType, Currency, Id, Reason, Sender, State, World, PersonFacts } from "./types";
 import { viewFor } from "./view";

@@ -3,7 +3,7 @@
 import { jobTerms, MONTHS_PER_YEAR, paidYearly } from "../activity/activity.pay";
 import { resolveAmount, worldVar } from "../engine/check";
 import type { Content, Id, Money, ReadCtx, RouteEntry } from "../engine/types";
-import { isSponsorUndertaking } from "../obligation/undertaking";
+import { isSponsorUndertaking } from "../obligation/obligation.undertaking";
 
 /** The check that failed, for the rejection's detail (R-UNDERTAKING-001). */
 export type SponsorCheck = "status" | "floor" | "bar" | "default" | "running";

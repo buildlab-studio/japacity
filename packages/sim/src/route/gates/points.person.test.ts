@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
 import type { Content, Id, PersonFacts } from "../../engine/types";
 import type { Game } from "../../testing/play";
 import type { LifeOptions } from "../../testing/route.journey";
-import { BOND, CANADA, facts, joint, life, setPeople, sibling } from "../../testing/people.journey";
+import { BOND, CANADA, facts, joint, life, setPeople, sibling } from "../../testing/person.journey";
 import { readOf } from "../../testing/read";
 import { invites, pointsParts, pointsScore, pointsScoreAlone, pointsScoreWith, siblingPoints, spouseFactors } from "./points";
 

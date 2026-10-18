@@ -18,7 +18,7 @@ import { abroad, owedOf, setPounds, UPKEEP } from "../testing/obligation.journey
 import { eventsOf } from "../testing/read";
 
 // The meal bought and cooked, at home or abroad: a meal of your own; the family house's pot is free and tested in
-// home/pot.test.ts.
+// home/home.pot.test.ts.
 const COOK: Id<"activity"> = "activity.cook-own";
 const COOK_UK: Id<"activity"> = "activity.cook-own-uk";
 const WATER: Id<"activity"> = "activity.fetch-water";

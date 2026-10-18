@@ -1,8 +1,8 @@
 // Preset phrases between players: docs/rules/pair.md R-PAIR-010 to 013. The
 // caller passes its own clock; nothing here reads one.
 import type { ConversationRow, Content, PairRecord, PhraseEntry, PlayerView, Tuning } from "../engine/types";
-import type { PairWrite, Side } from "./pair.events";
-import { flip } from "./pair.logic";
+import type { PairWrite, Side } from "../pair/pair.events";
+import { flip } from "../pair/pair.logic";
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 3_600_000;

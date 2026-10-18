@@ -34,7 +34,7 @@ import type {
 } from "../engine/types";
 import { bookedPay, monthlyPay } from "../activity/activity.pay";
 import { routePercent } from "../japacity/japacity.logic";
-import { healthComeUp } from "./health";
+import { healthComeUp } from "./offer.health";
 import { appliesHere } from "../place/place.logic";
 import { evictedThisMonth } from "../home/home.logic";
 import type { OfferEvent } from "./offer.events";

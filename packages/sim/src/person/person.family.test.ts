@@ -9,7 +9,7 @@ import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import { legalCommands } from "../testing/legal";
 import { standInWorld } from "../world/standIn";
-import { INVITER_SLOT } from "./people.family";
+import { INVITER_SLOT } from "./person.family";
 
 const PROLOGUE: Id<"scenario"> = "scenario.prologue";
 const SEED = "family";

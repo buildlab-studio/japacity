@@ -5,7 +5,7 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Id } from "../engine/types";
-import { BOND, joint, SKILLED, UK_DEPENDANT } from "../testing/people.journey";
+import { BOND, joint, SKILLED, UK_DEPENDANT } from "../testing/person.journey";
 import { slot } from "../testing/route.journey";
 import { start } from "../testing/play";
 import type { Game } from "../testing/play";

@@ -11,7 +11,7 @@ import { applyEffects, draw, seedWhere, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { keys, naira, quality } from "../testing/read";
-import { COURSE, COURSE_STEP } from "./health";
+import { COURSE, COURSE_STEP } from "./offer.health";
 
 const health = content.tuning.health;
 const DRIFT = content.tuning.quality.wellbeingDrift;

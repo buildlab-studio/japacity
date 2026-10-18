@@ -32,13 +32,13 @@ import type {
   State,
   StatusEntry,
 } from "../engine/types";
-import { undertakingOpening } from "../obligation/undertaking";
+import { undertakingOpening } from "../obligation/obligation.undertaking";
 import { pointsScoreAlone, pointsScoreWith } from "../route/gates/points";
-import { sponsorBarUntil, sponsorCheck } from "./sponsor-checks";
-import { AGE, computerFacts, jointRouteOf } from "./people.facts";
-import type { PeopleEvent } from "./people.events";
+import { sponsorBarUntil, sponsorCheck } from "./person.sponsorChecks";
+import { AGE, computerFacts, jointRouteOf } from "./person.facts";
+import type { PeopleEvent } from "./person.events";
 
-export { factsOf } from "./people.facts";
+export { factsOf } from "./person.facts";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";

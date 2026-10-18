@@ -11,7 +11,7 @@ import { lifeSaves } from "../goldens/lives.data";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-import { ledgerReport } from "./report";
+import { ledgerReport } from "./wallet.report";
 import { EARNED_ONLY, earnedNaira } from "./wallet.logic";
 import { rideFare } from "../place/place.logic";
 
