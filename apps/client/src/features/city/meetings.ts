@@ -78,14 +78,17 @@ export function roomFor(crowd: number, standing: number, cap: number): number {
 
 /**
  * The crowd with `count` people fewer, so those standing at a thing take their places (world:place-is-one-screen): residents
- * with no part first, then players, the last first each time. A resident at a part goes only once no one else is
- * left to go, the highest spot first, so the scope's cap always holds (city:residents-fill-to-target).
+ * with no part first, then players seen only today, then players there now (city:players-shown-present-not-tracked), the
+ * last first each time. A resident at a part goes only once no one else is left to go, the highest spot first, so the
+ * scope's cap always holds (city:residents-fill-to-target).
  */
-export function makeRoom<T extends { kind: "resident" | "player"; part?: number }>(people: readonly T[], count: number): T[] {
+export function makeRoom<T extends { kind: "resident" | "player"; part?: number; today?: true }>(people: readonly T[], count: number): T[] {
   const filler = people.filter((shown) => shown.kind === "resident" && shown.part === undefined);
-  const players = people.filter((shown) => shown.kind === "player");
+  // A player's slot runs from the highest down in the order the sample filled them, so the last filled is the lowest slot.
+  const today = people.filter((shown) => shown.kind === "player" && shown.today === true);
+  const live = people.filter((shown) => shown.kind === "player" && shown.today !== true);
   const parts = people.filter((shown) => shown.kind === "resident" && shown.part !== undefined).sort((one, two) => (two.part ?? 0) - (one.part ?? 0));
-  const gone = new Set([...filler.reverse(), ...players.reverse(), ...parts].slice(0, Math.max(0, count)));
+  const gone = new Set([...filler.reverse(), ...today, ...live, ...parts].slice(0, Math.max(0, count)));
   return people.filter((shown) => !gone.has(shown));
 }
 

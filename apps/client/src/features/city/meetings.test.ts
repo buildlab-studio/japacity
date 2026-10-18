@@ -159,6 +159,27 @@ describe("a person standing where content meets them", () => {
     expect(roomFor(4, 0, 4)).toBe(0);
   });
 
+  test("[world:place-is-one-screen] [city:players-shown-present-not-tracked] given players there now and a player seen only today, when people standing at their things take places, then the player seen today gives way before any player there now, the last first", () => {
+    const crowd = [
+      { slot: 0, kind: "resident" as const },
+      { slot: 1, kind: "player" as const, today: true as const },
+      { slot: 2, kind: "player" as const },
+      { slot: 3, kind: "player" as const },
+    ];
+    expect(makeRoom(crowd, 2).map((one) => one.slot)).toEqual([2, 3]);
+    expect(makeRoom(crowd, 3).map((one) => one.slot)).toEqual([3]);
+    // The hub in its meetup, as the sample draws it: five players there now and one seen today, two standing at their things.
+    const file = JSON.parse(readFileSync(join(import.meta.dirname, "..", "..", "..", "public", "assets", "places", "yaba-hub", "place.json"), "utf8")) as PlaceFile;
+    const stage = stageOf(file);
+    const parts = { spots: stage.people.length, prefer: stage.prefer, acts: stage.acts };
+    const live = Array.from({ length: 5 }, (_, index) => ({ look: "person_tunde", name: `live${String(index)}` }));
+    const place = { id: file.place as Id<"place">, crowd: { low: 6, high: 6, target: 6 }, traditionalBp: 0, occasion: false };
+    const drawn = sampleCrowd(place, poolOf(file.people.sample), "2026-10-08", "high", crowdTuning(content.tuning.city, file.scope, false), live, [{ look: "person_tunde", name: "today0" }], [], parts).people;
+    const shown = makeRoom(drawn, 2).map((one) => one.tag);
+    expect(shown).not.toContain("today0");
+    expect(shown).toEqual(expect.arrayContaining(["live0", "live1", "live2", "live3"]));
+  });
+
   test("[world:place-is-one-screen] [city:residents-fill-to-target] given every shipped place with people standing at its things and more players present than slots, when the crowd is drawn in each mode, then the crowd and those standing stay within the scope's cap, and a part's resident gives way only once no player is left", () => {
     const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
     const many = Array.from({ length: 12 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));

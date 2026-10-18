@@ -30,6 +30,8 @@ export interface Shown {
    * counter. Never taken by a player; someone standing at a thing takes it only past the scope's cap, once no one else is left.
    */
   part?: number;
+  /** A player seen in the place today and not there now (city:players-shown-present-not-tracked); a player there now has none. */
+  today?: true;
 }
 
 /** A place's spots and what keeps some of them for a part: `prefer` names spots for a role, an act a spot's sex or its staff. */
@@ -189,7 +191,7 @@ export function sampleCrowd(
     const slot = open[index] ?? 0;
     const person = personOfLook(other.look) ?? resident(place, pool, date, slot, city);
     const tag = other.name.trim() === "" ? null : other.name;
-    people[slot] = { slot, person, kind: "player", tag };
+    people[slot] = { slot, person, kind: "player", tag, ...(index >= others.length ? { today: true as const } : {}) };
   });
   return { band: bandOf(size, place.crowd.target), people };
 }
@@ -230,7 +232,8 @@ export function walkPose(person: Pick<Person, "pose">): PoseName {
  * (the invigilator's desk, the ward's second nurse) is drawn in the low mode too, and never more spots than the count
  * (city:residents-fill-to-target). A resident holding a part keeps its spot (`sampleCrowd`); then a spot the place names for a role goes to
  * a resident of that role, and a spot an act keeps for a man or a woman to a resident in a plain stand, the first in
- * slot order each time; everyone else fills the rest in spot order. A player never takes a part.
+ * slot order each time; everyone else fills the rest in spot order. With the parts `sampleCrowd` marks, a player never
+ * takes a part; called without them, a part goes to whoever comes first.
  */
 export function placeCrowd<Spot>(people: readonly Shown[], spots: readonly Spot[], prefer: Partial<Record<Role, readonly number[]>> = {}, acts: readonly Act[] = []): { shown: Shown; spot: Spot; index: number }[] {
   const count = Math.min(people.length, spots.length);
