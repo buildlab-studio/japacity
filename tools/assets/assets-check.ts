@@ -1,8 +1,8 @@
 // pnpm check:assets: the build check of decision 0009 section 5. Every check but the last reads files
 // only; the last draws each staged place in Playwright's own Chromium (place-check.ts). Every check
 // returns its problems; any problem fails.
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { existsSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 import { type Footprint, isFootprint, type RegisterRow, type Review, type ReviewSheet } from "@japacity/assets";
 
@@ -15,7 +15,7 @@ import { checkPalette } from "./palette-check";
 import { describeMeasure, renderPlaces } from "./place-check";
 import type { Register } from "./register";
 import { checkLimits, checkParts, checkThings, isWorldFile, type LimitedFile } from "./world-check";
-import { isMain, readJson, REPO_ROOT } from "../repo";
+import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 
 /** R-ASSET-008, as the page writes it. */
 export const FILE_NAME = /^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$/;
@@ -90,22 +90,6 @@ export interface Paths {
 
 export function defaultPaths(root: string): Paths {
   return { root, source: join(root, "assets-src"), public: join(root, "apps", "client", "public", "assets"), dist: join(root, "apps", "client", "dist") };
-}
-
-/** Every file under a folder, as paths relative to it with forward slashes. */
-export function listFiles(dir: string): string[] {
-  if (!existsSync(dir)) return [];
-  const out: string[] = [];
-  const walk = (at: string): void => {
-    for (const entry of readdirSync(at, { withFileTypes: true })) {
-      if (entry.name === "node_modules") continue;
-      const path = join(at, entry.name);
-      if (entry.isDirectory()) walk(path);
-      else if (entry.isFile()) out.push(relative(dir, path).split(sep).join("/"));
-    }
-  };
-  walk(dir);
-  return out.sort();
 }
 
 /** Where the publish step puts each model's tile render, by the model's name (design page 13, the pictures). */
@@ -477,7 +461,7 @@ export function checkCredits(actual: Credits | null, expected: Credits): string[
 /** The map data the game uses: every outline source and every place entry's data source. */
 export function mapSources(paths: Paths, placeData: readonly string[]): string[] {
   const sources = [...placeData];
-  for (const file of listFiles(paths.source).filter((path) => path.endsWith("outline.json"))) {
+  for (const file of filesUnder(paths.source).filter((path) => path.endsWith("outline.json"))) {
     const outline = readJson<{ views: { source: string }[] }>(join(paths.source, file));
     for (const view of outline.views) {
       const match = /https:\/\/www\.openstreetmap\.org\/\S+/.exec(view.source);
@@ -498,7 +482,7 @@ export async function measureFile(paths: Paths, file: string): Promise<Measured>
 }
 
 function codeBytes(paths: Paths): number {
-  return listFiles(paths.dist)
+  return filesUnder(paths.dist)
     .filter((file) => /\.(js|css|html)$/.test(file))
     .reduce((sum, file) => sum + statSync(join(paths.dist, file)).size, 0);
 }
@@ -509,7 +493,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   const config = readJson<ReviewConfig>(join(paths.source, "review.config.json"));
   const register = readJson<Register>(join(paths.source, "register.json"));
   const manifest = readJson<Manifest>(join(paths.source, "manifest.json"));
-  const files = sourceFiles(listFiles(paths.public));
+  const files = sourceFiles(filesUnder(paths.public));
   const shippedFiles = files.filter((file) => !DATA_FILES.has(file.split("/").pop() ?? "") && !isTile(file));
   const measured = await Promise.all(shippedFiles.map((file) => measureFile(paths, file)));
   const byFile = new Map(measured.map((file) => [file.file, file]));
@@ -529,7 +513,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   ];
 
   const images = [
-    ...listFiles(paths.source).filter((file) => IMAGE.test(file)).map((file) => ({ path: `assets-src/${file}`, bytes: readFileSync(join(paths.source, file)) })),
+    ...filesUnder(paths.source).filter((file) => IMAGE.test(file)).map((file) => ({ path: `assets-src/${file}`, bytes: readFileSync(join(paths.source, file)) })),
     ...files.filter((file) => IMAGE.test(file)).map((file) => ({ path: `apps/client/public/assets/${file}`, bytes: readFileSync(join(paths.public, file)) })),
   ];
   problems.push(...checkImages(images, manifest));
@@ -537,7 +521,7 @@ export async function runChecks(paths: Paths, placeData: readonly string[]): Pro
   // Each asset's source folder is the one whose render manifest names its shipped file.
   const folders = new Map<string, string>();
   const tileRenders = new Map<string, Uint8Array>();
-  for (const file of listFiles(paths.source).filter((path) => path.endsWith("renders/manifest.json"))) {
+  for (const file of filesUnder(paths.source).filter((path) => path.endsWith("renders/manifest.json"))) {
     const renders = readJson<{ asset: string; file: string; renders: { view: string; file: string }[] }>(join(paths.source, file));
     const shipped = renders.file.replace(/^public\/assets\//, "");
     folders.set(shipped, join(paths.source, file.replace(/\/renders\/manifest\.json$/, "")));

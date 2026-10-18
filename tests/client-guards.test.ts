@@ -1,12 +1,12 @@
 // Two guards on what the site serves and how a page writes itself. React escapes every string it
 // renders, so the one way a player's words could become markup is code that sets raw HTML; none may, so a player's
 // words can never run as script on another player's page. And the served folder holds only what the page uses.
-import { readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
-import { REPO_ROOT } from "../tools/repo";
+import { filesUnder, REPO_ROOT } from "../tools/repo";
 
 /** The ways a script can turn a string into markup. */
 const RAW_HTML = /\bdangerouslySetInnerHTML\b|\.innerHTML\b|\.outerHTML\s*=|\binsertAdjacentHTML\b|\bdocument\.write(?:ln)?\s*\(|\bcreateContextualFragment\b|\bsrcdoc\b/;
@@ -14,16 +14,15 @@ const SOURCE = /\.(?:ts|tsx|js|jsx|mjs|html)$/;
 /** Tests clear the page between runs with `innerHTML = ""`; they never ship. */
 const TEST_FILE = /\.(?:test|spec)\.(?:ts|tsx)$/;
 
-function filesUnder(folder: string): string[] {
-  return readdirSync(join(REPO_ROOT, folder), { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile())
-    .map((entry) => relative(REPO_ROOT, join(entry.parentPath, entry.name)));
+/** Every file under a folder, as paths from the repository's root. */
+function filesAt(folder: string): string[] {
+  return filesUnder(join(REPO_ROOT, folder)).map((path) => join(folder, path));
 }
 
 /** Every line of the shipped sources under `folders` that sets raw HTML, as `path:line`. */
 function rawHtmlLines(folders: readonly string[]): string[] {
   return folders.flatMap((folder) =>
-    filesUnder(folder)
+    filesAt(folder)
       .filter((path) => SOURCE.test(path) && !TEST_FILE.test(path))
       .flatMap((path) =>
         readFileSync(join(REPO_ROOT, path), "utf8")
@@ -43,9 +42,9 @@ describe("what the site serves", () => {
   });
 
   test("[R-ENGINE-020] given the client's served folder, then it holds no markdown: notes live beside it, never where the site serves them", () => {
-    const served = filesUnder("apps/client/public");
+    const served = filesAt("apps/client/public");
     expect(served.length).toBeGreaterThan(0);
     expect(served.filter((path) => /\.(?:md|markdown)$/i.test(path))).toEqual([]);
-    expect(filesUnder("apps/client/brand")).toContain("apps/client/brand/README.md");
+    expect(filesAt("apps/client/brand")).toContain("apps/client/brand/README.md");
   });
 });

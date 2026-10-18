@@ -11,10 +11,10 @@ import { join } from "node:path";
 import { content } from "@japacity/content";
 import type { Page } from "@playwright/test";
 
-import { type Budgets, defaultPaths, listFiles, type Paths, type PlaceFile, rowFor } from "./assets-check";
+import { type Budgets, defaultPaths, type Paths, type PlaceFile, rowFor } from "./assets-check";
 import type { CheckMode as Mode, FrameRecord, PlaceInput, RouteRecord } from "./place-check.types";
 import { PHONE_SHOT } from "./shoot";
-import { isMain, readJson, REPO_ROOT } from "../repo";
+import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 import { openStage, signText } from "./stage-browser";
 
 export const CHEAP_PHONE = { ...PHONE_SHOT, slowdown: 6 } as const;
@@ -129,7 +129,7 @@ export function inputOf(file: StagedFile, mode: Mode, moving: boolean, text: Rec
 
 /** Every staged place under public/assets. */
 export function stagedPlaces(paths: Paths): StagedFile[] {
-  return listFiles(paths.public)
+  return filesUnder(paths.public)
     .filter((path) => path.endsWith("/place.json"))
     .map((path) => readJson<StagedFile>(join(paths.public, path)))
     .filter((file) => file.stage !== undefined);

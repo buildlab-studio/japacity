@@ -5,8 +5,8 @@ import { text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG, isPortrayed, isTiled, PORTRAITS, PUBLIC, SOURCE } from "./catalog";
-import { readJson, REPO_ROOT } from "../repo";
-import { listFiles, sourceFiles } from "./assets-check";
+import { filesUnder, readJson, REPO_ROOT } from "../repo";
+import { sourceFiles } from "./assets-check";
 import { readGlb } from "./glb";
 import { decodePng } from "./png";
 import { FACE_SHOT, FIGURE_SHOT, mergeRecords, PHONE_SHOT, PORTRAIT_POSES, type RenderRecord, TILE_SHOT, viewsAsked } from "./shoot";
@@ -57,7 +57,7 @@ describe("the fixed views", () => {
   test("[R-ASSET-012] given every sign anchor in a shipped model, when the stage letters it, then its words are the content's text table's and signs.json keeps none", async () => {
     const words = signText();
     const keys: string[] = [];
-    for (const file of sourceFiles(listFiles(PUBLIC)).filter((path) => path.endsWith(".glb"))) {
+    for (const file of sourceFiles(filesUnder(PUBLIC)).filter((path) => path.endsWith(".glb"))) {
       const doc = await readGlb(readFileSync(join(PUBLIC, file)));
       const root = doc.getRoot().getDefaultScene()?.listChildren()[0];
       for (const anchor of (root?.getExtras() as { signs?: { key: string }[] } | undefined)?.signs ?? []) keys.push(anchor.key);

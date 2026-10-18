@@ -7,13 +7,13 @@
 //
 // Usage: pnpm check:version, pnpm content:seal
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import ts from "typescript";
 
 import { content } from "../../packages/content/src/index";
-import { isMain, readJson, REPO_ROOT, toPosix } from "../repo";
+import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
@@ -70,10 +70,7 @@ export function played(path: string): boolean {
 
 /** Every file the simulation plays, read from `dir`, in path order. */
 export function simSources(dir: string = join(REPO_ROOT, SIM_SOURCE)): SourceFile[] {
-  const files = readdirSync(dir, { recursive: true, encoding: "utf8" })
-    .map(toPosix)
-    .filter(played)
-    .sort();
+  const files = filesUnder(dir).filter(played);
   return files.map((path) => ({ path, text: readFileSync(join(dir, path), "utf8") }));
 }
 

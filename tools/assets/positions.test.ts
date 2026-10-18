@@ -1,19 +1,19 @@
 // Positions and geometry (city.md R-CITY-009): a place's position lays out the map and is checked, and no model is built from
 // it; only a landmark's traced outline comes from open map data, and then the credits carry it.
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import { describe, expect, test } from "vitest";
 
 import { defaultPaths, mapSources } from "./assets-check";
-import { readJson, REPO_ROOT } from "../repo";
+import { filesUnder, readJson, REPO_ROOT } from "../repo";
 
 const paths = defaultPaths(REPO_ROOT);
 
 /** Every source file under `dir`, tests left out. */
 function sourcesUnder(dir: string): string[] {
-  return readdirSync(dir, { recursive: true, encoding: "utf8" })
-    .filter((file) => /\.(ts|js|mjs)$/.test(file) && !/\.test\.ts$/.test(file) && !file.includes("node_modules"))
+  return filesUnder(dir)
+    .filter((file) => /\.(ts|js|mjs)$/.test(file) && !/\.test\.ts$/.test(file))
     .map((file) => join(dir, file));
 }
 

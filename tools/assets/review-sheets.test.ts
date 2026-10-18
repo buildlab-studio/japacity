@@ -91,8 +91,7 @@ import abraSheet from "../../assets-src/veh/abra/review.json";
 import labourBusSheet from "../../assets-src/veh/labour-bus/review.json";
 import taxiSheet from "../../assets-src/veh/taxi/review.json";
 
-import { listFiles } from "./assets-check";
-import { REPO_ROOT } from "../repo";
+import { filesUnder, REPO_ROOT } from "../repo";
 
 const SHEETS: Record<string, ReviewSheet> = {
   "bld/bode-thomas-betting/review.json": bodeThomasBettingSheet satisfies Review,
@@ -185,7 +184,7 @@ const SOURCE = join(REPO_ROOT, "assets-src");
 
 describe("review sheets", () => {
   test("[R-ASSET-021] given every review sheet under assets-src, when the sheets are listed, then each is imported here and so checked against its type", () => {
-    const onDisk = listFiles(SOURCE).filter((path) => /(^|\/)review(-[a-z0-9-]+)?\.json$/.test(path));
+    const onDisk = filesUnder(SOURCE).filter((path) => /(^|\/)review(-[a-z0-9-]+)?\.json$/.test(path));
     expect(onDisk.length).toBeGreaterThan(40);
     expect(Object.keys(SHEETS).sort()).toEqual(onDisk);
   });

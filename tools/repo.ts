@@ -1,6 +1,6 @@
 // What the tools and the root guard tests share about the repository.
-import { readFileSync, realpathSync } from "node:fs";
-import { join, sep } from "node:path";
+import { existsSync, readdirSync, readFileSync, realpathSync } from "node:fs";
+import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
 /** The repository's root folder, without a trailing slash. */
@@ -27,4 +27,20 @@ export function toPosix(path: string): string {
 
 export function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(path, "utf8")) as T;
+}
+
+/** Every file under a folder, as paths relative to it with forward slashes, in order. A missing folder has none. */
+export function filesUnder(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+  const out: string[] = [];
+  const walk = (at: string): void => {
+    for (const entry of readdirSync(at, { withFileTypes: true })) {
+      if (entry.name === "node_modules") continue;
+      const path = join(at, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (entry.isFile()) out.push(toPosix(relative(dir, path)));
+    }
+  };
+  walk(dir);
+  return out.sort();
 }

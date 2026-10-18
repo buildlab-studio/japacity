@@ -9,9 +9,9 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSyn
 import { join, relative } from "node:path";
 
 import { CATALOG, type CatalogEntry, PORTRAITS, type ViewName } from "./catalog";
-import { defaultPaths, isPublishedCopy, listFiles, TILES } from "./assets-check";
+import { defaultPaths, isPublishedCopy, TILES } from "./assets-check";
 import { hashedName, readManifest, sha256, writeManifest } from "./manifest";
-import { isMain, REPO_ROOT } from "../repo";
+import { filesUnder, isMain, REPO_ROOT } from "../repo";
 
 export { HASH_DIGITS, hashedName, hashInName } from "./manifest";
 export { TILES } from "./assets-check";
@@ -26,7 +26,7 @@ export interface PublishManifest {
 
 /** The files a publish names: everything under public/assets but the hashed copies and the manifest itself. */
 export function sourcesOf(folder: string): string[] {
-  return listFiles(folder).filter((path) => path !== MANIFEST_FILE && !isPublishedCopy(path));
+  return filesUnder(folder).filter((path) => path !== MANIFEST_FILE && !isPublishedCopy(path));
 }
 
 /** What a publish would write: one entry per shipped file, keyed by its path under public/assets. */
@@ -43,7 +43,7 @@ export function planPublish(folder: string): PublishManifest {
 export function publish(folder: string): PublishManifest {
   const manifest = planPublish(folder);
   const keep = new Set(Object.values(manifest.files));
-  for (const stale of listFiles(folder).filter((path) => isPublishedCopy(path) && !keep.has(path))) rmSync(join(folder, stale));
+  for (const stale of filesUnder(folder).filter((path) => isPublishedCopy(path) && !keep.has(path))) rmSync(join(folder, stale));
   for (const [path, published] of Object.entries(manifest.files)) {
     const to = join(folder, published);
     if (!existsSync(to)) copyFileSync(join(folder, path), to);
@@ -81,7 +81,7 @@ export function copyTiles(entries: readonly TilePicture[], root: string, folder:
   const into = join(folder, TILES);
   mkdirSync(into, { recursive: true });
   const names = new Set(entries.map((entry) => `${tileName(entry)}.png`));
-  for (const stale of listFiles(into).filter((file) => !names.has(isPublishedCopy(file) ? file.replace(/\.[0-9a-f]+\.png$/, ".png") : file))) rmSync(join(into, stale));
+  for (const stale of filesUnder(into).filter((file) => !names.has(isPublishedCopy(file) ? file.replace(/\.[0-9a-f]+\.png$/, ".png") : file))) rmSync(join(into, stale));
   const hashes: Record<string, string> = {};
   for (const entry of entries) {
     const render = join(root, entry.source, "renders", `${entry.view ?? "tile"}.png`);

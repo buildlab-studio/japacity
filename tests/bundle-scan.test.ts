@@ -1,11 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import { readJson, REPO_ROOT, toPosix } from "../tools/repo";
+import { filesUnder, readJson, REPO_ROOT, toPosix } from "../tools/repo";
 
 // R-SERVER-017: the production client is built with the server's secrets in
 // its environment, as a build machine that also deploys the server might have
@@ -20,15 +20,6 @@ const SERVER_SIDE = ["apps/server/", "packages/store/", "packages/db/"];
 let folder = "";
 let files: string[] = [];
 
-function walk(directory: string, found: string[] = []): string[] {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) walk(path, found);
-    else found.push(path);
-  }
-  return found;
-}
-
 beforeAll(() => {
   folder = mkdtempSync(join(tmpdir(), "japacity-bundle-"));
   const overlay = join(folder, "overlay.json");
@@ -40,7 +31,7 @@ beforeAll(() => {
     env: { ...process.env, ...SENTINELS, OVERLAY: readFileSync(overlay, "utf8"), OVERLAY_FILE: overlay },
   });
   if (built.status !== 0) throw new Error(`The client build failed: ${built.stderr}`);
-  files = walk(out);
+  files = filesUnder(out).map((file) => join(out, file));
 }, 60000);
 
 afterAll(() => {

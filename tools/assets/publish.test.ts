@@ -5,10 +5,10 @@ import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG, isTiled } from "./catalog";
-import { defaultPaths, listFiles } from "./assets-check";
+import { defaultPaths } from "./assets-check";
 import { readManifest, sha256 } from "./manifest";
 import { copyTiles, hashedName, hashInName, HASH_DIGITS, MANIFEST_FILE, planPublish, publish, type PublishManifest, sourcesOf, tileName, tilePictures, TILES } from "./publish";
-import { readJson, REPO_ROOT } from "../repo";
+import { filesUnder, readJson, REPO_ROOT } from "../repo";
 
 describe("published names", () => {
   test("[R-CITY-018] given a shipped path and its hash, when it is named for publishing, then the hash sits before the extension and can be read back", () => {
@@ -54,7 +54,7 @@ describe("the tiles", () => {
       writeFileSync(join(folder, TILES, "prop_gone.png"), "old");
       writeFileSync(join(folder, TILES, "prop_gone.0123456789ab.png"), "old");
       const hashes = copyTiles([{ name: "prop_a", source: "src/a" }, { name: "veh_b", source: "src/b" }], work, folder, "public");
-      expect(listFiles(join(folder, TILES))).toEqual(["prop_a.png", "veh_b.png"]);
+      expect(filesUnder(join(folder, TILES))).toEqual(["prop_a.png", "veh_b.png"]);
       expect(readFileSync(join(folder, TILES, "veh_b.png"), "utf8")).toBe("tile b");
       expect(hashes).toEqual({ "public/tiles/prop_a.png": sha256(Buffer.from("tile a")), "public/tiles/veh_b.png": sha256(Buffer.from("tile b")) });
     } finally {
@@ -79,7 +79,7 @@ describe("the door's portraits", () => {
       ]);
       expect(pictures.map(tileName)).toEqual(["prop_a", "chr_ada-face", "chr_ada-figure", "chr_ada-cheer"]);
       const hashes = copyTiles(pictures, work, folder, "public");
-      expect(listFiles(join(folder, TILES))).toEqual(["chr_ada-cheer.png", "chr_ada-face.png", "chr_ada-figure.png", "prop_a.png"]);
+      expect(filesUnder(join(folder, TILES))).toEqual(["chr_ada-cheer.png", "chr_ada-face.png", "chr_ada-figure.png", "prop_a.png"]);
       expect(readFileSync(join(folder, TILES, "chr_ada-figure.png"), "utf8")).toBe("figure ada");
       expect(hashes["public/tiles/chr_ada-face.png"]).toBe(sha256(Buffer.from("face ada")));
       // A portrait's name never reads as a published copy's hash.
@@ -106,7 +106,7 @@ describe("the committed publish", () => {
     expect(manifest.files).toEqual(planPublish(folder).files);
     for (const [path, published] of Object.entries(manifest.files)) expect(published.slice(0, published.lastIndexOf("/") + 1)).toBe(path.slice(0, path.lastIndexOf("/") + 1));
     const named = new Set([MANIFEST_FILE, ...Object.keys(manifest.files), ...Object.values(manifest.files)]);
-    expect(listFiles(folder).filter((path) => !named.has(path))).toEqual([]);
+    expect(filesUnder(folder).filter((path) => !named.has(path))).toEqual([]);
     expect(sourcesOf(folder)).toEqual(Object.keys(manifest.files));
   });
 
