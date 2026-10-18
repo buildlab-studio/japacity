@@ -37,7 +37,7 @@ async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1:
 }
 
 describe("the room at its length", () => {
-  test("[world:place-is-one-screen] [home:compound-room-is-a-home] given the room abroad, when its shell is read and measured, then it is 16 by 9 metres inside, its long side along x, the way the camera looks down it", async () => {
+  test("[world:place-is-one-screen] [world:room-seen-down-its-length] given the room abroad, when its shell is read and measured, then it is 16 by 9 metres inside, its long side along x, the way the camera looks down it", async () => {
     for (const { name, file, shell, size } of ROOMS_HERE) {
       const [LENGTH, WIDTH] = size;
       expect({ name, size: shell.size }).toEqual({ name, size: [LENGTH, WIDTH] });
