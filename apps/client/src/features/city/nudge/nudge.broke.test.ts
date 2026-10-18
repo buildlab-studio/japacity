@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 
 import { archetypeOf } from "../../../shared/frontdoor/archetypes";
 import { playTile } from "../../../shared/frontdoor/archetypes.testing";
-import { newGame, openOffer } from "../../../shared/testing/fixtures";
+import { landedGame, newGame, openOffer } from "../../../shared/testing/fixtures";
 import { say } from "../../../shared/words/text";
 import { BOARD_WAY, freeStep, nudgeOf, type Reach } from "./nudge";
 
@@ -117,5 +117,45 @@ describe("the free step", () => {
     const free = nudgeOf(view, undefined, [], false, reach);
     expect(free.key).toBe("ui.nudge.broke.racks");
     expect(free.way?.at[0]).toBe("place.makoko:racks");
+  });
+});
+
+describe("the free step abroad", () => {
+  const PECKHAM = content.place["place.peckham"]!.position!;
+  const ROOM_SPOT = content.country["country.uk"]!.homeSpot!;
+  /** A stop 28 thousandths of a degree east of Peckham: about 1,930 m at London's 69 m, about 3,100 m at Lagos's 111. */
+  const EAST = { latE3: PECKHAM.latE3, lonE3: PECKHAM.lonE3 + 28 };
+  /** A stop past any walk in London. */
+  const OUT = { latE3: PECKHAM.latE3 + 40, lonE3: PECKHAM.lonE3 };
+  const BUS = content.tuning.city.ride.abroad["country.uk"]!.ways.bus!.fare;
+
+  /** Ada landed in London with this many pence and no naira, the chapter's step at the clinic. */
+  function inLondon(pence: number): PlayerView {
+    return atTheClinicStep({ ...landedGame("country.uk", pence).view(), offers: [] });
+  }
+  const reachTo = (clinic: { latE3: number; lonE3: number }): Reach => ({
+    here: "place.peckham",
+    home: "place.the-room",
+    stops: [{ id: "place.peckham", position: PECKHAM }, { id: "place.the-room", position: ROOM_SPOT }, { id: "place.tb-clinic", position: clinic }],
+  });
+
+  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in London with pounds and no naira, the step's stop 1.9 km away, when the nudge is read, then the step is named, never the walk home", () => {
+    const view = inLondon(1000);
+    expect(view.pockets.NGN.cash + view.pockets.NGN.bank).toBe(0);
+    expect(freeStep(view, reachTo(EAST))).toBeNull();
+    expect(nudgeOf(view, undefined, [], false, reachTo(EAST)).key).not.toMatch(/^ui\.nudge\.broke/);
+    // Pounds for the bus pay a ride however far the stop.
+    expect(freeStep(inLondon(BUS), reachTo(OUT))).toBeNull();
+  });
+
+  test("[world:nudge-says-one-thing] [place:rides-between-city-places] given Ada in London with no pounds, when the nudge is read, then a stop 1.9 km away is on foot by London's own measure, and a stop past walking distance gets the walk home to the room", () => {
+    expect(freeStep(inLondon(0), reachTo(EAST))).toBeNull();
+    expect(freeStep(inLondon(BUS - 1), reachTo(OUT))).toEqual({ key: "ui.nudge.broke.home", about: "step", way: { go: "place.the-room", at: [] } });
+  });
+
+  test("[world:nudge-says-one-thing] [place:country-pass-covers-ways] given Ada in London with no pounds in a month the bus pass is bought, when the nudge is read, then the bus asks nothing and no free step is named", () => {
+    const view = inLondon(0);
+    const ways = (view.place.ways ?? []).map((way) => (way.way === "bus" ? { ...way, passed: true } : way));
+    expect(freeStep({ ...view, place: { ...view.place, ways } }, reachTo(OUT))).toBeNull();
   });
 });

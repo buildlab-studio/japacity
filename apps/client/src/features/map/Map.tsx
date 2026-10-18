@@ -14,7 +14,7 @@ import { formatMoney } from "../../shared/words/format";
 import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
 import { mapWords } from "./map.words";
-import { fareWords, type MapPin, rideChoices, waysAbroad } from "./pins";
+import { fareWords, type MapPin, rideChoices, waysAbroad, withHomeWalk } from "./pins";
 import { ownLook, preloadRide, Ride } from "./Ride";
 import { headingOf, RideSheet, WAY_MODEL } from "./RideSheet";
 import { RouteVehicle } from "./paper/routeVehicle";
@@ -107,10 +107,13 @@ export function Map({ pins, country, countries, drawing, diveTo = null, diveBy =
   // While the life's car stands at home the sheet offers Drive.
   const drive = view.things.drive;
   const choicesTo = (to: MapPin, at: MapPin): RideChoice[] =>
-    abroadWays.length > 0
-      ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp, { country: placeCountry, shuttles })
-      : rideChoices(at.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: at.id, to: to.id }, drive);
-  const ways = useMemo(() => (pin === null || here === null ? [] : choicesTo(pin, here)), [pin, here, abroad, view.place.fareBp, homeId, drive, abroadWays]);
+    withHomeWalk(
+      abroadWays.length > 0
+        ? waysAbroad(abroadWays, { from: at.id, to: to.id }, { from: at.position, to: to.position }, to.id === homeId, view.place.fareBp, { country: placeCountry, shuttles })
+        : rideChoices(at.position, to.position, abroad, view.place.fareBp, to.id === homeId, { from: at.id, to: to.id }, drive),
+      have,
+    );
+  const ways = useMemo(() => (pin === null || here === null ? [] : choicesTo(pin, here)), [pin, here, abroad, view.place.fareBp, homeId, drive, abroadWays, have]);
 
   // A ride chosen in the place plays at once, the same ride as from the map.
   useEffect(() => {

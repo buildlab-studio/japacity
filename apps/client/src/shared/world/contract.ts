@@ -188,9 +188,12 @@ export interface RideChoice {
   /** In the smallest unit of the money the ride is paid in: naira at home, the country's money abroad. */
   fare: number;
   minutes: number;
-  /** Why the way cannot be taken: too far on foot (world:ride-sheet-shows-fares). */
-  shut?: "far";
-  /** A walk home past the walking limit: open all the same, played long and with no Skip (world:ride-sheet-shows-fares). */
+  /**
+   * Why the way cannot be taken (world:ride-sheet-shows-fares): too far on foot; `fare`, a walk home past the walking limit
+   * while another way's fare is in hand.
+   */
+  shut?: "far" | "fare";
+  /** A walk home past the walking limit while no other way's fare is in hand: open, played long and with no Skip (world:ride-sheet-shows-fares). */
   long?: true;
   /** The bus in a month the bus pass is bought: it asks nothing, and the sheet says so (place:country-pass-covers-ways). */
   passed?: true;

@@ -1,7 +1,7 @@
 // What the map shows and what a ride costs (world:map-is-painted-lagos, world:one-country-at-a-time and world:ride-sheet-shows-fares), as plain
 // functions of the view, the kept list and content, so the screen only draws them.
 import { content } from "@japacity/content";
-import { type Currency, metresApart, rideFare, type RideWayView, withinMetres } from "@japacity/sim";
+import { type Currency, type Id, metresApart, rideFare, type RideWayView, walkPosition, withinMetres } from "@japacity/sim";
 
 import type { Pin, PinState, RideChoice } from "../../shared/world/contract";
 import { onMap, RENTED_HOMES } from "../../shared/world/rentedHomes";
@@ -69,7 +69,7 @@ export function rideChoices(from: Position, to: Position, country: string | null
   if (country !== null) return [{ id: "danfo", label: mapWords(`map.way.abroad.${country}`), fare: 0, minutes: waitMinutes + ABROAD_MINUTES }];
   const metres = metresApart(from, to, lonMetresPerE3);
   // The month's fares (the fuel scarcity doubles them, place:rides-between-city-places): the same figure the simulation takes. On foot only within walking distance; past it the walk is shut, so a fare is a real cost.
-  // Home is the exception: a life may always walk home, however far, and the long walk is the cost (world:ride-sheet-shows-fares).
+  // Home is the exception while no fare is in hand: the long walk is the cost (world:ride-sheet-shows-fares, `withHomeWalk`).
   const far = !withinMetres(from, to, walkMetres, lonMetresPerE3);
   const priced = (where: "from" | "to"): Position | null => (ids === null ? (where === "from" ? from : to) : (content.place[ids[where] as keyof typeof content.place]?.position ?? null));
   const ways: RideChoice[] = WAYS.map((id) => ({
@@ -134,20 +134,24 @@ function pillOf(way: RideWayView, country: string | null, shuttle: boolean): str
  * by the simulation's own `rideFare` from content's positions of the two places, so the sheet says what the ride takes to
  * the penny; the bus asks nothing in a month the pass is bought (place:country-pass-covers-ways). Minutes are the wait plus the straight-line
  * metres at the way's pace as at home, the metres a thousandth of a degree of longitude is worth there read from the way. On foot is
- * shut past the walking limit, as the simulation shuts it, except to the room, which is the home there and always walkable.
+ * shut past the walking limit, as the simulation shuts it, the room measured at the country's home spot (`walkPosition`); to the
+ * room, the home there, it is the long walk, which `withHomeWalk` shuts while a fare is in hand.
  */
 export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to: string }, at: { from: Position; to: Position }, home = false, fareBp = 10000, context: AbroadContext = { country: null, shuttles: [] }): RideChoice[] {
   const { waitMinutes, walkMetres } = content.tuning.city.ride;
   const positionOf = (id: string): Position | null => content.place[id as keyof typeof content.place]?.position ?? null;
   const from = positionOf(ids.from);
   const to = positionOf(ids.to);
+  const country = context.country as Id<"country"> | null;
+  const walkFrom = walkPosition(content, ids.from as Id<"place">, country);
+  const walkTo = walkPosition(content, ids.to as Id<"place">, country);
   return ways
     .filter((way) => DRAWN_ABROAD.has(way.way))
     .map((way): RideChoice => {
       const id = way.way;
       const metres = minutesMetres(from !== null && to !== null ? { from, to } : at, way.lonMetresPerE3);
-      // The simulation shuts a walk only between two places it knows the positions of, and never one to the room.
-      const far = id === "walk" && from !== null && to !== null && !withinMetres(from, to, walkMetres, way.lonMetresPerE3);
+      // The simulation shuts a walk only between two places it knows the positions of, the room at the country's home spot.
+      const far = id === "walk" && walkFrom !== null && walkTo !== null && !withinMetres(walkFrom, walkTo, walkMetres, way.lonMetresPerE3);
       // The employer's bus to or from the site or the fields asks nothing in any month, as the simulation takes it (place:employer-shuttle-rides-free).
       const shuttle = id === "bus" && (context.shuttles.includes(ids.from) || context.shuttles.includes(ids.to));
       const pill = pillOf(way, context.country, shuttle);
@@ -162,6 +166,21 @@ export function waysAbroad(ways: readonly RideWayView[], ids: { from: string; to
         ...(pill === undefined ? {} : { pill }),
       };
     });
+}
+
+/**
+ * place:rides-between-city-places, world:ride-sheet-shows-fares: the long walk home is open only while the money held pays no other way
+ * there (a way the pass or the shuttle makes free is paid); with a fare in hand it is shut, saying so.
+ */
+export function withHomeWalk(ways: readonly RideChoice[], have: number): RideChoice[] {
+  const payable = ways.some((way) => way.id !== "walk" && way.shut === undefined && way.fare <= have);
+  if (!payable) return [...ways];
+  return ways.map((way): RideChoice => {
+    if (way.long !== true) return way;
+    const shut: RideChoice = { ...way, shut: "fare" };
+    delete shut.long;
+    return shut;
+  });
 }
 
 /**

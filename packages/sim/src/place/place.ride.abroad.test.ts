@@ -11,7 +11,7 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { flown, positionOf } from "../testing/place.journey";
 import { debits, rode } from "../testing/read";
-import { metresApart, rideFare, withinMetres } from "./place.logic";
+import { metresApart, rideFare, walkPosition, withinMetres } from "./place.logic";
 import { ROOM, UK_COUNTRY } from "../testing/ids";
 
 const PECKHAM: Id<"place"> = "place.peckham";
@@ -173,6 +173,42 @@ describe("a ride abroad", () => {
     expect(rode(home)).toMatchObject({ way: "walk", fare: 0, currency: "GBP" });
     game.expectRejected({ type: "place/ride", from: PECKHAM, to: HEATHROW, way: "walk" }, "not-legal");
     expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: RYE_LANE, way: "walk" }))).toMatchObject({ way: "walk", fare: 0 });
+  });
+
+  test("[place:rides-between-city-places] [world:ride-sheet-shows-fares] given pounds for the cheapest fare to the room, when a walk goes home from Heathrow, then it is refused as too far; a penny short it is walked, and in a month the bus pass is bought it is refused with no pounds at all", () => {
+    const game = flown(content);
+    const cheapest = Math.min(rideFare({ ...bus, step: rides.step, lonMetresPerE3: LON }, positionOf(content, HEATHROW), null), rideFare({ ...train, step: rides.step, lonMetresPerE3: LON }, positionOf(content, HEATHROW), null));
+    pounds(game, cheapest);
+    game.expectRejected({ type: "place/ride", from: HEATHROW, to: ROOM, way: "walk" }, "not-legal");
+    pounds(game, cheapest - 1);
+    expect(rode(game.accept({ type: "place/ride", from: HEATHROW, to: ROOM, way: "walk" }))).toMatchObject({ way: "walk", fare: 0 });
+    pounds(game, rides.pass ?? 0);
+    game.accept({ type: "activity/now", activity: "activity.bus-pass-uk", param: null });
+    pounds(game, 0);
+    game.expectRejected({ type: "place/ride", from: HEATHROW, to: ROOM, way: "walk" }, "not-legal");
+  });
+
+  test("[place:rides-between-city-places] [world:painted-maps-abroad] given the room, which has no position, when a walk to it is measured, then it stands at the country's home spot, so from Peckham, within walking distance of it, the walk home is open with pounds in hand", () => {
+    const spot = content.country[UK_COUNTRY]!.homeSpot!;
+    expect(walkPosition(content, ROOM, UK_COUNTRY)).toEqual(spot);
+    expect(walkPosition(content, ROOM, null)).toBeNull();
+    expect(walkPosition(content, PECKHAM, UK_COUNTRY)).toEqual(positionOf(content, PECKHAM));
+    expect(withinMetres(positionOf(content, PECKHAM), spot, content.tuning.city.ride.walkMetres, LON)).toBe(true);
+    const game = flown(content);
+    pounds(game, 5000);
+    expect(rode(game.accept({ type: "place/ride", from: PECKHAM, to: ROOM, way: "walk" }))).toMatchObject({ way: "walk", fare: 0 });
+  });
+
+  test("[place:rides-between-city-places] [world:painted-maps-abroad] given a walk from the room, when it is measured, then it starts at the country's home spot as any walk: to Heathrow, past walking distance, it is refused with pounds or none, and to Peckham, within it, it is walked", () => {
+    const game = flown(content);
+    expect(withinMetres(content.country[UK_COUNTRY]!.homeSpot!, positionOf(content, HEATHROW), content.tuning.city.ride.walkMetres, LON)).toBe(false);
+    for (const held of [5000, 0]) {
+      pounds(game, held);
+      game.expectRejected({ type: "place/ride", from: ROOM, to: HEATHROW, way: "walk" }, "not-legal");
+    }
+    expect(rode(game.accept({ type: "place/ride", from: ROOM, to: PECKHAM, way: "walk" }))).toMatchObject({ way: "walk", fare: 0 });
+    pounds(game, 5000);
+    expect(rode(game.accept({ type: "place/ride", from: ROOM, to: HEATHROW, way: "bus" }))).toMatchObject({ way: "bus" });
   });
 
   test("[place:rides-between-city-places] given the fuel scarcity's month carried abroad, when the bus is taken in London, then the fare stands at its figure and the view's factor is whole", () => {

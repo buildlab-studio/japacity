@@ -19,6 +19,8 @@ export const uiMapText: Record<string, string> = {
   "map.way.okada": "Okada",
   "map.way.walk": "Walk",
   "map.way.walk-far": "Too far to walk",
+  // The long walk home while a fare is in hand (world:ride-sheet-shows-fares).
+  "map.way.walk-fare": "Too far. You have the fare",
   "map.walk": "Walk there",
   // The car of your own: Drive, its fuel the fare.
   "map.way.drive": "Drive",

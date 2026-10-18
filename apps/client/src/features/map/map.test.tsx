@@ -7,7 +7,7 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { Group, Vector3 } from "three";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { engineView } from "../../shared/testing/fixtures";
+import { engineView, landedGame } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { nameOf, say } from "../../shared/words/text";
@@ -15,7 +15,7 @@ import type { CountryChoice, RideChoice } from "../../shared/world/contract";
 import { Countries } from "./Countries";
 import { Map } from "./Map";
 import { mapWords } from "./map.words";
-import { mapPins, type MapPin, onMap, rideChoices } from "./pins";
+import { mapPins, type MapPin, onMap, rideChoices, waysAbroad, withHomeWalk } from "./pins";
 import { alongOf, LINES, lineOf, LONG_WALK_MS, PRE_MS, Ride, RIDE_MS } from "./Ride";
 import { firstWay, headingOf } from "./RideSheet";
 import { type Angle, angleAt, anglesOf, buildRide, CUT_DARK_MS, darkAt, drawCallsOf, figuresOn, STEP_MS, stepClock } from "./rideScene";
@@ -341,6 +341,51 @@ describe("the ride", () => {
     const other = within(screen.getByRole("dialog")).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
     expect(other.disabled).toBe(true);
     expect(other.textContent).toContain(mapWords("map.way.walk-far"));
+  });
+
+  test("[world:ride-sheet-shows-fares] [place:rides-between-city-places] given home past walking distance and the fare in hand, when its ride sheet shows, then Walk home is greyed with its reason and the sheet opens on a ride; a kobo short of the cheapest fare, Walk home is open", async () => {
+    const pins = lagosPins();
+    const here = pins.find((pin) => pin.state === "here");
+    if (here === undefined) throw new Error("No here");
+    const far = { ...here.position, latE3: here.position.latE3 + Math.ceil((content.tuning.city.ride.walkMetres * 3) / LAT_METRES_PER_E3) };
+    const ways = rideChoices(here.position, far, null, 10000, true);
+    const cheapest = Math.min(...ways.filter((way) => way.id !== "walk").map((way) => way.fare));
+    expect(withHomeWalk(ways, cheapest).find((way) => way.id === "walk")).toMatchObject({ shut: "fare" });
+    expect(withHomeWalk(ways, cheapest).find((way) => way.id === "walk")?.long).toBeUndefined();
+    expect(withHomeWalk(ways, cheapest - 1).find((way) => way.id === "walk")).toMatchObject({ long: true });
+    // A walk within reach is never touched.
+    const near = rideChoices(here.position, here.position, null, 10000, true);
+    expect(withHomeWalk(near, 1_000_000_00)).toEqual(near);
+    const farPins = pins.map((pin) => (pin.id === HOME ? { ...pin, position: far } : pin));
+    const view = engineView();
+    const held = { ...view, pockets: { ...view.pockets, NGN: { ...view.pockets.NGN, cash: 1_000_000_00, bank: 0 } } };
+    await renderWithView(<Map pins={farPins} country={LAGOS} countries={COUNTRIES} drawing={false} home={HOME} onGo={() => undefined} onClose={() => undefined} />, held);
+    fireEvent.click(screen.getAllByRole("button").find((button) => button.dataset.stop === HOME) as HTMLElement);
+    const sheet = screen.getByRole("dialog");
+    const walk = within(sheet).getAllByRole("radio").find((radio) => radio.dataset.way === "walk") as HTMLButtonElement;
+    expect(walk.disabled).toBe(true);
+    expect(walk.dataset.shut).toBe("fare");
+    expect(walk.textContent).toContain(mapWords("map.way.walk-fare"));
+    expect(walk.getAttribute("aria-checked")).toBe("false");
+  });
+
+  test("[world:ride-sheet-shows-fares] [world:painted-maps-abroad] given the room abroad, which has no position, when the ways to and from it are read, then the walk is measured at the country's home spot: long home from Heathrow, a plain walk from Peckham, too far from the room to Heathrow", () => {
+    const view = landedGame("country.uk").view();
+    const ways = view.place.ways ?? [];
+    const spot = content.country["country.uk"]!.homeSpot!;
+    const context = { country: "country.uk", shuttles: [] };
+    const fromHeathrow = waysAbroad(ways, { from: "place.heathrow", to: "place.the-room" }, { from: content.place["place.heathrow"]!.position!, to: spot }, true, 10000, context);
+    expect(fromHeathrow.find((way) => way.id === "walk")).toMatchObject({ long: true });
+    expect(withHomeWalk(fromHeathrow, 0).find((way) => way.id === "walk")).toMatchObject({ long: true });
+    expect(withHomeWalk(fromHeathrow, 175).find((way) => way.id === "walk")).toMatchObject({ shut: "fare" });
+    const fromPeckham = waysAbroad(ways, { from: "place.peckham", to: "place.the-room" }, { from: content.place["place.peckham"]!.position!, to: spot }, true, 10000, context);
+    expect(fromPeckham.find((way) => way.id === "walk")?.long).toBeUndefined();
+    expect(fromPeckham.find((way) => way.id === "walk")?.shut).toBeUndefined();
+    // From the room the walk starts at the home spot too: to Heathrow it is too far, as the simulation refuses it.
+    const toHeathrow = waysAbroad(ways, { from: "place.the-room", to: "place.heathrow" }, { from: spot, to: content.place["place.heathrow"]!.position! }, false, 10000, context);
+    expect(toHeathrow.find((way) => way.id === "walk")).toMatchObject({ shut: "far" });
+    const toPeckham = waysAbroad(ways, { from: "place.the-room", to: "place.peckham" }, { from: spot, to: content.place["place.peckham"]!.position! }, false, 10000, context);
+    expect(toPeckham.find((way) => way.id === "walk")?.shut).toBeUndefined();
   });
 
   test("[world:ride-sheet-shows-fares] given a walk home past walking distance, when it plays, then it runs longer than a ride, has no Skip, and ends once by itself; a walk within reach keeps the ride's six seconds and its Skip", async () => {

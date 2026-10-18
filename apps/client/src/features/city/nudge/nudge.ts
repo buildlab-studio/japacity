@@ -767,53 +767,86 @@ const MAKOKO = "place.makoko";
 /** The stops whose jobs board takes a hunt (BOARD_WAY's places). */
 const BOARD_STOPS: readonly string[] = BOARD_WAY.at.map((entry) => entry.split(":")[0] ?? "");
 
+/** The country a life abroad is in, or null at home and on the road. */
+function abroadIn(view: NudgeView): string | null {
+  return view.place?.where === "abroad" ? (view.place.country ?? null) : null;
+}
+
+/**
+ * The metres a thousandth of a degree of longitude is worth where the character is (place:rides-between-city-places): the country's
+ * own abroad, as the ride sheet and the simulation read it, else Lagos's.
+ */
+function lonMetresHere(view: NudgeView): number {
+  const { ride } = content.tuning.city;
+  const country = abroadIn(view);
+  return (country === null ? undefined : ride.abroad[country as keyof typeof ride.abroad]?.lonMetresPerE3) ?? ride.lonMetresPerE3;
+}
+
 /** True when the stop is where the character stands, or close enough to walk to (world:ride-sheet-shows-fares's walking distance). */
-function onFoot(reach: Reach, to: string): boolean {
+function onFoot(view: NudgeView, reach: Reach, to: string): boolean {
   if (to === reach.here) return true;
   const from = reach.stops.find((stop) => stop.id === reach.here)?.position;
   const there = reach.stops.find((stop) => stop.id === to)?.position;
-  return from !== undefined && there !== undefined && withinMetres(from, there, content.tuning.city.ride.walkMetres, content.tuning.city.ride.lonMetresPerE3);
+  return from !== undefined && there !== undefined && withinMetres(from, there, content.tuning.city.ride.walkMetres, lonMetresHere(view));
 }
 
-/** The cheapest paid ride this month, in kobo: the way's flat fare under the month's fares (place:rides-between-city-places). */
+/** The money a fare is paid from where the character is, cash and bank together: the country's own abroad, naira at home. */
+function heldForFare(view: NudgeView): number {
+  const country = abroadIn(view);
+  const currency = country === null ? "NGN" : (content.country[country as keyof typeof content.country]?.currency ?? "NGN");
+  const pocket = view.pockets?.[currency];
+  return (pocket?.cash ?? 0) + (pocket?.bank ?? 0);
+}
+
 /** The offers answered in a place of the city: the send-off at home, the parcel at the cargo office (streets:parcels-shipped-home). */
 export const OFFER_PLACES: Readonly<Record<string, string>> = { "offer.family-send-off": "place.family-house", "offer.parcel-shipped": "place.bode-thomas" };
 
-/** True when every open offer waits in a place that is a ride away and the naira held pays no fare. */
+/** True when every open offer waits in a place that is a ride away and the money held pays no fare. */
 function offersOutOfReach(view: NudgeView, reach: Reach): boolean {
-  const held = (view.pockets?.NGN.cash ?? 0) + (view.pockets?.NGN.bank ?? 0);
-  if (held >= cheapestFare(view)) return false;
+  if (heldForFare(view) >= cheapestFare(view, reach)) return false;
   return view.offers.every((offer) => {
     const at = OFFER_PLACES[offer.entry];
-    return at !== undefined && at !== reach.here && !onFoot(reach, at);
+    return at !== undefined && at !== reach.here && !onFoot(view, reach, at);
   });
 }
 
-function cheapestFare(view: NudgeView): number {
-  const { fareKobo } = content.tuning.city.ride;
-  const fares = Object.entries(fareKobo).filter(([way, fare]) => way !== "walk" && fare > 0).map(([, fare]) => fare);
+/**
+ * The cheapest ride this month from where the character stands, in the smallest unit of the money it is paid in
+ * (place:rides-between-city-places): at home the ways' flat fare under the month's fares; abroad the country's ways' flat fare,
+ * nothing for a way the month's pass covers (place:country-pass-covers-ways) or from a stop the employer's shuttle serves
+ * (place:employer-shuttle-rides-free), the scarcity being Lagos's alone.
+ */
+function cheapestFare(view: NudgeView, reach: Reach): number {
+  const { ride } = content.tuning.city;
+  const country = abroadIn(view);
+  if (country !== null) {
+    if ((view.place?.shuttles ?? []).some((stop) => stop === reach.here)) return 0;
+    const listed = (view.place?.ways ?? []).filter((way) => way.way !== "walk");
+    const ways = listed.length > 0 ? listed.map((way) => (way.passed ? 0 : way.fare)) : Object.values(ride.abroad[country as keyof typeof ride.abroad]?.ways ?? {}).map((way) => way.fare);
+    return Math.min(...ways);
+  }
+  const fares = Object.entries(ride.fareKobo).filter(([way, fare]) => way !== "walk" && fare > 0).map(([, fare]) => fare);
   const bp = view.place?.fareBp ?? 10_000;
   return Math.floor((Math.min(...fares) * bp) / 10_000);
 }
 
 /**
- * When nothing can be paid, a free step: the step's stop needs a fare the naira held cannot
- * pay and is too far to walk, so the nudge names what can be done on foot instead: walking home whenever home is not
- * here, however far (a life may always walk home, world:ride-sheet-shows-fares), then the racks for a
+ * When nothing can be paid, a free step: the step's stop needs a fare the money held (naira at home, the country's money
+ * abroad) cannot pay and is too far to walk, so the nudge names what can be done on foot instead: walking home whenever home
+ * is not here, however far (with no fare in hand a life may walk home, world:ride-sheet-shows-fares), then the racks for a
  * life in Makoko with no job, a job on a board within reach, and at home the month's end. Null when the step can be
  * reached.
  */
 export function freeStep(view: NudgeView & StepView, reach: Reach, has: (key: string) => boolean = hasWords): (Nudge & { about: NudgeAbout; way: StepWay }) | null {
-  const held = (view.pockets?.NGN.cash ?? 0) + (view.pockets?.NGN.bank ?? 0);
-  if (held >= cheapestFare(view)) return null;
+  if (heldForFare(view) >= cheapestFare(view, reach)) return null;
   const way = stepWayOf(view);
   if (way === null || way.go === null) return null;
-  if (way.at.some((entry) => entry.startsWith(`${reach.here}:`)) || onFoot(reach, way.go)) return null;
+  if (way.at.some((entry) => entry.startsWith(`${reach.here}:`)) || onFoot(view, reach, way.go)) return null;
   const jobless = (view.job?.id ?? null) === null;
   const board = view.activities?.find((option) => option.id === "activity.job-hunt")?.params ?? [];
   if (reach.home !== null && reach.home !== reach.here && has("ui.nudge.broke.home")) return { key: "ui.nudge.broke.home", about: "step", way: { go: reach.home, at: [] } };
-  if (jobless && board.includes(RACKS) && onFoot(reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
-  if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
+  if (jobless && board.includes(RACKS) && onFoot(view, reach, MAKOKO) && has("ui.nudge.broke.racks")) return { key: "ui.nudge.broke.racks", about: "step", way: RACKS_WAY };
+  if (jobless && board.length > 0 && BOARD_STOPS.some((stop) => onFoot(view, reach, stop)) && has("ui.nudge.broke.job")) return { key: "ui.nudge.broke.job", about: "step", way: BOARD_WAY };
   // At home with nothing free near: the month's end is the step, never a ride that cannot be paid (world:nudge-says-one-thing). Away
   // from home the walk home comes first, above.
   if (has("ui.nudge.broke.wait")) return { key: "ui.nudge.broke.wait", about: "end", way: { go: null, at: [] } };

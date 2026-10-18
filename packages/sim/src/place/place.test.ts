@@ -12,6 +12,7 @@ import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { readOf } from "../testing/read";
+import { setPockets } from "../testing/wallet";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
 import { CANADA_COUNTRY, DECEMBER_SETPIECE, SETTLED, STANDING, STUDENT, UK_COUNTRY, UK_ROUTE } from "../testing/ids";
 
@@ -255,9 +256,11 @@ describe("coming home", () => {
     expect(game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.tejuosho-market", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
-  test("[place:rides-between-city-places] given a life living in Makoko standing at Bode Thomas Street, past walking distance of home, when a walk home is sent, then it is accepted with no fare, while a walk to another stop that far is still refused", () => {
+  test("[place:rides-between-city-places] given a life living in Makoko standing at Bode Thomas Street, past walking distance of home, with naira short of the cheapest fare home, when a walk home is sent, then it is accepted with no fare, while a walk to another stop that far is still refused", () => {
     const game = start({ content, scenario: "scenario.ada" });
     game.accept({ type: "home/move", to: "place.makoko" });
+    const cheapest = rideFare(content, content.place["place.bode-thomas"]?.position ?? null, content.place["place.makoko"]?.position ?? null, "danfo");
+    setPockets(game, { NGN: { cash: cheapest - 1, bank: 0 } });
     const from = content.place["place.bode-thomas"]?.position;
     const home = content.place["place.makoko"]?.position;
     const other = content.place["place.ojuelegba"]?.position;
@@ -269,6 +272,36 @@ describe("coming home", () => {
     const result = game.accept({ type: "place/ride", from: "place.bode-thomas", to: "place.makoko", way: "walk" });
     expect(result.events.filter((event) => event.type === "wallet/debited")).toEqual([]);
     expect(result.events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
+  });
+
+  test("[place:rides-between-city-places] [world:ride-sheet-shows-fares] given a life past walking distance of home with naira for the cheapest fare home, when a walk home is sent, then it is refused as too far; a kobo short, cash and bank together, it is walked", () => {
+    const game = start({ content, scenario: "scenario.ada" });
+    game.accept({ type: "home/move", to: "place.makoko" });
+    const from = content.place["place.bode-thomas"]?.position ?? null;
+    const home = content.place["place.makoko"]?.position ?? null;
+    const fares = (["danfo", "keke", "okada"] as const).map((way) => rideFare(content, from, home, way));
+    const cheapest = Math.min(...fares);
+    expect(cheapest).toBe(fares[0]);
+    setPockets(game, { NGN: { cash: cheapest - 100, bank: 100 } });
+    game.expectRejected({ type: "place/ride", from: "place.bode-thomas", to: "place.makoko", way: "walk" }, "not-legal");
+    setPockets(game, { NGN: { cash: cheapest - 101, bank: 100 } });
+    expect(game.accept({ type: "place/ride", from: "place.bode-thomas", to: "place.makoko", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
+    // Within walking distance a walk is open whatever is held.
+    setPockets(game, { NGN: 100_000_000 });
+    expect(game.accept({ type: "place/ride", from: "place.ojuelegba", to: "place.tejuosho-market", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
+  });
+
+  test("[place:rides-between-city-places] given the fuel scarcity's month, when the naira held pays the flat fare but not the month's, then the long walk home is open", () => {
+    const game = start({ content, scenario: "scenario.ada" });
+    game.accept({ type: "home/move", to: "place.makoko" });
+    const month = game.state.turn.month;
+    game.state = { ...game.state, offer: { ...game.state.offer, lastOpened: { ...game.state.offer.lastOpened, "offer.fuel-scarcity": month } } };
+    const from = content.place["place.bode-thomas"]?.position ?? null;
+    const home = content.place["place.makoko"]?.position ?? null;
+    const flat = rideFare(content, from, home, "danfo");
+    expect(rideFare(content, from, home, "danfo", content.tuning.city.ride.scarcityBp)).toBeGreaterThan(flat);
+    setPockets(game, { NGN: flat });
+    expect(game.accept({ type: "place/ride", from: "place.bode-thomas", to: "place.makoko", way: "walk" }).events.find((event) => event.type === "place/rode")).toMatchObject({ way: "walk", fare: 0 });
   });
 
   test("[place:return-home-paid-or-assisted] given a character at home, when return/home is sent, then it is rejected", () => {
