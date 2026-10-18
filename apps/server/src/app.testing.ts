@@ -12,6 +12,11 @@ export function seededBytes(seed: number): ServerDeps["randomBytes"] {
   return (count) => Uint8Array.from({ length: count }, () => (state = (state * 48271) % 2147483647) & 255);
 }
 
+/** A request's init signed in as `account` through the test session, or with no session when null. */
+export function asAccount(account: string | null): RequestInit {
+  return account === null ? {} : { headers: { "x-test-account": account } };
+}
+
 export function testDeps(over: Partial<ServerDeps> = {}): ServerDeps {
   const config = over.config ?? testConfig({ testing: { testLogin: true } });
   return {
