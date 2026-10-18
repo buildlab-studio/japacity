@@ -11,7 +11,7 @@ import { healthOfferTable } from "./offer.health.data";
 import { homeOfferTable } from "./offer.home.data";
 import { luckOfferTable } from "./offer.luck.data";
 import { parcelOfferTable } from "./offer.parcel.data";
-import { peopleOfferTable } from "./offer.people.data";
+import { peopleOfferTable } from "./offer.person.data";
 import { streetOfferTable } from "./offer.street.data";
 
 const UK: Id<"route"> = "route.uk-masters";

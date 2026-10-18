@@ -10,7 +10,7 @@ import { calgaryActivityTable } from "./activity.calgary.data";
 import { castelActivityTable } from "./activity.castel.data";
 import { dubaiActivityTable } from "./activity.dubai.data";
 import { londonActivityTable } from "./activity.london.data";
-import { peopleActivityTable } from "./activity.people.data";
+import { peopleActivityTable } from "./activity.person.data";
 import { profileActivityTable } from "./activity.profile.data";
 import { roomActivityTable } from "./activity.room.data";
 import { shopActivityTable } from "./activity.shop.data";

@@ -4,7 +4,7 @@
 import { describe, expect, test } from "vitest";
 
 import { content } from "../index";
-import { AGE_CARDS, lowestYear, PRESET_STEPS_OLDER, presetAges, presetAnswer, presetHomes, presetOf, presetOffered, PRESETS, startYearOf } from "./preset";
+import { AGE_CARDS, lowestYear, PRESET_STEPS_OLDER, presetAges, presetAnswer, presetHomes, presetOf, presetOffered, PRESETS, startYearOf } from "./prologue.preset";
 
 const open = (...ids: string[]) => ids.map((id) => ({ id, allowed: true }));
 const shut = (...ids: string[]) => ids.map((id) => ({ id, allowed: false }));

@@ -2,7 +2,7 @@
 // both check them (server.md R-SERVER-045).
 import { describe, expect, test } from "vitest";
 
-import { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, lightWords, lightYears } from "./light";
+import { checkLight, checkSentLight, LIGHT_FIRST_YEAR, LIGHT_NAME_CHARACTERS, LIGHT_NAME_WORDS, lightWords, lightYears } from "./about.light";
 
 const YEAR = 2026;
 const named = (name: string) => checkLight({ name, from: "", to: "" }, YEAR);
