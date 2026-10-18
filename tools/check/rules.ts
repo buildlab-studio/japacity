@@ -6,7 +6,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import ts from "typescript";
 
-import { isMain, REPO_ROOT } from "../repo";
+import { isMain, REPO_ROOT, toPosix } from "../repo";
 
 export const RULE_ID = /R-[A-Z][A-Z0-9]*-\d{3}/;
 
@@ -40,10 +40,6 @@ export interface Report {
   readonly tested: number;
   readonly pending: number;
   readonly untested: readonly string[];
-}
-
-function toPosix(path: string): string {
-  return path.split(sep).join("/");
 }
 
 function walk(directory: string, visit: (path: string, name: string) => void, skip: (path: string) => boolean): void {

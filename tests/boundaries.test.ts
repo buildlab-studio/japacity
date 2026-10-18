@@ -1,9 +1,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join, posix, relative, sep } from "node:path";
+import { join, posix, relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, test } from "vitest";
 
-import { REPO_ROOT } from "../tools/repo";
+import { REPO_ROOT, toPosix } from "../tools/repo";
 
 // Import boundaries from docs/design/04-structure-and-conventions.md section 9.
 
@@ -22,8 +22,6 @@ const SKIPPED = new Set(["node_modules", "dist", "build", "coverage", ".git", "d
 const SKIPPED_PATHS = new Set(["tools/__fixtures__"]);
 const TEST_LIBRARIES = ["vitest", "fast-check", "@fast-check/vitest"];
 const TEST_FILE = /\.test\.tsx?$/;
-
-const toPosix = (path: string) => path.split(sep).join("/");
 
 function sourceFiles(directory: string, found: string[] = []): string[] {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {

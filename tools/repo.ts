@@ -1,6 +1,6 @@
 // What the tools and the root guard tests share about the repository.
 import { realpathSync } from "node:fs";
-import { join } from "node:path";
+import { join, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 
 /** The repository's root folder, without a trailing slash. */
@@ -18,4 +18,9 @@ export function isMain(moduleUrl: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** The path with forward slashes, as the repository's files name each other. */
+export function toPosix(path: string): string {
+  return path.split(sep).join("/");
 }

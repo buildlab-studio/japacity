@@ -1,11 +1,11 @@
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
-import { REPO_ROOT } from "../tools/repo";
+import { REPO_ROOT, toPosix } from "../tools/repo";
 
 // R-SERVER-017: the production client is built with the server's secrets in
 // its environment, as a build machine that also deploys the server might have
@@ -60,7 +60,7 @@ describe("the client bundle", () => {
   test("[R-SERVER-017] given the build's source maps, when every source they name is read, then none is a module of apps/server, packages/store or packages/db, and the simulation is there", () => {
     const sources = files
       .filter((file) => file.endsWith(".map"))
-      .flatMap((file) => (JSON.parse(readFileSync(file, "utf8")) as { sources: string[] }).sources.map((source) => relative(REPO_ROOT, resolve(dirname(file), source)).split(sep).join("/")));
+      .flatMap((file) => (JSON.parse(readFileSync(file, "utf8")) as { sources: string[] }).sources.map((source) => toPosix(relative(REPO_ROOT, resolve(dirname(file), source)))));
     expect(sources.some((source) => source.startsWith("packages/sim/"))).toBe(true);
     expect(sources.filter((source) => SERVER_SIDE.some((prefix) => source.startsWith(prefix)))).toEqual([]);
   });
