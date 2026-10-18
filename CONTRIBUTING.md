@@ -25,7 +25,7 @@ The way of working is written down as skills in [`.claude/skills/`](.claude/skil
 | `packages/store/`, `packages/db/` | The storage interfaces with in-memory versions, and their database versions for the online game |
 | `packages/model-kit/`, `models/` | The city's models and pictures, and their sources |
 | `packages/brand/` | The game's colours and wordmark letters as data, for the teaser |
-| `apps/client/` | The web client. `src/features/<kind>/` holds one kind's screens; `src/shared/` holds what features share; `src/sweep/` holds the tests that cut across features; `e2e/` holds the browser tests |
+| `apps/client/` | The web client. `src/features/<kind>/` holds one kind's screens; `src/shared/` holds what features share; `src/cross-feature/` holds the tests that cut across features; `e2e/` holds the browser tests |
 | `apps/server/` | The online authority, which also serves the client's build |
 | `tools/` | The checks (`tools/check/`, with `all.ts` behind `pnpm check`), bless and record for the goldens (`tools/goldens/`), the asset tools, and the play driver (`tools/play/`) |
 | `tests/` | Guard tests across the whole repository, such as the import boundaries, the shipped build and the lint rules |

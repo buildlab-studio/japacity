@@ -146,7 +146,7 @@ It is held in three ways:
 
 1. **Shared pieces.** `Mark`, `FactChip` and `ToneTag` in `apps/client/src/shared/ui/` are the one way to show a state, a fact or a gain, each with its word for screen readers, and their tests cite text:show-then-tell.
 2. **Screen tests.** Each screen held to short words has a test that cites text:show-then-tell for them. `apps/client/src/features/city/told.words.test.ts`, for one, holds every line the shell tells in the corner to one short line with no full stop.
-3. **The voice walk.** `apps/client/src/sweep/voice.test.ts` walks every line in content's words and every table that rides a chunk of its own. It fails an em-dash, an en-dash, an exclamation mark (but for one scam's shout, which is a tell the player learns to read), stock app words such as "Oops" or "Get started", mirrored sentences and summing-up lines, and it checks who speaks on each surface (text:voice-by-surface).
+3. **The voice walk.** `apps/client/src/cross-feature/voice.test.ts` walks every line in content's words and every table that rides a chunk of its own. It fails an em-dash, an en-dash, an exclamation mark (but for one scam's shout, which is a tell the player learns to read), stock app words such as "Oops" or "Get started", mirrored sentences and summing-up lines, and it checks who speaks on each surface (text:voice-by-surface).
 
 ::: tip Writing a new line
 Read [the words page](../../rules/text.md) first. Put the line in the kind's words file under a key from the entry's id. If it is the interface's own word, it goes in the screen's table in `packages/content/src/ui/`; a new table there joins `textTables` in content's `index.ts`, so the walk in `voice.test.ts` reads it. Write the line plain and correct first, then give it its voice.

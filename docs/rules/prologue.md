@@ -127,4 +127,4 @@ All read on 7 Oct 2026.
 
 ## Not verified
 
-- The pass chances, the strike chance and the settlement draw are working values. The sweep checks that about a third of random prologues reach a second upper or better, and that the apprenticeship path is taken by roughly a fifth.
+- The pass chances, the strike chance and the settlement draw are working values. Simulated play checks that about a third of random prologues reach a second upper or better, and that the apprenticeship path is taken by roughly a fifth.

@@ -4,7 +4,7 @@ Status: Accepted
 
 ## Context
 
-A month needs something to buy for, and a room becomes yours by what is in it. The slow money chapter needs a goal with named roads to it. Both touch money and the month, so they have to be the simulation's for the goldens, the sweeps and the server's upgrade path to carry them; where a thing stands in a room changes nothing in a life.
+A month needs something to buy for, and a room becomes yours by what is in it. The slow money chapter needs a goal with named roads to it. Both touch money and the month, so they have to be the simulation's for the goldens, simulated play and the server's upgrade path to carry them; where a thing stands in a room changes nothing in a life.
 
 ## Decision
 

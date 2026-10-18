@@ -1,4 +1,4 @@
-// What the sweep's tests share about the simulated players' runs: the lives they play and what a clean
+// What the simulated play tests share about the simulated players' runs: the lives they play and what a clean
 // decision file is.
 import type { Id } from "../engine/types";
 import type { RunRecord } from "./players";

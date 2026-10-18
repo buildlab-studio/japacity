@@ -158,7 +158,7 @@ packages/
     engine/        the turn loop, random streams, the ledger, effects, the lifecycle helper
     kinds.ts       the registry: every kind, in the order the engine calls them
     <kind>/        schema, and logic and tests where needed
-    sweep/         simulated players, recorded lives, and the tests that cut across kinds
+    simulated-play/ simulated players, recorded lives, and the tests that cut across kinds
     testing/       the game handle, what tests read off a game, and the journeys tests start from; other packages import them as @japacity/sim/testing
     goldens/       the golden files
   content/src/
@@ -172,7 +172,7 @@ apps/
     shared/ui/     the visual design system
     shared/three/  the 3D helpers
     shared/scene/  a place built from its file, which the city and the front door both draw
-    sweep/         the tests that cut across features
+    cross-feature/ the tests that cut across features
 tools/             rule-name check, bless, recording lives, the play driver, the size and scrub checks
 docs/
   rules/<kind>.md

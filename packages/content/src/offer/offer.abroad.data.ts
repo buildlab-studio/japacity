@@ -2,7 +2,7 @@
 // and ladders:sponsor-job-ties-status. Joined into the offer table in offer.data.ts.
 //
 // The pages name these offers and what each is about, but give no chance,
-// cooldown, terms or choices. Every number here is a working value for the sweep.
+// cooldown, terms or choices. Every number here is a working value for simulated play to tune.
 // return:returnee-offers-for-a-year: the offer kind keeps the group `return` in the pool for
 // tuning.return.offerMonths after the last return, and judges each `when`
 // against that return alone, so `place/returned` reads the last return's shape.

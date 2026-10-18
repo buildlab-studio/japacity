@@ -62,7 +62,7 @@ const miniScripts: GoldenScript[] = [
 /**
  * The three recorded lives, played through the real content by the
  * simulated players and recorded by tools/goldens/record-lives.ts (`pnpm record:lives`).
- * sweep/lives.test.ts replays them as well. Recorded flat, read as one segment.
+ * simulated-play/lives.test.ts replays them as well. Recorded flat, read as one segment.
  */
 export const lifeScripts: GoldenScript[] = Object.entries(lifeSaves).map(([name, save]) => ({ name, save: loadSave(save) }));
 

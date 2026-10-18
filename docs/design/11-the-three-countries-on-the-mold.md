@@ -159,4 +159,4 @@ Three descriptors in `apps/client/src/features/map/paper/city.ts`, as London's: 
 
 ## 7. The recorded lives
 
-The recorded lives that go abroad (ada-abroad, tunde-abroad and zainab-abroad) all fly to the UK, so no golden of theirs rests on these countries or their upkeep figures. `packages/sim/src/sweep/lives.countries.data.ts` records a points life to Calgary (`zainab-canada`) and a contract life to Dubai (`tunde-gulf`); no recorded life takes the road to Castel Volturno.
+The recorded lives that go abroad (ada-abroad, tunde-abroad and zainab-abroad) all fly to the UK, so no golden of theirs rests on these countries or their upkeep figures. `packages/sim/src/simulated-play/lives.countries.data.ts` records a points life to Calgary (`zainab-canada`) and a contract life to Dubai (`tunde-gulf`); no recorded life takes the road to Castel Volturno.

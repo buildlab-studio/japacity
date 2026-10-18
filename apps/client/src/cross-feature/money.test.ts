@@ -6,7 +6,7 @@
 import { content } from "@japacity/content";
 import type { Currency, FlatSave, ReportLine, World } from "@japacity/sim";
 import { int, standInWorld } from "@japacity/sim";
-import { lifeSaves, sweepLifeSaves, start, type Game } from "@japacity/sim/testing";
+import { lifeSaves, simulatedLifeSaves, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { kept } from "../features/turn/month.results";
@@ -18,7 +18,7 @@ import { moneyLines } from "../shared/words/money";
 import { newsLines } from "../shared/words/told";
 import { moneyParam, words } from "../shared/words/text";
 
-const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...sweepLifeSaves };
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...simulatedLifeSaves };
 
 /** What the results say of each money line, with its sign. */
 function said(lines: readonly ReportLine[]): string[] {

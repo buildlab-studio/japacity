@@ -620,14 +620,14 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Calgary, Dubai and Castel Volturno on the mold (design page 11): each life is
-// played to its country by the sweep's own player on the real content, as the browser suite's specs play it (../abroad).
+// played to its country by a simulated player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The sweep's borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
+/** The simulated borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
 const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
-/** The sweep's canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
+/** The simulated canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
 const POINTS: AbroadLife = { strategy: "canada", life: "scenario.zainab", seed: "golden-zainab-canada-0", country: "country.canada", money: "CAD", holding: 60_000 };
-/** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
+/** The simulated risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
 
 /** A life played to its country opened in the world at `search`, past its opening words and every card. */

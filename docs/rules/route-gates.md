@@ -219,7 +219,7 @@ All read on 7 Oct 2026.
 ## Not verified
 
 - The Canada application fee of C$1,525 (C$950 processing plus C$575 right of permanent residence) is from memory of the IRCC fee page.
-- The endorsement chance and the sponsor offer rates are working values with no source. The sweep tunes them.
+- The endorsement chance and the sponsor offer rates are working values with no source. Simulated play tunes them.
 - Whether the UK care route's closure to applicants abroad will be reopened. The window var models it either way.
 
 ## Effects and requirements this kind handles

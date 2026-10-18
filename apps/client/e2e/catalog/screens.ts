@@ -125,7 +125,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "london-fan", what: "A London thing's fan: Rye Lane's chicken shop" },
   { key: "london-colleague", what: "A colleague at the care home's tea point says a line" },
   { key: "london-pass", what: "The bus pass bought at the station's ticket machine" },
-  // Dubai on the mold (world:ride-abroad-and-workplace): a contract life played to Dubai by the sweep's own player.
+  // Dubai on the mold (world:ride-abroad-and-workplace): a contract life played to Dubai by a simulated player.
   { key: "place-deira-day", what: "Deira, Dubai's street: the exchange house, the African foods shop, the cafeteria, the typing centre, the barber" },
   { key: "place-deira-night", what: "Deira by night" },
   { key: "place-naif-day", what: "Naif: the souq's stall, the tailor, the laundry" },
@@ -137,7 +137,7 @@ export const SCREENS: readonly Screen[] = [
   { key: "place-the-room-uae-day", what: "The bed space at the camp" },
   { key: "dubai-pass", what: "The zone pass bought at Union station's Nol machine" },
   { key: "dubai-colleague", what: "A colleague at the site's water cooler says a line" },
-  // Castel Volturno on the mold: a life that took the road, played to the coast by the sweep's own player.
+  // Castel Volturno on the mold: a life that took the road, played to the coast by a simulated player.
   { key: "place-castel-volturno-day", what: "Castel Volturno's roundabout: the vans' corner, the bar, the African shop, the call shop" },
   { key: "place-castel-volturno-night", what: "The roundabout by night" },
   { key: "place-via-domitiana-day", what: "Via Domitiana: the stop, the pickup point, the Nigerian shop, the barber, the stall" },

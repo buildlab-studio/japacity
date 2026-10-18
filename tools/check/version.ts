@@ -18,7 +18,7 @@ import { filesUnder, isMain, readJson, REPO_ROOT } from "../repo";
 export const SEAL_FILE = "packages/content/src/seal.json";
 export const SIM_SOURCE = "packages/sim/src";
 /** Folders of the simulation's source that only tests and tools read. */
-const NOT_PLAYED = new Set(["sweep", "testing", "goldens"]);
+const NOT_PLAYED = new Set(["simulated-play", "testing", "goldens"]);
 /** A content version is a whole number from 1, written as a string. */
 const VERSION = /^[1-9]\d*$/;
 

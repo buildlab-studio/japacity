@@ -1,4 +1,4 @@
-// Simulated players for the test sweep (layer 5 of
+// Simulated players for the simulated play tests (layer 5 of
 // docs/design/02-quality-and-testing.md). A strategy reads only the view and
 // the public content and ranks the commands it would like to send; the runner
 // sends them in that order and keeps the first one the authority accepts, so a
@@ -239,7 +239,7 @@ const PLAYED = {
 /**
  * The two recorded lives for the countries beyond the UK (tools/goldens/record-lives.ts, design page 11 section 7) play the careful
  * habits with Canada as the one settling route and no study plan, and the risky habits with the road as the one way out; neither is among
- * the sweeps' strategies (STRATEGY_NAMES), so the sweeps' figures stand.
+ * simulated play's strategies (STRATEGY_NAMES), so its figures stand.
  */
 const HABITS: Record<StrategyName, Habits> = {
   ...PLAYED,

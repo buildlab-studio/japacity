@@ -13,7 +13,7 @@ The client is the game a player sees: a React app in `apps/client` that draws a 
 | lucide-react | The icons, by name, so plain data can carry them |
 | better-auth | Signing in, online only |
 
-The code is split by kind: `src/features/<kind>/` holds one kind's screens, and `src/shared/` holds what two features need. A feature never imports another feature, and neither `src/shared/` nor `src/authority/` imports a feature; `tests/boundaries.test.ts` holds both, and the shell in `src/app/App.tsx` composes the features and hands each what it needs from the others. The tests that cut across features, such as the voice of every words table, sit in `src/sweep/`.
+The code is split by kind: `src/features/<kind>/` holds one kind's screens, and `src/shared/` holds what two features need. A feature never imports another feature, and neither `src/shared/` nor `src/authority/` imports a feature; `tests/boundaries.test.ts` holds both, and the shell in `src/app/App.tsx` composes the features and hands each what it needs from the others. The tests that cut across features, such as the voice of every words table, sit in `src/cross-feature/`.
 
 ## The authority
 

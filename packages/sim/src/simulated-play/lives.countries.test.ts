@@ -1,4 +1,4 @@
-// One recorded life per country beyond the UK (design page 11 section 7; sweep/lives.countries.data.ts), replayed through
+// One recorded life per country beyond the UK (design page 11 section 7; simulated-play/lives.countries.data.ts), replayed through
 // the real content with the checks the golden lives carry, so the three countries are reached by a real life.
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
@@ -9,7 +9,7 @@ import { lifeStart, loadSave, replay, savedCommands } from "../engine/replay";
 import { lifeSaves } from "../goldens/lives.data";
 import { standInWorld } from "../world/standIn";
 import { countryLifeSaves } from "./lives.countries.data";
-import { sweepLifeSaves } from "./lives.data";
+import { simulatedLifeSaves } from "./lives.data";
 
 // The Gulf's life and Canada's are recorded; Italy has none, since the road's journey starts too late for the recording (tools/goldens/record-lives.ts).
 const LANDS: Record<string, { country: Id<"country">; route: Id<"route"> }> = {
@@ -24,7 +24,7 @@ describe("the lives recorded for the three countries", () => {
     for (const script of recorded) {
       expect(content.scenario[lifeStart(script.save)!.scenario]).toBeDefined();
       expect(lifeSaves[script.name]).toBeUndefined();
-      expect(sweepLifeSaves[script.name]).toBeUndefined();
+      expect(simulatedLifeSaves[script.name]).toBeUndefined();
     }
   });
 

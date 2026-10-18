@@ -1,4 +1,4 @@
-// The sweep's own sampler: every command testing/legal.ts builds, and the
+// Simulated play's own sampler: every command testing/legal.ts builds, and the
 // commands of the whole life it leaves out, read from the view alone. Each
 // one added here is accepted whenever the view lets it through.
 import type { PlayerView } from "../engine/types";

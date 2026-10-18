@@ -53,7 +53,7 @@ export default defineConfig({
           environment: "node",
           include: ["packages/sim/src/**/*.test.ts"],
           setupFiles: ["packages/sim/vitest.setup.ts"],
-          // The sweep plays hundreds of months per property run.
+          // Simulated play plays hundreds of months per property run.
           testTimeout: 60000,
         },
       },

@@ -1,5 +1,5 @@
 // Castel Volturno on the mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace;
-// place:rides-between-city-places, place:employer-shuttle-rides-free; streets:castel-volturno-by-hand): a life that took the road, played by the sweep's own
+// place:rides-between-city-places, place:employer-shuttle-rides-free; streets:castel-volturno-by-hand): a life that took the road, played by a simulated
 // player, lands on the coast holding the farm's cash job. Italy has no pass, so the bus is paid each time: the van to the
 // fields asks nothing and the gangmaster's table says On shift, the van back to the roundabout asks nothing, the coast
 // road's bus to the discount supermarket asks its flat fare, and the weekly shop takes euros.
@@ -12,7 +12,7 @@ import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-/** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28, at the farm. */
+/** The simulated risky player from the front door's life takes the road and reaches Castel Volturno in month 28, at the farm. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
 
 test("[world:ride-abroad-and-workplace] [place:employer-shuttle-rides-free] [streets:castel-volturno-by-hand] given a road life landed at Castel Volturno, when it rides the van to the fields and back and the bus to the discount supermarket for the weekly shop, then the van asks nothing either way, the table says On shift, the bus asks its flat fare and the shop takes euros", async ({ page }) => {

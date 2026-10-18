@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { bp } from "../engine/int";
 import type { Accepted, BaseEvent, Currency, FlatSave, State } from "../engine/types";
 import { lifeSaves } from "../goldens/lives.data";
-import { sweepLifeSaves } from "../sweep/lives.data";
+import { simulatedLifeSaves } from "../simulated-play/lives.data";
 import type { Game } from "../testing/play";
 import { finishPrologue, start } from "../testing/play";
 import type { WalletEvent } from "./wallet.events";
@@ -15,7 +15,7 @@ import { COOK } from "../testing/ids";
 
 type Closed = Extract<WalletEvent, { type: "wallet/month-closed" }>;
 
-const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...sweepLifeSaves };
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...simulatedLifeSaves };
 
 function closedOf(result: Accepted): Closed | undefined {
   return result.events.find((event): event is BaseEvent & Closed => event.type === "wallet/month-closed");

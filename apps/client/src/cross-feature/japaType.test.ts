@@ -4,7 +4,7 @@
 import { content, japaTypes, text } from "@japacity/content";
 import type { FlatSave, PlayerView, ReportLine, SlotPick } from "@japacity/sim";
 import { qualityIn, topActivities } from "@japacity/sim";
-import { lifeSaves, sweepLifeSaves, start } from "@japacity/sim/testing";
+import { lifeSaves, simulatedLifeSaves, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
 import { kept, moneyLines } from "../features/turn/month.results";
@@ -12,8 +12,8 @@ import { localCurrency } from "../shared/words/wayHome";
 import { newGame, recordedGame } from "../shared/testing/fixtures";
 import { japaTypeOf, typeWords } from "../shared/words/japaType";
 
-/** Every recorded life: the goldens and the lives the sweep plays beside them. */
-const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...sweepLifeSaves };
+/** Every recorded life: the goldens and the simulated lives played beside them. */
+const SAVES: Record<string, FlatSave> = { ...lifeSaves, ...simulatedLifeSaves };
 
 /** A recorded life replayed to its end, from either list. */
 function replayed(name: string): ReturnType<typeof start> {

@@ -31,7 +31,7 @@ The game is split into kinds. Each kind owns one slice of the state and is one m
 
 Two kinds sit in a folder named in the singular: `people` in `packages/sim/src/person/`, and `things` (what a life owns, decision 0019) in `packages/sim/src/thing/`.
 
-Other folders hold helpers that own no slice: `japacity` (the readiness figure), `world` (the stand-in world, the director, rates), `scenario`, `school`, `country`, `era`, `var`, `pair`, `phrase` (the preset phrases), `guide` (the early win), `goldens` (the recorded saves), `sweep` (simulated players) and `testing`.
+Other folders hold helpers that own no slice: `japacity` (the readiness figure), `world` (the stand-in world, the director, rates), `scenario`, `school`, `country`, `era`, `var`, `pair`, `phrase` (the preset phrases), `guide` (the early win), `goldens` (the recorded saves), `simulated-play` (simulated players) and `testing`.
 
 A kind adds only the parts it needs:
 
@@ -184,13 +184,13 @@ Replaying the commands in order under the same content rebuilds the state exactl
 
 The state also carries a `schema` number, so a change to its shape is read from that number, never guessed.
 
-## Goldens, recorded lives and the sweep
+## Goldens, recorded lives and simulated play
 
 Three kinds of test hold the engine to its rules over whole lives.
 
 **Golden replays.** `packages/sim/src/goldens/` holds a small set of saves with the figures each must produce: for every month, the version, the turns banked, the naira in the bank and a hash of the state, and a hash of the final state. The golden test replays each save and compares (engine:same-inputs-same-result, engine:state-is-plain-data). Two goldens run on the small test content; the rest are recorded lives on the real content.
 
-**Recorded lives.** `pnpm record:lives` (`tools/goldens/record-lives.ts`) plays simulated players with fixed strategies (careful, borrower, risky) through the starting lives on the real content and a fixed world, and writes their saves. Each blessed life is recorded twice: once to the flight, and once as a careful life that carries on three years abroad and comes home by choice. A recorded life that is not a golden goes into `packages/sim/src/sweep/lives.data.ts` (the lives in the other countries into `lives.countries.data.ts`) and is replayed by its own test there.
+**Recorded lives.** `pnpm record:lives` (`tools/goldens/record-lives.ts`) plays simulated players with fixed strategies (careful, borrower, risky) through the starting lives on the real content and a fixed world, and writes their saves. Each blessed life is recorded twice: once to the flight, and once as a careful life that carries on three years abroad and comes home by choice. A recorded life that is not a golden goes into `packages/sim/src/simulated-play/lives.data.ts` (the lives in the other countries into `lives.countries.data.ts`) and is replayed by its own test there.
 
 **Bless.** `pnpm bless` (`tools/goldens/bless.ts`) replays the scripts and rewrites the golden files, saying what changed. It is the only way a golden changes, and a change is explained in the commit.
 
@@ -202,7 +202,7 @@ flowchart LR
   D --> E["the golden test<br/>replays every save"]
 ```
 
-**The sweep.** `packages/sim/src/sweep/` plays many random lives and simulated players and, after every command, checks the invariants, that the view has every key and no hidden one, and that replay gives the same hash. It is how a rule that breaks some unlikely life gets caught.
+**Simulated play.** `packages/sim/src/simulated-play/` plays many random lives and simulated players and, after every command, checks the invariants, that the view has every key and no hidden one, and that replay gives the same hash. It is how a rule that breaks some unlikely life gets caught.
 
 ::: warning Never by hand
 Golden files and recorded lives are never edited by hand, and a failing golden is never re-blessed to get a pass without saying why. If a golden moves, something in the rules moved, and that is the thing to explain.
