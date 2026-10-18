@@ -5,20 +5,14 @@
 // Its own chunk, loaded only when the map shows the UK, so a first visit at home carries none of it. Authored in the
 // thousandths of a degree content keeps positions in, laid on the paper through London's own fit; rough on purpose, as
 // the positions are (city.md R-CITY-008): a stylised London, not a survey.
-import { content } from "@japacity/content";
-
 import { londonMapWords } from "./paper.words";
+import { abroadPaper, card, type LatLon, paperPen } from "./abroad";
 import type { PaperCity, StripMark } from "./city";
-import { type Card, cardByRules, type Rule } from "./districts";
-import type { DrawSource } from "./draw";
-import { type Fit, fitOf, type Point, type Position } from "./fit";
+import type { Card, Rule } from "./districts";
+import type { Fit, Point, Position } from "./fit";
 import type { Decor, Label, Road } from "./geometry";
 import { Tower, Towers } from "./landmarks";
 import { PaperMap, type PaperMapProps } from "./PaperMap";
-import type { Clear, Ground } from "./scatter";
-
-/** [lat, lon] in thousandths of a degree. */
-type LatLon = readonly [number, number];
 
 /**
  * London's fit: north up, a thousandth of a degree sixteen paper units south and ten east, so the paper keeps
@@ -28,13 +22,10 @@ type LatLon = readonly [number, number];
 export const LONDON_FIT: Fit = { xLon: 10, xLat: 0, x0: 1080, yLon: 0, yLat: -16, y0: 824320 };
 export const LONDON_PAPER = { width: 680, height: 992 } as const;
 
-const fitted = fitOf(LONDON_FIT);
-const at = ([latE3, lonE3]: LatLon): Point => fitted.toPaper({ latE3, lonE3 });
-const ring = (points: readonly LatLon[]): Point[] => points.map(at);
+const { at, ring, label, decor } = paperPen(LONDON_FIT);
 
 /** The home's spot on the map, off Choumert Road: the room abroad has no position of its own (design page 14 section 4). */
 export const LONDON_HOME_SPOT: Position = { latE3: 51471, lonE3: -73 };
-const HOME = "place.the-room";
 
 /** The Thames's two banks, west to east, as it bends from Blackfriars past London Bridge and Tower Bridge to Rotherhithe. */
 const SOUTH_BANK: readonly LatLon[] = [
@@ -189,8 +180,6 @@ const PARKS: readonly (readonly [number, number, number, number])[] = [
   [...at([51465, -93]), 13, 10],
 ];
 
-const label = (key: string, where: LatLon, tilt: number, size: number): Label => ({ key, at: at(where), tilt, size });
-
 const LABELS: readonly Label[] = [
   label("map.area.peckham", [51463, -80], -4, 13),
   label("map.area.camberwell", [51478, -100], -3, 12),
@@ -202,8 +191,6 @@ const LABELS: readonly Label[] = [
 ];
 
 const WATER_LABELS: readonly Label[] = [label("map.water.thames", [51502, -58], -8, 14)];
-
-const decor = (model: string, where: LatLon, size: number, tilt: number): Decor => ({ model, at: at(where), size, tilt, kind: "car" });
 
 /** London's red buses standing on their roads, and a train on the line by the Rye. */
 const DECOR: readonly Decor[] = [
@@ -280,7 +267,6 @@ const STRIP_LANDMARKS: readonly StripMark[] = [
 ];
 
 /** The neighbourhoods, north to south: the Elephant and London Bridge, the Old Kent Road, Camberwell, Peckham, Nunhead. */
-const card = (id: string, model: string, centre: Point, zoom: number): Card => ({ id, key: `map.card.${id}`, model, centre, zoom });
 const CARDS: readonly Card[] = [
   card("elephant", "prop_desk-pod", [150, 328], 200),
   card("old-kent-road", "prop_racking", at([51486, -65]), 300),
@@ -292,54 +278,20 @@ const CARDS: readonly Card[] = [
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "elephant", latMin: 51492 }, { card: "old-kent-road", latMin: 51479 }, { card: "nunhead", lonMin: -62 }, { card: "camberwell", lonMax: -80 }, { card: "peckham" }];
 
-/** The places of the UK with a position, as content keeps them. */
-function ukPlaces(): Position[] {
-  return Object.values(content.place)
-    .filter((place) => place.where === "abroad" && place.country === "country.uk" && place.position !== null && place.id !== HEATHROW)
-    .map((place) => place.position ?? LONDON_HOME_SPOT);
-}
-
-/** What the scatter keeps clear of: every place of London with a position, the home, the names, the landmarks, the decor and the inset. */
-function groundOf(): Ground {
-  const places: Clear[] = [...ukPlaces(), LONDON_HOME_SPOT].map((position) => {
-    const [x, y] = at([position.latE3, position.lonE3]);
-    return [x, y, 9];
-  });
-  const names: Clear[] = LABELS.map((item) => [item.at[0], item.at[1] - 3, Math.round((item.size * item.key.length) / 9) + 4]);
-  const landmarks: Clear[] = Object.values(LANDMARKS).map(([x, y]) => [x, y, 16]);
-  const decorClear: Clear[] = DECOR.map((item) => [item.at[0], item.at[1], Math.round(item.size / 2) + 2]);
-  const [x0, y0, x1, y1] = INSET.box;
-  const inset: Clear = [Math.round((x0 + x1) / 2), Math.round((y0 + y1) / 2), Math.round((x1 - x0) * 0.75)];
-  return {
-    land: Object.values(LAND),
-    roads: [...ROADS.map((item) => ({ points: item.points, reach: item.bridge === undefined ? (item.main ? 8 : 6) : 9 })), ...RAILS.map((points) => ({ points, reach: 6 }))],
-    clear: [...places, ...names, ...landmarks, ...decorClear, inset],
-    box: [-140, -200, LONDON_PAPER.width + 140, LONDON_PAPER.height + 200],
-  };
-}
-
-const DRAW: DrawSource = { land: LAND, beach: [], roads: ROADS, rails: RAILS, ferry: [], bridgeName: [], palms: [], ground: groundOf };
-
-/** A position kept on the paper: a place whose position is off it stands at its nearest edge, never off the paper. */
-function onPaper(position: Position): Point {
-  const [x, y] = fitted.toPaper(position);
-  return [Math.min(LONDON_PAPER.width - 20, Math.max(20, x)), Math.min(LONDON_PAPER.height - 20, Math.max(20, y))];
-}
-
-export const LONDON: PaperCity = {
-  id: "country.uk",
+export const LONDON: PaperCity = abroadPaper({
+  country: "country.uk",
+  fit: LONDON_FIT,
   paper: LONDON_PAPER,
-  toPaper: onPaper,
-  fromPaper: fitted.fromPaper,
-  cardOf: (position) => cardByRules(RULES, "peckham", position),
-  // The room stands at the home spot, and Heathrow on its inset, whatever position the map is handed for them.
-  fixed: (stop) => {
-    if (stop.id === HEATHROW) return { at: INSET.at, card: INSET.card };
-    if (stop.id === HOME) return { at: fitted.toPaper(LONDON_HOME_SPOT), card: cardByRules(RULES, "peckham", LONDON_HOME_SPOT) };
-    return null;
-  },
-  draw: DRAW,
-  seaFrom: null,
+  homeSpot: LONDON_HOME_SPOT,
+  inset: { id: HEATHROW, ...INSET },
+  land: LAND,
+  beach: [],
+  roads: ROADS,
+  rails: RAILS,
+  rules: RULES,
+  ruleCard: "peckham",
+  names: { labels: LABELS, letters: 9 },
+  landmarks: { at: Object.values(LANDMARKS), reach: 16 },
   parks: PARKS,
   labels: LABELS,
   waterLabels: WATER_LABELS,
@@ -354,7 +306,6 @@ export const LONDON: PaperCity = {
       .map((item) => ({ model: item.model, at: item.at, size: 14 })),
     landmarks: STRIP_LANDMARKS,
   },
-  under: () => null,
   over: () => (
     <>
       <Towers at={LANDMARKS.city} />
@@ -365,10 +316,9 @@ export const LONDON: PaperCity = {
   ),
   // The district a little below the middle of the first look, so the river and the City come into it from the north.
   opening: { phone: [0, -150], wide: [0, -100] },
-  canoe: null,
   words: londonMapWords,
   sizes: { "place.heathrow": 118, "place.peckham": 108, "place.rye-lane": 104 },
-};
+});
 
 /** The folding map handed London: what the map screen loads abroad, in this chunk with its drawing. */
 export function LondonPaperMap(props: Omit<PaperMapProps, "city">) {

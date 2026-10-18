@@ -8,17 +8,13 @@
 import { content } from "@japacity/content";
 
 import { dubaiMapWords } from "./paper.words";
+import { abroadPaper, card, type LatLon, paperPen } from "./abroad";
 import type { PaperCity, StripMark } from "./city";
-import { type Card, cardByRules, type Rule } from "./districts";
-import type { DrawSource } from "./draw";
-import { type Fit, fitOf, type Point, type Position } from "./fit";
+import type { Card, Rule } from "./districts";
+import type { Fit, Point, Position } from "./fit";
 import type { Decor, Label, Road } from "./geometry";
 import { Cranes, Tower, Towers } from "./landmarks";
 import { PaperMap, type PaperMapProps } from "./PaperMap";
-import type { Clear, Ground } from "./scatter";
-
-/** [lat, lon] in thousandths of a degree. */
-type LatLon = readonly [number, number];
 
 export const UAE = "country.uae";
 
@@ -31,13 +27,10 @@ export const UAE = "country.uae";
 export const DUBAI_FIT: Fit = { xLon: 6, xLat: 0, x0: -331500, yLon: 0, yLat: -7, y0: 177030 };
 export const DUBAI_PAPER = { width: 948, height: 798 } as const;
 
-const fitted = fitOf(DUBAI_FIT);
-const at = ([latE3, lonE3]: LatLon): Point => fitted.toPaper({ latE3, lonE3 });
-const ring = (points: readonly LatLon[]): Point[] => points.map(at);
+const { at, ring, label, decor } = paperPen(DUBAI_FIT);
 
 /** The home's spot on the map, from content's country table: the bed space at the camp (design page 15 section 3). */
 export const DUBAI_HOME_SPOT: Position = content.country[UAE]?.homeSpot ?? { latE3: 25270, lonE3: 55395 };
-const HOME = "place.the-room";
 
 /**
  * The land: one shore along the Gulf, cut deep by the creek from its mouth by Deira south-east to its end at the
@@ -167,8 +160,6 @@ const PARKS: readonly (readonly [number, number, number, number])[] = [
   [...at([25200, 55360]), 22, 14],
 ];
 
-const label = (key: string, where: LatLon, tilt: number, size: number): Label => ({ key, at: at(where), tilt, size });
-
 const LABELS: readonly Label[] = [
   label("map.area.dubai.deira", [25279, 55335], -4, 13),
   label("map.area.dubai.bur-dubai", [25248, 55280], -6, 12),
@@ -178,8 +169,6 @@ const LABELS: readonly Label[] = [
 ];
 
 const WATER_LABELS: readonly Label[] = [label("map.water.creek", [25222, 55338], -62, 12), label("map.water.gulf", [25282, 55266], -30, 15)];
-
-const decor = (model: string, where: LatLon, size: number, tilt: number): Decor => ({ model, at: at(where), size, tilt, kind: "car" });
 
 /** The metro on its viaduct, the labour bus on the road to the site, and a taxi by the airport. */
 const DECOR: readonly Decor[] = [
@@ -200,7 +189,6 @@ const LANDMARKS = {
 const STRIP_LANDMARKS: readonly StripMark[] = [{ id: "towers", at: LANDMARKS.towers, draw: () => <Towers at={[0, 0]} /> }];
 
 /** The neighbourhoods in the swipe's order: Deira, the airport, the camp, the site. */
-const card = (id: string, model: string, centre: Point, zoom: number): Card => ({ id, key: `map.card.${id}`, model, centre, zoom });
 const CARDS: readonly Card[] = [
   card("deira", "bld_metro-station", at([25269, 55312]), 260),
   card("airport", "veh_taxi-dubai", at([25254, 55364]), 240),
@@ -211,48 +199,20 @@ const CARDS: readonly Card[] = [
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "site", latMax: 25225 }, { card: "camp", lonMin: 55380 }, { card: "airport", lonMin: 55340 }, { card: "deira" }];
 
-/** The places of the UAE with a position, as content keeps them. */
-function uaePlaces(): Position[] {
-  return Object.values(content.place)
-    .filter((place) => place.where === "abroad" && place.country === UAE && place.position !== null)
-    .map((place) => place.position ?? DUBAI_HOME_SPOT);
-}
-
-/** What the scatter keeps clear of: every place of Dubai, the home, the names, the landmarks and the decor. */
-function groundOf(): Ground {
-  const places: Clear[] = [...uaePlaces(), DUBAI_HOME_SPOT].map((position) => {
-    const [x, y] = at([position.latE3, position.lonE3]);
-    return [x, y, 9];
-  });
-  const names: Clear[] = [...LABELS, ...WATER_LABELS].map((item) => [item.at[0], item.at[1] - 3, Math.round((item.size * item.key.length) / 12) + 4]);
-  const landmarks: Clear[] = Object.values(LANDMARKS).map(([x, y]) => [x, y, 18]);
-  const decorClear: Clear[] = DECOR.map((item) => [item.at[0], item.at[1], Math.round(item.size / 2) + 2]);
-  return {
-    land: Object.values(LAND),
-    roads: [...ROADS.map((item) => ({ points: item.points, reach: item.bridge === undefined ? (item.main ? 8 : 6) : 9 })), ...RAILS.map((points) => ({ points, reach: 6 }))],
-    clear: [...places, ...names, ...landmarks, ...decorClear],
-    box: [-140, -200, DUBAI_PAPER.width + 140, DUBAI_PAPER.height + 200],
-  };
-}
-
-const DRAW: DrawSource = { land: LAND, beach: [], roads: ROADS, rails: RAILS, ferry: [], bridgeName: [], palms: [], ground: groundOf };
-
-/** A position kept on the paper: a place whose position is off it stands at its nearest edge, never off the paper. */
-function onPaper(position: Position): Point {
-  const [x, y] = fitted.toPaper(position);
-  return [Math.min(DUBAI_PAPER.width - 20, Math.max(20, x)), Math.min(DUBAI_PAPER.height - 20, Math.max(20, y))];
-}
-
-export const DUBAI: PaperCity = {
-  id: UAE,
+export const DUBAI: PaperCity = abroadPaper({
+  country: UAE,
+  fit: DUBAI_FIT,
   paper: DUBAI_PAPER,
-  toPaper: onPaper,
-  fromPaper: fitted.fromPaper,
-  cardOf: (position) => cardByRules(RULES, "deira", position),
-  // The room stands at the country's home spot, the camp, whatever position the map is handed for it.
-  fixed: (stop) => (stop.id === HOME ? { at: fitted.toPaper(DUBAI_HOME_SPOT), card: cardByRules(RULES, "deira", DUBAI_HOME_SPOT) } : null),
-  draw: DRAW,
-  seaFrom: null,
+  homeSpot: DUBAI_HOME_SPOT,
+  inset: null,
+  land: LAND,
+  beach: [],
+  roads: ROADS,
+  rails: RAILS,
+  rules: RULES,
+  ruleCard: "deira",
+  names: { labels: [...LABELS, ...WATER_LABELS], letters: 12 },
+  landmarks: { at: Object.values(LANDMARKS), reach: 18 },
   parks: PARKS,
   labels: LABELS,
   waterLabels: WATER_LABELS,
@@ -265,7 +225,6 @@ export const DUBAI: PaperCity = {
     minis: [DECOR[0], DECOR[2], DECOR[4]].flatMap((item) => (item === undefined ? [] : [{ model: item.model, at: item.at, size: 14 }])),
     landmarks: STRIP_LANDMARKS,
   },
-  under: () => null,
   over: () => (
     <>
       <Towers at={LANDMARKS.towers} />
@@ -275,10 +234,9 @@ export const DUBAI: PaperCity = {
   ),
   // Deira a little below the middle of the first look, so the creek and the Gulf come into it from the west.
   opening: { phone: [0, -100], wide: [0, -60] },
-  canoe: null,
   words: dubaiMapWords,
   sizes: { "place.deira": 108, "place.dubai-airport": 114, "place.site-uae": 106 },
-};
+});
 
 /** The folding map handed Dubai: what the map screen loads in the UAE, in this chunk with its drawing. */
 export function DubaiPaperMap(props: Omit<PaperMapProps, "city">) {

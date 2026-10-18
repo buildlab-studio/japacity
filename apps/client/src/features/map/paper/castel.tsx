@@ -8,16 +8,12 @@
 import { content } from "@japacity/content";
 
 import { castelMapWords } from "./paper.words";
+import { abroadPaper, card, type LatLon, paperPen } from "./abroad";
 import type { PaperCity, StripMark } from "./city";
-import { type Card, cardByRules, type Rule } from "./districts";
-import type { DrawSource } from "./draw";
-import { type Fit, fitOf, type Point, type Position } from "./fit";
+import type { Card, Rule } from "./districts";
+import type { Fit, Point, Position } from "./fit";
 import type { Decor, Label, Road } from "./geometry";
 import { PaperMap, type PaperMapProps } from "./PaperMap";
-import type { Clear, Ground } from "./scatter";
-
-/** [lat, lon] in thousandths of a degree. */
-type LatLon = readonly [number, number];
 
 export const ITALY = "country.italy";
 
@@ -29,13 +25,10 @@ export const ITALY = "country.italy";
 export const CASTEL_FIT: Fit = { xLon: 6, xLat: 0, x0: -83430, yLon: 0, yLat: -8, y0: 328496 };
 export const CASTEL_PAPER = { width: 870, height: 1256 } as const;
 
-const fitted = fitOf(CASTEL_FIT);
-const at = ([latE3, lonE3]: LatLon): Point => fitted.toPaper({ latE3, lonE3 });
-const ring = (points: readonly LatLon[]): Point[] => points.map(at);
+const { at, ring, label, decor } = paperPen(CASTEL_FIT);
 
 /** The home's spot on the map, from content's country table: the room in a shared flat on the Domitiana (design page 15 section 3). */
 export const CASTEL_HOME_SPOT: Position = content.country[ITALY]?.homeSpot ?? { latE3: 40950, lonE3: 14010 };
-const HOME = "place.the-room";
 
 /** The shore, north-west to south-east, from beyond the river's mouth down past the pinewood to Licola. */
 const SHORE: readonly LatLon[] = [
@@ -125,8 +118,6 @@ const PARKS: readonly (readonly [number, number, number, number])[] = [
   [...at([41066, 14010]), 40, 18],
 ];
 
-const label = (key: string, where: LatLon, tilt: number, size: number): Label => ({ key, at: at(where), tilt, size });
-
 const LABELS: readonly Label[] = [
   label("map.area.castel.town", [41024, 13968], -4, 13),
   label("map.area.castel.pinetamare", [40978, 13978], -36, 11),
@@ -135,8 +126,6 @@ const LABELS: readonly Label[] = [
 ];
 
 const WATER_LABELS: readonly Label[] = [label("map.water.tyrrhenian", [40975, 13925], -60, 15), label("map.water.volturno", [41053, 13975], 0, 12)];
-
-const decor = (model: string, where: LatLon, size: number, tilt: number): Decor => ({ model, at: at(where), size, tilt, kind: "car" });
 
 /** The coast road's blue bus on the Domitiana and the gangmaster's white van on the track to the fields. */
 const DECOR: readonly Decor[] = [
@@ -188,7 +177,6 @@ function Inset() {
 }
 
 /** The neighbourhoods, north to south: the town, the fields, the Domitiana. */
-const card = (id: string, model: string, centre: Point, zoom: number): Card => ({ id, key: `map.card.${id}`, model, centre, zoom });
 const CARDS: readonly Card[] = [
   card("town", "bld_castel-row_a", at([41031, 13946]), 260),
   card("fields", "prop_tarp-table", at([41010, 13992]), 240),
@@ -198,53 +186,20 @@ const CARDS: readonly Card[] = [
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "town", latMin: 41022, lonMax: 13970 }, { card: "fields", latMin: 40985 }, { card: "domitiana" }];
 
-/** The places of Italy with a position, as content keeps them, Naples' airport aside on its inset. */
-function italyPlaces(): Position[] {
-  return Object.values(content.place)
-    .filter((place) => place.where === "abroad" && place.country === ITALY && place.position !== null && place.id !== NAPLES)
-    .map((place) => place.position ?? CASTEL_HOME_SPOT);
-}
-
-/** What the scatter keeps clear of: every place of the coast, the home, the names, the decor and the inset. */
-function groundOf(): Ground {
-  const places: Clear[] = [...italyPlaces(), CASTEL_HOME_SPOT].map((position) => {
-    const [x, y] = at([position.latE3, position.lonE3]);
-    return [x, y, 9];
-  });
-  const names: Clear[] = [...LABELS, ...WATER_LABELS].map((item) => [item.at[0], item.at[1] - 3, Math.round((item.size * item.key.length) / 12) + 4]);
-  const decorClear: Clear[] = DECOR.map((item) => [item.at[0], item.at[1], Math.round(item.size / 2) + 2]);
-  const [x0, y0, x1, y1] = INSET.box;
-  const inset: Clear = [Math.round((x0 + x1) / 2), Math.round((y0 + y1) / 2), Math.round((x1 - x0) * 0.75)];
-  return {
-    land: Object.values(LAND),
-    roads: ROADS.map((item) => ({ points: item.points, reach: item.bridge === undefined ? (item.main ? 8 : 6) : 9 })),
-    clear: [...places, ...names, ...decorClear, inset],
-    box: [-140, -200, CASTEL_PAPER.width + 140, CASTEL_PAPER.height + 200],
-  };
-}
-
-const DRAW: DrawSource = { land: LAND, beach: ring(SHORE), roads: ROADS, rails: [], ferry: [], bridgeName: [], palms: [], ground: groundOf };
-
-/** A position kept on the paper: a place whose position is off it stands at its nearest edge, never off the paper. */
-function onPaper(position: Position): Point {
-  const [x, y] = fitted.toPaper(position);
-  return [Math.min(CASTEL_PAPER.width - 20, Math.max(20, x)), Math.min(CASTEL_PAPER.height - 20, Math.max(20, y))];
-}
-
-export const CASTEL: PaperCity = {
-  id: ITALY,
+export const CASTEL: PaperCity = abroadPaper({
+  country: ITALY,
+  fit: CASTEL_FIT,
   paper: CASTEL_PAPER,
-  toPaper: onPaper,
-  fromPaper: fitted.fromPaper,
-  cardOf: (position) => cardByRules(RULES, "domitiana", position),
-  // The room stands at the country's home spot, and Naples' airport on its inset, whatever position the map is handed for them.
-  fixed: (stop) => {
-    if (stop.id === NAPLES) return { at: INSET.at, card: INSET.card };
-    if (stop.id === HOME) return { at: fitted.toPaper(CASTEL_HOME_SPOT), card: cardByRules(RULES, "domitiana", CASTEL_HOME_SPOT) };
-    return null;
-  },
-  draw: DRAW,
-  seaFrom: null,
+  homeSpot: CASTEL_HOME_SPOT,
+  inset: { id: NAPLES, ...INSET },
+  land: LAND,
+  beach: ring(SHORE),
+  roads: ROADS,
+  rails: [],
+  rules: RULES,
+  ruleCard: "domitiana",
+  names: { labels: [...LABELS, ...WATER_LABELS], letters: 12 },
+  landmarks: { at: [], reach: 16 },
   parks: PARKS,
   labels: LABELS,
   waterLabels: WATER_LABELS,
@@ -257,14 +212,12 @@ export const CASTEL: PaperCity = {
     minis: DECOR.slice(0, 3).map((item) => ({ model: item.model, at: item.at, size: 14 })),
     landmarks: STRIP_LANDMARKS,
   },
-  under: () => null,
   over: () => <Inset />,
   // The town a little below the middle of the first look, so the river comes into it from the north.
   opening: { phone: [0, -120], wide: [0, -80] },
-  canoe: null,
   words: castelMapWords,
   sizes: { "place.castel-volturno": 108, "place.naples-airport": 112, "place.via-domitiana": 104 },
-};
+});
 
 /** The folding map handed the coast: what the map screen loads in Italy, in this chunk with its drawing. */
 export function CastelPaperMap(props: Omit<PaperMapProps, "city">) {

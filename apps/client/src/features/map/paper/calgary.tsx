@@ -7,17 +7,13 @@
 import { content } from "@japacity/content";
 
 import { calgaryMapWords } from "./paper.words";
+import { abroadPaper, card, type LatLon, paperPen } from "./abroad";
 import type { PaperCity, StripMark } from "./city";
-import { type Card, cardByRules, type Rule } from "./districts";
-import type { DrawSource } from "./draw";
-import { type Fit, fitOf, type Point, type Position } from "./fit";
+import type { Card, Rule } from "./districts";
+import type { Fit, Point, Position } from "./fit";
 import type { Decor, Label, Road } from "./geometry";
 import { Tower } from "./landmarks";
 import { PaperMap, type PaperMapProps } from "./PaperMap";
-import type { Clear, Ground } from "./scatter";
-
-/** [lat, lon] in thousandths of a degree. */
-type LatLon = readonly [number, number];
 
 export const CANADA = "country.canada";
 
@@ -29,13 +25,10 @@ export const CANADA = "country.canada";
 export const CALGARY_FIT: Fit = { xLon: 5, xLat: 0, x0: 570390, yLon: 0, yLat: -8, y0: 409120 };
 export const CALGARY_PAPER = { width: 680, height: 900 } as const;
 
-const fitted = fitOf(CALGARY_FIT);
-const at = ([latE3, lonE3]: LatLon): Point => fitted.toPaper({ latE3, lonE3 });
-const ring = (points: readonly LatLon[]): Point[] => points.map(at);
+const { at, ring, label, decor } = paperPen(CALGARY_FIT);
 
 /** The home's spot on the map, from content's country table: the room abroad has no position of its own (design page 15 section 3). */
 export const CALGARY_HOME_SPOT: Position = content.country[CANADA]?.homeSpot ?? { latE3: 51088, lonE3: -113955 };
-const HOME = "place.the-room";
 
 /** The Bow's two banks, from the west past downtown's north side, then bending south-east toward Inglewood. */
 const NORTH_BANK: readonly LatLon[] = [
@@ -132,8 +125,6 @@ const PARKS: readonly (readonly [number, number, number, number])[] = [
   [...at([51061, -114015]), 18, 10],
 ];
 
-const label = (key: string, where: LatLon, tilt: number, size: number): Label => ({ key, at: at(where), tilt, size });
-
 const LABELS: readonly Label[] = [
   label("map.area.calgary.whitehorn", [51101, -113950], -3, 12),
   label("map.area.calgary.rundle", [51066, -113950], 2, 11),
@@ -143,8 +134,6 @@ const LABELS: readonly Label[] = [
 ];
 
 const WATER_LABELS: readonly Label[] = [label("map.water.bow", [51049, -114005], -40, 13)];
-
-const decor = (model: string, where: LatLon, size: number, tilt: number): Decor => ({ model, at: at(where), size, tilt, kind: "car" });
 
 /** Calgary's white and red buses on the avenues, and a CTrain car on the line up the north-east. */
 const DECOR: readonly Decor[] = [
@@ -160,7 +149,6 @@ const LANDMARKS = { tower: at([51044, -114068]) } as const;
 const STRIP_LANDMARKS: readonly StripMark[] = [{ id: "tower", at: LANDMARKS.tower, draw: () => <Tower at={[0, 0]} /> }];
 
 /** The neighbourhoods, north to south: the airport, the north-east, downtown. */
-const card = (id: string, model: string, centre: Point, zoom: number): Card => ({ id, key: `map.card.${id}`, model, centre, zoom });
 const CARDS: readonly Card[] = [
   card("airport", "prop_racking", at([51116, -114002]), 220),
   card("north-east", "bld_strip-mall", at([51084, -113975]), 140),
@@ -170,48 +158,20 @@ const CARDS: readonly Card[] = [
 /** The districts, as rules read in order; the first that holds a position is its card. */
 const RULES: readonly Rule[] = [{ card: "airport", latMin: 51104 }, { card: "downtown", lonMax: -114030 }, { card: "north-east" }];
 
-/** The places of Canada with a position, as content keeps them. */
-function canadaPlaces(): Position[] {
-  return Object.values(content.place)
-    .filter((place) => place.where === "abroad" && place.country === CANADA && place.position !== null)
-    .map((place) => place.position ?? CALGARY_HOME_SPOT);
-}
-
-/** What the scatter keeps clear of: every place of Calgary, the home, the names, the landmark and the decor. */
-function groundOf(): Ground {
-  const places: Clear[] = [...canadaPlaces(), CALGARY_HOME_SPOT].map((position) => {
-    const [x, y] = at([position.latE3, position.lonE3]);
-    return [x, y, 9];
-  });
-  const names: Clear[] = [...LABELS, ...WATER_LABELS].map((item) => [item.at[0], item.at[1] - 3, Math.round((item.size * item.key.length) / 12) + 4]);
-  const landmarks: Clear[] = Object.values(LANDMARKS).map(([x, y]) => [x, y, 16]);
-  const decorClear: Clear[] = DECOR.map((item) => [item.at[0], item.at[1], Math.round(item.size / 2) + 2]);
-  return {
-    land: Object.values(LAND),
-    roads: [...ROADS.map((item) => ({ points: item.points, reach: item.bridge === undefined ? (item.main ? 8 : 6) : 9 })), ...RAILS.map((points) => ({ points, reach: 6 }))],
-    clear: [...places, ...names, ...landmarks, ...decorClear],
-    box: [-140, -200, CALGARY_PAPER.width + 140, CALGARY_PAPER.height + 200],
-  };
-}
-
-const DRAW: DrawSource = { land: LAND, beach: [], roads: ROADS, rails: RAILS, ferry: [], bridgeName: [], palms: [], ground: groundOf };
-
-/** A position kept on the paper: a place whose position is off it stands at its nearest edge, never off the paper. */
-function onPaper(position: Position): Point {
-  const [x, y] = fitted.toPaper(position);
-  return [Math.min(CALGARY_PAPER.width - 20, Math.max(20, x)), Math.min(CALGARY_PAPER.height - 20, Math.max(20, y))];
-}
-
-export const CALGARY: PaperCity = {
-  id: CANADA,
+export const CALGARY: PaperCity = abroadPaper({
+  country: CANADA,
+  fit: CALGARY_FIT,
   paper: CALGARY_PAPER,
-  toPaper: onPaper,
-  fromPaper: fitted.fromPaper,
-  cardOf: (position) => cardByRules(RULES, "north-east", position),
-  // The room stands at the country's home spot, whatever position the map is handed for it.
-  fixed: (stop) => (stop.id === HOME ? { at: fitted.toPaper(CALGARY_HOME_SPOT), card: cardByRules(RULES, "north-east", CALGARY_HOME_SPOT) } : null),
-  draw: DRAW,
-  seaFrom: null,
+  homeSpot: CALGARY_HOME_SPOT,
+  inset: null,
+  land: LAND,
+  beach: [],
+  roads: ROADS,
+  rails: RAILS,
+  rules: RULES,
+  ruleCard: "north-east",
+  names: { labels: [...LABELS, ...WATER_LABELS], letters: 12 },
+  landmarks: { at: Object.values(LANDMARKS), reach: 16 },
   parks: PARKS,
   labels: LABELS,
   waterLabels: WATER_LABELS,
@@ -224,14 +184,12 @@ export const CALGARY: PaperCity = {
     minis: DECOR.slice(0, 3).map((item) => ({ model: item.model, at: item.at, size: 14 })),
     landmarks: STRIP_LANDMARKS,
   },
-  under: () => null,
   over: () => <Tower at={LANDMARKS.tower} />,
   // The north-east a little below the middle of the first look, so the airport comes into it from the north.
   opening: { phone: [0, -120], wide: [0, -80] },
-  canoe: null,
   words: calgaryMapWords,
   sizes: { "place.calgary-north-east": 108, "place.calgary-airport": 112 },
-};
+});
 
 /** The folding map handed Calgary: what the map screen loads in Canada, in this chunk with its drawing. */
 export function CalgaryPaperMap(props: Omit<PaperMapProps, "city">) {
