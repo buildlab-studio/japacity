@@ -28,6 +28,7 @@ import type {
   ThingsSlice,
 } from "../engine/types";
 import { homeOf } from "../home/home.logic";
+import { spendable } from "../wallet/wallet.rates";
 import type { ThingsEvent } from "./thing.events";
 
 /** The cause a purchase, a sale and the month's running are applied under: the thing itself. */
@@ -41,12 +42,6 @@ function record(ctx: Ctx, events: ThingsEvent[]): BaseEvent[] {
 
 function addsOf(adds: readonly ThingAdd[]): Effect[] {
   return adds.filter((add) => add.amount !== 0).map((add): Effect => ({ type: "quality/add", quality: add.quality, amount: add.amount }));
-}
-
-/** Naira held in cash and bank together. */
-function nairaHeld(state: State): number {
-  const { cash, bank } = state.wallet.pockets.NGN;
-  return cash + bank;
 }
 
 function owns(state: State, thing: Id<"thing">): boolean {
@@ -100,7 +95,7 @@ function buyShut(read: Pick<ReadCtx, "state" | "content">, entry: ThingEntry): T
   if (owns(state, entry.id)) return "owned";
   if (!standsIn(entry, home)) return "home";
   if (!entry.needs.every((need) => owns(state, need))) return "needs";
-  if (nairaHeld(state) < entry.price) return "short";
+  if (spendable(state.wallet.pockets.NGN) < entry.price) return "short";
   return null;
 }
 
@@ -172,7 +167,7 @@ function due(ctx: Ctx): BaseEvent[] {
     const cost = runningOf(ctx, entry, works);
     const cause = causeOf(entry.id);
     if (cost > 0) {
-      if (nairaHeld(ctx.state) < cost) {
+      if (spendable(ctx.state.wallet.pockets.NGN) < cost) {
         events.push(...record(ctx, [{ type: "things/stood", thing: entry.id, amount: cost }]));
         continue;
       }

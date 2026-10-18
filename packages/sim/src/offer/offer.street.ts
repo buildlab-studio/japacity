@@ -2,6 +2,7 @@
 // Three bad offers of the life group, each opening only in a month the
 // character slept rough. Their chance reads the month's played activities and
 // never money (luck.md R-LUCK-001); the content check below holds them to it.
+import { requirementsIn } from "../engine/check";
 import type { Content, Ctx, Id, OfferEntry, Requirement, Terms } from "../engine/types";
 
 export const SLEEP_ROUGH: Id<"activity"> = "activity.sleep-rough";
@@ -13,14 +14,6 @@ export const BRIDGE_OFFERS: readonly Id<"offer">[] = [BRIDGE_THEFT, BRIDGE_MOSQU
 
 /** The requirement types that read money held or money moved. */
 const MONEY: readonly Requirement["type"][] = ["money/min", "money/can-pay", "wallet/total"];
-
-function flatten(requirements: readonly Requirement[]): Requirement[] {
-  return requirements.flatMap((requirement): Requirement[] => {
-    if (requirement.type === "not") return [requirement, ...flatten([requirement.of])];
-    if (requirement.type === "any") return [requirement, ...flatten(requirement.of)];
-    return [requirement];
-  });
-}
 
 /** The words key the night is told by: R-STREET-009 reads the scenario's sex, and a life that does not say takes the neutral line. */
 function nightLine(content: Content, scenario: Id<"scenario">): string {
@@ -57,7 +50,7 @@ export function bridgeProblems(content: Content): string[] {
   for (const id of BRIDGE_OFFERS) {
     const entry = content.offer[id];
     if (entry === undefined) continue;
-    const when = flatten(entry.when);
+    const when = requirementsIn(entry.when);
     if (when.some((requirement) => MONEY.includes(requirement.type))) problems.push(`${id}: the bridge's price reads money (R-STREET-004, R-LUCK-001).`);
     if (!entry.when.some((requirement) => requirement.type === "activity/played" && requirement.activity === SLEEP_ROUGH)) {
       problems.push(`${id}: opens in a month the character did not sleep rough (R-STREET-004).`);

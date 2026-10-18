@@ -3,10 +3,10 @@ import { japacity } from "../japacity/japacity.logic";
 import { registry } from "../kinds";
 import { freeSlots } from "../turn/turn.logic";
 import type { Draft } from "./draft";
-import { applyReturned, applyToDraft, makeCtx, openDraft, readOf } from "./draft";
+import { applyReturned, applyToDraft, makeCtx, openDraft } from "./draft";
 import type { EngineStepped } from "./events";
 import type { EngineCtx, PrefixOf, Registry, SliceKey } from "./kind";
-import { PHASES, prefixOf } from "./kind";
+import { PHASES, prefixOf, readOf } from "./kind";
 import { isRejection, reject } from "./reject";
 import type { Command, CommandType, Content, Rejection, Sender, State, StepResult, World } from "./types";
 

@@ -5,7 +5,7 @@
 import { heldBand, tenureAcross } from "../../activity/activity.logic";
 import { check, worldVar } from "../../engine/check";
 import { BP_WHOLE, convertMinor, divFloor, mulDiv } from "../../engine/int";
-import { emit } from "../../engine/kind";
+import { emit, readOf } from "../../engine/kind";
 import type {
   BaseEvent,
   Content,
@@ -239,7 +239,6 @@ function windowClosed(read: ReadCtx, entry: RouteEntry): boolean {
   return entry.window !== null && worldVar(read, entry.window) <= 0;
 }
 
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
 
 function updated(ctx: Ctx, route: Id<"route">, gate: PointsState, note: string | null): BaseEvent[] {
   const event: RouteKindEvent = { type: "route/gate-updated", route, gate, note };

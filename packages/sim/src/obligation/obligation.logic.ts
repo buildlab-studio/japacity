@@ -4,7 +4,7 @@
 // the engine's counter (R-SCENARIO-002).
 import { rateFor } from "../credit/credit.logic";
 import { worldVarOr } from "../engine/check";
-import { bp, convertMinor, divCeil, divFloor, mulDiv } from "../engine/int";
+import { bp, convertMinor, divCeil, divFloor, isWhole, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
 import { emit, oldestFirst, ownOf } from "../engine/kind";
 import { reject } from "../engine/reject";
@@ -37,7 +37,7 @@ import { appliesHere } from "../place/place.logic";
 import { couchEnds, onTheCouch } from "./obligation.couch";
 import type { ClosedWhy, ObligationEvent } from "./obligation.events";
 import { isSponsorUndertaking, openUndertaking, payUndertaking, undertakingDue, undertakingMonthsLeft } from "./obligation.undertaking";
-import { officialRates } from "../wallet/wallet.rates";
+import { officialRates, spendable } from "../wallet/wallet.rates";
 
 const STANDING: Id<"quality"> = "quality.standing";
 const WELLBEING: Id<"quality"> = "quality.wellbeing";
@@ -484,7 +484,7 @@ function miss(ctx: Ctx, item: ObligationState, entry: ObligationEntry, charge: C
   }
   // R-OBLIGATION-002 (decision 0013): the upkeep takes what the naira holds and the shortfall is the miss, so a bill
   // short by a little never leaves the whole month's money untouched and the results saying nothing moved.
-  const paid = entry.type === "upkeep" && entry.currency === "NGN" ? Math.min(totalOf(charge), ctx.state.wallet.pockets.NGN.cash + ctx.state.wallet.pockets.NGN.bank) : 0;
+  const paid = entry.type === "upkeep" && entry.currency === "NGN" ? Math.min(totalOf(charge), spendable(ctx.state.wallet.pockets.NGN)) : 0;
   if (paid > 0) take(ctx, cause, entry.currency, "any", paid, "upkeep");
   const events = record(ctx, { type: "obligation/missed", id: item.id, entry: item.entry, total: totalOf(charge), missed, ...(paid > 0 ? { paid } : {}) });
   ctx.apply(entry.type === "group-loan" ? groupMissEffects(ctx, entry, missed) : entry.onMiss, cause);
@@ -652,10 +652,6 @@ function reliefEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 // ---------------------------------------------------------------------------
 // Paying early: R-OBLIGATION-008, R-CAR-003, 004
 // ---------------------------------------------------------------------------
-
-function isWhole(amount: unknown): amount is number {
-  return typeof amount === "number" && Number.isSafeInteger(amount);
-}
 
 function isGoodAmount(amount: unknown): amount is number {
   return isWhole(amount) && amount > 0;

@@ -36,7 +36,7 @@ import type {
 
 import { heldForRoad, netsAfter, passbookOpen, passbookView, roadTarget } from "./wallet.passbook";
 import type { AnyPocket, RemitChannel, WalletEvent } from "./wallet.events";
-import { CURRENCIES, officialRates, streetRates } from "./wallet.rates";
+import { CURRENCIES, isCurrency, officialRates, placeCurrency, streetRates } from "./wallet.rates";
 
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
@@ -108,10 +108,6 @@ export const REASON_LINE: Record<Reason, string | null> = {
 // ---------------------------------------------------------------------------
 // Reading the world
 // ---------------------------------------------------------------------------
-
-function isCurrency(value: unknown): value is Currency {
-  return typeof value === "string" && (CURRENCIES as readonly string[]).includes(value);
-}
 
 /** R-WALLET-012: a whole number above zero. */
 function isGoodAmount(amount: unknown): amount is number {
@@ -575,13 +571,6 @@ function settle(ctx: Ctx): BaseEvent[] {
 // The months kept: decision 0024
 // ---------------------------------------------------------------------------
 
-/** The money of the place: naira at home and on the road, the country's own abroad, as the results sheet reads it. */
-function placeCurrency(state: State, content: Content): Currency {
-  const country = state.place.country;
-  if (state.place.where !== "abroad" || country === null) return "NGN";
-  return content.country[country]?.currency ?? "NGN";
-}
-
 /**
  * Money that is not the month's own on the results sheet (R-WORLD-008): a move between pockets is the
  * same money, a change of money is a move between currencies (decision 0024: what is done with
@@ -628,7 +617,7 @@ function closeMonth(ctx: Ctx): BaseEvent[] {
   const passbook = ctx.state.wallet.paceNet === undefined ? [] : [...paced(ctx), ...stamped(ctx)];
   const net = ctx.state.wallet.monthNet;
   if (net === undefined) return [...warned, ...passbook];
-  const currency = placeCurrency(ctx.state, ctx.content);
+  const currency = placeCurrency(ctx.state.place, ctx.content);
   const closed: WalletEvent = { type: "wallet/month-closed", currency, net: net[currency] ?? 0 };
   return [closed, ...warned, ...passbook];
 }

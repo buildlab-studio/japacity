@@ -3,8 +3,8 @@
 import { bp } from "../engine/int";
 import { reject } from "../engine/reject";
 import type { RegisteredKind } from "../engine/kind";
-import { turnInProgress } from "../engine/kind";
-import type { BaseEvent, Command, Content, Ctx, Id, ReadCtx, Rejection, SlotLock, SlotPick, State, TurnSlice } from "../engine/types";
+import { readOf, turnInProgress } from "../engine/kind";
+import type { BaseEvent, Command, Content, Ctx, Id, Rejection, SlotLock, SlotPick, State, TurnSlice } from "../engine/types";
 import { japacity } from "../japacity/japacity.logic";
 import type { TurnEvent } from "./turn.events";
 
@@ -91,7 +91,7 @@ function close(ctx: Ctx): BaseEvent[] {
   const turn = turnInProgress(ctx);
   if (turn === null) throw new Error("The close phase runs only inside a turn.");
   const lines = turn.lines();
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const event: TurnEvent = {
     type: "turn/ended",
     report: {

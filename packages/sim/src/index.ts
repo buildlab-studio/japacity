@@ -31,6 +31,8 @@ export type { RemitChannel } from "./wallet/wallet.events";
 export { ledgerReport } from "./wallet/wallet.report";
 // Where a naira credit lands by its size (wallet.md R-WALLET-018): content's prologue earnings read it too.
 export { pocketFor } from "./wallet/wallet.logic";
+export { CURRENCIES, isCurrency, placeCurrency, spendable } from "./wallet/wallet.rates";
+export { qualityIn } from "./quality/quality.logic";
 export { rideFare, metresApart } from "./place/place.logic";
 export type { RideFare } from "./place/place.logic";
 export * as time from "./engine/time";

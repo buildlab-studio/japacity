@@ -2,9 +2,11 @@
 // 009 and 012. The obligation kind calls these for an undertaking whose sink is
 // `undertaking`; any other undertaking (a guarantee) keeps the kind's own path.
 import { worldVar } from "../engine/check";
+import { isWhole } from "../engine/int";
 import { emit } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type { BaseEvent, Cause, Ctx, Effect, Id, ObligationEntry, ObligationState, ReadCtx, Rejection, State } from "../engine/types";
+import { spendable } from "../wallet/wallet.rates";
 import type { ObligationEvent } from "./obligation.events";
 
 const ASSISTANCE: Id<"var"> = "var.ca-assistance";
@@ -68,11 +70,6 @@ function newMonths(state: State, item: ObligationState): number {
   return Math.max(0, taken - item.charged);
 }
 
-/** Canadian money in the bank and in cash together (R-UNDERTAKING-007). */
-function heldNow(state: State, entry: ObligationEntry): number {
-  const pocket = state.wallet.pockets[entry.currency];
-  return pocket.bank + pocket.cash;
-}
 
 /** R-UNDERTAKING-007: from the bank pocket first, then cash. The caller has judged that both together hold it. */
 function takeBankFirst(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount: number): void {
@@ -100,7 +97,7 @@ function collect(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseE
  */
 function charge(ctx: Ctx, item: ObligationState, entry: ObligationEntry): BaseEvent[] {
   const total = item.outstanding;
-  if (heldNow(ctx.state, entry) >= total) {
+  if (spendable(ctx.state.wallet.pockets[entry.currency]) >= total) {
     takeBankFirst(ctx, item, entry, total);
     return record(ctx, [{ type: "obligation/charged", id: item.id, entry: item.entry, total, interest: 0, principal: total }]);
   }
@@ -134,17 +131,13 @@ export function undertakingDue(ctx: Ctx, start: ObligationState, entry: Obligati
   return events;
 }
 
-function isWhole(amount: unknown): amount is number {
-  return typeof amount === "number" && Number.isSafeInteger(amount);
-}
-
 /** R-UNDERTAKING-008: `obligation/pay` pays down what is owed, bank first; paying it all lifts the default. */
 export function payUndertaking(ctx: Ctx, item: ObligationState, entry: ObligationEntry, amount: unknown): BaseEvent[] | Rejection {
   if (item.outstanding === 0) return reject("not-legal", "Nothing is owed on the undertaking.");
   if (!isWhole(amount) || amount <= 0 || amount > item.outstanding) {
     return reject("bad-amount", `The undertaking takes a whole amount above zero and up to the ${String(item.outstanding)} owed.`);
   }
-  if (heldNow(ctx.state, entry) < amount) return reject("cannot-afford", "There is not that much in the bank and cash together.");
+  if (spendable(ctx.state.wallet.pockets[entry.currency]) < amount) return reject("cannot-afford", "There is not that much in the bank and cash together.");
   takeBankFirst(ctx, item, entry, amount);
   const events = record(ctx, [{ type: "obligation/repaid", id: item.id, entry: item.entry, amount }]);
   const cleared = amount === item.outstanding && (item.state !== "active" || item.missed > 0);

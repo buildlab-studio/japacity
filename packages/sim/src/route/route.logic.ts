@@ -5,7 +5,7 @@ import { heldBand, takesApplication } from "../activity/activity.logic";
 import { check, worldVar, worldVarOr } from "../engine/check";
 import { BP_WHOLE, clamp, convertMinor, divFloor, mulDiv } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, ownOf } from "../engine/kind";
+import { emit, ownOf, readOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -98,7 +98,6 @@ export function unknownRoute(gate: RouteGate = "study"): RouteState {
 // Reading
 // ---------------------------------------------------------------------------
 
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
 
 function entryOf(content: Content, id: Id<"route">): RouteEntry {
   const entry = content.route[id];

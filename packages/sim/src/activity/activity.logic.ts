@@ -3,11 +3,11 @@
 // slots. The slot rules read here are judged twice: once when `turn/end` is
 // checked (R-ACTIVITY-002), and again when each slot resolves (R-ACTIVITY-003),
 // because an earlier slot can change the state.
-import { check, resolveAmount } from "../engine/check";
+import { check, resolveAmount, worldVarOr } from "../engine/check";
 import { bp, valueInKobo } from "../engine/int";
 import { cardOf, cardsAllowed, reportLines } from "../chapter/chapter.card";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, turnInProgress, turnSlots } from "../engine/kind";
+import { emit, readOf, turnInProgress, turnSlots } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   ActivityEntry,
@@ -112,7 +112,6 @@ function record(ctx: Ctx, ...events: ActivityEvent[]): BaseEvent[] {
   return emit(ctx, "activity", events);
 }
 
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
 const judgeOf = (ctx: Ctx): Judge => (requirement) => ctx.check(requirement);
 
 function allHold(requirements: readonly Requirement[], judge: Judge): boolean {
@@ -423,7 +422,7 @@ const REMOTE_BONUS: Id<"var"> = "var.remote-hire-bonus";
 export function huntChanceBp(read: ReadCtx, entry: ActivityEntry): number {
   const tuning = read.content.tuning.quality;
   const network = read.state.quality[NETWORK] ?? 0;
-  const bonus = entry.id === REMOTE_JOB ? ((read.world.vars as Record<string, number | undefined>)[REMOTE_BONUS] ?? 0) : 0;
+  const bonus = entry.id === REMOTE_JOB ? worldVarOr(read.world, REMOTE_BONUS) : 0;
   return Math.min(tuning.hireMaxBp, hireChanceBp(entry, network, tuning) + bonus);
 }
 

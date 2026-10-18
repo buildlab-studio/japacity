@@ -6,7 +6,7 @@
 import { check, resolveAmount } from "../engine/check";
 import { bp, divCeil, divFloor } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit } from "../engine/kind";
+import { emit, readOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -33,6 +33,7 @@ import type {
 } from "../engine/types";
 import { livingCharge } from "../obligation/obligation.logic";
 import { isDown } from "../offer/offer.luck";
+import { spendable } from "../wallet/wallet.rates";
 import type { HomeEvent } from "./home.events";
 
 export const FAMILY_HOUSE: HomePlace = "place.family-house";
@@ -197,14 +198,8 @@ function monthlyAt(read: ReadCtx, to: HomePlace): number {
  */
 function moveShut(read: ReadCtx, to: HomePlace): HomeMoveShut | null {
   if (homeOf(read.state, read.content).moved === read.state.turn.month) return "moved";
-  if (nairaHeld(read.state) < takesNow(read.content.tuning.home, to)) return "short";
+  if (spendable(read.state.wallet.pockets.NGN) < takesNow(read.content.tuning.home, to)) return "short";
   return null;
-}
-
-/** Naira held in cash and bank together. */
-function nairaHeld(state: State): number {
-  const { cash, bank } = state.wallet.pockets.NGN;
-  return cash + bank;
 }
 
 // ---------------------------------------------------------------------------
@@ -261,7 +256,7 @@ function judgeHost(read: ReadCtx, requirement: Requirement): RequirementResult {
  */
 function moveTo(ctx: Ctx, to: HomePlace, cause: Cause, charge: boolean, putOut = false): BaseEvent[] {
   const { tuning } = ctx.content;
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const from = homeOf(ctx.state, ctx.content).place;
   const rent = takesNow(tuning.home, to);
   const moved: HomeEvent = { type: "home/moved", from, to, month: ctx.state.turn.month, rent, ...(putOut ? { putOut: true as const } : {}) };
@@ -323,7 +318,7 @@ function moveEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
 
 function guestEffect(ctx: Ctx, effect: Effect, cause: Cause): BaseEvent[] {
   if (effect.type !== "home/guest") throw new Error(`home/guest cannot carry out ${effect.type}.`);
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const by = hostFor(read, effect.host);
   if (by === null) return [];
   const month = ctx.state.turn.month;
@@ -370,7 +365,7 @@ function due(ctx: Ctx): BaseEvent[] {
   const upkeep = upkeepItems(ctx.state, ctx.content).find((item) => (ctx.content.obligation[item.entry]?.where ?? "home") === "home");
   if (upkeep === undefined) return [];
   const rise = bp(upkeep.amount, ctx.content.tuning.home.hostBp);
-  const taken = Math.min(rise, nairaHeld(ctx.state));
+  const taken = Math.min(rise, spendable(ctx.state.wallet.pockets.NGN));
   if (rise === 0) return [];
   const events = record(ctx, [{ type: "home/hosted", pair: hosting.pair, amount: rise }]);
   if (taken > 0) ctx.apply([{ type: "money/take", currency: "NGN", pocket: "any", amount: taken, reason: "upkeep" }], { source: "home.hosting", param: null, terms: {} });
@@ -400,7 +395,7 @@ function clocks(ctx: Ctx): BaseEvent[] {
   }
   const onWater = upkeepItems(ctx.state, ctx.content).some((item) => item.entry === MAKOKO_UPKEEP);
   if (lives !== MAKOKO || !onWater) return [];
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   if (!ctx.random.chance("home", evictionChanceBp(read))) return [];
   const lost = Math.min(ctx.state.wallet.pockets.NGN.cash, ctx.content.tuning.home.evictionLossNaira);
   const events = record(ctx, [{ type: "home/evicted", month, lost }]);

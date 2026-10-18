@@ -5,7 +5,7 @@
 import { check, checkWith, resolveAmount, worldVar } from "../engine/check";
 import { BP_WHOLE, bp, clamp, divFloor, valueInKobo } from "../engine/int";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, oldestFirst } from "../engine/kind";
+import { emit, oldestFirst, readOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -34,7 +34,7 @@ import type {
 } from "../engine/types";
 import { bookedPay, monthlyPay } from "../activity/activity.pay";
 import { routePercent } from "../japacity/japacity.logic";
-import { healthComeUp } from "./offer.health";
+import { healthComeUp, isOpen } from "./offer.health";
 import { appliesHere } from "../place/place.logic";
 import { evictedThisMonth } from "../home/home.logic";
 import type { OfferEvent } from "./offer.events";
@@ -60,7 +60,6 @@ const CHANCE_VARS: Partial<Record<Id<"offer">, Id<"var">>> = { "offer.sponsor-li
 /** Judges one requirement with the terms in hand. Inside a step it is `ctx.check`; outside, the engine's `check`. */
 type Judge = (requirement: Requirement, terms: Terms) => RequirementResult;
 
-const readOf = (ctx: Ctx): ReadCtx => ({ state: ctx.state, world: ctx.world, content: ctx.content });
 
 function entryOf(content: Content, id: Id<"offer">): OfferEntry {
   const entry = content.offer[id];
@@ -78,10 +77,6 @@ function openItems(state: State): OfferState[] {
 
 function roadGroup(read: ReadCtx, item: OfferState): boolean {
   return entryOf(read.content, item.entry).group === "road";
-}
-
-function isOpen(state: State, entry: Id<"offer">): boolean {
-  return Object.values(state.offer.items).some((item) => item.entry === entry);
 }
 
 function reachedLimit(state: State, entry: OfferEntry): boolean {

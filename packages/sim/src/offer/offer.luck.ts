@@ -1,6 +1,7 @@
 // Luck in the offer roll: docs/rules/luck.md R-LUCK-001 to 004. Every rule
 // here reads qualities, months and the place, never how little money the
 // character holds, except the whip-round, whose page says so in the open.
+import { requirementsIn } from "../engine/check";
 import { BP_WHOLE, clamp, divFloor } from "../engine/int";
 import type { Id, ObligationType, OfferEntry, ReadCtx, Requirement, Terms } from "../engine/types";
 import { wealthInNaira } from "../place/place.logic";
@@ -15,15 +16,6 @@ const TELCO_PROMO: Id<"offer"> = "offer.telco-promo";
 /** R-LUCK-002: the loans whose default rules the rescue out. Held funds are a loan too. */
 const LOAN_TYPES: readonly ObligationType[] = ["loan", "group-loan", "held-funds"];
 
-/** Every requirement in a list, the ones under `not` and `any` included. */
-function flatten(requirements: readonly Requirement[]): Requirement[] {
-  return requirements.flatMap((requirement): Requirement[] => {
-    if (requirement.type === "not") return [requirement, ...flatten([requirement.of])];
-    if (requirement.type === "any") return [requirement, ...flatten(requirement.of)];
-    return [requirement];
-  });
-}
-
 /** The requirement types that read money held or money moved. */
 const MONEY_TYPES: readonly Requirement["type"][] = ["money/min", "money/can-pay", "wallet/total"];
 
@@ -33,7 +25,7 @@ const MONEY_TYPES: readonly Requirement["type"][] = ["money/min", "money/can-pay
  */
 export function luckReadsMoney(entry: OfferEntry): boolean {
   if (entry.luck !== true) return false;
-  return flatten(entry.when).some((requirement) => MONEY_TYPES.includes(requirement.type));
+  return requirementsIn(entry.when).some((requirement) => MONEY_TYPES.includes(requirement.type));
 }
 
 /** R-LUCK-003: wellbeing or standing under the line. Qualities only. */

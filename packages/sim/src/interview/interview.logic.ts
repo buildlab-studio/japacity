@@ -2,7 +2,7 @@
 // same questions about their shared history, one at a time, and the answers are
 // compared with no draw, so both lives reach the same result.
 import type { RegisteredKind } from "../engine/kind";
-import { emit, ownOf } from "../engine/kind";
+import { emit, ownOf, readOf } from "../engine/kind";
 import { BP_WHOLE, mulDiv } from "../engine/int";
 import { reject } from "../engine/reject";
 import type {
@@ -260,10 +260,6 @@ function matchedCount(read: ReadCtx, open: Open, bond: Bond, theirs: readonly st
 // ---------------------------------------------------------------------------
 // Opening
 // ---------------------------------------------------------------------------
-
-function readOf(ctx: Ctx): ReadCtx {
-  return { state: ctx.state, world: ctx.world, content: ctx.content };
-}
 
 /** Up to `count` of `pool` drawn on `visa` without repeats, in the order drawn. */
 function drawSome(ctx: Ctx, pool: readonly string[], count: number): string[] {

@@ -5,7 +5,7 @@
 // (decision 0020), so each life replays alone.
 import { check, worldVar } from "../engine/check";
 import type { RegisteredKind } from "../engine/kind";
-import { emit, ownOf } from "../engine/kind";
+import { emit, ownOf, readOf } from "../engine/kind";
 import { reject } from "../engine/reject";
 import type {
   BaseEvent,
@@ -232,7 +232,7 @@ function drawAge(ctx: Ctx, entry: PersonEntry): number {
  * the first turn, as the prologue makes its own draw on its first answer.
  */
 function drawSiblings(ctx: Ctx): BaseEvent[] {
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const { slots } = ctx.state.people;
   const entries = Object.values(ctx.content.person)
     .filter((entry) => entry.role === "sibling" && entry.when.every((requirement) => ctx.check(requirement).met))
@@ -291,7 +291,7 @@ function link(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
 function courtComputer(ctx: Ctx, person: Id<"person">): BaseEvent[] | Rejection {
   const entry = ctx.content.person[person];
   if (entry === undefined) return reject("unknown-id", `There is no person ${person}.`);
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   if (!candidatesOf(read).some((candidate) => candidate.id === person)) return reject("not-legal", `${person} is not someone the character can court now.`);
   const bond = ctx.nextId("bond");
   const facts = computerFacts(read, entry, drawAge(ctx, entry), ctx.state.turn.month);
@@ -740,7 +740,7 @@ function papersMarriage(ctx: Ctx): BaseEvent[] {
     .filter((person) => person.behaviour.papers)
     .sort((left, right) => left.id.localeCompare(right.id))[0];
   if (entry === undefined || partnerBond(ctx.state.people) !== null) return [];
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const id = ctx.nextId("bond");
   const month = ctx.state.turn.month;
   const route = Object.values(ctx.content.route).find((candidate) => candidate.gate === "partner" && candidate.country === entry.profile.country);
@@ -807,7 +807,7 @@ function assistanceEffect(ctx: Ctx, effect: Effect): BaseEvent[] {
 
 /** R-PEOPLE-048: each computer's facts rebuilt, a month older. */
 function refreshFacts(ctx: Ctx): BaseEvent[] {
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   const events: PeopleEvent[] = [];
   for (const [id, bond] of Object.entries(ctx.state.people.bonds)) {
     const entry = computerOf(ctx.content, bond);

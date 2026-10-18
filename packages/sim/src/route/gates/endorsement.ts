@@ -2,7 +2,8 @@
 // endorsing body's letter is a document the document kind issues; the gate
 // decides in `clocks`, the month it is issued, whether the body really backs
 // the character, and keeps the month of a refusal for the cooldown.
-import { emit } from "../../engine/kind";
+import { worldVar } from "../../engine/check";
+import { emit, readOf } from "../../engine/kind";
 import type { BaseEvent, Ctx, Id, ReadCtx, RouteEntry, RouteGateState, RouteState } from "../../engine/types";
 import type { RouteKindEvent } from "../route.events";
 import type { Gate } from "./gate";
@@ -70,7 +71,7 @@ function clocks(ctx: Ctx, entry: RouteEntry): BaseEvent[] {
   const block = blockOf(entry);
   const held = ctx.state.route[entry.id];
   if (held === undefined || held.state !== "known" || !issuedNow(ctx, block.document)) return [];
-  const read: ReadCtx = { state: ctx.state, world: ctx.world, content: ctx.content };
+  const read = readOf(ctx);
   if (ctx.random.chance("visa", endorsementChanceBp(read, entry.id))) return [];
   const event: RouteKindEvent = {
     type: "route/gate-updated",
@@ -109,7 +110,5 @@ export const endorsementGate: Gate = {
 };
 
 function surchargeYear(read: ReadCtx): number {
-  const value = (read.world.vars as Record<string, number | undefined>)["var.uk-surcharge-year"];
-  if (value === undefined) throw new Error("The world has no variable var.uk-surcharge-year.");
-  return value;
+  return worldVar(read, "var.uk-surcharge-year");
 }

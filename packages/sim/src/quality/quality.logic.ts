@@ -1,6 +1,7 @@
 // Qualities: docs/rules/quality.md. Every change, from any kind and from the
 // month itself, goes through `change`, so every event has the same shape.
 import type { RegisteredKind } from "../engine/kind";
+import { readOf } from "../engine/kind";
 import { sideJobHeld } from "../activity/activity.logic";
 import { BP_WHOLE, clamp, mulDivCeil } from "../engine/int";
 import { PROLOGUE_SOURCE } from "../prologue/prologue.logic";
@@ -49,6 +50,11 @@ function entryOf(content: ReadCtx["content"], quality: Id<"quality">): QualityEn
   return entry;
 }
 
+/** A quality's value as a view lists it; 0 when the list does not hold it. */
+export function qualityIn(holder: { qualities?: readonly { id: string; value: number }[] }, id: string): number {
+  return holder.qualities?.find((quality) => quality.id === id)?.value ?? 0;
+}
+
 function valueOf(state: ReadCtx["state"], quality: Id<"quality">): number {
   const value = state.quality[quality];
   if (value === undefined) throw new Error(`The state holds no value for ${quality}.`);
@@ -58,7 +64,7 @@ function valueOf(state: ReadCtx["state"], quality: Id<"quality">): number {
 /** The one way a quality changes. A change that applies nothing records nothing (R-QUALITY-002). */
 function change(ctx: Ctx, quality: Id<"quality">, amount: number, source: string): QualityEvent[] {
   const entry = entryOf(ctx.content, quality);
-  const applied = appliedAmount(entry, valueOf(ctx.state, quality), amount, ctx.content.tuning.quality, sideJobHeld({ state: ctx.state, world: ctx.world, content: ctx.content }));
+  const applied = appliedAmount(entry, valueOf(ctx.state, quality), amount, ctx.content.tuning.quality, sideJobHeld(readOf(ctx)));
   if (applied === 0) return [];
   return [{ type: "quality/changed", quality, amount: applied, source }];
 }
