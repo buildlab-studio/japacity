@@ -3,8 +3,8 @@
 // kitchenette's shelf, a bucket, a mattress on the floor, the hostel's bunk, a small shelf of one's own things, and a
 // louvre window that stands in a cut wall. Each stands on its base at y = 0 and faces +Z (assets:metre-units-and-origin); a thing laid on
 // the floor keeps its top faces two centimetres apart from each other and the floor (world:faces-never-share-height). Palette only.
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, clutter, cylinder, generator, quad } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, box, clutter, cylinder, generator, quad } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at } from "../parts";

@@ -5,8 +5,8 @@
 // is a pane that faces out, so from outside the windows are dark and from a seat the coast road shows through them.
 // Its doors are on the right of its facing, the kerb side in Italy. Built along +x as every vehicle is, then
 // turned to face +z (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { quad } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

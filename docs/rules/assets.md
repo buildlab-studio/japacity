@@ -9,7 +9,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:colours-from-named-palette** Every colour in every model is a named entry in the one palette file, and the model refers to it by name. A colour enters the palette only by a named addition the maintainer accepts, with a one-line reason. Textures are allowed only for fabric patterns (assets:fabric-pattern-from-seed) and sign text (assets:sign-text-drawn-in-code).
 
-**assets:starting-palette-frozen** The starting palette is the 37 colours of the asset experiments, frozen in `packages/assets/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. The four scene colours the experiments hard-coded (sand, asphalt, road marking, sky) are named entries.
+**assets:starting-palette-frozen** The starting palette is the 37 colours of the asset experiments, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. The four scene colours the experiments hard-coded (sand, asphalt, road marking, sky) are named entries.
 
 **assets:metre-units-and-origin** One unit is one metre. +Y is up. A model faces +Z (the glTF convention). Its origin is the centre of its footprint at ground level, and its lowest point is at y = 0 within 0.01 m.
 
@@ -35,7 +35,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:sign-text-drawn-in-code** Text on a sign is drawn in code, at run time, onto a canvas texture, from the place's text keys (`city.md`, city:place-words-are-text-keys), so the spelling is exactly the text table's. A sign texture is at most 512 by 128 pixels and a power of two on each side. Lettering is a font listed in the register with its licence. No sign is ever an image file.
 
-**assets:fabric-pattern-from-seed** A fabric pattern is drawn in code from a seed, uses only palette colours, and tiles by construction (`packages/assets/src/pattern.ts`). It is the only texture an asset may ship. The palette check reads every pixel of it.
+**assets:fabric-pattern-from-seed** A fabric pattern is drawn in code from a seed, uses only palette colours, and tiles by construction (`packages/model-kit/src/pattern.ts`). It is the only texture an asset may ship. The palette check reads every pixel of it.
 
 **assets:variants-are-numbers-not-code** A new outfit, hairstyle, vehicle variant or building is a set of numbers given to existing builder code, not new builder code. New builder code is a new part, and a new part goes through the review like an asset.
 
@@ -271,7 +271,7 @@ All read on 8 Oct 2026.
 
 ## Contract
 
-These rules put nothing in the simulation's `types.ts`. One small package of types serves the build tools and the client (`packages/assets`):
+These rules put nothing in the simulation's `types.ts`. One small package of types serves the build tools and the client (`packages/model-kit`):
 
 1. `PaletteName`: the union of the palette's names; `palette: Record<PaletteName, number>` in one file, imported by every builder and by the check.
 2. `CharacterLook`: a person as data: `{ body: "f" | "m"; shape: number; bust: number; size: number; mass: number; muscle: number; heightCm: number; skin: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; hair: string; headwear: string | null; top: string; bottom: string; robe: string | null; patternSeeds: number[]; faceSeed: string }`. Used by city:players-fill-the-crowd and by the crowd.

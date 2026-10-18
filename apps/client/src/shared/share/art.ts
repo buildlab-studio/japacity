@@ -2,7 +2,7 @@
 // places, objects and people seen from behind, drawn in code from the asset
 // palette. No face, no logo, no crest, no lettering: a person is a single
 // colour shape with no features, and nothing here draws text.
-import type { PaletteName } from "../../../../../packages/assets/src/palette";
+import type { PaletteName } from "../../../../../packages/model-kit/src/palette";
 
 export interface Box {
   x: number;

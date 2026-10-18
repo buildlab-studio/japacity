@@ -4,8 +4,8 @@
 // with an inner face, the seats face each other in bays by the windows with yellow poles at the doors, and the
 // glass is a pane that faces out, so from outside the windows are dark and from a seat the line runs past them.
 // Built along +x as every vehicle is, then turned to face +z (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { quad } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

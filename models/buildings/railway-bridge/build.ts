@@ -3,8 +3,8 @@
 // itself. Left to right as the street sees it: a market arch, the station's mouth with its canopy
 // and board, the girder over the road, a lock-up arch behind its shutter and a second market arch.
 // Boards are anchors with text keys (assets:sign-text-drawn-in-code); the brick is a palette colour (assets:colours-from-named-palette).
-import { setFootprint, type SignStyle } from "@japacity/assets";
-import { beam, box, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
+import { beam, box, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 export const BRIDGE = {

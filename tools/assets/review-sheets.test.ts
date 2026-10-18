@@ -1,9 +1,9 @@
 // Every review sheet under models, imported so the compiler holds each to its type in
-// packages/assets (assets:blind-reviewer-scores-views, assets:rework-never-scores-lower): one asset's sheet, its rounds, or a place's sheet.
+// packages/model-kit (assets:blind-reviewer-scores-views, assets:rework-never-scores-lower): one asset's sheet, its rounds, or a place's sheet.
 // A new sheet is added here; the test below fails while one on disk is missing.
 import { join } from "node:path";
 
-import type { PlaceReview, Review, ReviewSheet } from "@japacity/assets";
+import type { PlaceReview, Review, ReviewSheet } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import bodeThomasBettingSheet from "../../models/buildings/bode-thomas-betting/review.json";

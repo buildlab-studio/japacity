@@ -1,8 +1,8 @@
 // A luggage trolley at the departures kerb (city.md place.airport-lagos), loaded the way a family
 // loads one for a long flight: two big cases, a chequered carrier bag of foodstuff tied shut, a
 // cooler and a small case on top. The frame is the airport's grey tube; the wheels are small.
-import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, quad, type Vec3 } from "@japacity/assets/kit";
+import { lowBox, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, quad, type Vec3 } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { facePlusZ } from "../../vehicles/centred";

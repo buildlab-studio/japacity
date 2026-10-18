@@ -7,8 +7,8 @@
 // again from the look's own pattern with the chosen ground, or another fabric, or none.
 // A figure wears a copy: the colours of its own, sharing every other part of the model, and a print material of its
 // own. Painting runs once a pick, never a frame.
-import { linearToSrgb, nearestPaletteName, type PaletteName, paletteRgb, srgbToLinear } from "@japacity/assets";
-import { drawPattern, type PatternSpec } from "@japacity/assets/pattern";
+import { linearToSrgb, nearestPaletteName, type PaletteName, paletteRgb, srgbToLinear } from "@japacity/model-kit";
+import { drawPattern, type PatternSpec } from "@japacity/model-kit/pattern";
 import { ALL_PEOPLE } from "@japacity/models/people/people.data";
 import {
   BufferAttribute,

@@ -2,8 +2,8 @@
 // display case brought out to the pavement, a printed board on the roof edge and a recharge
 // card sign on its own post. A printed shopfront, no ribs on the back nobody sees, rust and
 // stickers on the box, and the sign inside the plot.
-import { setFootprint, type SignStyle } from "@japacity/assets";
-import { acUnit, awning, box, clutter, container, dish, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
+import { acUnit, awning, box, clutter, container, dish, onWall, posters, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const CONTAINER_SHOP = { width: 6.0, height: 2.6, depth: 2.4, raised: 0.3 } as const;

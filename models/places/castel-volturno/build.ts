@@ -5,8 +5,8 @@
 // palms. Each piece stands on its base at y = 0 facing +Z (assets:metre-units-and-origin), records the ground it blocks
 // (assets:models-record-their-footprint) and shows no real shop's name, mark or colours (assets:no-real-brands-on-assets). The plaster row is also the
 // Domitiana's low block, as data (assets:variants-are-numbers-not-code).
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { acUnit, awning, balcony, beam, box, cylinder, dish, door, floorQuad, meterAndCable, onWall, parapet, posters, quad, seeded, shopOpening, signboard, solid, stain, tank, wornShade } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { acUnit, awning, balcony, beam, box, cylinder, dish, door, floorQuad, meterAndCable, onWall, parapet, posters, quad, seeded, shopOpening, signboard, solid, stain, tank, wornShade } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at } from "../../props/parts";

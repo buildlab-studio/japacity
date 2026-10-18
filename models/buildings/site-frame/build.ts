@@ -3,8 +3,8 @@
 // top, the safety net hung on its edge. Only the base shows over the hoarding; the tower's floors above are out of
 // the place's view. Plain concrete, no contractor's name or mark (assets:no-real-brands-on-assets). Wear where the rain of dust runs
 // (assets:buildings-carry-wear-and-clutter).
-import { setFootprint } from "@japacity/assets";
-import { beam, box, onWall, quad, stain } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, box, onWall, quad, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const SITE_FRAME = { width: 12.0, depth: 8.0, storey: 3.0, floors: 4 } as const;

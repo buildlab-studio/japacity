@@ -94,7 +94,7 @@
         "the makers' notes",
         "any earlier review of the same piece"
       ],
-      "writes": "review.json beside the asset, in the Review shape of packages/assets/src/types.ts; the budget score is read from the register row by the check, not judged"
+      "writes": "review.json beside the asset, in the Review shape of packages/model-kit/src/types.ts; the budget score is read from the register row by the check, not judged"
     }
   },
   "scores": {

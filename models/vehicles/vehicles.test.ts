@@ -1,7 +1,7 @@
 import { Box3, type Group, type Mesh } from "three";
 import { describe, expect, test } from "vitest";
 
-import { isPaletteName } from "@japacity/assets";
+import { isPaletteName } from "@japacity/model-kit";
 
 import { buildStall } from "../props/stall";
 import { buildDanfo, buildKeke, buildOkada } from "./vehicles";

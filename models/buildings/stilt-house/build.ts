@@ -2,8 +2,8 @@
 // villages build them: a plank house on a platform of poles driven into the lagoon bed, a zinc roof
 // patched with a tarpaulin, a veranda with a rail to the water, a ladder down to where the canoes
 // tie up. Every plank a little different, the zinc rusting, the stilts darker where the water reaches.
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { box, floorQuad, onWall, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { box, floorQuad, onWall, quad, seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const STILT_HOUSE = { floor: 1.7, width: 5.2, depth: 4.0, walls: 2.3, veranda: 1.4 } as const;

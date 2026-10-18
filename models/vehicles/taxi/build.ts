@@ -7,8 +7,8 @@
 // world:ride-abroad-and-workplace): its cabin hollow between the bonnet and the boot, thin walls,
 // the glass panes facing out, two seats in front and the bench behind, where the ride sits on the
 // right of the facing by the rear window, the kerb side.
-import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, part, solid } from "@japacity/assets/kit";
+import { lowBox, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, part, solid } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, profile, wheel } from "../centred";

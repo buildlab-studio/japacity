@@ -2,7 +2,7 @@
 // world:room-seen-down-its-length): each home's place file gives every thing it may hold a set spot (your corner at the family house; the
 // room, the kitchenette and the yard in a home of your own), each spot fitting the floor rule buy mode uses with every
 // other thing owned standing too, and the room's budgets held with everything owned in view.
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { content } from "@japacity/content";
 import type { HomePlace } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

@@ -2,8 +2,8 @@
 // armchairs in wine with cream covers on the backs, a low centre table with a glass top, a rug,
 // the television on its stand against the wall, a standing fan. Laid out round the origin, the
 // television at the back (-Z) and the seats facing it.
-import { setFootprint } from "@japacity/assets";
-import { box, cylinder, floorQuad, quad } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { box, cylinder, floorQuad, quad } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at } from "../parts";

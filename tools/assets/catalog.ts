@@ -2,9 +2,9 @@
 // The export, the shooter, the outline scorer and the check all start here.
 import { join } from "node:path";
 
-import { type BuildingSpec, lowBox, setFootprint, type SignStyle } from "@japacity/assets";
-import { buildBuilding, type BuildingOptions, DEFAULT_DISH_YAW, pole } from "@japacity/assets/kit";
-import { drawPattern } from "@japacity/assets/pattern";
+import { type BuildingSpec, lowBox, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { buildBuilding, type BuildingOptions, DEFAULT_DISH_YAW, pole } from "@japacity/model-kit/kit";
+import { drawPattern } from "@japacity/model-kit/pattern";
 import { buildFamilyHouse } from "@japacity/models/buildings/family-house/build";
 import { buildFlyoverSpan } from "@japacity/models/buildings/flyover-span/build";
 import { buildStiltHouse } from "@japacity/models/buildings/stilt-house/build";

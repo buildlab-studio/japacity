@@ -4,7 +4,7 @@
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { RegisterRow } from "@japacity/assets";
+import type { RegisterRow } from "@japacity/model-kit";
 
 import { SOURCE } from "./catalog";
 import { readJson } from "../repo";

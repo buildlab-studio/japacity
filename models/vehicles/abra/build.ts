@@ -3,8 +3,8 @@
 // facing the water, a flat canopy on posts, the engine box amidships with its exhaust, and old tyres
 // hung over the sides as fenders. Built along +Z, bow forward (assets:metre-units-and-origin). It rides the water in
 // the place's shader (`bob` in the stage), not in a loop of its own.
-import { lowBox, setFootprint } from "@japacity/assets";
-import { beam, box, part, solid, type Vec3 } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { beam, box, part, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { ccyl } from "../centred";

@@ -3,8 +3,8 @@
 // shallow at mid-span, so a side view is a line of flat arches; a 33 m deck flat at 8 m over
 // the water, eight lanes with a median, two slender shafts and a crosshead at every pier, and
 // one lamp post a span. Built to the review's measurements, never to a photograph.
-import { setFootprint } from "@japacity/assets";
-import { box, cylinder, extrude, floorQuad, quad, seeded } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { box, cylinder, extrude, floorQuad, quad, seeded } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const BRIDGE = {

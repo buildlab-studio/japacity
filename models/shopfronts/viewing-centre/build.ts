@@ -2,8 +2,8 @@
 // street at the front, a wide dark screen on the back wall with the decoder under it, three rows of benches
 // facing it, a hand-painted board over the opening with a ball and the flag's green and white, a dish on the
 // roof and the generator at the side for when the light goes at half time. Built facing +Z (assets:metre-units-and-origin).
-import { setFootprint } from "@japacity/assets";
-import { box, cylinder, dish, extrude, floorQuad, generator, onWall, posters, quad, seeded, stain } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { box, cylinder, dish, extrude, floorQuad, generator, onWall, posters, quad, seeded, stain } from "@japacity/model-kit/kit";
 import { Group, type Mesh } from "three";
 
 export const VIEWING_CENTRE = { width: 4.0, depth: 3.6, front: 3.1, back: 2.7, slab: 0.08, seat: 0.44 } as const;

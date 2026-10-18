@@ -3,8 +3,8 @@
 // (body numbers, skin, hair, clothes, pattern seed) given to this one builder (assets:variants-are-numbers-not-code).
 // The output is a skinned mesh as plain arrays (person.types.ts): group 0 is flat palette
 // colour, group 1 the one fabric pattern.
-import type { PaletteName } from "@japacity/assets";
-import type { PatternSpec } from "@japacity/assets/pattern";
+import type { PaletteName } from "@japacity/model-kit";
+import type { PatternSpec } from "@japacity/model-kit/pattern";
 
 import { type Blend, cross, dot, frontAt, project, type Shape, sub, surface, type Surface, type Tri, type Vec } from "./blend";
 import type { PersonBone, PersonMesh } from "./person.types";

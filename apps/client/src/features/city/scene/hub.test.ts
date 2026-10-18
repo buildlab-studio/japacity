@@ -2,7 +2,7 @@
 // against what the hub must show: the junction under the flyover where the danfos load.
 import { join } from "node:path";
 
-import { isPaletteName } from "@japacity/assets";
+import { isPaletteName } from "@japacity/model-kit";
 import { FLYOVER } from "@japacity/models/buildings/flyover-span/build";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";

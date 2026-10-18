@@ -5,8 +5,8 @@
 // roof on the west long side, four floodlight masts outside the bowl, eight radial ramps down
 // to round landings. In 2026 the bowl is decayed and unused (city.md), so seats are missing in
 // patches, roof sheets are gone and the concrete is stained.
-import { type FootprintBox, HEAD_HEIGHT, type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, floorQuad, paletteMaterial, part, seeded, solid, type Vec3 } from "@japacity/assets/kit";
+import { type FootprintBox, HEAD_HEIGHT, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, floorQuad, paletteMaterial, part, seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group, Mesh, type Object3D, Shape, ShapeGeometry, Vector2 } from "three";
 
 /** Heights in metres, from the examples' review (estimates from photographs, the 400 m track as ruler). */

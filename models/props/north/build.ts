@@ -5,8 +5,8 @@
 // the kit's shapes, standing on its base at y = 0 and facing +Z (assets:metre-units-and-origin), its low tops clear of the ground's
 // strips (world:faces-never-share-height), with the ground it blocks as its footprint (assets:models-record-their-footprint). No real operator's, shop's or
 // company's colours, marks or words (assets:no-real-brands-on-assets).
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, quad } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, quad } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at, legs } from "../parts";

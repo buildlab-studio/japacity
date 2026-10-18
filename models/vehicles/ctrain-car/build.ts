@@ -5,8 +5,8 @@
 // out, seats in bays of two facing two by the windows, yellow poles at the doors. The ride's seat is on the right of
 // the facing, the outer side where the line runs past. Built along +x as every vehicle is, then turned to face
 // +z (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { beam, quad } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { beam, quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

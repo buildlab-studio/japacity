@@ -1,6 +1,6 @@
 // Small parts the props and the places draw with: a part's own frame, four legs under a top and a screen on its foot.
-import type { PaletteName } from "@japacity/assets";
-import { box, quad } from "@japacity/assets/kit";
+import type { PaletteName } from "@japacity/model-kit";
+import { box, quad } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 /** A group at (x, y, z) turned ry, to draw a part in its own frame. */

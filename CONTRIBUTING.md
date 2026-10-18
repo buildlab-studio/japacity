@@ -23,7 +23,7 @@ The way of working is written down as skills in [`.claude/skills/`](.claude/skil
 | `packages/content/` | The game's entries and words, checked against the simulation's schemas |
 | `packages/api/` | The HTTP contract between the client and the server: every route's request and reply, and the socket's messages |
 | `packages/store/`, `packages/db/` | The storage interfaces with in-memory versions, and their database versions for the online game |
-| `packages/assets/`, `models/` | The city's models and pictures, and their sources |
+| `packages/model-kit/`, `models/` | The city's models and pictures, and their sources |
 | `packages/brand/` | The game's colours and wordmark letters as data, for the teaser |
 | `apps/client/` | The web client. `src/features/<kind>/` holds one kind's screens; `src/shared/` holds what features share; `src/sweep/` holds the tests that cut across features; `e2e/` holds the browser tests |
 | `apps/server/` | The online authority, which also serves the client's build |

@@ -5,8 +5,8 @@
 // glass. Behind, benches run along the walls between the doors as a metro's do. Built to be sat in as London's
 // carriage is, the glass a pane facing out. Built along +x as every vehicle is, then turned to face +z
 // (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { quad, solid } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { quad, solid } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

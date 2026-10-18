@@ -5,8 +5,8 @@
 // band is dark and from a seat the street runs past it. Canada drives on the right: the doors and the ride's seat are
 // on the right of its facing, the kerb side. Built along +x as every vehicle is, then turned to face +z
 // (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { quad } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

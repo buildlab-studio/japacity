@@ -1,7 +1,7 @@
 // The walls follow the view: each outer side of a wide home stands twice, full
 // and knee-high, and the view shows the far pair full and the near pair low for the way it looks, the swap never raising
 // a wall in front of the rooms.
-import { fullSides, quarterOf, WALL_SIDES, wallNode, wallOf, wallPairs, type WallSide } from "@japacity/assets";
+import { fullSides, quarterOf, WALL_SIDES, wallNode, wallOf, wallPairs, type WallSide } from "@japacity/model-kit";
 import { BoxGeometry, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Vector2, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 

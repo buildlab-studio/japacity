@@ -1,4 +1,4 @@
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import { CATALOG } from "./catalog";

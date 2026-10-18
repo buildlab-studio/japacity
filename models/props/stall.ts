@@ -1,6 +1,6 @@
 // The market stall: a table, an umbrella, a basin of tomatoes, peppers, yams and a crate.
-import { lowBox, setFootprint } from "@japacity/assets";
-import { seeded, solid, type Vec3 } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, ccyl, facePlusZ, lump } from "../vehicles/centred";

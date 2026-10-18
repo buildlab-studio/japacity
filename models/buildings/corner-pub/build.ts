@@ -4,8 +4,8 @@
 // a real house's name or sign (assets:no-real-brands-on-assets). Brick above with sash windows under a cornice and parapet, chimneys,
 // a dish facing the place's satellite (assets:dishes-face-one-satellite) and soot where the rain runs (assets:buildings-carry-wear-and-clutter). The corner is
 // at its +x end, so its side shows windows too.
-import { setFootprint } from "@japacity/assets";
-import { box, cylinder, dish, onWall, quad, solid, stain } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { box, cylinder, dish, onWall, quad, solid, stain } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 export const PUB = { width: 6.0, depth: 9.0, ground: 4.0, upper: 3.0, parapet: 0.8 } as const;

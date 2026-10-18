@@ -25,7 +25,7 @@ paths = ['''\.test\.tsx?$''', '''(^|/)e2e/[^/]+\.spec\.ts$''']
 
 # The game's content ids, `kind.slug` in lower case with dots (place.peckham.sign.18): a shop sign that reads
 # "KEYS CUT" puts the word before the next id (packages/content/src/place/place.text.ts), and a sign's `key` names one
-# (packages/assets/src/load.test.ts). No secret has that shape.
+# (packages/model-kit/src/load.test.ts). No secret has that shape.
 [[rules.allowlists]]
 description = "Content ids"
 regexes = ['''^[a-z][a-z0-9-]*(\.[a-z0-9-]+)+$''']

@@ -1,7 +1,7 @@
 // London's models (docs/design/10-london-on-the-lagos-mold.md section 4): the things of its places, the pub, the bus
 // and the train, each standing on y = 0 with its footprint and only palette colours, and the two vehicles built to be
 // sat in, with the ride's seat inside the body (world:ride-abroad-and-workplace).
-import { footprintOf, isPaletteName } from "@japacity/assets";
+import { footprintOf, isPaletteName } from "@japacity/model-kit";
 import { Box3, type Group, type Mesh, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 

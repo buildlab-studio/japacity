@@ -3,8 +3,8 @@
 // doors, and the canopy over the kerb on round columns, where cars stop and families say goodbye.
 // Not a landmark (city:landmarks-built-to-outline): an ordinary building in the terminal's role, built from the
 // kit and the airport's plain description, never from a drawing or a photograph.
-import { type FootprintBox, setFootprint, type SignStyle } from "@japacity/assets";
-import { acUnit, box, cylinder, floorQuad, onWall, parapet, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { type FootprintBox, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { acUnit, box, cylinder, floorQuad, onWall, parapet, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const TERMINAL = {

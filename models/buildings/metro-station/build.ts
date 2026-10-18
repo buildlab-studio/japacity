@@ -3,8 +3,8 @@
 // viaduct the line runs on, its piers and deck over the street with a metro car standing on it as decor, since a
 // place's models stand on the ground and the car must be up on its deck. A public station's plain description, no
 // operator's mark or line colours (assets:no-real-brands-on-assets). Each is one building of the kit's shapes, inside a building's budget.
-import { setFootprint, type SignStyle } from "@japacity/assets";
-import { box, extrude, onWall, quad, signboard, solid, stain } from "@japacity/assets/kit";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, extrude, onWall, quad, signboard, solid, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const STATION = { width: 14.0, depth: 6.0, hall: 4.6 } as const;

@@ -1,9 +1,9 @@
 // The walls follow the view: a wide home's shell carries each outer side twice,
-// full and knee-high (`wall_<side>_full`, `wall_<side>_low`, packages/assets walls.ts). The scene shows the far pair full
+// full and knee-high (`wall_<side>_full`, `wall_<side>_low`, packages/model-kit walls.ts). The scene shows the far pair full
 // and the near pair low for the way the view looks: at rest on a quarter, the side it looks at and the one on its left;
 // on the way round, the two sides that face away from the camera, so a wall that rises always rises behind the rooms and
 // never in front of them. A hidden wall costs no draw call and takes no tap.
-import { fullSides, quarterOf, wallOf, type WallSide } from "@japacity/assets";
+import { fullSides, quarterOf, wallOf, type WallSide } from "@japacity/model-kit";
 import type { Object3D } from "three";
 
 /** The parts of a shell's pairs, by side. */

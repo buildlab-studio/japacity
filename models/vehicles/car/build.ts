@@ -5,8 +5,8 @@
 // two dark bands; the wheels stand a little proud of the body so their tyres show at the four corners; headlamps, grille,
 // bumpers, mirrors, plates and tail lamps finish it. No maker's mark or badge (assets:no-real-brands-on-assets). Built along +x like every
 // vehicle, then turned to face +z. The wheels are round, so they are their own part, shaded smooth (assets:flat-and-smooth-shading).
-import { lowBox, type PaletteName, setFootprint } from "@japacity/assets";
-import { paletteMaterial, part } from "@japacity/assets/kit";
+import { lowBox, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { paletteMaterial, part } from "@japacity/model-kit/kit";
 import { Group, Mesh, type Object3D, Vector3 } from "three";
 import { ConvexGeometry } from "three/addons/geometries/ConvexGeometry.js";
 

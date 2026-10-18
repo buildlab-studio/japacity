@@ -11,7 +11,7 @@
     "@gltf-transform/core": "4.5.1",
     "@gltf-transform/extensions": "4.5.1",
     "@gltf-transform/functions": "4.5.1",
-    "@japacity/assets": "workspace:*",
+    "@japacity/model-kit": "workspace:*",
     "@japacity/models": "workspace:*",
     "@japacity/content": "workspace:*",
     "@japacity/sim": "workspace:*",

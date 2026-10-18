@@ -4,8 +4,8 @@
 // side, and a small window cut through the wall over each bench, in the back doors and in the bulkhead, so from a
 // bench the camera sits low and the road shows only in those few panes. Its side door is on the right of its
 // facing, the kerb side in Italy. Built along +x as every vehicle is, then turned to face +z (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { quad, solid } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { quad, solid } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { cbox, facePlusZ, profile, wheel } from "../centred";

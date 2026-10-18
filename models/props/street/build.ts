@@ -3,8 +3,8 @@
 // filing cabinet with the calendar pinned on the board above it. Each stands on its base at y = 0 and faces +Z
 // (assets:metre-units-and-origin); a thing laid on the ground keeps its top faces two centimetres clear of the ground and of each other
 // (world:faces-never-share-height). Palette only, from the kit's parts.
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { box, clutter, cylinder, posters, seeded } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { box, clutter, cylinder, posters, seeded } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at } from "../parts";

@@ -2,8 +2,8 @@
 // a trestle table under a big umbrella, phones laid out on it, an opened handset and its parts on a
 // mat, a laptop with its lid up, the soldering stand, an extension board with its cable, the
 // repairer's stool and a bench for whoever is waiting.
-import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
-import { box, cylinder, floorQuad, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
+import { boxesIn, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { box, cylinder, floorQuad, quad, seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ } from "../../vehicles/centred";

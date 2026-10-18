@@ -1,8 +1,8 @@
 // Shapes placed by their centre, as the vehicles and the stall are drawn: a box centred on its position and turned
 // about z, a wheel on an axle along z, and a cylinder along an axis. The kit's shapes sit on their base and turn only
 // about y, so each shape here is a kit shape in a small frame.
-import { box, cylinder, extrude, paletteMaterial } from "@japacity/assets/kit";
-import type { PaletteName } from "@japacity/assets";
+import { box, cylinder, extrude, paletteMaterial } from "@japacity/model-kit/kit";
+import type { PaletteName } from "@japacity/model-kit";
 import { Group, IcosahedronGeometry, Mesh, type Object3D } from "three";
 
 function frame(g: Object3D, x: number, y: number, z: number): Group {

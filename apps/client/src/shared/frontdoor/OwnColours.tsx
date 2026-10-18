@@ -3,7 +3,7 @@
 // was made, with the way back to as made.
 // The rows follow what the figure on the plinth read of its look, so a head under a cap shows no hair row and a plain
 // top no fabric; where no figure is drawn there is nothing to see recoloured, and nothing shows.
-import type { PaletteName } from "@japacity/assets";
+import type { PaletteName } from "@japacity/model-kit";
 import { Check } from "lucide-react";
 import { useRef } from "react";
 

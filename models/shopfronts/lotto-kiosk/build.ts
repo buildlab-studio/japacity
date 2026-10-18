@@ -2,8 +2,8 @@
 // propped up as a sun shade, a counter where the slips are filled, a painted board on posts above
 // the roof, a chalked board of today's games by the hatch, a bench and a stool for the regulars,
 // posters and rust. The words are anchors with text keys, drawn at run time (assets:sign-text-drawn-in-code).
-import { setFootprint, type SignStyle } from "@japacity/assets";
-import { box, clutter, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, clutter, onWall, posters, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const KIOSK = { width: 2.4, depth: 1.7, height: 2.35, step: 0.15 } as const;

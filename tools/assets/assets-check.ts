@@ -4,7 +4,7 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-import { type Footprint, isFootprint, type RegisterRow, type Review, type ReviewSheet } from "@japacity/assets";
+import { type Footprint, isFootprint, type RegisterRow, type Review, type ReviewSheet } from "@japacity/model-kit";
 
 import { checkFaces, type FacedStage, floorFaces, type ModelFace } from "./faces-check";
 import { checkFootprints, checkWalkable, type StagedGround } from "./footprint-check";

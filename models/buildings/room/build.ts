@@ -4,8 +4,8 @@
 // windows, the clock, the notices and the air conditioner a Lagos office or home has on its walls.
 // Every room is a set of numbers in ROOMS given to this one builder (assets:variants-are-numbers-not-code). The things the
 // player taps (the door, the window of the room abroad) are props of their own placed against a wall.
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { acUnit, box, cylinder, louvreWindow, onWall, posters, quad, seeded } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { acUnit, box, cylinder, louvreWindow, onWall, posters, quad, seeded } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 /** Where a fitting hangs: on the back wall (x along it) or the side wall (z along it). */

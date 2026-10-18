@@ -4,7 +4,7 @@
 // the top, a pennant a triangle 1 wide and 1 deep pinned along its top. The water tile lies on y = 0,
 // WATER_TILE metres a side. The client scales a sheet to its size and bends it in the vertex shader;
 // the vertex colour is never shown, the place's palette colours are.
-import { paletteMaterial } from "@japacity/assets/kit";
+import { paletteMaterial } from "@japacity/model-kit/kit";
 import { BufferGeometry, Float32BufferAttribute, Group, Mesh, PlaneGeometry } from "three";
 
 import { GRIDS, type GridPiece, type MeshLevel, WATER_TILE } from "./grids";

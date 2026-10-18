@@ -4,8 +4,8 @@
 // bags on their backs, to the classroom on stilts. Everyone in it sits below the gunwale to the
 // waist, so only a body, a head and the paddle show over the side. Built in the hull's frame, the
 // bow toward +z; the stage sends these along their lanes on the shared clock (city:no-script-loop-per-sheet).
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, type Vec3 } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { facePlusZ, lump } from "../../vehicles/centred";

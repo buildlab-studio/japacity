@@ -5,8 +5,8 @@
 // shelf. Openings are real: a door frame with its leaf swung open, an arch, a window with louvres, a gateway with its
 // gate. Every home is a set of numbers in HOMES given to this one builder (assets:variants-are-numbers-not-code). One material; the body is one
 // draw call, and each outer side's pair (full and knee-high) one more, as one of the two shows.
-import { type FootprintBox, type PaletteName, setFootprint, WALL_SIDES, wallNode, type WallSide } from "@japacity/assets";
-import { beam, box, cylinder, extrude, part, quad } from "@japacity/assets/kit";
+import { type FootprintBox, type PaletteName, setFootprint, WALL_SIDES, wallNode, type WallSide } from "@japacity/model-kit";
+import { beam, box, cylinder, extrude, part, quad } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 /** A hole in a wall, `at` metres along it from its middle. */

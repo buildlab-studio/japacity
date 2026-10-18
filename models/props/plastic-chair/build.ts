@@ -1,7 +1,7 @@
 // The white plastic chair of every Lagos party and every veranda: a moulded seat, a slatted back
 // that leans, four splayed legs. Stacked by the hundred for hire; instanced in a place.
-import { lowBox, setFootprint } from "@japacity/assets";
-import { box, solid, type Vec3 } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { box, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export function buildPlasticChair(): Group {

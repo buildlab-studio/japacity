@@ -1,9 +1,9 @@
 // Builds a place from its stage and its loaded models: ground and roads, the models instanced at
 // their spots, the crowd posed at theirs, the player's own character, what moves, and the route map
 // the walks run on; and moves the crowd once a frame on the place's one clock.
-import { footprintOf, isPaletteName, type PaletteName, paletteCss, quarterOf } from "@japacity/assets";
-import { attachSigns, findSignAnchors, type SignText } from "@japacity/assets/load";
-import type { SignAnchor } from "@japacity/assets";
+import { footprintOf, isPaletteName, type PaletteName, paletteCss, quarterOf } from "@japacity/model-kit";
+import { attachSigns, findSignAnchors, type SignText } from "@japacity/model-kit/load";
+import type { SignAnchor } from "@japacity/model-kit";
 import type { PoseName } from "@japacity/models/people/poses";
 import { BufferGeometry, Color, CylinderGeometry, Float32BufferAttribute, Group, Matrix4, Mesh, MeshLambertMaterial, type Object3D, Quaternion, type SkinnedMesh, Sphere, Vector3 } from "three";
 

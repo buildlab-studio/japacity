@@ -4,8 +4,8 @@
 // the morning's picking stacked on a pallet, a water tap on its pipe and a tree to stand under. Each piece stands on
 // its base at y = 0 facing +Z (assets:metre-units-and-origin), records the ground it blocks (assets:models-record-their-footprint) and shows no real farm's or
 // company's name or mark (assets:no-real-brands-on-assets).
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { beam, box, cylinder, floorQuad, quad, seeded, signboard, solid } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { beam, box, cylinder, floorQuad, quad, seeded, signboard, solid } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { at } from "../../props/parts";

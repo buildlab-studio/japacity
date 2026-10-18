@@ -25,6 +25,6 @@
   "reviewer": {
     "gets": ["the renders in the asset's renders folder and their manifest", "docs/rules/assets.md", "models/examples.json and the examples' renders", "the reference's description: the outline.json sources and notes"],
     "never": ["the code that builds the piece", "the makers' notes"],
-    "writes": "review.json beside the asset, in the Review shape of packages/assets/src/types.ts; the budget score is read from the register row by the check, not judged"
+    "writes": "review.json beside the asset, in the Review shape of packages/model-kit/src/types.ts; the budget score is read from the register row by the check, not judged"
   }
 }

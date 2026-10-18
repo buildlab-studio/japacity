@@ -22,7 +22,7 @@ const POSITION = /\b(latE3|lonE3)\b/;
 
 describe("positions are not geometry", () => {
   test("[city:positions-not-for-geometry] given every builder of the kit and the asset tools, when their code is read, then none reads a place's latitude or longitude", () => {
-    const builders = [...sourcesUnder(join(REPO_ROOT, "models")), ...sourcesUnder(join(REPO_ROOT, "packages", "assets", "src")), ...sourcesUnder(join(REPO_ROOT, "tools", "assets"))];
+    const builders = [...sourcesUnder(join(REPO_ROOT, "models")), ...sourcesUnder(join(REPO_ROOT, "packages", "model-kit", "src")), ...sourcesUnder(join(REPO_ROOT, "tools", "assets"))];
     expect(builders.length).toBeGreaterThan(20);
     expect(builders.filter((file) => POSITION.test(readFileSync(file, "utf8"))).map((file) => relative(REPO_ROOT, file))).toEqual([]);
   });

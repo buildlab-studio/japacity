@@ -3,8 +3,8 @@
 // one missing. Its top stands just over the water's highest ripple, so people walk on it and the
 // lagoon laps under it. Copies laid end to end make the main walk; a single copy turned makes a spur
 // to a house. Nobody is blocked by it: its footprint is none.
-import { type PaletteName, setFootprint } from "@japacity/assets";
-import { box, seeded } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint } from "@japacity/model-kit";
+import { box, seeded } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 /** The walkway's length along z, its width, and the height of its top over the ground. */

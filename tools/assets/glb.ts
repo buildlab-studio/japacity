@@ -6,7 +6,7 @@
 import { type Document as GltfDocument, Document, type Node as GltfNode, NodeIO, type Primitive } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { getBounds, meshopt } from "@gltf-transform/functions";
-import { wallPairs } from "@japacity/assets";
+import { wallPairs } from "@japacity/model-kit";
 import { MeshoptDecoder, MeshoptEncoder } from "meshoptimizer";
 
 import type { BakedModel, MaterialRole } from "./bake";

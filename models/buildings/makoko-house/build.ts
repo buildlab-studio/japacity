@@ -5,8 +5,8 @@
 // character may rent; (b) a taller house up a ladder, its veranda railed, a board hung on the rail;
 // and the classroom on stilts, long and painted, its window band open, its board on the rail. No
 // real building is copied. Every piece faces +z with its lowest point on the water at y = 0.
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { box, floorQuad, generator, onWall, quad, seeded, signboard, solid, type Vec3 } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, floorQuad, generator, onWall, quad, seeded, signboard, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { WALKWAY } from "../../props/plank-walkway/build";

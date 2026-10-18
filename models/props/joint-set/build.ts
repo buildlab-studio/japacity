@@ -2,8 +2,8 @@
 // table with its bottles, a cooler, a crate of empties and a pole with one bulb hung over it all. One
 // material (the prop's budget), so the chairs are the palette's white plastic, as the party's are.
 // Built facing +Z (assets:metre-units-and-origin); the chairs are where people sit, so the footprint leaves them out.
-import { setFootprint } from "@japacity/assets";
-import { beam, box, clutter, cylinder, type Vec3 } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, box, clutter, cylinder, type Vec3 } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at } from "../parts";

@@ -4,7 +4,7 @@ Never shipped. The builders, specs, outlines and reviews of every model under `a
 
 ## The folders
 
-A shipped asset `<prefix>_<slug>` has its source in `<folder>/<slug>/`: a `build.ts` (code from the kit in `@japacity/assets/kit`) or a `spec.json` (kit data), with `outline.json` where it was traced, `review.json` once reviewed, and the shooter's `renders/`.
+A shipped asset `<prefix>_<slug>` has its source in `<folder>/<slug>/`: a `build.ts` (code from the kit in `@japacity/model-kit/kit`) or a `spec.json` (kit data), with `outline.json` where it was traced, `review.json` once reviewed, and the shooter's `renders/`.
 
 | Folder | Id prefix | Holds |
 |---|---|---|

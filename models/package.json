@@ -12,7 +12,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@japacity/assets": "workspace:*",
+    "@japacity/model-kit": "workspace:*",
     "three": "0.186.1"
   },
   "devDependencies": {

@@ -4,8 +4,8 @@
 // above it the brick rises two or three storeys with sash windows under stone lintels to a cornice
 // and parapet, the slate roof behind it, chimney stacks on the party walls, a soil pipe, a dish on
 // the back (assets:dishes-face-one-satellite) and soot where the rain runs. The data below makes the two variants.
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { box, dish, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, dish, extrude, onWall, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export interface TerraceSpec {

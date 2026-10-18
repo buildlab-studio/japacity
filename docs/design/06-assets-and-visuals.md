@@ -1,6 +1,6 @@
 # Assets and visuals
 
-> Evidence: our own four experiments, below. Their builders are the code in `../../models/` and `../../packages/assets/`.
+> Evidence: our own four experiments, below. Their builders are the code in `../../models/` and `../../packages/model-kit/`.
 > **Generate as much as possible.**
 > Budgets, the palette size, and the naming scheme are working values, set at or below published figures.
 

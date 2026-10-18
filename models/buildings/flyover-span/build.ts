@@ -4,8 +4,8 @@
 // lanes each, their centrelines 13 to 15 m apart over the junction. The street sees it from below,
 // so the underside carries the detail: four girders, a hammerhead cap on one square column, the
 // bearings, the cross diaphragms, posters pasted on the column, a painted plinth, a drain pipe and the drip stains.
-import { setFootprint } from "@japacity/assets";
-import { box, extrude, floorQuad, posters, quad, seeded } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { box, extrude, floorQuad, posters, quad, seeded } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const FLYOVER = {

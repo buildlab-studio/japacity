@@ -17,9 +17,9 @@ flowchart BT
   store["packages/store<br/>storage interfaces"]
   api["packages/api<br/>the HTTP contract"]
   db["packages/db<br/>Postgres stores"]
-  assets["packages/assets<br/>palette, signs, types"]
+  modelKit["packages/model-kit<br/>palette, signs, types"]
   brand["packages/brand<br/>colours and wordmark"]
-  assetsSrc["models<br/>model sources"]
+  models["models<br/>model sources"]
   client["apps/client<br/>the web client"]
   server["apps/server<br/>the authority online"]
   teaser["apps/teaser<br/>the teaser film"]
@@ -31,12 +31,12 @@ flowchart BT
   db --> store
   api --> sim
   api --> store
-  assetsSrc --> assets
+  models --> modelKit
   client --> api
   client --> sim
   client --> content
-  client --> assets
-  client --> assetsSrc
+  client --> modelKit
+  client --> models
   server --> api
   server --> sim
   server --> content
@@ -45,8 +45,8 @@ flowchart BT
   teaser --> brand
   tools --> sim
   tools --> content
-  tools --> assets
-  tools --> assetsSrc
+  tools --> modelKit
+  tools --> models
 ```
 
 An arrow points from a package to one it imports. The arrows are the `@japacity/*` dependencies in each `package.json`; `tests/boundaries.test.ts` and the lint rules keep them that way.
@@ -58,7 +58,7 @@ An arrow points from a package to one it imports. The arrows are the `@japacity/
 | `packages/store/` | `@japacity/store` | The storage interfaces the server writes through, with in-memory versions and contract suites |
 | `packages/api/` | `@japacity/api` | The HTTP and socket contract: each route's request and reply and the socket's messages, which the client and the server both import. Types, with the few lists and the one message reader both sides use |
 | `packages/db/` | `@japacity/db` | The Postgres versions of the same stores (Drizzle and `pg`), and the migrations |
-| `packages/assets/` | `@japacity/assets` | The palette, the signs and the types the asset pipeline and the client share |
+| `packages/model-kit/` | `@japacity/model-kit` | The palette, the signs and the types the asset pipeline and the client share |
 | `packages/brand/` | `@japacity/brand` | The game's role colours, tints, face and wordmark letters as data, for the teaser, which draws outside the client |
 | `models/` | `@japacity/models` | The city's model sources: builders, specs, reviews. Never shipped as such |
 | `apps/client/` | `@japacity/client` | The web client: Vite, React, zustand, three.js through React Three Fiber |

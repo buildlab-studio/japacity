@@ -4,7 +4,7 @@
 // a footprint), near where it lies within the walker's clearance of a footprint, and free otherwise;
 // routes run over free cells only. Free cells are labelled by the part of the ground they belong to,
 // so a route never searches for a goal it cannot reach. Plain numbers: no drawing, no browser.
-import { boxBounds, type Footprint, inBox, inPolygon, placeFootprint, type WalkablePolygon } from "@japacity/assets";
+import { boxBounds, type Footprint, inBox, inPolygon, placeFootprint, type WalkablePolygon } from "@japacity/model-kit";
 
 import type { Stage } from "../placeFile";
 

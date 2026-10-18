@@ -4,7 +4,7 @@
 // a canvas. Sizes are written for the 1080 pixel wide card and scaled.
 import type { ShareKind } from "@japacity/content";
 
-import type { PaletteName } from "../../../../../packages/assets/src/palette";
+import type { PaletteName } from "../../../../../packages/model-kit/src/palette";
 import { artShapes, type Box, type Shape } from "./art";
 import type { CardFace } from "./face";
 

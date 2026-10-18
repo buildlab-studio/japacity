@@ -2,7 +2,7 @@
 // places, the strip mall, Union station, the site's frame, and the vehicles of their rides, each standing on y = 0 with
 // its footprint and only palette colours, and each ride's vehicle built to be sat in, its seat inside the body on the
 // kerb side, the right of the facing, as Canada and the UAE drive (world:ride-abroad-and-workplace).
-import { footprintOf, isPaletteName } from "@japacity/assets";
+import { footprintOf, isPaletteName } from "@japacity/model-kit";
 import { Box3, type Group, type Mesh, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 

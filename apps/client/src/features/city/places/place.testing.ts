@@ -2,7 +2,7 @@
 // check measures it (tools/assets/assets-check.ts), and the checks every stage owes the city.
 import { join } from "node:path";
 
-import { isPaletteName } from "@japacity/assets";
+import { isPaletteName } from "@japacity/model-kit";
 import { content, text } from "@japacity/content";
 import type { Id, PlaceEntry } from "@japacity/sim";
 import { expect } from "vitest";

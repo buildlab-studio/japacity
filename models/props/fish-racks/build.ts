@@ -2,8 +2,8 @@
 // walkway's height, a long kiln of mud brick with the fire's mouth at the front, wire trays of fish
 // laid over it two high, a line of fish hung to dry, a basin of the day's catch, a low stool, and the
 // seller's board on a post at the corner. The smoke is the place's motion over the trays.
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { beam, box, onWall, seeded, signboard } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { beam, box, onWall, seeded, signboard } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { lump } from "../../vehicles/centred";

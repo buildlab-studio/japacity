@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import { measureFile } from "../../../../../../tools/assets/assets-check";

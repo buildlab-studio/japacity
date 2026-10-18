@@ -1,7 +1,7 @@
 // The palette check (assets:colours-from-named-palette, assets:fabric-pattern-from-seed): every vertex colour, converted to 8-bit sRGB, is a
 // palette entry within 1 on each channel, and so is every pixel of every texture in the file.
 import type { Document as GltfDocument } from "@gltf-transform/core";
-import { linearToSrgb, nearestPaletteName } from "@japacity/assets";
+import { linearToSrgb, nearestPaletteName } from "@japacity/model-kit";
 
 import { decodePng } from "./png";
 

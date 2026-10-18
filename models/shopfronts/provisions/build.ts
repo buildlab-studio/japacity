@@ -2,7 +2,7 @@
 // out to a table in front of the door, sacks and crates, a painted board over the shutter and a
 // painted notice by the door, clear of the louvre; the tin drawn as a tin and the goods in front of
 // the walls.
-import { setFootprint, type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
 import {
   box,
   clutter,
@@ -17,7 +17,7 @@ import {
   shopOpening,
   signboard,
   stain,
-} from "@japacity/assets/kit";
+} from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const PROVISIONS = { width: 4.0, depth: 3.5, plinth: 0.15, wall: 3.375 } as const;

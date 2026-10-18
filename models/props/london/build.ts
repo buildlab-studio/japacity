@@ -4,8 +4,8 @@
 // over it, written from the kit's shapes, standing on its base at y = 0 and facing +Z (assets:metre-units-and-origin), its tops
 // clear of each other by more than a centimetre where they overlap (world:faces-never-share-height), with the ground it blocks as
 // its footprint (assets:models-record-their-footprint). No real shop's, operator's or company's colours, marks or words (assets:no-real-brands-on-assets).
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { beam, box, cylinder, onWall, quad, signboard, solid } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { beam, box, cylinder, onWall, quad, signboard, solid } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at, legs, monitor } from "../parts";

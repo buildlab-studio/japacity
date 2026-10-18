@@ -3,7 +3,7 @@
 // at Tejuosho. Each stands on the pavement as a model the player taps, opens the act content stages there, and keeps
 // the hours the world's clock gives it (clock:game-day-on-real-time). Bode Thomas's whole frontage is checked in bode-thomas.cargo.test.ts;
 // Ojuelegba's and Tejuosho's here on what these things touch: the budget, the ground, the floors and the staged acts.
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

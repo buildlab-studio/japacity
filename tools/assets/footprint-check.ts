@@ -1,7 +1,7 @@
 // The build check's part for footprints and walkable ground (assets:models-record-their-footprint): every model carries its
 // footprint, every staged place its walkable ground, and every spot and the start of a place stand
 // on walkable ground that no model's footprint covers, in the place's plain stage and in each of its dressings.
-import { type Footprint, isFootprint, isWalkable, onWalkable, inBox, type PlacedBox, placeFootprint, type WalkablePolygon } from "@japacity/assets";
+import { type Footprint, isFootprint, isWalkable, onWalkable, inBox, type PlacedBox, placeFootprint, type WalkablePolygon } from "@japacity/model-kit";
 
 /** x, z and the turn about +Y, as a place file writes a position. */
 export type At = [number, number, number];

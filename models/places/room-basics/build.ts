@@ -3,8 +3,8 @@
 // stands on its base at y = 0 and faces +Z (assets:metre-units-and-origin); every face that looks up stands well over
 // the floor, so none shares a height with the ground (world:faces-never-share-height). The state is drawn, not counted:
 // the pot's steam is the room's smoke motion, the fetched water a model of its own over the drum.
-import { setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, quad } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { at } from "../../props/parts";

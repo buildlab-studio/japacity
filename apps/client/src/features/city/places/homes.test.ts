@@ -4,7 +4,7 @@
 // the view. Each is passed through the checks every staged place
 // owes: its file measured as the build check measures it, its limits, its floors, its walkable ground with every spot,
 // the start and each dressing's spots clear of the footprints, its things and their words, its light by the clock.
-import { type Footprint, fullSides, isFootprint, placeFootprint, WALL_SIDES } from "@japacity/assets";
+import { type Footprint, fullSides, isFootprint, placeFootprint, WALL_SIDES } from "@japacity/model-kit";
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";

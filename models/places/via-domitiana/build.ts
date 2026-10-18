@@ -2,8 +2,8 @@
 // road at Castel Volturno, lined with stone pines between the road and the sea. Its low block of shops is the plaster
 // row's data (castel-volturno/build.ts, assets:variants-are-numbers-not-code); the pine is the one new piece. It stands on its base at y = 0
 // facing +Z (assets:metre-units-and-origin) and records the ground it blocks (assets:models-record-their-footprint).
-import { setFootprint } from "@japacity/assets";
-import { beam, cylinder } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, cylinder } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { lump } from "../../vehicles/centred";

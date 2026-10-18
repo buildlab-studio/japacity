@@ -4,8 +4,8 @@
 // the front door cuts the same way. The shooter drives it
 // through `window.stage`; it renders on the software renderer, so a model gives the same
 // pixels every time. It loads the shipped file, as the client does, not the builder.
-import { fullSides, palette, type PaletteName, wallOf } from "@japacity/assets";
-import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
+import { fullSides, palette, type PaletteName, wallOf } from "@japacity/model-kit";
+import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/model-kit/load";
 import {
   Box3,
   Color,

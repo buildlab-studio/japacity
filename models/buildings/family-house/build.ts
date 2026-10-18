@@ -3,7 +3,7 @@
 // the roof, open to the yard between its pillars, where visitors sit and a send-off party dances;
 // the rooms are behind its back wall. The yard holds the gate and its notice, the small generator
 // under a zinc shade, a tank on its stand, the posts of the washing line and the water drums.
-import { setFootprint, type SignStyle } from "@japacity/assets";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
 import {
   barredWindow,
   box,
@@ -23,7 +23,7 @@ import {
   signboard,
   stain,
   tank,
-} from "@japacity/assets/kit";
+} from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 /** The plot and the house in metres, in the model's frame: the plot is centred on the origin, the gate at +Z. */

@@ -3,8 +3,8 @@
 // over it. Every piece stands on its base at y = 0, faces +Z (assets:metre-units-and-origin), and its tops keep clear
 // of each other by more than a centimetre where they overlap (world:faces-never-share-height). Laid flat on the floor,
 // a mat or a rug sits two centimetres up or more.
-import { type FootprintBox, type PaletteName, setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, quad } from "@japacity/assets/kit";
+import { type FootprintBox, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, quad } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { at, legs, monitor } from "./parts";

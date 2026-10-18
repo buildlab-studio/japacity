@@ -1,5 +1,5 @@
 // The departures front and the house on stilts, the two buildings the staged places needed.
-import { signAnchorsOf } from "@japacity/assets";
+import { signAnchorsOf } from "@japacity/model-kit";
 import { Box3 } from "three";
 import { describe, expect, test } from "vitest";
 

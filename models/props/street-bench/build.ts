@@ -1,8 +1,8 @@
 // A bench on a London high street (city.md place.peckham): wooden slats on two black cast ends, the
 // back leaning, room for three. Built facing +Z (assets:metre-units-and-origin), standing on its feet at y = 0. Its
 // footprint is the slats' and the ends', so no one of the crowd stands inside it.
-import { setFootprint } from "@japacity/assets";
-import { box } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { box } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const BENCH = { width: 1.8, depth: 0.62, seat: 0.44 } as const;

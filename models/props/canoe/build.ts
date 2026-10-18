@@ -2,8 +2,8 @@
 // hull, pointed at both ends and painted in a band below the gunwale, two thwarts, a paddle laid
 // across it, a heap of net and a plastic bowl for bailing, a jerrycan. The hull's floor is y = 0;
 // on the water the stage sets it in the lagoon's moving surface.
-import { boxesIn, setFootprint } from "@japacity/assets";
-import { box, cylinder, seeded, solid, type Vec3 } from "@japacity/assets/kit";
+import { boxesIn, setFootprint } from "@japacity/model-kit";
+import { box, cylinder, seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { facePlusZ, lump } from "../../vehicles/centred";

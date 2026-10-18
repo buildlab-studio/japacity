@@ -4,8 +4,8 @@
 // by text key (assets:sign-text-drawn-in-code). Above, aluminium windows with air conditioners in them, a parapet,
 // water tanks and dishes on the roof, all facing the one satellite (assets:dishes-face-one-satellite). The data below
 // makes the variants; a far bank variant carries no boards.
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { box, dish, onWall, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, dish, onWall, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export interface ArcadeSpec {

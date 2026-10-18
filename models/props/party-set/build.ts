@@ -2,8 +2,8 @@
 // frame of two poles with balloons tied on, the DJ's table with its cloth and laptop between two
 // speakers on stands, the small chops table under a cream cloth with its trays, a cooler of cold
 // drinks and crates of empties. The banner's words are an anchor with a text key (assets:sign-text-drawn-in-code).
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { box, clutter, cylinder, onWall, paletteMaterial, quad, signboard } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, clutter, cylinder, onWall, paletteMaterial, quad, signboard } from "@japacity/model-kit/kit";
 import { Group, IcosahedronGeometry, Mesh, type Object3D } from "three";
 
 /** Where the banner and the floor are, in the set's own frame: the banner at the back (-Z). */

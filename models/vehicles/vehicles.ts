@@ -1,6 +1,6 @@
 // The danfo, the keke and the okada, in the kit's shapes. Built along +x as every vehicle is,
 // then turned to face +z (assets:metre-units-and-origin). Plain colours from the palette; no real company's livery.
-import { lowBox, setFootprint } from "@japacity/assets";
+import { lowBox, setFootprint } from "@japacity/model-kit";
 import { Group } from "three";
 
 import { cbox, ccyl, facePlusZ, lump, profile, wheel } from "./centred";

@@ -14,7 +14,7 @@ const BUILD: ReportChunk[] = [
   { file: "assets/runtime.js", isEntry: false, imports: [], modules: ["\0rolldown/runtime.js"] },
   { file: "assets/three.js", isEntry: false, imports: ["assets/runtime.js"], modules: [module("node_modules/.pnpm/three@0.186.1/node_modules/three/build/three.core.js")] },
   { file: "assets/sim.js", isEntry: false, imports: [], modules: [module("packages/content/src/index.ts"), module("packages/sim/src/index.ts")] },
-  { file: "assets/load.js", isEntry: false, imports: ["assets/three.js"], modules: [module("node_modules/.pnpm/three@0.186.1/node_modules/three/examples/jsm/loaders/GLTFLoader.js"), module("packages/assets/src/load.ts")] },
+  { file: "assets/load.js", isEntry: false, imports: ["assets/three.js"], modules: [module("node_modules/.pnpm/three@0.186.1/node_modules/three/examples/jsm/loaders/GLTFLoader.js"), module("packages/model-kit/src/load.ts")] },
   { file: "assets/AdminRoute.js", isEntry: false, imports: ["assets/index.js"], modules: [module("apps/client/src/features/admin/AdminPage.tsx")] },
 ];
 

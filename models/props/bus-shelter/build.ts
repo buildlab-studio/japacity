@@ -2,8 +2,8 @@
 // back wall and one end of dark glass, a perch bench, a blank advert case at the other end and a
 // stop flag on its own post at the kerb. No operator's mark, roundel or colours (assets:no-real-brands-on-assets):
 // the flag plate is a plain red board, and the advert case is a block of colour.
-import { setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, quad } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const SHELTER = { width: 4.0, depth: 1.5, roof: 2.55, glass: 1.95 } as const;

@@ -4,8 +4,8 @@
 // with a text key (assets:sign-text-drawn-in-code), and posters in the window; the roof carries its grey heating units behind a parapet.
 // Stains where the meltwater runs and a pasted notice on a pier (assets:buildings-carry-wear-and-clutter). No real business's name, colours or
 // mark (assets:no-real-brands-on-assets): the signs say what the place file's keys say. The data below makes the row.
-import { type PaletteName, setFootprint, type SignStyle } from "@japacity/assets";
-import { box, meterAndCable, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { type PaletteName, setFootprint, type SignStyle } from "@japacity/model-kit";
+import { box, meterAndCable, onWall, posters, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export interface StripMallSpec {

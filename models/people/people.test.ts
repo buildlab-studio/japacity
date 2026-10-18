@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "vitest";
 
-import { isPaletteName } from "@japacity/assets";
+import { isPaletteName } from "@japacity/model-kit";
 
 import { BONE_NAMES, buildPerson as build, type PersonSpec } from "./people";
 import { ALL_PEOPLE } from "./people.data";

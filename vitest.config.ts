@@ -91,9 +91,9 @@ export default defineConfig({
       {
         // The city's asset pipeline: the kit, the palette, the builders (docs/rules/assets.md).
         test: {
-          name: "assets",
+          name: "models",
           environment: "node",
-          include: ["packages/assets/src/**/*.test.ts", "models/**/*.test.ts"],
+          include: ["packages/model-kit/src/**/*.test.ts", "models/**/*.test.ts"],
           exclude: ["**/node_modules/**"],
         },
       },

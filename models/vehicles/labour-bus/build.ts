@@ -7,8 +7,8 @@
 // from a seat the road shows through it. Rows of two and two face ahead; the ride sits by a window on
 // the right of the facing, the kerb side. Built along +X as every vehicle is, then turned to
 // face +Z.
-import { lowBox, setFootprint } from "@japacity/assets";
-import { part, quad } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { part, quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

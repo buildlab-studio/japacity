@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import type { RegisterRow, Review } from "@japacity/assets";
+import type { RegisterRow, Review } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import type { BakedModel } from "./bake";

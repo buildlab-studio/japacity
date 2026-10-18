@@ -2,8 +2,8 @@
 // its coals glowing in a strip, skewers of beef laid across, a tall umbrella over it with a bulb hung
 // from the pole, a cooler of drinks beside it and old newspaper for the wrap. Built facing +Z
 // (assets:metre-units-and-origin), the side the customer stands; the seller works from behind.
-import { setFootprint } from "@japacity/assets";
-import { beam, box, clutter, cylinder } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, box, clutter, cylinder } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const SUYA_GRILL = { width: 1.4, depth: 0.5, top: 0.86, pole: 2.35, canopy: 1.0 } as const;

@@ -5,7 +5,7 @@
 // thing stands on walkable ground; and the room is dressed for each computer partner: a prop or two
 // from the shared kit and the partner standing as themselves, clear of the chair and the door, the only figure in it:
 // a person's room shows no crowd.
-import { boxBounds, type Footprint, inBox, isFootprint, onWalkable, type PlacedBox } from "@japacity/assets";
+import { boxBounds, type Footprint, inBox, isFootprint, onWalkable, type PlacedBox } from "@japacity/model-kit";
 import { content, partnerMeetings } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";

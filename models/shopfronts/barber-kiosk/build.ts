@@ -3,8 +3,8 @@
 // the door, the swivel chair out front under a zinc awning, a small painted board on the roof and the
 // generator that keeps the clippers going when the light goes. The board's words are an anchor with a
 // text key, drawn at run time (assets:sign-text-drawn-in-code).
-import { setFootprint, type SignStyle } from "@japacity/assets";
-import { awning, box, container, cylinder, generator, onWall, posters, quad, seeded, signboard, stain } from "@japacity/assets/kit";
+import { setFootprint, type SignStyle } from "@japacity/model-kit";
+import { awning, box, container, cylinder, generator, onWall, posters, quad, seeded, signboard, stain } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 export const BARBER_KIOSK = { width: 2.4, height: 2.45, depth: 2.0, raised: 0.15 } as const;

@@ -1,7 +1,7 @@
 // The party's cooking in the yard: a big pot of jollof on three stones over a wood fire, the lid on,
 // firewood stacked beside it and a stool for whoever is stirring. The smoke is the place's motion.
-import { setFootprint } from "@japacity/assets";
-import { beam, box, cylinder, paletteMaterial, seeded } from "@japacity/assets/kit";
+import { setFootprint } from "@japacity/model-kit";
+import { beam, box, cylinder, paletteMaterial, seeded } from "@japacity/model-kit/kit";
 import { Group, IcosahedronGeometry, Mesh } from "three";
 
 export function buildCookingFire(): Group {

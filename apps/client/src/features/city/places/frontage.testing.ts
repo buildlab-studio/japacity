@@ -2,7 +2,7 @@
 // file measured as the build check measures it against the exterior row, its counts, its crowd under
 // the world's caps, its floors a centimetre apart, its boards, and its things' words resolving
 // through the scene's own. Each place's test calls these and adds what that place must show.
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { expect, test } from "vitest";

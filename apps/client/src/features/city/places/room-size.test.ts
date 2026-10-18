@@ -2,7 +2,7 @@
 // home are wide floors (homes.test.ts). Nothing floats: every piece stands on the floor between the walls, the
 // bed, the window and the side table against the back wall, and both modes stay inside the indoor row's budget. Read from the shipped files, measured as the build check measures them, and passed through
 // the place check itself.
-import { type Footprint, placeFootprint } from "@japacity/assets";
+import { type Footprint, placeFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import { ROOMS } from "../../../../../../models/buildings/room/rooms";

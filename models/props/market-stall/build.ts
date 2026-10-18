@@ -2,8 +2,8 @@
 // zinc lean-to falling to the back, a plank back wall with a shelf, a counter piled with folded
 // cloth and shoes in pairs, a stool for the seller. The cloth awning in front of the roof edge is
 // not in the model: it is a sheet on the place's wind (city:motion-in-vertex-shader), placed by the stage.
-import { boxesIn, type PaletteName, setFootprint } from "@japacity/assets";
-import { box, floorQuad, quad, seeded } from "@japacity/assets/kit";
+import { boxesIn, type PaletteName, setFootprint } from "@japacity/model-kit";
+import { box, floorQuad, quad, seeded } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ } from "../../vehicles/centred";

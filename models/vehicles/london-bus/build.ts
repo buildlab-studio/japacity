@@ -4,8 +4,8 @@
 // both sides, and the glass is a pane that faces out, so from outside the band of windows is dark glass and from
 // a seat inside the street shows through it. The doors are on the left of its facing, the kerb side in the UK.
 // Built along +x as every vehicle is, then turned to face +z (assets:metre-units-and-origin).
-import { lowBox, setFootprint } from "@japacity/assets";
-import { quad } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { quad } from "@japacity/model-kit/kit";
 import { Group } from "three";
 
 import { cbox, facePlusZ, wheel } from "../centred";

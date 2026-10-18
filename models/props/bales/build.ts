@@ -1,8 +1,8 @@
 // What a cloth trader brings to the market at dawn (city.md place.tejuosho-market): bales of cloth
 // sewn into sacking and bound with rope, a chequered carrier bag of the kind every market uses,
 // two sacks and a stack of crates, left in a heap at the end of a row.
-import { lowBox, setFootprint } from "@japacity/assets";
-import { box, quad, seeded, solid, type Vec3 } from "@japacity/assets/kit";
+import { lowBox, setFootprint } from "@japacity/model-kit";
+import { box, quad, seeded, solid, type Vec3 } from "@japacity/model-kit/kit";
 import { Group, type Object3D } from "three";
 
 import { facePlusZ } from "../../vehicles/centred";

@@ -31,7 +31,7 @@ Models are written as code, built and compressed in Node, shot headless in the P
 ### 4. Where things live
 
 ```
-packages/assets/                     the palette (assets:colours-from-named-palette), the kit of parts, the pattern code, the loader
+packages/model-kit/                     the palette (assets:colours-from-named-palette), the kit of parts, the pattern code, the loader
 models/                          never shipped
   <category>/<name>/                 build.ts or spec.json, outline.json, review.json, renders/
   people/                            bodies, clothes, hair, poses

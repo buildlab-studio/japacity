@@ -1,7 +1,7 @@
 // The ride's scene (world:ride-sheet-shows-fares, world:ride-cuts-between-angles): the street, the vehicle and the people
 // on it, with the pre-roll and the angles the rules give. Everything here is plain three.js with no
 // renderer, so a test can read the scene it builds.
-import { palette } from "@japacity/assets";
+import { palette } from "@japacity/model-kit";
 import type { PoseName } from "@japacity/models/people/poses";
 import {
   BoxGeometry,

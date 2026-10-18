@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { type Footprint, footprintOf, isPaletteName, signAnchorsOf } from "@japacity/assets";
+import { type Footprint, footprintOf, isPaletteName, signAnchorsOf } from "@japacity/model-kit";
 import { Box3, type Group, type Mesh, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 

@@ -1,6 +1,6 @@
 import { join } from "node:path";
 
-import { type Footprint, inBox, isFootprint, onWalkable, placeFootprint } from "@japacity/assets";
+import { type Footprint, inBox, isFootprint, onWalkable, placeFootprint } from "@japacity/model-kit";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
