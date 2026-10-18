@@ -8,6 +8,7 @@ import { expect, test, type Page } from "@playwright/test";
 // over the scene.
 import { content } from "../../../packages/content/src/index";
 import { SOFTWARE_WEBGL } from "./support/browser";
+import { type Broken, expectNothingBroken, NEVER_SHOWN, NO_WORDS } from "./support/check";
 import { startArchetype, startReadyLife } from "./support/door";
 import { backFromResults, boardThroughTheScene, closeGranted, doAct, fanAct, intoTheRoom, LIVED, openApp, passCards, passHomeTeach, placeNow, placeReady, putPhoneAway, rideTo, seedSave, sleepTheMonth } from "./support/live";
 import { adaBeforeFlight, kept, recorded } from "./support/saves";
@@ -15,12 +16,7 @@ import { adaBeforeFlight, kept, recorded } from "./support/saves";
 test.use({ launchOptions: SOFTWARE_WEBGL });
 
 /** Text that must never reach the player: kobo, a raw object, a missing value, a words key with no words. */
-const BROKEN: readonly [string, RegExp][] = [
-  ["kobo or pence on money", /[₦£$]\d[\d,]*\.\d/],
-  ["a raw object", /\[object Object\]/],
-  ["a missing value", /\bundefined\b|\bNaN\b/],
-  ["a words key with no words", /\b(?:line|ui|reject)\.[a-z-]+\.[a-z-]+/],
-];
+const BROKEN: readonly Broken[] = [["kobo or pence on money", /[₦£$]\d[\d,]*\.\d/], ...NEVER_SHOWN, NO_WORDS];
 
 // The aboki rate is the one figure that keeps its kobo, so the rates table is left out.
 async function shownText(page: Page): Promise<string> {
@@ -29,11 +25,6 @@ async function shownText(page: Page): Promise<string> {
     for (const rates of copy.querySelectorAll("[data-rates]")) rates.remove();
     return copy.textContent;
   });
-}
-
-async function expectNothingBroken(page: Page, when: string): Promise<void> {
-  const shown = await shownText(page);
-  for (const [what, pattern] of BROKEN) expect(shown.match(pattern)?.[0], `${what} on screen ${when}`).toBeUndefined();
 }
 
 /** The band's age, "23 yrs 2 mo": the clock a month lived moves on (R-WORLD-002). */
@@ -125,7 +116,7 @@ test("[R-WORLD-034] three months of play, acts from the fan and from the things'
   await startReadyLife(page);
   await placeReady(page);
   await passHomeTeach(page);
-  await expectNothingBroken(page, "at the start");
+  await expectNothingBroken(page, "at the start", BROKEN, shownText);
   await intoTheRoom(page);
 
   // Each month, acts on the home's things: from the fan (R-WORLD-034) and from a thing's sheet (R-WORLD-005).
@@ -146,19 +137,19 @@ test("[R-WORLD-034] three months of play, acts from the fan and from the things'
   for (const [index, play] of months.entries()) {
     const month = index + 1;
     await play(page);
-    await expectNothingBroken(page, `after the acts of month ${String(month)}`);
+    await expectNothingBroken(page, `after the acts of month ${String(month)}`, BROKEN, shownText);
     const results = await sleepTheMonth(page);
     await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
-    await expectNothingBroken(page, `in the results of month ${String(month)}`);
+    await expectNothingBroken(page, `in the results of month ${String(month)}`, BROKEN, shownText);
     await backFromResults(page);
     // What was started carries on into the next month by itself (R-WORLD-007): the Calendar says it, with no Same again.
     await page.locator("[data-band-month]").click();
     const calendar = page.locator("[data-app-screen='calendar']");
     await expect(calendar.locator("[data-calendar]").first()).toBeVisible();
     await expect(calendar.getByRole("button", { name: "Same again" })).toHaveCount(0);
-    await expectNothingBroken(page, `in the Calendar of month ${String(month + 1)}`);
+    await expectNothingBroken(page, `in the Calendar of month ${String(month + 1)}`, BROKEN, shownText);
     await putPhoneAway(page);
-    await expectNothingBroken(page, `in month ${String(month + 1)}`);
+    await expectNothingBroken(page, `in month ${String(month + 1)}`, BROKEN, shownText);
   }
 });
 
@@ -175,14 +166,14 @@ test("[R-PROLOGUE-014] a life from sixteen fills its page with no card, waits on
   // The page prints the family it drew and takes no stamp: none lands before a visa (R-PROLOGUE-009, 014).
   await expect(handover.locator("[data-page] [data-field='family']")).not.toContainText("· · ·");
   await expect(handover.locator("[data-page] [data-stamp]")).toHaveCount(0);
-  await expectNothingBroken(page, "on the page");
+  await expectNothingBroken(page, "on the page", BROKEN, shownText);
   // The page waits for the player (R-PROLOGUE-014): still there seconds later, until Go.
   await page.waitForTimeout(4_000);
   await expect(handover).toBeVisible();
   await handover.getByRole("button", { name: "Go", exact: true }).click();
   await expect(page.locator("[data-band]")).toBeVisible({ timeout: 6_000 });
   await expect(handover).toHaveCount(0);
-  await expectNothingBroken(page, "in the world");
+  await expectNothingBroken(page, "in the world", BROKEN, shownText);
 });
 
 /** The send-off card opens on no screen of its own once the flight's moment is closed (R-SHARE-015): the phone keeps it. */
@@ -203,7 +194,7 @@ async function boardThePlane(page: Page): Promise<void> {
   const size = page.viewportSize();
   expect(box !== null && size !== null && box.width >= size.width && box.height >= size.height).toBe(true);
   await expect(moment).toContainText(/landed/i);
-  await expectNothingBroken(page, "on the landing");
+  await expectNothingBroken(page, "on the landing", BROKEN, shownText);
   await moment.getByRole("button", { name: "Close" }).click();
   await noSendOffScreen(page);
   await passCards(page);
@@ -228,7 +219,7 @@ function monthsToDecember(): number {
 async function liveMonthAndRead(page: Page, when: string): Promise<void> {
   const results = await sleepTheMonth(page);
   await expect(results.getByRole("heading", { name: "The month is done" })).toBeVisible();
-  await expectNothingBroken(page, when);
+  await expectNothingBroken(page, when, BROKEN, shownText);
   await backFromResults(page);
 }
 
@@ -246,7 +237,7 @@ test("a recorded life boards the plane, the landing gets the whole screen, and l
   const japa = await openApp(page, "japa");
   await expect(japa.locator("[data-japa-visa]")).toBeVisible();
   await expect(japa.locator("[data-landing]")).toBeVisible();
-  await expectNothingBroken(page, "on landing");
+  await expectNothingBroken(page, "on landing", BROKEN, shownText);
   await putPhoneAway(page);
 
   // The life abroad survives a reload; the card closed before it stays closed, since the month's memory keeps that (R-WORLD-008).
@@ -286,7 +277,7 @@ test("a life abroad answers the December visit and changes money", async ({ page
   const scene = page.locator("[data-scene='setpiece.december']");
   if (!(await scene.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false))) await asks.locator("[data-december-tile] button").click();
   await expect(scene).toBeVisible();
-  await expectNothingBroken(page, "in the December visit");
+  await expectNothingBroken(page, "in the December visit", BROKEN, shownText);
   const go = scene.locator("[data-answer='go']");
   await expect(go.getByRole("button")).toBeDisabled();
   await expect(go.getByText(/You cannot do that now/)).toBeVisible();
@@ -312,7 +303,7 @@ test("a life abroad answers the December visit and changes money", async ({ page
   await page.locator("[data-ask-main]").click();
   await expect.poll(dollars).toBeLessThan(dollarsBefore);
   await expect.poll(naira).toBeGreaterThan(nairaBefore);
-  await expectNothingBroken(page, "after changing money");
+  await expectNothingBroken(page, "after changing money", BROKEN, shownText);
 });
 
 /** The japacity figure in the Japa app: its face and size as the browser draws it. */
@@ -380,7 +371,7 @@ test.describe("the side job on a 390 px phone", () => {
     await page.locator("[data-ask-main]").click();
     const side = jobs.locator("[data-job-row]", { hasText: /tutoring/i });
     await expect(side).toBeVisible();
-    await expectNothingBroken(page, "on the side job");
+    await expectNothingBroken(page, "on the side job", BROKEN, shownText);
 
     const row = await side.boundingBox();
     const words = await side.locator("p").first().boundingBox();

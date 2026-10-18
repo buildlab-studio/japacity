@@ -2,15 +2,12 @@ import { expect, test, type Page, type Route } from "@playwright/test";
 
 // The admin routes are answered in the browser from the page's own fixtures: the dev server has no server behind it.
 import { ADMIN_GETS, ROLLBACK, SWITCHES } from "../src/features/admin/admin.testing";
+import { type Broken, expectNothingBroken, NEVER_SHOWN } from "./support/check";
 import { shootAtSize } from "./support/preview";
 
 const TABS = ["Money", "Rejections", "Rollback", "Moderation", "Analytics", "Numbers", "Adverts", "Switches"] as const;
 
-const BROKEN: readonly [string, RegExp][] = [
-  ["a raw object", /\[object Object\]/],
-  ["a missing value", /\bundefined\b|\bNaN\b/],
-  ["a words key with no words", /\badmin\.[a-z-]+\.[a-z-]+/],
-];
+const BROKEN: readonly Broken[] = [...NEVER_SHOWN, ["a words key with no words", /\badmin\.[a-z-]+\.[a-z-]+/]];
 
 /** A stand-in for a creative's image, which the admin image route serves for any version. */
 const IMAGE = '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320"><rect width="320" height="320" fill="#1f6f5c"/><text x="160" y="170" font-size="28" fill="#fff" text-anchor="middle" font-family="sans-serif">Tea by the water</text></svg>';
@@ -45,11 +42,6 @@ async function fakeServer(page: Page, admin: boolean): Promise<Seen[]> {
   return seen;
 }
 
-async function expectNothingBroken(page: Page, when: string): Promise<void> {
-  const shown = await page.evaluate(() => document.body.textContent);
-  for (const [what, pattern] of BROKEN) expect(shown.match(pattern)?.[0], `${what} on screen ${when}`).toBeUndefined();
-}
-
 test("an admin at /admin sees every area of the page, each from the admin routes only", async ({ page }, info) => {
   const seen = await fakeServer(page, true);
   await page.goto("/admin");
@@ -74,7 +66,7 @@ test("an admin at /admin sees every area of the page, each from the admin routes
   for (const tab of TABS) {
     await page.getByRole("tab", { name: tab }).click();
     await loaded[tab]();
-    await expectNothingBroken(page, `on the ${tab} tab`);
+    await expectNothingBroken(page, `on the ${tab} tab`, BROKEN);
     await shootAtSize(page, `admin-${tab.toLowerCase()}`, info.project.name, true);
   }
   for (const { path } of seen) expect(path === "/api/account" || path.startsWith("/api/admin/"), path).toBe(true);
