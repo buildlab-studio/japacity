@@ -4,7 +4,6 @@ import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { dayName } from "./day";
 import type { NumbersFacts } from "./numbers";
 import { heldKey, numbersTotals, sessionBand, sessionLengths } from "./numbers";
 import type { Life, LifeAt, Played } from "./replay";
@@ -12,7 +11,7 @@ import type { Life, LifeAt, Played } from "./replay";
 const DAY = 20_370;
 const START = DAY * time.DAY_MS;
 const MIN = time.MINUTE_MS;
-const NAME = dayName(DAY);
+const NAME = time.dayName(DAY);
 
 function account(id: string, country = "GB"): AccountRow {
   return { id, country, age: { passed: true, at: 0, method: "declared" }, createdAt: 0, character: `character.${id}`, notifyBankFull: false, sendUsageCounts: true, state: "guest", username: id.replaceAll(/\W/g, "_"), usernameChangedAt: null, lastPlayedAt: 0 };

@@ -9,14 +9,13 @@ import type { ServerDeps } from "../deps";
 import { moneyJob } from "../jobs/money";
 import { activeOn } from "./active";
 import { ALARM_ROWS, listAlarms, noteDiverged } from "./alarm";
-import { dayStart, utcDay } from "./day";
 import { createLife, life, playRows, storeWorlds } from "./ops.testing";
 import { drawAlarms, drawsClosingOn, markAfterCommit, moneyReport, TICKS_PER_DRAW } from "./money";
 
 const ID = "character.tunde";
 const SAVE = life("tunde-borrower");
 const HALF = 40;
-const DAY = utcDay(productionConfig.clock.epoch) + 1;
+const DAY = time.utcDay(productionConfig.clock.epoch) + 1;
 const TRANSFERS = ["convert", "move", "remit"];
 
 function sum(...rows: ByReason[]): ByReason {
@@ -36,8 +35,8 @@ function sum(...rows: ByReason[]): ByReason {
 
 async function day(deps: ServerDeps, id: string, state: State, entries: typeof SAVE.commands, on: number): Promise<State> {
   const played = await playRows(deps, id, state, entries, {
-    at: (index) => dayStart(on) + index * time.MINUTE_MS,
-    onCommit: (before, row) => markAfterCommit(deps, id, before, utcDay(row.at)),
+    at: (index) => time.dayStart(on) + index * time.MINUTE_MS,
+    onCommit: (before, row) => markAfterCommit(deps, id, before, time.utcDay(row.at)),
   });
   return played.state;
 }
@@ -135,8 +134,8 @@ describe("the money report", () => {
     const start = await begin(deps);
     await day(deps, ID, start, SAVE.commands.slice(0, 5), DAY);
 
-    expect((await moneyJob({ ...deps, now: at(dayStart(DAY + 1)) })).day).toBe(DAY);
-    expect(await moneyJob({ ...deps, now: at(dayStart(DAY + 3) - 1) })).toMatchObject({ day: DAY + 1, characters: [] });
+    expect((await moneyJob({ ...deps, now: at(time.dayStart(DAY + 1)) })).day).toBe(DAY);
+    expect(await moneyJob({ ...deps, now: at(time.dayStart(DAY + 3) - 1) })).toMatchObject({ day: DAY + 1, characters: [] });
     expect(await deps.stores.ledger.mark(ID)).toMatchObject({ day: DAY + 1 });
   });
 });
@@ -158,9 +157,9 @@ describe("the alarm", () => {
     const doctor = (salary: number): State => ({ ...plain, wallet: { ...plain.wallet, totals: { ...plain.wallet.totals, in: { ...plain.wallet.totals.in, salary: { NGN: salary } } } } });
     const ceiling = ledgerReport(doctor(Number.MAX_SAFE_INTEGER), probe.contents.current).alarms.find((alarm) => alarm.reason === "salary")?.ceiling ?? 0;
 
-    const over = testDeps({ now: at(dayStart(DAY + 1)) });
+    const over = testDeps({ now: at(time.dayStart(DAY + 1)) });
     await doctored(over, ceiling + 1);
-    const atCeiling = testDeps({ now: at(dayStart(DAY + 1)) });
+    const atCeiling = testDeps({ now: at(time.dayStart(DAY + 1)) });
     await doctored(atCeiling, ceiling);
 
     expect((await moneyJob(over)).alarms).toEqual([{ kind: "suspect", day: DAY, character: ID, reason: "salary", currency: "NGN", total: ceiling + 1, ceiling }]);
@@ -169,7 +168,7 @@ describe("the alarm", () => {
   });
 
   test("[R-SERVER-012] given a suspect, when the alarm is raised, then it takes no action on the character and is still listed after a restart", async () => {
-    const deps = testDeps({ now: at(dayStart(DAY + 1)) });
+    const deps = testDeps({ now: at(time.dayStart(DAY + 1)) });
     await doctored(deps, Number.MAX_SAFE_INTEGER);
     const before = await deps.stores.player.load(ID);
 
@@ -185,11 +184,11 @@ describe("the alarm", () => {
   });
 
   test("[R-SERVER-012] given a stored row whose hash differs, when the job runs or a load reports it, then the character is listed as diverged and its day is not closed", async () => {
-    const deps = testDeps({ now: at(dayStart(DAY + 1)) });
+    const deps = testDeps({ now: at(time.dayStart(DAY + 1)) });
     const start = await begin(deps);
     await playRows(deps, ID, start, SAVE.commands.slice(0, 5), {
-      at: (index) => dayStart(DAY) + index,
-      onCommit: (before, row) => markAfterCommit(deps, ID, before, utcDay(row.at)),
+      at: (index) => time.dayStart(DAY) + index,
+      onCommit: (before, row) => markAfterCommit(deps, ID, before, time.utcDay(row.at)),
       tamper: (row, index) => (index === 4 ? { ...row, hash: "fault" } : row),
     });
 
@@ -213,12 +212,12 @@ describe("the draw's alarm", () => {
 
   test("[R-LOTTERY-014] given the epoch, when the draws closing each day are listed, then draw 0 closes on the Friday a week on, and a close at midnight belongs to the day it opens", () => {
     const deps = testDeps();
-    expect(drawsClosingOn(deps, utcDay(close))).toEqual([0]);
-    expect(drawsClosingOn(deps, utcDay(close) - 1)).toEqual([]);
-    expect(drawsClosingOn(deps, utcDay(close) + 7)).toEqual([1]);
+    expect(drawsClosingOn(deps, time.utcDay(close))).toEqual([0]);
+    expect(drawsClosingOn(deps, time.utcDay(close) - 1)).toEqual([]);
+    expect(drawsClosingOn(deps, time.utcDay(close) + 7)).toEqual([1]);
     const midnight = testDeps({ config: testConfig({ clock: { epoch: Date.UTC(2026, 9, 9) } }) });
-    expect(drawsClosingOn(midnight, utcDay(Date.UTC(2026, 9, 16)))).toEqual([0]);
-    expect(drawsClosingOn(midnight, utcDay(Date.UTC(2026, 9, 16)) - 1)).toEqual([]);
+    expect(drawsClosingOn(midnight, time.utcDay(Date.UTC(2026, 9, 16)))).toEqual([0]);
+    expect(drawsClosingOn(midnight, time.utcDay(Date.UTC(2026, 9, 16)) - 1)).toEqual([]);
   });
 
   /**
@@ -258,31 +257,31 @@ describe("the draw's alarm", () => {
   test("[R-LOTTERY-014] given a draw whose wins are what its result gives and whose tickets are its sales, when it is checked, then no alarm is raised; a buy at the next draw's first tick is not counted", async () => {
     const deps = testDeps();
     await drawn(deps, BUYS, 500, { count: 3, owed: 500 });
-    expect(await drawAlarms(deps, utcDay(close))).toEqual([]);
+    expect(await drawAlarms(deps, time.utcDay(close))).toEqual([]);
   });
 
   test("[R-LOTTERY-014] given wins one kobo over or under what the result gives, or tickets one off the sales either way, when the draw is checked, then the world alarm is raised", async () => {
     for (const paid of [501, 499]) {
       const off = testDeps();
       await drawn(off, BUYS, paid, { count: 3, owed: 500 });
-      expect(await drawAlarms(off, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "win", total: paid, limit: 500 }]);
+      expect(await drawAlarms(off, time.utcDay(close))).toEqual([{ kind: "draw", day: time.utcDay(close), draw: 0, check: "win", total: paid, limit: 500 }]);
     }
 
     const price = testDeps().contents.current.tuning.lottery.ticket;
     for (const count of [2, 4]) {
       const off = testDeps();
       await drawn(off, BUYS, 500, { count, owed: 500 });
-      expect(await drawAlarms(off, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "ticket", total: 3 * price, limit: count * price }]);
+      expect(await drawAlarms(off, time.utcDay(close))).toEqual([{ kind: "draw", day: time.utcDay(close), draw: 0, check: "ticket", total: 3 * price, limit: count * price }]);
     }
   });
 
   test("[R-LOTTERY-014] given a payout logged with any house part, when the draw is checked, then the world alarm is raised for pot-top-up against 0; a part of 0 raises nothing", async () => {
     const house = testDeps();
     await drawn(house, BUYS, { amount: 500, topUp: 1 }, { count: 3, owed: 500 });
-    expect(await drawAlarms(house, utcDay(close))).toEqual([{ kind: "draw", day: utcDay(close), draw: 0, check: "top-up", total: 1, limit: 0 }]);
+    expect(await drawAlarms(house, time.utcDay(close))).toEqual([{ kind: "draw", day: time.utcDay(close), draw: 0, check: "top-up", total: 1, limit: 0 }]);
 
     const none = testDeps();
     await drawn(none, BUYS, { amount: 500, topUp: 0 }, { count: 3, owed: 500 });
-    expect(await drawAlarms(none, utcDay(close))).toEqual([]);
+    expect(await drawAlarms(none, time.utcDay(close))).toEqual([]);
   });
 });

@@ -5,7 +5,7 @@
 // routes/account.ts).
 // https://hono.dev/docs/helpers/cookie
 import type { AgeReply, AgeRequest, AgeStatus } from "@japacity/api";
-import { toHex } from "@japacity/sim";
+import { time, toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
@@ -18,7 +18,6 @@ import { limit } from "../limits/limit";
 
 /** The guest start, the one route that reads the pass. */
 export const PASS_PATH = "/api/guest";
-const DAY_S = 86_400;
 
 export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv> {
   const app = new Hono<SessionEnv>();
@@ -42,7 +41,7 @@ export function ageRoutes(deps: ServerDeps, { auth }: Accounts): Hono<SessionEnv
     if (ageOn(birth, now) < deps.config.account.minAge) {
       deleteCookie(c, PASS_COOKIE, { path: PASS_PATH, secure: true });
       // Not HttpOnly: the screen reads it to refuse without asking again.
-      setCookie(c, REFUSED_COOKIE, "1", { path: "/", secure: true, sameSite: "Lax", maxAge: deps.config.account.refusedCookieDays * DAY_S });
+      setCookie(c, REFUSED_COOKIE, "1", { path: "/", secure: true, sameSite: "Lax", maxAge: deps.config.account.refusedCookieDays * time.DAY_S });
       return c.json<AgeReply>(rejection("under-age", "This browser cannot sign up."), 403);
     }
 

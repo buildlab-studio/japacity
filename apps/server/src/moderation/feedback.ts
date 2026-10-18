@@ -11,11 +11,6 @@ import { newId } from "./decide";
 
 const LABEL = /^[\w.:-]{1,64}$/;
 
-/** The UTC day of a time, `YYYY-MM-DD`. */
-export function dayOf(ms: number): string {
-  return new Date(ms).toISOString().slice(0, 10);
-}
-
 /** Code points, so an emoji counts as one character, not two. */
 export function characters(text: string): number {
   return [...text].length;
@@ -39,7 +34,7 @@ export async function sendFeedback(deps: ServerDeps, account: string, region: st
   if (mode !== "low" && mode !== "high") return { ok: false, status: 400, code: "not-legal", detail: "mode is low or high." };
 
   const now = deps.now();
-  const day = dayOf(now);
+  const day = time.dayName(time.utcDay(now));
   const sender = await sha256Hex(`feedback:${day}:${account}`);
   if (!(await deps.stores.feedback.take(sender, day, perDay))) {
     const nextDay = (int.divFloor(now, time.DAY_MS) + 1) * time.DAY_MS;
@@ -53,12 +48,12 @@ export async function sendFeedback(deps: ServerDeps, account: string, region: st
 
 /** R-MODERATION-020: a row is kept for `keepDays` days counting its own, and goes on the day after. */
 function keptFrom(deps: Pick<ServerDeps, "config" | "now">): string {
-  return dayOf(deps.now() - (deps.config.feedback.keepDays - 1) * time.DAY_MS);
+  return time.dayName(time.utcDay(deps.now()) - (deps.config.feedback.keepDays - 1));
 }
 
 /** The daily job: drops feedback past `keepDays` and every send count before today. Answers how many rows went. */
 export async function dropOldFeedback(deps: Pick<ServerDeps, "config" | "now" | "stores">): Promise<number> {
   const dropped = await deps.stores.feedback.drop(keptFrom(deps));
-  await deps.stores.feedback.forget(dayOf(deps.now()));
+  await deps.stores.feedback.forget(time.dayName(time.utcDay(deps.now())));
   return dropped;
 }

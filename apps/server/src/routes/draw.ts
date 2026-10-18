@@ -17,7 +17,7 @@ import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdgeIfAny } from "./cache";
 
 /** How long a reply may be cached, in seconds: a published result never changes. */
 const OPEN_MAX_AGE = 60;
-const DRAWN_MAX_AGE = 86400;
+const DRAWN_MAX_AGE = time.DAY_S;
 
 /**
  * The reply for draw `n`, or null when no such draw is stored. The list is the

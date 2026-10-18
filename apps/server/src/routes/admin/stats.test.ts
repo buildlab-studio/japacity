@@ -1,14 +1,13 @@
 import type { StatsReply } from "@japacity/api";
 import { content } from "@japacity/content";
+import { time } from "@japacity/sim";
 import type { NumbersLog } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../../ops/day";
 import { testDeps } from "../../app.testing";
 import { makeApp } from "../../app";
 import { testConfig } from "../../config";
 import { testSession } from "../../deps";
-import { dayName } from "../../analytics/day";
 import { STATS_KEYS } from "../../analytics/stats";
 import { adminStatsRoutes } from "./stats";
 
@@ -51,8 +50,8 @@ describe("GET /api/admin/stats", () => {
   test("[R-ANALYTICS-012] [R-ANALYTICS-013] [R-ANALYTICS-010] given an admin, when the numbers are fetched, then the frozen sections come back, online now is read live over the last five minutes and today so far, and a small region is hidden", async () => {
     const asked: [number, number][] = [];
     const { deps, app: served } = app(asked);
-    const today = utcDay(deps.now());
-    await deps.stores.counters.add([{ day: dayName(today - 1), region: "NG", name: "players/total", key: "NG", count: 120 }]);
+    const today = time.utcDay(deps.now());
+    await deps.stores.counters.add([{ day: time.dayName(today - 1), region: "NG", name: "players/total", key: "NG", count: 120 }]);
 
     const reply = await served.request("/api/admin/stats", as(ADMIN));
     expect(reply.status).toBe(200);

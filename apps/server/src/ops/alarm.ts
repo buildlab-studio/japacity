@@ -3,10 +3,10 @@
 // list is kept in the isolate's memory and in the audit store, so the admin
 // page still shows it after a restart.
 import type { Alarm } from "@japacity/api";
+import { time } from "@japacity/sim";
 import type { AuditStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import { utcDay } from "./day";
 
 /**
  * The audit rows that hold alarms are filed under this name instead of a
@@ -44,5 +44,5 @@ export async function raiseAlarms(deps: Pick<ServerDeps, "stores" | "now">, alar
 
 /** R-SERVER-003: the core calls this when a load's hash differs, so the character is listed for the rollback tool. */
 export async function noteDiverged(deps: Pick<ServerDeps, "stores" | "now">, character: string, v: number): Promise<void> {
-  await raiseAlarms(deps, [{ kind: "diverged", day: utcDay(deps.now()), character, v }]);
+  await raiseAlarms(deps, [{ kind: "diverged", day: time.utcDay(deps.now()), character, v }]);
 }

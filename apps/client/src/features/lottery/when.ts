@@ -1,11 +1,10 @@
 // The draw's times as words: the wait to the close and the close itself in
 // the player's own time zone.
+import { time } from "@japacity/sim";
+
 import { say, sayCount } from "../../shared/words/text";
 
-const SECOND_MS = 1000;
-const MINUTE_MS = 60 * SECOND_MS;
-const HOUR_MS = 60 * MINUTE_MS;
-const DAY_MS = 24 * HOUR_MS;
+const { DAY_MS, HOUR_MS, MINUTE_MS } = time;
 
 /** A wait in whole words, coarsest two parts first: "1 day 6 hours", "3 hours 5 minutes", "12 minutes". */
 export function waitWords(ms: number): string {

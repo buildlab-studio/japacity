@@ -2,10 +2,8 @@
 // before it. A figure under `minShown` is never shown as itself (R-ANALYTICS-010).
 import type { DailyRow, Dashboard, Shown, WeekRow } from "@japacity/api";
 import type { Content } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
-
-import { dayName, dayNumber } from "./day";
 
 /** R-ANALYTICS-009: today and the last 30 days. */
 export const WINDOW_DAYS = 30;
@@ -31,12 +29,12 @@ function rate(part: number, whole: number, minShown: number): number | null {
 /** The dashboard over the totals of the window that ends on `day`. */
 export function dashboard(content: Content, day: string, totals: readonly CounterTotal[]): Dashboard {
   const { minShown, refD1Bp, refD7Bp } = content.tuning.analytics;
-  const last = dayNumber(day) ?? 0;
+  const last = time.dayNumber(day) ?? 0;
   const first = last - WINDOW_DAYS;
 
   const daily: DailyRow[] = [];
   for (let each = first; each <= last; each += 1) {
-    const name = dayName(each);
+    const name = time.dayName(each);
     const ofDay = totals.filter((row) => row.day === name);
     daily.push({
       day: name,
@@ -48,19 +46,19 @@ export function dashboard(content: Content, day: string, totals: readonly Counte
 
   const weeks: WeekRow[] = [];
   for (let week = weekOf(first); week <= last; week += WEEK_DAYS) {
-    const names = new Set(Array.from({ length: WEEK_DAYS }, (_, offset) => dayName(week + offset)));
+    const names = new Set(Array.from({ length: WEEK_DAYS }, (_, offset) => time.dayName(week + offset)));
     const ofWeek = totals.filter((row) => names.has(row.day));
     const newPlayers = sum(ofWeek, (row) => row.name === "players/new");
     const d1 = sum(ofWeek, (row) => row.name === "players/returned" && row.key === "d1");
     const d7 = sum(ofWeek, (row) => row.name === "players/returned" && row.key === "d7");
     const earlyWin: Record<string, Shown> = {};
     for (const key of ["1", "2", "3", "later", "none"]) earlyWin[key] = shown(sum(ofWeek, (row) => row.name === "first/early-win" && row.key === key), minShown);
-    weeks.push({ week: dayName(week), newPlayers: shown(newPlayers, minShown), d1: shown(d1, minShown), d7: shown(d7, minShown), d1Bp: rate(d1, newPlayers, minShown), d7Bp: rate(d7, newPlayers, minShown), earlyWin });
+    weeks.push({ week: time.dayName(week), newPlayers: shown(newPlayers, minShown), d1: shown(d1, minShown), d7: shown(d7, minShown), d1Bp: rate(d1, newPlayers, minShown), d7Bp: rate(d7, newPlayers, minShown), earlyWin });
   }
 
   return {
     day,
-    from: dayName(first),
+    from: time.dayName(first),
     minShown,
     reference: { d1Bp: refD1Bp, d7Bp: refD7Bp },
     // A fault is shown whatever its size: it names no one, and one is enough to look.

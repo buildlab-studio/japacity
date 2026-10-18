@@ -7,13 +7,12 @@
 // policy or a query string; R-SERVER-015, analytics.md R-ANALYTICS-007).
 import type { ServerRejection } from "@japacity/api";
 import { CSP_DIRECTIVES } from "@japacity/content";
+import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import type { MiddlewareHandler } from "hono";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { NO_REGION } from "../analytics/list";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
@@ -161,7 +160,7 @@ export function cspReportRoute(deps: ServerDeps): Hono {
     // Worker's one console writer (R-SERVER-042).
     for (const violation of kept) writeLine(cspLogLine(violation));
     if (kept.length > 0) {
-      const day = dayName(utcDay(deps.now()));
+      const day = time.dayName(time.utcDay(deps.now()));
       const country = countryOf(c.req.raw);
       const region = country !== null && /^[A-Z]{2}$/.test(country) ? country : NO_REGION;
       const counts = new Map<CspDirective, number>();

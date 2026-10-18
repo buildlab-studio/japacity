@@ -1,14 +1,14 @@
 import { content } from "@japacity/content";
+import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
 import { dashboard, WINDOW_DAYS } from "./dashboard";
-import { dayName, dayNumber } from "./day";
 
 const { minShown, refD1Bp, refD7Bp } = content.tuning.analytics;
 const LAST = "2026-10-21";
-const last = dayNumber(LAST) ?? 0;
-const total = (day: number, name: string, key: string, count: number, region = "NG"): CounterTotal => ({ day: dayName(day), region, name, key, count });
+const last = time.dayNumber(LAST) ?? 0;
+const total = (day: number, name: string, key: string, count: number, region = "NG"): CounterTotal => ({ day: time.dayName(day), region, name, key, count });
 
 describe("the dashboard's data", () => {
   test("[R-ANALYTICS-010] given totals either side of the smallest number shown, when the dashboard is built, then a key under it is hidden as fewer than that number and one at it is shown", () => {
@@ -22,13 +22,13 @@ describe("the dashboard's data", () => {
 
   test("[R-ANALYTICS-009] given a day, when the dashboard is built, then it covers that day and the 30 before it, with daily players, new players and turns", () => {
     const board = dashboard(content, LAST, [total(last, "players/active", "NG", 40), total(last, "players/active", "GB", 2, "GB"), total(last, "players/new", "NG", 12), total(last, "turns/ended", "NG", 3)]);
-    expect(board.from).toBe(dayName(last - WINDOW_DAYS));
+    expect(board.from).toBe(time.dayName(last - WINDOW_DAYS));
     expect(board.daily).toHaveLength(WINDOW_DAYS + 1);
     expect(board.daily.at(-1)).toEqual({ day: LAST, players: 42, newPlayers: 12, turnsEnded: { fewerThan: minShown } });
   });
 
   test("[R-ANALYTICS-011] given a sign-up week's new players and returns, when the dashboard is built, then day-1 and day-7 return are shown in basis points beside the reference lines", () => {
-    const monday = dayNumber("2026-10-12") ?? 0;
+    const monday = time.dayNumber("2026-10-12") ?? 0;
     const board = dashboard(content, LAST, [
       total(monday, "players/new", "NG", 60),
       total(monday + 2, "players/new", "GB", 40, "GB"),

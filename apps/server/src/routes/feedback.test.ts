@@ -5,7 +5,7 @@ import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
 import { testSession } from "../deps";
-import { dayOf, dropOldFeedback } from "../moderation/feedback";
+import { dropOldFeedback } from "../moderation/feedback";
 
 const ADMIN = "account.admin";
 const NOON = Date.UTC(2026, 9, 8, 12, 0, 0);
@@ -90,7 +90,7 @@ describe("feedback", () => {
     expect(await dropOldFeedback(deps)).toBe(0);
     expect(await deps.stores.feedback.list(10)).toHaveLength(1);
     at(NOON + keep * time.DAY_MS);
-    expect(dayOf(deps.now())).toBe("2027-04-06");
+    expect(time.dayName(time.utcDay(deps.now()))).toBe("2027-04-06");
     expect(await dropOldFeedback(deps)).toBe(1);
     expect(await deps.stores.feedback.list(10)).toEqual([]);
   });

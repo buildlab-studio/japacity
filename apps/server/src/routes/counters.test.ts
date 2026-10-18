@@ -4,8 +4,6 @@ import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { signUp, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
 import type { Limiter } from "../deps";
@@ -26,7 +24,7 @@ async function stored(server: TestServer): Promise<CounterTotal[]> {
 
 /** The stored total of one name and key on the server's day, 0 when none. */
 async function total(server: TestServer, name: string, key: string, region = "NG"): Promise<number> {
-  const day = dayName(utcDay(server.deps.now()));
+  const day = time.dayName(time.utcDay(server.deps.now()));
   return (await stored(server)).find((row) => row.day === day && row.region === region && row.name === name && row.key === key)?.count ?? 0;
 }
 
@@ -116,7 +114,7 @@ describe("POST /api/counters", () => {
     const server = testServer({ limits: { ...openLimiters, anon60s } });
     expect((await post(server, null, batch([wallet]))).status).toBe(204);
     expect((await post(server, null, batch([wallet]))).status).toBe(204);
-    expect(await stored(server)).toEqual([{ day: dayName(utcDay(server.deps.now())), region: "XX", name: "analytics/dropped", key: "signed-out", count: 1 }]);
+    expect(await stored(server)).toEqual([{ day: time.dayName(time.utcDay(server.deps.now())), region: "XX", name: "analytics/dropped", key: "signed-out", count: 1 }]);
   });
 
   test("[R-ANALYTICS-006] given an account with usage counts turned off, when it sends a batch, then nothing at all is stored, not even a drop", async () => {
@@ -137,10 +135,10 @@ describe("POST /api/counters", () => {
     await account(server, "account.gb", { country: "GB" });
     await post(server, "account.ng", batch([wallet, { ...wallet, count: 4 }]));
     await post(server, "account.gb", batch([wallet]));
-    const first = dayName(utcDay(server.deps.now()));
+    const first = time.dayName(time.utcDay(server.deps.now()));
     server.wait(time.DAY_MS);
     await post(server, "account.ng", batch([wallet]));
-    const second = dayName(utcDay(server.deps.now()));
+    const second = time.dayName(time.utcDay(server.deps.now()));
 
     expect(await stored(server)).toEqual([
       { day: first, region: "GB", name: "screen/opened", key: "wallet", count: 1 },
@@ -156,7 +154,7 @@ describe("POST /api/counters", () => {
     await post(server, "account.a", JSON.stringify({ ...extras, rows: [{ ...wallet, ...extras }] }), { "user-agent": "Agent/1.0", "cf-connecting-ip": "203.0.113.9" });
 
     const rows = await stored(server);
-    expect(rows).toEqual([{ day: dayName(utcDay(server.deps.now())), region: "NG", name: "screen/opened", key: "wallet", count: 1 }]);
+    expect(rows).toEqual([{ day: time.dayName(time.utcDay(server.deps.now())), region: "NG", name: "screen/opened", key: "wallet", count: 1 }]);
     const text = JSON.stringify(rows);
     for (const value of Object.values(extras)) expect(text).not.toContain(value);
   });

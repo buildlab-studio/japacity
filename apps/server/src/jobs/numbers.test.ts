@@ -2,8 +2,6 @@ import type { AccountRow, CounterTotal, DayLog, NumbersLog, RegionCount } from "
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import { newLife, restMonth, send, signUp, testServer, view } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
 import { countDay } from "./counters";
@@ -65,14 +63,14 @@ const pick = (rows: readonly CounterTotal[], day: string, name: string, key: str
 describe("the nightly job's numbers for the admin", () => {
   test("[R-ANALYTICS-008] [R-ANALYTICS-013] given a day of play with the counts by region, when the job counts it, then the life started, its first month, its session, its economy in its fourth month, the week's, month's and all players are counted from the log by region", async () => {
     const server = testServer();
-    const day = utcDay(server.deps.now());
+    const day = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
     await signUp(server, "account.idle");
     await months(server, "account.ada", 3);
 
     await countDay(server.deps, knownLogs(server, [ada], ["account.ada", "account.idle"]), day, knownLogs(server, [ada], ["account.ada", "account.idle"]));
     const rows = await server.deps.stores.counters.days("2000-01-01", "2100-01-01");
-    const today = dayName(day);
+    const today = time.dayName(day);
     expect(pick(rows, today, "lives/started", "NG")).toBe(1);
     expect(pick(rows, today, "funnel/step", "begin")).toBe(1);
     expect(pick(rows, today, "funnel/step", "month-1")).toBe(1);
@@ -88,7 +86,7 @@ describe("the nightly job's numbers for the admin", () => {
 
   test("[R-ANALYTICS-008] given a player seen six days before the day counted and another 29 days before, when the day is counted, then the week holds one and the month both", async () => {
     const server = testServer();
-    const first = utcDay(server.deps.now());
+    const first = time.utcDay(server.deps.now());
     const ada = await newLife(server, "account.ada");
     await months(server, "account.ada", 1);
     server.wait(23 * time.DAY_MS);
@@ -100,14 +98,14 @@ describe("the nightly job's numbers for the admin", () => {
     const logs = knownLogs(server, [ada, bola], ["account.ada", "account.bola"]);
     await countDay(server.deps, logs, day, logs);
     const rows = await server.deps.stores.counters.days("2000-01-01", "2100-01-01");
-    expect(pick(rows, dayName(day), "players/weekly", "NG")).toBe(1);
-    expect(pick(rows, dayName(day), "players/monthly", "NG")).toBe(2);
-    expect(pick(rows, dayName(day), "players/active", "NG")).toBe(0);
+    expect(pick(rows, time.dayName(day), "players/weekly", "NG")).toBe(1);
+    expect(pick(rows, time.dayName(day), "players/monthly", "NG")).toBe(2);
+    expect(pick(rows, time.dayName(day), "players/active", "NG")).toBe(0);
   });
 
   test("[R-ANALYTICS-008] given an open report as the day ends, when the day is counted, then it is counted by its reason under its reporter's region", async () => {
     const server = testServer();
-    const day = utcDay(server.deps.now());
+    const day = time.utcDay(server.deps.now());
     await signUp(server, "account.ada");
     await signUp(server, "account.bola");
     const filed = await server.deps.stores.moderation.report(
@@ -118,6 +116,6 @@ describe("the nightly job's numbers for the admin", () => {
 
     await countDay(server.deps, knownLogs(server, [], []), day);
     const rows = await server.deps.stores.counters.days("2000-01-01", "2100-01-01");
-    expect(rows.filter((row) => row.name === "moderation/open")).toEqual([{ day: dayName(day), region: "NG", name: "moderation/open", key: "scam", count: 1 }]);
+    expect(rows.filter((row) => row.name === "moderation/open")).toEqual([{ day: time.dayName(day), region: "NG", name: "moderation/open", key: "scam", count: 1 }]);
   });
 });

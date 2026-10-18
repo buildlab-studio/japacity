@@ -1,15 +1,14 @@
+import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../ops/day";
 import { rejectionCounts } from "../ops/rejections";
 import { call, newLife, restMonth, send, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
 import type { Limiter } from "../deps";
 import { openLimiters } from "../deps";
-import { dayName } from "./day";
 
 async function rejected(server: TestServer, code: string, region = "NG"): Promise<number> {
-  const day = dayName(utcDay(server.deps.now()));
+  const day = time.dayName(time.utcDay(server.deps.now()));
   const rows = await server.deps.stores.counters.days(day, day);
   return rows.find((row) => row.name === "command/rejected" && row.key === code && row.region === region)?.count ?? 0;
 }
@@ -27,7 +26,7 @@ describe("refusals counted by code", () => {
 
     expect(isolate("stale") - before).toBe(1);
     expect(await rejected(server, "stale")).toBe(1);
-    const day = dayName(utcDay(server.deps.now()));
+    const day = time.dayName(time.utcDay(server.deps.now()));
     expect((await server.deps.stores.counters.days(day, day)).filter((row) => row.name === "command/rejected")).toHaveLength(1);
 
     // R-SERVER-046: the prologue's preset is a command route too, its refusals counted the same way.
@@ -58,7 +57,7 @@ describe("refusals counted by code", () => {
     expect(linked.body.ok).toBe(false);
     expect(await rejected(server, linked.body.code ?? "")).toBe(1);
     await call(server, "GET", "/api/view", "acc-1");
-    const day = dayName(utcDay(server.deps.now()));
+    const day = time.dayName(time.utcDay(server.deps.now()));
     expect((await server.deps.stores.counters.days(day, day)).map((row) => row.key)).toEqual([linked.body.code]);
   });
 });

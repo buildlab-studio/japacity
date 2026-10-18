@@ -8,11 +8,10 @@
 // rows after it. Only counts leave here: no character or account is kept,
 // returned or logged.
 import type { Where } from "@japacity/sim";
+import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 
-import { utcDay } from "../ops/day";
 import { stateNow } from "../ops/replay";
-import { dayName } from "../analytics/day";
 import { LIVES_KEYS, LIVES_PLAYING } from "../analytics/lights";
 import { NO_REGION, WHOLE_GAME } from "../analytics/list";
 import type { ServerDeps } from "../deps";
@@ -65,7 +64,7 @@ export async function countLives(deps: Pick<ServerDeps, "contents" | "stores">, 
     if (rows.length < PAGE || last === undefined) break;
     after = last.id;
   }
-  const named = dayName(day);
+  const named = time.dayName(day);
   const row = (region: string, key: Where, count: number): CounterTotal => ({ day: named, region, name: LIVES_PLAYING, key, count });
   const totals = [
     ...[...byRegion].flatMap(([region, counts]) => LIVES_KEYS.flatMap((key) => (counts[key] > 0 ? [row(region, key, counts[key])] : []))),
@@ -77,5 +76,5 @@ export async function countLives(deps: Pick<ServerDeps, "contents" | "stores">, 
 
 /** On the 00:00 cron: the day that has just ended. */
 export function livesJob(deps: ServerDeps): Promise<LivesDay> {
-  return countLives(deps, utcDay(deps.now()) - 1);
+  return countLives(deps, time.utcDay(deps.now()) - 1);
 }

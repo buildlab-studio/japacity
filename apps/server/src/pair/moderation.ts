@@ -116,7 +116,7 @@ function messagesOf(body: unknown): string[] | null {
 async function overLimit(deps: ServerDeps, account: string): Promise<PairAnswer<Reported> | null> {
   // A report exactly a day old no longer counts, as a phrase exactly an hour old does not (R-PAIR-013).
   if ((await deps.stores.moderation.filedSince(account, deps.now() - time.DAY_MS + 1)) < deps.config.moderation.reportsPerDay) return null;
-  return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: 86_400 } };
+  return { status: 429, body: { ok: false, code: "rate-limited", detail: "Too many reports today.", retryAfter: time.DAY_S } };
 }
 
 function reportId(deps: ServerDeps): string {

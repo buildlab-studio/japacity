@@ -8,8 +8,6 @@ import { HELD_BANDS, MONTH_BANDS, SESSION_BANDS, SESSION_GAP_MINUTES } from "@ja
 import { time } from "@japacity/sim";
 import type { AccountRow, CounterTotal, RegionCount } from "@japacity/store";
 
-import { dayStart } from "../ops/day";
-import { dayName } from "./day";
 import { NO_REGION } from "./list";
 import type { DayFacts } from "./nightly";
 import type { Life, Played } from "./replay";
@@ -94,9 +92,9 @@ function firstWith(life: Life, matches: (event: Counted) => boolean): Played | n
 
 /** R-ANALYTICS-008, R-ANALYTICS-013: every total the day adds beside the game counters. */
 export function numbersTotals(facts: NumbersFacts): CounterTotal[] {
-  const start = dayStart(facts.day);
-  const end = dayStart(facts.day + 1);
-  const day = dayName(facts.day);
+  const start = time.dayStart(facts.day);
+  const end = time.dayStart(facts.day + 1);
+  const day = time.dayName(facts.day);
   const into = new Map<string, CounterTotal>();
   const add = (region: string, name: string, key: string, count = 1) => tally(into, { day, region, name, key, count });
   const onDay = (played: Played | null) => played !== null && played.row.at >= start && played.row.at < end;

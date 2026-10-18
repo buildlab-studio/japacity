@@ -1,10 +1,9 @@
 // The invite card, its link and its rewards: docs/rules/pair.md R-PAIR-007 to
 // 009, and who may be paired at all, R-PAIR-017 and 018.
+import { DAY_MS } from "../engine/time";
 import type { Id, ReadCtx, Tuning } from "../engine/types";
 import { japacity } from "../japacity/japacity.logic";
 import { SAFETY_CONTROLS } from "./pair.logic";
-
-const DAY_MS = 86_400_000;
 
 /** What a card may ask for, by the kind of slot (R-PAIR-007). */
 export const INVITE_FILLS = {

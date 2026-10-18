@@ -2,10 +2,9 @@
 // that has just ended. It reads the command log and adds the day's game
 // counters once: a second run for the same day adds nothing. R-ANALYTICS-013:
 // with the counts by region it adds the numbers of numbers.ts too.
+import { time } from "@japacity/sim";
 import type { DayLog, NumbersLog, RegionCount } from "@japacity/store";
 
-import { dayStart, utcDay } from "../ops/day";
-import { dayName } from "../analytics/day";
 import type { ActiveLife } from "../analytics/nightly";
 import { nightlyTotals } from "../analytics/nightly";
 import { NO_REGION } from "../analytics/list";
@@ -41,12 +40,12 @@ async function openReports(deps: ServerDeps): Promise<{ reason: string; region: 
 
 /** Counts one UTC day; `numbers` reads the counts by region (R-ANALYTICS-013), and without it those counters are left out. */
 export async function countDay(deps: ServerDeps, log: DayLog, day: number, numbers?: NumbersLog): Promise<CountersDay> {
-  const start = dayStart(day);
-  const end = dayStart(day + 1);
+  const start = time.dayStart(day);
+  const end = time.dayStart(day + 1);
   const [characters, created] = await Promise.all([log.active(start, end), log.created(start, end)]);
   const none: RegionCount[] = [];
   const [weekly, monthly, accounts] =
-    numbers === undefined ? [none, none, none] : await Promise.all([numbers.players(dayStart(day - WEEK_DAYS + 1), end), numbers.players(dayStart(day - MONTH_DAYS + 1), end), numbers.accounts(end)]);
+    numbers === undefined ? [none, none, none] : await Promise.all([numbers.players(time.dayStart(day - WEEK_DAYS + 1), end), numbers.players(time.dayStart(day - MONTH_DAYS + 1), end), numbers.accounts(end)]);
   const active: ActiveLife[] = [];
   const skipped: CountersDay["skipped"] = [];
   for (const character of characters) {
@@ -59,10 +58,10 @@ export async function countDay(deps: ServerDeps, log: DayLog, day: number, numbe
   }
   const facts = { day, active, created };
   const totals = [...nightlyTotals(facts), ...numbersTotals({ ...facts, weekly, monthly, accounts, openReports: await openReports(deps) })];
-  const added = await deps.stores.counters.addOnce(`nightly:${dayName(day)}`, totals);
-  return { day: dayName(day), added, skipped };
+  const added = await deps.stores.counters.addOnce(`nightly:${time.dayName(day)}`, totals);
+  return { day: time.dayName(day), added, skipped };
 }
 
 export function countersJob(deps: ServerDeps, log: DayLog, numbers?: NumbersLog): Promise<CountersDay> {
-  return countDay(deps, log, utcDay(deps.now()) - 1, numbers);
+  return countDay(deps, log, time.utcDay(deps.now()) - 1, numbers);
 }

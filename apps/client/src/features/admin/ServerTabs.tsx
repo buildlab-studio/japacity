@@ -2,11 +2,11 @@
 // counts (R-SERVER-005) and the rollback check (R-SERVER-008). The check reads
 // only; nothing here corrects, freezes or rolls back a character (R-SERVER-010).
 import type { Alarm, ByReason, RollbackCheck } from "@japacity/api";
+import { time } from "@japacity/sim";
 import { useState } from "react";
 
 import { Button } from "../../shared/ui/Button";
 import { formatMoney, formatNumber, isCurrency } from "../../shared/words/format";
-import { dayOf, utcDate } from "./admin.format";
 import { words } from "./admin.words";
 import type { AdminApi } from "./api";
 import { Confirm, Field, Loaded, ReloadButton, Section, Table, useLoad } from "./admin.ui";
@@ -26,7 +26,7 @@ function moneyRows(totals: ByReason): string[][] {
 const MONEY_HEAD = [words("admin.money.reason"), words("admin.money.currency"), words("admin.money.amount"), words("admin.money.minor")];
 
 function alarmWords(alarm: Alarm): string {
-  const day = utcDate(alarm.day);
+  const day = time.dayName(alarm.day);
   switch (alarm.kind) {
     case "suspect":
       return words("admin.alarm.suspect", { day, character: alarm.character, reason: alarm.reason, currency: alarm.currency, total: money(alarm.total, alarm.currency), ceiling: money(alarm.ceiling, alarm.currency) });
@@ -46,7 +46,7 @@ export function MoneyTab({ api, onRollback }: { api: AdminApi; onRollback: (char
   const [day, setDay] = useState<number | null>(null);
   const report = useLoad(() => api.report(day));
   const alarms = useLoad(() => api.alarms());
-  const asked = typed === "" ? null : dayOf(typed);
+  const asked = typed === "" ? null : time.dayNumber(typed);
   return (
     <div className="flex flex-col gap-8">
       <Section title={words("admin.money.report")} action={<ReloadButton onClick={report.reload} />}>
@@ -66,7 +66,7 @@ export function MoneyTab({ api, onRollback }: { api: AdminApi; onRollback: (char
         <Loaded reply={report.reply}>
           {({ report: row }) => (
             <>
-              <p>{words("admin.money.for", { day: utcDate(row.day) })}</p>
+              <p>{words("admin.money.for", { day: time.dayName(row.day) })}</p>
               <Table caption={words("admin.money.created")} head={MONEY_HEAD} rows={moneyRows(row.created)} />
               <Table caption={words("admin.money.destroyed")} head={MONEY_HEAD} rows={moneyRows(row.destroyed)} />
             </>

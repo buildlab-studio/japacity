@@ -1,11 +1,9 @@
 // R-ANALYTICS-008, R-ANALYTICS-011: the game counters of one UTC day, made
 // from the replayed lives of the characters that logged a command on it and
 // the accounts created on it. Plain functions over plain data.
-import { isEarlyWin, picksOf } from "@japacity/sim";
+import { isEarlyWin, picksOf, time } from "@japacity/sim";
 import type { AccountRow, CounterTotal } from "@japacity/store";
 
-import { dayStart, utcDay } from "../ops/day";
-import { dayName } from "./day";
 import { NO_REGION } from "./list";
 import type { Life, Played } from "./replay";
 
@@ -90,9 +88,9 @@ function eventTotals(day: string, region: string, played: Played, into: Map<stri
 
 /** R-ANALYTICS-008, R-ANALYTICS-011: every total the day adds, folded by day, region, name and key. */
 export function nightlyTotals(facts: DayFacts): CounterTotal[] {
-  const start = dayStart(facts.day);
-  const end = dayStart(facts.day + 1);
-  const day = dayName(facts.day);
+  const start = time.dayStart(facts.day);
+  const end = time.dayStart(facts.day + 1);
+  const day = time.dayName(facts.day);
   const into = new Map<string, CounterTotal>();
   const activeAccounts = new Map<string, AccountRow | null>();
 
@@ -111,9 +109,9 @@ export function nightlyTotals(facts: DayFacts): CounterTotal[] {
     tally(into, { day, region, name: "players/active", key: region, count: 1 });
     if (account === null) continue;
     // R-ANALYTICS-011: a return is kept on the sign-up day, so the dashboard reads it by sign-up week.
-    const signedUp = utcDay(account.createdAt);
+    const signedUp = time.utcDay(account.createdAt);
     const key = RETURNED[facts.day - signedUp];
-    if (key !== undefined) tally(into, { day: dayName(signedUp), region, name: "players/returned", key, count: 1 });
+    if (key !== undefined) tally(into, { day: time.dayName(signedUp), region, name: "players/returned", key, count: 1 });
   }
 
   const lives = new Map(facts.active.map((each) => [each.life.account, each.life]));

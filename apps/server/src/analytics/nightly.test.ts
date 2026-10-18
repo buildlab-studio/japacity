@@ -3,7 +3,6 @@ import { time } from "@japacity/sim";
 import type { AccountRow } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import { dayName } from "./day";
 import { nightlyTotals } from "./nightly";
 import type { Played } from "./replay";
 
@@ -34,7 +33,7 @@ describe("the day's game counters", () => {
         ]),
       ]),
     );
-    const day = dayName(DAY);
+    const day = time.dayName(DAY);
     expect(rows).toEqual(
       expect.arrayContaining([
         { day, region: "GB", name: "chapter/closed", key: "chapter.home", count: 1 },

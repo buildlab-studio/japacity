@@ -10,7 +10,7 @@ import type { AccountReply, AccountView, DeleteReply, DeleteRequest, NameProblem
 import { splitSetCookieHeader } from "better-auth/cookies";
 import { isAPIError } from "better-auth/api";
 import type { AccountRow } from "@japacity/store";
-import { toHex } from "@japacity/sim";
+import { time, toHex } from "@japacity/sim";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
@@ -31,7 +31,7 @@ import { switchedOff } from "../switches/switches";
 import { PASS_PATH } from "./age";
 
 /** How long the device cookie of R-ACCOUNT-025 is kept: the longest a browser keeps one. */
-const DEVICE_COOKIE_S = 400 * 86_400;
+const DEVICE_COOKIE_S = 400 * time.DAY_S;
 
 /** A reply's `Set-Cookie` lines. */
 function setCookies(headers: Headers): string[] {

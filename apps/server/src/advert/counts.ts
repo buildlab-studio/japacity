@@ -4,9 +4,9 @@
 // campaign the slot showed in that region that hour. No account reaches the
 // store; one account's share of a day is capped before the rows get here.
 import type { Id } from "@japacity/sim";
+import { time } from "@japacity/sim";
 import type { AdvertCount, AdvertStore } from "@japacity/store";
 
-import { utcDay } from "../ops/day";
 import { sha256Hex } from "../auth/hooks";
 import type { ServerConfig } from "../config";
 import type { AdvertsDeps } from "./serve";
@@ -26,7 +26,7 @@ export async function addAdvertCounters(deps: AdvertsDeps, region: string, at: n
   const ours = rows.filter((row) => (row.name === ADVERT_COUNTERS.impression || row.name === ADVERT_COUNTERS.tap) && Number.isSafeInteger(row.count) && row.count > 0);
   if (ours.length === 0) return 0;
   const served = await servedAt(deps, region, at);
-  const day = utcDay(at);
+  const day = time.utcDay(at);
   const counts: AdvertCount[] = [];
   for (const row of ours) {
     const slot = row.key as Id<"advert">;
@@ -53,7 +53,7 @@ const countedToday = new WeakMap<AdvertStore, { day: number; used: Map<string, n
  * batch is still accepted. Other rows pass untouched.
  */
 export async function withinAccountDay(deps: Pick<AdvertsDeps, "stores"> & { config: Pick<ServerConfig, "advert"> }, account: string, at: number, rows: CounterRow[]): Promise<CounterRow[]> {
-  const day = utcDay(at);
+  const day = time.utcDay(at);
   let held = countedToday.get(deps.stores.adverts);
   if (held?.day !== day) {
     held = { day, used: new Map() };

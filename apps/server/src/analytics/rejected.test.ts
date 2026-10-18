@@ -1,10 +1,9 @@
 import type { ServerCode } from "@japacity/api";
 import { content } from "@japacity/content";
+import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { utcDay } from "../ops/day";
 import { signUp, testServer } from "../authority/authority.testing";
-import { dayName } from "./day";
 import { counterDef, keyAllowed } from "./list";
 import { countRejected } from "./rejected";
 
@@ -60,7 +59,7 @@ describe("rejections by code", () => {
     await countRejected(server.deps, "account.a", "stale");
     await countRejected(server.deps, "account.a", "stale");
     await countRejected(server.deps, null, "rate-limited");
-    const day = dayName(utcDay(server.deps.now()));
+    const day = time.dayName(time.utcDay(server.deps.now()));
     expect(await server.deps.stores.counters.days(day, day)).toEqual([
       { day, region: "NG", name: "command/rejected", key: "stale", count: 2 },
       { day, region: "XX", name: "command/rejected", key: "rate-limited", count: 1 },

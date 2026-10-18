@@ -3,14 +3,13 @@
 // dropped, so a failed batch is never something the player sees. Only the
 // day's totals are written: the account, the session and the request's
 // headers go no further than this handler.
+import { time } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 import { Hono } from "hono";
 
-import { utcDay } from "../ops/day";
 import { advertRegion } from "../advert/campaign";
 import { addAdvertCounters, withinAccountDay } from "../advert/counts";
 import { checkBatch, isDoorRow } from "../analytics/batch";
-import { dayName } from "../analytics/day";
 import type { DropReason } from "../analytics/list";
 import { NO_REGION } from "../analytics/list";
 import { batchAllowed } from "../analytics/rate";
@@ -30,7 +29,7 @@ export function countersRoute(deps: ServerDeps): Hono {
 
   route.post("/api/counters", async (c) => {
     const done = () => c.body(null, 204);
-    const day = dayName(utcDay(deps.now()));
+    const day = time.dayName(time.utcDay(deps.now()));
     const session = await deps.session(c.req.raw);
     if (session === null) {
       // R-SERVER-026: a batch with no session is looked at only within the address limit.

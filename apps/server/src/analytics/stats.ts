@@ -5,11 +5,10 @@
 import type { EconomyCell, FunnelStep, PeriodRates, Regional, RetentionWeek, Returned, ShareKind, Shown, Stats, StatsPeriod } from "@japacity/api";
 import { FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, SESSION_BANDS } from "@japacity/content";
 import type { Content } from "@japacity/sim";
-import { int } from "@japacity/sim";
+import { int, time } from "@japacity/sim";
 import type { CounterTotal, RegionCount } from "@japacity/store";
 
 import { shown } from "./dashboard";
-import { dayName } from "./day";
 import { WHOLE_GAME } from "./list";
 
 /** What the endpoint read. */
@@ -52,7 +51,7 @@ interface Window {
 /** The figures of one window, read by name and key. */
 function within(totals: readonly CounterTotal[], window: Window) {
   const names = new Set<string>();
-  for (let day = window.first; day <= window.last; day += 1) names.add(dayName(day));
+  for (let day = window.first; day <= window.last; day += 1) names.add(time.dayName(day));
   const rows = totals.filter((row) => names.has(row.day));
   const sum = (name: string, key?: string) => rows.filter((row) => row.name === name && (key === undefined || row.key === key)).reduce((total, row) => total + row.count, 0);
   const byRegion = (name: string): Map<string, number> => {
@@ -99,8 +98,8 @@ function period(input: StatsInput, window: Window, players: ReadonlyMap<string, 
     securedPerGuestBp: ratio(sum("players/secured"), guests, BP, minShown),
   };
   return {
-    from: dayName(window.first),
-    to: dayName(window.last),
+    from: time.dayName(window.first),
+    to: time.dayName(window.last),
     players: regional(players, minShown),
     newPlayers: regional(byRegion("players/new"), minShown),
     guests: shown(guests, minShown),
@@ -145,7 +144,7 @@ export function buildStats(content: Content, input: StatsInput): Stats {
     const returned = Object.fromEntries(RETURN_KEYS.map((key): [string, Returned] => [key, { count: shown(ofWeek.sum("players/returned", key), minShown), bp: ratio(ofWeek.sum("players/returned", key), newPlayers, BP, minShown) }])) as RetentionWeek["returned"];
     const guests = ofWeek.sum("players/guest");
     const secured = ofWeek.sum("players/secured-by-signup");
-    weeks.push({ week: dayName(monday), newPlayers: shown(newPlayers, minShown), returned, secured: { count: shown(secured, minShown), bp: ratio(secured, guests, BP, minShown) } });
+    weeks.push({ week: time.dayName(monday), newPlayers: shown(newPlayers, minShown), returned, secured: { count: shown(secured, minShown), bp: ratio(secured, guests, BP, minShown) } });
   }
 
   const sessions = ofMonth.sum("sessions/count");
@@ -167,19 +166,19 @@ export function buildStats(content: Content, input: StatsInput): Stats {
     today: period(input, today, input.todayPlayers, null, minShown),
     last7: period(input, week, weekly, total(weekly), minShown),
     last30: period(input, month, monthly, total(monthly), minShown),
-    totals: { day: dayName(last), players: regional(lastDay.byRegion("players/total"), minShown) },
-    funnel: { from: dayName(month.first), to: dayName(last), steps },
-    retention: { from: dayName(month.first), to: dayName(last), weeks },
-    sessions: { from: dayName(month.first), to: dayName(last), count: shown(sessions, minShown), lengths, perPlayerBp: ratio(sessions, dailyPlayers, BP, minShown) },
-    shares: { from: dayName(month.first), to: dayName(last), kinds },
+    totals: { day: time.dayName(last), players: regional(lastDay.byRegion("players/total"), minShown) },
+    funnel: { from: time.dayName(month.first), to: time.dayName(last), steps },
+    retention: { from: time.dayName(month.first), to: time.dayName(last), weeks },
+    sessions: { from: time.dayName(month.first), to: time.dayName(last), count: shown(sessions, minShown), lengths, perPlayerBp: ratio(sessions, dailyPlayers, BP, minShown) },
+    shares: { from: time.dayName(month.first), to: time.dayName(last), kinds },
     adverts: {
-      from: dayName(month.first),
-      to: dayName(last),
+      from: time.dayName(month.first),
+      to: time.dayName(last),
       impressions: shown(ofMonth.sum("advert/impression"), minShown),
       taps: shown(ofMonth.sum("advert/tap"), minShown),
       revenueKobo,
       revenuePerPlayerKobo: dailyPlayers < minShown ? null : int.divFloor(revenueKobo, dailyPlayers),
     },
-    economy: { day: dayName(last), cells },
+    economy: { day: time.dayName(last), cells },
   };
 }
