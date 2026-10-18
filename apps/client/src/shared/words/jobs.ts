@@ -1,5 +1,5 @@
 // The jobs' words and figures the list, the hunt's card and the offer share (docs/rules/world.md R-WORLD-006): a
-// job's pay a month, its chance in words, and the words table itself. In shared/ so the city and the activity
+// job's pay a month and its chance in words, read from tables/jobs.words.ts. In shared/ so the city and the activity
 // feature both read them without one feature importing another.
 import { content, text } from "@japacity/content";
 import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
@@ -7,24 +7,8 @@ import type { ActivityEntry, Id, PlayerView } from "@japacity/sim";
 import { formatMoney } from "./format";
 import { payAMonth } from "./pay";
 import { tierPay, withNextTier } from "./profile";
+import { jobsUiText } from "./tables/jobs.words";
 import { hasWords, say, type Params } from "./text";
-
-export const jobsUiText: Record<string, string> = {
-  "jobs.pick": "Which job",
-  "jobs.apply": "Apply",
-  "jobs.pay": "{amount} a month",
-  "jobs.chance.certain": "As good as certain",
-  "jobs.chance.likely": "Likely",
-  "jobs.chance.fair": "A fair chance",
-  "jobs.sure-first": "Your first hunt lands a job for sure: this one, or the smallest that pays your month.",
-  "jobs.chance.long": "A long shot",
-  "jobs.out-of-reach": "Not open to you yet",
-  "jobs.needs": "Needs: {needs}",
-  "jobs.needs-count": "Needs {count} things first",
-  "jobs.needs-count.one": "Needs 1 thing first",
-  "jobs.card": "{pay}. {chance}.",
-  "jobs.card.chance": "{chance}.",
-};
 
 /** Words for a jobs key: content's first, then the interface's, then the list's own drafts. */
 export function jobsWords(key: string, params: Params = {}): string {

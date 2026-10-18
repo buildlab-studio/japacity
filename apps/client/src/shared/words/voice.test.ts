@@ -21,7 +21,7 @@ import { phoneText } from "../../features/phone/phone.words";
 import { roomText } from "../../features/setpiece/room.words";
 import { turnText } from "../../features/turn/turn.words";
 import { soundText } from "../sound/sound.words";
-import { jobsUiText } from "./jobs";
+import { jobsUiText } from "./tables/jobs.words";
 import { uiText } from "./tables/ui.words";
 // The content check on institutions beside wrongdoing (people.md R-PEOPLE-063), run here over the client's tables too.
 import { institutionProblems } from "../../../../../packages/content/src/person/person.names.check";

@@ -8,7 +8,7 @@ import { daysText } from "../days";
 import { livelyText } from "./lively.words";
 import { lotteryWords } from "./lottery.words";
 import { onlineText } from "./online.words";
-import { peopleText } from "../people";
+import { peopleText } from "./people.words";
 import { profileText } from "./profile.words";
 import { worldText } from "./world.words";
 

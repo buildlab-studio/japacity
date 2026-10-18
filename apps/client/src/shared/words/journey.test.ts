@@ -15,7 +15,7 @@ import { roomText } from "../../features/setpiece/room.words";
 import { turnText } from "../../features/turn/turn.words";
 import { moderationText } from "../moderation/moderation.words";
 import { soundText } from "../sound/sound.words";
-import { jobsUiText } from "./jobs";
+import { jobsUiText } from "./tables/jobs.words";
 import { uiText } from "./tables/ui.words";
 
 // The admin tables are left out: they are the staff's tool, where a report's age in the queue is a measure, not the game's voice.
