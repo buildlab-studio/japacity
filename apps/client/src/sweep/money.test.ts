@@ -9,7 +9,8 @@ import { int, standInWorld } from "@japacity/sim";
 import { lifeSaves, newLifeSaves, start, type Game } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { kept, localCurrency } from "../features/turn/month.results";
+import { kept } from "../features/turn/month.results";
+import { localCurrency } from "../shared/words/wayHome";
 import { newGame } from "../shared/testing/fixtures";
 import { formatMoney } from "../shared/words/format";
 import { changeLine } from "../features/phone/apps/Bank";

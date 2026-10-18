@@ -242,13 +242,6 @@ export function kept(lines: readonly MoneyLine[]): { currency: Currency; amount:
   return order.map((currency) => ({ currency, amount: sums.get(currency) ?? 0 }));
 }
 
-/** The money the character lives on where they are: naira at home, the country's own abroad. */
-export function localCurrency(view: Pick<PlayerView, "place">): Currency {
-  const country = view.place.country;
-  if (view.place.where !== "abroad" || country === null) return "NGN";
-  return content.country[country]?.currency ?? "NGN";
-}
-
 /** The draw's winning numbers, with the player's own among them lit, when the view holds a result. */
 export function drawShown(view: Pick<PlayerView, "lottery">): { draw: number; numbers: number[]; matched: number[] } | null {
   const last = view.lottery?.last ?? null;

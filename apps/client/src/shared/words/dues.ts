@@ -31,7 +31,7 @@ export function heldElsewhere(view: Pick<PlayerView, "pockets">, local: Currency
  */
 export function duesGap(view: Pick<PlayerView, "place" | "pockets" | "obligations"> & Partial<Pick<PlayerView, "job">>): DuesGap | null {
   const currency = localCurrency(view);
-  if (currency === null || currency === "NGN") return null;
+  if (currency === "NGN") return null;
   const due = view.obligations.reduce((sum, owed) => (owed.due > 0 && content.obligation[owed.entry]?.currency === currency ? sum + owed.due : sum), 0);
   const held = view.pockets[currency].bank + view.pockets[currency].cash;
   // The month's pay comes in before the bills are taken (engine.md section 4): it covers them too.

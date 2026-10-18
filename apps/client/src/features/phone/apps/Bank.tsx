@@ -36,7 +36,7 @@ import { passbookCount, shortNaira } from "./passbook.words";
 /** The currencies this life deals in: the home three, and the country's own once abroad. */
 function dealtIn(view: Pick<PlayerView, "place">): Currency[] {
   const local = localCurrency(view);
-  return local === null || HOME_CURRENCIES.includes(local) ? [...HOME_CURRENCIES] : [...HOME_CURRENCIES, local];
+  return HOME_CURRENCIES.includes(local) ? [...HOME_CURRENCIES] : [...HOME_CURRENCIES, local];
 }
 
 /** The savings figures, shared with the results sheet (R-WORLD-019); kept here for the Bank's own tests. */
@@ -958,8 +958,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   const [start, setStart] = useState<ChangeStart | undefined>(undefined);
   // The money the character lives on: the naira at home, the country's own abroad (R-WORLD-002).
   const local = localCurrency(view);
-  const abroad = local !== null && local !== "NGN";
-  const shown: Currency = abroad ? local : "NGN";
+  const abroad = local !== "NGN";
   // Once flown, the move is made and has no target. The figure is the results' own, from the month the plan is set (its
   // lean, as the chapters follow it); before it, one line says there is no plan yet.
   const savings = abroad || view.plan.route === null ? null : savingsOf(view);
@@ -987,7 +986,7 @@ export function Bank({ opening: openOn = null }: { opening?: "change" | "move" |
   return (
     <div data-phone-app="bank" className="flex flex-col gap-3">
       {abroad && !view.ended ? <DuesGapCard onChange={changeFrom} /> : null}
-      {book === null ? <BalanceCard view={view} shown={shown} others={abroad ? [] : others} /> : <PassbookCard view={view} book={book} shown={shown} others={others} />}
+      {book === null ? <BalanceCard view={view} shown={local} others={abroad ? [] : others} /> : <PassbookCard view={view} book={book} shown={local} others={others} />}
       {abroad && !view.ended ? <HeldElsewhere local={local} onChange={changeFrom} /> : null}
       {abroad ? <FamilyCard view={view} /> : null}
       {view.credit === null ? null : <CreditCard view={view} file={view.credit} />}

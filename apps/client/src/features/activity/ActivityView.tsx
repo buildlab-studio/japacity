@@ -222,7 +222,7 @@ function noSchoolReasons(view: PlayerView): string[] {
  * the card says the money and the way, never only that it cannot be paid.
  */
 function foreignNeed(view: PlayerView, option: ActivityOption): { amount: number; currency: Currency; held: number } | null {
-  const local = localCurrency(view) ?? "NGN";
+  const local = localCurrency(view);
   const cost = option.cost.find((each) => each.currency !== local);
   if (cost === undefined) return null;
   const held = view.pockets[cost.currency].bank + view.pockets[cost.currency].cash;

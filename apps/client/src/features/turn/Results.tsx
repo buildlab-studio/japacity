@@ -17,8 +17,9 @@ import { formatMoney, formatNumber } from "../../shared/words/format";
 import { nowLineWords } from "../../shared/words/acts";
 import { inMonths, runningName, say, sayCount, words } from "../../shared/words/text";
 import { ToneTag } from "../../shared/ui/ToneTag";
-import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, localCurrency, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults, untoldLines } from "./month.results";
+import { CHANGED_INTO, changesInto, drawMissed, drawShown, isEvicted, isUnpaid, kept, leadsAlone, type MoneyLine, monthClose, moneyLines, monthTags, runningOut, savings, toldOnResults, untoldLines } from "./month.results";
 import { turnWords } from "./turn.words";
+import { localCurrency } from "../../shared/words/wayHome";
 
 /** True while the results sheet is up: the month has just ended and its staged wins have passed. */
 function useResultsOpen(): boolean {

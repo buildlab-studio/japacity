@@ -7,7 +7,8 @@ import { topActivities } from "@japacity/sim";
 import { lifeSaves, newLifeSaves, start } from "@japacity/sim/testing";
 import { describe, expect, test } from "vitest";
 
-import { kept, localCurrency, moneyLines } from "../features/turn/month.results";
+import { kept, moneyLines } from "../features/turn/month.results";
+import { localCurrency } from "../shared/words/wayHome";
 import { newGame, recordedGame } from "../shared/testing/fixtures";
 import { japaTypeOf, typeWords } from "../shared/words/japaType";
 

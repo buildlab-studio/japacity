@@ -56,7 +56,7 @@ export function Counter({ value, format, className = "" }: { value: number; form
  * the Bank app.
  */
 export function bandMoney(view: Pick<PlayerView, "place" | "pockets">): Pick<BandProps, "money" | "formatMoney"> {
-  const currency = localCurrency(view) ?? "NGN";
+  const currency = localCurrency(view);
   const pocket = view.pockets[currency];
   return { money: pocket.bank + pocket.cash, formatMoney: (value) => formatMoney(value, currency) };
 }

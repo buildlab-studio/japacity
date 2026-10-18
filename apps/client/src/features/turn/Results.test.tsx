@@ -6,7 +6,8 @@ import { engineView, newGame, richView } from "../../shared/testing/fixtures";
 import { renderWithView } from "../../shared/testing/render";
 import { formatMoney } from "../../shared/words/format";
 import { words } from "../../shared/words/text";
-import { drawMissed, drawShown, kept, localCurrency, moneyLines, otherLines, savings, STORY_MAX, storyLines } from "./month.results";
+import { drawMissed, drawShown, kept, moneyLines, otherLines, savings, STORY_MAX, storyLines } from "./month.results";
+import { localCurrency } from "../../shared/words/wayHome";
 import { Results } from "./Results";
 import { turnWords } from "./turn.words";
 
