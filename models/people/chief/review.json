@@ -1,0 +1,41 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 3,
+    "palette": 3,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "mean": 3.71,
+  "against": {
+    "file": "models/people/chief/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 3,
+      "palette": 3,
+      "wear": 4,
+      "variety": 4,
+      "budget": 4
+    },
+    "mean": 3.71,
+    "accepted": true
+  },
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "A man in a white robe with a gold neckline and a striped fila reads as an agbada in one look.",
+    "silhouette": "The wide robe and cap make a strong outline front and back; the sides are now a smooth flared robe with a round shoulder mass instead of stacked plates.",
+    "proportion": "The stacked slabs are gone and the robe flares, but the folded sleeves are now two round balloons on the shoulders with no open edge or drape; 1.77 m.",
+    "palette": "Cream on sand is still pale on pale: the robe's mass barely separates from the ground.",
+    "wear": "Striped fila, gold embroidery, a staff at the side, brown shoes, unchanged.",
+    "variety": "Plainly his own; the robe's colour is still close to musa and femi.",
+    "budget": "Read from the register row: triangles 1,382 of 3,000, drawCalls 2 of 3, materials 2 of 2, bytes 30,212 of 150,000; inside every figure, over 80% on materials."
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose."
+}

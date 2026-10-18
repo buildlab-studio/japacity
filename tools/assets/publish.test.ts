@@ -13,10 +13,10 @@ import { filesUnder, readJson, REPO_ROOT } from "../repo";
 describe("published names", () => {
   test("[city:places-load-on-entry] given a shipped path and its hash, when it is named for publishing, then the hash sits before the extension and can be read back", () => {
     const hash = "0123456789abcdef0123";
-    const name = hashedName("places/ojuelegba/bld_plaza.glb", hash);
-    expect(name).toBe("places/ojuelegba/bld_plaza.0123456789ab.glb");
+    const name = hashedName("places/ojuelegba/building_plaza.glb", hash);
+    expect(name).toBe("places/ojuelegba/building_plaza.0123456789ab.glb");
     expect(hashInName(name)).toBe(hash.slice(0, HASH_DIGITS));
-    expect(hashInName("places/ojuelegba/bld_plaza.glb")).toBeNull();
+    expect(hashInName("places/ojuelegba/building_plaza.glb")).toBeNull();
   });
 
   test("[city:places-load-on-entry] given two files, when one changes, then only its published name changes, the old copy is removed and the sources stay", () => {
@@ -53,10 +53,10 @@ describe("the tiles", () => {
       mkdirSync(join(folder, TILES), { recursive: true });
       writeFileSync(join(folder, TILES, "prop_gone.png"), "old");
       writeFileSync(join(folder, TILES, "prop_gone.0123456789ab.png"), "old");
-      const hashes = copyTiles([{ name: "prop_a", source: "src/a" }, { name: "veh_b", source: "src/b" }], work, folder, "public");
-      expect(filesUnder(join(folder, TILES))).toEqual(["prop_a.png", "veh_b.png"]);
-      expect(readFileSync(join(folder, TILES, "veh_b.png"), "utf8")).toBe("tile b");
-      expect(hashes).toEqual({ "public/tiles/prop_a.png": sha256(Buffer.from("tile a")), "public/tiles/veh_b.png": sha256(Buffer.from("tile b")) });
+      const hashes = copyTiles([{ name: "prop_a", source: "src/a" }, { name: "vehicle_b", source: "src/b" }], work, folder, "public");
+      expect(filesUnder(join(folder, TILES))).toEqual(["prop_a.png", "vehicle_b.png"]);
+      expect(readFileSync(join(folder, TILES, "vehicle_b.png"), "utf8")).toBe("tile b");
+      expect(hashes).toEqual({ "public/tiles/prop_a.png": sha256(Buffer.from("tile a")), "public/tiles/vehicle_b.png": sha256(Buffer.from("tile b")) });
     } finally {
       rmSync(work, { recursive: true, force: true });
     }
@@ -74,16 +74,16 @@ describe("the door's portraits", () => {
       writeFileSync(join(work, "src", "a", "renders", "tile.png"), "tile a");
       const pictures = tilePictures([
         { name: "prop_a", source: "src/a", views: ["front", "tile"] },
-        { name: "chr_ada", source: "src/ada", views: ["front", "phone", "face", "figure", "cheer"] },
-        { name: "chr_hawker", source: "src/hawker", views: ["front", "phone"] },
+        { name: "person_ada", source: "src/ada", views: ["front", "phone", "face", "figure", "cheer"] },
+        { name: "person_hawker", source: "src/hawker", views: ["front", "phone"] },
       ]);
-      expect(pictures.map(tileName)).toEqual(["prop_a", "chr_ada-face", "chr_ada-figure", "chr_ada-cheer"]);
+      expect(pictures.map(tileName)).toEqual(["prop_a", "person_ada-face", "person_ada-figure", "person_ada-cheer"]);
       const hashes = copyTiles(pictures, work, folder, "public");
-      expect(filesUnder(join(folder, TILES))).toEqual(["chr_ada-cheer.png", "chr_ada-face.png", "chr_ada-figure.png", "prop_a.png"]);
-      expect(readFileSync(join(folder, TILES, "chr_ada-figure.png"), "utf8")).toBe("figure ada");
-      expect(hashes["public/tiles/chr_ada-face.png"]).toBe(sha256(Buffer.from("face ada")));
+      expect(filesUnder(join(folder, TILES))).toEqual(["person_ada-cheer.png", "person_ada-face.png", "person_ada-figure.png", "prop_a.png"]);
+      expect(readFileSync(join(folder, TILES, "person_ada-figure.png"), "utf8")).toBe("figure ada");
+      expect(hashes["public/tiles/person_ada-face.png"]).toBe(sha256(Buffer.from("face ada")));
       // A portrait's name never reads as a published copy's hash.
-      expect(hashInName("chr_ada-face.png")).toBeNull();
+      expect(hashInName("person_ada-face.png")).toBeNull();
     } finally {
       rmSync(work, { recursive: true, force: true });
     }

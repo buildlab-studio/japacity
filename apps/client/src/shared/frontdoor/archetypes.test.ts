@@ -29,7 +29,7 @@ interface Played {
 
 /** The person kept beside the save at Begin for a tile: what the handover's page reads the tile from. */
 function personOf(archetype: Archetype): KeptPerson {
-  return { look: "chr_ada", name: "Ada", archetype: archetype.id };
+  return { look: "person_ada", name: "Ada", archetype: archetype.id };
 }
 
 /** The handover page's path and what it was, for a life played on a tile. */

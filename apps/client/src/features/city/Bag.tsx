@@ -3,8 +3,8 @@
 // toward a new size, so a rise is seen and not only counted. What is held sits on top (the passport, the
 // papers, the flyer of a way out), a few pieces from the kit, and a small tag on the handle carries the
 // figure. Nothing else: no particles, no glow. Loaded with the scene, inside its canvas.
-import { box } from "@japacity/assets/kit";
-import { paletteCss } from "@japacity/assets";
+import { box } from "@japacity/model-kit/kit";
+import { paletteCss } from "@japacity/model-kit";
 import type { PlayerView } from "@japacity/sim";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
@@ -14,7 +14,7 @@ import type { Spot, Stage } from "../../shared/scene/placeFile";
 
 /** The bag's model, the same file in the parlour and in the room abroad. */
 export const BAG_FILE = "shared/prop/prop_travel-bag.glb";
-/** The height of the bag's body as built (assets-src/places/room-basics/build.ts). */
+/** The height of the bag's body as built (models/places/room-basics/build.ts). */
 export const BAG_HEIGHT = 0.5;
 /** The top of the zip along it, where what is packed sits. */
 const BAG_TOP = 0.518;

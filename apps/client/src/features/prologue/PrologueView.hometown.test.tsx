@@ -35,7 +35,7 @@ function play(id: string, seed: string): ReturnType<typeof newGame> {
 
 /** The handover for a tile's life, its draw kept on the device as the run keeps it, after the family has turned over. */
 async function handover(id: string, seed: string): Promise<ReturnType<typeof newGame>> {
-  keepPerson({ look: "chr_ada", name: "Ada", archetype: id });
+  keepPerson({ look: "person_ada", name: "Ada", archetype: id });
   const game = play(id, seed);
   localStorage.setItem(TRAIL_KEY, JSON.stringify({ draw: game.state.prologue.draw, steps: [] }));
   vi.useFakeTimers({ shouldAdvanceTime: true });

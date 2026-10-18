@@ -1,0 +1,157 @@
+{
+  "asset": "person_body_plus-short-busty",
+  "file": "public/assets/shared/person/person_body_plus-short-busty.glb",
+  "fileSha256": "0b39ff033efc65e0fd62ade218d839350cf0f7464b1d46d19427151a8d280fdb",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/body_plus-short-busty/renders/front.png",
+      "sha256": "3cd9dcc9c6d5f4f92de5e9e89bc7ac75e2a9544a5dc3cc6f84a7d90be0d0c705",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.004256679684797621,
+          0.8058242571075624,
+          16.942658753041396
+        ],
+        "target": [
+          0.004256679684797621,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "width": 2.32077379924346,
+        "height": 1.740580349432595
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/body_plus-short-busty/renders/back.png",
+      "sha256": "4a676f25ca3955aac46076c193cf4f2fd16e1d05b950dc2b593e468c75ead03f",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.004256679684797621,
+          0.8058242571075624,
+          -16.943023578170905
+        ],
+        "target": [
+          0.004256679684797621,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "width": 2.32077379924346,
+        "height": 1.740580349432595
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/body_plus-short-busty/renders/left.png",
+      "sha256": "d30da35db812db87f60380f3881f6db8e94f84a2304c9925752d5d50412eef28",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -16.938584485921353,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "target": [
+          0.004256679684797621,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "width": 2.32077379924346,
+        "height": 1.740580349432595
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/body_plus-short-busty/renders/right.png",
+      "sha256": "341b78fe9c51dae5f52db67b65e535111139c30d0b2d48c1a6d0c3862950e352",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          16.947097845290948,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "target": [
+          0.004256679684797621,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "width": 2.32077379924346,
+        "height": 1.740580349432595
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/body_plus-short-busty/renders/threeQuarter.png",
+      "sha256": "9dec763ef776bca9db1a301e1e51147e2ecd548a1f2e726e71834f332a3dc27a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.0094587341807,
+          2.4430648786727183,
+          2.005019641931148
+        ],
+        "target": [
+          0.004256679684797621,
+          0.8058242571075624,
+          -0.00018241256475448608
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/body_plus-short-busty/renders/phone.png",
+      "sha256": "ca0310e59c5fce0607c504493ab1e8c5bc159196b01eb6722dfe235a1bb0dde4",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.004256679684797621,
+          1.6,
+          12.19372987651033
+        ],
+        "target": [
+          0.004256679684797621,
+          1.5,
+          0.1937298765103312
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

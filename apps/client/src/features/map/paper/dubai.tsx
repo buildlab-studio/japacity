@@ -172,11 +172,11 @@ const WATER_LABELS: readonly Label[] = [label("map.water.creek", [25222, 55338],
 
 /** The metro on its viaduct, the labour bus on the road to the site, and a taxi by the airport. */
 const DECOR: readonly Decor[] = [
-  decor("veh_dubai-metro", [25230, 55282], 15, -66),
-  decor("veh_dubai-metro", [25276, 55372], 14, 88),
-  decor("veh_labour-bus", [25226, 55289], 14, -58),
-  decor("veh_labour-bus", [25270, 55370], 13, 80),
-  decor("veh_taxi-dubai", [25250, 55354], 12, -20),
+  decor("vehicle_dubai-metro", [25230, 55282], 15, -66),
+  decor("vehicle_dubai-metro", [25276, 55372], 14, 88),
+  decor("vehicle_labour-bus", [25226, 55289], 14, -58),
+  decor("vehicle_labour-bus", [25270, 55370], 13, 80),
+  decor("vehicle_taxi-dubai", [25250, 55354], 12, -20),
 ];
 
 /** The landmarks drawn as symbols: the towers about the site, the tallest of them, and the cranes over the site. */
@@ -190,10 +190,10 @@ const STRIP_LANDMARKS: readonly StripMark[] = [{ id: "towers", at: LANDMARKS.tow
 
 /** The neighbourhoods in the swipe's order: Deira, the airport, the camp, the site. */
 const CARDS: readonly Card[] = [
-  card("deira", "bld_metro-station", at([25269, 55312]), 260),
-  card("airport", "veh_taxi-dubai", at([25254, 55364]), 240),
-  card("camp", "veh_labour-bus", at([25270, 55390]), 240),
-  card("site", "bld_site-frame", at([25190, 55266]), 240),
+  card("deira", "building_metro-station", at([25269, 55312]), 260),
+  card("airport", "vehicle_taxi-dubai", at([25254, 55364]), 240),
+  card("camp", "vehicle_labour-bus", at([25270, 55390]), 240),
+  card("site", "building_site-frame", at([25190, 55266]), 240),
 ];
 
 /** The districts, as rules read in order; the first that holds a position is its card. */

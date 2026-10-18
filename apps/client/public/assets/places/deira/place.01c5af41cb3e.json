@@ -1,0 +1,600 @@
+{
+  "place": "place.deira",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Deira's souk frontage (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's outdoor figures, six low and ten high.",
+  "instances": [
+    {
+      "file": "places/deira/building_deira-arcade_a.glb",
+      "count": 1
+    },
+    {
+      "file": "places/deira/building_deira-arcade_b.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_dining-table.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_plastic-chair.glb",
+      "count": 3
+    },
+    {
+      "file": "places/deira/vehicle_labour-bus.glb",
+      "count": 1
+    },
+    {
+      "file": "places/tejuosho-market/prop_market-stall.glb",
+      "count": 1
+    },
+    {
+      "file": "places/tejuosho-market/prop_basins.glb",
+      "count": 1
+    },
+    {
+      "file": "places/yaba-hub/prop_meetup-corner.glb",
+      "count": 1
+    },
+    {
+      "file": "places/deira/vehicle_taxi-dubai.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 10,
+    "sample": [
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_tobi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_nonso.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_musa.glb",
+      "shared/person/person_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 92
+  },
+  "stage": {
+    "note": "Deira as one souk frontage of about 24 metres (world:place-is-one-screen; design page 11 section 3): the gold shops' arcade with the African foods shop at its far end and the exchange house at the near one, the cafeteria's arcade with the typing centre and the barber, the cafeteria's table under the colonnade and a labour bus at the kerb, and on the near pavement the spice stall, a taxi and the community corner by the creek. One moving sheet: scarves hung at the spice stall.",
+    "ground": {
+      "size": [
+        36,
+        32
+      ],
+      "colour": "wallCream"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          7
+        ],
+        "colour": "asphalt",
+        "raise": 0.01
+      },
+      {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "size": [
+          36,
+          0.15
+        ],
+        "colour": "white",
+        "raise": 0.02,
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          -3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          0,
+          3.6,
+          0
+        ],
+        "size": [
+          36,
+          0.2
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      }
+    ],
+    "light": {
+      "sun": [
+        24,
+        52,
+        18
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      -0.4,
+      11,
+      3.1416
+    ],
+    "walkable": [
+      [
+        [
+          -17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          -15.5
+        ],
+        [
+          17.5,
+          15.5
+        ],
+        [
+          -17.5,
+          15.5
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/deira/building_deira-arcade_a.glb",
+        "at": [
+          [
+            -6.5,
+            -12,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.deira.sign.19",
+            "place.deira.sign.16",
+            "place.deira.sign.3",
+            "place.deira.sign.1"
+          ]
+        ]
+      },
+      {
+        "file": "places/deira/building_deira-arcade_b.glb",
+        "at": [
+          [
+            7.6,
+            -12,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.deira.sign.15",
+            "place.deira.sign.12",
+            "place.deira.sign.20"
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_dining-table.glb",
+        "at": [
+          [
+            3.8,
+            -4.9,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "at": [
+          [
+            2.9,
+            -4.9,
+            1.5708
+          ],
+          [
+            4.7,
+            -4.9,
+            -1.5708
+          ],
+          [
+            3.8,
+            -4.1,
+            3.1416
+          ]
+        ]
+      },
+      {
+        "file": "places/deira/vehicle_labour-bus.glb",
+        "at": [
+          [
+            10.6,
+            -1.8,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_market-stall.glb",
+        "at": [
+          [
+            -4,
+            6.4,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/tejuosho-market/prop_basins.glb",
+        "at": [
+          [
+            -4,
+            8.2,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/yaba-hub/prop_meetup-corner.glb",
+        "at": [
+          [
+            4.6,
+            7,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/deira/vehicle_taxi-dubai.glb",
+        "at": [
+          [
+            -8.6,
+            1.8,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -4,
+        7.35,
+        0
+      ],
+      [
+        -5.6,
+        9.3,
+        2.6
+      ],
+      [
+        -6.8,
+        -4.6,
+        3.1416
+      ],
+      [
+        3.9,
+        8.4,
+        3.1416
+      ],
+      [
+        5.4,
+        8.5,
+        3.1416
+      ],
+      [
+        1,
+        -4.6,
+        0.4
+      ],
+      [
+        6,
+        -4.2,
+        -2
+      ],
+      [
+        10.5,
+        5,
+        -1.4
+      ],
+      [
+        -11,
+        5.5,
+        1.3
+      ],
+      [
+        -10.6,
+        -4.8,
+        1
+      ]
+    ],
+    "prefer": {
+      "trader": [
+        0
+      ]
+    },
+    "motion": [
+      {
+        "kind": "hang",
+        "at": [
+          -5.3,
+          2.5,
+          7.3
+        ],
+        "to": [
+          -2.7,
+          2.5,
+          7.3
+        ],
+        "count": 4,
+        "size": [
+          0.6,
+          0.9
+        ],
+        "colours": [
+          "wine",
+          "gold",
+          "teal",
+          "orange"
+        ]
+      }
+    ],
+    "shot": {
+      "centre": [
+        0,
+        0.5,
+        -1
+      ],
+      "far": 40,
+      "near": 10,
+      "farPitch": 48,
+      "nearPitch": 34,
+      "turn": 30,
+      "yaw": 180,
+      "width": 22
+    },
+    "things": [
+      {
+        "id": "exchange",
+        "file": "places/deira/building_deira-arcade_a.glb",
+        "copy": 0,
+        "label": "city.thing.exchange-house",
+        "at": [
+          -0.5,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "send-money",
+            "label": "city.act.send-money",
+            "kind": "sheet",
+            "stages": "activity.send-money"
+          }
+        ]
+      },
+      {
+        "id": "gold-shop",
+        "file": "places/deira/building_deira-arcade_a.glb",
+        "copy": 0,
+        "label": "city.thing.gold-shop",
+        "at": [
+          -6,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-gold",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "naija-shop",
+        "file": "places/deira/building_deira-arcade_a.glb",
+        "copy": 0,
+        "label": "city.thing.african-foods",
+        "at": [
+          -10.4,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "naija",
+            "label": "city.act.naija-shop",
+            "kind": "sheet",
+            "stages": "activity.naija-shop-uae"
+          }
+        ]
+      },
+      {
+        "id": "cafeteria",
+        "file": "shared/prop/prop_dining-table.glb",
+        "copy": 0,
+        "label": "city.thing.cafeteria",
+        "at": [
+          3.8,
+          -3.5
+        ],
+        "acts": [
+          {
+            "id": "cafeteria",
+            "label": "city.act.cafeteria",
+            "kind": "sheet",
+            "stages": "activity.cafeteria-uae"
+          }
+        ]
+      },
+      {
+        "id": "cafe",
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "copy": 0,
+        "label": "city.thing.cafe",
+        "at": [
+          2.4,
+          -4.2
+        ],
+        "acts": [
+          {
+            "id": "sit",
+            "label": "city.act.sit",
+            "kind": "plain",
+            "pose": "sit",
+            "seat": [
+              2.9,
+              -4.9,
+              1.5708
+            ]
+          },
+          {
+            "id": "street-find",
+            "label": "city.act.street-find",
+            "kind": "sheet",
+            "stages": "offer.street-find-uae"
+          }
+        ]
+      },
+      {
+        "id": "agency",
+        "file": "places/deira/building_deira-arcade_b.glb",
+        "copy": 0,
+        "label": "city.thing.typing-centre",
+        "at": [
+          7.6,
+          -5.4
+        ],
+        "acts": [
+          {
+            "id": "hunt",
+            "label": "city.act.jobs",
+            "kind": "sheet",
+            "stages": "activity.job-hunt"
+          },
+          {
+            "id": "look",
+            "label": "city.act.look-typing",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "barber",
+        "file": "places/deira/building_deira-arcade_b.glb",
+        "copy": 0,
+        "label": "city.thing.barber",
+        "at": [
+          10.6,
+          -4.6
+        ],
+        "acts": [
+          {
+            "id": "barber",
+            "label": "city.act.barber",
+            "kind": "sheet",
+            "stages": "activity.barber-uae"
+          }
+        ]
+      },
+      {
+        "id": "spice-stall",
+        "file": "places/tejuosho-market/prop_market-stall.glb",
+        "copy": 0,
+        "label": "city.thing.spice-stall",
+        "at": [
+          -2.4,
+          9
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-spices",
+            "kind": "plain"
+          }
+        ]
+      },
+      {
+        "id": "corner",
+        "file": "places/yaba-hub/prop_meetup-corner.glb",
+        "copy": 0,
+        "label": "city.thing.corner",
+        "at": [
+          3,
+          8.6
+        ],
+        "acts": [
+          {
+            "id": "community",
+            "label": "city.act.community",
+            "kind": "sheet",
+            "stages": "activity.community-uae"
+          }
+        ]
+      },
+      {
+        "id": "taxi",
+        "file": "places/deira/vehicle_taxi-dubai.glb",
+        "copy": 0,
+        "label": "city.thing.taxi",
+        "at": [
+          -8.6,
+          4.4
+        ],
+        "acts": [
+          {
+            "id": "ride",
+            "label": "city.act.ride",
+            "kind": "ride"
+          }
+        ]
+      },
+      {
+        "id": "site-bus",
+        "file": "places/deira/vehicle_labour-bus.glb",
+        "copy": 0,
+        "label": "city.thing.site-bus",
+        "at": [
+          9.2,
+          -4.4
+        ],
+        "acts": [
+          {
+            "id": "look",
+            "label": "city.act.look-site-bus",
+            "kind": "plain"
+          }
+        ]
+      }
+    ]
+  }
+}

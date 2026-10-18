@@ -3,10 +3,10 @@
 // The door's figure in the player's colours is drawn the same way, whole, as the shooter frames the published figure;
 // and the door reads what a look is made of here, for "Make it yours", since the door shows its figure as a still.
 import { text } from "@japacity/content";
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { PoseName } from "@japacity/models/people/poses";
 import { Box3, Color, DirectionalLight, HemisphereLight, type Object3D, PerspectiveCamera, Scene, type SkinnedMesh, Vector3, WebGLRenderer } from "three";
 
-import { paletteCss } from "@japacity/assets";
+import { paletteCss } from "@japacity/model-kit";
 import { loadModel } from "../three/load";
 import { loadManifest } from "../three/manifest";
 import { figureOf, poseFigure } from "../three/people";

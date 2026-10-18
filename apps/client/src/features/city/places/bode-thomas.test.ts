@@ -33,8 +33,8 @@ describe("Bode Thomas Street's budget", () => {
 describe("the street", () => {
   test("[city:places-stage-their-acts] given the place that stages the lotto and the betting slip, when its stage is read, then the kiosk stands on the south pavement across the road from the betting shop's building, each lettered with its own board", () => {
     expect(entry.stages).toEqual(expect.arrayContaining(["activity.play-lotto", "activity.bet-slip"]));
-    const [kiosk] = copiesOf(stage, "shop_lotto-kiosk.glb");
-    const [betting] = copiesOf(stage, "bld_bode-thomas-betting.glb");
+    const [kiosk] = copiesOf(stage, "shopfront_lotto-kiosk.glb");
+    const [betting] = copiesOf(stage, "building_bode-thomas-betting.glb");
     if (kiosk === undefined || betting === undefined) throw new Error("The kiosk or the betting shop is missing");
     expect(kiosk[1]).toBeGreaterThan(south);
     expect(betting[1]).toBeLessThan(north);
@@ -47,7 +47,7 @@ describe("the street", () => {
     expect(stage.people.length).toBeGreaterThanOrEqual(highCrowd(entry));
     expect(stage.people.every((spot) => onGround(stage, spot))).toBe(true);
     expect(onGround(stage, stage.start)).toBe(true);
-    const [kiosk] = copiesOf(stage, "shop_lotto-kiosk.glb");
+    const [kiosk] = copiesOf(stage, "shopfront_lotto-kiosk.glb");
     if (kiosk === undefined) throw new Error("No kiosk");
     const queue = stage.people.slice(0, lowCrowd(entry)).filter(([x, z]) => Math.hypot(x - kiosk[0], z - kiosk[1]) < 3.5);
     expect(queue.length).toBeGreaterThanOrEqual(2);

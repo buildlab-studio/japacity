@@ -8,7 +8,7 @@ import { readStyle, type LookStyle } from "./style";
 import { browserStorage, PERSON_KEY } from "../kept/storage";
 
 export interface KeptPerson {
-  /** A shipped person's file name, `chr_ada`: a whole look, never a stat. */
+  /** A shipped person's file name, `person_ada`: a whole look, never a stat. */
   look: string;
   /** The character's first name, from the pool. Never the account's. */
   name: string;
@@ -31,7 +31,7 @@ type Write = Pick<Storage, "setItem">;
 function isPerson(value: unknown): value is KeptPerson {
   if (typeof value !== "object" || value === null) return false;
   const { look, name, archetype } = value as Record<string, unknown>;
-  return typeof look === "string" && /^chr_[a-z_]+$/.test(look) && typeof name === "string" && (archetype === null || typeof archetype === "string");
+  return typeof look === "string" && /^person_[a-z_]+$/.test(look) && typeof name === "string" && (archetype === null || typeof archetype === "string");
 }
 
 /** The person kept on this device, or null when none is, or what is kept cannot be read. */
@@ -63,16 +63,16 @@ export function keepPerson(person: KeptPerson, storage: Write | null = browserSt
   }
 }
 
-/** The kept look as a shipped file, `shared/chr/chr_ada.glb`, or null when no look is kept. */
+/** The kept look as a shipped file, `shared/person/person_ada.glb`, or null when no look is kept. */
 export function keptLookFile(storage: Read | null = browserStorage()): string | null {
   const person = readPerson(storage);
-  return person === null ? null : `shared/chr/${person.look}.glb`;
+  return person === null ? null : `shared/person/${person.look}.glb`;
 }
 
-/** The style the kept person wears on a look's file, `shared/chr/chr_ada.glb`; none where that is not their look. */
+/** The style the kept person wears on a look's file, `shared/person/person_ada.glb`; none where that is not their look. */
 export function keptStyleOf(file: string, storage: Read | null = browserStorage()): LookStyle | undefined {
   const person = readPerson(storage);
-  return person !== null && `shared/chr/${person.look}.glb` === file ? person.style : undefined;
+  return person !== null && `shared/person/${person.look}.glb` === file ? person.style : undefined;
 }
 
 /**

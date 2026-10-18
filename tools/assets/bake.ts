@@ -2,7 +2,7 @@
 // per material, with the palette colour on the vertices. Signs leave the body: a building
 // keeps only their anchors, a shopfront ships their faces as a second primitive whose
 // texture the client draws at run time (assets:sign-text-drawn-in-code).
-import { packSigns, palette, SIGN_ATLAS, signAnchorsOf, srgbToLinear, isPaletteName, type SignAnchor } from "@japacity/assets";
+import { packSigns, palette, SIGN_ATLAS, signAnchorsOf, srgbToLinear, isPaletteName, type SignAnchor } from "@japacity/model-kit";
 import { type BufferGeometry, Matrix4, type Mesh, type Object3D, Vector3 } from "three";
 
 import type { RgbaImage } from "./png";

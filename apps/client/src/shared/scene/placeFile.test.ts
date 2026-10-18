@@ -8,7 +8,7 @@ import { dressPlace, filesOf, OPEN_STAGE, type PlaceFile, stageOf } from "./plac
 
 const TOBI: Id<"person"> = "person.tobi-bank";
 const PARTY = "offer.party-set";
-const PARTNER = { thing: "partner", person: TOBI, file: "shared/chr/chr_kunle.glb", at: [0.5, 1, 2] as [number, number, number] };
+const PARTNER = { thing: "partner", person: TOBI, file: "shared/person/person_kunle.glb", at: [0.5, 1, 2] as [number, number, number] };
 
 const ROOM: PlaceFile = {
   place: "place.their-room",

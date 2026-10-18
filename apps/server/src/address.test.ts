@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
 import { relyingPartyOf } from "./auth/auth";
-import { tickPeriodMs, TICKS_CRON } from "./jobs/ticks";
+import { tickPeriodMs, TICKS_CRON } from "./scheduled/ticks";
 
 const PRODUCTION = "https://japacity.app";
 const STAGING = "https://staging.japacity.app";

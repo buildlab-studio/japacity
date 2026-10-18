@@ -1,0 +1,15 @@
+{
+  "name": "building_deira-arcade_b",
+  "bays": 3,
+  "storeys": 3,
+  "wall": "wallCream",
+  "worn": "wallCreamWorn",
+  "gold": [],
+  "signs": ["place.deira.sign.5", "place.deira.sign.6", "place.deira.sign.7"],
+  "styles": [
+    { "board": "blue", "ink": "white" },
+    { "board": "white", "ink": "green", "border": "green" },
+    { "board": "red", "ink": "white" }
+  ],
+  "seed": 1985
+}

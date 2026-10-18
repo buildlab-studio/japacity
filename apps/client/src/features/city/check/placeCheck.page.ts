@@ -4,8 +4,8 @@
 // moving adds the motion, the clock and the crowd's idling as the city's frame loop runs them. Each
 // run records the draw calls, triangles and microseconds of script of every frame. The check
 // (tools/assets/place-check.ts) serves it from the repository and drives it through `window.placeCheck`.
-import { footprintOf } from "@japacity/assets";
-import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
+import { footprintOf } from "@japacity/model-kit";
+import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/model-kit/load";
 import { ACESFilmicToneMapping, DirectionalLight, Fog, HemisphereLight, type Object3D, PCFShadowMap, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";

@@ -73,7 +73,7 @@ describe("the shell is never stale (server:production-and-staging)", () => {
   });
 
   test("[server:production-and-staging] given the build's hashed files under /assets/, then each is kept a year untouched; the models' manifest, the one name with no hash, is asked about every time", () => {
-    for (const path of ["/assets/index-B3x9_aQz.js", "/assets/index-D1v2c3.css", "/assets/places/makoko/place.eef5138d7c1f.json", "/assets/shared/veh/veh_keke.0123456789ab.glb"]) expect({ path, cache: cacheOf(path) }).toEqual({ path, cache: YEAR });
+    for (const path of ["/assets/index-B3x9_aQz.js", "/assets/index-D1v2c3.css", "/assets/places/makoko/place.eef5138d7c1f.json", "/assets/shared/vehicle/vehicle_keke.0123456789ab.glb"]) expect({ path, cache: cacheOf(path) }).toEqual({ path, cache: YEAR });
     expect(cacheOf("/assets/manifest.json")).toBe("no-cache");
   });
 

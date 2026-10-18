@@ -10,10 +10,10 @@ import { productionConfig, testConfig } from "../config";
 import { setSwitch } from "../switches/switches";
 import { BOARD_NAMES, BOARD_SWITCH } from "./board";
 import { noteFigures } from "./figures";
-import { boardsWeekJob } from "./job";
+import { boardsWeekJob } from "./scheduled";
 import { accountPorts } from "./ports";
 import { lagosWeek, weekBeginsAt } from "./week";
-import { TICKS_CRON } from "../jobs/ticks";
+import { TICKS_CRON } from "../scheduled/ticks";
 
 const EPOCH = productionConfig.clock.epoch;
 /** The Monday 00:00 in Lagos after the epoch. */

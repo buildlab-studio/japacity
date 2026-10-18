@@ -47,9 +47,9 @@ describe("the invite card in the lively dress", () => {
   });
 
   test("[pair:invite-card-contents] [person:invite-fills-a-slot] given a look kept from the door and the card out, then the maker wears that look's face, the card out carries none, the slot says it is out once, and Take the card back is a ghost button", async () => {
-    keepPerson({ look: "chr_kemi", name: "Kemi", archetype: "developer" });
+    keepPerson({ look: "person_kemi", name: "Kemi", archetype: "developer" });
     const { form, authority } = await maker();
-    expect(within(form).getByRole("heading", { name: say("ui.people.invite.title") }).parentElement?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe("chr_kemi");
+    expect(within(form).getByRole("heading", { name: say("ui.people.invite.title") }).parentElement?.querySelector("[data-face-sticker]")?.getAttribute("data-face-sticker")).toBe("person_kemi");
     fireEvent.click(within(form).getByRole("button", { name: say("ui.people.invite.make") }));
     await waitFor(() => expect(document.querySelector('[data-slot="partner"]')?.getAttribute("data-state")).toBe("invited"));
     expect(authority.sent.at(-1)).toMatchObject({ type: "people/invite", slot: "partner" });

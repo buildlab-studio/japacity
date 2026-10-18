@@ -161,7 +161,7 @@ describe("a person standing where content meets them", () => {
 
   test("[world:place-is-one-screen] [city:residents-fill-to-target] given every shipped place with people standing at its things and more players present than slots, when the crowd is drawn in each mode, then the crowd and those standing stay within the scope's cap, and a part's resident gives way only once no player is left", () => {
     const folder = join(import.meta.dirname, "..", "..", "..", "public", "assets", "places");
-    const many = Array.from({ length: 12 }, (_, index) => ({ look: "chr_tunde", name: `player${String(index)}` }));
+    const many = Array.from({ length: 12 }, (_, index) => ({ look: "person_tunde", name: `player${String(index)}` }));
     let checked = 0;
     for (const name of readdirSync(folder)) {
       const path = join(folder, name, "place.json");

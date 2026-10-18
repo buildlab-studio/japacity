@@ -81,7 +81,7 @@ describe("staging", () => {
       [UK, "place.peckham"],
       [{ where: "abroad", country: "country.canada" }, "place.calgary-north-east"],
       [{ where: "abroad", country: "country.uae" }, "place.site-uae"],
-      [{ where: "abroad", country: "country.italy" }, "place.farm-it"],
+      [{ where: "abroad", country: "country.italy" }, "place.farm-italy"],
     ] as const;
     expect(content.place["place.test-centre-abroad" as Id<"place">]).toBeUndefined();
     expect(content.place["place.workplace-abroad" as Id<"place">]).toBeUndefined();

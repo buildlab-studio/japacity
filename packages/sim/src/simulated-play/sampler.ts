@@ -1,0 +1,40 @@
+// Simulated play's own sampler: every command testing/legal.ts builds, and the
+// commands of the whole life it leaves out, read from the view alone. Each
+// one added here is accepted whenever the view lets it through.
+import type { PlayerView } from "../engine/types";
+import { legalCommands } from "../testing/legal";
+import type { Loose } from "../testing/play";
+
+/**
+ * status:renewing-a-status. The view's `renew` carries the fee and the surcharge. It is
+ * offered when the status's own currency's bank pocket alone covers both and,
+ * on a one-employer status, a job is held.
+ */
+function fromStatus(view: PlayerView): Loose[] {
+  const status = view.status;
+  if (status?.renew === null || status?.renew === undefined) return [];
+  if (status.work === "one-employer" && view.job.id === null) return [];
+  const { currency, fee, surcharge } = status.renew;
+  return view.pockets[currency].bank >= fee + surcharge ? [{ type: "status/renew" }] : [];
+}
+
+/**
+ * car:car-handed-back-after-half: the car handed back with the amount 0 once half its price is
+ * paid, which the view's `car` carries. A car paid off and owned is not
+ * listed (car:final-payment-owns-the-car) and cannot be handed back.
+ */
+function fromCar(view: PlayerView): Loose[] {
+  return view.obligations.flatMap((owed): Loose[] => (owed.car !== null && owed.outstanding > 0 && owed.car.paid >= owed.car.half ? [{ type: "obligation/pay", obligation: owed.id, amount: 0 }] : []));
+}
+
+/** activity:side-job-holds-a-slot: the side job given up on its own. */
+function fromSide(view: PlayerView): Loose[] {
+  return view.job.side === null ? [] : [{ type: "activity/quit", side: true }];
+}
+
+/** Every legal command testing/legal.ts builds, and the ones above. */
+export function sampleCommands(view: PlayerView): Loose[] {
+  const legal = legalCommands(view);
+  if (view.ended || view.prologue !== null) return legal;
+  return [...legal, ...fromStatus(view), ...fromCar(view), ...fromSide(view)];
+}

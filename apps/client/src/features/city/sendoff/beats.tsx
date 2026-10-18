@@ -483,7 +483,7 @@ function StapleAtStop({ landing, blind }: { landing: Landing; blind: string }) {
     case "taxi":
       return (
         <span data-so-staple="taxi">
-          <Pic model="veh_taxi-dubai" className="so-pull-in" style={{ left: 20, top: 300, width: 250, zIndex: 2 }} />
+          <Pic model="vehicle_taxi-dubai" className="so-pull-in" style={{ left: 20, top: 300, width: 250, zIndex: 2 }} />
         </span>
       );
     default: {
@@ -524,8 +524,8 @@ function Behind({ landing }: { landing: Landing }) {
     case "country.uk":
       return (
         <>
-          <Pic model="bld_rye-lane-terrace_b" style={{ left: -40, top: 70, width: 240 }} />
-          <Pic model="bld_rye-lane-terrace_a" style={{ left: 170, top: 100, width: 260 }} />
+          <Pic model="building_rye-lane-terrace_b" style={{ left: -40, top: 70, width: 240 }} />
+          <Pic model="building_rye-lane-terrace_a" style={{ left: 170, top: 100, width: 260 }} />
           <div className="so-lamp" />
         </>
       );
@@ -533,8 +533,8 @@ function Behind({ landing }: { landing: Landing }) {
       return (
         <>
           <div className="so-skyline" />
-          <Pic model="bld_deira-arcade_a" style={{ left: -30, top: 120, width: 220 }} />
-          <Pic model="bld_deira-arcade_b" style={{ left: 180, top: 130, width: 230 }} />
+          <Pic model="building_deira-arcade_a" style={{ left: -30, top: 120, width: 220 }} />
+          <Pic model="building_deira-arcade_b" style={{ left: 180, top: 130, width: 230 }} />
           <div className="so-shimmer" />
         </>
       );
@@ -552,7 +552,7 @@ function Behind({ landing }: { landing: Landing }) {
       return (
         <>
           <div className="so-sea" />
-          <Pic model="bld_shop-row" style={{ left: -20, top: 160, width: 250 }} />
+          <Pic model="building_shop-row" style={{ left: -20, top: 160, width: 250 }} />
           <Pic model="prop_street-bench" style={{ left: 270, top: 520, width: 90, zIndex: 2 }} />
         </>
       );
@@ -622,24 +622,24 @@ function AtTheWindow({ landing }: { landing: Landing }) {
     case "country.uk":
       return (
         <>
-          <Pic model="bld_rye-lane-terrace_a" style={{ left: -60, top: 70, width: 200 }} />
-          <Pic model="bld_rye-lane-terrace_b" style={{ right: -50, top: 60, width: 190, transform: "scaleX(-1)" }} />
-          <Pic model="bld_rye-lane-terrace_b" style={{ left: 92, top: 118, width: 90 }} />
-          <Pic model="bld_rye-lane-terrace_a" style={{ right: 96, top: 124, width: 84, transform: "scaleX(-1)" }} />
+          <Pic model="building_rye-lane-terrace_a" style={{ left: -60, top: 70, width: 200 }} />
+          <Pic model="building_rye-lane-terrace_b" style={{ right: -50, top: 60, width: 190, transform: "scaleX(-1)" }} />
+          <Pic model="building_rye-lane-terrace_b" style={{ left: 92, top: 118, width: 90 }} />
+          <Pic model="building_rye-lane-terrace_a" style={{ right: 96, top: 124, width: 84, transform: "scaleX(-1)" }} />
           <div className="pave" />
           <div className="road" />
           <Pic model="prop_market-stall" style={{ left: 6, top: 176, width: 84 }} />
-          <Pic model="veh_taxi" style={{ right: 26, top: 236, width: 92, filter: "grayscale(1) brightness(0.35) drop-shadow(0 0 1.5px #fff)" }} />
+          <Pic model="vehicle_taxi" style={{ right: 26, top: 236, width: 92, filter: "grayscale(1) brightness(0.35) drop-shadow(0 0 1.5px #fff)" }} />
         </>
       );
     case "country.uae":
       return (
         <>
-          <Pic model="bld_deira-arcade_c" style={{ left: -50, top: 70, width: 200 }} />
-          <Pic model="bld_deira-arcade_a" style={{ right: -40, top: 66, width: 190, transform: "scaleX(-1)" }} />
+          <Pic model="building_deira-arcade_c" style={{ left: -50, top: 70, width: 200 }} />
+          <Pic model="building_deira-arcade_a" style={{ right: -40, top: 66, width: 190, transform: "scaleX(-1)" }} />
           <div className="pave" />
           <div className="road" />
-          <Pic model="veh_taxi-dubai" style={{ right: 30, top: 236, width: 100 }} />
+          <Pic model="vehicle_taxi-dubai" style={{ right: 30, top: 236, width: 100 }} />
         </>
       );
     case "country.canada":
@@ -656,7 +656,7 @@ function AtTheWindow({ landing }: { landing: Landing }) {
       return (
         <>
           <div className="so-sea" style={{ top: 64, height: 76 }} />
-          <Pic model="bld_shop-row" style={{ left: -34, top: 70, width: 210 }} />
+          <Pic model="building_shop-row" style={{ left: -34, top: 70, width: 210 }} />
           <Pic model="prop_street-bench" style={{ right: 30, top: 150, width: 70 }} />
           <div className="pave" />
           <div className="road" />

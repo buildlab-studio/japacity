@@ -1,0 +1,1032 @@
+{
+  "place": "place.compound-room",
+  "scope": "interior",
+  "hub": false,
+  "note": "The room in a compound (world:place-is-one-screen). Counts are the most in view from the whole view, the water fetched and the car at its spot included; a neighbour or two in the yard.",
+  "instances": [
+    {
+      "file": "places/home-room-house/building_home-room-house.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_bed.glb",
+      "count": 1
+    },
+    {
+      "file": "places/the-room/prop_side-table.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_rug.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_small-shelf.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_plastic-chair.glb",
+      "count": 3
+    },
+    {
+      "file": "shared/prop/prop_travel-bag.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house-parlour/prop_papers-box.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_kitchen-shelf.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_cooking-corner.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_bucket.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house-parlour/prop_water-drum.glb",
+      "count": 2
+    },
+    {
+      "file": "shared/prop/prop_potted-plant.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_slippers.glb",
+      "count": 1
+    },
+    {
+      "file": "places/family-house-parlour/prop_drum-water.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/vehicle/vehicle_car.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_foam-mattress.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_wardrobe.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_ac.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_tv.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_fan.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_decoder.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_radio.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_laptop-desk.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_speaker.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_mirror.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_phone.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_router.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_gas-cooker.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_fridge.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_big-pot.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_inverter.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_generator.glb",
+      "count": 1
+    },
+    {
+      "file": "shared/prop/prop_solar.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 1,
+    "high": 2,
+    "sample": [
+      "shared/person/person_femi.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_tolani.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 90
+  },
+  "stage": {
+    "note": "The room in a compound in Ojuelegba (home:compound-room-is-a-home) as one wide floor: your room with its bed, wardrobe, fan and your things, its bathroom and kitchenette nook behind it, and through your door the compound's yard with the shared drum, a neighbour at his door and your parking spot by the opening to the street, where your car stands once you have one. Cooking planned, the pot steams; water planned, the drum is full.",
+    "ground": {
+      "size": [
+        9.4,
+        7.8
+      ],
+      "colour": "wallCreamWorn"
+    },
+    "roads": [
+      {
+        "at": [
+          2.575,
+          0,
+          0
+        ],
+        "size": [
+          4.2,
+          7.75
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          3.5,
+          1.2,
+          0
+        ],
+        "size": [
+          2.4,
+          5.2
+        ],
+        "colour": "concreteWorn"
+      },
+      {
+        "at": [
+          -3.4,
+          -3.6,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "wallSky",
+        "dash": {
+          "colour": "white",
+          "every": 0.4
+        }
+      },
+      {
+        "at": [
+          -3.4,
+          -3.2,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "white",
+        "dash": {
+          "colour": "wallSky",
+          "every": 0.4
+        }
+      },
+      {
+        "at": [
+          -3.4,
+          -2.8,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "wallSky",
+        "dash": {
+          "colour": "white",
+          "every": 0.4
+        }
+      },
+      {
+        "at": [
+          -3.4,
+          -2.4,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "white",
+        "dash": {
+          "colour": "wallSky",
+          "every": 0.4
+        }
+      },
+      {
+        "at": [
+          -3.4,
+          -2.0,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "wallSky",
+        "dash": {
+          "colour": "white",
+          "every": 0.4
+        }
+      },
+      {
+        "at": [
+          -3.4,
+          -1.6,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "white",
+        "dash": {
+          "colour": "wallSky",
+          "every": 0.4
+        }
+      },
+      {
+        "at": [
+          -3.4,
+          -1.2,
+          0
+        ],
+        "size": [
+          2.4,
+          0.4
+        ],
+        "colour": "wallSky",
+        "dash": {
+          "colour": "white",
+          "every": 0.4
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        7,
+        14,
+        9
+      ],
+      "sky": "sky",
+      "ground": "concrete",
+      "lamps": [
+        {
+          "at": [
+            -1.8,
+            2.6,
+            1.5
+          ],
+          "size": 2.2,
+          "bulb": true,
+          "light": {
+            "strength": 7.0,
+            "reach": 8.0
+          }
+        },
+        {
+          "at": [
+            -4.35,
+            1.0,
+            1.4
+          ],
+          "size": 0.8,
+          "light": {
+            "strength": 1.6,
+            "reach": 3.5
+          }
+        },
+        {
+          "at": [
+            1.6,
+            2.5,
+            -3.7
+          ],
+          "size": 1.4,
+          "light": {
+            "strength": 5.0,
+            "reach": 7.0
+          }
+        }
+      ],
+      "room": true
+    },
+    "start": [
+      -0.4,
+      1.6,
+      -1.5708
+    ],
+    "walkable": [
+      [
+        [
+          -4.55,
+          -3.75
+        ],
+        [
+          4.55,
+          -3.75
+        ],
+        [
+          4.55,
+          3.75
+        ],
+        [
+          -4.55,
+          3.75
+        ]
+      ]
+    ],
+    "models": [
+      {
+        "file": "places/home-room-house/building_home-room-house.glb",
+        "at": [
+          [
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bed.glb",
+        "at": [
+          [
+            -3.6,
+            0.15,
+            1.571
+          ]
+        ]
+      },
+      {
+        "file": "places/the-room/prop_side-table.glb",
+        "at": [
+          [
+            -4.35,
+            1.4,
+            1.571
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_rug.glb",
+        "at": [
+          [
+            -1.7,
+            1.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_small-shelf.glb",
+        "at": [
+          [
+            0.15,
+            2.9,
+            -1.571
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_plastic-chair.glb",
+        "at": [
+          [
+            -0.5,
+            0.7,
+            -0.6
+          ],
+          [
+            2.3,
+            -2.6,
+            0.3
+          ],
+          [
+            3.1,
+            -2.85,
+            -0.2
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_travel-bag.glb",
+        "at": [
+          [
+            -1.9,
+            3.35,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house-parlour/prop_papers-box.glb",
+        "at": [
+          [
+            -2.35,
+            1.0,
+            0.25
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_kitchen-shelf.glb",
+        "at": [
+          [
+            -1.05,
+            -3.55,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_cooking-corner.glb",
+        "at": [
+          [
+            0.1,
+            -2.35,
+            -1.571
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_bucket.glb",
+        "at": [
+          [
+            -3.9,
+            -1.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/family-house-parlour/prop_water-drum.glb",
+        "at": [
+          [
+            1.05,
+            -0.3,
+            1.5708
+          ],
+          [
+            -2.75,
+            -3.3,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_potted-plant.glb",
+        "at": [
+          [
+            4.25,
+            -3.4,
+            0.6
+          ]
+        ]
+      },
+      {
+        "file": "shared/prop/prop_slippers.glb",
+        "at": [
+          [
+            -0.1,
+            2.0,
+            1.5708
+          ]
+        ]
+      }
+    ],
+    "car": [
+      3.5,
+      1.2,
+      0
+    ],
+    "people": [
+      [
+        1.6,
+        -3.3,
+        0.1
+      ],
+      [
+        3.9,
+        -2.2,
+        -1.2
+      ]
+    ],
+    "acts": [],
+    "motion": [],
+    "shows": [
+      {
+        "activity": "activity.cook-own",
+        "models": [],
+        "motion": [
+          {
+            "kind": "smoke",
+            "at": [
+              0.08,
+              1.0,
+              -2.55
+            ],
+            "count": 6,
+            "colours": [
+              "white"
+            ]
+          }
+        ]
+      },
+      {
+        "activity": "activity.cook-own-pot",
+        "models": [],
+        "motion": [
+          {
+            "kind": "smoke",
+            "at": [
+              0.08,
+              1.0,
+              -2.55
+            ],
+            "count": 12,
+            "colours": [
+              "white"
+            ]
+          }
+        ],
+        "seconds": 16
+      },
+      {
+        "activity": "activity.fill-drum",
+        "models": [
+          {
+            "file": "places/family-house-parlour/prop_drum-water.glb",
+            "at": [
+              [
+                1.05,
+                -0.3,
+                1.5708
+              ]
+            ]
+          }
+        ],
+        "motion": []
+      },
+      {
+        "activity": "activity.bucket-bath",
+        "models": [],
+        "motion": [
+          {
+            "kind": "drops",
+            "at": [
+              1.05,
+              0.92,
+              -0.3
+            ],
+            "size": [
+              0.8,
+              0.8
+            ],
+            "count": 14,
+            "colours": [
+              "white"
+            ]
+          }
+        ],
+        "seconds": 4
+      }
+    ],
+    "shot": {
+      "centre": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "far": 14,
+      "near": 5,
+      "farPitch": 38,
+      "nearPitch": 40,
+      "turn": 360,
+      "yaw": 180,
+      "width": 9.8,
+      "fov": 30
+    },
+    "rooms": [
+      {
+        "id": "room",
+        "floor": [
+          -4.675,
+          -1.0,
+          0.475,
+          3.875
+        ],
+        "centre": [
+          -2.1,
+          0.6,
+          1.4
+        ],
+        "width": 5.2,
+        "pitch": 40
+      },
+      {
+        "id": "back",
+        "floor": [
+          -4.675,
+          -3.875,
+          0.475,
+          -1.0
+        ],
+        "centre": [
+          -2.1,
+          0.6,
+          -2.0
+        ],
+        "width": 5.2,
+        "pitch": 42
+      },
+      {
+        "id": "yard",
+        "floor": [
+          0.475,
+          -3.875,
+          4.675,
+          3.875
+        ],
+        "centre": [
+          2.6,
+          0.6,
+          0.0
+        ],
+        "width": 4.6,
+        "pitch": 42
+      }
+    ],
+    "things": [
+      {
+        "id": "bed",
+        "file": "shared/prop/prop_bed.glb",
+        "copy": 0,
+        "label": "city.thing.mattress",
+        "at": [
+          -2.2,
+          0.6
+        ],
+        "acts": [
+          {
+            "id": "nap",
+            "label": "activity.nap.name",
+            "kind": "sheet",
+            "stages": "activity.nap",
+            "pose": "lie",
+            "seat": [
+              -3.6,
+              0.15,
+              -1.5708
+            ],
+            "top": 0.63,
+            "otherwise": {
+              "id": "lie",
+              "label": "city.act.lie",
+              "kind": "plain",
+              "pose": "lie",
+              "seat": [
+                -3.6,
+                0.15,
+                -1.5708
+              ],
+              "top": 0.63
+            }
+          },
+          {
+            "id": "end-month",
+            "label": "ui.world.end-month",
+            "kind": "end"
+          }
+        ]
+      },
+      {
+        "id": "papers-box",
+        "file": "places/family-house-parlour/prop_papers-box.glb",
+        "copy": 0,
+        "label": "city.thing.papers",
+        "at": [
+          -1.9,
+          1.35
+        ],
+        "acts": [
+          {
+            "id": "papers",
+            "label": "city.act.papers",
+            "kind": "app",
+            "app": "papers"
+          }
+        ]
+      },
+      {
+        "id": "cooking",
+        "file": "shared/prop/prop_cooking-corner.glb",
+        "copy": 0,
+        "label": "city.thing.stove",
+        "at": [
+          -0.6,
+          -2.35
+        ],
+        "acts": [
+          {
+            "id": "cook",
+            "label": "city.act.cook",
+            "kind": "sheet",
+            "stages": "activity.cook-own",
+            "more": [
+              "activity.cook-own-pot"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "drum",
+        "file": "places/family-house-parlour/prop_water-drum.glb",
+        "copy": 0,
+        "label": "city.thing.drum",
+        "at": [
+          1.05,
+          0.45
+        ],
+        "acts": [
+          {
+            "id": "fill-drum",
+            "label": "city.act.drum",
+            "kind": "sheet",
+            "stages": "activity.fill-drum",
+            "more": [
+              "activity.bucket-bath"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "bag",
+        "file": "shared/prop/prop_travel-bag.glb",
+        "copy": 0,
+        "label": "city.thing.bag",
+        "at": [
+          -1.9,
+          2.75
+        ],
+        "acts": [
+          {
+            "id": "pack",
+            "label": "city.act.pack",
+            "kind": "command",
+            "command": "route/depart"
+          }
+        ]
+      },
+      {
+        "id": "out",
+        "file": "shared/prop/prop_slippers.glb",
+        "copy": 0,
+        "label": "city.thing.door",
+        "at": [
+          0.2,
+          1.9
+        ],
+        "acts": [
+          {
+            "id": "out",
+            "label": "city.act.go-out",
+            "kind": "out"
+          }
+        ]
+      }
+    ],
+    "owned": [
+      {
+        "thing": "thing.mattress",
+        "file": "shared/prop/prop_foam-mattress.glb",
+        "at": [
+          -3.46,
+          0.12,
+          1.571
+        ],
+        "hides": "shared/prop/prop_bed.glb"
+      },
+      {
+        "thing": "thing.wardrobe",
+        "file": "shared/prop/prop_wardrobe.glb",
+        "at": [
+          -4.25,
+          2.75,
+          1.571
+        ]
+      },
+      {
+        "thing": "thing.ac",
+        "file": "shared/prop/prop_ac.glb",
+        "at": [
+          -4.25,
+          3.58,
+          0
+        ]
+      },
+      {
+        "thing": "thing.tv",
+        "file": "shared/prop/prop_tv.glb",
+        "at": [
+          -1.92,
+          -0.7,
+          0
+        ],
+        "acts": [
+          {
+            "id": "watch-tv",
+            "label": "activity.watch-tv.name",
+            "kind": "sheet",
+            "stages": "activity.watch-tv"
+          }
+        ]
+      },
+      {
+        "thing": "thing.fan",
+        "file": "shared/prop/prop_fan.glb",
+        "at": [
+          -1.15,
+          -0.55,
+          0
+        ]
+      },
+      {
+        "thing": "thing.decoder",
+        "file": "shared/prop/prop_decoder.glb",
+        "at": [
+          -3.35,
+          3.4,
+          3.1416
+        ]
+      },
+      {
+        "thing": "thing.radio",
+        "file": "shared/prop/prop_radio.glb",
+        "at": [
+          -2.62,
+          3.5,
+          3.1416
+        ]
+      },
+      {
+        "thing": "thing.laptop",
+        "file": "shared/prop/prop_laptop-desk.glb",
+        "at": [
+          -0.97,
+          3.4,
+          3.1416
+        ],
+        "acts": [
+          {
+            "id": "portfolio",
+            "label": "activity.build-portfolio.name",
+            "kind": "sheet",
+            "stages": "activity.build-portfolio",
+            "more": [
+              "activity.learn-tech"
+            ]
+          }
+        ]
+      },
+      {
+        "thing": "thing.speaker",
+        "file": "shared/prop/prop_speaker.glb",
+        "at": [
+          -0.25,
+          3.5,
+          3.1416
+        ]
+      },
+      {
+        "thing": "thing.mirror",
+        "file": "shared/prop/prop_mirror.glb",
+        "at": [
+          0.12,
+          0.35,
+          -1.571
+        ]
+      },
+      {
+        "thing": "thing.phone",
+        "file": "shared/prop/prop_phone.glb",
+        "at": [
+          -3.2,
+          1.95,
+          0
+        ]
+      },
+      {
+        "thing": "thing.data",
+        "file": "shared/prop/prop_router.glb",
+        "at": [
+          -3.75,
+          1.95,
+          0
+        ]
+      },
+      {
+        "thing": "thing.gas-cooker",
+        "file": "shared/prop/prop_gas-cooker.glb",
+        "at": [
+          -1.85,
+          -2.0,
+          1.571
+        ],
+        "acts": [
+          {
+            "id": "cook",
+            "label": "city.act.cook",
+            "kind": "sheet",
+            "stages": "activity.cook-own",
+            "more": [
+              "activity.cook-own-pot"
+            ]
+          }
+        ]
+      },
+      {
+        "thing": "thing.fridge",
+        "file": "shared/prop/prop_fridge.glb",
+        "at": [
+          -1.82,
+          -3.45,
+          1.571
+        ]
+      },
+      {
+        "thing": "thing.big-pot",
+        "file": "shared/prop/prop_big-pot.glb",
+        "at": [
+          -1.2,
+          -3.0,
+          0
+        ]
+      },
+      {
+        "thing": "thing.inverter",
+        "file": "shared/prop/prop_inverter.glb",
+        "at": [
+          0.2,
+          -0.4,
+          -1.571
+        ]
+      },
+      {
+        "thing": "thing.generator",
+        "file": "shared/prop/prop_generator.glb",
+        "at": [
+          4.0,
+          -1.0,
+          -1.571
+        ]
+      },
+      {
+        "thing": "thing.solar",
+        "file": "shared/prop/prop_solar.glb",
+        "at": [
+          2.2,
+          -1.6,
+          0
+        ]
+      }
+    ]
+  }
+}

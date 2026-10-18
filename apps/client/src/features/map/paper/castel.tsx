@@ -129,10 +129,10 @@ const WATER_LABELS: readonly Label[] = [label("map.water.tyrrhenian", [40975, 13
 
 /** The coast road's blue bus on the Domitiana and the gangmaster's white van on the track to the fields. */
 const DECOR: readonly Decor[] = [
-  decor("veh_italy-bus", [40988, 13975], 14, -56),
-  decor("veh_italy-bus", [40940, 14012], 13, -52),
-  decor("veh_van", [41008, 13984], 12, 40),
-  decor("veh_van", [41020, 14040], 12, 10),
+  decor("vehicle_italy-bus", [40988, 13975], 14, -56),
+  decor("vehicle_italy-bus", [40940, 14012], 13, -52),
+  decor("vehicle_van", [41008, 13984], 12, 40),
+  decor("vehicle_van", [41020, 14040], 12, 10),
 ];
 
 /** The coast has no landmark standing upright on the strip: its buses and its van stand there instead. */
@@ -178,9 +178,9 @@ function Inset() {
 
 /** The neighbourhoods, north to south: the town, the fields, the Domitiana. */
 const CARDS: readonly Card[] = [
-  card("town", "bld_castel-row_a", at([41031, 13946]), 260),
+  card("town", "building_castel-row_a", at([41031, 13946]), 260),
   card("fields", "prop_tarp-table", at([41010, 13992]), 240),
-  card("domitiana", "bld_domitiana-block", [726, 1036], 150),
+  card("domitiana", "building_domitiana-block", [726, 1036], 150),
 ];
 
 /** The districts, as rules read in order; the first that holds a position is its card. */

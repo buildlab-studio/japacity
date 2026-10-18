@@ -98,7 +98,7 @@ export function Strip({ width, stops, home, step, hereName, stadium, route, tile
         <World variant="folded" uid="strip" frame={frame} tiles={tiles} route={route} />
         {stadium === null ? null : (
           <span className="paper-mk" style={at(stadium, 2)}>
-            {tiles("lm_national-stadium") === null ? null : <img src={tiles("lm_national-stadium") ?? ""} alt="" width={26} height={26} className="paper-cut" draggable={false} />}
+            {tiles("landmark_national-stadium") === null ? null : <img src={tiles("landmark_national-stadium") ?? ""} alt="" width={26} height={26} className="paper-cut" draggable={false} />}
           </span>
         )}
         {city.strip.landmarks.map((mark) => (

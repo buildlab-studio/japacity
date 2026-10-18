@@ -1,0 +1,229 @@
+{
+  "asset": "person_kunle",
+  "file": "public/assets/shared/person/person_kunle.glb",
+  "fileSha256": "6b44d2c6805a2ea2c1b7a67335c826264fdc049cb10d41d2267bd9bce589f114",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/kunle/renders/front.png",
+      "sha256": "3d07ec213e2495a91863a517cd57363ef1246347580895666528ef7431227cb1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          17.497832441042238
+        ],
+        "target": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "width": 2.461812856669639,
+        "height": 1.8463596425022293
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/kunle/renders/back.png",
+      "sha256": "79f6579c6f1fa1990cbbcaf51b20403af3280034075e0bca4211dc66190bdedd",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          -17.434755497883135
+        ],
+        "target": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "width": 2.461812856669639,
+        "height": 1.8463596425022293
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/kunle/renders/left.png",
+      "sha256": "baf864be91f2fa14d125339045098eaaa57124d4616e6d16ba988a5d04366bda",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.482566996135535,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "target": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "width": 2.461812856669639,
+        "height": 1.8463596425022293
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/kunle/renders/right.png",
+      "sha256": "854c729dae4c1a45a70c2d9a5995248798344af743a8f9d34b461d223ac30e56",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.450020942789838,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "target": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "width": 2.461812856669639,
+        "height": 1.8463596425022293
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/kunle/renders/threeQuarter.png",
+      "sha256": "573dc7d2614440b2c06c3a1d46ec6a96ea0920ffd1bb9e5ded2a1b48329e7ec0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1401104552370183,
+          2.6154758583614526,
+          2.1879219534894188
+        ],
+        "target": [
+          -0.016273026672848162,
+          0.8547961182130218,
+          0.0315384715795517
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/kunle/renders/phone.png",
+      "sha256": "b50e03e6f8a90cc0090f7b0ced66d4ca2e4234f374edbe8a536fcce629acb806",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.016273026672848162,
+          1.6,
+          12.197713319163652
+        ],
+        "target": [
+          -0.016273026672848162,
+          1.5,
+          0.1977133191636525
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/kunle/renders/face.png",
+      "sha256": "b772593fc5080772422eb5697607805e7d11bcfc61a4049dc85cc692259a6c95",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7271200804558825,
+          1.538633022843477,
+          1.6257501344762182
+        ],
+        "target": [
+          -0.016273026672848162,
+          1.4702493323804315,
+          0.0315384715795517
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/kunle/renders/figure.png",
+      "sha256": "d77f1706b87aa54820a3c56ede2ff6ab467be4cc4f2f6eef36d30bc867fa6462",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8815519057492887,
+          1.057685496937141,
+          4.051806451678282
+        ],
+        "target": [
+          0.006870158793923248,
+          0.851967463379323,
+          0.0315384715795517
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/kunle/renders/cheer.png",
+      "sha256": "1ea22b9f546a5f889ead6de50886430d3263b356849fcf1c78dc1a75aaac6cc7",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.0909697379490333,
+          1.1998877552310965,
+          4.5449504416884725
+        ],
+        "target": [
+          -0.02536991438982561,
+          0.9676514130750687,
+          0.006445411098996601
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 // at Tejuosho. Each stands on the pavement as a model the player taps, opens the act content stages there, and keeps
 // the hours the world's clock gives it (clock:game-day-on-real-time). Bode Thomas's whole frontage is checked in bode-thomas.cargo.test.ts;
 // Ojuelegba's and Tejuosho's here on what these things touch: the budget, the ground, the floors and the staged acts.
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
@@ -42,8 +42,8 @@ const STREETS: { raw: unknown; id: Id<"place">; things: Expected[] }[] = [
     raw: bodeRaw,
     id: "place.bode-thomas",
     things: [
-      { thing: "barber", model: "places/bode-thomas/shop_barber-kiosk.glb", name: "Barber", act: { id: "cut", label: "city.act.barber", kind: "sheet", stages: "activity.barber" } },
-      { thing: "viewing", model: "places/bode-thomas/shop_viewing-centre.glb", name: "Viewing centre", act: { id: "match", label: "city.act.match", kind: "sheet", stages: "activity.viewing-centre", parts: ["evening", "night"], pose: "sit" } },
+      { thing: "barber", model: "places/bode-thomas/shopfront_barber-kiosk.glb", name: "Barber", act: { id: "cut", label: "city.act.barber", kind: "sheet", stages: "activity.barber" } },
+      { thing: "viewing", model: "places/bode-thomas/shopfront_viewing-centre.glb", name: "Viewing centre", act: { id: "match", label: "city.act.match", kind: "sheet", stages: "activity.viewing-centre", parts: ["evening", "night"], pose: "sit" } },
       { thing: "joint", model: "shared/prop/prop_joint-set.glb", name: "The joint", act: { id: "drink", label: "city.act.joint", kind: "sheet", stages: "activity.beer-joint", more: ["activity.night-out"], parts: ["evening", "night"], pose: "sit" } },
     ],
   },

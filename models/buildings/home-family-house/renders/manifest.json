@@ -1,0 +1,182 @@
+{
+  "asset": "building_home-family-house",
+  "file": "public/assets/places/home-family-house/building_home-family-house.glb",
+  "fileSha256": "906c54bbea36cb4272a6ebd8dccd0a9f2d28c597fbbb2045b6dd2cb37adceba1",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/home-family-house/renders/front.png",
+      "sha256": "6baea01510c8a0b0aa474cab1ee456066db6ac5f8ef8f0d52c264defecf9b8e4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.5249276110155203,
+          86.65302523791033
+        ],
+        "target": [
+          0,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "width": 14.191196028416357,
+        "height": 10.643397021312268
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/home-family-house/renders/back.png",
+      "sha256": "4babf2c7fe30a0fdea466630a3f61f4a710416d0a868b450279145f02159ee23",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.5249276110155203,
+          -87.12784610376008
+        ],
+        "target": [
+          0,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "width": 14.191196028416357,
+        "height": 10.643397021312268
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/home-family-house/renders/left.png",
+      "sha256": "68a9fad251f1ca8bc4d5b34ee29da0e657fe6c2928d85ada4ac631252c4ece1b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -86.8904356708352,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "target": [
+          0,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "width": 14.790355762125799,
+        "height": 11.09276682159435
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/home-family-house/renders/right.png",
+      "sha256": "6c43d37f9e41ba51393f77c7b14fba8d2cf0a09f14a92b54802681da874841e7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          86.8904356708352,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "target": [
+          0,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "width": 14.790355762125799,
+        "height": 11.09276682159435
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/home-family-house/renders/threeQuarter.png",
+      "sha256": "64d6b4aaff5089b13d81bb43db56370ed690f31a1fe4b220c38f01e9f2f22a7b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          22.207170796594607,
+          19.65700663851306,
+          21.969760363669742
+        ],
+        "target": [
+          0,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/home-family-house/renders/plan.png",
+      "sha256": "2380c134c3c60474289318adabd2686f5ce9d23ab192e18055fc27e18901fbfb",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          88.41536328185072,
+          -0.23741043292486896
+        ],
+        "target": [
+          0,
+          1.5249276110155203,
+          -0.23741043292486896
+        ],
+        "width": 19.72047434950106,
+        "height": 14.790355762125797
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/home-family-house/renders/phone.png",
+      "sha256": "3ffbfae6820f752ccefc8346727913702e8448608a3c73f4f3fbad416386085c",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          18.609976493985222
+        ],
+        "target": [
+          0,
+          1.5,
+          6.609976493985222
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 // The Inverter Room (place.yaba-hub): the desks-by-the-day room in Yaba, with its own file so its things are its own
 // and not the hub's (world:things-are-tappable-models, world:camera-always-raised, world:place-is-one-screen, world:faces-never-share-height). The
 // checks the frontages pass, read against the interior row.
-import { type Footprint, isFootprint } from "@japacity/assets";
+import { type Footprint, isFootprint } from "@japacity/model-kit";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import budgets from "../../../../../../assets-src/budgets.json";
+import budgets from "../../../../../../models/budgets.json";
 import { checkFaces, type ModelFace } from "../../../../../../tools/assets/faces-check";
 import { checkWalkable } from "../../../../../../tools/assets/footprint-check";
 import { checkLimits, SHEET_KINDS, WORLD_LIMITS } from "../../../../../../tools/assets/world-check";

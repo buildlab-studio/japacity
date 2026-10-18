@@ -1,0 +1,20 @@
+{
+  "name": "building_castel-row_a",
+  "storeys": 2,
+  "depth": 8.0,
+  "wall": "wallPeach",
+  "trim": "wallCream",
+  "shutters": "green",
+  "units": [
+    { "kind": "bar", "width": 4.4, "awning": "red" },
+    { "kind": "shop", "width": 3.8, "awning": "green" },
+    { "kind": "door", "width": 1.4 }
+  ],
+  "signs": ["place.castel-volturno.sign.bar", "place.castel-volturno.sign.african-shop"],
+  "styles": [
+    { "board": "white", "ink": "red", "border": "red" },
+    { "board": "danfoYellow", "ink": "green", "painted": true }
+  ],
+  "balconies": [0],
+  "seed": 4034
+}

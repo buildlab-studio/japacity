@@ -48,7 +48,7 @@ export const HEADROOM_PERCENT = 5;
 
 const THREE = /\/node_modules\/three\/build\//;
 const SIM = /\/packages\/sim\/src\//;
-const LOADER = /\/packages\/assets\/src\/load\.ts$|\/apps\/client\/src\/shared\/three\/load\.ts$/;
+const LOADER = /\/packages\/model-kit\/src\/load\.ts$|\/apps\/client\/src\/shared\/three\/load\.ts$/;
 /** The admin page's modules. Only its address may be in the game's own chunks. */
 const ADMIN = /\/apps\/client\/src\/features\/admin\//;
 const ADMIN_ADDRESS = /\/apps\/client\/src\/features\/admin\/adminPath\.ts$/;

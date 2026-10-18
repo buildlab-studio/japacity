@@ -164,7 +164,7 @@ test("[engine:browser-authority-for-dev-only] a slow start for a player whose li
   const faked = await fakeServer(page);
   // "Opening your life" and its "Still opening..." are for a player this device keeps a life for (engine:browser-authority-for-dev-only);
   // a new visitor sees the start screen's frame instead, as the next test proves.
-  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Bayo", archetype: "developer" })));
   let slow = true;
   // Each read waits six seconds before it fails, so the second line has its turn before the card.
   faked.hold.set("GET /api/view", async (route) => {

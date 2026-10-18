@@ -11,7 +11,7 @@ export const LIFE_THINGS: Readonly<Record<ArchetypeId, { tile: string; tint: Tin
   accountant: { tile: "prop_office-desk", tint: "money" },
   writer: { tile: "prop_radio", tint: "people" },
   trader: { tile: "prop_market-stall", tint: "food" },
-  "shop-worker": { tile: "shop_provisions", tint: "plain" },
+  "shop-worker": { tile: "shopfront_provisions", tint: "plain" },
   water: { tile: "prop_fish-racks", tint: "study" },
 };
 
@@ -38,5 +38,5 @@ const PICTURES = import.meta.glob<string>("./homes/*.webp", { eager: true, query
 export function homePicture(home: Home | "self-contain"): { src: string } | { model: string } {
   const src = PICTURES[`./homes/${home}.webp`];
   if (src !== undefined) return { src };
-  return { model: home === "makoko" ? "bld_makoko-house_b" : "bld_laptop-house" };
+  return { model: home === "makoko" ? "building_makoko-house_b" : "building_laptop-house" };
 }

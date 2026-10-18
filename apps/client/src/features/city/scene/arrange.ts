@@ -2,7 +2,7 @@
 // own fits where its footprint lies wholly on the walkable floor, clear of every other model's footprint (the house's
 // walls, the bed, the drum, the other things you own), of the door you come in by and of where people stand and walk
 // to a thing. A spot that does not fit shakes the thing back. Pure: the scene asks it as the finger lifts.
-import { type Footprint, inPolygon, type PlacedBox, placeFootprint } from "@japacity/assets";
+import { type Footprint, inPolygon, type PlacedBox, placeFootprint } from "@japacity/model-kit";
 
 import type { Spot, Stage } from "../../../shared/scene/placeFile";
 

@@ -123,7 +123,7 @@ function Goal({ reached }: { reached: boolean }) {
   return (
     <div className="door-card door-goal mx-5 mt-3.5 flex items-center gap-2.5 py-2 pr-3 pl-2" aria-disabled="true" aria-label={say("ui.door.home.self-contain")} aria-description={say("ui.door.home.said.goal", { amount: formatMoney(selfContainYear(), "NGN") })} data-home="self-contain">
       <span className="sticker-cut shrink-0 opacity-70 grayscale" style={{ rotate: "-4deg" }} aria-hidden>
-        <ModelPicture model="bld_laptop-house" size={52} />
+        <ModelPicture model="building_laptop-house" size={52} />
       </span>
       <span className="min-w-0 flex-1 leading-tight">
         <span className="block truncate text-[15px] font-bold">

@@ -66,7 +66,7 @@ The browser tests (`pnpm test:browser`, in `apps/client/e2e/`) are not part of t
 - Content (`packages/content/src`) imports only the simulation, `zod` and itself.
 - The client imports nothing from `store`, `db` or `server`. Nothing in sim, store or client imports `db`.
 - **A feature never imports another feature.** `apps/client/src/features/<kind>/` holds one kind's screens. Anything two features need goes in `apps/client/src/shared/` (`shared/ui`, `shared/words`, `shared/world` and so on).
-- **Shared and authority never import a feature.** `apps/client/src/shared/` and `apps/client/src/authority/` sit under the features. A test that checks shared code on a feature's screen, or cuts across features, goes in `apps/client/src/sweep/`.
+- **Shared and authority never import a feature.** `apps/client/src/shared/` and `apps/client/src/authority/` sit under the features. A test that checks shared code on a feature's screen, or cuts across features, goes in `apps/client/src/cross-feature/`.
 - Only files inside `apps/<app>` import from that app.
 
 ## The simulation's numbers
@@ -93,20 +93,20 @@ The simulation is pure: no clock, no randomness of its own, no network, no scree
 ## Recorded lives and goldens
 
 - **Goldens** (`packages/sim/src/goldens/*.json`) are saves replayed turn by turn against a stored result. `packages/sim/src/engine/goldens.test.ts` replays them. The scripts that make them are in `packages/sim/src/goldens/scripts.ts`.
-- **Recorded lives** (`packages/sim/src/goldens/lives.data.ts`, and `packages/sim/src/sweep/lives.data.ts` for the lives the sweep plays beside them) are the simulated players' lives on the real content, made by `pnpm record:lives`.
+- **Recorded lives** (`packages/sim/src/goldens/lives.data.ts`, and `packages/sim/src/simulated-play/lives.data.ts` for the simulated lives played beside them) are the simulated players' lives on the real content, made by `pnpm record:lives`.
 - **Only the maintainer re-records and blesses.** A contributor never touches `packages/sim/src/goldens/` or the recorded lives. If your change moves a golden, that is a finding: stop and say which golden, from which month, and why.
 - **When the maintainer re-records**: after a content or rule change moves the world's schedule. `pnpm record:lives` records every life; `pnpm record:lives ada-abroad` records only the names given; `RECORD_FROM=<n>` starts the seed search further on when the first seed fails a coupled test. Then `pnpm bless`, which rewrites the goldens and prints which changed and from which month. The commit says why each moved.
 - **Coupled tests** read the recorded lives and move with them: find them with
   ```sh
-  grep -rlE "lifeSaves|sweepLifeSaves" packages apps tools
+  grep -rlE "lifeSaves|simulatedLifeSaves" packages apps tools
   ```
-  They include the route, chapter, wallet and engine tests in the simulation, the sweeps, the server's upgrade and life routes, some client tests and the browser specs. A re-record runs all of them.
+  They include the route, chapter, wallet and engine tests in the simulation, simulated play, the server's upgrade and life routes, some client tests and the browser specs. A re-record runs all of them.
 
 ## Words and the voice
 
 - The simulation never holds prose. It emits a key and numbers; content holds the words. Read `docs/rules/text.md` before writing any player-facing text.
 - Content words: `packages/content/src/<kind>/<kind>.text.ts`, a table from key to text: `<id>.name`, `<id>.blurb`, `<id>.choice.<choice>`, `line.<kind>.<what>` for a report line, `reject.<code>` for a rejection. Numbers go in braces: `"Salary: {amount}"`. Money in a line is a typed `{ currency, amount }` param, never a bare number.
-- Interface words: content's tables in `packages/content/src/ui/`, one `ui.<screen>.text.ts` file each, merged into `text` through `textTables` in content's `index.ts`; words a first visit does not carry get a file of their own, a subpath in content's `package.json` and a dynamic import in the client (engine:first-download-has-budget). The client reads them through `say` and each feature's reader (`features/<kind>/<kind>.words.ts`); the functions that read a view into words sit in `apps/client/src/shared/words/`. The walk in `apps/client/src/sweep/voice.test.ts` reads every table in `textTables`.
+- Interface words: content's tables in `packages/content/src/ui/`, one `ui.<screen>.text.ts` file each, merged into `text` through `textTables` in content's `index.ts`; words a first visit does not carry get a file of their own, a subpath in content's `package.json` and a dynamic import in the client (engine:first-download-has-budget). The client reads them through `say` and each feature's reader (`features/<kind>/<kind>.words.ts`); the functions that read a view into words sit in `apps/client/src/shared/words/`. The walk in `apps/client/src/cross-feature/voice.test.ts` reads every table in `textTables`.
 - The voice (text:voice-by-surface): Nigerian English as spoken in Lagos. Second person, present tense. The band and buttons: the act in the second person ("Next month", "Pay it"). A card: the person asking, in their own voice. The results: the past month, past tense, what happened. The nudge: one thing to do, imperative, under eight words. Say a quality by its band, never its figure (text:bands-not-figures); never a system word for a thing a person would name.
 - First drafts are plain and correct. The maintainer rewrites for voice.
 

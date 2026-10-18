@@ -1,0 +1,18 @@
+{
+  "name": "building_castel-row_b",
+  "storeys": 2,
+  "depth": 7.0,
+  "wall": "wallCream",
+  "trim": "white",
+  "shutters": "darkWood",
+  "units": [
+    { "kind": "shop", "width": 3.8, "awning": "blue" },
+    { "kind": "shutter", "width": 3.2 }
+  ],
+  "signs": ["place.castel-volturno.sign.call-shop"],
+  "styles": [
+    { "board": "blue", "ink": "white" }
+  ],
+  "balconies": [1],
+  "seed": 1394
+}

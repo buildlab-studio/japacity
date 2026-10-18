@@ -25,14 +25,14 @@ Positions in thousandths of a degree (city:positions-rough-on-purpose); made-up 
 |---|---|---|---|---|---|
 | `place.the-room` | The basement room, north-east Calgary | the home, country-less; its sticker at the country's home spot | 51088, -113955 (made up) | interior | the bed, the cooking corner (`activity.cook-own-ca`), the laptop, the phone, the post, the bag |
 | `place.calgary-north-east` | The strip mall, north-east Calgary | the hub, at a made-up spot in the north-east so the paper reads right | 51090, -113960 (made up) | exterior | the jobs notice (`activity.job-hunt`), the coffee shop (`activity.coffee-ca`), the African store (`activity.naija-shop-ca`) with its transfer counter (`activity.send-money`), the bus stop, the bench, the find |
-| `place.ctrain-station-ca` | The CTrain station | its own scene | 51073, -113977 (made up, on the north-east line) | exterior | the ticket machine (`activity.transit-pass-ca`), the platform (the train's stop) |
-| `place.big-shop-ca` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-ca`), the notice (overtime) |
-| `place.warehouse-ca` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-ca-warehouse`), the rota board (`activity.overtime`), the shelter |
-| `place.care-home-ca` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-ca-care-aide`), the rota board (`activity.overtime`), the tea point |
-| `place.office-ca` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-ca-professional`), the glass office (`activity.job-ca-dev`), the kitchen |
-| `place.library-ca` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-ca`), the shelves, the notice |
-| `place.church-ca` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-ca`), the hall (the people a life can meet, world:nobody-picked-from-list) |
-| `place.registry-ca` | The registry | not in content: `activity.driving-test` is the UK's alone (car:licence-and-driving-test), and no licence act reaches Canada | | | |
+| `place.ctrain-station-canada` | The CTrain station | its own scene | 51073, -113977 (made up, on the north-east line) | exterior | the ticket machine (`activity.transit-pass-ca`), the platform (the train's stop) |
+| `place.big-shop-canada` | The superstore | on the scene `big-shop-uk` | 51095, -113980 (made up) | interior | the trolley (`activity.weekly-shop-ca`), the notice (overtime) |
+| `place.warehouse-canada` | The warehouse by the airport | on the scene `warehouse-uk` | 51110, -113990 (made up) | interior | the clock-in (`activity.job-ca-warehouse`), the rota board (`activity.overtime`), the shelter |
+| `place.care-home-canada` | The care home | on the scene `care-home-uk` | 51080, -113995 (made up) | interior | the door (`activity.job-ca-care-aide`), the rota board (`activity.overtime`), the tea point |
+| `place.office-canada` | The office downtown | on the scene `office-uk` | 51046, -114063 | interior | the desk (`activity.job-ca-professional`), the glass office (`activity.job-ca-dev`), the kitchen |
+| `place.library-canada` | The library | its own scene | 51092, -113972 (made up) | interior | the course desk (`activity.learn-tech-ca`), the shelves, the notice |
+| `place.church-canada` | The church hall | on the scene `church-uk` | 51085, -113965 (made up) | interior | the pews (`activity.community-ca`), the hall (the people a life can meet, world:nobody-picked-from-list) |
+| `place.registry-canada` | The registry | not in content: `activity.driving-test` is the UK's alone (car:licence-and-driving-test), and no licence act reaches Canada | | | |
 | `place.calgary-airport` | Calgary International Airport | the airport | 51122, -114014, on the paper | interior | the arrival; December's flight and the way home stay on the room's bag |
 
 ### Dubai (seven stops)
@@ -57,9 +57,9 @@ The UAE has no test centre: the Gulf route sits no test there.
 | `place.the-room` | The room in a shared flat, the Domitiana | the home, country-less; its sticker at the country's home spot | 40950, 14010 (made up) | interior | the bed, the cooking corner (`activity.cook-own-it`), the phone, the post, the bag |
 | `place.castel-volturno` | Castel Volturno (its real name; the roundabout is its thing) | the hub | 41034, 13941 | exterior | the roundabout (`activity.job-hunt`: the vans at dawn), the bar (`activity.coffee-it`), the African shop (`activity.naija-shop-it`), the call shop (`activity.send-money`), the bus stop, the find |
 | `place.via-domitiana` | Via Domitiana (its real name) | its own scene | 40929, 14025 | exterior | the bus stop, the pickup point (`activity.overtime`: the second shift), the Nigerian shop (`activity.street-shopping-it`), the barber (`activity.barber-it`), the market stall (`activity.buy-clothes-it`) |
-| `place.farm-it` | The fields | its own scene; `shuttle: true` | 41010, 13990 (made up, inland) | exterior | the gangmaster's table (`activity.job-it-farm-cash`), the crates, the van, the water tap (a colleague's line) |
-| `place.big-shop-it` | The discount supermarket | on the scene `big-shop-uk` | 41030, 13950 (made up) | interior | the trolley (`activity.weekly-shop-it`) |
-| `place.church-it` | The church | on the scene `church-uk` | 41028, 13945 (made up) | interior | the pews (`activity.community-it`), the hall (world:nobody-picked-from-list) |
+| `place.farm-italy` | The fields | its own scene; `shuttle: true` | 41010, 13990 (made up, inland) | exterior | the gangmaster's table (`activity.job-it-farm-cash`), the crates, the van, the water tap (a colleague's line) |
+| `place.big-shop-italy` | The discount supermarket | on the scene `big-shop-uk` | 41030, 13950 (made up) | interior | the trolley (`activity.weekly-shop-it`) |
+| `place.church-italy` | The church | on the scene `church-uk` | 41028, 13945 (made up) | interior | the pews (`activity.community-it`), the hall (world:nobody-picked-from-list) |
 | `place.naples-airport` | Naples Airport | the airport | 40884, 14285, on an inset | interior | the assisted return; the way home stays on the room's bag |
 
 ## 4. The ways and the fares
@@ -97,7 +97,7 @@ Step 25 fils. `lonMetresPerE3` 100.
 |---|---|---|---|---|
 | Bus | €1.60 | nothing | 200 m a minute | The coast road's bus, slow and rare |
 | Walk | nothing | nothing | 80 m a minute | |
-| The van | nothing | | | `place.farm-it` is `shuttle`: the bus way to it asks nothing, "€0, the van" |
+| The van | nothing | | | `place.farm-italy` is `shuttle`: the bus way to it asks nothing, "€0, the van" |
 
 No train, no taxi, no pass. Step 5 cents. `lonMetresPerE3` 84. Naples airport is reached by bus at the flat fare (the design's airport on an inset keeps its stop reachable; the December flight and the return stay on the bag).
 
@@ -159,4 +159,4 @@ Three descriptors in `apps/client/src/features/map/paper/city.ts`, as London's: 
 
 ## 7. The recorded lives
 
-The recorded lives that go abroad (ada-abroad, tunde-abroad and zainab-abroad) all fly to the UK, so no golden of theirs rests on these countries or their upkeep figures. `packages/sim/src/sweep/lives.countries.data.ts` records a points life to Calgary (`zainab-canada`) and a contract life to Dubai (`tunde-gulf`); no recorded life takes the road to Castel Volturno.
+The recorded lives that go abroad (ada-abroad, tunde-abroad and zainab-abroad) all fly to the UK, so no golden of theirs rests on these countries or their upkeep figures. `packages/sim/src/simulated-play/lives.countries.data.ts` records a points life to Calgary (`zainab-canada`) and a contract life to Dubai (`tunde-gulf`); no recorded life takes the road to Castel Volturno.

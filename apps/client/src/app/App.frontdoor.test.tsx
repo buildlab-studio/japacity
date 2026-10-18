@@ -91,8 +91,8 @@ describe("the front door", () => {
     expect(lookOf(document.querySelector("[data-gate]")?.getAttribute("data-look"))).not.toBeNull();
     const passersBy = ROSTER.filter((person) => person.role === "passer-by").map((person) => person.file);
     expect(LOOKS.map((look) => look.file).sort()).toEqual([...passersBy].sort());
-    for (const id of ["chr_ada", "chr_tunde", "chr_zainab", "chr_ngozi", "chr_tobi", "chr_femi", "chr_kemi", "chr_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
-    for (const id of ["chr_hawker_a", "chr_corper", "chr_chief", "chr_rider", "chr_iya"]) expect(LOOKS.some((look) => look.id === id)).toBe(false);
+    for (const id of ["person_ada", "person_tunde", "person_zainab", "person_ngozi", "person_tobi", "person_femi", "person_kemi", "person_bisi"]) expect(LOOKS.some((look) => look.id === id)).toBe(true);
+    for (const id of ["person_hawker_a", "person_corper", "person_chief", "person_rider", "person_iya"]) expect(LOOKS.some((look) => look.id === id)).toBe(false);
     // The name and the look share the first screen; the name is filled already, never one of a starting life's people.
     const box = screen.getByRole<HTMLInputElement>("textbox", { name: say("prologue.door.name.title") });
     expect(box.value.length).toBeGreaterThan(1);
@@ -149,17 +149,17 @@ describe("the front door", () => {
     const { store, storage } = door();
     // Settings' run opens on the ready lives; the look is a screen back.
     fireEvent.click(await screen.findByRole("button", { name: say("ui.door.back") }, { timeout: 10_000 }));
-    const look = LOOKS.find((one) => one.id === "chr_femi")!;
+    const look = LOOKS.find((one) => one.id === "person_femi")!;
     fireEvent.click(document.querySelector(`[role="radio"][data-look="${look.id}"]`)!);
     await startReadyLife("scenario.ngozi", "Obinna");
     await waitFor(() => expect(store.getState().view?.scenario).toBe("scenario.ngozi"));
     expect(storage.getItem(SAVE_KEY)).not.toBeNull();
-    expect(readPerson()).toEqual({ look: "chr_femi", name: "Obinna", archetype: null });
+    expect(readPerson()).toEqual({ look: "person_femi", name: "Obinna", archetype: null });
     expect(localStorage.getItem(PERSON_KEY)).not.toBeNull();
     // The life's own person was Ngozi; the city and the ride draw the look built at the door.
     expect(ownFile("scenario.ngozi")).toBe(look.file);
     expect(ownLook("scenario.ngozi")).toBe(look.file);
-    expect(ownFile("scenario.ngozi", null)).toBe("shared/chr/chr_ngozi.glb");
+    expect(ownFile("scenario.ngozi", null)).toBe("shared/person/person_ngozi.glb");
   });
 
   test("[prologue:front-door-three-screens] given a run Settings asked for, then it opens on the five fixed lives unnamed by their kind and blurb, each with Pick, and a pick goes on to Where you live, whose Begin starts that life", async () => {

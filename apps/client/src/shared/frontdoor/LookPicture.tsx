@@ -123,7 +123,7 @@ function useFigureInColours(look: string, style: LookStyle | undefined, view: Ex
     // the last is drawn (110 to 440 ms a colour under 4x CPU throttling).
     const wait = afterPaint(() => {
       void import("../datapage/photoRender")
-        .then(({ renderFigure }) => renderFigure(`shared/chr/${look}.glb`, style, view))
+        .then(({ renderFigure }) => renderFigure(`shared/person/${look}.glb`, style, view))
         .then((src) => {
           if (src === null) return;
           keepStill(key, src);

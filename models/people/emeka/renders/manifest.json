@@ -1,0 +1,229 @@
+{
+  "asset": "person_emeka",
+  "file": "public/assets/shared/person/person_emeka.glb",
+  "fileSha256": "e4f5801399fa3f481a6990ff1e624e46ade83b1a08e24aaf888b3a702de276a2",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/emeka/renders/front.png",
+      "sha256": "d02b12db2856404ea7337a8e1ff3af085b07c9ca00bdd0b279e6ecca0e4ec053",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8562597698701263,
+          17.384702797699866
+        ],
+        "target": [
+          0,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "width": 2.4660281734421,
+        "height": 1.849521130081575
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/emeka/renders/back.png",
+      "sha256": "fec5221da15810cc12578641ee14b5380a106c539a72aef6b3c96ac073261df2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8562597698701263,
+          -17.36712722079843
+        ],
+        "target": [
+          0,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "width": 2.4660281734421,
+        "height": 1.849521130081575
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/emeka/renders/left.png",
+      "sha256": "898c2e268bab4f3961b64730195752ee33d87e71bf4c172deebe9b9747579927",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.375915009249148,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "target": [
+          0,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "width": 2.4660281734421,
+        "height": 1.849521130081575
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/emeka/renders/right.png",
+      "sha256": "d915363cbfd4355a8cd5ff302ede71b3e7e2eb2932b7c192e18d0cc858ea9bf5",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.375915009249148,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "target": [
+          0,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "width": 2.4660281734421,
+        "height": 1.849521130081575
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/emeka/renders/threeQuarter.png",
+      "sha256": "21273235eca44ebe54cbe56f4192ddcf2e367201e380a4c8635360f28794cb45",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.130280612438911,
+          2.5956266063431195,
+          2.1390684008896295
+        ],
+        "target": [
+          0,
+          0.8562597698701263,
+          0.008787788450717926
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/emeka/renders/phone.png",
+      "sha256": "1aabaacceccdde7ee07e66f8bcdd4071f3c2cd45d6a07a4e14aa38d9a64bb4d9",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.197694366058306
+        ],
+        "target": [
+          0,
+          1.5,
+          0.19769436605830623
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/emeka/renders/face.png",
+      "sha256": "75867b26a2d8e27e31d15c7125d191c1431a49c9df3910ae4cf9f0ccd5fa90ab",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.74466600544207,
+          1.5412675958262652,
+          1.6057291905894453
+        ],
+        "target": [
+          0,
+          1.4727668132306513,
+          0.008787788450717926
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/emeka/renders/figure.png",
+      "sha256": "6fbcd4e6da431c152acbdc25cad6b2ba13695894dad13de5651b85c413b87d06",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8985512553621233,
+          1.059466461003932,
+          4.035791664196898
+        ],
+        "target": [
+          0.020728508681819025,
+          0.8534037501226859,
+          0.008787788450717926
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/emeka/renders/cheer.png",
+      "sha256": "f8f6920d7134332bdb06ff3991da723155bc28ef655910d2b9cbbc9f19df4102",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.023342815525751,
+          1.1471619241890925,
+          4.328267738173934
+        ],
+        "target": [
+          0,
+          0.9251305815895816,
+          -0.010804932284334129
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "piece": "places/bode-thomas/shopfront_lotto-kiosk.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/shopfronts/lotto-kiosk/renders/back.png",
+    "models/shopfronts/lotto-kiosk/renders/front.png",
+    "models/shopfronts/lotto-kiosk/renders/left.png",
+    "models/shopfronts/lotto-kiosk/renders/phone.png",
+    "models/shopfronts/lotto-kiosk/renders/plan.png",
+    "models/shopfronts/lotto-kiosk/renders/right.png",
+    "models/shopfronts/lotto-kiosk/renders/threeQuarter.png",
+    "models/shopfronts/lotto-kiosk/renders/manifest.json",
+    "models/register.json, the row for places/bode-thomas/shopfront_lotto-kiosk.glb"
+  ],
+  "scores": {
+    "phone": 5,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 28,
+  "mean": 4.0,
+  "accepted": true,
+  "failing": [],
+  "reasons": {
+    "phone": "FIVE-FIVE LOTTO on its board, the counter window, the chalked results board and the bench: named in one look, and the board is the key part.",
+    "silhouette": "The front says kiosk; the back and the sides are a plain green box with the board's posts: two of four.",
+    "proportion": "Kiosk about 2.4 m to the roof, counter, bench and the person agree.",
+    "palette": "Green kiosk, yellow board, red crates: reads against sand.",
+    "wear": "Crates, bench, stool, the results board, a hood over the window: a lotto kiosk's things.",
+    "variety": "Its own, the same family as the shop row's boards.",
+    "budget": "Read from the register row: triangles 272 of 1,200 (22%), draw calls 2 of 2 (100%), materials 2 of 2 (100%), bytes 5,132 of 30,000 (17%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "The kiosk shows a made-up business name, for a person's last check (assets:acceptance-score-thresholds)."
+}

@@ -6,13 +6,13 @@ import { describe, expect, test } from "vitest";
 import calgary from "../../../../public/assets/places/calgary-north-east/place.json";
 import castel from "../../../../public/assets/places/castel-volturno/place.json";
 import deira from "../../../../public/assets/places/deira/place.json";
-import farm from "../../../../public/assets/places/farm-it/place.json";
+import farm from "../../../../public/assets/places/farm-italy/place.json";
 import site from "../../../../public/assets/places/site-uae/place.json";
 import { engineView } from "../../../shared/testing/fixtures";
 import { stepWayOf } from "./nudge";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
 
-const FILES: Readonly<Record<string, unknown>> = { "place.calgary-north-east": calgary, "place.castel-volturno": castel, "place.deira": deira, "place.farm-it": farm, "place.site-uae": site };
+const FILES: Readonly<Record<string, unknown>> = { "place.calgary-north-east": calgary, "place.castel-volturno": castel, "place.deira": deira, "place.farm-italy": farm, "place.site-uae": site };
 
 function landing(step: "job" | "request", country: "country.uk" | "country.canada" | "country.uae" | "country.italy") {
   const base = engineView();
@@ -26,7 +26,7 @@ describe("the landing's steps abroad", () => {
     expect(landing("job", "country.uae")?.go).toBe("place.site-uae");
     expect(landing("job", "country.italy")?.go).toBe("place.castel-volturno");
     const at = landing("job", "country.canada")?.at ?? [];
-    for (const door of ["place.calgary-north-east:jobs-notice", "place.warehouse-ca:clock-in", "place.care-home-ca:reception", "place.office-ca:desk", "place.site-uae:guard-post", "place.site-uae:cleaner-trolley", "place.castel-volturno:roundabout", "place.farm-it:table"]) expect(at).toContain(door);
+    for (const door of ["place.calgary-north-east:jobs-notice", "place.warehouse-canada:clock-in", "place.care-home-canada:reception", "place.office-canada:desk", "place.site-uae:guard-post", "place.site-uae:cleaner-trolley", "place.castel-volturno:roundabout", "place.farm-italy:table"]) expect(at).toContain(door);
   });
 
   test("[world:nudge-says-one-thing] [world:ride-abroad-and-workplace] given the landing's money step in each country, when its way is read, then it goes to the country's counter, and every door it names is a thing of that place's file", () => {

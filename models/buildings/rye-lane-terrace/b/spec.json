@@ -1,0 +1,14 @@
+{
+  "name": "building_rye-lane-terrace_b",
+  "units": 2,
+  "storeys": 2,
+  "brick": "zincRust",
+  "soot": "darkWood",
+  "fronts": ["blue", "red"],
+  "signs": ["place.peckham.sign.4", "place.peckham.sign.5"],
+  "styles": [
+    { "board": "white", "ink": "blue", "border": "blue" },
+    { "board": "danfoYellow", "ink": "black" }
+  ],
+  "seed": 1901
+}

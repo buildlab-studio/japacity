@@ -3,7 +3,7 @@ packages:
   - apps/*
   - tools
   # The city's model sources: builders, specs, outlines and the stage (decision 0009)
-  - assets-src
+  - models
 allowBuilds:
   esbuild: false
   # workerd downloads its binary for the server's local runtime

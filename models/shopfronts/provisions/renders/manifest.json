@@ -1,0 +1,206 @@
+{
+  "asset": "shopfront_provisions",
+  "file": "public/assets/places/ojuelegba/shopfront_provisions.glb",
+  "fileSha256": "b97f7834f769035352b2ad049f22e4898aded671a689050087b6691a75a76e7d",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/shopfronts/provisions/renders/front.png",
+      "sha256": "70a0fe1784c20cc4bcc608336b82f98349d15923b4d2d9a5fe467ab39293c773",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.9924999460577963,
+          42.61114109580376
+        ],
+        "target": [
+          0,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "width": 5.7383045586844945,
+        "height": 4.303728419013371
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/shopfronts/provisions/renders/back.png",
+      "sha256": "5492bc281bf005c085c75d98aea51d97d560fdd00b43de7d5c41bbd3d3a770c9",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.9924999460577963,
+          -41.186141024278186
+        ],
+        "target": [
+          0,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "width": 5.7383045586844945,
+        "height": 4.303728419013371
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/shopfronts/provisions/renders/left.png",
+      "sha256": "dc66f8eed446b39086957f097b55a4b20bb83ec709329d6304a732fb572875dc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -41.89864106004097,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "target": [
+          0,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "width": 5.750999922752381,
+        "height": 4.313249942064286
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/shopfronts/provisions/renders/right.png",
+      "sha256": "c1103b59de5bc98245468a81eaec2f10875997ea6d49f99efabb57db13941ffd",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          41.89864106004097,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "target": [
+          0,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "width": 5.750999922752381,
+        "height": 4.313249942064286
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/shopfronts/provisions/renders/threeQuarter.png",
+      "sha256": "4596b24b9871156a55c51e428a48bf383621587816190fe16f83f097ddf9f980",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          9.212830750915952,
+          9.514744754846486,
+          9.92533078667874
+        ],
+        "target": [
+          0,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/shopfronts/provisions/renders/plan.png",
+      "sha256": "0f6c09970b2e7e7cac784df22a7a8dff021c58bf69502f8c9c10b8554316c8e8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          43.89114100609877,
+          0.7125000357627869
+        ],
+        "target": [
+          0,
+          1.9924999460577963,
+          0.7125000357627869
+        ],
+        "width": 7.667999897003174,
+        "height": 5.7509999227523805
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/shopfronts/provisions/renders/phone.png",
+      "sha256": "49221f1d13957255ae7be856e7e8507f63e33add0346c2f7fc1f213eed324ef0",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          15.375
+        ],
+        "target": [
+          0,
+          1.7932201745889047,
+          3.375
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/shopfronts/provisions/renders/tile.png",
+      "sha256": "724507d9a3dd23ad0abfdac04214e7beea0a9fda327ccce86c228105d02f9d17",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          8.476861903301387,
+          8.082848603431682,
+          9.030789671581243
+        ],
+        "target": [
+          0.31389925535511715,
+          1.4178175111428155,
+          0.8678270236349721
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

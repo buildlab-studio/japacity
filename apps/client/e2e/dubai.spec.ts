@@ -1,5 +1,5 @@
 // Dubai on the mold in a real browser at phone size (world:painted-maps-abroad, world:ride-abroad-and-workplace; place.md
-// place:rides-between-city-places, place:country-pass-covers-ways, place:employer-shuttle-rides-free; streets:dubai-life-by-hand): a contract life played by the sweep's own
+// place:rides-between-city-places, place:country-pass-covers-ways, place:employer-shuttle-rides-free; streets:dubai-life-by-hand): a contract life played by a simulated
 // player lands in Dubai holding the guard's job, buys the month's zone pass at Union station's Nol machine, rides the bus
 // to the hypermarket for nothing and does the weekly shop, rides the labour bus to the site, where the guard's post says
 // On shift, and back to the camp, and the shuttle asks nothing either way.
@@ -12,7 +12,7 @@ import { doAct, LIVED, placeReady, seedSave } from "./support/live";
 
 test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, launchOptions: SOFTWARE_WEBGL });
 
-/** The sweep's borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
+/** The simulated borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
 const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
 
 test("[world:ride-abroad-and-workplace] [place:country-pass-covers-ways] [place:employer-shuttle-rides-free] [streets:dubai-life-by-hand] given a contract life landed in Dubai, when it buys the zone pass, rides to the hypermarket for the weekly shop and takes the labour bus to the site and back, then the bus asks nothing in the pass month, the shop takes dirhams, the site says On shift and the shuttle is free both ways", async ({ page }) => {

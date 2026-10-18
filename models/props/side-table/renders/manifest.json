@@ -1,0 +1,33 @@
+{
+  "asset": "prop_side-table",
+  "file": "public/assets/places/the-room/prop_side-table.glb",
+  "fileSha256": "deb30c90a5b641f9795fef03d69e231d20382d6651dff8ecebde000704f203aa",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/side-table/renders/tile.png",
+      "sha256": "076b1a745fcd0a145e403e7af1fc883da11c438aa7c54f41b9d54187e3b8a5fe",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.454242606866034,
+          1.678116935248641,
+          1.4494288687983252
+        ],
+        "target": [
+          0.0019229192374113698,
+          0.49230287588584776,
+          -0.0028908188302976838
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

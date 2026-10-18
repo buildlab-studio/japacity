@@ -1,0 +1,181 @@
+{
+  "asset": "prop_phone",
+  "file": "public/assets/shared/prop/prop_phone.glb",
+  "fileSha256": "b4f34c33839fd2b5f31d23117c858990ed8431059a73d3df269098fa09a9962b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/home/phone/renders/front.png",
+      "sha256": "6dbdd6b53ba819560d3bd33b1a8c7c9b86f1a21ed95ee071f70e97e7ac6ecc97",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.02348470687866211,
+          0.23399999719113113,
+          13.837094587532935
+        ],
+        "target": [
+          0.02348470687866211,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "width": 0.6739248869493096,
+        "height": 0.5054436652119823
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/home/phone/renders/back.png",
+      "sha256": "8d839cc486d7f9df73f536215c9cc63c8c0eb61a25555247584e1f867c034f8e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.02348470687866211,
+          0.23399999719113113,
+          -13.78659610196775
+        ],
+        "target": [
+          0.02348470687866211,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "width": 0.6739248869493096,
+        "height": 0.5054436652119823
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/home/phone/renders/left.png",
+      "sha256": "e07d9e97267cd44085e6d2aee390fae91b5002878d2bd2e947b8ca0a2f018a6d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -13.78836063787168,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "target": [
+          0.02348470687866211,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "width": 0.6739248869493096,
+        "height": 0.5054436652119823
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/home/phone/renders/right.png",
+      "sha256": "f4246ba7de7c19f731278f268d8d921216fedb7d0d4566d1aa8f1092b8f90a00",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          13.835330051629004,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "target": [
+          0.02348470687866211,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "width": 0.6739248869493096,
+        "height": 0.5054436652119823
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/home/phone/renders/threeQuarter.png",
+      "sha256": "7cf10680ad2b0193ffab6f9a648b92030d8287071a5f722bd124b889ec40d5dc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.12440577570261,
+          1.1328982857571823,
+          1.126170311606541
+        ],
+        "target": [
+          0.02348470687866211,
+          0.23399999719113113,
+          0.025249242782592773
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/home/phone/renders/phone.png",
+      "sha256": "07af0ccb3d760eee045e7bfc4790d6823b5cc4a782a36cb32a73b5507356e5b9",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.02348470687866211,
+          1.6,
+          12.310495746946279
+        ],
+        "target": [
+          0.02348470687866211,
+          1.5,
+          0.3104957469462781
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/home/phone/renders/tile.png",
+      "sha256": "ddbdb291a1c17cc8477abf1ff4691ff20365aa242c7d85bc96a75b5940ce4d0a",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.9624012420320756,
+          0.9622321203257882,
+          0.9421701671529152
+        ],
+        "target": [
+          0.043487555212729775,
+          0.21194223687010116,
+          0.023256480333569335
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

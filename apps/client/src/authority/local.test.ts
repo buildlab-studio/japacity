@@ -158,7 +158,7 @@ describe("the local authority", () => {
 
 describe("a life from sixteen through a tile, where a life may be started over", () => {
   const PROLOGUE = "scenario.prologue" as Id<"scenario">;
-  const keepTile = (storage: ReturnType<typeof memoryStorage>, archetype: string | null) => storage.setItem(PERSON_KEY, JSON.stringify({ look: "chr_ada", name: "Ada", archetype }));
+  const keepTile = (storage: ReturnType<typeof memoryStorage>, archetype: string | null) => storage.setItem(PERSON_KEY, JSON.stringify({ look: "person_ada", name: "Ada", archetype }));
   const seedOf = (storage: ReturnType<typeof memoryStorage>) => lifeStart(storedSave(storage))?.seed;
 
   test("[prologue:tile-path-open-from-start] given a named seed, when a new life is started on it, then the life is on that seed and its world on a fresh one", async () => {

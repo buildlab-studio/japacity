@@ -5,7 +5,7 @@
   "note": "Makoko's frontage on the lagoon (world:place-is-one-screen, home:home-is-the-home-point). Counts are the most in view from the whole view; the crowd is the place's busy figures under the rule's outdoor caps.",
   "instances": [
     {
-      "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+      "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
       "count": 2
     },
     {
@@ -13,19 +13,19 @@
       "count": 8
     },
     {
-      "file": "places/makoko/bld_makoko-house_a.glb",
+      "file": "places/makoko/building_makoko-house_a.glb",
       "count": 8
     },
     {
-      "file": "places/makoko/bld_makoko-house_b.glb",
+      "file": "places/makoko/building_makoko-house_b.glb",
       "count": 2
     },
     {
-      "file": "places/third-mainland-bridge/bld_stilt-house.glb",
+      "file": "places/third-mainland-bridge/building_stilt-house.glb",
       "count": 6
     },
     {
-      "file": "places/makoko/bld_makoko-school.glb",
+      "file": "places/makoko/building_makoko-school.glb",
       "count": 1
     },
     {
@@ -85,21 +85,21 @@
     "low": 6,
     "high": 10,
     "sample": [
-      "shared/chr/chr_iya.glb",
-      "shared/chr/chr_obi.glb",
-      "shared/chr/chr_nonso.glb",
-      "shared/chr/chr_hawker_a.glb",
-      "shared/chr/chr_emeka.glb",
-      "shared/chr/chr_kunle.glb",
-      "shared/chr/chr_dayo.glb",
-      "shared/chr/chr_segun.glb",
-      "shared/chr/chr_zainab.glb",
-      "shared/chr/chr_femi.glb",
-      "shared/chr/chr_bayo.glb",
-      "shared/chr/chr_ngozi.glb",
-      "shared/chr/chr_ada.glb",
-      "shared/chr/chr_musa.glb",
-      "shared/chr/chr_tunde.glb"
+      "shared/person/person_iya.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_nonso.glb",
+      "shared/person/person_hawker_a.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_musa.glb",
+      "shared/person/person_tunde.glb"
     ]
   },
   "groundRoadSky": {
@@ -256,7 +256,7 @@
     ],
     "models": [
       {
-        "file": "places/third-mainland-bridge/lm_third-mainland-span.glb",
+        "file": "places/third-mainland-bridge/landmark_third-mainland-span.glb",
         "at": [
           [
             -22.5,
@@ -316,7 +316,7 @@
         ]
       },
       {
-        "file": "places/makoko/bld_makoko-house_a.glb",
+        "file": "places/makoko/building_makoko-house_a.glb",
         "at": [
           [
             -7.5,
@@ -361,7 +361,7 @@
         ]
       },
       {
-        "file": "places/makoko/bld_makoko-house_b.glb",
+        "file": "places/makoko/building_makoko-house_b.glb",
         "at": [
           [
             -3,
@@ -384,7 +384,7 @@
         ]
       },
       {
-        "file": "places/third-mainland-bridge/bld_stilt-house.glb",
+        "file": "places/third-mainland-bridge/building_stilt-house.glb",
         "at": [
           [
             -10,
@@ -419,7 +419,7 @@
         ]
       },
       {
-        "file": "places/makoko/bld_makoko-school.glb",
+        "file": "places/makoko/building_makoko-school.glb",
         "at": [
           [
             5.6,
@@ -798,7 +798,7 @@
     "things": [
       {
         "id": "room",
-        "file": "places/makoko/bld_makoko-house_a.glb",
+        "file": "places/makoko/building_makoko-house_a.glb",
         "copy": 0,
         "label": "place.makoko.thing.room",
         "at": [
@@ -928,7 +928,7 @@
       },
       {
         "id": "school",
-        "file": "places/makoko/bld_makoko-school.glb",
+        "file": "places/makoko/building_makoko-school.glb",
         "copy": 0,
         "label": "place.makoko.thing.school",
         "at": [

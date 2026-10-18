@@ -6,7 +6,7 @@
 // to it and floats its name and acts over it (world:things-are-tappable-models, world:nothing-roams). The street camera at a person's eyes, the plan
 // view while the screen is held and the routed walks serve a scene with no `overview` and `tuning.city.roam`,
 // which the content keeps off. Nothing here sends a command (city:places-change-no-state).
-import { type Footprint, footprintOf, onWalkable } from "@japacity/assets";
+import { type Footprint, footprintOf, onWalkable } from "@japacity/model-kit";
 import { Canvas, type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
 import { type MutableRefObject, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import type { WorldClock } from "@japacity/sim";

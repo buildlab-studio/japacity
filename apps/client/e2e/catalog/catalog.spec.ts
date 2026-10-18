@@ -42,7 +42,7 @@ async function signedOut(page: Page): Promise<void> {
  * 503 or behind a wall; every other /api route not found.
  */
 async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Bayo", archetype: "developer" })));
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
@@ -62,7 +62,7 @@ async function opening(page: Page, view: "hold" | "down" | "wall"): Promise<void
 async function pageWaiting(page: Page): Promise<void> {
   const game = start({ scenario: "scenario.prologue", content });
   const view = viewReply(game);
-  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "chr_ada", name: "Bayo", archetype: "developer" })));
+  await page.addInitScript(() => localStorage.setItem("japacity.person", JSON.stringify({ look: "person_ada", name: "Bayo", archetype: "developer" })));
   await page.route(
     (url) => url.pathname.startsWith("/api/"),
     (route) => {
@@ -630,14 +630,14 @@ test("places: London on the Lagos mold, its things, a colleague and the bus pass
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Calgary, Dubai and Castel Volturno on the mold (design page 11): each life is
-// played to its country by the sweep's own player on the real content, as the browser suite's specs play it (../abroad).
+// played to its country by a simulated player on the real content, as the browser suite's specs play it (../abroad).
 // ---------------------------------------------------------------------------------------------------------------------
 
-/** The sweep's borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
+/** The simulated borrower on Ada's life takes the Gulf contract and lands in Dubai in month 10, the guard's job hers. */
 const GULF: AbroadLife = { strategy: "borrower", life: "scenario.ada", seed: "three-ada-0", country: "country.uae", money: "AED", holding: 60_000 };
-/** The sweep's canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
+/** The simulated canada player on Zainab's life, the recorded zainab-canada: lands in Calgary in month 42, the warehouse job hers in month 45. */
 const POINTS: AbroadLife = { strategy: "canada", life: "scenario.zainab", seed: "golden-zainab-canada-0", country: "country.canada", money: "CAD", holding: 60_000 };
-/** The sweep's risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
+/** The simulated risky player from the front door's life takes the road and reaches Castel Volturno in month 28. */
 const ROAD: AbroadLife = { strategy: "risky", life: "scenario.prologue", seed: "three-prologue-0", country: "country.italy", money: "EUR", holding: 60_000 };
 
 /** A life played to its country opened in the world at `search`, past its opening words and every card. */
@@ -737,13 +737,13 @@ test("abroad on the mold: Castel Volturno, its places, a colleague, its map and 
   await shootPlaces(page, [
     { id: "place.castel-volturno", key: "place-castel-volturno", night: true },
     { id: "place.via-domitiana", key: "place-via-domitiana", night: false },
-    { id: "place.farm-it", key: "place-farm-it", night: false },
-    { id: "place.big-shop-it", key: "place-big-shop-it", night: false },
-    { id: "place.church-it", key: "place-church-it", night: false },
-    { id: "place.the-room", key: "place-the-room-it", night: false },
+    { id: "place.farm-italy", key: "place-farm-italy", night: false },
+    { id: "place.big-shop-italy", key: "place-big-shop-italy", night: false },
+    { id: "place.church-italy", key: "place-church-italy", night: false },
+    { id: "place.the-room", key: "place-the-room-italy", night: false },
   ]);
   await attempt(page, "castel-colleague", async () => {
-    await standIn(page, "place.farm-it", false, DAY);
+    await standIn(page, "place.farm-italy", false, DAY);
     await doAct(page, "colleague", "talk");
     await page.locator("[data-speech], [data-bubble]").first().waitFor({ state: "visible", timeout: 15_000 }).catch(() => undefined);
     await shot(page, "castel-colleague", 900);
@@ -762,25 +762,25 @@ test("abroad on the mold: Castel Volturno, its places, a colleague, its map and 
   await closeMap(page);
   await attempt(page, "map-castel-ride-sheet", async () => {
     await mapReady(page);
-    await pickStop(page, "place.farm-it");
+    await pickStop(page, "place.farm-italy");
     await shot(page, "map-castel-ride-sheet");
   });
   await closeMap(page);
   await countryRide(page, "italy-bus", "bus", "place.via-domitiana");
-  await countryRide(page, "van", "bus", "place.farm-it");
+  await countryRide(page, "van", "bus", "place.farm-italy");
 });
 
 test("abroad on the mold: Calgary, its places, its map and its rides", async ({ page }) => {
   await openAbroad(page, POINTS, DAY);
   await shootPlaces(page, [
     { id: "place.calgary-north-east", key: "place-calgary-north-east", night: false },
-    { id: "place.ctrain-station-ca", key: "place-ctrain-station-ca", night: false },
-    { id: "place.library-ca", key: "place-library-ca", night: false },
-    { id: "place.big-shop-ca", key: "place-big-shop-ca", night: false },
-    { id: "place.warehouse-ca", key: "place-warehouse-ca", night: false },
-    { id: "place.care-home-ca", key: "place-care-home-ca", night: false },
-    { id: "place.office-ca", key: "place-office-ca", night: false },
-    { id: "place.church-ca", key: "place-church-ca", night: false },
+    { id: "place.ctrain-station-canada", key: "place-ctrain-station-canada", night: false },
+    { id: "place.library-canada", key: "place-library-canada", night: false },
+    { id: "place.big-shop-canada", key: "place-big-shop-canada", night: false },
+    { id: "place.warehouse-canada", key: "place-warehouse-canada", night: false },
+    { id: "place.care-home-canada", key: "place-care-home-canada", night: false },
+    { id: "place.office-canada", key: "place-office-canada", night: false },
+    { id: "place.church-canada", key: "place-church-canada", night: false },
   ]);
   await standIn(page, "place.calgary-north-east", false, DAY);
   await attempt(page, "map-calgary", async () => {
@@ -795,12 +795,12 @@ test("abroad on the mold: Calgary, its places, its map and its rides", async ({ 
   await closeMap(page);
   await attempt(page, "map-calgary-ride-sheet", async () => {
     await mapReady(page);
-    await pickStop(page, "place.office-ca");
+    await pickStop(page, "place.office-canada");
     await shot(page, "map-calgary-ride-sheet");
   });
   await closeMap(page);
-  await countryRide(page, "calgary-bus", "bus", "place.big-shop-ca");
-  await countryRide(page, "ctrain", "train", "place.office-ca");
+  await countryRide(page, "calgary-bus", "bus", "place.big-shop-canada");
+  await countryRide(page, "ctrain", "train", "place.office-canada");
 });
 
 test("street: a thing's fan and sheet, the paper slip and a person, at Bode Thomas", async ({ page }) => {

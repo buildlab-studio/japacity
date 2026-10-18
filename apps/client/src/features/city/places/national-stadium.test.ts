@@ -4,7 +4,7 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import { STADIUM } from "@japacity/assets-src/lm/national-stadium/build";
+import { STADIUM } from "@japacity/models/landmarks/national-stadium/build";
 
 import raw from "../../../../public/assets/places/national-stadium/place.json";
 import { stagedAt } from "../../../shared/scene/staging";
@@ -43,7 +43,7 @@ describe("the National Stadium", () => {
   });
 
   test("[city:landmarks-built-to-outline] given the gate, when the place is read, then the landmark stands once at the origin with the south ramp's landing at the gate, a flagpole either side, and the player starts outside the bowl looking at it", () => {
-    const stadium = copiesOf(stage, "lm_national-stadium.glb");
+    const stadium = copiesOf(stage, "landmark_national-stadium.glb");
     expect(stadium).toHaveLength(1);
     expect(stadium[0]?.[0]).toBe(0);
     expect(stadium[0]?.[1]).toBe(0);

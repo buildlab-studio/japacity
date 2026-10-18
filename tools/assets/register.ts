@@ -1,10 +1,10 @@
-// The register (assets:register-matches-every-file): one row per shipped file, in assets-src/register.json, with the
+// The register (assets:register-matches-every-file): one row per shipped file, in models/register.json, with the
 // fonts the signs are lettered in (assets:sign-text-drawn-in-code). The export fills the measured columns; people
 // fill the rest; the check proves the measured columns still match the files.
 import { existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import type { RegisterRow } from "@japacity/assets";
+import type { RegisterRow } from "@japacity/model-kit";
 
 import { SOURCE } from "./catalog";
 import { readJson } from "../repo";

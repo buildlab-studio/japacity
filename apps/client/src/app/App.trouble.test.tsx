@@ -118,7 +118,7 @@ describe("the screens when a request brings no answer (engine:browser-authority-
   });
 
   test("[engine:browser-authority-for-dev-only] given a player whose life is kept on this device and the server down, then the card stands where the life is opening", async () => {
-    keepPerson({ look: "chr_ada", name: "Bayo", archetype: "developer" });
+    keepPerson({ look: "person_ada", name: "Bayo", archetype: "developer" });
     const store = createGameStore({ view: () => Promise.reject(requestFailure("server", "502")), send: unused }, { ...noPause, account: {} as AccountApi });
     render(<App store={store} />);
     expect(await screen.findByRole("alertdialog", { name: say("ui.trouble.server") })).toBeDefined();

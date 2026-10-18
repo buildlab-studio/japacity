@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 
 import { call, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
-import { jobCron, ticksJob, TICKS_CRON } from "../jobs/ticks";
+import { jobCron, ticksJob, TICKS_CRON } from "../scheduled/ticks";
 import { catchUp, lagosCalendar, makeTick } from "./ticks";
 
 const { epoch, worldTickMs } = productionConfig.clock;

@@ -2,8 +2,8 @@
 // glass front, the flag on its mast and the send-off's goodbye round a loaded trolley.
 import { describe, expect, test } from "vitest";
 
-import { FLAGPOLE } from "@japacity/assets-src/prop/flagpole/build";
-import { TERMINAL } from "@japacity/assets-src/bld/terminal-front/build";
+import { FLAGPOLE } from "@japacity/models/props/flagpole/build";
+import { TERMINAL } from "@japacity/models/buildings/terminal-front/build";
 
 import raw from "../../../../public/assets/places/airport-lagos/place.json";
 import { copiesOf, staged } from "./place.testing";
@@ -36,8 +36,8 @@ describe("the airport", () => {
     const [, height] = flag.size ?? [0, 0];
     expect(flag.at[1] + height / 2).toBeLessThanOrEqual(FLAGPOLE.height);
     expect(flag.at[1] + height / 2).toBeGreaterThan(FLAGPOLE.height - 0.6);
-    const taxis = at("veh_taxi.glb");
+    const taxis = at("vehicle_taxi.glb");
     expect(taxis.filter(([, z]) => z > TERMINAL.canopyEdge && z < TERMINAL.canopyEdge + 5).length).toBeGreaterThanOrEqual(2);
-    expect(nearest(stage.start, at("bld_terminal-front.glb"))).toBeLessThan(30);
+    expect(nearest(stage.start, at("building_terminal-front.glb"))).toBeLessThan(30);
   });
 });

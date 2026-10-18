@@ -1,0 +1,181 @@
+{
+  "asset": "prop_cleaner-trolley",
+  "file": "public/assets/places/site-uae/prop_cleaner-trolley.glb",
+  "fileSha256": "5605e3d1d87d58aa3c8a3a2376c511f6cdce7c6eb78c12866db2ca1fadcdfd97",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/cleaner-trolley/renders/front.png",
+      "sha256": "c95f15dfa7b7a54b9c3d57c5e011cc19677a93b1ceb659d9dbcf52dd0928d966",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.7258543980121612,
+          17.35154385243064
+        ],
+        "target": [
+          0,
+          0.7258543980121612,
+          0
+        ],
+        "width": 2.0904606594085693,
+        "height": 1.567845494556427
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/cleaner-trolley/renders/back.png",
+      "sha256": "8a0fb72a14484da658079961e79988111811212c4c3a4883d2d2616ea708940d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.7258543980121612,
+          -17.35154385243064
+        ],
+        "target": [
+          0,
+          0.7258543980121612,
+          0
+        ],
+        "width": 2.0904606594085693,
+        "height": 1.567845494556427
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/cleaner-trolley/renders/left.png",
+      "sha256": "f4664fd3943d982de8905c979f0a2fd2e7e7f9264e03a2c727e695f662625f7b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.35154385243064,
+          0.7258543980121612,
+          0
+        ],
+        "target": [
+          0,
+          0.7258543980121612,
+          0
+        ],
+        "width": 2.0904606594085693,
+        "height": 1.567845494556427
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/cleaner-trolley/renders/right.png",
+      "sha256": "ae1e286c2196f7991385ca7e5e3fa742a49efb53c3c885c800a0ab9ce135a1a0",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.35154385243064,
+          0.7258543980121612,
+          0
+        ],
+        "target": [
+          0,
+          0.7258543980121612,
+          0
+        ],
+        "width": 2.0904606594085693,
+        "height": 1.567845494556427
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/cleaner-trolley/renders/threeQuarter.png",
+      "sha256": "e49a53da8798e5d7b6b260a63cf287117f3f2ace6b59a664aad4fb0861445cb4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1232418378857782,
+          2.4594740991286,
+          2.1232418378857787
+        ],
+        "target": [
+          0,
+          0.7258543980121612,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/cleaner-trolley/renders/phone.png",
+      "sha256": "afef1613aacd88d1a1bc75d97e1de3cad421af568d7d1de17e2c25d9ad9e813f",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.259997956525941
+        ],
+        "target": [
+          0,
+          1.5,
+          0.2599979565259422
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/cleaner-trolley/renders/tile.png",
+      "sha256": "47e50eed1c0a5afe6925128da7cf4dd07b254a71238f8fd80453463d811d1ce4",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1159880243823497,
+          2.3666655456628276,
+          2.032306653654986
+        ],
+        "target": [
+          0.05798376061652376,
+          0.6863121007633489,
+          -0.025697610110840707
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -137,10 +137,10 @@ const WATER_LABELS: readonly Label[] = [label("map.water.bow", [51049, -114005],
 
 /** Calgary's white and red buses on the avenues, and a CTrain car on the line up the north-east. */
 const DECOR: readonly Decor[] = [
-  decor("veh_calgary-bus", [51098, -114040], 14, 0),
-  decor("veh_calgary-bus", [51067, -113950], 13, 0),
-  decor("veh_calgary-bus", [51120, -114005], 13, 88),
-  decor("veh_ctrain-car", [51095, -113980], 15, 88),
+  decor("vehicle_calgary-bus", [51098, -114040], 14, 0),
+  decor("vehicle_calgary-bus", [51067, -113950], 13, 0),
+  decor("vehicle_calgary-bus", [51120, -114005], 13, 88),
+  decor("vehicle_ctrain-car", [51095, -113980], 15, 88),
 ];
 
 /** The tall tower downtown, across the river from the north-east. */
@@ -151,7 +151,7 @@ const STRIP_LANDMARKS: readonly StripMark[] = [{ id: "tower", at: LANDMARKS.towe
 /** The neighbourhoods, north to south: the airport, the north-east, downtown. */
 const CARDS: readonly Card[] = [
   card("airport", "prop_racking", at([51116, -114002]), 220),
-  card("north-east", "bld_strip-mall", at([51084, -113975]), 140),
+  card("north-east", "building_strip-mall", at([51084, -113975]), 140),
   card("downtown", "prop_desk-pod", at([51048, -114058]), 250),
 ];
 

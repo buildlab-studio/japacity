@@ -22,15 +22,15 @@ export interface Card<Id extends string = string> {
 const card = (id: CardId, model: string, centre: readonly [number, number], zoom: number): Card<CardId> => ({ id, key: `map.card.${id}`, model, centre: at(centre), zoom });
 
 export const CARDS: readonly Card<CardId>[] = [
-  card("ikeja", "bld_phone-plaza", [6588, 3337], 230),
-  card("yaba", "bld_market-block", [6505, 3375], 300),
-  card("ojuelegba", "bld_flyover-span", [6509, 3362], 300),
-  card("surulere", "lm_national-stadium", [6501, 3360], 290),
-  card("bode", "bld_bode-thomas-betting", [6487, 3353], 290),
-  card("ebute", "bld_railway-bridge", [6475, 3376], 260),
-  card("makoko", "bld_makoko-house_b", [6497, 3395], 290),
-  card("island", "bld_plaza", [6446, 3414], 150),
-  card("lekki", "bld_shop-row", [6440, 3458], 220),
+  card("ikeja", "building_phone-plaza", [6588, 3337], 230),
+  card("yaba", "building_market-block", [6505, 3375], 300),
+  card("ojuelegba", "building_flyover-span", [6509, 3362], 300),
+  card("surulere", "landmark_national-stadium", [6501, 3360], 290),
+  card("bode", "building_bode-thomas-betting", [6487, 3353], 290),
+  card("ebute", "building_railway-bridge", [6475, 3376], 260),
+  card("makoko", "building_makoko-house_b", [6497, 3395], 290),
+  card("island", "building_plaza", [6446, 3414], 150),
+  card("lekki", "building_shop-row", [6440, 3458], 220),
 ];
 
 /** One rule of where a district is, in thousandths of a degree; a missing bound is open. */

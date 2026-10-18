@@ -5,7 +5,7 @@
   "note": "The room in a compound (world:place-is-one-screen). Counts are the most in view from the whole view, the water fetched and the car at its spot included; a neighbour or two in the yard.",
   "instances": [
     {
-      "file": "places/home-room-house/bld_home-room-house.glb",
+      "file": "places/home-room-house/building_home-room-house.glb",
       "count": 1
     },
     {
@@ -65,7 +65,7 @@
       "count": 1
     },
     {
-      "file": "shared/veh/veh_car.glb",
+      "file": "shared/vehicle/vehicle_car.glb",
       "count": 1
     },
     {
@@ -145,9 +145,9 @@
     "low": 1,
     "high": 2,
     "sample": [
-      "shared/chr/chr_femi.glb",
-      "shared/chr/chr_bayo.glb",
-      "shared/chr/chr_tolani.glb"
+      "shared/person/person_femi.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_tolani.glb"
     ]
   },
   "groundRoadSky": {
@@ -377,7 +377,7 @@
     ],
     "models": [
       {
-        "file": "places/home-room-house/bld_home-room-house.glb",
+        "file": "places/home-room-house/building_home-room-house.glb",
         "at": [
           [
             0,

@@ -1,0 +1,206 @@
+{
+  "asset": "building_rye-lane-terrace_b",
+  "file": "public/assets/places/peckham/building_rye-lane-terrace_b.glb",
+  "fileSha256": "9ee9df32a5e013bc8408b56dc602b1a127ebaf9f355120b8898eec837b408076",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/rye-lane-terrace/b/renders/front.png",
+      "sha256": "d9ea80bd2c96b4cedd781065edf5f391f3cef0f55bc501d1712c759ccc2c898d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          4.65000010728836,
+          77.71225238208058
+        ],
+        "target": [
+          0,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "width": 13.392180687092948,
+        "height": 10.044135515319711
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/rye-lane-terrace/b/renders/back.png",
+      "sha256": "0a93bb1893e9fdfc2ea78e635de90bfaf341b54847828bae3c916b095895b765",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          4.65000010728836,
+          -78.2235043085027
+        ],
+        "target": [
+          0,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "width": 13.392180687092948,
+        "height": 10.044135515319711
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/rye-lane-terrace/b/renders/left.png",
+      "sha256": "d19dbc8d8c0e93c0649b615fc34ac82847f9e936786334d56956be6d1efab19a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -77.96787834529164,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "target": [
+          0,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "width": 13.392180687092948,
+        "height": 10.044135515319711
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/rye-lane-terrace/b/renders/right.png",
+      "sha256": "a92125617a4e6446f39470b12c659ea7e3c26189f5eebde191f835417d4e8cd1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          77.96787834529164,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "target": [
+          0,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "width": 13.392180687092948,
+        "height": 10.044135515319711
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/rye-lane-terrace/b/renders/threeQuarter.png",
+      "sha256": "64799a39888354fe720e2a6019df910560ff91a88575249a971931121b04fd26",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          19.630195484359387,
+          20.677987603210685,
+          19.37456952114833
+        ],
+        "target": [
+          0,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/rye-lane-terrace/b/renders/plan.png",
+      "sha256": "49732153761c505fe6a4ba14fcb7c37d921eb07d211d6244f499cdb8cd94f253",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          82.61787845258,
+          -0.25562596321105957
+        ],
+        "target": [
+          0,
+          4.65000010728836,
+          -0.25562596321105957
+        ],
+        "width": 14.416168518364438,
+        "height": 10.81212638877333
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/rye-lane-terrace/b/renders/phone.png",
+      "sha256": "39093f24014ec91dbc540f5a46ce2880ed87a1dad635f37b62d70d41bb3f335a",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          16.74998810566548
+        ],
+        "target": [
+          0,
+          4.1850564647165465,
+          4.749988105665482
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/rye-lane-terrace/b/renders/tile.png",
+      "sha256": "5283a3849e0d326a8e299b116a5c9019891f1d87528ac4ca5b6b085948d56266",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          17.853150077472645,
+          17.69608281019399,
+          17.74716666630877
+        ],
+        "target": [
+          0.4126408418169184,
+          3.455966649642662,
+          0.3066574306530451
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

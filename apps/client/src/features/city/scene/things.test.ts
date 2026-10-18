@@ -22,12 +22,12 @@ for (const table of [uiCalgaryText, uiDubaiText, uiCastelText]) addLateWords(tab
 const street = (bodeThomas as unknown as PlaceFile).stage;
 if (street === undefined) throw new Error("Bode Thomas has no stage");
 
-const kiosk: Thing = { id: "kiosk", file: "places/x/shop_lotto-kiosk.glb", copy: 0, label: "city.thing.lotto", acts: [{ id: "play-lotto", label: "scene.act.play-lotto", kind: "sheet", stages: "activity.play-lotto" }] };
+const kiosk: Thing = { id: "kiosk", file: "places/x/shopfront_lotto-kiosk.glb", copy: 0, label: "city.thing.lotto", acts: [{ id: "play-lotto", label: "scene.act.play-lotto", kind: "sheet", stages: "activity.play-lotto" }] };
 
 describe("things in a place", () => {
   test("[world:things-are-tappable-models] given Bode Thomas's file, which declares no things, when its things are read, then the lotto kiosk, the betting shop and the danfo, keke and okada each stand at their model's first copy with one act and a name in words", () => {
     const things = thingsOf(street);
-    expect(things.map((thing) => thing.id).sort()).toEqual(["bet-slip", "play-lotto", "veh_danfo", "veh_keke", "veh_okada"]);
+    expect(things.map((thing) => thing.id).sort()).toEqual(["bet-slip", "play-lotto", "vehicle_danfo", "vehicle_keke", "vehicle_okada"]);
     for (const thing of things) {
       expect(thing.copy).toBe(0);
       expect(thing.acts).toHaveLength(1);
@@ -36,7 +36,7 @@ describe("things in a place", () => {
       for (const act of thing.acts) expect(cityWords(act.label)).not.toBe(act.label);
     }
     expect(things.find((thing) => thing.id === "play-lotto")?.acts[0]).toMatchObject({ kind: "sheet", stages: "activity.play-lotto" });
-    expect(things.find((thing) => thing.id === "veh_danfo")?.acts[0]?.kind).toBe("ride");
+    expect(things.find((thing) => thing.id === "vehicle_danfo")?.acts[0]?.kind).toBe("ride");
   });
 
   test("[world:things-are-tappable-models] given a file that declares its things, when they are read, then they are the file's own, and a thing with three acts offers only two", () => {
@@ -48,7 +48,7 @@ describe("things in a place", () => {
   });
 
   test("[world:things-are-tappable-models] given the view not offering the lotto, when the things are read for now, then the kiosk carries no act and no label, while a ride and a door always stay", () => {
-    const danfo: Thing = { id: "danfo", file: "veh_danfo.glb", copy: 0, label: "city.thing.danfo", acts: [{ id: "ride", label: "city.ride.danfo", kind: "ride" }] };
+    const danfo: Thing = { id: "danfo", file: "vehicle_danfo.glb", copy: 0, label: "city.thing.danfo", acts: [{ id: "ride", label: "city.ride.danfo", kind: "ride" }] };
     const door: Thing = { id: "door", file: "", copy: 0, label: "scene.thing.door", at: [0, 0], acts: [{ id: "out", label: "scene.act.out", kind: "out" }] };
     expect(thingsNow([kiosk, danfo, door], () => false).map((thing) => thing.id)).toEqual(["danfo", "door"]);
     expect(thingsNow([kiosk, danfo, door], (stages) => stages === "activity.play-lotto").map((thing) => thing.id)).toEqual(["kiosk", "danfo", "door"]);
@@ -167,7 +167,7 @@ describe("a seat", () => {
 
 describe("lying on a thing", () => {
   // The bed's mattress is 0.40 to 0.60 m with the wrapper over its foot to 0.64 and the pillow to 0.72; the couch's
-  // cushions are at 0.48 (assets-src/prop/furniture.ts). A fixed 0.5 would put the figure inside the mattress.
+  // cushions are at 0.48 (models/props/furniture.ts). A fixed 0.5 would put the figure inside the mattress.
   test("[world:things-are-tappable-models] given every bed and the couch, when its rest act is read, then it names the top it is lain on, the bed's on its mattress and under its pillow's top, and the bed's head toward its pillow", () => {
     const lain = builtPlaces().flatMap(({ folder, file }) => (stageOf(file).things ?? []).flatMap((thing) => thing.acts.filter((act) => act.pose === "lie").map((act) => ({ folder, thing, act }))));
     const beds = lain.filter(({ thing }) => thing.file.endsWith("prop_bed.glb"));
@@ -181,7 +181,7 @@ describe("lying on a thing", () => {
       expect({ folder, onMattress: top >= 0.6 && top < 0.72, headToPillow: headToPillow(folder, thing, act) }).toEqual({ folder, onMattress: true, headToPillow: true });
     }
     // The family house's mattress on the floor (its sheet at 0.19 m, its pillow to 0.29) and the hostel's lower bunk (its
-    // mattress at 0.48 m, its pillow to 0.56; assets-src/prop/home/build.ts): each lain on, under the pillow's top, head to it.
+    // mattress at 0.48 m, its pillow to 0.56; models/props/home/build.ts): each lain on, under the pillow's top, head to it.
     for (const [file, low, high] of [["prop_mattress.glb", 0.16, 0.29], ["prop_bunk-bed.glb", 0.48, 0.56]] as const) {
       const found = lain.filter(({ thing }) => thing.file.endsWith(file));
       expect({ file, found: found.length > 0 }).toEqual({ file, found: true });
@@ -286,7 +286,7 @@ describe("the things of the built places", () => {
 
 describe("the hours a thing keeps", () => {
   const match: Act = { id: "match", label: "city.act.match", kind: "sheet", stages: "activity.viewing-centre", parts: ["evening", "night"], pose: "sit", seat: [1, 2, Math.PI] };
-  const viewing: Thing = { id: "viewing", file: "places/x/shop_viewing-centre.glb", copy: 0, label: "city.thing.viewing", acts: [match] };
+  const viewing: Thing = { id: "viewing", file: "places/x/shopfront_viewing-centre.glb", copy: 0, label: "city.thing.viewing", acts: [match] };
   const drink: Act = { id: "drink", label: "city.act.joint", kind: "sheet", stages: "activity.beer-joint", more: ["activity.night-out"], parts: ["evening", "night"], pose: "sit", seat: [3, 4, 0] };
   const joint: Thing = { id: "joint", file: "shared/prop/prop_joint-set.glb", copy: 0, label: "city.thing.joint", acts: [drink] };
   const late: Thing = { id: "late", file: "x.glb", copy: 0, label: "city.thing.joint", acts: [{ ...drink, parts: ["night"] }] };

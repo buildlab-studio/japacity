@@ -1,0 +1,16 @@
+{
+  "name": "building_deira-arcade_a",
+  "bays": 4,
+  "storeys": 3,
+  "wall": "sand",
+  "worn": "tan",
+  "gold": [1, 2],
+  "signs": ["place.deira.sign.1", "place.deira.sign.2", "place.deira.sign.3", "place.deira.sign.4"],
+  "styles": [
+    { "board": "white", "ink": "red" },
+    { "board": "black", "ink": "gold" },
+    { "board": "black", "ink": "gold" },
+    { "board": "green", "ink": "white" }
+  ],
+  "seed": 1971
+}

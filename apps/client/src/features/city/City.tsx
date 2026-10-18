@@ -130,7 +130,7 @@ function departRoute(view: Pick<PlayerView, "routes" | "place">): Id<"route"> | 
  */
 function sendOffYou(view: { scenario: string }) {
   const kept = readPerson();
-  const look = lookOf(kept?.look)?.id ?? lookOf(`chr_${view.scenario.slice("scenario.".length)}`)?.id ?? "chr_ada";
+  const look = lookOf(kept?.look)?.id ?? lookOf(`person_${view.scenario.slice("scenario.".length)}`)?.id ?? "person_ada";
   // One name everywhere, the band's (share:card-contents), read from the card's own source.
   const name = characterName(view.scenario) ?? "";
   return { name, first: name, look, figure: <FigurePicture look={look} style={kept?.look === look ? kept.style : undefined} view="figure" className="so-fig" /> };
@@ -143,7 +143,7 @@ const city = content.tuning.city;
 const PLACES = Object.values(content.place);
 /** How long a line overheard stays before the next is heard, off the world (the road's city behind its panel). */
 const HEARD_MS = 9000;
-const FALLBACK_OWN = "shared/chr/chr_tunde.glb";
+const FALLBACK_OWN = "shared/person/person_tunde.glb";
 
 // The world mode (docs/design/07-the-world-first.md, docs/rules/world.md).
 /** Sending money home: an act whose sheet is the Bank's, where the money is. */
@@ -333,7 +333,7 @@ function lastPlace(here: ViewPlace, home: string | null, day: number | null): st
   return home !== null && open.some((place) => place.id === home) ? home : openingPlace(here, PLACES);
 }
 
-// The online store keeps `presence` as { place, others: { name, look }[] }; the look is read as a chr_ name and the sample is used only when its place is the one shown.
+// The online store keeps `presence` as { place, others: { name, look }[] }; the look is read as a person_ name and the sample is used only when its place is the one shown.
 /** The presence sample the online store keeps (city:players-fill-the-crowd), with those seen today (city:players-shown-present-not-tracked) once the store has them; absent offline. */
 interface PresenceSample {
   place: string;
@@ -361,7 +361,7 @@ function device(): Device {
 
 /** The player's own look: the one built at the front door (prologue:front-door-builds-a-person), else the starting life's person where one is shipped. */
 export function ownFile(scenario: string, kept: string | null = keptLookFile()): string {
-  return (kept === null ? null : personOf(kept)?.file) ?? personOfLook(`chr_${scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
+  return (kept === null ? null : personOf(kept)?.file) ?? personOfLook(`person_${scenario.slice("scenario.".length)}`)?.file ?? FALLBACK_OWN;
 }
 
 function entryOf(id: string): PlaceEntry | null {

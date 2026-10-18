@@ -9,7 +9,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:colours-from-named-palette** Every colour in every model is a named entry in the one palette file, and the model refers to it by name. A colour enters the palette only by a named addition the maintainer accepts, with a one-line reason. Textures are allowed only for fabric patterns (assets:fabric-pattern-from-seed) and sign text (assets:sign-text-drawn-in-code).
 
-**assets:starting-palette-frozen** The starting palette is the 37 colours of the asset experiments, frozen in `packages/assets/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. The four scene colours the experiments hard-coded (sand, asphalt, road marking, sky) are named entries.
+**assets:starting-palette-frozen** The starting palette is the 37 colours of the asset experiments, frozen in `packages/model-kit/src/__fixtures__/starting-palette.json`, every entry kept with its name and value, plus the additions for streets and buildings in the table below. The four scene colours the experiments hard-coded (sand, asphalt, road marking, sky) are named entries.
 
 **assets:metre-units-and-origin** One unit is one metre. +Y is up. A model faces +Z (the glTF convention). Its origin is the centre of its footprint at ground level, and its lowest point is at y = 0 within 0.01 m.
 
@@ -21,9 +21,9 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 ## Rules: budgets
 
-**assets:assets-and-places-within-budget** A shipped asset stays inside its budget in the per-asset table below, measured on the compressed file: triangles, draw calls after baking, materials and bytes. A place stays inside its budget in the per-place table, measured on everything in view from the place's three fixed camera positions with the high mode's sample of people. The build check fails on any figure over budget. A home shell may ship each outer side as a pair, `wall_<side>_full` and `wall_<side>_low`, of which the scene shows one (world:room-seen-down-its-length); a pair counts one draw call and the hidden wall none, each pair adds one draw call to the bld allowance, and triangles and bytes count both walls.
+**assets:assets-and-places-within-budget** A shipped asset stays inside its budget in the per-asset table below, measured on the compressed file: triangles, draw calls after baking, materials and bytes. A place stays inside its budget in the per-place table, measured on everything in view from the place's three fixed camera positions with the high mode's sample of people. The build check fails on any figure over budget. A home shell may ship each outer side as a pair, `wall_<side>_full` and `wall_<side>_low`, of which the scene shows one (world:room-seen-down-its-length); a pair counts one draw call and the hidden wall none, each pair adds one draw call to the building allowance, and triangles and bytes count both walls.
 
-**assets:shipped-file-naming** A shipped file's name is `<prefix>_<name>.<ext>` or `<prefix>_<name>_<variant>.<ext>`: the prefix from the table below, the name in lower case with words joined by hyphens, the variant a letter or a word where there is more than one, and the extension `glb`, `png` or `ktx2`. As a pattern: `^(chr|veh|bld|shop|sign|lm|prop|cloth|hair|anim|tex)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$`. The build check fails on any other name under `public/assets/`.
+**assets:shipped-file-naming** A shipped file's name is `<prefix>_<name>.<ext>` or `<prefix>_<name>_<variant>.<ext>`: the prefix from the table below, the name in lower case with words joined by hyphens, the variant a letter or a word where there is more than one, and the extension `glb`, `png` or `ktx2`. As a pattern: `^(person|vehicle|building|shopfront|landmark|prop)_[a-z0-9]+(-[a-z0-9]+)*(_[a-z0-9]+(-[a-z0-9]+)*)?\.(glb|png|ktx2)$`. The build check fails on any other name under `public/assets/`.
 
 ## Rules: where things come from
 
@@ -31,11 +31,11 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 **assets:no-real-brands-on-assets** No asset shows a real business name, logo, livery or trade mark: not on a sign, a vehicle, a uniform, a bag or a bottle. Names on assets follow city:four-kinds-of-name: a public place's real name, an institution's plain description, a business's made-up name checked under city:made-up-names-checked, or a sponsor's name only where a place's `sponsor` allows it. A vehicle or a sign that copies a real company's colour scheme so it can be recognised counts as its logo.
 
-**assets:no-reference-photos-kept** No reference photo is ever in the repository. A photo is looked at in a browser, never saved, and only an outline traced from it may be kept, as data: a polygon in metres in `outline.json`, with the URL looked at, the date, the view, and the known dimension that fixes its scale. The build check fails on any image file under `assets-src/` or `public/assets/` that is not listed in the shooter's manifest of renders or the pattern builder's manifest, each with its hash.
+**assets:no-reference-photos-kept** No reference photo is ever in the repository. A photo is looked at in a browser, never saved, and only an outline traced from it may be kept, as data: a polygon in metres in `outline.json`, with the URL looked at, the date, the view, and the known dimension that fixes its scale. The build check fails on any image file under `models/` or `public/assets/` that is not listed in the shooter's manifest of renders or the pattern builder's manifest, each with its hash.
 
 **assets:sign-text-drawn-in-code** Text on a sign is drawn in code, at run time, onto a canvas texture, from the place's text keys (`city.md`, city:place-words-are-text-keys), so the spelling is exactly the text table's. A sign texture is at most 512 by 128 pixels and a power of two on each side. Lettering is a font listed in the register with its licence. No sign is ever an image file.
 
-**assets:fabric-pattern-from-seed** A fabric pattern is drawn in code from a seed, uses only palette colours, and tiles by construction (`packages/assets/src/pattern.ts`). It is the only texture an asset may ship. The palette check reads every pixel of it.
+**assets:fabric-pattern-from-seed** A fabric pattern is drawn in code from a seed, uses only palette colours, and tiles by construction (`packages/model-kit/src/pattern.ts`). It is the only texture an asset may ship. The palette check reads every pixel of it.
 
 **assets:variants-are-numbers-not-code** A new outfit, hairstyle, vehicle variant or building is a set of numbers given to existing builder code, not new builder code. New builder code is a new part, and a new part goes through the review like an asset.
 
@@ -67,7 +67,7 @@ Every model in the game is built on one palette, at one scale, under one budget,
 
 ## Rules: soft shapes and moving parts
 
-**assets:organic-shapes-baked-at-build** A soft organic shape (the afro, locs, the gele and faces) is made by blending simple shapes into one surface, turning that surface into triangles and thinning them, all when the model is built. The shipped file holds only the finished triangles, inside the asset's budget, and the part is named as a smooth-shaded round part (assets:flat-and-smooth-shading). Nothing is blended or thinned on the phone, and no surface is drawn from blended shapes at run time. The thinned mesh keeps at most `THIN_MAX_PCT` (50%) of the raw triangles, a constant of the puff's test (`assets-src/prop/smoke/puff.test.ts`).
+**assets:organic-shapes-baked-at-build** A soft organic shape (the afro, locs, the gele and faces) is made by blending simple shapes into one surface, turning that surface into triangles and thinning them, all when the model is built. The shipped file holds only the finished triangles, inside the asset's budget, and the part is named as a smooth-shaded round part (assets:flat-and-smooth-shading). Nothing is blended or thinned on the phone, and no surface is drawn from blended shapes at run time. The thinned mesh keeps at most `THIN_MAX_PCT` (50%) of the raw triangles, a constant of the puff's test (`models/props/smoke/puff.test.ts`).
 
 **assets:rework-never-scores-lower** A reworked piece is scored by the same kind of reviewer as assets:blind-reviewer-scores-views against its old version: the old and new renders side by side on the review sheet. It replaces the old one only when it passes assets:acceptance-score-thresholds and scores no lower than the old on any criterion. Both sets of pictures stay out of the repository, in a folder `.gitignore` covers (`test-results/`, for one). A lower budget score counts only when a figure leaves its budget; a piece that spends more of its allowance and stays inside it is not worse for that.
 
@@ -120,16 +120,12 @@ Additions, accepted under assets:colours-from-named-palette. Painted block walls
 
 | Prefix | What | Triangles | Draw calls | Materials | Compressed size | Height | Source |
 |---|---|---|---|---|---|---|---|
-| `chr_` | A person with clothes and hair | 3,000 | 3 | 2 | 150 KB | 1.55 m to 2.3 m with headwear | `../design/06` section 6 |
-| `veh_` | A vehicle | 3,000 | 2 | 2 | 100 KB | | `../design/06` section 6 |
-| `bld_` | An ordinary building from the kit | 1,500 | 1 | 1 | 40 KB | 3 m to 13 m (one to four storeys) | Working value: the experiments' market stall (664 triangles, 14.2 KB) is a third of it; a wide home's shell has one draw call more per wall pair (assets:assets-and-places-within-budget) |
-| `shop_` | A shopfront bay with its awning | 1,200 | 2 (body, sign) | 2 | 30 KB | 3 m to 4 m | Working value |
-| `sign_` | A free-standing signboard | 100 | 1 | 1 (its canvas) | 4 KB | 1.5 m to 4 m | Working value |
-| `lm_` | A landmark | 8,000 | 2 | 2 | 250 KB | | Working value: a tenth of an exterior's triangles |
+| `person_` | A person with clothes and hair | 3,000 | 3 | 2 | 150 KB | 1.55 m to 2.3 m with headwear | `../design/06` section 6 |
+| `vehicle_` | A vehicle | 3,000 | 2 | 2 | 100 KB | | `../design/06` section 6 |
+| `building_` | An ordinary building from the kit | 1,500 | 1 | 1 | 40 KB | 3 m to 13 m (one to four storeys) | Working value: the experiments' market stall (664 triangles, 14.2 KB) is a third of it; a wide home's shell has one draw call more per wall pair (assets:assets-and-places-within-budget) |
+| `shopfront_` | A shopfront bay with its awning | 1,200 | 2 (body, sign) | 2 | 30 KB | 3 m to 4 m | Working value |
+| `landmark_` | A landmark | 8,000 | 2 | 2 | 250 KB | | Working value: a tenth of an exterior's triangles |
 | `prop_` | A prop: stall, tank, generator, pole, crate | 800 | 1 | 1 | 25 KB | | Working value, the experiments' market stall fits |
-| `cloth_`, `hair_` | A garment or hairstyle shipped apart from a person | inside the person's 3,000 | | | inside the person's 150 KB | | `../design/06` section 4 |
-| `anim_` | An animation set for the one skeleton | | | | 60 KB | | Working value |
-| `tex_` | A pattern | | | | 16 KB, at most 256 px a side | | The experiments' largest pattern was 15.7 KB |
 
 ## Budgets for one place
 
@@ -159,20 +155,17 @@ How an exterior's 80 draw calls and 80,000 triangles are shared. Working values,
 
 | Prefix | Holds | Lives in |
 |---|---|---|
-| `chr_` | People | `public/assets/shared/chr/` |
-| `veh_` | Vehicles | `public/assets/shared/veh/` |
-| `cloth_`, `hair_` | Garments and hair shipped apart | `public/assets/shared/cloth/`, `.../hair/` |
-| `anim_` | Animations | `public/assets/shared/anim/` |
-| `tex_` | Patterns | `public/assets/shared/tex/` |
+| `person_` | People | `public/assets/shared/person/` |
+| `vehicle_` | Vehicles | `public/assets/shared/vehicle/` |
 | `prop_` | Props used in several places | `public/assets/shared/prop/` |
-| `bld_`, `shop_`, `sign_` | Buildings, shopfronts, signboards of one place | `public/assets/places/<place>/` |
-| `lm_` | A landmark | `public/assets/places/<place>/` |
+| `building_`, `shopfront_` | Buildings and shopfronts of one place | `public/assets/places/<place>/` |
+| `landmark_` | A landmark | `public/assets/places/<place>/` |
 
-A shipped body is a `chr_`, and a name has at most one variant part (assets:shipped-file-naming).
+A shipped body is a `person_`, and a name has at most one variant part (assets:shipped-file-naming).
 
 ## The register
 
-One row per shipped file, in `assets-src/register.json` (`../decisions/0009-models-are-code.md`).
+One row per shipped file, in `models/register.json` (`../decisions/0009-models-are-code.md`).
 
 | Column | Holds |
 |---|---|
@@ -239,14 +232,14 @@ Acceptance is assets:acceptance-score-thresholds. A landmark adds the outline sc
 
 | Setting | Value | Source | Held in |
 |---|---|---|---|
-| Lowest outline score, every view | 85 | Working value. One code-built project accepts at 90 on every component; 85 leaves room for outlines traced by hand from photos taken in perspective | `assets-src/review.config.json` `outlineMin` |
+| Lowest outline score, every view | 85 | Working value. One code-built project accepts at 90 on every component; 85 leaves room for outlines traced by hand from photos taken in perspective | `models/review.config.json` `outlineMin` |
 | Dimension tolerance | 5% | Working value | `dimTolerancePct` |
 | Outline frame | 512 px on the longer side, 5% margin, 3% shift search | Working value | `outlineFramePx`, `outlineMarginPct`, `outlineShiftPct` |
 | Thin outline growth | 2% of the frame, below 10% fill | So bridges and masts are scorable | `thinFillPct`, `thinGrowPct` |
 | Acceptance | No criterion under 3, phone size 4, mean 3.5 | Working value: the experiments' people were accepted at 3 to 4 | `minEach`, `minPhone`, `minMean` |
 | Phone shot | 360 by 640 CSS px, device scale 2, 12 m | The experiments' phone shot | `phoneShot` |
-| Per-asset and per-place budgets | The tables above | `../design/06` section 6, and working values | `assets-src/budgets.json` |
-| Thinned soft shape, most of the raw triangles kept | 50% | Working value. The blended afro of the curves experiment of 8 Oct 2026 went from 1,420 triangles raw to 636 thinned, 45% | `THIN_MAX_PCT` in `assets-src/prop/smoke/puff.test.ts` |
+| Per-asset and per-place budgets | The tables above | `../design/06` section 6, and working values | `models/budgets.json` |
+| Thinned soft shape, most of the raw triangles kept | 50% | Working value. The blended afro of the curves experiment of 8 Oct 2026 went from 1,420 triangles raw to 636 thinned, 45% | `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts` |
 | A pot spun from a curve | 336 triangles | The same experiment; for comparison with the `prop_` budget | the reason for assets:organic-shapes-baked-at-build |
 | A ball, flat or smooth | 168 triangles either way | The same experiment: smooth shading costs no triangles | the reason for assets:flat-and-smooth-shading |
 
@@ -271,7 +264,7 @@ All read on 8 Oct 2026.
 
 ## Contract
 
-These rules put nothing in the simulation's `types.ts`. One small package of types serves the build tools and the client (`packages/assets`):
+These rules put nothing in the simulation's `types.ts`. One small package of types serves the build tools and the client (`packages/model-kit`):
 
 1. `PaletteName`: the union of the palette's names; `palette: Record<PaletteName, number>` in one file, imported by every builder and by the check.
 2. `CharacterLook`: a person as data: `{ body: "f" | "m"; shape: number; bust: number; size: number; mass: number; muscle: number; heightCm: number; skin: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; hair: string; headwear: string | null; top: string; bottom: string; robe: string | null; patternSeeds: number[]; faceSeed: string }`. Used by city:players-fill-the-crowd and by the crowd.
@@ -281,4 +274,4 @@ These rules put nothing in the simulation's `types.ts`. One small package of typ
 6. `Outline`: `{ view: "front" | "side" | "plan"; polygon: Array<[number, number]>; source: string; read: string; scaleFrom: string }`, metres.
 7. Node extras the loader and the check read: `smooth: true` on a round part (assets:flat-and-smooth-shading), `pinned: "top" | "bottom" | "left" | "right"` on a moving sheet (assets:one-shared-motion-material).
 8. `Review` also carries `against?: { file: string; scores: Review["scores"] }` for a rework scored against its old version (assets:rework-never-scores-lower).
-9. The thinning limit is `THIN_MAX_PCT` in `assets-src/prop/smoke/puff.test.ts`; the build tool that blends and thins lives in `assets-src/`, never in the client bundle.
+9. The thinning limit is `THIN_MAX_PCT` in `models/props/smoke/puff.test.ts`; the build tool that blends and thins lives in `models/`, never in the client bundle.

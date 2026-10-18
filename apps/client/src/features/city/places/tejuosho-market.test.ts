@@ -2,7 +2,7 @@
 // and the bunting on the wind, bales and basins, the crowd packed between the rows.
 import { describe, expect, test } from "vitest";
 
-import { MARKET_STALL } from "@japacity/assets-src/prop/market-stall/build";
+import { MARKET_STALL } from "@japacity/models/props/market-stall/build";
 
 import frontRaw from "../../../../public/assets/places/tejuosho-front/place.json";
 import raw from "../../../../public/assets/places/tejuosho-market/place.json";

@@ -45,11 +45,11 @@ export function canDraw(): boolean {
 
 /** The look shown at the gate: the one given, else the one kept beside the save, else the strip's first. */
 export function gateLook(given?: string | null): string {
-  return lookOf(given)?.id ?? lookOf(readPerson()?.look)?.id ?? LOOKS[0]?.id ?? "chr_ada";
+  return lookOf(given)?.id ?? lookOf(readPerson()?.look)?.id ?? LOOKS[0]?.id ?? "person_ada";
 }
 
 export interface GateProps {
-  /** The look at the gate, `chr_ada`; the kept one when left out. */
+  /** The look at the gate, `person_ada`; the kept one when left out. */
   look?: string | null;
   /** The sheet over the bottom of the scene. */
   children: ReactNode;
@@ -114,7 +114,7 @@ export function Gate({ look, children, mark, over, style, scene }: GateProps) {
         ) : drawing ? (
           <>
             <Suspense fallback={null}>
-              <FrontScene look={shown?.file ?? "shared/chr/chr_ada.glb"} spin={spin} style={worn} onShown={() => setDrawn(true)} />
+              <FrontScene look={shown?.file ?? "shared/person/person_ada.glb"} spin={spin} style={worn} onShown={() => setDrawn(true)} />
             </Suspense>
             {drawn ? null : standIn}
           </>

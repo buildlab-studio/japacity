@@ -21,7 +21,7 @@ export const CHEAP_PHONE = { ...PHONE_SHOT, slowdown: 6 } as const;
 /** The day the check samples each crowd for, so a run gives the same people every time. */
 const CHECK_DATE = "2026-10-08";
 /** The player's own figure in the check: the city's fallback look. */
-export const CHECK_OWN = "shared/chr/chr_tunde.glb";
+export const CHECK_OWN = "shared/person/person_tunde.glb";
 /** Frames recorded for each place, mode and state. */
 const FRAMES = 20;
 /** The script is timed in blocks of this many frames' updates, and the fastest block counts, as other work on the machine only ever slows one. */

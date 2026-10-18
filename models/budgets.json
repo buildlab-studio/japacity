@@ -1,0 +1,38 @@
+{
+  "note": "The budgets of docs/rules/assets.md (Budgets for one asset, Budgets for one place), measured on the compressed file. A KB is 1,000 bytes and an MB 1,000,000, the stricter reading. Heights in metres.",
+  "asset": {
+    "person": { "triangles": 3000, "drawCalls": 3, "materials": 2, "bytes": 150000, "heightMin": 1.55, "heightMax": 2.3 },
+    "vehicle": { "triangles": 3000, "drawCalls": 2, "materials": 2, "bytes": 100000 },
+    "building": { "triangles": 1500, "drawCalls": 1, "materials": 1, "bytes": 40000, "heightMin": 3, "heightMax": 13 },
+    "shopfront": { "triangles": 1200, "drawCalls": 2, "materials": 2, "bytes": 30000, "heightMin": 3, "heightMax": 4 },
+    "landmark": { "triangles": 8000, "drawCalls": 2, "materials": 2, "bytes": 250000 },
+    "prop": { "triangles": 800, "drawCalls": 1, "materials": 1, "bytes": 25000 }
+  },
+  "levels": {
+    "note": "A moving sheet's or the water tile's triangles at each mesh level (assets:sheets-ship-two-mesh-levels): coarse for the low mode, fine for the high.",
+    "coarse": { "triangles": 200 },
+    "fine": { "triangles": 800 }
+  },
+  "motion": {
+    "note": "What a place's motion may add over the same place held still, per frame on the cheap phone profile (city:no-script-loop-per-sheet): draw calls, and microseconds of script. Draw calls from the place check of 8 Oct 2026, where the most any place's motion added was 6 (Computer Village, Deira, Tejuosho); script the rule page's working value, where the check's highest was 125, timed in blocks of updates.",
+    "extraDrawCalls": 6,
+    "scriptUs": 500
+  },
+  "place": {
+    "firstLoad": { "drawCalls": 60, "triangles": 60000, "bytes": 5000000 },
+    "interior": { "drawCalls": 50, "triangles": 40000, "bytes": 800000 },
+    "exterior": { "drawCalls": 80, "triangles": 80000, "bytes": 1500000 },
+    "game": { "bytes": 40000000 }
+  },
+  "exteriorShare": {
+    "note": "How an exterior's draw calls and triangles are shared: working values from the page, for builders planning a place.",
+    "people": { "low": { "count": 8, "drawCalls": 24 }, "high": { "count": 16, "drawCalls": 32, "triangles": 24000 } },
+    "vehicles": { "count": 6, "drawCalls": 6, "triangles": 6000 },
+    "buildings": { "drawCalls": 10, "triangles": 20000 },
+    "shopfrontsAndSigns": { "drawCalls": 8, "triangles": 8000 },
+    "props": { "drawCalls": 6, "triangles": 5000 },
+    "landmark": { "drawCalls": 2, "triangles": 8000 },
+    "groundRoadSky": { "drawCalls": 4, "triangles": 1000 },
+    "total": { "low": 60, "high": 68, "triangles": 72000 }
+  }
+}

@@ -1,0 +1,229 @@
+{
+  "asset": "person_segun",
+  "file": "public/assets/shared/person/person_segun.glb",
+  "fileSha256": "078bd2fd6192e1c5e331f4a4e31a11f57f8e8da9aca4c6ebb7a7e47763b35ee1",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/segun/renders/front.png",
+      "sha256": "5a329e1d9c966fde181180ec8c826c013b2121d3a270b7a96dad96c40afb0065",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8584749764932037,
+          17.369944329607435
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/segun/renders/back.png",
+      "sha256": "e8c18a34b6e9ba50a8d05d3065cc5d3bdf6fff287720879e8c9c5d1828035686",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8584749764932037,
+          -17.313473294722982
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/segun/renders/left.png",
+      "sha256": "3e28af214fadb1e9208da4e8c6aad97c20a5a8c779291a21575df3b8758698ac",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.34170881216521,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/segun/renders/right.png",
+      "sha256": "f1109d4aadb10251e95d6746fdaef1b98e232aad0930ec7a9849adb494bb954b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.34170881216521,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "width": 2.4724079685165625,
+        "height": 1.8543059763874221
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/segun/renders/threeQuarter.png",
+      "sha256": "7c8d1e483fd670303e637413544d4a40b5e973a3489dae9030fb226a74d87b06",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.12040132310575,
+          2.589775407003675,
+          2.1486368405479768
+        ],
+        "target": [
+          0,
+          0.8584749764932037,
+          0.02823551744222641
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/segun/renders/phone.png",
+      "sha256": "71ae77809672c8847749e3835e3a43cc411d48e5d0a482d4939191d35e548d8c",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.197693084661674
+        ],
+        "target": [
+          0,
+          1.5,
+          0.19769308466167435
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/segun/renders/face.png",
+      "sha256": "bd3ffd471ce86324df7140fd8864a694c7b846bccc6eed0799bb5a68eae3bbc4",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7465925108100147,
+          1.5452549677478042,
+          1.6293083236749102
+        ],
+        "target": [
+          0,
+          1.4765769686223442,
+          0.02823551744222641
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/segun/renders/figure.png",
+      "sha256": "4cf6067344f42cea024d2f7474d402a2ecc899cc08299452382da590f4757ac0",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.9007564422651975,
+          1.062243933517431,
+          4.065745229994193
+        ],
+        "target": [
+          0.018034743427028183,
+          0.8556436365600169,
+          0.02823551744222641
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/segun/renders/cheer.png",
+      "sha256": "74be4606bf2f9fa5deb680fd0ab7895a5390d66b9e0b5b78d679957ad0eace28",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.023353625071678,
+          1.1471680528092878,
+          4.349941510637907
+        ],
+        "target": [
+          0,
+          0.9251355240252229,
+          0.010845659033591207
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

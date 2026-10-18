@@ -2,10 +2,10 @@
 // home are wide floors (homes.test.ts). Nothing floats: every piece stands on the floor between the walls, the
 // bed, the window and the side table against the back wall, and both modes stay inside the indoor row's budget. Read from the shipped files, measured as the build check measures them, and passed through
 // the place check itself.
-import { type Footprint, placeFootprint } from "@japacity/assets";
+import { type Footprint, placeFootprint } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
-import { ROOMS } from "../../../../../../assets-src/bld/room/rooms";
+import { ROOMS } from "../../../../../../models/buildings/room/rooms";
 import { checkLimits, type LimitedFile, walkableSize } from "../../../../../../tools/assets/world-check";
 import roomRaw from "../../../../public/assets/places/the-room/place.json";
 import { type PlaceFile, stageOf } from "../../../shared/scene/placeFile";
@@ -20,7 +20,7 @@ const ROOMS_HERE = [{ name: "the room abroad", file: room, shell: ROOMS.abroad, 
 /** Each copy of each model but the room's own shell, with its footprint boxes' extents in the place's frame. */
 async function extents(file: PlaceFile): Promise<{ file: string; x0: number; x1: number; z0: number; z1: number }[]> {
   const stage = stageOf(file);
-  const pieces = stage.models.filter((model) => !model.file.includes("/bld_room_"));
+  const pieces = stage.models.filter((model) => !model.file.includes("/building_room_"));
   const shows = (stage.shows ?? []).flatMap((show) => show.models);
   const out: { file: string; x0: number; x1: number; z0: number; z1: number }[] = [];
   for (const model of [...pieces, ...shows]) {

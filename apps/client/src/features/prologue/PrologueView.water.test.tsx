@@ -53,7 +53,7 @@ describe("the child of the water's begin card", () => {
   });
 
   test("[prologue:makoko-start-never-a-trap] [prologue:printed-page-hands-over] given the child of the water played through the screen, when its page fills, then no card shows and the family turned over is the house on stilts in Makoko, never a small town", async () => {
-    keepPerson({ look: "chr_ada", name: "Ebi", archetype: "water" });
+    keepPerson({ look: "person_ada", name: "Ebi", archetype: "water" });
     const game = newGame(PROLOGUE, "water-begin");
     const store = createGameStore(gameAuthority(game));
     await store.getState().refresh();

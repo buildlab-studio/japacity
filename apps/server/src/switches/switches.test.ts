@@ -12,8 +12,8 @@ import { accepted, call, held, newLife, restMonth, send, testServer } from "../a
 import { productionConfig, testConfig } from "../config";
 import type { Beacon } from "../lottery/beacon";
 import { QUICKNET_GENESIS_MS, QUICKNET_PERIOD_MS } from "../lottery/beacon";
-import { drawJob } from "../jobs/draw";
-import { TICKS_CRON } from "../jobs/ticks";
+import { drawJob } from "../scheduled/draw";
+import { TICKS_CRON } from "../scheduled/ticks";
 import { COMPUTER_DIAL, computerAfterMonths, lotteryOdds, namedContent, placeTarget } from "./dials";
 import { rollbackCheck } from "../ops/rollback";
 import { GATED_COMMANDS } from "./gate";

@@ -121,7 +121,7 @@ The game has no typed text. If it had, this is how it would live:
 | Checks on every change | GitHub Actions run the quick checks on every push to `main` and every pull request (`.github/workflows/check.yml`); the full check and the browser suite run locally |
 | Tests against a database | An in-process Postgres for unit tests (PGlite, `packages/db`). Provider branches for previews |
 | Email for sign-in codes | Cloudflare Email Service (decision 0007). Google sign-in is the main path |
-| People built on the device or shipped as files | Shipped as files (`apps/client/public/assets/shared/chr`) |
+| People built on the device or shipped as files | Shipped as files (`apps/client/public/assets/shared/person`) |
 | Animations in code or from a library | In code, with no animation library |
 | Styling and components for the interface | Tailwind 4 and Base UI (`AGENTS.md`) |
 

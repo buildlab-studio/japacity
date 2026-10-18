@@ -15,7 +15,7 @@ import { PARCEL } from "../../../shared/world/parcel.ask";
 import { cityWords } from "../city.words";
 
 const { file, stage, entry } = staged(placeFile, "place.bode-thomas");
-const BOOTH = "shop_provisions.glb";
+const BOOTH = "shopfront_provisions.glb";
 const PARCEL_MODEL = "shared/prop/prop_travel-bag.glb";
 const things = stage.things ?? [];
 const cargo = things.find((thing) => thing.id === "cargo");

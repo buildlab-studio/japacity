@@ -48,7 +48,7 @@ function PhotoCard({ look, style, name }: { look: string; style: LookStyle | und
         {name === "" ? say("prologue.page.empty") : name}
       </span>
       <span className="sticker-cut absolute top-[-24px] right-[-30px] z-[2]" style={{ rotate: "9deg" }} aria-hidden>
-        <ModelPicture model="veh_danfo" size={92} />
+        <ModelPicture model="vehicle_danfo" size={92} />
       </span>
       <span className="sticker-cut absolute bottom-[8px] left-[-30px] z-[2]" style={{ rotate: "-10deg" }} aria-hidden>
         <ModelPicture model="prop_travel-bag" size={66} />
@@ -64,7 +64,7 @@ export function YouScreen({ look, style, name, typed, problem, tried, onName, on
     if (!yours || ownOf(look) !== null || !canDraw()) return;
     let alive = true;
     void import("../../shared/datapage/photoRender")
-      .then(({ readOwn }) => readOwn(`shared/chr/${look}.glb`))
+      .then(({ readOwn }) => readOwn(`shared/person/${look}.glb`))
       .then((own) => {
         if (alive && own !== null) reportOwn(look, own);
       })

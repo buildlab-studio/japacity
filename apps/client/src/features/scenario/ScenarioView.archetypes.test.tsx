@@ -43,7 +43,7 @@ describe("every tile's run", () => {
     render(<App store={store} />);
     const name = "Temi";
     await startArchetype(archetype.id, name);
-    expect(readPerson()).toEqual({ look: expect.stringMatching(/^chr_/) as string, name, archetype: archetype.id });
+    expect(readPerson()).toEqual({ look: expect.stringMatching(/^person_/) as string, name, archetype: archetype.id });
     expect(await throughTheYears(store)).toBe(false);
     const raw = JSON.parse(storage.getItem(SAVE_KEY)!) as { save: Parameters<typeof savedCommands>[0] };
     const chosen = savedCommands(raw.save).flatMap(({ command }) => (command.type === "prologue/choose" ? [command] : []));

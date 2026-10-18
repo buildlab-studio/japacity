@@ -2,7 +2,7 @@
 // world:things-are-tappable-models, world:room-seen-down-its-length): what is owned stands at its set spot or where it was set down,
 // taking the place of the model it replaces; buy mode only in a home of your own; a thing set down fits only on the floor,
 // clear of every other footprint and of the ways; the arrangement is kept beside the save by life.
-import { type Footprint, type FootprintBox } from "@japacity/assets";
+import { type Footprint, type FootprintBox } from "@japacity/model-kit";
 import { describe, expect, test } from "vitest";
 
 import { arrangedIn, forgetArranged, keepArranged, keepTurn, turnIn } from "../../../shared/world/arranged";
@@ -11,7 +11,7 @@ import { buyModeAt, liftable, ownedThingId, showOwned } from "./owned";
 import type { PlaceFile, Stage } from "../../../shared/scene/placeFile";
 import { ARRANGED_KEY } from "../../../shared/kept/storage";
 
-const SHELL = "places/x/bld_x.glb";
+const SHELL = "places/x/building_x.glb";
 const BED = "shared/prop/prop_bed.glb";
 const NEW_BED = "shared/prop/prop_foam-mattress.glb";
 const FAN = "shared/prop/prop_fan.glb";

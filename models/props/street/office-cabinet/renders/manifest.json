@@ -1,0 +1,181 @@
+{
+  "asset": "prop_office-cabinet",
+  "file": "public/assets/shared/prop/prop_office-cabinet.glb",
+  "fileSha256": "4ee19488d0c36603c8b92d4e7a3da3da96342edff92c6faef5916c17c43d0f4a",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/street/office-cabinet/renders/front.png",
+      "sha256": "fc672828b4e96bd69c825a716f8a03f5c325686426828fd91246eac980b88406",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2500000119209291,
+          20.58875009225926
+        ],
+        "target": [
+          0,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "width": 3.5999999656677244,
+        "height": 2.6999999742507934
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/street/office-cabinet/renders/back.png",
+      "sha256": "c6597a0e6d0bae2dd3fb73b62506de9b69de3d565796e25168eb07839927d685",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.2500000119209291,
+          -20.568750111332747
+        ],
+        "target": [
+          0,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "width": 3.5999999656677244,
+        "height": 2.6999999742507934
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/street/office-cabinet/renders/left.png",
+      "sha256": "4a362018a2f038e6dc2c181c8383c920ffbc2016bc560cc58d05fbd6c37351bf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -20.578750101796004,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "target": [
+          0,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "width": 3.5999999656677244,
+        "height": 2.6999999742507934
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/street/office-cabinet/renders/right.png",
+      "sha256": "fb7c0a8c68fcf93af8c1d533d205656df3494df90f6e1c2b499f5fcafce25d58",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          20.578750101796004,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "target": [
+          0,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "width": 3.5999999656677244,
+        "height": 2.6999999742507934
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/street/office-cabinet/renders/threeQuarter.png",
+      "sha256": "e10b0f13721ef71324502ee1509187dbd026051c12bf07782f81e85a86772cf4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.0553099130661314,
+          3.744650109614013,
+          3.0653099035293887
+        ],
+        "target": [
+          0,
+          1.2500000119209291,
+          0.009999990463256836
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/street/office-cabinet/renders/phone.png",
+      "sha256": "5921272b43e27b5e9e48a96c67798d008443cf80bba0a5bceed9847bda7fbc09",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.319991747509386
+        ],
+        "target": [
+          0,
+          1.5,
+          0.31999174750938647
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/street/office-cabinet/renders/tile.png",
+      "sha256": "a1a68d14f985a5c47c1a15f036bcfd8ee16555dae314675920e843612b9f5976",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.113398459642235,
+          3.8574944526004566,
+          3.0538657199518395
+        ],
+        "target": [
+          0.00604552786709556,
+          1.3203514080703098,
+          -0.05348721182330011
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -40,7 +40,7 @@
 
 ## Aniekan
 
-`scenario.aniekan`: Aniekan Etim, 26, Efik-Ibibio, a maths teacher 48 months in, a second upper and tech 32, three siblings, ₦350,000 in the bank, upkeep ₦80,000 and ₦25,000 sent home; he cannot drive. Picked by the name pool's rules (person:one-mixed-name-pool): the largest share outside the big three, and a person, not a tribe. Recorded as `aniekan-borrower` in `sweep/lives.data.ts` (a master's flight in month 33). Ngozi's life, `scenario.ngozi`, is in `route-gates.md`.
+`scenario.aniekan`: Aniekan Etim, 26, Efik-Ibibio, a maths teacher 48 months in, a second upper and tech 32, three siblings, ₦350,000 in the bank, upkeep ₦80,000 and ₦25,000 sent home; he cannot drive. Picked by the name pool's rules (person:one-mixed-name-pool): the largest share outside the big three, and a person, not a tribe. Recorded as `aniekan-borrower` in `simulated-play/lives.data.ts` (a master's flight in month 33). Ngozi's life, `scenario.ngozi`, is in `route-gates.md`.
 
 ## What each one tests
 

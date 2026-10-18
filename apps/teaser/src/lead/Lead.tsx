@@ -462,7 +462,7 @@ function Bit({ bit }: { bit: (typeof CONFETTI)[number] }) {
 
 /** Ada cheering as the ways out land: in a corner of the wide frame, and over the house in the tall one. */
 function Cheer() {
-  const sticker = <Sticker tile="chr_ada-cheer" size={520} tilt={4} delay={28} />;
+  const sticker = <Sticker tile="person_ada-cheer" size={520} tilt={4} delay={28} />;
   if (useFrameShape() === "tall") {
     const size = 440;
     return (
@@ -573,7 +573,7 @@ function Leaving() {
   );
   return (
     <AbsoluteFill>
-      <Flight city="London" tile="bld_rye-lane-terrace_a" />
+      <Flight city="London" tile="building_rye-lane-terrace_a" />
       {useFrameShape() === "tall" ? (
         // From the left over the lagoon, low but clear of the feed's caption.
         <Piece zone="safe" name="the joke" left={60} top={1310} height={210} style={{ transform: `translateX(${String((1 - p) * -900)}px)`, opacity: p }}>
@@ -600,11 +600,11 @@ function MeetAda() {
         <MapShot paint="day" zoom={[1.0, 1.18]} toward={[0.42, 0.4]} />
         <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(234, 243, 251, 0.95) 0%, rgba(234, 243, 251, 0.88) 52%, rgba(234, 243, 251, 0.45) 100%)" }} />
         <Piece zone="safe" name="Ada" left={ada.left} top={FEED_BARS.bottom - ada.size} width={ada.size} height={ada.size}>
-          <Sticker tile="chr_ada-figure" size={ada.size} tilt={-2} delay={4} edge={10} />
+          <Sticker tile="person_ada-figure" size={ada.size} tilt={-2} delay={4} edge={10} />
         </Piece>
         <Piece zone="safe" name="her card" left={56} top={250} height={150} style={{ transform: `translateX(${String((1 - card) * -160)}px) rotate(${String(-3 * card)}deg)`, opacity: card }}>
           <Card style={{ display: "flex", alignItems: "center", gap: 24, padding: "18px 40px 18px 22px", borderRadius: 999 }}>
-            <Sticker tile="chr_ada-face" size={104} delay={18} edge={5} />
+            <Sticker tile="person_ada-face" size={104} delay={18} edge={5} />
             <div style={{ fontFamily: FONT, lineHeight: 1.1 }}>
               <div style={{ fontWeight: 700, fontSize: 54 }}>Ada</div>
               <div style={{ fontWeight: 500, fontSize: 31, color: DAY.ink2 }}>23 yrs · The nurse · Surulere, Lagos</div>
@@ -628,11 +628,11 @@ function MeetAda() {
       <MapShot paint="day" zoom={[1.0, 1.22]} toward={[0.42, 0.4]} />
       <AbsoluteFill style={{ background: "linear-gradient(to right, rgba(234, 243, 251, 0.94) 0%, rgba(234, 243, 251, 0.84) 60%, rgba(234, 243, 251, 0.4) 100%)" }} />
       <div style={{ position: "absolute", left: 90, bottom: 0 }}>
-        <Sticker tile="chr_ada-figure" size={760} tilt={-2} delay={4} edge={10} />
+        <Sticker tile="person_ada-figure" size={760} tilt={-2} delay={4} edge={10} />
       </div>
       <div style={{ position: "absolute", left: 640, top: 150, transform: `translateY(${String((1 - card) * -120)}px) rotate(${String(-3 * card)}deg)`, opacity: card }}>
         <Card style={{ display: "flex", alignItems: "center", gap: 26, padding: "18px 40px 18px 22px", borderRadius: 999 }}>
-          <Sticker tile="chr_ada-face" size={110} delay={18} edge={5} />
+          <Sticker tile="person_ada-face" size={110} delay={18} edge={5} />
           <div style={{ fontFamily: FONT, lineHeight: 1.1 }}>
             <div style={{ fontWeight: 700, fontSize: 56 }}>Ada</div>
             <div style={{ fontWeight: 500, fontSize: 32, color: DAY.ink2 }}>23 yrs · The nurse · Surulere, Lagos</div>

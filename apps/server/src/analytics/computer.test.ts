@@ -10,8 +10,8 @@ import type { Live } from "../authority/load";
 import { held, newLife, restMonth, send, testServer, view, type TestServer } from "../authority/authority.testing";
 import { noteFigures } from "../boards/figures";
 import { lagosWeek } from "../boards/week";
-import { countDay } from "../jobs/counters";
-import { onlineAt } from "../jobs/online";
+import { countDay } from "../scheduled/counters";
+import { onlineAt } from "../scheduled/online";
 
 const LIVES = [
   ["account.ada", "scenario.ada"],

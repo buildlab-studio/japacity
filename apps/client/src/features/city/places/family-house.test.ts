@@ -7,8 +7,8 @@ import { content } from "@japacity/content";
 import { type PlayerView, time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import type { WallSpec } from "../../../../../../assets-src/bld/home/build";
-import { HOMES3 } from "../../../../../../assets-src/bld/home/homes3";
+import type { WallSpec } from "../../../../../../models/buildings/home/build";
+import { HOMES3 } from "../../../../../../models/buildings/home/homes3";
 import frontFile from "../../../../public/assets/places/family-house-compound/place.json";
 import placeFile from "../../../../public/assets/places/home-family-house/place.json";
 import { engineView, richView } from "../../../shared/testing/fixtures";
@@ -102,14 +102,14 @@ describe("the send-off party", () => {
     expect(dancers).toHaveLength(3);
     expect(new Set(dancers.map((dancer) => dancer.dance))).toEqual(new Set(["twoStep", "shuffle"]));
     expect(new Set(dancers.map((dancer) => dancer.file)).size).toBe(3);
-    expect(dancers.map((dancer) => dancer.file)).toEqual(expect.arrayContaining(["shared/chr/chr_chief.glb", "shared/chr/chr_iya.glb"]));
+    expect(dancers.map((dancer) => dancer.file)).toEqual(expect.arrayContaining(["shared/person/person_chief.glb", "shared/person/person_iya.glb"]));
     expect(dancers.every(({ at }) => at[0] > YARD.x0 && at[0] < YARD.x1)).toBe(true);
     expect(dancers.every((dancer) => !file.people.sample.includes(dancer.file))).toBe(true);
     const { file: dressed } = dressPlace(file, [PARTY]);
     if (dressed.stage === undefined) throw new Error("Not dressed");
     const tapped = dancerShown(dressed.stage, DANCER_SLOT + 1);
     expect(tapped?.kind).toBe("resident");
-    expect(tapped?.person).toEqual(personOf("shared/chr/chr_iya.glb"));
+    expect(tapped?.person).toEqual(personOf("shared/person/person_iya.glb"));
     expect(dancerShown(dressed.stage, DANCER_SLOT + dancers.length)).toBeUndefined();
   });
 
@@ -142,7 +142,7 @@ describe("the send-off party", () => {
     expect(signKeys(stage)).toEqual([]);
     const front = staged(frontFile, "place.family-house").stage;
     expect(wordsOf("place.family-house.sign.2")).toContain("NOT FOR SALE");
-    expect(front.models.find((model) => model.file.endsWith("bld_family-house.glb"))?.at).toHaveLength(1);
+    expect(front.models.find((model) => model.file.endsWith("building_family-house.glb"))?.at).toHaveLength(1);
     expect(signKeys(front)).toEqual([]);
   });
 

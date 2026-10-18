@@ -8,7 +8,7 @@ import type { AccountRow } from "@japacity/store";
 
 import type { Auth } from "../auth/auth";
 import type { ServerDeps } from "../deps";
-import { runDeletions } from "../jobs/deletion";
+import { runDeletions } from "../scheduled/deletion";
 import { requestDeletion } from "./deletion";
 
 interface CleanResult {

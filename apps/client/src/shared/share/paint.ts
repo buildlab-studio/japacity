@@ -1,6 +1,6 @@
 // Draws a card's steps on a canvas. Nothing here decides what goes where: the
 // layout did that, and its tests cover it.
-import { paletteCss } from "../../../../../packages/assets/src/palette";
+import { paletteCss } from "../../../../../packages/model-kit/src/palette";
 import type { Family, Measure, SealStep, Step } from "./layout";
 
 const FAMILIES: Record<Family, string> = {

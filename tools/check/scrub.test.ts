@@ -49,7 +49,7 @@ describe("the scrub check", () => {
 
   test("given a binary file, when it is checked, then it is passed over", () => {
     const sample = TELL_TALES[0]?.example ?? "";
-    expect(findTellTales("assets-src/model.glb", `\u0000${sample}`)).toEqual([]);
+    expect(findTellTales("models/model.glb", `\u0000${sample}`)).toEqual([]);
   });
 
   test("given a repository with a planted line, an ignored file and a player page, when the tree is scrubbed, then only the planted line fails", () => {

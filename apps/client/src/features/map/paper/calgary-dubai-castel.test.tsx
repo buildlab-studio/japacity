@@ -74,14 +74,14 @@ const COUNTRIES: readonly Country[] = [
     homeCard: "north-east",
     of: {
       "place.calgary-north-east": "north-east",
-      "place.ctrain-station-ca": "north-east",
-      "place.big-shop-ca": "north-east",
-      "place.care-home-ca": "north-east",
-      "place.library-ca": "north-east",
-      "place.church-ca": "north-east",
-      "place.warehouse-ca": "airport",
+      "place.ctrain-station-canada": "north-east",
+      "place.big-shop-canada": "north-east",
+      "place.care-home-canada": "north-east",
+      "place.library-canada": "north-east",
+      "place.church-canada": "north-east",
+      "place.warehouse-canada": "airport",
       "place.calgary-airport": "airport",
-      "place.office-ca": "downtown",
+      "place.office-canada": "downtown",
     },
     aside: [],
   },
@@ -123,9 +123,9 @@ const COUNTRIES: readonly Country[] = [
     homeCard: "domitiana",
     of: {
       "place.castel-volturno": "town",
-      "place.big-shop-it": "town",
-      "place.church-it": "town",
-      "place.farm-it": "fields",
+      "place.big-shop-italy": "town",
+      "place.church-italy": "town",
+      "place.farm-italy": "fields",
       "place.via-domitiana": "domitiana",
     },
     aside: [NAPLES],
@@ -201,7 +201,7 @@ describe("the three papers' land and water", () => {
   test("[world:painted-maps-abroad] given Calgary's paper, when its drawing is read, then the Bow runs between the north-east and downtown, and the CTrain's line is drawn", () => {
     const north = CALGARY.draw.land.north ?? [];
     const south = CALGARY.draw.land.south ?? [];
-    const office = content.place["place.office-ca"]?.position;
+    const office = content.place["place.office-canada"]?.position;
     const mall = content.place["place.calgary-north-east"]?.position;
     if (office === undefined || office === null || mall === undefined || mall === null) throw new Error("No positions");
     expect(inside(south, CALGARY.toPaper(office))).toBe(true);

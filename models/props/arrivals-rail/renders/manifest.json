@@ -1,0 +1,33 @@
+{
+  "asset": "prop_arrivals-rail",
+  "file": "public/assets/places/arrivals-hall/prop_arrivals-rail.glb",
+  "fileSha256": "a0945f4d36bff09a8b6268f2cbe914a4ba7b1c09e875bcb66f5ef95c682f53aa",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "tile",
+      "file": "models/props/arrivals-rail/renders/tile.png",
+      "sha256": "19c8e21aede9f3e5892964c9808eefb8a6199e3164b3443fed510ddc6d0b22ca",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          7.517561114257504,
+          6.487352097972067,
+          6.644402939478842
+        ],
+        "target": [
+          0.5766411145717014,
+          0.8201146497357378,
+          -0.29651706020696106
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

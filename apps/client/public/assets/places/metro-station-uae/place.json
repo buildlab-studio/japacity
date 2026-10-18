@@ -5,11 +5,11 @@
   "note": "Union station (world:place-is-one-screen; design page 11 section 3). Counts are the most in view from the whole view; the crowd is the rule's outdoor figures, six low and ten high.",
   "instances": [
     {
-      "file": "places/metro-station-uae/bld_metro-viaduct.glb",
+      "file": "places/metro-station-uae/building_metro-viaduct.glb",
       "count": 1
     },
     {
-      "file": "places/metro-station-uae/bld_metro-station.glb",
+      "file": "places/metro-station-uae/building_metro-station.glb",
       "count": 1
     },
     {
@@ -33,7 +33,7 @@
       "count": 1
     },
     {
-      "file": "places/deira/veh_taxi-dubai.glb",
+      "file": "places/deira/vehicle_taxi-dubai.glb",
       "count": 1
     }
   ],
@@ -41,25 +41,25 @@
     "low": 6,
     "high": 10,
     "sample": [
-      "shared/chr/chr_tunde.glb",
-      "shared/chr/chr_ngozi.glb",
-      "shared/chr/chr_kemi.glb",
-      "shared/chr/chr_tolani.glb",
-      "shared/chr/chr_bisi.glb",
-      "shared/chr/chr_ada.glb",
-      "shared/chr/chr_sade.glb",
-      "shared/chr/chr_kunle.glb",
-      "shared/chr/chr_dayo.glb",
-      "shared/chr/chr_tobi.glb",
-      "shared/chr/chr_segun.glb",
-      "shared/chr/chr_nonso.glb",
-      "shared/chr/chr_bayo.glb",
-      "shared/chr/chr_zainab.glb",
-      "shared/chr/chr_emeka.glb",
-      "shared/chr/chr_femi.glb",
-      "shared/chr/chr_obi.glb",
-      "shared/chr/chr_iya.glb",
-      "shared/chr/chr_rider.glb"
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_tobi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_nonso.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_iya.glb",
+      "shared/person/person_rider.glb"
     ]
   },
   "groundRoadSky": {
@@ -208,7 +208,7 @@
     ],
     "models": [
       {
-        "file": "places/metro-station-uae/bld_metro-viaduct.glb",
+        "file": "places/metro-station-uae/building_metro-viaduct.glb",
         "at": [
           [
             0,
@@ -218,7 +218,7 @@
         ]
       },
       {
-        "file": "places/metro-station-uae/bld_metro-station.glb",
+        "file": "places/metro-station-uae/building_metro-station.glb",
         "at": [
           [
             -2.0,
@@ -283,7 +283,7 @@
         ]
       },
       {
-        "file": "places/deira/veh_taxi-dubai.glb",
+        "file": "places/deira/vehicle_taxi-dubai.glb",
         "at": [
           [
             -6.0,
@@ -439,7 +439,7 @@
       },
       {
         "id": "taxi",
-        "file": "places/deira/veh_taxi-dubai.glb",
+        "file": "places/deira/vehicle_taxi-dubai.glb",
         "copy": 0,
         "label": "city.thing.taxi",
         "at": [

@@ -5,7 +5,7 @@
   "note": "The visa centre (world:place-is-one-screen). Counts are the most in view from the whole view; the crowd is the rule's indoor figures, four low and six high.",
   "instances": [
     {
-      "file": "places/visa-centre/bld_room_visa.glb",
+      "file": "places/visa-centre/building_room_visa.glb",
       "count": 1
     },
     {
@@ -37,18 +37,18 @@
     "low": 4,
     "high": 6,
     "sample": [
-      "shared/chr/chr_tunde.glb",
-      "shared/chr/chr_ngozi.glb",
-      "shared/chr/chr_ada.glb",
-      "shared/chr/chr_kunle.glb",
-      "shared/chr/chr_dayo.glb",
-      "shared/chr/chr_segun.glb",
-      "shared/chr/chr_bayo.glb",
-      "shared/chr/chr_sade.glb",
-      "shared/chr/chr_tolani.glb",
-      "shared/chr/chr_emeka.glb",
-      "shared/chr/chr_femi.glb",
-      "shared/chr/chr_zainab.glb"
+      "shared/person/person_tunde.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_zainab.glb"
     ]
   },
   "groundRoadSky": {
@@ -129,7 +129,7 @@
     ],
     "models": [
       {
-        "file": "places/visa-centre/bld_room_visa.glb",
+        "file": "places/visa-centre/building_room_visa.glb",
         "at": [
           [
             0,

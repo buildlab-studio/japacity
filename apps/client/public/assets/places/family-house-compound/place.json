@@ -5,7 +5,7 @@
   "note": "The front behind the door. Counts are the most in view from the door's camera; no one stands in it.",
   "instances": [
     {
-      "file": "places/family-house/bld_family-house.glb",
+      "file": "places/family-house/building_family-house.glb",
       "count": 1
     },
     {
@@ -13,7 +13,7 @@
       "count": 3
     },
     {
-      "file": "shared/veh/veh_okada.glb",
+      "file": "shared/vehicle/vehicle_okada.glb",
       "count": 1
     }
   ],
@@ -132,7 +132,7 @@
     ],
     "models": [
       {
-        "file": "places/family-house/bld_family-house.glb",
+        "file": "places/family-house/building_family-house.glb",
         "at": [
           [
             -1.0,
@@ -162,7 +162,7 @@
         ]
       },
       {
-        "file": "shared/veh/veh_okada.glb",
+        "file": "shared/vehicle/vehicle_okada.glb",
         "at": [
           [
             0.6,

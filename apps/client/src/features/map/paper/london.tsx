@@ -194,11 +194,11 @@ const WATER_LABELS: readonly Label[] = [label("map.water.thames", [51502, -58], 
 
 /** London's red buses standing on their roads, and a train on the line by the Rye. */
 const DECOR: readonly Decor[] = [
-  decor("veh_london-bus", [51474, -81], 14, 0),
-  decor("veh_london-bus", [51490, -97], 13, 80),
-  decor("veh_london-bus", [51484, -59], 13, 34),
-  decor("veh_london-bus", [51503, -78], 12, -14),
-  decor("veh_train-carriage", [51471, -80], 14, -4),
+  decor("vehicle_london-bus", [51474, -81], 14, 0),
+  decor("vehicle_london-bus", [51490, -97], 13, 80),
+  decor("vehicle_london-bus", [51484, -59], 13, 34),
+  decor("vehicle_london-bus", [51503, -78], 12, -14),
+  decor("vehicle_train-carriage", [51471, -80], 14, -4),
 ];
 
 /** The landmarks drawn as symbols: the City's towers across the water and the tall glass tower by London Bridge. */
@@ -271,7 +271,7 @@ const CARDS: readonly Card[] = [
   card("elephant", "prop_desk-pod", [150, 328], 200),
   card("old-kent-road", "prop_racking", at([51486, -65]), 300),
   card("camberwell", "prop_hospital-bed", [92, 880], 230),
-  card("peckham", "bld_rye-lane-terrace_a", at([51471, -70]), 280),
+  card("peckham", "building_rye-lane-terrace_a", at([51471, -70]), 280),
   card("nunhead", "prop_reception-desk", at([51466, -56]), 300),
 ];
 
@@ -301,7 +301,7 @@ export const LONDON: PaperCity = abroadPaper({
   strip: {
     top: at([51518, 0])[1],
     bottom: at([51458, 0])[1],
-    minis: DECOR.filter((item) => item.model === "veh_london-bus")
+    minis: DECOR.filter((item) => item.model === "vehicle_london-bus")
       .slice(0, 3)
       .map((item) => ({ model: item.model, at: item.at, size: 14 })),
     landmarks: STRIP_LANDMARKS,

@@ -1,0 +1,182 @@
+{
+  "asset": "building_room_office",
+  "file": "public/assets/places/office-uk/building_room_office.glb",
+  "fileSha256": "24ef0a7e981d3df402ad7de4c5004d376d350e9b21fa728ffa54f61541fdac8b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/room/office/renders/front.png",
+      "sha256": "4f74845e2fe75a8d0d8341d40a548e6a9e61ec8e663d7370e6460a0372d1678c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          1.5399999570846559,
+          85.68110959960056
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/room/office/renders/back.png",
+      "sha256": "b9c7a5dcffc9e7ce492a9c5f8ef303ac4838c00b3a9d2610d81fa87d9d79149c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -85.91110961867405
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/room/office/renders/left.png",
+      "sha256": "07c0c71ba90f21dad536c00a152af94e4936fa900f349ffcb52fb610e52be4f2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -85.69610922766758,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/room/office/renders/right.png",
+      "sha256": "c0a9db6b4bb2b203a5daafbbf0d15b120b03ac7f3be4f4a9aa5ba40b1214ddcc",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          85.89610999060703,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 9.968287746750642,
+        "height": 7.476215810062982
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/room/office/renders/threeQuarter.png",
+      "sha256": "b961ee5c60df29104ca0dfb07913e9f80d32cb8363155af75ab11f6c8908f7c1",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          21.991112548050513,
+          19.414018193803212,
+          21.776112157044047
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/room/office/renders/plan.png",
+      "sha256": "b1138940e7f09bdc56a626dd73b88adbf1ef0a3fa172be6e4f514c6167d6a261",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.10000038146972656,
+          87.33610956622196,
+          -0.11500000953674316
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5399999570846559,
+          -0.11500000953674316
+        ],
+        "width": 17.560800247192383,
+        "height": 13.170600185394287
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/room/office/renders/phone.png",
+      "sha256": "4c5a16fc519cf1f9fdc5a2ab0644960462d4bb3a87269fae84e98ba5e2f17df6",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.10000038146972656,
+          1.6,
+          16.499948021366333
+        ],
+        "target": [
+          0.10000038146972656,
+          1.5,
+          4.499948021366332
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "asset": "building_deira-arcade_a",
+  "file": "public/assets/places/deira/building_deira-arcade_a.glb",
+  "fileSha256": "c55e188680b911c0cc9557b8bbc5ff1b4ec9a12d490c80c6d555c6bde8e73da7",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/buildings/deira-arcade/a/renders/front.png",
+      "sha256": "4127db97983ec33369ddd612b969029d96fba97f2e80fc56e5cc3a4323d29448",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          6.300000190734863,
+          105.66527830216712
+        ],
+        "target": [
+          0,
+          6.300000190734863,
+          0.125
+        ],
+        "width": 18.14418500584948,
+        "height": 13.608138754387111
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/buildings/deira-arcade/a/renders/back.png",
+      "sha256": "aff82daf09bc5702b2fb0e57bd05c698e16fd2d24f4c67d496e34518398b669b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          6.300000190734863,
+          -105.41527830216712
+        ],
+        "target": [
+          0,
+          6.300000190734863,
+          0.125
+        ],
+        "width": 18.14418500584948,
+        "height": 13.608138754387111
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/buildings/deira-arcade/a/renders/left.png",
+      "sha256": "72a11528953a4ca13197b241829cf8daa05a51649eb5d6651566d3830926915a",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -105.54027830216712,
+          6.300000190734863,
+          0.125
+        ],
+        "target": [
+          0,
+          6.300000190734863,
+          0.125
+        ],
+        "width": 18.14418500584948,
+        "height": 13.608138754387111
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/buildings/deira-arcade/a/renders/right.png",
+      "sha256": "1a4186f0cfbc628da3f7c62badc3315d8288e152d379c87afc1471e3146e9f46",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          105.54027830216712,
+          6.300000190734863,
+          0.125
+        ],
+        "target": [
+          0,
+          6.300000190734863,
+          0.125
+        ],
+        "width": 18.14418500584948,
+        "height": 13.608138754387111
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/buildings/deira-arcade/a/renders/threeQuarter.png",
+      "sha256": "6659f2c027bd57a0865f138141e425b525171a2b310dd566612ceb768beda52c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          27.593539556639122,
+          28.830030894424667,
+          27.71853955663913
+        ],
+        "target": [
+          0,
+          6.300000190734863,
+          0.125
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/buildings/deira-arcade/a/renders/plan.png",
+      "sha256": "a6ad6ebe77bee6dd01a45ece8e32d488c19ad22c9e1ad380de5dd0fee381e9b2",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          111.84027849290199,
+          0.125
+        ],
+        "target": [
+          0,
+          6.300000190734863,
+          0.125
+        ],
+        "width": 17.784046565357457,
+        "height": 13.338034924018094
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/buildings/deira-arcade/a/renders/phone.png",
+      "sha256": "532144b6752d34c048e7fb9a76b537c5327d6ec452ee2f2ec0a90001dfed81bb",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          18.300016168526895
+        ],
+        "target": [
+          0,
+          4.5,
+          6.300016168526895
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/buildings/deira-arcade/a/renders/tile.png",
+      "sha256": "7b5c4b99b1ecb83d4b97921c4d78ea53652cd3da3d6c79f99541e09ca05658e4",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          26.65938335004689,
+          25.856655245430595,
+          26.22226825714615
+        ],
+        "target": [
+          0.887660752396255,
+          4.814131859831037,
+          0.4505456594955061
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

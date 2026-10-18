@@ -1,0 +1,534 @@
+{
+  "place": "place.airport-lagos",
+  "scope": "exterior",
+  "hub": false,
+  "note": "Which assets the place shows and how many, for the per-place budget (docs/rules/assets.md, assets:assets-and-places-within-budget). The city shell lays them out; counts are the most in view from the place's fixed cameras.",
+  "instances": [
+    {
+      "file": "places/airport-lagos/building_terminal-front.glb",
+      "count": 2
+    },
+    {
+      "file": "places/airport-lagos/prop_trolley.glb",
+      "count": 5
+    },
+    {
+      "file": "places/airport-lagos/prop_flagpole.glb",
+      "count": 1
+    },
+    {
+      "file": "places/airport-lagos/vehicle_taxi.glb",
+      "count": 4
+    },
+    {
+      "file": "shared/vehicle/vehicle_danfo.glb",
+      "count": 1
+    }
+  ],
+  "people": {
+    "low": 6,
+    "high": 12,
+    "sample": [
+      "shared/person/person_ada.glb",
+      "shared/person/person_kemi.glb",
+      "shared/person/person_tolani.glb",
+      "shared/person/person_bisi.glb",
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_sade.glb",
+      "shared/person/person_zainab.glb",
+      "shared/person/person_iya.glb",
+      "shared/person/person_chief.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_dayo.glb",
+      "shared/person/person_tobi.glb",
+      "shared/person/person_segun.glb",
+      "shared/person/person_bayo.glb",
+      "shared/person/person_corper.glb",
+      "shared/person/person_femi.glb",
+      "shared/person/person_emeka.glb",
+      "shared/person/person_obi.glb",
+      "shared/person/person_hawker_b.glb",
+      "shared/person/person_rider.glb"
+    ]
+  },
+  "groundRoadSky": {
+    "drawCalls": 1,
+    "triangles": 1200
+  },
+  "stage": {
+    "note": "Where the city shell puts things (apps/client/src/shared/scene/placeFile.ts). Metres; a spot is x, z and the turn about +Y in radians; models face +Z. The departures front runs along x, two copies of the building with their own boards; the drop-off drive passes under the canopy's edge with taxis at the kerb; the flag flies from its mast on the kerb; a family says goodbye round a loaded trolley under the canopy by the first copy's middle door. The player starts on the taxi island across the drive, looking at the doors.",
+    "ground": {
+      "size": [
+        100,
+        100
+      ],
+      "colour": "sand"
+    },
+    "roads": [
+      {
+        "at": [
+          0,
+          6.0,
+          0
+        ],
+        "size": [
+          80,
+          9.0
+        ],
+        "colour": "concrete"
+      },
+      {
+        "at": [
+          0,
+          11.5,
+          0
+        ],
+        "size": [
+          80,
+          2.0
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          0,
+          12.45,
+          0
+        ],
+        "size": [
+          80,
+          0.2
+        ],
+        "colour": "white",
+        "raise": 0.16,
+        "dash": {
+          "colour": "black",
+          "every": 1.0
+        }
+      },
+      {
+        "at": [
+          0,
+          17.3,
+          0
+        ],
+        "size": [
+          80,
+          9.6
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          15.6,
+          0
+        ],
+        "size": [
+          80,
+          0.15
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          0,
+          19.0,
+          0
+        ],
+        "size": [
+          80,
+          0.15
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 3
+        }
+      },
+      {
+        "at": [
+          -10.5,
+          17.3,
+          1.5708
+        ],
+        "size": [
+          9.6,
+          3.0
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 0.5
+        }
+      },
+      {
+        "at": [
+          0,
+          23.5,
+          0
+        ],
+        "size": [
+          80,
+          3.0
+        ],
+        "colour": "concrete",
+        "raise": 0.15
+      },
+      {
+        "at": [
+          0,
+          22.1,
+          0
+        ],
+        "size": [
+          80,
+          0.2
+        ],
+        "colour": "white",
+        "raise": 0.16,
+        "dash": {
+          "colour": "black",
+          "every": 1.0
+        }
+      },
+      {
+        "at": [
+          0,
+          28.0,
+          0
+        ],
+        "size": [
+          80,
+          6.0
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          31.4,
+          0
+        ],
+        "size": [
+          80,
+          0.8
+        ],
+        "colour": "concreteWorn",
+        "raise": 0.12
+      },
+      {
+        "at": [
+          0,
+          40,
+          0
+        ],
+        "size": [
+          80,
+          16
+        ],
+        "colour": "asphalt"
+      },
+      {
+        "at": [
+          0,
+          40,
+          0
+        ],
+        "size": [
+          80,
+          0.12
+        ],
+        "colour": "marking",
+        "dash": {
+          "colour": "asphalt",
+          "every": 2.5
+        }
+      }
+    ],
+    "light": {
+      "sun": [
+        30,
+        48,
+        24
+      ],
+      "sky": "sky",
+      "ground": "sand"
+    },
+    "start": [
+      -14.8,
+      23.8,
+      3.141592653589793
+    ],
+    "walkable": [
+      [[-34, 1.6], [14, 1.6], [14, 12.7], [-9, 12.7], [-9, 22], [14, 22], [14, 25], [-34, 25], [-34, 22], [-12, 22], [-12, 12.7], [-34, 12.7]]
+    ],
+    "models": [
+      {
+        "file": "places/airport-lagos/building_terminal-front.glb",
+        "at": [
+          [
+            -18,
+            0,
+            0
+          ],
+          [
+            18,
+            0,
+            0
+          ]
+        ],
+        "signs": [
+          [
+            "place.airport-lagos.sign.1",
+            "place.airport-lagos.sign.2",
+            "place.airport-lagos.sign.3",
+            "place.airport-lagos.sign.4"
+          ],
+          [
+            "place.airport-lagos.sign.5",
+            "place.airport-lagos.sign.6",
+            "place.airport-lagos.sign.7",
+            "place.airport-lagos.sign.8"
+          ]
+        ]
+      },
+      {
+        "file": "places/airport-lagos/prop_trolley.glb",
+        "at": [
+          [
+            -15.5,
+            8.4,
+            0.25
+          ],
+          [
+            -11.0,
+            8.0,
+            -0.4
+          ],
+          [
+            -23.0,
+            8.9,
+            0.1
+          ],
+          [
+            4.5,
+            9.0,
+            0.2
+          ],
+          [
+            -27.5,
+            5.0,
+            1.2
+          ]
+        ]
+      },
+      {
+        "file": "places/airport-lagos/prop_flagpole.glb",
+        "at": [
+          [
+            -13.0,
+            11.6,
+            0
+          ]
+        ]
+      },
+      {
+        "file": "places/airport-lagos/vehicle_taxi.glb",
+        "at": [
+          [
+            -21.0,
+            14.0,
+            -1.5708
+          ],
+          [
+            -6.0,
+            14.1,
+            -1.5708
+          ],
+          [
+            -25.5,
+            27.0,
+            1.5708
+          ],
+          [
+            -19.5,
+            27.1,
+            1.5708
+          ]
+        ]
+      },
+      {
+        "file": "shared/vehicle/vehicle_danfo.glb",
+        "at": [
+          [
+            8.5,
+            14.2,
+            -1.5708
+          ]
+        ]
+      }
+    ],
+    "people": [
+      [
+        -16.4,
+        9.4,
+        0.9
+      ],
+      [
+        -14.5,
+        9.6,
+        -2.3
+      ],
+      [
+        -15.2,
+        10.4,
+        3.1
+      ],
+      [
+        -16.6,
+        10.6,
+        2.4
+      ],
+      [
+        -14.2,
+        8.3,
+        -1.5
+      ],
+      [
+        -12.0,
+        12.0,
+        1.5708
+      ],
+      [
+        -21.0,
+        12.6,
+        0.3
+      ],
+      [
+        -11.3,
+        7.2,
+        -0.5
+      ],
+      [
+        -23.2,
+        8.0,
+        0.3
+      ],
+      [
+        -8.0,
+        6.5,
+        2.9
+      ],
+      [
+        -18.0,
+        23.8,
+        1.4
+      ],
+      [
+        -10.5,
+        23.6,
+        -1.2
+      ],
+      [
+        5.0,
+        8.4,
+        0.4
+      ],
+      [
+        -26.0,
+        9.0,
+        0.8
+      ]
+    ],
+    "prefer": {
+      "elder": [
+        3
+      ],
+      "hawker": [
+        5
+      ],
+      "rider": [
+        6
+      ]
+    },
+    "motion": [
+      {
+        "kind": "flag",
+        "at": [
+          -12.93,
+          5.35,
+          11.6
+        ],
+        "size": [
+          1.8,
+          1.1
+        ],
+        "colours": [
+          "green",
+          "white",
+          "green"
+        ]
+      },
+      {
+        "kind": "frond",
+        "at": [
+          -30,
+          6.6,
+          23.5
+        ],
+        "count": 9,
+        "size": [
+          3.0,
+          0.85
+        ],
+        "colours": [
+          "roofGreen",
+          "green",
+          "pepper",
+          "wood"
+        ]
+      },
+      {
+        "kind": "frond",
+        "at": [
+          6,
+          6.9,
+          23.5
+        ],
+        "count": 9,
+        "size": [
+          3.0,
+          0.85
+        ],
+        "colours": [
+          "green",
+          "roofGreen",
+          "pepper",
+          "wood"
+        ]
+      },
+      {
+        "kind": "leaves",
+        "at": [
+          -10,
+          0,
+          17.3
+        ],
+        "size": [
+          40,
+          8
+        ],
+        "count": 18,
+        "colours": [
+          "khaki"
+        ]
+      }
+    ]
+  }
+}

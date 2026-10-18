@@ -1,0 +1,181 @@
+{
+  "asset": "prop_desk-pod",
+  "file": "public/assets/places/office-uk/prop_desk-pod.glb",
+  "fileSha256": "92bbac8863a86f9ae9f7bf03d33d56bccac890558c593be85ccd01151d3832fd",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/desk-pod/renders/front.png",
+      "sha256": "6c0c2a2f5c5f41dd0daf2c16474671b9f2a31ad673e69c0478333391b9b9c228",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6199999976158144,
+          23.626576934913942
+        ],
+        "target": [
+          0,
+          0.6199999976158144,
+          0
+        ],
+        "width": 1.7856167059433377,
+        "height": 1.3392125294575032
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/desk-pod/renders/back.png",
+      "sha256": "ab26bd1a20929fe5e9a32bb04100792ff251d5444305897ee884e1a13621adee",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6199999976158144,
+          -23.626576934913942
+        ],
+        "target": [
+          0,
+          0.6199999976158144,
+          0
+        ],
+        "width": 1.7856167059433377,
+        "height": 1.3392125294575032
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/desk-pod/renders/left.png",
+      "sha256": "ff2258465b6973c57d9a62b5563a113918bac5516e46007b14169c286787b78b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -23.626576934913942,
+          0.6199999976158144,
+          0
+        ],
+        "target": [
+          0,
+          0.6199999976158144,
+          0
+        ],
+        "width": 2.959200010299683,
+        "height": 2.2194000077247624
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/desk-pod/renders/right.png",
+      "sha256": "d0e75eb340c165f5cb6ec92259422744a303f0a696f0600c5a62b5cec59268e8",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          23.626576934913942,
+          0.6199999976158144,
+          0
+        ],
+        "target": [
+          0,
+          0.6199999976158144,
+          0
+        ],
+        "width": 2.959200010299683,
+        "height": 2.2194000077247624
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/desk-pod/renders/threeQuarter.png",
+      "sha256": "e33d2ca1f3006d5919e5126808509e456109da58b4b85f580b11995957c8c66b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.935570383058066,
+          3.833379759383146,
+          3.9355703830580664
+        ],
+        "target": [
+          0,
+          0.6199999976158144,
+          0
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/desk-pod/renders/phone.png",
+      "sha256": "3e4953b660cf01d319374c4ce671cdfab55d15c88b2a27ae3d3a3e0aea059e8b",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          13.370000004768372
+        ],
+        "target": [
+          0,
+          1.5,
+          1.3700000047683716
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/desk-pod/renders/tile.png",
+      "sha256": "cd9c15aa709edd477c82bc1a484f01a7dbfd41dc66aba2f7e842a3a2c3b6a2d7",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.144190946754616,
+          2.986522262183084,
+          3.3517901675174393
+        ],
+        "target": [
+          -0.016398472738097632,
+          0.405911807450937,
+          0.19120074802472475
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

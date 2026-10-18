@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Asset stage</title>
+    <style>
+      html, body { margin: 0; overflow: hidden; background: #f3d9a4; }
+      canvas { display: block; }
+      @font-face { font-family: "Danfo"; src: url("/apps/client/node_modules/@fontsource/danfo/files/danfo-latin-400-normal.woff2") format("woff2"); }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/models/node_modules/three/build/three.module.js",
+          "three/addons/": "/models/node_modules/three/examples/jsm/",
+          "@japacity/model-kit": "/packages/model-kit/src/index.ts",
+          "@japacity/model-kit/load": "/packages/model-kit/src/load.ts",
+          "@japacity/model-kit/kit": "/packages/model-kit/src/kit/index.ts"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <script type="module" src="/models/stage/stage.ts"></script>
+  </body>
+</html>

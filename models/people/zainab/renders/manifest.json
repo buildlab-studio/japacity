@@ -1,0 +1,229 @@
+{
+  "asset": "person_zainab",
+  "file": "public/assets/shared/person/person_zainab.glb",
+  "fileSha256": "ebed695fd569650d2b2d526c7c4316595cc98d190b5fcb61f56aa337150595f1",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/zainab/renders/front.png",
+      "sha256": "6c1eee3f7a68cb833d3687e23c63706c4a32a489062a262c19fe5915fd9fb84b",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8546627230180145,
+          17.307789455765167
+        ],
+        "target": [
+          0,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "width": 2.4614286785080175,
+        "height": 1.8460715088810133
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/zainab/renders/back.png",
+      "sha256": "6816032770e9fa3945636132dc12273361148857863ff058a0b3de71a664c4bd",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.8546627230180145,
+          -17.29080012034742
+        ],
+        "target": [
+          0,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "width": 2.4614286785080175,
+        "height": 1.8460715088810133
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/zainab/renders/left.png",
+      "sha256": "6e4a900e0fac76977fd6a4dcaf7a67edfc828f85a490dfbb844fdec973eca49d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.299294788056294,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "target": [
+          0,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "width": 2.4614286785080175,
+        "height": 1.8460715088810133
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/zainab/renders/right.png",
+      "sha256": "275bdf0d8bad66e601ee301ec0efb0cad1c61defee09208634aca2970e8d0e37",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.299294788056294,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "target": [
+          0,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "width": 2.4614286785080175,
+        "height": 1.8460715088810133
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/zainab/renders/threeQuarter.png",
+      "sha256": "143de02f45d745e23959e9885c18ae679d0d6a6164afd346c3c658e010d72462",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.10815148384629,
+          2.5759612016562228,
+          2.1166461515551642
+        ],
+        "target": [
+          0,
+          0.8546627230180145,
+          0.008494667708873749
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/zainab/renders/phone.png",
+      "sha256": "03fc62ae08210daef0bf8b829d1d6ac02a28c0af5cd4eede59518e68fd08fbd6",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.197700983352163
+        ],
+        "target": [
+          0,
+          1.5,
+          0.19770098335216266
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/zainab/renders/face.png",
+      "sha256": "3d387fe1edb1b6a37ff19f2955c01775248aa3bd4dbb53f2acd5338be9d8ff5f",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7432770969306017,
+          1.538392911492464,
+          1.6024575459328032
+        ],
+        "target": [
+          0,
+          1.470019892645019,
+          0.008494667708873749
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/zainab/renders/figure.png",
+      "sha256": "1af01bece5429874d3b69161c245ce64fa1a86b4269d0d90fcd1064fe729a238",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8921223838327423,
+          1.0574168781919244,
+          4.028773395182986
+        ],
+        "target": [
+          0.017435625293931195,
+          0.8516982946884459,
+          0.008494667708873749
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/zainab/renders/cheer.png",
+      "sha256": "2ab455717db2b7b62eda0dec2035e0f4d795f06d699e584b82b01cc62e42a322",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.023343062062575,
+          1.1471620639665234,
+          4.342472139600826
+        ],
+        "target": [
+          0,
+          0.9251306943133162,
+          0.0033989404426324615
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

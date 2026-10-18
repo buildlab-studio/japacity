@@ -1,13 +1,13 @@
 // The checks every staged place passes (the hub's own are in scene/hub.test.ts): its file measured as
 // the build check measures it against the exterior row, its counts, its crowd's spots, its boards and
 // its staged entries. Each place's own test calls these and adds what that place must show.
-import { isPaletteName } from "@japacity/assets";
+import { isPaletteName } from "@japacity/model-kit";
 import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { expect, test } from "vitest";
 
-import budgets from "../../../../../../assets-src/budgets.json";
-import register from "../../../../../../assets-src/register.json";
+import budgets from "../../../../../../models/budgets.json";
+import register from "../../../../../../models/register.json";
 import { placeTotals, type PlaceFile as CheckedPlace } from "../../../../../../tools/assets/assets-check";
 import { crowdSize } from "../../../shared/scene/crowd";
 import type { Spot } from "../../../shared/scene/placeFile";

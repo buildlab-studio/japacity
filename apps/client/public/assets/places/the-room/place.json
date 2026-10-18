@@ -5,7 +5,7 @@
   "note": "The room abroad (world:place-is-one-screen), seen down its length (world:room-seen-down-its-length). Counts are the most in view from the whole view; a flatmate at most.",
   "instances": [
     {
-      "file": "places/the-room/bld_room_abroad.glb",
+      "file": "places/the-room/building_room_abroad.glb",
       "count": 1
     },
     {
@@ -49,10 +49,10 @@
     "low": 1,
     "high": 2,
     "sample": [
-      "shared/chr/chr_ngozi.glb",
-      "shared/chr/chr_kunle.glb",
-      "shared/chr/chr_ada.glb",
-      "shared/chr/chr_dayo.glb"
+      "shared/person/person_ngozi.glb",
+      "shared/person/person_kunle.glb",
+      "shared/person/person_ada.glb",
+      "shared/person/person_dayo.glb"
     ]
   },
   "groundRoadSky": {
@@ -116,7 +116,7 @@
     ],
     "models": [
       {
-        "file": "places/the-room/bld_room_abroad.glb",
+        "file": "places/the-room/building_room_abroad.glb",
         "at": [
           [
             0,

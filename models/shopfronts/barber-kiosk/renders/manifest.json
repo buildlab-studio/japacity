@@ -1,0 +1,206 @@
+{
+  "asset": "shopfront_barber-kiosk",
+  "file": "public/assets/places/bode-thomas/shopfront_barber-kiosk.glb",
+  "fileSha256": "c3090559e8fa17840137a969bdb2ef04fa1becd233c9d928eb1e0e30dc406b56",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/shopfronts/barber-kiosk/renders/front.png",
+      "sha256": "ac0ad09b2f3d1f3ce6194e9ff87c93100fedc2ac97662080c3a6bdff58fbbafd",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          33.63007610264892
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "width": 4.636855326430254,
+        "height": 3.477641494822691
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/shopfronts/barber-kiosk/renders/back.png",
+      "sha256": "8822c30e26c0b0c07e7fd349296d32ef9dcd5fa8ad1de05135787cd8e91ee025",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          -32.331700853739925
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "width": 4.636855326430254,
+        "height": 3.477641494822691
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/shopfronts/barber-kiosk/renders/left.png",
+      "sha256": "801f5d1d9ba88b3d38da813e54b029c288c6078c69a55467664145253de1545c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -33.14338850203628,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "width": 4.636855326430254,
+        "height": 3.477641494822691
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/shopfronts/barber-kiosk/renders/right.png",
+      "sha256": "5c841fe343afe11f1b2cab553e02c2dd40187c1ebddb8d9b254c5fa3bd771b0d",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          32.818388454352565,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "width": 4.636855326430254,
+        "height": 3.477641494822691
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/shopfronts/barber-kiosk/renders/threeQuarter.png",
+      "sha256": "aec2c3de8cce1dcda5f7b27a3afd9f9f39b88d5244b7755306c70c1d6e79a108",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          6.474743100615174,
+          7.029286330720222,
+          7.286430748911531
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/shopfronts/barber-kiosk/renders/plan.png",
+      "sha256": "e06c588b3a83bbfc204ddbb617dfd886ad75225757307d9cfabdf2468720e079",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.1625000238418579,
+          34.59088849100942,
+          0.6491876244544983
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.6100000128149987,
+          0.6491876244544983
+        ],
+        "width": 5.037660427093506,
+        "height": 3.7782453203201296
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/shopfronts/barber-kiosk/renders/phone.png",
+      "sha256": "60b88de9044b5481a17a09c5db473d08bc354471fb9910dd0bf2c780687fb8ad",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.1625000238418579,
+          1.6,
+          14.398375272750854
+        ],
+        "target": [
+          -0.1625000238418579,
+          1.5,
+          2.3983752727508545
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/shopfronts/barber-kiosk/renders/tile.png",
+      "sha256": "970a7653590b7af5d5dffa20e900ca7f1212aa667f2cf24a1ceb6f67ef627ff7",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          5.737123853586022,
+          5.789923297588795,
+          6.464149148346124
+        ],
+        "target": [
+          0.06431942663195972,
+          1.1580978787091354,
+          0.7913447213920608
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

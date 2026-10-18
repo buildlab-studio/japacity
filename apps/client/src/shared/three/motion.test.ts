@@ -1,5 +1,5 @@
-import { buildGrid } from "@japacity/assets-src/prop/motion/build";
-import { GRIDS } from "@japacity/assets-src/prop/motion/grids";
+import { buildGrid } from "@japacity/models/props/motion/build";
+import { GRIDS } from "@japacity/models/props/motion/grids";
 import { AdditiveBlending, BoxGeometry, type BufferGeometry, Color, Group, InstancedMesh, Mesh, MeshBasicMaterial, MeshLambertMaterial, Matrix4, Sprite, Vector3 } from "three";
 import { describe, expect, test } from "vitest";
 

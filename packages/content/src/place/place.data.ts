@@ -432,16 +432,16 @@ const entries: PlaceEntry[] = [
   }),
   // The station (place:country-pass-covers-ways): the ticket machine's transit pass; the train's platform. Which station
   // is not said, so it is shown by plain description.
-  calgary("place.ctrain-station-ca", "institution", "north-east", 51073, -113977, { scope: "exterior", stages: ["activity.transit-pass-ca"], crowd: QUIET, traditionalBp: HUB }),
+  calgary("place.ctrain-station-canada", "institution", "north-east", 51073, -113977, { scope: "exterior", stages: ["activity.transit-pass-ca"], crowd: QUIET, traditionalBp: HUB }),
   // The rooms Calgary shares with London are London's scenes under Calgary's own entries (world:ride-abroad-and-workplace).
-  calgary("place.big-shop-ca", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"], crowd: BUSY, traditionalBp: HUB }),
-  calgary("place.warehouse-ca", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
-  calgary("place.care-home-ca", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-ca-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
-  calgary("place.office-ca", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-ca-professional", "activity.job-ca-dev"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.big-shop-canada", "business", "north-east", 51095, -113980, { assets: "big-shop-uk", stages: ["activity.weekly-shop-ca", "activity.buy-clothes-ca"], crowd: BUSY, traditionalBp: HUB }),
+  calgary("place.warehouse-canada", "business", "north-east", 51110, -113990, { assets: "warehouse-uk", stages: ["activity.job-ca-warehouse", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.care-home-canada", "business", "north-east", 51080, -113995, { assets: "care-home-uk", stages: ["activity.job-ca-care-aide", "activity.overtime"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.office-canada", "business", "downtown", 51046, -114063, { assets: "office-uk", stages: ["activity.job-ca-professional", "activity.job-ca-dev"], crowd: QUIET, traditionalBp: OFFICE }),
   // The library's evening course, a room of its own.
-  calgary("place.library-ca", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-ca"], crowd: QUIET, traditionalBp: OFFICE }),
+  calgary("place.library-canada", "institution", "north-east", 51092, -113972, { stages: ["activity.learn-tech-ca"], crowd: QUIET, traditionalBp: OFFICE }),
   // The church hall, the community's place (world:nobody-picked-from-list).
-  calgary("place.church-ca", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-ca"], crowd: BUSY, traditionalBp: HUB }),
+  calgary("place.church-canada", "institution", "north-east", 51085, -113965, { assets: "church-uk", occasion: true, stages: ["activity.community-ca"], crowd: BUSY, traditionalBp: HUB }),
   // The registry on the English test centre's scene, for Alberta's licence (city:places-stage-their-acts: each
   // country's tests at a place of its own).
 
@@ -480,10 +480,10 @@ const entries: PlaceEntry[] = [
     traditionalBp: HUB,
   }),
   // The fields inland, reached by the gangmaster's van for nothing (place:employer-shuttle-rides-free): the gangmaster's table.
-  castel("place.farm-it", "business", "fields", 41010, 13990, { scope: "exterior", shuttle: true, stages: ["activity.job-it-farm-cash"], crowd: QUIET, traditionalBp: ROADSIDE }),
-  castel("place.big-shop-it", "business", "castel-volturno", 41030, 13950, { assets: "big-shop-uk", stages: ["activity.weekly-shop-it"], crowd: BUSY, traditionalBp: HUB }),
+  castel("place.farm-italy", "business", "fields", 41010, 13990, { scope: "exterior", shuttle: true, stages: ["activity.job-it-farm-cash"], crowd: QUIET, traditionalBp: ROADSIDE }),
+  castel("place.big-shop-italy", "business", "castel-volturno", 41030, 13950, { assets: "big-shop-uk", stages: ["activity.weekly-shop-it"], crowd: BUSY, traditionalBp: HUB }),
   // The church, the community's place (world:nobody-picked-from-list).
-  castel("place.church-it", "institution", "castel-volturno", 41028, 13945, { assets: "church-uk", occasion: true, stages: ["activity.community-it"], crowd: BUSY, traditionalBp: HUB }),
+  castel("place.church-italy", "institution", "castel-volturno", 41028, 13945, { assets: "church-uk", occasion: true, stages: ["activity.community-it"], crowd: BUSY, traditionalBp: HUB }),
   abroad("place.naples-airport", "country.italy", "naples", "capodichino", "Naples Airport", 40884, 14285, { scope: "interior", crowd: QUIET, traditionalBp: AIRPORT }),
   // One shared room dressed per person: a friend's room, and a partner's home once courting (world:nobody-picked-from-list).
   unnamed("place.their-room", "stylised", "home", "lagos", null, { stages: ["activity.see-someone"], crowd: FEW, traditionalBp: OFFICE }),

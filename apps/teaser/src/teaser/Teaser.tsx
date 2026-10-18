@@ -29,7 +29,7 @@ export const TEASER_SHOTS: readonly TeaserShot[] = [
   { frames: 28, entry: "slide-up", clips: [], node: <TitleCard words="Find your way out." /> },
   { frames: 66, clips: [], node: <WayOut /> },
   { frames: 72, clips: ["wide-day", "wide-night"], node: <NightFalls /> },
-  { frames: 78, clips: [], node: <Flight city="London" tile="bld_rye-lane-terrace_a" /> },
+  { frames: 78, clips: [], node: <Flight city="London" tile="building_rye-lane-terrace_a" /> },
   { frames: 144, entry: "slide-up", clips: [], node: <NightEnd /> },
 ];
 

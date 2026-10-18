@@ -1,8 +1,8 @@
 // Your colours on the game's own looks (prologue:player-colours-on-looks): the parts are found through the skeleton of the
 // shipped model and its vertices painted with palette colours on a copy the figure wears, once a pick.
-import { type PaletteName, paletteRgb, srgbToLinear } from "@japacity/assets";
-import { ALL_PEOPLE } from "@japacity/assets-src/people/people.data";
-import { drawPattern } from "@japacity/assets/pattern";
+import { type PaletteName, paletteRgb, srgbToLinear } from "@japacity/model-kit";
+import { ALL_PEOPLE } from "@japacity/models/people/people.data";
+import { drawPattern } from "@japacity/model-kit/pattern";
 import { Bone, BufferAttribute, BufferGeometry, DataTexture, Group, type Mesh, MeshStandardMaterial, type Object3D, Skeleton, SkinnedMesh } from "three";
 import { describe, expect, test } from "vitest";
 
@@ -89,11 +89,11 @@ function painted(root: Object3D, at = 0): string[] {
 
 describe("the parts, found through the skeleton", () => {
   test("[prologue:player-colours-on-looks] given a look whose hand holds a bag, when it is read, then the skin is the hands' colour the face shares, the hair the head's commonest dark colour, the top the chest's and arms' commonest, and it has no print", () => {
-    expect(readLook(look("chr_test_tee", TEE))).toEqual({ skin: "skin4", hair: "hair", top: "green", fabric: null });
+    expect(readLook(look("person_test_tee", TEE))).toEqual({ skin: "skin4", hair: "hair", top: "green", fabric: null });
   });
 
   test("[prologue:player-colours-on-looks] given a head under a black cap, when it is read, then the cap is read as its hair but the pupils, the same black, are not", () => {
-    const capped = look("chr_test_cap", [...TEE.filter((v) => v.colour !== "hair"), ...times(5, { colour: "black", bone: "head", at: [0, 1.8, 0] })]);
+    const capped = look("person_test_cap", [...TEE.filter((v) => v.colour !== "hair"), ...times(5, { colour: "black", bone: "head", at: [0, 1.8, 0] })]);
     expect(readLook(capped)?.hair).toBe("black");
     const figure = figureOf(capped, "stand", 0);
     wear(figure.root, { hair: "gold" });
@@ -104,15 +104,15 @@ describe("the parts, found through the skeleton", () => {
   });
 
   test("[prologue:player-colours-on-looks] given the look with a printed top, when it is read, then the fabric is its own print and the top colour the print's ground", () => {
-    const ada = ALL_PEOPLE.find((person) => person.name === "chr_ada")!;
+    const ada = ALL_PEOPLE.find((person) => person.name === "person_ada")!;
     const ground = ada.patterns![0]!.cols![0]!;
-    expect(readLook(look("chr_ada", TEE.filter((v) => v.bone !== "chest" && v.bone !== "upperArmL"), true))).toEqual({ skin: "skin4", hair: "hair", top: ground, fabric: "ankara" });
+    expect(readLook(look("person_ada", TEE.filter((v) => v.bone !== "chest" && v.bone !== "upperArmL"), true))).toEqual({ skin: "skin4", hair: "hair", top: ground, fabric: "ankara" });
   });
 });
 
 describe("the colours, painted on a copy", () => {
   test("[prologue:player-colours-on-looks] given a style, when a figure wears it, then the skin, the hair and the top change wherever the body wears them, and the eyes, the lips, the bag, the trousers and the shoes stay as made", () => {
-    const model = look("chr_test_wear", TEE);
+    const model = look("person_test_wear", TEE);
     const figure = figureOf(model, "stand", 0);
     const before = painted(figure.root);
     wear(figure.root, { skin: "skin1", hair: "gold", top: "indigo" });
@@ -128,7 +128,7 @@ describe("the colours, painted on a copy", () => {
   });
 
   test("[prologue:player-colours-on-looks] given a figure in a style, then the model and every other copy of it stay as made, and back to as made the figure wears the model's own colours again", () => {
-    const model = look("chr_test_copy", TEE);
+    const model = look("person_test_copy", TEE);
     const made = painted(model);
     const worn = figureOf(model, "stand", 0);
     const other = figureOf(model, "stand", 1);
@@ -142,7 +142,7 @@ describe("the colours, painted on a copy", () => {
   });
 
   test("[prologue:player-colours-on-looks] given a style already worn, when it is worn again, then nothing is painted again: a pick paints once, never a frame", () => {
-    const model = look("chr_test_once", TEE);
+    const model = look("person_test_once", TEE);
     const figure = figureOf(model, "stand", 0);
     wear(figure.root, { top: "teal" });
     const colour = meshes(figure.root)[0]!.geometry.getAttribute("color") as BufferAttribute;
@@ -154,7 +154,7 @@ describe("the colours, painted on a copy", () => {
   });
 
   test("[prologue:player-colours-on-looks] given a printed top, when the fabric is plain, ankara in a chosen ground, or as made, then the print goes and the cloth takes the top colour, the print is drawn again on that ground, or the made print returns", () => {
-    const model = look("chr_ada", TEE.filter((v) => v.bone !== "chest" && v.bone !== "upperArmL"), true);
+    const model = look("person_ada", TEE.filter((v) => v.bone !== "chest" && v.bone !== "upperArmL"), true);
     const madeMap = (meshes(model)[1]!.material as MeshStandardMaterial).map;
     const figure = figureOf(model, "stand", 0);
     const print = () => meshes(figure.root)[1]!.material as MeshStandardMaterial;
@@ -168,7 +168,7 @@ describe("the colours, painted on a copy", () => {
     wear(figure.root, { top: "indigo" });
     const drawn = print().map as DataTexture;
     expect(drawn).not.toBe(madeMap);
-    const ada = ALL_PEOPLE.find((person) => person.name === "chr_ada")!.patterns![0]!;
+    const ada = ALL_PEOPLE.find((person) => person.name === "person_ada")!.patterns![0]!;
     const own = drawPattern(ada);
     const [r, g, b] = paletteRgb("indigo");
     const ground = paletteRgb(ada.cols![0]!);

@@ -23,12 +23,12 @@ const photo = (): string | null => document.querySelector("[data-photo] img")?.g
 
 describe("the page's photo", () => {
   test("[prologue:player-colours-on-looks] given a person kept in a style with its photo, when the page is shown in the world, then the photo is the one drawn in the player's colours", async () => {
-    keepPerson({ look: "chr_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO });
+    keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO });
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
     const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
     await store.getState().chooseLife("scenario.ada");
     const page = pageOf(store.getState().view!);
-    expect(page.wear).toEqual({ look: "chr_tunde", style: { top: "wine" }, photo: PHOTO });
+    expect(page.wear).toEqual({ look: "person_tunde", style: { top: "wine" }, photo: PHOTO });
     render(
       <GameProvider store={store}>
         <DataPage page={page} />
@@ -39,13 +39,13 @@ describe("the page's photo", () => {
   });
 
   test("[prologue:player-colours-on-looks] given WebGL missing, as made or in a style, then the photo is the look's own picture, and only there", () => {
-    const picture = lookOf("chr_tunde")!.picture;
+    const picture = lookOf("person_tunde")!.picture;
     const fields = { name: "Kola", age: "", path: "", ready: "", photo: picture };
-    const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "chr_tunde" } }} />);
+    const { unmount } = render(<DataPage page={{ ...fields, wear: { look: "person_tunde" } }} />);
     expect(photo()).toBe(picture);
     unmount();
-    keepPerson({ look: "chr_tunde", name: "Kola", archetype: null, style: { top: "wine" } });
-    render(<DataPage page={{ ...fields, wear: { look: "chr_tunde", style: { top: "wine" } } }} />);
+    keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" } });
+    render(<DataPage page={{ ...fields, wear: { look: "person_tunde", style: { top: "wine" } } }} />);
     expect(photo()).toBe(picture);
     expect(document.querySelector("[data-photo-made]")).toBeNull();
     // Nothing was drawn, so nothing is kept as the photo.
@@ -73,13 +73,13 @@ describe("the photo's size", () => {
   });
 
   test("[prologue:player-colours-on-looks] given a person kept with a photo and its width, when the person is read and the page is made, then the width goes with the photo; a width with no photo is dropped", async () => {
-    keepPerson({ look: "chr_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
+    keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
     expect(readPerson()?.photoPx).toBe(480);
     const authority = localAuthority({ fastClock: true, storage: null, makeSeed: () => "photo-seed", now: () => 0 });
     const store = createGameStore(authority, { life: authority, lifeAgain: true, choosingLife: true });
     await store.getState().chooseLife("scenario.ada");
-    expect(pageOf(store.getState().view!).wear).toEqual({ look: "chr_tunde", style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
-    keepPerson({ look: "chr_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photoPx: 480 });
+    expect(pageOf(store.getState().view!).wear).toEqual({ look: "person_tunde", style: { top: "wine" }, photo: PHOTO, photoPx: 480 });
+    keepPerson({ look: "person_tunde", name: "Kola", archetype: null, style: { top: "wine" }, photoPx: 480 });
     expect(readPerson()?.photoPx).toBeUndefined();
   });
 });

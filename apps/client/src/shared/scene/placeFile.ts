@@ -2,8 +2,8 @@
 // (counted by the build check, assets:assets-and-places-within-budget) and, in `stage`, where the city puts them, where the
 // crowd stands, the light, and what moves. A place with no file, or no `stage`, is drawn as open
 // ground with its crowd, so every place can be entered, built or not.
-import type { PaletteName, WalkablePolygon } from "@japacity/assets";
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import type { PaletteName, WalkablePolygon } from "@japacity/model-kit";
+import type { PoseName } from "@japacity/models/people/poses";
 import type { Id, PlaceEntry } from "@japacity/sim";
 
 import type { Shot, Thing } from "../world/contract";
@@ -306,7 +306,7 @@ export function dressPlace(file: PlaceFile, open: readonly string[], person: Id<
 }
 
 /** The car a home shows at its car spot. */
-export const CAR_FILE = "shared/veh/veh_car.glb";
+export const CAR_FILE = "shared/vehicle/vehicle_car.glb";
 
 /**
  * A home as the life's car leaves it: while the life has a car it stands at the home's car spot, the

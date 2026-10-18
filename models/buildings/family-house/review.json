@@ -1,0 +1,42 @@
+{
+  "piece": "places/family-house/building_family-house.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/buildings/family-house/renders/back.png",
+    "models/buildings/family-house/renders/front.png",
+    "models/buildings/family-house/renders/left.png",
+    "models/buildings/family-house/renders/phone.png",
+    "models/buildings/family-house/renders/plan.png",
+    "models/buildings/family-house/renders/right.png",
+    "models/buildings/family-house/renders/threeQuarter.png",
+    "models/buildings/family-house/renders/manifest.json",
+    "models/register.json, the row for places/family-house/building_family-house.glb"
+  ],
+  "scores": {
+    "phone": 3,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 4,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 25,
+  "mean": 3.57,
+  "accepted": false,
+  "failing": [
+    "phone"
+  ],
+  "reasons": {
+    "phone": "The 12 m shot is a tan fence wall with a pillar, a sliver of the green gate and the roof behind: a walled house on a second look.",
+    "silhouette": "The front (wall, gate, roof and tank) says a compound; the back and sides are a long wall with a roof showing over it: two of four.",
+    "proportion": "Fence wall about 2.4 m, gate, bungalow and tank agree with the person.",
+    "palette": "Palette only, but the tan fence wall is close to the sand ground and sky; the blue roof and green gate carry the colour.",
+    "wear": "THIS HOUSE IS NOT FOR SALE painted on the wall, a black tank on its stand, the worn band along the wall's foot.",
+    "variety": "Its own building, plainly the same family.",
+    "budget": "Read from the register row: triangles 1,020 of 1,500 (68%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 9,516 of 40,000 (23%). Inside every figure, over 80% on at least one."
+  },
+  "notes": ""
+}

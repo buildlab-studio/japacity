@@ -1,8 +1,8 @@
 // The ride's scene (world:ride-sheet-shows-fares, world:ride-cuts-between-angles): the street, the vehicle and the people
 // on it, with the pre-roll and the angles the rules give. Everything here is plain three.js with no
 // renderer, so a test can read the scene it builds.
-import { palette } from "@japacity/assets";
-import type { PoseName } from "@japacity/assets-src/people/poses";
+import { palette } from "@japacity/model-kit";
+import type { PoseName } from "@japacity/models/people/poses";
 import {
   BoxGeometry,
   BufferAttribute,
@@ -157,7 +157,7 @@ function onTheLeft(way: Way): boolean {
 }
 
 /**
- * London's top-deck seat and its carriage seat, in the turned model's own frame (assets-src/veh/london-bus and
+ * London's top-deck seat and its carriage seat, in the turned model's own frame (models/vehicles/london-bus and
  * train-carriage, BUS_TOP_SEAT and CARRIAGE_SEAT): the eye, where the window beside it looks, and where the seat looks
  * ahead. The bus's window looks a little ahead and level out of its side glass, over the panel under it, so the shopfronts run
  * past. The bus's doors and the seat are on its +x side, the kerb side in the UK; the ride keeps it in the left lane,
@@ -169,16 +169,16 @@ export const LONDON_SEAT: Readonly<Record<"bus" | "train", { eye: [number, numbe
   train: { eye: [0.55, 2.28, -1.2], window: [8, 1.9, -0.9], ahead: [0, 2.0, 9] },
 };
 
-const RIDER = "shared/chr/chr_rider.glb";
+const RIDER = "shared/person/person_rider.glb";
 /** The keke's and the danfo's drivers, the second where the character is the first. */
 const DRIVERS: Record<"keke" | "danfo", readonly [string, string]> = {
-  keke: ["shared/chr/chr_kunle.glb", "shared/chr/chr_segun.glb"],
-  danfo: ["shared/chr/chr_segun.glb", "shared/chr/chr_kunle.glb"],
+  keke: ["shared/person/person_kunle.glb", "shared/person/person_segun.glb"],
+  danfo: ["shared/person/person_segun.glb", "shared/person/person_kunle.glb"],
 };
 
 /**
  * Where each person sits, in the vehicle's own frame: facing +z, the ground at y 0, the kerb on -x.
- * Heights are the figure's feet; the poses put the hips on the seat (assets-src/people/poses.ts).
+ * Heights are the figure's feet; the poses put the hips on the seat (models/people/poses.ts).
  */
 interface SeatSpec {
   role: Role;

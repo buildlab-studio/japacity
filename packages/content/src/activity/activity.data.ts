@@ -146,7 +146,7 @@ export const activityTable: Record<Id<"activity">, ActivityEntry> = {
       { type: "quality/min", quality: "quality.tech", value: 75 },
       { type: "quality/min", quality: "quality.portfolio", value: 3 },
       { type: "quality/min", quality: "quality.english", value: 60 },
-      // The sweep: with no tenure asked, this one job paid for 97% of flights.
+      // Simulated play: with no tenure asked, this one job paid for 97% of flights.
       { type: "activity/tenure", activities: ["activity.job-junior-dev", "activity.job-mid-dev"], months: 6 },
     ],
     param: null,

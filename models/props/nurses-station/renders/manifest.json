@@ -1,0 +1,181 @@
+{
+  "asset": "prop_nurses-station",
+  "file": "public/assets/places/ward-uk/prop_nurses-station.glb",
+  "fileSha256": "cef97e9ce359832327ece62351904b3c3560a0c6b8b77ba84a7f50a1d5531320",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/props/nurses-station/renders/front.png",
+      "sha256": "49ce400e701c7d119e4c482b843bdfa7628a7de44cf5f7fe111bb4e1294b7e40",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6299999845027919,
+          23.063918184526916
+        ],
+        "target": [
+          0,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "width": 2.872800092697144,
+        "height": 2.154600069522858
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/props/nurses-station/renders/back.png",
+      "sha256": "bc9ca8895f996575337b03b88a619b7058c2f808e51d24d0b7a04f4cd18d6fa3",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          0.6299999845027919,
+          -23.47391821075296
+        ],
+        "target": [
+          0,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "width": 2.872800092697144,
+        "height": 2.154600069522858
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/props/nurses-station/renders/left.png",
+      "sha256": "b5e8fd4c04fca2bfff0bf8d5b6a3d5b4c0d345bc3d3131ba9e5e1b9bf8faf5b4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -23.268918197639938,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "target": [
+          0,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "width": 1.8143754484187289,
+        "height": 1.3607815863140467
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/props/nurses-station/renders/right.png",
+      "sha256": "71d2adf0c30aff0885bc18a7b66011e6dc72d3f7609819a06e54363662010619",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          23.268918197639938,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "target": [
+          0,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "width": 1.8143754484187289,
+        "height": 1.3607815863140467
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/props/nurses-station/renders/threeQuarter.png",
+      "sha256": "c559ecd18fab4cceff1452c899bbbc29781aa074d933ceed9b70a6c73c54aee7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.8322728975354186,
+          3.7590377025224506,
+          3.627272884422397
+        ],
+        "target": [
+          0,
+          0.6299999845027919,
+          -0.20500001311302185
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/props/nurses-station/renders/phone.png",
+      "sha256": "046289e81b8c81d0bb5a84990a98291617c15b5776885fcf4cf6d1cc59e8c101",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          12.559992534536304
+        ],
+        "target": [
+          0,
+          1.5,
+          0.5599925345363049
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/props/nurses-station/renders/tile.png",
+      "sha256": "b99f8d09b4eb3afc1e654b6a21c0ad40fcdf4143069b2ea08e66b50819420384",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          3.3173209914908273,
+          3.033936481986984,
+          3.260175840015405
+        ],
+        "target": [
+          0.0378324506474011,
+          0.3562453011966694,
+          -0.01931270082802152
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

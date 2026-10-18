@@ -1,0 +1,229 @@
+{
+  "asset": "person_tolani",
+  "file": "public/assets/shared/person/person_tolani.glb",
+  "fileSha256": "2b8d694b6bc5165afda86b7ae900b5044a4a89f80b3cd440b2f6bbba3dce35b1",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/people/tolani/renders/front.png",
+      "sha256": "27ab9b95c8529cb5dc8922d9e572aaecccae86ad3c8417aa4deec5c68a83fecf",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          17.307515835892943
+        ],
+        "target": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "width": 2.4689083080246195,
+        "height": 1.8516812310184647
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/people/tolani/renders/back.png",
+      "sha256": "617af2e61c64d77d9d63647ce26c5e7ce2a9c2e31a164e89dadad62fb2521934",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          -17.27787033332565
+        ],
+        "target": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "width": 2.4689083080246195,
+        "height": 1.8516812310184647
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/people/tolani/renders/left.png",
+      "sha256": "9c7ccf4c71618924d14cfdf4e65e9fb786622ab75c6b4a77f354e41ad4285002",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -17.297572262731503,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "target": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "width": 2.4689083080246195,
+        "height": 1.8516812310184647
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/people/tolani/renders/right.png",
+      "sha256": "b0000229872ee9fd7df0be6ca8c0cc68c735a866f3beccfd3c415924e15dbcc4",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          17.28781390648709,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "target": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "width": 2.4689083080246195,
+        "height": 1.8516812310184647
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/people/tolani/renders/threeQuarter.png",
+      "sha256": "3d923a6cb23aeba73d9b00b5ad0433cb8931561eca666ccb009e541e1f109e34",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.1013656296242957,
+          2.5770015105494353,
+          2.1210675590301467
+        ],
+        "target": [
+          -0.004879178122204647,
+          0.8572598264276418,
+          0.01482275128364563
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/people/tolani/renders/phone.png",
+      "sha256": "34f9ed08da49a5c37c87a99004e818662a988401fd8d33b319ef79bbf1f7acd7",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          -0.004879178122204647,
+          1.6,
+          12.186839818777111
+        ],
+        "target": [
+          -0.004879178122204647,
+          1.5,
+          0.1868398187771109
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "face",
+      "file": "models/people/tolani/renders/face.png",
+      "sha256": "8a68a8205d6f3dcb51917310f756a685b5681c04897bc94672fc920bd40d846d",
+      "viewport": {
+        "width": 128,
+        "height": 128,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.7406565409499845,
+          1.5430676897678137,
+          1.6136292603210252
+        ],
+        "target": [
+          -0.004879178122204647,
+          1.4744869034337966,
+          0.01482275128364563
+        ],
+        "fov": 22
+      }
+    },
+    {
+      "view": "figure",
+      "file": "models/people/tolani/renders/figure.png",
+      "sha256": "da6eb8e08a8ce7e940b072658f4a75dcbb3b61feae2ed7c68c15c8e1e8b55cb8",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          1.8912792914508607,
+          1.0605797122088183,
+          4.0476379992876526
+        ],
+        "target": [
+          0.01074665738234229,
+          0.8542196320777932,
+          0.01482275128364563
+        ],
+        "fov": 24
+      }
+    },
+    {
+      "view": "cheer",
+      "file": "models/people/tolani/renders/cheer.png",
+      "sha256": "11b2a3c9708179165bde63f96828f68116f2c470a5ba6ebb32b92f3deaf11aa2",
+      "viewport": {
+        "width": 200,
+        "height": 400,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          2.074544571799193,
+          1.2025311463128332,
+          4.54919864367618
+        ],
+        "target": [
+          -0.046457427064686585,
+          0.969783181978561,
+          0.000695178697984758
+        ],
+        "fov": 24
+      }
+    }
+  ]
+}

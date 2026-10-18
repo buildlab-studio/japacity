@@ -1,0 +1,15 @@
+{
+  "name": "building_rye-lane-terrace_d",
+  "units": 2,
+  "storeys": 3,
+  "unit": 4.0,
+  "brick": "laterite",
+  "soot": "concreteWorn",
+  "fronts": ["wine", "blue"],
+  "signs": ["place.peckham.sign.7", "place.peckham.sign.4"],
+  "styles": [
+    { "board": "wine", "ink": "white" },
+    { "board": "white", "ink": "blue", "border": "blue" }
+  ],
+  "seed": 1923
+}

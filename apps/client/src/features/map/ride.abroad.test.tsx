@@ -166,9 +166,9 @@ describe("the ride in London", () => {
       expect(anglesOf(way)).toEqual(anglesOf("danfo"));
       expect(anglesOf(way).at(-1)?.from).toBeLessThan(RIDE_MS);
     }
-    expect(vehicleFile("bus")).toBe("shared/veh/veh_london-bus.glb");
-    expect(vehicleFile("train")).toBe("shared/veh/veh_train-carriage.glb");
-    expect([WAY_MODEL.bus, WAY_MODEL.train]).toEqual(["veh_london-bus", "veh_train-carriage"]);
+    expect(vehicleFile("bus")).toBe("shared/vehicle/vehicle_london-bus.glb");
+    expect(vehicleFile("train")).toBe("shared/vehicle/vehicle_train-carriage.glb");
+    expect([WAY_MODEL.bus, WAY_MODEL.train]).toEqual(["vehicle_london-bus", "vehicle_train-carriage"]);
   });
 
   test("[world:ride-abroad-and-workplace] given London's red bus, when its window is shown, then the bus keeps the left lane and the top deck's window looks out of its kerb side, the side its doors are on, at the pavement and the shops", () => {

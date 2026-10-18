@@ -1,0 +1,43 @@
+{
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "scores": {
+    "phone": 4,
+    "silhouette": 4,
+    "proportion": 4,
+    "palette": 4,
+    "wear": 2,
+    "variety": 3,
+    "budget": 5
+  },
+  "mean": 3.71,
+  "against": {
+    "file": "models/people/tunde/review.json, the sheet of the earlier version",
+    "reviewer": "A reviewer who has not seen the code",
+    "scores": {
+      "phone": 4,
+      "silhouette": 4,
+      "proportion": 4,
+      "palette": 4,
+      "wear": 2,
+      "variety": 3,
+      "budget": 5
+    },
+    "mean": 3.71,
+    "accepted": false
+  },
+  "accepted": false,
+  "failing": [
+    "wear"
+  ],
+  "reasons": {
+    "phone": "A man in a green T-shirt and jeans, named in one look, but nothing says who he is.",
+    "silhouette": "A plain standing man in all four outlines, unchanged.",
+    "proportion": "1.71 m; sizes agree.",
+    "palette": "Green over denim reads on sand.",
+    "wear": "Still a plain T-shirt, jeans and white shoes; the only addition is a small black phone in one hand, barely visible in any view and lost in the phone shot.",
+    "variety": "The plain template, and the same figure the stage puts in every phone shot.",
+    "budget": "Read from the register row: triangles 1,060 of 3,000, drawCalls 1 of 3, materials 1 of 2, bytes 23,236 of 150,000; at or under 80% of every figure."
+  },
+  "notes": "Scored against the old version side by side (assets:rework-never-scores-lower): the new renders and renders/before, criterion by criterion against the earlier sheet in against. For a person, wear and clutter is read as the props, accessories and garment detail right for the type, and variety against the other people on the sheet. Every face now has white eyes with dark pupils and a red mouth: the faces read on the darkest skins, but at phone size the eyes are two pale specks with a fixed stare; no criterion scores the face. Walking is not judged: the fixed views show one standing pose."
+}

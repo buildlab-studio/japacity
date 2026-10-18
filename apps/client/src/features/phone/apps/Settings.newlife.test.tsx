@@ -32,7 +32,7 @@ async function localLife(): Promise<{ store: GameStore; afresh: () => number }> 
   const authority = localAuthority({ fastClock: true, makeSeed: () => `seed-${String((seed += 1))}`, now: () => 0 });
   let afresh = 0;
   const store = createGameStore(authority, { life: authority, afterLifeEnded: () => (afresh += 1) });
-  keepPerson({ look: "chr_ada", name: "Bisi", archetype: null });
+  keepPerson({ look: "person_ada", name: "Bisi", archetype: null });
   await store.getState().chooseLife("scenario.ada");
   return { store, afresh: () => afresh };
 }

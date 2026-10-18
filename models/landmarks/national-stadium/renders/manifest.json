@@ -1,0 +1,230 @@
+{
+  "asset": "landmark_national-stadium",
+  "file": "public/assets/places/national-stadium/landmark_national-stadium.glb",
+  "fileSha256": "9f1b426b6c850d4387575e9aad5cf65cafd0808692d778031cb3327fe5871b7b",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/landmarks/national-stadium/renders/front.png",
+      "sha256": "d5d0241020d03706d924e1581047e972d87bad099891114bb5c69a884521dd8c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.255218505859375,
+          24.210851669311523,
+          1673.028740808469
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "width": 287.6419688980625,
+        "height": 215.73147667354687
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/landmarks/national-stadium/renders/back.png",
+      "sha256": "81f6f5281657be49daafa8464442fc84883256beabc9c471cf98bc79ce002bd7",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.255218505859375,
+          24.210851669311523,
+          -1673.0339287967502
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "width": 287.6419688980625,
+        "height": 215.73147667354687
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/landmarks/national-stadium/renders/left.png",
+      "sha256": "3f22b63f5d6196d69352cef0521121268349e5a59ccbb7cc150efe4e861a323e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -1672.7761162967502,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "width": 340.7999853515625,
+        "height": 255.5999890136719
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/landmarks/national-stadium/renders/right.png",
+      "sha256": "65661906a1082e526f2aa37db8b25e8bebda18639801911da5c756a8e1004f87",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          1673.286553308469,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "width": 340.7999853515625,
+        "height": 255.5999890136719
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/landmarks/national-stadium/renders/threeQuarter.png",
+      "sha256": "a295c38e91ff839ab2a67c8c00ef31149324b88190be01321bb24cedfa7f4570",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          480.56490292683594,
+          416.3820667855139,
+          480.307090426836
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/landmarks/national-stadium/renders/plan.png",
+      "sha256": "c258cc48a8eaa26535189c4af9c4b7a2bd33d9667219399df97bb1c4878ddb6c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0.255218505859375,
+          1697.242186471921,
+          -0.002593994140625
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "width": 454.39998046874996,
+        "height": 340.7999853515625
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/landmarks/national-stadium/renders/phone.png",
+      "sha256": "2d99efba5efd7abc25f04477545da9c776aa14ba58996fe102c78eef0b3d7d5a",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0.255218505859375,
+          1.6,
+          169.77517700195312
+        ],
+        "target": [
+          0.255218505859375,
+          4.5,
+          157.77517700195312
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "phoneFar",
+      "file": "models/landmarks/national-stadium/renders/phoneFar.png",
+      "sha256": "40b3f12f364286552e61fcb0790b96099a97bceb35232831197ae8d752f447d0",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          625.8952176383294,
+          479.6395257704151,
+          1083.6376717506462
+        ],
+        "target": [
+          0.255218505859375,
+          24.210851669311523,
+          -0.002593994140625
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/landmarks/national-stadium/renders/tile.png",
+      "sha256": "3381ef7bca99c0e5e0aa99c52ca2d69bebdf5fe90098df48429beb620a270edf",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          374.0298758662727,
+          308.28635991236445,
+          392.53130084344207
+        ],
+        "target": [
+          -0.3158366601353317,
+          2.634365549598895,
+          18.185588317033975
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}

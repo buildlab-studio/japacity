@@ -7,9 +7,9 @@ import { content, text } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
-import { roomBunk, ROOM_HOUSE } from "@japacity/assets-src/bld/makoko-house/build";
-import { RACKS } from "@japacity/assets-src/prop/fish-racks/build";
-import { WALKWAY } from "@japacity/assets-src/prop/plank-walkway/build";
+import { roomBunk, ROOM_HOUSE } from "@japacity/models/buildings/makoko-house/build";
+import { RACKS } from "@japacity/models/props/fish-racks/build";
+import { WALKWAY } from "@japacity/models/props/plank-walkway/build";
 
 import manifest from "../../../../public/assets/manifest.json";
 import raw from "../../../../public/assets/places/makoko/place.json";
@@ -39,14 +39,14 @@ describe("Makoko", () => {
 
   test("[home:home-is-the-home-point] [activity:acts-may-repeat-in-month] given the room on the water, when its things are read, then the room naps on its bunk and sleeps, lying down at once while no nap can be had, the porch's cooking corner cooks and fetches water with the meals and the bath on their sheets, and the papers box opens the phone's Papers, each thing with at most two acts", () => {
     const room = thing("room");
-    expect(room.file).toBe("places/makoko/bld_makoko-house_a.glb");
+    expect(room.file).toBe("places/makoko/building_makoko-house_a.glb");
     expect(room.acts.map((act) => [act.id, act.kind, act.stages ?? null, act.pose ?? null])).toEqual([
       ["nap", "sheet", "activity.nap", "lie"],
       ["end-month", "end", null, null],
     ]);
     const lie = room.acts[0]?.otherwise;
     expect([lie?.id, lie?.kind, lie?.pose, lie?.seat, lie?.top]).toEqual(["lie", "plain", "lie", room.acts[0]?.seat, room.acts[0]?.top]);
-    const [house] = copiesOf(stage, "bld_makoko-house_a.glb");
+    const [house] = copiesOf(stage, "building_makoko-house_a.glb");
     if (house === undefined) throw new Error("No room");
     const [bx, bz, top] = roomBunk();
     const seat = room.acts[0]?.seat;
@@ -70,7 +70,7 @@ describe("Makoko", () => {
   });
 
   test("[home:home-is-the-home-point] given the room's porch, when it is read against the walk, then it stands at the walk's height, joins the walk, and the room's things stand on it", () => {
-    const [house] = copiesOf(stage, "bld_makoko-house_a.glb");
+    const [house] = copiesOf(stage, "building_makoko-house_a.glb");
     if (house === undefined) throw new Error("No room");
     const { depth, porch, width } = ROOM_HOUSE;
     const [, porchEnd] = inPlace(house, [0, (depth + porch) / 2]);
@@ -107,7 +107,7 @@ describe("Makoko", () => {
     const school = thing("school");
     expect(school.acts.map((act) => act.kind)).toEqual(["plain"]);
     expect(wordsOf(`${school.acts[0]?.label ?? ""}.done`)).not.toBe("");
-    expect(school.file).toBe("places/makoko/bld_makoko-school.glb");
+    expect(school.file).toBe("places/makoko/building_makoko-school.glb");
   });
 
   test("[city:motion-in-vertex-shader] given the lagoon, when the place is read, then one water grid in the lagoon's colour runs under the houses and the walk, and the walk, the porch and the racks stand over its highest ripple", () => {
@@ -167,7 +167,7 @@ describe("Makoko", () => {
     expect(said.some((words) => words.includes("CHURCH"))).toBe(true);
     expect(said.some((words) => words.includes("FISH"))).toBe(true);
     expect(said.filter((words) => /₦|naira|N[0-9]|[0-9],[0-9]{3}/i.test(words))).toEqual([]);
-    const lettered = stage.models.find((model) => model.file.endsWith("bld_makoko-school.glb"));
+    const lettered = stage.models.find((model) => model.file.endsWith("building_makoko-school.glb"));
     expect(lettered?.signs?.[0]?.map(wordsOf).join(" ")).toContain("SCHOOL");
   });
 
@@ -192,9 +192,9 @@ describe("Makoko", () => {
   });
 
   test("[home:home-is-the-home-point] given the whole view, when the bridge is read against the houses, then the span stands far behind them in the direction the view looks, so the two share a view", () => {
-    const spans = copiesOf(stage, "lm_third-mainland-span.glb");
+    const spans = copiesOf(stage, "landmark_third-mainland-span.glb");
     expect(spans.length).toBeGreaterThanOrEqual(1);
-    const houses = stage.models.filter((model) => model.file.includes("bld_")).flatMap((model) => model.at);
+    const houses = stage.models.filter((model) => model.file.includes("building_")).flatMap((model) => model.at);
     const farthest = Math.min(...houses.map(([, z]) => z));
     // The view's yaw of 180 degrees looks toward -z: the span stands beyond the last house that way.
     expect(stage.shot?.yaw).toBe(180);

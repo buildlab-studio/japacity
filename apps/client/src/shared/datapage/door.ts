@@ -14,7 +14,7 @@ export type DoorStage = (typeof DOOR_STAGES)[number];
 
 export interface DoorDraft {
   stage: DoorStage;
-  /** A shipped person's file name, `chr_ada`. */
+  /** A shipped person's file name, `person_ada`. */
   look: string;
   /** The tile picked, or null. */
   archetype: string | null;

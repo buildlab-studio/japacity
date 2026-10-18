@@ -1,0 +1,44 @@
+{
+  "piece": "places/airport-lagos/building_terminal-front.glb",
+  "reviewer": "A reviewer who has not seen the code",
+  "date": "2026-10-08",
+  "against": null,
+  "seen": [
+    "models/buildings/terminal-front/renders/back.png",
+    "models/buildings/terminal-front/renders/front.png",
+    "models/buildings/terminal-front/renders/left.png",
+    "models/buildings/terminal-front/renders/phone.png",
+    "models/buildings/terminal-front/renders/plan.png",
+    "models/buildings/terminal-front/renders/right.png",
+    "models/buildings/terminal-front/renders/threeQuarter.png",
+    "models/buildings/terminal-front/renders/manifest.json",
+    "models/register.json, the row for places/airport-lagos/building_terminal-front.glb"
+  ],
+  "scores": {
+    "phone": 2,
+    "silhouette": 3,
+    "proportion": 4,
+    "palette": 3,
+    "wear": 2,
+    "variety": 4,
+    "budget": 4
+  },
+  "total": 22,
+  "mean": 3.14,
+  "accepted": false,
+  "failing": [
+    "phone",
+    "wear",
+    "mean"
+  ],
+  "reasons": {
+    "phone": "At 12 m the shot is a pair of glass doors under a brown band and the canopy's edge; nothing names an airport. The cream fascia and the green board are blank in every render. Not named in one look and barely on a second.",
+    "silhouette": "The front's long glass wall and both sides' canopy on columns say a terminal front; the back is a blank brown box with two doors: about two of four.",
+    "proportion": "Door height, the canopy at about 5 m and its columns agree with the person.",
+    "palette": "Palette only; the glass is the dark palette colour as assets:flat-and-smooth-shading asks, but the back, sides and roof are one flat dull brown.",
+    "wear": "A clean box: a few roof units and three fascia blocks. No AC condensers, stains, bollards, signs, trolleys bay or barrier at the kerb.",
+    "variety": "Plainly its own (the only large modern building) and in the same flat palette family.",
+    "budget": "Read from the register row: triangles 954 of 1,500 (63%), draw calls 1 of 1 (100%), materials 1 of 1 (100%), bytes 7,352 of 40,000 (18%). Inside every figure, over 80% on at least one."
+  },
+  "notes": "In the place shots the terminal is dressed by the place (check-in boards, trolleys, taxis, the flag), which is why the airport reads there; the piece alone does not."
+}

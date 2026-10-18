@@ -58,7 +58,7 @@ describe("a computer person never carries the player's name", () => {
   });
 
   test("[prologue:front-door-builds-a-person] given a life named Hauwa at the door, when its view comes, then the words know the player's name from the person kept beside the save", async () => {
-    keepPerson({ look: "chr_ada", name: "Hauwa", archetype: "developer" });
+    keepPerson({ look: "person_ada", name: "Hauwa", archetype: "developer" });
     const store = createGameStore(fakeAuthority(engineView()));
     await store.getState().refresh();
     expect(nameOf(FRIEND)).not.toBe("Hauwa");

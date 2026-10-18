@@ -2,7 +2,7 @@
 // tools/assets/publish.ts gave it, which carries the hash of its contents, so the browser keeps it
 // and a second visit downloads nothing. Models are decoded with meshopt, given flat shading, and
 // lettered from the place's text keys once the sign font has loaded.
-import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/assets/load";
+import { attachSigns, prepareModel, SIGN_FONT } from "@japacity/model-kit/load";
 import type { Group, Mesh, MeshStandardMaterial, Object3D } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";

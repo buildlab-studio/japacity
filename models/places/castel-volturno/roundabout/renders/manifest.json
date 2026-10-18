@@ -1,0 +1,206 @@
+{
+  "asset": "prop_roundabout",
+  "file": "public/assets/places/castel-volturno/prop_roundabout.glb",
+  "fileSha256": "ac0e3eba5b04723a462b7e59cf50e8d1aaa996e3c5a616020d170c7f5d1d98b7",
+  "renderer": "three 0.186.1, WebGLRenderer on SwiftShader in Playwright 1.63.0's Chromium",
+  "stage": "models/stage/stage.ts: one sun, one sky, sand ground; the phone shot's street; the tile and the portraits on a clear ground",
+  "renders": [
+    {
+      "view": "front",
+      "file": "models/places/castel-volturno/roundabout/renders/front.png",
+      "sha256": "bcc421845ea1cb999df23c38701e252168ddd8c8d56d7466a74513fe9d259536",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.3799999961256981,
+          51.62304760948129
+        ],
+        "target": [
+          0,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "width": 7.7028746223449716,
+        "height": 5.777155966758729
+      }
+    },
+    {
+      "view": "back",
+      "file": "models/places/castel-volturno/roundabout/renders/back.png",
+      "sha256": "bfc5a9267222eef4f3df5769344684f393c5ce22a3efd1d25931acb27aaf94cb",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          1.3799999961256981,
+          -51.446983595046476
+        ],
+        "target": [
+          0,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "width": 7.7028746223449716,
+        "height": 5.777155966758729
+      }
+    },
+    {
+      "view": "left",
+      "file": "models/places/castel-volturno/roundabout/renders/left.png",
+      "sha256": "070496cbc62d2b451f2dc6313482fd930596a3da7f1d1dfbe28db0d75d6dda6c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          -51.53501560226388,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "target": [
+          0,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "width": 7.585804656772053,
+        "height": 5.68935349257904
+      }
+    },
+    {
+      "view": "right",
+      "file": "models/places/castel-volturno/roundabout/renders/right.png",
+      "sha256": "a1605077743a607b43c7145bd6b49b7ad69a086cf4c612ba9950449dc32cea2c",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          51.53501560226388,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "target": [
+          0,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "width": 7.585804656772053,
+        "height": 5.68935349257904
+      }
+    },
+    {
+      "view": "threeQuarter",
+      "file": "models/places/castel-volturno/roundabout/renders/threeQuarter.png",
+      "sha256": "d1861c3b4a5c877267d26f5f21b6a8bf47e28242429827101f3b67fb3f78ff7e",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          11.995967736056874,
+          11.174666637535449,
+          12.083999743274283
+        ],
+        "target": [
+          0,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "plan",
+      "file": "models/places/castel-volturno/roundabout/renders/plan.png",
+      "sha256": "12b5f7a127fe4224be495cbb187d7c2cc35e282cdb30467a15cce2eaa8a3e7b6",
+      "viewport": {
+        "width": 1024,
+        "height": 768,
+        "deviceScaleFactor": 1
+      },
+      "camera": {
+        "kind": "orthographic",
+        "position": [
+          0,
+          52.91501559838958,
+          0.08803200721740723
+        ],
+        "target": [
+          0,
+          1.3799999961256981,
+          0.08803200721740723
+        ],
+        "width": 10.114406209029404,
+        "height": 7.585804656772053
+      }
+    },
+    {
+      "view": "phone",
+      "file": "models/places/castel-volturno/roundabout/renders/phone.png",
+      "sha256": "6fe64b9160f10ed48a9d03475871c09a4f908e3d0a6a8b502b3ac5d21ef63ea5",
+      "viewport": {
+        "width": 360,
+        "height": 640,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          0,
+          1.6,
+          15.599978607574839
+        ],
+        "target": [
+          0,
+          1.5,
+          3.599978607574839
+        ],
+        "fov": 32
+      }
+    },
+    {
+      "view": "tile",
+      "file": "models/places/castel-volturno/roundabout/renders/tile.png",
+      "sha256": "138b3e308ba59894738f250572cb630a93035b71a6527627ebcde5b9d73e4ba6",
+      "viewport": {
+        "width": 256,
+        "height": 256,
+        "deviceScaleFactor": 2
+      },
+      "camera": {
+        "kind": "perspective",
+        "position": [
+          9.24880184225515,
+          7.577667814053033,
+          9.4406373724651
+        ],
+        "target": [
+          0.3756336707927832,
+          0.33275634005728844,
+          0.5674692010027319
+        ],
+        "fov": 32
+      }
+    }
+  ]
+}
