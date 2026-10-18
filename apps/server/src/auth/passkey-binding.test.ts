@@ -33,6 +33,16 @@ function passkeysOf(h: Harness, account: string): unknown[] {
 }
 
 describe("adding a passkey", () => {
+  test("[account:passkey-needs-signed-in-session] given a kept account, when a passkey's registration options are asked for, then the phone must keep the passkey itself and lists it under the account's email", async () => {
+    const h = harness();
+    const { jar } = await signedUp(h, "ada@example.com", false);
+    const asked = await h.call("/api/auth/passkey/generate-register-options", { jar });
+    expect(asked.status).toBe(200);
+    const options = await asked.json<{ user: { name: string; displayName: string }; authenticatorSelection: Record<string, unknown> }>();
+    expect(options.authenticatorSelection).toMatchObject({ residentKey: "required", requireResidentKey: true, userVerification: "preferred" });
+    expect(options.user).toMatchObject({ name: "ada@example.com", displayName: "ada@example.com" });
+  });
+
   test("[account:passkey-needs-signed-in-session] [moderation:admin-view-for-admin-list] given an admin holding a passkey and signed in by email code, when a second passkey's registration is asked for, then it is refused, and nothing is stored, logged or sent", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar, account } = await signedUp(h, "owner@example.com", true);

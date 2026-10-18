@@ -28,14 +28,14 @@ async function admin(h: Harness, email: string) {
 }
 
 describe("the admin passkey rule", () => {
-  test("[moderation:admin-view-for-admin-list] given an admin signed in by email code, when any admin route is asked, then it is refused as not-legal for want of a passkey, and the account reply does not offer the admin page", async () => {
+  test("[moderation:admin-view-for-admin-list] given an admin signed in by email code, when any admin route is asked, then it is refused as not-legal for want of a passkey, and the account reply does not offer the admin page but says it needs a passkey", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { jar } = await admin(h, "owner@example.com");
     for (const path of ADMIN_ROUTES) {
       const reply = await h.call(path, { jar });
       expect({ path, status: reply.status, body: await reply.json() }).toEqual({ path, status: 403, body: { ok: false, code: "not-legal", detail: ADMIN_PASSKEY_DETAIL } });
     }
-    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { admin: false } });
+    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { admin: false, adminNeedsPasskey: true } });
     expect(h.tables.session.map((row) => row["signedInWith"])).toEqual(["email-code"]);
   });
 
@@ -46,17 +46,33 @@ describe("the admin passkey rule", () => {
     const { jar, status } = await signIn();
     expect(status).toBe(200);
     for (const path of ADMIN_ROUTES) expect({ path, status: (await h.call(path, { jar })).status }).toEqual({ path, status: 200 });
-    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { admin: true } });
+    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { admin: true, adminNeedsPasskey: false } });
     expect(h.tables.session.map((row) => row["signedInWith"])).toEqual(["email-code", "passkey"]);
   });
 
-  test("[moderation:admin-view-for-admin-list] given a player off the admin list signed in with a passkey, when an admin route is asked, then it does not exist", async () => {
+  test("[moderation:admin-view-for-admin-list] given a player off the admin list signed in with a passkey, when an admin route is asked, then it does not exist, and the account reply asks for no passkey", async () => {
     const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
     const { account } = await h.signUp("player@example.com");
     const { jar, status } = await (await storedPasskey(h, account))();
     expect(status).toBe(200);
     for (const path of ADMIN_ROUTES) expect({ path, status: (await h.call(path, { jar })).status }).toEqual({ path, status: 404 });
-    expect(await (await h.call("/api/account", { jar })).json()).toMatchObject({ ok: true, account: { admin: false } });
+    const body = await (await h.call("/api/account", { jar })).json<{ ok: true; account: Record<string, unknown> }>();
+    expect(body.account["admin"]).toBe(false);
+    expect("adminNeedsPasskey" in body.account).toBe(false);
+  });
+
+  test("[moderation:admin-view-for-admin-list] given a guest, a kept account off the list signed in by code, and a signed-out browser, when each reads its account and asks an admin route, then no reply names a passkey or an admin view beyond admin false, and every admin route does not exist", async () => {
+    const h = harness({ config: testConfig({ testing: { captureOtp: true } }) });
+    const { jar: guest } = await h.guest();
+    const { jar: kept } = await h.signUp("player@example.com");
+    for (const jar of [guest, kept]) {
+      const body = await (await h.call("/api/account", { jar })).json<{ ok: true; account: Record<string, unknown> }>();
+      expect(body.account["admin"]).toBe(false);
+      expect(Object.keys(body.account).filter((key) => /admin|passkey/i.test(key))).toEqual(["admin"]);
+      for (const path of ADMIN_ROUTES) expect({ path, status: (await h.call(path, { jar })).status }).toEqual({ path, status: 404 });
+    }
+    expect((await h.call("/api/account")).status).toBe(401);
+    for (const path of ADMIN_ROUTES) expect({ path, status: (await h.call(path)).status }).toEqual({ path, status: 404 });
   });
 
   test("[moderation:admin-view-for-admin-list] given the auth library on Drizzle's adapter and Postgres, when an admin signs in by code and then with a passkey, then the session row keeps how each was opened and only the passkey one reaches the admin routes", async () => {

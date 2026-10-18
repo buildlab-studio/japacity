@@ -102,7 +102,7 @@ export async function within<T>(
   try {
     const keys = authKeys(env, keep);
     const auth = makeAuth(scope.deps, drizzleAuthAdapter(scope.db), keys);
-    scope.setSession(sessionReader(auth));
+    scope.setSession(sessionReader(auth, scope.deps));
     return await run(scope, auth, keys);
   } finally {
     waitUntil(

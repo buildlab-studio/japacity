@@ -62,8 +62,13 @@ async function waysOf(auth: Auth, row: AccountRow): Promise<AccountView["ways"]>
   return { google: methods.some((method) => method.providerId === "google") ? email : null, email, passkeys };
 }
 
+/**
+ * moderation:admin-view-for-admin-list: `adminNeedsPasskey` is in the row only for an account on the admin list, so no one
+ * else's reply differs from what it would be with no admin view at all.
+ */
 function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: boolean, ways: AccountView["ways"]): AccountView {
   const { id, country, age, createdAt, character, sendUsageCounts, state, username } = row;
+  const listed = deps.config.admin.accounts.includes(id);
   return {
     id,
     country,
@@ -71,7 +76,8 @@ function viewOf(row: AccountRow, deps: Pick<ServerDeps, "config">, passkey: bool
     createdAt,
     character,
     sendUsageCounts,
-    admin: passkey && deps.config.admin.accounts.includes(id),
+    admin: passkey && listed,
+    ...(listed ? { adminNeedsPasskey: !passkey } : {}),
     state,
     username,
     renameFrom: renameFrom(row, deps.config),

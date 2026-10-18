@@ -58,7 +58,7 @@ Cloudflare Web Analytics counts page views with no cookie. Add your site in your
 
 ## 8. The admin accounts
 
-The admin page is open only to the accounts in the Worker secret `ADMIN_ACCOUNTS`: comma-separated account ids, each signed in with a passkey (server:ledger-alarm-lists-suspects, moderation:admin-view-for-admin-list). No file names it and no deploy passes it, so no account id is ever committed or shown in the dashboard as a plain variable, and a copy starts with no admin. It is set once per environment.
+The admin page is open only to the accounts in the Worker secret `ADMIN_ACCOUNTS`: comma-separated account ids, each from a session that has shown its passkey (server:ledger-alarm-lists-suspects, moderation:admin-view-for-admin-list). No file names it and no deploy passes it, so no account id is ever committed or shown in the dashboard as a plain variable, and a copy starts with no admin. It is set once per environment.
 
 1. Deploy, sign up, and add a passkey to your account.
 2. Read your account id: open `https://<your host>/api/account` in the same browser while signed in; it is the reply's `account.id`.

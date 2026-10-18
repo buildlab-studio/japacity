@@ -42,7 +42,7 @@ What a report cites is kept as it was until the report is decided, even if eithe
 
 Every report, every advert sent in and every appeal enters one queue. Under 18, self-harm, sexual content and something illegal come first, then scams, then the rest, oldest first within each. The aim is a decision within a day.
 
-The team works in an admin view reached only by accounts on the admin list, each signed in with a passkey. It shows the report, what it cites, both accounts' sign-up country and age on the game, and their past reports and actions. It never shows an email address, a seed, or anything of another player's character beyond what that player's own screen would show.
+The team works in an admin view reached only by accounts on the admin list, each from a session that has shown its passkey. It shows the report, what it cites, both accounts' sign-up country and age on the game, and their past reports and actions. It never shows an email address, a seed, or anything of another player's character beyond what that player's own screen would show.
 
 | Action | What it does |
 |---|---|

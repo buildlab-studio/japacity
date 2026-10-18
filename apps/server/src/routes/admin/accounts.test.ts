@@ -87,6 +87,6 @@ describe("the admin accounts from the deployment", () => {
     const bindings = readFileSync(fileURLToPath(new URL("../../../worker-configuration.d.ts", import.meta.url).href), "utf8");
     expect(bindings).not.toContain("ADMIN_ACCOUNTS");
     const config = readFileSync(fileURLToPath(new URL("../../config.ts", import.meta.url).href), "utf8");
-    expect(config).toContain("admin: { accounts: [] },");
+    expect(config).toContain("admin: { accounts: [], passkeyMs: ");
   });
 });

@@ -1,7 +1,7 @@
 // The admin page's data (server:rejections-write-nothing, server:rollback-check-finds-divergence, server:daily-money-report, server:ledger-alarm-lists-suspects).
 // Only a session whose account is in `config.admin.accounts` may read it; to
 // anyone else, signed in or not, every route here does not exist. An admin
-// whose session was not opened with a passkey is refused (moderation:admin-view-for-admin-list).
+// whose session has not shown a passkey recently is refused (moderation:admin-view-for-admin-list).
 import type { ServerRejection } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { Hono } from "hono";
@@ -14,7 +14,7 @@ import type { ServerDeps } from "../../deps";
 
 const WHOLE = /^\d{1,9}$/;
 
-export const ADMIN_PASSKEY_DETAIL = "The admin view needs a session opened with a passkey; sign in again with yours.";
+export const ADMIN_PASSKEY_DETAIL = "The admin view needs your passkey again.";
 
 /** What every admin route knows once the gate has let a request through: the admin's account. */
 export interface AdminEnv {

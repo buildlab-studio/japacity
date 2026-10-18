@@ -46,8 +46,9 @@ export interface ServerConfig {
   /**
    * server:ledger-alarm-lists-suspects: the accounts that may read the admin page. Empty here; a deployment fills it from its
    * Worker secret ADMIN_ACCOUNTS (`deployedConfig`), so no account id is ever written in a committed file.
+   * moderation:admin-view-for-admin-list: `passkeyMs`, how long after a user-verified passkey the session counts as having shown one.
    */
-  admin: { accounts: string[] };
+  admin: { accounts: string[]; passkeyMs: number };
   /** lottery.md Numbers: the secret's size and the public beacon (lottery:fingerprint-commits-secret). */
   lottery: { secretBits: number; beacon: { genesis: number; period: number; url: string } };
   /** server:private-settings-and-dials, server:four-off-switches and server:signups-off-shows-full: how long a switch is cached per isolate and how long the full screen asks a player to wait. */
@@ -102,7 +103,8 @@ export const productionConfig: ServerConfig = {
   // renameDays, guestsPerDevice, guestsPerConnection and guestWindowHours are working values; account.md names the settings without numbers.
   account: { minAge: 18, refusedCookieDays: 30, deleteFreshMs: 10 * time.MINUTE_MS, deleteWithinDays: 30, maxCharacters: 1, renameDays: 30, guestsPerDevice: 3, guestsPerConnection: 30, guestWindowHours: 24, guestIdleDays: 90 },
   auth: { otp: { length: 6, expiresIn: 300, attempts: 3 }, limits: { otpSendPer60s: 3, otpSendPerDay: 10 } },
-  admin: { accounts: [] },
+  // moderation:admin-view-for-admin-list: the 15 minutes NIST SP 800-63B-4 allows an AAL3 session without activity, counted here from the passkey itself.
+  admin: { accounts: [], passkeyMs: 15 * time.MINUTE_MS },
   lottery: { secretBits: 256, beacon: { genesis: 1692803367, period: 3, url: "https://api.drand.sh" } },
   switches: { cacheMs: 30 * time.SECOND_MS, retryMs: 30 * time.SECOND_MS },
   feedback: { maxChars: FEEDBACK_MAX_CHARS, perDay: 5, keepDays: 180 },
@@ -124,7 +126,7 @@ export function adminAccountsFrom(value: string | undefined): string[] {
 
 /** server:ledger-alarm-lists-suspects: the config a deployment runs: production's, with the admin accounts from its ADMIN_ACCOUNTS secret. */
 export function deployedConfig(adminAccounts: string | undefined): ServerConfig {
-  return { ...productionConfig, admin: { accounts: adminAccountsFrom(adminAccounts) } };
+  return { ...productionConfig, admin: { ...productionConfig.admin, accounts: adminAccountsFrom(adminAccounts) } };
 }
 
 type Deep<T> = { [K in keyof T]?: T[K] extends readonly unknown[] ? T[K] : T[K] extends object ? Deep<T[K]> : T[K] };
@@ -141,7 +143,7 @@ export function testConfig(over: Deep<ServerConfig> = {}): ServerConfig {
       otp: { ...productionConfig.auth.otp, ...over.auth?.otp },
       limits: { ...productionConfig.auth.limits, ...over.auth?.limits },
     },
-    admin: { accounts: [...(over.admin?.accounts ?? productionConfig.admin.accounts)] },
+    admin: { accounts: [...(over.admin?.accounts ?? productionConfig.admin.accounts)], passkeyMs: over.admin?.passkeyMs ?? productionConfig.admin.passkeyMs },
     lottery: { secretBits: over.lottery?.secretBits ?? productionConfig.lottery.secretBits, beacon: { ...productionConfig.lottery.beacon, ...over.lottery?.beacon } },
     switches: { ...productionConfig.switches, ...over.switches },
     feedback: { ...productionConfig.feedback, ...over.feedback },

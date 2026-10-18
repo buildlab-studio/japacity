@@ -106,7 +106,14 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       // The library hands this promise to `advanced.backgroundTasks` without awaiting it.
       sendVerificationOTP: (message) => keys.sendOtp(message),
     }),
-    passkey({ rpID: relyingParty, rpName: "Japacity", origin: keys.siteUrl, registration: { requireSession: true } }),
+    passkey({
+      rpID: relyingParty,
+      rpName: "Japacity",
+      origin: keys.siteUrl,
+      registration: { requireSession: true },
+      // account:passkey-needs-signed-in-session: a passkey the phone keeps for its own list, so it signs in with no email typed.
+      authenticatorSelection: { residentKey: "required", userVerification: "preferred" },
+    }),
     // account:guest-and-secured-states, account:guest-secures-the-life: the guest's user is kept on a link; the user the link made is folded into it.
     anonymous({ disableDeleteAnonymousUser: true, generateName: () => "", onLinkAccount: (input) => foldIntoGuest(deps, linking, input) }),
     ...testPlugins(config.testing.captureOtp),
@@ -151,7 +158,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
       updateAge: time.DAY_S,
       // account:player-deletes-account: deletion needs a session signed in within this many seconds.
       freshAge: Math.floor(config.account.deleteFreshMs / 1000),
-      // moderation:admin-view-for-admin-list: how the session was opened, set by the hook below and never by a request.
+      // moderation:admin-view-for-admin-list: how the session was opened (a passkey only when it verified the person), set by the hook below and never by a request.
       additionalFields: { signedInWith: { type: "string", required: false, input: false } },
     },
     databaseHooks: {
@@ -167,7 +174,7 @@ export function makeAuth(deps: ServerDeps, adapter: Adapter, keys: AuthKeys) {
         create: {
           before: async (session, context) => {
             await admitSession(deps, context, linking, session);
-            return { data: { ...session, signedInWith: signedInWith(context?.path) } };
+            return { data: { ...session, signedInWith: signedInWith(context?.path, context?.body) } };
           },
         },
       },
