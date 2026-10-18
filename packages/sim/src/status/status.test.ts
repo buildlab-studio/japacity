@@ -14,14 +14,9 @@ import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { coursePassed, isKept, isOverstayer, nextStepOf, passportHeldByEmployer, workAllows } from "./status.logic";
-import { JUNIOR_DEV, UK_COUNTRY } from "../testing/ids";
+import { GRADUATE, JUNIOR_DEV, OVERSTAYER, SETTLED, SPONSORED, STUDENT, UK_COUNTRY } from "../testing/ids";
 
-const STUDENT: Id<"status"> = "status.uk-student";
-const GRADUATE: Id<"status"> = "status.uk-graduate";
-const SPONSORED: Id<"status"> = "status.uk-sponsored";
-const SETTLED: Id<"status"> = "status.uk-settled";
 const CITIZEN: Id<"status"> = "status.uk-citizen";
-const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
 const GULF: Id<"status"> = "status.gulf-worker";
 
 const entryOf = (id: Id<"status">): StatusEntry => content.status[id]!;

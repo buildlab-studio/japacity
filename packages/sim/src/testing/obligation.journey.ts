@@ -8,16 +8,7 @@ import { flown } from "./place.journey";
 import { applyEffects } from "./route.journey";
 import type { LifeOptions } from "./route.journey";
 import type { Game } from "./play";
-
-const SETTLED: Id<"status"> = "status.uk-settled";
-export const RENT_ROOM: Id<"obligation"> = "obligation.rent-room-uk";
-export const RENT_FLAT: Id<"obligation"> = "obligation.rent-flat-uk";
-export const PHONE: Id<"obligation"> = "obligation.phone-uk";
-export const UPKEEP: Id<"obligation"> = "obligation.upkeep-uk";
-export const TUITION: Id<"obligation"> = "obligation.tuition";
-export const CAR: Id<"obligation"> = "obligation.car";
-export const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
-export const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
+import { SETTLED } from "./ids";
 
 /** Ada flown to the UK on the student status: her room and upkeep are open, and her file is empty. */
 export function abroad(content: Content, options: LifeOptions = {}): Game {

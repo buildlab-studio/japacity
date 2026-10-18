@@ -21,12 +21,7 @@ import { registry } from "../kinds";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { judged } from "../testing/read";
-
-const PASSPORT: Id<"document"> = "document.passport";
-const TRANSCRIPT: Id<"document"> = "document.transcript";
-const ENGLISH: Id<"document"> = "document.english-test";
-const TB: Id<"document"> = "document.tb-certificate";
-const CAS: Id<"document"> = "document.cas";
+import { CAS, ENGLISH, PASSPORT, TB, TRANSCRIPT } from "../testing/ids";
 
 const entries = content.document;
 const band = content.tuning.english;

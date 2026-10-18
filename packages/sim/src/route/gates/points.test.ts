@@ -10,18 +10,16 @@ import type { Content, Id, ReadCtx, RouteState, ScenarioEntry, State, Tuning } f
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
 import { readOf, routeKeys } from "../../testing/read";
-import { READY, READY_PAPERS, UNIT, applyEffects, readyLife, slot } from "../../testing/route.journey";
+import { READY_PAPERS, UNIT, applyEffects, readyLife, slot } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp } from "../route.logic";
 import { GATES } from "./index";
 import { invites, pointsFunds, pointsParts, pointsScore, pointsUnexplainedBp } from "./points";
-import { CANADA_ROUTE, JUNIOR_DEV, LOOK_INTO } from "../../testing/ids";
+import { ADA, CANADA_ROUTE, ENGLISH, JUNIOR_DEV, LOOK_INTO, READY } from "../../testing/ids";
 
 const ENTER_POOL: Id<"activity"> = "activity.enter-pool";
-const ENGLISH: Id<"document"> = "document.english-test";
 const ECA: Id<"document"> = "document.eca";
 const ZAINAB: Id<"scenario"> = "scenario.zainab";
-const ADA: Id<"scenario"> = "scenario.ada";
 
 const entry = content.route[CANADA_ROUTE]!;
 const block = entry.points!;

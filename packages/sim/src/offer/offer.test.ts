@@ -31,10 +31,8 @@ import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { openOffers } from "../testing/read";
 import type { OfferEvent } from "./offer.events";
-import { STANDING, WELLBEING } from "../testing/ids";
+import { ADA, STANDING, TUNDE, WELLBEING } from "../testing/ids";
 
-const ADA: Id<"scenario"> = "scenario.ada";
-const TUNDE: Id<"scenario"> = "scenario.tunde";
 const tuning = content.tuning.offer;
 
 // ---------------------------------------------------------------------------

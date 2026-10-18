@@ -7,8 +7,8 @@ import type { Content, Effect, Id, ReportLine, SlotPick } from "../engine/types"
 import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
+import { TUNDE } from "../testing/ids";
 
-const TUNDE: Id<"scenario"> = "scenario.tunde";
 const SEE: SlotPick = { activity: "activity.see-someone", param: null };
 const PARTNERS = Object.values(content.person).filter((entry) => entry.role === "partner");
 

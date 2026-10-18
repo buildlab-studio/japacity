@@ -5,11 +5,11 @@ import type { Content, Id, NewsStage } from "../engine/types";
 import type { StoryTicks } from "./schedule";
 import { newsSchedule, stageAt } from "./schedule";
 import { standInWorld, standInWorlds } from "./standIn";
+import { FLOAT } from "../testing/ids";
 
 const STAGES: NewsStage[] = ["rumour", "announced", "in-force", "ended"];
 const SEEDS = Array.from({ length: 200 }, (_, index) => `world-${String(index)}`);
 const SCARCITY: Id<"news"> = "news.dollar-scarcity";
-const FLOAT: Id<"news"> = "news.naira-float";
 
 /** The real content with one story's stand-in settings changed. */
 function withStory(id: Id<"news">, change: Partial<Content["news"][Id<"news">]["standIn"]>): Content {

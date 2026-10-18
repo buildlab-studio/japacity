@@ -7,10 +7,9 @@ import { partnerGate } from "../route/gates/partner";
 import type { LifeOptions } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { isSponsorUndertaking } from "./obligation.undertaking";
-import { CA_SPOUSE, STANDING } from "../testing/ids";
+import { CA_SPOUSE, STANDING, UNDERTAKING } from "../testing/ids";
 
 const used = content;
-const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";
 const entry = content.obligation[UNDERTAKING]!;
 const ASSISTANCE = content.var["var.ca-assistance"]!.start;
 const MONTHS = content.tuning.undertaking.months;

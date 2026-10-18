@@ -49,3 +49,50 @@ export const CANADA_COUNTRY: Id<"country"> = "country.canada";
 export const ITALY: Id<"country"> = "country.italy";
 export const UAE: Id<"country"> = "country.uae";
 export const UK_COUNTRY: Id<"country"> = "country.uk";
+
+export const GRADUATE: Id<"status"> = "status.uk-graduate";
+export const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
+export const SETTLED: Id<"status"> = "status.uk-settled";
+export const SPONSORED: Id<"status"> = "status.uk-sponsored";
+export const STUDENT: Id<"status"> = "status.uk-student";
+
+export const ADA: Id<"scenario"> = "scenario.ada";
+export const PROLOGUE: Id<"scenario"> = "scenario.prologue";
+export const READY: Id<"scenario"> = "scenario.ready";
+export const TUNDE: Id<"scenario"> = "scenario.tunde";
+
+export const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
+export const CAR: Id<"obligation"> = "obligation.car";
+export const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
+export const RENT_FLAT: Id<"obligation"> = "obligation.rent-flat-uk";
+export const RENT_ROOM: Id<"obligation"> = "obligation.rent-room-uk";
+export const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
+export const TUITION: Id<"obligation"> = "obligation.tuition";
+export const UK_PHONE: Id<"obligation"> = "obligation.phone-uk";
+export const UK_UPKEEP: Id<"obligation"> = "obligation.upkeep-uk";
+export const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";
+
+export const CAS: Id<"document"> = "document.cas";
+export const ENGLISH: Id<"document"> = "document.english-test";
+export const PASSPORT: Id<"document"> = "document.passport";
+export const TB: Id<"document"> = "document.tb-certificate";
+export const TRANSCRIPT: Id<"document"> = "document.transcript";
+
+export const CALM: Id<"era"> = "era.calm";
+
+export const FLOAT: Id<"news"> = "news.naira-float";
+
+export const ROAD_PARK: Id<"offer"> = "offer.road-park";
+export const STOP: Id<"offer"> = "offer.agent-stop";
+
+export const ROOM: Id<"place"> = "place.the-room";
+
+export const ASHBY: Id<"school"> = "school.ashby";
+export const KINGSMERE: Id<"school"> = "school.kingsmere";
+export const NORTHGATE: Id<"school"> = "school.northgate";
+
+export const DECEMBER_SETPIECE: Id<"setpiece"> = "setpiece.december";
+export const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
+
+export const DECEMBER_VAR: Id<"var"> = "var.season-december";
+export const STUDY_WINDOW: Id<"var"> = "var.uk-study-window";

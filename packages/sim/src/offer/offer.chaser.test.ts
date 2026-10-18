@@ -5,16 +5,13 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Content, Id, OfferState } from "../engine/types";
-import { applyEffects, readyLife, READY, READY_PAPERS, toKnown } from "../testing/route.journey";
+import { applyEffects, readyLife, READY_PAPERS, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind, Pitch } from "./offer.agent";
 import { agentProblems, AGENT_KINDS, agentReadsMoney, carriedTells, CHASED, CHASER, feeRange, kindAt, kindOf, KIND_TERM, MONTHS_TERM, PAPER_TERM, PITCH_TERM, pitchAt } from "./offer.agent";
-import { FEET, GULF_ROUTE, TO_STOP } from "../testing/ids";
+import { FEET, GULF_ROUTE, PASSPORT, READY, STOP, TO_STOP, TRANSCRIPT } from "../testing/ids";
 
-const STOP: Id<"offer"> = "offer.agent-stop";
 const POLICE: Id<"document"> = "document.police-certificate";
-const TRANSCRIPT: Id<"document"> = "document.transcript";
-const PASSPORT: Id<"document"> = "document.passport";
 const GET_POLICE: Id<"activity"> = "activity.get-police-certificate";
 const advice = content.tuning.advice;
 const stop = content.offer[STOP]!;

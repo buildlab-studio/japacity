@@ -1,14 +1,13 @@
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
-import type { Id, SetpieceAnswer, SetpieceEntry, SetpieceQuestion } from "../engine/types";
+import type { SetpieceAnswer, SetpieceEntry, SetpieceQuestion } from "../engine/types";
 import { drawnQuestions, northgateOffers, readyLife, seedWhere, toApplied, uk } from "../testing/route.journey";
 import type { LifeOptions } from "../testing/route.journey";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
-import { PREP } from "../testing/ids";
+import { INTERVIEW, PREP } from "../testing/ids";
 
-const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
 // A clean file is never asked about the deposit (over 30% unexplained) or the papers (a transcript that is not genuine).
 const CLEAN = entry.questions.map((question) => question.id).filter((id) => id !== "deposit" && id !== "papers");

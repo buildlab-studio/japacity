@@ -6,6 +6,7 @@ export { replayedGame } from "./recorded";
 export type { Replayed } from "./recorded";
 export type { Game, StartOptions } from "./play";
 export { miniContent } from "./miniContent";
+export { NORTHGATE } from "./ids";
 export { chapterPicks, FIRST_SESSION_MONTHS, playFirstSession, startingLives } from "./firstSession";
 export type { FirstSession, NextStep, StartingLife, WaysOrder } from "./firstSession";
 export {
@@ -13,7 +14,6 @@ export {
   applyEffects,
   draw,
   drawnQuestions,
-  NORTHGATE,
   northgateOffers,
   raiseSeed,
   readyLife,

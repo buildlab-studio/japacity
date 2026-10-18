@@ -6,14 +6,13 @@ import { applyAs, BOND, facts, joint, life, setPeople } from "../testing/person.
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { barUntilMonth, floorsMet, meetsFloor, ownPayAYear, sponsorCheck } from "./person.sponsorChecks";
-import { CA_SPOUSE, UK_PARTNER } from "../testing/ids";
+import { CA_SPOUSE, UK_PARTNER, UNDERTAKING } from "../testing/ids";
 
 const FLOOR = content.var["var.uk-partner-income"]!.start;
 const BAR = content.country["country.canada"]!.partnerBarMonths;
 const JOB: Id<"activity"> = "activity.job-test-uk";
 const CASH_JOB: Id<"activity"> = "activity.job-test-uk-cash";
 const CA_JOB: Id<"activity"> = "activity.job-test-ca";
-const UNDERTAKING: Id<"obligation"> = "obligation.undertaking-ca";
 
 /** A job abroad paying `salary` a year, so the floor's edge can be met exactly. */
 function job(id: Id<"activity">, country: Id<"country">, currency: "GBP" | "CAD", salary: number, cash = false): ActivityEntry {

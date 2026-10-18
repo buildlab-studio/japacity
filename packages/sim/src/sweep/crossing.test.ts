@@ -12,14 +12,14 @@ import type { Accepted, Content, Currency, ForeignCurrency, Id, PlayerView, Stat
 import { flownAda } from "../testing/goal.journey";
 import { abroad, closeTypes, markBy, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
-import { applyEffects, draw, NORTHGATE, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UNIT } from "../testing/route.journey";
+import { applyEffects, draw, offeredWith, READY_PAPERS, readyContent, readyLife, seedWhere, slot, answerFirst, toDeposit, toHeld, toOffer, uk, UNIT } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { firstTick, seedWhere as seedWhereStory } from "../testing/world";
 import { standInWorld } from "../world/standIn";
 import { month, owing, replayTo } from "../testing/crossing.journey";
 import { eventsOf } from "../testing/read";
-import { UK_ROUTE } from "../testing/ids";
+import { CAR, NORTHGATE, OVERSTAYER, SHORTFALL, SPONSORED, STUDENT, TUITION, UK_ROUTE } from "../testing/ids";
 
 function officialOf(pairs: PlayerView["rates"]): Record<ForeignCurrency, number> {
   const rates = {} as Record<ForeignCurrency, number>;
@@ -255,13 +255,6 @@ describe("rules that cross kinds", () => {
 // ---------------------------------------------------------------------------
 // The whole life: rules that cross kinds abroad, on the road and before month 1
 // ---------------------------------------------------------------------------
-
-const SPONSORED: Id<"status"> = "status.uk-sponsored";
-const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
-const STUDENT: Id<"status"> = "status.uk-student";
-const TUITION: Id<"obligation"> = "obligation.tuition";
-const CAR: Id<"obligation"> = "obligation.car";
-const SHORTFALL: Id<"obligation"> = "obligation.car-shortfall";
 
 describe("whole-life rules that cross kinds", () => {
   test("[R-STATUS-003] [R-LADDER-005] [R-ACTIVITY-006] given Tunde's recorded life on the sponsored worker's status, when he quits the sponsor's job, then the status clock starts at the entry's months, runs one a month, and at its end the status lapses to the overstayer", () => {

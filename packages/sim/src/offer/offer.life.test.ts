@@ -17,9 +17,8 @@ import { openOffers, readOf, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { rollOrder } from "./offer.logic";
 import { drySpellBp, luckReadsMoney, markedChanceBp, monthsWithoutLuck } from "./offer.luck";
-import { STANDING, UK_COUNTRY, WELLBEING } from "../testing/ids";
+import { ADA, STANDING, UK_COUNTRY, WELLBEING } from "../testing/ids";
 
-const ADA: Id<"scenario"> = "scenario.ada";
 const CERTAIN = 10000;
 const POUNDS = 100;
 const luck = content.tuning.luck;

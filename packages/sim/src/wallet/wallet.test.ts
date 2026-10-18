@@ -16,12 +16,11 @@ import { judged } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import type { WalletEvent } from "./wallet.events";
 import { pocketFor, REASON_LINE } from "./wallet.logic";
+import { TUNDE } from "../testing/ids";
 
 const tuning = content.tuning.wallet;
 const ALLOWANCE: Id<"var"> = "var.fx-bank-allowance";
 const QUEUE: Id<"var"> = "var.fx-bank-queue";
-/** Tunde starts with ₦4.2m in the bank and ₦60,000 in cash. */
-const TUNDE: Id<"scenario"> = "scenario.tunde";
 
 /** Round rates so the expected figures can be read off: ₦2,000 a pound and ₦1,000 a dollar at the bank. */
 const ROUND_RATES: World["rates"] = {

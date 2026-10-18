@@ -11,12 +11,7 @@ import { start } from "./play";
 import { routeOf } from "./read";
 import { standInWorld } from "../world/standIn";
 import { offerChanceBp } from "../route/route.logic";
-import { UK_ROUTE } from "./ids";
-
-export const NORTHGATE: Id<"school"> = "school.northgate";
-export const ASHBY: Id<"school"> = "school.ashby";
-export const KINGSMERE: Id<"school"> = "school.kingsmere";
-export const READY: Id<"scenario"> = "scenario.ready";
+import { NORTHGATE, READY, UK_ROUTE } from "./ids";
 
 /** Smallest units in one naira or one pound. */
 export const UNIT = 100;

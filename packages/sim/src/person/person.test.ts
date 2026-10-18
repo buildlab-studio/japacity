@@ -15,10 +15,8 @@ import { bondWith } from "../testing/read";
 import { standInWorld } from "../world/standIn";
 import { computerFacts } from "./person.facts";
 import { factsOf, WEDDING_SPOTS } from "./person.logic";
-import { UK_DEPENDANT } from "../testing/ids";
+import { PROLOGUE, TUNDE, UK_DEPENDANT } from "../testing/ids";
 
-const TUNDE: Id<"scenario"> = "scenario.tunde";
-const PROLOGUE: Id<"scenario"> = "scenario.prologue";
 const TOBI: Id<"person"> = "person.tobi-bank";
 const AMAKA: Id<"person"> = "person.amaka-nurse";
 const KELECHI: Id<"person"> = "person.kelechi-dev";

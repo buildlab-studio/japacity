@@ -12,12 +12,11 @@ import { start } from "../testing/play";
 import { flown, positionOf } from "../testing/place.journey";
 import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, withinMetres } from "./place.logic";
-import { UK_COUNTRY } from "../testing/ids";
+import { ROOM, UK_COUNTRY } from "../testing/ids";
 
 const PECKHAM: Id<"place"> = "place.peckham";
 const RYE_LANE: Id<"place"> = "place.rye-lane";
 const HEATHROW: Id<"place"> = "place.heathrow";
-const ROOM: Id<"place"> = "place.the-room";
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 const rides = content.tuning.city.ride.abroad[UK_COUNTRY]!;
 const bus = rides.ways.bus!;

@@ -14,10 +14,10 @@ import { start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { cash } from "../testing/read";
 import { PARCEL, parcelSender } from "./offer.parcel";
+import { ADA } from "../testing/ids";
 
 const { parcel, street, room } = content.tuning;
 const MONTHS_A_YEAR = 12;
-const ADA: Id<"scenario"> = "scenario.ada";
 /** Ada's draw with no sibling abroad, and one with an older sibling settled in the UK (the people kind's draw). */
 const NO_ONE_ABROAD = "seed-1";
 const SIBLING_ABROAD = "seed-3";

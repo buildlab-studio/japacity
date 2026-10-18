@@ -14,14 +14,11 @@ import { setPockets } from "../testing/wallet";
 import { debits, restMonth } from "../testing/read";
 import { draw, seedWhere } from "../testing/route.journey";
 import type { ObligationEvent } from "./obligation.events";
-import { NETWORK, PORTFOLIO, STANDING, TECH, WELLBEING } from "../testing/ids";
+import { ADA, FAMILY_UPKEEP, NETWORK, PORTFOLIO, STANDING, TECH, TUNDE, WELLBEING } from "../testing/ids";
 
 /** Decision 0013 lives the living by hand at home; these tests read the charge itself, so they charge it whole. */
 const content: Content = { ...realContent, tuning: { ...realContent.tuning, home: { ...realContent.tuning.home, livingByHandBp: 0 } } };
 
-const ADA: Id<"scenario"> = "scenario.ada";
-const TUNDE: Id<"scenario"> = "scenario.tunde";
-const UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const SUPPORT: Id<"obligation"> = "obligation.home-support";
 const SALARY_LOAN: Id<"obligation"> = "obligation.salary-loan";
 const QUICK_LOAN: Id<"obligation"> = "obligation.quick-loan";
@@ -85,7 +82,7 @@ function item(game: Game, id: string): ObligationState | undefined {
 }
 
 function upkeepOf(game: Game): ObligationState {
-  const found = Object.values(game.state.obligation.items).find((owed) => owed.entry === UPKEEP);
+  const found = Object.values(game.state.obligation.items).find((owed) => owed.entry === FAMILY_UPKEEP);
   if (found === undefined) throw new Error("No upkeep.");
   return found;
 }
@@ -97,7 +94,7 @@ describe("the monthly charge", () => {
     expect(upkeep.amount).toBe(ADA_UPKEEP);
     const result = game.endTurn();
     expect(ofType(result, "obligation/charged")).toEqual([
-      { type: "obligation/charged", id: upkeep.id, entry: UPKEEP, total: ADA_UPKEEP, interest: 0, principal: 0 },
+      { type: "obligation/charged", id: upkeep.id, entry: FAMILY_UPKEEP, total: ADA_UPKEEP, interest: 0, principal: 0 },
     ]);
   });
 
@@ -204,8 +201,8 @@ describe("misses", () => {
     const upkeep = upkeepOf(game);
     setPockets(game, { NGN: { cash: 0, bank: 0 } });
     const first = game.endTurn();
-    expect(ofType(first, "obligation/missed")).toEqual([{ type: "obligation/missed", id: upkeep.id, entry: UPKEEP, total: ADA_UPKEEP, missed: 1 }]);
-    expect(qualityChanges(first, UPKEEP).map((event) => [event.quality, event.amount])).toEqual([
+    expect(ofType(first, "obligation/missed")).toEqual([{ type: "obligation/missed", id: upkeep.id, entry: FAMILY_UPKEEP, total: ADA_UPKEEP, missed: 1 }]);
+    expect(qualityChanges(first, FAMILY_UPKEEP).map((event) => [event.quality, event.amount])).toEqual([
       [STANDING, -3],
       [WELLBEING, -5],
     ]);
@@ -301,7 +298,7 @@ describe("default", () => {
     // the lender finds nothing this month and what is owed stands.
     setPockets(game, { NGN: { cash: 5000000, bank: 3000000 } });
     const partly = game.endTurn();
-    expect(ofType(partly, "obligation/missed")).toMatchObject([{ entry: UPKEEP, paid: 8000000 }]);
+    expect(ofType(partly, "obligation/missed")).toMatchObject([{ entry: FAMILY_UPKEEP, paid: 8000000 }]);
     expect(ofType(partly, "obligation/seized")).toEqual([]);
     expect(game.state.wallet.pockets.NGN).toMatchObject({ bank: 0, cash: 0 });
     expect(item(game, loan.id)?.outstanding).toBe(principal);

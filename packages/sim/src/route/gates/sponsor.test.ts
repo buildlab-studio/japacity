@@ -12,11 +12,11 @@ import { registry } from "../../kinds";
 import { ALWAYS_GRANTED } from "../../testing/place.journey";
 import type { Game } from "../../testing/play";
 import { judge, pounds, readOf, routeOf } from "../../testing/read";
-import { applyEffects, draw, linesOf, READY, readyLife, slot, UNIT } from "../../testing/route.journey";
+import { applyEffects, draw, linesOf, readyLife, slot, UNIT } from "../../testing/route.journey";
 import type { LifeOptions } from "../../testing/route.journey";
 import { refusalChanceBp, unknownRoute } from "../route.logic";
 import { findChanceBp, findSponsor, sponsorGate, sponsorJob } from "./sponsor";
-import { CARE_ROUTE, SKILLED, UK_ROUTE } from "../../testing/ids";
+import { CARE_ROUTE, READY, SKILLED, UK_ROUTE } from "../../testing/ids";
 
 const APPLY_CARE: Id<"activity"> = "activity.apply-uk-care";
 const APPLY_SKILLED: Id<"activity"> = "activity.apply-uk-skilled";

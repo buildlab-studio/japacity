@@ -13,7 +13,7 @@ import { start } from "../testing/play";
 import { ALWAYS_GRANTED, flown, offeredSeed, playMonths, recordingCloses } from "../testing/place.journey";
 import { readOf } from "../testing/read";
 import { appliesHere, bannedUntil, capitalBonus, fareHome, metresApart, returnShape, rideFare, withinMetres } from "./place.logic";
-import { CANADA_COUNTRY, STANDING, UK_COUNTRY, UK_ROUTE } from "../testing/ids";
+import { CANADA_COUNTRY, DECEMBER_SETPIECE, SETTLED, STANDING, STUDENT, UK_COUNTRY, UK_ROUTE } from "../testing/ids";
 
 /** The four ways of Lagos as the view lists them with no car at home (R-PLACE-010). */
 function lagosWays(): unknown[] {
@@ -53,9 +53,6 @@ describe("where an entry applies", () => {
   });
 });
 
-const DECEMBER: Id<"setpiece"> = "setpiece.december";
-const SETTLED: Id<"status"> = "status.uk-settled";
-const STUDENT: Id<"status"> = "status.uk-student";
 const RESIDENT: Id<"status"> = "status.ca-resident";
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 const tuning = content.tuning;
@@ -672,7 +669,7 @@ describe("December abroad", () => {
   test("[R-RETURN-005] given the December tick and a character abroad, when the month ends, then the December set piece opens with no route; at home, or out of December, it does not", () => {
     const december = flown(content, { vars: () => ({ "var.season-december": 1 }) });
     december.endTurn();
-    expect(december.state.setpiece.open).toMatchObject({ entry: DECEMBER, route: null });
+    expect(december.state.setpiece.open).toMatchObject({ entry: DECEMBER_SETPIECE, route: null });
     const ordinary = flown(content);
     ordinary.endTurn();
     expect(ordinary.state.setpiece.open).toBeNull();

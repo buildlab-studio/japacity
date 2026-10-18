@@ -3,17 +3,15 @@ import { content, text } from "@japacity/content";
 import { describe, expect } from "vitest";
 
 import { checkInvariants } from "../engine/invariants";
-import type { Id, LotteryResult, World } from "../engine/types";
+import type { LotteryResult, World } from "../engine/types";
 import { legalCommands } from "../testing/legal";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
-import { LOTTO } from "../testing/ids";
+import { LOTTO, TUNDE } from "../testing/ids";
 
 const tuning = content.tuning.lottery;
 const { odds } = tuning;
-/** Tunde starts with ₦4.2m in the bank and ₦60,000 in cash. */
-const TUNDE: Id<"scenario"> = "scenario.tunde";
 
 type Draw = NonNullable<World["lottery"]>;
 

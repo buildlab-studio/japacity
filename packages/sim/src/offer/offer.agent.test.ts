@@ -9,7 +9,7 @@ import { describe, expect } from "vitest";
 import { check } from "../engine/check";
 import type { Accepted, BaseEvent, Content, Id, OfferEntry, OfferState, ReportLine, Requirement } from "../engine/types";
 import { hiddenPaths } from "../engine/view";
-import { applyEffects, answerFirst, READY, readyLife, toApplied, toKnown } from "../testing/route.journey";
+import { applyEffects, answerFirst, readyLife, toApplied, toKnown } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import type { AgentKind } from "./offer.agent";
 import {
@@ -28,9 +28,8 @@ import {
 import type { OfferEvent } from "./offer.events";
 import { answerScore } from "../setpiece/setpiece.logic";
 import { cash, naira } from "../testing/read";
-import { FEET, GULF_ROUTE, NETWORK, TO_STOP, UK_ROUTE } from "../testing/ids";
+import { FEET, GULF_ROUTE, NETWORK, READY, STOP, TO_STOP, UK_ROUTE } from "../testing/ids";
 
-const STOP: Id<"offer"> = "offer.agent-stop";
 const OFFICE: Id<"offer"> = "offer.agent-office";
 const TO_OFFICE: Id<"activity"> = "activity.see-agent-office";
 const advice = content.tuning.advice;

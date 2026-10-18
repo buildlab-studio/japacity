@@ -18,7 +18,7 @@ import { start } from "../testing/play";
 import { keys, type MoneyEvent, moneyOf, readOf } from "../testing/read";
 import { activityKind, cashWorkedThisMonth, localTenure, paramsFor, passChanceBp } from "./activity.logic";
 import { drivingAttempts, hasCar, jobTerms, monthlyPay, monthlyTax } from "./activity.pay";
-import { HUNT } from "../testing/ids";
+import { GRADUATE, HUNT, OVERSTAYER, SETTLED, SPONSORED, STUDENT } from "../testing/ids";
 
 const CARE: Id<"activity"> = "activity.job-uk-care";
 const WAREHOUSE: Id<"activity"> = "activity.job-uk-warehouse";
@@ -27,11 +27,6 @@ const KITCHEN: Id<"activity"> = "activity.job-uk-kitchen-cash";
 const COURIER: Id<"activity"> = "activity.job-uk-courier-cash";
 const NURSE: Id<"activity"> = "activity.job-uk-nurse";
 const GUARD: Id<"activity"> = "activity.job-gulf-guard";
-const STUDENT: Id<"status"> = "status.uk-student";
-const GRADUATE: Id<"status"> = "status.uk-graduate";
-const SPONSORED: Id<"status"> = "status.uk-sponsored";
-const SETTLED: Id<"status"> = "status.uk-settled";
-const OVERSTAYER: Id<"status"> = "status.uk-overstayer";
 const HOME_LICENCE: Id<"document"> = "document.home-licence";
 const UK_LICENCE: Id<"document"> = "document.uk-licence";
 /** £27,000 a year, inside the care home's band. */

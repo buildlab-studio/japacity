@@ -9,12 +9,11 @@ import { applyEffects, slot } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import type { ActivityEvent } from "./activity.events";
-import { ASK_AROUND, BET, BUY_PHONE, GULF_ROUTE, HUNT, LOTTO } from "../testing/ids";
+import { ASK_AROUND, BET, BUY_PHONE, GULF_ROUTE, HUNT, LOTTO, ROAD_PARK } from "../testing/ids";
 
 const PASSPORT: Id<"activity"> = "activity.get-passport";
 const MEETUP: Id<"activity"> = "activity.meetup";
 const LEARN: Id<"activity"> = "activity.learn-tech";
-const PITCH: Id<"offer"> = "offer.road-park";
 
 /** The rule's two lists. Every entry not named a now-act is a month-act. */
 const NOW_ACTS: readonly string[] = [
@@ -173,7 +172,7 @@ describe("a now-act", () => {
     expect(game.state.route[GULF_ROUTE]?.state ?? "unheard").not.toBe("heard");
     const asked = now(game, ASK_AROUND);
     expect(game.state.route[GULF_ROUTE]?.state).toBe("heard");
-    expect(Object.values(game.state.offer.items).map((offer) => offer.entry)).toContain(PITCH);
+    expect(Object.values(game.state.offer.items).map((offer) => offer.entry)).toContain(ROAD_PARK);
     expect(nowLine(asked, ASK_AROUND)).toBeDefined();
     expect(game.state.turn.month).toBe(0);
   });

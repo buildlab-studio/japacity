@@ -4,13 +4,13 @@ import { content, text } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
 import type { Accepted, NewsEntry, ReportLine, World } from "../engine/types";
-import { applyEffects, READY, readyContent, readyLife, slot, toHeard } from "../testing/route.journey";
+import { applyEffects, readyContent, readyLife, slot, toHeard } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
 import { standInWorld } from "../world/standIn";
 import type { ActivityEvent } from "./activity.events";
 import { ADVISER, adviserReading, changedTick, FRIEND, LEFT_TICK, wrongItem } from "./activity.advice";
-import { LOOK_INTO, NETWORK, UK_ROUTE } from "../testing/ids";
+import { LOOK_INTO, NETWORK, READY, UK_ROUTE } from "../testing/ids";
 
 const advice = content.tuning.advice;
 

@@ -4,11 +4,11 @@
 import type { Registry } from "../engine/kind";
 import type { BaseEvent, Content, Ctx, Effect, Id, ObligationType } from "../engine/types";
 import { registry } from "../kinds";
-import { answerFirst, draw, NORTHGATE, readyLife, seedWhere, toDecision } from "./route.journey";
+import { answerFirst, draw, readyLife, seedWhere, toDecision } from "./route.journey";
 import type { LifeOptions } from "./route.journey";
 import { offerChanceBp } from "../route/route.logic";
 import type { Game } from "./play";
-import { UK_ROUTE } from "./ids";
+import { NORTHGATE, UK_ROUTE } from "./ids";
 
 /** Never refused: the floor and the ceiling of R-ROUTE-016 pinned together. */
 export const ALWAYS_GRANTED = { refusalMinBp: 0, refusalMaxBp: 0 };

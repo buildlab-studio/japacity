@@ -13,9 +13,8 @@ import { mulDivCeil } from "../engine/int";
 import { answerScore } from "./setpiece.logic";
 import { flown } from "../testing/place.journey";
 import { readOf } from "../testing/read";
-import { PREP, STANDING, UK_ROUTE } from "../testing/ids";
+import { DECEMBER_SETPIECE, DECEMBER_VAR, INTERVIEW, PREP, STANDING, UK_ROUTE } from "../testing/ids";
 
-const INTERVIEW: Id<"setpiece"> = "setpiece.credibility-interview";
 const entry = content.setpiece[INTERVIEW]!;
 const hintPrep = content.tuning.route.hintPrep;
 /** Every question in content order, and those asked of a clean file: the deposit question needs over 30% unexplained, the papers one a transcript that is not genuine. */
@@ -343,7 +342,7 @@ describe("answers with effects, and set pieces with no route", () => {
   test("[R-SETPIECE-006] [R-SETPIECE-002] given a set piece open, when setpiece/close names another, then nothing changes; when it names the open one, then it closes unscored and uncounted, and the turn may end", () => {
     const game = life();
     applyEffects(game, [{ type: "setpiece/open", setpiece: INTERVIEW, route: null }]);
-    applyEffects(game, [{ type: "setpiece/close", setpiece: DECEMBER }]);
+    applyEffects(game, [{ type: "setpiece/close", setpiece: DECEMBER_SETPIECE }]);
     expect(game.state.setpiece.open?.entry).toBe(INTERVIEW);
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(false);
     applyEffects(game, [{ type: "setpiece/close", setpiece: INTERVIEW }]);
@@ -357,26 +356,24 @@ describe("answers with effects, and set pieces with no route", () => {
   });
 });
 
-const DECEMBER: Id<"setpiece"> = "setpiece.december";
-const SEASON: Id<"var"> = "var.season-december";
 const MONTHS_A_YEAR = 12;
 
 /** A life flown to the UK on the study route, with every tick December. */
 function flownInDecember(): Game {
-  return flown(content, { vars: () => ({ [SEASON]: 1 }) });
+  return flown(content, { vars: () => ({ [DECEMBER_VAR]: 1 }) });
 }
 
 /** The same life a month later, the December visit open. */
 function december(): Game {
   const game = flownInDecember();
   game.endTurn();
-  expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+  expect(game.state.setpiece.open?.entry).toBe(DECEMBER_SETPIECE);
   return game;
 }
 
 /** What an answer of the December visit takes, as content gives it. */
 function priceOf(question: string, answer: string): { currency: Currency; amount: number } {
-  const found = content.setpiece[DECEMBER]!.questions.find((item) => item.id === question)?.answers.find((item) => item.id === answer);
+  const found = content.setpiece[DECEMBER_SETPIECE]!.questions.find((item) => item.id === question)?.answers.find((item) => item.id === answer);
   const take = found?.effects.find((effect) => effect.type === "money/take");
   if (take?.type !== "money/take" || typeof take.amount !== "number") throw new Error(`${question}.${answer} takes no fixed amount.`);
   return { currency: take.currency, amount: take.amount };
@@ -413,7 +410,7 @@ describe("a set piece asked in a fixed order", () => {
     const game = flownInDecember();
     const before = game.state.draws.visa ?? 0;
     game.endTurn();
-    expect(game.state.setpiece.open).toMatchObject({ entry: DECEMBER, route: null, questions: ["go-uk", "party-uk", "gifts-uk", "look-uk"] });
+    expect(game.state.setpiece.open).toMatchObject({ entry: DECEMBER_SETPIECE, route: null, questions: ["go-uk", "party-uk", "gifts-uk", "look-uk"] });
     expect(game.state.draws.visa ?? 0).toBe(before);
   });
 });
@@ -423,9 +420,9 @@ describe("closing on an answer", () => {
     const game = december();
     const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
     expect(result.events.map((event) => event.type)).toEqual(["setpiece/answered", "setpiece/closed", "engine/stepped"]);
-    expect(result.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: DECEMBER }, tone: "plain", attention: false, counts: [] }]);
+    expect(result.lines).toEqual([{ key: "line.setpiece.closed", params: { setpiece: DECEMBER_SETPIECE }, tone: "plain", attention: false, counts: [] }]);
     expect(game.state.setpiece.open).toBeNull();
-    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
     expect(game.view().setpiece).toBeNull();
     game.expectRejected({ type: "setpiece/answer", question: "party-uk", answer: "home" }, "not-legal");
     expect(legalCommands(game.view()).some((command) => command.type === "turn/end")).toBe(true);
@@ -458,7 +455,7 @@ describe("answers that need something", () => {
     const result = game.accept({ type: "setpiece/answer", question: "go-uk", answer: "go" });
     expect(game.state.wallet.pockets.GBP.bank + game.state.wallet.pockets.GBP.cash).toBe(0);
     expect(result.lines.filter((line) => line.big === true)).toEqual([
-      { key: "line.setpiece.december-go", params: { setpiece: DECEMBER }, tone: "good", attention: true, big: true, counts: [] },
+      { key: "line.setpiece.december-go", params: { setpiece: DECEMBER_SETPIECE }, tone: "good", attention: true, big: true, counts: [] },
     ]);
     expect(game.view().setpiece).toMatchObject({ asked: 1, total: 4, question: { id: "party-uk" } });
   });
@@ -479,7 +476,7 @@ describe("answers that need something", () => {
     game.accept({ type: "setpiece/answer", question: "gifts-uk", answer: "none" });
     game.accept({ type: "setpiece/answer", question: "look-uk", answer: "plain" });
     expect(game.state.setpiece.open).toBeNull();
-    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
   });
 
   test("[R-SHARE-001] given the December visit, when going is answered and the scene is answered through, then the December card is due for the rest of that month; staying home gives none", () => {
@@ -562,7 +559,7 @@ describe("the December visit, once a year", () => {
     // The handle moves the tick on after each turn; holding it back plays the answer and a second turn in the same tick.
     game.tick -= 1;
     game.accept({ type: "setpiece/answer", question: "go-uk", answer: "stay" });
-    expect(game.state.setpiece.answered[DECEMBER]).toBe(1);
+    expect(game.state.setpiece.answered[DECEMBER_SETPIECE]).toBe(1);
     game.endTurn();
     expect(game.state.setpiece.open).toBeNull();
   });
@@ -579,7 +576,7 @@ describe("the December visit, once a year", () => {
     expect(game.state.place.decemberMonth).toBe(opened);
     game.endTurn();
     expect(game.state.turn.month).toBe(opened + MONTHS_A_YEAR);
-    expect(game.state.setpiece.open?.entry).toBe(DECEMBER);
+    expect(game.state.setpiece.open?.entry).toBe(DECEMBER_SETPIECE);
     expect(game.state.place.decemberMonth).toBe(opened + MONTHS_A_YEAR);
   });
 

@@ -20,18 +20,15 @@ import { ALWAYS_GRANTED, offeredSeed } from "../../testing/place.journey";
 import { cash, quality, readOf } from "../../testing/read";
 import { applyEffects, readyLife, slot, toDecision, UNIT } from "../../testing/route.journey";
 import { outcomeOf } from "./road";
-import { AGE, ASK_AROUND, STANDING, UK_ROUTE, WELLBEING } from "../../testing/ids";
+import { AGE, AGENT_DEBT, ASK_AROUND, FAMILY_UPKEEP, ROAD_PARK, STANDING, UK_ROUTE, WELLBEING } from "../../testing/ids";
 
 const ROAD: Id<"route"> = "route.road";
-const PARK: Id<"offer"> = "offer.road-park";
 const RADIO: Id<"offer"> = "offer.road-radio";
 const COUSIN: Id<"offer"> = "offer.road-cousin";
-const PITCHES: Id<"offer">[] = [RADIO, PARK, COUSIN];
+const PITCHES: Id<"offer">[] = [RADIO, ROAD_PARK, COUSIN];
 const RANSOM: Id<"offer"> = "offer.road-ransom-call";
 const NIGHT: Id<"setpiece"> = "setpiece.road-night";
 const TRUTH: Id<"setpiece"> = "setpiece.road-truth";
-const AGENT_DEBT: Id<"obligation"> = "obligation.agent-debt";
-const UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const MEANS: Id<"quality"> = "quality.family-means";
 const STAKE: Id<"quality"> = "quality.family-stake";
 
@@ -111,9 +108,9 @@ function turn(game: Game) {
 }
 
 /** Opens a pitch as the motor park would, and returns it. */
-function openPitch(game: Game, offer: Id<"offer"> = PARK): OfferState {
+function openPitch(game: Game, offer: Id<"offer"> = ROAD_PARK): OfferState {
   // The man at the park asks only someone who has asked around there.
-  if (offer === PARK && !game.state.activity.now?.some((pick) => pick.activity === "activity.ask-around")) game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
+  if (offer === ROAD_PARK && !game.state.activity.now?.some((pick) => pick.activity === "activity.ask-around")) game.accept({ type: "activity/now", activity: "activity.ask-around", param: null });
   applyEffects(game, [{ type: "offer/open", offer }]);
   const pitch = offerOf(game, offer);
   if (pitch === undefined) throw new Error(`${offer} did not open.`);
@@ -121,7 +118,7 @@ function openPitch(game: Game, offer: Id<"offer"> = PARK): OfferState {
 }
 
 /** The pitch opened and taken. Returns the deposit. */
-function take(game: Game, offer: Id<"offer"> = PARK): number {
+function take(game: Game, offer: Id<"offer"> = ROAD_PARK): number {
   const pitch = openPitch(game, offer);
   game.accept({ type: "offer/choose", offer: pitch.id, choice: "take" });
   return pitch.terms.deposit as number;
@@ -132,7 +129,7 @@ function answer(game: Game, question: string, reply: string) {
 }
 
 /** Taken, on the bus, and a month later the truth is asked. Returns the deposit. */
-function toTruth(game: Game, offer: Id<"offer"> = PARK): number {
+function toTruth(game: Game, offer: Id<"offer"> = ROAD_PARK): number {
   const deposit = take(game, offer);
   answer(game, "night", "go");
   turn(game);
@@ -268,7 +265,7 @@ describe("the pitch", () => {
       game.state = { ...game.state, route: { ...game.state.route, [UK_ROUTE]: { ...game.state.route[UK_ROUTE]!, state: "known" } } };
       return game;
     };
-    const park = content.offer[PARK]!;
+    const park = content.offer[ROAD_PARK]!;
     const parkChance = (game: Game) => pressureChanceBp(readOf(game), park, judgeOf(game));
     expect(parkChance(known(life({ change: at(59) })))).toBe(park.chanceBp);
     expect(parkChance(known(life({ change: at(60) })))).toBe(park.chanceBp - pressure.strongRouteBp);
@@ -321,8 +318,8 @@ describe("the pitch", () => {
     const game = life();
     // R-ACTIVITY-015: asking around is an act done at once, so the pitch opens now, in the month in hand.
     const result = game.accept({ type: "activity/now", activity: ASK_AROUND, param: null });
-    expect(offerOf(game, PARK)).toBeDefined();
-    expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === PARK)).toBe(true);
+    expect(offerOf(game, ROAD_PARK)).toBeDefined();
+    expect(result.lines.some((line) => line.key === "line.offer.opened" && line.params.offer === ROAD_PARK)).toBe(true);
   });
 });
 
@@ -465,12 +462,12 @@ describe("the truth", () => {
     const game = life({ change: HONEST_ROAD });
     const deposit = toTruth(game);
     const money = cash(game);
-    expect(owed(game, UPKEEP)).not.toBeNull();
+    expect(owed(game, FAMILY_UPKEEP)).not.toBeNull();
     const result = answer(game, "truth", "pay");
     expect(cash(game)).toBe(money - deposit);
     expect(result.events).toContainEqual(expect.objectContaining({ type: "wallet/debited", currency: "NGN", pocket: "cash", amount: deposit, reason: "fee-agent" }));
     expect(game.state.place.where).toBe("road");
-    expect(owed(game, UPKEEP)).toBeNull();
+    expect(owed(game, FAMILY_UPKEEP)).toBeNull();
     expect(game.state.activity.job).toBeNull();
     expect(gateOf(game)).toEqual({ gate: "road", step: chain[0]!.id, monthsHere: 0, debt: 0 });
     expect(game.view().freeSlots).toBe(0);
@@ -538,7 +535,7 @@ describe("the truth", () => {
     expect(game.state.place.where).toBe("home");
     expect(game.state.place.returns).toEqual([]);
     expect(gateOf(game).step).toBe("exit");
-    expect(owed(game, UPKEEP)).not.toBeNull();
+    expect(owed(game, FAMILY_UPKEEP)).not.toBeNull();
   });
 });
 
@@ -750,7 +747,7 @@ describe("the way out", () => {
       const fromReturn = changes.filter((event) => event.quality === STANDING && event.source === ROAD).reduce((sum, event) => sum + event.amount, 0);
       expect(fromReturn).toBe(ASSISTED);
       expect(owed(game, AGENT_DEBT)).toBe(700000 * UNIT);
-      expect(owed(game, UPKEEP)).not.toBeNull();
+      expect(owed(game, FAMILY_UPKEEP)).not.toBeNull();
       expect(game.view().freeSlots).toBeGreaterThan(0);
       const back = game.state.turn.report!.lines;
       expect(back.some((line) => line.key === "line.route.road-turned")).toBe(true);
@@ -910,7 +907,7 @@ describe("who the pitches reach", () => {
       // A life from sixteen cannot act while its prologue is open, so its park pitch is judged once the prologue is closed elsewhere.
       const asked = game.send({ type: "activity/now", activity: "activity.ask-around", param: null }, "player").ok;
       for (const id of PITCHES) {
-        if (id === PARK && !asked) continue;
+        if (id === ROAD_PARK && !asked) continue;
         const when = content.offer[id]!.when;
         expect(when.every((requirement) => check(readOf(game), requirement).met)).toBe(true);
       }

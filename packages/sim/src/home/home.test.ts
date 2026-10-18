@@ -15,14 +15,13 @@ import { answerPrologue, start } from "../testing/play";
 import { setPockets } from "../testing/wallet";
 import { eventsOf, openObligations, restMonth } from "../testing/read";
 import { standInWorld } from "../world/standIn";
-import { STANDING, WELLBEING } from "../testing/ids";
+import { FAMILY_UPKEEP, STANDING, WELLBEING } from "../testing/ids";
 
 const MAKOKO = "place.makoko" as const;
 const FAMILY = "place.family-house" as const;
 const COMPOUND = "place.compound-room" as const;
 /** The fourth home, a hostel room by the month (home.hostel.test.ts). */
 const HOSTEL = "place.hostel-room" as const;
-const FAMILY_UPKEEP: Id<"obligation"> = "obligation.upkeep";
 const MAKOKO_UPKEEP: Id<"obligation"> = "obligation.upkeep-makoko";
 const TAKEN_IN: Id<"offer"> = "offer.taken-in";
 const WHERE_NEXT: Id<"offer"> = "offer.where-next";

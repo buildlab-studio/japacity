@@ -10,30 +10,11 @@ import { applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { eventsOf, readOf } from "../testing/read";
 import { carPaid, carTerms, carView } from "./obligation.logic";
-import {
-  abroad,
-  AGENT_DEBT,
-  CAR,
-  closeTypes,
-  isOpen,
-  markBy,
-  markOf,
-  nextMonth,
-  openOwed,
-  owedOf,
-  PHONE,
-  RENT_FLAT,
-  RENT_ROOM,
-  settledAbroad,
-  SHORTFALL,
-  TUITION,
-  UPKEEP,
-} from "../testing/obligation.journey";
+import { abroad, closeTypes, isOpen, markBy, markOf, nextMonth, openOwed, owedOf, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
-import { STANDING, WELLBEING } from "../testing/ids";
+import { AGENT_DEBT, CAR, RENT_FLAT, RENT_ROOM, SHORTFALL, STANDING, STUDENT, TUITION, UK_PHONE, UK_UPKEEP, WELLBEING } from "../testing/ids";
 
 const CREDIT = content.tuning.credit;
-const STUDENT: Id<"status"> = "status.uk-student";
 
 function entryOf(id: Id<"obligation">): ObligationEntry {
   const entry = content.obligation[id];
@@ -56,7 +37,7 @@ function hasCar(game: Game): boolean {
 describe("rent", () => {
   test("[R-ABROAD-003] given a life arriving in the UK, when it lands, then the country's upkeep and a shared room open in pounds, and the room needs no credit", () => {
     const game = abroad(content);
-    expect(owedOf(game, UPKEEP)).toMatchObject({ amount: entryOf(UPKEEP).amount, state: "active" });
+    expect(owedOf(game, UK_UPKEEP)).toMatchObject({ amount: entryOf(UK_UPKEEP).amount, state: "active" });
     expect(owedOf(game, RENT_ROOM)).toMatchObject({ amount: entryOf(RENT_ROOM).amount, state: "active" });
     expect(entryOf(RENT_ROOM)).toMatchObject({ currency: "GBP", reportsToCredit: true });
     expect(entryOf(RENT_ROOM).creditMin).toBeUndefined();
@@ -174,11 +155,11 @@ describe("the phone", () => {
   test("[R-ABROAD-004] given a phone contract, when it is paid on time, then it adds to the file each month and keeps running after its 24 months", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
-    const phone = openOwed(game, PHONE);
-    expect(entryOf(PHONE)).toMatchObject({ creditMin: 10, reportsToCredit: true, amount: 2500 });
+    const phone = openOwed(game, UK_PHONE);
+    expect(entryOf(UK_PHONE)).toMatchObject({ creditMin: 10, reportsToCredit: true, amount: 2500 });
     playMonths(game, 25);
     expect(markOf(game)).toBeGreaterThanOrEqual(25 * CREDIT.onTime);
-    expect(owedOf(game, PHONE).id).toBe(phone.id);
+    expect(owedOf(game, UK_PHONE).id).toBe(phone.id);
     expect(game.view().credit?.onTime).toBe(25);
   });
 
@@ -189,7 +170,7 @@ describe("the phone", () => {
     const offered = () => game.view().activities.find((option) => option.id === contract);
     expect(offered()?.allowed).toBe(true);
     game.endTurn([{ activity: contract, param: null }]);
-    expect(Object.values(game.state.obligation.items).filter((item) => item.entry === PHONE)).toHaveLength(1);
+    expect(Object.values(game.state.obligation.items).filter((item) => item.entry === UK_PHONE)).toHaveLength(1);
     expect(offered()?.allowed).toBe(false);
     game.expectRejected({ type: "turn/end", slots: [{ activity: contract, param: null }] }, "not-legal");
     closeTypes(game, "phone");
@@ -200,12 +181,12 @@ describe("the phone", () => {
     const game = settledAbroad(content);
     closeTypes(game, "rent", "upkeep");
     markBy(game, 60);
-    openOwed(game, PHONE);
+    openOwed(game, UK_PHONE);
     setPockets(game, { GBP: 0 });
     playMonths(game, 2);
-    expect(owedOf(game, PHONE).missed).toBe(2);
+    expect(owedOf(game, UK_PHONE).missed).toBe(2);
     const third = nextMonth(game);
-    expect(isOpen(game, PHONE)).toBe(false);
+    expect(isOpen(game, UK_PHONE)).toBe(false);
     expect(markOf(game)).toBe(60 - 2 * CREDIT.onMiss - CREDIT.onDefault);
     expect(keysOf(third.lines, "line.obligation.")).toEqual(["line.obligation.missed", "line.obligation.cut-off"]);
   });
@@ -454,7 +435,7 @@ describe("the car", () => {
       notice: false,
       courtMonth: null,
     });
-    expect(carView(readOf(game), { ...car, entry: PHONE })).toBeNull();
+    expect(carView(readOf(game), { ...car, entry: UK_PHONE })).toBeNull();
   });
 
   test("[R-CAR-003] [R-CAR-005] given each car line, when it is looked up, then it has words, and money in it is typed", () => {
@@ -541,7 +522,7 @@ describe("the agent's debt", () => {
     game.accept({ type: "return/home" });
     expect(owedOf(game, AGENT_DEBT).outstanding).toBe(50000000);
     expect(isOpen(game, RENT_ROOM)).toBe(false);
-    expect(isOpen(game, UPKEEP)).toBe(false);
+    expect(isOpen(game, UK_UPKEEP)).toBe(false);
     expect(game.view().obligations.map((owed) => owed.entry)).toContain(AGENT_DEBT);
   });
 });

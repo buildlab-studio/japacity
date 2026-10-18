@@ -13,18 +13,15 @@ import { judged, readOf } from "../testing/read";
 import { replayedGame } from "../testing/recorded";
 import { standInWorld } from "../world/standIn";
 import type { RouteKindEvent } from "./route.events";
-import { ASHBY, KINGSMERE, NORTHGATE, READY, READY_PAPERS, UNIT, answerFirst, applyEffects, draw, drawnQuestions, readyLife, seedWhere, slot, toAnswer, toApplied, toDecision, toDeposit, toHeld, toKnown, toOffer, uk, watchHear } from "../testing/route.journey";
+import { READY_PAPERS, UNIT, answerFirst, applyEffects, draw, drawnQuestions, readyLife, seedWhere, slot, toAnswer, toApplied, toDecision, toDeposit, toHeld, toKnown, toOffer, uk, watchHear } from "../testing/route.journey";
 import type { LifeOptions, Watch } from "../testing/route.journey";
 import { FRIEND, fundsRequired, fundsShown, offerChanceBp, refusalChanceBp, refusalReasons, routeKind, unexplainedBp } from "./route.logic";
-import { UK_ROUTE } from "../testing/ids";
+import { ASHBY, CAS, KINGSMERE, NORTHGATE, READY, STUDY_WINDOW, TB, UK_ROUTE } from "../testing/ids";
 
 const numbers = content.tuning.route;
 /** The UK master's own base chance of refusal (R-ROUTE-016). */
 const UK_BASE = content.route[UK_ROUTE]!.refusalBaseBp;
 const school = (id: Id<"school">): SchoolEntry => content.school[id]!;
-const CAS: Id<"document"> = "document.cas";
-const TB: Id<"document"> = "document.tb-certificate";
-const WINDOW: Id<"var"> = "var.uk-study-window";
 const GRADE: Id<"quality"> = "quality.edu-grade";
 /** The questions the interview may ask with a clean file, in content order. */
 const CLEAN_POOL = ["why-uk", "who-pays", "after", "course", "living"];
@@ -254,14 +251,14 @@ describe("the window", () => {
       [1, "narrowing"],
       [0, "closed"],
     ] as const) {
-      const game = life({ vars: () => ({ [WINDOW]: value }) });
+      const game = life({ vars: () => ({ [STUDY_WINDOW]: value }) });
       expect(game.view().routes[0]?.window).toBe(window);
     }
   });
 
   test("[R-ROUTE-005] given a window that closes after an offer, when the player applies to a school or for the visa, then both are refused, but the deposit can still be paid", () => {
     let window = 2;
-    const game = life({ vars: () => ({ [WINDOW]: window }) });
+    const game = life({ vars: () => ({ [STUDY_WINDOW]: window }) });
     toOffer(game);
     window = 0;
     game.expectRejected({ type: "activity/now", activity: "activity.apply-to-school", param: ASHBY }, "not-legal");
@@ -278,7 +275,7 @@ describe("the window", () => {
     const open = (entry: ActivityEntry): ActivityEntry => ({ ...entry, requires: entry.requires.filter((requirement) => requirement.type !== "var/min") });
     const change = (used: Content) => withActivity("activity.apply-for-visa", open)(withActivity("activity.apply-to-school", open)(used));
     let window = 2;
-    const game = life({ change, vars: () => ({ [WINDOW]: window }) });
+    const game = life({ change, vars: () => ({ [STUDY_WINDOW]: window }) });
     toHeld(game);
     window = 0;
     const fees = game.state.wallet.pockets.GBP.bank;
@@ -293,7 +290,7 @@ describe("the window", () => {
 
   test("[R-ROUTE-005] given an application sent, when the window closes before decision day, then it is still decided", () => {
     let window = 2;
-    const game = life({ tuning: ALWAYS_GRANTED, vars: () => ({ [WINDOW]: window }) });
+    const game = life({ tuning: ALWAYS_GRANTED, vars: () => ({ [STUDY_WINDOW]: window }) });
     toApplied(game);
     answerFirst(game);
     window = 0;
@@ -673,7 +670,7 @@ describe("the visa application", () => {
           toHeld(game);
           window = 0;
         },
-        { vars: () => ({ [WINDOW]: window }) },
+        { vars: () => ({ [STUDY_WINDOW]: window }) },
       ],
       [
         "no passport",

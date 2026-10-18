@@ -4,14 +4,14 @@ import { describe, expect, test } from "vitest";
 import { check } from "../engine/check";
 import { checkInvariants } from "../engine/invariants";
 import type { Id, ObligationEntry } from "../engine/types";
-import { abroad, closeTypes, markBy, markOf, openOwed, PHONE, settledAbroad } from "../testing/obligation.journey";
+import { abroad, closeTypes, markBy, markOf, openOwed, settledAbroad } from "../testing/obligation.journey";
 import { setPockets } from "../testing/wallet";
 import { playMonths } from "../testing/place.journey";
 import { answerFirst, applyEffects } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { readOf } from "../testing/read";
 import { creditKind, rateFor } from "./credit.logic";
-import { CANADA_COUNTRY, UK_COUNTRY } from "../testing/ids";
+import { CANADA_COUNTRY, UK_COUNTRY, UK_PHONE } from "../testing/ids";
 
 const CREDIT = content.tuning.credit;
 const JUDGMENT_CAP = CREDIT.judgmentCap;
@@ -27,12 +27,12 @@ function creditMin(game: Game, value: number) {
 }
 
 /** Rent, phone and upkeep for a month, so the month is paid in full. */
-const MONTH_ABROAD = entryOf("obligation.upkeep-uk").amount + entryOf("obligation.rent-room-uk").amount + entryOf(PHONE).amount;
+const MONTH_ABROAD = entryOf("obligation.upkeep-uk").amount + entryOf("obligation.rent-room-uk").amount + entryOf(UK_PHONE).amount;
 
 /** A carer's month: upkeep, the room and a phone contract, both of which report. */
 function carer(): Game {
   const game = abroad(content);
-  openOwed(game, PHONE);
+  openOwed(game, UK_PHONE);
   return game;
 }
 
@@ -110,7 +110,7 @@ describe("payments", () => {
     const game = carer();
     playMonths(game, 4);
     // Upkeep is charged first and the phone last: enough for both, not for the rent between them.
-    setPockets(game, { GBP: entryOf("obligation.upkeep-uk").amount + entryOf(PHONE).amount });
+    setPockets(game, { GBP: entryOf("obligation.upkeep-uk").amount + entryOf(UK_PHONE).amount });
     // December may have opened its scene; the month is what is under test.
     if (game.state.setpiece.open !== null) answerFirst(game);
     const result = game.endTurn();
@@ -188,7 +188,7 @@ describe("drift", () => {
 
 describe("approval and rates", () => {
   test("[R-CREDIT-004] given a mark one under and at each entry's creditMin, when credit/min is judged, then it is met only from the minimum: phone 10, flat 20, car 30", () => {
-    for (const id of [PHONE, "obligation.rent-flat-uk", "obligation.car"] as Id<"obligation">[]) {
+    for (const id of [UK_PHONE, "obligation.rent-flat-uk", "obligation.car"] as Id<"obligation">[]) {
       const need = entryOf(id).creditMin!;
       const game = abroad(content);
       markBy(game, need - 1);
@@ -196,7 +196,7 @@ describe("approval and rates", () => {
       markBy(game, 1);
       expect(creditMin(game, need)).toEqual({ met: true, have: need, need });
     }
-    expect([PHONE, "obligation.rent-flat-uk", "obligation.car"].map((id) => entryOf(id as Id<"obligation">).creditMin)).toEqual([10, 20, 30]);
+    expect([UK_PHONE, "obligation.rent-flat-uk", "obligation.car"].map((id) => entryOf(id as Id<"obligation">).creditMin)).toEqual([10, 20, 30]);
   });
 
   test.each([
@@ -268,7 +268,7 @@ describe("the view", () => {
       missed: 2,
       judgmentUntil: game.state.turn.month + CREDIT.judgmentMonths,
       needs: [
-        { id: PHONE, creditMin: 10 },
+        { id: UK_PHONE, creditMin: 10 },
         { id: "obligation.rent-flat-uk", creditMin: 20 },
         { id: "obligation.car", creditMin: 30 },
       ],

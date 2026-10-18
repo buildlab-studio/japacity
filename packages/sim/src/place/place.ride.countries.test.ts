@@ -13,11 +13,10 @@ import { start } from "../testing/play";
 import { flown, positionOf } from "../testing/place.journey";
 import { debits, rode } from "../testing/read";
 import { metresApart, rideFare, shuttleRide, withinMetres } from "./place.logic";
-import { CANADA_COUNTRY, ITALY, UAE } from "../testing/ids";
+import { CANADA_COUNTRY, ITALY, ROOM, UAE } from "../testing/ids";
 
 const CURRENCIES: readonly Currency[] = ["NGN", "GBP", "USD", "CAD", "AED", "EUR"];
 const MONEY: Readonly<Record<string, Currency>> = { [CANADA_COUNTRY]: "CAD", [UAE]: "AED", [ITALY]: "EUR" };
-const ROOM: Id<"place"> = "place.the-room";
 const abroad = content.tuning.city.ride.abroad;
 
 function ridesOf(country: Id<"country">): CountryRides {

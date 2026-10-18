@@ -7,10 +7,10 @@ import { describe, expect, test } from "vitest";
 
 import { bp, convertMinor, divFloor } from "../engine/int";
 import type { ForeignCurrency, PlayerView } from "../engine/types";
-import { NORTHGATE, offeredWith, readyContent, readyLife, seedWhere, slot, toApplied } from "../testing/route.journey";
+import { offeredWith, readyContent, readyLife, seedWhere, slot, toApplied } from "../testing/route.journey";
 import type { Game } from "../testing/play";
 import { start } from "../testing/play";
-import { UK_ROUTE } from "../testing/ids";
+import { NORTHGATE, UK_ROUTE } from "../testing/ids";
 
 const rest = slot("activity.rest");
 
