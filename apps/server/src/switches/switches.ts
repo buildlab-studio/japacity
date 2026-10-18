@@ -2,23 +2,10 @@
 // R-SERVER-031): from the store at most once every `switches.cacheMs` per
 // isolate, so a change made anywhere is seen within that time, and at once by
 // the isolate that made it.
+import type { ServerRejection } from "@japacity/api";
 import type { DialChange, SwitchName, SwitchRow, SwitchStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
-import type { ServerRejection } from "../types";
-
-export const SWITCH_NAMES: readonly SwitchName[] = [
-  "signups",
-  "lottery",
-  "adverts",
-  "partnerPlay",
-  // city.md R-CITY-039: one switch for each board.
-  "boards.this-week.everyone",
-  "boards.this-week.friends",
-  "boards.all-time.everyone",
-  "boards.all-time.friends",
-  "boards.joined-week",
-];
 
 /** Keyed by the store, so each isolate's store keeps its own and a test's fresh stores start empty. */
 const cache = new WeakMap<SwitchStore, { at: number; row: SwitchRow }>();

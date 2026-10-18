@@ -3,6 +3,7 @@
 // anyone off `config.admin.accounts` (R-SERVER-012), and the player's own two:
 // their standing and an appeal. The log has no route that changes or removes
 // an entry (R-MODERATION-015).
+import type { ServerCode, ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 import type { Context } from "hono";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
@@ -13,7 +14,6 @@ import { limit } from "../limits/limit";
 import { closeReport, decideAppeal, fileAppeal, type ModerationPorts } from "../moderation/decide";
 import { readQueue } from "../moderation/queue";
 import { standingOf } from "../moderation/standing";
-import type { ServerCode, ServerRejection } from "../types";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 

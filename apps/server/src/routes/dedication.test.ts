@@ -1,5 +1,6 @@
 // The dedication's routes (docs/rules/server.md R-SERVER-045; account.md R-ACCOUNT-033): the lights everyone sees with
 // the asker's own beside them, lighting one, putting it out, and the shared check's refusals.
+import type { ServerRejection } from "@japacity/api";
 import { LIGHT_PROBLEMS, type LightProblem } from "@japacity/content";
 import { time } from "@japacity/sim";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -7,7 +8,6 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { signUp, type TestServer, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { memoryLimiters } from "../limits/memory";
-import type { ServerRejection } from "../types";
 import { type BadLight, DEDICATION_KEPT_MS, DEDICATION_LIGHT_PATH, DEDICATION_LIGHTS_PATH, DEDICATION_MOST, type DedicationReply, dedicationRoutes, serverYear } from "./dedication";
 import { fakeEdge } from "./cache.testing";
 

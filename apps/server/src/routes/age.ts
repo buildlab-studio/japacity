@@ -4,6 +4,7 @@
 // row that the guest start consumes, where the bot check runs (R-ACCOUNT-013,
 // routes/account.ts).
 // https://hono.dev/docs/helpers/cookie
+import type { AgeReply, AgeRequest, AgeStatus } from "@japacity/api";
 import { Hono } from "hono";
 import { deleteCookie, setCookie } from "hono/cookie";
 
@@ -13,18 +14,6 @@ import type { Accounts } from "../auth/auth";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
-
-/** The body of `POST /api/age`. */
-export interface AgeRequest {
-  dateOfBirth: string;
-}
-
-export type AgeReply = { ok: true } | ReturnType<typeof rejection>;
-
-/** `GET /api/age`: whether this browser was refused at the age screen and must not be asked again (R-ACCOUNT-012). */
-export interface AgeStatus {
-  refused: boolean;
-}
 
 /** The guest start, the one route that reads the pass. */
 export const PASS_PATH = "/api/guest";

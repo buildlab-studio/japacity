@@ -1,9 +1,9 @@
+import type { ConversationRead, PairRead } from "@japacity/api";
 import { content } from "@japacity/content";
 import { pairId, time } from "@japacity/sim";
 import type { Nudge } from "@japacity/store";
 import { describe, expect, test } from "vitest";
 
-import type { ConversationRead, PairRead } from "./conversation";
 import type { PairRejection } from "./codes";
 import { bondIn, call, cardOut, FRIEND, INVITER, linkedPair, must, newLife, pairServer, recordOf, sayFrom, stateOf } from "./pair.testing";
 

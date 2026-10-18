@@ -1,53 +1,11 @@
 // R-ANALYTICS-009 to 011: the dashboard's data, for the day asked and the 30
 // before it. A figure under `minShown` is never shown as itself (R-ANALYTICS-010).
+import type { DailyRow, Dashboard, Shown, WeekRow } from "@japacity/api";
 import type { Content } from "@japacity/sim";
 import { int } from "@japacity/sim";
 import type { CounterTotal } from "@japacity/store";
 
 import { dayName, dayNumber } from "./day";
-
-/** A count, or the floor it is under when it is under `minShown`. */
-export type Shown = number | { fewerThan: number };
-
-interface ShownTotal {
-  day: string;
-  region: string;
-  name: string;
-  key: string;
-  count: Shown;
-}
-
-/** One day across every region. */
-interface DailyRow {
-  day: string;
-  players: Shown;
-  newPlayers: Shown;
-  turnsEnded: Shown;
-}
-
-/** R-ANALYTICS-011: the first session's measures for the accounts created in one week, Monday first. */
-interface WeekRow {
-  week: string;
-  newPlayers: Shown;
-  d1: Shown;
-  d7: Shown;
-  /** Basis points of the week's new players, null while either figure is hidden. */
-  d1Bp: number | null;
-  d7Bp: number | null;
-  earlyWin: Record<string, Shown>;
-}
-
-export interface Dashboard {
-  day: string;
-  from: string;
-  minShown: number;
-  reference: { d1Bp: number; d7Bp: number };
-  /** R-ANALYTICS-011, R-GUIDE-015: an ask made before the early win, which the page shows in red. */
-  askBeforeEarlyWin: boolean;
-  daily: DailyRow[];
-  weeks: WeekRow[];
-  counters: ShownTotal[];
-}
 
 /** R-ANALYTICS-009: today and the last 30 days. */
 export const WINDOW_DAYS = 30;

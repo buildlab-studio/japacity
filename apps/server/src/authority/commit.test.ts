@@ -1,3 +1,4 @@
+import type { ServerReply } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -5,7 +6,6 @@ import { activeOn } from "../admin/active";
 import { listAlarms } from "../admin/alarm";
 import { utcDay } from "../admin/day";
 import { moneyJob } from "../jobs/money";
-import type { ServerReply } from "../types";
 import { held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 
 function accepted(reply: ServerReply): Extract<ServerReply, { ok: true }> {

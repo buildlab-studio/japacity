@@ -2,11 +2,11 @@
 // counted by code, for the admin page in the isolate and as the day's
 // `command/rejected` total. A refusal writes nothing else, so the counts are
 // taken from the reply after the route has run.
+import type { ServerCode } from "@japacity/api";
 import type { MiddlewareHandler } from "hono";
 
 import { countRejection } from "../admin/rejections";
 import type { ServerDeps } from "../deps";
-import type { ServerCode } from "../types";
 import { countRejected } from "./rejected";
 import { counterDef, keyAllowed } from "./list";
 

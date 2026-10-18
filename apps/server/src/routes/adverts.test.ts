@@ -1,3 +1,4 @@
+import type { AdvertsReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Id } from "@japacity/sim";
 import { int, time } from "@japacity/sim";
@@ -8,7 +9,6 @@ import { makeApp } from "../app";
 import { addAdvertCounters, ADVERT_COUNTERS } from "../adverts/counts";
 import { advertLinksJob, recheckWindow } from "../adverts/job";
 import type { Fetcher } from "../adverts/links";
-import type { AdvertsReply } from "../adverts/serve";
 import { base64, jpegOf, pngOf, webpOf } from "../adverts/adverts.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";

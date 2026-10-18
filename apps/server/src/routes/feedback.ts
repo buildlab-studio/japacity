@@ -1,5 +1,6 @@
 // R-MODERATION-020: `POST /api/feedback { text, build, screen, mode }` from a
 // signed-in session. The reply says only whether it was kept.
+import type { ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 
 import { countFeedback } from "../analytics/live";
@@ -7,7 +8,6 @@ import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { sendFeedback } from "../moderation/feedback";
-import type { ServerRejection } from "../types";
 import { countryOf } from "./place";
 
 export function feedbackRoute(deps: ServerDeps): Hono<SessionEnv> {

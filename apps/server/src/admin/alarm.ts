@@ -2,24 +2,11 @@
 // load find, listed for a person to look at. An alarm takes no action. The
 // list is kept in the isolate's memory and in the audit store, so the admin
 // page still shows it after a restart.
-import type { Currency, Reason } from "@japacity/sim";
+import type { Alarm } from "@japacity/api";
 import type { AuditStore } from "@japacity/store";
 
 import type { ServerDeps } from "../deps";
 import { utcDay } from "./day";
-
-export type Alarm =
-  /** R-SERVER-012: `ledgerReport` named the character as suspect. */
-  | { kind: "suspect"; day: number; character: string; reason: Reason; currency: Currency; total: number; ceiling: number }
-  /**
-   * R-LOTTERY-014: `win` paid for the draw other than its result gives (`win`),
-   * any `pot-top-up` paid for it (`top-up`, which decision 0016 does not pay), or
-   * `ticket` taken for it other than its sales (`ticket`); `limit` is the
-   * figure it should have been.
-   */
-  | { kind: "draw"; day: number; draw: number; check: "win" | "top-up" | "ticket"; total: number; limit: number }
-  /** R-SERVER-003: a load found the replay's hash differs from the stored one; the character waits for the rollback tool. */
-  | { kind: "diverged"; day: number; character: string; v: number };
 
 /**
  * The audit rows that hold alarms are filed under this name instead of a

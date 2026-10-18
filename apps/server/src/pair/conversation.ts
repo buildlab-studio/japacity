@@ -2,7 +2,8 @@
 // people.md R-PEOPLE-015; moderation.md R-MODERATION-009): the checks in the
 // page's order, the row stored, a `said` moment in the record and in both
 // lives, and the other side nudged to fetch.
-import type { ConversationRow, Id, PairRecord, PairView } from "@japacity/sim";
+import type { ConversationRead, PairRead, Said } from "@japacity/api";
+import type { ConversationRow, Id, PairRecord } from "@japacity/sim";
 import { canSay, fillOptions, pairView, saidMoment, time, viewFor } from "@japacity/sim";
 
 import { characterOf } from "../authority/command";
@@ -19,25 +20,6 @@ const MESSAGE_BYTES = 12;
 
 function hex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-/** `POST /api/pair/:pair/say`. */
-export interface Said {
-  ok: true;
-  message: ConversationRow;
-}
-
-/** `GET /api/pair/:pair/conversation?after=`. */
-export interface ConversationRead {
-  ok: true;
-  pair: string;
-  messages: ConversationRow[];
-}
-
-/** `GET /api/pair/:pair`. */
-export interface PairRead {
-  ok: true;
-  pair: PairView;
 }
 
 /** The record and the reader's side, or null when the reader is not in it. */

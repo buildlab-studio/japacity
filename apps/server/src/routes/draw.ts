@@ -3,7 +3,7 @@
 // session. The secret leaves only inside the published result (R-SERVER-015).
 // Kept in the server's cache (the Cache API beside the Worker) by the draw's number for as long as a browser may
 // keep it (server.md R-SERVER-039).
-import type { LotteryOdds, LotteryResult } from "@japacity/sim";
+import type { DrawReply, ServerRejection } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { Hono } from "hono";
 
@@ -12,29 +12,8 @@ import type { ServerDeps } from "../deps";
 import { closesTickOf } from "../draw/draw";
 import type { SessionEnv } from "../limits/limit";
 import { limit } from "../limits/limit";
-import type { ServerRejection } from "../types";
 import type { EdgeCache } from "./cache";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdgeIfAny } from "./cache";
-
-/**
- * The draw page's data. Before the close: the fingerprint, the beacon round,
- * the odds and the jackpot it opened with. From the freeze: the stored list of
- * tokens, its count and hash. From the result: the result, which holds the secret.
- */
-export interface DrawReply {
-  draw: number;
-  closesTick: number;
-  closesAt: number;
-  fingerprint: string;
-  beaconRound: number;
-  /** R-LOTTERY-021, R-LOTTERY-012: the odds and the jackpot fixed when the draw opened. */
-  odds: LotteryOdds;
-  jackpot: number;
-  list: string[] | null;
-  count: number | null;
-  listHash: string | null;
-  result: LotteryResult | null;
-}
 
 /** How long a reply may be cached, in seconds: a published result never changes. */
 const OPEN_MAX_AGE = 60;

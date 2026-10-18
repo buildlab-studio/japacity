@@ -2,6 +2,7 @@
 // guests, and the last time each account played. Mounted with the account
 // routes, before every route it guards, so the server refuses whatever the
 // screen shows.
+import type { ServerRejection } from "@japacity/api";
 import { time } from "@japacity/sim";
 import type { CommandType } from "@japacity/sim";
 import { Hono } from "hono";
@@ -10,7 +11,6 @@ import type { Context, MiddlewareHandler } from "hono";
 import { RATE_LIMIT_MODEL, sha256Hex } from "../auth/hooks";
 import type { ServerDeps } from "../deps";
 import type { SessionEnv } from "../limits/limit";
-import type { ServerRejection } from "../types";
 
 const SECURE = "Secure this life with Google or an email code";
 

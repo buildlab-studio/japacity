@@ -2,6 +2,7 @@
 // stores behind one handle and its one-connection lock, as one request has
 // them in production (decision 0006). The memory stores cannot show what
 // these show: their world store takes no lock the player store holds.
+import type { ServerReply } from "@japacity/api";
 import { pgStores } from "@japacity/db";
 import type { PgliteConnection } from "@japacity/db/pglite";
 import { connectPglite } from "@japacity/db/pglite";
@@ -11,7 +12,6 @@ import { productionConfig } from "../config";
 import { memoryStores } from "../deps";
 import { drawJob } from "../jobs/draw";
 import { TICKS_CRON } from "../jobs/ticks";
-import type { ServerReply } from "../types";
 import type { TestServer } from "./authority.testing";
 import { held, newLife, restMonth, send, testServer } from "./authority.testing";
 

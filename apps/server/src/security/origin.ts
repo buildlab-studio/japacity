@@ -5,9 +5,8 @@
 // game's own. A request that names none is not a browser's on another site's
 // behalf and carries no one's cookie, so it goes on. The auth library's own
 // routes check their origin themselves against the same address.
+import type { ServerRejection } from "@japacity/api";
 import type { MiddlewareHandler } from "hono";
-
-import type { ServerRejection } from "../types";
 
 /** The methods that only read. Everything else is a write. */
 const READS = new Set(["GET", "HEAD", "OPTIONS"]);

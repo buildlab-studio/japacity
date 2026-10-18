@@ -8,6 +8,7 @@
 //
 // Both decisions are written to the admin log (R-MODERATION-015) with the reason `dedication`. Planned, not built: a
 // reviewer job approving on the makers' behalf through the same route.
+import type { PendingLight, ServerRejection } from "@japacity/api";
 import type { DedicationLight } from "@japacity/store";
 import { Hono } from "hono";
 import type { Context } from "hono";
@@ -15,24 +16,11 @@ import type { Context } from "hono";
 import type { ServerDeps } from "../deps";
 import { newId } from "../moderation/decide";
 import { DEDICATION_LOG_REASON } from "../moderation/reports";
-import type { ServerRejection } from "../types";
 import { adminOnly, type AdminEnv } from "./admin";
-import { forgetSharedLights, type LightYears } from "./dedication";
+import { forgetSharedLights } from "./dedication";
 import { edgeCache, type EdgeCache } from "./cache";
 
 export const DEDICATION_PENDING_PATH = "/api/admin/dedication/pending";
-
-/** R-MODERATION-021: a light as the list shows it. */
-export interface PendingLight {
-  account: string;
-  id: string;
-  name: string;
-  years: LightYears;
-  /** The account's username and region, null when the account row is gone. */
-  username: string | null;
-  region: string | null;
-  litAt: number;
-}
 
 async function readNote(c: Context): Promise<string | null> {
   const body: unknown = await c.req.json<unknown>().catch(() => null);

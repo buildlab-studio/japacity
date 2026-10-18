@@ -1,4 +1,5 @@
 /// <reference types="@cloudflare/vitest-plugin/types" />
+import type { PresenceReply, ServerRejection } from "@japacity/api";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -11,7 +12,6 @@ import { roomCounts } from "../place/place.rooms";
 import type { Rooms } from "../place/place.rooms";
 import { freshRooms, listenTo, member, until } from "../place/place.testing";
 import type { ServerConfig } from "../config";
-import type { PresenceReply, ServerRejection } from "../types";
 import { placeSocketRoutes } from "./place";
 
 const PLACE = "place.agege";

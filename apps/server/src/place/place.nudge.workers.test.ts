@@ -1,4 +1,5 @@
 /// <reference types="@cloudflare/vitest-plugin/types" />
+import { PING, PONG, readNudge } from "@japacity/api";
 import { runDurableObjectAlarm } from "cloudflare:test";
 import type { Nudge } from "@japacity/store";
 import { suiteForNudgeBus, suiteForPresenceStore } from "@japacity/store/contract";
@@ -6,9 +7,8 @@ import { describe, expect, test } from "vitest";
 
 import { placePresenceStore } from "./place.presence";
 import { roomCounts, roomStub } from "./place.rooms";
-import { PING, PONG } from "./place.socket";
 import { freshRooms, openMember, settle, until } from "./place.testing";
-import { placeNudgeBus, readNudge } from "./place.nudge";
+import { placeNudgeBus } from "./place.nudge";
 
 const PLACE = "place.market";
 

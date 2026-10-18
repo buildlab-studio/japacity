@@ -2,10 +2,10 @@
 // admin read stops after ADMIN_STATEMENT_MS (Postgres `SET LOCAL statement_timeout` in a transaction of its own,
 // `boundedHandle` in @japacity/db), and a report that heavy is answered to the admin as a plain refusal: the game
 // is never slowed by one, and the admin page is never shown a server failure for it.
+import type { ServerRejection } from "@japacity/api";
 import { STATEMENT_TIMED_OUT } from "@japacity/db";
 
 import { causes } from "../log";
-import type { ServerRejection } from "../types";
 
 /** The longest one statement of an admin read may run: a working value of a few seconds. */
 export const ADMIN_STATEMENT_MS = 5_000;

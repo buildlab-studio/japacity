@@ -1,3 +1,4 @@
+import type { ServerReply, ViewReply } from "@japacity/api";
 import { pgStores } from "@japacity/db";
 import { connectPglite } from "@japacity/db/pglite";
 import type { PgliteConnection } from "@japacity/db/pglite";
@@ -5,7 +6,6 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 
 import { memoryStores } from "../deps";
 import type { Stores } from "../deps";
-import type { ServerReply, ViewReply } from "../types";
 import { drizzleAuthAdapter } from "./drizzle";
 import { harness, makeJar } from "./auth.testing";
 

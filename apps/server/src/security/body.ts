@@ -4,11 +4,11 @@
 // admin pages upload advert images as base64, at most 200 KB before encoding
 // (adverts.md R-ADVERT-004). A larger body is refused before it is read. The
 // two sizes are `limits.bodyBytes` and `limits.adminBodyBytes` in config.ts.
+import type { ServerRejection } from "@japacity/api";
 import type { MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
 import type { ServerConfig } from "../config";
-import type { ServerRejection } from "../types";
 
 /** The counters' route always answers 204, whatever it dropped (R-ANALYTICS-003). */
 const COUNTERS = "/api/counters";

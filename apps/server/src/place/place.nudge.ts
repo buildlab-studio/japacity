@@ -2,6 +2,7 @@
 // object of the account's place, which sends it down every socket whose
 // attachment names the account. A subscriber here is a listener socket in
 // that place: it receives the account's nudges and is never shown or counted.
+import { readNudge } from "@japacity/api";
 import type { Nudge, NudgeBus, NudgeHandler } from "@japacity/store";
 
 import { CLOSE_NORMAL } from "./place.socket";
@@ -23,23 +24,6 @@ interface Listener {
   /** Resolves the waits of sends that expect a count already heard. */
   waiting: { count: number; done: () => void }[];
   end: WebSocket | null;
-}
-
-/** R-CLOCK-020: reads a socket's text back into a nudge, or null for anything else. */
-export function readNudge(text: unknown): Nudge | null {
-  if (typeof text !== "string") return null;
-  let value: unknown;
-  try {
-    value = JSON.parse(text);
-  } catch {
-    return null;
-  }
-  if (typeof value !== "object" || value === null) return null;
-  const held = value as Record<string, unknown>;
-  const keys = Object.keys(held).sort().join(",");
-  if (held.nudge === "view" && keys === "nudge,v" && typeof held.v === "number") return { nudge: "view", v: held.v };
-  if ((held.nudge === "messages" || held.nudge === "presence") && keys === "nudge") return { nudge: held.nudge };
-  return null;
 }
 
 function heard(listener: Listener, nudge: Nudge): void {

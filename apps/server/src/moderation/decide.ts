@@ -1,15 +1,15 @@
 // R-MODERATION-008, R-MODERATION-014 to 019: an admin closes a report or
 // decides an appeal; every action is logged first, a close lifts the hold,
 // and a ban bars the sign-in identities and ends every session.
-import type { AdminAction, AppealRow, ModerationLogEntry } from "@japacity/store";
+import { REPORT_ACTIONS, REPORT_REASONS, type ReportAction, type ReportReason, type ServerCode } from "@japacity/api";
+import type { AppealRow, ModerationLogEntry } from "@japacity/store";
 
 import { requestDeletion } from "../account/deletion";
 import { generatedUsername } from "../account/username";
 import { rollbackCheck } from "../admin/rollback";
 import type { ServerDeps } from "../deps";
-import type { ServerCode } from "../types";
 import { banIdentities, type Identities } from "./identities";
-import { REPORT_REASONS, type Report, type ReportQueueStore, type ReportReason } from "./reports";
+import type { Report, ReportQueueStore } from "./reports";
 import { TOLD } from "./standing";
 
 /** What the admin view is given beside the deps: the pair side's report store and the auth library's identities. */
@@ -18,11 +18,6 @@ export interface ModerationPorts {
   /** Null when the server runs without the auth library; a ban is then refused. */
   identities: Identities | null;
 }
-
-/** R-MODERATION-014: the actions a report can be closed with. The advert actions are the advert queue's; `rollback` opens the tool and leaves the report open. */
-const ON_REPORT = ["dismiss", "warn", "mute", "suspend", "ban", "reset-name", "refer", "rollback"] as const satisfies readonly AdminAction[];
-
-type ReportAction = (typeof ON_REPORT)[number];
 
 /** A generated name is drawn again while the store finds it taken; past this many the reset fails loudly. */
 const NAME_DRAWS = 8;
@@ -80,7 +75,7 @@ export async function closeReport(deps: ServerDeps, ports: ModerationPorts, admi
 
   const sent = asObject(body);
   const action = sent.action;
-  if (typeof action !== "string" || !(ON_REPORT as readonly string[]).includes(action)) return refused(400, "not-legal", `action is one of ${ON_REPORT.join(", ")}.`);
+  if (typeof action !== "string" || !(REPORT_ACTIONS as readonly string[]).includes(action)) return refused(400, "not-legal", `action is one of ${REPORT_ACTIONS.join(", ")}.`);
   const act = action as ReportAction;
   const common = readCommon(sent);
   if (typeof common === "string") return refused(400, "not-legal", common);

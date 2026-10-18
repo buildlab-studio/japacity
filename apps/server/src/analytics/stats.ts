@@ -1,7 +1,8 @@
 // R-ANALYTICS-012: the admin's numbers, built from the stored
 // totals and two live counts of the command log. Plain functions over plain
-// data; the shape is stats.contract.ts. Every count passes through `shown`
+// data; the shape is `Stats` of @japacity/api. Every count passes through `shown`
 // (R-ANALYTICS-010), and a division is made only when both its sides show.
+import type { EconomyCell, FunnelStep, PeriodRates, Regional, RetentionWeek, Returned, ShareKind, Shown, Stats, StatsPeriod } from "@japacity/api";
 import { FUNNEL_STEPS, HELD_BANDS, MONTH_BANDS, SESSION_BANDS } from "@japacity/content";
 import type { Content } from "@japacity/sim";
 import { int } from "@japacity/sim";
@@ -10,7 +11,6 @@ import type { CounterTotal, RegionCount } from "@japacity/store";
 import { shown } from "./dashboard";
 import { dayName } from "./day";
 import { WHOLE_GAME } from "./list";
-import type { EconomyCell, FunnelStep, PeriodRates, Regional, Returned, RetentionWeek, ShareKind, Shown, Stats, StatsPeriod } from "./stats.contract";
 
 /** What the endpoint read. */
 export interface StatsInput {
@@ -25,6 +25,9 @@ export interface StatsInput {
   /** Live: today's players so far, by region. */
   todayPlayers: readonly RegionCount[];
 }
+
+/** The top-level keys, in the order R-ANALYTICS-012 gives them. */
+export const STATS_KEYS = ["now", "today", "last7", "last30", "totals", "funnel", "retention", "sessions", "shares", "adverts", "economy"] as const;
 
 const WEEK_DAYS = 7;
 const MONTH_DAYS = 30;

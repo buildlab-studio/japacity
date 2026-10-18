@@ -34,9 +34,6 @@ export interface RoomLook {
 
 export const ATTACHMENT_HEADER = "x-place-attachment";
 export const LIMITS_HEADER = "x-place-limits";
-/** R-CLOCK-024: the client's ping and the automatic reply. */
-export const PING = "ping";
-export const PONG = "pong";
 /** RFC 6455: a normal close. */
 export const CLOSE_NORMAL = 1000;
 /** RFC 6455: policy violation. */

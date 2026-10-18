@@ -1,3 +1,4 @@
+import type { Reported } from "@japacity/api";
 import { pairView } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
@@ -8,7 +9,6 @@ import { SECRET, SITE } from "../auth/auth.testing";
 import { runDeletions } from "../jobs/deletion";
 import type { PairRejection } from "./codes";
 import { forgetPairs } from "./leave";
-import type { Reported } from "./moderation";
 import { closeReport } from "./moderation";
 import { call, cardOut, FRIEND, INVITER, lastBondIn, linkedPair, married, newLife, pairServer, quickWeddings, recordOf, sayFrom, signUp, stateOf } from "./pair.testing";
 

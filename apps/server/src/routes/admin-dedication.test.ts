@@ -1,13 +1,14 @@
 // The lights list on the admin page (docs/rules/moderation.md R-MODERATION-021): the lights awaiting a look, oldest
 // first, Approve and Refuse, each written to the admin log with the reason `dedication` (R-MODERATION-015).
+import { type PendingLight, REPORT_REASONS } from "@japacity/api";
 import { time } from "@japacity/sim";
 import { describe, expect, test } from "vitest";
 
 import { signUp, type TestServer, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { TEST_SIGNED_IN_WITH } from "../deps";
-import { LOG_REASONS, REPORT_REASONS } from "../moderation/reports";
-import { adminDedicationRoutes, DEDICATION_PENDING_PATH, type PendingLight } from "./admin-dedication";
+import { LOG_REASONS } from "../moderation/reports";
+import { adminDedicationRoutes, DEDICATION_PENDING_PATH } from "./admin-dedication";
 import { DEDICATION_LIGHTS_PATH, type DedicationReply } from "./dedication";
 import { fakeEdge } from "./cache.testing";
 

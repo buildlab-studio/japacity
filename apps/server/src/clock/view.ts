@@ -1,10 +1,10 @@
 // The clock a reply carries (docs/rules/clock.md R-CLOCK-001 to 003). Every
 // time here is the server's: a client never sends one.
+import type { ClockView } from "@japacity/api";
 import type { State } from "@japacity/sim";
 import { int, nextGameMorning, worldClockAt } from "@japacity/sim";
 
 import type { ServerConfig } from "../config";
-import type { ClockView } from "../types";
 import type { TurnClock } from "./turns";
 import { nextTurnAt } from "./turns";
 

@@ -2,6 +2,7 @@
 // (R-CLOCK-020, R-CLOCK-029, R-CLOCK-030). Both need a session and answer
 // every signed-in account: presence is not contact (region.md R-REGION-002),
 // and the socket carries only nudges, never words between players.
+import type { PresenceReply, ServerCode, ServerRejection } from "@japacity/api";
 import { PRIVATE_PLACES } from "@japacity/content";
 import { Hono } from "hono";
 import type { Context } from "hono";
@@ -15,7 +16,6 @@ import { openSocket } from "../place/place.rooms";
 import { STATUS_TOO_LARGE } from "../place/place.socket";
 import type { Rooms } from "../place/place.rooms";
 import { placeTarget } from "../switches/dials";
-import type { PresenceReply, ServerCode, ServerRejection } from "../types";
 
 /** The character's display name and look, or null when the account has none. The core provides it. */
 export type ProfileOf = (account: string) => Promise<{ name: string; look: string } | null>;

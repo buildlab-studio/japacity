@@ -6,6 +6,7 @@
 // the server's cache by the hour (server.md R-SERVER-039) and public to the
 // browser until the hour ends, so the counters are read at most once an hour
 // in each location the Worker runs in.
+import type { LightsReply } from "@japacity/api";
 import { int, time } from "@japacity/sim";
 import { Hono } from "hono";
 
@@ -18,14 +19,6 @@ import type { EdgeCache, Made } from "./cache";
 import { edgeCache, edgeKey, JSON_TYPE, sent, throughEdge } from "./cache";
 
 const LIGHTS_PATH = "/api/lights";
-
-/** R-ACCOUNT-031: the reply, the same for everyone in the hour. Whole tens. */
-export interface LightsReply {
-  ok: true;
-  home: number;
-  abroad: number;
-  back: number;
-}
 
 /** Before any counter was kept: the first day the read asks for. */
 const EVER = "2000-01-01";

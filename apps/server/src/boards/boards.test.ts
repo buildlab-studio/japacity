@@ -1,3 +1,4 @@
+import type { BoardName, BoardReply, ServerRejection } from "@japacity/api";
 import type { State } from "@japacity/sim";
 import { time } from "@japacity/sim";
 import type { SwitchName } from "@japacity/store";
@@ -7,8 +8,6 @@ import type { Live } from "../authority/load";
 import { call, held, newLife, restMonth, send, signUp, testServer, type TestServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { setSwitch } from "../switches/switches";
-import type { ServerRejection } from "../types";
-import type { BoardName, BoardReply } from "./board";
 import { BOARD_NAMES, BOARD_SWITCH } from "./board";
 import { noteFigures } from "./figures";
 import { boardsWeekJob } from "./job";

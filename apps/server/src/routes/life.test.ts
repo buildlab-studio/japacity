@@ -1,3 +1,4 @@
+import type { WorldReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, FlatSave, Overlay, State, World } from "@japacity/sim";
 import { applyOverlay, checkOverlay, hiddenPaths, newState, step, viewFor } from "@japacity/sim";
@@ -6,7 +7,6 @@ import { describe, expect, test } from "vitest";
 
 import { call, held, newLife, send, testServer, view } from "../authority/authority.testing";
 import { testConfig } from "../config";
-import type { WorldReply } from "../types";
 
 const WORLD_SEED = "world-seed-sentinel-8c1f";
 const SENTINEL = 97531;

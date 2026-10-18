@@ -2,13 +2,13 @@
 // numbers an investor asks for, live, for the admin view's Numbers tab. As
 // with the other admin routes, to anyone not in `config.admin.accounts` it
 // does not exist. No public page reads it.
+import type { StatsReply } from "@japacity/api";
 import type { NumbersLog } from "@japacity/store";
 import { Hono } from "hono";
 
 import { dayStart, utcDay } from "../admin/day";
 import { dayName } from "../analytics/day";
 import { buildStats, statsFrom } from "../analytics/stats";
-import type { StatsReply } from "../analytics/stats.contract";
 import type { ServerDeps } from "../deps";
 import { onlineAt } from "../jobs/online";
 import { adminOnly } from "./admin";

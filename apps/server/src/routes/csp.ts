@@ -5,6 +5,7 @@
 // and one count. A report carries far more than is kept: the line holds the directive, the blocked address's origin
 // and the document's path, and nothing else (never the user agent, the full address, the referrer, the sample, the
 // policy or a query string; R-SERVER-015, analytics.md R-ANALYTICS-007).
+import type { ServerRejection } from "@japacity/api";
 import { CSP_DIRECTIVES } from "@japacity/content";
 import type { CounterTotal } from "@japacity/store";
 import type { MiddlewareHandler } from "hono";
@@ -17,7 +18,6 @@ import { NO_REGION } from "../analytics/list";
 import type { ServerDeps } from "../deps";
 import { overLimit } from "../limits/limit";
 import { TOO_LARGE_DETAIL } from "../security/body";
-import type { ServerRejection } from "../types";
 import { writeLine } from "../log";
 import { countryOf } from "./place";
 

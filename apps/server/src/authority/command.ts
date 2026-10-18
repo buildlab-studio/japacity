@@ -2,6 +2,7 @@
 // to 006, R-SERVER-015, R-SERVER-019; clock.md R-CLOCK-003 to 006): find the
 // account's character, run one transaction, and answer with the view after it
 // and the clock. Nothing is predicted and nothing hidden leaves.
+import type { PresetReply, PresetRequest, PresetStep, ServerReply, ViewReply } from "@japacity/api";
 import { presetAnswer, presetOffered } from "@japacity/content";
 import type { Command, Rejection, ReportLine } from "@japacity/sim";
 import { viewFor } from "@japacity/sim";
@@ -9,7 +10,6 @@ import { viewFor } from "@japacity/sim";
 import { clockView } from "../clock/view";
 import type { ServerDeps } from "../deps";
 import { withNumbers } from "../draw/numbers";
-import type { PresetReply, PresetRequest, PresetStep, ServerReply, ViewReply } from "../types";
 import { bookOf } from "../pair/book";
 import { bondedWith, carry } from "../pair/carry";
 import type { Answer } from "./answer";

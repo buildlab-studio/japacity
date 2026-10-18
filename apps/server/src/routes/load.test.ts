@@ -1,3 +1,4 @@
+import type { ServerReply } from "@japacity/api";
 import type { Id, Loose, World } from "@japacity/sim";
 import { hashState, newState, step } from "@japacity/sim";
 import { readFileSync } from "node:fs";
@@ -9,7 +10,6 @@ import { describe, expect, test } from "vitest";
 import { call, held, newLife, testServer } from "../authority/authority.testing";
 import type { TestServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
-import type { ServerReply } from "../types";
 import { countingPlayerStore, emptyCounts, loadRoutes, warmCommand } from "./load";
 import type { LoadRows, LoadView, WriteCounts } from "./load";
 

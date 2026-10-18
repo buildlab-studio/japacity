@@ -2,6 +2,7 @@
 // 002, 004, 006 to 009). A block ends every bond between the two as a block
 // end in both lives and is never shown to the blocked side as a block; a
 // report holds what it cites and changes nothing in either life.
+import { type Blocked, REPORT_REASONS, type ReportCite, type Reported, type ReportSubject } from "@japacity/api";
 import type { Id, PairRecord } from "@japacity/sim";
 import { pairId, time } from "@japacity/sim";
 import type { ReportReason, ReportRow } from "@japacity/store";
@@ -10,7 +11,7 @@ import { characterOf } from "../authority/command";
 import type { ServerDeps } from "../deps";
 import type { PairAnswer } from "./codes";
 import { refused, widen } from "./codes";
-import type { ReportCite, ReportInput, ReportSubject } from "../moderation/reports";
+import type { ReportInput } from "../moderation/reports";
 import { readReport } from "../moderation/reports";
 import { readable } from "./conversation";
 import { field } from "./invite";
@@ -19,21 +20,8 @@ import { pairStep, sendTo, sideLive, sideOf, unusual } from "./step";
 
 const REPORT_BYTES = 12;
 
-const REASONS: readonly ReportReason[] = ["scam", "harassment", "impersonation", "underage", "sexual", "hate", "self-harm", "illegal", "cheating", "advert", "other"];
-
 function hex(bytes: Uint8Array): string {
   return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-/** `POST /api/moderation/block`, `/unblock`. The reply never says more than that it was done. */
-export interface Blocked {
-  ok: true;
-}
-
-/** `POST /api/moderation/report`: received at once (R-MODERATION-007). */
-export interface Reported {
-  ok: true;
-  report: string;
 }
 
 /** The other character a request names: the other side of `pair`, or `character` itself. */
@@ -234,7 +222,7 @@ export async function report(deps: ServerDeps, account: string, body: unknown): 
   const reason = field(body, "reason");
   const key = field(body, "pair");
   const messages = messagesOf(body);
-  if (reason === null || !REASONS.includes(reason as ReportReason)) return refused(400, "not-legal", "Choose a reason from the list.");
+  if (reason === null || !REPORT_REASONS.includes(reason as ReportReason)) return refused(400, "not-legal", "Choose a reason from the list.");
   if (key === null || messages === null) return refused(400, "not-legal", "A report cites the pair, and for a conversation its message ids.");
   const limited = await overLimit(deps, account);
   if (limited !== null) return limited;

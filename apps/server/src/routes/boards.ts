@@ -4,10 +4,10 @@
 //
 // GET /api/boards/:when/:who   when this-week|all-time, who everyone|friends
 // GET /api/boards/joined-week  the joined-the-same-week board, its switch off by default
+import type { BoardName, BoardReply, ServerCode, ServerRejection } from "@japacity/api";
 import { Hono } from "hono";
 import type { Context } from "hono";
 
-import type { BoardName, BoardReply } from "../boards/board";
 import { BOARD_SWITCH, boardNamed, readBoard } from "../boards/board";
 import type { BoardPorts } from "../boards/ports";
 import { accountPorts } from "../boards/ports";
@@ -16,7 +16,6 @@ import type { SessionEnv } from "../limits/limit";
 import { limit, sessionOf } from "../limits/limit";
 import { BOARDS_DETAIL, guestOnly } from "../account/guest";
 import { isOn, retryAfterSeconds, switchedOff } from "../switches/switches";
-import type { ServerCode, ServerRejection } from "../types";
 
 type Reply = { status: 200 | 401 | 403 | 404 | 503; body: BoardReply | ServerRejection };
 

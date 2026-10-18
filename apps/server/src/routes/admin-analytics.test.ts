@@ -1,3 +1,4 @@
+import type { Dashboard } from "@japacity/api";
 import { content } from "@japacity/content";
 import { describe, expect, test } from "vitest";
 
@@ -6,7 +7,6 @@ import { testDeps } from "../app.testing";
 import { makeApp } from "../app";
 import { testConfig } from "../config";
 import { testSession } from "../deps";
-import type { Dashboard } from "../analytics/dashboard";
 import { dayName } from "../analytics/day";
 
 const ADMIN = "account.owner";

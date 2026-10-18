@@ -1,6 +1,7 @@
 // Helpers for the pair tests: two signed-up players, a card out, the link
 // taken, and commands sent at each life's current version. Never imported by
 // the Worker.
+import type { ServerReply } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Command, Content, PairRecord, State } from "@japacity/sim";
 import { pairId } from "@japacity/sim";
@@ -10,7 +11,6 @@ import { call, held, newLife, send, signUp, testServer, view } from "../authorit
 import { load } from "../authority/load";
 import { testConfig } from "../config";
 import type { ServerDeps } from "../deps";
-import type { ServerReply } from "../types";
 
 export const INVITER = "account-a";
 export const FRIEND = "account-b";
