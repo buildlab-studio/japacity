@@ -7,6 +7,7 @@ import type { DedicationReply, LitReply, MyLight, SharedLight } from "@japacity/
 import type { LightProblem } from "@japacity/content";
 import { useEffect, useSyncExternalStore } from "react";
 
+import { listeners } from "../listeners/listeners";
 import { authorityMode } from "../net/authorityMode";
 import { api, type Api } from "../net/http";
 import type { WallGuard } from "../net/wall";
@@ -31,7 +32,7 @@ function buildServer(): Api | null {
 
 let server: Api | null | undefined;
 let water: Water = { kind: "unasked" };
-const listeners = new Set<() => void>();
+const { subscribe, notify } = listeners();
 
 function serverNow(): Api | null {
   if (server === undefined) server = buildServer();
@@ -40,19 +41,14 @@ function serverNow(): Api | null {
 
 function set(next: Water): void {
   water = next;
-  for (const listener of listeners) listener();
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
+  notify();
 }
 
 /** For tests: the server to ask (null for none), and the water forgotten as on a new visit. */
 export function setDedicationServer(next: Api | null): void {
   server = next;
   water = { kind: "unasked" };
-  for (const listener of listeners) listener();
+  notify();
 }
 
 /** For tests: forgets what was read and which server to ask. */
