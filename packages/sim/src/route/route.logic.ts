@@ -525,8 +525,10 @@ function depart(ctx: Ctx, command: Command): BaseEvent[] | Rejection {
   const kept = tokenFor(readOf(ctx), entry);
   const token = held.state === "granted" ? null : kept;
   if (held.state !== "granted" && token === null) return reject("not-legal", "Only a granted route, or a route into the country of a status kept, can be flown.");
-  // The page is silent on a flight from the road; R-ROAD-005 makes the chain the month's only business there.
+  // R-PLACE-002: the airport's gate is in Lagos, so a flight leaves only from home; R-ROAD-005 makes the chain the month's
+  // only business on the road.
   if (ctx.state.place.where === "road") return reject("not-legal", "No flight leaves from the road.");
+  if (ctx.state.place.where === "abroad") return reject("not-legal", "No flight leaves from abroad. The gate is at the Lagos airport.");
   const holding = Object.values(ctx.state.obligation.items).some((item) => ctx.content.obligation[item.entry]?.type === "held-funds");
   if (holding) return reject("not-legal", "Held funds are still open. They must be returned before you fly.");
   const flight = ctx.content.tuning.route.flight;

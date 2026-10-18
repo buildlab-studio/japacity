@@ -152,21 +152,6 @@ describe("rent", () => {
     expect(depositOf(home)).toEqual([["GBP", "bank", entryOf(RENT_FLAT).amount]]);
   });
 
-  test("[R-ABROAD-003] given a flat taken in the UK, when the character moves on to Canada, then the flat is left with its deposit back to the pound bank and only Canada's room is rented", () => {
-    const game = settledAbroad(content);
-    markBy(game, 60);
-    setPounds(game, 1000000);
-    game.endTurn([{ activity: FLAT_UK, param: null }]);
-    expect(isOpen(game, RENT_FLAT)).toBe(true);
-    const pounds = game.state.wallet.pockets.GBP.bank;
-    applyEffects(game, [{ type: "place/move", to: "abroad", country: "country.canada" }]);
-    expect(game.state.place.country).toBe("country.canada");
-    expect(isOpen(game, RENT_FLAT)).toBe(false);
-    expect(isOpen(game, RENT_ROOM)).toBe(false);
-    expect(isOpen(game, "obligation.rent-room-ca")).toBe(true);
-    expect(game.state.wallet.pockets.GBP.bank).toBe(pounds + entryOf(RENT_FLAT).amount);
-  });
-
   test("[R-ABROAD-003] given a shared room with no deposit, when the character goes home, then nothing comes back", () => {
     const game = settledAbroad(content);
     expect(isOpen(game, RENT_ROOM)).toBe(true);

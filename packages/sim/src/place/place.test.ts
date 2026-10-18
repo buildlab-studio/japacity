@@ -609,6 +609,15 @@ describe("the token kept abroad", () => {
     expect(checkInvariants(game.state, game.content)).toEqual([]);
   });
 
+  test("[R-PLACE-002] [R-ROUTE-020] given the UK study route granted and the character already abroad, when route/depart names it, then it is not legal: no flight leaves from abroad", () => {
+    const game = readyLife(content, { seed: offeredSeed(content), tuning: ALWAYS_GRANTED });
+    toDecision(game);
+    expect(game.state.route[UK_ROUTE]?.state).toBe("granted");
+    applyEffects(game, [{ type: "place/move", to: "abroad", country: CANADA }, { type: "status/grant", status: RESIDENT }]);
+    leave(game, 2 * FLIGHT.amount, 0);
+    game.expectRejected({ type: "route/depart", route: UK_ROUTE }, "not-legal");
+  });
+
   test("[R-RETURN-004] given the settled token, when route/depart names a route into Canada, then it is not legal; after a return by choice with no token, the UK route flown before is not legal either", () => {
     const settled = flown(content);
     applyEffects(settled, [{ type: "status/grant", status: SETTLED }]);
