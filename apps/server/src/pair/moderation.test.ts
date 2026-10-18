@@ -6,7 +6,7 @@ import { requestDeletion } from "../account/deletion";
 import { makeAuth } from "../auth/auth";
 import { memoryAuthAdapter } from "../auth/memory";
 import { SECRET, SITE } from "../auth/auth.testing";
-import { runDeletions } from "../jobs/deletion";
+import { runDeletions } from "../scheduled/deletion";
 import type { PairRejection } from "./codes";
 import { forgetPairs } from "./leave";
 import { closeReport } from "./moderation";

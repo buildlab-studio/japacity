@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 
 import { activeOn } from "../ops/active";
 import { listAlarms } from "../ops/alarm";
-import { moneyJob } from "../jobs/money";
+import { moneyJob } from "../scheduled/money";
 import { accepted, held, newLife, restMonth, send, testServer, view } from "./authority.testing";
 
 describe("what follows a commit", () => {

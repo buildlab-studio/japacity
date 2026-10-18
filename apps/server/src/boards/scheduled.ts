@@ -2,7 +2,7 @@
 // whose week is behind the Lagos week saves its figure as the week's start.
 // Idempotent: a second run in the same week moves nothing.
 import type { ServerDeps } from "../deps";
-import { TICKS_CRON } from "../jobs/ticks";
+import { TICKS_CRON } from "../scheduled/ticks";
 import { lagosWeek } from "./week";
 
 /** city:boards-switch-when-and-who: runs on the five-minute cron only; answers how many rows it moved. */

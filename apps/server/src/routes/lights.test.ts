@@ -10,7 +10,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { call, testServer } from "../authority/authority.testing";
 import { productionConfig, testConfig } from "../config";
 import { LIGHTS_COUNTERS, LIVES_PLAYING, lightsOf, livesPlaying, roundToTen } from "../analytics/lights";
-import { livesJob } from "../jobs/lives";
+import { livesJob } from "../scheduled/lives";
 import { memoryLimiters } from "../limits/memory";
 import { fakeEdge } from "./cache.testing";
 

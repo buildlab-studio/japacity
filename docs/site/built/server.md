@@ -144,7 +144,7 @@ The Worker has two crons in production: every five minutes and daily at 00:00 UT
 | Daily, 00:00 UTC | Feedback, stand-in | Drops old feedback; turns on the stand-in for a pair's absent player ([people](../../rules/person.md)) |
 
 ::: info Staging's slower cron
-Staging ticks every thirty minutes so its database can sleep between runs. Its `TICK_CRON` var names that cron, and `jobCron` in `apps/server/src/jobs/ticks.ts` hands every five-minute job the five-minute cron when the deployment's own tick cron fires. The jobs run unchanged, only less often; the daily jobs stay at 00:00 UTC (server:production-and-staging).
+Staging ticks every thirty minutes so its database can sleep between runs. Its `TICK_CRON` var names that cron, and `jobCron` in `apps/server/src/scheduled/ticks.ts` hands every five-minute job the five-minute cron when the deployment's own tick cron fires. The jobs run unchanged, only less often; the daily jobs stay at 00:00 UTC (server:production-and-staging).
 :::
 
 ## The database

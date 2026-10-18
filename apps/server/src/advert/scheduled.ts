@@ -3,7 +3,7 @@
 import { int } from "@japacity/sim";
 
 import type { ServerDeps } from "../deps";
-import { TICKS_CRON } from "../jobs/ticks";
+import { TICKS_CRON } from "../scheduled/ticks";
 import type { Fetcher } from "./links";
 import { failingLinks } from "./links";
 import { pullCampaign } from "./review";

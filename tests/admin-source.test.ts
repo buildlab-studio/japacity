@@ -9,7 +9,7 @@ const OPS = join(REPO_ROOT, "apps/server/src/ops");
 
 function sources(): { file: string; text: string }[] {
   const files = readdirSync(OPS).filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"));
-  return [...files.map((name) => join(OPS, name)), join(REPO_ROOT, "apps/server/src/routes/admin/admin.ts"), join(REPO_ROOT, "apps/server/src/jobs/money.ts")].map((file) => ({ file, text: readFileSync(file, "utf8") }));
+  return [...files.map((name) => join(OPS, name)), join(REPO_ROOT, "apps/server/src/routes/admin/admin.ts"), join(REPO_ROOT, "apps/server/src/scheduled/money.ts")].map((file) => ({ file, text: readFileSync(file, "utf8") }));
 }
 
 describe("the admin tools' reach", () => {

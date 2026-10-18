@@ -6,7 +6,7 @@ import { describe, expect, test } from "vitest";
 import { testDeps } from "../app.testing";
 import { productionConfig, testConfig } from "../config";
 import type { ServerDeps } from "../deps";
-import { moneyJob } from "../jobs/money";
+import { moneyJob } from "../scheduled/money";
 import { activeOn } from "./active";
 import { ALARM_ROWS, listAlarms, noteDiverged } from "./alarm";
 import { createLife, life, playRows, storeWorlds } from "./ops.testing";

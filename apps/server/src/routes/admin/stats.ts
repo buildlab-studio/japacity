@@ -9,7 +9,7 @@ import { Hono } from "hono";
 
 import { buildStats, statsFrom } from "../../analytics/stats";
 import type { ServerDeps } from "../../deps";
-import { onlineAt } from "../../jobs/online";
+import { onlineAt } from "../../scheduled/online";
 import { adminOnly } from "./admin";
 import type { AdminEnv } from "./admin";
 
