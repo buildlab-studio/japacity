@@ -6,7 +6,7 @@ import type { AccountView } from "@japacity/api";
 import { content } from "@japacity/content";
 import type { Authority, Command, Content, Currency, Effect, Id, PlayerView, Rejection, Reply, ReportLine, FlatSave } from "@japacity/sim";
 import { newState, standInWorld, viewFor } from "@japacity/sim";
-import { applyEffects, flownAda, type Game, lifeSaves, setPockets, start } from "@japacity/sim/testing";
+import { applyEffects, flownAda, type Game, lifeSaves, replayedGame, setPockets, start } from "@japacity/sim/testing";
 
 const SCENARIOS = Object.keys(content.scenario) as Id<"scenario">[];
 
@@ -334,9 +334,8 @@ export function chargedLivingGame(scenario: Id<"scenario"> = "scenario.ada", see
  * go on from where it ends. `drop` leaves that many of its last commands unplayed.
  */
 export function recordedGame(name: string, drop = 0): Game {
-  const save = recordedSave(name);
-  const game = start({ scenario: save.scenario, seed: save.seed, worldSeed: save.worldSeed, content });
-  for (const { command, sender } of save.commands.slice(0, save.commands.length - drop)) game.accept(command, sender);
+  const { game, commands } = replayedGame(name, content);
+  for (const { command, sender } of commands.slice(0, commands.length - drop)) game.accept(command, sender);
   return game;
 }
 
